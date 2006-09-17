@@ -65,20 +65,13 @@ namespace Point{
 
     bool operator< (const Point<T> & p) const
     {
-	return manhattan_length() < p.manhattan_length();
+	return (x<p.x) || ((x==p.x)&&(y<p.y));
     }
 
     bool operator== (const Point<T> & p) const
     {
 	return (x==p.x)&&(y==p.y);
     }
-
-/*  Так было раньше...
-    bool operator< (const point& p) const
-    {
-	return (x<p.x) || ((x==p.x)&&(y<p.y));
-    }
-*/
 
   };
 

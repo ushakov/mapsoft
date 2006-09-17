@@ -3,24 +3,26 @@
 
 #include "point.h"
 
+namespace Point{
+
 template <typename T>
-class Rect<T> {
+class Rect {
 public:
 
     Point<T> TLC, BRC; // TLC -- минимум x и y
 
-    Rect (Point<T> p1, Point<t> p2)
+    Rect (Point<T> p1, Point<T> p2)
 	: TLC(p1), BRC(p2)
     { 
-	if (TLC.x<BRC.x) swap(TLC.x,BRC.x);
-	if (TLC.y<BRC.y) swap(TLC.y,BRC.y);
+	if (TLC.x>BRC.x) std::swap(TLC.x,BRC.x);
+	if (TLC.y>BRC.y) std::swap(TLC.y,BRC.y);
     }
 
     Rect (int x1, int y1, int x2, int y2)
 	: TLC(x1,y1), BRC(x2,y2)
     { 
-	if (TLC.x<BRC.x) swap(TLC.x,BRC.x);
-	if (TLC.y<BRC.y) swap(TLC.y,BRC.y);
+	if (TLC.x>BRC.x) std::swap(TLC.x,BRC.x);
+	if (TLC.y>BRC.y) std::swap(TLC.y,BRC.y);
     }
 
     Rect ()
@@ -75,5 +77,16 @@ Point<T> clip_point_to_rect (Point<T> p, const Rect<T> & r){
     return p;
 }
 
+template <typename T>
+std::ostream & operator<< (std::ostream & s, const Rect<T> & r)
+{
+  s << "Rect(" 
+    << r.TLC.x << "," << r.TLC.y
+    << " .. "
+    << r.BRC.x << "," << r.BRC.y 
+    << ")";
+  return s;
+}
 
+} //namespace
 #endif /* RECT_H */
