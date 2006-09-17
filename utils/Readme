@@ -6,6 +6,7 @@ point.h -- точка на плоскости (сложение/вычитание, умножение на число, сравнение
     viewer/pointrect.h
     srtm02/point.h
     io_new/geo_m.h  g_point
+    наверное, и вместо comparable_pair надо использовать Point...
 
 cache.h -- кэш
     пришло из viewer/cache.h
@@ -15,3 +16,10 @@ rect.h -- прямоугольники
 
 pointset.h -- работа с множествами точек, с границами
     пришло из srtm02/point.h
+пока не готово!!!
+
+color.h -- работа с цветами
+    То, что раньше находилось в 
+    image-gdk/image.h
+    srtm02/color.h
+пока не готово!!!

@@ -47,11 +47,12 @@ namespace Point{
 
 
 // Дальнейшее пока не работает...
+
   // построение границы множества точек
   template <typename Container1, typename Container2>
   Container1 border(const Container2 & pset){
     Container1 ret;
-    Container2 i, b=pset.begin(), e=pset.end();
+    Container2::iterator i, b=pset.begin(), e=pset.end();
     for (i=b;i!=e;i++){
       for (int d=0; d<8; d++)
         ret.insert(adj8(*i, d));
