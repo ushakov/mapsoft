@@ -30,31 +30,31 @@ namespace Point{
 	std::swap (y, other.y);
     }
 
-    Point & operator-= (Point const & t)
+    Point<T> & operator-= (Point const & t)
     {
 	x -= t.x;
 	y -= t.y;
 	return *this;
     }
 
-    Point & operator+= (Point const & t)
+    Point<T> & operator+= (Point const & t)
     {
 	x += t.x;
 	y += t.y;
 	return *this;
     }
 
-    Point & operator* (T k)
-    {
-	x *= k;
-	y *= k;
-	return *this;
-    }
-
-    Point & operator/ (T k)
+    Point<T> & operator/= (T k)
     {
 	x /= k;
 	y /= k;
+	return *this;
+    }
+
+    Point<T> & operator*= (T k)
+    {
+	x *= k;
+	y *= k;
 	return *this;
     }
 
