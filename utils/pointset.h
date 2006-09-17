@@ -45,6 +45,8 @@ namespace Point{
     } return -1;
   }
 
+
+// Дальнейшее пока не работает...
   // построение границы множества точек
   template <typename Container1, typename Container2>
   Container1 border(const Container2 & pset){
