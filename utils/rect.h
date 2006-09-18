@@ -84,9 +84,9 @@ template <typename T>
 std::ostream & operator<< (std::ostream & s, const Rect<T> & r)
 {
   s << "Rect(" 
-    << r.TLC.x << "," << r.TLC.y
-    << " .. "
-    << r.BRC.x << "," << r.BRC.y 
+    << r.BRC.x-r.TLC.x << "x" << r.BRC.y-r.TLC.y 
+    << "+" << r.TLC.x 
+    << "+" << r.TLC.y 
     << ")";
   return s;
 }
