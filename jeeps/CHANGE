@@ -1,0 +1,32 @@
+//slazav 02/01/2006
+
+gps.h -> gpsapp.c
+time_t gps_save_time;
+double gps_save_lat;
+double gps_save_lon;
+
+gpsprot.h -> gpsprot.c
+int32 gps_waypt_transfer;
+int32 gps_route_transfer;
+int32 gps_trk_transfer;
+int32 gps_prx_waypt_transfer;
+int32 gps_almanac_transfer;
+int32 gps_date_time_transfer;
+int32 gps_position_transfer;
+int32 gps_pvt_transfer;
+int32 gps_rte_type;
+int32 gps_waypt_type;
+int32 gps_rte_hdr_type;
+int32 gps_rte_link_type;
+int32 gps_trk_type;
+int32 gps_trk_hdr_type;
+int32 gps_prx_waypt_type;
+int32 gps_almanac_type;
+int32 gps_date_time_type;
+int32 gps_position_type;
+int32 gps_pvt_type;
+int32 gps_link_type;
+int32 gps_device_command;
+
+gpssend.h -> gpssend.c
+UC gps_sendbuf[GPS_ARB_LEN];

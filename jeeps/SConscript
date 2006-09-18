@@ -1,0 +1,8 @@
+Import ('env')
+le = env.Copy()
+sources = Split("""gpsapp.c gpscom.c gpsdatum.c gpsfmt.c gpsinput.c
+                   gpslibusb.c gpsmath.c gpsmem.c gpsproj.c gpsprot.c
+		   gpsread.c gpsrqst.c gpssend.c gpsserial.c gpsusbread.c
+		   gpsusbsend.c gpsusbstub.c gpsusbwin.c gpsutil.c util.c""")
+
+le.Library ('jeeps', sources)
