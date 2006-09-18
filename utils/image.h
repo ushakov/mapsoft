@@ -3,6 +3,12 @@
 
 #include "rect.h"
 
+// Картинка. 
+// Можно пользоваться или набором data0, w0, h0 (если хочется работать
+// с целыми картинками),
+// или набором data, w, h, d - если хочется обрезать картинки
+// (например, функцией clip_image_to_rect)
+
 template <typename T>
 struct Image{
 
@@ -52,6 +58,8 @@ struct Image{
     int w0,h0;
 };
 
+// пока мы не умеем читать из файла часть картинки и уменьшать ее
+// при чтении, нам будут полезны такие функции:
 
 template<typename T>
 void clip_image_to_rect(Image<T> & im, Point::Rect<int> r){
@@ -79,6 +87,7 @@ Image<T> fast_resize(const Image<T> & im, int scale){
   ret.data = ret.data0 + (im.data-im.data0)/scale;
   return ret;
 }
+
 
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Image<T> & i)
