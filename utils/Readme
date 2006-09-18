@@ -18,7 +18,7 @@ pointset.h -- работа с множествами точек, с границами
     пришло из srtm02/point.h
 пока не готово!!!
 
-color.h -- цвета
+color.h -- цвет 
     То, что раньше находилось в 
     image-gdk/image.h
     srtm02/color.h

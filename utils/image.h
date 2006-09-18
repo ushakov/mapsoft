@@ -84,7 +84,7 @@ Image<T> fast_resize(const Image<T> & im, int scale){
   ret.d = im.d/scale;
   ret.w = im.w/scale;
   ret.h = im.h/scale;
-  ret.data = ret.data0 + (im.data-im.data0)/scale;
+  ret.data = ret.data0 + (im.data-im.data0)/scale/scale;
   return ret;
 }
 
