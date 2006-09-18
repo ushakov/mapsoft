@@ -111,7 +111,6 @@ public:
 	usage.clear();
     }
 
-private:
     int capacity;
 
     std::vector<std::pair<K,V> > storage;
@@ -119,6 +118,7 @@ private:
     std::set<int> free_list;
     std::vector<int> usage;
 
+private:
 
     // index end is removed
     template <typename T>
@@ -147,5 +147,16 @@ private:
 	}
     }
 };
+
+template <typename K, typename V>
+std::ostream & operator<< (std::ostream & s, const Cache<K,V> & cache)
+{
+  s   << "Cache(\n";
+  for (int i=0; i<cache.storage.size(); i++){
+    s << "  " << cache.storage[i].first << " => " << cache.storage[i].second << "\n";
+  }
+  s << ")";
+  return s;
+}
 
 #endif /* CACHE_H */
