@@ -5,6 +5,8 @@
 #include "image.h"
 #include "rect.h"
 
+Point<int> image_size(std::string file);
+
 Image<RGB> load_image(std::string file, Rect<int> R, int scale = 1){
 }
 Image<RGB> load_image(std::string file, int scale = 1){

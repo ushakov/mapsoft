@@ -23,6 +23,9 @@ color.h -- цвет
     image-gdk/image.h
     srtm02/color.h
 
+rainbow.h -- радуга и пр. цветовые градиенты
+    из srtm02/color.h
+
 image.h -- картинка
 
 image_io.h -- чтение/запись картинок в файл

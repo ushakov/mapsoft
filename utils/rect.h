@@ -3,8 +3,6 @@
 
 #include "point.h"
 
-namespace Point{
-
 template <typename T>
 class Rect {
 public:
@@ -93,5 +91,4 @@ std::ostream & operator<< (std::ostream & s, const Rect<T> & r)
   return s;
 }
 
-} //namespace
 #endif /* RECT_H */

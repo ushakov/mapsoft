@@ -3,10 +3,10 @@
 
 #include "rect.h"
 
-// Картинка. 
+// Картинка с окном. 
 // Можно пользоваться или набором data0, w0, h0 (если хочется работать
 // с целыми картинками),
-// или набором data, w, h, d - если хочется обрезать картинки
+// или набором data, w, h, d/w0 - если хочется работать с окном
 // (например, функцией clip_image_to_rect)
 
 template <typename T>
@@ -19,6 +19,16 @@ struct Image{
       data = data0;
       std::cerr << "Image constructor " << (int)data0 << "  ";
       std::cerr << w0 << "x" << h0 << "\n";
+    }
+
+    Image(int _w, int _h, const T & fill){
+      w0=_w; h0=_h; 
+      w=_w; h=_h; d=0;
+      data0 = new T[w0*h0];
+      data = data0;
+      for (int i = 0; i<w0*h0;i++) data0[i]=fill; 
+      std::cerr << "Image constructor " << (int)data0 << "  ";
+      std::cerr << w0 << "x" << h0 << " fill with " << fill << "\n";
     }
 
     Image(const Image & i){
@@ -51,6 +61,21 @@ struct Image{
       return *this;
     }
 
+    Rect<int> clip_window(Rect<int> r){
+      clip_rect_to_rect(r, Rect<int>(0, 0, w0, h0));
+      data = data0 + r.TLC.y*w0 + r.TLC.x;
+      w = r.BRC.x-r.TLC.x;
+      h = r.BRC.y-r.TLC.y;
+      d = w0 - w;
+      return r;
+    }
+
+    Rect<int> expand_window(){
+      data=data0;
+      w=w0; h=h0; d=0;
+      return Rect<int>(0,0,w0,h0);
+    }
+
     T *data;
     int w,h,d;
 
@@ -59,16 +84,7 @@ struct Image{
 };
 
 // пока мы не умеем читать из файла часть картинки и уменьшать ее
-// при чтении, нам будут полезны такие функции:
-
-template<typename T>
-void clip_image_to_rect(Image<T> & im, Point::Rect<int> r){
-  clip_rect_to_rect(r, Point::Rect<int>(0, 0, im.w0, im.h0));
-  im.data = im.data0 + r.TLC.y*im.w0 + r.TLC.x;
-  im.w = r.BRC.x-r.TLC.x;
-  im.h = r.BRC.y-r.TLC.y;
-  im.d = im.w0 - im.w;
-}
+// при чтении, нам будут полезна такая функция:
 
 template<typename T>
 Image<T> fast_resize(const Image<T> & im, int scale){

@@ -1,7 +1,7 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-namespace Color{
+struct RGBA;
 
 struct RGB{
     unsigned char r,g,b;
@@ -20,6 +20,7 @@ struct RGB{
     operator int () const{
       return (int(r)<<24) + (int(g)<<16) + (int(b)<<8);
     }
+    operator RGBA () const;
 
 };
 
@@ -34,11 +35,14 @@ struct RGBA{
     RGBA(int c):
 	r((c>>24)&0xFF), g((c>>16)&0xFF), b((c>>8)&0xFF), a(c&0xFF) {}
 
-    RGBA(const RGB & c):
-	r(c.r), g(c.g), b(c.b), a(0) {}
+/*    RGBA(const RGB & c):
+	r(c.r), g(c.g), b(c.b), a(0) {}*/
 
     operator int () const{
       return (int(r)<<24) + (int(g)<<16) + (int(b)<<8) + a;
+    }
+    operator RGB () const{
+      return RGB(r,g,b);
     }
 
 };
@@ -62,5 +66,9 @@ std::ostream & operator<< (std::ostream & s, const RGBA & c)
   return s;
 }
 
-}//namespace
+//
+RGB::operator RGBA() const{
+    return RGBA(r,g,b,0);
+}
+
 #endif
