@@ -19,4 +19,9 @@ main(){
   std::cout << a1 << " " << a2 << " " << Color::RGBA((int)a1) << "\n";
 
   Image<Color::RGB> i1(100,100);
+  std::cout << i1 << "\n";
+  clip_image_to_rect(i1, Point::Rect<int>(10,10,120,80));
+  std::cout << i1 << "\n";
+  std::cout << fast_resize(i1,2) << "\n";
+  
 }

@@ -69,12 +69,17 @@ Rect<T> bounding_box (Rect<T> const & R1, Rect<T> const & R2){
 
 
 template <typename T>
-Point<T> clip_point_to_rect (Point<T> p, const Rect<T> & r){
+void clip_point_to_rect (Point<T> & p, const Rect<T> & r){
     p.x = std::max (r.TLC.x, p.x);
     p.x = std::min (r.BRC.x, p.x);
     p.y = std::max (r.TLC.y, p.y);
     p.y = std::min (r.BRC.y, p.y);
-    return p;
+}
+
+template <typename T>
+void clip_rect_to_rect (Rect<T> & r1, const Rect<T> & r2){
+    clip_point_to_rect(r1.TLC, r2);
+    clip_point_to_rect(r1.BRC, r2);
 }
 
 template <typename T>
