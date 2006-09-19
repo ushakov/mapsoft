@@ -1,5 +1,6 @@
 //#include "pointset.h"
 #include "rect.h"
+#include "pointset.h"
 #include "color.h"
 #include "cache.h"
 #include "image.h"

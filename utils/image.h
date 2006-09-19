@@ -3,65 +3,139 @@
 
 #include "rect.h"
 
-// Картинка с окном. 
-// Можно пользоваться или набором data0, w0, h0 (если хочется работать
-// с целыми картинками),
-// или набором data, w, h, w0 - если хочется работать с окном
+// Картинка с окном -- двумерный массив элементов произвольного типа. 
 
-// доступ к окну и ко всей картинке
-#define IMWIN(i,x,y) i.data[(y)*i.w0+(x)]
-#define IMAGE(i,x,y) i.data0[(y)*i.w0+(x)]
+// При присвоении и инициализации из другой картинки массив данных не копируется!
+// (устроен счетчик ссылок на массив, когда ссылок не остается - массив удаляется)
+
+// Копирование картинки и данных: image1 = copy(image2)
+
+// Доступ к точкам картинки: image.get(x,y),  image.set(x,y,c)
+// Доступ к точкам окна:     image.wget(x,y), image.wset(x,y,c)
+// В функциях доступа не проверяется выход за границы картинки!
+// Компилить с ключом -O1 (скорость возрастет раза в три)
+
+// Размер картинки: image.w0, image.h0
+// Размер окна:     image.w,  image.h
+
+// Получить, установить размеры окна:
+//   Rect<int> r = image.window_get();
+//   image.window_set(r);  // если прямоугольник вылезает за картинку - он правильно обрезается.
+// Установить окно во всю картинку:
+//   image.window_expand();
+
 
 template <typename T>
 struct Image{
 
     Image(int _w, int _h){
-      w0=w=_w; h0=h=_h; 
-      data0 = new T[w0*h0];
-      data = data0;
-      std::cerr << "Image constructor " << (int)data0 << "  ";
-      std::cerr << w0 << "x" << h0 << "\n";
+      w0=w=_w; 
+      h0=h=_h; 
+      data0 = data = new T[w0*h0];
+      refcounter   = new int;
+      *refcounter  = 1;
+      std::cerr << "Image create:" 
+                << " (" << w0 << "x" << h0 << ", "
+                << data0 << " - " << *refcounter << ")\n";
     }
 
     Image(int _w, int _h, const T & fill){
-      w0=w=_w; h0=h=_h; 
-      data0 = new T[w0*h0];
-      data = data0;
+      w0=w=_w; 
+      h0=h=_h; 
+      data0 = data = new T[w0*h0];
+      refcounter   = new int;
+      *refcounter  = 1;
+      std::cerr << "Image create:" 
+                << " (" << w0 << "x" << h0 << ", "
+                << data0 << " - " << *refcounter << ") "
+                << "filled with " << fill << "\n";
       for (int i = 0; i<w0*h0;i++) data0[i]=fill; 
-      std::cerr << "Image constructor " << (int)data0 << "  ";
-      std::cerr << w0 << "x" << h0 << " fill with " << fill << "\n";
     }
 
-    Image(const Image & i){
-      w0=i.w0; h0=i.h0; 
-      w=i.w; h=i.h;
-      data0 = new T[w0*h0];
-      data = data0 + (i.data-i.data0);
-      std::cerr << "Init from another image " << (int)data0 << "  ";
-      std::cerr << w0 << "x" << h0 << "\n";
-      memcpy(i.data0,data0,w0*h0);
+    Image(const Image & im){
+      w0=im.w0; h0=im.h0; 
+      w=im.w;   h=im.h;
+      data0 = im.data0;
+      data  = im.data;
+      refcounter = im.refcounter;
+      (*refcounter)++; 
+      if (*refcounter<=0) {
+	std::cerr << "Image: refcounter overflow ("<< *refcounter << ")!\n"; 
+	exit(0);
+      }
+      std::cerr << "Image init from other:" 
+                << " (" << w0 << "x" << h0 << ", "
+                << data0 << " - " << *refcounter << ")\n";
     }
 
     ~Image(){
-      std::cerr << "Image destructor " << (int)data0 << "  ";
-      std::cerr << w0 << "x" << h0 << "\n";
-      delete[] data0;
+      std::cerr << "Image destructor:" 
+                << " (" << w0 << "x" << h0 << ", "
+                << data0 << " - " << *refcounter << ")\n";
+      (*refcounter)--; 
+      if (*refcounter<=0){
+	delete[] data0; 
+	delete refcounter;
+        std::cerr << "[delete data array]\n";
+      }
     }
 
     Image & operator= (const Image & im){
-      delete[] data0;
-      std::cerr << "Image copy " << w0 << "x" << h0 << " <- " << im.w0 << "x" << im.h0 << "\n";
-      w0=im.w0;
-      h0=im.h0;
-      w=im.w;
-      h=im.h;
-      data0 = new T[w0*h0];
-      data = data0+(im.data-im.data0);
-      memcpy(im.data0,data0,w0*h0);
+      std::cerr << "Image assign. Old:" 
+                << " (" << w0 << "x" << h0 << ", "
+                << data0 << " - " << *refcounter << ")\n";
+
+      (*refcounter)--; 
+      if (*refcounter<=0){
+	delete[] data0; 
+	delete refcounter;
+        std::cerr << "Image: [delete data array]\n";
+      }
+
+      w0=im.w0;  h0=im.h0;
+      w=im.w;    h=im.h;
+      data0 = im.data0;
+      data  = im.data;
+      refcounter = im.refcounter;
+      (*refcounter)++; 
+      if (*refcounter<=0) {
+	std::cerr << "Image: refcounter overflow ("<< *refcounter << ")!\n"; 
+	exit(0);
+      }
+      std::cerr << "              New:" 
+                << " (" << w0 << "x" << h0 << ", "
+                << data0 << " - " << *refcounter << ")\n";
       return *this;
     }
 
-    Rect<int> clip_window(Rect<int> r){
+    Image copy(){
+      Image ret(*this);
+      ret.data0       = new T[w0*h0];
+      ret.refcounter  = new int;
+      *ret.refcounter = 1;
+      ret.data = ret.data0+(data-data0);
+      memcpy(data0,ret.data0,w0*h0);
+      std::cerr << "Image copy:" 
+                << " (" << w0 << "x" << h0 << ", "
+                << ret.data0 << " - " << *ret.refcounter << ")\n";
+      return ret;
+    }
+
+    inline T get(int x, int y){return data0[y*w0+x];}
+    inline T wget(int x, int y){return data[y*w0+x];}
+
+    inline void set(int x, int y, T c){data0[y*w0+x]=c;}
+    inline void wset(int x, int y, T c){data[y*w0+x]=c;}
+
+
+
+    Rect<int> window_get(){
+      int x = (data-data0)%w0;
+      int y = (data-data0)/w0;
+      return Rect<int>(x,y,x+w,y+h);
+    }
+
+    Rect<int> window_set(Rect<int> r){
       clip_rect_to_rect(r, Rect<int>(0, 0, w0, h0));
       data = data0 + r.TLC.y*w0 + r.TLC.x;
       w = r.BRC.x-r.TLC.x;
@@ -69,7 +143,7 @@ struct Image{
       return r;
     }
 
-    Rect<int> expand_window(){
+    Rect<int> window_expand(){
       data=data0;
       w=w0; h=h0;
       return Rect<int>(0,0,w0,h0);
@@ -80,6 +154,8 @@ struct Image{
 
     T *data0;
     int w0,h0;
+
+    int *refcounter;
 };
 
 // пока мы не умеем читать из файла часть картинки и уменьшать ее

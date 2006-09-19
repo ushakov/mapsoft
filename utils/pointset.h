@@ -43,31 +43,41 @@ int isadj4(Point<int> p1, Point<int> p2){
 }
 
 
-// Дальнейшее пока не работает...
-
-  // построение границы множества точек
-  template <typename Container1, typename Container2>
-  Container1 border(const Container2 & pset){
-    Container1 ret;
-    Container2::iterator i, b=pset.begin(), e=pset.end();
-    for (i=b;i!=e;i++){
-      for (int d=0; d<8; d++)
-        ret.insert(adj8(*i, d));
-    }
-    for (i=b;i!=e;i++){
-      ret.erase(*i);
-    }
-    return ret;
+// построение границы множества точек
+template <typename Container1, typename Container2>
+Container1 border(const Container2 & points){
+  Container1 ret;
+  typename Container2::iterator i;
+  for (i=points.begin();i!=points.end();i++){
+    for (int d=0; d<8; d++)
+      ret.insert(adj8(*i, d));
   }
+  for (i=points.begin();i!=points.end();i++){
+    ret.erase(*i);
+  }
+  return ret;
+}
+
+template <typename Container>
+std::ostream & operator<< (std::ostream & s, const Container<Point<> > & points){
+  s << "Points(\n";
+
+  typename Container::iterator i;
+  for (i=points.begin();i!=points.end();i++){
+    s << "  " << *i << "\n";
+  }
+
+  s << ")\n";
+}
 
 /*
 
   // центр множества точек
-  Point<int> center(const std::set<Point<int> >& pset);
+  Point<int> center(const std::set<Point<int> >& points);
 
-  // добавить точку в множество pset, соответствующим образом
+  // добавить точку в множество points, соответствующим образом
   // изменить его границу bord
   void add_pb(const Point<int>& p, std::list<Point<int> >& plist, std::set<Point<int> >& bord);
-  void add_pb(const Point<int>& p, std::set<Point<int> >& pset, std::set<Point<int> >& bord);
+  void add_pb(const Point<int>& p, std::set<Point<int> >& points, std::set<Point<int> >& bord);
 */
 #endif

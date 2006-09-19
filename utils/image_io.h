@@ -1,5 +1,5 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef IMAGE_IO_H
+#define IMAGE_IO_H
 
 #include <string>
 #include "image.h"
