@@ -8,7 +8,7 @@
 // При присвоении и инициализации из другой картинки массив данных не копируется!
 // (устроен счетчик ссылок на массив, когда ссылок не остается - массив удаляется)
 
-// Копирование картинки и данных: image1 = copy(image2)
+// Копирование картинки и данных: image1 = image.copy()
 
 // Доступ к точкам картинки: image.get(x,y),  image.set(x,y,c)
 // Доступ к точкам окна:     image.wget(x,y), image.wset(x,y,c)
@@ -33,6 +33,8 @@ struct Image{
       h0=h=_h; 
       data0 = data = new T[w0*h0];
       refcounter   = new int;
+      std::cerr << "[create data array]\n";
+
       *refcounter  = 1;
       std::cerr << "Image create:" 
                 << " (" << w0 << "x" << h0 << ", "
@@ -44,6 +46,7 @@ struct Image{
       h0=h=_h; 
       data0 = data = new T[w0*h0];
       refcounter   = new int;
+      std::cerr << "[create data array]\n";
       *refcounter  = 1;
       std::cerr << "Image create:" 
                 << " (" << w0 << "x" << h0 << ", "
@@ -109,9 +112,16 @@ struct Image{
     }
 
     Image copy(){
-      Image ret(*this);
+      Image ret(0,0);
+      delete ret.data0;
+      delete ret.refcounter;
+      std::cerr << "[delete data array]\n";
+
+      ret.w0=w0;  ret.h0=h0;
+      ret.w=w;    ret.h=h;
       ret.data0       = new T[w0*h0];
       ret.refcounter  = new int;
+      std::cerr << "[create data array]\n";
       *ret.refcounter = 1;
       ret.data = ret.data0+(data-data0);
       memcpy(data0,ret.data0,w0*h0);
