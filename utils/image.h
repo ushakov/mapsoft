@@ -84,6 +84,8 @@ struct Image{
     }
 
     Image & operator= (const Image & im){
+      if (&im == this) return *this;
+
       std::cerr << "Image assign. Old:" 
                 << " (" << w0 << "x" << h0 << ", "
                 << data0 << " - " << *refcounter << ")\n";
@@ -92,7 +94,7 @@ struct Image{
       if (*refcounter<=0){
 	delete[] data0; 
 	delete refcounter;
-        std::cerr << "Image: [delete data array]\n";
+        std::cerr << "[delete data array]\n";
       }
 
       w0=im.w0;  h0=im.h0;
@@ -112,19 +114,11 @@ struct Image{
     }
 
     Image copy(){
-      Image ret(0,0);
-      delete ret.data0;
-      delete ret.refcounter;
-      std::cerr << "[delete data array]\n";
-
-      ret.w0=w0;  ret.h0=h0;
-      ret.w=w;    ret.h=h;
-      ret.data0       = new T[w0*h0];
-      ret.refcounter  = new int;
-      std::cerr << "[create data array]\n";
-      *ret.refcounter = 1;
+      Image ret(w0,h0);
+      ret.w=w;    
+      ret.h=h;
       ret.data = ret.data0+(data-data0);
-      memcpy(data0,ret.data0,w0*h0);
+      for (int i=0;i<w0*h0;i++) ret.data0[i]=data0[i];
       std::cerr << "Image copy:" 
                 << " (" << w0 << "x" << h0 << ", "
                 << ret.data0 << " - " << *ret.refcounter << ")\n";
