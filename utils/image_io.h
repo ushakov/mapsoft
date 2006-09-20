@@ -7,23 +7,16 @@
 
 Point<int> image_size(std::string file);
 
-Image<RGB> load_image(std::string file, Rect<int> R, int scale = 1){
-}
-Image<RGB> load_image(std::string file, int scale = 1){
-}
+Image<RGB> image_load_RGB(std::string file, Rect<int> R, int scale = 1);
+Image<RGB> image_load_RGB(std::string file, int scale = 1);
 
-Image<RGBA> load_image_with_alpha(std::string file, Rect<int> R, int scale = 1){
-}
-Image<RGBA> load_image_with_alpha(std::string file, int scale = 1){
-}
+Image<RGBA> image_load_RGBA(std::string file, Rect<int> R, int scale = 1);
+Image<RGBA> image_load_RGBA(std::string file, int scale = 1);
 
-int save_image(std::string file, Image<RGB> im, Rect<int> R){
-}
-int save_image(std::string file, Image<RGB> im){
-}
-int save_image(std::string file, Image<RGBA> im, Rect<int> R){
-}
-int save_image(std::string file, Image<RGBA> im){
-}
+int image_save_window(std::string file, Image<RGB> im);
+int image_save(std::string file, Image<RGB> im);
+
+int image_save_window(std::string file, Image<RGBA> im);
+int image_save(std::string file, Image<RGBA> im);
 
 #endif

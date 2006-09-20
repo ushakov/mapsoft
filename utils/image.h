@@ -125,8 +125,8 @@ struct Image{
       return ret;
     }
 
-    inline T get(int x, int y){return data0[y*w0+x];}
-    inline T wget(int x, int y){return data[y*w0+x];}
+    inline T get(int x, int y) const {return data0[y*w0+x];}
+    inline T wget(int x, int y) const {return data[y*w0+x];}
 
     inline void set(int x, int y, T c){data0[y*w0+x]=c;}
     inline void wset(int x, int y, T c){data[y*w0+x]=c;}
