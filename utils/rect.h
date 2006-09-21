@@ -1,10 +1,13 @@
 #ifndef RECT_H
 #define RECT_H
 
+#include <boost/operators.hpp>
 #include "point.h"
 
 template <typename T>
-class Rect {
+class Rect     
+    : public boost::multiplicative<Point<T>,T>
+{
 public:
 
     Point<T> TLC, BRC; // TLC -- минимум x и y
@@ -39,6 +42,20 @@ public:
 
     T height() const {
 	return BRC.y-TLC.y;
+    }
+
+    Rect<T> & operator/= (T k)
+    {
+        TLC /= k;
+        BRC /= k;
+        return *this;
+    }
+
+    Rect<T> & operator*= (T k)
+    {
+        TLC *= k;
+        BRC *= k;
+        return *this;
     }
 
 };

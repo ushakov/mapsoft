@@ -83,8 +83,12 @@ Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
       int sy  = j*s1;
       int syo = (j-1)*s1;
 
-      if (((sy==0)||(syo>dy)||(sy<dy)) &&
-          (sy!=dy)&&(j!=h1-1)) continue;
+      // строчка не нужна уз-за уменьшения:
+      if ((dy<syo)||(dy>sy)&&(sy!=dy)&&(j!=h1-1)) continue;
+
+      // строчка не нужна из-за вырезания куска картинки
+      if (dy<R.TLC.y) {dstrow++; continue;}
+      if (dy>=R.BRC.y) {break;}
 
       int dstcol=0;
       int c;
@@ -96,8 +100,7 @@ Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
         int sx  = i*s1;
         int sxo = (i-1)*s1;
 
-        if (((sy==0)||(syo>dy)||(sy<dy)) &&
-            (sy!=dy)&&(j!=w1-1)) continue;
+        if ((dx<sxo)||(dx>sx)&&(sx!=dx)&&(i!=w1-1)) continue;
 
 	int x = dstcol - R.TLC.x/scale;
 	int y = dstrow - R.TLC.y/scale;
