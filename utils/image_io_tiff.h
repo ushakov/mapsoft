@@ -56,7 +56,12 @@ Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
     TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rows_per_strip);
     int step=1;
     if ((compression_type==1)||(rows_per_strip==1)) step=scale;
-	
+    else{
+	//пропустим первые строчки
+	for (int row = 0; row < R.TLC.y; row++)
+        TIFFReadScanline(tif, cbuf, row);
+    }
+
     for (int row = R.TLC.y; row < R.BRC.y; row+=step){
         TIFFReadScanline(tif, cbuf, row);
 	if ((row-R.TLC.y)%scale!=0) continue;
