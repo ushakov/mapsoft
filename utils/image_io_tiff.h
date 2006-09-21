@@ -13,6 +13,7 @@
 
 namespace tiff_image{
 
+// getting file dimensions
 Point<int> size(std::string file){
     TIFF* tif = TIFFOpen(file.c_str(), "r");
 
@@ -25,6 +26,7 @@ Point<int> size(std::string file){
     return Point<int>(w,h);
 }
 
+// load part of image
 Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
     TIFF* tif = TIFFOpen(file.c_str(), "r");
     
@@ -34,6 +36,8 @@ Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
 
     TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
     TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
+
+    if (scale <1) scale=1;
 
     clip_rect_to_rect(R, Rect<int>(0,0,w,h));
     Image<int> ret((R.width()-1)/scale+1, (R.height()-1)/scale+1);
@@ -71,20 +75,22 @@ Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
     return ret;
 }
 
+// load the whole image
 Image<int> load(const std::string & file, int scale=1){
   Point<int> s = size(file);
   return load(file, Rect<int>(0,0,s.x,s.y), scale);
 }
 
-int save(const std::string & file, const Image<int> & im, bool usealpha = false){
+// save window of image
+int wsave(const std::string & file, const Image<int> & im, bool usealpha = false){
     TIFF* tif = TIFFOpen(file.c_str(), "w");
 
     if (!tif) return 1;
     int bpp = usealpha?4:3;
     int scan = bpp*im.w;
 
-    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, im.w0);
-    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, im.h0);
+    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, im.w);
+    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, im.h);
     TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, bpp);
     TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE,   8);
     TIFFSetField(tif, TIFFTAG_PLANARCONFIG,    1);
@@ -102,7 +108,7 @@ int save(const std::string & file, const Image<int> & im, bool usealpha = false)
 
     for (int row = 0; row < im.h; row++){
       for (int col = 0; col < im.w; col++){
-	int c = im.get(col,row);
+	int c = im.wget(col,row);
 	if (bpp==3){ // RGB
     	    cbuf[3*col]   = (c >> 24) & 0xFF;
     	    cbuf[3*col+1] = (c >> 16) & 0xFF;
@@ -119,6 +125,14 @@ int save(const std::string & file, const Image<int> & im, bool usealpha = false)
     }
     _TIFFfree(buf);
     TIFFClose(tif);
+    return 0;
+}
+
+// save the whole image
+int save(const std::string & file, const Image<int> & im, bool usealpha = false){
+  Image<int> im1 = im;
+  im1.window_expand();
+  return wsave(file, im1, usealpha);
 }
 
 } // namespace
