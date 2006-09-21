@@ -1,5 +1,5 @@
-#ifndef IMAGE_IO_TIF_H
-#define IMAGE_IO_TIF_H
+#ifndef IMAGE_IO_TIFF_H
+#define IMAGE_IO_TIFF_H
 
 #include <string>
 #include <cassert>
@@ -41,6 +41,8 @@ Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
 
     clip_rect_to_rect(R, Rect<int>(0,0,w,h));
     Image<int> ret((R.width()-1)/scale+1, (R.height()-1)/scale+1);
+    // координата крайней точки: (col-R.TLC.x)/scale = (w-1)/scale
+
 
     int scan = TIFFScanlineSize(tif);
     int bpp = scan/w;

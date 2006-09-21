@@ -1,5 +1,5 @@
-#ifndef IMAGE_IO_TIF_H
-#define IMAGE_IO_TIF_H
+#ifndef IMAGE_IO_JPEG_H
+#define IMAGE_IO_JPEG_H
 
 #include <string>
 #include <cassert>
@@ -9,21 +9,21 @@
 #include "point.h"
 #include "color.h"
 
-#include <jpeg.h>
+#include <jpeglib.h>
 
 namespace jpeg_image{
 
 // getting file dimensions
 Point<int> size(std::string file){
-    struct jpeg_compress_struct cinfo;
+    struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
     cinfo.err = jpeg_std_error(&jerr);
-    jpeg_create_compress(&cinfo);
+    jpeg_create_decompress(&cinfo);
 
     FILE * infile;
 
     if ((infile = fopen(file.c_str(), "rb")) == NULL) {
-        std::cerr << "can't open " << filename << "\n";
+        std::cerr << "can't open " << file << "\n";
         return Point<int>(0,0);
     }
     jpeg_stdio_src(&cinfo, infile);
@@ -37,15 +37,15 @@ Point<int> size(std::string file){
 // load part of image
 Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
 
-    struct jpeg_compress_struct cinfo;
+    struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
     cinfo.err = jpeg_std_error(&jerr);
-    jpeg_create_compress(&cinfo);
+    jpeg_create_decompress(&cinfo);
 
     FILE * infile;
 
     if ((infile = fopen(file.c_str(), "rb")) == NULL) {
-        std::cerr << "can't open " << filename << "\n";
+        std::cerr << "can't open " << file << "\n";
         return Image<int>(0,0);
     }
 
@@ -63,61 +63,56 @@ Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
     else if (scale <8) cinfo.scale_denom = 4;
     else cinfo.scale_denom = 8;   
 
-    jpeg_start_decompress(&cinfo);
 
-    int w1 = cinfo.image_width;
-    int h1 = cinfo.image_height;
     int s1 = cinfo.scale_denom;
+    int w1 = w/s1;
+    int h1 = h/s1;
+
+    jpeg_start_decompress(&cinfo);
     // здесь размеры уже с учетом scale_denom!
 
     clip_rect_to_rect(R, Rect<int>(0,0,w,h));
     Image<int> ret((R.width()-1)/scale+1, (R.height()-1)/scale+1);
 
-    char *buf  = new char[cinfo.image_width]; 
-
+    char *buf1  = new char[w1*3]; 
+    int dstrow=0;
     for (int j = 0; j<h1; j++){
-      jpeg_read_scanlines(&cinfo, &buf, 1); // **char !
-      if (j%(h/scale) ///!!!
-      for (int i = 0; i<cinfo.image_width; i++){
+      jpeg_read_scanlines(&cinfo, (JSAMPLE**)&buf1, 1);
+
+      int dy = dstrow*scale;
+      int sy  = j*s1;
+      int syo = (j-1)*s1;
+
+      if (((sy==0)||(syo>dy)||(sy<dy)) &&
+          (sy!=dy)&&(j!=h1-1)) continue;
+
+      int dstcol=0;
+      int c;
+
+      for (int i = 0; i<w1; i++){
+
+        c = (buf1[3*i]<<24) + (buf1[3*i+1]<<16) + (buf1[3*i+2]<<8);
+        int dx = dstcol*scale;
+        int sx  = i*s1;
+        int sxo = (i-1)*s1;
+
+        if (((sy==0)||(syo>dy)||(sy<dy)) &&
+            (sy!=dy)&&(j!=w1-1)) continue;
+
+	int x = dstcol - R.TLC.x/scale;
+	int y = dstrow - R.TLC.y/scale;
+        if ((x >= 0)&&(x < ret.w0 )&&
+            (y >= 0)&&(y < ret.h0 ))
+	  ret.set(x,y,c);
+	dstcol++;
       }
+      dstrow++;
     }
-    delete [] buf;
-    jpeg_finish_decompress(&cinfo);
+
+    delete [] buf1;
+    jpeg_abort_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
-
-/////////////
-
-
-    int scan = TIFFScanlineSize(tif);
-    int bpp = scan/w;
-
-    char *cbuf = (char *)_TIFFmalloc(scan);
-
-    // Мы можем устроить произвольный доступ к строчкам,
-    // если tiff без сжатия или если каждая строчка запакована отдельно.
-    int compression_type, rows_per_strip;
-    TIFFGetField(tif, TIFFTAG_COMPRESSION,  &compression_type);
-    TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rows_per_strip);
-    int step=1;
-    if ((compression_type==1)||(rows_per_strip==1)) step=scale;
-	
-    for (int row = R.TLC.y; row < R.BRC.y; row+=step){
-        TIFFReadScanline(tif, cbuf, row);
-	if ((row-R.TLC.y)%scale!=0) continue;
-	for (int col = R.TLC.x; col < R.BRC.x; col+=scale){
-	    if (bpp==3) // RGB
- 		  ret.set((col-R.TLC.x)/scale, (row-R.TLC.y)/scale, 
-			  (int)RGB(cbuf[3*col], cbuf[3*col+1], cbuf[3*col+2]));
-	    else if (bpp==4) // RGBA
- 	          ret.set((col-R.TLC.x)/scale, (row-R.TLC.y)/scale, 
-			  (int)RGBA(cbuf[4*col], cbuf[4*col+1], cbuf[4*col+2], cbuf[4*col+3]));
-	    else if (bpp==1) // G
- 	          ret.set((col-R.TLC.x)/scale, (row-R.TLC.y)/scale,
-			  (int)RGB(cbuf[col], cbuf[col], cbuf[col]));
-    	}
-    }
-    _TIFFfree(cbuf);
-    TIFFClose(tif);
+    fclose(infile);
     return ret;
 }
 
@@ -127,6 +122,7 @@ Image<int> load(const std::string & file, int scale=1){
   return load(file, Rect<int>(0,0,s.x,s.y), scale);
 }
 
+/*
 // save window of image
 int wsave(const std::string & file, const Image<int> & im, int quality=75){
 
@@ -135,10 +131,10 @@ int wsave(const std::string & file, const Image<int> & im, int quality=75){
             return 0;
         }
 
-        struct jpeg_decompress_struct cinfo;
+        struct jpeg_compress_struct cinfo;
         struct jpeg_error_mgr jerr;
         cinfo.err = jpeg_std_error(&jerr);
-        jpeg_create_decompress(&cinfo);
+        jpeg_create_compress(&cinfo);
 
         FILE * outfile;
         if ((outfile = fopen(file.c_str(), "wb")) == NULL) {
@@ -155,7 +151,7 @@ int wsave(const std::string & file, const Image<int> & im, int quality=75){
 	jpeg_set_quality (&cinfo, quality, true);
         jpeg_start_compress(&cinfo, TRUE);
 
-        JSAMPROW row_pointer[1];        /* pointer to a single row */
+        JSAMPROW row_pointer[1];        // pointer to a single row
 
         while (cinfo.next_scanline < cinfo.image_height) {
             row_pointer[0] = & image_buffer[cinfo.next_scanline * im.w * 3];
@@ -164,7 +160,8 @@ int wsave(const std::string & file, const Image<int> & im, int quality=75){
 
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
-
+    fclose(infile);
+//////
 
     tdata_t buf = _TIFFmalloc(scan);
     char *cbuf = (char *)buf;
@@ -188,6 +185,7 @@ int wsave(const std::string & file, const Image<int> & im, int quality=75){
     }
     _TIFFfree(buf);
     TIFFClose(tif);
+    fclose(infile);
 }
 
 // save the whole image
@@ -195,7 +193,7 @@ int save(const std::string & file, const Image<int> & im, int quality=75){
   Image<int> im1 = im;
   im1.window_expand();
   return wsave(file, im1, quality);
-}
+}*/
 
 } // namespace
 #endif

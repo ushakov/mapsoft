@@ -1,2 +1,2 @@
-CPPFLAGS = -O1 -ltiff
+CPPFLAGS = -O1 -ltiff -ljpeg
 all: tiff_test
