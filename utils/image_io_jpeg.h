@@ -1,13 +1,9 @@
 #ifndef IMAGE_IO_JPEG_H
 #define IMAGE_IO_JPEG_H
 
-#include <string>
-#include <cassert>
-
 #include "image.h"
 #include "rect.h"
 #include "point.h"
-#include "color.h"
 
 #include <jpeglib.h>
 
