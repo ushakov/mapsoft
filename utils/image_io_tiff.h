@@ -26,67 +26,84 @@ Point<int> size(std::string file){
     return Point<int>(w,h);
 }
 
-// load part of image
-Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
-    TIFF* tif = TIFFOpen(file.c_str(), "r");
-    
-    if (!tif) return Image<int>(0,0);
+// loading from Rect in jpeg-file to Rect in image
+int load(char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
 
-    int w,h;
+    TIFF* tif = TIFFOpen(file, "r");
+    if (!tif) return 1;
 
-    TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
-    TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
+    int tiff_w, tiff_h;
 
-    if (scale <1) scale=1;
+    TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &tiff_w);
+    TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &tiff_h);
 
-    clip_rect_to_rect(R, Rect<int>(0,0,w,h));
-    Image<int> ret((R.width()-1)/scale+1, (R.height()-1)/scale+1);
-    // координата крайней точки: (col-R.TLC.x)/scale = (w-1)/scale
+    // если на входе пустой прямоугольник - растянем его до максимума
+    if (src_rect.empty()) src_rect = Rect<int>(0,0,tiff_w,tiff_h);
+    if (dst_rect.empty()) dst_rect = Rect<int>(0,0,image.w,image.h);
 
+    // подрежем прямоугольники
+    clip_rect_to_rect(src_rect, Rect<int>(0,0,tiff_w,tiff_h));
+    clip_rect_to_rect(dst_rect, Rect<int>(0,0,image.w,image.h));
 
     int scan = TIFFScanlineSize(tif);
-    int bpp = scan/w;
+    int bpp = scan/tiff_w;
 
     char *cbuf = (char *)_TIFFmalloc(scan);
 
     // Мы можем устроить произвольный доступ к строчкам,
     // если tiff без сжатия или если каждая строчка запакована отдельно.
+    bool can_skip_lines = false;
+
     int compression_type, rows_per_strip;
     TIFFGetField(tif, TIFFTAG_COMPRESSION,  &compression_type);
     TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rows_per_strip);
-    int step=1;
-    if ((compression_type==1)||(rows_per_strip==1)) step=scale;
-    else{
-	//пропустим первые строчки
-	for (int row = 0; row < R.TLC.y; row++)
-        TIFFReadScanline(tif, cbuf, row);
+    if ((compression_type==1)||(rows_per_strip==1)) can_skip_lines = true;
+
+
+    int src_y = 0;
+    for (int dst_y = dst_rect.TLC.y; dst_y<dst_rect.BRC.y; dst_y++){
+      // откуда мы хотим взять строчку
+      int src_y1 = src_rect.TLC.y + ((dst_y-dst_rect.TLC.y)*src_rect.height())/dst_rect.height();
+      // при таком делении может выйти  src_y1 = src_rect.BRC.y, что плохо!
+      if (src_y1 == src_rect.BRC.y) src_y1--;
+      // пропустим нужное число строк:
+      if (!can_skip_lines){
+        while (src_y<src_y1){
+	  TIFFReadScanline(tif, cbuf, src_y);
+          src_y++;
+        }
+      } else {src_y=src_y1;}
+      TIFFReadScanline(tif, cbuf, src_y);
+
+      // теперь мы находимся на нужной строке
+      for (int dst_x = dst_rect.TLC.x; dst_x<dst_rect.BRC.x; dst_x++){
+        int src_x = src_rect.TLC.x + ((dst_x-dst_rect.TLC.x)*src_rect.width())/dst_rect.width();
+        if (src_x == src_rect.BRC.x) src_x--;
+	if (bpp==3) // RGB
+ 	      image.set(dst_x, dst_y, 
+		    (cbuf[3*src_x]<<24) + (cbuf[3*src_x+1]<<16) + (cbuf[3*src_x+2]<<8));
+	else if (bpp==4) // RGBA
+ 	      image.set(dst_x, dst_y, 
+		    (cbuf[4*src_x]<<24) + (cbuf[4*src_x+1]<<16) + (cbuf[4*src_x+2]<<8) + cbuf[4*src_x+3]);
+	else if (bpp==1) // G
+ 	      image.set(dst_x, dst_y, (cbuf[src_x]<<24) + (cbuf[src_x]<<16) + (cbuf[src_x]<<8));
+      }
     }
 
-    for (int row = R.TLC.y; row < R.BRC.y; row+=step){
-        TIFFReadScanline(tif, cbuf, row);
-	if ((row-R.TLC.y)%scale!=0) continue;
-	for (int col = R.TLC.x; col < R.BRC.x; col+=scale){
-	    if (bpp==3) // RGB
- 		  ret.set((col-R.TLC.x)/scale, (row-R.TLC.y)/scale, 
-			  (int)RGB(cbuf[3*col], cbuf[3*col+1], cbuf[3*col+2]));
-	    else if (bpp==4) // RGBA
- 	          ret.set((col-R.TLC.x)/scale, (row-R.TLC.y)/scale, 
-			  (int)RGBA(cbuf[4*col], cbuf[4*col+1], cbuf[4*col+2], cbuf[4*col+3]));
-	    else if (bpp==1) // G
- 	          ret.set((col-R.TLC.x)/scale, (row-R.TLC.y)/scale,
-			  (int)RGB(cbuf[col], cbuf[col], cbuf[col]));
-    	}
-    }
     _TIFFfree(cbuf);
     TIFFClose(tif);
-    return ret;
+    return 0;
 }
 
+
+
+
+/*
 // load the whole image
 Image<int> load(const std::string & file, int scale=1){
   Point<int> s = size(file);
   return load(file, Rect<int>(0,0,s.x,s.y), scale);
-}
+}*/
 
 // save window of image
 int wsave(const std::string & file, const Image<int> & im, bool usealpha = false){

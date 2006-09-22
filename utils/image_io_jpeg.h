@@ -34,9 +34,10 @@ Point<int> size(std::string file){
     return p;
 }
 
-// load part of image
-Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
+// loading from Rect in jpeg-file to Rect in image
+int load(char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
 
+    // откроем файл, получим размеры:
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
     cinfo.err = jpeg_std_error(&jerr);
@@ -44,87 +45,81 @@ Image<int> load(const std::string & file, Rect<int> R, int scale = 1){
 
     FILE * infile;
 
-    if ((infile = fopen(file.c_str(), "rb")) == NULL) {
+    if ((infile = fopen(file, "rb")) == NULL) {
         std::cerr << "can't open " << file << "\n";
-        return Image<int>(0,0);
+        return 1;
     }
 
     jpeg_stdio_src(&cinfo, infile);
     jpeg_read_header(&cinfo, TRUE);
 
-    int w = cinfo.image_width;
-    int h = cinfo.image_height;
+    // тут еще нужна проверка на то, что файл не JPEG
 
+    int jpeg_w = cinfo.image_width;
+    int jpeg_h = cinfo.image_height;
     cinfo.out_color_space = JCS_RGB; // Даже если grayscale
-    // поддерживается уменьшение в 1,2,4,8 раз
-    if (scale <1) scale=1;
+
+    // если на входе пустой прямоугольник - растянем его до максимума
+    if (src_rect.empty()) src_rect = Rect<int>(0,0,jpeg_w,jpeg_h);
+    if (dst_rect.empty()) dst_rect = Rect<int>(0,0,image.w,image.h);
+
+    // подрежем прямоугольники
+    clip_rect_to_rect(src_rect, Rect<int>(0,0,jpeg_w,jpeg_h));
+    clip_rect_to_rect(dst_rect, Rect<int>(0,0,image.w,image.h));
+    
+    // посмотрим, можно ли загружать сразу уменьшенный jpeg
+    // (поддерживается уменьшение в 1,2,4,8 раз)
+    int xscale = src_rect.width()  / dst_rect.width();
+    int yscale = src_rect.height() / dst_rect.height();
+    int scale = std::min(xscale, yscale);
+
     if (scale <2) cinfo.scale_denom = 1;
     else if (scale <4) cinfo.scale_denom = 2;
     else if (scale <8) cinfo.scale_denom = 4;
     else cinfo.scale_denom = 8;   
 
-
-    int s1 = cinfo.scale_denom;
-    int w1 = w/s1;
-    int h1 = h/s1;
+    src_rect /= cinfo.scale_denom;
+    jpeg_w /= cinfo.scale_denom;
+    jpeg_h /= cinfo.scale_denom;
 
     jpeg_start_decompress(&cinfo);
-    // здесь размеры уже с учетом scale_denom!
 
-    clip_rect_to_rect(R, Rect<int>(0,0,w,h));
-    Image<int> ret((R.width()-1)/scale+1, (R.height()-1)/scale+1);
+    char *buf1  = new char[jpeg_w * 3]; 
 
-    char *buf1  = new char[w1*3]; 
-    int dstrow=0;
-    for (int j = 0; j<h1; j++){
-      jpeg_read_scanlines(&cinfo, (JSAMPLE**)&buf1, 1);
-
-      int dy = dstrow*scale;
-      int sy  = j*s1;
-      int syo = (j-1)*s1;
-
-      // строчка не нужна уз-за уменьшения:
-      if ((dy<syo)||(dy>sy)&&(sy!=dy)&&(j!=h1-1)) continue;
-
-      // строчка не нужна из-за вырезания куска картинки
-      if (dy<R.TLC.y) {dstrow++; continue;}
-      if (dy>=R.BRC.y) {break;}
-
-      int dstcol=0;
-      int c;
-
-      for (int i = 0; i<w1; i++){
-
-        c = (buf1[3*i]<<24) + (buf1[3*i+1]<<16) + (buf1[3*i+2]<<8);
-        int dx = dstcol*scale;
-        int sx  = i*s1;
-        int sxo = (i-1)*s1;
-
-        if ((dx<sxo)||(dx>sx)&&(sx!=dx)&&(i!=w1-1)) continue;
-
-	int x = dstcol - R.TLC.x/scale;
-	int y = dstrow - R.TLC.y/scale;
-        if ((x >= 0)&&(x < ret.w0 )&&
-            (y >= 0)&&(y < ret.h0 ))
-	  ret.set(x,y,c);
-	dstcol++;
+    int src_y = 0;
+    for (int dst_y = dst_rect.TLC.y; dst_y<dst_rect.BRC.y; dst_y++){
+      // откуда мы хотим взять строчку
+      int src_y1 = src_rect.TLC.y + ((dst_y-dst_rect.TLC.y)*src_rect.height())/dst_rect.height();
+      // при таком делении может выйти  src_y1 = src_rect.BRC.y, что плохо!
+      if (src_y1 == src_rect.BRC.y) src_y1--;
+      // пропустим нужное число строк:
+      while (src_y<=src_y1){ 
+	jpeg_read_scanlines(&cinfo, (JSAMPLE**)&buf1, 1);
+	src_y++;
       }
-      dstrow++;
+      // теперь мы находимся на нужной строке
+      for (int dst_x = dst_rect.TLC.x; dst_x<dst_rect.BRC.x; dst_x++){
+        int src_x = src_rect.TLC.x + ((dst_x-dst_rect.TLC.x)*src_rect.width())/dst_rect.width();
+        if (src_x == src_rect.BRC.x) src_x--;
+	image.set(dst_x, dst_y, 
+	    (buf1[3*src_x]<<24) + (buf1[3*src_x+1]<<16) + (buf1[3*src_x+2]<<8));
+      }
     }
 
     delete [] buf1;
     jpeg_abort_decompress(&cinfo);
     jpeg_destroy_decompress(&cinfo);
     fclose(infile);
-    return ret;
+    return 0;
 }
 
+/*
 // load the whole image
 Image<int> load(const std::string & file, int scale=1){
   Point<int> s = size(file);
   return load(file, Rect<int>(0,0,s.x,s.y), scale);
 }
-
+*/
 /*
 // save window of image
 int wsave(const std::string & file, const Image<int> & im, int quality=75){

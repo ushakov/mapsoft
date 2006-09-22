@@ -7,9 +7,10 @@
 main(){
 //  Image<int> i = tiff_image::load("im4.tif", Rect<int>(0,0,180,130), 8);
 //  Image<int> i = jpeg_image::load("/d2/1km-kar/1-Prjazha_Svjatozero.jpg", 8);
-  Image<int> i = jpeg_image::load("/d2/1km-kar/1-Prjazha_Svjatozero.jpg", Rect<int>(200,200,800,800), 5);
+  Image<int> i(1000,1000);
+  tiff_image::load("im_5.tif", Rect<int>(0,0,0,0), i, Rect<int>(50,550,550,50));
   std::cerr << i << "\n";
-  tiff_image::save("im_5.tif", i, false);
+  tiff_image::save("im_6.tif", i, false);
 }
 
 
