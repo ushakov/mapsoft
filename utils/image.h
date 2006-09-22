@@ -97,6 +97,7 @@ struct Image{
         std::cerr << "[delete data array]\n";
       }
 
+
       w=im.w;    h=im.h;
       ww=im.ww;  wh=im.wh;
       data   = im.data;
@@ -124,6 +125,11 @@ struct Image{
                 << ret.data << " - " << *ret.refcounter << ")\n";
       return ret;
     }
+
+    bool empty() const{
+      return (w<=0)||(h<=0);
+    } 
+
 
     inline T get(int x, int y) const {return data[y*w+x];}
     inline T wget(int x, int y) const {return wdata[y*w+x];}

@@ -9,7 +9,7 @@ main(){
   // в таком диапазоне (lon1,lat1,lon2,lat2)
   Rect<double> dst_rect(37, 55.5, 38, 56);
   // делаем картинку, причем уменьшаем ее в 4 раза, иначе она будет совсем большой
-  Image<int> i = google::load_image("/home/sla/GOOGLE/", zoom, google::latlon2xy(zoom, dst_rect), 4);
+  Image<int> i = google::load_image("/home/sla/GOOGLE/", zoom, dst_rect, 4);
   // сохраняем в jpeg
   jpeg_image::save("im_5.jpg", i, 75);
 }
