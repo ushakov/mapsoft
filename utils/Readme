@@ -43,5 +43,13 @@ image_io.h -- чтение/запись картинок в файл
 пока не готово!!!
 
 image_io_tiff.h -- чтение/запись tiff-файлов
-    все работает!
-    см. ../tests/tiff/
+  int tiff_image::load(char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect);
+
+
+TODO
+ - сохранение jpeg
+ - чтение/запись png
+ - чтение hgt
+ - google.h, srtm.h
+ - гео-преобразования
+ 

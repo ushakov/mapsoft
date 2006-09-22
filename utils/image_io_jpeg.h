@@ -14,7 +14,7 @@
 namespace jpeg_image{
 
 // getting file dimensions
-Point<int> size(std::string file){
+Point<int> size(const char *file){
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
     cinfo.err = jpeg_std_error(&jerr);
@@ -22,7 +22,7 @@ Point<int> size(std::string file){
 
     FILE * infile;
 
-    if ((infile = fopen(file.c_str(), "rb")) == NULL) {
+    if ((infile = fopen(file, "rb")) == NULL) {
         std::cerr << "can't open " << file << "\n";
         return Point<int>(0,0);
     }
@@ -35,7 +35,7 @@ Point<int> size(std::string file){
 }
 
 // loading from Rect in jpeg-file to Rect in image
-int load(char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
+int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
 
     // откроем файл, получим размеры:
     struct jpeg_decompress_struct cinfo;
@@ -113,85 +113,66 @@ int load(char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect)
     return 0;
 }
 
-/*
-// load the whole image
-Image<int> load(const std::string & file, int scale=1){
-  Point<int> s = size(file);
-  return load(file, Rect<int>(0,0,s.x,s.y), scale);
-}
-*/
-/*
+
 // save window of image
-int wsave(const std::string & file, const Image<int> & im, int quality=75){
+int wsave(const char *file, const Image<int> & im, int quality=75){
 
-	if ((quality<0)||(quality>100)){
-            std::cerr << "jpeg quality not in range 0..100 (" << quality << ")\n";
-            return 0;
-        }
-
-        struct jpeg_compress_struct cinfo;
-        struct jpeg_error_mgr jerr;
-        cinfo.err = jpeg_std_error(&jerr);
-        jpeg_create_compress(&cinfo);
-
-        FILE * outfile;
-        if ((outfile = fopen(file.c_str(), "wb")) == NULL) {
-            std::cerr << "can't open " << filename << "\n";
-            return 0;
-        }
-
-        jpeg_stdio_dest(&cinfo, outfile);
-	cinfo.image_width = im.w;
-	cinfo.image_height = im.h;
-        cinfo.input_components = 3;
-        cinfo.in_color_space = JCS_RGB;
-        jpeg_set_defaults(&cinfo);
-	jpeg_set_quality (&cinfo, quality, true);
-        jpeg_start_compress(&cinfo, TRUE);
-
-        JSAMPROW row_pointer[1];        // pointer to a single row
-
-        while (cinfo.next_scanline < cinfo.image_height) {
-            row_pointer[0] = & image_buffer[cinfo.next_scanline * im.w * 3];
-            jpeg_write_scanlines(&cinfo, row_pointer, 1);
-        }
-
-	jpeg_finish_compress(&cinfo);
-	jpeg_destroy_compress(&cinfo);
-    fclose(infile);
-//////
-
-    tdata_t buf = _TIFFmalloc(scan);
-    char *cbuf = (char *)buf;
-
-    for (int row = 0; row < im.h; row++){
-      for (int col = 0; col < im.w; col++){
-	int c = im.get(col,row);
-	if (bpp==3){ // RGB
-    	    cbuf[3*col]   = (c >> 24) & 0xFF;
-    	    cbuf[3*col+1] = (c >> 16) & 0xFF;
-    	    cbuf[3*col+2] = (c >> 8)  & 0xFF;
-        }
-	if (bpp==4){ // RGBA
-    	    cbuf[4*col]   = (c >> 24) & 0xFF;
-    	    cbuf[4*col+1] = (c >> 16) & 0xFF;
-    	    cbuf[4*col+2] = (c >> 8)  & 0xFF;
-    	    cbuf[4*col+3] = c & 0xFF;
-        }
-      }
-      TIFFWriteScanline(tif, buf, row);
+    if ((quality<0)||(quality>100)){
+        std::cerr << "JPEG quality not in range 0..100 (" << quality << ")\n";
+        return 1;
     }
-    _TIFFfree(buf);
-    TIFFClose(tif);
-    fclose(infile);
+
+    struct jpeg_compress_struct cinfo;
+    struct jpeg_error_mgr jerr;
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_compress(&cinfo);
+
+    FILE * outfile;
+    if ((outfile = fopen(file, "wb")) == NULL) {
+        std::cerr << "Can't open " << file << "\n";
+        return 1;
+    }
+
+    jpeg_stdio_dest(&cinfo, outfile);
+    cinfo.image_width = im.ww;
+    cinfo.image_height = im.wh;
+    cinfo.input_components = 3;
+    cinfo.in_color_space = JCS_RGB;
+    jpeg_set_defaults(&cinfo);
+    jpeg_set_quality (&cinfo, quality, true);
+    jpeg_start_compress(&cinfo, TRUE);
+
+    char *buf  = new char[im.ww * 3];
+    for (int y = 0; y < im.wh; y++){
+      for (int x = 0; x < im.ww; x++){
+        int c = im.wget(x,y);
+        buf[3*x]   = (c >> 24) & 0xFF;
+        buf[3*x+1] = (c >> 16) & 0xFF;
+        buf[3*x+2] = (c >> 8)  & 0xFF;
+      }
+      jpeg_write_scanlines(&cinfo, (JSAMPLE**)&buf, 1);
+    }
+    delete [] buf;
+
+    jpeg_finish_compress(&cinfo);
+    jpeg_destroy_compress(&cinfo);
+    fclose(outfile);
+}
+
+// load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
+Image<int> load(const char *file, const int scale=1){
+  Point<int> s = size(file);
+  Image<int> ret(s.x/scale,s.y/scale);
+  load_to_image(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
+  return ret;
 }
 
 // save the whole image
-int save(const std::string & file, const Image<int> & im, int quality=75){
+int save(const char * file, const Image<int> & im, int quality=75){
   Image<int> im1 = im;
   im1.window_expand();
   return wsave(file, im1, quality);
-}*/
+}
 
 } // namespace
 #endif

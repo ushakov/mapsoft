@@ -1,21 +1,17 @@
 #ifndef IMAGE_IO_TIFF_H
 #define IMAGE_IO_TIFF_H
 
-#include <string>
-#include <cassert>
-
 #include "image.h"
 #include "rect.h"
 #include "point.h"
-#include "color.h"
 
 #include <tiffio.h>
 
 namespace tiff_image{
 
 // getting file dimensions
-Point<int> size(std::string file){
-    TIFF* tif = TIFFOpen(file.c_str(), "r");
+Point<int> size(const char *file){
+    TIFF* tif = TIFFOpen(file, "rb");
 
     if (!tif) return Point<int>(0,0);
 
@@ -27,9 +23,9 @@ Point<int> size(std::string file){
 }
 
 // loading from Rect in jpeg-file to Rect in image
-int load(char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
+int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
 
-    TIFF* tif = TIFFOpen(file, "r");
+    TIFF* tif = TIFFOpen(file, "rb");
     if (!tif) return 1;
 
     int tiff_w, tiff_h;
@@ -96,25 +92,20 @@ int load(char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect)
 }
 
 
-
-
-/*
-// load the whole image
-Image<int> load(const std::string & file, int scale=1){
-  Point<int> s = size(file);
-  return load(file, Rect<int>(0,0,s.x,s.y), scale);
-}*/
-
 // save window of image
-int wsave(const std::string & file, const Image<int> & im, bool usealpha = false){
-    TIFF* tif = TIFFOpen(file.c_str(), "w");
+int wsave(const char *file, const Image<int> & im, bool usealpha = false){
 
-    if (!tif) return 1;
+    TIFF* tif = TIFFOpen(file, "wb");
+
+    if (!tif){
+      std::cerr << "Can't load TIFF-file\n";
+      return 1;
+    }
     int bpp = usealpha?4:3;
-    int scan = bpp*im.w;
+    int scan = bpp*im.ww;
 
-    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, im.w);
-    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, im.h);
+    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, im.ww);
+    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, im.wh);
     TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, bpp);
     TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE,   8);
     TIFFSetField(tif, TIFFTAG_PLANARCONFIG,    1);
@@ -130,8 +121,8 @@ int wsave(const std::string & file, const Image<int> & im, bool usealpha = false
     tdata_t buf = _TIFFmalloc(scan);
     char *cbuf = (char *)buf;
 
-    for (int row = 0; row < im.h; row++){
-      for (int col = 0; col < im.w; col++){
+    for (int row = 0; row < im.wh; row++){
+      for (int col = 0; col < im.ww; col++){
 	int c = im.wget(col,row);
 	if (bpp==3){ // RGB
     	    cbuf[3*col]   = (c >> 24) & 0xFF;
@@ -152,8 +143,16 @@ int wsave(const std::string & file, const Image<int> & im, bool usealpha = false
     return 0;
 }
 
+// load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
+Image<int> load(const char *file, const int scale=1){
+  Point<int> s = size(file);
+  Image<int> ret(s.x/scale,s.y/scale);
+  load_to_image(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
+  return ret;
+}
+
 // save the whole image
-int save(const std::string & file, const Image<int> & im, bool usealpha = false){
+int save(const char * file, const Image<int> & im, bool usealpha = false){
   Image<int> im1 = im;
   im1.window_expand();
   return wsave(file, im1, usealpha);
