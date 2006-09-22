@@ -6,7 +6,7 @@
 
 template <typename T>
 class Rect     
-    : public boost::multiplicative<Point<T>,T>
+    : public boost::multiplicative<Rect<T>,T>
 {
 public:
 
@@ -19,7 +19,7 @@ public:
 	if (TLC.y>BRC.y) std::swap(TLC.y,BRC.y);
     }
 
-    Rect (int x1, int y1, int x2, int y2)
+    Rect (T x1, T y1, T x2, T y2)
 	: TLC(x1,y1), BRC(x2,y2)
     { 
 	if (TLC.x>BRC.x) std::swap(TLC.x,BRC.x);

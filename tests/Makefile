@@ -1,1 +1,1 @@
-CPPFLAGS = -O1
+CPPFLAGS = -O1 -ljpeg

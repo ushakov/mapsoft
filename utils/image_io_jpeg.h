@@ -49,11 +49,12 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     jpeg_stdio_src(&cinfo, infile);
     jpeg_read_header(&cinfo, TRUE);
 
-    // тут еще нужна проверка на то, что файл не JPEG
+    // тут еще нужна проверка на то, что файл не JPEG!!!
 
     int jpeg_w = cinfo.image_width;
     int jpeg_h = cinfo.image_height;
-    cinfo.out_color_space = JCS_RGB; // Даже если grayscale
+    // ч/б и RGB -- все загружается как RGB
+    cinfo.out_color_space = JCS_RGB;
 
     // если на входе пустой прямоугольник - растянем его до максимума
     if (src_rect.empty()) src_rect = Rect<int>(0,0,jpeg_w,jpeg_h);
