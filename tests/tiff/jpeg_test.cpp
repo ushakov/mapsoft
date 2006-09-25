@@ -8,11 +8,11 @@ main(){
 //  Image<int> i = tiff_image::load("im4.tif", Rect<int>(0,0,180,130), 8);
 //  Image<int> i = jpeg_image::load("/d2/1km-kar/1-Prjazha_Svjatozero.jpg", 8);
 
-  Image<int> i = tiff_image::load("im_5.tif");
+  Point<int> i = tiff_image::size("im_5.jpg");
 
 //  tiff_image::load_to_image("im_5.tif", Rect<int>(0,0,0,0), i, Rect<int>(50,550,550,50));
-  std::cerr << i << "\n";
-  jpeg_image::save("im_5.jpg", i, 50);
+//  std::cerr << i << "\n";
+//  jpeg_image::save("im_5.jpg", i, 50);
 }
 
 
