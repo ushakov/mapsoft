@@ -8,7 +8,7 @@
 #include "rect.h"
 #include "cache.h"
 #include "image.h"
-#include "image_io_jpeg.h"
+#include "image_jpeg.h"
 
 namespace google{
 
