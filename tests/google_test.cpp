@@ -1,6 +1,6 @@
 #include <iostream>
 #include "../utils/image.h"
-#include "../utils/google.h"
+#include "../utils/image_google.h"
 
 int main(){
   std::string dir="/e2/M/GOOGLE/";
