@@ -1,7 +1,7 @@
 #ifndef RAINBOW_H
 #define RAINBOW_H
 
-#include <color.h>
+#include "color.h"
 
 inline RGB b_c(unsigned char x) {return RGB(0,x,255);}
 inline RGB c_g(unsigned char x) {return RGB(0,255,255-x);}

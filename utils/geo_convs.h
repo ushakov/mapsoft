@@ -8,6 +8,7 @@
 #include <string>
 #include "../jeeps/gpsproj.h"
 #include "../jeeps/gpsmath.h"
+#include "../point.h"
 
 struct Datum{
   int n; // номера систем координат из ../jeeps/gpsdatum.c. Надо ли их все сюда перенести?..
@@ -88,6 +89,13 @@ struct Proj{
     }
 
 };
+
+Point<double> conv_to_std(const Point<double> & p, const Datum & D, const Proj & P){
+    Point<double> p1,p2;
+    if (P.n!=0) p1=conv_to_lonlat(p,D,P);
+    if (D.n!=0) p2=conv_latlon_to_wgs(p1,D);
+    return p2;
+}
 
 //
 /* void GPS_Math_Known_Datum_To_Known_Datum_M(double Sphi, double Slam, double SH,
