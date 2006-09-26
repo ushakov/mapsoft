@@ -54,47 +54,16 @@ Rect<int> lonlat2xy(int google_scale, Rect<double> lonlat){
     return Rect<int>(lonlat2xy(google_scale, lonlat.TLC),lonlat2xy(google_scale, lonlat.BRC));
 }
 
-/*// Загрузка картинки
-Image<int> load_image(const std::string & dir, int google_scale, Rect<int> window, int scale){
- 
-  int image_width = 256*(int)pow(2,google_scale-1);
-
-  Rect<int> google_points = Rect<int>(0,0,image_width,image_width);
-  Rect<int> google_tiles  = google_points/256;
-
-  clip_rect_to_rect(window, google_points);
-  Rect<int> window_tiles  = window/256;
-
-  if (google_scale<google_scale_min) google_scale=google_scale_min;
-  if (google_scale>google_scale_max) google_scale=google_scale_max;
-
-  Image<int> ret(window.width()/scale, window.height()/scale);
-
-  for (int yt = window_tiles.TLC.y; yt<=window_tiles.BRC.y; yt++){
-    for (int xt = window_tiles.TLC.x; xt<=window_tiles.BRC.x; xt++){
-      int x1 = 0;   if (xt==window_tiles.TLC.x) x1 = window.TLC.x % 256;
-      int x2 = 256; if (xt==window_tiles.BRC.x) x2 = window.BRC.x % 256;
-      int y1 = 0;   if (yt==window_tiles.TLC.y) y1 = window.TLC.y % 256;
-      int y2 = 256; if (yt==window_tiles.BRC.y) y2 = window.BRC.y % 256;
-      if ((x1==x2) || (y1==y2)) continue;
-      std::string addr = dir + tile2file(google_scale, xt,yt);
-      Rect<int> src_rect(x1,y1,x2,y2);
-      Rect<int> dst_rect((x1 + xt*256 - window.TLC.x)/scale,
-                         (y1 + yt*256 - window.TLC.y)/scale,
-                         (x2 + xt*256 - window.TLC.x)/scale,
-                         (y2 + yt*256 - window.TLC.y)/scale);
-
-//      std::cerr << addr << " " << src_rect << " --> " << dst_rect << "\n";
-      
-      jpeg_image::load_to_image(addr.c_str(), src_rect, ret, dst_rect);
-    }
-  }
-  return ret;
-} */
 
 
 // Загрузка картинки
-int load_to_image(const std::string & dir, int google_scale, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
+int load_to_image(
+    const std::string & dir, 
+    int google_scale,	
+    Rect<int> src_rect, 
+    Image<int> & image, 
+    Rect<int> dst_rect)
+{
 
   if (google_scale<google_scale_min) google_scale=google_scale_min;
   if (google_scale>google_scale_max) google_scale=google_scale_max;
@@ -185,7 +154,6 @@ struct points{
     Point<int> key_pair(x,y);
 
     if (!cache.contains(key_pair)){
-      std::cerr << "ADD " << key_pair << "\n";
       std::string addr = dir + tile2file(google_scale,x,y);
       Image<int> im = jpeg_image::load(addr.c_str());
       if (im.empty()) im = Image<int>(256,256,0);

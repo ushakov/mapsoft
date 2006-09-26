@@ -53,7 +53,7 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     int compression_type, rows_per_strip;
     TIFFGetField(tif, TIFFTAG_COMPRESSION,  &compression_type);
     TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rows_per_strip);
-    if ((compression_type==1)||(rows_per_strip==1)) can_skip_lines = true;
+    if ((compression_type==COMPRESSION_NONE)||(rows_per_strip==1)) can_skip_lines = true;
 
 
     int src_y = 0;
