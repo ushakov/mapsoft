@@ -1,3 +1,7 @@
+//#define DEBUG_GOOGLE
+//#define DEBUG_CACHE
+//#define DEBUG_IMAGE
+
 #include <iostream>
 #include <image.h>
 #include <image_google.h>

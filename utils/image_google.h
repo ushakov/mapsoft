@@ -95,8 +95,9 @@ int load_to_image(
 
       Rect<int> src(sx1,sy1,sx2,sy2);
       Rect<int> dst(dx1,dy1,dx2,dy2);
-      std::cerr << addr << " " << src << " --> " << dst << "\n";
-      
+#ifdef DEBUG_GOOGLE
+      std::cerr << "google: loading " << addr << " " << src << " --> " << dst << "\n";
+#endif      
       jpeg_image::load_to_image(addr.c_str(), src, image, dst);
     }
   }
@@ -155,6 +156,9 @@ struct points{
 
     if (!cache.contains(key_pair)){
       std::string addr = dir + tile2file(google_scale,x,y);
+#ifdef DEBUG_GOOGLE
+      std::cerr << "google: loading " << key_pair << " (" << addr << ")\n";
+#endif      
       Image<int> im = jpeg_image::load(addr.c_str());
       if (im.empty()) im = Image<int>(256,256,0);
       cache.add(key_pair, im);

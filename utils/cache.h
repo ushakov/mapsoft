@@ -8,6 +8,9 @@
 
 // makes a cache of pointers to V with keys of type V
 
+// DEBUG_CACHE      -- выдавать на stderr добавления/удаления элементов
+// DEBUG_CACHE_GET  -- выдавать обращения к кэшу
+
 template <typename K, typename V>
 class Cache {
 public:
@@ -45,21 +48,26 @@ public:
     int
     add (K const & key, V const & value)
     {
-//		std::cout << "add " << key << " ";
+#ifdef DEBUG_CACHE
+	std::cout << "cache: add " << key << " ";
+#endif
 	if (free_list.size() == 0) {
-//			std::cout << "no free space ";
 	    int to_delete = usage[usage.size() - 1];
-//			std::cout << "usage size " << usage.size() << " to_delete=" << to_delete << " key=" << storage[to_delete].first;
+#ifdef DEBUG_CACHE
+            std::cout << "no free space ";
+            std::cout << "usage size " << usage.size() << " to_delete=" << to_delete << " key=" << storage[to_delete].first;
+#endif
 	    index.erase (storage[to_delete].first);
 	    free_list.insert (to_delete);
 	}
 
-//		std::cout << std::endl;
-		
 	int free_ind = *(free_list.begin());
 	free_list.erase (free_list.begin());
 
-//		std::cout << "free_ind=" << free_ind << std::endl;
+#ifdef DEBUG_CACHE
+	std::cout << std::endl;
+	std::cout << "cache: free_ind=" << free_ind << std::endl;
+#endif
 
 	if (storage.size() <= free_ind) {
 	    assert (storage.size() == free_ind);
@@ -71,12 +79,14 @@ public:
 		
 	use (free_ind);
 
-//		std::cout << "Usage:";
-//		for (int i = 0; i < usage.size(); ++i)
-//		{
-//			std::cout << " " << usage[i];
-//		}
-//		std::cout << std::endl;
+#ifdef DEBUG_CACHE
+	std::cout << "cache usage:";
+	for (int i = 0; i < usage.size(); ++i)
+	{
+		std::cout << " " << usage[i];
+	}
+	std::cout << std::endl;
+#endif
 		
 	return 0;
     }
@@ -90,6 +100,9 @@ public:
     V &
     get (K const & key)
     {
+// slazav -- нужен ли use? 
+// если нужно часто обращаться к кэшу, то без него все быстрее...
+// может быть, простой кэш в виде очереди полезнее...
 	int ind = index[key];
 	use (ind);
 	return storage[ind].second;
@@ -125,7 +138,9 @@ private:
     void
     push_vector (std::vector<T> & vec, int start, int end)
     {
-//		std::cout << "push_vector: start=" << start << " end=" << end << " size=" << vec.size() << std::endl;
+#ifdef DEBUG_CACHE_GET
+	std::cout << "cache push_vector: start=" << start << " end=" << end << " size=" << vec.size() << std::endl;
+#endif
 	for (int i = end; i > start; --i)
 	{
 	    vec[i] = vec[i-1];

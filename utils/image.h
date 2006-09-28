@@ -24,7 +24,6 @@
 // Установить окно во всю картинку:
 //   image.window_expand();
 
-
 template <typename T>
 struct Image{
 
@@ -33,12 +32,13 @@ struct Image{
       h=wh=_h; 
       data = wdata = new T[w*h];
       refcounter   = new int;
-      std::cerr << "[create data array]\n";
-
       *refcounter  = 1;
+#ifdef IMAGE_DEBUG
+      std::cerr << "[create data array]\n";
       std::cerr << "Image create:" 
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ")\n";
+#endif
     }
 
     Image(int _w, int _h, const T & fill){
@@ -46,12 +46,14 @@ struct Image{
       h=wh=_h; 
       data = wdata = new T[w*h];
       refcounter   = new int;
-      std::cerr << "[create data array]\n";
       *refcounter  = 1;
+#ifdef IMAGE_DEBUG
+      std::cerr << "[create data array]\n";
       std::cerr << "Image create:" 
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ") "
                 << "filled with " << fill << "\n";
+#endif
       for (int i = 0; i<w*h;i++) data[i]=fill; 
     }
 
@@ -66,35 +68,44 @@ struct Image{
 	std::cerr << "Image: refcounter overflow ("<< *refcounter << ")!\n"; 
 	exit(0);
       }
+#ifdef IMAGE_DEBUG
       std::cerr << "Image init from other:" 
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ")\n";
+#endif
     }
 
     ~Image(){
+#ifdef IMAGE_DEBUG
       std::cerr << "Image destructor:" 
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ")\n";
+#endif
       (*refcounter)--; 
       if (*refcounter<=0){
 	delete[] data; 
 	delete refcounter;
+#ifdef IMAGE_DEBUG
         std::cerr << "[delete data array]\n";
+#endif
       }
     }
 
     Image & operator= (const Image & im){
       if (&im == this) return *this;
 
+#ifdef IMAGE_DEBUG
       std::cerr << "Image assign. Old:" 
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ")\n";
-
+#endif
       (*refcounter)--; 
       if (*refcounter<=0){
 	delete[] data; 
 	delete refcounter;
+#ifdef IMAGE_DEBUG
         std::cerr << "[delete data array]\n";
+#endif
       }
 
 
@@ -108,9 +119,11 @@ struct Image{
 	std::cerr << "Image: refcounter overflow ("<< *refcounter << ")!\n"; 
 	exit(0);
       }
+#ifdef IMAGE_DEBUG
       std::cerr << "              New:" 
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ")\n";
+#endif
       return *this;
     }
 
@@ -120,9 +133,11 @@ struct Image{
       ret.wh=wh;
       ret.wdata = ret.data+(wdata-data);
       for (int i=0;i<w*h;i++) ret.data[i]=data[i];
+#ifdef IMAGE_DEBUG
       std::cerr << "Image copy:" 
                 << " (" << w << "x" << h << ", "
                 << ret.data << " - " << *ret.refcounter << ")\n";
+#endif
       return ret;
     }
 
