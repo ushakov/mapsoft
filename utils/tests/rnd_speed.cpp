@@ -36,7 +36,7 @@ int main(){
   }
 
   // сохраняем в jpeg (это не учитываем при подсчете скорости!)
-//  jpeg_image::save("rng_speed.jpg", image, 75);
+//  jpeg::save("rng_speed.jpg", image, 75);
 
 }
 

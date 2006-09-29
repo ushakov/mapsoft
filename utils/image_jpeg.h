@@ -7,7 +7,7 @@
 
 #include <jpeglib.h>
 
-namespace jpeg_image{
+namespace jpeg{
 
 // getting file dimensions
 Point<int> size(const char *file){

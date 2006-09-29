@@ -7,7 +7,7 @@
 
 #include <tiffio.h>
 
-namespace tiff_image{
+namespace tiff{
 
 // getting file dimensions
 Point<int> size(const char *file){

@@ -34,7 +34,7 @@ int main(){
   }
 
   // сохраняем в jpeg
-  jpeg_image::save("google_test.jpg", image, 75);
+  jpeg::save("google_test.jpg", image, 75);
 }
 
 
