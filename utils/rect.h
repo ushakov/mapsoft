@@ -61,7 +61,7 @@ public:
 };
 
 template <typename T>
-Rect<T> intersect (Rect<T> const & R1, Rect<T> const & R2){
+Rect<T> rect_intersect (Rect<T> const & R1, Rect<T> const & R2){
     if (R1.empty()) return R1;
     if (R2.empty()) return R2;
     return Rect<T>(
@@ -72,7 +72,7 @@ Rect<T> intersect (Rect<T> const & R1, Rect<T> const & R2){
 }
 
 template <typename T>
-Rect<T> bounding_box (Rect<T> const & R1, Rect<T> const & R2){
+Rect<T> rect_bounding_box (Rect<T> const & R1, Rect<T> const & R2){
     if (R1.empty()) return R2;
     if (R2.empty()) return R1;
     return Rect<T>(	
@@ -89,6 +89,12 @@ void clip_point_to_rect (Point<T> & p, const Rect<T> & r){
     p.x = std::min (r.BRC.x, p.x);
     p.y = std::max (r.TLC.y, p.y);
     p.y = std::min (r.BRC.y, p.y);
+}
+
+template <typename T>
+bool point_in_rect (const Point<T> & p, const Rect<T> & r){
+    return (r.TLC.x <= p.x) && (r.BRC.x >= p.x) &&
+           (r.TLC.y <= p.y) && (r.BRC.y >= p.y);
 }
 
 template <typename T>

@@ -98,7 +98,7 @@ int load_to_image(
 #ifdef DEBUG_GOOGLE
       std::cerr << "google: loading " << addr << " " << src << " --> " << dst << "\n";
 #endif      
-      jpeg_image::load_to_image(addr.c_str(), src, image, dst);
+      image_jpeg::load_to_image(addr.c_str(), src, image, dst);
     }
   }
   return 0;
@@ -159,7 +159,7 @@ struct points{
 #ifdef DEBUG_GOOGLE
       std::cerr << "google: loading " << key_pair << " (" << addr << ")\n";
 #endif      
-      Image<int> im = jpeg_image::load(addr.c_str());
+      Image<int> im = image_jpeg::load(addr.c_str());
       if (im.empty()) im = Image<int>(256,256,0);
       cache.add(key_pair, im);
     }

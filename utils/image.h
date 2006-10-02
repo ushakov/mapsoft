@@ -33,7 +33,7 @@ struct Image{
       data = wdata = new T[w*h];
       refcounter   = new int;
       *refcounter  = 1;
-#ifdef IMAGE_DEBUG
+#ifdef DEBUG_IMAGE
       std::cerr << "[create data array]\n";
       std::cerr << "Image create:" 
                 << " (" << w << "x" << h << ", "
@@ -47,7 +47,7 @@ struct Image{
       data = wdata = new T[w*h];
       refcounter   = new int;
       *refcounter  = 1;
-#ifdef IMAGE_DEBUG
+#ifdef DEBUG_IMAGE
       std::cerr << "[create data array]\n";
       std::cerr << "Image create:" 
                 << " (" << w << "x" << h << ", "
@@ -68,7 +68,7 @@ struct Image{
 	std::cerr << "Image: refcounter overflow ("<< *refcounter << ")!\n"; 
 	exit(0);
       }
-#ifdef IMAGE_DEBUG
+#ifdef DEBUG_IMAGE
       std::cerr << "Image init from other:" 
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ")\n";
@@ -76,7 +76,7 @@ struct Image{
     }
 
     ~Image(){
-#ifdef IMAGE_DEBUG
+#ifdef DEBUG_IMAGE
       std::cerr << "Image destructor:" 
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ")\n";
@@ -85,7 +85,7 @@ struct Image{
       if (*refcounter<=0){
 	delete[] data; 
 	delete refcounter;
-#ifdef IMAGE_DEBUG
+#ifdef DEBUG_IMAGE
         std::cerr << "[delete data array]\n";
 #endif
       }
@@ -94,7 +94,7 @@ struct Image{
     Image & operator= (const Image & im){
       if (&im == this) return *this;
 
-#ifdef IMAGE_DEBUG
+#ifdef DEBUG_IMAGE
       std::cerr << "Image assign. Old:" 
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ")\n";
@@ -103,7 +103,7 @@ struct Image{
       if (*refcounter<=0){
 	delete[] data; 
 	delete refcounter;
-#ifdef IMAGE_DEBUG
+#ifdef DEBUG_IMAGE
         std::cerr << "[delete data array]\n";
 #endif
       }
@@ -119,7 +119,7 @@ struct Image{
 	std::cerr << "Image: refcounter overflow ("<< *refcounter << ")!\n"; 
 	exit(0);
       }
-#ifdef IMAGE_DEBUG
+#ifdef DEBUG_IMAGE
       std::cerr << "              New:" 
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ")\n";
@@ -133,7 +133,7 @@ struct Image{
       ret.wh=wh;
       ret.wdata = ret.data+(wdata-data);
       for (int i=0;i<w*h;i++) ret.data[i]=data[i];
-#ifdef IMAGE_DEBUG
+#ifdef DEBUG_IMAGE
       std::cerr << "Image copy:" 
                 << " (" << w << "x" << h << ", "
                 << ret.data << " - " << *ret.refcounter << ")\n";

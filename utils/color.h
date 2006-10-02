@@ -12,13 +12,13 @@ struct RGB{
 	r(_r), g(_g), b(_b) {}
 
     RGB(int c):
-	r((c>>24)&0xFF), g((c>>16)&0xFF), b((c>>8)&0xFF) {}
+	b((c>>16)&0xFF), g((c>>8)&0xFF), r(c&0xFF) {}
 
 //    RGB(const RGBA & c):
 //	r(c.r), g(c.g), b(c.b) {}
 
     operator int () const{
-      return (int(r)<<24) + (int(g)<<16) + (int(b)<<8);
+      return (int(b)<<16) + (int(g)<<8) + int(r);
     }
     operator RGBA () const;
 
@@ -33,13 +33,13 @@ struct RGBA{
 	r(_r), g(_g), b(_b), a(_a) {}
 
     RGBA(int c):
-	r((c>>24)&0xFF), g((c>>16)&0xFF), b((c>>8)&0xFF), a(c&0xFF) {}
+	a((c>>24)&0xFF), b((c>>16)&0xFF), g((c>>8)&0xFF), r(c&0xFF)  {}
 
 /*    RGBA(const RGB & c):
 	r(c.r), g(c.g), b(c.b), a(0) {}*/
 
     operator int () const{
-      return (int(r)<<24) + (int(g)<<16) + (int(b)<<8) + a;
+      return (int(a)<<24) + (int(b)<<16) + (int(r)<<8) + g;
     }
     operator RGB () const{
       return RGB(r,g,b);

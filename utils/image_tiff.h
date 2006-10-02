@@ -7,7 +7,7 @@
 
 #include <tiffio.h>
 
-namespace tiff{
+namespace image_tiff{
 
 // getting file dimensions
 Point<int> size(const char *file){
@@ -53,7 +53,11 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     int compression_type, rows_per_strip;
     TIFFGetField(tif, TIFFTAG_COMPRESSION,  &compression_type);
     TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rows_per_strip);
-    if ((compression_type==COMPRESSION_NONE)||(rows_per_strip==1)) can_skip_lines = true;
+    if ((compression_type==COMPRESSION_NONE)||(rows_per_strip==1)){
+	 std::cerr << "rows_per_strip: " << rows_per_strip << "\n";
+	 std::cerr << "compression_type: " << compression_type << "\n";
+	 can_skip_lines = true;
+    }
 
 
     int src_y = 0;
@@ -70,6 +74,7 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
         }
       } else {src_y=src_y1;}
       TIFFReadScanline(tif, cbuf, src_y);
+      src_y++;
 
       // теперь мы находимся на нужной строке
       for (int dst_x = dst_rect.TLC.x; dst_x<dst_rect.BRC.x; dst_x++){
@@ -77,12 +82,12 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
         if (src_x == src_rect.BRC.x) src_x--;
 	if (bpp==3) // RGB
  	      image.set(dst_x, dst_y, 
-		    (cbuf[3*src_x]<<24) + (cbuf[3*src_x+1]<<16) + (cbuf[3*src_x+2]<<8));
+		    cbuf[3*src_x] + (cbuf[3*src_x+1]<<8) + (cbuf[3*src_x+2]<<16));
 	else if (bpp==4) // RGBA
  	      image.set(dst_x, dst_y, 
-		    (cbuf[4*src_x]<<24) + (cbuf[4*src_x+1]<<16) + (cbuf[4*src_x+2]<<8) + cbuf[4*src_x+3]);
+		    cbuf[4*src_x] + (cbuf[4*src_x+1]<<8) + (cbuf[4*src_x+2]<<16) + (cbuf[4*src_x+3]<<24));
 	else if (bpp==1) // G
- 	      image.set(dst_x, dst_y, (cbuf[src_x]<<24) + (cbuf[src_x]<<16) + (cbuf[src_x]<<8));
+ 	      image.set(dst_x, dst_y, (cbuf[src_x]<<16) + (cbuf[src_x]<<8) + cbuf[src_x]);
       }
     }
 

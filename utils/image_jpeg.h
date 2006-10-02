@@ -7,7 +7,7 @@
 
 #include <jpeglib.h>
 
-namespace jpeg{
+namespace image_jpeg{
 
 // getting file dimensions
 Point<int> size(const char *file){
@@ -99,7 +99,7 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
         int src_x = src_rect.TLC.x + ((dst_x-dst_rect.TLC.x)*src_rect.width())/dst_rect.width();
         if (src_x == src_rect.BRC.x) src_x--;
 	image.set(dst_x, dst_y, 
-	    (buf1[3*src_x]<<24) + (buf1[3*src_x+1]<<16) + (buf1[3*src_x+2]<<8));
+	    buf1[3*src_x] + (buf1[3*src_x+1]<<8) + (buf1[3*src_x+2]<<16));
       }
     }
 
@@ -143,9 +143,9 @@ int wsave(const char *file, const Image<int> & im, int quality=75){
     for (int y = 0; y < im.wh; y++){
       for (int x = 0; x < im.ww; x++){
         int c = im.wget(x,y);
-        buf[3*x]   = (c >> 24) & 0xFF;
-        buf[3*x+1] = (c >> 16) & 0xFF;
-        buf[3*x+2] = (c >> 8)  & 0xFF;
+        buf[3*x]   = (c >> 16) & 0xFF;
+        buf[3*x+1] = (c >> 8) & 0xFF;
+        buf[3*x+2] = c & 0xFF;
       }
       jpeg_write_scanlines(&cinfo, (JSAMPLE**)&buf, 1);
     }

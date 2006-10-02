@@ -45,6 +45,11 @@ public:
 	return *this;
     }
 
+    void erase(K const & key){
+        int i = index[key];
+        index.erase(key);
+    }
+
     int
     add (K const & key, V const & value)
     {
@@ -100,12 +105,10 @@ public:
     V &
     get (K const & key)
     {
-// slazav -- нужен ли use? 
-// если нужно часто обращаться к кэшу, то без него все быстрее...
-// может быть, простой кэш в виде очереди полезнее...
 	int ind = index[key];
 	use (ind);
 	return storage[ind].second;
+
     }
 
     int
