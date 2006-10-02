@@ -5,56 +5,63 @@
 #include "point.h"
 
 template <typename T>
-class Rect     
-    : public boost::multiplicative<Rect<T>,T>
+class Rect : 
+      public boost::multiplicative<Rect<T>,T>,
+      public boost::additive<Rect<T>,Point<T> >
 {
 public:
 
-    Point<T> TLC, BRC; // TLC -- минимум x и y
+    T x,y,w,h;
 
     Rect (Point<T> p1, Point<T> p2)
-	: TLC(p1), BRC(p2)
-    { 
-	if (TLC.x>BRC.x) std::swap(TLC.x,BRC.x);
-	if (TLC.y>BRC.y) std::swap(TLC.y,BRC.y);
+	: x(p1.x), y(p1.y), w(p2.x-p1.x),h(p2.y-p1.y) { 
+	if (w<0) std::cerr << "Rect warning: w<0\n";
+	if (h<0) std::cerr << "Rect warning: h<0\n";
     }
 
-    Rect (T x1, T y1, T x2, T y2)
-	: TLC(x1,y1), BRC(x2,y2)
+    Rect (T _x, T _y, T _w=0, T _h=0)
+	: x(_x), y(_y), w(_w), h(_h)
     { 
-	if (TLC.x>BRC.x) std::swap(TLC.x,BRC.x);
-	if (TLC.y>BRC.y) std::swap(TLC.y,BRC.y);
+	if (w<0) std::cerr << "Rect warning: w<0\n";
+	if (h<0) std::cerr << "Rect warning: h<0\n";
     }
 
-    Rect ()
-	: TLC(0,0), BRC(0,0)
+    Rect () : x(0), y(0), w(0), h(0)
     { }
 
 
-    bool empty() const
-    {
-	return TLC.x >= BRC.x || TLC.y >= BRC.y;
-    }
+    bool empty() const { return w <= 0 || h <= 0; }
 
-    T width() const {
-	return BRC.x-TLC.x;
-    }
-
-    T height() const {
-	return BRC.y-TLC.y;
-    }
+    Point<T> TLC() const { return  Point<T>(x,y);}
+    Point<T> BRC() const { return  Point<T>(x+w,y+h);}
 
     Rect<T> & operator/= (T k)
     {
-        TLC /= k;
-        BRC /= k;
+        x /= k;
+        y /= k;
+        w /= k;
+        h /= k;
         return *this;
     }
 
     Rect<T> & operator*= (T k)
     {
-        TLC *= k;
-        BRC *= k;
+        x *= k;
+        y *= k;
+        w *= k;
+        h *= k;
+        return *this;
+    }
+
+    Rect<T> & operator-= (Point<T> p){
+        x -= p.x;
+        y -= p.y;
+        return *this;
+    }
+
+    Rect<T> & operator+= (Point<T> p){
+        x += p.x;
+        y += p.y;
         return *this;
     }
 
@@ -62,54 +69,70 @@ public:
 
 template <typename T>
 Rect<T> rect_intersect (Rect<T> const & R1, Rect<T> const & R2){
-    if (R1.empty()) return R1;
-    if (R2.empty()) return R2;
-    return Rect<T>(
-      std::max (R1.TLC.x, R2.TLC.x), 
-      std::max (R1.TLC.y, R2.TLC.y),
-      std::min (R1.BRC.x, R2.BRC.x),
-      std::min (R1.BRC.y, R2.BRC.y));
+    T x1 =  std::max (R1.x, R2.x);
+    T y1 =  std::max (R1.y, R2.y);
+    T x2 =  std::min (R1.x+R1.w, R2.x+R2.w);
+    T y2 =  std::min (R1.y+R1.h, R2.y+R2.h);
+    T w = x2-x1;
+    T h = y2-y1;
+    if (w<0) w=0;
+    if (h<0) h=0;
+    return Rect<T>(x1,y1,w,h);
 }
 
 template <typename T>
 Rect<T> rect_bounding_box (Rect<T> const & R1, Rect<T> const & R2){
-    if (R1.empty()) return R2;
-    if (R2.empty()) return R1;
-    return Rect<T>(	
-      std::min (R1.TLC.x, R2.TLC.x),
-      std::min (R1.TLC.y, R2.TLC.y),
-      std::max (R1.BRC.x, R2.BRC.x),
-      std::max (R1.BRC.y, R2.BRC.y));
+    T x1 =  std::min (R1.x, R2.x);
+    T y1 =  std::min (R1.y, R2.y);
+    T x2 =  std::max (R1.x+R1.w, R2.x+R2.w);
+    T y2 =  std::max (R1.y+R1.h, R2.y+R2.h);
+    T w = x2-x1;
+    T h = y2-y1;
+    return Rect<T>(x1,y1,w,h);
 }
 
 
 template <typename T>
 void clip_point_to_rect (Point<T> & p, const Rect<T> & r){
-    p.x = std::max (r.TLC.x, p.x);
-    p.x = std::min (r.BRC.x, p.x);
-    p.y = std::max (r.TLC.y, p.y);
-    p.y = std::min (r.BRC.y, p.y);
-}
-
-template <typename T>
-bool point_in_rect (const Point<T> & p, const Rect<T> & r){
-    return (r.TLC.x <= p.x) && (r.BRC.x >= p.x) &&
-           (r.TLC.y <= p.y) && (r.BRC.y >= p.y);
+    p.x = std::max (r.x, p.x);
+    p.x = std::min (r.x+r.w, p.x);
+    p.y = std::max (r.y, p.y);
+    p.y = std::min (r.y+r.h, p.y);
 }
 
 template <typename T>
 void clip_rect_to_rect (Rect<T> & r1, const Rect<T> & r2){
-    clip_point_to_rect(r1.TLC, r2);
-    clip_point_to_rect(r1.BRC, r2);
+//    std::cerr << r1 << " clip to " << r2 << "  ";
+    r1 = rect_intersect(r1,r2);
+//    std::cerr << r1 << "\n";
 }
+
+template <typename T>
+bool point_in_rect (const Point<T> & p, const Rect<T> & r){
+    return (r.x <= p.x) && (r.x+r.w > p.x) &&
+           (r.y <= p.y) && (r.y+r.h > p.y);
+}
+
+// при работе с целыми координатами иногда приятно считать,
+// что rect.BRC не входит в прямоугольник
+// (кстати, исходя из этого сделана и проверка на вхождение точки в прямоугольник)
+// В этом случае, при делении на целое число надо пользоваться
+// такой функцией:
+Rect<int> rect_intdiv (const Rect<int> & r, int i){
+  Point<int> e(1,1);
+  Point<int> TLC = r.TLC()/i;
+  Point<int> BRC = (r.BRC()-e)/i + e;
+  return Rect<int>(TLC,BRC);
+}
+
 
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Rect<T> & r)
 {
   s << "Rect(" 
-    << r.BRC.x-r.TLC.x << "x" << r.BRC.y-r.TLC.y 
-    << "+" << r.TLC.x 
-    << "+" << r.TLC.y 
+    << r.w << "x" << r.h 
+    << "+" << r.x 
+    << "+" << r.y 
     << ")";
   return s;
 }

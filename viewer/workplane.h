@@ -111,6 +111,11 @@ public:
     }
     int get_tile_size(){return tile_size;}
 
+    void set_scale(double s){
+	scale=s;
+    }
+    double get_scale(){return scale;}
+
 
 private:
 //    std::multimap <int, Layer *> layers;

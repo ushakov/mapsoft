@@ -50,6 +50,10 @@ public:
         index.erase(key);
     }
 
+    int size(){
+      return free_list.size();
+    }
+
     int
     add (K const & key, V const & value)
     {

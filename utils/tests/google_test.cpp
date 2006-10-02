@@ -13,10 +13,12 @@ int main(){
   // создаем картинку c картой мира
   Image<int> image = google::load(dir, zoom, src); 
 
+
   // в ее левый-верхний угол загружаем кусочек c заданными координатами wgs84:
   zoom = 5;
-  Rect<double> src_wgs84(90,50,110,60);
-  Rect<int> dst(10,10,210,210); 
+  Rect<double> src_wgs84(90,50,20,10);
+  Rect<int> dst(10,10,200,200); 
+
 
   google::load_to_image(dir, zoom, src_wgs84, image, dst);
 

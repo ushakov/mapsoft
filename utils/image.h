@@ -157,14 +157,14 @@ struct Image{
     Rect<int> window_get(){
       int x = (wdata-data)%w;
       int y = (wdata-data)/w;
-      return Rect<int>(x,y,x+ww,y+wh);
+      return Rect<int>(x,y,ww,wh);
     }
 
     Rect<int> window_set(Rect<int> r){
       clip_rect_to_rect(r, Rect<int>(0, 0, w, h));
-      wdata = data + r.TLC.y*w + r.TLC.x;
-      ww = r.BRC.x-r.TLC.x;
-      wh = r.BRC.y-r.TLC.y;
+      wdata = data + r.y*w + r.x;
+      ww = r.w;
+      wh = r.h;
       return r;
     }
 

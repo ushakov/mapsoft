@@ -51,10 +51,13 @@ Point<int> lonlat2xy(int google_scale, Point<double> lonlat){
 
 // то же для прямоугольников
 Rect<int> lonlat2xy(int google_scale, Rect<double> lonlat){
-    return Rect<int>(lonlat2xy(google_scale, lonlat.TLC),lonlat2xy(google_scale, lonlat.BRC));
+    Point<int> p1 = lonlat2xy(google_scale, lonlat.TLC());
+    Point<int> p2 = lonlat2xy(google_scale, lonlat.BRC());
+
+    if (p2.x < p1.x) std::swap(p2.x, p1.x);
+    if (p2.y < p1.y) std::swap(p2.y, p1.y);
+    return Rect<int>(p1,p2);
 }
-
-
 
 // Загрузка картинки
 int load_to_image(
@@ -75,26 +78,27 @@ int load_to_image(
   clip_rect_to_rect(src_rect, src_points);
   clip_rect_to_rect(dst_rect, Rect<int>(0,0,image.w, image.h));
 
-  Rect<int> src_tiles  = src_rect/256;
+  Rect<int> src_tiles  = rect_intdiv(src_rect,256);
 
-  for (int yt = src_tiles.TLC.y; yt<=src_tiles.BRC.y; yt++){
-    for (int xt = src_tiles.TLC.x; xt<=src_tiles.BRC.x; xt++){
 
-      int sx1 = 0;   if (xt==src_tiles.TLC.x) sx1 = src_rect.TLC.x % 256;
-      int sy1 = 0;   if (yt==src_tiles.TLC.y) sy1 = src_rect.TLC.y % 256;
-      int sx2 = 256; if (xt==src_tiles.BRC.x) sx2 = src_rect.BRC.x % 256;
-      int sy2 = 256; if (yt==src_tiles.BRC.y) sy2 = src_rect.BRC.y % 256;
+  for (int yt = src_tiles.TLC().y; yt<src_tiles.BRC().y; yt++){
+    for (int xt = src_tiles.TLC().x; xt<src_tiles.BRC().x; xt++){
+
+      int sx1 = 0;   if (xt==src_tiles.TLC().x) sx1 = src_rect.TLC().x % 256;
+      int sy1 = 0;   if (yt==src_tiles.TLC().y) sy1 = src_rect.TLC().y % 256;
+      int sx2 = 256; if (xt==src_tiles.BRC().x-1) sx2 = (src_rect.BRC().x-1) % 256;
+      int sy2 = 256; if (yt==src_tiles.BRC().y-1) sy2 = (src_rect.BRC().y-1) % 256;
       if ((sx1==sx2) || (sy1==sy2)) continue;
 
-      int dx1 = ((256*xt + sx1 - src_rect.TLC.x) * dst_rect.width())/src_rect.width() + dst_rect.TLC.x;
-      int dx2 = ((256*xt + sx2 - src_rect.TLC.x) * dst_rect.width())/src_rect.width() + dst_rect.TLC.x;
-      int dy1 = ((256*yt + sy1 - src_rect.TLC.y) * dst_rect.height())/src_rect.height() + dst_rect.TLC.y;
-      int dy2 = ((256*yt + sy2 - src_rect.TLC.y) * dst_rect.height())/src_rect.height() + dst_rect.TLC.y;
+      int dx1 = ((256*xt + sx1 - src_rect.x) * dst_rect.w)/src_rect.w + dst_rect.x;
+      int dx2 = ((256*xt + sx2 - src_rect.x) * dst_rect.w)/src_rect.w + dst_rect.x;
+      int dy1 = ((256*yt + sy1 - src_rect.y) * dst_rect.h)/src_rect.h + dst_rect.y;
+      int dy2 = ((256*yt + sy2 - src_rect.y) * dst_rect.h)/src_rect.h + dst_rect.y;
 
       std::string addr = dir + tile2file(google_scale, xt,yt);
 
-      Rect<int> src(sx1,sy1,sx2,sy2);
-      Rect<int> dst(dx1,dy1,dx2,dy2);
+      Rect<int> src(sx1,sy1,sx2-sx1,sy2-sy1);
+      Rect<int> dst(dx1,dy1,dx2-dx1,dy2-dy1);
 #ifdef DEBUG_GOOGLE
       std::cerr << "google: loading " << addr << " " << src << " --> " << dst << "\n";
 #endif      
@@ -105,8 +109,8 @@ int load_to_image(
 }
 
 Image<int> load(const std::string & dir, int google_scale, const Rect<int> & src_rect, int scale=1){
-  int w = src_rect.width()/scale;
-  int h = src_rect.height()/scale;
+  int w = src_rect.w/scale;
+  int h = src_rect.h/scale;
   Rect<int> dst_rect(0,0,w,h);
   Image<int> ret(w,h);
   load_to_image(dir, google_scale, src_rect, ret, dst_rect);

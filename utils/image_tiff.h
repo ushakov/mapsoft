@@ -53,19 +53,15 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     int compression_type, rows_per_strip;
     TIFFGetField(tif, TIFFTAG_COMPRESSION,  &compression_type);
     TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rows_per_strip);
-    if ((compression_type==COMPRESSION_NONE)||(rows_per_strip==1)){
-	 std::cerr << "rows_per_strip: " << rows_per_strip << "\n";
-	 std::cerr << "compression_type: " << compression_type << "\n";
-	 can_skip_lines = true;
-    }
+    if ((compression_type==COMPRESSION_NONE)||(rows_per_strip==1)) can_skip_lines = true;
 
 
     int src_y = 0;
-    for (int dst_y = dst_rect.TLC.y; dst_y<dst_rect.BRC.y; dst_y++){
+    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
       // откуда мы хотим взять строчку
-      int src_y1 = src_rect.TLC.y + ((dst_y-dst_rect.TLC.y)*src_rect.height())/dst_rect.height();
+      int src_y1 = src_rect.y + ((dst_y-dst_rect.y)*src_rect.h)/dst_rect.h;
       // при таком делении может выйти  src_y1 = src_rect.BRC.y, что плохо!
-      if (src_y1 == src_rect.BRC.y) src_y1--;
+      if (src_y1 == src_rect.BRC().y) src_y1--;
       // пропустим нужное число строк:
       if (!can_skip_lines){
         while (src_y<src_y1){
@@ -77,9 +73,9 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
       src_y++;
 
       // теперь мы находимся на нужной строке
-      for (int dst_x = dst_rect.TLC.x; dst_x<dst_rect.BRC.x; dst_x++){
-        int src_x = src_rect.TLC.x + ((dst_x-dst_rect.TLC.x)*src_rect.width())/dst_rect.width();
-        if (src_x == src_rect.BRC.x) src_x--;
+      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
+        int src_x = src_rect.x + ((dst_x-dst_rect.x)*src_rect.w)/dst_rect.w;
+        if (src_x == src_rect.BRC().x) src_x--;
 	if (bpp==3) // RGB
  	      image.set(dst_x, dst_y, 
 		    cbuf[3*src_x] + (cbuf[3*src_x+1]<<8) + (cbuf[3*src_x+2]<<16));

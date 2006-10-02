@@ -125,17 +125,12 @@ public:
       int tile_size = workplane.get_tile_size();
       Rect<int> screen(window_origin.x, 
                        window_origin.y, 
-                       window_origin.x+get_width(), 
-                       window_origin.y+get_height());
+                       get_width(), get_height());
       Rect<int> tile_rect(tile_key.x*tile_size, 
                           tile_key.y*tile_size,
-                          (tile_key.x+1)*tile_size, 
-                          (tile_key.y+1)*tile_size);
+                          tile_size, tile_size);
       Rect<int> tile_in_screen = tile_rect;
       clip_rect_to_rect(tile_in_screen,screen);
-
-
-      // здесь еще нужна мощная обработка масштаба...
 
       if (tile_in_screen.empty()) return; 
 
@@ -152,9 +147,9 @@ public:
       Glib::RefPtr<Gdk::Window> widget = get_window();
 
      widget->draw_pixbuf(gc, pixbuf, 
-	        tile_in_screen.TLC.x-tile_rect.TLC.x, tile_in_screen.TLC.y-tile_rect.TLC.y, // on pixbuf
-                tile_in_screen.TLC.x-window_origin.x, tile_in_screen.TLC.y-window_origin.y,
-                tile_in_screen.width(), tile_in_screen.height(),
+	        tile_in_screen.x-tile_rect.x, tile_in_screen.y-tile_rect.y, // on pixbuf
+                tile_in_screen.x-window_origin.x, tile_in_screen.y-window_origin.y,
+                tile_in_screen.w, tile_in_screen.h,
                 Gdk::RGB_DITHER_NORMAL, 0, 0);
     }
 /**************************************/
@@ -179,11 +174,10 @@ public:
       y1 = (y1>0) ? y1/tile_size : y1/tile_size - 1;
       y2 = (y2>0) ? y2/tile_size : y2/tile_size - 1;
 
-      tiles_in_screen.TLC.x = x1;
-      tiles_in_screen.BRC.x = x2;
-      tiles_in_screen.TLC.y = y1;
-      tiles_in_screen.BRC.y = y2;
-
+      tiles_in_screen.x = x1;
+      tiles_in_screen.y = y1;
+      tiles_in_screen.w = x2-x1+1;
+      tiles_in_screen.h = y2-y1+1;
 
       for (int tj = y1; tj<=y2; tj++){
 	for (int ti = x1; ti<=x2; ti++){
@@ -273,6 +267,7 @@ public:
 	    fill (0, 0, get_width(), get_height());
 	    return true;
 	}
+
 	return false;
     }
 
@@ -299,7 +294,31 @@ public:
 	return window_origin;
     }
 
+
+// Работы с масштабами
+
+    void set_scale(double scale){
+      double old_scale = workplane.get_scale();
+      Cache<Point<int>, Image<int> > ocache(tile_cache.size());
+      workplane.set_scale(scale);
+
+
+
+      tile_cache.swap(ocache);
+      
+
+
+      if (is_mapped()){
+        fill (0, 0, get_width(), get_height());
+      }
+    }
+
+    double get_scale(){
+      return workplane.get_scale();
+    }
     
+
+
 };
 
 #endif /* VIEWER_H */

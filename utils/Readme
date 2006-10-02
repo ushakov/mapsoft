@@ -91,7 +91,7 @@ class Rect<T>
 
 пришло из viewer/pointrect.h
 
-    Point<T> TLC, BRC;
+    T x,y,w,h;
     bool empty() const
     T width() const;
     T height() const;
@@ -100,7 +100,7 @@ class Rect<T>
     Rect<T> intersect (Rect<T> const & R1, Rect<T> const & R2);
     Rect<T> bounding_box (Rect<T> const & R1, Rect<T> const & R2);
     void clip_point_to_rect (Point<T> & p, const Rect<T> & r);
-    void clip_rect_to_rect (Rect<T> & r1, const Rect<T> & r2);
+    bool point_in_rect (Point<T> & p, const Rect<T> & r);
 
 
 ==================================================================

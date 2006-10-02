@@ -66,8 +66,8 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     
     // посмотрим, можно ли загружать сразу уменьшенный jpeg
     // (поддерживается уменьшение в 1,2,4,8 раз)
-    int xscale = src_rect.width()  / dst_rect.width();
-    int yscale = src_rect.height() / dst_rect.height();
+    int xscale = src_rect.w  / dst_rect.w;
+    int yscale = src_rect.h / dst_rect.h;
     int scale = std::min(xscale, yscale);
 
     if (scale <2) cinfo.scale_denom = 1;
@@ -84,20 +84,20 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     char *buf1  = new char[jpeg_w * 3]; 
 
     int src_y = 0;
-    for (int dst_y = dst_rect.TLC.y; dst_y<dst_rect.BRC.y; dst_y++){
+    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
       // откуда мы хотим взять строчку
-      int src_y1 = src_rect.TLC.y + ((dst_y-dst_rect.TLC.y)*src_rect.height())/dst_rect.height();
+      int src_y1 = src_rect.y + ((dst_y-dst_rect.y)*src_rect.h)/dst_rect.h;
       // при таком делении может выйти  src_y1 = src_rect.BRC.y, что плохо!
-      if (src_y1 == src_rect.BRC.y) src_y1--;
+      if (src_y1 == src_rect.BRC().y) src_y1--;
       // пропустим нужное число строк:
       while (src_y<=src_y1){ 
 	jpeg_read_scanlines(&cinfo, (JSAMPLE**)&buf1, 1);
 	src_y++;
       }
       // теперь мы находимся на нужной строке
-      for (int dst_x = dst_rect.TLC.x; dst_x<dst_rect.BRC.x; dst_x++){
-        int src_x = src_rect.TLC.x + ((dst_x-dst_rect.TLC.x)*src_rect.width())/dst_rect.width();
-        if (src_x == src_rect.BRC.x) src_x--;
+      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
+        int src_x = src_rect.x + ((dst_x-dst_rect.x)*src_rect.w)/dst_rect.w;
+        if (src_x == src_rect.BRC().x) src_x--;
 	image.set(dst_x, dst_y, 
 	    buf1[3*src_x] + (buf1[3*src_x+1]<<8) + (buf1[3*src_x+2]<<16));
       }
@@ -143,9 +143,9 @@ int wsave(const char *file, const Image<int> & im, int quality=75){
     for (int y = 0; y < im.wh; y++){
       for (int x = 0; x < im.ww; x++){
         int c = im.wget(x,y);
-        buf[3*x]   = (c >> 16) & 0xFF;
+        buf[3*x] = c & 0xFF;
         buf[3*x+1] = (c >> 8) & 0xFF;
-        buf[3*x+2] = c & 0xFF;
+        buf[3*x+2]   = (c >> 16) & 0xFF;
       }
       jpeg_write_scanlines(&cinfo, (JSAMPLE**)&buf, 1);
     }
