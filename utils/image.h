@@ -152,12 +152,32 @@ struct Image{
     inline void set(int x, int y, T c){data[y*w+x]=c;}
     inline void wset(int x, int y, T c){wdata[y*w+x]=c;}
 
+    inline void set_na(int x, int y, T c){data[y*w+x]=c|0xFF000000;}
+    inline void wset_na(int x, int y, T c){wdata[y*w+x]=c|0xFF000000;}
 
+    inline void set_a(int x, int y, T c){
+      int a = c>>24;
+      data[y*w+x] = (a==0xFF) ? c :
+	((data[y*w+x]>>16) & 0xFF * (255-a) + (c>>16) & 0xFF * a) & 0xFF0000 + 
+	(((data[y*w+x]>>8) & 0xFF * (255-a) + (c>>8) & 0xFF * a) >> 8) & 0xFF00 + 
+	((data[y*w+x] & 0xFF * (255-a) + (c>>8) & 0xFF * a) >> 16) & 0xFF;
+    }
+    inline void wset_a(int x, int y, T c){
+      int a = c>>24;
+      wdata[y*w+x] = (a==0xFF) ? c :
+	((wdata[y*w+x]>>16) & 0xFF * (255-a) + (c>>16) & 0xFF * a) & 0xFF0000 + 
+	(((wdata[y*w+x]>>8) & 0xFF * (255-a) + (c>>8) & 0xFF * a) >> 8) & 0xFF00 + 
+	((wdata[y*w+x] & 0xFF * (255-a) + (c>>8) & 0xFF * a) >> 16) & 0xFF;
+    }
 
-    Rect<int> window_get(){
+    Rect<int> wrange(){
       int x = (wdata-data)%w;
       int y = (wdata-data)/w;
       return Rect<int>(x,y,ww,wh);
+    }
+
+    Rect<int> range(){
+      return Rect<int>(0,0,w,h);
     }
 
     Rect<int> window_set(Rect<int> r){

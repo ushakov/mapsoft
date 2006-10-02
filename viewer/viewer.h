@@ -43,7 +43,7 @@ private:
     Glib::Thread        *cache_updater_thread;
     Glib::Dispatcher       update_tile_signal;
 
-    // cache_updater_thread крутится пока we_need_cache_updater == true
+    // cache_updater_thread крутится, пока we_need_cache_updater == true
     bool we_need_cache_updater;
     // cache_updater_thread не работает, пока cache_updater_stopped == true
     bool cache_updater_stopped;
@@ -61,8 +61,8 @@ public:
     {
         Glib::thread_init();
         update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
-        // сделаем отдельный thread из функции cache_updating_thread
-        // joinable = true, чтобы подождать его завершения в деконструкторе...
+        // сделаем отдельный thread из функции cache_updater
+        // joinable = true, чтобы подождать его завершения в деструкторе...
         cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer::cache_updater), true);
 
 	add_events (Gdk::BUTTON_PRESS_MASK | 
@@ -137,7 +137,7 @@ public:
       if (!tile_cache.contains(tile_key)){
         // Если такой плитки еще нет - добавим временную картинку
         // и поместим запрос на изготовление нормальной картинки в очередь
-	tile_cache.add(tile_key, Image<int>(tile_size,tile_size, 0xFF00FF00));
+	tile_cache.add(tile_key, Image<int>(tile_size,tile_size, 0xFF000000));
         tile_queue.push(tile_key);
       }
 
@@ -297,7 +297,7 @@ public:
 
 // Работы с масштабами
 
-    void set_scale(double scale){
+    void set_scale(int scale){
       double old_scale = workplane.get_scale();
       Cache<Point<int>, Image<int> > ocache(tile_cache.size());
       workplane.set_scale(scale);
@@ -313,7 +313,7 @@ public:
       }
     }
 
-    double get_scale(){
+    int get_scale(){
       return workplane.get_scale();
     }
     

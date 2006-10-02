@@ -1,4 +1,4 @@
-LDFLAGS = -ggdb `pkg-config --libs gtkmm-2.4,gthread-2.0` -ljpeg -O1
+LDFLAGS = -ggdb `pkg-config --libs gtkmm-2.4,gthread-2.0` -ljpeg 
 CPPFLAGS = `pkg-config --cflags gtkmm-2.4,gthread-2.0` -I../utils  -O1
 
 all: test

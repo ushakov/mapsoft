@@ -8,6 +8,8 @@
 #include "viewer.h"
 #include <point.h>
 #include "workplane.h"
+#include "layer_grid.h"
+#include "layer_jpeg_simple.h"
 //#include "gridlayer.h"
 //#include "maplayer.h"
 
@@ -46,7 +48,14 @@ main(int argc, char **argv)
     Gtk::Main kit (argc, argv);
 
     Gtk::Window win (Gtk::WINDOW_TOPLEVEL);
-    Workplane w(256,1.0);
+    Workplane w(256,0);
+    
+    LayerGrid       l1(50,50,0xFF000080);
+    LayerJpegSimple l2("/d2/1km/O36/O36-001.jpg");
+
+    w.add_layer(&l1,100);
+    w.add_layer(&l2,200);
+
     Viewer viewer (w, 256);
 
 //    geo_data world;

@@ -40,6 +40,7 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     // подрежем прямоугольники
     clip_rect_to_rect(src_rect, Rect<int>(0,0,tiff_w,tiff_h));
     clip_rect_to_rect(dst_rect, Rect<int>(0,0,image.w,image.h));
+    if (src_rect.empty() || dst_rect.empty()) return 0;
 
     int scan = TIFFScanlineSize(tif);
     int bpp = scan/tiff_w;
@@ -78,12 +79,12 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
         if (src_x == src_rect.BRC().x) src_x--;
 	if (bpp==3) // RGB
  	      image.set(dst_x, dst_y, 
-		    cbuf[3*src_x] + (cbuf[3*src_x+1]<<8) + (cbuf[3*src_x+2]<<16));
+		    cbuf[3*src_x] + (cbuf[3*src_x+1]<<8) + (cbuf[3*src_x+2]<<16) + (0xFF<<24));
 	else if (bpp==4) // RGBA
  	      image.set(dst_x, dst_y, 
 		    cbuf[4*src_x] + (cbuf[4*src_x+1]<<8) + (cbuf[4*src_x+2]<<16) + (cbuf[4*src_x+3]<<24));
 	else if (bpp==1) // G
- 	      image.set(dst_x, dst_y, (cbuf[src_x]<<16) + (cbuf[src_x]<<8) + cbuf[src_x]);
+ 	      image.set(dst_x, dst_y, cbuf[src_x] + (cbuf[src_x]<<8) + (cbuf[src_x]<<16) + (0xFF<<24));
       }
     }
 

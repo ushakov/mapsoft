@@ -63,6 +63,7 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     // подрежем прямоугольники
     clip_rect_to_rect(src_rect, Rect<int>(0,0,jpeg_w,jpeg_h));
     clip_rect_to_rect(dst_rect, Rect<int>(0,0,image.w,image.h));
+    if (src_rect.empty() || dst_rect.empty()) return 0;
     
     // посмотрим, можно ли загружать сразу уменьшенный jpeg
     // (поддерживается уменьшение в 1,2,4,8 раз)
@@ -99,7 +100,7 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
         int src_x = src_rect.x + ((dst_x-dst_rect.x)*src_rect.w)/dst_rect.w;
         if (src_x == src_rect.BRC().x) src_x--;
 	image.set(dst_x, dst_y, 
-	    buf1[3*src_x] + (buf1[3*src_x+1]<<8) + (buf1[3*src_x+2]<<16));
+	    buf1[3*src_x] + (buf1[3*src_x+1]<<8) + (buf1[3*src_x+2]<<16) + (0xFF<<24));
       }
     }
 
