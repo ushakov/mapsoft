@@ -175,6 +175,9 @@ struct points{
     return get(lonlat2xy(google_scale, p));
   }
 
+  
+  // wget -O $dir/$1.jpg "http://kh$n.google.com/kh?n=404&v=9&t=$1"
+
 };
 
 }//namespace
