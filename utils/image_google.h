@@ -86,8 +86,8 @@ int load_to_image(
 
       int sx1 = 0;   if (xt==src_tiles.TLC().x) sx1 = src_rect.TLC().x % 256;
       int sy1 = 0;   if (yt==src_tiles.TLC().y) sy1 = src_rect.TLC().y % 256;
-      int sx2 = 256; if (xt==src_tiles.BRC().x-1) sx2 = (src_rect.BRC().x-1) % 256;
-      int sy2 = 256; if (yt==src_tiles.BRC().y-1) sy2 = (src_rect.BRC().y-1) % 256;
+      int sx2 = 256; if (xt==src_tiles.BRC().x-1) sx2 = (src_rect.BRC().x-1) % 256 + 1;
+      int sy2 = 256; if (yt==src_tiles.BRC().y-1) sy2 = (src_rect.BRC().y-1) % 256 + 1;
       if ((sx1==sx2) || (sy1==sy2)) continue;
 
       int dx1 = ((256*xt + sx1 - src_rect.x) * dst_rect.w)/src_rect.w + dst_rect.x;

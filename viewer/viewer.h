@@ -68,6 +68,7 @@ public:
 	add_events (Gdk::BUTTON_PRESS_MASK | 
 		    Gdk::BUTTON_RELEASE_MASK | 
 		    Gdk::POINTER_MOTION_MASK | 
+		    Gdk::BUTTON1_MOTION_MASK | 
 		    Gdk::POINTER_MOTION_HINT_MASK | 
 		    Gdk::KEY_PRESS_MASK | 
 		    Gdk::KEY_RELEASE_MASK
@@ -221,6 +222,11 @@ public:
     virtual bool
     on_motion_notify_event (GdkEventMotion * event) {
 	Point<int> pos ((int) event->x, (int) event->y);
+
+#ifdef DEBUG_VIEWER
+	    std::cerr << "drag: " << pos << std::endl;
+#endif
+
 	if (!(event->state & Gdk::BUTTON1_MASK)) {
 	    return false;
 	}
@@ -246,10 +252,13 @@ public:
 
     virtual bool
     on_button_release_event (GdkEventButton * event) {
+	Point<int> pos ((int) event->x, (int) event->y);
 #ifdef DEBUG_VIEWER
-	std::cerr << "release: " << window_origin.x << "," << window_origin.y << std::endl;
+	std::cerr << "release: " << (int)event->x << "," << (int)event->y << std::endl;
 #endif
 	if (event->button == 1) {
+	    window_origin += drag_pos - pos;
+	    fill (0, 0, get_width(), get_height());
 	    in_drag = false;
 	    return true;
 	} else {

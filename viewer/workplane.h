@@ -1,22 +1,11 @@
 #ifndef WORKPLANE_H
 #define WORKPLANE_H
 
-//#include <image-gdk/image.h>
 #include <sigc++/sigc++.h>
 #include <image.h>
 #include <point.h>
 #include <rect.h>
 #include "layer.h"
-
-// a plane that shows workspace: maps, tracks, waypoints
-// plane has integer cartesian coordinate system; the correspondance of
-// these coordinates to geodesic coordinates is left to lower layers
-// (and controller)
-// these lower layers:
-//  * draw maps on the plane
-//  * put waypoints on plane
-//  * draw tracks on the plane
-//  * etc.
 
 class Workplane {
 public:
@@ -28,21 +17,6 @@ public:
 
 	// сделаем image
         Image<int>  image(tile_size,tile_size, 0xFF000000);
-
-/*
-	//подождем чуть
-	sleep(1);
-
-	int x1 = tile_key.x*tile_size;
-	int y1 = tile_key.y*tile_size;
-
-        for (int j=0; j<tile_size; j++){
-          for (int i=0; i<tile_size; i++){
-	    if (((i+x1)%50==0)||((j+y1)%30==0)) image.set(i,j,0xFFFFFFFF);
-	    else image.set(i,j,0xFF000000);
-          }
-        }
-*/
 
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
 	     itl != layers.rend();
