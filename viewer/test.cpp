@@ -3,7 +3,7 @@
 //#include <boost/shared_ptr.hpp>
 
 //#include <io_new/io.h>
-#define DEBUG_VIEWER
+//#define DEBUG_VIEWER
 //#define DEBUG_GOOGLE
 
 #include "viewer.h"
