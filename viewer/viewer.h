@@ -68,7 +68,6 @@ public:
 	add_events (Gdk::BUTTON_PRESS_MASK | 
 		    Gdk::BUTTON_RELEASE_MASK | 
 		    Gdk::POINTER_MOTION_MASK | 
-		    Gdk::BUTTON1_MOTION_MASK | 
 		    Gdk::POINTER_MOTION_HINT_MASK | 
 		    Gdk::KEY_PRESS_MASK | 
 		    Gdk::KEY_RELEASE_MASK
@@ -85,7 +84,7 @@ public:
   void cache_updater(){
     while (we_need_cache_updater){
       if (tile_queue.empty() || cache_updater_stopped) {
-	Glib::usleep(100);
+	Glib::usleep(10000);
 	continue;
       } 
       Point<int> key = tile_queue.front();
@@ -116,6 +115,7 @@ public:
       std::cerr << "update_tile: " << key << "\n";
 #endif
       draw_tile(key);
+//      Glib::usleep(1000000);
       cache_updater_stopped = false;
     }
 
@@ -224,27 +224,33 @@ public:
 	Point<int> pos ((int) event->x, (int) event->y);
 
 #ifdef DEBUG_VIEWER
-	    std::cerr << "drag: " << pos << std::endl;
+	std::cerr << "motion: " << pos << std::endl;
 #endif
 
 	if (!(event->state & Gdk::BUTTON1_MASK)) {
 	    return false;
 	}
+
 	if (!in_drag && (pos - drag_pos).manhattan_length() > 4) {
 	    in_drag = true;
 	}
+
 	if (in_drag) {
 	    window_origin += drag_pos - pos;
 	    fill (0, 0, get_width(), get_height());
 	    drag_pos = pos;
+
 	}
+
 	if (event->is_hint) {
 #ifdef DEBUG_VIEWER
 	    std::cerr << "move-hint: " << event->x << "," << event->y << std::endl;
 #endif
-	    int dummy;
 	    Gdk::ModifierType dummy2;
-	    get_window()->get_pointer(dummy, dummy, dummy2);
+	    get_window()->get_pointer(pos.x, pos.y, dummy2);
+	    window_origin += drag_pos - pos;
+	    fill (0, 0, get_width(), get_height());
+	    drag_pos = pos;
 	}
 	return true;
     }
@@ -257,8 +263,8 @@ public:
 	std::cerr << "release: " << (int)event->x << "," << (int)event->y << std::endl;
 #endif
 	if (event->button == 1) {
-	    window_origin += drag_pos - pos;
-	    fill (0, 0, get_width(), get_height());
+//	    window_origin += drag_pos - pos;
+//	    fill (0, 0, get_width(), get_height());
 	    in_drag = false;
 	    return true;
 	} else {
