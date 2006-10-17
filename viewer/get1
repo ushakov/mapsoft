@@ -1,0 +1,16 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+die "argument expected\n" if !defined($ARGV[0]);
+
+my $tile=$ARGV[0];
+
+die "bad format\n" if $tile!~/^t[tqrs]*$/;
+
+
+my $dir = sprintf "./%02d", length($tile);
+
+my $n=int(rand(4));
+`wget -O $dir/$tile.jpg "http://kh$n.google.com/kh?n=404&v=9&t=$tile"`
+  unless ( -f "$dir/$tile.jpg");
