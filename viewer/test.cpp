@@ -3,7 +3,7 @@
 //#include <boost/shared_ptr.hpp>
 
 //#include <io_new/io.h>
-//#define DEBUG_VIEWER
+#define DEBUG_VIEWER
 //#define DEBUG_GOOGLE
 
 #include "viewer.h"
@@ -19,26 +19,22 @@ LayerGoogle1 gl("/e2/M/GOOGLE",sc);
 
 bool
 on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
-    std::cerr << "key: " << event->keyval << std::endl;
 
     switch (event->keyval) {
-    case 43:
-    case 65451: // +
+    case 105:
+    case 73: // i
     {
 	if (sc>=18) break;
 	sc++;
         gl = LayerGoogle1("/e2/M/GOOGLE",sc);
 	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
-//	double scale = w->get_scale();
 	std::cerr << "scale: " << sc << std::endl;
-	std::cerr << "origin: " << orig << std::endl;
-//	w->set_scale(scale / 1.2);
 	v->set_window_origin(orig*2 - v->get_window_size()/2);
         v->clear_cache();
 	return true;
     }
-    case 45:
-    case 65453: // -
+    case 111:
+    case 79: // -
     {
 	if (sc<=1) break;
 	sc--;
@@ -47,12 +43,20 @@ on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
 	v->set_window_origin(orig/2 - v->get_window_size()/2);
         v->clear_cache();
-
-//	double scale = w->get_scale();
-//	w->set_scale(scale * 1.2);
-//	v->set_window_origin(PointRR (orig.x / 1.2, orig.y / 1.2));
 	return true;
     }
+    case 43:                                                                           
+    case 65451: // +                                                                   
+    {                                                                                  
+      v->scale_inc();                                                                     
+      return true;                                                                     
+    }                                                                                  
+    case 45:                                                                           
+    case 65453: // -                                                                   
+    {                                                                                  
+      v->scale_dec();                                                                     
+      return true;                                                                     
+    }                                                                                  
     }
     return false;
 }
@@ -71,7 +75,7 @@ main(int argc, char **argv)
 //    LayerJpegSimple l3("/d2/1km/O36/O36-001.jpg");
 //    LayerGoogle1 l3("/e2/M/GOOGLE",6);
 
-//    w.add_layer(&l1,100);
+    w.add_layer(&l1,100);
     w.add_layer(&gl,200);
 
     Viewer viewer (w);

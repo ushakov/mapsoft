@@ -20,9 +20,8 @@ public:
         Image<int>  image(tile_size,tile_size, 0xFF000000);
 
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
-	     itl != layers.rend();
-	     ++itl){
-	     itl->second->draw (image, tile_key*tile_size + (image.range()*scale_nom)/scale_denom, image.range());
+	     itl != layers.rend();  ++itl){
+	     itl->second->draw (image, ((tile_key*tile_size + image.range())*scale_denom)/scale_nom, image.range());
 	}
 
 	return image;

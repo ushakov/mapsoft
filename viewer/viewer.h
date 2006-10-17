@@ -48,11 +48,12 @@ public:
             Point<int> _window_origin = Point<int>(0,0), 
 	    int _scale_nom = 1,
             int _scale_denom = 1)
-	: workplane (_workplane, _scale_nom, _scale_denom),
+	: workplane (_workplane),
           window_origin(_window_origin),
 	  we_need_cache_updater(true),
-	  cache_updater_stopped(false),
+	  cache_updater_stopped(false)
     {
+        workplane.set_scale(_scale_nom, _scale_denom);
         Glib::thread_init();
         update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
         // сделаем отдельный thread из функции cache_updater
@@ -66,7 +67,6 @@ public:
 		    Gdk::KEY_PRESS_MASK | 
 		    Gdk::KEY_RELEASE_MASK
 		   );
-	workplane.set_scale(scale_nom, scale_denom);
     }
     virtual ~Viewer (){
 	we_need_cache_updater = false;
@@ -250,20 +250,17 @@ public:
 	std::cerr << "motion: " << pos << std::endl;
 #endif
 
-	if (!(event->state & Gdk::BUTTON1_MASK)) {
+	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) 
 	    return false;
-	}
 
-	if (event->is_hint) {
 #ifdef DEBUG_VIEWER
-	    std::cerr << "move-hint: " << event->x << "," << event->y << std::endl;
+	std::cerr << "move-hint: " << event->x << "," << event->y << std::endl;
 #endif
-	    Gdk::ModifierType dummy2;
-	    get_window()->get_pointer(pos.x, pos.y, dummy2);
-	    window_origin += drag_pos - pos;
-	    fill (0, 0, get_width(), get_height());
-	    drag_pos = pos;
-	}
+	Gdk::ModifierType dummy2;
+	get_window()->get_pointer(pos.x, pos.y, dummy2);
+	window_origin += drag_pos - pos;
+	fill (0, 0, get_width(), get_height());
+	drag_pos = pos;
 	return true;
     }
 
@@ -282,24 +279,30 @@ public:
 	}
     }
 */
-    virtual bool
-    on_keypress ( GdkEventKey * event ) {
+
+/*    virtual bool
+    on_keypress_event ( GdkEventKey * event ) {
 #ifdef DEBUG_VIEWER
 	std::cerr << "key: " << event->keyval << std::endl;
 #endif
-	if (event->keyval == 1) {
-	    window_origin += Point<int>(get_width(), get_height());
-	    fill (0, 0, get_width(), get_height());
-	    return true;
-	}
+      switch (event->keyval) {
+        case 43:
+        case 65451: // +
+        {
+	  scale_inc();
+          return true;
+        }
+        case 45:
+        case 65453: // -
+        {
+	  scale_dec();
+          return true;
+        }
+      }
 
-	return false;
+      return false;
     }
-
-
-
-	
-
+*/
     void set_window_origin(Point<int> p){ 
 	window_origin = p;
 #ifdef DEBUG_VIEWER
@@ -330,14 +333,35 @@ public:
 
 // Работы с масштабами
 
+    void scale_inc(){
+	if     (scale_denom()/scale_nom() > 1) set_scale(1, scale_denom()/scale_nom()-1);
+        else set_scale(scale_nom()/scale_denom() + 1,1);
+    }
+    void scale_dec(){
+	if     (scale_nom()/scale_denom() > 1) set_scale(scale_nom()/scale_denom()-1,1);
+        else set_scale(1, scale_denom()/scale_nom() + 1);
+    }
+
     void set_scale(int scale_nom, int scale_denom){
+#ifdef DEBUG_VIEWER
+	std::cerr << "set_scale: " << scale_nom << ":" << scale_denom << std::endl;
+#endif
+      int n  = workplane.get_scale_denom()*scale_nom;
+      int dn = workplane.get_scale_nom()*scale_denom;
+      // todo -- перемасштабировать КЭШ
+      
+      Point<int> wcenter = get_window_origin() + get_window_size()/2;
+
+      set_window_origin((wcenter*n)/dn-get_window_size()/2);
       workplane.set_scale_nom(scale_nom);
       workplane.set_scale_denom(scale_denom);
+      clear_cache();
     }
-    int get_scale_nom(){
+
+    int scale_nom(){
       return workplane.get_scale_nom();
     }
-    int get_scale_denom(){
+    int scale_denom(){
       return workplane.get_scale_denom();
     }
 };
