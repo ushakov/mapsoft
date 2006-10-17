@@ -3,7 +3,7 @@
 //#include <boost/shared_ptr.hpp>
 
 //#include <io_new/io.h>
-#define DEBUG_VIEWER
+//#define DEBUG_VIEWER
 //#define DEBUG_GOOGLE
 
 #include "viewer.h"
@@ -75,7 +75,7 @@ main(int argc, char **argv)
 //    LayerJpegSimple l3("/d2/1km/O36/O36-001.jpg");
 //    LayerGoogle1 l3("/e2/M/GOOGLE",6);
 
-    w.add_layer(&l1,100);
+//    w.add_layer(&l1,100);
     w.add_layer(&gl,200);
 
     Viewer viewer (w);
