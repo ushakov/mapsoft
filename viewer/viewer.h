@@ -1,10 +1,6 @@
 #ifndef VIEWER_H
 #define VIEWER_H
 
-//#include <cmath>
-//#include <algorithm>
-//#include <boost/operators.hpp>
-
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
 
@@ -23,41 +19,39 @@ class Viewer : public Gtk::DrawingArea {
 private:
     Workplane & workplane;
     Point<int> window_origin;
+    Rect<int>  visible_tiles;
     Point<int> drag_pos;
-    Rect<int> tiles_in_screen;
-    bool in_drag;
 
-    // плитки, полученные из workplane лежат в кэше.
-    // если draw_tile хочет положить новую плитку в кэш -
-    // он добавляет ее координаты в очередь tile_queue
-    // Эту очередь просматривает крутящийся отдельно
-    // cache_updater_thread.
-    // после добавления в кэш новой картинки, он
-    // испускает сигнал update_tile_signal,
+    std::map<Point<int>, Image<int> > tile_cache;
+    std::set<Point<int> >             tiles_todo;
+    Point<int>                        tile_done;
+    
+    // плитки, полученные из workplane лежат в tile_cache.
+    // если мы хотим нарисовать какую-то плитку,
+    // мы кладем ее координаты в tiles_todo
+    // крутящийся отдельно cache_updater_thread
+    // просматривает tiles_todo, делает плитку, 
+    // и испускает сигнал update_tile_signal,
     // который ловится функцией update_tile();
-    // Она убирает задание из очереди и перерисовывает плитку.
 
-
-    Cache<Point<int>, Image<int> > tile_cache;
-    std::queue<Point<int> >        tile_queue;
     Glib::Thread        *cache_updater_thread;
     Glib::Dispatcher       update_tile_signal;
 
     // cache_updater_thread крутится, пока we_need_cache_updater == true
     bool we_need_cache_updater;
-    // cache_updater_thread не работает, пока cache_updater_stopped == true
+    // нам нужно останавливать cache_updater, пока мы не прорисовали готовую плитку
     bool cache_updater_stopped;
 
 public:
 
-    Viewer (Workplane & _workplane, int _cache_size)
-	: workplane (_workplane),
-	  tile_cache(_cache_size),
-	  drag_pos (0,0),
-          window_origin(0,0),
-	  in_drag (false),
+    Viewer (Workplane & _workplane, 
+            Point<int> _window_origin = Point<int>(0,0), 
+	    int _scale_nom = 1,
+            int _scale_denom = 1)
+	: workplane (_workplane, _scale_nom, _scale_denom),
+          window_origin(_window_origin),
 	  we_need_cache_updater(true),
-	  cache_updater_stopped(false)
+	  cache_updater_stopped(false),
     {
         Glib::thread_init();
         update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
@@ -72,6 +66,7 @@ public:
 		    Gdk::KEY_PRESS_MASK | 
 		    Gdk::KEY_RELEASE_MASK
 		   );
+	workplane.set_scale(scale_nom, scale_denom);
     }
     virtual ~Viewer (){
 	we_need_cache_updater = false;
@@ -83,40 +78,69 @@ public:
 
   void cache_updater(){
     while (we_need_cache_updater){
-      if (tile_queue.empty() || cache_updater_stopped) {
-	Glib::usleep(10000);
-	continue;
-      } 
-      Point<int> key = tile_queue.front();
 
-      // если нам подсунули плитку, которой нет на экране - выкинем ее
-      if (!point_in_rect(key, tiles_in_screen)){
-	tile_cache.erase(key);
-	tile_queue.pop();
-	continue;
+      Glib::usleep(100);
+
+      if (cache_updater_stopped) continue;
+
+      // какие плитки видны на экране:
+      Rect<int> tiles = pointrect_to_tilerect(
+        Rect<int>(window_origin.x, window_origin.y, get_width(), get_height()) );
+
+      // Плитки, которые были запрошены, но уже уехали
+      // с экрана -- нам неинтересны. Пропалываем tiles_todo
+
+      std::set<Point<int> >::iterator it;
+      for (it=tiles_todo.begin(); it!=tiles_todo.end(); it++){
+        if (!point_in_rect(*it, tiles)){
+	  tiles_todo.erase(*it);
+	  tile_cache.erase(*it);
+	}
       }
 
-      tile_cache.add(key, workplane.get_image(key));
-      // Чтобы не обрабатывать одну плитку много раз. 
-      // Пусть tile_update() удалит ее из tile_queue, нарисует и
-      // установит cache_updater_stopped=false;
-      cache_updater_stopped = true;
-      update_tile_signal.emit();
+      // Пропалываем tile_cache
+      // Здесь у нас такая политика:
+      // если на экране w x h плиток, то мы хотим хранить 3w x 3h плиток и
+      // постепенно их заполнять.
+      // а все более далекие плитки будем убирать из кэша
+
+      Rect<int> tiles_in_cache = Rect<int>
+       (tiles.x-tiles.w, tiles.y-tiles.h, tiles.x+3*tiles.w, tiles.y+3*tiles.h);
+
+      std::map<Point<int>, Image<int> >::iterator map_it;
+      for (map_it=tile_cache.begin(); map_it!=tile_cache.end(); map_it++){
+        if (!point_in_rect(map_it->first, tiles_in_cache)){
+	    tile_cache.erase(map_it);
+	}
+      }
+
+      if (!tiles_todo.empty()){
+    
+        // сделаем плитку, которую просили
+ 
+        Point<int> key = *tiles_todo.begin();
+        tile_cache.erase(key);
+        tiles_todo.erase(key);
+        tile_cache.insert(std::pair<Point<int>,Image<int> >(key, workplane.get_image(key)));
+        tile_done = key;
+        cache_updater_stopped=true;
+        update_tile_signal.emit();
+      }
+      else {
+	// в свободное время сделаем одну из соседних плиток.
+        // todo
+      }
     }
   }
 /**************************************/
 
     // функция вызывается по сигналу от cache_updater'а
     void update_tile(){
-      if (tile_queue.empty()) return;
-      Point<int> key = tile_queue.front();
-      tile_queue.pop();
 #ifdef DEBUG_VIEWER
-      std::cerr << "update_tile: " << key << "\n";
+      std::cerr << "update_tile: " << tile_done << "\n";
 #endif
-      draw_tile(key);
-//      Glib::usleep(1000000);
-      cache_updater_stopped = false;
+      draw_tile(tile_done);
+      cache_updater_stopped=false;
     }
 
 /**************************************/
@@ -135,19 +159,19 @@ public:
 
       if (tile_in_screen.empty()) return; 
 
-      if (!tile_cache.contains(tile_key)){
+      if (tile_cache.count(tile_key)==0){
         // Если такой плитки еще нет - добавим временную картинку
         // и поместим запрос на изготовление нормальной картинки в очередь
-	tile_cache.add(tile_key, Image<int>(tile_size,tile_size, 0xFF000000));
-        tile_queue.push(tile_key);
+	tile_cache.insert(std::pair<Point<int>,Image<int> >(tile_key, Image<int>(tile_size,tile_size, 0xFF000000)));
+        tiles_todo.insert(tile_key);
       }
 
-      Image<int> tile = tile_cache.get(tile_key);
+      Image<int> tile = tile_cache.find(tile_key)->second;
       Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(tile);
       Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
       Glib::RefPtr<Gdk::Window> widget = get_window();
 
-     widget->draw_pixbuf(gc, pixbuf, 
+      widget->draw_pixbuf(gc, pixbuf, 
 	        tile_in_screen.x-tile_rect.x, tile_in_screen.y-tile_rect.y, // on pixbuf
                 tile_in_screen.x-window_origin.x, tile_in_screen.y-window_origin.y,
                 tile_in_screen.w, tile_in_screen.h,
@@ -155,37 +179,40 @@ public:
     }
 /**************************************/
 
+    Rect<int> pointrect_to_tilerect(Rect<int> pr){
+      int tile_size = workplane.get_tile_size();
+      int x1 = pr.x;
+      int x2 = pr.x + pr.w - 1;
+      int y1 = pr.y;
+      int y2 = pr.y + pr.h - 1;
+
+      x1 = (x1>=0) ? x1/tile_size : x1/tile_size - 1;
+      x2 = (x2>0)  ? x2/tile_size : x2/tile_size - 1;
+      y1 = (y1>=0) ? y1/tile_size : y1/tile_size - 1;
+      y2 = (y2>0)  ? y2/tile_size : y2/tile_size - 1;
+
+      return Rect<int>( x1,y1,x2-x1+1,y2-y1+1);
+    }
+/**************************************/
+
     void fill (int sx, int sy, int w, int h) // in window coordinates, should be inside the window
     {
+      Rect<int> tiles = pointrect_to_tilerect(
+        Rect<int>(window_origin.x + sx, window_origin.y + sy, w, h)
+      );
 #ifdef DEBUG_VIEWER
 	std::cerr << "fill: " << sx << "," << sy << " " << w << "x" << h << std::endl;
-	std::cerr << "window_origin: " << window_origin.x << "," << window_origin.y << std::endl;
+	std::cerr << "window_origin: " << window_origin << std::endl;
+	std::cerr << "tiles: " << tiles << std::endl;
 #endif
 
-      int tile_size = workplane.get_tile_size();
-
-      int x1 = window_origin.x + sx;
-      int x2 = window_origin.x + sx + w - 1;
-      int y1 = window_origin.y + sy;
-      int y2 = window_origin.y + sy + h - 1;
-
-
-      x1 = (x1>0) ? x1/tile_size : x1/tile_size - 1;
-      x2 = (x2>0) ? x2/tile_size : x2/tile_size - 1;
-      y1 = (y1>0) ? y1/tile_size : y1/tile_size - 1;
-      y2 = (y2>0) ? y2/tile_size : y2/tile_size - 1;
-
-      tiles_in_screen.x = x1;
-      tiles_in_screen.y = y1;
-      tiles_in_screen.w = x2-x1+1;
-      tiles_in_screen.h = y2-y1+1;
-
-      for (int tj = y1; tj<=y2; tj++){
-	for (int ti = x1; ti<=x2; ti++){
+      for (int tj = tiles.y; tj<tiles.y+tiles.h; tj++){
+	for (int ti = tiles.x; ti<tiles.x+tiles.w; ti++){
 	  draw_tile(Point<int>(ti,tj));
         }
       }
     }
+/**************************************/
 
 
 /**************************************/
@@ -213,11 +240,7 @@ public:
 	    return Gtk::DrawingArea::on_button_press_event (event);
 	}
 
-	int dummy;
-	Gdk::ModifierType dummy2;
-	get_window()->get_pointer(dummy, dummy, dummy2);
     }
-
 
     virtual bool
     on_motion_notify_event (GdkEventMotion * event) {
@@ -229,17 +252,6 @@ public:
 
 	if (!(event->state & Gdk::BUTTON1_MASK)) {
 	    return false;
-	}
-
-	if (!in_drag && (pos - drag_pos).manhattan_length() > 4) {
-	    in_drag = true;
-	}
-
-	if (in_drag) {
-	    window_origin += drag_pos - pos;
-	    fill (0, 0, get_width(), get_height());
-	    drag_pos = pos;
-
 	}
 
 	if (event->is_hint) {
@@ -255,7 +267,7 @@ public:
 	return true;
     }
 
-
+/*
     virtual bool
     on_button_release_event (GdkEventButton * event) {
 	Point<int> pos ((int) event->x, (int) event->y);
@@ -263,15 +275,13 @@ public:
 	std::cerr << "release: " << (int)event->x << "," << (int)event->y << std::endl;
 #endif
 	if (event->button == 1) {
-//	    window_origin += drag_pos - pos;
-//	    fill (0, 0, get_width(), get_height());
 	    in_drag = false;
 	    return true;
 	} else {
 	    return Gtk::DrawingArea::on_button_release_event (event);
 	}
     }
-
+*/
     virtual bool
     on_keypress ( GdkEventKey * event ) {
 #ifdef DEBUG_VIEWER
@@ -304,36 +314,32 @@ public:
 	set_window_origin(Point<int>(x,y));
     }
 
-    Point<int> get_window_origin ()
-    {
+    Point<int> get_window_origin (){
 	return window_origin;
     }
 
+    Point<int> get_window_size (){
+	return Point<int>(get_width(), get_height());
+    }
+
+    void clear_cache(){
+	tile_cache.clear();
+	tiles_todo.clear();
+	fill(0, 0, get_width(), get_height());
+    }
 
 // Работы с масштабами
 
-    void set_scale(int scale){
-      double old_scale = workplane.get_scale();
-      Cache<Point<int>, Image<int> > ocache(tile_cache.size());
-      workplane.set_scale(scale);
-
-
-
-      tile_cache.swap(ocache);
-      
-
-
-      if (is_mapped()){
-        fill (0, 0, get_width(), get_height());
-      }
+    void set_scale(int scale_nom, int scale_denom){
+      workplane.set_scale_nom(scale_nom);
+      workplane.set_scale_denom(scale_denom);
     }
-
-    int get_scale(){
-      return workplane.get_scale();
+    int get_scale_nom(){
+      return workplane.get_scale_nom();
     }
-    
-
-
+    int get_scale_denom(){
+      return workplane.get_scale_denom();
+    }
 };
 
 #endif /* VIEWER_H */

@@ -9,9 +9,10 @@
 
 class Workplane {
 public:
-    Workplane (int tile_size_=256, int scale_=0):
-	tile_size(tile_size_),
-	scale(scale_)
+    Workplane (int _tile_size=256, int _scale_nom=1, int _scale_denom=1):
+	tile_size(_tile_size),
+	scale_nom(_scale_nom),
+	scale_denom(_scale_denom)
      {}
     Image<int>  get_image(Point<int> tile_key){
 
@@ -21,8 +22,7 @@ public:
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
 	     itl != layers.rend();
 	     ++itl){
-	    if (scale>=0) itl->second->draw (image, tile_key*tile_size + image.range()*(scale+1), image.range());
-	    if (scale<0)  itl->second->draw (image, tile_key*tile_size + image.range()/(1-scale), image.range());
+	     itl->second->draw (image, tile_key*tile_size + (image.range()*scale_nom)/scale_denom, image.range());
 	}
 
 	return image;
@@ -60,13 +60,23 @@ public:
 	add_layer (layer, newdepth);
     }
 
-    int
-    get_scale () {
-	return scale;
+    int get_scale_nom () {
+	return scale_nom;
+    }
+    int get_scale_denom () {
+	return scale_denom;
     }
 
-    void set_scale (int _scale) {
-	scale = _scale;
+    int set_scale_nom (int s) {
+       scale_nom=s;
+    }
+    int set_scale_denom (int s) {
+       scale_denom=s;
+    }
+
+    void set_scale (int _scale_nom, int _scale_denom) {
+	scale_nom = _scale_nom;
+	scale_denom = _scale_denom;
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
 	     itl != layers.rend();
 	     ++itl)
@@ -88,7 +98,7 @@ public:
 
 private:
     std::multimap <int, Layer *> layers;
-    int scale;
+    int scale_nom, scale_denom;
     int tile_size;
 };
 

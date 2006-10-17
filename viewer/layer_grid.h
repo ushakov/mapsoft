@@ -10,7 +10,7 @@ public:
     
     virtual void draw (Image<int> & img, Rect<int> src, Rect<int> dst){    
 
-	std::cerr << "LayerGrid: "<< src << " -> " << dst << "\n";
+//	std::cerr << "LayerGrid: "<< src << " -> " << dst << "\n";
 	clip_rect_to_rect(dst, img.range());
 
 	int dx = (xstep*dst.w)/src.w;
@@ -25,11 +25,11 @@ public:
 	int x0 = (sx0*dst.w)/src.w;
 	int y0 = (sy0*dst.h)/src.h;	
 
-	std::cerr << "x0: "<< x0 
-	          << "y0: "<< y0 
-	          << "dx: "<< dx
-	          << "dy: "<< dy 
-                  << "\n";
+//	std::cerr << "x0: "<< x0 
+//	          << "y0: "<< y0 
+//	          << "dx: "<< dx
+//	          << "dy: "<< dy 
+//                  << "\n";
 
 	// vertical
         for (int x = x0; x < dst.x+dst.w; x+=dx){

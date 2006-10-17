@@ -14,31 +14,46 @@
 #include "layer_wait.h"
 #include "layer_jpeg_simple.h"
 
+int sc = 1;
+LayerGoogle1 gl("/e2/M/GOOGLE",sc);
+
 bool
 on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
     std::cerr << "key: " << event->keyval << std::endl;
-/*
+
     switch (event->keyval) {
     case 43:
     case 65451: // +
     {
-	Point<int> orig = v->get_window_origin();
+	if (sc>=18) break;
+	sc++;
+        gl = LayerGoogle1("/e2/M/GOOGLE",sc);
+	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
 //	double scale = w->get_scale();
-	std::cerr << "scale was: " << scale << "; orig was " << orig.x << "," << orig.y << std::endl;
+	std::cerr << "scale: " << sc << std::endl;
+	std::cerr << "origin: " << orig << std::endl;
 //	w->set_scale(scale / 1.2);
-	v->set_window_origin(PointRR (int (orig.x * 1.2), int (orig.y * 1.2)));
+	v->set_window_origin(orig*2 - v->get_window_size()/2);
+        v->clear_cache();
 	return true;
     }
     case 45:
     case 65453: // -
     {
-	PointRR orig = v->get_window_origin();
-	double scale = w->get_scale();
-	w->set_scale(scale * 1.2);
-	v->set_window_origin(PointRR (orig.x / 1.2, orig.y / 1.2));
+	if (sc<=1) break;
+	sc--;
+	gl = LayerGoogle1("/e2/M/GOOGLE",sc);
+	std::cerr << "scale: " << sc << std::endl;
+	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
+	v->set_window_origin(orig/2 - v->get_window_size()/2);
+        v->clear_cache();
+
+//	double scale = w->get_scale();
+//	w->set_scale(scale * 1.2);
+//	v->set_window_origin(PointRR (orig.x / 1.2, orig.y / 1.2));
 	return true;
     }
-    }*/
+    }
     return false;
 }
 
@@ -51,15 +66,15 @@ main(int argc, char **argv)
     Gtk::Window win (Gtk::WINDOW_TOPLEVEL);
     Workplane w(256,0);
     
-    LayerGrid l1(50,50,0xFF000080);
-    LayerWait l2;
+    LayerGrid l1(100,100,0xFF000080);
+//    LayerWait l2;
 //    LayerJpegSimple l3("/d2/1km/O36/O36-001.jpg");
-    LayerGoogle1 l3("/e2/M/GOOGLE",6);
+//    LayerGoogle1 l3("/e2/M/GOOGLE",6);
 
 //    w.add_layer(&l1,100);
-    w.add_layer(&l3,200);
+    w.add_layer(&gl,200);
 
-    Viewer viewer (w, 256);
+    Viewer viewer (w);
 
 //    geo_data world;
 //    options opts;
