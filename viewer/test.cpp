@@ -80,7 +80,7 @@ main(int argc, char **argv)
     Gtk::Window win (Gtk::WINDOW_TOPLEVEL);
     Workplane w(256,0);
     
-    LayerGrid l1(200,200,0xFF000080);
+    LayerGrid l1(200.5,200.5,0xFF000080);
 //    LayerWait l2;
 //    LayerJpegSimple l3("/d2/1km/O36/O36-001.jpg");
 //    LayerGoogle1 l3("/e2/M/GOOGLE",6);
