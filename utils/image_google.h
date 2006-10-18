@@ -18,7 +18,6 @@ const int google_scale_max = 18;
 const char lett[4] = {'q','r','t','s'};
 
 // пересчет координат кусочка в его адрес
-// поменять организацию локальных данных!
 std::string tile2addr(int google_scale, int xt, int yt){
 
   std::string addr="t";
@@ -75,11 +74,13 @@ int load_to_image(
 
   Rect<int> src_points = Rect<int>(0,0,src_width,src_width);
 
-  clip_rect_to_rect(src_rect, src_points);
-  clip_rect_to_rect(dst_rect, Rect<int>(0,0,image.w, image.h));
+  // подрежем прямоугольники
+  clip_rects_for_image_loader(
+      src_points, src_rect,
+      Rect<int>(0,0,image.w,image.h), dst_rect);
+  if (src_rect.empty() || dst_rect.empty()) return 0;
 
   Rect<int> src_tiles  = rect_intdiv(src_rect,256);
-
 
   for (int yt = src_tiles.TLC().y; yt<src_tiles.BRC().y; yt++){
     for (int xt = src_tiles.TLC().x; xt<src_tiles.BRC().x; xt++){
@@ -176,8 +177,8 @@ struct points{
   }
 
   
-  // wget -O $dir/$1.jpg "http://kh$n.google.com/kh?n=404&v=9&t=$1"
-
 };
+
+  // wget -O $dir/$1.jpg "http://kh$n.google.com/kh?n=404&v=9&t=$1"
 
 }//namespace

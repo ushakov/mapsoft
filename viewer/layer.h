@@ -12,7 +12,7 @@
 
 class Layer {
 public:
-    virtual void draw (Image<int> & img, Rect<int> src, Rect<int> dst) = 0;
+    virtual void draw (Image<int> & img, Rect<int> src) = 0;
     virtual Rect<int> range () = 0;
 
     Layer() {}

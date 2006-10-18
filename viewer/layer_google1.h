@@ -9,8 +9,8 @@ public:
     LayerGoogle1 (char * _dir, int _scale)
 	: dir (_dir), scale(_scale) { }
     
-    virtual void draw (Image<int> & img, Rect<int> src, Rect<int> dst){    
-	google::load_to_image(dir, scale, src, img, dst);
+    virtual void draw (Image<int> & img, Rect<int> src){    
+	google::load_to_image(dir, scale, src, img, img.range());
     }
 
     virtual Rect<int> range (){

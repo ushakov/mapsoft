@@ -56,13 +56,18 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     // ч/б и RGB -- все загружается как RGB
     cinfo.out_color_space = JCS_RGB;
 
-    // если на входе пустой прямоугольник - растянем его до максимума
+/*    // если на входе пустой прямоугольник - растянем его до максимума
     if (src_rect.empty()) src_rect = Rect<int>(0,0,jpeg_w,jpeg_h);
     if (dst_rect.empty()) dst_rect = Rect<int>(0,0,image.w,image.h);
 
     // подрежем прямоугольники
     clip_rect_to_rect(src_rect, Rect<int>(0,0,jpeg_w,jpeg_h));
     clip_rect_to_rect(dst_rect, Rect<int>(0,0,image.w,image.h));
+*/
+    // подрежем прямоугольники
+    clip_rects_for_image_loader(
+      Rect<int>(0,0,jpeg_w,jpeg_h), src_rect,
+      Rect<int>(0,0,image.w,image.h), dst_rect);
     if (src_rect.empty() || dst_rect.empty()) return 0;
     
     // посмотрим, можно ли загружать сразу уменьшенный jpeg

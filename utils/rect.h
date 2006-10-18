@@ -118,11 +118,51 @@ bool point_in_rect (const Point<T> & p, const Rect<T> & r){
 // (кстати, исходя из этого сделана и проверка на вхождение точки в прямоугольник)
 // В этом случае, при делении на целое число надо пользоваться
 // такой функцией:
-Rect<int> rect_intdiv (const Rect<int> & r, int i){
-  Point<int> e(1,1);
-  Point<int> TLC = r.TLC()/i;
-  Point<int> BRC = (r.BRC()-e)/i + e;
-  return Rect<int>(TLC,BRC);
+Rect<int> rect_intdiv(const Rect<int> & r, int i){
+
+      if (i==1) return r;
+
+      int x1 = r.x; 
+      int y1 = r.y; 
+      int x2 = r.x+r.w-1; 
+      int y2 = r.y+r.h-1; 
+
+      x1 = x1<0 ? x1/i - 1  : x1/i; 
+      y1 = y1<0 ? y1/i - 1  : y1/i; 
+      x2 = x2<0 ? x2/i - 1  : x2/i; 
+      y2 = y2<0 ? y2/i - 1  : y2/i; 
+
+      return Rect<int>(x1,y1,x2-x1+1,y2-y1+1);
+}
+
+// два прямоугольника задают преобразование.
+// функция соответствующим образом сдвигает и растягивает третий прямоугольник
+template <typename T>
+void transform_rect(
+    const Rect<T> & src,
+    const Rect<T> & dst,
+          Rect<T> & r){
+    r.x = dst.x + ((r.x-src.x)*dst.w)/src.w;
+    r.y = dst.y + ((r.y-src.y)*dst.h)/src.h;
+    r.w = (r.w*dst.w)/src.w;
+    r.h = (r.h*dst.h)/src.h;
+}
+
+// Функция, нужная для загрузчика картинок.
+// Правильное подрезание краев, выходящих за пределы картинки
+template <typename T>
+void clip_rects_for_image_loader(
+    const Rect<T> & src_img,
+          Rect<T> & src,
+    const Rect<T> & dst_img,
+          Rect<T> & dst){
+   Rect<T> src_img_tr = src_img; transform_rect(src,dst,src_img_tr);
+   Rect<T> dst_img_tr = dst_img; transform_rect(dst,src,dst_img_tr);
+
+   clip_rect_to_rect(src, src_img);
+   clip_rect_to_rect(dst, src_img_tr);
+   clip_rect_to_rect(src, dst_img_tr);
+   clip_rect_to_rect(dst, dst_img);
 }
 
 

@@ -28,7 +28,9 @@ on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	sc++;
         gl = LayerGoogle1("/e2/M/GOOGLE",sc);
 	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
-	std::cerr << "scale: " << sc << std::endl;
+	std::cerr << "google scale: " << sc << " scale: " 
+                  << v->scale_nom() << ":" 
+                  << v->scale_denom() <<  std::endl;
 	v->set_window_origin(orig*2 - v->get_window_size()/2);
         v->clear_cache();
 	return true;
@@ -39,7 +41,9 @@ on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	if (sc<=1) break;
 	sc--;
 	gl = LayerGoogle1("/e2/M/GOOGLE",sc);
-	std::cerr << "scale: " << sc << std::endl;
+	std::cerr << "google scale: " << sc << " scale: " 
+                  << v->scale_nom() << ":" 
+                  << v->scale_denom() <<  std::endl;
 	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
 	v->set_window_origin(orig/2 - v->get_window_size()/2);
         v->clear_cache();
@@ -49,12 +53,18 @@ on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
     case 65451: // +                                                                   
     {                                                                                  
       v->scale_inc();                                                                     
+	std::cerr << "google scale: " << sc << " scale: " 
+                  << v->scale_nom() << ":" 
+                  << v->scale_denom() <<  std::endl;
       return true;                                                                     
     }                                                                                  
     case 45:                                                                           
     case 65453: // -                                                                   
     {                                                                                  
       v->scale_dec();                                                                     
+	std::cerr << "google scale: " << sc << " scale: " 
+                  << v->scale_nom() << ":" 
+                  << v->scale_denom() <<  std::endl;
       return true;                                                                     
     }                                                                                  
     }
@@ -70,12 +80,12 @@ main(int argc, char **argv)
     Gtk::Window win (Gtk::WINDOW_TOPLEVEL);
     Workplane w(256,0);
     
-    LayerGrid l1(100,100,0xFF000080);
+    LayerGrid l1(200,200,0xFF000080);
 //    LayerWait l2;
 //    LayerJpegSimple l3("/d2/1km/O36/O36-001.jpg");
 //    LayerGoogle1 l3("/e2/M/GOOGLE",6);
 
-//    w.add_layer(&l1,100);
+    w.add_layer(&l1,100);
     w.add_layer(&gl,200);
 
     Viewer viewer (w);

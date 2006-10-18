@@ -84,18 +84,25 @@ public:
       if (cache_updater_stopped) continue;
 
       // какие плитки видны на экране:
-      Rect<int> tiles = pointrect_to_tilerect(
-        Rect<int>(window_origin.x, window_origin.y, get_width(), get_height()) );
+//      Rect<int> tiles = pointrect_to_tilerect(
+//        Rect<int>(window_origin.x, window_origin.y, get_width(), get_height()) );
+
+      Rect<int> tiles = rect_intdiv(
+        Rect<int>(window_origin.x, window_origin.y, 
+                  get_width(), get_height()), workplane.get_tile_size());
 
       // Плитки, которые были запрошены, но уже уехали
       // с экрана -- нам неинтересны. Пропалываем tiles_todo
 
-      std::set<Point<int> >::iterator it;
-      for (it=tiles_todo.begin(); it!=tiles_todo.end(); it++){
+      std::set<Point<int> >::const_iterator it = tiles_todo.begin(), it1;
+
+      while (it != tiles_todo.end()){
+	it1 = it; it1++;
         if (!point_in_rect(*it, tiles)){
-	  tiles_todo.erase(*it);
-	  tile_cache.erase(*it);
-	}
+          tile_cache.erase(*it);
+	  tiles_todo.erase(*it);  
+        }
+        it = it1;
       }
 
       // Пропалываем tile_cache
@@ -107,11 +114,14 @@ public:
       Rect<int> tiles_in_cache = Rect<int>
        (tiles.x-tiles.w, tiles.y-tiles.h, tiles.x+3*tiles.w, tiles.y+3*tiles.h);
 
-      std::map<Point<int>, Image<int> >::iterator map_it;
-      for (map_it=tile_cache.begin(); map_it!=tile_cache.end(); map_it++){
+      std::map<Point<int>, Image<int> >::iterator map_it=tile_cache.begin(), map_it1;
+
+      while (map_it!=tile_cache.end()){
+        map_it1 = map_it; map_it1++;
         if (!point_in_rect(map_it->first, tiles_in_cache)){
 	    tile_cache.erase(map_it);
 	}
+	map_it=map_it1;
       }
 
       if (!tiles_todo.empty()){
@@ -178,7 +188,7 @@ public:
                 Gdk::RGB_DITHER_NORMAL, 0, 0);
     }
 /**************************************/
-
+/*
     Rect<int> pointrect_to_tilerect(Rect<int> pr){
       int tile_size = workplane.get_tile_size();
       int x1 = pr.x;
@@ -192,14 +202,19 @@ public:
       y2 = (y2>0)  ? y2/tile_size : y2/tile_size - 1;
 
       return Rect<int>( x1,y1,x2-x1+1,y2-y1+1);
-    }
+    }*/
 /**************************************/
 
     void fill (int sx, int sy, int w, int h) // in window coordinates, should be inside the window
     {
-      Rect<int> tiles = pointrect_to_tilerect(
-        Rect<int>(window_origin.x + sx, window_origin.y + sy, w, h)
-      );
+//      Rect<int> tiles = pointrect_to_tilerect(
+//        Rect<int>(window_origin.x + sx, window_origin.y + sy, w, h)
+//      );
+      Rect<int> tiles = rect_intdiv(
+        Rect<int>(window_origin.x + sx, window_origin.y + sy, 
+        w, h), workplane.get_tile_size());
+
+
 #ifdef DEBUG_VIEWER
 	std::cerr << "fill: " << sx << "," << sy << " " << w << "x" << h << std::endl;
 	std::cerr << "window_origin: " << window_origin << std::endl;

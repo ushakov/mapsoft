@@ -8,40 +8,27 @@ public:
     LayerGrid (int _xstep, int _ystep, int _color)
 	: xstep (_xstep), ystep (_ystep), color(_color) { }
     
-    virtual void draw (Image<int> & img, Rect<int> src, Rect<int> dst){    
-
-//	std::cerr << "LayerGrid: "<< src << " -> " << dst << "\n";
-	clip_rect_to_rect(dst, img.range());
-
-	int dx = (xstep*dst.w)/src.w;
-	int dy = (ystep*dst.h)/src.h;
+    virtual void draw (Image<int> & img, Rect<int> src){    
 
 	int sx0,sy0;
-	if (src.x>0) sx0 = xstep - src.x % xstep - 1;
+	if (src.x>0) sx0 = xstep - (src.x-1) % xstep - 1;
         else sx0 = (-src.x) % xstep;
-	if (src.y>0) sy0 = ystep - src.y % ystep - 1;
+	if (src.y>0) sy0 = ystep - (src.y-1) % ystep - 1;
         else sy0 = (-src.y) % ystep;
 
-	int x0 = (sx0*dst.w)/src.w;
-	int y0 = (sy0*dst.h)/src.h;	
-
-//	std::cerr << "x0: "<< x0 
-//	          << "y0: "<< y0 
-//	          << "dx: "<< dx
-//	          << "dy: "<< dy 
-//                  << "\n";
-
 	// vertical
-        for (int x = x0; x < dst.x+dst.w; x+=dx){
-          for (int y = dst.y; y < dst.y+dst.h; y++){
-	    img.set_na(x,y,color);
+        for (int x = sx0; x < src.w; x+=xstep){
+          std::cerr << "greed: " << x << "\n";
+          for (int y = 0; y < img.h; y++){
+	    img.set_na((x*img.w)/src.w,y,color);
 	  }
 	}
 
 	// horizontal
-        for (int y = y0; y < dst.y+dst.h; y+=dy){
-          for (int x = dst.x; x < dst.x+dst.w; x++){
-	    if ((x-x0)%xstep != 0) img.set_na(x,y,color);
+        for (int y = sy0; y < src.h; y+=ystep){
+          for (int x = 0; x < img.w; x++){
+	    if ((x-sx0)%xstep != 0) 
+	      img.set_na(x,(y*img.h)/src.h,color);
 	  }
 	}
     }
