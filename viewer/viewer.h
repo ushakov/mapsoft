@@ -137,8 +137,40 @@ public:
         update_tile_signal.emit();
       }
       else {
+	int x = tiles.x - 1;
+	int y = tiles.y - 1;
+	int dir = 0;
 	// в свободное время сделаем одну из соседних плиток.
-        // todo
+	do {
+//	  std::cerr << "FILL: "
+//		<< " x: " << x
+//		<< " y: " << y
+//		<< " dir: " << dir << "\n";
+
+	  if (tile_cache.count(Point<int>(x,y))==0){
+            tile_cache.insert(std::pair<Point<int>,Image<int> >
+              (Point<int>(x,y), workplane.get_image(Point<int>(x,y))));
+            break;
+	  }
+	  switch (dir){
+	  case 0: 
+	    x++;
+            if (x-(tiles.x+tiles.w-1) == tiles.y-y) dir=1;
+	    break;
+	  case 1:
+	    y++;
+            if (x-(tiles.x+tiles.w-1) == y-(tiles.y+tiles.h-1)) dir=2;
+	    break;
+	  case 2:
+	    x--;
+            if (tiles.x-x == y-(tiles.y+tiles.h-1)) dir=3;
+	    break;
+	  case 3:
+	    y--;
+            if (tiles.x - x == tiles.y - (y+1) ) dir=0;
+	    break;
+	  }
+	} while (point_in_rect(Point<int>(x,y), tiles_in_cache));
       }
     }
   }
