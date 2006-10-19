@@ -55,7 +55,7 @@ TODO
 ==================================================================
 #include "rainbow.h"
 
-Радуга и пр. цветовые градиенты (srtm02/color.h)
+Радуга и пр. цветовые градиенты (из srtm02/color.h)
 
 
     RGB rainbow(int n, unsigned short mingrade);

@@ -33,14 +33,6 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &tiff_w);
     TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &tiff_h);
 
-/*    // если на входе пустой прямоугольник - растянем его до максимума
-    if (src_rect.empty()) src_rect = Rect<int>(0,0,jpeg_w,jpeg_h);
-    if (dst_rect.empty()) dst_rect = Rect<int>(0,0,image.w,image.h);
-
-    // подрежем прямоугольники
-    clip_rect_to_rect(src_rect, Rect<int>(0,0,jpeg_w,jpeg_h));
-    clip_rect_to_rect(dst_rect, Rect<int>(0,0,image.w,image.h));
-*/
     // подрежем прямоугольники
     clip_rects_for_image_loader(
       Rect<int>(0,0,jpeg_w,jpeg_h), src_rect,

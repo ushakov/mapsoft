@@ -137,34 +137,57 @@ Rect<int> rect_intdiv(const Rect<int> & r, int i){
 
 // два прямоугольника задают преобразование.
 // функция соответствующим образом сдвигает и растягивает третий прямоугольник
-template <typename T>
 void transform_rect(
-    const Rect<T> & src,
-    const Rect<T> & dst,
-          Rect<T> & r){
-    r.x = dst.x + ((r.x-src.x)*dst.w)/src.w;
-    r.y = dst.y + ((r.y-src.y)*dst.h)/src.h;
-    r.w = (r.w*dst.w)/src.w;
-    r.h = (r.h*dst.h)/src.h;
+    const Rect<int> & src,
+    const Rect<int> & dst,
+          Rect<int> & r){
+    // Здесь нам нужен long long, иначе в google'е на
+    // больших масштабах происходит переполнение
+    // ...а может, уже и не нужно...
+    long long x = r.x-src.x; 
+    long long y = r.y-src.y;
+    x = dst.x + (x*dst.w)/src.w;
+    y = dst.y + (y*dst.h)/src.h;
+    r.x = (int)x;
+    r.y = (int)y;
+    long long w = r.w;
+    long long h = r.h;
+    w = (r.w*dst.w)/src.w;
+    h = (r.h*dst.h)/src.h;
+    r.w = (int)w;
+    r.h = (int)h;
 }
+
 
 // Функция, нужная для загрузчика картинок.
 // Правильное подрезание краев, выходящих за пределы картинки
-template <typename T>
 void clip_rects_for_image_loader(
-    const Rect<T> & src_img,
-          Rect<T> & src,
-    const Rect<T> & dst_img,
-          Rect<T> & dst){
-   Rect<T> src_img_tr = src_img; transform_rect(src,dst,src_img_tr);
-   Rect<T> dst_img_tr = dst_img; transform_rect(dst,src,dst_img_tr);
-
+    const Rect<int> & src_img,
+          Rect<int> & src,
+    const Rect<int> & dst_img,
+          Rect<int> & dst){
+// очевидное преобразование, которое, однако, приводит к умножениям 
+// на большие числа и переполнениям...
+/*
+   Rect<int> src_img_tr = src_img; transform_rect(src,dst,src_img_tr);
+   Rect<int> dst_img_tr = dst_img; transform_rect(dst,src,dst_img_tr);
    clip_rect_to_rect(src, src_img);
-   clip_rect_to_rect(dst, src_img_tr);
    clip_rect_to_rect(src, dst_img_tr);
    clip_rect_to_rect(dst, dst_img);
+   clip_rect_to_rect(dst, src_img_tr);
+*/
+// а мы сделаем так вот странно:
+   Rect<int> src_img_tr = src_img; 
+   clip_rect_to_rect(src_img_tr, src);
+   transform_rect(src,dst,src_img_tr);
+   Rect<int> dst_img_tr = dst_img;
+   clip_rect_to_rect(dst_img_tr, dst);
+   transform_rect(dst,src,dst_img_tr);
+   clip_rect_to_rect(src, src_img);
+   clip_rect_to_rect(src, dst_img_tr);
+   clip_rect_to_rect(dst, dst_img);
+   clip_rect_to_rect(dst, src_img_tr);
 }
-
 
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Rect<T> & r)
@@ -176,5 +199,6 @@ std::ostream & operator<< (std::ostream & s, const Rect<T> & r)
     << ")";
   return s;
 }
+
 
 #endif /* RECT_H */

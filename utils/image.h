@@ -12,17 +12,27 @@
 
 // Доступ к точкам картинки: image.get(x,y),  image.set(x,y,c)
 // Доступ к точкам окна:     image.wget(x,y), image.wset(x,y,c)
+
+// также есть версии set_na, wset_na, set_a, wset_a
+// (не устанавливать байт прозрачности, или аккуратно применить прозрачность (не работает?))
+
 // В функциях доступа не проверяется выход за границы картинки!
 // Компилить с ключом -O1 (скорость возрастет раза в три)
 
-// Размер картинки: image.w0, image.h0
-// Размер окна:     image.w,  image.h
+// Размер картинки: image.w,  image.h
+// Размер окна:     image.ww, image.wh
 
-// Получить, установить размеры окна:
-//   Rect<int> r = image.window_get();
+// Получить, размеры картинки, окна:
+//   Rect<int> r = image.range();
+//   Rect<int> r = image.wrange();
+// Установить размеры окна:
 //   image.window_set(r);  // если прямоугольник вылезает за картинку - он правильно обрезается.
 // Установить окно во всю картинку:
 //   image.window_expand();
+
+
+//   - окном сейчас никто не пользуется, и, видимо, и не надо.
+//     может быть, вообще надо убрать такое понятие для простоты...
 
 template <typename T>
 struct Image{
@@ -203,6 +213,7 @@ struct Image{
     int *refcounter;
 };
 
+/*
 // пока мы не умеем читать из файла часть картинки и уменьшать ее
 // при чтении, нам будут полезна такая функция:
 
@@ -224,7 +235,7 @@ Image<T> fast_resize(const Image<T> & im, int scale){
   ret.wdata = ret.data + ret.w*wy + wx;
   return ret;
 }
-
+*/
 
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Image<T> & i)

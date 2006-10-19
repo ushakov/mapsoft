@@ -24,6 +24,7 @@ private:
 
     std::map<Point<int>, Image<int> > tile_cache;
     std::set<Point<int> >             tiles_todo;
+    std::set<Point<int> >             tiles_todo2;
     Point<int>                        tile_done;
     
     // плитки, полученные из workplane лежат в tile_cache.
@@ -34,13 +35,21 @@ private:
     // и испускает сигнал update_tile_signal,
     // который ловится функцией update_tile();
 
+    // в tiles_todo2 кладутся запросы на соседние плитки,
+    // которые нам не надо срочно показывать.
+    // cache_updater делает их в свободное время и не
+    // сигнализирует о том...
+
     Glib::Thread        *cache_updater_thread;
     Glib::Dispatcher       update_tile_signal;
 
     // cache_updater_thread крутится, пока we_need_cache_updater == true
     bool we_need_cache_updater;
     // нам нужно останавливать cache_updater, пока мы не прорисовали готовую плитку
-    bool cache_updater_stopped;
+    // cache_updater_stopped = 1 -- попросить остановиться.
+    // cache_updater_stopped == 2 -- он реально остановился
+    // cache_updater_stopped = 0 -- запустить cache_updater.
+    int cache_updater_stopped;
 
 public:
 
@@ -51,7 +60,7 @@ public:
 	: workplane (_workplane),
           window_origin(_window_origin),
 	  we_need_cache_updater(true),
-	  cache_updater_stopped(false)
+	  cache_updater_stopped(0)
     {
         workplane.set_scale(_scale_nom, _scale_denom);
         Glib::thread_init();
@@ -79,100 +88,35 @@ public:
   void cache_updater(){
     while (we_need_cache_updater){
 
-      Glib::usleep(100);
+      Glib::usleep(10);
 
-      if (cache_updater_stopped) continue;
-
-      // какие плитки видны на экране:
-//      Rect<int> tiles = pointrect_to_tilerect(
-//        Rect<int>(window_origin.x, window_origin.y, get_width(), get_height()) );
-
-      Rect<int> tiles = rect_intdiv(
-        Rect<int>(window_origin.x, window_origin.y, 
-                  get_width(), get_height()), workplane.get_tile_size());
-
-      // Плитки, которые были запрошены, но уже уехали
-      // с экрана -- нам неинтересны. Пропалываем tiles_todo
-
-      std::set<Point<int> >::const_iterator it = tiles_todo.begin(), it1;
-
-      while (it != tiles_todo.end()){
-	it1 = it; it1++;
-        if (!point_in_rect(*it, tiles)){
-          tile_cache.erase(*it);
-	  tiles_todo.erase(*it);  
-        }
-        it = it1;
-      }
-
-      // Пропалываем tile_cache
-      // Здесь у нас такая политика:
-      // если на экране w x h плиток, то мы хотим хранить 3w x 3h плиток и
-      // постепенно их заполнять.
-      // а все более далекие плитки будем убирать из кэша
-
-      Rect<int> tiles_in_cache = Rect<int>
-       (tiles.x-tiles.w, tiles.y-tiles.h, tiles.x+3*tiles.w, tiles.y+3*tiles.h);
-
-      std::map<Point<int>, Image<int> >::iterator map_it=tile_cache.begin(), map_it1;
-
-      while (map_it!=tile_cache.end()){
-        map_it1 = map_it; map_it1++;
-        if (!point_in_rect(map_it->first, tiles_in_cache)){
-	    tile_cache.erase(map_it);
-	}
-	map_it=map_it1;
+      if (cache_updater_stopped > 0){
+//std::cerr << "=2\n";
+	 cache_updater_stopped=2;
+	 continue;
       }
 
       if (!tiles_todo.empty()){
-    
         // сделаем плитку, которую просили
- 
         Point<int> key = *tiles_todo.begin();
         tile_cache.erase(key);
         tiles_todo.erase(key);
         tile_cache.insert(std::pair<Point<int>,Image<int> >(key, workplane.get_image(key)));
         tile_done = key;
-        cache_updater_stopped=true;
+        cache_updater_stopped=2; // остановимся, чтобы не потерять tile_done
         update_tile_signal.emit();
+        continue;
       }
-      else {
-	int x = tiles.x - 1;
-	int y = tiles.y - 1;
-	int dir = 0;
-	// в свободное время сделаем одну из соседних плиток.
-	do {
-//	  std::cerr << "FILL: "
-//		<< " x: " << x
-//		<< " y: " << y
-//		<< " dir: " << dir << "\n";
-
-	  if (tile_cache.count(Point<int>(x,y))==0){
-            tile_cache.insert(std::pair<Point<int>,Image<int> >
-              (Point<int>(x,y), workplane.get_image(Point<int>(x,y))));
-            break;
-	  }
-	  switch (dir){
-	  case 0: 
-	    x++;
-            if (x-(tiles.x+tiles.w-1) == tiles.y-y) dir=1;
-	    break;
-	  case 1:
-	    y++;
-            if (x-(tiles.x+tiles.w-1) == y-(tiles.y+tiles.h-1)) dir=2;
-	    break;
-	  case 2:
-	    x--;
-            if (tiles.x-x == y-(tiles.y+tiles.h-1)) dir=3;
-	    break;
-	  case 3:
-	    y--;
-            if (tiles.x - x == tiles.y - (y+1) ) dir=0;
-	    break;
-	  }
-	} while (point_in_rect(Point<int>(x,y), tiles_in_cache));
+      if (!tiles_todo2.empty()) {
+        // сделаем плитку второй очереди
+        Point<int> key = *tiles_todo2.begin();
+        tiles_todo2.erase(key);
+        tile_cache.insert(std::pair<Point<int>,Image<int> >(key, workplane.get_image(key)));
+	// и ничего не скажем...
+        continue;
       }
     }
+    Glib::Thread::Exit();
   }
 /**************************************/
 
@@ -182,12 +126,13 @@ public:
       std::cerr << "update_tile: " << tile_done << "\n";
 #endif
       draw_tile(tile_done);
-      cache_updater_stopped=false;
+      cache_updater_stopped=0; // запускаем cache_updater
     }
 
 /**************************************/
 
     void draw_tile(const Point<int> & tile_key){
+
 
       int tile_size = workplane.get_tile_size();
       Rect<int> screen(window_origin.x, 
@@ -209,6 +154,7 @@ public:
       }
 
       Image<int> tile = tile_cache.find(tile_key)->second;
+
       Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(tile);
       Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
       Glib::RefPtr<Gdk::Window> widget = get_window();
@@ -219,33 +165,17 @@ public:
                 tile_in_screen.w, tile_in_screen.h,
                 Gdk::RGB_DITHER_NORMAL, 0, 0);
     }
-/**************************************/
-/*
-    Rect<int> pointrect_to_tilerect(Rect<int> pr){
-      int tile_size = workplane.get_tile_size();
-      int x1 = pr.x;
-      int x2 = pr.x + pr.w - 1;
-      int y1 = pr.y;
-      int y2 = pr.y + pr.h - 1;
 
-      x1 = (x1>=0) ? x1/tile_size : x1/tile_size - 1;
-      x2 = (x2>0)  ? x2/tile_size : x2/tile_size - 1;
-      y1 = (y1>=0) ? y1/tile_size : y1/tile_size - 1;
-      y2 = (y2>0)  ? y2/tile_size : y2/tile_size - 1;
 
-      return Rect<int>( x1,y1,x2-x1+1,y2-y1+1);
-    }*/
 /**************************************/
 
+    // перерисовка области экрана, очистка кэша и заданий
     void fill (int sx, int sy, int w, int h) // in window coordinates, should be inside the window
     {
-//      Rect<int> tiles = pointrect_to_tilerect(
-//        Rect<int>(window_origin.x + sx, window_origin.y + sy, w, h)
-//      );
+      // какие плитки видны на экране:
       Rect<int> tiles = rect_intdiv(
         Rect<int>(window_origin.x + sx, window_origin.y + sy, 
         w, h), workplane.get_tile_size());
-
 
 #ifdef DEBUG_VIEWER
 	std::cerr << "fill: " << sx << "," << sy << " " << w << "x" << h << std::endl;
@@ -253,11 +183,83 @@ public:
 	std::cerr << "tiles: " << tiles << std::endl;
 #endif
 
+      // попросим cache_updater остановиться. Сейчас мы будем удалять элементы
+      // из очередей tiles_todo и tiles_todo2, не надо, чтобы с ними в это
+      // время updater работал!
+      cache_updater_stopped = 1;
+      while (cache_updater_stopped != 2) Glib::usleep(10);
+
+      // Нарисуем плитки, поместим запросы первой очереди.
       for (int tj = tiles.y; tj<tiles.y+tiles.h; tj++){
 	for (int ti = tiles.x; ti<tiles.x+tiles.w; ti++){
 	  draw_tile(Point<int>(ti,tj));
         }
       }
+
+      // Плитки, которые были запрошены, но не сделаны, и уже уехали
+      // с экрана -- нам неинтересны. Пропалываем tiles_todo
+
+      std::set<Point<int> >::const_iterator it = tiles_todo.begin(), it1;
+      while (it != tiles_todo.end()){
+	it1 = it; it1++;
+        if (!point_in_rect(*it, tiles)){
+          tile_cache.erase(*it);
+	  tiles_todo.erase(*it);  
+        }
+        it = it1;
+      }
+
+      // Пропалываем tile_cache
+      // Здесь у нас такая политика:
+      // если на экране w x h плиток, то мы хотим хранить (w+2extra) x (h+2extra) плиток и
+      // постепенно их заполнять.
+      // а все более далекие плитки будем убирать из кэша
+
+      const int extra = 2;
+
+      Rect<int> tiles_in_cache = Rect<int>
+       (tiles.x-extra, tiles.y-extra, tiles.x+tiles.w+2*extra, tiles.y+tiles.h+2*extra);
+
+      std::map<Point<int>, Image<int> >::iterator map_it=tile_cache.begin(), map_it1;
+
+      while (map_it!=tile_cache.end()){
+        map_it1 = map_it; map_it1++;
+        if (!point_in_rect(map_it->first, tiles_in_cache)){
+	    tile_cache.erase(map_it);
+	}
+	map_it=map_it1;
+      }
+
+      // делаем запросы на окрестные плитки:
+      tiles_todo2.clear();
+
+      int x = tiles.x - 1;
+      int y = tiles.y - 1;
+      int dir = 0;
+      do {
+        if (tile_cache.count(Point<int>(x,y))==0){
+            tiles_todo2.insert(Point<int>(x,y));
+        }
+        switch (dir){
+        case 0:
+            x++;
+            if (x-(tiles.x+tiles.w-1) == tiles.y-y) dir=1;
+            break;
+        case 1:
+            y++;
+            if (x-(tiles.x+tiles.w-1) == y-(tiles.y+tiles.h-1)) dir=2;
+            break;
+        case 2:
+            x--;
+            if (tiles.x-x == y-(tiles.y+tiles.h-1)) dir=3;
+            break;
+        case 3:
+            y--;
+            if (tiles.x - x == tiles.y - (y+1) ) dir=0;
+            break;
+        }
+      } while (point_in_rect(Point<int>(x,y), tiles_in_cache));
+      cache_updater_stopped=0; // запускаем cache_updater
     }
 /**************************************/
 
@@ -373,9 +375,12 @@ public:
     }
 
     void clear_cache(){
-	tile_cache.clear();
-	tiles_todo.clear();
-	fill(0, 0, get_width(), get_height());
+      cache_updater_stopped = 1;
+      while (cache_updater_stopped != 2) Glib::usleep(10);
+      tile_cache.clear();
+      tiles_todo.clear();
+      cache_updater_stopped = 0;
+      fill(0, 0, get_width(), get_height());
     }
 
 // Работы с масштабами
@@ -399,10 +404,17 @@ public:
       
       Point<int> wcenter = get_window_origin() + get_window_size()/2;
 
+      cache_updater_stopped = 1;
+      while (cache_updater_stopped != 2) Glib::usleep(10);
+      tile_cache.clear();
+      tiles_todo.clear();
+
       set_window_origin((wcenter*n)/dn-get_window_size()/2);
       workplane.set_scale_nom(scale_nom);
       workplane.set_scale_denom(scale_denom);
-      clear_cache();
+
+      cache_updater_stopped = 0;
+      fill(0, 0, get_width(), get_height());
     }
 
     int scale_nom(){

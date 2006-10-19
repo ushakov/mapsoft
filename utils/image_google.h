@@ -74,11 +74,26 @@ int load_to_image(
 
   Rect<int> src_points = Rect<int>(0,0,src_width,src_width);
 
+/*  std::cerr << "GOOGLE: "
+    << "src_points: " << src_points
+    << "src_rect: " << src_rect
+    << "dst_rect: " << dst_rect
+    << "\n";
+*/
+
   // подрежем прямоугольники
   clip_rects_for_image_loader(
       src_points, src_rect,
       Rect<int>(0,0,image.w,image.h), dst_rect);
+
+/*
+  std::cerr << "GOOGLE: "
+    << "src_rect: " << src_rect
+    << "dst_rect: " << dst_rect
+    << "\n";
+*/
   if (src_rect.empty() || dst_rect.empty()) return 0;
+
 
   Rect<int> src_tiles  = rect_intdiv(src_rect,256);
 
