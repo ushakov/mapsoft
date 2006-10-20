@@ -42,12 +42,11 @@ private:
 
     Glib::Thread        *cache_updater_thread;
     Glib::Dispatcher       update_tile_signal;
+    Glib::Mutex         *mutex;
 
     // cache_updater_thread крутится, пока we_need_cache_updater == true
     bool we_need_cache_updater;
     // нам нужно останавливать cache_updater, пока мы не прорисовали готовую плитку
-    // cache_updater_stopped = 1 -- попросить остановиться.
-    // cache_updater_stopped == 2 -- он реально остановился
     // cache_updater_stopped = 0 -- запустить cache_updater.
     int cache_updater_stopped;
 
@@ -64,6 +63,7 @@ public:
     {
         workplane.set_scale(_scale_nom, _scale_denom);
         Glib::thread_init();
+	mutex = new(Glib::Mutex);
         update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
         // сделаем отдельный thread из функции cache_updater
         // joinable = true, чтобы подождать его завершения в деструкторе...
@@ -78,6 +78,7 @@ public:
 		   );
     }
     virtual ~Viewer (){
+	delete(mutex);
 	we_need_cache_updater = false;
 	// подождем, пока cache_updater_thread завершиться
 	cache_updater_thread->join();
@@ -88,22 +89,24 @@ public:
   void cache_updater(){
     while (we_need_cache_updater){
 
-      Glib::usleep(10);
+      Glib::usleep(100);
 
       if (cache_updater_stopped > 0){
 //std::cerr << "=2\n";
-	 cache_updater_stopped=2;
+//	 cache_updater_stopped=2;
 	 continue;
       }
 
+      mutex->lock();
       if (!tiles_todo.empty()){
         // сделаем плитку, которую просили
         Point<int> key = *tiles_todo.begin();
         tile_cache.erase(key);
         tiles_todo.erase(key);
+	mutex->unlock();
         tile_cache.insert(std::pair<Point<int>,Image<int> >(key, workplane.get_image(key)));
         tile_done = key;
-        cache_updater_stopped=2; // остановимся, чтобы не потерять tile_done
+        cache_updater_stopped=1; // остановимся, чтобы не потерять tile_done
         update_tile_signal.emit();
         continue;
       }
@@ -111,10 +114,12 @@ public:
         // сделаем плитку второй очереди
         Point<int> key = *tiles_todo2.begin();
         tiles_todo2.erase(key);
+	mutex->unlock();
         tile_cache.insert(std::pair<Point<int>,Image<int> >(key, workplane.get_image(key)));
 	// и ничего не скажем...
         continue;
       }
+      mutex->unlock();
     }
     Glib::Thread::Exit();
   }
@@ -186,8 +191,8 @@ public:
       // попросим cache_updater остановиться. Сейчас мы будем удалять элементы
       // из очередей tiles_todo и tiles_todo2, не надо, чтобы с ними в это
       // время updater работал!
-      cache_updater_stopped = 1;
-      while (cache_updater_stopped != 2) Glib::usleep(10);
+//      cache_updater_stopped = 1;
+//      while (cache_updater_stopped != 2) Glib::usleep(10);
 
       // Нарисуем плитки, поместим запросы первой очереди.
       for (int tj = tiles.y; tj<tiles.y+tiles.h; tj++){
@@ -203,8 +208,10 @@ public:
       while (it != tiles_todo.end()){
 	it1 = it; it1++;
         if (!point_in_rect(*it, tiles)){
+	  mutex->lock();
           tile_cache.erase(*it);
 	  tiles_todo.erase(*it);  
+	  mutex->unlock();
         }
         it = it1;
       }
@@ -225,13 +232,17 @@ public:
       while (map_it!=tile_cache.end()){
         map_it1 = map_it; map_it1++;
         if (!point_in_rect(map_it->first, tiles_in_cache)){
+	    mutex->lock();
 	    tile_cache.erase(map_it);
+  	    mutex->unlock();
 	}
 	map_it=map_it1;
       }
 
       // делаем запросы на окрестные плитки:
+      mutex->lock();
       tiles_todo2.clear();
+      mutex->unlock();
 
       int x = tiles.x - 1;
       int y = tiles.y - 1;
@@ -259,7 +270,7 @@ public:
             break;
         }
       } while (point_in_rect(Point<int>(x,y), tiles_in_cache));
-      cache_updater_stopped=0; // запускаем cache_updater
+//      cache_updater_stopped=0; // запускаем cache_updater
     }
 /**************************************/
 
@@ -375,11 +386,13 @@ public:
     }
 
     void clear_cache(){
-      cache_updater_stopped = 1;
-      while (cache_updater_stopped != 2) Glib::usleep(10);
+//      cache_updater_stopped = 1;
+//      while (cache_updater_stopped != 2) Glib::usleep(10);
+      mutex->lock();
       tile_cache.clear();
       tiles_todo.clear();
-      cache_updater_stopped = 0;
+      mutex->unlock();
+//      cache_updater_stopped = 0;
       fill(0, 0, get_width(), get_height());
     }
 
@@ -404,16 +417,18 @@ public:
       
       Point<int> wcenter = get_window_origin() + get_window_size()/2;
 
-      cache_updater_stopped = 1;
-      while (cache_updater_stopped != 2) Glib::usleep(10);
+//      cache_updater_stopped = 1;
+//      while (cache_updater_stopped != 2) Glib::usleep(10);
+      mutex->lock();
       tile_cache.clear();
       tiles_todo.clear();
+      mutex->unlock();
 
       set_window_origin((wcenter*n)/dn-get_window_size()/2);
       workplane.set_scale_nom(scale_nom);
       workplane.set_scale_denom(scale_denom);
 
-      cache_updater_stopped = 0;
+//      cache_updater_stopped = 0;
       fill(0, 0, get_width(), get_height());
     }
 

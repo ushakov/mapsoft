@@ -86,6 +86,7 @@ main(int argc, char **argv)
 //    LayerGoogle1 l3("/e2/M/GOOGLE",6);
 
     w.add_layer(&l1,100);
+//    w.add_layer(&l2,100);
     w.add_layer(&gl,200);
 
     Viewer viewer (w);
