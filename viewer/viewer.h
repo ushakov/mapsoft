@@ -42,6 +42,10 @@ private:
 
     Glib::Thread        *cache_updater_thread;
     Glib::Dispatcher       update_tile_signal;
+
+    // Нам надо исключить ситуации, когда viewer удаляет из кэшей
+    // элементы, а cache_updater в это время проверяет их наличие и
+    // пытается к ним обращаться. 
     Glib::Mutex         *mutex;
 
     // cache_updater_thread крутится, пока we_need_cache_updater == true
@@ -188,12 +192,6 @@ public:
 	std::cerr << "tiles: " << tiles << std::endl;
 #endif
 
-      // попросим cache_updater остановиться. Сейчас мы будем удалять элементы
-      // из очередей tiles_todo и tiles_todo2, не надо, чтобы с ними в это
-      // время updater работал!
-//      cache_updater_stopped = 1;
-//      while (cache_updater_stopped != 2) Glib::usleep(10);
-
       // Нарисуем плитки, поместим запросы первой очереди.
       for (int tj = tiles.y; tj<tiles.y+tiles.h; tj++){
 	for (int ti = tiles.x; ti<tiles.x+tiles.w; ti++){
@@ -270,7 +268,6 @@ public:
             break;
         }
       } while (point_in_rect(Point<int>(x,y), tiles_in_cache));
-//      cache_updater_stopped=0; // запускаем cache_updater
     }
 /**************************************/
 
@@ -386,13 +383,11 @@ public:
     }
 
     void clear_cache(){
-//      cache_updater_stopped = 1;
-//      while (cache_updater_stopped != 2) Glib::usleep(10);
       mutex->lock();
       tile_cache.clear();
       tiles_todo.clear();
+      tiles_todo2.clear();
       mutex->unlock();
-//      cache_updater_stopped = 0;
       fill(0, 0, get_width(), get_height());
     }
 
@@ -407,6 +402,7 @@ public:
         else set_scale(1, scale_denom()/scale_nom() + 1);
     }
 
+
     void set_scale(int scale_nom, int scale_denom){
 #ifdef DEBUG_VIEWER
 	std::cerr << "set_scale: " << scale_nom << ":" << scale_denom << std::endl;
@@ -417,19 +413,14 @@ public:
       
       Point<int> wcenter = get_window_origin() + get_window_size()/2;
 
-//      cache_updater_stopped = 1;
-//      while (cache_updater_stopped != 2) Glib::usleep(10);
       mutex->lock();
       tile_cache.clear();
       tiles_todo.clear();
-      mutex->unlock();
-
-      set_window_origin((wcenter*n)/dn-get_window_size()/2);
+      tiles_todo2.clear();
       workplane.set_scale_nom(scale_nom);
       workplane.set_scale_denom(scale_denom);
-
-//      cache_updater_stopped = 0;
-      fill(0, 0, get_width(), get_height());
+      mutex->unlock();
+      set_window_origin((wcenter*n)/dn-get_window_size()/2);
     }
 
     int scale_nom(){
