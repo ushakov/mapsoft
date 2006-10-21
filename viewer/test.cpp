@@ -78,6 +78,7 @@ main(int argc, char **argv)
     Gtk::Main kit (argc, argv);
 
     Gtk::Window win (Gtk::WINDOW_TOPLEVEL);
+
     Workplane w(256,0);
     
     LayerGrid l1(200.5,200.5,0xFF000080);

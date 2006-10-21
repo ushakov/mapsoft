@@ -96,8 +96,6 @@ public:
       Glib::usleep(100);
 
       if (cache_updater_stopped > 0){
-//std::cerr << "=2\n";
-//	 cache_updater_stopped=2;
 	 continue;
       }
 
@@ -105,10 +103,19 @@ public:
       if (!tiles_todo.empty()){
         // сделаем плитку, которую просили
         Point<int> key = *tiles_todo.begin();
-        tile_cache.erase(key);
         tiles_todo.erase(key);
 	mutex->unlock();
-        tile_cache.insert(std::pair<Point<int>,Image<int> >(key, workplane.get_image(key)));
+
+	Image<int> tile = workplane.get_image(key);
+
+	mutex->lock();
+//        // чтобы при перемасштабировании иобнулении кэша в него не попала старая картинка 8|
+        if (tile_cache.count(key)!=0){
+          tile_cache.erase(key);
+          tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
+        }
+	mutex->unlock();
+
         tile_done = key;
         cache_updater_stopped=1; // остановимся, чтобы не потерять tile_done
         update_tile_signal.emit();
@@ -119,7 +126,13 @@ public:
         Point<int> key = *tiles_todo2.begin();
         tiles_todo2.erase(key);
 	mutex->unlock();
-        tile_cache.insert(std::pair<Point<int>,Image<int> >(key, workplane.get_image(key)));
+
+	Image<int> tile = workplane.get_image(key);
+
+	mutex->lock();
+        tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
+	mutex->unlock();
+
 	// и ничего не скажем...
         continue;
       }
@@ -365,9 +378,9 @@ public:
 #ifdef DEBUG_VIEWER
 	std::cerr << "new window_origin " << p.x << "," << p.y << std::endl;
 #endif
-	if (is_mapped()){
-	    fill (0, 0, get_width(), get_height());
-	}
+//	if (is_mapped()){
+//	    fill (0, 0, get_width(), get_height());
+//	}
     }
 
     void set_window_origin(int x, int y){
@@ -388,7 +401,10 @@ public:
       tiles_todo.clear();
       tiles_todo2.clear();
       mutex->unlock();
-      fill(0, 0, get_width(), get_height());
+
+      if (is_mapped()){
+        fill (0, 0, get_width(), get_height());
+      }
     }
 
 // Работы с масштабами
@@ -419,8 +435,13 @@ public:
       tiles_todo2.clear();
       workplane.set_scale_nom(scale_nom);
       workplane.set_scale_denom(scale_denom);
+      window_origin = (wcenter*n)/dn-get_window_size()/2;
       mutex->unlock();
-      set_window_origin((wcenter*n)/dn-get_window_size()/2);
+
+      if (is_mapped()){
+        fill (0, 0, get_width(), get_height());
+      }
+
     }
 
     int scale_nom(){
