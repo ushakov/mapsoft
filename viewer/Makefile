@@ -1,7 +1,9 @@
-LDFLAGS = -ggdb `pkg-config --libs gtkmm-2.4,gthread-2.0` -ljpeg 
+LDFLAGS = -ggdb `pkg-config --libs gtkmm-2.4,gthread-2.0` -ljpeg  -lusb
 CPPFLAGS = `pkg-config --cflags gtkmm-2.4,gthread-2.0` -I../utils  -O1
 
 all: test
+
+test: ../../mapsoft/io_new/io.a ../jeeps/jeeps.a  ../../mapsoft/image-gdk/image.o
 
 #TEST_LIBS = ../io/io.a ../map/geodata.a ../jeeps/jeeps.a
 #TEST_LIBS = ../io_new/io.a ../jeeps/jeeps.a

@@ -6,7 +6,7 @@
 
 class LayerGoogle1 : public Layer {
 public:
-    LayerGoogle1 (char * _dir, int _scale)
+    LayerGoogle1 (const std::string & _dir, int _scale)
 	: dir (_dir), scale(_scale) { }
     
     virtual void draw (Image<int> & img, Rect<int> src){    
@@ -20,7 +20,7 @@ public:
     }
 
 private:
-    char *dir;
+    std::string dir;
     int  scale;
 };
 

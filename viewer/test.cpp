@@ -13,9 +13,15 @@
 #include "layer_google1.h"
 #include "layer_wait.h"
 #include "layer_jpeg_simple.h"
+#include "layer_geodata_old.h"
 
 int sc = 1;
-LayerGoogle1 gl("/e2/M/GOOGLE",sc);
+
+const std::string google_dir = "/e2/M/GOOGLE";
+const std::string data_file  = "./track.plt";
+
+LayerGoogle1 gl(google_dir,sc);
+LayerGeodataOld dl(data_file, sc);
 
 bool
 on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
@@ -26,7 +32,8 @@ on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
     {
 	if (sc>=18) break;
 	sc++;
-        gl = LayerGoogle1("/e2/M/GOOGLE",sc);
+        gl = LayerGoogle1(google_dir,sc);
+        dl.set_scale(sc);
 	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
 	std::cerr << "google scale: " << sc << " scale: " 
                   << v->scale_nom() << ":" 
@@ -40,7 +47,8 @@ on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
     {
 	if (sc<=1) break;
 	sc--;
-	gl = LayerGoogle1("/e2/M/GOOGLE",sc);
+	gl = LayerGoogle1(google_dir,sc);
+        dl.set_scale(sc);
 	std::cerr << "google scale: " << sc << " scale: " 
                   << v->scale_nom() << ":" 
                   << v->scale_denom() <<  std::endl;
@@ -89,8 +97,10 @@ main(int argc, char **argv)
     w.add_layer(&l1,100);
 //    w.add_layer(&l2,100);
     w.add_layer(&gl,200);
+    w.add_layer(&dl,50);
 
     Viewer viewer (w);
+//    viewer.set_window_origin(dl.range().TLC());
 
 //    geo_data world;
 //    options opts;
