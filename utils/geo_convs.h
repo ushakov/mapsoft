@@ -84,8 +84,8 @@ struct Proj{
 	switch (n){
     	    case  0: return "Latitude/Longitude";
     	    case  1: return "Transverse Mercator";
-    	    case  2: return "UTM";      // проверить, что в OE оно так называется
-    	    case  3: return "Mercator"; // проверить, что в OE оно так называется
+    	    case  2: return "UTM";      // проверить, что в OE оно так называется!
+    	    case  3: return "Mercator"; // проверить, что в OE оно так называется!
     	    default:
     	    std::cerr << "oe_str: unknown datum: " << n << "\n";
     	    return "Unknown";
@@ -94,6 +94,20 @@ struct Proj{
 
 };
 
+// преобразование проекции к lonlat для заданной СК.
+Point<double> conv_to_lonlat(const Point<double> & p, const Datum & D, const Proj & P, const Options & proj_opts){
+    switch (P.n){
+	case 0: return p;
+	case 1: 
+	    Point<double> p1;
+    	    double a = GPS_Ellipse[GPS_Datum[datum].ellipse].a;
+	    double f = 1/GPS_Ellipse[GPS_Datum[datum].ellipse].invf;
+	    GPS_Math_TMerc_EN_To_LatLon(p.x, p.y, &p1.x, &p1.y, 0, lon0, 0, 500000, 1, a, a*(1-f));
+	case 2:
+    }
+}
+
+
 Point<double> conv_to_std(const Point<double> & p, const Datum & D, const Proj & P){
     Point<double> p1,p2;
     p1=conv_to_lonlat(p,D,P);
@@ -101,19 +115,6 @@ Point<double> conv_to_std(const Point<double> & p, const Datum & D, const Proj &
     return p2;
 }
 
-// преобразование проекции к lonlat для заданной СК.
-Point<double> conv_to_lonlat(const Point<double> & p, const Datum & D, const Proj & P){
-    switch (P.n){
-	case 0: return p;
-	case 1: 
-            lon0?
-	    Point<double> p1;
-    	    double a = GPS_Ellipse[GPS_Datum[datum].ellipse].a;
-	    double f = 1/GPS_Ellipse[GPS_Datum[datum].ellipse].invf;
-	    GPS_Math_TMerc_EN_To_LatLon(p.x, p.y, &p1.x, &p1.y, 0, lon0, 0, 500000, 1, a, a*(1-f))
-	case 2:
-    }
-}
 
 //
 /*
