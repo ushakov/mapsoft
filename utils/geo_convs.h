@@ -95,7 +95,7 @@ struct Proj{
 };
 
 // преобразование проекции к lonlat для заданной СК.
-Point<double> conv_to_lonlat(const Point<double> & p, const Datum & D, const Proj & P, const Options & proj_opts){
+Point<double> conv_to_lonlat(const Point<double> & p, const Datum & D, const Proj & P, const Options & opts){
     switch (P.n){
 	case 0: return p;
 	case 1: 

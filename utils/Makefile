@@ -1,2 +1,0 @@
-CPPFLAGS = -O1
-LDFLAGS = -ltiff

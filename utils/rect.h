@@ -166,6 +166,9 @@ void clip_rects_for_image_loader(
           Rect<int> & src,
     const Rect<int> & dst_img,
           Rect<int> & dst){
+
+   if (src.empty() || dst.empty()) return;
+
 // очевидное преобразование, которое, однако, приводит к умножениям 
 // на большие числа и переполнениям...
 /*

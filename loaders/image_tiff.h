@@ -1,9 +1,9 @@
-#ifndef IMAGE_IO_TIFF_H
-#define IMAGE_IO_TIFF_H
+#ifndef IMAGE_TIFF_H
+#define IMAGE_TIFF_H
 
-#include "image.h"
-#include "rect.h"
-#include "point.h"
+#include "../utils/image.h"
+#include "../utils/rect.h"
+#include "../utils/point.h"
 
 #include <tiffio.h>
 
@@ -13,7 +13,10 @@ namespace image_tiff{
 Point<int> size(const char *file){
     TIFF* tif = TIFFOpen(file, "rb");
 
-    if (!tif) return Point<int>(0,0);
+    if (!tif){
+//      std::cerr << "Can't read TIFF file!\n";
+      return Point<int>(0,0);
+    }
 
     uint32 w=0, h=0;
     TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
@@ -23,10 +26,10 @@ Point<int> size(const char *file){
 }
 
 // loading from Rect in jpeg-file to Rect in image
-int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
+int load(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
 
     TIFF* tif = TIFFOpen(file, "rb");
-    if (!tif) return 1;
+    if (!tif) return 2;
 
     int tiff_w, tiff_h;
 
@@ -35,9 +38,9 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
 
     // подрежем прямоугольники
     clip_rects_for_image_loader(
-      Rect<int>(0,0,jpeg_w,jpeg_h), src_rect,
+      Rect<int>(0,0,tiff_w,tiff_h), src_rect,
       Rect<int>(0,0,image.w,image.h), dst_rect);
-    if (src_rect.empty() || dst_rect.empty()) return 0;
+    if (src_rect.empty() || dst_rect.empty()) return 1;
 
     int scan = TIFFScanlineSize(tif);
     int bpp = scan/tiff_w;
@@ -52,6 +55,10 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     TIFFGetField(tif, TIFFTAG_COMPRESSION,  &compression_type);
     TIFFGetField(tif, TIFFTAG_ROWSPERSTRIP, &rows_per_strip);
     if ((compression_type==COMPRESSION_NONE)||(rows_per_strip==1)) can_skip_lines = true;
+
+#ifdef DEBUG_TIFF
+      std::cerr << "tiff: can we skip lines: " << can_skip_lines << "\n";
+#endif
 
 
     int src_y = 0;
@@ -91,20 +98,21 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
 }
 
 
-// save window of image
-int wsave(const char *file, const Image<int> & im, bool usealpha = false){
+// save part of image
+int save(const Image<int> & im, const Rect<int> & src_rect,
+         const char *file, bool usealpha = false){
 
     TIFF* tif = TIFFOpen(file, "wb");
 
     if (!tif){
-      std::cerr << "Can't load TIFF-file\n";
+      std::cerr << "Can't write TIFF-file!\n";
       return 1;
     }
     int bpp = usealpha?4:3;
-    int scan = bpp*im.ww;
+    int scan = bpp*src_rect.w;
 
-    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, im.ww);
-    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, im.wh);
+    TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, src_rect.w);
+    TIFFSetField(tif, TIFFTAG_IMAGELENGTH, src_rect.h);
     TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, bpp);
     TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE,   8);
     TIFFSetField(tif, TIFFTAG_PLANARCONFIG,    1);
@@ -120,19 +128,25 @@ int wsave(const char *file, const Image<int> & im, bool usealpha = false){
     tdata_t buf = _TIFFmalloc(scan);
     char *cbuf = (char *)buf;
 
-    for (int row = 0; row < im.wh; row++){
-      for (int col = 0; col < im.ww; col++){
-	int c = im.wget(col,row);
-	if (bpp==3){ // RGB
-    	    cbuf[3*col]   = (c >> 24) & 0xFF;
-    	    cbuf[3*col+1] = (c >> 16) & 0xFF;
-    	    cbuf[3*col+2] = (c >> 8)  & 0xFF;
-        }
-	if (bpp==4){ // RGBA
-    	    cbuf[4*col]   = (c >> 24) & 0xFF;
-    	    cbuf[4*col+1] = (c >> 16) & 0xFF;
-    	    cbuf[4*col+2] = (c >> 8)  & 0xFF;
-    	    cbuf[4*col+3] = c & 0xFF;
+    for (int row = 0; row < src_rect.h; row++){
+      if ((row+src_rect.y <0)||(row+src_rect.y>=im.h)){
+	for (int col = 0; col < src_rect.w*bpp; col++) cbuf[col] = 0;
+      } else {
+        for (int col = 0; col < src_rect.h; col++){
+	  int c = 0;
+          if ((col+src_rect.x >=0)&&(col+src_rect.x<im.w))
+             c = im.get(src_rect.x+col,src_rect.y+row);
+	  if (bpp==3){ // RGB
+    	      cbuf[3*col]   = c & 0xFF;
+    	      cbuf[3*col+1] = (c >> 8)  & 0xFF;
+    	      cbuf[3*col+2] = (c >> 16) & 0xFF;
+          }
+	  if (bpp==4){ // RGBA
+    	      cbuf[4*col]   = c & 0xFF;
+    	      cbuf[4*col+1] = (c >> 8)  & 0xFF;
+    	      cbuf[4*col+2] = (c >> 16) & 0xFF;
+    	      cbuf[4*col+3] = (c >> 24) & 0xFF;
+          }
         }
       }
       TIFFWriteScanline(tif, buf, row);
@@ -142,19 +156,17 @@ int wsave(const char *file, const Image<int> & im, bool usealpha = false){
     return 0;
 }
 
-// load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
 Image<int> load(const char *file, const int scale=1){
   Point<int> s = size(file);
   Image<int> ret(s.x/scale,s.y/scale);
-  load_to_image(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
+  if (s.x*s.y==0) return ret;
+  load(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
   return ret;
 }
 
 // save the whole image
-int save(const char * file, const Image<int> & im, bool usealpha = false){
-  Image<int> im1 = im;
-  im1.window_expand();
-  return wsave(file, im1, usealpha);
+int save(const Image<int> & im, const char * file, bool usealpha = false){
+  return save(im, im.range(), file, usealpha);
 }
 
 } // namespace

@@ -57,7 +57,7 @@ struct Options : std::map<std::string,std::string>{
   }
 
 
-  double get_int(const std::string & key, const int dflt = 0, bool _erase=false){
+  int get_int(const std::string & key, const int dflt = 0, bool _erase=false){
     using namespace boost::spirit;
     iterator i = find(key);
     if (i == end() ) return dflt;
@@ -75,7 +75,7 @@ struct Options : std::map<std::string,std::string>{
   }
 
 
-  double get_uint(const std::string & key, const unsigned int dflt = 0, bool _erase=false){
+  unsigned int get_uint(const std::string & key, const unsigned int dflt = 0, bool _erase=false){
     using namespace boost::spirit;
     iterator i = find(key);
     if (i == end() ) return dflt;
@@ -93,7 +93,7 @@ struct Options : std::map<std::string,std::string>{
   }
 
   // hex values "#FFFFFF"
-  double get_hex(const std::string & key, const unsigned int dflt = 0, bool _erase=false){
+  unsigned int get_hex(const std::string & key, const unsigned int dflt = 0, bool _erase=false){
     using namespace boost::spirit;
     iterator i = find(key);
     if (i == end() ) return dflt;

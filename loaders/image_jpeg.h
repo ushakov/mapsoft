@@ -1,55 +1,85 @@
-#ifndef IMAGE_IO_JPEG_H
-#define IMAGE_IO_JPEG_H
+#ifndef IMAGE_JPEG_H
+#define IMAGE_JPEG_H
 
-#include "image.h"
-#include "rect.h"
-#include "point.h"
+#include "../utils/image.h"
+#include "../utils/rect.h"
+#include "../utils/point.h"
 
 #include <jpeglib.h>
 
+#ifndef SETJMP
+#define SETJMP
+#include <setjmp.h>
+#endif
+
 namespace image_jpeg{
+
+struct my_error_mgr {
+  struct jpeg_error_mgr pub;
+  jmp_buf setjmp_buffer;
+};
+
+void my_error_exit (j_common_ptr cinfo) {
+  my_error_mgr * myerr = (my_error_mgr *) cinfo->err;
+  (*cinfo->err->output_message) (cinfo);
+  longjmp(myerr->setjmp_buffer, 1);
+}
+
 
 // getting file dimensions
 Point<int> size(const char *file){
     struct jpeg_decompress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    cinfo.err = jpeg_std_error(&jerr);
+    struct my_error_mgr jerr;
+    cinfo.err = jpeg_std_error(&jerr.pub);
+    jerr.pub.error_exit = my_error_exit;
     jpeg_create_decompress(&cinfo);
 
     FILE * infile;
 
     if ((infile = fopen(file, "rb")) == NULL) {
-        std::cerr << "can't open " << file << "\n";
+        std::cerr << "Can't open " << file << "\n";
         return Point<int>(0,0);
     }
+
+    if (setjmp(jerr.setjmp_buffer)) {
+      jpeg_destroy_decompress(&cinfo);
+      fclose(infile);
+      return Point<int>(0,0);
+    }
+
     jpeg_stdio_src(&cinfo, infile);
     jpeg_read_header(&cinfo, TRUE);
     Point<int> p(cinfo.image_width, cinfo.image_height);
     jpeg_destroy_decompress(&cinfo);
-
+    fclose(infile);
     return p;
 }
 
 // loading from Rect in jpeg-file to Rect in image
-int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
+int load(const char *file, Rect<int> src_rect, 
+         Image<int> & image, Rect<int> dst_rect){
 
     // откроем файл, получим размеры:
     struct jpeg_decompress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    cinfo.err = jpeg_std_error(&jerr);
+    struct my_error_mgr jerr;
+    cinfo.err = jpeg_std_error(&jerr.pub);
+    jerr.pub.error_exit = my_error_exit;
     jpeg_create_decompress(&cinfo);
 
     FILE * infile;
 
     if ((infile = fopen(file, "rb")) == NULL) {
         std::cerr << "can't open " << file << "\n";
-        return 1;
+        return 2;
+    }
+    if (setjmp(jerr.setjmp_buffer)) {
+      jpeg_destroy_decompress(&cinfo);
+      fclose(infile);
+      return 2;
     }
 
     jpeg_stdio_src(&cinfo, infile);
     jpeg_read_header(&cinfo, TRUE);
-
-    // тут еще нужна проверка на то, что файл не JPEG!!!
 
     int jpeg_w = cinfo.image_width;
     int jpeg_h = cinfo.image_height;
@@ -60,7 +90,7 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     clip_rects_for_image_loader(
       Rect<int>(0,0,jpeg_w,jpeg_h), src_rect,
       Rect<int>(0,0,image.w,image.h), dst_rect);
-    if (src_rect.empty() || dst_rect.empty()) return 0;
+    if (src_rect.empty() || dst_rect.empty()) return 1;
     
     // посмотрим, можно ли загружать сразу уменьшенный jpeg
     // (поддерживается уменьшение в 1,2,4,8 раз)
@@ -72,6 +102,10 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
     else if (scale <4) cinfo.scale_denom = 2;
     else if (scale <8) cinfo.scale_denom = 4;
     else cinfo.scale_denom = 8;   
+
+#ifdef DEBUG_JPEG
+      std::cerr << "jpeg: loading at scale 1/" << cinfo.scale_denom << "\n";
+#endif
 
     src_rect /= cinfo.scale_denom;
     jpeg_w /= cinfo.scale_denom;
@@ -109,8 +143,9 @@ int load_to_image(const char *file, Rect<int> src_rect, Image<int> & image, Rect
 }
 
 
-// save window of image
-int wsave(const char *file, const Image<int> & im, int quality=75){
+// save part of image
+int save(const Image<int> & im, const Rect<int> & src_rect, 
+         const char *file, int quality=75){
 
     if ((quality<0)||(quality>100)){
         std::cerr << "JPEG quality not in range 0..100 (" << quality << ")\n";
@@ -129,21 +164,28 @@ int wsave(const char *file, const Image<int> & im, int quality=75){
     }
 
     jpeg_stdio_dest(&cinfo, outfile);
-    cinfo.image_width = im.ww;
-    cinfo.image_height = im.wh;
+    cinfo.image_width = src_rect.w;
+    cinfo.image_height = src_rect.h;
     cinfo.input_components = 3;
     cinfo.in_color_space = JCS_RGB;
     jpeg_set_defaults(&cinfo);
     jpeg_set_quality (&cinfo, quality, true);
     jpeg_start_compress(&cinfo, TRUE);
 
-    char *buf  = new char[im.ww * 3];
-    for (int y = 0; y < im.wh; y++){
-      for (int x = 0; x < im.ww; x++){
-        int c = im.wget(x,y);
-        buf[3*x] = c & 0xFF;
-        buf[3*x+1] = (c >> 8) & 0xFF;
-        buf[3*x+2]   = (c >> 16) & 0xFF;
+    char *buf  = new char[src_rect.w * 3];
+
+    for (int y = src_rect.y; y < src_rect.y+src_rect.h; y++){
+      if ((y<0)||(y>=im.h)){
+        for (int x = 0; x < src_rect.w*3; x++) buf[x] = 0;
+      } else {
+        for (int x = 0; x < src_rect.w; x++){
+          int c = 0;
+          if ((x+src_rect.x >= 0) && (x+src_rect.x<im.w))
+            c = im.get(x+src_rect.x, y);
+          buf[3*x] = c & 0xFF;
+          buf[3*x+1] = (c >> 8) & 0xFF;
+          buf[3*x+2]   = (c >> 16) & 0xFF;
+        }
       }
       jpeg_write_scanlines(&cinfo, (JSAMPLE**)&buf, 1);
     }
@@ -158,15 +200,14 @@ int wsave(const char *file, const Image<int> & im, int quality=75){
 Image<int> load(const char *file, const int scale=1){
   Point<int> s = size(file);
   Image<int> ret(s.x/scale,s.y/scale);
-  load_to_image(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
+  if (s.x*s.y==0) return ret;
+  load(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
   return ret;
 }
 
 // save the whole image
-int save(const char * file, const Image<int> & im, int quality=75){
-  Image<int> im1 = im;
-  im1.window_expand();
-  return wsave(file, im1, quality);
+int save(const Image<int> & im, const char * file, int quality=75){
+  return save(im, im.range(), file, quality);
 }
 
 } // namespace

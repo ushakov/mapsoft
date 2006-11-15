@@ -21,11 +21,12 @@ public:
 	Rect<int> dst_rect = image.range();
 	Rect<int> src_rect = (tile_key*tile_size + dst_rect)*scale_denom;
         src_rect = rect_intdiv(src_rect, scale_nom);
+
 //	std::cerr << "Workplane: " << src_rect << " -> " << dst_rect << "\n";
 
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
 	     itl != layers.rend();  ++itl){
-	     itl->second->draw (image, src_rect);
+	     itl->second->draw (image, src_rect, image.range());
 	}
 
 	return image;
