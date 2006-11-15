@@ -9,7 +9,7 @@ public:
     LayerGrid (double _xstep, double _ystep, int _color)
 	: xstep (_xstep), ystep (_ystep), color(_color) { }
     
-    virtual void draw (Image<int> & img, Rect<int> src, Rect<int> dst){    
+    virtual void draw (Rect<int> src, Image<int> & img, Rect<int> dst){    
 
         clip_rects_for_image_loader(src, src, img.range(), dst);
 

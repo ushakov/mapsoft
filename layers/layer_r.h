@@ -36,25 +36,32 @@ private:
   Rect<int>          file_rect;
   Image<int>         buf;
   Rect<int>          buf_rect;  //  положение буфера на (немасштабированной) картинке
-  double             buf_scale; //  текущий масштаб буфера
+  int                buf_scale; //  текущий масштаб буфера
 
 public:
     LayerR (const char *_file) : file(_file), buf(layer_r_bufw, layer_r_bufh), buf_rect(0,0,0,0), buf_scale(0) { 
         file_rect = Rect<int>(Point<int>(0,0), image_r::size(_file)); 
     }
     
-    virtual void draw (Image<int> & img, Rect<int> src_rect, Rect<int> dst_rect){
+    virtual void draw (Rect<int> src_rect, Image<int> & img, Rect<int> dst_rect){
         // Подрежем прямоугольники:
         clip_rects_for_image_loader(file_rect, src_rect, img.range(), dst_rect);
         if (src_rect.empty() || dst_rect.empty()) return;
 
+
 	// Какой масштаб нам нужен - во сколько раз будем уменьшать картинку:
-        double xscale = (double)src_rect.w / dst_rect.w;
-        double yscale = (double)src_rect.h / dst_rect.h;
-        double scale = std::min(xscale, yscale);
+        int xscale = src_rect.w  / dst_rect.w;
+        int yscale = src_rect.h / dst_rect.h;
+        int scale = std::min(xscale, yscale);
+
+        if (scale <2) scale = 1;
+        else if (scale <4) scale = 2;
+        else if (scale <8) scale = 4;
+        else scale = 8;
+
 
         // подойдет ли нам буфер? Если нет - перезагрузим его!
-        if ((scale < buf_scale) && (buf_scale > 1) ||
+        if (((scale < buf_scale) && (buf_scale > 1)) ||
              !point_in_rect(src_rect.TLC(), buf_rect) ||
              !point_in_rect(src_rect.BRC(), buf_rect)){
           // определим новое положение буфера:
@@ -79,11 +86,7 @@ public:
         // получим нужную картинку из буфера:
         // какая его часть нам нужна:
 
-        Rect<int> src = src_rect - buf_rect.TLC();
-        src.x/=buf_scale;
-        src.y/=buf_scale;
-        src.w/=buf_scale;
-        src.h/=buf_scale;
+        Rect<int> src = (src_rect - buf_rect.TLC())/buf_scale;
         image_i::load(buf, src, img, dst_rect);
         
     }

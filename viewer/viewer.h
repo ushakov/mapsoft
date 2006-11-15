@@ -93,7 +93,7 @@ public:
   void cache_updater(){
     while (we_need_cache_updater){
 
-      Glib::usleep(100);
+//      Glib::usleep(100);
 
       if (cache_updater_stopped > 0){
 	 continue;

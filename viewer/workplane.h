@@ -26,7 +26,7 @@ public:
 
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
 	     itl != layers.rend();  ++itl){
-	     itl->second->draw (image, src_rect, image.range());
+	     itl->second->draw (src_rect, image, image.range());
 	}
 
 	return image;
