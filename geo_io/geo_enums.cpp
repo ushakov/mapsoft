@@ -17,7 +17,7 @@ int geo_enum::str2int(const string & str) const{
         int ret;
         if (parse(str.c_str(), uint_p[assign_a(ret)]).full) return ret;
         // иначе - ругаемся и возвращаем значение по умолчанию
-        cerr << "Unknown word: " << str << "\n";
+        if (str.length()!=0) cerr << "Unknown word: " << str << "\n";
         return def;
 }
 string geo_enum::int2str(const int i) const{

@@ -93,7 +93,7 @@ namespace xml {
 		operator g_waypoint_list () const {
 			g_waypoint_list ret;
 			ret.symbset = get_string("symbset", ret.symbset);
-			const std::string used[] = {"symbset",""};
+			const std::string used[] = {"symbset","points",""}; //points - только записывается, не читается.
                         warn_unused(used);
 			for (vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
 				ret.points.push_back(*i);
@@ -105,10 +105,11 @@ namespace xml {
 			ret.width = get_int   ("width", ret.width);
 			ret.color = get_hex   ("color", ret.color);
 			ret.skip  = get_int   ("skip",  ret.skip);
+			ret.displ = get_int   ("displ", ret.displ);
                         ret.type  = trk_type_enum.str2int(get_string("type"));
                         ret.fill  = trk_fill_enum.str2int(get_string("fill"));
 			ret.cfill = get_hex   ("cfill", ret.cfill);
-                        const std::string used[] = {"comm", "width", "color", "skip", "type", "fill", "cfill", ""};
+                        const std::string used[] = {"comm", "width", "color", "skip", "displ", "type", "fill", "cfill", "points", ""};
                         warn_unused(used);
 			for (vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
 				ret.points.push_back(*i);
@@ -120,7 +121,7 @@ namespace xml {
 			ret.file = get_string("file",  ret.file);
                         ret.map_proj = Proj(get_string("map_proj"));
 			ret.border = get_poly("border");
-                        const std::string used[] = {"comm", "file", "map_proj", "border", ""};
+                        const std::string used[] = {"comm", "file", "map_proj", "border", "points", ""};
                         warn_unused(used);
 			for (vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
 				ret.points.push_back(*i);
