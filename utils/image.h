@@ -152,6 +152,11 @@ struct Image{
 	((data[y*w+x] & 0xFF * (255-a) + (c>>8) & 0xFF * a) >> 16) & 0xFF;
     }
 
+    inline void safe_set(int x, int y, T c){
+	if ((x>=0)&&(y>=0)&&(x<w)&&(y<h)) data[y*w+x]=c;
+    }
+
+
     Rect<int> range() const{
       return Rect<int>(0,0,w,h);
     }

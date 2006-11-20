@@ -83,7 +83,7 @@ Image<int> load(const char *file, const int scale=1){
 //   tiff_usealpha 0..1,   default 0
 
 int save(const Image<int> & im, const Rect<int> & src_rect,
-         const char *file, Options & opts){
+         const char *file, const Options & opts){
 
     // Поглядим на расширение:
     int l = strlen(file);
@@ -91,15 +91,13 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
         !strncmp(file + (l-4), ".JPG", 4)||
         !strncmp(file + (l-5), ".jpeg", 5)||
         !strncmp(file + (l-5), ".JPEG", 5)){
-      return image_jpeg::save(im, src_rect, file, 
-                 opts.get_uint("jpeg_quality", 75));
+      return image_jpeg::save(im, src_rect, file, opts.get_uint("jpeg_quality", 75));
     }
     if (!strncmp(file + (l-4), ".tif", 4)||
         !strncmp(file + (l-4), ".TIF", 4)||
         !strncmp(file + (l-5), ".tiff", 5)||
         !strncmp(file + (l-5), ".TIFF", 5)){
-      return image_tiff::save(im, src_rect, file, 
-              (bool)opts.get_uint("tiff_usealpha", 0));
+      return image_tiff::save(im, src_rect, file, opts.get_bool("tiff_usealpha"));
     }
     if (!strncmp(file + (l-4), ".png", 4)||
         !strncmp(file + (l-4), ".PNG", 4)){
@@ -110,7 +108,7 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
 }
 
 // save the whole image
-int save(const Image<int> & im, const char * file, Options & opts){
+int save(const Image<int> & im, const char * file, const Options & opts){
     return save(im, im.range(), file, opts);
 }
 

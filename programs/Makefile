@@ -1,7 +1,7 @@
 LDFLAGS = -ggdb `pkg-config --libs gtkmm-2.4,gthread-2.0` -ljpeg -ltiff -lpng
 CPPFLAGS = `pkg-config --cflags gtkmm-2.4,gthread-2.0` -I../utils -I../viewer -I../loaders -I../layers -O1
 
-all: mapsoft_googleview
+all: mapsoft_googleview mapsoft_imgview mapsoft_imgview1
 
 #test: ../../mapsoft/io_new/io.a ../jeeps/jeeps.a  ../../mapsoft/image-gdk/image.o
 
@@ -15,4 +15,4 @@ all: mapsoft_googleview
 
 
 clean:
-	rm mapsoft_googleview
+	rm mapsoft_googleview mapsoft_imgview mapsoft_imgview1

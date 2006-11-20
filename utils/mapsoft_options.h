@@ -1,152 +1,27 @@
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
+#ifndef MAPSOFT_OPTIONS_H
+#define MAPSOFT_OPTIONS_H
 
 #include <string>
+#include <vector>
 #include <map>
-#include <iostream>
-#include <iomanip>
-#include "mapsoft_time.h"
-
-
+#include <set>
+#include "point.h"
 
 struct Options : std::map<std::string,std::string>{
-
-  std::string get_string(const std::string & key, const std::string & dflt = "", bool _erase=false){
-    iterator i = find(key);
-    if (i == end() ) return dflt;
-
-    std::string ret = i->second;
-    if (_erase) erase(i);
-    return ret;
-  }
-
-
-  double get_double(const std::string & key, const double dflt = 0.0, bool _erase=false){
-    using namespace boost::spirit;
-    iterator i = find(key);
-    if (i == end() ) return dflt;
-
-    std::string str = i->second;
-    if (_erase) erase(i);
-
-    double ret;
-    if (parse(str.c_str(), real_p[assign_a(ret)]).full) return ret;
-
-    std::cerr << "Options: can't find double value in " 
-              << key << " = " << str
-              << " Using default value: " << dflt << "\n"; 
-    return dflt;
-  }
-
-
-  double get_udouble(const std::string & key, const double dflt = 0.0, bool _erase=false){
-    using namespace boost::spirit;
-    iterator i = find(key);
-    if (i == end() ) return dflt;
-
-    std::string str = i->second;
-    if (_erase) erase(i);
-
-    double ret;
-    if (parse(str.c_str(), ureal_p[assign_a(ret)]).full) return ret;
-
-    std::cerr << "Options: can't find unsigned double value in " 
-              << key << " = " << str 
-              << " Using default value: " << dflt << "\n"; 
-    return dflt;
-  }
-
-
-  int get_int(const std::string & key, const int dflt = 0, bool _erase=false){
-    using namespace boost::spirit;
-    iterator i = find(key);
-    if (i == end() ) return dflt;
-
-    std::string str = i->second;
-    if (_erase) erase(i);
-
-    int ret;
-    if (parse(str.c_str(), int_p[assign_a(ret)]).full) return ret;
-
-    std::cerr << "Options: can't find int value in " 
-	      << key << " = " << str
-              << " Using default value: " << dflt << "\n"; 
-    return dflt;
-  }
-
-
-  unsigned int get_uint(const std::string & key, const unsigned int dflt = 0, bool _erase=false){
-    using namespace boost::spirit;
-    iterator i = find(key);
-    if (i == end() ) return dflt;
-
-    std::string str = i->second;
-    if (_erase) erase(i);
-
-    unsigned int ret;
-    if (parse(str.c_str(), uint_p[assign_a(ret)]).full) return ret;
-
-    std::cerr << "Options: can't find unsigned int value in " 
-	      << key << " = " << str
-              << " Using default value: " << dflt << "\n"; 
-    return dflt;
-  }
-
-  char get_char(const std::string & key, const char dflt = '?', bool _erase=false){
-    using namespace boost::spirit;
-    iterator i = find(key);
-    if (i == end() ) return dflt;
-
-    std::string str = i->second;
-    if (_erase) erase(i);
-
-    char ret;
-    if (parse(str.c_str(), anychar_p[assign_a(ret)]).full) return ret;
-
-    std::cerr << "Options: can't find unsigned char value in " 
-	      << key << " = " << str
-              << " Using default value: " << dflt << "\n"; 
-    return dflt;
-  }
-
-  // hex values "#FFFFFF"
-  unsigned int get_hex(const std::string & key, const unsigned int dflt = 0, bool _erase=false){
-    using namespace boost::spirit;
-    iterator i = find(key);
-    if (i == end() ) return dflt;
-
-    std::string str = i->second;
-    if (_erase) erase(i);
-
-    unsigned int ret;
-    if (parse(str.c_str(), ch_p('#') >> hex_p[assign_a(ret)]).full) return ret;
-
-    std::cerr << "Options: can't find hexadecimal value in " 
-	      << key << " = " << str
-              << " Using default value: #" << std::setbase(16) << dflt << "\n"; 
-    return dflt;
-  }
-
-  // default value - current time. See ./time.h
-  time_t get_time(const std::string & key, bool _erase=false){
-    using namespace boost::spirit;
-    iterator i = find(key);
-    if (i == end() ) return time(NULL);
-
-    std::string str = i->second;
-    if (_erase) erase(i);
-
-    return str2time(str);
-  }
+  std::string  get_string  (const std::string & key, const std::string & dflt="" ) const;
+  double       get_double  (const std::string & key, const double dflt=0        ) const;
+  double       get_udouble (const std::string & key, const double dflt=0        ) const;
+  int          get_int     (const std::string & key, const int dflt=0           ) const;
+  unsigned int get_uint    (const std::string & key, const unsigned int dflt=0  ) const;
+  char         get_char    (const std::string & key, const char dflt='?'        ) const;
+  unsigned int get_hex     (const std::string & key, const unsigned int dflt=0  ) const;
+  bool         get_bool    (const std::string & key) const;
+  time_t       get_time    (const std::string & key) const;
+  std::vector<Point<double> > get_poly    
+	(const std::string & key, const std::vector<Point<double> > & dflt = std::vector<Point<double> >() ) const;
+  void warn_unused (const std::string * used) const;
 };
 
+std::ostream & operator<< (std::ostream & s, const Options & o);
 
-std::ostream & operator<< (std::ostream & s, const Options & o)
-{
-  s << "Options(" << "\n";
-  for (Options::const_iterator i=o.begin(); i!=o.end(); i++){
-    s << "  " << i->first << " = " << i->second << "\n";
-  }
-  s << ")\n";
-  return s;
-}
+#endif
