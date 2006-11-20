@@ -10,8 +10,12 @@ std::string time2str(time_t t){
     using namespace std;
     ostringstream ret;
     struct tm * ts = localtime(&t);
-    // если время плохое - возьмем текущее время
-    if (ts == NULL) { time_t t = time(NULL);  ts = localtime(&t);}
+//    // если время плохое - возьмем текущее время
+//    if (ts == NULL) { time_t t = time(NULL);  ts = localtime(&t);}
+
+    // если время плохое - вернем 0
+    if (ts == NULL) { time_t t = 0;  ts = localtime(&t);}
+
     ret << setfill('0')
     << setw(4) << ts->tm_year+1900 << "-"
     << setw(2) << ts->tm_mon+1 << "-"
@@ -48,9 +52,8 @@ time_t str2time(std::string str){
     }
 
     // ругаемся, если строчка непуста.
-    // возвращаем текущее время.
+    // возвращаем 0.
     if (!str.empty())
-      std::cerr << "str2time: can't find valid date and time in " << str
-                << " Using current date and time: " << time2str(time(NULL)) << "\n"; 
-    return time(NULL);
+      std::cerr << "str2time: can't find valid date and time in " << str << "\n";
+    return 0;
 }

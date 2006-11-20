@@ -55,7 +55,7 @@ namespace xml {
 			ret.font_size  = get_int("font_size",  ret.font_size);
 			ret.font_style = get_int("font_style", ret.font_style);
 			ret.size       = get_int("size",       ret.size);
-			ret.t          = get_time("time");
+			ret.t          = get_time("time",      ret.t);
 			const std::string used[] = {
                           "name", "comm", "lon", "lat", "alt", "prox_dist", "symb", 
                           "displ", "color", "bgcolor", "map_displ", "pt_dir", "font_size",
@@ -70,7 +70,7 @@ namespace xml {
 			ret.z = get_double("alt",  ret.z);
 			ret.depth = get_double("depth",ret.depth);
 			ret.start = get_bool("start");
-			ret.t     = get_time("time");
+			ret.t     = get_time("time", ret.t);
                         const std::string used[] = {"lon", "lat", "alt", "depth", "start", "time", ""};
                         warn_unused(used);
 			return ret;

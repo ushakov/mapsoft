@@ -95,10 +95,10 @@ bool Options::get_bool(const std::string & key) const {
 }
 
 // default value - current time. See ./mapsoft_time.h
-time_t Options::get_time(const std::string & key) const {
+time_t Options::get_time(const std::string & key, const time_t dflt) const {
   using namespace boost::spirit;
   const_iterator i = find(key);
-  if (i == end() ) return time(NULL);
+  if (i == end() ) return dflt;
   return str2time(i->second);
 }
 
