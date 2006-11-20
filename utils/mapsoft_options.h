@@ -92,6 +92,23 @@ struct Options : std::map<std::string,std::string>{
     return dflt;
   }
 
+  char get_char(const std::string & key, const char dflt = '?', bool _erase=false){
+    using namespace boost::spirit;
+    iterator i = find(key);
+    if (i == end() ) return dflt;
+
+    std::string str = i->second;
+    if (_erase) erase(i);
+
+    char ret;
+    if (parse(str.c_str(), anychar_p[assign_a(ret)]).full) return ret;
+
+    std::cerr << "Options: can't find unsigned char value in " 
+	      << key << " = " << str
+              << " Using default value: " << dflt << "\n"; 
+    return dflt;
+  }
+
   // hex values "#FFFFFF"
   unsigned int get_hex(const std::string & key, const unsigned int dflt = 0, bool _erase=false){
     using namespace boost::spirit;
