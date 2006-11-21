@@ -105,20 +105,28 @@ public boost::equality_comparable<Proj>
 
 };
 
+// Преобразования координат.
+
+// преобразование проекции lonlat из любой СК в wgs84
+void conv_anydatum_to_wgs84(Point<double> & p, const Datum & D);
+
+// преобразование проекции lonlat из wgs84 в любую СК
+void conv_wgs84_to_anydatum(Point<double> & p, const Datum & D);
+
 // преобразование любой проекции к lonlat для заданной СК.
-Point<double> conv_anyproj_to_lonlat(Point<double> p, const Datum & D, const Proj & P, Options & opts);
+void conv_anyproj_to_lonlat(Point<double> & p, const Datum & D, const Proj & P, const Options & Po);
 
 // преобразование lonlat к любой проекции для заданной СК.
-Point<double> conv_lonlat_to_anyproj(const Point<double> & p, const Datum & D, const Proj & P, Options & opts);
+void conv_lonlat_to_anyproj(Point<double> & p, const Datum & D, const Proj & P, const Options & Po);
 
 // преобразование любых координат к latlon wgs84
-Point<double> conv_any_to_std(const Point<double> & p, const Datum & D, const Proj & P, Options & O);
+void conv_any_to_std(Point<double> & p, const Datum & D, const Proj & P, const Options & Po);
 
 // преобразование из latlon wgs84 в любые координаты
-Point<double> conv_std_to_any(const Point<double> & p, const Datum & D, const Proj & P, Options & O);
+void conv_std_to_any(Point<double> & p, const Datum & D, const Proj & P, const Options & Po);
 
 // произвольное преобразование координат
-Point<double> conv_any_to_any(const Point<double> & p, 
-	const Datum & SD, const Proj & SP, 
-	const Datum & DD, const Proj & DP, Options & O);
+void conv_any_to_any( Point<double> & p, 
+		      const Datum & sD, const Proj & sP, const Options & sPo,
+                      const Datum & dD, const Proj & dP, const Options & dPo);
 #endif
