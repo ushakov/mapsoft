@@ -13,7 +13,7 @@ public:
 
         clip_rects_for_image_loader(src, src, img.range(), dst);
 
-std::cerr << src << " -> " << dst << "\nimage: "<< img << "\n";
+//std::cerr << src << " -> " << dst << "\nimage: "<< img << "\n";
 
 	double sx0 = ((floor(src.x/xstep-1e-20)+1)*xstep-src.x);
 	double sy0 = ((floor(src.y/ystep-1e-20)+1)*ystep-src.y);

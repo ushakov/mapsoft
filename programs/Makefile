@@ -1,6 +1,6 @@
-LDFLAGS = `pkg-config --libs gtkmm-2.4,gthread-2.0`\
-          ../geo_io/io.a ../utils/mapsoft_utils.a ../jeeps/jeeps.a \
-          -ljpeg -ltiff -lpng -lusb
+GRAPH_FLAGS = `pkg-config --libs gtkmm-2.4,gthread-2.0` -ljpeg -ltiff -lpng 
+USB_FLAGS = -lusb
+
 
 CPPFLAGS = `pkg-config --cflags gtkmm-2.4,gthread-2.0` -I../utils -I../viewer -I../loaders -I../layers -O1
 
@@ -20,7 +20,11 @@ all: mapsoft_convert mapsoft_googleview1
 clean:
 	rm mapsoft_googleview mapsoft_imgview mapsoft_imgview1 mapsoft_convert *.o
 
-MAPSOFT_LIBS =  ../utils/mapsoft_utils.a ../jeeps/jeeps.a ../geo_io/io.a
+MAPSOFT_LIBS = ../geo_io/io.a ../utils/mapsoft_utils.a ../jeeps/jeeps.a -lusb
+
 
 mapsoft_convert: $(MAPSOFT_LIBS) mapsoft_convert.o
-	g++ $(MAPSOFT_LIBS) mapsoft_convert.o -o $@ 
+	g++ mapsoft_convert.o $(MAPSOFT_LIBS) $(LDFLAGS)  -o $@ 
+
+mapsoft_googleview1: $(MAPSOFT_LIBS) mapsoft_googleview1.o
+	g++ mapsoft_googleview1.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 

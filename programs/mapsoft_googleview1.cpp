@@ -28,11 +28,22 @@ LayerGeodata dl(world, sc);
 
 Gtk::Statusbar  * status_bar = NULL;
 
-void load_file(Gtk::FileSelection * file_selector) {
+void clear_data(Viewer * v) {
+   g_print ("Clear all data");
+   status_bar->push("Clear all data", 0);
+   world.clear();
+   dl.set_scale(sc);
+   v->clear_cache();
+}
+
+void load_file(Gtk::FileSelection * file_selector, Viewer * v) {
    std::string selected_filename;
    selected_filename = file_selector->get_filename();
    g_print ("Loading: %s\n", selected_filename.c_str());
    status_bar->push("Loading...", 0);
+   io::in(selected_filename, world, Options());
+   dl.set_scale(sc);
+   v->clear_cache();
 }
 
 void save_file(Gtk::FileSelection * file_selector) {
@@ -40,6 +51,7 @@ void save_file(Gtk::FileSelection * file_selector) {
    selected_filename = file_selector->get_filename();
    g_print ("Saving file: %s\n", selected_filename.c_str());
    status_bar->push("Saving...", 0);
+   io::out(selected_filename, world, Options());
 }
 
 gboolean on_delete (GdkEventAny * e, Gtk::Window * win){
@@ -56,7 +68,7 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	if (sc>=18) break;
 	sc++;
         gl = LayerGoogle1(google_dir,sc);
-        //dl.set_scale(sc);
+        dl.set_scale(sc);
 	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
 	std::cerr << "google scale: " << sc << " scale: " 
                   << v->scale_nom() << ":" 
@@ -71,7 +83,7 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	if (sc<=1) break;
 	sc--;
 	gl = LayerGoogle1(google_dir,sc);
-        //dl.set_scale(sc);
+        dl.set_scale(sc);
 	std::cerr << "google scale: " << sc << " scale: " 
                   << v->scale_nom() << ":" 
                   << v->scale_denom() <<  std::endl;
@@ -117,24 +129,20 @@ main(int argc, char **argv)
     for(int i=1;i<argc;i++){
       io::in(std::string(argv[i]), world, Options());
     }
+    dl.set_scale(sc);
 
     //viewer/workplane/layers
     Workplane w(256,0);
     LayerGrid l1(200.0,200.0,0xFF000080);
-//    LayerWait l2;
-//    LayerJpegSimple l3("/d2/1km/O36/O36-001.jpg");
-//    LayerGoogle1 l3("/e2/M/GOOGLE",6);
 
-    w.add_layer(&l1,100);
-//    w.add_layer(&l2,100);
     w.add_layer(&gl,200);
-//    w.add_layer(&dl,50);
+    w.add_layer(&l1,100);
+    w.add_layer(&dl,50);
     Viewer viewer(w);
-
 
     //load file selector
     Gtk::FileSelection file_sel_load ("Load file:");
-    file_sel_load.get_ok_button()->signal_clicked().connect (sigc::bind<0> (sigc::ptr_fun (&load_file), &file_sel_load));
+    file_sel_load.get_ok_button()->signal_clicked().connect (sigc::bind<0> (sigc::bind<0>(sigc::ptr_fun (&load_file), &file_sel_load), &viewer));
     file_sel_load.get_ok_button()->signal_clicked().connect (sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
     file_sel_load.get_cancel_button()->signal_clicked().connect (sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
 
@@ -147,30 +155,39 @@ main(int argc, char **argv)
     /***************************************/
     //start building menus
     Gtk::MenuBar main_menu;
-    Gtk::MenuItem mmenu_file ("_File", true);
-    Gtk::MenuItem mmenu_help ("_Help", true);
+    Gtk::MenuItem mmenu_file ("_File",    true);
+    Gtk::MenuItem mmenu_geod ("_Geodata", true);
+    Gtk::MenuItem mmenu_help ("_Help",    true);
 
     // menu items
-    Gtk::MenuItem menu_load ("_Load", true);
-    Gtk::MenuItem menu_save ("_Save", true);
-    Gtk::MenuItem menu_exit ("_Exit", true);
+    Gtk::MenuItem menu_add   ("_Add",   true);
+    Gtk::MenuItem menu_clear ("_Clear", true);
+    Gtk::MenuItem menu_save  ("_Save",  true);
+    Gtk::MenuItem menu_exit  ("_Exit",  true);
 
-    menu_exit.signal_activate().connect (sigc::mem_fun (win, &Gtk::Widget::hide));
-    menu_load.signal_activate().connect (sigc::mem_fun (file_sel_load, &Gtk::Widget::show));
-    menu_save.signal_activate().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::show));
+    menu_exit.signal_activate().connect  (sigc::mem_fun (win, &Gtk::Widget::hide));
+    menu_add.signal_activate().connect   (sigc::mem_fun (file_sel_load,  &Gtk::Widget::show));
+    menu_clear.signal_activate().connect (sigc::bind<0> (sigc::ptr_fun (&clear_data), &viewer));
+    menu_save.signal_activate().connect  (sigc::mem_fun (file_sel_save,  &Gtk::Widget::show));
 
     // file menu
     Gtk::Menu file_menu;
-    file_menu.append(menu_load);
-    file_menu.append(menu_save);
     file_menu.append(menu_exit);
+
+    // geodata menu
+    Gtk::Menu geod_menu;
+    geod_menu.append(menu_add);
+    geod_menu.append(menu_clear);
+    geod_menu.append(menu_save);
 
     // main menu items
     mmenu_help.set_right_justified ();
     mmenu_file.set_submenu(file_menu);
+    mmenu_geod.set_submenu(geod_menu);
     
     // main menu
     main_menu.append(mmenu_file);
+    main_menu.append(mmenu_geod);
     main_menu.append(mmenu_help);
     /***************************************/
 
@@ -187,7 +204,7 @@ main(int argc, char **argv)
     vbox.pack_start(*status_bar, false, false, 0);
     //
     win.add (vbox);
-    win.signal_key_press_event().connect (sigc::bind<1> (sigc::bind<1> (sigc::ptr_fun (&on_keypress), &w), &viewer));
+    win.signal_key_press_event().connect (sigc::bind<1> ( sigc::bind<1> (sigc::ptr_fun (&on_keypress), &w) , &viewer));
 
     win.show_all();
     kit.run(win);

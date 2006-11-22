@@ -1,5 +1,5 @@
-#ifndef GEO_ENUMS
-#define GEO_ENUMS
+#ifndef GEO_ENUMS_H
+#define GEO_ENUMS_H
 
 #include <vector>
 #include <string>

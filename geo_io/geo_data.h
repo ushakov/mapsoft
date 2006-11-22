@@ -119,6 +119,7 @@ struct geo_data {
   std::vector<g_waypoint_list> wpts;
   std::vector<g_track> trks;
   std::vector<g_map> maps;
+  void clear(){ wpts.clear(); trks.clear(); maps.clear();}
 };
 
 #endif

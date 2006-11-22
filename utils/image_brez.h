@@ -75,15 +75,15 @@ namespace image_brez{
     template <typename T>
     void circ(Image<T> & im, 
 	     const int xc, const int yc, 
-	     const int r, const int w, 
+	     const int r, int w, 
 	     const T & fgc, const T & bgc=0xffffffff, 
-	     bool fill=false){
+	     const bool fill=false){
         int x = 0, y = r;
         int d = (1 - r) << 1;
         w = std::min(w, r+1);
 
         while(y >= x){
-            for (int i=x; i<=y-w; i++)               set8p(im, xc, x, yc, i, bgc);
+            if (fill) for (int i=x; i<=y-w; i++)               set8p(im, xc, x, yc, i, bgc);
             for (int i=std::max(y-w+1,x); i<=y; i++) set8p(im, xc, x, yc, i, fgc);
             if(d + y > 0){
                 y--;

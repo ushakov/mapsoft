@@ -402,9 +402,9 @@ public:
       tiles_todo2.clear();
       mutex->unlock();
 
-      if (is_mapped()){
+//      if (is_mapped()){
         fill (0, 0, get_width(), get_height());
-      }
+//      }
     }
 
 // Работы с масштабами
