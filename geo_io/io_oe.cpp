@@ -224,7 +224,7 @@ typedef rule <scanner_t>        rule_t;
 
 // function for reading objects from Ozi file
 // into the world object
-bool parse_file(const char* filename, geo_data & world, const Options & opt){
+bool read_file(const char* filename, geo_data & world, const Options & opt){
 
   // iterators for parsing
   iterator_t first(filename);
