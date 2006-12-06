@@ -20,7 +20,7 @@
 int sc = 1;
 geo_data world;
 
-const std::string google_dir = "/e2/M/GOOGLE";
+const std::string google_dir = "/home/ushakov/devel/maps/google";
 //const std::string data_file  = "./track.plt";
 
 LayerGoogle1 gl(google_dir,sc);
@@ -28,12 +28,28 @@ LayerGeodata dl(world, sc);
 
 Gtk::Statusbar  * status_bar = NULL;
 
+bool google_downloading = false;
+
 void clear_data(Viewer * v) {
    g_print ("Clear all data");
    status_bar->push("Clear all data", 0);
    world.clear();
    dl.set_scale(sc);
    v->clear_cache();
+}
+
+void toggle_downloading (Gtk::CheckMenuItem * menu_item, LayerGoogle1 * g, Viewer * v) {
+    std::cerr << "toggle_downloading" << std::endl;
+    if (menu_item->get_active()) {
+	std::cerr << "downloading set to on" << std::endl;
+	g->set_downloading(true);
+	google_downloading = true;
+	v->clear_cache();
+    } else {
+	std::cerr << "downloading set to off" << std::endl;
+	g->set_downloading(false);
+	google_downloading = false;
+    }
 }
 
 void load_file(Gtk::FileSelection * file_selector, Viewer * v) {
@@ -68,6 +84,7 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	if (sc>=18) break;
 	sc++;
         gl = LayerGoogle1(google_dir,sc);
+	gl.set_downloading (google_downloading);
         dl.set_scale(sc);
 	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
 	std::cerr << "google scale: " << sc << " scale: " 
@@ -83,6 +100,7 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	if (sc<=1) break;
 	sc--;
 	gl = LayerGoogle1(google_dir,sc);
+	gl.set_downloading (google_downloading);
         dl.set_scale(sc);
 	std::cerr << "google scale: " << sc << " scale: " 
                   << v->scale_nom() << ":" 
@@ -164,14 +182,19 @@ main(int argc, char **argv)
     Gtk::MenuItem menu_clear ("_Clear", true);
     Gtk::MenuItem menu_save  ("_Save",  true);
     Gtk::MenuItem menu_exit  ("_Exit",  true);
+    Gtk::CheckMenuItem menu_google ("_Google downloading",  true);
+    menu_google.set_active (google_downloading);
+    
 
     menu_exit.signal_activate().connect  (sigc::mem_fun (win, &Gtk::Widget::hide));
     menu_add.signal_activate().connect   (sigc::mem_fun (file_sel_load,  &Gtk::Widget::show));
     menu_clear.signal_activate().connect (sigc::bind<0> (sigc::ptr_fun (&clear_data), &viewer));
     menu_save.signal_activate().connect  (sigc::mem_fun (file_sel_save,  &Gtk::Widget::show));
+    menu_google.signal_activate().connect (sigc::bind (sigc::ptr_fun (&toggle_downloading), &menu_google, &gl, &viewer));
 
     // file menu
     Gtk::Menu file_menu;
+    file_menu.append(menu_google);
     file_menu.append(menu_exit);
 
     // geodata menu

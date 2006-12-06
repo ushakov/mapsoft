@@ -70,7 +70,7 @@ int load(const char *file, Rect<int> src_rect,
 
     if ((infile = fopen(file, "rb")) == NULL) {
         std::cerr << "can't open " << file << "\n";
-        return 2;
+        return 3;
     }
     if (setjmp(jerr.setjmp_buffer)) {
       jpeg_destroy_decompress(&cinfo);
