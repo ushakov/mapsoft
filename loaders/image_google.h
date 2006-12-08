@@ -69,7 +69,7 @@ int load(
       src_points, src_rect,
       Rect<int>(0,0,image.w,image.h), dst_rect);
 
-  if (src_rect.empty() || dst_rect.empty()) return 0;
+  if (src_rect.empty() || dst_rect.empty()) return 1;
 
 
   Rect<int> src_tiles  = rect_intdiv(src_rect,256);
@@ -107,7 +107,7 @@ int load(
 	  if (!f) return 1;
 	  int n = rand() % 4;
 	  std::ostringstream urls;
-	  urls << "http://kh" << n << ".google.com/kh?n=404&v=9&t=" << tile2addr (google_scale, xt, yt);
+	  urls << "http://kh" << n << ".google.com/kh?n=404&v=11&t=" << tile2addr (google_scale, xt, yt);
 	  std::string url = urls.str();
 	  std::cerr << "fetching url " << url << std::endl;
 	  if (curl_easy_setopt (curl_handle, CURLOPT_URL, url.c_str())) {

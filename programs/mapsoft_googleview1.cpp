@@ -20,7 +20,8 @@
 int sc = 1;
 geo_data world;
 
-const std::string google_dir = "/home/ushakov/devel/maps/google";
+//const std::string google_dir = "/home/ushakov/devel/maps/google";
+const std::string google_dir = "/d/MAPS/GOOGLE";
 //const std::string data_file  = "./track.plt";
 
 LayerGoogle1 gl(google_dir,sc);

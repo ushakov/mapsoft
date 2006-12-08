@@ -16,7 +16,7 @@ CPPFLAGS = `pkg-config --cflags libcurl` `pkg-config --cflags gtkmm-2.4,gthread-
 #test: $(TEST_LIBS) $(TEST_OBJS)
 #	$(CXX) $(LDFLAGS) $(TEST_OBJS) $(TEST_LIBS) -o test
 
-all: mapsoft_convert mapsoft_googleview1
+all: mapsoft_convert mapsoft_googleview1 mapsoft_imgview mapsoft_imgview1 mapsoft_mapview
 
 clean:
 	rm mapsoft_googleview mapsoft_imgview mapsoft_imgview1 mapsoft_convert *.o
@@ -29,3 +29,15 @@ mapsoft_convert: $(MAPSOFT_LIBS) mapsoft_convert.o
 
 mapsoft_googleview1: $(MAPSOFT_LIBS) mapsoft_googleview1.o
 	g++ mapsoft_googleview1.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) $(GOOGLE_FLAGS) -o $@ 
+
+mapsoft_mapview: $(MAPSOFT_LIBS) mapsoft_mapview.o
+	g++ mapsoft_mapview.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
+
+mapsoft_imgview: $(MAPSOFT_LIBS) mapsoft_imgview.o
+	g++ mapsoft_imgview.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
+
+mapsoft_imgview1: $(MAPSOFT_LIBS) mapsoft_imgview1.o
+	g++ mapsoft_imgview1.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
+
+mapsoft_srtmview: $(MAPSOFT_LIBS) mapsoft_srtmview.o
+	g++ mapsoft_srtmview.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
