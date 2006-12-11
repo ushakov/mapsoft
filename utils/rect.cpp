@@ -1,5 +1,52 @@
 #include "rect.h"
 
+template <typename T>
+Rect<T> rect_intersect (Rect<T> const & R1, Rect<T> const & R2){
+    T x1 =  std::max (R1.x, R2.x);
+    T y1 =  std::max (R1.y, R2.y);
+    T x2 =  std::min (R1.x+R1.w, R2.x+R2.w);
+    T y2 =  std::min (R1.y+R1.h, R2.y+R2.h);
+    T w = x2-x1;
+    T h = y2-y1;
+    if (w<0) w=0;
+    if (h<0) h=0;
+    return Rect<T>(x1,y1,w,h);
+}
+
+template <typename T>
+Rect<T> rect_bounding_box (Rect<T> const & R1, Rect<T> const & R2){
+    T x1 =  std::min (R1.x, R2.x);
+    T y1 =  std::min (R1.y, R2.y);
+    T x2 =  std::max (R1.x+R1.w, R2.x+R2.w);
+    T y2 =  std::max (R1.y+R1.h, R2.y+R2.h);
+    T w = x2-x1;
+    T h = y2-y1;
+    return Rect<T>(x1,y1,w,h);
+}
+
+
+template <typename T>
+void clip_point_to_rect (Point<T> & p, const Rect<T> & r){
+    p.x = std::max (r.x, p.x);
+    p.x = std::min (r.x+r.w, p.x);
+    p.y = std::max (r.y, p.y);
+    p.y = std::min (r.y+r.h, p.y);
+}
+
+template <typename T>
+void clip_rect_to_rect (Rect<T> & r1, const Rect<T> & r2){
+//    std::cerr << r1 << " clip to " << r2 << "  ";
+    r1 = rect_intersect(r1,r2);
+//    std::cerr << r1 << "\n";
+}
+
+template <typename T>
+bool point_in_rect (const Point<T> & p, const Rect<T> & r){
+    return (r.x <= p.x) && (r.x+r.w > p.x) &&
+           (r.y <= p.y) && (r.y+r.h > p.y);
+}
+
+
 // при работе с целыми координатами иногда приятно считать,
 // что rect.BRC не входит в прямоугольник
 // (кстати, исходя из этого сделана и проверка на вхождение точки в прямоугольник)
@@ -76,4 +123,14 @@ void clip_rects_for_image_loader(
    clip_rect_to_rect(src, dst_img_tr);
    clip_rect_to_rect(dst, dst_img);
    clip_rect_to_rect(dst, src_img_tr);
+}
+template <typename T>
+std::ostream & operator<< (std::ostream & s, const Rect<T> & r)
+{
+  s << "Rect("
+    << r.w << "x" << r.h
+    << "+" << r.x
+    << "+" << r.y
+    << ")";
+  return s;
 }

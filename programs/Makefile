@@ -23,17 +23,14 @@ all: mapsoft_convert mapsoft_googleview1 mapsoft_imgview mapsoft_imgview1 mapsof
 clean:
 	rm mapsoft_googleview mapsoft_imgview mapsoft_imgview1 mapsoft_convert *.o
 
-MAPSOFT_LIBS = ../geo_io/io.a ../loaders/loaders.a ../utils/mapsoft_utils.a ../jeeps/jeeps.a 
-
-alllibs.a: $(MAPSOFT_LIBS)
-	ar rs alllibs.a $(MAPSOFT_LIBS)
+MAPSOFT_LIBS = ../geo_io/io.a ../utils/rect.o ../utils/mapsoft_utils.a  ../loaders/loaders.a ../jeeps/jeeps.a 
 
 
-mapsoft_convert: $(MAPSOFT_LIBS) mapsoft_convert.o alllibs.a
-	g++ mapsoft_convert.o alllibs.a $(GRLIB_FLAGS) $(LDFLAGS)  -o $@ 
+mapsoft_convert: $(MAPSOFT_LIBS) mapsoft_convert.o 
+	g++ mapsoft_convert.o $(MAPSOFT_LIBS) $(USB_FLAGS) $(GRLIB_FLAGS) $(LDFLAGS)  -o $@ 
 
 mapsoft_mkmap: $(MAPSOFT_LIBS) mapsoft_mkmap.o
-	g++ mapsoft_mkmap.o $(MAPSOFT_LIBS) $(GRLIB_FLAGS) $(LDFLAGS)  -o $@ 
+	g++ mapsoft_mkmap.o $(MAPSOFT_LIBS) $(USB_FLAGS) $(GRLIB_FLAGS) $(LDFLAGS)  -o $@ 
 
 mapsoft_googleview1: $(MAPSOFT_LIBS) mapsoft_googleview1.o
 	g++ mapsoft_googleview1.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) $(GOOGLE_FLAGS) -o $@ 

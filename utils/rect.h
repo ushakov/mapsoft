@@ -71,25 +71,13 @@ template <typename T>
 Rect<T> rect_intersect (Rect<T> const & R1, Rect<T> const & R2);
 
 template <typename T>
-void clip_point_to_rect (Point<T> & p, const Rect<T> & r){
-    p.x = std::max (r.x, p.x);
-    p.x = std::min (r.x+r.w, p.x);
-    p.y = std::max (r.y, p.y);
-    p.y = std::min (r.y+r.h, p.y);
-}
+void clip_point_to_rect (Point<T> & p, const Rect<T> & r);
 
 template <typename T>
-void clip_rect_to_rect (Rect<T> & r1, const Rect<T> & r2){
-//    std::cerr << r1 << " clip to " << r2 << "  ";
-    r1 = rect_intersect(r1,r2);
-//    std::cerr << r1 << "\n";
-}
+void clip_rect_to_rect (Rect<T> & r1, const Rect<T> & r2);
 
 template <typename T>
-bool point_in_rect (const Point<T> & p, const Rect<T> & r){
-    return (r.x <= p.x) && (r.x+r.w > p.x) &&
-           (r.y <= p.y) && (r.y+r.h > p.y);
-}
+bool point_in_rect (const Point<T> & p, const Rect<T> & r);
 
 // при работе с целыми координатами иногда приятно считать,
 // что rect.BRC не входит в прямоугольник
@@ -108,14 +96,6 @@ void clip_rects_for_image_loader(
     const Rect<int> & dst_img, Rect<int> & dst);
 
 template <typename T>
-std::ostream & operator<< (std::ostream & s, const Rect<T> & r)
-{
-  s << "Rect(" 
-    << r.w << "x" << r.h 
-    << "+" << r.x 
-    << "+" << r.y 
-    << ")";
-  return s;
-}
+std::ostream & operator<< (std::ostream & s, const Rect<T> & r);
 
 #endif /* RECT_H */

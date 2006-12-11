@@ -47,11 +47,11 @@ int main(int argc, char *argv[]) {
   Rect<double> r;
   do {
     std::cout << "Map key and comment: ";
-    std::cin >> key >> '\n';
+    std::cin >> key;
 
     r = filters::nom_range(key);
     if (r.empty()) std::cout << "can't parse!\n";
-  } while (!r.empty());
+  } while (r.empty());
 
   map.file=infile;
   map.comm=key;
