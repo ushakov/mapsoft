@@ -522,7 +522,9 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			for (vector<g_point>::const_iterator it =m.border.begin();
 				 it!=m.border.end(); it++){
 				n++;
-				f << "MMPXY," << n << "," << it->x << "," << it->y << "\r\n"; 
+				f << "MMPXY," << n << "," 
+                                  << right << fixed << setprecision(0) << setfill(' ')
+                                  << it->x << "," << it->y << "\r\n"; 
 			}
 			n=0;
 			f.precision(8);

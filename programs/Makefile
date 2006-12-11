@@ -1,4 +1,6 @@
-GRAPH_FLAGS = `pkg-config --libs gtkmm-2.4,gthread-2.0` -ljpeg -ltiff -lpng 
+GTTMM_FLAGS = `pkg-config --libs gtkmm-2.4,gthread-2.0` 
+GRLIB_FLAGS = -ljpeg -ltiff -lpng 
+GRAPH_FLAGS = $(GTTMM_FLAGS) $(GRLIB_FLAGS)
 GOOGLE_FLAGS = `pkg-config --libs libcurl`
 USB_FLAGS = -lusb
 
@@ -25,7 +27,7 @@ MAPSOFT_LIBS = ../geo_io/io.a ../utils/mapsoft_utils.a ../jeeps/jeeps.a -lusb
 
 
 mapsoft_convert: $(MAPSOFT_LIBS) mapsoft_convert.o
-	g++ mapsoft_convert.o $(MAPSOFT_LIBS) $(LDFLAGS)  -o $@ 
+	g++ mapsoft_convert.o $(MAPSOFT_LIBS) $(GRLIB_FLAGS) $(LDFLAGS)  -o $@ 
 
 mapsoft_googleview1: $(MAPSOFT_LIBS) mapsoft_googleview1.o
 	g++ mapsoft_googleview1.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) $(GOOGLE_FLAGS) -o $@ 

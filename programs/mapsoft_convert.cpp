@@ -14,7 +14,7 @@
 using namespace std;
 
 void usage(const char *fname){
-  cerr << "Usage: "<< fname << " <in1> ... <inN> -o <out>\n";
+  cerr << "Usage: "<< fname << " <in1> ... <inN> -f <filter1> ... -f <filterN> -o <out>\n";
 // не все так просто, надо будет написать подробнее...
   exit(0);
 }
@@ -22,6 +22,7 @@ void usage(const char *fname){
 int main(int argc, char *argv[]) {
 
   list<string> infiles;
+  list<string> filters;
   string outfile = "";
 
 // разбор командной строки
@@ -38,6 +39,13 @@ int main(int argc, char *argv[]) {
       continue;
     }
 
+    if (strcmp(argv[i], "-f")==0){
+      if (i==argc-1) usage(argv[0]);
+      i+=1;
+      filters.push_back(argv[i]);
+      continue;
+    }
+
     infiles.push_back(argv[i]);
   }
   if (outfile == "") usage(argv[0]);
@@ -46,10 +54,12 @@ int main(int argc, char *argv[]) {
 
   Options opts;
   geo_data world;
-  list<string>::const_iterator b=infiles.begin(), e=infiles.end(), i;
-  for(i=b; i!=e; i++){
-    io::in(*i, world, opts);
+  list<string>::const_iterator i;
+  for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, world, opts);
+  for(i=filters.begin(); i!=filters.end(); i++){
+    if (*i == "map_nom_brd") filters::map_nom_brd(world);
   }
+
   io::out(outfile, world, opts);
 }
 

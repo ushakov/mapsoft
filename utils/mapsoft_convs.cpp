@@ -57,9 +57,9 @@ void pt2ll::frw(g_point & p) const{
        if (l0>1e90){
 	 if (p.x>999999){
            l0=((int)(p.x/1e6)-1)*6+3;
-           p.x -= floor(p.x/1e6)*1e6;
          } else l0=0;
        }
+       if (p.x>999999) p.x -= floor(p.x/1e6)*1e6;
        GPS_Math_TMerc_EN_To_LatLon(p.x, p.y, &y, &x, lat0, l0, E0, N0, k, a, a*(1-f));
        p.x = x; p.y = y;
        break;
@@ -86,7 +86,7 @@ void pt2ll::bck(g_point & p){
   case 1: //tmerc
     // если lon0 не указали явно - определим его автоматически:
     // причем (это важно) - только один раз, по первой точке!
-    if (lon0>1e90) lon0 = floor( lon0/6.0 ) * 6 + 3;
+    if (lon0>1e90) lon0 = floor( p.x/6.0 ) * 6 + 3;
     GPS_Math_TMerc_LatLon_To_EN(p.y, p.x, &x, &y, lat0, lon0, E0, N0, k, a, a*(1-f));
     // Добавим к координате префикс - как на советских картах:
     x += 1e6 * (floor((lon0-3)/6)+1);
@@ -270,6 +270,17 @@ border(sM.border){
     A7(6,3)+=lat*x; A7(6,4)+=lat*y; A7(6,5)+=lat;
   }
 
+/*for (int i=0;i<6; i++){
+  std::cerr << "A: "
+          << A7(0,i) << ", "
+          << A7(1,i) << ", "
+          << A7(2,i) << ", "
+          << A7(3,i) << ", "
+          << A7(4,i) << ", "
+          << A7(5,i) << ", "
+          << A7(6,i) << "\n";
+}*/
+
   if (mdiag (6, a) != 0) {
     cerr << "Bad reference points for map "
          << sM.file << " (" << sM.comm << ")\n";
@@ -278,6 +289,14 @@ border(sM.border){
   for (int i=0; i<6; i++){
     k_map2geo[i] = A7(6,i);
   }
+
+std::cerr << "k_map2geo: "
+          << k_map2geo[0] << ", "
+          << k_map2geo[1] << ", "
+          << k_map2geo[2] << ", "
+          << k_map2geo[3] << ", "
+          << k_map2geo[4] << ", "
+          << k_map2geo[5] << "\n";
 
   // Make the inverse transformation
   double D = k_map2geo[0] * k_map2geo[4] - k_map2geo[1] * k_map2geo[3];
@@ -306,6 +325,7 @@ void map2pt::frw(g_point & p){
   }
   p.x=p1.x;
   p.y=p1.y;
+
   return;
 }
 
@@ -314,8 +334,8 @@ void map2pt::bck(g_point & p){
     pc2.frw(p); // преобразование к lon-lat
     pc1.bck(p); // к проекции карты
   }
-  g_point p1(k_map2geo[0]*p.x + k_map2geo[1]*p.y + k_map2geo[2],
-             k_map2geo[3]*p.x + k_map2geo[4]*p.y + k_map2geo[5]);
+  g_point p1(k_geo2map[0]*p.x + k_geo2map[1]*p.y + k_geo2map[2],
+             k_geo2map[3]*p.x + k_geo2map[4]*p.y + k_geo2map[5]);
   p.x=p1.x;
   p.y=p1.y;
   return;
@@ -329,10 +349,11 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
   // добавление новых точек
   unsigned i0=0;
   do {
-    for (unsigned i = i0; i<ret.size(); i++){
+    for (unsigned i = i0; i<ret.size()-1; i++){
       g_point P1 =ret[i];
-      g_point P2 =ret[(i+1)%ret.size()];
+      g_point P2 =ret[i+1];
       g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
+
       bck(P1); bck(P2); bck(C1);
       g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
 
@@ -343,7 +364,7 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
         break;
       } else i0=i;
     }
-  } while (i0!=ret.size()-1);
+  } while (i0!=ret.size()-2);
   return ret;
 }
 
@@ -355,9 +376,9 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
   // добавление новых точек // not tested yet!
   unsigned i0=0;
   do {
-    for (unsigned i = i0; i<ret.size(); i++){
+    for (unsigned i = i0; i<ret.size()-1; i++){
       g_point P1 =ret[i];
-      g_point P2 =ret[(i+1)%ret.size()];
+      g_point P2 =ret[i+1];
       g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
       frw(P1); frw(P2); 
       g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
@@ -369,7 +390,7 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
         break;
       } else i0=i;
     }
-  } while (i0!=ret.size()-1);
+  } while (i0!=ret.size()-2);
   return ret;
 }
 

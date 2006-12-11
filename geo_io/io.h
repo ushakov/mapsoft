@@ -48,6 +48,10 @@ namespace io {
         bool testext(const std::string & nstr, char *ext);
 }
 
+namespace filters {
+  void map_nom_brd(geo_data & world);
+  void wpt_srt_com(geo_data & world);
+}
 
 #endif
 
