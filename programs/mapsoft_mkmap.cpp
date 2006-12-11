@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include "../geo_io/io.h"
+#include "../utils/mapsoft_convs.h"
 
 using namespace std;
 
@@ -55,6 +56,7 @@ int main(int argc, char *argv[]) {
 
   map.file=infile;
   map.comm=key;
+  map.map_proj=Proj("tmerc");
 
   double lon1 = r.x;
   double lat1 = r.y;
@@ -72,6 +74,11 @@ int main(int argc, char *argv[]) {
   map.points.push_back(g_refpoint(lon2,lat1,x,y));
   std::cout << "bottom-left corner: "; std::cin >> x >> y;
   map.points.push_back(g_refpoint(lon1,lat1,x,y));
+
+  convs::ll2wgs dc(Datum("Pulkovo"));
+  for (int i=0; i<map.points.size(); i++){
+    dc.frw(map.points[i]);
+  }
 
   world.maps.push_back(map);
   filters::map_nom_brd(world);

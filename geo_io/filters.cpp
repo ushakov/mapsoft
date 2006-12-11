@@ -91,8 +91,8 @@ Rect<double> nom_range(const std::string & key){
       lat1 += row*4.0/2; lat2=lat1+4.0/2;
 //      std::cerr << "1:500 000, col: " << col << ", row: "<< row << '\n';
     }
-//    std::cerr << "lat: " << lat1 << ".." << lat2 <<'\n';
-//    std::cerr << "lon: " << lon1 << ".." << lon2 <<'\n';
+    std::cerr << "lat: " << lat1 << ".." << lat2 <<'\n';
+    std::cerr << "lon: " << lon1 << ".." << lon2 <<'\n';
 
     return Rect<double>(g_point(lon1,lat1), g_point(lon2,lat2));
 }
@@ -107,7 +107,7 @@ void map_nom_brd(geo_data & world){
     double lat1 = r.y;
     double lon2 = lon1 + r.w;
     double lat2 = lat1 + r.h;
-
+    
     convs::map2pt conv(*i, Datum("pulk42"), Proj("lonlat"), Options());
 
     vector<g_point> brd;
