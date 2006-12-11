@@ -23,7 +23,7 @@ all: mapsoft_convert mapsoft_googleview1 mapsoft_imgview mapsoft_imgview1 mapsof
 clean:
 	rm mapsoft_googleview mapsoft_imgview mapsoft_imgview1 mapsoft_convert *.o
 
-MAPSOFT_LIBS = ../geo_io/io.a ../utils/mapsoft_utils.a ../jeeps/jeeps.a -lusb
+MAPSOFT_LIBS = ../geo_io/io.a ../utils/mapsoft_utils.a ../jeeps/jeeps.a ../loaders/loaders.a -lusb 
 
 
 mapsoft_convert: $(MAPSOFT_LIBS) mapsoft_convert.o

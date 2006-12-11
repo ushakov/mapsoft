@@ -71,16 +71,25 @@ template <typename T>
 Rect<T> rect_intersect (Rect<T> const & R1, Rect<T> const & R2);
 
 template <typename T>
-Rect<T> rect_bounding_box (Rect<T> const & R1, Rect<T> const & R2);
+void clip_point_to_rect (Point<T> & p, const Rect<T> & r){
+    p.x = std::max (r.x, p.x);
+    p.x = std::min (r.x+r.w, p.x);
+    p.y = std::max (r.y, p.y);
+    p.y = std::min (r.y+r.h, p.y);
+}
 
 template <typename T>
-void clip_point_to_rect (Point<T> & p, const Rect<T> & r);
+void clip_rect_to_rect (Rect<T> & r1, const Rect<T> & r2){
+//    std::cerr << r1 << " clip to " << r2 << "  ";
+    r1 = rect_intersect(r1,r2);
+//    std::cerr << r1 << "\n";
+}
 
 template <typename T>
-void clip_rect_to_rect (Rect<T> & r1, const Rect<T> & r2);
-
-template <typename T>
-bool point_in_rect (const Point<T> & p, const Rect<T> & r);
+bool point_in_rect (const Point<T> & p, const Rect<T> & r){
+    return (r.x <= p.x) && (r.x+r.w > p.x) &&
+           (r.y <= p.y) && (r.y+r.h > p.y);
+}
 
 // при работе с целыми координатами иногда приятно считать,
 // что rect.BRC не входит в прямоугольник
@@ -91,22 +100,22 @@ Rect<int> rect_intdiv(const Rect<int> & r, int i);
 
 // два прямоугольника задают преобразование.
 // функция соответствующим образом сдвигает и растягивает третий прямоугольник
-void transform_rect(
-    const Rect<int> & src,
-    const Rect<int> & dst,
-          Rect<int> & r);
-
-
+void transform_rect(const Rect<int> & src, const Rect<int> & dst, Rect<int> & r);
 // Функция, нужная для загрузчика картинок.
 // Правильное подрезание краев, выходящих за пределы картинки
 void clip_rects_for_image_loader(
-    const Rect<int> & src_img,
-          Rect<int> & src,
-    const Rect<int> & dst_img,
-          Rect<int> & dst);
+    const Rect<int> & src_img, Rect<int> & src,
+    const Rect<int> & dst_img, Rect<int> & dst);
 
 template <typename T>
-std::ostream & operator<< (std::ostream & s, const Rect<T> & r);
-
+std::ostream & operator<< (std::ostream & s, const Rect<T> & r)
+{
+  s << "Rect(" 
+    << r.w << "x" << r.h 
+    << "+" << r.x 
+    << "+" << r.y 
+    << ")";
+  return s;
+}
 
 #endif /* RECT_H */

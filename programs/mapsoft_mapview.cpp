@@ -51,7 +51,7 @@ main(int argc, char **argv)
 
 
     if (argc <2) {
-      std::cerr << "Usage: mapsoft_imgview <geo files>\n";
+      std::cerr << "Usage: mapsoft_mapview <geo files>\n";
       exit(0);
     }
     geo_data world;
@@ -65,12 +65,12 @@ main(int argc, char **argv)
       exit(0);
     }
 
-    LayerRH l(argv[1]);
+//    LayerRH l(argv[1]);
     LayerGeodata1 dl(world.maps[0], world);
 
     Workplane w(256,0);
 
-    w.add_layer(&l,100);
+//    w.add_layer(&l,100);
     w.add_layer(&dl,100);
 
     Viewer viewer (w);
