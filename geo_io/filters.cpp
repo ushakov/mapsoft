@@ -9,10 +9,12 @@ namespace filters{
 
 using namespace std;
 
-void map_nom_brd(geo_data & world){
-  using namespace boost::spirit;
-  vector<g_map>::iterator i;
-  for (i = world.maps.begin(); i!=world.maps.end(); i++){
+
+// вспомогательная функция, которая по названию листа возвращает диапазон геодезических
+// координат в СК pulkovo-42
+
+Rect<double> nom_range(const std::string & key){
+    using namespace boost::spirit;
 
     char a  = ' ';
     int  b  = 0;
@@ -21,7 +23,7 @@ void map_nom_brd(geo_data & world){
     string c1 = "";
     string d = "";
     // поймем номер листа
-    if (!parse(i->comm.c_str(), 
+    if (!parse(key.c_str(), 
       alpha_p[assign_a(a)] >> !(ch_p('-')||'_') >> 
       uint_p[assign_a(b)] >> 
         !( (ch_p('-')||'_') >>
@@ -31,15 +33,15 @@ void map_nom_brd(geo_data & world){
          ((digit_p >> digit_p >> digit_p)[assign_a(c1)] >>
           !( (ch_p('-')||'_') >> (digit_p)[assign_a(d)] ) >> space_p)
         )) >> *anychar_p).full) {
-      std::cerr << "map_nom_brd: can't parse " << i->comm << "\n";
-      return;
+      std::cerr << "map_nom_brd: can't parse " << key << "\n";
+      return Rect<double>(0,0,0,0);
     }
     
     if      ((a>='A')&&(a <= 'T')) a-='A';
     else if ((a>='a')&&(a <= 't')) a-='a';
     else {
-      std::cerr << "map_nom_brd: can't parse " << i->comm << " (" << a << ")\n";
-      return;
+      std::cerr << "map_nom_brd: can't parse " << key << " (" << a << ")\n";
+      return Rect<double>(0,0,0,0);
     }
 
     double lat1,lat2,lon1,lon2;
@@ -47,8 +49,8 @@ void map_nom_brd(geo_data & world){
     lat1 = a*4; lat2=lat1+4;
 
     if ((b<1)||(b>=60)) {
-      std::cerr << "map_nom_brd: can't parse " << i->comm << " (" << b << ")\n";
-      return;
+      std::cerr << "map_nom_brd: can't parse " << key << " (" << b << ")\n";
+      return Rect<double>(0,0,0,0);
     }
 
     lon1 = b*6 - 186; lon2=lon1+6;
@@ -66,38 +68,47 @@ void map_nom_brd(geo_data & world){
       row = 23 - ((c1i-1)/12)*2 - (di-1)/2;
       lon1 += col*6.0/24; lon2=lon1+6.0/24;
       lat1 += row*4.0/24; lat2=lat1+4.0/24;
-      std::cerr << "1:50 000, col: " << col << ", row: "<< row << '\n';
+//      std::cerr << "1:50 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c1i != 0){  // 1:100 000
       col = (c1i-1)%12;
       row = 11 - (c1i-1)/12;
       lon1 += col*6.0/12; lon2=lon1+6.0/12;
       lat1 += row*4.0/12; lat2=lat1+4.0/12;
-      std::cerr << "1:100 000, col: " << col << ", row: "<< row << '\n';
+//      std::cerr << "1:100 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c2i != 0){  // 1:200 000
       col = (c2i-1)%6;
       row = 5 - (c2i-1)/6;
       lon1 += col*6.0/6; lon2=lon1+6.0/6;
       lat1 += row*4.0/6; lat2=lat1+4.0/6;
-      std::cerr << "1:200 000, col: " << col << ", row: "<< row << '\n';
+//      std::cerr << "1:200 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c5i != 0){  // 1:500 000
       col = (c5i-1)%2;
       row = 1 - (c5i-1)/2;
       lon1 += col*6.0/2; lon2=lon1+6.0/2;
       lat1 += row*4.0/2; lat2=lat1+4.0/2;
-      std::cerr << "1:500 000, col: " << col << ", row: "<< row << '\n';
+//      std::cerr << "1:500 000, col: " << col << ", row: "<< row << '\n';
     }
-    std::cerr << "lat: " << lat1 << ".." << lat2 <<'\n';
-    std::cerr << "lon: " << lon1 << ".." << lon2 <<'\n';
+//    std::cerr << "lat: " << lat1 << ".." << lat2 <<'\n';
+//    std::cerr << "lon: " << lon1 << ".." << lon2 <<'\n';
+
+    return Rect<double>(g_point(lon1,lat1), g_point(lon2,lat2));
+}
+
+void map_nom_brd(geo_data & world){
+  vector<g_map>::iterator i;
+  for (i = world.maps.begin(); i!=world.maps.end(); i++){
+
+    Rect<double> r = nom_range(i->comm);
+    if (r.empty()) return;
+    double lon1 = r.x;
+    double lat1 = r.y;
+    double lon2 = lon1 + r.w;
+    double lat2 = lat1 + r.h;
 
     convs::map2pt conv(*i, Datum("pulk42"), Proj("lonlat"), Options());
-
-    g_point p1=g_point(lon1,lat1);
-    std::cerr << "pt1: " << p1;
-    conv.bck(p1);
-    std::cerr << " -> " << p1 <<'\n';
 
     vector<g_point> brd;
     brd.push_back(g_point(lon1,lat2));

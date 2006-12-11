@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include "geo_data.h"
+#include "../utils/rect.h"
 #include "../utils/mapsoft_options.h"
 
 namespace gps {
@@ -49,6 +50,8 @@ namespace io {
 }
 
 namespace filters {
+  Rect<double> nom_range(const std::string & key);
+
   void map_nom_brd(geo_data & world);
   void wpt_srt_com(geo_data & world);
 }

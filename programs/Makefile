@@ -29,6 +29,9 @@ MAPSOFT_LIBS = ../geo_io/io.a ../utils/mapsoft_utils.a ../jeeps/jeeps.a ../loade
 mapsoft_convert: $(MAPSOFT_LIBS) mapsoft_convert.o
 	g++ mapsoft_convert.o $(MAPSOFT_LIBS) $(GRLIB_FLAGS) $(LDFLAGS)  -o $@ 
 
+mapsoft_mkmap: $(MAPSOFT_LIBS) mapsoft_mkmap.o
+	g++ mapsoft_mkmap.o $(MAPSOFT_LIBS) $(GRLIB_FLAGS) $(LDFLAGS)  -o $@ 
+
 mapsoft_googleview1: $(MAPSOFT_LIBS) mapsoft_googleview1.o
 	g++ mapsoft_googleview1.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) $(GOOGLE_FLAGS) -o $@ 
 
