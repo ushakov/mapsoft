@@ -246,6 +246,12 @@ border(sM.border){
   double a[6*7];
   for (int i=0; i<7*6; i++) a[i]=0;
 
+  // попробуем повысить точность. 
+  // мы не хотим работать с большими координатами (6000000м),
+  // поэтому перед исчислением коэффициентов вычтем некоторое значение, а потом добавим его :)
+
+/*  double lon0=0, lat0=0;*/
+
   for (unsigned i = 0; i < points.size(); i++){
 
     dc.bck(points[i]); // в нашу СК
@@ -255,6 +261,12 @@ border(sM.border){
     double y = points[i].yr;
     double lon = points[i].x;
     double lat = points[i].y;
+
+/*    if ((lon0==0) && (lat0==0)){
+	lon0=lon; lat0=lat;
+    }
+    lon-=lon0; lat-=lat0;*/
+
 
     A7(0,0)+=x*x; A7(3,3)+=x*x;
     A7(1,0)+=x*y; A7(4,3)+=x*y;
@@ -290,13 +302,16 @@ border(sM.border){
     k_map2geo[i] = A7(6,i);
   }
 
-std::cerr << "k_map2geo: "
+/*std::cerr << "k_map2geo: "
           << k_map2geo[0] << ", "
           << k_map2geo[1] << ", "
           << k_map2geo[2] << ", "
           << k_map2geo[3] << ", "
           << k_map2geo[4] << ", "
           << k_map2geo[5] << "\n";
+*/
+/*  k_map2geo[2]+=lon0;
+  k_map2geo[5]+=lat0;*/
 
   // Make the inverse transformation
   double D = k_map2geo[0] * k_map2geo[4] - k_map2geo[1] * k_map2geo[3];
@@ -348,6 +363,7 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
 
   // добавление новых точек
   unsigned i0=0;
+
   do {
     for (unsigned i = i0; i<ret.size()-1; i++){
       g_point P1 =ret[i];
@@ -362,6 +378,7 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
         frw(C2);
         ret.insert(ret.begin()+i+1, C2);
         break;
+
       } else i0=i;
     }
   } while (i0!=ret.size()-2);
@@ -373,16 +390,23 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
   vector<g_point> ret = l;
   for (vector<g_point>::iterator it = ret.begin(); it != ret.end(); it++) bck(*it);
 
-  // добавление новых точек // not tested yet!
+//  g_point p1=ret[0];
+//  g_point p2=p1; p2.x+=0.5; p2.y+=0.5;
+//  frw(p1); frw(p2);
+  
+//  g_point dp(fabs(p2.x-p1.x), fabs(p2.y-p1.y));
+
+  // тут надо учитывать, что при перегонке точек туда-обратно 
+  // почему-то может накапливаться ошибка ~0.5pix!
   unsigned i0=0;
   do {
     for (unsigned i = i0; i<ret.size()-1; i++){
       g_point P1 =ret[i];
       g_point P2 =ret[i+1];
+      frw(P1); frw(P2);
       g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-      frw(P1); frw(P2); 
+      bck(P1); bck(P2); bck(C1);
       g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-      bck(C2);
 
       if  (( fabs(C1.x - C2.x) >0.5 )||
            ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...

@@ -1,10 +1,11 @@
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <iomanip>
 
+#include <boost/spirit/core.hpp>
+#include <boost/spirit/actor/assign_actor.hpp>
+
 #include <string>
-#include <list>
 
 #include <sys/stat.h>
 #include <math.h>
@@ -12,19 +13,20 @@
 #include "../geo_io/io.h"
 #include "../utils/mapsoft_convs.h"
 
+
 using namespace std;
+using namespace boost::spirit;
 
 void usage(const char *fname){
-  cerr << "Usage: "<< fname << " <map picture> -o <out>\n";
+  cerr << "Usage: "<< fname << " <infile> -o <outfile>\n";
   exit(0);
 }
 
-int main(int argc, char *argv[]) {
+main(int argc, char **argv){
 
-  string key, infile, outfile;
+  string infile, outfile;
 
-// разбор командной строки
-  for (int i=1; i<argc; i++){ 
+  for (int i=1; i<argc; i++){
 
     if ((strcmp(argv[i], "-h")==0)||
         (strcmp(argv[i], "-help")==0)||
@@ -38,51 +40,72 @@ int main(int argc, char *argv[]) {
     }
     infile = argv[i];
   }
-  if (outfile == "") usage(argv[0]);
-  if (infile == "") usage(argv[0]);
+
+  if ((infile=="")||(outfile=="")) usage(argv[0]);
+
+// Читаем файл, содержащий информации о привязке карт
+// N37-001.jpg  51 216 3726 216 3741 4789  31 4591  Руза, 1982-1983
+// (номенклатура-имя файла, координаты 4 углов по часовой стрелке, название)
+
+#define BUFSIZE 2048
 
   Options opts;
   geo_data world;
   g_map map;
+ 
+  fstream in(infile.c_str());
 
-  Rect<double> r;
   do {
-    std::cout << "Map key and comment: ";
-    std::cin >> key;
+    string key, comm, ext;
+    char buf[BUFSIZE];
+    int n[8];
+    
+    in.getline(buf, BUFSIZE);
 
-    r = filters::nom_range(key);
-    if (r.empty()) std::cout << "can't parse!\n";
-  } while (r.empty());
+    if (parse(buf, ch_p('#') >> *anychar_p).full) continue;
+    if (parse(buf, *space_p).full) continue;
 
-  map.file=infile;
-  map.comm=key;
-  map.map_proj=Proj("tmerc");
+    if (!parse(buf, (+(graph_p - '.'))[assign_a(key)] >> 
+	ch_p('.') >> (+graph_p)[assign_a(ext)] >> +space_p >>
+        int_p[assign_a(n[0])] >> +space_p >> 
+        int_p[assign_a(n[1])] >> +space_p >>
+        int_p[assign_a(n[2])] >> +space_p >> 
+	int_p[assign_a(n[3])] >> +space_p >>
+        int_p[assign_a(n[4])] >> +space_p >> 
+	int_p[assign_a(n[5])] >> +space_p >>
+        int_p[assign_a(n[6])] >> +space_p >> 
+	int_p[assign_a(n[7])] >> +space_p >>
+        (*anychar_p)[assign_a(comm)]).full){
+      std::cerr << "strange line: " << buf << "\n";
+      continue;
+    }
+    std::cout << key << " " << ext << " " << comm << "\n";
+    Rect<double> r = filters::nom_range(key);
+    if (r.empty()) {
+      std::cerr << "bad key: " << key << "\n";
+      continue;
+    }
 
-  double lon1 = r.x;
-  double lat1 = r.y;
-  double lon2 = lon1 + r.w;
-  double lat2 = lat1 + r.h;
+    g_map map;
+    map.file = key + '.' + ext;
+    map.comm = key + ' ' + comm;
+    map.map_proj=Proj("tmerc");
 
-  // привязка
+    g_point p1 = r.TLC();
+    g_point p2 = r.BRC();
+    convs::ll2wgs dc(Datum("Pulkovo 1942"));
+    dc.frw(p1);
+    dc.frw(p2);
 
-  double x,y;
-  std::cout << "top-left corner: "; std::cin >> x >> y;
-  map.points.push_back(g_refpoint(lon1,lat2,x,y));
-  std::cout << "top-right corner: "; std::cin >> x >> y;
-  map.points.push_back(g_refpoint(lon2,lat2,x,y));
-  std::cout << "bottom-right corner: "; std::cin >> x >> y;
-  map.points.push_back(g_refpoint(lon2,lat1,x,y));
-  std::cout << "bottom-left corner: "; std::cin >> x >> y;
-  map.points.push_back(g_refpoint(lon1,lat1,x,y));
+    map.points.push_back(g_refpoint(p1.x,p2.y,n[0],n[1]));
+    map.points.push_back(g_refpoint(p2.x,p2.y,n[2],n[3]));
+    map.points.push_back(g_refpoint(p2.x,p1.y,n[4],n[5]));
+    map.points.push_back(g_refpoint(p1.x,p1.y,n[6],n[7]));
+    world.maps.push_back(map);
 
-  convs::ll2wgs dc(Datum("Pulkovo"));
-  for (int i=0; i<map.points.size(); i++){
-    dc.frw(map.points[i]);
-  }
-
-  world.maps.push_back(map);
+  } while (!in.eof());
   filters::map_nom_brd(world);
-
   io::out(outfile, world, opts);
 }
+
 

@@ -33,7 +33,7 @@ mapsoft_mkmap: $(MAPSOFT_LIBS) mapsoft_mkmap.o
 	g++ mapsoft_mkmap.o $(MAPSOFT_LIBS) $(USB_FLAGS) $(GRLIB_FLAGS) $(LDFLAGS)  -o $@ 
 
 mapsoft_googleview1: $(MAPSOFT_LIBS) mapsoft_googleview1.o
-	g++ mapsoft_googleview1.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) $(GOOGLE_FLAGS) -o $@ 
+	g++  mapsoft_googleview1.o $(MAPSOFT_LIBS)  $(GRAPH_FLAGS) $(USB_FLAGS) $(GOOGLE_FLAGS) -o $@ 
 
 mapsoft_mapview: $(MAPSOFT_LIBS) mapsoft_mapview.o
 	g++ mapsoft_mapview.o $(MAPSOFT_LIBS)  $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
