@@ -75,7 +75,6 @@ struct map2pt{
   public:
     std::vector<g_point> border;
     std::vector<g_point> border_geo;
-    double m_per_pix;
 };
 
 // преобразование из карты в карту
