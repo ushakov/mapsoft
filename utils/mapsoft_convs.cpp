@@ -633,8 +633,8 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
         if ((S.y1 > y)&&(S.y2 > y)) continue; // сторона выше луча
         if ((S.y1 < y)&&(S.y2 < y)) continue; // сторона ниже луча
         if ((S.x2 < x)&&(S.x1 < x)) continue; // вся сторона левее луча
-        int x0 = int(S.k * double(y - S.y1)) + S.x1;
-        if (x0 > x) k++;
+        double x0 = S.k * double(y - S.y1) + S.x1;
+        if (x0 >= x) k++;
     }
     return k%2==1;
   }
@@ -650,11 +650,11 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
         if ((S.y1 > y)&&(S.y2 > y)) continue; // сторона выше луча
         if ((S.y1 < y)&&(S.y2 < y)) continue; // сторона ниже луча
         if ((S.x2 < x)&&(S.x1 < x)) continue; // вся сторона левее луча
-        int x0 = int(S.k * double(y - S.y1)) + S.x1;
+        double x0 = S.k * double(y - S.y1) + S.x1;
 
         if (x0 < x) continue; // сторона левее нашей точки
         k++;
-        if (dist > x0 - x) dist = x0 - x;
+        if (dist > x0 - x) dist = int(x0) - x;
     }
     return k%2==1 ? dist:-dist;
   }
