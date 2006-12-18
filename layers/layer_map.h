@@ -11,6 +11,8 @@
 #include "../loaders/image_r.h"
 #include "../loaders/image_i.h"
 
+#include "../geo_io/io.h"
+
 
 // Слой для показа привязанных карт.
 
@@ -35,6 +37,10 @@ public:
       scales.clear();
       Point<int> brd_min(0xFFFFFF, 0xFFFFFF), brd_max(-0xFFFFFF,-0xFFFFFF);
 
+geo_data w;
+w.maps.push_back(mymap);
+io::out("tmp.map", w, Options());
+
       for (int i=0; i< maps->size(); i++){
         convs::map2map c((*maps)[i], mymap);
 	m2ms.push_back(c);
@@ -44,9 +50,10 @@ public:
 std::cerr << ">> "<< p1 << ", " << p2;
 	c.frw(p1); c.frw(p2);
 std::cerr << " -> "<< p1 << ", " << p2<<"\n";
-        double sc_x(fabs(p2.x-p1.x)/1000), sc_y(fabs(p2.y-p1.y)/1000);
-	double sc = sc_x<sc_y ? sc_x:sc_y;
-        int scale = int(1/sc); if (scale<0) scale=1;
+        double sc_x(1000/fabs(p2.x-p1.x)), sc_y(1000/fabs(p2.y-p1.y));
+	int scale = int(sc_x<sc_y ? sc_x:sc_y);
+        if (scale<0) scale=1;
+
         scales.push_back(scale);
 
         for (int j=0; j<c.border_dst.size(); j++){
@@ -55,6 +62,7 @@ std::cerr << " -> "<< p1 << ", " << p2<<"\n";
           if (brd_min.y > p.y) brd_min.y = int(p.y);
           if (brd_max.x < p.x) brd_max.x = int(p.x);
           if (brd_max.y < p.y) brd_max.y = int(p.y);
+std::cerr << "brd_dst: "<< p << "\n";
         }
       }
       map_range = Rect<int>(brd_min, brd_max);
@@ -88,7 +96,7 @@ std::cerr << " -> "<< p1 << ", " << p2<<"\n";
 
 
       for (i=maps->begin(); i!=maps->end(); i++){
-	convs::map2pt c(*i, Datum("WGS84"), P, Options());
+	convs::map2pt c(*i, Datum("WGS84"), Proj("lonlat"), Options());
         g_point p1(0,0), p2(1000,1000);
 	c.frw(p1); c.frw(p2);
 
