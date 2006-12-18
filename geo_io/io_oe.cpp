@@ -505,8 +505,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			f << setw(5) << setfill(' ') << x << ',' 
 			  << setw(5) << setfill(' ') << y << ','
 			  << "in, deg,"
-			  << setw(4) << abs(int(lat)) << ','<< setw(8) << fabs(lat*60) - abs(int(lat))*60 << ',' << (lat<0? 'S':'N') << ','
-			  << setw(4) << abs(int(lon)) << ','<< setw(8) << fabs(lon*60) - abs(int(lon))*60 << ',' << (lon<0? 'W':'E') << ','
+			  << fixed << setw(4) << abs(int(lat)) << ','<< setw(8) << fabs(lat*60) - abs(int(lat))*60 << ',' << (lat<0? 'S':'N') << ','
+			  << fixed << setw(4) << abs(int(lon)) << ','<< setw(8) << fabs(lon*60) - abs(int(lon))*60 << ',' << (lon<0? 'W':'E') << ','
 			  << " grid,   ,           ,           ,N\r\n";
 		}
 		f << "Projection Setup,,,,,,,,,,\r\n"

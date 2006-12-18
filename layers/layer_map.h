@@ -2,6 +2,7 @@
 #define LAYER_MAP_H
 
 #include <vector>
+#include <sstream>
 
 #include "layer.h"
 #include "../geo_io/geo_data.h"
@@ -37,10 +38,6 @@ public:
       scales.clear();
       Point<int> brd_min(0xFFFFFF, 0xFFFFFF), brd_max(-0xFFFFFF,-0xFFFFFF);
 
-geo_data w;
-w.maps.push_back(mymap);
-io::out("tmp.map", w, Options());
-
       for (int i=0; i< maps->size(); i++){
         convs::map2map c((*maps)[i], mymap);
 	m2ms.push_back(c);
@@ -52,7 +49,7 @@ std::cerr << ">> "<< p1 << ", " << p2;
 std::cerr << " -> "<< p1 << ", " << p2<<"\n";
         double sc_x(1000/fabs(p2.x-p1.x)), sc_y(1000/fabs(p2.y-p1.y));
 	int scale = int(sc_x<sc_y ? sc_x:sc_y);
-        if (scale<0) scale=1;
+        if (scale<=0) scale=1;
 
         scales.push_back(scale);
 
@@ -84,19 +81,37 @@ std::cerr << "brd_dst: "<< p << "\n";
 
       // Тип проекции возьмем из первой карты. Будем ругаться, если где-то она
       // не совпадет
-      // Определим минимальный масштаб (метров/градусов в точке)
-      // поругаемся, если в наборе есть разномасштабные карты
       // Найдем осевой меридиан -- возьмем среднее по всем точкам привязки
       // и найдем ближайший 6n+3 меридиан
       
-      double mpp_min=1e99;
       double lon0=0;
       int n=0;
       Proj P((*maps)[0].map_proj);
 
 
       for (i=maps->begin(); i!=maps->end(); i++){
-	convs::map2pt c(*i, Datum("WGS84"), Proj("lonlat"), Options());
+	if (P!=i->map_proj)
+          std::cerr << "LayerMap warning: different projections in mapset! "
+		    << "Using projection of first map (" << P.xml_str() << ")\n";
+        for (int j=0; j< i->points.size(); j++){
+          lon0+=i->points[j].x; n++;
+        }
+      }
+      lon0/=n;
+      lon0 = floor( lon0/6.0 ) * 6 + 3;
+      std::ostringstream slon0; slon0 << lon0;
+      Options O; 
+      O["lon0"] = slon0.str();
+      O["E0"] = "0";
+
+std::cerr << "lon0 = " << lon0 << "\n";
+
+      // Определим минимальный масштаб (метров/градусов в точке)
+      // поругаемся, если в наборе есть разномасштабные карты
+      double mpp_min=1e99;
+
+      for (i=maps->begin(); i!=maps->end(); i++){
+	convs::map2pt c(*i, Datum("WGS84"), P, O);
         g_point p1(0,0), p2(1000,1000);
 	c.frw(p1); c.frw(p2);
 
@@ -111,22 +126,23 @@ std::cerr << ">> mpp_x: " << mpp_x << " mpp_y: " << mpp_y << "\n";
 	    (mpp_min / 1.1 > mpp)))
           std::cerr << "LayerMap warning: scales of maps in mapset differs more then 10%!\n";
 	if (mpp_min>mpp) mpp_min=mpp;
-
-        for (int j=0; j< i->points.size(); j++){
-          lon0+=i->points[j].x; n++;
-        }
-	if (P!=i->map_proj)
-          std::cerr << "LayerMap warning: different projections in mapset! "
-		    << "Using projection of first map (" << P.xml_str() << ")\n";
       }
-      lon0/=n;
-      lon0 = floor( lon0/6.0 ) * 6 + 3;
-      
+      // точки привязки
+      g_point rp1(0,0), rp2(mpp_min, 0), rp3(0, mpp_min);
+
+      convs::pt2pt c2(Datum("WGS84"), P, O, Datum("WGS84"), Proj("lonlat"), O);
+std::cerr << ">> rp1: " << rp1 << " rp2: " << rp2 << "\n";
+
+      c2.frw(rp1); c2.frw(rp2); c2.frw(rp3);
+
+
+std::cerr << ">> rp1: " << rp1 << " rp2: " << rp2 << "\n";
+
       mymap.map_proj = P;
       mymap.points.clear();
-      mymap.points.push_back(g_refpoint(lon0,0, 0,0));
-      mymap.points.push_back(g_refpoint(lon0+mpp_min,0, 1000,0));
-      mymap.points.push_back(g_refpoint(lon0,mpp_min, 0,1000));
+      mymap.points.push_back(g_refpoint(rp1.x,rp1.y, 0,0));
+      mymap.points.push_back(g_refpoint(rp2.x,rp2.y, 1000,0));
+      mymap.points.push_back(g_refpoint(rp3.x,rp3.y, 0,1000));
       // чтоб не пытались определять границы из файла
       g_point bp(0,0);
       mymap.border.push_back(bp);
