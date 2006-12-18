@@ -442,10 +442,16 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
 
 map2map::map2map(const g_map & sM, const g_map & dM) : 
     c1(sM, Datum("wgs84"), sM.map_proj, Options()),
-    c2(dM, Datum("wgs84"), sM.map_proj, Options()){
+    c2(dM, Datum("wgs84"), sM.map_proj, Options()),
+    tst_frw(c1.border),
+    tst_bck(c1.border)
+{
   border_src = c1.border;
   border_dst = line_frw(c1.border);
+  tst_frw = border_tester(border_dst);
+  tst_bck = border_tester(border_src);
 }
+
 void map2map::frw(g_point & p) {c1.frw(p); c2.bck(p);}
 void map2map::bck(g_point & p) {c2.frw(p); c1.bck(p);}
 
@@ -505,16 +511,105 @@ vector<g_point> map2map::line_bck(const vector<g_point> & l){
   return ret;
 }
 
+
+// ****************
+
+int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
+                       Image<int> & dst_img, Rect<int> dst_rect){
+//    clip_rects_for_image_loader(
+//      src_img.range(), src_img.range(), dst_img.range(), dst_rect);
+
+    if (cnv_rect.empty() || dst_rect.empty()) return 1;
+
+//    int dist;
+
+      std::cerr  << "map2map: " << cnv_rect 
+                 << " -> " << dst_rect << " at " << dst_img << "\n";
+
+    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
+      // откуда мы хотим взять строчку
+      int cnv_y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
+      // при таком делении может выйти  cnv_y1 = cnv_rect.BRC.y, что плохо!
+      if (cnv_y == cnv_rect.BRC().y) cnv_y--;
+
+      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
+        int cnv_x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
+        if (cnv_x == cnv_rect.BRC().x) cnv_x--;
+        if (!tst_frw.nearest_border(cnv_x, cnv_y)) continue;
+        g_point p(cnv_x, cnv_y);
+        bck(p);
+        dst_img.set(dst_x, dst_y, src_img.get(int(p.x),int(p.y)));
+
+      }
+    }
+/*
+    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
+      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
+        dist = tst_frw.nearest_border(dst_x, dst_y);
+        if (dist<0) {
+            dst_x -= dist+1;
+        }
+        else{
+            if (dst_x+dist>dst_rect.x+dst_rect.w) dist=dst_rect.x+dst_rect.w-dst_x;
+            for (int x = dst_x; x<dst_x+dist; x++){
+                dst_img.set(x, dst_y, src_img.get(int(p.x),int(p.y)));
+            }
+            dst_x += dist;
+        }
+      }
+    }*/
+    return 0;
+}
+
+int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect, 
+                       Image<int> & dst_img, Rect<int> dst_rect){
+//    clip_rects_for_image_loader(
+//      src_img.range(), src_rect, dst_img.range(), dst_rect);
+    if (cnv_rect.empty() || dst_rect.empty()) return 1;
+
+
+    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
+      // откуда мы хотим взять строчку
+      int cnv_y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
+      // при таком делении может выйти  cnv_y1 = cnv_rect.BRC.y, что плохо!
+      if (cnv_y == cnv_rect.BRC().y) cnv_y--;
+
+      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
+        int cnv_x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
+        if (cnv_x == cnv_rect.BRC().x) cnv_x--;
+        if (!tst_bck.nearest_border(cnv_x, cnv_y)) continue;
+        g_point p(cnv_x, cnv_y);
+        bck(p);
+        dst_img.set(dst_x, dst_y, src_img.get(int(p.x),int(p.y)));
+
+      }
+    }
+
+/*    int dist;
+
+    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
+      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
+        dist = tst_bck.nearest_border(dst_x, dst_y);
+        if (dist<0) {
+            dst_x -= dist+1;
+        }
+        else{
+            if (dst_x+dist>dst_rect.x+dst_rect.w) dist=dst_rect.x+dst_rect.w-dst_x;
+            for (int x = dst_x; x<dst_x+dist; x++){
+                g_point p(dst_x, dst_y);
+                frw(p); p/=src_scale;
+                dst_img.set(x, dst_y, src_img.get(int(p.x),int(p.y)));
+            }
+            dst_x += dist;
+        }
+      }
+    }*/
+    return 0;
+}
+
+
 // Быстрая проверка границ
-struct border_tester{
-
-  struct side{
-   int x1,x2,y1,y2;
-   double k;
-  };
-  std::vector<side> sides;
-
-  border_tester(std::vector<g_point> border){
+  border_tester::border_tester(std::vector<g_point> & brd) : border(brd){
     sides.clear();
     int n = border.size();
     for (int i = 0; i < n; i++){
@@ -530,7 +625,7 @@ struct border_tester{
   }
 
   // проверка, попадает ли точка в пределы границы
-  bool test(const int x, const int y) const{
+  bool border_tester::test(const int x, const int y) const{
     int k=0; // считаем число k пересечений сторон лучем (x,y) - (inf,y)
     int e = sides.size();
     for (int i = 0; i < e; ++i){
@@ -545,7 +640,7 @@ struct border_tester{
   }
 
   // расстояние до ближайшей границы справа
-  int nearest_border (const int x, const int y) const {
+  int border_tester::nearest_border (const int x, const int y) const {
     int dist=0xFFFFFF;
     int k=0;
 
@@ -564,67 +659,27 @@ struct border_tester{
     return k%2==1 ? dist:-dist;
   }
 
-};
-
-// ****************
-
-int map2map::image_frw(Image<int> & src_img, Rect<int> src_rect, int src_scale,
-                       Image<int> & dst_img, Rect<int> dst_rect){
-    clip_rects_for_image_loader(
-      src_img.range(), src_rect, dst_img.range(), dst_rect);
-    if (src_rect.empty() || dst_rect.empty()) return 1;
-
-    border_tester tst(border_dst);
-    int dist;
-
-    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
-      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
-        dist = tst.nearest_border(dst_x, dst_y);
-        if (dist<0) {
-            dst_x -= dist+1;
-        }
-        else{
-            if (dst_x+dist>dst_rect.x+dst_rect.w) dist=dst_rect.x+dst_rect.w-dst_x;
-            for (int x = dst_x; x<dst_x+dist; x++){
-                g_point p(dst_x, dst_y);
-                bck(p);
-                dst_img.set(x, dst_y, src_img.get(int(p.x),int(p.y)));
-            }
-            dst_x += dist;
-        }
-      }
+  // проверка, "задевает" ли карта данный район
+  bool border_tester::test_range(Rect<int> range) const{
+    int lx = 0; int ly=0;
+    int rx = 0; int ry=0;
+    Point<int> p1 = range.TLC();
+    Point<int> p2 = range.BRC();
+    vector<g_point>::const_iterator p;
+    for (p = border.begin(); p !=border.end(); p++){
+      if (p->x < p1.x) lx++;
+      if (p->x > p2.x) rx++;
+      if (p->y < p1.y) ly++;
+      if (p->y > p2.y) ry++;
     }
-    return 0;
-}
 
-int map2map::image_bck(Image<int> & src_img, Rect<int> src_rect, int src_scale,
-                       Image<int> & dst_img, Rect<int> dst_rect){
-    clip_rects_for_image_loader(
-      src_img.range(), src_rect, dst_img.range(), dst_rect);
-    if (src_rect.empty() || dst_rect.empty()) return 1;
+    int s = border.size();
+    return !((lx == s) ||
+             (ly == s) ||
+             (rx == s) ||
+             (ry == s));
+  }
 
-    border_tester tst(border_dst);
-    int dist;
-
-    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
-      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
-        dist = tst.nearest_border(dst_x, dst_y);
-        if (dist<0) {
-            dst_x -= dist+1;
-        }
-        else{
-            if (dst_x+dist>dst_rect.x+dst_rect.w) dist=dst_rect.x+dst_rect.w-dst_x;
-            for (int x = dst_x; x<dst_x+dist; x++){
-                g_point p(dst_x, dst_y);
-                frw(p); p/=src_scale;
-                dst_img.set(x, dst_y, src_img.get(int(p.x),int(p.y)));
-            }
-            dst_x += dist;
-        }
-      }
-    }
-    return 0;
-}
 }//namespace
 
 

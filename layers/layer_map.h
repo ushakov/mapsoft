@@ -43,13 +43,15 @@ public:
 	m2ms.push_back(c);
         
         // определим масштаб
-        g_point p1(0,0), p2(1000,1000);
-std::cerr << ">> "<< p1 << ", " << p2;
-	c.frw(p1); c.frw(p2);
-std::cerr << " -> "<< p1 << ", " << p2<<"\n";
-        double sc_x(1000/fabs(p2.x-p1.x)), sc_y(1000/fabs(p2.y-p1.y));
+        g_point p1(0,0), p2(1000,0), p3(0,1000);
+std::cerr << ">> "<< p1 << ", " << p2 << ", " << p3;
+	c.frw(p1); c.frw(p2); c.frw(p3);
+std::cerr << " -> "<< p1 << ", " << p2 << ", " << p3 << "\n";
+        double sc_x(1000/fabs(p2.x-p1.x)), sc_y(1000/fabs(p3.y-p1.y));
 	int scale = int(sc_x<sc_y ? sc_x:sc_y);
         if (scale<=0) scale=1;
+
+std::cerr << "scale: "<< scale << "\n";
 
         scales.push_back(scale);
 
@@ -104,22 +106,17 @@ std::cerr << "brd_dst: "<< p << "\n";
       O["lon0"] = slon0.str();
       O["E0"] = "0";
 
-std::cerr << "lon0 = " << lon0 << "\n";
-
       // Определим минимальный масштаб (метров/градусов в точке)
       // поругаемся, если в наборе есть разномасштабные карты
       double mpp_min=1e99;
 
       for (i=maps->begin(); i!=maps->end(); i++){
 	convs::map2pt c(*i, Datum("WGS84"), P, O);
-        g_point p1(0,0), p2(1000,1000);
-	c.frw(p1); c.frw(p2);
+        g_point p1(0,0), p2(1000,0), p3(0,1000);
+	c.frw(p1); c.frw(p2); c.frw(p3);
 
-        double mpp_x(fabs(p2.x-p1.x)), mpp_y(fabs(p2.y-p1.y));
+        double mpp_x(fabs(p2.x-p1.x)), mpp_y(fabs(p3.y-p1.y));
         double mpp = mpp_x < mpp_y ? mpp_x : mpp_y;
-
-std::cerr << ">> mpp_x: " << mpp_x << " mpp_y: " << mpp_y << "\n";
-//std::cerr << ">> p1: " << int(p1.x) << " " << int(p1.y) << " p2: " << int(p2.x) << " " << int(p2.y) << "\n";
 
 	if ((mpp_min < 1e98) && (
 	    (mpp_min * 1.1 < mpp)||
@@ -131,18 +128,18 @@ std::cerr << ">> mpp_x: " << mpp_x << " mpp_y: " << mpp_y << "\n";
       g_point rp1(0,0), rp2(mpp_min, 0), rp3(0, mpp_min);
 
       convs::pt2pt c2(Datum("WGS84"), P, O, Datum("WGS84"), Proj("lonlat"), O);
-std::cerr << ">> rp1: " << rp1 << " rp2: " << rp2 << "\n";
+//std::cerr << ">> rp1: " << rp1 << " rp2: " << rp2 << " rp3: " << rp3 << "\n";
 
       c2.frw(rp1); c2.frw(rp2); c2.frw(rp3);
 
 
-std::cerr << ">> rp1: " << rp1 << " rp2: " << rp2 << "\n";
+//std::cerr << ">> rp1: " << rp1 << " rp2: " << rp2 << " rp3: " << rp3 << "\n";
 
       mymap.map_proj = P;
       mymap.points.clear();
-      mymap.points.push_back(g_refpoint(rp1.x,rp1.y, 0,0));
-      mymap.points.push_back(g_refpoint(rp2.x,rp2.y, 1000,0));
-      mymap.points.push_back(g_refpoint(rp3.x,rp3.y, 0,1000));
+      mymap.points.push_back(g_refpoint(rp1.x,rp1.y, 0,1000));
+      mymap.points.push_back(g_refpoint(rp2.x,rp2.y, 1000,1000));
+      mymap.points.push_back(g_refpoint(rp3.x,rp3.y, 0,0));
       // чтоб не пытались определять границы из файла
       g_point bp(0,0);
       mymap.border.push_back(bp);
@@ -161,9 +158,17 @@ std::cerr << ">> rp1: " << rp1 << " rp2: " << rp2 << "\n";
     LayerMap (const std::vector<g_map> * _maps) : maps(_maps), image_cache(4) { set_ref(); }
     
     virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
+
+#ifdef DEBUG_LAYER_MAP
+      std::cerr  << "LayerMap: draw " << src_rect << " -> " 
+		 << dst_rect << " at " << dst_img <<  "\n";
+#endif
+
         if ((maps == NULL)||(maps->size()==0)) return;
 	for (int i=0; i<maps->size(); i++){
+          if (!m2ms[i].tst_frw.test_range(src_rect)) continue;
           if (!image_cache.contains((*maps)[i].file)){
+
 #ifdef DEBUG_LAYER_MAP
       std::cerr  << "LayerMap: Loading Image " << (*maps)[i].file
 		 << " at scale " << scales[i] <<  "\n";
@@ -172,7 +177,7 @@ std::cerr << ">> rp1: " << rp1 << " rp2: " << rp2 << "\n";
             image_cache.add((*maps)[i].file, image_r::load((*maps)[i].file.c_str(), scales[i]));
           }
 	  Image<int> im = image_cache.get((*maps)[i].file);
-          m2ms[i].image_frw(im, im.range(), scales[i], dst_img, dst_rect);
+          m2ms[i].image_frw(im, scales[i], src_rect, dst_img, dst_rect);
         }
     }
 

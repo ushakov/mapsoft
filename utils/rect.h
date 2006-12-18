@@ -22,8 +22,8 @@ public:
     Rect (T _x, T _y, T _w=0, T _h=0)
 	: x(_x), y(_y), w(_w), h(_h)
     { 
-	if (w<0) std::cerr << "Rect warning: w<0\n";
-	if (h<0) std::cerr << "Rect warning: h<0\n";
+	if (w<0) std::cerr << "Rect warning: w<0 (" << *this << ")\n";
+	if (h<0) std::cerr << "Rect warning: h<0 (" << *this << ")\n";
     }
 
     Rect () : x(0), y(0), w(0), h(0)

@@ -5,7 +5,7 @@
 //#include <io_new/io.h>
 //#define DEBUG_VIEWER
 //#define DEBUG_GOOGLE
-#define DEBUG_LAYER_MAP
+//#define DEBUG_LAYER_MAP
 
 #include "viewer.h"
 #include <point.h>
@@ -112,7 +112,9 @@ main(int argc, char **argv)
     w.add_layer(&ml,200);
     w.add_layer(&l1,100);
 //    w.add_layer(&dl,50);
+
     Viewer viewer(w);
+    viewer.set_window_origin(ml.range().TLC());
 
     //load file selector
     Gtk::FileSelection file_sel_load ("Load file:");

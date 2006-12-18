@@ -77,6 +77,26 @@ struct map2pt{
     std::vector<g_point> border_geo;
 };
 
+// Быстрая проверка границ
+struct border_tester{
+  private:
+  struct side{
+   int x1,x2,y1,y2;
+   double k;
+  };
+  std::vector<side> sides;
+  std::vector<g_point> border;
+  public:
+  border_tester(std::vector<g_point> & brd);
+  // попадает ли точка в пределы границы
+  bool test(const int x, const int y) const;
+  // расстояние до ближайшей границы справа
+  int nearest_border (const int x, const int y) const;
+  // "задевает" ли карта данный район
+  bool test_range(Rect<int> range) const;
+};
+
+
 // преобразование из карты в карту
 // здесь может быть суровое разбиение карты на куски и аппроксимация линейными преобразованиями...
 // здесь же - преобразование линий
@@ -90,15 +110,18 @@ struct map2map{
   std::vector<g_point> line_frw(const std::vector<g_point> & l);
   std::vector<g_point> line_bck(const std::vector<g_point> & l);
   // src_scale -- во сколько раз была уменьшена растровая картинка при загрузке
-  int image_frw(Image<int> & src_img, Rect<int> src_rect, int src_scale,
+  // cnv_rect - прямоугольник в плоскости _преобразованной картинки_!!!
+  int image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
                 Image<int> & dst_img, Rect<int> dst_rect);
-  int image_bck(Image<int> & src_img, Rect<int> src_rect, int src_scale,
+  int image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect, 
                 Image<int> & dst_img, Rect<int> dst_rect);
-  private:
     map2pt c1,c2;
-  public:
+    border_tester tst_frw, tst_bck;
     std::vector<g_point> border_src; // граница sM
     std::vector<g_point> border_dst; // это след от границы sM на dM! 
 };
+
+
+
 }//namespace
 #endif
