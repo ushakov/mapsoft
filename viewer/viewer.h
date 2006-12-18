@@ -236,7 +236,7 @@ public:
       const int extra = 2;
 
       Rect<int> tiles_in_cache = Rect<int>
-       (tiles.x-extra, tiles.y-extra, tiles.x+tiles.w+2*extra, tiles.y+tiles.h+2*extra);
+       (tiles.x-extra, tiles.y-extra, tiles.w+2*extra, tiles.h+2*extra);
 
       std::map<Point<int>, Image<int> >::iterator map_it=tile_cache.begin(), map_it1;
 
