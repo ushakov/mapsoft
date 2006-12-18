@@ -58,6 +58,7 @@ void pt2ll::frw(g_point & p) const{
 	 if (p.x>999999){
            l0=((int)(p.x/1e6)-1)*6+3;
          } else l0=0;
+         std::cerr << "pt2ll::frw: setting lon0 to " << l0 << "\n";
        }
        if (p.x>999999) p.x -= floor(p.x/1e6)*1e6;
        GPS_Math_TMerc_EN_To_LatLon(p.x, p.y, &y, &x, lat0, l0, E0, N0, k, a, a*(1-f));
@@ -86,7 +87,10 @@ void pt2ll::bck(g_point & p){
   case 1: //tmerc
     // если lon0 не указали явно - определим его автоматически:
     // причем (это важно) - только один раз, по первой точке!
-    if (lon0>1e90) lon0 = floor( p.x/6.0 ) * 6 + 3;
+    if (lon0>1e90){
+      lon0 = floor( p.x/6.0 ) * 6 + 3;
+      std::cerr << "pt2ll::bck: setting lon0 to " << lon0 << " (lon = " << p.x << ")\n";
+    }
     GPS_Math_TMerc_LatLon_To_EN(p.y, p.x, &x, &y, lat0, lon0, E0, N0, k, a, a*(1-f));
     // Добавим к координате префикс - как на советских картах:
     x += 1e6 * (floor((lon0-3)/6)+1);
@@ -186,6 +190,18 @@ pc1(dD, sM.map_proj, dPo), pc2(dD, dP, dPo), dc(dD),
 border(sM.border){
   // идеи про преобразование карт - прежние:
   // считается, что преобразование СК замена осевого меридиана - линейны в пределах карты.
+
+  // чтобы в преобразованиях pc1 и pc2 установился правильный осевой меридиан,
+  // если его не установили явно, надо прогнать через них какую-то точку на карте. 
+  g_point p1(0,0);
+  int n=0;
+  for (int i=0; i<sM.points.size(); i++){
+    p1+=g_point(sM.points[i]);
+  }
+  p1/=n;
+  g_point p2(p1);
+  pc1.bck(p1);
+  pc2.bck(p2);
 
   // Разберемся с границей. Она нужна нам для всяких рисований и т.п. 
   // Но модифицировать карту мы не хотим - так что работаем со своей копией.
@@ -424,13 +440,191 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
 // здесь же - преобразование линий
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
-map2map::map2map(const g_map & sM, const g_map & dM){}
-g_point map2map::frw(const g_point & p) const{}
-g_point map2map::bck(const g_point & p) const{}
-vector<g_point> map2map::line_frw(const vector<g_point> & l) const{}
-vector<g_point> map2map::line_bck(const vector<g_point> & l) const{}
-int map2map::image_frw(Image<int> & src_img, Rect<int> src_rect,
-                       Image<int> & dst_img, Rect<int> dst_rect){}
-int map2map::image_bck(Image<int> & src_img, Rect<int> src_rect,
-                       Image<int> & dst_img, Rect<int> dst_rect){}
+map2map::map2map(const g_map & sM, const g_map & dM) : 
+    c1(sM, Datum("wgs84"), sM.map_proj, Options()),
+    c2(dM, Datum("wgs84"), sM.map_proj, Options()){
+  border_src = c1.border;
+  border_dst = line_frw(c1.border);
+}
+void map2map::frw(g_point & p) {c1.frw(p); c2.bck(p);}
+void map2map::bck(g_point & p) {c2.frw(p); c1.bck(p);}
+
+vector<g_point> map2map::line_frw(const vector<g_point> & l){
+  vector<g_point> ret = l;
+  for (vector<g_point>::iterator it = ret.begin(); it != ret.end(); it++) frw(*it);
+
+  // добавление новых точек
+  unsigned i0=0;
+
+  do {
+    for (unsigned i = i0; i<ret.size()-1; i++){
+      g_point P1 =ret[i];
+      g_point P2 =ret[i+1];
+      g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
+
+      bck(P1); bck(P2); bck(C1);
+      g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
+
+      if  (( fabs(C1.x - C2.x) >0.5 )||
+           ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
+        frw(C2);
+        ret.insert(ret.begin()+i+1, C2);
+        break;
+
+      } else i0=i;
+    }
+  } while (i0!=ret.size()-2);
+  return ret;
+}
+
+vector<g_point> map2map::line_bck(const vector<g_point> & l){
+  vector<g_point> ret = l;
+  for (vector<g_point>::iterator it = ret.begin(); it != ret.end(); it++) bck(*it);
+
+  // добавление новых точек
+  unsigned i0=0;
+
+  do {
+    for (unsigned i = i0; i<ret.size()-1; i++){
+      g_point P1 =ret[i];
+      g_point P2 =ret[i+1];
+      g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
+
+      frw(P1); frw(P2); frw(C1);
+      g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
+
+      if  (( fabs(C1.x - C2.x) >0.5 )||
+           ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
+        bck(C2);
+        ret.insert(ret.begin()+i+1, C2);
+        break;
+
+      } else i0=i;
+    }
+  } while (i0!=ret.size()-2);
+  return ret;
+}
+
+// Быстрая проверка границ
+struct border_tester{
+
+  struct side{
+   int x1,x2,y1,y2;
+   double k;
+  };
+  std::vector<side> sides;
+
+  border_tester(std::vector<g_point> border){
+    sides.clear();
+    int n = border.size();
+    for (int i = 0; i < n; i++){
+      side S;
+      S.x1 = int(border[i%n].x);
+      S.y1 = int(border[i%n].y);
+      S.x2 = int(border[(i+1)%n].x);
+      S.y2 = int(border[(i+1)%n].y);
+      if (S.y1==S.y2) continue; // горизонтальные стороны не интересны
+      S.k = double(S.x2-S.x1)/double(S.y2-S.y1);
+      sides.push_back(S);
+    }
+  }
+
+  // проверка, попадает ли точка в пределы границы
+  bool test(const int x, const int y) const{
+    int k=0; // считаем число k пересечений сторон лучем (x,y) - (inf,y)
+    int e = sides.size();
+    for (int i = 0; i < e; ++i){
+        side const & S = sides[i];
+        if ((S.y1 > y)&&(S.y2 > y)) continue; // сторона выше луча
+        if ((S.y1 < y)&&(S.y2 < y)) continue; // сторона ниже луча
+        if ((S.x2 < x)&&(S.x1 < x)) continue; // вся сторона левее луча
+        int x0 = int(S.k * double(y - S.y1)) + S.x1;
+        if (x0 > x) k++;
+    }
+    return k%2==1;
+  }
+
+  // расстояние до ближайшей границы справа
+  int nearest_border (const int x, const int y) const {
+    int dist=0xFFFFFF;
+    int k=0;
+
+    int e = sides.size();
+    for (int i = 0; i < e; ++i){
+        side const & S = sides[i];
+        if ((S.y1 > y)&&(S.y2 > y)) continue; // сторона выше луча
+        if ((S.y1 < y)&&(S.y2 < y)) continue; // сторона ниже луча
+        if ((S.x2 < x)&&(S.x1 < x)) continue; // вся сторона левее луча
+        int x0 = int(S.k * double(y - S.y1)) + S.x1;
+
+        if (x0 < x) continue; // сторона левее нашей точки
+        k++;
+        if (dist > x0 - x) dist = x0 - x;
+    }
+    return k%2==1 ? dist:-dist;
+  }
+
+};
+
+// ****************
+
+int map2map::image_frw(Image<int> & src_img, Rect<int> src_rect, int src_scale,
+                       Image<int> & dst_img, Rect<int> dst_rect){
+    clip_rects_for_image_loader(
+      src_img.range(), src_rect, dst_img.range(), dst_rect);
+    if (src_rect.empty() || dst_rect.empty()) return 1;
+
+    border_tester tst(border_dst);
+    int dist;
+
+    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
+      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
+        dist = tst.nearest_border(dst_x, dst_y);
+        if (dist<0) {
+            dst_x -= dist+1;
+        }
+        else{
+            if (dst_x+dist>dst_rect.x+dst_rect.w) dist=dst_rect.x+dst_rect.w-dst_x;
+            for (int x = dst_x; x<dst_x+dist; x++){
+                g_point p(dst_x, dst_y);
+                bck(p);
+                dst_img.set(x, dst_y, src_img.get(int(p.x),int(p.y)));
+            }
+            dst_x += dist;
+        }
+      }
+    }
+    return 0;
+}
+
+int map2map::image_bck(Image<int> & src_img, Rect<int> src_rect, int src_scale,
+                       Image<int> & dst_img, Rect<int> dst_rect){
+    clip_rects_for_image_loader(
+      src_img.range(), src_rect, dst_img.range(), dst_rect);
+    if (src_rect.empty() || dst_rect.empty()) return 1;
+
+    border_tester tst(border_dst);
+    int dist;
+
+    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
+      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
+        dist = tst.nearest_border(dst_x, dst_y);
+        if (dist<0) {
+            dst_x -= dist+1;
+        }
+        else{
+            if (dst_x+dist>dst_rect.x+dst_rect.w) dist=dst_rect.x+dst_rect.w-dst_x;
+            for (int x = dst_x; x<dst_x+dist; x++){
+                g_point p(dst_x, dst_y);
+                frw(p); p/=src_scale;
+                dst_img.set(x, dst_y, src_img.get(int(p.x),int(p.y)));
+            }
+            dst_x += dist;
+        }
+      }
+    }
+    return 0;
+}
 }//namespace
+
+

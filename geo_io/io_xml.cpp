@@ -256,8 +256,8 @@ namespace xml {
 		vector<g_refpoint>::const_iterator p, b=m.points.begin(), e=m.points.end();
 		for (p = b; p!=e; p++){
 			f << "  <pt";
-                        if (p->y    != def_pt.y)    f << " x="  << fixed << setprecision(6) << p->y;
-                        if (p->x    != def_pt.x)    f << " y="  << fixed << setprecision(6) << p->x;
+                        if (p->y    != def_pt.y)    f << " x="  << fixed << setprecision(6) << p->x;
+                        if (p->x    != def_pt.x)    f << " y="  << fixed << setprecision(6) << p->y;
                         if (p->xr   != def_pt.xr)   f << " xr=" << fixed << setprecision(1) << p->xr;
                         if (p->yr   != def_pt.yr)   f << " yr=" << fixed << setprecision(1) << p->yr;
 			f << "/>\n";

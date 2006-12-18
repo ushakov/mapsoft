@@ -84,14 +84,21 @@ struct map2pt{
 
 struct map2map{
   map2map(const g_map & sM, const g_map & dM);
-  g_point frw(const g_point & p) const;
-  g_point bck(const g_point & p) const;
-  std::vector<g_point> line_frw(const std::vector<g_point> & l) const;
-  std::vector<g_point> line_bck(const std::vector<g_point> & l) const;
-  int image_frw(Image<int> & src_img, Rect<int> src_rect,
+  void frw(g_point & p);
+  void bck(g_point & p);
+
+  std::vector<g_point> line_frw(const std::vector<g_point> & l);
+  std::vector<g_point> line_bck(const std::vector<g_point> & l);
+  // src_scale -- во сколько раз была уменьшена растровая картинка при загрузке
+  int image_frw(Image<int> & src_img, Rect<int> src_rect, int src_scale,
                 Image<int> & dst_img, Rect<int> dst_rect);
-  int image_bck(Image<int> & src_img, Rect<int> src_rect,
+  int image_bck(Image<int> & src_img, Rect<int> src_rect, int src_scale,
                 Image<int> & dst_img, Rect<int> dst_rect);
+  private:
+    map2pt c1,c2;
+  public:
+    std::vector<g_point> border_src; // граница sM
+    std::vector<g_point> border_dst; // это след от границы sM на dM! 
 };
 }//namespace
 #endif

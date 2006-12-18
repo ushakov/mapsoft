@@ -52,6 +52,7 @@ int Options::get_int (const std::string & key, const int dflt) const {
   return dflt;
 }
 
+
 unsigned int Options::get_uint (const std::string & key, const unsigned int dflt) const {
   using namespace boost::spirit;
   const_iterator i = find(key);

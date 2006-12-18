@@ -21,7 +21,7 @@ Point<int> size(const char *file){
         !strncmp(file + (l-4), ".PNG", 4)){
       return image_png::size(file);
     }
-    std::cerr << "Can't determing file format by extension!\n"
+    std::cerr << "Can't determing file format by extension in " << file << "\n"
               << "supported formats: jpeg, tiff, png\n";
     return Point<int>(0,0);
 }
