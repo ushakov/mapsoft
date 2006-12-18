@@ -634,7 +634,15 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
         if ((S.y1 < y)&&(S.y2 < y)) continue; // сторона ниже луча
         if ((S.x2 < x)&&(S.x1 < x)) continue; // вся сторона левее луча
         int x0 = int(S.k * double(y - S.y1)) + S.x1;
-        if (x0 >= x) k++;
+        if (x0 < x) continue; // сторона левее нашей точки
+
+	// тут есть проблемы во-первых со стыками сторон, которые учитываются дважды,
+        // а во вторых с нижней точкой v-образной границы, которая должна учитываться дважды.
+        // решение такое: у сторон, идущих вниз не учитываем первую точку, 
+        // а у сторон, идущих вверх - последнюю! 
+        if (((S.y2<y)&&(S.y1==y)) || 
+            ((S.y1<y)&&(S.y2==y))) continue;
+        k++;
     }
     return k%2==1;
   }
@@ -653,6 +661,8 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
         int x0 = int(S.k * double(y - S.y1)) + S.x1;
 
         if (x0 < x) continue; // сторона левее нашей точки
+        if (((S.y2<y)&&(S.y1==y)) || 
+            ((S.y1<y)&&(S.y2==y))) continue;
         k++;
         if (dist > x0 - x) dist = x0 - x;
     }
