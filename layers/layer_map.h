@@ -27,6 +27,7 @@ private:
   Rect<int> map_range;               // габариты карты
   Cache<std::string, Image<int> > image_cache;    // кэш изображений
   int scale;                         // во сколько раз мы сжимаем карты
+  Options O; // для всех карт должны быть одинаковы!
 
 public:
 
@@ -44,14 +45,10 @@ public:
         
         // определим масштаб
         g_point p1(0,0), p2(1000,0), p3(0,1000);
-std::cerr << ">> "<< p1 << ", " << p2 << ", " << p3;
 	c.frw(p1); c.frw(p2); c.frw(p3);
-std::cerr << " -> "<< p1 << ", " << p2 << ", " << p3 << "\n";
         double sc_x(1000/fabs(p2.x-p1.x)), sc_y(1000/fabs(p3.y-p1.y));
 	int scale = int(sc_x<sc_y ? sc_x:sc_y);
         if (scale<=0) scale=1;
-
-std::cerr << "scale: "<< scale << "\n";
 
         scales.push_back(scale);
 
@@ -61,7 +58,6 @@ std::cerr << "scale: "<< scale << "\n";
           if (brd_min.y > p.y) brd_min.y = int(p.y);
           if (brd_max.x < p.x) brd_max.x = int(p.x);
           if (brd_max.y < p.y) brd_max.y = int(p.y);
-std::cerr << "brd_dst: "<< p << "\n";
         }
       }
       map_range = Rect<int>(brd_min, brd_max);
@@ -102,7 +98,6 @@ std::cerr << "brd_dst: "<< p << "\n";
       lon0/=n;
       lon0 = floor( lon0/6.0 ) * 6 + 3;
       std::ostringstream slon0; slon0 << lon0;
-      Options O; 
       O["lon0"] = slon0.str();
       O["E0"] = "0";
 
@@ -128,12 +123,7 @@ std::cerr << "brd_dst: "<< p << "\n";
       g_point rp1(0,0), rp2(mpp_min, 0), rp3(0, mpp_min);
 
       convs::pt2pt c2(Datum("WGS84"), P, O, Datum("WGS84"), Proj("lonlat"), O);
-//std::cerr << ">> rp1: " << rp1 << " rp2: " << rp2 << " rp3: " << rp3 << "\n";
-
       c2.frw(rp1); c2.frw(rp2); c2.frw(rp3);
-
-
-//std::cerr << ">> rp1: " << rp1 << " rp2: " << rp2 << " rp3: " << rp3 << "\n";
 
       mymap.map_proj = P;
       mymap.points.clear();
