@@ -23,10 +23,10 @@ private:
   const std::vector<g_map> * maps;   // привязки карт
   g_map mymap;                       // информация о привязке layer'a
   std::vector<convs::map2map> m2ms;  // преобразования из каждой карты в mymap
-  std::vector<int> scales;           // во сколько раз мы сжимаем карты при загрузке
+  std::vector<double> scales;        // во сколько раз мы сжимаем карты при загрузке
+  std::vector<int>    iscales;       // во сколько раз мы сжимаем карты при загрузке
   Rect<int> map_range;               // габариты карты
-  Cache<std::string, Image<int> > image_cache;    // кэш изображений
-  int scale;                         // во сколько раз мы сжимаем карты
+  Cache<int, Image<int> > image_cache;    // кэш изображений
   Options O; // для всех карт должны быть одинаковы!
 
 public:
@@ -37,6 +37,7 @@ public:
 
       m2ms.clear();
       scales.clear();
+      iscales.clear();
       Point<int> brd_min(0xFFFFFF, 0xFFFFFF), brd_max(-0xFFFFFF,-0xFFFFFF);
 
       for (int i=0; i< maps->size(); i++){
@@ -46,11 +47,11 @@ public:
         // определим масштаб
         g_point p1(0,0), p2(1000,0), p3(0,1000);
 	c.frw(p1); c.frw(p2); c.frw(p3);
-        double sc_x(1000/fabs(p2.x-p1.x)), sc_y(1000/fabs(p3.y-p1.y));
-	int scale = int(sc_x<sc_y ? sc_x:sc_y);
-        if (scale<=0) scale=1;
+        double sc_x = 1000/sqrt(pow(p2.x-p1.x,2)+pow(p2.y-p1.y,2));
+        double sc_y = 1000/sqrt(pow(p3.x-p1.x,2)+pow(p3.y-p1.y,2));
 
-        scales.push_back(scale);
+        scales.push_back(sc_x<sc_y ? sc_x:sc_y);
+        iscales.push_back(1);
 
         for (int j=0; j<c.border_dst.size(); j++){
 	  g_point p = c.border_dst[j];
@@ -110,7 +111,9 @@ public:
         g_point p1(0,0), p2(1000,0), p3(0,1000);
 	c.frw(p1); c.frw(p2); c.frw(p3);
 
-        double mpp_x(fabs(p2.x-p1.x)), mpp_y(fabs(p3.y-p1.y));
+        double mpp_x = sqrt(pow(p2.x-p1.x,2)+pow(p2.y-p1.y,2));
+        double mpp_y = sqrt(pow(p3.x-p1.x,2)+pow(p3.y-p1.y,2));
+
         double mpp = mpp_x < mpp_y ? mpp_x : mpp_y;
 
 	if ((mpp_min < 1e98) && (
@@ -149,25 +152,42 @@ public:
     
     virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
 
-#ifdef DEBUG_LAYER_MAP
-      std::cerr  << "LayerMap: draw " << src_rect << " -> " 
-		 << dst_rect << " at " << dst_img <<  "\n";
-#endif
+//#ifdef DEBUG_LAYER_MAP
+//      std::cerr  << "LayerMap: draw " << src_rect << " -> " 
+//		 << dst_rect << " at " << dst_img <<  "\n";
+//#endif
+	double sc_x = src_rect.w/dst_rect.w;
+	double sc_y = src_rect.h/dst_rect.h;
 
         if ((maps == NULL)||(maps->size()==0)) return;
 	for (int i=0; i<maps->size(); i++){
+
+          std::string file = (*maps)[i].file;
+
           if (!m2ms[i].tst_frw.test_range(src_rect)) continue;
-          if (!image_cache.contains((*maps)[i].file)){
+          if (!image_cache.contains(i)){
+
+            int scale = int((0.01+scales[i]) * (sc_x<sc_y? sc_x:sc_y));
+            if (scale <=0) scale = 1;
+
+//	    scale=1; /// разбираться, почему scale>1 плохо работает!
 
 #ifdef DEBUG_LAYER_MAP
-      std::cerr  << "LayerMap: Loading Image " << (*maps)[i].file
-		 << " at scale " << scales[i] <<  "\n";
+      std::cerr  << "LayerMap: Loading Image " << file
+		 << " at scale " << scale 
+		 << " scales[i]: " << scales[i] 
+		 << " sc_x: " << sc_x  
+	         << " sc_y: " << sc_y << "\n";
 #endif
 
-            image_cache.add((*maps)[i].file, image_r::load((*maps)[i].file.c_str(), scales[i]));
+	    
+            image_cache.add(i, image_r::load(file.c_str(), scale));
+	    iscales[i] = scale;
           }
-	  Image<int> im = image_cache.get((*maps)[i].file);
-          m2ms[i].image_frw(im, scales[i], src_rect, dst_img, dst_rect);
+	  Image<int> im = image_cache.get(i);
+
+
+          m2ms[i].image_frw(im, iscales[i], src_rect, dst_img, dst_rect);
         }
     }
 

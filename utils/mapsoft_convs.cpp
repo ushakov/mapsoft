@@ -442,7 +442,7 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
 
 map2map::map2map(const g_map & sM, const g_map & dM) : 
     c1(sM, Datum("wgs84"), sM.map_proj, Options()),
-    c2(dM, Datum("wgs84"), sM.map_proj, Options()),
+    c2(dM, Datum("wgs84"), dM.map_proj, Options()),
     tst_frw(c1.border),
     tst_bck(c1.border)
 {
@@ -523,8 +523,8 @@ int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
 
 //    int dist;
 
-      std::cerr  << "map2map: " << cnv_rect 
-                 << " -> " << dst_rect << " at " << dst_img << "\n";
+//      std::cerr  << "map2map: " << cnv_rect 
+//                 << " -> " << dst_rect << " at " << dst_img << "\n";
 
     for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
       // откуда мы хотим взять строчку
@@ -537,7 +537,7 @@ int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
         if (cnv_x == cnv_rect.BRC().x) cnv_x--;
         if (!tst_frw.test(cnv_x, cnv_y)) continue;
         g_point p(cnv_x, cnv_y);
-        bck(p);
+        bck(p); p/=src_scale;
         dst_img.set(dst_x, dst_y, src_img.get(int(p.x),int(p.y)));
 
       }
@@ -579,7 +579,7 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
         if (cnv_x == cnv_rect.BRC().x) cnv_x--;
         if (!tst_bck.nearest_border(cnv_x, cnv_y)) continue;
         g_point p(cnv_x, cnv_y);
-        bck(p);
+        bck(p); p/=src_scale;
         dst_img.set(dst_x, dst_y, src_img.get(int(p.x),int(p.y)));
 
       }
