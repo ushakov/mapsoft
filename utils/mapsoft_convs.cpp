@@ -440,9 +440,9 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
 // здесь же - преобразование линий
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
-map2map::map2map(const g_map & sM, const g_map & dM) : 
-    c1(sM, Datum("wgs84"), sM.map_proj, Options()),
-    c2(dM, Datum("wgs84"), dM.map_proj, Options()),
+map2map::map2map(const g_map & sM, const g_map & dM, const Options & O) :  // !!! мне казалось, что не нужны здесь Options
+    c1(sM, Datum("wgs84"), sM.map_proj, O),
+    c2(dM, Datum("wgs84"), sM.map_proj, O),
     tst_frw(c1.border),
     tst_bck(c1.border)
 {

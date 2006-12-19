@@ -114,7 +114,7 @@ main(int argc, char **argv)
 //    w.add_layer(&dl,50);
 
     Viewer viewer(w);
-    viewer.set_window_origin(ml.range().TLC());
+    viewer.set_window_origin((ml.range().TLC() + ml.range().BRC())/2);
 
     //load file selector
     Gtk::FileSelection file_sel_load ("Load file:");

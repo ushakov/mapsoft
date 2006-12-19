@@ -41,7 +41,7 @@ public:
       Point<int> brd_min(0xFFFFFF, 0xFFFFFF), brd_max(-0xFFFFFF,-0xFFFFFF);
 
       for (int i=0; i< maps->size(); i++){
-        convs::map2map c((*maps)[i], mymap);
+        convs::map2map c((*maps)[i], mymap, O);
 	m2ms.push_back(c);
         
         // определим масштаб
@@ -133,7 +133,7 @@ public:
       mymap.points.push_back(g_refpoint(rp1.x,rp1.y, 0,1000));
       mymap.points.push_back(g_refpoint(rp2.x,rp2.y, 1000,1000));
       mymap.points.push_back(g_refpoint(rp3.x,rp3.y, 0,0));
-      // чтоб не пытались определять границы из файла
+      // чтоб не пытались определять границы mymap из файла
       g_point bp(0,0);
       mymap.border.push_back(bp);
       mymap.border.push_back(bp);
@@ -170,7 +170,7 @@ public:
             int scale = int((0.01+scales[i]) * (sc_x<sc_y? sc_x:sc_y));
             if (scale <=0) scale = 1;
 
-//	    scale=1; /// разбираться, почему scale>1 плохо работает!
+//	    scale=1; ///!!!! разбираться, почему scale>1 плохо работает!
 
 #ifdef DEBUG_LAYER_MAP
       std::cerr  << "LayerMap: Loading Image " << file
@@ -180,12 +180,11 @@ public:
 	         << " sc_y: " << sc_y << "\n";
 #endif
 
-	    
+
             image_cache.add(i, image_r::load(file.c_str(), scale));
 	    iscales[i] = scale;
           }
 	  Image<int> im = image_cache.get(i);
-
 
           m2ms[i].image_frw(im, iscales[i], src_rect, dst_img, dst_rect);
         }
