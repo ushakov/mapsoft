@@ -58,7 +58,7 @@ void pt2ll::frw(g_point & p) const{
 	 if (p.x>999999){
            l0=((int)(p.x/1e6)-1)*6+3;
          } else l0=0;
-         std::cerr << "pt2ll::frw: setting lon0 to " << l0 << "\n";
+//         std::cerr << "pt2ll::frw: setting lon0 to " << l0 << "\n";
        }
        if (p.x>999999) p.x -= floor(p.x/1e6)*1e6;
        GPS_Math_TMerc_EN_To_LatLon(p.x, p.y, &y, &x, lat0, l0, E0, N0, k, a, a*(1-f));
@@ -89,7 +89,7 @@ void pt2ll::bck(g_point & p){
     // причем (это важно) - только один раз, по первой точке!
     if (lon0>1e90){
       lon0 = floor( p.x/6.0 ) * 6 + 3;
-      std::cerr << "pt2ll::bck: setting lon0 to " << lon0 << " (lon = " << p.x << ")\n";
+//      std::cerr << "pt2ll::bck: setting lon0 to " << lon0 << " (lon = " << p.x << ")\n";
     }
     GPS_Math_TMerc_LatLon_To_EN(p.y, p.x, &x, &y, lat0, lon0, E0, N0, k, a, a*(1-f));
     // Добавим к координате префикс - как на советских картах:
@@ -128,7 +128,7 @@ void ll2wgs::bck(g_point & p) const{
 pt2pt::pt2pt(const Datum & sD, const Proj & sP, const Options & sPo, 
              const Datum & dD, const Proj & dP, const Options & dPo):
 pc1(sD,sP,sPo), pc2(dD,dP,dPo), dc1(sD), dc2(dD), 
-triv1((sP.n==dP.n) && (sD.n==dD.n)), triv2(sD.n==dD.n){}
+triv1((sP.n==dP.n) && (sPo==dPo) && (sD.n==dD.n)), triv2(sD.n==dD.n){}
 
 void pt2pt::frw(g_point & p){
     if (triv1) return;
@@ -426,7 +426,7 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
 
       if  (( fabs(C1.x - C2.x) >0.5 )||
            ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
-        ret.insert(ret.begin()+i+1, C2);
+        ret.insert(ret.begin()+i+1, C1);
         break;
       } else i0=i;
     }
