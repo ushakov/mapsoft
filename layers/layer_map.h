@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <sstream>
+#include <fstream>
+#include <math.h>
 
 #include "layer.h"
 #include "../geo_io/geo_data.h"
@@ -41,7 +43,7 @@ public:
       Point<int> brd_min(0xFFFFFF, 0xFFFFFF), brd_max(-0xFFFFFF,-0xFFFFFF);
 
       for (int i=0; i< maps->size(); i++){
-        convs::map2map c((*maps)[i], mymap, O);
+        convs::map2map c((*maps)[i], mymap);
 	m2ms.push_back(c);
         
         // определим масштаб
@@ -100,7 +102,7 @@ public:
       lon0 = floor( lon0/6.0 ) * 6 + 3;
       std::ostringstream slon0; slon0 << lon0;
       O["lon0"] = slon0.str();
-      O["E0"] = "0";
+      O["E0"] = "500000";
 
       // Определим минимальный масштаб (метров/градусов в точке)
       // поругаемся, если в наборе есть разномасштабные карты
@@ -164,7 +166,13 @@ public:
 
           std::string file = (*maps)[i].file;
 
-          if (!m2ms[i].tst_frw.test_range(src_rect)) continue;
+          if (!m2ms[i].tst_frw.test_range(src_rect)){  
+#ifdef DEBUG_LAYER_MAP
+            std::cerr  << "LayerMap: Skipping Image " << file << "\n";
+#endif
+	        
+	    continue;
+	  }
           if (!image_cache.contains(i)){
 
             int scale = int((0.01+scales[i]) * (sc_x<sc_y? sc_x:sc_y));
@@ -193,6 +201,37 @@ public:
     virtual Rect<int> range (){
 	return map_range;
     }
+    
+    // полезная функция, чтобы смотреть, как выглядят границы исходных карт на новой карте
+    void dump_maps(char *file){
+      std::ofstream f(file);
+      f<< "#FIG 3.2\n"
+       << "Portrait\n"
+       << "Center\n"
+       << "Metric\n"
+       << "A4\n"
+       << "100.0\n"
+       << "Single\n"
+       << "-2\n"
+       << "1200 2\n";
+      for (int i=0;i<m2ms.size();i++){
+        int bs = m2ms[i].border_dst.size();
+        f << "2 3 0 1 4 -1 52 -1 -1 0.000 0 0 -1 0 0 "
+          << bs << "\n\t";
+	for (int j=0; j<bs; j++){
+          f << " " << int(m2ms[i].border_dst[j].x) 
+            << " " << int(m2ms[i].border_dst[j].y);
+        }
+        f << "\n";
+        if (bs==0) continue;
+        f << "4 0 4 50 -1 18 20 0.0000 4 225 630 " 
+          << int(m2ms[i].border_dst[0].x+100) << " " 
+          << int(m2ms[i].border_dst[0].y+500) << " " 
+          << (*maps)[i].comm << "\\001\n";
+      }
+      f.close();
+    }
+
 };
 
 

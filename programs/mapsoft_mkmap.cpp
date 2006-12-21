@@ -93,6 +93,11 @@ main(int argc, char **argv){
 
     g_point p1 = r.TLC();
     g_point p2 = r.BRC();
+
+      std::cerr << "key: " << key << '\n';
+      std::cerr << "lon: " << p1.x << " - "<< p2.x << '\n';
+      std::cerr << "lat: " << p1.y << " - "<< p2.y << '\n';
+
     convs::ll2wgs dc(Datum("Pulkovo 1942"));
     dc.frw(p1);
     dc.frw(p2);

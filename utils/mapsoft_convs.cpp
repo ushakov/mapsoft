@@ -1,5 +1,7 @@
 #include "mapsoft_convs.h"
 #include <cmath>
+#include <sstream>
+
 #include "../jeeps/gpsdatum.h"
 #include "../jeeps/gpsproj.h"
 #include "../jeeps/gpsmath.h"
@@ -53,14 +55,14 @@ void pt2ll::frw(g_point & p) const{
     case 0: break;
     case 1: // tmerc 
        // Мы можем использовать префикс в координате X, как на советских картах.
-       // но явное указание lon0 должно иметь приоритет!
-       if (l0>1e90){
-	 if (p.x>999999){
-           l0=((int)(p.x/1e6)-1)*6+3;
-         } else l0=0;
-//         std::cerr << "pt2ll::frw: setting lon0 to " << l0 << "\n";
+       // и это должно иметь приоритет перед явной установкой lon0!
+       if (p.x>999999){
+         l0=((int)(p.x/1e6)-1)*6+3;
+         p.x -= floor(p.x/1e6)*1e6;
        }
-       if (p.x>999999) p.x -= floor(p.x/1e6)*1e6;
+       if (l0>1e90) l0=0;
+//         std::cerr << "pt2ll::frw: setting lon0 to " << l0 << "\n";
+
        GPS_Math_TMerc_EN_To_LatLon(p.x, p.y, &y, &x, lat0, l0, E0, N0, k, a, a*(1-f));
        p.x = x; p.y = y;
        break;
@@ -191,8 +193,9 @@ border(sM.border){
   // идеи про преобразование карт - прежние:
   // считается, что преобразование СК замена осевого меридиана - линейны в пределах карты.
 
+/*
   // чтобы в преобразованиях pc1 и pc2 установился правильный осевой меридиан,
-  // если его не установили явно, надо прогнать через них какую-то точку на карте. 
+  // если его не установили явно, надо прогнать через них какую-то точку на карте.
   g_point p1(0,0);
   int n=0;
   for (int i=0; i<sM.points.size(); i++){
@@ -202,6 +205,7 @@ border(sM.border){
   g_point p2(p1);
   pc1.bck(p1);
   pc2.bck(p2);
+*/
 
   // Разберемся с границей. Она нужна нам для всяких рисований и т.п. 
   // Но модифицировать карту мы не хотим - так что работаем со своей копией.
@@ -440,12 +444,32 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
 // здесь же - преобразование линий
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
-map2map::map2map(const g_map & sM, const g_map & dM, const Options & O) :  // !!! мне казалось, что не нужны здесь Options
-    c1(sM, Datum("wgs84"), sM.map_proj, O),
-    c2(dM, Datum("wgs84"), sM.map_proj, O),
+map2map::map2map(const g_map & sM, const g_map & dM) :
+    c1(sM, Datum("wgs84"), Proj("lonlat"), Options()),
+    c2(dM, Datum("wgs84"), Proj("lonlat"), Options()),
     tst_frw(c1.border),
     tst_bck(c1.border)
 {
+
+  // нам надо, чтобы координаты преобразовывались правильно.
+  // к сожалению, 
+
+  // чтобы в преобразованиях pc1 и pc2 установился правильный осевой меридиан,
+  // если его не установили явно, надо прогнать через них какую-то точку на карте.
+  g_point p1(0,0);
+  for (int i=0; i<dM.points.size(); i++){
+    p1+=g_point(dM.points[i]);
+  }
+  p1/=dM.points.size();
+  Options O;
+  double lon0 = floor( p1.x/6.0 ) * 6 + 3;
+  std::ostringstream slon0; slon0 << lon0;
+  O["lon0"] = slon0.str();
+  O["E0"] = "500000";
+
+  c1 = map2pt(sM, Datum("wgs84"), sM.map_proj, O),
+  c2 = map2pt(dM, Datum("wgs84"), sM.map_proj, O),
+
   border_src = c1.border;
   border_dst = line_frw(c1.border);
   tst_frw = border_tester(border_dst);
@@ -676,12 +700,15 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
     Point<int> p1 = range.TLC();
     Point<int> p2 = range.BRC();
     vector<g_point>::const_iterator p;
+    std::cerr << "brd::tst: " << p1 << " " << p2 << "\n";
     for (p = border.begin(); p !=border.end(); p++){
+    std::cerr << *p << " ";
       if (p->x < p1.x) lx++;
       if (p->x > p2.x) rx++;
       if (p->y < p1.y) ly++;
       if (p->y > p2.y) ry++;
     }
+    std::cerr << "\nbrd::tst: " << lx << " " << ly << " " << rx << " " << ry << "\n";
 
     int s = border.size();
     return !((lx == s) ||

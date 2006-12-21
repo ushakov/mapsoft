@@ -22,8 +22,9 @@ Rect<double> nom_range(const std::string & key){
     string c2 = "";
     string c1 = "";
     string d = "";
+    std::string key1 = key+" ";
     // поймем номер листа
-    if (!parse(key.c_str(), 
+    if (!parse(key1.c_str(), 
       alpha_p[assign_a(a)] >> !(ch_p('-')||'_') >> 
       uint_p[assign_a(b)] >> 
         !( (ch_p('-')||'_') >>
@@ -68,28 +69,30 @@ Rect<double> nom_range(const std::string & key){
       row = 23 - ((c1i-1)/12)*2 - (di-1)/2;
       lon1 += col*6.0/24; lon2=lon1+6.0/24;
       lat1 += row*4.0/24; lat2=lat1+4.0/24;
-//      std::cerr << "1:50 000, col: " << col << ", row: "<< row << '\n';
+      std::cerr << "1:50 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c1i != 0){  // 1:100 000
       col = (c1i-1)%12;
       row = 11 - (c1i-1)/12;
       lon1 += col*6.0/12; lon2=lon1+6.0/12;
       lat1 += row*4.0/12; lat2=lat1+4.0/12;
-//      std::cerr << "1:100 000, col: " << col << ", row: "<< row << '\n';
+      std::cerr << "1:100 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c2i != 0){  // 1:200 000
       col = (c2i-1)%6;
       row = 5 - (c2i-1)/6;
       lon1 += col*6.0/6; lon2=lon1+6.0/6;
       lat1 += row*4.0/6; lat2=lat1+4.0/6;
-//      std::cerr << "1:200 000, col: " << col << ", row: "<< row << '\n';
+      std::cerr << "1:200 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c5i != 0){  // 1:500 000
       col = (c5i-1)%2;
       row = 1 - (c5i-1)/2;
       lon1 += col*6.0/2; lon2=lon1+6.0/2;
       lat1 += row*4.0/2; lat2=lat1+4.0/2;
-//      std::cerr << "1:500 000, col: " << col << ", row: "<< row << '\n';
+      std::cerr << "1:500 000, col: " << col << ", row: "<< row << '\n';
+//      std::cerr << "lon: " << lon1 << " - "<< lon2 << '\n';
+//      std::cerr << "lat: " << lat1 << " - "<< lat2 << '\n';
     }
 //    std::cerr << "lat: " << lat1 << ".." << lat2 <<'\n';
 //    std::cerr << "lon: " << lon1 << ".." << lon2 <<'\n';

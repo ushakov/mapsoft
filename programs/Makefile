@@ -38,6 +38,9 @@ mapsoft_googleview1: $(MAPSOFT_LIBS) mapsoft_googleview1.o
 mapsoft_mapview: $(MAPSOFT_LIBS) mapsoft_mapview.o ../layers/layer_map.h
 	g++  mapsoft_mapview.o  $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
 
+mapsoft_mapcnv: $(MAPSOFT_LIBS) mapsoft_mapcnv.o ../layers/layer_map.h
+	g++  mapsoft_mapcnv.o  $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
+
 mapsoft_imgview: $(MAPSOFT_LIBS) mapsoft_imgview.o
 	g++ mapsoft_imgview.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
 
