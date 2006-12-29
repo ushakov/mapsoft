@@ -40,7 +40,14 @@ private:
     // cache_updater делает их в свободное время и не
     // сигнализирует о том...
 
+    // cache_updater_cond используется для блокировки
+    // cache_updater_thread. основная нить посылает сигнал этой условной
+    // переменной когда cache_updater_thread должна ожить.
+    // в зависимости от состояния свойств объекта нить завершится
+    // или обработает плитки из очереди
+
     Glib::Thread        *cache_updater_thread;
+    Glib::Cond          *cache_updater_cond;
     Glib::Dispatcher       update_tile_signal;
 
     // Нам надо исключить ситуации, когда viewer удаляет из кэшей
@@ -68,6 +75,7 @@ public:
         workplane.set_scale(_scale_nom, _scale_denom);
         Glib::thread_init();
 	mutex = new(Glib::Mutex);
+        cache_updater_cond = new(Glib::Cond);
         update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
         // сделаем отдельный thread из функции cache_updater
         // joinable = true, чтобы подождать его завершения в деструкторе...
@@ -82,64 +90,79 @@ public:
 		   );
     }
     virtual ~Viewer (){
-	delete(mutex);
+        mutex->lock();
 	we_need_cache_updater = false;
+        cache_updater_cond->signal();
+        mutex->unlock();
 	// подождем, пока cache_updater_thread завершиться
 	cache_updater_thread->join();
+	delete(mutex);
+        delete(cache_updater_cond);
     }
 
 /**************************************/
 
-  void cache_updater(){
-    while (we_need_cache_updater){
+    void cache_updater(){
 
-//      Glib::usleep(100);
+       while (1) {
 
-      if (cache_updater_stopped > 0){
-	 continue;
-      }
+          mutex->lock();
+          while (!(
+                   !we_need_cache_updater ||
+                   ( cache_updater_stopped == 0 &&
+                     (!tiles_todo.empty() ||
+                      !tiles_todo2.empty() )
+                   )
+                  ))
+             cache_updater_cond->wait(*mutex);
 
-      mutex->lock();
-      if (!tiles_todo.empty()){
-        // сделаем плитку, которую просили
-        Point<int> key = *tiles_todo.begin();
-        tiles_todo.erase(key);
-	mutex->unlock();
+          if (!we_need_cache_updater) {
+             mutex->unlock();
+             break;
+          }
 
-	Image<int> tile = workplane.get_image(key);
+          if (!tiles_todo.empty()){
+             // сделаем плитку, которую просили
+             Point<int> key = *tiles_todo.begin();
+             tiles_todo.erase(key);
+             mutex->unlock();
 
-	mutex->lock();
-//        // чтобы при перемасштабировании иобнулении кэша в него не попала старая картинка 8|
-        if (tile_cache.count(key)!=0){
-          tile_cache.erase(key);
-          tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
-        }
-	mutex->unlock();
+             Image<int> tile = workplane.get_image(key);
 
-        tile_done = key;
-        cache_updater_stopped=1; // остановимся, чтобы не потерять tile_done
-        update_tile_signal.emit();
-        continue;
-      }
-      if (!tiles_todo2.empty()) {
-        // сделаем плитку второй очереди
-        Point<int> key = *tiles_todo2.begin();
-        tiles_todo2.erase(key);
-	mutex->unlock();
+             mutex->lock();
+             //        // чтобы при перемасштабировании иобнулении кэша в него не попала старая картинка 8|
+             if (tile_cache.count(key)!=0){
+                tile_cache.erase(key);
+                tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
+             }
+             mutex->unlock();
 
-	Image<int> tile = workplane.get_image(key);
+             tile_done = key;
+             cache_updater_stopped=1; // остановимся, чтобы не потерять tile_done
+             update_tile_signal.emit();
+             continue;
+          }
 
-	mutex->lock();
-        tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
-	mutex->unlock();
+          if (!tiles_todo2.empty()) {
+             // сделаем плитку второй очереди
+             Point<int> key = *tiles_todo2.begin();
+             tiles_todo2.erase(key);
+             mutex->unlock();
 
-	// и ничего не скажем...
-        continue;
-      }
-      mutex->unlock();
+             Image<int> tile = workplane.get_image(key);
+
+             mutex->lock();
+             tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
+             mutex->unlock();
+
+             // и ничего не скажем...
+             continue;
+          }
+
+          mutex->unlock();
+       }
+       Glib::Thread::Exit();
     }
-    Glib::Thread::Exit();
-  }
 /**************************************/
 
     // функция вызывается по сигналу от cache_updater'а
@@ -149,6 +172,7 @@ public:
 #endif
       draw_tile(tile_done);
       cache_updater_stopped=0; // запускаем cache_updater
+      cache_updater_cond->signal();
     }
 
 /**************************************/
@@ -171,8 +195,11 @@ public:
       if (tile_cache.count(tile_key)==0){
         // Если такой плитки еще нет - добавим временную картинку
         // и поместим запрос на изготовление нормальной картинки в очередь
+        mutex->lock();
 	tile_cache.insert(std::pair<Point<int>,Image<int> >(tile_key, Image<int>(tile_size,tile_size, 0xFF000000)));
         tiles_todo.insert(tile_key);
+        cache_updater_cond->signal();
+        mutex->unlock();
       }
 
       Image<int> tile = tile_cache.find(tile_key)->second;
@@ -260,7 +287,10 @@ public:
       int dir = 0;
       do {
         if (tile_cache.count(Point<int>(x,y))==0){
-            tiles_todo2.insert(Point<int>(x,y));
+           mutex->lock();
+           tiles_todo2.insert(Point<int>(x,y));
+           cache_updater_cond->signal();
+           mutex->unlock();
         }
         switch (dir){
         case 0:
