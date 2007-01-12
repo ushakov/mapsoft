@@ -95,14 +95,14 @@ int load(const char *file, Rect<int> src_rect,
 
     jpeg_start_decompress(&cinfo);
 
-    char *buf1  = new char[jpeg_w * 3]; 
+    char *buf1  = new char[(jpeg_w+1) * 3]; 
 
     int src_y = 0;
     for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
       // откуда мы хотим взять строчку
       int src_y1 = src_rect.y + ((dst_y-dst_rect.y)*src_rect.h)/dst_rect.h;
       // при таком делении может выйти  src_y1 = src_rect.BRC.y, что плохо!
-      if (src_y1 == src_rect.BRC().y) src_y1--;
+      if (src_y1 >= src_rect.BRC().y) src_y1=src_rect.BRC().y-1;
       // пропустим нужное число строк:
       while (src_y<=src_y1){ 
 	jpeg_read_scanlines(&cinfo, (JSAMPLE**)&buf1, 1);
@@ -111,7 +111,7 @@ int load(const char *file, Rect<int> src_rect,
       // теперь мы находимся на нужной строке
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
         int src_x = src_rect.x + ((dst_x-dst_rect.x)*src_rect.w)/dst_rect.w;
-        if (src_x == src_rect.BRC().x) src_x--;
+        if (src_x >= src_rect.BRC().x) src_x=src_rect.BRC().x-1;
 	image.set(dst_x, dst_y, 
 	    buf1[3*src_x] + (buf1[3*src_x+1]<<8) + (buf1[3*src_x+2]<<16) + (0xFF<<24));
       }
