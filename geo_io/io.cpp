@@ -208,7 +208,7 @@ namespace io {
 				}
 				else
 				{
-					cerr << "  " << oef.str() << " -- " << world.trks[n].points.size() << " waypoints\n";
+					cerr << "  " << oef.str() << " -- " << world.trks[n].points.size() << " points\n";
 					files += " " + oef.str();
 				}
 			}

@@ -1,5 +1,5 @@
-#ifndef MAPSOFT_GEO_H
-#define MAPSOFT_GEO_H
+#ifndef GEO_NAMES_H
+#define GEO_NAMES_H
 
 // Геодезические проекции и системы координат
 
@@ -9,8 +9,7 @@
 
 
 #include <string>
-#include "point.h"
-#include "mapsoft_options.h"
+#include "../utils/mapsoft_options.h"
 #include <boost/operators.hpp>
 
 
@@ -104,29 +103,4 @@ public boost::equality_comparable<Proj>
     }
 
 };
-
-// Преобразования координат.
-
-// преобразование проекции lonlat из любой СК в wgs84
-void conv_anydatum_to_wgs84(Point<double> & p, const Datum & D);
-
-// преобразование проекции lonlat из wgs84 в любую СК
-void conv_wgs84_to_anydatum(Point<double> & p, const Datum & D);
-
-// преобразование любой проекции к lonlat для заданной СК.
-void conv_anyproj_to_lonlat(Point<double> & p, const Datum & D, const Proj & P, const Options & Po);
-
-// преобразование lonlat к любой проекции для заданной СК.
-void conv_lonlat_to_anyproj(Point<double> & p, const Datum & D, const Proj & P, const Options & Po);
-
-// преобразование любых координат к latlon wgs84
-void conv_any_to_std(Point<double> & p, const Datum & D, const Proj & P, const Options & Po);
-
-// преобразование из latlon wgs84 в любые координаты
-void conv_std_to_any(Point<double> & p, const Datum & D, const Proj & P, const Options & Po);
-
-// произвольное преобразование координат
-void conv_any_to_any( Point<double> & p, 
-		      const Datum & sD, const Proj & sP, const Options & sPo,
-                      const Datum & dD, const Proj & dP, const Options & dPo);
 #endif

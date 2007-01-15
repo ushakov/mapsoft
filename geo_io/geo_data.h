@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "geo_enums.h"
-#include "../utils/mapsoft_geo.h"
+#include "geo_names.h"
 #include "../utils/point.h"
 
 

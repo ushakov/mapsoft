@@ -1,4 +1,4 @@
-#include "mapsoft_convs.h"
+#include "geo_convs.h"
 #include <cmath>
 #include <sstream>
 
@@ -700,15 +700,15 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
     Point<int> p1 = range.TLC();
     Point<int> p2 = range.BRC();
     vector<g_point>::const_iterator p;
-    std::cerr << "brd::tst: " << p1 << " " << p2 << "\n";
+//    std::cerr << "brd::tst: " << p1 << " " << p2 << "\n";
     for (p = border.begin(); p !=border.end(); p++){
-    std::cerr << *p << " ";
+//    std::cerr << *p << " ";
       if (p->x < p1.x) lx++;
       if (p->x > p2.x) rx++;
       if (p->y < p1.y) ly++;
       if (p->y > p2.y) ry++;
     }
-    std::cerr << "\nbrd::tst: " << lx << " " << ly << " " << rx << " " << ry << "\n";
+//    std::cerr << "\nbrd::tst: " << lx << " " << ly << " " << rx << " " << ry << "\n";
 
     int s = border.size();
     return !((lx == s) ||

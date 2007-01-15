@@ -7,10 +7,10 @@
 // преобразования (прочитать текстовые параметры и т.п.), а потом быстро преобразовывать...
 
 #include <vector>
-#include "../geo_io/geo_data.h"
-#include "mapsoft_options.h"
-#include "mapsoft_geo.h"
-#include "image.h"
+#include "geo_data.h"
+#include "geo_names.h"
+#include "../utils/mapsoft_options.h"
+#include "../utils/image.h"
 
 namespace convs{
 

@@ -15,7 +15,8 @@
 
 #include "io.h"
 #include "geo_enums.h"
-#include "../utils/mapsoft_geo.h"
+#include "geo_names.h"
+#include "geo_convs.h"
 #include "../utils/mapsoft_options.h"
 
 #include <math.h>
@@ -105,13 +106,14 @@ typedef rule <scanner_t>        rule_t;
                 vector<oe_waypoint> points;
                 operator g_waypoint_list () const{
 			Datum D(datum);
+			convs::ll2wgs cnv(D);
                         g_waypoint_list ret;
                         ret.symbset = symbset;
                         vector<oe_waypoint>::const_iterator i,
                                 b=points.begin(), e=points.end();
                         for (i=b; i!=e; i++){
                                 g_waypoint p = *i; // суровое преобразование типа
-				conv_anydatum_to_wgs84(p, D);
+				cnv.frw(p);
                     		ret.points.push_back(p);
 			}
                         return ret;
@@ -132,7 +134,8 @@ typedef rule <scanner_t>        rule_t;
                 }
                 operator g_track () const{
                         g_track ret;
-			Datum D(datum);
+                        Datum D(datum);
+                        convs::ll2wgs cnv(D);
                         ret.width = width;
                         ret.color = color;
                         ret.skip  = skip;
@@ -144,7 +147,7 @@ typedef rule <scanner_t>        rule_t;
                                 b=points.begin(), e=points.end();
                         for (i=b; i!=e; i++){
 				g_trackpoint p = *i; // суровое преобразование типа
-				conv_anydatum_to_wgs84(p, D);
+                                cnv.frw(p);
                     		ret.points.push_back(p);
 			}
                         return ret;
@@ -192,8 +195,9 @@ typedef rule <scanner_t>        rule_t;
 			ret.comm=comm;
 			ret.file=file;	
 			ret.map_proj=Proj(map_proj);
+                        Datum D(datum);
+                        convs::ll2wgs cnv(D);
 
-			Datum D(datum);
                         double a = GPS_Ellipse[GPS_Datum[D.n].ellipse].a;
                         double f = 1/GPS_Ellipse[GPS_Datum[D.n].ellipse].invf;
 
@@ -212,7 +216,7 @@ typedef rule <scanner_t>        rule_t;
                                         GPS_Math_EN_To_LatLon(i->grid_x, i->grid_y, &p.y, &p.x,
                                         proj_N0, proj_E0, proj_lat0, proj_lon0, proj_k, a, a*(1-f));
                                 }
-                                conv_anydatum_to_wgs84(p, D);
+                                cnv.frw(p);
                     		ret.points.push_back(p);
 			}
                         ret.border=border;

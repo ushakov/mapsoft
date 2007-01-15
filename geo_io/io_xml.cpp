@@ -16,7 +16,7 @@
 #include "geo_data.h"
 #include "geo_enums.h"
 #include "io.h"
-#include "../utils/mapsoft_geo.h"
+#include "geo_names.h"
 #include "../utils/mapsoft_options.h"
 #include "../utils/mapsoft_time.h"
 

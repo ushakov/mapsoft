@@ -5,7 +5,8 @@
 //#include <io_new/io.h>
 //#define DEBUG_VIEWER
 //#define DEBUG_GOOGLE
-#define DEBUG_LAYER_MAP
+//#define DEBUG_LAYER_MAP
+#define DEBUG_JPEG
 
 #include "viewer.h"
 #include <point.h>
