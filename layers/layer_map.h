@@ -8,9 +8,8 @@
 
 #include "layer.h"
 #include "../geo_io/geo_data.h"
-#include "../utils/mapsoft_convs.h"
+#include "../geo_io/geo_convs.h"
 #include "../utils/cache.h"
-#include "../utils/mapsoft_geo.h"
 #include "../loaders/image_r.h"
 #include "../loaders/image_i.h"
 
@@ -20,7 +19,6 @@
 // Слой для показа привязанных карт.
 
 class LayerMap : public Layer {
-
 private:
   const std::vector<g_map> * maps;   // привязки карт
   g_map mymap;                       // информация о привязке layer'a
