@@ -119,9 +119,15 @@ namespace xml {
 			g_map ret;
 			ret.comm = get_string("comm",  ret.comm);
 			ret.file = get_string("file",  ret.file);
+
+			std::string prefix = get_string("prefix",  "");
+                       // если не абсолютный путь - добавим prefix
+                        if ((ret.file.size()<1)||(ret.file[0]!='/'))
+                            ret.file=prefix+ret.file;
+
                         ret.map_proj = Proj(get_string("map_proj"));
 			ret.border = get_poly("border");
-                        const std::string used[] = {"comm", "file", "map_proj", "border", "points", ""};
+                        const std::string used[] = {"comm", "file", "map_proj", "border", "points", "prefix", ""};
                         warn_unused(used);
 			for (vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
 				ret.points.push_back(*i);
@@ -141,6 +147,17 @@ namespace xml {
 
 		xml_point pt;
 		xml_point_list pt_list;
+
+		// prefix -- директория, в которой лежит map-файл, на случай,
+		// если в нем относительные названия граф.файлов
+		std::string prefix("");
+
+		char *sl = rindex(filename, '/');
+		if (sl!=NULL){
+		    int pos = sl-filename;
+		    std::string fn1(filename);
+  	            prefix=std::string(fn1.begin(),fn1.begin()+pos) + "/";
+		}
 
 		string aname, aval;
 
@@ -167,7 +184,7 @@ namespace xml {
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
 			>> str_p("</track>")[push_back_a(world.trks, pt_list)];
-		rule_t map_object = str_p("<map")[clear_a(pt_list)][clear_a(pt_list.points)] 
+		rule_t map_object = str_p("<map")[clear_a(pt_list)][clear_a(pt_list.points)][insert_at_a(pt_list, "prefix", prefix)]
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
 			>> str_p("</map>")[push_back_a(world.maps, pt_list)];

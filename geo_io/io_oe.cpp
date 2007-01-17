@@ -170,7 +170,7 @@ typedef rule <scanner_t>        rule_t;
         };
 
 	struct oe_map{
-		string comm, file;
+		string comm, file, prefix;
 		string datum;
 		char   mag_var_h; // not used
 		int    mag_var_d;
@@ -193,7 +193,10 @@ typedef rule <scanner_t>        rule_t;
 		operator g_map () const {
 			g_map ret;
 			ret.comm=comm;
-			ret.file=file;	
+			// если не абсолютный путь - добавим prefix
+			if ((file.size()<1)||(file[0]!='/'))
+			    ret.file=prefix+file;
+			else ret.file=file;
 			ret.map_proj=Proj(map_proj);
                         Datum D(datum);
                         convs::ll2wgs cnv(D);
@@ -242,6 +245,18 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   oe_waypoint_list w;
   oe_track         t;
   oe_map           m;
+
+  // prefix -- директория, в которой лежит map-файл, на случай, 
+  // если в нем относительные названия граф.файлов
+  char *sl = rindex(filename, '/');
+  if (sl!=NULL){
+    int pos = sl-filename;
+    std::string fn1(filename);
+    m.prefix = std::string(fn1.begin(),fn1.begin()+pos) + "/";
+  }
+  else m.prefix="";
+
+std::cerr << "prefix: " << m.prefix << "\n";
 
   // rules for parsing
   rule_t pr = anychar_p - ',' - eol_p;
