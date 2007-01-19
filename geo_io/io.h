@@ -5,6 +5,7 @@
 
 #include <map>
 #include <string>
+#include <iostream>
 #include "geo_data.h"
 #include "../utils/rect.h"
 #include "../utils/mapsoft_options.h"
@@ -33,6 +34,13 @@ namespace oe {
 	bool write_map_file (const char* filename, const g_map & map, const Options & opt);
 }
 
+namespace fig {
+    bool write (std::ostream & out, const geo_data & world, const Options & opt);
+}
+/*namespace html {
+    bool write (std::ostream & out, const geo_data & world, const Options & opt);
+}*/
+
 /*
 namespace bmp{
 	bool write_image(const std::string & outfile, const geo_data & world, Options const & opt);
@@ -50,10 +58,11 @@ namespace io {
 }
 
 namespace filters {
+  // границы номенклатурного листа в wgs84
   Rect<double> nom_range(const std::string & key);
 
+  // добавить границу в соответствии с названием номенклатурного листа
   void map_nom_brd(geo_data & world);
-  void wpt_srt_com(geo_data & world);
 }
 
 #endif

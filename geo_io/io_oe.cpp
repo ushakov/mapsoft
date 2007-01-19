@@ -256,8 +256,6 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   }
   else m.prefix="";
 
-std::cerr << "prefix: " << m.prefix << "\n";
-
   // rules for parsing
   rule_t pr = anychar_p - ',' - eol_p;
   rule_t ch = anychar_p - eol_p;

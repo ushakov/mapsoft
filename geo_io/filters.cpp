@@ -126,15 +126,4 @@ void map_nom_brd(geo_data & world){
 }
 
 
-bool wpt_srt_com_test(const g_waypoint & p1, const g_waypoint & p2){
-}
-
-void wpt_srt_com(geo_data & world){
-  vector<g_waypoint_list>::iterator i;
-  for (i = world.wpts.begin(); i!=world.wpts.end(); i++){
-
-//14-OCT-06 11:08:57
-
-  }
-}
 }//namespace
