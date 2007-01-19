@@ -1,4 +1,4 @@
-OFILES = mapsoft_time.o mapsoft_convs.o rect.o
+OFILES = mapsoft_time.o mapsoft_options.o rect.o
 
 all: mapsoft_utils.a 
 

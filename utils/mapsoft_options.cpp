@@ -140,6 +140,16 @@ void Options::warn_unused (const std::string * used) const{
     return;
 }
 
+bool Options::put_string  (const std::string & kv){
+   using namespace boost::spirit;
+   std::string k,v;
+   bool ret = parse(kv.c_str(), 
+         (+(anychar_p-'='))[assign_a(k)] >> 
+        !('=' >> (*anychar_p)[assign_a(v)]) ).full;
+   if (ret) (*this)[k]=v;
+   return ret;
+}
+
 
 std::ostream & operator<< (std::ostream & s, const Options & o)
 {

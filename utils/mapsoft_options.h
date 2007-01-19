@@ -8,6 +8,10 @@
 #include "point.h"
 
 struct Options : std::map<std::string,std::string>{
+
+  // добавить параметр из строки вида a[=b]
+  bool         put_string  (const std::string & kv);
+
   std::string  get_string  (const std::string & key, const std::string & dflt="" ) const;
   double       get_double  (const std::string & key, const double dflt=0        ) const;
   double       get_udouble (const std::string & key, const double dflt=0        ) const;
