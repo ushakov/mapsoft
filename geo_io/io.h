@@ -37,9 +37,9 @@ namespace oe {
 namespace fig {
     bool write (std::ostream & out, const geo_data & world, const Options & opt);
 }
-/*namespace html {
+namespace html {
     bool write (std::ostream & out, const geo_data & world, const Options & opt);
-}*/
+}
 
 /*
 namespace bmp{

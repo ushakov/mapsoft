@@ -26,7 +26,7 @@ namespace fig{
 //   соответствующих масштабу scale c разрешением dpi,
 //   в СК datum, в проекции proj, с соответствующими параметрами
 // - если плитки нет - создаем ее из наших map-файлов
-// - создаем html, использую эти плитки
+// - создаем fig, использую эти плитки
 // - если данные больше msize x msize (м) -- отрезаем левый нижний угол
 // - параметр marg -- поле вокруг данных, которое надо оставлять (м)
 
@@ -77,7 +77,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
     }
   }
   if ((maxx<minx)||(maxy<miny)){
-    std::cerr << "o_html: empty data\n";
+    std::cerr << "o_fig: empty data\n";
     return false;
   }
 
@@ -95,12 +95,12 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   int tmaxy = int(ceil(maxy/tsize));
 
   minx = tminx*tsize;
-  maxx = (tmaxx+1)*tsize;
+  maxx = tmaxx*tsize;
   miny = tminy*tsize;
-  maxy = (tmaxy+1)*tsize;
+  maxy = tmaxy*tsize;
 
-  std::cerr << "o_html: xt = " << int(minx) << " - " << int(maxx) << 
-                      " yt = " << int(miny) << " - " << int(maxy) << "\n";
+  std::cerr << "o_fig: xt = " << int(minx) << " - " << int(maxx) << 
+                     " yt = " << int(miny) << " - " << int(maxy) << "\n";
 
   // сделаем привязку нашей карты (в координатах растрового изображения!)
   g_map ref;
@@ -128,8 +128,8 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
     ml.set_ref(ref);
     ml.dump_maps("out.fig");
 
-    for (int y = tminy; y<=tmaxy; y++){
-    for (int x = tminx; x<=tmaxx; x++){
+    for (int y = tminy; y<tmaxy; y++){
+    for (int x = tminx; x<tmaxx; x++){
       ostringstream file, dir;
       if (cache != "") dir << cache << "/";
       dir  << y << "/";
@@ -142,7 +142,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
 
       int S = int(tsize*k);
       Image<int> im(S,S);
-      ml.draw (Rect<int>(S*(x-tminx),S*(tmaxy-y),S,S), im, im.range());
+      ml.draw (Rect<int>(S*(x-tminx),S*(tmaxy-y-1),S,S), im, im.range());
       image_r::save(im, (dir.str()+file.str()).c_str(), Options());
     }
     }
@@ -155,8 +155,8 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   int Sf = int(kf*tsize);
 
   // картинки
-  for (int y = tminy; y<=tmaxy; y++){
-  for (int x = tminx; x<=tmaxx; x++){
+  for (int y = tminy; y<tmaxy; y++){
+  for (int x = tminx; x<tmaxx; x++){
     ostringstream file, dir;
     if (cache != "") dir << cache << "/";
     dir  << y << "/";
@@ -166,7 +166,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
     if (!S_ISREG(st.st_mode)) continue; //файл не существует
 
     int x1 = Sf*(x-tminx);
-    int y1 = Sf*(tmaxy-y);
+    int y1 = Sf*(tmaxy-y-1);
     int x2 = x1+Sf;
     int y2 = y1+Sf;
 
@@ -182,17 +182,17 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
 
   // подписи сетки
   int dd=50;
-  for (int y = tminy-1; y<=tmaxy; y++){
+  for (int y = tminy; y<=tmaxy; y++){
     out << "4 2 0 400 -1 18 10 0.0000 4 0 0 "
         << -dd << " " << (tmaxy-y)*Sf+dd << " " << int(y*tsize) << "\\001\n";
     out << "4 0 0 400 -1 18 10 0.0000 4 0 0 "
-        << (tmaxx-tminx+1)*Sf+dd << " " << (tmaxy-y)*Sf+dd << " " << int(y*tsize) << "\\001\n";
+        << (tmaxx-tminx)*Sf+dd << " " << (tmaxy-y)*Sf+dd << " " << int(y*tsize) << "\\001\n";
   }
-  for (int x = tminx; x<=tmaxx+1; x++){
+  for (int x = tminx; x<=tmaxx; x++){
     out << "4 0 0 400 -1 18 10 1.5708 4 0 0 " 
         << (x-tminx)*Sf+dd << " " << -dd << " " << int(x*tsize) << "\\001\n";
     out << "4 2 0 400 -1 18 10 1.5708 4 0 0 "
-        << (x-tminx)*Sf+dd << " " << (tmaxy-tminy+1)*Sf+dd << " " << int(x*tsize) << "\\001\n";
+        << (x-tminx)*Sf+dd << " " << (tmaxy-tminy)*Sf+dd << " " << int(x*tsize) << "\\001\n";
   }
 
   // привязка

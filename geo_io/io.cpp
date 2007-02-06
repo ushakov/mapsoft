@@ -156,14 +156,14 @@ namespace io {
 			fig::write (f, world, opt);
 			return;
 		}
-/*		// Запись файла HTML
+		// Запись файла HTML
 		if (testext(outfile, ".html") || testext(outfile, ".htm")){
 			cerr << "Writing to HTML file " << outfile << "\n";
 			std::ofstream f(outfile.c_str());
 			html::write (f, world, opt);
 			return;
 		}
-*/
+
 		// Запись файла OziExplorer
 		if ((testext(outfile, ".wpt"))||
 			(testext(outfile, ".plt"))||
