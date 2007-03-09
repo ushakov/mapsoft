@@ -40,8 +40,8 @@ namespace xml {
                 
 		operator g_waypoint () const {
 			g_waypoint ret; // здесь уже возникли значения по умолчанию
-			ret.name = get_string("name", ret.name);
-			ret.comm = get_string("comm", ret.comm);
+			ret.name = get_string("name");
+			ret.comm = get_string("comm");
 			ret.x    = get_double("lon",  ret.x);
 			ret.y    = get_double("lat",  ret.y);
 			ret.z    = get_double("alt",  ret.z);
