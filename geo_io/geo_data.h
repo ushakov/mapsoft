@@ -141,18 +141,6 @@ struct g_map : std::vector<g_refpoint>{
     Proj map_proj;
     std::vector<g_point>    border;
 
-    double mpp() const{ // масштаб, метров или градусов (в зав.от проекции) в точке
-      if (size()<3) return 0;
-      double l1=0, l2=0;
-      for (int i=1; i<size();i++){
-        l1+=sqrt( pow( (*this)[0].x  - (*this)[i].x,  2) +
-                  pow( (*this)[0].y  - (*this)[i].y,  2));
-        l2+=sqrt( pow( (*this)[0].xr - (*this)[i].xr, 2) +
-                  pow( (*this)[0].yr - (*this)[i].yr, 2));
-      }
-      if (l2==0) return 0;
-      return l1/l2;
-    }
     Rect<double> range() const{
       double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
       std::vector<g_refpoint>::const_iterator i;
@@ -178,8 +166,6 @@ struct geo_data {
 
   void clear(){ wpts.clear(); trks.clear(); maps.clear();}
 
-
-
   Rect<double> range_map() const{ 
     // диапазон карт определяется по точкам привязки, а не по
     // границам, поскольку здесь не очень хочется требовать наличия границ
@@ -201,13 +187,6 @@ struct geo_data {
 
   Rect<double> range() const{
     return rect_bounding_box(range_map(), range_geodata());
-  }
-
-  double map_mpp_min() const{ // минимальный масштаб карт (метров/градусов в точке)
-    double mpp_min=1e99;
-    for (std::vector<g_map>::const_iterator i = maps.begin();
-      i!=maps.end();i++) if (i->mpp()<mpp_min) mpp_min=i->mpp();
-    return mpp_min;
   }
 
 };

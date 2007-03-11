@@ -31,7 +31,7 @@ private:
 public:
 
     LayerGeoMap (const geo_data *_world) : 
-      world(_world), image_cache(4), mymap(convs::mymap(*world)){ }
+      world(_world), image_cache(4), mymap(convs::mymap(*world)){ make_m2ms(); image_cache.clear();}
 
     // получить/установить привязку layer'a
     g_map get_ref() const {return mymap;}
@@ -51,7 +51,12 @@ public:
         convs::map2map c(world->maps[i], mymap);
 	m2ms.push_back(c);
         
-        scales.push_back(world->maps[i].mpp());
+        g_point p1(0,0), p2(1000,0), p3(0,1000);
+        c.frw(p1); c.frw(p2); c.frw(p3);
+        double sc_x = 1000/sqrt(pow(p2.x-p1.x,2)+pow(p2.y-p1.y,2));
+        double sc_y = 1000/sqrt(pow(p3.x-p1.x,2)+pow(p3.y-p1.y,2));
+
+        scales.push_back(sc_x<sc_y ? sc_x:sc_y);
         iscales.push_back(1);
 
         for (int j=0; j<c.border_dst.size(); j++){
@@ -61,7 +66,10 @@ public:
           if (brd_max.x < p.x) brd_max.x = int(p.x);
           if (brd_max.y < p.y) brd_max.y = int(p.y);
         }
+        std::cerr << "map " << i << " mpp=" << convs::map_mpp(world->maps[i]) << " brd " << Rect<int>(brd_min, brd_max) << "\n";
       }
+      if (brd_max.x<brd_min.x) {brd_max.x=0; brd_min.x=0;}
+      if (brd_max.y<brd_min.y) {brd_max.y=0; brd_min.y=0;}
       map_range = Rect<int>(brd_min, brd_max);
 
 #ifdef DEBUG_LAYER_MAP
@@ -87,9 +95,9 @@ public:
           std::string file = world->maps[i].file;
 
           if (!m2ms[i].tst_frw.test_range(src_rect)){  
-#ifdef DEBUG_LAYER_MAP
-            std::cerr  << "LayerMap: Skipping Image " << file << "\n";
-#endif
+//#ifdef DEBUG_LAYER_MAP
+//            std::cerr  << "LayerMap: Skipping Image " << file << "\n";
+//#endif
 	        
 	    continue;
 	  }

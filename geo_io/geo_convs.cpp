@@ -735,8 +735,12 @@ g_map mymap(const geo_data & world){ // естественная привязка геоданных
     O["E0"] = "500000";
     // масштаб -- соответствующий минимальному масштабу карт, если они есть,
     // или 1/3600 градуса на точку, если карт нет
-    double mpp=world.map_mpp_min();
-    if (mpp==0) mpp=1/3600;
+    double mpp=1e99;
+    for (int i=0;i<world.maps.size();i++){ if (mpp>map_mpp(world.maps[i])) mpp=map_mpp(world.maps[i]);}
+    if ((mpp>1e90)||(mpp<1e-90)) mpp=1/3600;
+
+std::cerr << "lon0: " << lon0 << " mpp: " << mpp << "\n";
+std::cerr << "rm: " << rm << " rd: " << rd << "\n";
     // точки привязки
     pt2pt cnv(Datum("WGS84"), ret.map_proj, O, Datum("WGS84"), Proj("lonlat"), O);
     g_point p(lon0,0); cnv.bck(p);
@@ -747,11 +751,30 @@ g_map mymap(const geo_data & world){ // естественная привязка геоданных
     ret.push_back(g_refpoint(p.x,p.y,   0,1000));
     ret.push_back(g_refpoint(p1.x,p1.y, 1000,1000));
     ret.push_back(g_refpoint(p2.x,p2.y, 0,0));
+ std::cerr << "ref: " << p << " " << p1 << " " << p2 << "\n";
     // чтоб не пытались определять границы из файла
-    for (i=0;i<3;i++)
+    for (int i=0;i<3;i++)
       ret.border.push_back(g_point(0,0));
     return ret;
 }
+
+double map_mpp(const g_map &map){ // масштаб, метров или градусов (в зав.от проекции) в точке
+  if (map.size()<3) return 0;
+  double l1=0, l2=0;
+  convs::pt2pt c(Datum("wgs84"), map.map_proj, Options(), Datum("wgs84"), Proj("lonlat"), Options());
+  for (int i=1; i<map.size();i++){
+    g_point p1(map[i-1].x,map[i-1].y);
+    g_point p2(map[i].x,  map[i].y);
+    c.bck(p1); c.bck(p2);
+    l1+=sqrt( pow( p1.x  - p2.x,  2) +
+              pow( p1.y  - p2.y,  2));
+    l2+=sqrt( pow( map[i-1].xr - map[i].xr, 2) +
+              pow( map[i-1].yr - map[i].yr, 2));
+  }
+  if (l2==0) return 0;
+  return l1/l2;
+}
+
 
 }//namespace
 

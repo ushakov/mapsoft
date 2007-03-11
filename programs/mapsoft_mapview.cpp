@@ -44,6 +44,7 @@ void load_file(Gtk::FileSelection * file_selector, Viewer * v) {
    g_print ("Loading: %s\n", selected_filename.c_str());
    status_bar->push("Loading...", 0);
    io::in(selected_filename, world, Options());
+   layer_map.set_ref();
    layer_gd.set_ref(layer_map.get_ref());
    v->clear_cache();
 }
@@ -102,6 +103,7 @@ main(int argc, char **argv)
       io::in(std::string(argv[i]), world, Options());
     }
 
+    layer_map.set_ref();
     layer_gd.set_ref(layer_map.get_ref());
     layer_map.dump_maps("out.fig");
 

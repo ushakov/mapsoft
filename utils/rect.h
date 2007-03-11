@@ -82,6 +82,8 @@ Rect<T> rect_intersect (Rect<T> const & R1, Rect<T> const & R2){
 
 template <typename T>
 Rect<T> rect_bounding_box (Rect<T> const & R1, Rect<T> const & R2){
+    if (R1.empty()) return R2;
+    if (R2.empty()) return R1;
     T x1 =  std::min (R1.x, R2.x);
     T y1 =  std::min (R1.y, R2.y);
     T x2 =  std::max (R1.x+R1.w, R2.x+R2.w);
