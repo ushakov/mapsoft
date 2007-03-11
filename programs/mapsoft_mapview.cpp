@@ -6,15 +6,15 @@
 //#define DEBUG_VIEWER
 //#define DEBUG_GOOGLE
 //#define DEBUG_LAYER_MAP
-#define DEBUG_JPEG
+//#define DEBUG_JPEG
 
 #include "viewer.h"
 #include <point.h>
 #include "workplane.h"
 #include "layer_grid.h"
 //#include "layer_wait.h"
-#include "layer_map.h"
-//#include "layer_geodata.h"
+#include "layer_geomap.h"
+#include "layer_geodata.h"
 
 #include "../geo_io/io.h"
 
@@ -25,17 +25,16 @@ geo_data world;
 //const std::string google_dir = "/d/MAPS/GOOGLE";
 //const std::string data_file  = "./track.plt";
 
-LayerMap     ml(&world.maps);
+LayerGeoMap   layer_map(&world);
+LayerGeoData  layer_gd(&world);
 
 Gtk::Statusbar  * status_bar = NULL;
 
-bool google_downloading = false;
 
 void clear_data(Viewer * v) {
    g_print ("Clear all data");
    status_bar->push("Clear all data", 0);
    world.clear();
-//   dl.set_scale(sc);
    v->clear_cache();
 }
 
@@ -45,8 +44,7 @@ void load_file(Gtk::FileSelection * file_selector, Viewer * v) {
    g_print ("Loading: %s\n", selected_filename.c_str());
    status_bar->push("Loading...", 0);
    io::in(selected_filename, world, Options());
-//   dl.set_scale(sc);
-   ml.set_ref();
+   layer_gd.set_ref(layer_map.get_ref());
    v->clear_cache();
 }
 
@@ -103,19 +101,20 @@ main(int argc, char **argv)
     for(int i=1;i<argc;i++){
       io::in(std::string(argv[i]), world, Options());
     }
-//    dl.set_scale(sc);
-    ml.set_ref();
+
+    layer_gd.set_ref(layer_map.get_ref());
+    layer_map.dump_maps("out.fig");
 
     //viewer/workplane/layers
     Workplane w(256,0);
     LayerGrid l1(200.0,200.0,0xFF000080);
 
-    w.add_layer(&ml,200);
-//    w.add_layer(&l1,100);
+    w.add_layer(&layer_map,200);
+    w.add_layer(&layer_gd,100);
 //    w.add_layer(&dl,50);
 
     Viewer viewer(w);
-    viewer.set_window_origin((ml.range().TLC() + ml.range().BRC())/2);
+    viewer.set_window_origin(layer_gd.range().TLC());
 
     //load file selector
     Gtk::FileSelection file_sel_load ("Load file:");

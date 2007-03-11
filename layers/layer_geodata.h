@@ -1,86 +1,82 @@
 #ifndef LAYER_GEODATA_H
 #define LAYER_GEODATA_H
 
-#include "layer.h"
+#include <vector>
+#include <sstream>
+#include <fstream>
 #include <math.h>
 
-// Загрузка геоданных в координатах google
-// Кладем их на снимки google
-// 
+#include "layer_geo.h"
+#include "../geo_io/geo_convs.h"
 
-#include "../geo_io/geo_data.h"
-#include "../utils/image_google_misc.h"
+#include "../geo_io/io.h"
 #include "../utils/image_brez.h"
 
-class LayerGeodata : public Layer {
+
+// Слой для показа точек и треков
+
+class LayerGeoData : public LayerGeo {
+private:
+  const geo_data * world; // указатель на геоданные
+  convs::map2pt cnv; 
+  g_map mymap;
+
 public:
-    LayerGeodata (const geo_data & _world, int _gscale) : world(_world){ 
-      set_scale(_gscale);
-    }
+
+    LayerGeoData (const geo_data * _world) : 
+	world(_world), mymap(convs::mymap(*world)), cnv(mymap, Datum("wgs84"), Proj("lonlat"), Options()) {}
+
+    // получить/установить привязку layer'a
+    virtual g_map get_ref() const {return mymap;}
+    virtual void set_ref(const g_map & map){mymap=map; cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"), Options());}
+    void set_ref(){set_ref(convs::mymap(*world));}
+
+
     
-    virtual void draw (Rect<int> src, Image<int> & img, Rect<int> dst){    
+    virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
+      clip_rects_for_image_loader(range(), src_rect, dst_img.range(), dst_rect);
+      if (src_rect.empty() || dst_rect.empty()) return;
 
-      clip_rects_for_image_loader(data_range, src, img.range(), dst);
-      if (src.empty() || dst.empty()) return;
+      int c1 = 0xFF0000FF;
+      int c2 = 0xFF00FFFF;
 
-	int c1 = 0xFF0000FF;
-	int c2 = 0xFF00FFFF;
-
-        for (std::vector<g_track>::const_iterator it = world.trks.begin();
-                                         it!= world.trks.end(); it++){
+      for (std::vector<g_track>::const_iterator it = world->trks.begin();
+                                         it!= world->trks.end(); it++){
         int xo=0, yo=0;
-      
-        for (std::vector<g_trackpoint>::const_iterator pt = it->points.begin();
-                                            pt!= it->points.end(); pt++){
-          Point<int> p = google::lonlat2xy(gscale, Point<double>(pt->x,pt->y));
 
-          int x = dst.x+((p.x-src.x)*dst.w)/src.w;
-          int y = dst.y+((p.y-src.y)*dst.h)/src.h;
+        for (std::vector<g_trackpoint>::const_iterator pt = it->begin();
+                                            pt!= it->end(); pt++){
+	  
+          g_point p(pt->x,pt->y); cnv.bck(p);
 
-          if (point_in_rect(p, src)){
-      
+          int x = int(dst_rect.x+((p.x-src_rect.x)*dst_rect.w)/src_rect.w);
+          int y = int(dst_rect.y+((p.y-src_rect.y)*dst_rect.h)/src_rect.h);
+
+          if (point_in_rect(Point<int>(int(p.x),int(p.y)), src_rect)){
+
             if (!pt->start) {
-              image_brez::line(img, xo,yo, x, y, 1, c2);
-              image_brez::circ(img, xo,yo, 2, 1, c1);
+              image_brez::line(dst_img, xo,yo, x, y, 1, c2);
+              image_brez::circ(dst_img, xo,yo, 2, 1, c1);
             } else {
-              image_brez::circ(img, x,y,2,1, c1);
+              image_brez::circ(dst_img, x,y,2,1, c1);
             }
-	  }
+          }
           xo=x; yo=y;
         }
       }
     }
-        
-        virtual Rect<int> range (){
-        	return data_range;
-    }
 
-    void set_scale(int scale){
-      gscale = scale;
-      int xmin =  0xFFFFFFF, ymin =  0xFFFFFFF;
-      int xmax = -0xFFFFFFF, ymax = -0xFFFFFFF;
-      for (std::vector<g_track>::const_iterator it = world.trks.begin();
-                                   it!= world.trks.end(); it++){
-        for (std::vector<g_trackpoint>::const_iterator pt = it->points.begin();
-                                          pt!= it->points.end(); pt++){
-          Point<int> p = google::lonlat2xy(gscale, Point<double>(pt->x,pt->y));
-	
-          if (xmin>p.x) xmin=p.x;
-          if (xmax<p.x) xmax=p.x;
-          if (ymin>p.y) ymin=p.y;
-          if (ymax<p.y) ymax=p.y;
-        } 
-      }
-      if ((xmin>xmax)||(ymin>ymax)) data_range = Rect<int>(0,0,0,0);
-      else data_range = Rect<int>(xmin,ymin, xmax-xmin+1, ymax-ymin+1);
-      std::cerr << "geodata layer: " << data_range <<"\n";
-    }
 
-private:
-    int gscale;
-    const geo_data & world;
-    Rect<int> data_range;
+    virtual Rect<int> range (){
+      Rect<double> wgs_r = world->range_geodata();
+      g_point p1=wgs_r.TLC();
+      g_point p2=wgs_r.BRC();
+      cnv.bck(p1);
+      cnv.bck(p2);
+      return Rect<int>(int(p1.x),int(p1.y), int(p2.x+1), int(p2.y+1));
+    }
+    
 };
 
 
-#endif /* LAYER_GEODATA_H */
+#endif 

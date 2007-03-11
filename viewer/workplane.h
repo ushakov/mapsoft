@@ -20,7 +20,7 @@ public:
         Image<int>  image(tile_size,tile_size, 0xFF000000);
 	Rect<int> dst_rect = image.range();
 	Rect<int> src_rect = (tile_key*tile_size + dst_rect)*scale_denom;
-        src_rect = rect_intdiv(src_rect, scale_nom);
+        src_rect = tiles_on_rect(src_rect, scale_nom);
 
 //	std::cerr << "Workplane: " << src_rect << " -> " << dst_rect << "\n";
 

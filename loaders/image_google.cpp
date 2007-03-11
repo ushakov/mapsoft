@@ -51,7 +51,7 @@ int load(
   if (src_rect.empty() || dst_rect.empty()) return 1;
 
 
-  Rect<int> src_tiles  = rect_intdiv(src_rect,256);
+  Rect<int> src_tiles  = tiles_on_rect(src_rect,256);
 
   for (int yt = src_tiles.TLC().y; yt<src_tiles.BRC().y; yt++){
     for (int xt = src_tiles.TLC().x; xt<src_tiles.BRC().x; xt++){

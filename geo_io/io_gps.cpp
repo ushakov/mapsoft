@@ -40,7 +40,7 @@ namespace gps {
 			new_w_pt.color = wpt[i]->colour;
 			if (wpt[i]->Time_populated)
 				new_w_pt.t   = wpt[i]->Time;
-			new_w.points.push_back(new_w_pt);
+			new_w.push_back(new_w_pt);
 		}
 		world.wpts.push_back(new_w);
 
@@ -70,7 +70,7 @@ namespace gps {
 				new_t_pt.z     = trk[i]->alt;
 				new_t_pt.depth = trk[i]->dpth;
 				new_t_pt.t     = trk[i]->Time;
-				new_t.points.push_back(new_t_pt);
+				new_t.push_back(new_t_pt);
 			}
 		}
 		world.trks.push_back(new_t);
@@ -81,13 +81,13 @@ namespace gps {
 
 
 	bool put_waypoints (const char * port, const g_waypoint_list & wp, const Options & opt){
-		int num = wp.points.size();
+		int num = wp.size();
 		if (GPS_Init(port) < 0) return false;
 		GPS_PWay *wpts = (GPS_PWay *) calloc(num, sizeof(GPS_PWay));
 
 		int n=0;
-		for (vector<g_waypoint>::const_iterator i =  wp.points.begin();
-			 i != wp.points.end();
+		for (vector<g_waypoint>::const_iterator i =  wp.begin();
+			 i != wp.end();
 			 i++)
 		{
 			wpts[n] = GPS_Way_New();
@@ -107,7 +107,7 @@ namespace gps {
 	}
 
 	bool put_track (const char * port, const g_track & tr, const Options & opt){
-		int num = tr.points.size()+1;
+		int num = tr.size()+1;
 		if (GPS_Init(port) < 0) return false;
 		GPS_PTrack *trks = (GPS_PTrack *) calloc(num, sizeof(GPS_PTrack));
 
@@ -118,8 +118,8 @@ namespace gps {
 		memccpy(trks[0]->trk_ident, tr.comm.c_str(), '\0', 255);
 
 		int n = 1;
-		for (vector<g_trackpoint>::const_iterator i =  tr.points.begin();
-			 i != tr.points.end(); i++){
+		for (vector<g_trackpoint>::const_iterator i =  tr.begin();
+			 i != tr.end(); i++){
 			trks[n] = GPS_Track_New();
 			trks[n]->ishdr = 0;
 			trks[n]->lat  = i->y;

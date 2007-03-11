@@ -80,7 +80,7 @@ namespace gu {
 			g_waypoint_list ret;
 			vector<gu_waypoint>::const_iterator i, 
 				b=points.begin(), e=points.end();
-			for (i=b; i!=e; i++) ret.points.push_back(*i);
+			for (i=b; i!=e; i++) ret.push_back(*i);
 			return ret;
 		}
 	};
@@ -91,7 +91,7 @@ namespace gu {
 			g_track ret;
 			vector<gu_trackpoint>::const_iterator i, 
 				b=points.begin(), e=points.end();
-			for (i=b; i!=e; i++) ret.points.push_back(*i);
+			for (i=b; i!=e; i++) ret.push_back(*i);
 			return ret;
 		}
 	};
@@ -163,9 +163,9 @@ namespace gu {
 /********************************************/
 
 	bool write_track(ofstream & f, const g_track & tr, const Options & opt){
-		int num = tr.points.size();
+		int num = tr.size();
 		f << "[tracks, " << num << " records]\n";
-		for (vector<g_trackpoint>::const_iterator p = tr.points.begin(); p != tr.points.end(); p++)
+		for (vector<g_trackpoint>::const_iterator p = tr.begin(); p != tr.end(); p++)
 		{
 			struct tm * ts = localtime(&p->t);
 			if (ts == NULL) { time_t t = time(NULL);  ts = localtime(&t);}
@@ -185,9 +185,9 @@ namespace gu {
 	}
 
 	bool write_waypoint_list(ofstream & f, const g_waypoint_list & wp, const Options & opt){
-		int num = wp.points.size();
+		int num = wp.size();
 		f << "[waypoints, " << num << " records]\n";
-		for (vector<g_waypoint>::const_iterator p = wp.points.begin(); p!=wp.points.end(); p++){
+		for (vector<g_waypoint>::const_iterator p = wp.begin(); p!=wp.end(); p++){
 			f << left << setw(6) << setfill(' ') << p->name << " " 
 			  << right << fixed << setprecision(6)
 			  << setw(10) << p->y << " "

@@ -198,7 +198,7 @@ border(sM.border){
   // если его не установили явно, надо прогнать через них какую-то точку на карте.
   g_point p1(0,0);
   int n=0;
-  for (int i=0; i<sM.points.size(); i++){
+  for (int i=0; i<sM.size(); i++){
     p1+=g_point(sM.points[i]);
   }
   p1/=n;
@@ -242,7 +242,7 @@ border(sM.border){
   // в которых карта линейна и найдем соответствующее линейное преобразование.
 
   // копия точек привязки
-  vector<g_refpoint> points = sM.points;
+  vector<g_refpoint> points = sM;
 
   //  a x + b y + c = X
   //  d x + e y + f = Y
@@ -457,10 +457,10 @@ map2map::map2map(const g_map & sM, const g_map & dM) :
   // чтобы в преобразованиях pc1 и pc2 установился правильный осевой меридиан,
   // если его не установили явно, надо прогнать через них какую-то точку на карте.
   g_point p1(0,0);
-  for (int i=0; i<dM.points.size(); i++){
-    p1+=g_point(dM.points[i]);
+  for (int i=0; i<dM.size(); i++){
+    p1+=g_point(dM[i]);
   }
-  p1/=dM.points.size();
+  p1/=dM.size();
   Options O;
   double lon0 = floor( p1.x/6.0 ) * 6 + 3;
   std::ostringstream slon0; slon0 << lon0;
@@ -716,6 +716,43 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
              (rx == s) ||
              (ry == s));
   }
+
+
+g_map mymap(const geo_data & world){ // естественная привязка геоданных
+    // тип проекции -- по первой карте, или lonlat, если карт нет
+    // осевой меридиан -- 6n+3, наиболее близкий к середине диапазона треков и точек,
+    // а если их нет - к середине диапазона карт
+    g_map ret;
+    if (world.maps.size()>0) ret.map_proj=world.maps[0].map_proj;
+    Rect<double> rd=world.range_geodata();
+    Rect<double> rm=world.range_map();
+    double lon0 = rm.x+rm.w/2;
+    if (!rd.empty()) lon0=rd.x+rd.w/2;
+    lon0 = floor( lon0/6.0 ) * 6 + 3;
+    std::ostringstream slon0; slon0 << lon0;
+    Options O;
+    O["lon0"] = slon0.str();
+    O["E0"] = "500000";
+    // масштаб -- соответствующий минимальному масштабу карт, если они есть,
+    // или 1/3600 градуса на точку, если карт нет
+    double mpp=world.map_mpp_min();
+    if (mpp==0) mpp=1/3600;
+    // точки привязки
+    pt2pt cnv(Datum("WGS84"), ret.map_proj, O, Datum("WGS84"), Proj("lonlat"), O);
+    g_point p(lon0,0); cnv.bck(p);
+    g_point p1=p+g_point(mpp*1000,0); cnv.frw(p1);
+    g_point p2=p+g_point(0,mpp*1000); cnv.frw(p2);
+    cnv.frw(p);
+
+    ret.push_back(g_refpoint(p.x,p.y,   0,1000));
+    ret.push_back(g_refpoint(p1.x,p1.y, 1000,1000));
+    ret.push_back(g_refpoint(p2.x,p2.y, 0,0));
+    // чтоб не пытались определять границы из файла
+    ret.border.push_back(g_point(0,0));
+    ret.border.push_back(g_point(0,0));
+    ret.border.push_back(g_point(0,0));
+    return ret;
+}
 
 }//namespace
 

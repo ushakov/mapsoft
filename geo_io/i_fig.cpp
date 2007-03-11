@@ -383,12 +383,12 @@ namespace fig {
                         convs::pt2pt c1(Datum(datum), Proj(proj), O, Datum("wgs84"), Proj("lonlat"), O);
                         c1.frw(ref);
 			range.test(ref.xr,ref.yr);
-			canvas.points.push_back(ref);
+			canvas.push_back(ref);
 		    }
 		}
 		// границы - довольно произвольные, но без них не
 		// инициализируешь g_map
-		if (canvas.points.size() < 1) return g_map();
+		if (canvas.size() < 1) return g_map();
 		canvas.border.push_back(range.min);
 		canvas.border.push_back(g_point(range.min.x, range.max.y));
 		canvas.border.push_back(range.max);
@@ -484,7 +484,7 @@ namespace fig {
                             tp.x=double(i->x[j]);
                             tp.y=double(i->y[j]);
                             cnv.frw(tp);
-			    tr.points.push_back(tp);
+			    tr.push_back(tp);
 			}
 
                         tr.comm = attrs.get_string("comm");                

@@ -197,7 +197,7 @@ namespace io {
 				}
 				else
 				{
-					cerr << "  " << oef.str() << " -- " << world.wpts[n].points.size() << " waypoints\n";
+					cerr << "  " << oef.str() << " -- " << world.wpts[n].size() << " waypoints\n";
 					files += " " + oef.str();
 				}
 			}
@@ -215,7 +215,7 @@ namespace io {
 				}
 				else
 				{
-					cerr << "  " << oef.str() << " -- " << world.trks[n].points.size() << " points\n";
+					cerr << "  " << oef.str() << " -- " << world.trks[n].size() << " points\n";
 					files += " " + oef.str();
 				}
 			}
@@ -234,7 +234,7 @@ namespace io {
 				}
 				else
 				{
-					cerr << "  " << oef.str() << " -- " << world.maps[n].points.size() << " reference points\n";
+					cerr << "  " << oef.str() << " -- " << world.maps[n].size() << " reference points\n";
 					files += " " + oef.str();
 				}
 			}

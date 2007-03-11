@@ -14,7 +14,7 @@
 #include "geo_convs.h"
 #include "../utils/mapsoft_options.h"
 #include "../utils/mapsoft_time.h"
-#include "../layers/layer_map.h"
+#include "../layers/layer_geomap.h"
 
 #include <math.h>
 
@@ -57,7 +57,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   vector<g_trackpoint>::const_iterator t;
 
   for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
-    for (w=wl->points.begin();w!=wl->points.end();w++){
+    for (w=wl->begin();w!=wl->end();w++){
       g_point p(w->x, w->y);
       cnv.bck(p);
       if (p.x > maxx) maxx = p.x;
@@ -67,7 +67,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
     }
   }
   for (tl=world.trks.begin();tl!=world.trks.end();tl++){
-    for (t=tl->points.begin();t!=tl->points.end();t++){
+    for (t=tl->begin();t!=tl->end();t++){
       g_point p(t->x, t->y);
       cnv.bck(p);
       if (p.x > maxx) maxx = p.x;
@@ -111,10 +111,10 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   double k = scale/2.54e-2*dpi;
   double W = (maxx-minx)*k;
   double H = (maxy-miny)*k;
-  ref.points.push_back(g_refpoint(rp1.x, rp1.y, 0, H));
-  ref.points.push_back(g_refpoint(rp2.x, rp2.y, 0, 0));
-  ref.points.push_back(g_refpoint(rp3.x, rp3.y, W, H));
-  ref.points.push_back(g_refpoint(rp4.x, rp4.y, W, 0));
+  ref.push_back(g_refpoint(rp1.x, rp1.y, 0, H));
+  ref.push_back(g_refpoint(rp2.x, rp2.y, 0, 0));
+  ref.push_back(g_refpoint(rp3.x, rp3.y, W, H));
+  ref.push_back(g_refpoint(rp4.x, rp4.y, W, 0));
   ref.border.push_back(g_point(0,0));
   ref.border.push_back(g_point(0,0));
   ref.border.push_back(g_point(0,0));
@@ -124,7 +124,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   // (если карт нет - считаем, что кэш сделан до нас и менять его не надо):
   if (!world.maps.empty()){
 
-    LayerMap ml(&world.maps);
+    LayerGeoMap ml(&world);
     ml.set_ref(ref);
     ml.dump_maps("out.fig");
 
@@ -197,7 +197,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
 
   // привязка
   int ref_color=4, ref_depth=1, ref_width=3;
-  for (vector<g_refpoint>::const_iterator i = ref.points.begin(); i!=ref.points.end(); i++){
+  for (vector<g_refpoint>::const_iterator i = ref.begin(); i!=ref.end(); i++){
     out << "# REF " << i->y << " " << i->x << "\n"
         << "2 1 0 " << ref_width << " " << ref_color << " 7 " << ref_depth << " 0 -1 1 0 0 -1 0 0 1\n"
         << "\t" << int(i->xr /k*kf) << " " << int(i->yr /k*kf) << "\n";
@@ -209,7 +209,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
     int wpt_color=0, wpt_depth=59, wpt_width=2;
     int wpt_txt_color=22, wpt_txt_depth=58, wpt_txt_font=18, wpt_txt_size=8;
-    for (w=wl->points.begin();w!=wl->points.end();w++){
+    for (w=wl->begin();w!=wl->end();w++){
       g_point p(w->x, w->y);
       g_waypoint def_pt;
       cnv.bck(p);
@@ -251,7 +251,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   for (tl=world.trks.begin();tl!=world.trks.end();tl++){
     int trk_color=1, trk_depth=60, trk_width=1;
 
-    t=tl->points.begin();
+    t=tl->begin();
     do {
       vector<Point<int> > pts;
       g_track def_t;
@@ -260,7 +260,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
         cnv.bck(p);
 	pts.push_back(Point<int>(int((p.x-minx)*kf),int((maxy-p.y)*kf)));
         t++;
-      } while ((t!=tl->points.end())&&(!t->start));
+      } while ((t!=tl->end())&&(!t->start));
 
       out << "# TRK " << tl->comm << "\n";
       if (tl->width != def_t.width) out << "# width: "  << tl->width << "\n";
@@ -275,7 +275,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
           << " 0 -1 1 0 0 -1 0 0 " << pts.size() << "\n";
       for (vector<Point<int> >::const_iterator p1=pts.begin(); p1!=pts.end(); p1++)
         out << "\t" << p1->x << " " << p1->y << "\n";
-    } while (t!=tl->points.end());
+    } while (t!=tl->end());
   }
 
 }

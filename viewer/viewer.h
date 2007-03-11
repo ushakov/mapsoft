@@ -222,7 +222,7 @@ public:
     void fill (int sx, int sy, int w, int h) // in window coordinates, should be inside the window
     {
       // какие плитки видны на экране:
-      Rect<int> tiles = rect_intdiv(
+      Rect<int> tiles = tiles_on_rect(
         Rect<int>(window_origin.x + sx, window_origin.y + sy, 
         w, h), workplane.get_tile_size());
 

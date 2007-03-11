@@ -3,11 +3,17 @@
 
 #include <vector>
 #include <string>
-#include "geo_enums.h"
+#include <cmath>
 #include "geo_names.h"
+#include "geo_enums.h"
 #include "../utils/point.h"
+#include "../utils/rect.h"
+#include "../utils/mapsoft_options.h"
 
+/*********************************/
+// points:
 
+// abstract point
 typedef Point<double> g_point;
 
 // single waypoint
@@ -45,17 +51,6 @@ struct g_waypoint : g_point {
     }
 };
 
-// waypoint list
-struct g_waypoint_list
-{
-    std::string symbset;
-    std::vector<g_waypoint> points;
-    g_waypoint_list(){
-	symbset = "garmin";
-    }
-};
-
-
 // single trackpoint
 struct g_trackpoint : g_point {
     double z;
@@ -73,30 +68,7 @@ struct g_trackpoint : g_point {
 	}
 };
 
-struct g_track {
-    int width; // width of track plot line on screen (from OE)
-    int displ; // 
-    unsigned int color; // track color (RGB)
-    int skip;  // 
-    int type;
-    int fill;  // track fill style
-    unsigned int cfill; // track fill color (RGB)
-    std::string comm; // track description
-    std::vector<g_trackpoint> points;
-
-    g_track()
-	{
-		width = 1;
-		displ = 1;
-		color = 0;
-		skip  = 1;
-		type  = trk_type_enum.def;
-		fill  = trk_fill_enum.def;
-		cfill = 0;
-    }
-};
-
-
+// reference point
 struct g_refpoint : g_point {
 	double xr, yr; // raster points
 	g_refpoint(double _x = 0, double _y = 0, double _xr = 0, double _yr = 0){
@@ -105,21 +77,139 @@ struct g_refpoint : g_point {
 	}
 };
 
+/*********************************/
+// lists 
+/*********************************/
 
-struct g_map {
-	std::string comm;
-	std::string file;
-	std::vector<g_refpoint> points;
-	std::vector<g_point>    border;
-	Proj map_proj;
+// waypoint list
+struct g_waypoint_list : std::vector<g_waypoint>{
+    std::string symbset;
+    g_waypoint_list(){
+	symbset = "garmin";
+    }
+    Rect<double> range() const{
+      double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
+      std::vector<g_waypoint>::const_iterator i;
+      for (i=begin();i!=end();i++){
+        if (i->x > maxx) maxx = i->x;
+        if (i->y > maxy) maxy = i->y;
+        if (i->x < minx) minx = i->x;
+        if (i->y < miny) miny = i->y;
+      }
+      if ((minx>maxx)||(miny>maxy)) return Rect<double>(0,0,0,0);
+      return Rect<double>(minx,miny, maxx-minx, maxy-miny);
+    }
 };
 
+// track
+struct g_track : std::vector<g_trackpoint>{
+    int width; // width of track plot line on screen (from OE)
+    int displ; // 
+    unsigned int color; // track color (RGB)
+    int skip;  // 
+    int type;
+    int fill;  // track fill style
+    unsigned int cfill; // track fill color (RGB)
+    std::string comm; // track description
+    g_track(){
+	width = 1;
+	displ = 1;
+	color = 0;
+	skip  = 1;
+	type  = trk_type_enum.def;
+	fill  = trk_fill_enum.def;
+	cfill = 0;
+    }
+    Rect<double> range() const{
+      double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
+      std::vector<g_trackpoint>::const_iterator i;
+      for (i=begin();i!=end();i++){
+        if (i->x > maxx) maxx = i->x;
+        if (i->y > maxy) maxy = i->y;
+        if (i->x < minx) minx = i->x;
+        if (i->y < miny) miny = i->y;
+      }
+      if ((minx>maxx)||(miny>maxy)) return Rect<double>(0,0,0,0);
+      return Rect<double>(minx,miny, maxx-minx, maxy-miny);
+    }
+};
+
+// map
+struct g_map : std::vector<g_refpoint>{
+    std::string comm;
+    std::string file;
+    Proj map_proj;
+    std::vector<g_point>    border;
+
+    double mpp() const{ // масштаб, метров или градусов (в зав.от проекции) в точке
+      if (size()<3) return 0;
+      double l1=0, l2=0;
+      for (int i=1; i<size();i++){
+        l1+=sqrt( pow( (*this)[0].x  - (*this)[i].x,  2) +
+                  pow( (*this)[0].y  - (*this)[i].y,  2));
+        l2+=sqrt( pow( (*this)[0].xr - (*this)[i].xr, 2) +
+                  pow( (*this)[0].yr - (*this)[i].yr, 2));
+      }
+      if (l2==0) return 0;
+      return l1/l2;
+    }
+    Rect<double> range() const{
+      double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
+      std::vector<g_refpoint>::const_iterator i;
+      for (i=begin();i!=end();i++){
+        if (i->x > maxx) maxx = i->x;
+        if (i->y > maxy) maxy = i->y;
+        if (i->x < minx) minx = i->x;
+        if (i->y < miny) miny = i->y;
+      }
+      if ((minx>maxx)||(miny>maxy)) return Rect<double>(0,0,0,0);
+      return Rect<double>(minx,miny, maxx-minx, maxy-miny);
+    }
+};
+
+/*********************************/
+// geo_data
+/*********************************/
 
 struct geo_data {
   std::vector<g_waypoint_list> wpts;
   std::vector<g_track> trks;
   std::vector<g_map> maps;
+
   void clear(){ wpts.clear(); trks.clear(); maps.clear();}
+
+
+
+  Rect<double> range_map() const{ 
+    // диапазон карт определяется по точкам привязки, а не по
+    // границам, поскольку здесь не очень хочется требовать наличия границ
+    // и лазать в графический файлы карт за этими границами
+    Rect<double> ret(0,0,0,0);
+    for (std::vector<g_map>::const_iterator i = maps.begin();
+      i!=maps.end();i++) ret = rect_bounding_box(ret, i->range());
+    return ret;
+  }
+
+  Rect<double> range_geodata() const{
+    Rect<double> ret(0,0,0,0);
+    for (std::vector<g_waypoint_list>::const_iterator i = wpts.begin(); 
+      i!=wpts.end();i++) ret = rect_bounding_box(ret, i->range());
+    for (std::vector<g_track>::const_iterator i = trks.begin(); 
+      i!=trks.end();i++) ret = rect_bounding_box(ret, i->range());
+    return ret;
+  }
+
+  Rect<double> range() const{
+    return rect_bounding_box(range_map(), range_geodata());
+  }
+
+  double map_mpp_min() const{ // минимальный масштаб карт (метров/градусов в точке)
+    double mpp_min=1e99;
+    for (std::vector<g_map>::const_iterator i = maps.begin();
+      i!=maps.end();i++) if (i->mpp()<mpp_min) mpp_min=i->mpp();
+    return mpp_min;
+  }
+
 };
 
 #endif

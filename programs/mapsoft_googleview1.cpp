@@ -13,7 +13,7 @@
 #include "layer_google1.h"
 #include "layer_wait.h"
 //#include "layer_jpeg_simple.h"
-#include "layer_geodata.h"
+#include "layer_geodata_g.h"
 
 #include "../geo_io/io.h"
 
@@ -155,7 +155,7 @@ main(int argc, char **argv)
     LayerGrid l1(200.0,200.0,0xFF000080);
 
     w.add_layer(&gl,200);
-    w.add_layer(&l1,100);
+//    w.add_layer(&l1,100);
     w.add_layer(&dl,50);
     Viewer viewer(w);
 

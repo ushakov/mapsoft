@@ -11,7 +11,7 @@
 #include <math.h>
 
 #include "../geo_io/io.h"
-#include "../utils/mapsoft_convs.h"
+#include "../geo_io/geo_convs.h"
 
 
 using namespace std;
@@ -102,10 +102,10 @@ main(int argc, char **argv){
     dc.frw(p1);
     dc.frw(p2);
 
-    map.points.push_back(g_refpoint(p1.x,p2.y,n[0],n[1]));
-    map.points.push_back(g_refpoint(p2.x,p2.y,n[2],n[3]));
-    map.points.push_back(g_refpoint(p2.x,p1.y,n[4],n[5]));
-    map.points.push_back(g_refpoint(p1.x,p1.y,n[6],n[7]));
+    map.push_back(g_refpoint(p1.x,p2.y,n[0],n[1]));
+    map.push_back(g_refpoint(p2.x,p2.y,n[2],n[3]));
+    map.push_back(g_refpoint(p2.x,p1.y,n[4],n[5]));
+    map.push_back(g_refpoint(p1.x,p1.y,n[6],n[7]));
     world.maps.push_back(map);
 
   } while (!in.eof());

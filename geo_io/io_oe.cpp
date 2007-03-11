@@ -114,7 +114,7 @@ typedef rule <scanner_t>        rule_t;
                         for (i=b; i!=e; i++){
                                 g_waypoint p = *i; // суровое преобразование типа
 				cnv.frw(p);
-                    		ret.points.push_back(p);
+                    		ret.push_back(p);
 			}
                         return ret;
                 }
@@ -148,7 +148,7 @@ typedef rule <scanner_t>        rule_t;
                         for (i=b; i!=e; i++){
 				g_trackpoint p = *i; // суровое преобразование типа
                                 cnv.frw(p);
-                    		ret.points.push_back(p);
+                    		ret.push_back(p);
 			}
                         return ret;
                 }
@@ -220,7 +220,7 @@ typedef rule <scanner_t>        rule_t;
                                         proj_N0, proj_E0, proj_lat0, proj_lon0, proj_k, a, a*(1-f));
                                 }
                                 cnv.frw(p);
-                    		ret.points.push_back(p);
+                    		ret.push_back(p);
 			}
                         ret.border=border;
 			return ret;
@@ -406,7 +406,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 	bool write_plt_file (const char* filename, const g_track & trk, const Options & opt){
 		ofstream f(filename);
 		if (!f.good()) return false;
-		int num = trk.points.size();
+		int num = trk.size();
 		f << "OziExplorer Track Point File Version 2.0\r\n"
 		  << "WGS 84\r\n"
 		  << "Altitude is in Feet\r\n"
@@ -420,8 +420,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		  << trk.fill  << ',' 
 		  << trk.cfill << "\r\n" 
 		  << num << "\r\n";
-		for (vector<g_trackpoint>::const_iterator p = trk.points.begin(); 
-			 p!= trk.points.end(); p++){
+		for (vector<g_trackpoint>::const_iterator p = trk.begin(); 
+			 p!= trk.end(); p++){
 			struct tm * ts = localtime(&p->t);
 			if (ts == NULL) { time_t t = time(NULL);  ts = localtime(&t);}
 			f << right << fixed << setprecision(6) << setfill(' ')
@@ -446,15 +446,15 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 	bool write_wpt_file (const char* filename, const g_waypoint_list & wpt, const Options & opt){
 		ofstream f(filename);
 		if (!f.good ()) return false;
-		int num = wpt.points.size();
+		int num = wpt.size();
 		int n=0;
 		f << "OziExplorer Waypoint File Version 1.1\r\n"
 		  << "WGS 84\r\n"
 		  << "Reserved 2\r\n"
 		  << wpt.symbset << "\r\n";
   
-		for (vector<g_waypoint>::const_iterator p = wpt.points.begin(); 
-			 p!= wpt.points.end(); p++){
+		for (vector<g_waypoint>::const_iterator p = wpt.begin(); 
+			 p!= wpt.end(); p++){
 			struct tm * ts = localtime(&p->t);
 			if (ts == NULL) { time_t t = time(NULL);  ts = localtime(&t);}
 
@@ -508,16 +508,16 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		for (int n=1; n<=30; n++){
 			f << "Point" << setw(2) << setfill('0') << n << ",xy,";
 
-			if (n>m.points.size()){ 
+			if (n>m.size()){ 
 				f <<"     ,     ,in, deg,    ,        ,N,    ,        ,W"
 				  <<", grid,   ,           ,           ,N\r\n";
 				continue;
 			}
 
-			int x = (int)m.points[n-1].xr;
-			int y = (int)m.points[n-1].yr;
-			double lat = m.points[n-1].y;
-			double lon = m.points[n-1].x;
+			int x = (int)m[n-1].xr;
+			int y = (int)m[n-1].yr;
+			double lat = m[n-1].y;
+			double lon = m[n-1].x;
 
 			f << setw(5) << setfill(' ') << x << ',' 
 			  << setw(5) << setfill(' ') << y << ','

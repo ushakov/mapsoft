@@ -4,6 +4,7 @@
 #include "../utils/point.h"
 #include "../utils/rect.h"
 #include "../utils/image.h"
+#include "../geo_io/geo_data.h"
 
 // Abstract class Layer
 
@@ -18,12 +19,9 @@ public:
     virtual Rect<int> range () = 0;
 
     Layer() {}
-
     Layer (Layer const & other) { }
-
     virtual void swap (Layer & other) { }
 };
-
 
 
 #endif /* LAYER_H */

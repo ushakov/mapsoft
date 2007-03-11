@@ -1,6 +1,7 @@
 #include "rect.h"
 
 
+/*
 // при работе с целыми координатами иногда приятно считать,
 // что rect.BRC не входит в прямоугольник
 // (кстати, исходя из этого сделана и проверка на вхождение точки в прямоугольник)
@@ -21,6 +22,28 @@ Rect<int> rect_intdiv(const Rect<int> & r, int i){
       y2 = y2<0 ? y2/i - 1  : y2/i; 
 
       return Rect<int>(x1,y1,x2-x1+1,y2-y1+1);
+}*/
+
+Rect<int> tiles_on_rect(const Rect<int> & r, int tsize){
+// диапазон плиток, накрывающих данный прямоугольник
+  int x1 = (r.x>=0) ? (r.x/tsize):((r.x+1)/tsize - 1);
+  int y1 = (r.y>=0) ? (r.y/tsize):((r.y+1)/tsize - 1);
+  int x2 = (r.x+r.w-1>=0) ? ((r.x+r.w-1)/tsize):((r.x+r.w)/tsize - 1);
+  int y2 = (r.y+r.h-1>=0) ? ((r.y+r.h-1)/tsize):((r.y+r.h)/tsize - 1);
+  int w = (r.w==0) ? 0:(x2-x1+1);
+  int h = (r.h==0) ? 0:(y2-y1+1);
+  return Rect<int>(x1,y1,w,h);
+}
+
+Rect<int> tiles_in_rect(const Rect<int> & r, int tsize){
+// диапазон плиток, лежащих внутри данного прямоугольника
+  int x1 = (r.x>0) ? ((r.x-1)/tsize + 1):(r.x/tsize);
+  int y1 = (r.y>0) ? ((r.y-1)/tsize + 1):(r.y/tsize);
+  int x2 = (r.x+r.w>=0) ? ((r.x+r.w)/tsize-1):((r.x+r.w+2)/tsize - 2);
+  int y2 = (r.y+r.h>=0) ? ((r.y+r.h)/tsize-1):((r.y+r.h+2)/tsize - 2);
+  int w = x2-x1+1;
+  int h = y2-y1+1;
+  return Rect<int>(x1,y1,w,h);
 }
 
 // два прямоугольника задают преобразование.

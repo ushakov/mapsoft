@@ -19,12 +19,12 @@ CPPFLAGS = `pkg-config --cflags libcurl` `pkg-config --cflags gtkmm-2.4,gthread-
 #test: $(TEST_LIBS) $(TEST_OBJS)
 #	$(CXX) $(LDFLAGS) $(TEST_OBJS) $(TEST_LIBS) -o test
 
-all: mapsoft_convert mapsoft_googleview1 mapsoft_imgview mapsoft_imgview1 mapsoft_mapview
+all: mapsoft_convert mapsoft_googleview1 mapsoft_imgview mapsoft_imgview1 mapsoft_mapview mapsoft_mkmap
 
 clean:
 	rm mapsoft_googleview mapsoft_imgview mapsoft_imgview1 mapsoft_convert *.o
 
-MAPSOFT_LIBS = ../utils/rect.o ../geo_io/io.a ../utils/mapsoft_utils.a  ../loaders/loaders.a ../jeeps/jeeps.a 
+MAPSOFT_LIBS = ../geo_io/io.a ../loaders/loaders.a ../utils/mapsoft_utils.a  ../jeeps/jeeps.a 
 
 mapsoft_convert: $(MAPSOFT_LIBS) mapsoft_convert.o 
 	g++ mapsoft_convert.o $(MAPSOFT_LIBS) $(USB_FLAGS) $(GRLIB_FLAGS) $(LDFLAGS)  -o $@ 
@@ -35,7 +35,7 @@ mapsoft_mkmap: $(MAPSOFT_LIBS) mapsoft_mkmap.o
 mapsoft_googleview1: $(MAPSOFT_LIBS) mapsoft_googleview1.o
 	g++  mapsoft_googleview1.o $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) $(GOOGLE_FLAGS) -o $@ 
 
-mapsoft_mapview: $(MAPSOFT_LIBS) mapsoft_mapview.o ../layers/layer_map.h
+mapsoft_mapview: $(MAPSOFT_LIBS) mapsoft_mapview.o ../layers/layer_geomap.h ../layers/layer_geodata.h
 	g++  mapsoft_mapview.o  $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
 
 mapsoft_mapcnv: $(MAPSOFT_LIBS) mapsoft_mapcnv.o ../layers/layer_map.h

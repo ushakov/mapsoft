@@ -96,7 +96,7 @@ namespace xml {
 			const std::string used[] = {"symbset","points",""}; //points - только записывается, не читается.
                         warn_unused(used);
 			for (vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
-				ret.points.push_back(*i);
+				ret.push_back(*i);
 			return ret;
 		}
 		operator g_track () const {
@@ -112,7 +112,7 @@ namespace xml {
                         const std::string used[] = {"comm", "width", "color", "skip", "displ", "type", "fill", "cfill", "points", ""};
                         warn_unused(used);
 			for (vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
-				ret.points.push_back(*i);
+				ret.push_back(*i);
 			return ret;
 		}
 		operator g_map () const {
@@ -130,7 +130,7 @@ namespace xml {
                         const std::string used[] = {"comm", "file", "map_proj", "border", "points", "prefix", ""};
                         warn_unused(used);
 			for (vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
-				ret.points.push_back(*i);
+				ret.push_back(*i);
 			return ret;
 		}
 	};
@@ -200,7 +200,7 @@ namespace xml {
 	bool write_track(ofstream & f, const g_track & tr, const Options & opt){
 		g_trackpoint def_pt;
 		g_track def_t;
-		f << "<track points=" << tr.points.size();
+		f << "<track points=" << tr.size();
 		if (tr.width != def_t.width) f << " width=" << tr.width;
 		if (tr.displ != def_t.displ) f << " displ=" << tr.displ;
                 if (tr.color != def_t.color) f << " color=\"#" << setbase(16) << setw(6) << setfill('0') << tr.color << "\"" << setbase(10);
@@ -210,7 +210,7 @@ namespace xml {
 		if (tr.cfill != def_t.cfill) f << " cfill=\"#" << setbase(16) << setw(6) << setfill('0') << tr.cfill << "\"" << setbase(10);
 		if (tr.comm  != def_t.comm)  f << " comm=\""  << tr.comm << "\"";
 		f << ">\n";
-                vector<g_trackpoint>::const_iterator p, b=tr.points.begin(), e=tr.points.end();
+                vector<g_trackpoint>::const_iterator p, b=tr.begin(), e=tr.end();
 		for (p = b; p != e; p++){
 			f << "  <pt";
                         if (p->y != def_pt.y) f << " lat=" << fixed << setprecision(6) << p->y;
@@ -227,10 +227,10 @@ namespace xml {
 	bool write_waypoint_list(ofstream & f, const g_waypoint_list & wp, const Options & opt){
 		g_waypoint def_pt;
 		g_waypoint_list def_w;
-		f << "<waypoints points=" << wp.points.size();
+		f << "<waypoints points=" << wp.size();
 		if (wp.symbset != def_w.symbset) f << "symbset=" << wp.symbset;
 		f << ">\n";
-		vector<g_waypoint>::const_iterator p, b=wp.points.begin(), e=wp.points.end();
+		vector<g_waypoint>::const_iterator p, b=wp.begin(), e=wp.end();
 		for (p = b; p!=e; p++){
 			f << "  <pt";
                         if (p->y != def_pt.y)       f << " lat=" << fixed << setprecision(6) << p->y;
@@ -257,7 +257,7 @@ namespace xml {
 	bool write_map(ofstream & f, const g_map & m, const Options & opt){
 		g_refpoint def_pt;
 		g_map def_m;
-		f << "<map points=" << m.points.size();
+		f << "<map points=" << m.size();
                 if (m.comm != def_m.comm) f << " comm=\""   << m.comm << "\"";
                 if (m.file != def_m.file) f << " file=\""   << m.file << "\"";
                 if (m.map_proj != def_m.map_proj) f << " map_proj=" << m.map_proj.xml_str();
@@ -270,7 +270,7 @@ namespace xml {
 			f << "\"";
 		}
 		f << ">\n";
-		vector<g_refpoint>::const_iterator p, b=m.points.begin(), e=m.points.end();
+		vector<g_refpoint>::const_iterator p, b=m.begin(), e=m.end();
 		for (p = b; p!=e; p++){
 			f << "  <pt";
                         if (p->y    != def_pt.y)    f << " x="  << fixed << setprecision(6) << p->x;
