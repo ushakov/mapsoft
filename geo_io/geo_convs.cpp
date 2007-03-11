@@ -748,9 +748,8 @@ g_map mymap(const geo_data & world){ // естественная привязка геоданных
     ret.push_back(g_refpoint(p1.x,p1.y, 1000,1000));
     ret.push_back(g_refpoint(p2.x,p2.y, 0,0));
     // чтоб не пытались определять границы из файла
-    ret.border.push_back(g_point(0,0));
-    ret.border.push_back(g_point(0,0));
-    ret.border.push_back(g_point(0,0));
+    for (i=0;i<3;i++)
+      ret.border.push_back(g_point(0,0));
     return ret;
 }
 

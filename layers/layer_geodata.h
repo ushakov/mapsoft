@@ -24,7 +24,7 @@ private:
 public:
 
     LayerGeoData (const geo_data * _world) : 
-	world(_world), mymap(convs::mymap(*world)), cnv(mymap, Datum("wgs84"), Proj("lonlat"), Options()) {}
+	world(_world), mymap(convs::mymap(*world)), cnv(convs::mymap(*world), Datum("wgs84"), Proj("lonlat"), Options()) {}
 
     // получить/установить привязку layer'a
     virtual g_map get_ref() const {return mymap;}

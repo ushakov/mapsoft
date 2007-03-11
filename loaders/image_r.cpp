@@ -5,20 +5,20 @@ namespace image_r{
 Point<int> size(const char *file){
     // Поглядим на расширение:
     int l = strlen(file);
-    if (!strncmp(file + (l-4), ".jpg", 4)||
-        !strncmp(file + (l-4), ".JPG", 4)||
-        !strncmp(file + (l-5), ".jpeg", 5)||
-        !strncmp(file + (l-5), ".JPEG", 5)){
+    if ((l>=4 && (!strncmp(file + (l-4), ".jpg", 4)||
+                  !strncmp(file + (l-4), ".JPG", 4)))||
+        (l>=5 && (!strncmp(file + (l-5), ".jpeg", 5)||
+                  !strncmp(file + (l-5), ".JPEG", 5)))){
       return image_jpeg::size(file);
     }
-    if (!strncmp(file + (l-4), ".tif", 4)||
-        !strncmp(file + (l-4), ".TIF", 4)||
-        !strncmp(file + (l-5), ".tiff", 5)||
-        !strncmp(file + (l-5), ".TIFF", 5)){
+    if ((l>=4 && (!strncmp(file + (l-4), ".tif", 4)||
+                  !strncmp(file + (l-4), ".TIF", 4)))||
+        (l>=5 && (!strncmp(file + (l-5), ".tiff", 5)||
+                  !strncmp(file + (l-5), ".TIFF", 5)))){
       return image_tiff::size(file);
     }
-    if (!strncmp(file + (l-4), ".png", 4)||
-        !strncmp(file + (l-4), ".PNG", 4)){
+    if (l>=4 && (!strncmp(file + (l-4), ".png", 4)||
+                 !strncmp(file + (l-4), ".PNG", 4))){
       return image_png::size(file);
     }
     std::cerr << "Can't determing file format by extension in " << file << "\n"
