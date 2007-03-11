@@ -739,8 +739,6 @@ g_map mymap(const geo_data & world){ // естественная привязка геоданных
     for (int i=0;i<world.maps.size();i++){ if (mpp>map_mpp(world.maps[i])) mpp=map_mpp(world.maps[i]);}
     if ((mpp>1e90)||(mpp<1e-90)) mpp=1/3600;
 
-std::cerr << "lon0: " << lon0 << " mpp: " << mpp << "\n";
-std::cerr << "rm: " << rm << " rd: " << rd << "\n";
     // точки привязки
     pt2pt cnv(Datum("WGS84"), ret.map_proj, O, Datum("WGS84"), Proj("lonlat"), O);
     g_point p(lon0,0); cnv.bck(p);
@@ -751,7 +749,6 @@ std::cerr << "rm: " << rm << " rd: " << rd << "\n";
     ret.push_back(g_refpoint(p.x,p.y,   0,1000));
     ret.push_back(g_refpoint(p1.x,p1.y, 1000,1000));
     ret.push_back(g_refpoint(p2.x,p2.y, 0,0));
- std::cerr << "ref: " << p << " " << p1 << " " << p2 << "\n";
     // чтоб не пытались определять границы из файла
     for (int i=0;i<3;i++)
       ret.border.push_back(g_point(0,0));

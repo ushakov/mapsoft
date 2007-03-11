@@ -66,13 +66,12 @@ public:
           if (brd_max.x < p.x) brd_max.x = int(p.x);
           if (brd_max.y < p.y) brd_max.y = int(p.y);
         }
-        std::cerr << "map " << i << " mpp=" << convs::map_mpp(world->maps[i]) << " brd " << Rect<int>(brd_min, brd_max) << "\n";
       }
       if (brd_max.x<brd_min.x) {brd_max.x=0; brd_min.x=0;}
       if (brd_max.y<brd_min.y) {brd_max.y=0; brd_min.y=0;}
       map_range = Rect<int>(brd_min, brd_max);
 
-#ifdef DEBUG_LAYER_MAP
+#ifdef DEBUG_LAYER_GEOMAP
       std::cerr << "LayerMap: Setting map conversions. Range: " << map_range << "\n";
 #endif
     }
@@ -82,7 +81,7 @@ public:
         clip_rects_for_image_loader(map_range, src_rect, dst_img.range(), dst_rect);
         if (src_rect.empty() || dst_rect.empty()) return;
 
-//#ifdef DEBUG_LAYER_MAP
+//#ifdef DEBUG_LAYER_GEOMAP
 //      std::cerr  << "LayerMap: draw " << src_rect << " -> " 
 //		 << dst_rect << " at " << dst_img <<  "\n";
 //#endif
@@ -95,7 +94,7 @@ public:
           std::string file = world->maps[i].file;
 
           if (!m2ms[i].tst_frw.test_range(src_rect)){  
-//#ifdef DEBUG_LAYER_MAP
+//#ifdef DEBUG_LAYER_GEOMAP
 //            std::cerr  << "LayerMap: Skipping Image " << file << "\n";
 //#endif
 	        
@@ -107,7 +106,7 @@ public:
             if (scale <=0) scale = 1;
 
 
-#ifdef DEBUG_LAYER_MAP
+#ifdef DEBUG_LAYER_GEOMAP
       std::cerr  << "LayerMap: Loading Image " << file
 		 << " at scale " << scale 
 		 << " scales[i]: " << scales[i] 

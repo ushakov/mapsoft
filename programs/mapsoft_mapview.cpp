@@ -5,7 +5,8 @@
 //#include <io_new/io.h>
 //#define DEBUG_VIEWER
 //#define DEBUG_GOOGLE
-#define DEBUG_LAYER_MAP
+#define DEBUG_LAYER_GEOMAP
+#define DEBUG_LAYER_GEODATA
 #define DEBUG_JPEG
 
 #include "viewer.h"
@@ -116,7 +117,12 @@ main(int argc, char **argv)
 //    w.add_layer(&dl,50);
 
     Viewer viewer(w);
-    viewer.set_window_origin(layer_gd.range().TLC());
+    if (!layer_gd.range().empty())
+      viewer.set_window_origin(layer_gd.range().TLC());
+    else 
+      viewer.set_window_origin((layer_map.range().TLC() + layer_map.range().BRC())/2);
+    std::cerr << "setting window origin to " << viewer.get_window_origin() << "\n";
+
 
     //load file selector
     Gtk::FileSelection file_sel_load ("Load file:");
