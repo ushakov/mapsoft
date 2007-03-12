@@ -165,10 +165,11 @@ rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_
 
 	/*******************************************/
 
-	parse(first, last, header >> 
+	if (!parse(first, last, header >> 
 	  *( eps_p[assign_a(o,o0)] >> comment[assign_a(o.comment)] >> 
 	    ( c0_color | c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
-            c6_compound_start | c6_compound_end) [push_back_a(world,o)] ));
+            c6_compound_start | c6_compound_end) [push_back_a(world,o)] )).full)
+        cerr << "Can't parse file!\n";
 
 	return world;
 }
