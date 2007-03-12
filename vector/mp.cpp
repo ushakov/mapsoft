@@ -4,10 +4,6 @@
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/insert_at_actor.hpp>
 
-#include <vector>
-#include <string>
-#include <map>
-#include <iostream>
 #include <iomanip>
 
 #include "mp.h"
@@ -107,27 +103,27 @@ bool write(std::ostream & out, const mp_world & world){
      out << "\r\nZoom" << l->first << "=" << l->second;
   out << "\r\n[END-IMG ID]\r\n";
 
-  for (int i=0; i<world.size(); i++){
-    out << "\r\n[" << world[i].Class << "]"
-        << "\r\nType=0x"     << setbase(16) << world[i].Type << setbase(10);
-    if (world[i].Label != "")   out << "\r\nLabel=" << world[i].Label;
-    if (world[i].EndLevel != 0) out << "\r\nEndLevel=" << world[i].EndLevel;
+  for (mp_world::const_iterator i=world.begin(); i!=world.end(); i++){
+    out << "\r\n[" << i->Class << "]"
+        << "\r\nType=0x"     << setbase(16) << i->Type << setbase(10);
+    if (i->Label != "")   out << "\r\nLabel=" << i->Label;
+    if (i->EndLevel != 0) out << "\r\nEndLevel=" << i->EndLevel;
 
-    if (world[i].Levels.size()!=0) out << "\r\nLevels=";
-    for (int j=0; j<world[i].Levels.size(); j++) out << (j?",":"") << world[i].Levels[j];
+    if (i->Levels.size()!=0) out << "\r\nLevels=";
+    for (int j=0; j<i->Levels.size(); j++) out << (j?",":"") << i->Levels[j];
 
-    if (world[i].X.size()!=world[i].Y.size()){
+    if (i->X.size()!=i->Y.size()){
         cerr << "mp::write: different amount of x and y values\n";
         return false;
     }
 
-    for (int j=0; j<world[i].X.size(); j++){
+    for (int j=0; j<i->X.size(); j++){
       int u;
-      if ((world[i].X[j]>1e90)||(world[i].Y[j]>1e90)){
+      if ((i->X[j]>1e90)||(i->Y[j]>1e90)){
         out << "\r\nData0="; u=0;
       } else {
         out << ((u!=0)?",":"") << "(" 
-            << world[i].X[j] << "," << world[i].Y[j] << ")";
+            << i->X[j] << "," << i->Y[j] << ")";
         u++;
       }
     }

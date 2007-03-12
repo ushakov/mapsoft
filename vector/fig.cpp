@@ -4,7 +4,6 @@
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/insert_at_actor.hpp>
 
-#include <iostream>
 #include <iomanip>
 
 #include "fig.h"

@@ -1,3 +1,7 @@
+#ifndef FIG_H
+#define FIG_H
+
+#include <list>
 #include <vector>
 #include <string>
 #include <map>
@@ -102,7 +106,7 @@ namespace fig {
 	}
     };
 
-    struct fig_world:std::vector<fig_object>{
+    struct fig_world:std::list<fig_object>{
 	std::string orientation;
 	std::string justification;
 	std::string units;
@@ -132,3 +136,4 @@ namespace fig {
     fig_world read(const char* filename);
     bool write(std::ostream & out, const fig_world & world);
 }
+#endif

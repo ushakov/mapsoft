@@ -1,3 +1,7 @@
+#ifndef MP_H
+#define MP_H
+
+#include <list>
 #include <vector>
 #include <string>
 #include <map>
@@ -20,7 +24,7 @@ namespace mp {
         }
     };
 
-    struct mp_world:std::vector<mp_object>{
+    struct mp_world:std::list<mp_object>{
         int         ID;
         std::string Name;
 	std::string Elevation;
@@ -52,3 +56,4 @@ namespace mp {
     mp_world read(const char* filename);
     bool write(std::ostream & out, const mp_world & world);
 }
+#endif
