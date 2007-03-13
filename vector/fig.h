@@ -1,6 +1,8 @@
 #ifndef FIG_H
 #define FIG_H
 
+#include <boost/operators.hpp>
+
 #include <list>
 #include <vector>
 #include <string>
@@ -52,7 +54,7 @@ namespace fig {
 	}
     };
 
-    struct fig_object{
+    struct fig_object : public boost::equality_comparable<fig_object>{
         int     type;
         int     sub_type;
         int     line_style;          //    (enumeration type, solid, dash, dotted, etc.)
@@ -104,6 +106,31 @@ namespace fig {
 	    farrow_height=4; barrow_height=4;
             height=0; length=0;
 	}
+	bool operator== (const fig_object & o) const{
+          return ( // полное совпадение объектов
+           (type == o.type) && (sub_type == o.sub_type) &&
+           (line_style == o.line_style) && (thickness == o.thickness) &&
+	   (pen_color == o.pen_color) && (fill_color == o.fill_color) &&
+	   (depth == o.depth) && (pen_style == o.pen_style) &&
+	   (area_fill == o.area_fill) && (style_val == o.style_val) &&
+           (join_style == o.join_style) && (cap_style == o.cap_style) &&
+           (radius == o.radius) && (direction == o.direction) && (angle == o.angle) && 
+           (forward_arrow == o.forward_arrow) && (backward_arrow == o.backward_arrow) &&
+           (center_x == o.center_x) && (center_y == o.center_y) &&
+           (radius_x == o.radius_x) && (radius_y == o.radius_y) &&
+           (start_x == o.start_x) && (start_y == o.start_y) &&
+           (end_x == o.end_x) && (end_y == o.end_y) &&
+           (font == o.font) && (font_size == o.font_size) && (font_flags == o.font_flags) &&
+           (height == o.height) && (length == o.length) &&
+           (farrow_type == o.farrow_type) && (barrow_type == o.barrow_type) &&
+           (farrow_style == o.farrow_style) && (barrow_style == o.barrow_style) &&
+           (farrow_thickness == o.farrow_thickness) && (barrow_thickness == o.barrow_thickness) &&
+	   (farrow_width == o.farrow_width) && (barrow_width == o.barrow_width) &&
+	   (farrow_height == o.farrow_height) && (barrow_height == o.barrow_height) &&
+           (image_file == o.image_file) && (image_orient == o.image_orient) &&
+           (text == o.text) && (comment == o.comment) &&
+	   (x == o.x) && (y == o.y) && (f == o.f));
+        }
     };
 
     struct fig_world:std::list<fig_object>{
@@ -135,5 +162,19 @@ namespace fig {
 
     fig_world read(const char* filename);
     bool write(std::ostream & out, const fig_world & world);
+
+    // Построить fig-объект на основе obj, подставив все не-звездочки из маски
+    fig_object make_object(const fig_object & obj, const std::string & mask);
+    // Построить fig-объект на основе объекта по умолчанию
+    fig_object make_object(const std::string & mask);
+    bool test_object(const fig_object & obj, const std::string & mask);
+
+    // Маска -- строчка информации об объекте в том виде, в каком она 
+    // встречается в fig-файле (но информация о стрелках - на той же строке, 
+    // а размера и координат текста и координат эллипсов - нет)
+    // в маске могут присутствовать звездочки - при проверке эти значения
+    // не проверяются, при создании объекта подставляются значения по умолчанию.
+    // Вместо типа объекта нельзя подставлять звездочку
+    // 
 }
 #endif

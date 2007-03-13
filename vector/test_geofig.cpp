@@ -8,5 +8,6 @@ main(int argc, char **argv){
   }
   fig::fig_world W = fig::read(argv[1]);
   g_map M=get_map(W);
+
   fig::write(std::cout, W);
 }
