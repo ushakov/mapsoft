@@ -59,17 +59,21 @@ mp_world read(const char* filename){
 		  >> real_p[push_back_a(o.Y)] 
                   >> ch_p(')');
 
-    rule_t object = ch_p('[') 
-      >> (*(ch - ch_p(']')))[assign_a(o.Class)] 
-      >> ch_p(']') >> eol_p >> *(
+    rule_t object = ch_p('[') >> (
+      (str_p("POI")      | "RGN10")[assign_a(o.Class, "POI")] |
+      (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] |
+      (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")] ) 
+      >> ch_p(']') >> eol_p 
+      >> *(
         ( "Type=0x"   >> hex_p[assign_a(o.Type)]      >> eol_p) |
         ( "Label="    >> (*ch)[assign_a(o.Label)]     >> eol_p) |
-        ( "Levels="   >> (uint_p)[push_back_a(o.Levels)] 
-          >> *(ch_p(',') >> uint_p[push_back_a(o.Levels)]) >> eol_p) |
-        ( "EndLevel=" >> uint_p[assign_a(o.EndLevel)] >> eol_p) |
-        ( str_p("Data")[push_back_a(o.X,bv)][push_back_a(o.Y,bv)] >> uint_p >> "="
+        ( "EndLevel=" >> uint_p[assign_a(o.EL)] >> eol_p) |
+        ( "Levels="   >> uint_p[assign_a(o.EL)] >> eol_p) |
+        ( str_p("Data")[push_back_a(o.X,bv)][push_back_a(o.Y,bv)] 
+           >> uint_p[assign_a(o.BL)] >> "="
            >> pt_r >> *(',' >> pt_r) >> eol_p) |
-        ( str_p("Origin")[push_back_a(o.X,bv)][push_back_a(o.Y,bv)] >> uint_p >> "="
+        ( str_p("Origin")[push_back_a(o.X,bv)][push_back_a(o.Y,bv)] 
+           >> uint_p[assign_a(o.BL)] >> "="
            >> pt_r >> *(',' >> pt_r) >> eol_p)
       ) >> "[END" >> (*(ch-ch_p(']'))) 
       >> ch_p(']') >> eol_p[push_back_a(world,o)];
@@ -106,11 +110,8 @@ bool write(std::ostream & out, const mp_world & world){
   for (mp_world::const_iterator i=world.begin(); i!=world.end(); i++){
     out << "\r\n[" << i->Class << "]"
         << "\r\nType=0x"     << setbase(16) << i->Type << setbase(10);
-    if (i->Label != "")   out << "\r\nLabel=" << i->Label;
-    if (i->EndLevel != 0) out << "\r\nEndLevel=" << i->EndLevel;
-
-    if (i->Levels.size()!=0) out << "\r\nLevels=";
-    for (int j=0; j<i->Levels.size(); j++) out << (j?",":"") << i->Levels[j];
+    if (i->Label != "") out << "\r\nLabel=" << i->Label;
+    if (i->EL != 0)     out << "\r\nLevels=" << i->EL;
 
     if (i->X.size()!=i->Y.size()){
         cerr << "mp::write: different amount of x and y values\n";
@@ -120,7 +121,7 @@ bool write(std::ostream & out, const mp_world & world){
     for (int j=0; j<i->X.size(); j++){
       int u;
       if ((i->X[j]>1e90)||(i->Y[j]>1e90)){
-        out << "\r\nData0="; u=0;
+        out << "\r\nData" << i->BL << "="; u=0;
       } else {
         out << ((u!=0)?",":"") << "(" 
             << i->X[j] << "," << i->Y[j] << ")";
@@ -130,4 +131,26 @@ bool write(std::ostream & out, const mp_world & world){
     out << "\r\n[END]\r\n";
   }
 }
+
+// Построить mp-объект на основе obj, подставив все не-звездочки из маски
+mp_object make_object(const mp_object & obj, const std::string & mask){
+  mp_object o=obj; // копия
+  if (!parse(mask.c_str(),
+    *blank_p >> ((str_p("POI") | "POLYLINE" | "POLYGON")[assign_a(o.Class)] | "*") >>
+    +blank_p >> (("0x" >> hex_p[assign_a(o.Type)]) | "*") >>
+    +blank_p >> (uint_p[assign_a(o.BL)] | "*") >>
+    +blank_p >> (uint_p[assign_a(o.EL)] | "*") >> *blank_p ).full)
+      cerr << "Can't parse mask!\n";
+  return o;
+}
+// Построить mp-объект на основе объекта по умолчанию
+mp_object make_object(const std::string & mask){
+  return make_object(mp_object(), mask);
+}
+// Проверить, соответствует ли объект маске
+bool test_object(const mp_object & o, const std::string & mask){
+  return make_object(o, mask)==o;
+}
+
+
 }

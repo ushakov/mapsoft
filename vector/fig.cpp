@@ -59,57 +59,57 @@ fig_world read(const char* filename){
                 uint_p[assign_a(world.coord_system)] >> eol_p;       // coord_system
     
 /****************************************************************/
-rule_t r_sub_type       = +space_p >> uint_p[assign_a(o.sub_type)];
-rule_t r_line_style     = +space_p >> int_p[assign_a(o.line_style)];
-rule_t r_thickness      = +space_p >> int_p[assign_a(o.thickness)];
-rule_t r_pen_color      = +space_p >> int_p[assign_a(o.pen_color)];
-rule_t r_fill_color     = +space_p >> int_p[assign_a(o.fill_color)];
-rule_t r_depth          = +space_p >> uint_p[assign_a(o.depth)];
-rule_t r_pen_style      = +space_p >> int_p[assign_a(o.pen_style)];
-rule_t r_area_fill      = +space_p >> int_p[assign_a(o.area_fill)];
-rule_t r_style_val      = +space_p >> real_p[assign_a(o.style_val)];
-rule_t r_cap_style      = +space_p >> int_p[assign_a(o.cap_style)];
-rule_t r_join_style     = +space_p >> int_p[assign_a(o.join_style)];
-rule_t r_direction      = +space_p >> int_p[assign_a(o.direction)];
-rule_t r_radius         = +space_p >> int_p[assign_a(o.radius)];
-rule_t r_arrows         = +space_p >> uint_p[assign_a(f_arr)][assign_a(o.forward_arrow)] >> 
-                          +space_p >> uint_p[assign_a(b_arr)][assign_a(o.backward_arrow)];
+rule_t r_sub_type       = +blank_p >> uint_p[assign_a(o.sub_type)];
+rule_t r_line_style     = +blank_p >> int_p[assign_a(o.line_style)];
+rule_t r_thickness      = +blank_p >> int_p[assign_a(o.thickness)];
+rule_t r_pen_color      = +blank_p >> int_p[assign_a(o.pen_color)];
+rule_t r_fill_color     = +blank_p >> int_p[assign_a(o.fill_color)];
+rule_t r_depth          = +blank_p >> uint_p[assign_a(o.depth)];
+rule_t r_pen_style      = +blank_p >> int_p[assign_a(o.pen_style)];
+rule_t r_area_fill      = +blank_p >> int_p[assign_a(o.area_fill)];
+rule_t r_style_val      = +blank_p >> real_p[assign_a(o.style_val)];
+rule_t r_cap_style      = +blank_p >> int_p[assign_a(o.cap_style)];
+rule_t r_join_style     = +blank_p >> int_p[assign_a(o.join_style)];
+rule_t r_direction      = +blank_p >> int_p[assign_a(o.direction)];
+rule_t r_radius         = +blank_p >> int_p[assign_a(o.radius)];
+rule_t r_arrows         = +blank_p >> uint_p[assign_a(f_arr)][assign_a(o.forward_arrow)] >> 
+                          +blank_p >> uint_p[assign_a(b_arr)][assign_a(o.backward_arrow)];
 rule_t r_arrows_p = !( eps_p(&is_f_arr)
                   >> +space_p >> int_p[assign_a(o.farrow_type)]    
-                  >> +space_p >> int_p[assign_a(o.farrow_style)]   
-                  >> +space_p >> real_p[assign_a(o.farrow_thickness)]
-                  >> +space_p >> real_p[assign_a(o.farrow_width)]
-                  >> +space_p >> real_p[assign_a(o.farrow_height)]
+                  >> +blank_p >> int_p[assign_a(o.farrow_style)]   
+                  >> +blank_p >> real_p[assign_a(o.farrow_thickness)]
+                  >> +blank_p >> real_p[assign_a(o.farrow_width)]
+                  >> +blank_p >> real_p[assign_a(o.farrow_height)]
                 ) >> !( eps_p(&is_b_arr)
                   >> +space_p >> int_p[assign_a(o.barrow_type)]    
-                  >> +space_p >> int_p[assign_a(o.barrow_style)]   
-                  >> +space_p >> real_p[assign_a(o.barrow_thickness)]
-                  >> +space_p >> real_p[assign_a(o.barrow_width)]
-                  >> +space_p >> real_p[assign_a(o.barrow_height)]
+                  >> +blank_p >> int_p[assign_a(o.barrow_style)]   
+                  >> +blank_p >> real_p[assign_a(o.barrow_thickness)]
+                  >> +blank_p >> real_p[assign_a(o.barrow_width)]
+                  >> +blank_p >> real_p[assign_a(o.barrow_height)]
                 );
-rule_t r_angle          = +space_p >> real_p[assign_a(o.angle)];
-rule_t r_center_xy      = +space_p >> real_p[assign_a(o.center_x)] >>
-                          +space_p >> real_p[assign_a(o.center_y)];
-rule_t r_radius_xy      = +space_p >> int_p[assign_a(o.radius_x)] >>
-                          +space_p >> int_p[assign_a(o.radius_y)];
-rule_t r_start_xy       = +space_p >> int_p[assign_a(o.start_x)] >> 
-                          +space_p >> int_p[assign_a(o.start_y)];
-rule_t r_end_xy         = +space_p >> int_p[assign_a(o.end_x)] >> 
-                          +space_p >> int_p[assign_a(o.end_y)];
-rule_t r_npoints        = +space_p >> int_p[assign_a(npoints)][assign_a(npoints_f)];
-rule_t r_push_xy        = +space_p >> int_p[push_back_a(o.x)] >>
-                          +space_p >> int_p[push_back_a(o.y)];
+rule_t r_angle          = +blank_p >> real_p[assign_a(o.angle)];
+rule_t r_center_xy      = +blank_p >> real_p[assign_a(o.center_x)] >>
+                          +blank_p >> real_p[assign_a(o.center_y)];
+rule_t r_radius_xy      = +blank_p >> int_p[assign_a(o.radius_x)] >>
+                          +blank_p >> int_p[assign_a(o.radius_y)];
+rule_t r_start_xy       = +blank_p >> int_p[assign_a(o.start_x)] >> 
+                          +blank_p >> int_p[assign_a(o.start_y)];
+rule_t r_end_xy         = +blank_p >> int_p[assign_a(o.end_x)] >> 
+                          +blank_p >> int_p[assign_a(o.end_y)];
+rule_t r_npoints        = +blank_p >> int_p[assign_a(npoints)][assign_a(npoints_f)];
+rule_t r_push_xy        = +blank_p >> int_p[push_back_a(o.x)] >>
+                          +blank_p >> int_p[push_back_a(o.y)];
 rule_t r_image          = !( eps_p(&is_picture)
                           >> +space_p >> uint_p[assign_a(o.image_orient)] // orientation = normal (0) or flipped (1)
-                          >> +space_p >> (+ch)[assign_a(o.image_file)] >> eol_p 
+                          >> +blank_p >> (+ch)[assign_a(o.image_file)] >> eol_p 
                         );
 rule_t r_points         = *( eps_p(&point_counter) >> r_push_xy );
-rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_back_a(o.f)] );
+rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +blank_p >> real_p[push_back_a(o.f)] );
 
 	/*******************************************/
 	rule_t c0_color = ch_p('0')[assign_a(o.type,0)]
-		>> +space_p >> uint_p[assign_a(color_num)]
-		>> +space_p >> '#' >> hex_p[insert_at_a(world.colors,color_num)]
+		>> +blank_p >> uint_p[assign_a(color_num)]
+		>> +blank_p >> '#' >> hex_p[insert_at_a(world.colors,color_num)]
 		>> eol_p;
 	/*******************************************/
 	rule_t c5_arc   = ch_p('5')[assign_a(o.type,5)]  // Arc
@@ -152,14 +152,14 @@ rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_
         rule_t c4_text = ch_p('4')[assign_a(o.type,4)] // Text
 		>> r_sub_type >> r_pen_color >> r_depth
 		>> r_pen_style // (not used)
-		>> +space_p >> int_p[assign_a(o.font)]
-		>> +space_p >> real_p[assign_a(o.font_size)]
+		>> +blank_p >> int_p[assign_a(o.font)]
+		>> +blank_p >> real_p[assign_a(o.font_size)]
 		>> r_angle
-		>> +space_p >> int_p[assign_a(o.font_flags)]
-		>> +space_p >> real_p[assign_a(o.height)]
-		>> +space_p >> real_p[assign_a(o.length)]
+		>> +blank_p >> int_p[assign_a(o.font_flags)]
+		>> +blank_p >> real_p[assign_a(o.height)]
+		>> +blank_p >> real_p[assign_a(o.length)]
                 >> r_push_xy
-		>> space_p  >> (*(~eps_p("\\001") >> anychar_p))[assign_a(o.text)] 
+		>> blank_p  >> (*(~eps_p("\\001") >> anychar_p))[assign_a(o.text)] 
                 >> str_p("\\001") >> eol_p;
 	/*******************************************/
 
@@ -402,49 +402,49 @@ fig_object make_object(const fig_object & obj, const std::string & mask){
   f_arr=0; b_arr=0; // на случай *
   rule<> ch = anychar_p - eol_p;
 
-rule<> r_sub_type       = +space_p >> (ch_p('*') | uint_p[assign_a(o.sub_type)]);
-rule<> r_line_style     = +space_p >> (ch_p('*') | int_p[assign_a(o.line_style)]);
-rule<> r_thickness      = +space_p >> (ch_p('*') | int_p[assign_a(o.thickness)]);
-rule<> r_pen_color      = +space_p >> (ch_p('*') | int_p[assign_a(o.pen_color)]);
-rule<> r_fill_color     = +space_p >> (ch_p('*') | int_p[assign_a(o.fill_color)]);
-rule<> r_depth          = +space_p >> (ch_p('*') | uint_p[assign_a(o.depth)]);
-rule<> r_pen_style      = +space_p >> (ch_p('*') | int_p[assign_a(o.pen_style)]);
-rule<> r_area_fill      = +space_p >> (ch_p('*') | int_p[assign_a(o.area_fill)]);
-rule<> r_style_val      = +space_p >> (ch_p('*') | real_p[assign_a(o.style_val)]);
-rule<> r_cap_style      = +space_p >> (ch_p('*') | int_p[assign_a(o.cap_style)]);
-rule<> r_join_style     = +space_p >> (ch_p('*') | int_p[assign_a(o.join_style)]);
-rule<> r_direction      = +space_p >> (ch_p('*') | int_p[assign_a(o.direction)]);
-rule<> r_radius         = +space_p >> (ch_p('*') | int_p[assign_a(o.radius)]);
-rule<> r_arrows         = +space_p >> (ch_p('*') | uint_p[assign_a(f_arr)][assign_a(o.forward_arrow)]) >> 
-                          +space_p >> (ch_p('*') | uint_p[assign_a(b_arr)][assign_a(o.backward_arrow)]);
+rule<> r_sub_type       = +blank_p >> (ch_p('*') | uint_p[assign_a(o.sub_type)]);
+rule<> r_line_style     = +blank_p >> (ch_p('*') | int_p[assign_a(o.line_style)]);
+rule<> r_thickness      = +blank_p >> (ch_p('*') | int_p[assign_a(o.thickness)]);
+rule<> r_pen_color      = +blank_p >> (ch_p('*') | int_p[assign_a(o.pen_color)]);
+rule<> r_fill_color     = +blank_p >> (ch_p('*') | int_p[assign_a(o.fill_color)]);
+rule<> r_depth          = +blank_p >> (ch_p('*') | uint_p[assign_a(o.depth)]);
+rule<> r_pen_style      = +blank_p >> (ch_p('*') | int_p[assign_a(o.pen_style)]);
+rule<> r_area_fill      = +blank_p >> (ch_p('*') | int_p[assign_a(o.area_fill)]);
+rule<> r_style_val      = +blank_p >> (ch_p('*') | real_p[assign_a(o.style_val)]);
+rule<> r_cap_style      = +blank_p >> (ch_p('*') | int_p[assign_a(o.cap_style)]);
+rule<> r_join_style     = +blank_p >> (ch_p('*') | int_p[assign_a(o.join_style)]);
+rule<> r_direction      = +blank_p >> (ch_p('*') | int_p[assign_a(o.direction)]);
+rule<> r_radius         = +blank_p >> (ch_p('*') | int_p[assign_a(o.radius)]);
+rule<> r_arrows         = +blank_p >> (ch_p('*') | uint_p[assign_a(f_arr)][assign_a(o.forward_arrow)]) >> 
+                          +blank_p >> (ch_p('*') | uint_p[assign_a(b_arr)][assign_a(o.backward_arrow)]);
 rule<> r_arrows_p = !( eps_p(&is_f_arr)
-                  >> +space_p >> (ch_p('*') | int_p[assign_a(o.farrow_type)])    
-                  >> +space_p >> (ch_p('*') | int_p[assign_a(o.farrow_style)])
-                  >> +space_p >> (ch_p('*') | real_p[assign_a(o.farrow_thickness)])
-                  >> +space_p >> (ch_p('*') | real_p[assign_a(o.farrow_width)])
-                  >> +space_p >> (ch_p('*') | real_p[assign_a(o.farrow_height)])
+                  >> +blank_p >> (ch_p('*') | int_p[assign_a(o.farrow_type)])    
+                  >> +blank_p >> (ch_p('*') | int_p[assign_a(o.farrow_style)])
+                  >> +blank_p >> (ch_p('*') | real_p[assign_a(o.farrow_thickness)])
+                  >> +blank_p >> (ch_p('*') | real_p[assign_a(o.farrow_width)])
+                  >> +blank_p >> (ch_p('*') | real_p[assign_a(o.farrow_height)])
                 ) >> !( eps_p(&is_b_arr)
-                  >> +space_p >> (ch_p('*') | int_p[assign_a(o.barrow_type)])
-                  >> +space_p >> (ch_p('*') | int_p[assign_a(o.barrow_style)])
-                  >> +space_p >> (ch_p('*') | real_p[assign_a(o.barrow_thickness)])
-                  >> +space_p >> (ch_p('*') | real_p[assign_a(o.barrow_width)])
-                  >> +space_p >> (ch_p('*') | real_p[assign_a(o.barrow_height)])
+                  >> +blank_p >> (ch_p('*') | int_p[assign_a(o.barrow_type)])
+                  >> +blank_p >> (ch_p('*') | int_p[assign_a(o.barrow_style)])
+                  >> +blank_p >> (ch_p('*') | real_p[assign_a(o.barrow_thickness)])
+                  >> +blank_p >> (ch_p('*') | real_p[assign_a(o.barrow_width)])
+                  >> +blank_p >> (ch_p('*') | real_p[assign_a(o.barrow_height)])
                 );
-rule<> r_angle          = +space_p >> (ch_p('*') | real_p[assign_a(o.angle)]);
-rule<> r_center_xy      = +space_p >> (ch_p('*') | real_p[assign_a(o.center_x)]) >>
-                          +space_p >> (ch_p('*') | real_p[assign_a(o.center_y)]);
-rule<> r_radius_xy      = +space_p >> (ch_p('*') | int_p[assign_a(o.radius_x)]) >>
-                          +space_p >> (ch_p('*') | int_p[assign_a(o.radius_y)]);
-rule<> r_start_xy       = +space_p >> (ch_p('*') | int_p[assign_a(o.start_x)]) >> 
-                          +space_p >> (ch_p('*') | int_p[assign_a(o.start_y)]);
-rule<> r_end_xy         = +space_p >> (ch_p('*') | int_p[assign_a(o.end_x)]) >> 
-                          +space_p >> (ch_p('*') | int_p[assign_a(o.end_y)]);
-rule<> r_npoints        = +space_p >> (ch_p('*') | int_p[assign_a(npoints)]);
-rule<> r_push_xy        = +space_p >> (ch_p('*') | int_p) >>
-                          +space_p >> (ch_p('*') | int_p);
-rule<> r_font           = +space_p >> (ch_p('*') | int_p[assign_a(o.font)]);
-rule<> r_font_size      = +space_p >> (ch_p('*') | real_p[assign_a(o.font_size)]);
-rule<> r_font_flags     = +space_p >> (ch_p('*') | int_p[assign_a(o.font_flags)]);
+rule<> r_angle          = +blank_p >> (ch_p('*') | real_p[assign_a(o.angle)]);
+rule<> r_center_xy      = +blank_p >> (ch_p('*') | real_p[assign_a(o.center_x)]) >>
+                          +blank_p >> (ch_p('*') | real_p[assign_a(o.center_y)]);
+rule<> r_radius_xy      = +blank_p >> (ch_p('*') | int_p[assign_a(o.radius_x)]) >>
+                          +blank_p >> (ch_p('*') | int_p[assign_a(o.radius_y)]);
+rule<> r_start_xy       = +blank_p >> (ch_p('*') | int_p[assign_a(o.start_x)]) >> 
+                          +blank_p >> (ch_p('*') | int_p[assign_a(o.start_y)]);
+rule<> r_end_xy         = +blank_p >> (ch_p('*') | int_p[assign_a(o.end_x)]) >> 
+                          +blank_p >> (ch_p('*') | int_p[assign_a(o.end_y)]);
+rule<> r_npoints        = +blank_p >> (ch_p('*') | int_p[assign_a(npoints)]);
+rule<> r_push_xy        = +blank_p >> (ch_p('*') | int_p) >>
+                          +blank_p >> (ch_p('*') | int_p);
+rule<> r_font           = +blank_p >> (ch_p('*') | int_p[assign_a(o.font)]);
+rule<> r_font_size      = +blank_p >> (ch_p('*') | real_p[assign_a(o.font_size)]);
+rule<> r_font_flags     = +blank_p >> (ch_p('*') | int_p[assign_a(o.font_flags)]);
 
   /*******************************************/
   rule<> c5_arc   = ch_p('5')[assign_a(o.type,5)]  // Arc
@@ -489,8 +489,8 @@ rule<> r_font_flags     = +space_p >> (ch_p('*') | int_p[assign_a(o.font_flags)]
 	>> r_angle >> r_font_flags;
   /*******************************************/
 
-  if (!parse(mask.c_str(), c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
-      c6_compound_start | c6_compound_end).full)
+  if (!parse(mask.c_str(), *blank_p >> (c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
+      c6_compound_start | c6_compound_end) >> *blank_p ).full)
     cerr << "Can't parse mask!\n";
   return o;
 }

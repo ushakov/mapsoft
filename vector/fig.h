@@ -167,6 +167,7 @@ namespace fig {
     fig_object make_object(const fig_object & obj, const std::string & mask);
     // Построить fig-объект на основе объекта по умолчанию
     fig_object make_object(const std::string & mask);
+    // Проверить, соответствует ли объект маске
     bool test_object(const fig_object & obj, const std::string & mask);
 
     // Маска -- строчка информации об объекте в том виде, в каком она 
