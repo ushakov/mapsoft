@@ -55,6 +55,8 @@ main(int argc, char **argv){
 
 // чтение cnv-файла
   string tmp;
+  int cn;
+  fig::fig_colors colors;
 
   iterator_t first(cnvfile);
   if (!first) { cerr << "can't find file " << cnvfile << '\n'; exit(0);}
@@ -75,8 +77,12 @@ main(int argc, char **argv){
     >> *blank_p >> ':' >> *blank_p 
     >> (*(ch-':'-blank_p))[insert_at_a(opts, tmp)] 
     >> *blank_p >> eol_p;
+  rule_t col = str_p("color:")
+    >> *blank_p >> uint_p[assign_a(cn)] 
+    >> *blank_p >> "#" >> hex_p[insert_at_a(colors,cn)]
+    >> *blank_p >> eol_p;
 
-  if (!parse(first, last, *(comment | empty | m2f_r | f2m_r | oo)).full){
+  if (!parse(first, last, *(comment | empty | m2f_r | f2m_r | col | oo)).full){
     cerr << "can't parse cnv-file!\n";
     exit(0);
   }
@@ -117,6 +123,7 @@ main(int argc, char **argv){
     cerr << "Converting mp to fig\n";
     mp::mp_world   M = mp::read(infile.c_str()), NC; 
     fig::fig_world F;
+    F.colors=colors;
 
     Datum  datum(opts.get_string("datum", "pulkovo"));
     Proj   proj(opts.get_string("proj", "tmerc"));
