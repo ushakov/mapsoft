@@ -60,7 +60,7 @@ mp_world read(const char* filename){
                   >> ch_p(')');
 
     rule_t object = ch_p('[') >> (
-      (str_p("POI")      | "RGN10")[assign_a(o.Class, "POI")] |
+      (str_p("POI")      | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] |
       (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] |
       (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")] ) 
       >> ch_p(']') >> eol_p 
