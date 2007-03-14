@@ -124,8 +124,10 @@ main(int argc, char **argv){
 
     // определим реальный диапазон координат в нужной нам проекции:
     double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
+    double lon0=0; int n=0;
     for (mp::mp_world::const_iterator i=M.begin(); i!=M.end(); i++){
       for (int n=0; n < min(i->X.size(),i->Y.size()); n++){
+        lon0+=i->Y[n]; n++;
         g_point p(i->Y[n], i->X[n]); cnv.bck(p);
         if (p.x > maxx) maxx = p.x;
         if (p.y > maxy) maxy = p.y;
@@ -137,13 +139,15 @@ main(int argc, char **argv){
       std::cerr << "mp2fig: empty data\n";
       exit(0);
     }
+    lon0/=n;
+
     // если диапазон явно указан в конфигурационном файле
     minx=opts.get_double("minx", minx);
     maxx=opts.get_double("maxx", maxx);
     miny=opts.get_double("miny", miny);
     maxy=opts.get_double("maxy", maxy);
+    lon0  = opts.get_udouble("scale", lon0);
     double scale = opts.get_udouble("scale", 1e-5);
-    double lon0  = opts.get_udouble("scale", 0);
 
     // построим привязку fig-файла
     // добавим в fig-файл точки привязки
