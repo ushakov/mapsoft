@@ -9,6 +9,8 @@
 #include <map>
 #include <iostream>
 
+#include "../utils/point.h"
+
 namespace fig {
 
     // FIG units, 1.05/1200in 
@@ -131,6 +133,8 @@ namespace fig {
            (text == o.text) && (comment == o.comment) &&
 	   (x == o.x) && (y == o.y) && (f == o.f));
         }
+        std::vector<Point<double> > get_vector() const;
+        void set_vector(const std::vector<Point<double> > & v);
     };
 
     struct fig_world:std::list<fig_object>{
@@ -176,6 +180,6 @@ namespace fig {
     // в маске могут присутствовать звездочки - при проверке эти значения
     // не проверяются, при создании объекта подставляются значения по умолчанию.
     // Вместо типа объекта нельзя подставлять звездочку
-    // 
+ 
 }
 #endif

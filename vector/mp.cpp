@@ -3,6 +3,7 @@
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/insert_at_actor.hpp>
+#include <boost/spirit/actor/clear_actor.hpp>
 
 #include <iomanip>
 
@@ -23,7 +24,6 @@ mp_world read(const char* filename){
   mp_object o, o0;
   mp_world world;
   double x,y;
-  const double bv=1e99;
   int l=0;
 
   // iterators for parsing
@@ -69,18 +69,13 @@ mp_world read(const char* filename){
         ( "Label="    >> (*ch)[assign_a(o.Label)]     >> eol_p) |
         ( "EndLevel=" >> uint_p[assign_a(o.EL)] >> eol_p) |
         ( "Levels="   >> uint_p[assign_a(o.EL)] >> eol_p) |
-        ( str_p("Data")[push_back_a(o.X,bv)][push_back_a(o.Y,bv)] 
-           >> uint_p[assign_a(o.BL)] >> "="
-           >> pt_r >> *(',' >> pt_r) >> eol_p) |
-        ( str_p("Origin")[push_back_a(o.X,bv)][push_back_a(o.Y,bv)] 
-           >> uint_p[assign_a(o.BL)] >> "="
-           >> pt_r >> *(',' >> pt_r) >> eol_p)
-      ) >> "[END" >> (*(ch-ch_p(']'))) 
-      >> ch_p(']') >> eol_p[push_back_a(world,o)];
+        ( (str_p("Data") | str_p("Origin")) >> uint_p[assign_a(o.BL)] >> "="
+           >> pt_r >> *(',' >> pt_r) >> eol_p)[push_back_a(world,o)][clear_a(o.X)][clear_a(o.Y)] 
+      ) >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p;
       
     if (!parse(first, last, comment >> header >> 
       *( eps_p[assign_a(o,o0)] >> comment >> object) >> comment).full)
-    cerr << "Can't parse file!\n";
+    cerr << "Can't parse mp file!\n";
 
     return world;
 }
@@ -118,15 +113,10 @@ bool write(std::ostream & out, const mp_world & world){
         return false;
     }
 
+    out << "\r\nData" << i->BL << "="; 
     for (int j=0; j<i->X.size(); j++){
-      int u;
-      if ((i->X[j]>1e90)||(i->Y[j]>1e90)){
-        out << "\r\nData" << i->BL << "="; u=0;
-      } else {
-        out << ((u!=0)?",":"") << "(" 
-            << i->X[j] << "," << i->Y[j] << ")";
-        u++;
-      }
+      out << ((j!=0)?",":"") << "(" 
+          << i->X[j] << "," << i->Y[j] << ")";
     }
     out << "\r\n[END]\r\n";
   }
@@ -140,7 +130,7 @@ mp_object make_object(const mp_object & obj, const std::string & mask){
     +blank_p >> (("0x" >> hex_p[assign_a(o.Type)]) | "*") >>
     +blank_p >> (uint_p[assign_a(o.BL)] | "*") >>
     +blank_p >> (uint_p[assign_a(o.EL)] | "*") >> *blank_p ).full)
-      cerr << "Can't parse mask!\n";
+      cerr << "Can't parse mp mask!\n";
   return o;
 }
 // Построить mp-объект на основе объекта по умолчанию
@@ -150,6 +140,25 @@ mp_object make_object(const std::string & mask){
 // Проверить, соответствует ли объект маске
 bool test_object(const mp_object & o, const std::string & mask){
   return make_object(o, mask)==o;
+}
+
+vector<Point<double> > mp_object::get_vector() const{
+  vector<Point<double> > ret;
+  if (X.size()!=Y.size()){
+    cerr << "mp_object::get_vector: different amount of x and y values\n";
+    return ret;
+  }
+  for (int j=0; j<X.size(); j++){
+    ret.push_back(Point<double>(Y[j],X[j])); // lon-lat!!!
+  }
+}
+
+void mp_object::set_vector(const vector<Point<double> > & v){
+  X.clear(); Y.clear();
+  for (int i=0;i<v.size();i++){
+    X.push_back(v[i].y); // lat
+    Y.push_back(v[i].x); // lon
+  }
 }
 
 

@@ -17,5 +17,6 @@ main(int argc, char **argv){
       W1.push_back(*i);
   }
 
-  fig::write(std::cout, W1);
+//  fig::write(std::cout, W1);
+  fig::write(std::cout, W);
 }

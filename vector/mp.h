@@ -25,6 +25,8 @@ namespace mp {
             (Class==o.Class) && (Type==o.Type) && (Label==o.Label) &&
             (BL==o.BL) && (EL==o.EL) && (X==o.X) && (Y==o.Y));
         }
+        std::vector<Point<double> > get_vector() const;
+        void set_vector(const std::vector<Point<double> > & v);
     };
 
     struct mp_world:std::list<mp_object>{

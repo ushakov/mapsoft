@@ -21,13 +21,13 @@ typedef scanner<iterator_t>     scanner_t;
 typedef rule <scanner_t>        rule_t;
 
 int f_arr, b_arr;
-bool is_f_arr(){return f_arr!=0;}
-bool is_b_arr(){return b_arr!=0;}
+bool no_f_arr(){return f_arr==0;}
+bool no_b_arr(){return b_arr==0;}
 int npoints, npoints_f;
 bool point_counter(){npoints--; return npoints>=0;}
 bool point_f_counter(){npoints_f--; return npoints_f>=0;}
 int sub_type;
-bool is_picture(){return sub_type==5;}
+bool no_picture(){return sub_type!=5;}
 
 // function for reading objects from file
 fig_world read(const char* filename){
@@ -59,7 +59,7 @@ fig_world read(const char* filename){
                 uint_p[assign_a(world.coord_system)] >> eol_p;       // coord_system
     
 /****************************************************************/
-rule_t r_sub_type       = +blank_p >> uint_p[assign_a(o.sub_type)];
+rule_t r_sub_type       = +blank_p >> uint_p[assign_a(o.sub_type)][assign_a(sub_type)];
 rule_t r_line_style     = +blank_p >> int_p[assign_a(o.line_style)];
 rule_t r_thickness      = +blank_p >> int_p[assign_a(o.thickness)];
 rule_t r_pen_color      = +blank_p >> int_p[assign_a(o.pen_color)];
@@ -74,19 +74,19 @@ rule_t r_direction      = +blank_p >> int_p[assign_a(o.direction)];
 rule_t r_radius         = +blank_p >> int_p[assign_a(o.radius)];
 rule_t r_arrows         = +blank_p >> uint_p[assign_a(f_arr)][assign_a(o.forward_arrow)] >> 
                           +blank_p >> uint_p[assign_a(b_arr)][assign_a(o.backward_arrow)];
-rule_t r_arrows_p = !( eps_p(&is_f_arr)
-                  >> +space_p >> int_p[assign_a(o.farrow_type)]    
+rule_t r_arrows_p = (eps_p(&no_f_arr) | (
+                     +space_p >> int_p[assign_a(o.farrow_type)]  
                   >> +blank_p >> int_p[assign_a(o.farrow_style)]   
                   >> +blank_p >> real_p[assign_a(o.farrow_thickness)]
                   >> +blank_p >> real_p[assign_a(o.farrow_width)]
                   >> +blank_p >> real_p[assign_a(o.farrow_height)]
-                ) >> !( eps_p(&is_b_arr)
-                  >> +space_p >> int_p[assign_a(o.barrow_type)]    
+                )) >> (eps_p(&no_b_arr) | (
+                     +space_p >> int_p[assign_a(o.barrow_type)]    
                   >> +blank_p >> int_p[assign_a(o.barrow_style)]   
                   >> +blank_p >> real_p[assign_a(o.barrow_thickness)]
                   >> +blank_p >> real_p[assign_a(o.barrow_width)]
                   >> +blank_p >> real_p[assign_a(o.barrow_height)]
-                );
+                ));
 rule_t r_angle          = +blank_p >> real_p[assign_a(o.angle)];
 rule_t r_center_xy      = +blank_p >> real_p[assign_a(o.center_x)] >>
                           +blank_p >> real_p[assign_a(o.center_y)];
@@ -97,14 +97,13 @@ rule_t r_start_xy       = +blank_p >> int_p[assign_a(o.start_x)] >>
 rule_t r_end_xy         = +blank_p >> int_p[assign_a(o.end_x)] >> 
                           +blank_p >> int_p[assign_a(o.end_y)];
 rule_t r_npoints        = +blank_p >> int_p[assign_a(npoints)][assign_a(npoints_f)];
-rule_t r_push_xy        = +blank_p >> int_p[push_back_a(o.x)] >>
-                          +blank_p >> int_p[push_back_a(o.y)];
-rule_t r_image          = !( eps_p(&is_picture)
-                          >> +space_p >> uint_p[assign_a(o.image_orient)] // orientation = normal (0) or flipped (1)
-                          >> +blank_p >> (+ch)[assign_a(o.image_file)] >> eol_p 
-                        );
+rule_t r_push_xy        = +space_p >> int_p[push_back_a(o.x)] >>
+                          +space_p >> int_p[push_back_a(o.y)];
+rule_t r_image          = (eps_p(&no_picture) | (
+                          +space_p >> uint_p[assign_a(o.image_orient)] >> // orientation = normal (0) or flipped (1)
+                          +blank_p >> (+ch)[assign_a(o.image_file)]));
 rule_t r_points         = *( eps_p(&point_counter) >> r_push_xy );
-rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +blank_p >> real_p[push_back_a(o.f)] );
+rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_back_a(o.f)] );
 
 	/*******************************************/
 	rule_t c0_color = ch_p('0')[assign_a(o.type,0)]
@@ -167,7 +166,7 @@ rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +blank_p >> real_p[push_
 	  *( eps_p[assign_a(o,o0)] >> comment[assign_a(o.comment)] >> 
 	    ( c0_color | c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
             c6_compound_start | c6_compound_end) [push_back_a(world,o)] )).full)
-        cerr << "Can't parse file!\n";
+        cerr << "Can't parse fig file!\n";
 
 	return world;
 }
@@ -205,6 +204,7 @@ bool write(ostream & out, const fig_world & world){
   for (fig_world::const_iterator
        i  = world.begin(); 
        i != world.end(); i++){
+    out << i->comment << "\n";
     switch (i->type){
     case 0: // Color
       break;
@@ -399,6 +399,7 @@ fig_object make_object(const fig_object & obj, const std::string & mask){
 
   fig_object o = obj;
 
+  npoints=-1; 
   f_arr=0; b_arr=0; // на случай *
   rule<> ch = anychar_p - eol_p;
 
@@ -417,19 +418,19 @@ rule<> r_direction      = +blank_p >> (ch_p('*') | int_p[assign_a(o.direction)])
 rule<> r_radius         = +blank_p >> (ch_p('*') | int_p[assign_a(o.radius)]);
 rule<> r_arrows         = +blank_p >> (ch_p('*') | uint_p[assign_a(f_arr)][assign_a(o.forward_arrow)]) >> 
                           +blank_p >> (ch_p('*') | uint_p[assign_a(b_arr)][assign_a(o.backward_arrow)]);
-rule<> r_arrows_p = !( eps_p(&is_f_arr)
-                  >> +blank_p >> (ch_p('*') | int_p[assign_a(o.farrow_type)])    
+rule<> r_arrows_p = (eps_p(&no_f_arr) | (
+                     +blank_p >> (ch_p('*') | int_p[assign_a(o.farrow_type)])    
                   >> +blank_p >> (ch_p('*') | int_p[assign_a(o.farrow_style)])
                   >> +blank_p >> (ch_p('*') | real_p[assign_a(o.farrow_thickness)])
                   >> +blank_p >> (ch_p('*') | real_p[assign_a(o.farrow_width)])
                   >> +blank_p >> (ch_p('*') | real_p[assign_a(o.farrow_height)])
-                ) >> !( eps_p(&is_b_arr)
-                  >> +blank_p >> (ch_p('*') | int_p[assign_a(o.barrow_type)])
+                )) >> (eps_p(&no_b_arr) | (
+                     +blank_p >> (ch_p('*') | int_p[assign_a(o.barrow_type)])
                   >> +blank_p >> (ch_p('*') | int_p[assign_a(o.barrow_style)])
                   >> +blank_p >> (ch_p('*') | real_p[assign_a(o.barrow_thickness)])
                   >> +blank_p >> (ch_p('*') | real_p[assign_a(o.barrow_width)])
                   >> +blank_p >> (ch_p('*') | real_p[assign_a(o.barrow_height)])
-                );
+                ));
 rule<> r_angle          = +blank_p >> (ch_p('*') | real_p[assign_a(o.angle)]);
 rule<> r_center_xy      = +blank_p >> (ch_p('*') | real_p[assign_a(o.center_x)]) >>
                           +blank_p >> (ch_p('*') | real_p[assign_a(o.center_y)]);
@@ -491,7 +492,8 @@ rule<> r_font_flags     = +blank_p >> (ch_p('*') | int_p[assign_a(o.font_flags)]
 
   if (!parse(mask.c_str(), *blank_p >> (c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
       c6_compound_start | c6_compound_end) >> *blank_p ).full)
-    cerr << "Can't parse mask!\n";
+    cerr << "Can't parse fig mask!\n";
+  if (npoints>=0) {o.x.resize(npoints); o.y.resize(npoints);}
   return o;
 }
 
@@ -502,5 +504,25 @@ fig_object make_object(const std::string & mask){
 bool test_object(const fig_object & o, const std::string & mask){
   return make_object(o, mask)==o;  
 }
+
+vector<Point<double> > fig_object::get_vector() const{
+  vector<Point<double> > ret;
+  if (x.size()!=y.size()){
+    cerr << "fig_object::get_vector: different amount of x.and y.values\n";
+    return ret;
+  }
+  for (int j=0; j<x.size(); j++){
+    ret.push_back(Point<double>(x[j],y[j]));
+  }
+}
+
+void fig_object::set_vector(const vector<Point<double> > & v){
+  x.clear(); y.clear();
+  for (int i=0;i<v.size();i++){
+    x.push_back(int(v[i].x));
+    y.push_back(int(v[i].y));
+  }
+}
+
 
 }
