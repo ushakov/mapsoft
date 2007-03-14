@@ -139,7 +139,7 @@ main(int argc, char **argv){
       std::cerr << "mp2fig: empty data\n";
       exit(0);
     }
-    lon0/=ln;
+    lon0 = floor( lon0/ln/6.0 ) * 6 + 3;
 
     // если диапазон явно указан в конфигурационном файле
     minx=opts.get_double("minx", minx);
