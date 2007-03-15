@@ -269,51 +269,55 @@ sub convert_element{
        my $minx;
        my $miny;
        my $mina;
-       foreach $el0 ($el->{prent}->{element}){
+       my $l = 100; my $w=40;
+       foreach $el0 (@{$el->{parent}->{elements}}){
          if (($el0->{thickness} == 3)&&($el0->{pencolor} == 0)&&
-             ($el0->{depth} == 80)&&($#{$el0->{points}}>0))){
-           foreach (my $i = 1; $i< $#{$el0->{points}}; $i++;){
-             my $x1 = $el0->{points}[$i-1][0];
-             my $x2 = $el0->{points}[$i][0];
-             my $y1 = $el0->{points}[$i-1][1];
-             my $y2 = $el0->{points}[$i][1];
-             my $l = 100; my $w=40;
-             # найдем точку отрезка (x1,y1-x2,y2), ближайшую к (x,y)
-
-             
-           }
-         }
-       }
-
-
-        $el->{fillcolor} = 7;
-        $el->{pencolor}  = 0;
-        $el->{areafill}  = 20;
-        $el->{thickness} = 1;
-        $el->{subtype} = 1;
-
-	my $x1 = $el->{points}->[0][0];
-	my $x2 = $el->{points}->[1][0];
-	my $y1 = $el->{points}->[0][1];
-	my $y2 = $el->{points}->[1][1];
-	my $a = atan2($y2-$y1, $x2-$x1);
-        my $w = 40;
-	
-	$el->{points}->[0][0] = $x1 - $w*sin($a);
-	$el->{points}->[1][0] = $x2 - $w*sin($a);
-	$el->{points}->[2][0] = $x2 + $w*sin($a);
-	$el->{points}->[3][0] = $x1 + $w*sin($a);
-	$el->{points}->[4][0] = $x1 - $w*sin($a);
-	$el->{points}->[0][1] = $y1 + $w*cos($a);
-	$el->{points}->[1][1] = $y2 + $w*cos($a);
-	$el->{points}->[2][1] = $y2 - $w*cos($a);
-	$el->{points}->[3][1] = $y1 - $w*cos($a);
-	$el->{points}->[4][1] = $y1 + $w*cos($a);
-     }
-     
-
-   }
+             ($el0->{depth} == 80)&&($#{$el0->{points}}>0)){
+           my ($dmin, $xmin, $ymin, $kxmin, $kymin) = mindist($x, $y, $el0);
+           my $el2=copy_element($el);
+           $el2->{points}[0][0] = $xmin;
+           $el2->{points}[0][1] = $ymin;
+           $el->{parent}->add($el2);
+          }
+        }
+      }
+    }
 }
+######################################
+sub mindist{
+  my $x0 = shift;
+  my $y0 = shift;
+  my $el = shift;
+ 
+  my $dmin=1e99;
+  my $xmin;
+  my $ymin;
+  my $kxmin;
+  my $kymin;
+
+  foreach (my $i = 1; $i < $#{$el->{points}}; $i++){
+    print $i, "\n";
+    my $x1 = $el->{points}[$i-1][0];
+    my $x2 = $el->{points}[$i][0];
+    my $y1 = $el->{points}[$i-1][1];
+    my $y2 = $el->{points}[$i][1];
+    if ($x1>$x2){my $T=$x1; $x1=$x2; $x2=$T;} 
+    if ($y1>$y2){my $T=$y1; $y1=$y2; $y2=$T;}
+    my $bb = ($x2-$x1)**2-($y2-$y1)**2;
+    my $ab = ($x2-$x1)*($x0-$x1)+($y2-$y1)*($y0-$y1);
+    my $kx = ($x2-$x1)/$bb;
+    my $ky = ($y2-$y1)/$bb;
+    my $x = $x1 + $kx*$ab;
+    my $y = $y1 + $ky*$ab;
+
+    if (($x>=$x1) && ($x<$x2) && ($y>=$y1) && ($y<$y2)){
+      my $d=sqrt(($x0-$x)**2+($y0-$y)**2);
+      if ($d < $dmin) {$dmin=$d; $xmin=$x; $ymin=$y; $kxmin=$kx; $kymin=$ky;}
+    }
+  }
+  return ($dmin, $xmin, $ymin, $kxmin, $kymin);
+}
+
 ######################################
 sub copy_element{
   my $el = shift; 

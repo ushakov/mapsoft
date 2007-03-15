@@ -7,7 +7,6 @@
 #include "fig.h"
 #include "../geo_io/geo_convs.h"
 
-
 namespace fig {
 
 using namespace std;
@@ -43,7 +42,9 @@ using namespace boost::spirit;
 	   *(anychar_p-eol_p)
 	  >> eol_p )).full){
  	g_refpoint ref(x,y,i->x[0],i->y[0]);
-        Options O; O["lon0"] = lon0;
+
+        Options O; 
+        O["lon0"] = lon0;
 
         convs::pt2pt c(Datum(datum), Proj(proj), O, Datum("wgs84"), Proj("lonlat"), O);
         c.frw(ref);
