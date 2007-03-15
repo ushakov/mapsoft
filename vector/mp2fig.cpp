@@ -94,6 +94,7 @@ main(int argc, char **argv){
     cerr << "reading fig-file: ";
     fig::fig_world F = fig::read(infile.c_str()), NC;
     cerr << F.size() << " objects\n";
+    NC.colors=colors;
 
     mp::mp_world   M; 
    
@@ -127,7 +128,9 @@ main(int argc, char **argv){
   
   else {
     cerr << "Converting mp to fig\n";
+    cerr << "reading mp-file: ";
     mp::mp_world   M = mp::read(infile.c_str()), NC; 
+    cerr << M.size() << " objects\n";
     fig::fig_world F;
     F.colors=colors;
 

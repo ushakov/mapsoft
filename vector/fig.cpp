@@ -263,7 +263,7 @@ bool write(ostream & out, const fig_world & world){
            << i->barrow_thickness << " "
            << i->barrow_width << " "
            << i->barrow_height;
-        if (i->sub_type==5) out << " "
+        if (i->sub_type==5) out << "\n\t"
           << i->image_orient << " "
           << i->image_file;
         for (n=0; n<i->x.size(); n++)
