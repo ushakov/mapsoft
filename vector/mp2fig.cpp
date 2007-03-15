@@ -115,6 +115,7 @@ main(int argc, char **argv){
             o.X.push_back(o.X[0]);
             o.Y.push_back(o.Y[0]);
           }
+          parse (i->comment.c_str(), str_p("# ") >> (+(anychar_p-eol_p))[assign_a(o.Label)] >> !(eol_p >> *anychar_p));
           M.push_back(o);
           converted=true;
         }
@@ -188,7 +189,6 @@ main(int argc, char **argv){
          comm << "# proj: " << proj.xml_str() << "\n"; 
       if ((proj == Proj("tmerc")) && (lon0!=0))
          comm << "# lon0: " << lon0 << "\n"; 
-      o.comment = comm.str();
       F.push_back(o);
       
       cnv.frw(rps[n]);
@@ -217,6 +217,7 @@ main(int argc, char **argv){
               o.f[0]=0; o.f[o.f.size()-1]=0;
             }
           }
+          o.comment="# "+i->Label;
           F.push_back(o);
           converted=true;
         }
