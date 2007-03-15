@@ -2,10 +2,10 @@
 #include <cmath>
 #include <sstream>
 
+#include "../loaders/image_r.h" // определение размеров картинки (image_r::size)
 #include "../jeeps/gpsdatum.h"
 #include "../jeeps/gpsproj.h"
 #include "../jeeps/gpsmath.h"
-#include "../loaders/image_r.h" // определение размеров картинки (image_r::size)
 
 namespace convs{
 using namespace std;
