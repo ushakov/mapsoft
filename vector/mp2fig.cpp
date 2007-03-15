@@ -121,6 +121,7 @@ main(int argc, char **argv){
       }
       if (!converted) NC.push_back(*i);
     }
+    cerr << NC.size() << " objects not converted\n";
     if (out) {mp::write(out, M); out.close();}
     if (nc)  {fig::write(nc, NC); nc.close();}
     exit(0);
@@ -222,6 +223,7 @@ main(int argc, char **argv){
       }
       if (!converted) NC.push_back(*i);
     }
+    cerr << NC.size() << " objects not converted\n";
     if (out) { fig::write(out, F); out.close();}
     if (nc)  { mp::write(nc, NC); nc.close();}
   }
