@@ -130,7 +130,7 @@ mp_object make_object(const mp_object & obj, const std::string & mask){
     +blank_p >> (("0x" >> hex_p[assign_a(o.Type)]) | "*") >>
     +blank_p >> (uint_p[assign_a(o.BL)] | "*") >>
     +blank_p >> (uint_p[assign_a(o.EL)] | "*") >> *blank_p ).full)
-      cerr << "Can't parse mp mask!\n";
+      cerr << "Can't parse mp mask: " << mask << "\n";
   return o;
 }
 // Построить mp-объект на основе объекта по умолчанию
@@ -144,13 +144,10 @@ bool test_object(const mp_object & o, const std::string & mask){
 
 vector<Point<double> > mp_object::get_vector() const{
   vector<Point<double> > ret;
-  if (X.size()!=Y.size()){
-    cerr << "mp_object::get_vector: different amount of x and y values\n";
-    return ret;
-  }
-  for (int j=0; j<X.size(); j++){
+  for (int j=0; j<min(X.size(),Y.size()); j++){
     ret.push_back(Point<double>(Y[j],X[j])); // lon-lat!!!
   }
+  return ret;
 }
 
 void mp_object::set_vector(const vector<Point<double> > & v){

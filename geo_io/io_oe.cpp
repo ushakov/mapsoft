@@ -323,7 +323,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
     scs >> "xy" >> 
     scs >> !(uint_p[assign_a(mpt.x)]) >>
     scs >> !(uint_p[assign_a(mpt.y)]) >>    
-    scs >> "in" >> scs >> "deg" >> 
+    scs >> (str_p("in")|"ex") >> scs >> "deg" >> 
     scs >> !(uint_p[assign_a(mpt.lat_d)]) >>    
     scs >> !(ureal_p[assign_a(mpt.lat_m)]) >>    
     scs >> !(ch_p('S')[assign_a(mpt.lat_h,-1)] || 

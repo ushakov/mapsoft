@@ -381,6 +381,8 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
   vector<g_point> ret = l;
   for (vector<g_point>::iterator it = ret.begin(); it != ret.end(); it++) frw(*it);
 
+  if (ret.size() < 2) return ret;
+
   // добавление новых точек
   unsigned i0=0;
 
@@ -409,6 +411,8 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
 
   vector<g_point> ret = l;
   for (vector<g_point>::iterator it = ret.begin(); it != ret.end(); it++) bck(*it);
+
+  if (ret.size() < 2) return ret;
 
 //  g_point p1=ret[0];
 //  g_point p2=p1; p2.x+=0.5; p2.y+=0.5;

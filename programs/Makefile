@@ -5,7 +5,7 @@ GOOGLE_FLAGS = `pkg-config --libs libcurl`
 USB_FLAGS = -lusb
 
 
-CPPFLAGS = -g `pkg-config --cflags libcurl` `pkg-config --cflags gtkmm-2.4,gthread-2.0`\
+CPPFLAGS = `pkg-config --cflags libcurl` `pkg-config --cflags gtkmm-2.4,gthread-2.0`\
      -I../utils -I../viewer -I../loaders -I../layers -O1
 
 #all: mapsoft_googleview mapsoft_imgview mapsoft_imgview1 mapsoft_convert

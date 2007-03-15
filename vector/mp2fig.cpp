@@ -90,9 +90,13 @@ main(int argc, char **argv){
 // преобразования
   ofstream out(outfile.c_str()), nc(ncfile.c_str());
   if (fig2mp) {
-    cerr << "Converting fig to mp\n";
+    cerr << "Converting fig to mp.\n";
+    cerr << "reading fig-file: ";
     fig::fig_world F = fig::read(infile.c_str()), NC;
+    cerr << F.size() << " objects\n";
+
     mp::mp_world   M; 
+   
     g_map map = fig::get_map(F);
     convs::map2pt C(map, Datum("wgs84"), Proj("lonlat"), Options());
 
@@ -101,7 +105,9 @@ main(int argc, char **argv){
       for (std::map<string,string>::const_iterator r=f2m.begin(); r!=f2m.end(); r++){
         if (fig::test_object(*i, r->first)){
           mp::mp_object o = mp::make_object(r->second); 
+
           o.set_vector(C.line_frw(i->get_vector()));
+
 /*          // если линия замкнута - добавим посл.точку=первой
           if (((i->type==3) && ((i->subtype==1)||(i->subtype==3)))||
               ((i->type==2) && ((i->subtype==2)||(i->subtype==3)))){
@@ -114,8 +120,8 @@ main(int argc, char **argv){
       }
       if (!converted) NC.push_back(*i);
     }
-    if (out) mp::write(out, M);
-    if (nc)  fig::write(nc, NC);
+    if (out) {mp::write(out, M); out.close();}
+    if (nc)  {fig::write(nc, NC); nc.close();}
     exit(0);
   } 
   
@@ -213,8 +219,8 @@ main(int argc, char **argv){
       }
       if (!converted) NC.push_back(*i);
     }
-    if (out) fig::write(out, F);
-    if (nc)  mp::write(nc, NC);
+    if (out) { fig::write(out, F); out.close();}
+    if (nc)  { mp::write(nc, NC); nc.close();}
   }
 
 }

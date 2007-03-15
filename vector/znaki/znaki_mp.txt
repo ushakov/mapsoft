@@ -39,7 +39,7 @@ POLYLINE 0x08 0 1 : мост-1 (пешеходный)
 POLYLINE 0x09 0 1 : мост-3 (автомобильный)
 POLYLINE 0x0A 0 1 : непроезжая грунтовка
 POLYLINE 0x0B 0 1 : мост-7 (на автомагистралях)
-POLYLINE 0x0C 0 1 : платформа
+POLYLINE 0x0C 0 1 : ж/д станция
 POLYLINE 0x15 0 2 : ручей-1
 POLYLINE 0x16 0 1 : просека
 POLYLINE 0x18 0 2 : ручей-2

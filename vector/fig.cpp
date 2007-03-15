@@ -492,7 +492,7 @@ rule<> r_font_flags     = +blank_p >> (ch_p('*') | int_p[assign_a(o.font_flags)]
 
   if (!parse(mask.c_str(), *blank_p >> (c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
       c6_compound_start | c6_compound_end) >> *blank_p ).full)
-    cerr << "Can't parse fig mask!\n";
+    cerr << "Can't parse fig mask: " << mask << "\n";
   if (npoints>=0) {o.x.resize(npoints); o.y.resize(npoints);}
   return o;
 }
@@ -507,13 +507,10 @@ bool test_object(const fig_object & o, const std::string & mask){
 
 vector<Point<double> > fig_object::get_vector() const{
   vector<Point<double> > ret;
-  if (x.size()!=y.size()){
-    cerr << "fig_object::get_vector: different amount of x.and y.values\n";
-    return ret;
-  }
-  for (int j=0; j<x.size(); j++){
+  for (int j=0; j<min(x.size(),y.size()); j++){
     ret.push_back(Point<double>(x[j],y[j]));
   }
+  return ret;
 }
 
 void fig_object::set_vector(const vector<Point<double> > & v){

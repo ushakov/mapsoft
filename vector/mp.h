@@ -18,7 +18,7 @@ namespace mp {
 	int                  BL,EL; // begin/end level
 	std::vector<double>  X,Y;
 	mp_object(){ 
-	  Class="POI"; Type=0; BL=0; EL=0;
+	  Class="POI"; Type=-1; BL=0; EL=0;
         }
         bool operator== (const mp_object & o) const{
           return ( // полное совпадение объектов

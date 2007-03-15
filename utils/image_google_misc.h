@@ -14,8 +14,8 @@
 #include "rect.h"
 #include "cache.h"
 #include "image.h"
-#include "image_jpeg.h"
-#include "image_google.h"
+#include "../loaders/image_jpeg.h"
+#include "../loaders/image_google.h"
 
 namespace google{
 
