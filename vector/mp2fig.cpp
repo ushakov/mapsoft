@@ -109,12 +109,12 @@ main(int argc, char **argv){
 
           o.set_vector(C.line_frw(i->get_vector()));
 
-/*          // если линия замкнута - добавим посл.точку=первой
-          if (((i->type==3) && ((i->subtype==1)||(i->subtype==3)))||
-              ((i->type==2) && ((i->subtype==2)||(i->subtype==3)))){
-            o.x.push_back(o.x[0]);
-            o.y.push_back(o.y[0]);
-          }*/
+          // если линия замкнута - добавим посл.точку=первой
+          if (((i->type==3) && ((i->sub_type==1)||(i->sub_type==3)||(i->sub_type==5)))||
+              ((i->type==2) && (i->sub_type>=2))){
+            o.X.push_back(o.X[0]);
+            o.Y.push_back(o.Y[0]);
+          }
           M.push_back(o);
           converted=true;
         }

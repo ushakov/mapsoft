@@ -55,39 +55,4 @@ using namespace boost::spirit;
     return ret;
   }
 
-
-/*
-  // Удалить старые точки привязки, если они есть,
-  // сделать новые
-  void  set_map(fig_world & w, const g_map & map){
-    for (fig_world::iterator i=w.begin(); i!=w.end(); i++){
-      if (parse(i->comment.c_str(), str_p("# REF") >> +space_p >> real_p >> +space_p >> real_p >> eol_p).full){
-        fig_world::iterator j=i; j--; w.erase(i); i=j;
-      }
-    }
-    for (g_map::const_iterator i=map.begin(); i!=map.end(); i++){
-      fig_object o = make_object("2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 1");
-      o.comment="# REF "
-    }  
-  }
-
-  // пересчитать точки объекта в lon-lat wgs84
-  vector<g_point> get_geo_crds(const fig_object & o, const g_map & map){
-    vector<g_point> v1;
-    if (i->x.size()!=i->y.size()){
-      cerr << "fig::get_geo_crds: different amount of x and y values\n";
-      return v1;
-    }
-    for (int n=0; n<i->x.size(); n++)
-      v1.push_back(g_point(i->x[n],i->y[n]);
-    convs::map2pt c(map, Datum("wgs84"), Proj("lonlat"), Options());
-    return c.frw(v1);
-  }
-
-  // изменить точки объекта
-  void set_geo_crds(fig_object & o, const g_map & map, const vector<g_point> crds){
-  }
-  // при пересчете линий могут добавляться новые точки!
-*/
-
 }
