@@ -4,7 +4,7 @@ all: gpsapp.o gpscom.o gpsdatum.o gpsfmt.o gpsinput.o gpslibusb.o gpsmath.o gpsm
 	ar rs jeeps.a *.o
 
 clean:
-	rm *.o
+	rm -f *.o
 
 cleana:
-	rm *.o *.a
+	rm -f *.o *.a
