@@ -522,4 +522,33 @@ void fig_object::set_vector(const vector<Point<double> > & v){
 }
 
 
+double fig_world::nearest_pt(Point<double> & vec, Point<double> & pt, const std::string & mask) const{
+
+  Point<double> minp(pt),minvec(1,0);
+  double minl=1e99;
+
+  for (fig_world::const_iterator i  = begin(); i != end(); i++){
+    if (!test_object(*i, mask)) continue;
+    for (int j=1; j<min(i->x.size(), i->y.size()); j++){
+      Point<double> p1(i->x[j-1], i->y[j-1]);
+      Point<double> p2(i->x[j], i->y[j]);
+      double  ll = sqrt((p2.x-p1.x)*(p2.x-p1.x)+(p2.y-p1.y)*(p2.y-p1.y));
+      Point<double> vec((p2.x-p1.x)/ll, (p2.y-p1.y)/ll);
+
+      double l2 = ((pt.x-p1.x)*vec.x+(pt.y-p1.y)*vec.y); 
+      if ((l2>=0)&&(l2<ll)) { // проекция попала на отрезок
+        Point<double> p = p1 + vec * ((pt.x-p1.x)*vec.x+(pt.y-p1.y)*vec.y);
+        double l3=sqrt((pt.x-p.x)*(pt.x-p.x)+(pt.y-p.y)*(pt.y-p.y));
+        if (l3<minl) {
+          minl=l3; minp=p; minvec=vec;
+        }
+      }
+    }
+  }
+  pt=minp;
+  vec=minvec;
+  return minl;
+}
+
+
 }
