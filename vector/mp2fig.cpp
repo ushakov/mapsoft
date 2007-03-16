@@ -90,8 +90,7 @@ main(int argc, char **argv){
 // преобразования
   ofstream out(outfile.c_str()), nc(ncfile.c_str());
   if (fig2mp) {
-    cerr << "Converting fig to mp.\n";
-    cerr << "reading fig-file: ";
+    cerr << "reading fig-file: " << infile << ", ";
     fig::fig_world F = fig::read(infile.c_str()), NC;
     cerr << F.size() << " objects\n";
     NC.colors=colors;
@@ -129,8 +128,7 @@ main(int argc, char **argv){
   } 
   
   else {
-    cerr << "Converting mp to fig\n";
-    cerr << "reading mp-file: ";
+    cerr << "reading mp-file: " << infile << ", ";
     mp::mp_world   M = mp::read(infile.c_str()), NC; 
     cerr << M.size() << " objects\n";
     fig::fig_world F;

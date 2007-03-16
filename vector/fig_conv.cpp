@@ -18,7 +18,74 @@ main(int argc, char **argv){
 
   fig::fig_world W = fig::read(argv[1]);
 
+  // удалим объекты с глубиной >=200 и <10;
+  fig::fig_world::iterator i=W.begin();
+  while (i!=W.end()){
+    if ((i->depth>=200)||(i->depth<10)) i=W.erase(i);
+    else i++;
+  } 
+
+  // преобразуем некоторые объекты в x-spline с параметром 0.4
   for (fig::fig_world::iterator i=W.begin(); i!=W.end(); i++){
+    int fs=min(i->x.size(),i->y.size());
+    if ((fs>2) && (
+      fig::test_object(*i, "2 * * *  * * 84 * * * * * * * * *") || // водоемы
+      fig::test_object(*i, "2 * * *  * * 85 * * * * * * * * *") ||
+      fig::test_object(*i, "2 * * *  * * 86 * * * * * * * * *") ||
+      fig::test_object(*i, "2 * * *  * * 96 * * * * * * * * *") || // леса/поля
+      fig::test_object(*i, "2 * * *  * * 97 * * * * * * * * *") ||
+      fig::test_object(*i, "2 * * *  * * 98 * * * * * * * * *") ||
+      fig::test_object(*i, "2 * * *  * * 99 * * * * * * * * *") ||
+      fig::test_object(*i, "2 * * * 34 * 80 * * * * * * * * *") || // серые дороги
+      fig::test_object(*i, "2 * 0 *  0 * 80 * * * * * * * * *") || // черные непунктирные дороги
+      fig::test_object(*i, "2 * 3 *  0 * 80 * * * * * * * * *") || // границы
+      fig::test_object(*i, "2 * 2 *  0 * 80 * * * * * * * * *") || // тропы
+      fig::test_object(*i, "2 * 0 *  0 * 79 * * * * * * * * *") || // карьеры
+      fig::test_object(*i, "2 * * *  * * 89 * * * * * * * * *") || // овраги, хребты
+      fig::test_object(*i, "2 * * *  * * 90 * * * * * * * * *") || // горизонтали
+
+      fig::test_object(*i, "3 * * *  * * 84 * * * * * * *") || // водоемы
+      fig::test_object(*i, "3 * * *  * * 85 * * * * * * *") ||
+      fig::test_object(*i, "3 * * *  * * 86 * * * * * * *") ||
+      fig::test_object(*i, "3 * * *  * * 96 * * * * * * *") || // леса/поля
+      fig::test_object(*i, "3 * * *  * * 97 * * * * * * *") ||
+      fig::test_object(*i, "3 * * *  * * 98 * * * * * * *") ||
+      fig::test_object(*i, "3 * * *  * * 99 * * * * * * *") ||
+      fig::test_object(*i, "3 * * * 34 * 80 * * * * * * *") || // серые дороги
+      fig::test_object(*i, "3 * 0 *  0 * 80 * * * * * * *") || // черные непунктирные дороги
+      fig::test_object(*i, "3 * 3 *  0 * 80 * * * * * * *") || // границы
+      fig::test_object(*i, "3 * 2 *  0 * 80 * * * * * * *") || // тропы
+      fig::test_object(*i, "3 * 0 *  0 * 79 * * * * * * *") || // карьеры
+      fig::test_object(*i, "3 * * *  * * 89 * * * * * * *") || // овраги, хребты
+      fig::test_object(*i, "3 * * *  * * 90 * * * * * * *")    // горизонтали
+    )){
+      if (i->type==2){ 
+        if (i->sub_type<=1) i->sub_type=4; else i->sub_type=5;
+      }
+      if (i->type==3){ 
+        i->sub_type = (i->sub_type%2)+4;
+      }
+      if ((i->x[0]==i->x[fs-1]) && (i->y[0]==i->y[fs-1])){
+        i->x.erase(i->x.begin()+fs-1);
+        i->y.erase(i->y.begin()+fs-1);
+        fs=min(i->x.size(),i->y.size());
+      }
+
+      i->type=3;
+      i->f.clear();
+  
+      for (int j=0; j< fs; j++) i->f.push_back(0.3);
+      if (i->sub_type==4){
+        i->f[0]=0;
+        i->f[fs-1]=0;
+      }
+    }
+  }
+
+
+
+  for (fig::fig_world::iterator i=W.begin(); i!=W.end(); i++){
+    int fs=min(i->x.size(),i->y.size());
     // автомагистраль
     if (fig::test_object(*i, "2 * 0 7 34 * 80 * * * * * * * * *") ||
         fig::test_object(*i, "3 * 0 7 34 * 80 * * * * * * *")) {
@@ -58,8 +125,8 @@ main(int argc, char **argv){
       o.style_val  = 8.0; W.push_back(o);
     }
     // река-5
-    if (fig::test_object(*i, "2 * 0 5 33 * 85 * * * * * * * * *") ||
-        fig::test_object(*i, "3 * 0 5 33 * 85 * * * * * * *")) {
+    if (fig::test_object(*i, "2 * 0 5 33 * 86 * * * * * * * * *") ||
+        fig::test_object(*i, "3 * 0 5 33 * 86 * * * * * * *")) {
       fig::fig_object o = *i;
       o.pen_color = 3; o.depth = 84; o.thickness = 3; W.push_back(o);
     }
@@ -91,8 +158,8 @@ main(int argc, char **argv){
     if (fig::test_object(*i, "2 * * * 8 * 57 * * * * * * * * 1")){
       Point<double> p1(i->x[0], i->y[0]), p2=p1;
       Point<double> v1, v2;
-      if ( W.nearest_pt(v2, p2, "2 * 0 * 33 * 85 * * * * * * * * *") <
-           W.nearest_pt(v1, p1, "3 * 0 * 33 * 85 * * * * * * *")){
+      if ( W.nearest_pt(v2, p2, "2 * 0 * 33 * 86 * * * * * * * * *") <
+           W.nearest_pt(v1, p1, "3 * 0 * 33 * 86 * * * * * * *")){
         v1=v2; p1=p2;
       }
       v2=Point<double>(-v1.y,v1.x);
@@ -109,8 +176,8 @@ main(int argc, char **argv){
     if (fig::test_object(*i, "2 * * * 17 * 57 * * * * * * * * 1")){
       Point<double> p1(i->x[0], i->y[0]), p2=p1;
       Point<double> v1, v2;
-      if ( W.nearest_pt(v2, p2, "2 * 0 * 33 * 85 * * * * * * * * *") <
-           W.nearest_pt(v1, p1, "3 * 0 * 33 * 85 * * * * * * *")){
+      if ( W.nearest_pt(v2, p2, "2 * 0 * 33 * 86 * * * * * * * * *") <
+           W.nearest_pt(v1, p1, "3 * 0 * 33 * 86 * * * * * * *")){
         v1=v2; p1=p2;
       }
       v2=Point<double>(-v1.y,v1.x);
@@ -219,45 +286,136 @@ main(int argc, char **argv){
     if ((fig::test_object(*i, "2 * * * * * 50 * * * * * * * * *"))||
         (fig::test_object(*i, "3 * * * * * 50 * * * * * * * "))){
       string::size_type size=i->comment.size(), idx=i->comment.find("\n",0);
-      if ((size<2)||(idx==string::npos)||min(i->x.size(),i->y.size())<2) continue;
+      if ((size<2)||(idx==string::npos)||fs<2) continue;
       string text = i->comment.substr(2,idx-2);
       double l=0;
       vector<double> ls;
       vector<Point<double> > vs;
-      for (int j=1; j<min(i->x.size(),i->y.size()); j++){
+      vector<Point<double> > ps;
+      ps.push_back(Point<double>(i->x[0], i->y[0]));
+      for (int j=1; j<fs; j++){
         Point<double> p1 (i->x[j-1], i->y[j-1]);
         Point<double> p2 (i->x[j], i->y[j]);
         double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
         l+=dl; ls.push_back(l);
+        ps.push_back(p2);
         if (p1!=p2){
           Point<double> v ((p2.x-p1.x)/dl, (p2.y-p1.y)/dl);
           vs.push_back(v);
         }
         else  vs.push_back(Point<double>(1,0));
       }
-      double dl=l/text.size(); l=0;
+      double shift = 7.5*i->thickness;
+
+      double dl=l/text.size(); l=dl/2;
       Point<double> p(i->x[0], i->y[0]);
-      p.x-=vs[0].y*7.5*i->thickness;
-      p.y+=vs[0].x*7.5*i->thickness;
+      p.x-=vs[0].y*shift;
+      p.y+=vs[0].x*shift;
       double a = atan2(vs[0].y, vs[0].x);
       int seg=0;
 
+      fig::fig_object o = fig::make_object(*i, "4 1 * * * 3 * * 4");
+      o.font_size=i->thickness;
+
       for (int j=0; j<text.size(); j++){
-        fig::fig_object o = fig::make_object(*i, "4 0 * * * 18 * * 4");
-        o.font_size=i->thickness;
+        while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
+        a = atan2(vs[seg].y,vs[seg].x);
+        p.x = ps[seg].x + (l - (seg==0? 0: ls[seg-1]))*vs[seg].x;
+        p.y = ps[seg].y + (l - (seg==0? 0: ls[seg-1]))*vs[seg].y;
+        p.x-=vs[seg].y*shift;
+        p.y+=vs[seg].x*shift;
         o.angle=-a;
         o.x.clear(); o.y.clear();
         o.x.push_back(int(p.x));
         o.y.push_back(int(p.y));
         o.text=text[j];
-        W.push_back(o);
+        if (j==0) *i=o; else W.push_back(o);
         l+=dl;
+      }
+    }
+
+    // ЛЭП
+    if ((fig::test_object(*i, "2 * 0 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
+      double ll0=0;
+      vector<double> ls;
+      vector<Point<double> > vs;
+      for (int j=1; j<fs; j++){
+        Point<double> p1 (i->x[j-1], i->y[j-1]);
+        Point<double> p2 (i->x[j], i->y[j]);
+        double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+        ll0+=dl; ls.push_back(ll0);
+        if (p1!=p2){
+          Point<double> v ((p2.x-p1.x)/dl, (p2.y-p1.y)/dl);
+          vs.push_back(v);
+        }
+        else  vs.push_back(Point<double>(1,0));
+      }
+
+
+      fig::fig_object o = fig::make_object(*i, "2 1 0 2 35 7 82 -1 -1 0.000 0 0 -1 1 1 * 0 0 2.00 90.00 90.00 0 0 2.00 90.00 90.00");
+      o.farrow_width = (i->thickness<3)? 60:90;
+      o.barrow_width = (i->thickness<3)? 60:90;
+      o.farrow_height = (i->thickness<3)? 60:90;
+      o.barrow_height = (i->thickness<3)? 60:90;
+      double w = (i->thickness<3)? 40:60;
+
+      double step = 400;
+      double l=0;
+      int n=0;
+      Point<double> p(i->x[0], i->y[0]);
+      int seg=0;
+
+      while (l<ll0){
+        Point<double> v;
+        if (n%2 == 0){ o.forward_arrow = 0; o.backward_arrow = 0; v.x=-vs[seg].y; v.y=vs[seg].x;}
+        if (n%4 == 1){ o.forward_arrow = 1; o.backward_arrow = 0; v.x=vs[seg].x; v.y=vs[seg].y;}
+        if (n%4 == 3){ o.forward_arrow = 0; o.backward_arrow = 1; v.x=vs[seg].x; v.y=vs[seg].y;}
+        o.x.clear(); o.y.clear();
+        o.x.push_back(int(p.x+v.x*w));
+        o.y.push_back(int(p.y+v.y*w));
+        o.x.push_back(int(p.x-v.x*w));
+        o.y.push_back(int(p.y-v.y*w));
+        W.push_back(o);
+        l+=step; n++;
         while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
-        a = atan2(vs[seg].y,vs[seg].x);
         p.x = i->x[seg] + (l - (seg==0? 0: ls[seg-1]))*vs[seg].x;
         p.y = i->y[seg] + (l - (seg==0? 0: ls[seg-1]))*vs[seg].y;
-        p.x-=vs[seg].y*7.5*i->thickness;
-        p.y+=vs[seg].x*7.5*i->thickness;
+      }
+    }
+
+    // газопровод
+    if ((fig::test_object(*i, "2 * 2 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
+      double ll0=0;
+      vector<double> ls;
+      vector<Point<double> > vs;
+      for (int j=1; j<fs; j++){
+        Point<double> p1 (i->x[j-1], i->y[j-1]);
+        Point<double> p2 (i->x[j], i->y[j]);
+        double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+        ll0+=dl; ls.push_back(ll0);
+        if (p1!=p2){
+          Point<double> v ((p2.x-p1.x)/dl, (p2.y-p1.y)/dl);
+          vs.push_back(v);
+        }
+        else  vs.push_back(Point<double>(1,0));
+      }
+
+      i->line_style=0;
+      fig::fig_object o = fig::make_object(*i, "1 3 0 1 35 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
+
+      double step = 400;
+      double l=0;
+      Point<double> p(i->x[0], i->y[0]);
+      int seg=0;
+
+      while (l<ll0){
+        o.center_x = o.start_x = o.end_x = int(p.x);
+        o.center_y = o.start_y = o.end_y = int(p.y);
+        W.push_back(o);
+        l+=step;
+        while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
+        p.x = i->x[seg] + (l - (seg==0? 0: ls[seg-1]))*vs[seg].x;
+        p.y = i->y[seg] + (l - (seg==0? 0: ls[seg-1]))*vs[seg].y;
       }
     }
 

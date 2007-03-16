@@ -185,8 +185,9 @@ bool write(ostream & out, const fig_world & world){
       << setprecision(3) 
       << world.multiple_page << "\n"
       << world.transparent_color << "\n"
-      << world.comment << "\n"
-      << world.resolution << " " 
+      << world.comment;
+  if ((world.comment!="") && (world.comment[world.comment.size()-1] != '\n')) out << '\n';
+  out << world.resolution << " " 
       << world.coord_system << "\n";
 
   // запись цветов
@@ -204,7 +205,8 @@ bool write(ostream & out, const fig_world & world){
   for (fig_world::const_iterator
        i  = world.begin(); 
        i != world.end(); i++){
-    out << i->comment << "\n";
+    out << i->comment;
+    if ((i->comment!="") && (i->comment[i->comment.size()-1] != '\n')) out << '\n';
     switch (i->type){
     case 0: // Color
       break;
@@ -525,7 +527,7 @@ void fig_object::set_vector(const vector<Point<double> > & v){
 double fig_world::nearest_pt(Point<double> & vec, Point<double> & pt, const std::string & mask) const{
 
   Point<double> minp(pt),minvec(1,0);
-  double minl=1e99;
+  double minl=100; // далеко объекты не уносим!!!
 
   for (fig_world::const_iterator i  = begin(); i != end(); i++){
     if (!test_object(*i, mask)) continue;
