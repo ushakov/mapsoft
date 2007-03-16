@@ -134,8 +134,8 @@ main(int argc, char **argv){
     if (fig::test_object(*i, "2 * * * 4 * 57 * * * * * * * * 1")){
       Point<double> p1(i->x[0], i->y[0]), p2=p1;
       Point<double> v1, v2;
-      if ( W.nearest_pt(v2, p2, "2 * 0 3 0 * 80 * * * * * * * * *") <
-           W.nearest_pt(v1, p1, "3 * 0 3 0 * 80 * * * * * * *")){
+      if ( W.nearest_pt(v2, p2, "2 * 0 4 0 * 80 * * * * * * * * *") <
+           W.nearest_pt(v1, p1, "3 * 0 4 0 * 80 * * * * * * *")){
         v1=v2; p1=p2;
       }
       v2=Point<double>(-v1.y,v1.x);
@@ -384,7 +384,7 @@ main(int argc, char **argv){
     }
 
     // газопровод
-    if ((fig::test_object(*i, "2 * 2 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
+    if ((fig::test_object(*i, "2 * 1 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
       double ll0=0;
       vector<double> ls;
       vector<Point<double> > vs;
