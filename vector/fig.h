@@ -167,7 +167,7 @@ namespace fig {
         // (нужно это все для изготовления знаков ж/д платформ, порогов, водопадов -
         // точечных объектов, привязанных к линии, которые хочется изображать 
         // ориентированно)
-        double nearest_pt(Point<double> & vec, Point<double> & pt, const std::string & mask) const;
+        double nearest_pt(Point<double> & vec, Point<double> & pt, const std::string & mask, double maxdist=100) const;
     };
 
     fig_world read(const char* filename);
