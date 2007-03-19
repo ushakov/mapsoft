@@ -54,7 +54,7 @@ main(int argc, char **argv){
   else usage(argv[0]);
 
 // чтение cnv-файла
-  string tmp;
+  string tmp1, tmp2;
   int cn;
   fig::fig_colors colors;
 
@@ -66,17 +66,17 @@ main(int argc, char **argv){
   rule_t comment = ch_p('#') >> *ch >> eol_p;
   rule_t empty   = *blank_p >> eol_p;
   rule_t m2f_r = str_p("mp2fig:") 
-    >> (*(ch-':'))[assign_a(tmp)] >> ':' 
-    >> (*(ch-':'))[insert_at_a(m2f,tmp)] >> ':' 
+    >> (*(ch-':'))[assign_a(tmp1)] >> ':' 
+    >> (*(ch-':'))[insert_at_a(m2f,tmp1)] >> ':' 
     >> *ch >> eol_p;
   rule_t f2m_r = str_p("fig2mp:") 
-    >> (*(ch-':'))[assign_a(tmp)] >> ':' 
-    >> (*(ch-':'))[insert_at_a(f2m,tmp)] >> ':' 
+    >> (*(ch-':'))[assign_a(tmp1)] >> ':' 
+    >> (*(ch-':'))[insert_at_a(f2m,tmp1)] >> ':' 
     >> *ch >> eol_p;
-  rule_t oo = (+(ch-':'-blank_p))[assign_a(tmp)] 
-    >> *blank_p >> ':' >> *blank_p 
-    >> (*(ch-':'-blank_p))[insert_at_a(opts, tmp)] 
-    >> *blank_p >> eol_p;
+  rule_t oo = (+(ch-':'-blank_p))[assign_a(tmp1)] 
+    >> !(*blank_p >> ':' >> *blank_p 
+    >> (*(ch-':'-blank_p))[assign_a(tmp2)]) 
+    >> *blank_p >> eol_p[insert_at_a(opts, tmp1, tmp2)];
   rule_t col = str_p("color:")
     >> *blank_p >> uint_p[assign_a(cn)] 
     >> *blank_p >> "#" >> hex_p[insert_at_a(colors,cn)]
@@ -95,6 +95,17 @@ main(int argc, char **argv){
     cerr << F.size() << " objects\n";
     NC.colors=colors;
 
+    if (opts.get_bool("white_fill_conv")){
+      for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++)
+        if ((i->fill_color!=7)&&(i->area_fill==40)){i->fill_color=7; i->area_fill=20;}
+    }
+
+    if (opts.get_bool("spl2poly")){
+      for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
+        if (i->type==3){i->type=2; i->sub_type=1+2*(i->sub_type%2);}
+      }
+    }
+
     mp::mp_world   M; 
    
     g_map map = fig::get_map(F);
@@ -106,13 +117,12 @@ main(int argc, char **argv){
         if (fig::test_object(*i, r->first)){
           mp::mp_object o = mp::make_object(r->second); 
 
-          o.set_vector(C.line_frw(i->get_vector()));
+          o = C.line_frw(i->get_vector());
 
           // если линия замкнута - добавим посл.точку=первой
           if (((i->type==3) && ((i->sub_type==1)||(i->sub_type==3)||(i->sub_type==5)))||
-              ((i->type==2) && (i->sub_type>=2))){
-            o.X.push_back(o.X[0]);
-            o.Y.push_back(o.Y[0]);
+              ((i->type==2) && (i->sub_type>=2) && (o.size()>0))){
+            o.push_back(o[0]);
           }
           parse (i->comment.c_str(), str_p("# ") >> (+(anychar_p-eol_p))[assign_a(o.Label)] >> !(eol_p >> *anychar_p));
           M.push_back(o);
@@ -142,9 +152,9 @@ main(int argc, char **argv){
     double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
     double lon0=0; int ln=0;
     for (mp::mp_world::const_iterator i=M.begin(); i!=M.end(); i++){
-      for (int n=0; n < min(i->X.size(),i->Y.size()); n++){
-        lon0+=i->Y[n]; ln++;
-        g_point p(i->Y[n], i->X[n]); cnv.bck(p);
+      for (int n=0; n < i->size(); n++){
+        lon0+=(*i)[n].x; ln++;
+        g_point p = (*i)[n]; cnv.bck(p);
         if (p.x > maxx) maxx = p.x;
         if (p.y > maxy) maxy = p.y;
         if (p.x < minx) minx = p.x;
@@ -203,7 +213,7 @@ main(int argc, char **argv){
       for (std::map<string,string>::const_iterator r=m2f.begin(); r!=m2f.end(); r++){
         if (mp::test_object(*i, r->first)){
           fig::fig_object o = fig::make_object(r->second);
-          o.set_vector(C.line_bck(i->get_vector()));
+          o.set_vector(C.line_bck(*i));
           // если это сплайн:
           if (o.type==3){
             double f;

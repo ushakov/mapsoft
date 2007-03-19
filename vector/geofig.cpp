@@ -30,7 +30,7 @@ using namespace boost::spirit;
       if (i->x.size()<1) continue;
       double x,y;
         string datum = "wgs84";
-        string proj  = "latlon";
+        string proj  = "lonlat";
         string lon0  = "";
       if (parse(i->comment.c_str(), str_p("# REF") 
 	  >> +space_p >> real_p[assign_a(x)]

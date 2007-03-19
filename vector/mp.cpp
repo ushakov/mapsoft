@@ -23,8 +23,8 @@ mp_world read(const char* filename){
 
   mp_object o, o0;
   mp_world world;
-  double x,y;
   int l=0;
+  Point<double> pt;
 
   // iterators for parsing
   iterator_t first(filename);
@@ -32,10 +32,11 @@ mp_world read(const char* filename){
   iterator_t last = first.make_end();
 
   rule_t ch = anychar_p - eol_p;
-  rule_t comment = *((ch_p(';') >> *ch >> eol_p) | eol_p);
+  rule_t comment = *((ch_p(';') >> (*ch)[push_back_a(o.Comment)] >> eol_p) | (blank_p >> eol_p));
 
   rule_t header = 
-    str_p("[IMG ID]") >> eol_p >> *(
+    *((ch_p(';') >> (*ch)[push_back_a(world.Comment)] >> eol_p) | eol_p) >>
+      ("[IMG ID]") >> eol_p >> *(
       ( "ID="         >> uint_p[assign_a(world.ID)]         >> eol_p) |
       ( "Name="       >> (*ch)[assign_a(world.Name)]        >> eol_p) |
       ( "Elevation="  >> (*ch)[assign_a(world.Elevation)]   >> eol_p) |
@@ -55,11 +56,11 @@ mp_world read(const char* filename){
     ) >> "[END-IMG ID]" >> eol_p;
 
     rule_t pt_r = ch_p('(') 
-		  >> real_p[push_back_a(o.X)] >> ',' 
-		  >> real_p[push_back_a(o.Y)] 
-                  >> ch_p(')');
+		  >> real_p[assign_a(pt.y)] >> ',' 
+		  >> real_p[assign_a(pt.x)] 
+                  >> ch_p(')')[push_back_a(o, pt)];
 
-    rule_t object = ch_p('[') >> (
+    rule_t object = ch_p('[') >> comment >> (
       (str_p("POI")      | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] |
       (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] |
       (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")] ) 
@@ -70,17 +71,19 @@ mp_world read(const char* filename){
         ( "EndLevel=" >> uint_p[assign_a(o.EL)] >> eol_p) |
         ( "Levels="   >> uint_p[assign_a(o.EL)] >> eol_p) |
         ( (str_p("Data") | str_p("Origin")) >> uint_p[assign_a(o.BL)] >> "="
-           >> pt_r >> *(',' >> pt_r) >> eol_p)[push_back_a(world,o)][clear_a(o.X)][clear_a(o.Y)] 
+           >> pt_r >> *(',' >> pt_r) >> eol_p)[push_back_a(world,o)][clear_a(o)] 
       ) >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p;
       
-    if (!parse(first, last, comment >> header >> 
-      *( eps_p[assign_a(o,o0)] >> comment >> object) >> comment).full)
-    cerr << "Can't parse mp file!\n";
+    if (!parse(first, last, header >> 
+      *( eps_p[assign_a(o,o0)] >> object >> *space_p)).full)
+      cerr << "Can't parse mp file!\n";
 
     return world;
 }
 
 bool write(std::ostream & out, const mp_world & world){
+  for (vector<string>::const_iterator c = world.Comment.begin();
+       c!=world.Comment.end(); c++) out << ";" << *c << "\n";
   out << setprecision(6) << fixed
       << "\r\n[IMG ID]" 
       << "\r\nID="         << world.ID 
@@ -103,20 +106,17 @@ bool write(std::ostream & out, const mp_world & world){
   out << "\r\n[END-IMG ID]\r\n";
 
   for (mp_world::const_iterator i=world.begin(); i!=world.end(); i++){
+    for (vector<string>::const_iterator c = i->Comment.begin();
+         c!=i->Comment.end(); c++) out << ";" << *c << "\n";
     out << "\r\n[" << i->Class << "]"
         << "\r\nType=0x"     << setbase(16) << i->Type << setbase(10);
     if (i->Label != "") out << "\r\nLabel=" << i->Label;
     if (i->EL != 0)     out << "\r\nLevels=" << i->EL;
 
-    if (i->X.size()!=i->Y.size()){
-        cerr << "mp::write: different amount of x and y values\n";
-        return false;
-    }
-
     out << "\r\nData" << i->BL << "="; 
-    for (int j=0; j<i->X.size(); j++){
+    for (int j=0; j<i->size(); j++){
       out << ((j!=0)?",":"") << "(" 
-          << i->X[j] << "," << i->Y[j] << ")";
+          << (*i)[j].y << "," << (*i)[j].y << ")";
     }
     out << "\r\n[END]\r\n";
   }
@@ -141,22 +141,5 @@ mp_object make_object(const std::string & mask){
 bool test_object(const mp_object & o, const std::string & mask){
   return make_object(o, mask)==o;
 }
-
-vector<Point<double> > mp_object::get_vector() const{
-  vector<Point<double> > ret;
-  for (int j=0; j<min(X.size(),Y.size()); j++){
-    ret.push_back(Point<double>(Y[j],X[j])); // lon-lat!!!
-  }
-  return ret;
-}
-
-void mp_object::set_vector(const vector<Point<double> > & v){
-  X.clear(); Y.clear();
-  for (int i=0;i<v.size();i++){
-    X.push_back(v[i].y); // lat
-    Y.push_back(v[i].x); // lon
-  }
-}
-
 
 }

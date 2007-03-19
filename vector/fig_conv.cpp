@@ -429,7 +429,7 @@ main(int argc, char **argv){
       i->line_style=0;
       fig::fig_object o = fig::make_object(*i, "1 3 0 1 35 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
 
-      double step = 400;
+      double step = 600;
       double l=0;
       Point<double> p(i->x[0], i->y[0]);
       int seg=0;
@@ -516,8 +516,9 @@ main(int argc, char **argv){
         else  vsb.push_back(Point<double>(1,0));
       }
 
+      i->pen_color=0;
       fig::fig_object o = *i;
-      o.depth=81; o.type=2; o.sub_type=0;
+      o.type=2; o.sub_type=1;
       o.x.clear(); o.y.clear();
 
       double step = 50;
@@ -547,6 +548,31 @@ main(int argc, char **argv){
         pb.x = psb[segb].x + (lb - (segb==0? 0: lsb[segb-1]))*vsb[segb].x;
         pb.y = psb[segb].y + (lb - (segb==0? 0: lsb[segb-1]))*vsb[segb].y;
       }
+    }
+    // кладбище
+    if (fig::test_object(*i, "2 * 0 1  0 32  92 *  5 * * * * * * *")){
+      i->area_fill=10;
+      int w1=23, w2=45;
+
+      int minx=0x7FFFFFFF, maxx=-0x7FFFFFFF;
+      int miny=0x7FFFFFFF, maxy=-0x7FFFFFFF;
+      for (int j=0; j<fs; j++){ 
+        if (i->x[j]>maxx) maxx=i->x[j];
+        if (i->x[j]<minx) minx=i->x[j];
+        if (i->y[j]>maxy) maxy=i->y[j];
+        if (i->y[j]<miny) miny=i->y[j];
+      }
+      if ((minx>maxx)||(miny>maxy)) continue;
+
+      int x=(maxx+minx)/2, y=(maxy+miny)/2-w1/2;
+
+      fig::fig_object o = fig::make_object("2 1 0 1 0 * 57 * * * * 0 * * * *");
+      o.x.push_back(x-w1); o.y.push_back(y);
+      o.x.push_back(x+w1); o.y.push_back(y);
+      W.push_back(o); o.x.clear(); o.y.clear();
+      o.x.push_back(x); o.y.push_back(y-w1);
+      o.x.push_back(x); o.y.push_back(y+w2);
+      W.push_back(o);
     }
 
 

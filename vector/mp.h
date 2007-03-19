@@ -11,22 +11,30 @@
 
 namespace mp {
 
-    struct mp_object{
+    struct mp_object : std::vector<Point<double> >{
         std::string          Class; 
         int                  Type;
         std::string          Label;
+        std::vector<std::string> Comment;
 	int                  BL,EL; // begin/end level
-	std::vector<double>  X,Y;
 	mp_object(){ 
 	  Class="POI"; Type=-1; BL=0; EL=0;
         }
         bool operator== (const mp_object & o) const{
-          return ( // полное совпадение объектов
+          // полное совпадение объектов
+          if (size()!=o.size()) return false;
+          for (int i = 0; i<size(); i++) if ((*this)[i]!=o[i]) return false;
+          return ( 
             (Class==o.Class) && (Type==o.Type) && (Label==o.Label) &&
-            (BL==o.BL) && (EL==o.EL) && (X==o.X) && (Y==o.Y));
+            (BL==o.BL) && (EL==o.EL) && (Comment==o.Comment));
         }
-        std::vector<Point<double> > get_vector() const;
-        void set_vector(const std::vector<Point<double> > & v);
+        mp_object & operator= (const std::vector<Point<double> > v){
+          clear();
+          for (std::vector<Point<double> >::const_iterator i=v.begin(); i!=v.end(); i++)
+            push_back(*i);
+          return *this;
+        }
+
     };
 
     struct mp_world:std::list<mp_object>{
@@ -41,6 +49,7 @@ namespace mp {
         int         RgnLimit;
         std::string Transparent;
         std::string POIIndex;
+        std::vector<std::string> Comment;
 
         std::map<int,int> Levels;
         std::map<int,int> Zooms;
