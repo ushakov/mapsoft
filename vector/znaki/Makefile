@@ -1,5 +1,5 @@
-png: zn.png zn1.png samp.fig samp1.fig
-mp: zn.mp velja.mp bunch.mp isma.mp volg.mp kubr.mp semisl.mp
+png: zn.png zn1.png samp.png samp1.png
+mp: zn.mp 
 
 zn1.fig: zn.fig
 	../fig_conv zn.fig zn1.fig
