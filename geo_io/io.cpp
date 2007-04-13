@@ -111,12 +111,13 @@ namespace io {
 		}
 	
 		struct stat st_buf;
-		stat(outfile.c_str(), &st_buf);
-		if (S_ISCHR(st_buf.st_mode)){
-			cerr << "Sending data to GPS via serial port "
-				 << outfile << "\n";	
-			gps::put_all (outfile.c_str(), world, opt);
-			return;
+		if (stat(outfile.c_str(), &st_buf) == 0) {
+			if (S_ISCHR(st_buf.st_mode)){
+				cerr << "Sending data to GPS via serial port "
+				     << outfile << "\n";	
+				gps::put_all (outfile.c_str(), world, opt);
+				return;
+			}
 		}
 
 // Исследование расширения
@@ -250,7 +251,7 @@ namespace io {
 			return;
 		}
 
-		cerr << "Can't determing output format. Please use filename with \n"
+		cerr << "Can't determine output format. Please use filename with \n"
 			 << " extensions (.fig), .xml, .gu, (.bmp, .png, .jpg), .wpt, .plt, .oe or .zip\n"
 			 << " or name of serial port device (for example /dev/ttyS0),\n"
 			 << " or \"usb:\" for using libusb\n";

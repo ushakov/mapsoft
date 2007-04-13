@@ -6,7 +6,7 @@ USB_FLAGS = -lusb
 
 
 CPPFLAGS = `pkg-config --cflags libcurl` `pkg-config --cflags gtkmm-2.4,gthread-2.0`\
-     -I../utils -I../viewer -I../loaders -I../layers -O1 -DDEBUG_LAYER_GEOMAP
+     -I../utils -I../viewer -I../loaders -I../layers -O1
 
 #all: mapsoft_googleview mapsoft_imgview mapsoft_imgview1 mapsoft_convert
 

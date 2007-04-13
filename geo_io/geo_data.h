@@ -188,7 +188,6 @@ struct geo_data {
   Rect<double> range() const{
     return rect_bounding_box(range_map(), range_geodata());
   }
-
 };
 
 #endif

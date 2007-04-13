@@ -100,12 +100,11 @@ public:
 	        
 	    continue;
 	  }
-          if (!image_cache.contains(i)){
 
-            int scale = int((0.01+scales[i]) * (sc_x<sc_y? sc_x:sc_y));
-            if (scale <=0) scale = 1;
-
-
+	  int scale = int((0.01+scales[i]) * (sc_x<sc_y? sc_x:sc_y));
+	  if (scale <=0) scale = 1;
+          if (!image_cache.contains(i) ||
+	      (image_cache.contains(i) && iscales[i] > scale)) {
 #ifdef DEBUG_LAYER_GEOMAP
       std::cerr  << "LayerMap: Loading Image " << file
 		 << " at scale " << scale 

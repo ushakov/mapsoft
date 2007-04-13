@@ -57,6 +57,9 @@ public:
     int
     add (K const & key, V const & value)
     {
+	if (contains(key)) {
+	    erase(key);
+	}
 #ifdef DEBUG_CACHE
 	std::cout << "cache: add " << key << " ";
 #endif
