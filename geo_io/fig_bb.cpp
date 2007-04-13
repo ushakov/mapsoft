@@ -70,7 +70,12 @@ vector<Rect<int> > text_bbxs(const fig_world & w){
       ::write(gs_pipe[1], out_str.str().c_str(), out_str.str().size()); 
       out_str.str("");
 
+      char c=' ';
+      string s;
+      while ((::read(gs_pipe[0], &c, 1)>0)){ s.push_back(c); cerr << c;}
+      cerr << "\nget: " << s;
     }
+
   }
   close(gs_pipe[1]);
 

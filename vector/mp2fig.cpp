@@ -9,6 +9,7 @@
 #include <sstream>
 #include <map>
 #include <string>
+#include <cmath>
 
 #include "../geo_io/geofig.h"
 #include "../geo_io/mp.h"
@@ -41,7 +42,7 @@ main(int argc, char **argv){
 
 
   Options opts;
-  vector<mask> f2m, m2f, f2m_n, f2m_t;
+  vector<mask> f2m, m2f, f2m_t;
   vector<mask> mp_mkpt;
   string infile, outfile, cnvfile, ncfile;
 
@@ -87,10 +88,6 @@ main(int argc, char **argv){
     >> (*(ch-':'))[assign_a(tmp.first)] >> ':' 
     >> (*(ch-':'))[assign_a(tmp.second)] >> ':' 
     >> *ch >> eol_p[push_back_a(f2m_t,tmp)];
-  rule_t f2m_n_r = str_p("fig2mp_num:") 
-    >> (*(ch-':'))[assign_a(tmp.first)] >> ':' 
-    >> (*(ch-':'))[assign_a(tmp.second)] >> ':' 
-    >> *ch >> eol_p[push_back_a(f2m_n,tmp)];
   rule_t oo = (+(ch-':'-blank_p))[assign_a(tmp.first)][assign_a(tmp.second,"")]
     >> !(*blank_p >> ':' >> *blank_p 
     >> (*(ch-':'-blank_p))[assign_a(tmp.second)]) 
@@ -100,7 +97,7 @@ main(int argc, char **argv){
     >> *blank_p >> "#" >> hex_p[insert_at_a(colors,cn)]
     >> *blank_p >> eol_p;
 
-  if (!parse(first, last, *(comment | empty | mp_mkpt_r | m2f_r | f2m_r | f2m_n_r | f2m_t_r | col | oo)).full){
+  if (!parse(first, last, *(comment | empty | mp_mkpt_r | m2f_r | f2m_r | f2m_t_r | col | oo)).full){
     cerr << "can't parse cnv-file!\n";
     exit(0);
   }
@@ -127,20 +124,69 @@ main(int argc, char **argv){
     bool cfc=false; 
     if (opts.get_bool("comm_from_comp")) cfc=true;
 
+    double txt_dist = 2; // максимальное расстояние (см), на котором ловится текст.
+    opts.get_udouble("txt_dist");
+    txt_dist *= fig::cm2fig;
 
     mp::mp_world   M; 
    
     g_map map = fig::get_map(F);
     convs::map2pt C(map, Datum("wgs84"), Proj("lonlat"), Options());
-    vector<string> comp_comm;
 
+    // ловля подписей!
+    // для каждого текста ищем объекты подходящего вида
+    // выбираем тот, у которого первая строчка комментария совпадает
+    // с текстом, а если такого нет - ближайший
+    // В комментарий к объекту вставляем текст и указание на его положение...
+
+    // расстояние от объекта до текста здесь считается довольно глупо:
+    // как расстояние от начальной точки текста до ближайшей точки объекта
+
+    for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
+      if (i->type!=4) continue;
+      for (vector<mask>::const_iterator m=f2m_t.begin(); m!=f2m_t.end(); m++){
+        if (!fig::test_object(*i, m->first)) continue;
+        double mindist = 1e99;
+        fig::fig_world::iterator o1=F.end();
+
+        for (fig::fig_world::iterator o=F.begin(); o!=F.end(); o++){
+          if (!fig::test_object(*o, m->second)) continue;
+          double dist = 1e99;
+          for (int n=0; n<min(o->x.size(),o->y.size());n++){
+            double d=sqrt( (i->x[0] - o->x[n])*(i->x[0] - o->x[n]) + 
+                           (i->y[0] - o->y[n])*(i->y[0] - o->y[n]) );
+            if (dist>d) dist=d;
+          }
+          if (mindist>dist) {mindist=dist; o1=o;}
+          if ((o->comment.size()>0) && (i->text == o->comment[0])) break;
+        }
+
+	if (mindist > txt_dist) continue;
+        if (o1==F.end()) continue;
+        cerr << "txt_capt: " << i->text << " mindist:" << mindist <<  "\n";
+        o1->comment.clear();
+        o1->comment.push_back(i->text);
+        o1->comment.push_back("[txt: ]");
+        i->comment.push_back("[skip]");
+        break;
+      }
+    }
+
+    int depth=0, comm_depth=0;
+    vector<string> comp_comm;
     // преобразования объектов
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
 
       bool converted=false;
       for (int n=0; n< i->comment.size(); n++) if (i->comment[n]=="[skip]") converted=true;
       if (converted) continue;
-      if (cfc && (i->type==6) && (i->comment.size()!=0)) comp_comm=i->comment;
+
+      if (i->type==6) depth++;
+
+      if (cfc && (i->type==6) && (i->comment.size()!=0)){ comp_comm=i->comment; comm_depth=depth;}
+      if ((i->type==-6)&&(comm_depth==depth)) comp_comm.clear();
+
+      if (i->type==-6) depth--;
       if ((i->type==6)||(i->type==-6)) continue;
  
       if (cfc && (i->comment.size()==0)) i->comment=comp_comm;
@@ -174,24 +220,6 @@ main(int argc, char **argv){
         if ((i->forward_arrow==1)&&(i->backward_arrow==0)) o.DirIndicator=1;
         if ((i->forward_arrow==0)&&(i->backward_arrow==1)) o.DirIndicator=2;
 
-/*        // ловля числовых подписей
-        for (vector<mask>::const_iterator nr=f2m_num.begin(); nr!=f2m_num.end(); nr++){
-          if (!fig::test_object(*i, nr->first)) continue;
-          if (o.Label!=""){
-            // у объекта уже есть название (не обязательно число)! 
-            // Найдем такую же надпись рядом и определим ее положение и угол
-            for (fig::fig_world::const_iterator t=F.begin(); t!=F.end(); t++){
-              if (!fig::test_object(*t, nr->second)) continue; // вид объекта не тот
-              if (t.text != o.Label) continue; // текст не тот
-
-              t.x[0]; t.y[0]; t.angle;
-            }
-          }
-        }
-        // ловля текста
-        for (vector<mask>::const_iterator tr=f2m_num.begin(); tr!=f2m_num.end(); tr++){
-          if (!fig::test_object(*i, tr->first)) continue;
-        }*/
 
         M.push_back(o);
         converted=true;
