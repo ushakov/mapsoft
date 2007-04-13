@@ -128,6 +128,20 @@ main(int argc, char **argv){
       continue;
     }
 
+    // большой водоем
+    if (test_object(*i, "2 * 0 1 33  3  85 * 15 * * * * * * *") ||
+        test_object(*i, "3 * 0 1 33  3  85 * 15 * * * * *")) {
+      i->area_fill = 20;
+      continue;
+    }
+
+    // город
+    if (test_object(*i, "2 * 0 1  0 27  94 * 15 * * * * * * *") ||
+        test_object(*i, "3 * 0 1  0 27  94 * 15 * * * * *")) {
+      i->area_fill = 20;
+      continue;
+    }
+
     // платформа
     if (test_object(*i, "2 * * * 4 * 57 * * * * 0 * * * 1")){
       Point<double> p1(i->x[0], i->y[0]), p2=p1;
@@ -672,5 +686,6 @@ main(int argc, char **argv){
 
 
   }
+  text_bbxs(W);
   write(out, W);
 }

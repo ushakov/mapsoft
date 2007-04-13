@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "../utils/point.h"
+#include "../utils/rect.h"
 
 namespace fig {
 
@@ -55,6 +56,57 @@ namespace fig {
 	    insert(begin(), std::pair<int,int>(31, 0xffd700));
 	}
     };
+    struct fig_psfonts : std::map<int,std::string> {
+        fig_psfonts(){
+            insert(begin(), std::pair<int,std::string>(-1, "Default"));
+            insert(begin(), std::pair<int,std::string>( 0, "Times-Roman"));
+            insert(begin(), std::pair<int,std::string>( 1, "Times-Italic"));
+            insert(begin(), std::pair<int,std::string>( 2, "Times-Bold"));
+            insert(begin(), std::pair<int,std::string>( 3, "Times-BoldItalic"));
+            insert(begin(), std::pair<int,std::string>( 4, "AvantGarde-Book"));
+            insert(begin(), std::pair<int,std::string>( 5, "AvantGarde-BookOblique"));
+            insert(begin(), std::pair<int,std::string>( 6, "AvantGarde-Demi"));
+            insert(begin(), std::pair<int,std::string>( 7, "AvantGarde-DemiOblique"));
+            insert(begin(), std::pair<int,std::string>( 8, "Bookman-Light"));
+            insert(begin(), std::pair<int,std::string>( 9, "Bookman-LightItalic"));
+            insert(begin(), std::pair<int,std::string>(10, "Bookman-Demi"));
+            insert(begin(), std::pair<int,std::string>(11, "Bookman-DemiItalic"));
+            insert(begin(), std::pair<int,std::string>(12, "Courier"));
+            insert(begin(), std::pair<int,std::string>(13, "Courier-Oblique"));
+            insert(begin(), std::pair<int,std::string>(14, "Courier-Bold"));
+            insert(begin(), std::pair<int,std::string>(15, "Courier-BoldOblique"));
+            insert(begin(), std::pair<int,std::string>(16, "Helvetica"));
+            insert(begin(), std::pair<int,std::string>(17, "Helvetica-Oblique"));
+            insert(begin(), std::pair<int,std::string>(18, "Helvetica-Bold"));
+            insert(begin(), std::pair<int,std::string>(19, "Helvetica-BoldOblique"));
+            insert(begin(), std::pair<int,std::string>(20, "Helvetica-Narrow"));
+            insert(begin(), std::pair<int,std::string>(21, "Helvetica-Narrow-Oblique"));
+            insert(begin(), std::pair<int,std::string>(22, "Helvetica-Narrow-Bold"));
+            insert(begin(), std::pair<int,std::string>(23, "Helvetica-Narrow-BoldOblique"));
+            insert(begin(), std::pair<int,std::string>(24, "NewCenturySchlbk-Roman"));
+            insert(begin(), std::pair<int,std::string>(25, "NewCenturySchlbk-Italic"));
+            insert(begin(), std::pair<int,std::string>(26, "NewCenturySchlbk-Bold"));
+            insert(begin(), std::pair<int,std::string>(27, "NewCenturySchlbk-BoldItalic"));
+            insert(begin(), std::pair<int,std::string>(28, "Palatino-Roman"));
+            insert(begin(), std::pair<int,std::string>(29, "Palatino-Italic"));
+            insert(begin(), std::pair<int,std::string>(30, "Palatino-Bold"));
+            insert(begin(), std::pair<int,std::string>(31, "Palatino-BoldItalic"));
+            insert(begin(), std::pair<int,std::string>(32, "Symbol"));
+            insert(begin(), std::pair<int,std::string>(33, "ZapfChancery-MediumItalic"));
+            insert(begin(), std::pair<int,std::string>(34, "ZapfDingbats"));
+	}
+    };
+    struct fig_texfonts : std::map<int,std::string> {
+        fig_texfonts(){
+            insert(begin(), std::pair<int,std::string>( 0,"Default"));
+            insert(begin(), std::pair<int,std::string>( 0,"Roman"));
+            insert(begin(), std::pair<int,std::string>( 2,"Bold"));
+            insert(begin(), std::pair<int,std::string>( 1,"Italic"));
+            insert(begin(), std::pair<int,std::string>(16,"Sans Serif"));
+            insert(begin(), std::pair<int,std::string>(12,"Typewriter"));
+	}
+    };
+
 
     struct fig_object : public boost::equality_comparable<fig_object>{
         int     type;
@@ -186,6 +238,9 @@ namespace fig {
     // в маске могут присутствовать звездочки - при проверке эти значения
     // не проверяются, при создании объекта подставляются значения по умолчанию.
     // Вместо типа объекта нельзя подставлять звездочку
+
+    // найти прямоугольники, накрывающие весь текст
+    std::vector<Rect<int> > text_bbxs(const fig_world & world);
  
 }
 #endif

@@ -144,4 +144,18 @@ bool test_object(const mp_object & o, const std::string & mask){
   return make_object(o, mask)==o;
 }
 
+Point<double> mp_object::center(){
+  double minx=1e99, maxx=-1e99;
+  double miny=1e99, maxy=-1e99;
+  for (int j=0; j<size(); j++){
+    Point<double> p = (*this)[j];
+    if (p.x>maxx) maxx=p.x;
+    if (p.x<minx) minx=p.x;
+    if (p.y>maxy) maxy=p.y;
+    if (p.y<miny) miny=p.y;
+  }
+  if ((minx>maxx)||(miny>maxy)) return Point<double>(0,0);
+  return Point<double> ((maxx+minx)/2, (maxy+miny)/2);
+}
+
 }

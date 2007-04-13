@@ -35,7 +35,7 @@ namespace mp {
             push_back(*i);
           return *this;
         }
-
+        Point<double> center();
     };
 
     struct mp_world:std::list<mp_object>{

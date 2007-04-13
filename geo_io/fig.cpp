@@ -590,5 +590,4 @@ double fig_world::nearest_pt(Point<double> & vec, Point<double> & pt, const std:
   return minl;
 }
 
-
 }

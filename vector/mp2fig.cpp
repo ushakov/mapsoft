@@ -42,6 +42,7 @@ main(int argc, char **argv){
 
   Options opts;
   vector<mask> f2m, m2f, f2m_n, f2m_t;
+  vector<mask> mp_mkpt;
   string infile, outfile, cnvfile, ncfile;
 
 // разбор командной строки
@@ -78,6 +79,10 @@ main(int argc, char **argv){
     >> (*(ch-':'))[assign_a(tmp.first)] >> ':' 
     >> (*(ch-':'))[assign_a(tmp.second)] >> ':' 
     >> *ch >> eol_p[push_back_a(f2m,tmp)];
+  rule_t mp_mkpt_r = str_p("mp_mkpt:") 
+    >> (*(ch-':'))[assign_a(tmp.first)] >> ':' 
+    >> (*(ch-':'))[assign_a(tmp.second)] >> ':' 
+    >> *ch >> eol_p[push_back_a(mp_mkpt,tmp)];
   rule_t f2m_t_r = str_p("fig2mp_txt:") 
     >> (*(ch-':'))[assign_a(tmp.first)] >> ':' 
     >> (*(ch-':'))[assign_a(tmp.second)] >> ':' 
@@ -95,7 +100,7 @@ main(int argc, char **argv){
     >> *blank_p >> "#" >> hex_p[insert_at_a(colors,cn)]
     >> *blank_p >> eol_p;
 
-  if (!parse(first, last, *(comment | empty | m2f_r | f2m_r | f2m_n_r | f2m_t_r | col | oo)).full){
+  if (!parse(first, last, *(comment | empty | mp_mkpt_r | m2f_r | f2m_r | f2m_n_r | f2m_t_r | col | oo)).full){
     cerr << "can't parse cnv-file!\n";
     exit(0);
   }
@@ -103,6 +108,7 @@ main(int argc, char **argv){
 // преобразования
   ofstream out(outfile.c_str()), nc(ncfile.c_str());
   if (fig2mp) {
+
     cerr << "reading fig-file: " << infile << ", ";
     fig::fig_world F = fig::read(infile.c_str()), NC;
     cerr << F.size() << " objects\n";
@@ -118,23 +124,29 @@ main(int argc, char **argv){
         if (i->type==3){i->type=2; i->sub_type=1+2*(i->sub_type%2);}
       }
     }
+    bool cfc=false; 
+    if (opts.get_bool("comm_from_comp")) cfc=true;
+
 
     mp::mp_world   M; 
    
     g_map map = fig::get_map(F);
     convs::map2pt C(map, Datum("wgs84"), Proj("lonlat"), Options());
+    vector<string> comp_comm;
 
     // преобразования объектов
-    for (fig::fig_world::const_iterator i=F.begin(); i!=F.end(); i++){
+    for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
 
       bool converted=false;
       for (int n=0; n< i->comment.size(); n++) if (i->comment[n]=="[skip]") converted=true;
       if (converted) continue;
+      if (cfc && (i->type==6) && (i->comment.size()!=0)) comp_comm=i->comment;
       if ((i->type==6)||(i->type==-6)) continue;
-
-
+ 
+      if (cfc && (i->comment.size()==0)) i->comment=comp_comm;
 
       for (vector<mask>::const_iterator r=f2m.begin(); r!=f2m.end(); r++){
+
         if (!fig::test_object(*i, r->first)) continue;
         mp::mp_object o = mp::make_object(r->second); 
         o = C.line_frw(i->get_vector());
@@ -183,11 +195,25 @@ main(int argc, char **argv){
 
         M.push_back(o);
         converted=true;
-      }
 
+      }
       if (!converted) NC.push_back(*i);
     }
     cerr << NC.size() << " objects not converted\n";
+
+    for (mp::mp_world::iterator i=M.begin(); i!=M.end(); i++){
+      for (vector<mask>::const_iterator r=mp_mkpt.begin(); r!=mp_mkpt.end(); r++){
+        if (!mp::test_object(*i, r->first)) continue;
+        if (i->Label == "") continue;
+        mp::mp_object o = mp::make_object(r->second); 
+        o.push_back(i->center());
+        o.Label = i->Label;
+        o.Comment.push_back("[skip]");
+        M.push_back(o);
+      }
+    }
+    
+
     if (out) {mp::write(out, M); out.close();}
     if (nc)  {fig::write(nc, NC); nc.close();}
     exit(0);
