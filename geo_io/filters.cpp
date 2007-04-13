@@ -16,13 +16,47 @@ using namespace std;
 Rect<double> nom_range(const std::string & key){
     using namespace boost::spirit;
 
-    char a  = ' ';
+    string a  = " ";
     int  b  = 0;
     string c5 = "";
     string c2 = "";
     string c1 = "";
     string d = "";
+    int m=1;
     std::string key1 = key+" ";
+
+    // поймем номер листа
+
+    rule<> ndigit_p = anychar_p-digit_p;
+    rule<> dash_p = ch_p('-')||'_';
+
+    rule<> map_a_o = 
+      (range_p('a','o') || range_p('A','O'))[assign_a(a)] >> !dash_p >>
+      uint_p[assign_a(b)] >>
+      !( dash_p >> (
+         ((digit_p >> digit_p >> digit_p >> dash_p)[assign_a(c1)] >> digit_p[assign_a(d)]) ||
+         (digit_p >> digit_p >> digit_p)[assign_a(c1)] ||
+         (digit_p >> digit_p)[assign_a(c2)] ||
+         (digit_p)[assign_a(c5)] 
+       ));
+
+    rule<> map_p_s = 
+      (range_p('p','s') || range_p('P','S'))[assign_a(a)][assign_a(m,2)] >> !dash_p >>
+      uint_p[assign_a(b)] >> 
+      !( dash_p >> (
+         ((digit_p >> digit_p >> digit_p >> dash_p)[assign_a(c1)] >> (digit_p)[assign_a(d)] >> dash_p >> digit_p) ||
+         ((digit_p >> digit_p >> digit_p >> dash_p)[assign_a(c1)] >> digit_p >> digit_p >> digit_p) ||
+         ((digit_p >> digit_p >> dash_p)[assign_a(c2)] >> digit_p >> digit_p) ||
+         ((digit_p >> dash_p)[assign_a(c5)] >> digit_p) 
+      ));
+
+
+    if (!parse(key1.c_str(), (map_p_s || map_a_o) >> *anychar_p).full) {
+      std::cerr << "map_nom_brd: can't parse " << key << "\n";
+      return Rect<double>(0,0,0,0);
+    }
+
+/*
     // поймем номер листа
     if (!parse(key1.c_str(), 
       alpha_p[assign_a(a)] >> !(ch_p('-')||'_') >> 
@@ -37,17 +71,22 @@ Rect<double> nom_range(const std::string & key){
       std::cerr << "map_nom_brd: can't parse " << key << "\n";
       return Rect<double>(0,0,0,0);
     }
+*/
+
+
+    char ac='a';
+    if (a.size()>0) ac=a[0];
     
-    if      ((a>='A')&&(a <= 'T')) a-='A';
-    else if ((a>='a')&&(a <= 't')) a-='a';
+    if      ((ac>='A')&&(ac <= 'T')) ac-='A';
+    else if ((ac>='a')&&(ac <= 't')) ac-='a';
     else {
-      std::cerr << "map_nom_brd: can't parse " << key << " (" << a << ")\n";
+      std::cerr << "map_nom_brd: can't parse " << key << " (" << ac << ")\n";
       return Rect<double>(0,0,0,0);
     }
 
     double lat1,lat2,lon1,lon2;
 
-    lat1 = a*4; lat2=lat1+4;
+    lat1 = ac*4; lat2=lat1+4;
 
     if ((b<1)||(b>=60)) {
       std::cerr << "map_nom_brd: can't parse " << key << " (" << b << ")\n";
@@ -59,10 +98,10 @@ Rect<double> nom_range(const std::string & key){
     int col,row;
 
     int c1i=0, c2i=0, c5i=0, di=0;
-    parse(c1.c_str(), uint_p[assign_a(c1i)]);
-    parse(c2.c_str(), uint_p[assign_a(c2i)]);
-    parse(c5.c_str(), uint_p[assign_a(c5i)]);
-    parse(d.c_str(),  uint_p[assign_a(di)]);
+    parse(c1.c_str(), uint_p[assign_a(c1i)] >> !dash_p);
+    parse(c2.c_str(), uint_p[assign_a(c2i)] >> !dash_p);
+    parse(c5.c_str(), uint_p[assign_a(c5i)] >> !dash_p);
+    parse(d.c_str(),  uint_p[assign_a(di)] >> !dash_p);
 
     if ((di != 0)&&(c1i != 0)){  // 1:50 000
       col = ((c1i-1)%12)*2 + (di-1)%2;
@@ -91,11 +130,8 @@ Rect<double> nom_range(const std::string & key){
       lon1 += col*6.0/2; lon2=lon1+6.0/2;
       lat1 += row*4.0/2; lat2=lat1+4.0/2;
       std::cerr << "1:500 000, col: " << col << ", row: "<< row << '\n';
-//      std::cerr << "lon: " << lon1 << " - "<< lon2 << '\n';
-//      std::cerr << "lat: " << lat1 << " - "<< lat2 << '\n';
     }
-//    std::cerr << "lat: " << lat1 << ".." << lat2 <<'\n';
-//    std::cerr << "lon: " << lon1 << ".." << lon2 <<'\n';
+    if (m==2) lon2+=lon2-lon1;
 
     return Rect<double>(g_point(lon1,lat1), g_point(lon2,lat2));
 }

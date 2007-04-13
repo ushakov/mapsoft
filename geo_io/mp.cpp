@@ -32,27 +32,27 @@ mp_world read(const char* filename){
   iterator_t last = first.make_end();
 
   rule_t ch = anychar_p - eol_p;
-  rule_t comment = *((ch_p(';') >> (*ch)[push_back_a(o.Comment)] >> eol_p) | (blank_p >> eol_p));
+  rule_t comment = (ch_p(';') >> (*ch)[push_back_a(o.Comment)] >> eol_p) | space_p;
 
   rule_t header = 
-    *((ch_p(';') >> (*ch)[push_back_a(world.Comment)] >> eol_p) | eol_p) >>
+    *((ch_p(';') >> (*ch)[push_back_a(world.Comment)] >> eol_p) | space_p) >>
       ("[IMG ID]") >> eol_p >> *(
-      ( "ID="         >> uint_p[assign_a(world.ID)]         >> eol_p) |
+      ( "ID="         >> !uint_p[assign_a(world.ID)]         >> eol_p) |
       ( "Name="       >> (*ch)[assign_a(world.Name)]        >> eol_p) |
       ( "Elevation="  >> (*ch)[assign_a(world.Elevation)]   >> eol_p) |
       ( "Preprocess=" >> (*ch)[assign_a(world.Preprocess)]  >> eol_p) |
       ( "CodePage="   >> (*ch)[assign_a(world.CodePage)]    >> eol_p) |
-      ( "LblCoding="  >> uint_p[assign_a(world.LblCoding)]  >> eol_p) |
-      ( "TreSize="    >> uint_p[assign_a(world.TreSize)]    >> eol_p) |
-      ( "TreMargin="  >> ureal_p[assign_a(world.TreMargin)] >> eol_p) |
-      ( "RgnLimit="   >> uint_p[assign_a(world.RgnLimit)]   >> eol_p) |
+      ( "LblCoding="  >> !uint_p[assign_a(world.LblCoding)]  >> eol_p) |
+      ( "TreSize="    >> !uint_p[assign_a(world.TreSize)]    >> eol_p) |
+      ( "TreMargin="  >> !ureal_p[assign_a(world.TreMargin)] >> eol_p) |
+      ( "RgnLimit="   >> !uint_p[assign_a(world.RgnLimit)]   >> eol_p) |
       ( "Transparent=">> (*ch)[assign_a(world.Transparent)] >> eol_p) |
       ( "POIIndex="   >> (*ch)[assign_a(world.POIIndex)]    >> eol_p) |
-      ( "Levels="     >> uint_p >> eol_p) |
+      ( "Levels="     >> !uint_p >> eol_p) |
       ( "Level" >> uint_p[assign_a(l)] >> "=" 
-                >> uint_p[insert_at_a(world.Levels,l)] >> eol_p) |
+                >> !uint_p[insert_at_a(world.Levels,l)] >> eol_p) |
       ( "Zoom"  >> uint_p[assign_a(l)] >> "=" 
-                >> uint_p[insert_at_a(world.Zooms,l)] >> eol_p)
+                >> !uint_p[insert_at_a(world.Zooms,l)] >> eol_p)
     ) >> "[END-IMG ID]" >> eol_p;
 
     rule_t pt_r = ch_p('(') 
@@ -60,7 +60,7 @@ mp_world read(const char* filename){
 		  >> real_p[assign_a(pt.x)] 
                   >> ch_p(')')[push_back_a(o, pt)];
 
-    rule_t object = ch_p('[') >> comment >> (
+    rule_t object = *comment >> ch_p('[') >> (
       (str_p("POI")      | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] |
       (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] |
       (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")] ) 
@@ -70,6 +70,7 @@ mp_world read(const char* filename){
         ( "Label="    >> (*ch)[assign_a(o.Label)]     >> eol_p) |
         ( "EndLevel=" >> uint_p[assign_a(o.EL)] >> eol_p) |
         ( "Levels="   >> uint_p[assign_a(o.EL)] >> eol_p) |
+        ( "DirIndicator="   >> uint_p[assign_a(o.DirIndicator)] >> eol_p) |
         ( (str_p("Data") | str_p("Origin")) >> uint_p[assign_a(o.BL)] >> "="
            >> pt_r >> *(',' >> pt_r) >> eol_p)[push_back_a(world,o)][clear_a(o)] 
       ) >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p;
@@ -112,11 +113,12 @@ bool write(std::ostream & out, const mp_world & world){
         << "\r\nType=0x"     << setbase(16) << i->Type << setbase(10);
     if (i->Label != "") out << "\r\nLabel=" << i->Label;
     if (i->EL != 0)     out << "\r\nLevels=" << i->EL;
+    if (i->DirIndicator != 0) out << "\r\nDirIndicator=" << i->DirIndicator;
 
     out << "\r\nData" << i->BL << "="; 
     for (int j=0; j<i->size(); j++){
       out << ((j!=0)?",":"") << "(" 
-          << (*i)[j].y << "," << (*i)[j].y << ")";
+          << (*i)[j].y << "," << (*i)[j].x << ")";
     }
     out << "\r\n[END]\r\n";
   }

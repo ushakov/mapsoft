@@ -1,5 +1,5 @@
 #include <iostream>
-#include "mp.h"
+#include "../geo_io/mp.h"
 
 main(int argc, char **argv){
   if (argc!=2){

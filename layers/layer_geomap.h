@@ -142,18 +142,33 @@ public:
        << "1200 2\n";
       for (int i=0;i<m2ms.size();i++){
         int bs = m2ms[i].border_dst.size();
-        f << "2 3 0 1 4 -1 52 -1 -1 0.000 0 0 -1 0 0 "
+        f << "2 3 0 1 4 29 8 -1 20 0.000 0 0 -1 0 0 "
           << bs << "\n\t";
+        double minx=1e99, maxx=-1e99;
 	for (int j=0; j<bs; j++){
-          f << " " << int(m2ms[i].border_dst[j].x) 
-            << " " << int(m2ms[i].border_dst[j].y);
+          double x=m2ms[i].border_dst[j].x;
+          double y=m2ms[i].border_dst[j].y;
+          if (x<minx) minx=x;
+          if (x>maxx) maxx=x;
+          f << " " << int(x) << " " << int(y);
         }
         f << "\n";
         if (bs==0) continue;
-        f << "4 0 4 50 -1 18 20 0.0000 4 225 630 " 
-          << int(m2ms[i].border_dst[0].x+100) << " " 
-          << int(m2ms[i].border_dst[0].y+500) << " " 
-          << world->maps[i].comm << "\\001\n";
+        double lettw=190;
+        double letth=400;
+        std::string s1;
+        int n=0, l=0;
+        while (n<world->maps[i].comm.size()>0){
+          s1+=world->maps[i].comm[n];
+          n++;
+          if ((n==world->maps[i].comm.size()) || (s1.size()*lettw > maxx-minx)){
+          f << "4 0 4 6 -1 18 20 0.0000 4 225 630 " 
+            << int(m2ms[i].border_dst[0].x+100) << " " 
+            << int(m2ms[i].border_dst[0].y+500 + l*letth) << " " 
+            << s1 << "\\001\n";
+            s1=""; l++;
+          }
+        }
       }
       f.close();
     }

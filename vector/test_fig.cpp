@@ -1,5 +1,5 @@
 #include <iostream>
-#include "fig.h"
+#include "../geo_io/fig.h"
 
 main(int argc, char **argv){
   if (argc!=2){

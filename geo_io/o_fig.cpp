@@ -198,7 +198,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   // привязка
   int ref_color=4, ref_depth=1, ref_width=3;
   for (vector<g_refpoint>::const_iterator i = ref.begin(); i!=ref.end(); i++){
-    out << "# REF " << i->y << " " << i->x << "\n"
+    out << "# REF " << i->x << " " << i->y << "\n"
         << "2 1 0 " << ref_width << " " << ref_color << " 7 " << ref_depth << " 0 -1 1 0 0 -1 0 0 1\n"
         << "\t" << int(i->xr /k*kf) << " " << int(i->yr /k*kf) << "\n";
   }

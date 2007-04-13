@@ -92,7 +92,7 @@ public boost::equality_comparable<Proj>
 
     std::string oe_str() const {
 	switch (n){
-    	    case  0: return "Latitude/Longitude";
+    	    case  0: return "Longitude/Latitude";
     	    case  1: return "Transverse Mercator";
     	    case  2: return "UTM";      // проверить, что в OE оно так называется!
     	    case  3: return "Mercator"; // проверить, что в OE оно так называется!

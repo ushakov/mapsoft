@@ -3,6 +3,7 @@
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/insert_at_actor.hpp>
+#include <boost/spirit/actor/clear_actor.hpp>
 
 #include <iomanip>
 
@@ -34,6 +35,7 @@ fig_world read(const char* filename){
 
 	fig_object o, o0;
 	fig_world world;
+        std::vector<std::string> comment;
 
 	int color_num=0;
 
@@ -44,7 +46,8 @@ fig_world read(const char* filename){
 
 	rule_t ch = anychar_p - eol_p;
 
-	rule_t comment = *(ch_p('#') >> *ch >> eol_p) ;
+	rule_t comm = eps_p[clear_a(comment)] >>
+          *(str_p("# ") >> (*ch)[push_back_a(comment)] >> eol_p);
 
 	rule_t header = str_p("#FIG 3.2") >> *ch >> eol_p >>
 		(*ch)[assign_a(world.orientation)] >> eol_p >>       // orientation ("Landscape" or "Portrait")
@@ -54,7 +57,7 @@ fig_world read(const char* filename){
 		ureal_p[assign_a(world.magnification)] >> eol_p >>   // magnification (export and print magnification, %)
 		(*ch)[assign_a(world.multiple_page)] >> eol_p >>     // multiple-page ("Single" or "Multiple" pages)
 		int_p[assign_a(world.transparent_color)] >> eol_p >> // transparent color
-		comment[assign_a(world.comment)] >>                  // comments
+		comm[assign_a(world.comment, comment)] >>            // comments
 		uint_p[assign_a(world.resolution)] >> +space_p >>    // resolution
                 uint_p[assign_a(world.coord_system)] >> eol_p;       // coord_system
     
@@ -163,10 +166,23 @@ rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_
 	/*******************************************/
 
 	if (!parse(first, last, header >> 
-	  *( eps_p[assign_a(o,o0)] >> comment[assign_a(o.comment)] >> 
+	  *( eps_p[assign_a(o,o0)] >> comm[assign_a(o.comment, comment)] >> 
 	    ( c0_color | c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
             c6_compound_start | c6_compound_end) [push_back_a(world,o)] )).full)
         cerr << "Can't parse fig file!\n";
+
+        for (fig::fig_world::iterator i=world.begin(); i!=world.end(); i++){
+           string t;
+           for (int n=0;n<i->text.size();n++){
+             if ((i->text[n] == '\\')&&(n+3<i->text.size())){
+               t+=char((i->text[n+1]-'0')*64 + (i->text[n+2]-'0')*8 + (i->text[n+3]-'0'));
+               n+=3;
+             }
+            else t+=i->text[n];
+           }
+           i->text=t;
+        }
+
 
 	return world;
 }
@@ -174,6 +190,7 @@ rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_
 /***********************************************************/
 bool write(ostream & out, const fig_world & world){
 
+  int n;
   // запись заголовка
   out << "#FIG 3.2\n" 
       << world.orientation << "\n"
@@ -184,9 +201,8 @@ bool write(ostream & out, const fig_world & world){
       << world.magnification << "\n"
       << setprecision(3) 
       << world.multiple_page << "\n"
-      << world.transparent_color << "\n"
-      << world.comment;
-  if ((world.comment!="") && (world.comment[world.comment.size()-1] != '\n')) out << '\n';
+      << world.transparent_color << "\n";
+  for (n=0;n<world.comment.size();n++) out << "# " << world.comment[n] << "\n";
   out << world.resolution << " " 
       << world.coord_system << "\n";
 
@@ -201,12 +217,19 @@ bool write(ostream & out, const fig_world & world){
   }
 
   // запись разных объектов
-  int n;
   for (fig_world::const_iterator
        i  = world.begin(); 
        i != world.end(); i++){
-    out << i->comment;
-    if ((i->comment!="") && (i->comment[i->comment.size()-1] != '\n')) out << '\n';
+    for (n=0;n<i->comment.size();n++) 
+      out << "# " << i->comment[n] << "\n";
+
+    if (i->x.size()!=i->y.size()){
+      cerr << "fig::write (polyline): different amount of x and y values\n";
+      return false;
+    }
+    int nn = i->x.size();
+    int nn1=nn;
+
     switch (i->type){
     case 0: // Color
       break;
@@ -233,10 +256,13 @@ bool write(ostream & out, const fig_world & world){
         << i->end_y      << "\n";
         break;
     case 2: // Polyline
-      if (i->x.size()!=i->y.size()){
-        cerr << "fig::write (polyline): different amount of x and y values\n";
-        return false;
+
+      
+      if ((i->sub_type > 1) && (nn>0) &&
+          ((i->x[nn-1]!=i->x[0])||(i->y[nn-1]!=i->y[0]))){
+        nn1=nn+1;
       }
+
       out << "2 "
         << i->sub_type   << " "
         << i->line_style << " "
@@ -252,30 +278,30 @@ bool write(ostream & out, const fig_world & world){
         << i->radius     << " "
         << i->forward_arrow  << " "
         << i->backward_arrow << " "
-        << i->x.size();
-        if (i->forward_arrow) out << "\n\t"
-           << i->farrow_type << " "
-           << i->farrow_style << " "
-           << i->farrow_thickness << " "
-           << i->farrow_width << " "
-           << i->farrow_height;
-        if (i->backward_arrow) out << "\n\t"
-           << i->barrow_type << " "
-           << i->barrow_style << " "
-           << i->barrow_thickness << " "
-           << i->barrow_width << " "
-           << i->barrow_height;
-        if (i->sub_type==5) out << "\n\t"
-          << i->image_orient << " "
-          << i->image_file;
-        for (n=0; n<i->x.size(); n++)
-          out << ((n%6==0) ? "\n\t":" ")
-              << i->x[n] << " " << i->y[n];
-        out << "\n";
-        break;
+        << nn1;
+      if (i->forward_arrow) out << "\n\t"
+        << i->farrow_type << " "
+        << i->farrow_style << " "
+        << i->farrow_thickness << " "
+        << i->farrow_width << " "
+        << i->farrow_height;
+      if (i->backward_arrow) out << "\n\t"
+        << i->barrow_type << " "
+        << i->barrow_style << " "
+        << i->barrow_thickness << " "
+        << i->barrow_width << " "
+        << i->barrow_height;
+      if (i->sub_type==5) out << "\n\t"
+        << i->image_orient << " "
+        << i->image_file;
+      for (n=0; n<nn; n++)
+        out << ((n%6==0) ? "\n\t":" ")
+            << i->x[n] << " " << i->y[n];
+      if (nn1>nn)  out << " " << i->x[0] << " " << i->y[0];
+      out << "\n";
+      break;
     case 3: // Spline
-      if ((i->x.size()!=i->y.size())|| 
-          (i->x.size()!=i->f.size())){
+      if (nn!=i->f.size()){
         cerr << "fig::write (spline): different amount of x,y and f values\n";
         return false;
       }
@@ -292,7 +318,7 @@ bool write(ostream & out, const fig_world & world){
         << i->cap_style  << " "
         << i->forward_arrow  << " "
         << i->backward_arrow << " "
-        << i->x.size();
+        << nn;
         if (i->forward_arrow) out << "\n\t"
            << i->farrow_type << " "
            << i->farrow_style << " "
@@ -305,17 +331,17 @@ bool write(ostream & out, const fig_world & world){
            << i->barrow_thickness << " "
            << i->barrow_width << " "
            << i->barrow_height;
-        for (n=0; n<i->x.size(); n++)
+        for (n=0; n<nn; n++)
           out << ((n%6==0) ? "\n\t":" ")
               << i->x[n] << " " << i->y[n];
-        for (n=0; n<i->x.size(); n++)
+        for (n=0; n<nn; n++)
           out << ((n%6==0) ? "\n\t":" ")
               << i->f[n];
         out << "\n";
         break;
     case 4: // Text
       // сделать пересчет размеров (height length)!
-      if ((i->y.size()<1)||(i->x.size()<1)){
+      if (nn<1){
         cerr << "fig::write (text): can't get x and y values\n";
         return false;
       }
@@ -335,7 +361,7 @@ bool write(ostream & out, const fig_world & world){
         << i->text       << "\\001\n";
         break;
     case 5: // Arc
-      if ((i->y.size()<3)||(i->x.size()<3)){
+      if (nn<3){
         cerr << "fig::write (arc): can't get x and y values\n";
         return false;
       }
@@ -377,7 +403,7 @@ bool write(ostream & out, const fig_world & world){
       break;
     case 6: // Compound begin
       // сделать пересчет размеров!
-      if ((i->y.size()<2)||(i->x.size()<2)){
+      if (nn<2){
         cerr << "fig::write (compound): can't get x and y values\n";
         return false;
       }

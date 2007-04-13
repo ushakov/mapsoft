@@ -91,7 +91,7 @@ namespace fig {
 	std::string  image_file;
 	int     image_orient;
         std::string  text;
-	std::string  comment;
+        std::vector<std::string> comment;
 	std::vector<int>    x,y;
 	std::vector<float>  f;
 
@@ -104,8 +104,8 @@ namespace fig {
             farrow_type=0; barrow_type=0;
             farrow_style=0; barrow_style=0;
             farrow_thickness=1; barrow_thickness=1;
-	    farrow_width=8; barrow_width=8;
-	    farrow_height=4; barrow_height=4;
+	    farrow_width=60; barrow_width=60;
+	    farrow_height=30; barrow_height=30;
             height=0; length=0;
 	}
 	bool operator== (const fig_object & o) const{
@@ -148,7 +148,7 @@ namespace fig {
 	int resolution; 
 	int coord_system;
 
-	std::string comment;
+        std::vector<std::string> comment;
 	fig_colors colors;
 
         fig_world(){

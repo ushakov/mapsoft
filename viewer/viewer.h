@@ -439,7 +439,7 @@ public:
 
 // Работы с масштабами
 
-    void scale_inc(){
+/*    void scale_inc(){
 	if     (scale_denom()/scale_nom() > 1) set_scale(1, scale_denom()/scale_nom()-1);
         else set_scale(scale_nom()/scale_denom() + 1,1);
     }
@@ -447,6 +447,16 @@ public:
 	if     (scale_nom()/scale_denom() > 1) set_scale(scale_nom()/scale_denom()-1,1);
         else set_scale(1, scale_denom()/scale_nom() + 1);
     }
+*/
+    void scale_inc(){
+	if     (scale_denom()/scale_nom() > 1) set_scale(scale_nom(), scale_denom()/2);
+        else set_scale(scale_nom()*2, scale_denom());
+    }
+    void scale_dec(){
+	if     (scale_denom()/scale_nom() >= 1) set_scale(scale_nom(), scale_denom()*2);
+        else set_scale(scale_nom()/2, scale_denom());
+    }
+
 
 
     void set_scale(int scale_nom, int scale_denom){

@@ -385,6 +385,7 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
 
   // добавление новых точек
   unsigned i0=0;
+  g_point po(1e99,1e99);
 
   do {
     for (unsigned i = i0; i<ret.size()-1; i++){
@@ -398,7 +399,13 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
       if  (( fabs(C1.x - C2.x) >0.5 )||
            ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
         frw(C2);
-        ret.insert(ret.begin()+i+1, C2);
+        if ((*(ret.begin()+i)!=C2)&&(*(ret.begin()+i+1)!=C2))
+          ret.insert(ret.begin()+i+1, C2);
+        else{
+          std::cerr << "can't convert line!\n";
+          i0=i+1;
+        }
+        i0=i;
         break;
 
       } else i0=i;
@@ -434,7 +441,12 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
 
       if  (( fabs(C1.x - C2.x) >0.5 )||
            ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
-        ret.insert(ret.begin()+i+1, C1);
+        if (*(ret.begin()+i)!=C1)
+          ret.insert(ret.begin()+i+1, C1);
+        else{
+          std::cerr << "can't convert line!\n";
+          i0=i+1;
+        }
         break;
       } else i0=i;
     }
@@ -495,14 +507,19 @@ vector<g_point> map2map::line_frw(const vector<g_point> & l){
       g_point P1 =ret[i];
       g_point P2 =ret[i+1];
       g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-
       bck(P1); bck(P2); bck(C1);
+
       g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
 
       if  (( fabs(C1.x - C2.x) >0.5 )||
            ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
         frw(C2);
-        ret.insert(ret.begin()+i+1, C2);
+        if ((*(ret.begin()+i)!=C2)&&(*(ret.begin()+i+1)!=C2))
+          ret.insert(ret.begin()+i+1, C2);
+        else{
+          std::cerr << "can't convert line!\n";
+          i0=i+1;
+        }
         break;
 
       } else i0=i;
@@ -523,16 +540,20 @@ vector<g_point> map2map::line_bck(const vector<g_point> & l){
       g_point P1 =ret[i];
       g_point P2 =ret[i+1];
       g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-
       frw(P1); frw(P2); frw(C1);
       g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
 
       if  (( fabs(C1.x - C2.x) >0.5 )||
            ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
         bck(C2);
-        ret.insert(ret.begin()+i+1, C2);
-        break;
+        if ((*(ret.begin()+i)!=C2)&&(*(ret.begin()+i+1)!=C2))
+          ret.insert(ret.begin()+i+1, C2);
+        else{
+          std::cerr << "can't convert line!\n";
+          i0=i+1;
+        }
 
+        break;
       } else i0=i;
     }
   } while (i0!=ret.size()-2);

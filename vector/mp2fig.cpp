@@ -10,8 +10,8 @@
 #include <map>
 #include <string>
 
-#include "geofig.h"
-#include "mp.h"
+#include "../geo_io/geofig.h"
+#include "../geo_io/mp.h"
 #include "../geo_io/geo_convs.h"
 
 using namespace std;
@@ -21,6 +21,8 @@ typedef char                    char_t;
 typedef file_iterator <char_t>  iterator_t;
 typedef scanner<iterator_t>     scanner_t;
 typedef rule <scanner_t>        rule_t;
+
+typedef pair<string,string> mask;
 
 
 void usage(const char *fname){
@@ -37,8 +39,9 @@ bool testext(const string & nstr, char *ext){
 
 main(int argc, char **argv){
 
+
   Options opts;
-  map<string,string> f2m, m2f;
+  vector<mask> f2m, m2f, f2m_n, f2m_t;
   string infile, outfile, cnvfile, ncfile;
 
 // разбор командной строки
@@ -55,6 +58,8 @@ main(int argc, char **argv){
 
 // чтение cnv-файла
   string tmp1, tmp2;
+
+  mask tmp;
   int cn;
   fig::fig_colors colors;
 
@@ -66,23 +71,31 @@ main(int argc, char **argv){
   rule_t comment = ch_p('#') >> *ch >> eol_p;
   rule_t empty   = *blank_p >> eol_p;
   rule_t m2f_r = str_p("mp2fig:") 
-    >> (*(ch-':'))[assign_a(tmp1)] >> ':' 
-    >> (*(ch-':'))[insert_at_a(m2f,tmp1)] >> ':' 
-    >> *ch >> eol_p;
+    >> (*(ch-':'))[assign_a(tmp.first)] >> ':' 
+    >> (*(ch-':'))[assign_a(tmp.second)] >> ':' 
+    >> *ch >> eol_p[push_back_a(m2f,tmp)];
   rule_t f2m_r = str_p("fig2mp:") 
-    >> (*(ch-':'))[assign_a(tmp1)] >> ':' 
-    >> (*(ch-':'))[insert_at_a(f2m,tmp1)] >> ':' 
-    >> *ch >> eol_p;
-  rule_t oo = (+(ch-':'-blank_p))[assign_a(tmp1)] 
+    >> (*(ch-':'))[assign_a(tmp.first)] >> ':' 
+    >> (*(ch-':'))[assign_a(tmp.second)] >> ':' 
+    >> *ch >> eol_p[push_back_a(f2m,tmp)];
+  rule_t f2m_t_r = str_p("fig2mp_txt:") 
+    >> (*(ch-':'))[assign_a(tmp.first)] >> ':' 
+    >> (*(ch-':'))[assign_a(tmp.second)] >> ':' 
+    >> *ch >> eol_p[push_back_a(f2m_t,tmp)];
+  rule_t f2m_n_r = str_p("fig2mp_num:") 
+    >> (*(ch-':'))[assign_a(tmp.first)] >> ':' 
+    >> (*(ch-':'))[assign_a(tmp.second)] >> ':' 
+    >> *ch >> eol_p[push_back_a(f2m_n,tmp)];
+  rule_t oo = (+(ch-':'-blank_p))[assign_a(tmp.first)][assign_a(tmp.second,"")]
     >> !(*blank_p >> ':' >> *blank_p 
-    >> (*(ch-':'-blank_p))[assign_a(tmp2)]) 
-    >> *blank_p >> eol_p[insert_at_a(opts, tmp1, tmp2)];
+    >> (*(ch-':'-blank_p))[assign_a(tmp.second)]) 
+    >> *blank_p >> eol_p[insert_at_a(opts, tmp.first, tmp.second)];
   rule_t col = str_p("color:")
     >> *blank_p >> uint_p[assign_a(cn)] 
     >> *blank_p >> "#" >> hex_p[insert_at_a(colors,cn)]
     >> *blank_p >> eol_p;
 
-  if (!parse(first, last, *(comment | empty | m2f_r | f2m_r | col | oo)).full){
+  if (!parse(first, last, *(comment | empty | m2f_r | f2m_r | f2m_n_r | f2m_t_r | col | oo)).full){
     cerr << "can't parse cnv-file!\n";
     exit(0);
   }
@@ -111,24 +124,67 @@ main(int argc, char **argv){
     g_map map = fig::get_map(F);
     convs::map2pt C(map, Datum("wgs84"), Proj("lonlat"), Options());
 
+    // преобразования объектов
     for (fig::fig_world::const_iterator i=F.begin(); i!=F.end(); i++){
+
       bool converted=false;
-      for (std::map<string,string>::const_iterator r=f2m.begin(); r!=f2m.end(); r++){
-        if (fig::test_object(*i, r->first)){
-          mp::mp_object o = mp::make_object(r->second); 
+      for (int n=0; n< i->comment.size(); n++) if (i->comment[n]=="[skip]") converted=true;
+      if (converted) continue;
+      if ((i->type==6)||(i->type==-6)) continue;
 
-          o = C.line_frw(i->get_vector());
 
-          // если линия замкнута - добавим посл.точку=первой
-          if (((i->type==3) && ((i->sub_type==1)||(i->sub_type==3)||(i->sub_type==5)))||
-              ((i->type==2) && (i->sub_type>=2) && (o.size()>0))){
-            o.push_back(o[0]);
-          }
-          parse (i->comment.c_str(), str_p("# ") >> (+(anychar_p-eol_p))[assign_a(o.Label)] >> !(eol_p >> *anychar_p));
-          M.push_back(o);
-          converted=true;
+
+      for (vector<mask>::const_iterator r=f2m.begin(); r!=f2m.end(); r++){
+        if (!fig::test_object(*i, r->first)) continue;
+        mp::mp_object o = mp::make_object(r->second); 
+        o = C.line_frw(i->get_vector());
+
+        // если линия замкнута - добавим посл.точку=первой
+        if (((i->type==3) && ((i->sub_type==1)||(i->sub_type==3)||(i->sub_type==5)))||
+            ((i->type==2) && (i->sub_type>=2) && (o.size()>0))){
+          o.push_back(o[0]);
         }
+        // Если объект - текст, то text->Label, comment->comment
+        // Иначе, первую строчку comment->Label, остальные в comment
+        if (i->type==4){
+          o.Label=i->text;
+          o.Comment=i->comment;
+        }
+        else {
+          if (i->comment.size()>0){
+            o.Label=i->comment[0];
+            for (int n=1; n< i->comment.size(); n++) o.Comment.push_back(i->comment[n]);
+          }
+        }
+        // если есть стрелка вперед -- установить DirIndicator=1
+        // если есть стрелка назад -- установить  DirIndicator=2
+        // если 0 или 2 стрелки - DirIndicator=0
+        if ((i->forward_arrow==1)&&(i->backward_arrow==0)) o.DirIndicator=1;
+        if ((i->forward_arrow==0)&&(i->backward_arrow==1)) o.DirIndicator=2;
+
+/*        // ловля числовых подписей
+        for (vector<mask>::const_iterator nr=f2m_num.begin(); nr!=f2m_num.end(); nr++){
+          if (!fig::test_object(*i, nr->first)) continue;
+          if (o.Label!=""){
+            // у объекта уже есть название (не обязательно число)! 
+            // Найдем такую же надпись рядом и определим ее положение и угол
+            for (fig::fig_world::const_iterator t=F.begin(); t!=F.end(); t++){
+              if (!fig::test_object(*t, nr->second)) continue; // вид объекта не тот
+              if (t.text != o.Label) continue; // текст не тот
+
+              t.x[0]; t.y[0]; t.angle;
+            }
+          }
+        }
+        // ловля текста
+        for (vector<mask>::const_iterator tr=f2m_num.begin(); tr!=f2m_num.end(); tr++){
+          if (!fig::test_object(*i, tr->first)) continue;
+        }*/
+
+        M.push_back(o);
+        converted=true;
       }
+
       if (!converted) NC.push_back(*i);
     }
     cerr << NC.size() << " objects not converted\n";
@@ -172,7 +228,7 @@ main(int argc, char **argv){
     maxx=opts.get_double("maxx", maxx);
     miny=opts.get_double("miny", miny);
     maxy=opts.get_double("maxy", maxy);
-    lon0  = opts.get_udouble("lon0", lon0);
+    lon0  = opts.get_double("lon0", lon0);
     double scale = opts.get_udouble("scale", 1e-5);
 
     // построим привязку fig-файла
@@ -190,13 +246,17 @@ main(int argc, char **argv){
       o.x.push_back( int(rps[n].xr) );
       o.y.push_back( int(rps[n].yr) );
       ostringstream comm;
-      comm << "# REF " << fixed << rps[n].x << " " << rps[n].y << "\n";
+      comm << "REF " << fixed << rps[n].x << " " << rps[n].y;
+      o.comment.push_back(comm.str()); comm.str("");
       if (datum != Datum("wgs84"))
-         comm << "# datum: " << datum.xml_str() << "\n"; 
+         comm << "datum: " << datum.xml_str(); 
+      o.comment.push_back(comm.str()); comm.str("");
       if (proj != Proj("lonlat"))
-         comm << "# proj: " << proj.xml_str() << "\n"; 
+         comm << "proj: " << proj.xml_str(); 
+      o.comment.push_back(comm.str()); comm.str("");
       if ((proj == Proj("tmerc")) && (lon0!=0))
-         comm << "# lon0: " << lon0 << "\n"; 
+         comm << "lon0: " << lon0; 
+      o.comment.push_back(comm.str()); comm.str("");
       F.push_back(o);
       
       cnv.frw(rps[n]);
@@ -209,11 +269,16 @@ main(int argc, char **argv){
 
     // собственно преобразования
     for (mp::mp_world::const_iterator i=M.begin(); i!=M.end(); i++){
+
       bool converted=false;
-      for (std::map<string,string>::const_iterator r=m2f.begin(); r!=m2f.end(); r++){
+      for (int n=0; n< i->Comment.size(); n++) if (i->Comment[n]=="[skip]") converted=true;
+      if (converted) continue;
+
+      for (vector<mask>::const_iterator r=m2f.begin(); r!=m2f.end(); r++){
         if (mp::test_object(*i, r->first)){
           fig::fig_object o = fig::make_object(r->second);
           o.set_vector(C.line_bck(*i));
+
           // если это сплайн:
           if (o.type==3){
             double f;
@@ -225,7 +290,26 @@ main(int argc, char **argv){
               o.f[0]=0; o.f[o.f.size()-1]=0;
             }
           }
-          o.comment="# "+i->Label;
+          // полигон не может содержать менее чем 3 точки
+          if ((o.type==2)&&(o.sub_type>1)&&(o.x.size()<3)) o.sub_type=1;
+          if ((o.type==3)&&(o.sub_type%2==1)&&(o.x.size()<3)) o.sub_type--;
+
+
+          // Если объект - текст, то Label->text, comment->comment
+          // Иначе, Label -> первую строчку comment, comment->comment
+          if (o.type==4){
+            o.text = i->Label;
+            o.comment = i->Comment;
+          }
+          else {
+            if (i->Label !="") o.comment.push_back(i->Label);
+            for (int n=0; n<i->Comment.size(); n++) o.comment.push_back(i->Comment[n]);
+          }
+          // если DirIndicator==1 -- стрелка вперед,
+          // если DirIndicator==2 -- стрелка назад
+          if (i->DirIndicator==1) {o.forward_arrow=1; o.backward_arrow==0; o.farrow_width=30; o.farrow_height=30;}
+          if (i->DirIndicator==2) {o.forward_arrow=0; o.backward_arrow==1; o.barrow_width=30; o.barrow_height=30;}
+
           F.push_back(o);
           converted=true;
         }

@@ -1,9 +1,10 @@
 #include <iostream>
 #include <fstream>
-#include "fig.h"
+#include "../geo_io/fig.h"
 #include <cmath>
 
 using namespace std;
+using namespace fig;
 
 main(int argc, char **argv){
 
@@ -16,48 +17,38 @@ main(int argc, char **argv){
 
   ofstream out(outfile.c_str());
 
-  fig::fig_world W = fig::read(argv[1]);
+  fig_world W = read(argv[1]);
 
   // удалим объекты с глубиной >=200 и <10;
-  fig::fig_world::iterator i=W.begin();
+  fig_world::iterator i=W.begin();
   while (i!=W.end()){
     if ((i->depth>=200)||(i->depth<10)) i=W.erase(i);
     else i++;
   } 
 
   // преобразуем некоторые объекты в x-spline с параметром 0.4
-  for (fig::fig_world::iterator i=W.begin(); i!=W.end(); i++){
+  for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
     int fs=min(i->x.size(),i->y.size());
     if ((fs>2) && (
-      fig::test_object(*i, "2 * * *  * * 84 * * * * * * * * *") || // водоемы
-      fig::test_object(*i, "2 * * *  * * 85 * * * * * * * * *") ||
-      fig::test_object(*i, "2 * * *  * * 86 * * * * * * * * *") ||
-      fig::test_object(*i, "2 * * *  * * 96 * * * * * * * * *") || // леса/поля
-      fig::test_object(*i, "2 * * *  * * 97 * * * * * * * * *") ||
-      fig::test_object(*i, "2 * * *  * * 98 * * * * * * * * *") ||
-      fig::test_object(*i, "2 * * *  * * 99 * * * * * * * * *") ||
-      fig::test_object(*i, "2 * * * 34 * 80 * * * * * * * * *") || // серые дороги
-      fig::test_object(*i, "2 * 0 *  0 * 80 * * * * * * * * *") || // черные непунктирные дороги
-      fig::test_object(*i, "2 * 3 *  0 * 80 * * * * * * * * *") || // границы
-      fig::test_object(*i, "2 * 2 *  0 * 80 * * * * * * * * *") || // тропы
-      fig::test_object(*i, "2 * * * 18 * 79 * * * * * * * * *") || // обрывы
-      fig::test_object(*i, "2 * * *  * * 89 * * * * * * * * *") || // овраги, хребты
-      fig::test_object(*i, "2 * * *  * * 90 * * * * * * * * *") || // горизонтали
+      test_object(*i, "2 * * *  * * 84 * * * * * * * * *") || // водоемы
+      test_object(*i, "2 * * *  * * 85 * * * * * * * * *") ||
+      test_object(*i, "2 * * *  * * 86 * * * * * * * * *") ||
+      test_object(*i, "2 * * * 34 * 80 * * * * * * * * *") || // серые дороги
+      test_object(*i, "2 * 0 *  0 * 80 * * * * * * * * *") || // черные непунктирные дороги
+      test_object(*i, "2 * 2 *  0 * 80 * * * * * * * * *") || // тропы
+      test_object(*i, "2 * * * 18 * 79 * * * * * * * * *") || // обрывы
+      test_object(*i, "2 * * *  * * 89 * * * * * * * * *") || // овраги, хребты
+      test_object(*i, "2 * * *  * * 90 * * * * * * * * *") || // горизонтали
 
-      fig::test_object(*i, "3 * * *  * * 84 * * * * * * *") || // водоемы
-      fig::test_object(*i, "3 * * *  * * 85 * * * * * * *") ||
-      fig::test_object(*i, "3 * * *  * * 86 * * * * * * *") ||
-      fig::test_object(*i, "3 * * *  * * 96 * * * * * * *") || // леса/поля
-      fig::test_object(*i, "3 * * *  * * 97 * * * * * * *") ||
-      fig::test_object(*i, "3 * * *  * * 98 * * * * * * *") ||
-      fig::test_object(*i, "3 * * *  * * 99 * * * * * * *") ||
-      fig::test_object(*i, "3 * * * 34 * 80 * * * * * * *") || // серые дороги
-      fig::test_object(*i, "3 * 0 *  0 * 80 * * * * * * *") || // черные непунктирные дороги
-      fig::test_object(*i, "3 * 3 *  0 * 80 * * * * * * *") || // границы
-      fig::test_object(*i, "3 * 2 *  0 * 80 * * * * * * *") || // тропы
-      fig::test_object(*i, "3 * * * 18 * 79 * * * * * * *") || // обрывы
-      fig::test_object(*i, "3 * * *  * * 89 * * * * * * *") || // овраги, хребты
-      fig::test_object(*i, "3 * * *  * * 90 * * * * * * *")    // горизонтали
+      test_object(*i, "3 * * *  * * 84 * * * * * * *") || // водоемы
+      test_object(*i, "3 * * *  * * 85 * * * * * * *") ||
+      test_object(*i, "3 * * *  * * 86 * * * * * * *") ||
+      test_object(*i, "3 * * * 34 * 80 * * * * * * *") || // серые дороги
+      test_object(*i, "3 * 0 *  0 * 80 * * * * * * *") || // черные непунктирные дороги
+      test_object(*i, "3 * 2 *  0 * 80 * * * * * * *") || // тропы
+      test_object(*i, "3 * * * 18 * 79 * * * * * * *") || // обрывы
+      test_object(*i, "3 * * *  * * 89 * * * * * * *") || // овраги, хребты
+      test_object(*i, "3 * * *  * * 90 * * * * * * *")    // горизонтали
     )){
       if (i->type==2){ 
         if (i->sub_type<=1) i->sub_type=4; else i->sub_type=5;
@@ -84,60 +75,61 @@ main(int argc, char **argv){
 
 
 
-  for (fig::fig_world::iterator i=W.begin(); i!=W.end(); i++){
+  for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
     int fs=min(i->x.size(),i->y.size());
     // автомагистраль
-    if (fig::test_object(*i, "2 * 0 7 34 * 80 * * * * * * * * *") ||
-        fig::test_object(*i, "3 * 0 7 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 0 7 34 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 7 34 * 80 * * * * * * *")) {
       i->pen_color=0;
-      fig::fig_object o = *i;
+      fig_object o = *i;
       o.depth = 78; o.thickness = 1; W.push_back(o);
       o.pen_color = 27; o.depth = 79; o.thickness = 5; W.push_back(o);
       continue;
     }
     // шоссе
-    if (fig::test_object(*i, "2 * 0 4 34 * 80 * * * * * * * * *") ||
-        fig::test_object(*i, "3 * 0 4 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 0 4 34 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 4 34 * 80 * * * * * * *")) {
       i->pen_color=0;
-      fig::fig_object o = *i;
+      fig_object o = *i;
       o.pen_color = 27; o.depth = 79; o.thickness = 2; W.push_back(o);
       continue;
     }
     // грейдер
-    if (fig::test_object(*i, "2 * 0 3 34 * 80 * * * * * * * * *") ||
-        fig::test_object(*i, "3 * 0 3 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 0 3 34 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 3 34 * 80 * * * * * * *")) {
       i->pen_color=0;
-      fig::fig_object o = *i;
+      fig_object o = *i;
       o.pen_color = 7; o.depth = 79; o.thickness = 1; W.push_back(o);
       continue;
     }
     // непроезжий грейдер
-    if (fig::test_object(*i, "2 * 1 3 34 * 80 * * * * * * * * *") ||
-        fig::test_object(*i, "3 * 1 3 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 1 3 34 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 1 3 34 * 80 * * * * * * *")) {
       i->pen_color=0;
-      fig::fig_object o = *i;
+      fig_object o = *i;
       o.pen_color = 7; o.depth = 79; o.thickness = 1; o.line_style=0; W.push_back(o);
       continue;
     }
     // непроезжая грунтовка
-    if (fig::test_object(*i, "2 * 0 1 34 * 80 * * * * * * * * *") ||
-        fig::test_object(*i, "3 * 0 1 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 0 1 34 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 1 34 * 80 * * * * * * *")) {
       i->pen_color=0;
-      fig::fig_object o = *i;
+      fig_object o = *i;
       o.pen_color  = 7; o.depth = 79; 
       o.cap_style  = 2; o.line_style = 2;
       o.style_val  = 8.0; W.push_back(o);
       continue;
     }
     // река-5
-    if (fig::test_object(*i, "2 * 0 5 33 * 86 * * * * * * * * *") ||
-        fig::test_object(*i, "3 * 0 5 33 * 86 * * * * * * *")) {
-      fig::fig_object o = *i;
+    if (test_object(*i, "2 * 0 5 33 * 86 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 5 33 * 86 * * * * * * *")) {
+      fig_object o = *i;
       o.pen_color = 3; o.depth = 84; o.thickness = 3; W.push_back(o);
       continue;
     }
+
     // платформа
-    if (fig::test_object(*i, "2 * * * 4 * 57 * * * * 0 * * * 1")){
+    if (test_object(*i, "2 * * * 4 * 57 * * * * 0 * * * 1")){
       Point<double> p1(i->x[0], i->y[0]), p2=p1;
       Point<double> v1, v2;
       if ( W.nearest_pt(v2, p2, "2 * 0 4 0 * 80 * * * * * * * * *") <
@@ -145,7 +137,7 @@ main(int argc, char **argv){
         v1=v2; p1=p2;
       }
       v2=Point<double>(-v1.y,v1.x);
-      fig::fig_object o = fig::make_object(*i, "2 1 0 1 0 7 * * 20 * 0 0 0 0 0 *");
+      fig_object o = make_object(*i, "2 1 0 1 0 7 * * 20 * 0 0 0 0 0 *");
       o.x.clear(); o.y.clear();
       double l = 80, w=40; // ширина и длина станции
       o.x.push_back(int(p1.x + v1.x*l + v2.x*w));
@@ -162,7 +154,7 @@ main(int argc, char **argv){
       continue;
     }
     // порог
-    if (fig::test_object(*i, "2 * * * 8 * 57 * * * * 0 * * * 1")){
+    if (test_object(*i, "2 * * * 8 * 57 * * * * 0 * * * 1")){
       Point<double> p1(i->x[0], i->y[0]), p2=p1;
       Point<double> v1, v2;
       if ( W.nearest_pt(v2, p2, "2 * 0 * 33 * 86 * * * * * * * * *") <
@@ -170,18 +162,18 @@ main(int argc, char **argv){
         v1=v2; p1=p2;
       }
       v2=Point<double>(-v1.y,v1.x);
-      fig::fig_object o = fig::make_object(*i, "2 1 0 2 1 0 * * 0 * 0 1 0 0 0 *");
+      fig_object o = make_object(*i, "2 1 0 2 1 0 * * 0 * 0 1 0 0 0 *");
       o.x.clear(); o.y.clear();
       double w = 30; // длина штриха
       o.x.push_back(int(p1.x + v2.x*w));
       o.x.push_back(int(p1.x - v2.x*w));
       o.y.push_back(int(p1.y + v2.y*w));
       o.y.push_back(int(p1.y - v2.y*w));
-      *i=o; // сюда бы еще поправки на сплайны...
+      *i=o;
       continue;
     }
     // водопад
-    if (fig::test_object(*i, "2 * * * 17 * 57 * * * * 0 * * * 1")){
+    if (test_object(*i, "2 * * * 17 * 57 * * * * 0 * * * 1")){
       Point<double> p1(i->x[0], i->y[0]), p2=p1;
       Point<double> v1, v2;
       if ( W.nearest_pt(v2, p2, "2 * 0 * 33 * 86 * * * * * * * * *") <
@@ -189,48 +181,41 @@ main(int argc, char **argv){
         v1=v2; p1=p2;
       }
       v2=Point<double>(-v1.y,v1.x);
-      fig::fig_object o = fig::make_object(*i, "2 1 0 2 1 0 * * 0 * 0 1 0 0 0 *");
-      double w = 30; // ширина крестика
-      double l = 20; // длина крестика
+      fig_object o = make_object(*i, "2 1 0 3 1 0 * * 0 * 0 1 0 0 0 *");
       o.x.clear(); o.y.clear();
-      o.x.push_back(int(p1.x + v2.x*w - v1.x*l));
-      o.x.push_back(int(p1.x - v2.x*w + v1.x*l));
-      o.y.push_back(int(p1.y + v2.y*w - v1.y*l));
-      o.y.push_back(int(p1.y - v2.y*w + v1.y*l));
+      double w = 30; // длина штриха
+      o.x.push_back(int(p1.x + v2.x*w));
+      o.x.push_back(int(p1.x - v2.x*w));
+      o.y.push_back(int(p1.y + v2.y*w));
+      o.y.push_back(int(p1.y - v2.y*w));
       *i=o;
-      o.x.clear(); o.y.clear();
-      o.x.push_back(int(p1.x + v2.x*w + v1.x*l));
-      o.x.push_back(int(p1.x - v2.x*w - v1.x*l));
-      o.y.push_back(int(p1.y + v2.y*w + v1.y*l));
-      o.y.push_back(int(p1.y - v2.y*w - v1.y*l));
-      W.push_back(o);
       continue;
     }
     // отметка уреза воды
-    if (fig::test_object(*i, "2 * * * 1 * 57 * * * * 1 * 0 0 1")){
-      *i = fig::make_object(*i, "1 3 0 1 33 7 57 -1 20 2.000 1 0.000 * * 23 23 * * * *");
+    if (test_object(*i, "2 * * * 1 * 57 * * * * 1 * 0 0 1")){
+      *i = make_object(*i, "1 3 0 1 33 7 57 -1 20 2.000 1 0.000 * * 23 23 * * * *");
       i->center_x = i->start_x = i->end_x = i->x[0];
       i->center_y = i->start_y = i->end_y = i->y[0];
       continue;
     }
     // автобусная остановка
-    if (fig::test_object(*i, "2 * * * 4 * 57 * * * * 1 * * * 1")){
+    if (test_object(*i, "2 * * * 4 * 57 * * * * 1 * * * 1")){
       int x = i->x[0];
       int y = i->y[0];
-      *i = fig::make_object(*i, "4 1 4 55 -1 18 6 0.0000 4");
+      *i = make_object(*i, "4 1 4 55 -1 18 6 0.0000 4");
       i->y[0]+=35;
       i->text="A";
       continue;
     }
 
     // текст, не привязанный к объекту
-    if (fig::test_object(*i, "4 1 12 55 -1 3 8 0.0000 4")){
+    if (test_object(*i, "4 1 12 55 -1 3 8 0.0000 4")){
       i->pen_color=0;
       continue;
     }
 
     // мост
-    if (fig::test_object(*i, "2 * * * 7 * 77 * * * * * * 0 0 2")){
+    if (test_object(*i, "2 * * * 7 * 77 * * * * * * 0 0 2")){
 
         Point<double> p1 (i->x[0], i->y[0]);
         Point<double> p2 (i->x[1], i->y[1]);
@@ -241,7 +226,7 @@ main(int argc, char **argv){
         double w = (i->thickness)*15/2.0; // ширина моста
         double l = 20.0;                    // длина "стрелок"
 
-        *i=fig::make_object("2 1 0 0 0 7 77 * 20 * 0 0 0 0 0 *");
+        *i=make_object("2 1 0 0 0 7 77 * 20 * 0 0 0 0 0 *");
         i->x.push_back(int(p1.x + vn.x*w));
         i->y.push_back(int(p1.y + vn.y*w));
         i->x.push_back(int(p2.x + vn.x*w));
@@ -251,7 +236,7 @@ main(int argc, char **argv){
         i->x.push_back(int(p1.x - vn.x*w));
         i->y.push_back(int(p1.y - vn.y*w));
 
-        fig::fig_object o = fig::make_object("2 1 0 1 0 7 76 * -1 * 0 0 0 0 0 *");
+        fig_object o = make_object("2 1 0 1 0 7 76 * -1 * 0 0 0 0 0 *");
         o.x.clear(); o.y.clear();
         o.x.push_back(int(p1.x + vn.x*w + (vn.x+vt.x)*l));
         o.y.push_back(int(p1.y + vn.y*w + (vn.y+vt.y)*l));
@@ -276,7 +261,7 @@ main(int argc, char **argv){
     }
 
     // туннель
-    if (fig::test_object(*i, "2 * * * 3 * 77 * * * * * * 0 0 2")){
+    if (test_object(*i, "2 * * * 3 * 77 * * * * * * 0 0 2")){
 
         Point<double> p1 (i->x[0], i->y[0]);
         Point<double> p2 (i->x[1], i->y[1]);
@@ -288,7 +273,7 @@ main(int argc, char **argv){
         i->pen_color=0;
         i->depth=81;
 
-        fig::fig_object o = fig::make_object("2 1 0 1 0 7 81 * -1 * 0 0 0 0 0 *");
+        fig_object o = make_object("2 1 0 1 0 7 81 * -1 * 0 0 0 0 0 *");
         o.x.clear(); o.y.clear();
         o.x.push_back(int(p1.x + (vn.x+vt.x)*l));
         o.y.push_back(int(p1.y + (vn.y+vt.y)*l));
@@ -309,11 +294,9 @@ main(int argc, char **argv){
     }
 
     // кривой текст
-    if ((fig::test_object(*i, "2 * * * * * 55 * * * * * * * * *"))||
-        (fig::test_object(*i, "3 * * * * * 55 * * * * * * * "))){
-      string::size_type size=i->comment.size(), idx=i->comment.find("\n",0);
-      if ((size<2)||(idx==string::npos)||fs<2) continue;
-      string text = i->comment.substr(2,idx-2);
+    if ((test_object(*i, "2 * * * * * 55 * * * * * * * * *"))||
+        (test_object(*i, "3 * * * * * 55 * * * * * * * "))){
+      if ((fs<2)||(i->comment.size()<1)||(i->comment[0].size()<1)) continue;
       double l=0;
       vector<double> ls;
       vector<Point<double> > vs;
@@ -333,17 +316,17 @@ main(int argc, char **argv){
       }
       double shift = 7.5*i->thickness;
 
-      double dl=l/text.size(); l=dl/2;
+      double dl=l/i->comment[0].size(); l=dl/2;
       Point<double> p(i->x[0], i->y[0]);
       p.x-=vs[0].y*shift;
       p.y+=vs[0].x*shift;
       double a = atan2(vs[0].y, vs[0].x);
       int seg=0;
 
-      fig::fig_object o = fig::make_object(*i, "4 1 * * * 3 * * 4");
+      fig_object o = make_object(*i, "4 1 * * * 3 * * 4");
       o.font_size=i->thickness;
 
-      for (int j=0; j<text.size(); j++){
+      for (int j=0; j<i->comment[0].size(); j++){
         while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
         a = atan2(vs[seg].y,vs[seg].x);
         p.x = ps[seg].x + (l - (seg==0? 0: ls[seg-1]))*vs[seg].x;
@@ -354,14 +337,14 @@ main(int argc, char **argv){
         o.x.clear(); o.y.clear();
         o.x.push_back(int(p.x));
         o.y.push_back(int(p.y));
-        o.text=text[j];
+        o.text=i->comment[0][j];
         if (j==0) *i=o; else W.push_back(o);
         l+=dl;
       }
     }
 
     // ЛЭП
-    if ((fig::test_object(*i, "2 * 0 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
+    if ((test_object(*i, "2 * 0 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
       double ll0=0;
       vector<double> ls;
       vector<Point<double> > vs;
@@ -378,7 +361,7 @@ main(int argc, char **argv){
       }
 
 
-      fig::fig_object o = fig::make_object(*i, "2 1 0 2 35 7 82 -1 -1 0.000 0 0 -1 1 1 * 0 0 2.00 90.00 90.00 0 0 2.00 90.00 90.00");
+      fig_object o = make_object(*i, "2 1 0 2 35 7 82 -1 -1 0.000 0 0 -1 1 1 * 0 0 2.00 90.00 90.00 0 0 2.00 90.00 90.00");
       o.farrow_width = (i->thickness<3)? 60:90;
       o.barrow_width = (i->thickness<3)? 60:90;
       o.farrow_height = (i->thickness<3)? 60:90;
@@ -410,7 +393,7 @@ main(int argc, char **argv){
     }
 
     // газопровод
-    if ((fig::test_object(*i, "2 * 1 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
+    if ((test_object(*i, "2 * 1 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
       double ll0=0;
       vector<double> ls;
       vector<Point<double> > vs;
@@ -427,7 +410,7 @@ main(int argc, char **argv){
       }
 
       i->line_style=0;
-      fig::fig_object o = fig::make_object(*i, "1 3 0 1 35 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
+      fig_object o = make_object(*i, "1 3 0 1 35 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
 
       double step = 600;
       double l=0;
@@ -445,15 +428,15 @@ main(int argc, char **argv){
       }
     }
     // обрыв
-    if ((fig::test_object(*i, "3 * 2 * 18 * 79 * * * * * * *"))||
-        (fig::test_object(*i, "2 * 2 * 18 * 79 * * * * * * * * *"))){
+    if ((test_object(*i, "3 * 2 * 18 * 79 * * * * 0 0 *"))||
+        (test_object(*i, "2 * 2 * 18 * 79 * * * * * * 0 0 *"))){
       i->thickness=0;
     }
     // обрыв
-    if (((fig::test_object(*i, "3 * 0 * 18 * 79 * * * * * * *"))||
-         (fig::test_object(*i, "2 * 0 * 18 * 79 * * * * * * * * *")))&&(fs>1)){
+    if (((test_object(*i, "3 * 0 * 18 * 79 * * * * 0 0 *"))||
+         (test_object(*i, "2 * 0 * 18 * 79 * * * * * * 0 0 *")))&&(fs>1)){
       // найдем ближайший низ обрыва, определим, взаимные направления...
-      fig::fig_world::const_iterator no, nomin;
+      fig_world::const_iterator no, nomin;
       double dmin=1e99, amin;
       int fs1;
       for (no = W.begin(); no != W.end(); no++){
@@ -517,14 +500,18 @@ main(int argc, char **argv){
       }
 
       i->pen_color=0;
-      fig::fig_object o = *i;
+      i->cap_style=1;
+      fig_object o = *i;
       o.type=2; o.sub_type=1;
+      o.cap_style=0;
       o.x.clear(); o.y.clear();
 
       double step = 50;
 
       double stepa = l0a/ (l0a+l0b)*2 * step;
       double stepb = l0b/ (l0a+l0b)*2 * step;
+      stepa= (l0a-1)/floor(l0a/stepa);
+      stepb= (l0b-1)/floor(l0b/stepb);
 
       double la=0, lb=0;
       Point<double> pa(psa[0]);
@@ -550,7 +537,7 @@ main(int argc, char **argv){
       }
     }
     // кладбище
-    if (fig::test_object(*i, "2 * 0 1  0 32  92 *  5 * * * * * * *")){
+    if (test_object(*i, "2 * 0 1  0 32  92 *  5 * * * * * * *")){
       i->area_fill=10;
       int w1=23, w2=45;
 
@@ -566,7 +553,7 @@ main(int argc, char **argv){
 
       int x=(maxx+minx)/2, y=(maxy+miny)/2-w1/2;
 
-      fig::fig_object o = fig::make_object("2 1 0 1 0 * 57 * * * * 0 * * * *");
+      fig_object o = make_object("2 1 0 1 0 * 57 * * * * 0 * * * *");
       o.x.push_back(x-w1); o.y.push_back(y);
       o.x.push_back(x+w1); o.y.push_back(y);
       W.push_back(o); o.x.clear(); o.y.clear();
@@ -575,7 +562,115 @@ main(int argc, char **argv){
       W.push_back(o);
     }
 
+    // забор
+    if (test_object(*i, "2 * 0 * 20 * 81 * * * * * * * * *")&&(fs>1)){
+      int k=0;
+      if (i->backward_arrow==1) k=-1;
+      if (i->forward_arrow==1) k=1;
+      if (k==0) continue;
+      double ll0=0;
+      vector<double> ls;
+      vector<Point<double> > vt;
+      for (int j=1; j<fs; j++){
+        Point<double> p1 (i->x[j-1], i->y[j-1]);
+        Point<double> p2 (i->x[j], i->y[j]);
+        double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+        ll0+=dl; ls.push_back(ll0);
+        if (p1!=p2){
+          Point<double> v ((p2.x-p1.x)/dl, (p2.y-p1.y)/dl);
+          vt.push_back(v);
+        }
+        else  vt.push_back(Point<double>(1,0));
+      }
+
+      i->pen_color=0;
+      i->forward_arrow=0;
+      i->backward_arrow=0;
+      i->cap_style=1;
+      i->type=2;
+      i->sub_type=1;
+      fig_object o = *i;
+
+      double step = 150;
+      double w    = 30;
+
+      double l=w;
+      int seg=0;
+
+      while (l+w<ll0){
+        Point<double> p(
+         i->x[seg] + (l - (seg==0? 0: ls[seg-1]))*vt[seg].x,
+         i->y[seg] + (l - (seg==0? 0: ls[seg-1]))*vt[seg].y);
+        Point<double> vn(-vt[seg].y, vt[seg].x);
+        o.x.clear(); o.y.clear();
+        o.x.push_back(int(p.x));
+        o.y.push_back(int(p.y));
+        o.x.push_back(int(p.x+k*(vn.x-vt[seg].x)*w));
+        o.y.push_back(int(p.y+k*(vn.y-vt[seg].y)*w));
+        W.push_back(o);
+        o.x[0]+=int(vt[seg].x*w);
+        o.y[0]+=int(vt[seg].y*w);
+        o.x[1]+=int(vt[seg].x*w);
+        o.y[1]+=int(vt[seg].y*w);
+        W.push_back(o);
+        l+=step;
+        while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
+      }
+    }
+
+    // обрыв
+    if ((test_object(*i, "2 * 0 * 18 * 79 * * * * * * * * *")||
+         test_object(*i, "3 * 0 * 18 * 79 * * * * * * *"))&&(fs>1)){
+      int k=0;
+      if (i->backward_arrow==1) k=-1;
+      if (i->forward_arrow==1) k=1;
+      if (k==0) continue;
+      double ll0=0;
+      vector<double> ls;
+      vector<Point<double> > vt;
+      for (int j=1; j<fs; j++){
+        Point<double> p1 (i->x[j-1], i->y[j-1]);
+        Point<double> p2 (i->x[j], i->y[j]);
+        double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+        ll0+=dl; ls.push_back(ll0);
+        if (p1!=p2){
+          Point<double> v ((p2.x-p1.x)/dl, (p2.y-p1.y)/dl);
+          vt.push_back(v);
+        }
+        else  vt.push_back(Point<double>(1,0));
+      }
+
+      i->pen_color=0;
+      i->forward_arrow=0;
+      i->backward_arrow=0;
+      i->cap_style=1;
+      fig_object o = *i;
+      o.type=2;
+      o.sub_type=1;
+
+      double step = 40;
+      step= ll0/floor(ll0/(step+1));
+      double w = 40;
+
+      double l=w/2;
+      int seg=0;
+
+      while (l+w/2<ll0){
+        Point<double> p(
+         i->x[seg] + (l - (seg==0? 0: ls[seg-1]))*vt[seg].x,
+         i->y[seg] + (l - (seg==0? 0: ls[seg-1]))*vt[seg].y);
+        o.x.clear(); o.y.clear();
+        o.x.push_back(int(p.x));
+        o.y.push_back(int(p.y));
+        o.x.push_back(int(p.x-k*vt[seg].y*w));
+        o.y.push_back(int(p.y+k*vt[seg].x*w));
+        W.push_back(o);
+        l+=step;
+        while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
+      }
+    }
+
 
   }
-  fig::write(out, W);
+  write(out, W);
 }
