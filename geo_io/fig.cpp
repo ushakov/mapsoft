@@ -34,6 +34,7 @@ bool no_picture(){return sub_type!=5;}
 fig_world read(const char* filename){
 
 	fig_object o, o0;
+        Point<int> p;
 	fig_world world;
         std::vector<std::string> comment;
 
@@ -100,8 +101,8 @@ rule_t r_start_xy       = +blank_p >> int_p[assign_a(o.start_x)] >>
 rule_t r_end_xy         = +blank_p >> int_p[assign_a(o.end_x)] >> 
                           +blank_p >> int_p[assign_a(o.end_y)];
 rule_t r_npoints        = +blank_p >> int_p[assign_a(npoints)][assign_a(npoints_f)];
-rule_t r_push_xy        = +space_p >> int_p[push_back_a(o.x)] >>
-                          +space_p >> int_p[push_back_a(o.y)];
+rule_t r_push_xy        = +space_p >> int_p[assign_a(p.x)] >>
+                          +space_p >> int_p[assign_a(p.y)][push_back_a(o,p)];
 rule_t r_image          = (eps_p(&no_picture) | (
                           +space_p >> uint_p[assign_a(o.image_orient)] >> // orientation = normal (0) or flipped (1)
                           +blank_p >> (+ch)[assign_a(o.image_file)]));
@@ -223,11 +224,7 @@ bool write(ostream & out, const fig_world & world){
     for (n=0;n<i->comment.size();n++) 
       out << "# " << i->comment[n] << "\n";
 
-    if (i->x.size()!=i->y.size()){
-      cerr << "fig::write (polyline): different amount of x and y values\n";
-      return false;
-    }
-    int nn = i->x.size();
+    int nn = i->size();
     int nn1=nn;
 
     switch (i->type){
@@ -258,8 +255,7 @@ bool write(ostream & out, const fig_world & world){
     case 2: // Polyline
 
       
-      if ((i->sub_type > 1) && (nn>0) &&
-          ((i->x[nn-1]!=i->x[0])||(i->y[nn-1]!=i->y[0]))){
+      if ((i->sub_type > 1) && (nn>0) && ((*i)[nn-1]!=(*i)[0])){
         nn1=nn+1;
       }
 
@@ -296,8 +292,8 @@ bool write(ostream & out, const fig_world & world){
         << i->image_file;
       for (n=0; n<nn; n++)
         out << ((n%6==0) ? "\n\t":" ")
-            << i->x[n] << " " << i->y[n];
-      if (nn1>nn)  out << " " << i->x[0] << " " << i->y[0];
+            << (*i)[n].x << " " << (*i)[n].y;
+      if (nn1>nn)  out << " " << (*i)[0].x << " " << (*i)[0].y;
       out << "\n";
       break;
     case 3: // Spline
@@ -333,7 +329,7 @@ bool write(ostream & out, const fig_world & world){
            << i->barrow_height;
         for (n=0; n<nn; n++)
           out << ((n%6==0) ? "\n\t":" ")
-              << i->x[n] << " " << i->y[n];
+              << (*i)[n].x << " " << (*i)[n].y;
         for (n=0; n<nn; n++)
           out << ((n%6==0) ? "\n\t":" ")
               << i->f[n];
@@ -356,8 +352,8 @@ bool write(ostream & out, const fig_world & world){
         << i->font_flags << " "
         << i->height     << " "
         << i->length     << " "
-        << i->x[0]       << " "
-        << i->y[0]       << " "
+        << (*i)[0].x     << " "
+        << (*i)[0].y     << " "
         << i->text       << "\\001\n";
         break;
     case 5: // Arc
@@ -381,12 +377,12 @@ bool write(ostream & out, const fig_world & world){
         << i->backward_arrow << " "
         << i->center_x   << " "
         << i->center_y   << " "
-        << i->x[0]       << " "
-        << i->y[0]       << " "
-        << i->x[1]       << " "
-        << i->y[1]       << " "
-        << i->x[2]       << " "
-        << i->y[2];
+        << (*i)[0].x     << " "
+        << (*i)[0].y     << " "
+        << (*i)[1].x     << " "
+        << (*i)[1].y     << " "
+        << (*i)[2].x     << " "
+        << (*i)[2].y;
         if (i->forward_arrow) out << "\n\t"
            << i->farrow_type << " "
            << i->farrow_style << " "
@@ -408,10 +404,10 @@ bool write(ostream & out, const fig_world & world){
         return false;
       }
       out << "6 " 
-          << i->x[0] << " " 
-          << i->y[0] << " "
-          << i->x[1] << " " 
-          << i->y[1] << "\n";
+          << (*i)[0].x << " " 
+          << (*i)[0].y << " "
+          << (*i)[1].x << " " 
+          << (*i)[1].y << "\n";
       break;
     case -6: // Compound end
       out << "-6\n"; 
@@ -521,7 +517,7 @@ rule<> r_font_flags     = +blank_p >> (ch_p('*') | int_p[assign_a(o.font_flags)]
   if (!parse(mask.c_str(), *blank_p >> (c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
       c6_compound_start | c6_compound_end) >> *blank_p ).full)
     cerr << "Can't parse fig mask: " << mask << "\n";
-  if (npoints>=0) {o.x.resize(npoints); o.y.resize(npoints);}
+  if (npoints>=0) o.resize(npoints);
   return o;
 }
 
@@ -533,19 +529,10 @@ bool test_object(const fig_object & o, const std::string & mask){
   return make_object(o, mask)==o;  
 }
 
-vector<Point<double> > fig_object::get_vector() const{
-  vector<Point<double> > ret;
-  for (int j=0; j<min(x.size(),y.size()); j++){
-    ret.push_back(Point<double>(x[j],y[j]));
-  }
-  return ret;
-}
-
 void fig_object::set_vector(const vector<Point<double> > & v){
-  x.clear(); y.clear();
+  this->clear();
   for (int i=0;i<v.size();i++){
-    x.push_back(int(v[i].x));
-    y.push_back(int(v[i].y));
+    push_back(Point<int>(int(v[i].x), int(v[i].y)));
   }
 }
 
@@ -558,11 +545,11 @@ double fig_world::nearest_pt(Point<double> & vec, Point<double> & pt, const std:
   for (fig_world::const_iterator i  = begin(); i != end(); i++){
     if (!test_object(*i, mask)) continue;
     
-    int np = min(i->x.size(), i->y.size());
+    int np = i->size();
 
     for (int j=1; j<np; j++){
-      Point<double> p1(i->x[j-1], i->y[j-1]);
-      Point<double> p2(i->x[j], i->y[j]);
+      Point<double> p1((*i)[j-1].x, (*i)[j-1].y);
+      Point<double> p2((*i)[j].x, (*i)[j].y);
       double  ll = sqrt((p2.x-p1.x)*(p2.x-p1.x)+(p2.y-p1.y)*(p2.y-p1.y));
       Point<double> vec((p2.x-p1.x)/ll, (p2.y-p1.y)/ll);
 

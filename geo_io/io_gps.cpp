@@ -11,16 +11,16 @@ namespace gps {
 
 // function for reading objects from gps into the world object
 
-	bool fetch_all (const char* port, geo_data & world, const Options &opt)
-	{
-		GPS_PWay   *wpt;
-		GPS_PTrack *trk;
-
+	bool init_gps(const char* port){
 		// почему-то только такая процедура позволяет подключить usb-gps с первого раза
 		if (GPS_Init(port) < 0) return false;
 		sleep(1);
 		if (GPS_Init(port) < 0) return false;
-		
+        }
+
+	bool get_waypoints (const char* port, geo_data & world, const Options &opt){
+		GPS_PWay   *wpt;
+                if (!init_gps(port)) return false;
 
 		int n;
 		if ((n = GPS_Command_Get_Waypoint (port, &wpt, NULL)) <= 0) return false;
@@ -43,7 +43,14 @@ namespace gps {
 			new_w.push_back(new_w_pt);
 		}
 		world.wpts.push_back(new_w);
+		return true;
+	}
 
+	bool get_track (const char* port, geo_data & world, const Options &opt)
+	{
+		GPS_PTrack *trk;
+                if (!init_gps(port)) return false;
+                int n;
 		if((n = GPS_Command_Get_Track (port, &trk)) < 0) return false;
 
 		g_track new_t;
@@ -74,15 +81,12 @@ namespace gps {
 			}
 		}
 		world.trks.push_back(new_t);
-
-		if (opt.get_bool("gps_switch_off")) GPS_Command_Off(port);
 		return true;
 	}
 
-
 	bool put_waypoints (const char * port, const g_waypoint_list & wp, const Options & opt){
 		int num = wp.size();
-		if (GPS_Init(port) < 0) return false;
+                if (!init_gps(port)) return false;
 		GPS_PWay *wpts = (GPS_PWay *) calloc(num, sizeof(GPS_PWay));
 
 		int n=0;
@@ -108,7 +112,7 @@ namespace gps {
 
 	bool put_track (const char * port, const g_track & tr, const Options & opt){
 		int num = tr.size()+1;
-		if (GPS_Init(port) < 0) return false;
+                if (!init_gps(port)) return false;
 		GPS_PTrack *trks = (GPS_PTrack *) calloc(num, sizeof(GPS_PTrack));
 
 		trks[0] = GPS_Track_New();
@@ -152,9 +156,15 @@ namespace gps {
 				return false;
 			}
 		}
-
 		if (opt.get_bool("gps_switch_off")) GPS_Command_Off(port);
 		return true;
+	}
 
+
+	bool get_all (const char* port, geo_data & world, const Options &opt){
+	    get_waypoints(port, world, opt);
+	    get_track(port, world, opt);
+ 	    if (opt.get_bool("gps_switch_off")) GPS_Command_Off(port);
+	    return true;
 	}
 }

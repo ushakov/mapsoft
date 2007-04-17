@@ -31,7 +31,7 @@ using namespace boost::spirit;
     fig_world::const_iterator i;
     for (i=w.begin();i!=w.end();i++){
       if ((i->type!=2)&&(i->type!=3)) continue;
-      if (i->x.size()<1) continue;
+      if (i->size()<1) continue;
       double x,y;
       if ((i->comment.size()>0)&&(parse(i->comment[0].c_str(), str_p("REF") 
 	  >> +space_p >> real_p[assign_a(x)]
@@ -43,7 +43,7 @@ using namespace boost::spirit;
             *space_p >> ch_p(':') >> *space_p >> 
             (*(anychar_p-':'-space_p))[insert_at_a(O, key)]);
         }
- 	g_refpoint ref(x,y,i->x[0],i->y[0]);
+ 	g_refpoint ref(x,y,(*i)[0].x,(*i)[0].y);
 
         convs::pt2pt c(Datum(O.get_string("datum","wgs84")), 
                        Proj(O.get_string("proj","lonlat")), O, Datum("wgs84"), Proj("lonlat"), O);
@@ -86,8 +86,7 @@ using namespace boost::spirit;
 
     for (int n=0; n<m.size(); n++){
       fig::fig_object o = fig::make_object("2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 *");
-      o.x.push_back( int(m[n].xr) );
-      o.y.push_back( int(m[n].yr) );
+      o.push_back(Point<int>( int(m[n].xr), int(m[n].yr) ));
       ostringstream comm;
       comm << "REF " << fixed << m[n].x << " " << m[n].y;
       o.comment.push_back(comm.str()); comm.str("");
@@ -124,7 +123,7 @@ using namespace boost::spirit;
 
     for (i=w.begin();i!=w.end();i++){
       if ((i->type!=2)&&(i->type!=3)) continue;
-      if (i->x.size()<1) continue;
+      if (i->size()<1) continue;
       xml_point p;
       if ((i->comment.size()>0)&&(parse(i->comment[0].c_str(), str_p("WPT")
           >> +space_p >> (*anychar_p)[insert_at_a(p,"name")]).full)){
@@ -135,8 +134,8 @@ using namespace boost::spirit;
             (*(anychar_p-':'-space_p))[insert_at_a(p, key)]);
         }
         g_waypoint wp(p);
-        wp.x = i->x[0];
-        wp.y = i->y[0];
+        wp.x = (*i)[0].x;
+        wp.y = (*i)[0].y;
         cnv.frw(wp);
         pl.push_back(wp);
       }
@@ -152,7 +151,7 @@ using namespace boost::spirit;
     fig_world::const_iterator i;
     for (i=w.begin();i!=w.end();i++){
       if ((i->type!=2)&&(i->type!=3)) continue;
-      if (i->x.size()<1) continue;
+      if (i->size()<1) continue;
       xml_point_list pl;
       string comm;
       if ((i->comment.size()>0)&&(parse(i->comment[0].c_str(), str_p("TRK")
@@ -164,10 +163,10 @@ using namespace boost::spirit;
             (*(anychar_p-':'-space_p))[insert_at_a(pl, key)]);
         }
         g_track tr(pl);
-        for (int n = 0; n<min(i->x.size(), i->y.size());n++){
+        for (int n = 0; n<i->size();n++){
           g_trackpoint p;
-          p.x=i->x[n];
-          p.y=i->y[n];
+          p.x=(*i)[n].x;
+          p.y=(*i)[n].y;
           cnv.frw(p);
           tr.push_back(p);
         }

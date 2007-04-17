@@ -11,27 +11,30 @@
 #include "../utils/mapsoft_options.h"
 
 namespace gps {
-	bool fetch_all (const char* port, geo_data & world, const Options & opt);
-	bool put_track (const char * port, const g_track & tr, const Options & opt);
-	bool put_waypoints (const char * port, const g_waypoint_list & wp, const Options & opt);
-	bool put_all (const char* port, const geo_data & world, const Options & opt);
+    bool init_gps(const char* port);
+    bool get_tracks (const char* port, geo_data & world, const Options & opt);
+    bool get_waypoints (const char* port, geo_data & world, const Options & opt);
+    bool get_all (const char* port, geo_data & world, const Options & opt);
+    bool put_track (const char* port, const g_track & tr, const Options & opt);
+    bool put_waypoints (const char* port, const g_waypoint_list & wp, const Options & opt);
+    bool put_all (const char* port, const geo_data & world, const Options & opt);
 }
 
 namespace gu {
-	bool read_file (const char* filename, geo_data & world, const Options & opt);
-	bool write_file (const char* filename, const geo_data & world, const Options & opt);
+    bool read_file (const char* filename, geo_data & world, const Options & opt);
+    bool write_file (const char* filename, const geo_data & world, const Options & opt);
 }
 
 namespace xml {
-	bool read_file (const char* filename, geo_data & world, const Options & opt);
-	bool write_file (const char* filename, const geo_data & world, const Options & opt);
+    bool read_file (const char* filename, geo_data & world, const Options & opt);
+    bool write_file (const char* filename, const geo_data & world, const Options & opt);
 }
 
 namespace oe {
-	bool read_file (const char* filename, geo_data & world, const Options & opt);
-	bool write_plt_file (const char* filename, const g_track & trk, const Options & opt);
-	bool write_wpt_file (const char* filename, const g_waypoint_list & wpt, const Options & opt);
-	bool write_map_file (const char* filename, const g_map & map, const Options & opt);
+    bool read_file (const char* filename, geo_data & world, const Options & opt);
+    bool write_plt_file (const char* filename, const g_track & trk, const Options & opt);
+    bool write_wpt_file (const char* filename, const g_waypoint_list & wpt, const Options & opt);
+    bool write_map_file (const char* filename, const g_map & map, const Options & opt);
 }
 
 namespace fig {

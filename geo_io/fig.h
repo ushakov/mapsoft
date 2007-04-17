@@ -10,7 +10,6 @@
 #include <iostream>
 
 #include "../utils/point.h"
-#include "../utils/rect.h"
 
 namespace fig {
 
@@ -108,7 +107,9 @@ namespace fig {
     };
 
 
-    struct fig_object : public boost::equality_comparable<fig_object>{
+    struct fig_object : 
+      std::vector<Point<int> >,
+      public boost::equality_comparable<fig_object>{
         int     type;
         int     sub_type;
         int     line_style;          //    (enumeration type, solid, dash, dotted, etc.)
@@ -144,7 +145,6 @@ namespace fig {
 	int     image_orient;
         std::string  text;
         std::vector<std::string> comment;
-	std::vector<int>    x,y;
 	std::vector<float>  f;
 
 	fig_object(){
@@ -161,7 +161,10 @@ namespace fig {
             height=0; length=0;
 	}
 	bool operator== (const fig_object & o) const{
-          return ( // полное совпадение объектов
+          // полное совпадение объектов
+          if (size()!=o.size()) return false;
+          for (int i=0; i<size(); i++) if ((*this)[i]!=o[i]) return false;
+          return ( 
            (type == o.type) && (sub_type == o.sub_type) &&
            (line_style == o.line_style) && (thickness == o.thickness) &&
 	   (pen_color == o.pen_color) && (fill_color == o.fill_color) &&
@@ -182,10 +185,15 @@ namespace fig {
 	   (farrow_width == o.farrow_width) && (barrow_width == o.barrow_width) &&
 	   (farrow_height == o.farrow_height) && (barrow_height == o.barrow_height) &&
            (image_file == o.image_file) && (image_orient == o.image_orient) &&
-           (text == o.text) && (comment == o.comment) &&
-	   (x == o.x) && (y == o.y) && (f == o.f));
+           (text == o.text) && (comment == o.comment) && (f == o.f));
         }
-        std::vector<Point<double> > get_vector() const;
+        
+        operator std::vector<Point<double> > () const {
+          std::vector<Point<double> > ret;
+          for (int i=0; i<size(); i++) 
+            ret.push_back(Point<double>((*this)[i].x, (*this)[i].y));
+          return ret;
+        }
         void set_vector(const std::vector<Point<double> > & v);
     };
 
@@ -240,7 +248,7 @@ namespace fig {
     // Вместо типа объекта нельзя подставлять звездочку
 
     // найти прямоугольники, накрывающие весь текст
-    std::vector<Rect<int> > text_bbxs(const fig_world & world);
+//    std::vector<Rect<int> > text_bbxs(const fig_world & world);
  
 }
 #endif
