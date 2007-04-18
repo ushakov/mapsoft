@@ -1,7 +1,7 @@
 #define DEBUG_LAYER_GEOMAP
 
-#include <point.h>
-#include "layer_geomap.h"
+#include "../utils/point.h"
+#include "../layers/layer_geomap.h"
 #include "../geo_io/io.h"
 #include "../geo_io/geo_convs.h"
 

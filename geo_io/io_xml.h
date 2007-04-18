@@ -6,9 +6,6 @@
 #include "geo_data.h"
 #include "../utils/mapsoft_options.h"
 
-
-
-
 namespace xml {
 // Для всех типов точек - один map<string,string>, но разные преобразования
 // Это все вынесено в отдельный h-файл, поскольку используется и при чтении точек из fig

@@ -142,6 +142,12 @@ main(int argc, char **argv){
       continue;
     }
 
+    // город
+    if (test_object(*i, "4 * 24 55 * 18 * * *")){
+      i->pen_color = 0;
+      continue;
+    }
+
     // платформа
     if (test_object(*i, "2 * * * 4 * 57 * * * * 0 * * * 1")){
       Point<double> p1(i->x[0], i->y[0]), p2=p1;
@@ -686,6 +692,6 @@ main(int argc, char **argv){
 
 
   }
-  text_bbxs(W);
+//  text_bbxs(W);
   write(out, W);
 }

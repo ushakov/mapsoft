@@ -11,6 +11,8 @@
 #include <math.h>
 
 #include "io.h"
+#include "fig.h"
+#include "geofig.h"
 
 namespace io {
 	
@@ -24,7 +26,7 @@ namespace io {
 	bool in(const string & name, geo_data & world, const Options & opt){
 		if (name == "usb:"){
 			cerr << "Reading data from GPS via libusb\n";
-			if (!gps::fetch_all ("usb:", world, opt)) {
+			if (!gps::get_all ("usb:", world, opt)) {
 				cerr << "Error.\n";
 				return false;
 			}
@@ -41,7 +43,7 @@ namespace io {
 		{
 			cerr << "Reading data from GPS via serial port "
 				 << name << "\n";
-			if (!gps::fetch_all(name.c_str(), world, opt)){
+			if (!gps::get_all(name.c_str(), world, opt)){
 				cerr << "Error.\n";
 				return false;
 			}
@@ -76,14 +78,14 @@ namespace io {
 				return false;
 			}
 			return true;
-		case '#':
+		case '#': {
 			cerr << "Reading data from Fig file " << name << "\n";
-			cerr << "Not supported yet! fixme!\n";
-//			if (!fig::read_file (name.c_str(), world, opt)){
-//				cerr << "Error.\n";
-//				return false;
-//			}
-			return true;
+                        fig::fig_world F = fig::read(name.c_str());
+                        g_map m=fig::get_ref(F);
+                        fig::get_wpts(F, m, world);
+                        fig::get_trks(F, m, world);
+                        fig::get_maps(F, m, world);
+			return true; }
 		default:
 			cerr << "Unknown format in file " << name << "\n";
 			return false;

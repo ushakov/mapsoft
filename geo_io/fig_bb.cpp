@@ -3,10 +3,14 @@
 
 #include <sstream>
 
-
-//#include <cstdio>
+#include <cstdio>
 #include <unistd.h>
 #include <sys/types.h>
+/*
+#include <boost/spirit/core.hpp>
+#include <boost/spirit/iterator/file_iterator.hpp>
+#include <boost/spirit/actor/assign_actor.hpp>
+*/
 
 // найти прямоугольники, накрывающие весь текст
 
@@ -14,14 +18,17 @@ namespace fig{
 
 using namespace std;
 
-
-
 vector<Rect<int> > text_bbxs(const fig_world & w){
+
 
   // запускаем gs, настраиваем pipe к нему
   int   gs_pipe[2];
   pid_t gs_pid;
+  
   char  *gs_name = "gs";
+
+/*  char *ofile = tmpnam(NULL);
+  string farg = "-sOutputFile=" + ofile;*/
   char  *gs_args[] = {"gs", "-sDEVICE=bbox", "-dNOPAUSE", "-dBATCH", "-", NULL};
 
   if (pipe(gs_pipe)!=0){ cerr << "can't open pipe\n"; exit(-1); }
@@ -61,6 +68,7 @@ vector<Rect<int> > text_bbxs(const fig_world & w){
     out_str << "/" << fontnames[i->font] << " findfont " 
          << i->font_size << " scalefont setfont\n";
     ::write(gs_pipe[1], out_str.str().c_str(), out_str.str().size()); 
+      cout << "in:   " << out_str.str() << "\n";
     out_str.str("");
     
     for (string::const_iterator l = i->text.begin(); l!=i->text.end(); l++){
@@ -68,16 +76,31 @@ vector<Rect<int> > text_bbxs(const fig_world & w){
       if (i->angle!=0) out_str << i->angle << " rotate ";
       out_str << "(" << *l << ")" << " show showpage\n";
       ::write(gs_pipe[1], out_str.str().c_str(), out_str.str().size()); 
+      cout << "in:   " << out_str.str() << "\n";
       out_str.str("");
-
-      char c=' ';
-      string s;
-      while ((::read(gs_pipe[0], &c, 1)>0)){ s.push_back(c); cerr << c;}
-      cerr << "\nget: " << s;
+      char c; string s;
+      while ((::read(gs_pipe[0], &c, 1)>1)&&(c!='\n')) s.push_back(c);
+      cout << "str1: " << s << "\n"; s.clear();
+      while ((::read(gs_pipe[0], &c, 1)>1)&&(c!='\n')) s.push_back(c);
+      cout << "str2: " << s << "\n";
     }
 
   }
   close(gs_pipe[1]);
+/*
+  using namespace boost::spirit;
+  typedef char                    char_t;
+  typedef file_iterator <char_t>  iterator_t;
+  typedef scanner<iterator_t>     scanner_t;
+  typedef rule <scanner_t>        rule_t;
+ 
+  // iterators for parsing
+  iterator_t first(ofile);
+  if (!first) { cerr << "can't find file " << ofile << '\n'; return world;}
+  iterator_t last = first.make_end();
+
+  parse
+*/
 
 }
 }//namespace

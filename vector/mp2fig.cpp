@@ -58,7 +58,7 @@ main(int argc, char **argv){
   else if (testext(infile, ".fig")) fig2mp=true;
   else usage(argv[0]);
 
-// чтение cnv-файла
+// чтение cnv-файла ///////////////////////////////////////////////////
   string tmp1, tmp2;
 
   mask tmp;
@@ -102,7 +102,7 @@ main(int argc, char **argv){
     exit(0);
   }
 
-// преобразования
+// преобразования //////////////////////////////////
   ofstream out(outfile.c_str()), nc(ncfile.c_str());
   if (fig2mp) {
 
@@ -142,8 +142,49 @@ main(int argc, char **argv){
     // расстояние от объекта до текста здесь считается довольно глупо:
     // как расстояние от начальной точки текста до ближайшей точки объекта
 
+    // нам нужно два прохода: 
+    // сперва пройдемся по всех текстовым объектам и посмотрим,
+    // нет ли подходящего объекта для них с правильным комментарием...
+    // потом уже определяем неподписанные объекты
+
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
       if (i->type!=4) continue;
+      if ((i->comment.size()>0)&&(i->comment[0]=="[skip]")) continue;
+
+      for (vector<mask>::const_iterator m=f2m_t.begin(); m!=f2m_t.end(); m++){
+        if (!fig::test_object(*i, m->first)) continue;
+
+        fig::fig_world::iterator o1=F.end();
+        double mindist = 1e99;
+        for (fig::fig_world::iterator o=F.begin(); o!=F.end(); o++){
+          if (!fig::test_object(*o, m->second)) continue;
+          if ((o->comment.size()==0) || (i->text != o->comment[0])) continue;
+          double dist = 1e99;
+          for (int n=0; n<min(o->x.size(),o->y.size());n++){
+            double d=sqrt( (i->x[0] - o->x[n])*(i->x[0] - o->x[n]) + 
+                           (i->y[0] - o->y[n])*(i->y[0] - o->y[n]) );
+            if (dist>d) dist=d;
+          }
+          if (mindist>dist) {mindist=dist; o1=o;}
+        }
+        if (mindist > txt_dist) continue;
+
+        if (o1==F.end()) continue;
+        cerr << "txt_capt-1: " << i->text << " mindist:" << mindist <<  "\n";
+        o1->comment.clear();
+        o1->comment.push_back(i->text);
+        o1->comment.push_back("[txt: ]");
+        i->comment.clear();
+        i->comment.push_back("[skip]");
+        break;
+      }
+    }
+
+
+    for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
+      if (i->type!=4) continue;
+      if ((i->comment.size()>0)&&(i->comment[0]=="[skip]")) continue;
+
       for (vector<mask>::const_iterator m=f2m_t.begin(); m!=f2m_t.end(); m++){
         if (!fig::test_object(*i, m->first)) continue;
         double mindist = 1e99;
@@ -158,19 +199,21 @@ main(int argc, char **argv){
             if (dist>d) dist=d;
           }
           if (mindist>dist) {mindist=dist; o1=o;}
-          if ((o->comment.size()>0) && (i->text == o->comment[0])) break;
         }
 
 	if (mindist > txt_dist) continue;
         if (o1==F.end()) continue;
-        cerr << "txt_capt: " << i->text << " mindist:" << mindist <<  "\n";
+        cerr << "txt_capt-2: " << i->text << " mindist:" << mindist <<  "\n";
         o1->comment.clear();
         o1->comment.push_back(i->text);
         o1->comment.push_back("[txt: ]");
+        i->comment.clear();
         i->comment.push_back("[skip]");
         break;
       }
     }
+
+    ////////////////////////////////////////////////////////////////////
 
     int depth=0, comm_depth=0;
     vector<string> comp_comm;
