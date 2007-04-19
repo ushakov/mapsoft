@@ -153,7 +153,7 @@ using namespace boost::spirit;
       if (i->size()<1) continue;
       xml_point_list pl;
       if ((i->comment.size()>0)&&(parse(i->comment[0].c_str(), str_p("TRK")
-          >> +space_p >> (*anychar_p)[insert_at_a(pl,"comm")]).full)){
+          >> !(+space_p >> (*anychar_p)[insert_at_a(pl,"comm")])).full)){
         string key;
         for (int n=1; n<i->comment.size(); n++){
           parse(i->comment[n].c_str(), (*(anychar_p-':'-space_p))[assign_a(key)] >>
@@ -185,6 +185,9 @@ using namespace boost::spirit;
           >> !(+space_p >> (*anychar_p)[assign_a(comm)])).full)){
         // откопируем m и заменим координаты xfig на координаты в растровом файле.
         // 4 точки fig-объекта соответствуют углам картинки (0,0) (W,0) (W,H) (0,H*)
+        g_map map(m);
+        map.comm = comm;
+        map.file = i->image_file;
         Point<int> WH = image_r::size(i->image_file.c_str());
         double x1 = (*i)[0].x;
         double y1 = (*i)[0].y;
@@ -201,16 +204,40 @@ using namespace boost::spirit;
         double b2 = WH.y*(x2-x1)/(x2*(y4-y1)+x1*(y2-y4)+x4*(y1-y2));
         double c2 = -a2*x1-b2*y1;
 
-        g_map map(m);
-        map.comm = comm;
-        map.file = i->image_file;
-        map.border.clear();
         for (int n=0; n<map.size(); n++){
           double xr = map[n].xr;
           double yr = map[n].yr;
           map[n].xr = a1*xr+b1*yr+c1;
           map[n].yr = a2*xr+b2*yr+c2;
         }
+        // граница: если есть ломаная с комментарием "BRD <имя карты>" - 
+        // сделаем границу из нее. Иначе - из размеров растрового файла.
+        map.border.clear();
+        fig_world::const_iterator j;
+        for (j=w.begin();j!=w.end();j++){
+          if (j->type!=2) continue;
+          int nn = j->size();
+          if (nn<3) continue;
+          // если последняя точка совпадает с первой
+          if ((*j)[0]==(*j)[nn-1]) {nn--; if (nn<3) continue;}
+          string brd_comm;
+          if ((j->comment.size()>0)&&(parse(j->comment[0].c_str(), str_p("BRD")
+            >> !(+space_p >> (*anychar_p)[assign_a(brd_comm)])).full)&&(brd_comm==comm)){
+            for (int n=0;n<nn;n++){
+              map.border.push_back(g_point(
+                a1*(*j)[n].x + b1*(*j)[n].y + c1, 
+                a2*(*j)[n].x + b2*(*j)[n].y + c2
+              ));
+            }
+          }
+        }
+        if (map.border.empty()){
+          map.border.push_back(g_point(0,0));
+          map.border.push_back(g_point(WH.x,0));
+          map.border.push_back(g_point(WH.x,WH.y));
+          map.border.push_back(g_point(0,WH.y));
+        }
+
         d.maps.push_back(map);
       }
     }
