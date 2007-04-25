@@ -26,44 +26,100 @@ public:
 
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
 	     itl != layers.rend();  ++itl){
-	     itl->second->draw (src_rect, image, image.range());
+	    std::cout << "WP: layer " << itl->second << std::endl;
+	    if (layers_active[itl->second]) {
+		std::cout << "WP: layer selected " << itl->second << std::endl;
+		itl->second->draw (src_rect, image, image.range());
+	    }
 	}
 
 	return image;
     }
 
+    std::multimap<int, Layer *>::iterator find_layer (Layer * layer) {
+	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+	     itl != layers.end(); ++itl)
+	{
+	    if (itl->second == layer)
+	    {
+		return itl;
+	    }
+	}
+	return layers.end();
+    }
+
     void
     add_layer (Layer * layer, int depth)
     {
+	std::cout << "Adding layer " << layer << " at depth " << depth << std::endl;
+	if (find_layer(layer) != layers.end()) {
+	    std::cout << "Already have this layer!" << std::endl;
+	    set_layer_depth (layer, depth);
+	    assert(0);
+	    return;
+	}
 	layers.insert (std::make_pair (depth, layer));
+	layers_active[layer] = true;
     }
 
     void
     remove_layer (Layer * layer)
     {
-	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
-	     itl != layers.end();)
-	{
-	    if (itl->second == layer)
-	    {
-		std::multimap<int, Layer *>::iterator tmp = itl++;
-		layers.erase (itl);
-		itl = tmp;
-	    }
-	    else
-	    {
-		++itl;
-	    }
+	std::cout << "Removing layer " << layer << std::endl;
+	std::multimap<int, Layer *>::iterator itl = find_layer(layer);	
+	if (itl == layers.end()) {
+	    std::cout << "No such layer " << layer << std::endl;
+	    assert(0);
+	    return;
 	}
+	layers_active.erase(layer);
+	layers.erase(itl);
     }
 
     void
-    change_depth (Layer * layer, int newdepth)
+    set_layer_depth (Layer * layer, int newdepth)
     {
+	std::cout << "Setting depth of layer " << layer << " to " << newdepth << std::endl;
+	if (find_layer(layer) == layers.end()) {
+	    std::cout << "No such layer " << layer << std::endl;
+	    assert(0);
+	    return;
+	}
 	remove_layer (layer);
 	add_layer (layer, newdepth);
     }
 
+    int
+    get_layer_depth (Layer * layer)
+    {
+	std::cout << "Getting depth of layer " << layer << std::endl;
+	std::multimap<int, Layer *>::iterator itl = find_layer(layer);	
+	if (itl == layers.end()) {
+	    std::cout << "No such layer " << layer << std::endl;
+	    assert(0);
+	    return -1;
+	}
+	return itl->first;
+    }
+
+    void set_layer_active (Layer * layer, bool active) {
+	if (find_layer(layer) == layers.end()) {
+	    std::cout << "No such layer " << layer << std::endl;
+	    assert(0);
+	    return;
+	}
+	layers_active[layer] = active;
+    }
+
+    bool get_layer_active (Layer * layer) {
+	if (find_layer(layer) == layers.end()) {
+	    std::cout << "No such layer " << layer << std::endl;
+	    assert(0);
+	    return false;
+	}
+	return layers_active[layer];
+    }
+    
     int get_scale_nom () {
 	return scale_nom;
     }
@@ -102,6 +158,7 @@ public:
 
 private:
     std::multimap <int, Layer *> layers;
+    std::map <Layer *, bool> layers_active;
     int scale_nom, scale_denom;
     int tile_size;
 };

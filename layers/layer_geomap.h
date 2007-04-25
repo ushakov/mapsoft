@@ -31,7 +31,13 @@ private:
 public:
 
     LayerGeoMap (const geo_data *_world) : 
-      world(_world), image_cache(4), mymap(convs::mymap(*world)){ make_m2ms(); image_cache.clear();}
+      world(_world),
+      image_cache(4),
+      mymap(convs::mymap(*_world))
+    {
+	make_m2ms();
+	image_cache.clear();
+    }
 
     // получить/установить привязку layer'a
     g_map get_ref() const {return mymap;}
@@ -78,13 +84,16 @@ public:
     
     virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
 
+#ifdef DEBUG_LAYER_GEOMAP
+      std::cerr  << "LayerMap: draw " << src_rect << " -> " 
+		 << dst_rect << " at " << dst_img << std::endl;
+#endif
         clip_rects_for_image_loader(map_range, src_rect, dst_img.range(), dst_rect);
         if (src_rect.empty() || dst_rect.empty()) return;
 
-//#ifdef DEBUG_LAYER_GEOMAP
-//      std::cerr  << "LayerMap: draw " << src_rect << " -> " 
-//		 << dst_rect << " at " << dst_img <<  "\n";
-//#endif
+#ifdef DEBUG_LAYER_GEOMAP
+	std::cerr  << "LayerMap: inside the map range" <<std::endl;
+#endif
 	double sc_x = src_rect.w/dst_rect.w;
 	double sc_y = src_rect.h/dst_rect.h;
 
@@ -94,12 +103,15 @@ public:
           std::string file = world->maps[i].file;
 
           if (!m2ms[i].tst_frw.test_range(src_rect)){  
-//#ifdef DEBUG_LAYER_GEOMAP
-//            std::cerr  << "LayerMap: Skipping Image " << file << "\n";
-//#endif
+#ifdef DEBUG_LAYER_GEOMAP
+            std::cerr  << "LayerMap: Skipping Image " << file << "\n";
+#endif
 	        
 	    continue;
 	  }
+#ifdef DEBUG_LAYER_GEOMAP
+	  std::cerr  << "LayerMap: Using Image " << file << "\n";
+#endif
 
 	  int scale = int((0.01+scales[i]) * (sc_x<sc_y? sc_x:sc_y));
 	  if (scale <=0) scale = 1;

@@ -1,4 +1,4 @@
-GTTMM_FLAGS = `pkg-config --libs gtkmm-2.4,gthread-2.0` 
+GTTMM_FLAGS = `pkg-config --libs gtkmm-2.4,gthread-2.0`
 GRLIB_FLAGS = -ljpeg -ltiff -lpng 
 GRAPH_FLAGS = $(GTTMM_FLAGS) $(GRLIB_FLAGS)
 GOOGLE_FLAGS = `pkg-config --libs libcurl`
@@ -6,7 +6,7 @@ USB_FLAGS = -lusb
 
 
 CPPFLAGS = `pkg-config --cflags libcurl` `pkg-config --cflags gtkmm-2.4,gthread-2.0`\
-     -I../utils -I../viewer -I../loaders -I../layers -O1
+     -I../utils -I../viewer -I../loaders -I../layers -O1 -ggdb # -DDEBUG_VIEWER
 
 #all: mapsoft_googleview mapsoft_imgview mapsoft_imgview1 mapsoft_convert
 
@@ -19,7 +19,7 @@ CPPFLAGS = `pkg-config --cflags libcurl` `pkg-config --cflags gtkmm-2.4,gthread-
 #test: $(TEST_LIBS) $(TEST_OBJS)
 #	$(CXX) $(LDFLAGS) $(TEST_OBJS) $(TEST_LIBS) -o test
 
-all: mapsoft_convert mapsoft_googleview1 mapsoft_imgview mapsoft_imgview1 mapsoft_mapview mapsoft_mkmap mapsoft_mapcnv mapsoft_ref
+all: mapsoft_convert mapsoft_googleview1 mapsoft_imgview mapsoft_imgview1 mapsoft_mapview mapsoft_mkmap mapsoft_mapcnv mapsoft_toxyz mapsoft_ref
 
 clean:
 	rm mapsoft_googleview mapsoft_imgview mapsoft_imgview1 mapsoft_convert *.o
@@ -35,11 +35,14 @@ mapsoft_ref: $(MAPSOFT_LIBS) mapsoft_ref.cpp
 mapsoft_mkmap: $(MAPSOFT_LIBS) mapsoft_mkmap.cpp
 	g++ mapsoft_mkmap.cpp $(CPPFLAGS) $(MAPSOFT_LIBS) $(USB_FLAGS) $(GRLIB_FLAGS) $(LDFLAGS)  -o $@ 
 
+mapsoft_mapview: $(MAPSOFT_LIBS) mapsoft_mapview.o ../layers/layer_geomap.h ../layers/layer_geodata.h
+	g++  mapsoft_mapview.o  $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@
+
 mapsoft_googleview1: $(MAPSOFT_LIBS) mapsoft_googleview1.cpp
 	g++  mapsoft_googleview1.cpp $(CPPFLAGS) $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) $(GOOGLE_FLAGS) -o $@ 
 
-mapsoft_mapview: $(MAPSOFT_LIBS) mapsoft_mapview.cpp ../layers/layer_geomap.h ../layers/layer_geodata.h
-	g++  mapsoft_mapview.cpp  $(CPPFLAGS) $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
+mapsoft_toxyz: $(MAPSOFT_LIBS) mapsoft_toxyz.o
+	g++  mapsoft_toxyz.o  $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 
 
 mapsoft_mapcnv: $(MAPSOFT_LIBS) mapsoft_mapcnv.cpp ../layers/layer_geomap.h
 	g++  mapsoft_mapcnv.cpp  $(CPPFLAGS) $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@ 

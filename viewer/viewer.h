@@ -203,16 +203,16 @@ public:
       }
 
       Image<int> tile = tile_cache.find(tile_key)->second;
-
+      
       Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(tile);
       Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
       Glib::RefPtr<Gdk::Window> widget = get_window();
-
+      
       widget->draw_pixbuf(gc, pixbuf, 
-	        tile_in_screen.x-tile_rect.x, tile_in_screen.y-tile_rect.y, // on pixbuf
-                tile_in_screen.x-window_origin.x, tile_in_screen.y-window_origin.y,
-                tile_in_screen.w, tile_in_screen.h,
-                Gdk::RGB_DITHER_NORMAL, 0, 0);
+			  tile_in_screen.x-tile_rect.x, tile_in_screen.y-tile_rect.y, // on pixbuf
+			  tile_in_screen.x-window_origin.x, tile_in_screen.y-window_origin.y,
+			  tile_in_screen.w, tile_in_screen.h,
+			  Gdk::RGB_DITHER_NORMAL, 0, 0);
     }
 
 
