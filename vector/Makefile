@@ -24,6 +24,9 @@ fig_norm: $(MAPSOFT_LIBS) fig_norm.cpp
 test_geofig: $(MAPSOFT_LIBS) test_geofig.cpp 
 	g++ test_geofig.cpp $(GRLIB_FLAGS) $(MAPSOFT_LIBS) -o test_geofig
 
+hor_pic: ../geo_io/fig.o ../loaders/image_jpeg.o hor_pic.cpp 
+	g++ -ljpeg hor_pic.cpp ../utils/rect.o ../geo_io/fig.o ../loaders/image_jpeg.o -o hor_pic
+
 mp2fig: $(MAPSOFT_LIBS) mp2fig.cpp 
 	g++ mp2fig.cpp $(GRLIB_FLAGS) $(MAPSOFT_LIBS) -o mp2fig
 fig2mp: mp2fig

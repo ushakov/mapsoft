@@ -5,6 +5,7 @@
 #include <image.h>
 #include <point.h>
 #include <rect.h>
+#include <assert.h>
 #include "layer.h"
 
 class Workplane {
