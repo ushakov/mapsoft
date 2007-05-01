@@ -28,7 +28,7 @@ main(int argc, char **argv){
 
   // преобразуем некоторые объекты в x-spline с параметром 0.4
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
-    int fs=min(i->x.size(),i->y.size());
+    int fs=i->size();
     if ((fs>2) && (
       test_object(*i, "2 * * *  * * 84 * * * * * * * * *") || // водоемы
       test_object(*i, "2 * * *  * * 85 * * * * * * * * *") ||
@@ -56,10 +56,9 @@ main(int argc, char **argv){
       if (i->type==3){ 
         i->sub_type = (i->sub_type%2)+4;
       }
-      if ((i->x[0]==i->x[fs-1]) && (i->y[0]==i->y[fs-1])){
-        i->x.erase(i->x.begin()+fs-1);
-        i->y.erase(i->y.begin()+fs-1);
-        fs=min(i->x.size(),i->y.size());
+      if (((*i)[0].x==(*i)[fs-1].x) && ((*i)[0].y==(*i)[fs-1].y)){
+        i->erase(i->begin()+fs-1);
+        fs=i->size();
       }
 
       i->type=3;
@@ -76,7 +75,7 @@ main(int argc, char **argv){
 
 
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
-    int fs=min(i->x.size(),i->y.size());
+    int fs=i->size();
     // автомагистраль
     if (test_object(*i, "2 * 0 7 34 * 80 * * * * * * * * *") ||
         test_object(*i, "3 * 0 7 34 * 80 * * * * * * *")) {
@@ -150,7 +149,7 @@ main(int argc, char **argv){
 
     // платформа
     if (test_object(*i, "2 * * * 4 * 57 * * * * 0 * * * 1")){
-      Point<double> p1(i->x[0], i->y[0]), p2=p1;
+      Point<double> p1((*i)[0].x, (*i)[0].y), p2=p1;
       Point<double> v1, v2;
       if ( W.nearest_pt(v2, p2, "2 * 0 4 0 * 80 * * * * * * * * *") <
            W.nearest_pt(v1, p1, "3 * 0 4 0 * 80 * * * * * * *")){
@@ -158,24 +157,19 @@ main(int argc, char **argv){
       }
       v2=Point<double>(-v1.y,v1.x);
       fig_object o = make_object(*i, "2 1 0 1 0 7 * * 20 * 0 0 0 0 0 *");
-      o.x.clear(); o.y.clear();
+      o.clear();
       double l = 80, w=40; // ширина и длина станции
-      o.x.push_back(int(p1.x + v1.x*l + v2.x*w));
-      o.x.push_back(int(p1.x + v1.x*l - v2.x*w));
-      o.x.push_back(int(p1.x - v1.x*l - v2.x*w));
-      o.x.push_back(int(p1.x - v1.x*l + v2.x*w));
-      o.x.push_back(int(p1.x + v1.x*l + v2.x*w));
-      o.y.push_back(int(p1.y + v1.y*l + v2.y*w));
-      o.y.push_back(int(p1.y + v1.y*l - v2.y*w));
-      o.y.push_back(int(p1.y - v1.y*l - v2.y*w));
-      o.y.push_back(int(p1.y - v1.y*l + v2.y*w));
-      o.y.push_back(int(p1.y + v1.y*l + v2.y*w));
+      o.push_back(Point<int>(int(p1.x + v1.x*l + v2.x*w), int(p1.y + v1.y*l + v2.y*w)));
+      o.push_back(Point<int>(int(p1.x + v1.x*l - v2.x*w), int(p1.y + v1.y*l - v2.y*w)));
+      o.push_back(Point<int>(int(p1.x - v1.x*l - v2.x*w), int(p1.y - v1.y*l - v2.y*w)));
+      o.push_back(Point<int>(int(p1.x - v1.x*l + v2.x*w), int(p1.y - v1.y*l + v2.y*w)));
+      o.push_back(Point<int>(int(p1.x + v1.x*l + v2.x*w), int(p1.y + v1.y*l + v2.y*w)));
       *i=o; // сюда бы еще поправки на сплайны...
       continue;
     }
     // порог
     if (test_object(*i, "2 * * * 8 * 57 * * * * 0 * * * 1")){
-      Point<double> p1(i->x[0], i->y[0]), p2=p1;
+      Point<double> p1((*i)[0].x, (*i)[0].y), p2=p1;
       Point<double> v1, v2;
       if ( W.nearest_pt(v2, p2, "2 * 0 * 33 * 86 * * * * * * * * *") <
            W.nearest_pt(v1, p1, "3 * 0 * 33 * 86 * * * * * * *")){
@@ -183,18 +177,16 @@ main(int argc, char **argv){
       }
       v2=Point<double>(-v1.y,v1.x);
       fig_object o = make_object(*i, "2 1 0 2 1 0 * * 0 * 0 1 0 0 0 *");
-      o.x.clear(); o.y.clear();
+      o.clear();
       double w = 30; // длина штриха
-      o.x.push_back(int(p1.x + v2.x*w));
-      o.x.push_back(int(p1.x - v2.x*w));
-      o.y.push_back(int(p1.y + v2.y*w));
-      o.y.push_back(int(p1.y - v2.y*w));
+      o.push_back(Point<int>(int(p1.x + v2.x*w),int(p1.y + v2.y*w)));
+      o.push_back(Point<int>(int(p1.x - v2.x*w),int(p1.y - v2.y*w)));
       *i=o;
       continue;
     }
     // водопад
     if (test_object(*i, "2 * * * 17 * 57 * * * * 0 * * * 1")){
-      Point<double> p1(i->x[0], i->y[0]), p2=p1;
+      Point<double> p1((*i)[0].x, (*i)[0].y), p2=p1;
       Point<double> v1, v2;
       if ( W.nearest_pt(v2, p2, "2 * 0 * 33 * 86 * * * * * * * * *") <
            W.nearest_pt(v1, p1, "3 * 0 * 33 * 86 * * * * * * *")){
@@ -202,28 +194,24 @@ main(int argc, char **argv){
       }
       v2=Point<double>(-v1.y,v1.x);
       fig_object o = make_object(*i, "2 1 0 3 1 0 * * 0 * 0 1 0 0 0 *");
-      o.x.clear(); o.y.clear();
+      o.clear();
       double w = 30; // длина штриха
-      o.x.push_back(int(p1.x + v2.x*w));
-      o.x.push_back(int(p1.x - v2.x*w));
-      o.y.push_back(int(p1.y + v2.y*w));
-      o.y.push_back(int(p1.y - v2.y*w));
+      o.push_back(Point<int>(int(p1.x + v2.x*w),int(p1.y + v2.y*w)));
+      o.push_back(Point<int>(int(p1.x - v2.x*w),int(p1.y - v2.y*w)));
       *i=o;
       continue;
     }
     // отметка уреза воды
     if (test_object(*i, "2 * * * 1 * 57 * * * * 1 * 0 0 1")){
       *i = make_object(*i, "1 3 0 1 33 7 57 -1 20 2.000 1 0.000 * * 23 23 * * * *");
-      i->center_x = i->start_x = i->end_x = i->x[0];
-      i->center_y = i->start_y = i->end_y = i->y[0];
+      i->center_x = i->start_x = i->end_x = (*i)[0].x;
+      i->center_y = i->start_y = i->end_y = (*i)[0].y;
       continue;
     }
     // автобусная остановка
     if (test_object(*i, "2 * * * 4 * 57 * * * * 1 * * * 1")){
-      int x = i->x[0];
-      int y = i->y[0];
       *i = make_object(*i, "4 1 4 55 -1 18 6 0.0000 4");
-      i->y[0]+=35;
+      (*i)[0].y+=35;
       i->text="A";
       continue;
     }
@@ -237,8 +225,8 @@ main(int argc, char **argv){
     // мост
     if (test_object(*i, "2 * * * 7 * 77 * * * * * * 0 0 2")){
 
-        Point<double> p1 (i->x[0], i->y[0]);
-        Point<double> p2 (i->x[1], i->y[1]);
+        Point<double> p1 ((*i)[0].x, (*i)[0].y);
+        Point<double> p2 ((*i)[1].x, (*i)[1].y);
         double ll = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
         Point<double> vt ((p1.x-p2.x)/ll, (p1.y-p2.y)/ll);
         Point<double> vn (-vt.y, vt.x);
@@ -247,44 +235,32 @@ main(int argc, char **argv){
         double l = 20.0;                    // длина "стрелок"
 
         *i=make_object("2 1 0 0 0 7 77 * 20 * 0 0 0 0 0 *");
-        i->x.push_back(int(p1.x + vn.x*w));
-        i->y.push_back(int(p1.y + vn.y*w));
-        i->x.push_back(int(p2.x + vn.x*w));
-        i->y.push_back(int(p2.y + vn.y*w));
-        i->x.push_back(int(p2.x - vn.x*w));
-        i->y.push_back(int(p2.y - vn.y*w));
-        i->x.push_back(int(p1.x - vn.x*w));
-        i->y.push_back(int(p1.y - vn.y*w));
+        i->push_back(Point<int>(int(p1.x + vn.x*w), int(p1.y + vn.y*w)));
+        i->push_back(Point<int>(int(p2.x + vn.x*w), int(p2.y + vn.y*w)));
+        i->push_back(Point<int>(int(p2.x - vn.x*w), int(p2.y - vn.y*w)));
+        i->push_back(Point<int>(int(p1.x - vn.x*w), int(p1.y - vn.y*w)));
 
         fig_object o = make_object("2 1 0 1 0 7 76 * -1 * 0 0 0 0 0 *");
-        o.x.clear(); o.y.clear();
-        o.x.push_back(int(p1.x + vn.x*w + (vn.x+vt.x)*l));
-        o.y.push_back(int(p1.y + vn.y*w + (vn.y+vt.y)*l));
-        o.x.push_back(int(p1.x + vn.x*w));
-        o.y.push_back(int(p1.y + vn.y*w));
-        o.x.push_back(int(p2.x + vn.x*w));
-        o.y.push_back(int(p2.y + vn.y*w));
-        o.x.push_back(int(p2.x + vn.x*w + (vn.x-vt.x)*l));
-        o.y.push_back(int(p2.y + vn.y*w + (vn.y-vt.y)*l));
+        o.clear();
+        o.push_back(Point<int>( int(p1.x + vn.x*w + (vn.x+vt.x)*l), int(p1.y + vn.y*w + (vn.y+vt.y)*l)));
+        o.push_back(Point<int>( int(p1.x + vn.x*w),                 int(p1.y + vn.y*w)));
+        o.push_back(Point<int>( int(p2.x + vn.x*w),                 int(p2.y + vn.y*w)));
+        o.push_back(Point<int>( int(p2.x + vn.x*w + (vn.x-vt.x)*l), int(p2.y + vn.y*w + (vn.y-vt.y)*l)));
         W.push_back(o);
 
-        o.x.clear(); o.y.clear();
-        o.x.push_back(int(p1.x - vn.x*w + (-vn.x+vt.x)*l));
-        o.y.push_back(int(p1.y - vn.y*w + (-vn.y+vt.y)*l));
-        o.x.push_back(int(p1.x - vn.x*w));
-        o.y.push_back(int(p1.y - vn.y*w));
-        o.x.push_back(int(p2.x - vn.x*w));
-        o.y.push_back(int(p2.y - vn.y*w));
-        o.x.push_back(int(p2.x - vn.x*w + (-vn.x-vt.x)*l));
-        o.y.push_back(int(p2.y - vn.y*w + (-vn.y-vt.y)*l));
+        o.clear();
+        o.push_back(Point<int>( int(p1.x - vn.x*w + (-vn.x+vt.x)*l), int(p1.y - vn.y*w + (-vn.y+vt.y)*l)));
+        o.push_back(Point<int>( int(p1.x - vn.x*w),                  int(p1.y - vn.y*w)));
+        o.push_back(Point<int>( int(p2.x - vn.x*w),                  int(p2.y - vn.y*w)));
+        o.push_back(Point<int>( int(p2.x - vn.x*w + (-vn.x-vt.x)*l), int(p2.y - vn.y*w + (-vn.y-vt.y)*l)));
         W.push_back(o);
     }
 
     // туннель
     if (test_object(*i, "2 * * * 3 * 77 * * * * * * 0 0 2")){
 
-        Point<double> p1 (i->x[0], i->y[0]);
-        Point<double> p2 (i->x[1], i->y[1]);
+        Point<double> p1 ((*i)[0].x, (*i)[0].y);
+        Point<double> p2 ((*i)[1].x, (*i)[1].y);
         double ll = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
         Point<double> vt ((p1.x-p2.x)/ll, (p1.y-p2.y)/ll);
         Point<double> vn (-vt.y, vt.x);
@@ -294,22 +270,16 @@ main(int argc, char **argv){
         i->depth=81;
 
         fig_object o = make_object("2 1 0 1 0 7 81 * -1 * 0 0 0 0 0 *");
-        o.x.clear(); o.y.clear();
-        o.x.push_back(int(p1.x + (vn.x+vt.x)*l));
-        o.y.push_back(int(p1.y + (vn.y+vt.y)*l));
-        o.x.push_back(int(p1.x));
-        o.y.push_back(int(p1.y));
-        o.x.push_back(int(p1.x + (-vn.x+vt.x)*l));
-        o.y.push_back(int(p1.y + (-vn.y+vt.y)*l));
+        o.clear();
+        o.push_back(Point<int>(int(p1.x + (vn.x+vt.x)*l),  int(p1.y + (vn.y+vt.y)*l)));
+        o.push_back(Point<int>(int(p1.x),                  int(p1.y)));
+        o.push_back(Point<int>(int(p1.x + (-vn.x+vt.x)*l), int(p1.y + (-vn.y+vt.y)*l)));
         W.push_back(o);
 
-        o.x.clear(); o.y.clear();
-        o.x.push_back(int(p2.x + (vn.x-vt.x)*l));
-        o.y.push_back(int(p2.y + (vn.y-vt.y)*l));
-        o.x.push_back(int(p2.x));
-        o.y.push_back(int(p2.y));
-        o.x.push_back(int(p2.x + (-vn.x-vt.x)*l));
-        o.y.push_back(int(p2.y + (-vn.y-vt.y)*l));
+        o.clear();
+        o.push_back(Point<int>(int(p2.x + (vn.x-vt.x)*l),  int(p2.y + (vn.y-vt.y)*l)));
+        o.push_back(Point<int>(int(p2.x),                int(p2.y)));
+        o.push_back(Point<int>(int(p2.x + (-vn.x-vt.x)*l), int(p2.y + (-vn.y-vt.y)*l)));
         W.push_back(o);
     }
 
@@ -321,10 +291,10 @@ main(int argc, char **argv){
       vector<double> ls;
       vector<Point<double> > vs;
       vector<Point<double> > ps;
-      ps.push_back(Point<double>(i->x[0], i->y[0]));
+      ps.push_back(Point<double>((*i)[0].x, (*i)[0].y));
       for (int j=1; j<fs; j++){
-        Point<double> p1 (i->x[j-1], i->y[j-1]);
-        Point<double> p2 (i->x[j], i->y[j]);
+        Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
+        Point<double> p2 ((*i)[j].x, (*i)[j].y);
         double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
         l+=dl; ls.push_back(l);
         ps.push_back(p2);
@@ -337,7 +307,7 @@ main(int argc, char **argv){
       double shift = 7.5*i->thickness;
 
       double dl=l/i->comment[0].size(); l=dl/2;
-      Point<double> p(i->x[0], i->y[0]);
+      Point<double> p((*i)[0].x, (*i)[0].y);
       p.x-=vs[0].y*shift;
       p.y+=vs[0].x*shift;
       double a = atan2(vs[0].y, vs[0].x);
@@ -354,9 +324,8 @@ main(int argc, char **argv){
         p.x-=vs[seg].y*shift;
         p.y+=vs[seg].x*shift;
         o.angle=-a;
-        o.x.clear(); o.y.clear();
-        o.x.push_back(int(p.x));
-        o.y.push_back(int(p.y));
+        o.clear();
+        o.push_back(Point<int>(int(p.x), int(p.y)));
         o.text=i->comment[0][j];
         if (j==0) *i=o; else W.push_back(o);
         l+=dl;
@@ -369,8 +338,8 @@ main(int argc, char **argv){
       vector<double> ls;
       vector<Point<double> > vs;
       for (int j=1; j<fs; j++){
-        Point<double> p1 (i->x[j-1], i->y[j-1]);
-        Point<double> p2 (i->x[j], i->y[j]);
+        Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
+        Point<double> p2 ((*i)[j].x, (*i)[j].y);
         double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
         ll0+=dl; ls.push_back(ll0);
         if (p1!=p2){
@@ -391,7 +360,7 @@ main(int argc, char **argv){
       double step = 400;
       double l=0;
       int n=0;
-      Point<double> p(i->x[0], i->y[0]);
+      Point<double> p((*i)[0].x, (*i)[0].y);
       int seg=0;
 
       while (l<ll0){
@@ -399,16 +368,14 @@ main(int argc, char **argv){
         if (n%2 == 0){ o.forward_arrow = 0; o.backward_arrow = 0; v.x=-vs[seg].y; v.y=vs[seg].x;}
         if (n%4 == 1){ o.forward_arrow = 1; o.backward_arrow = 0; v.x=vs[seg].x; v.y=vs[seg].y;}
         if (n%4 == 3){ o.forward_arrow = 0; o.backward_arrow = 1; v.x=vs[seg].x; v.y=vs[seg].y;}
-        o.x.clear(); o.y.clear();
-        o.x.push_back(int(p.x+v.x*w));
-        o.y.push_back(int(p.y+v.y*w));
-        o.x.push_back(int(p.x-v.x*w));
-        o.y.push_back(int(p.y-v.y*w));
+        o.clear();
+        o.push_back(Point<int>(int(p.x+v.x*w), int(p.y+v.y*w)));
+        o.push_back(Point<int>(int(p.x-v.x*w), int(p.y-v.y*w)));
         W.push_back(o);
         l+=step; n++;
         while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
-        p.x = i->x[seg] + (l - (seg==0? 0: ls[seg-1]))*vs[seg].x;
-        p.y = i->y[seg] + (l - (seg==0? 0: ls[seg-1]))*vs[seg].y;
+        p.x = (*i)[seg].x + (l - (seg==0? 0: ls[seg-1]))*vs[seg].x;
+        p.y = (*i)[seg].y + (l - (seg==0? 0: ls[seg-1]))*vs[seg].y;
       }
     }
 
@@ -418,8 +385,8 @@ main(int argc, char **argv){
       vector<double> ls;
       vector<Point<double> > vs;
       for (int j=1; j<fs; j++){
-        Point<double> p1 (i->x[j-1], i->y[j-1]);
-        Point<double> p2 (i->x[j], i->y[j]);
+        Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
+        Point<double> p2 ((*i)[j].x, (*i)[j].y);
         double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
         ll0+=dl; ls.push_back(ll0);
         if (p1!=p2){
@@ -434,7 +401,7 @@ main(int argc, char **argv){
 
       double step = 600;
       double l=0;
-      Point<double> p(i->x[0], i->y[0]);
+      Point<double> p((*i)[0].x, (*i)[0].y);
       int seg=0;
 
       while (l<ll0){
@@ -443,8 +410,8 @@ main(int argc, char **argv){
         W.push_back(o);
         l+=step;
         while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
-        p.x = i->x[seg] + (l - (seg==0? 0: ls[seg-1]))*vs[seg].x;
-        p.y = i->y[seg] + (l - (seg==0? 0: ls[seg-1]))*vs[seg].y;
+        p.x = (*i)[seg].x + (l - (seg==0? 0: ls[seg-1]))*vs[seg].x;
+        p.y = (*i)[seg].y + (l - (seg==0? 0: ls[seg-1]))*vs[seg].y;
       }
     }
     // обрыв
@@ -462,15 +429,15 @@ main(int argc, char **argv){
       for (no = W.begin(); no != W.end(); no++){
         if (!test_object(*no, "3 * 2 * 18 * 79 * * * * * * *") && 
             !test_object(*no, "2 * 2 * 18 * 79 * * * * * * * * *")) continue;
-        fs1=min(no->x.size(),no->y.size());
+        fs1=no->size();
         double sum=0;
         int sx=0, sy=0,sxx=0, sxy=0;
         for (int j=0;j<fs;j++){
           double min=1e99; 
           int kmin=0;
           for (int k=0;k<fs1;k++){
-            double l = sqrt((i->x[j]-no->x[k])*(i->x[j]-no->x[k]) + 
-                            (i->y[j]-no->y[k])*(i->y[j]-no->y[k]));
+            double l = sqrt(((*i)[j].x-(*no)[k].x)*((*i)[j].x-(*no)[k].x) + 
+                            ((*i)[j].y-(*no)[k].y)*((*i)[j].y-(*no)[k].y));
             if (min>l) {min=l; kmin=k;}
 
           }
@@ -485,11 +452,11 @@ main(int argc, char **argv){
       double l0a=0, l0b=0;
       vector<double> lsa, lsb;
       vector<Point<double> > vsa, vsb, psa, psb;
-      fs1=min(nomin->x.size(),nomin->y.size());
+      fs1=nomin->size();
 
       for (int j=1; j<fs; j++){
-        Point<double> p1 (i->x[j-1], i->y[j-1]);
-        Point<double> p2 (i->x[j], i->y[j]);
+        Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
+        Point<double> p2 ((*i)[j].x, (*i)[j].y);
         if (j==1) psa.push_back(p1);
         psa.push_back(p2);
         double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
@@ -502,11 +469,11 @@ main(int argc, char **argv){
       }
 
       for (int j=1; j<fs1; j++){
-        Point<double> p1 (nomin->x[j-1], nomin->y[j-1]);
-        Point<double> p2 (nomin->x[j], nomin->y[j]);
+        Point<double> p1 ((*nomin)[j-1].x, (*nomin)[j-1].y);
+        Point<double> p2 ((*nomin)[j].x,   (*nomin)[j].y);
         if (amin<0){
-          p1 = Point<double>(nomin->x[fs1-j], nomin->y[fs1-j]);
-          p2 = Point<double>(nomin->x[fs1-j-1], nomin->y[fs1-j-1]);
+          p1 = Point<double>((*nomin)[fs1-j].x,   (*nomin)[fs1-j].y);
+          p2 = Point<double>((*nomin)[fs1-j-1].x, (*nomin)[fs1-j-1].y);
         }
         if (j==1) psb.push_back(p1);
         psb.push_back(p2);
@@ -524,7 +491,7 @@ main(int argc, char **argv){
       fig_object o = *i;
       o.type=2; o.sub_type=1;
       o.cap_style=0;
-      o.x.clear(); o.y.clear();
+      o.clear();
 
       double step = 50;
 
@@ -539,11 +506,9 @@ main(int argc, char **argv){
       int sega=0, segb=0;
 
       while ((la<=l0a)&&(lb<=l0b)){
-        o.x.clear(); o.y.clear();
-        o.x.push_back(int(pa.x));
-        o.y.push_back(int(pa.y));
-        o.x.push_back(int(pb.x));
-        o.y.push_back(int(pb.y));
+        o.clear();
+        o.push_back(Point<int>(int(pa.x),int(pa.y)));
+        o.push_back(Point<int>(int(pb.x),int(pb.y)));
         W.push_back(o);
         
         la+=stepa;
@@ -564,21 +529,22 @@ main(int argc, char **argv){
       int minx=0x7FFFFFFF, maxx=-0x7FFFFFFF;
       int miny=0x7FFFFFFF, maxy=-0x7FFFFFFF;
       for (int j=0; j<fs; j++){ 
-        if (i->x[j]>maxx) maxx=i->x[j];
-        if (i->x[j]<minx) minx=i->x[j];
-        if (i->y[j]>maxy) maxy=i->y[j];
-        if (i->y[j]<miny) miny=i->y[j];
+        if ((*i)[j].x>maxx) maxx=(*i)[j].x;
+        if ((*i)[j].x<minx) minx=(*i)[j].x;
+        if ((*i)[j].y>maxy) maxy=(*i)[j].y;
+        if ((*i)[j].y<miny) miny=(*i)[j].y;
       }
       if ((minx>maxx)||(miny>maxy)) continue;
 
       int x=(maxx+minx)/2, y=(maxy+miny)/2-w1/2;
 
       fig_object o = make_object("2 1 0 1 0 * 57 * * * * 0 * * * *");
-      o.x.push_back(x-w1); o.y.push_back(y);
-      o.x.push_back(x+w1); o.y.push_back(y);
-      W.push_back(o); o.x.clear(); o.y.clear();
-      o.x.push_back(x); o.y.push_back(y-w1);
-      o.x.push_back(x); o.y.push_back(y+w2);
+      o.push_back(Point<int>(x-w1,y));
+      o.push_back(Point<int>(x+w1,y));
+      W.push_back(o); 
+      o.clear();
+      o.push_back(Point<int>(x,y-w1));
+      o.push_back(Point<int>(x,y+w2));
       W.push_back(o);
     }
 
@@ -592,8 +558,8 @@ main(int argc, char **argv){
       vector<double> ls;
       vector<Point<double> > vt;
       for (int j=1; j<fs; j++){
-        Point<double> p1 (i->x[j-1], i->y[j-1]);
-        Point<double> p2 (i->x[j], i->y[j]);
+        Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
+        Point<double> p2 ((*i)[j].x, (*i)[j].y);
         double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
         ll0+=dl; ls.push_back(ll0);
         if (p1!=p2){
@@ -619,19 +585,18 @@ main(int argc, char **argv){
 
       while (l+w<ll0){
         Point<double> p(
-         i->x[seg] + (l - (seg==0? 0: ls[seg-1]))*vt[seg].x,
-         i->y[seg] + (l - (seg==0? 0: ls[seg-1]))*vt[seg].y);
+         (*i)[seg].x + (l - (seg==0? 0: ls[seg-1]))*vt[seg].x,
+         (*i)[seg].y + (l - (seg==0? 0: ls[seg-1]))*vt[seg].y);
         Point<double> vn(-vt[seg].y, vt[seg].x);
-        o.x.clear(); o.y.clear();
-        o.x.push_back(int(p.x));
-        o.y.push_back(int(p.y));
-        o.x.push_back(int(p.x+k*(vn.x-vt[seg].x)*w));
-        o.y.push_back(int(p.y+k*(vn.y-vt[seg].y)*w));
+        o.clear();
+        o.push_back(Point<int>(int(p.x),int(p.y)));
+        o.push_back(Point<int>(int(p.x+k*(vn.x-vt[seg].x)*w),
+                               int(p.y+k*(vn.y-vt[seg].y)*w)));
         W.push_back(o);
-        o.x[0]+=int(vt[seg].x*w);
-        o.y[0]+=int(vt[seg].y*w);
-        o.x[1]+=int(vt[seg].x*w);
-        o.y[1]+=int(vt[seg].y*w);
+        o[0].x+=int(vt[seg].x*w);
+        o[0].y+=int(vt[seg].y*w);
+        o[1].x+=int(vt[seg].x*w);
+        o[1].y+=int(vt[seg].y*w);
         W.push_back(o);
         l+=step;
         while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
@@ -649,8 +614,8 @@ main(int argc, char **argv){
       vector<double> ls;
       vector<Point<double> > vt;
       for (int j=1; j<fs; j++){
-        Point<double> p1 (i->x[j-1], i->y[j-1]);
-        Point<double> p2 (i->x[j], i->y[j]);
+        Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
+        Point<double> p2 ((*i)[j].x, (*i)[j].y);
         double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
         ll0+=dl; ls.push_back(ll0);
         if (p1!=p2){
@@ -677,13 +642,11 @@ main(int argc, char **argv){
 
       while (l+w/2<ll0){
         Point<double> p(
-         i->x[seg] + (l - (seg==0? 0: ls[seg-1]))*vt[seg].x,
-         i->y[seg] + (l - (seg==0? 0: ls[seg-1]))*vt[seg].y);
-        o.x.clear(); o.y.clear();
-        o.x.push_back(int(p.x));
-        o.y.push_back(int(p.y));
-        o.x.push_back(int(p.x-k*vt[seg].y*w));
-        o.y.push_back(int(p.y+k*vt[seg].x*w));
+         (*i)[seg].x + (l - (seg==0? 0: ls[seg-1]))*vt[seg].x,
+         (*i)[seg].y + (l - (seg==0? 0: ls[seg-1]))*vt[seg].y);
+        o.clear();
+        o.push_back(Point<int>(int(p.x),int(p.y)));
+        o.push_back(Point<int>(int(p.x-k*vt[seg].y*w),int(p.y+k*vt[seg].x*w)));
         W.push_back(o);
         l+=step;
         while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}

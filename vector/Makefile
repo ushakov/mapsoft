@@ -4,7 +4,7 @@ MAPSOFT_LIBS = ../geo_io/io.a ../loaders/loaders.a ../utils/mapsoft_utils.a  ../
 CPPFLAGS = -O1
 
 
-all:  test_geofig mp2fig fig2mp fig_conv fig_norm
+all:  test_geofig mp2fig fig2mp fig_conv_podm fig_conv_hreb fig_norm
 
 test_fig: $(MAPSOFT_LIBS) test_fig.cpp
 	g++ test_fig.cpp $(MAPSOFT_LIBS) -o test_fig
@@ -12,8 +12,13 @@ test_mp: $(MAPSOFT_LIBS) test_mp.cpp
 	g++ test_mp.cpp $(MAPSOFT_LIBS) -o test_mp
 
 
-fig_conv: $(MAPSOFT_LIBS) fig_conv.cpp
-	g++ fig_conv.cpp $(MAPSOFT_LIBS) -o fig_conv
+fig_conv_podm: $(MAPSOFT_LIBS) fig_conv_podm.cpp
+	g++ fig_conv_podm.cpp $(MAPSOFT_LIBS) -o fig_conv_podm
+
+fig_conv_hreb: $(MAPSOFT_LIBS) fig_conv_hreb.cpp
+	g++ fig_conv_hreb.cpp $(MAPSOFT_LIBS) -o fig_conv_hreb
+
+
 fig_ukl: $(MAPSOFT_LIBS) fig_ukl.cpp
 	g++ fig_ukl.cpp $(MAPSOFT_LIBS) -o fig_ukl
 

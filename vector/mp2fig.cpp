@@ -130,7 +130,7 @@ main(int argc, char **argv){
 
     mp::mp_world   M; 
    
-    g_map map = fig::get_map(F);
+    g_map map = fig::get_ref(F);
     convs::map2pt C(map, Datum("wgs84"), Proj("lonlat"), Options());
 
     // ловля подписей!
@@ -160,9 +160,9 @@ main(int argc, char **argv){
           if (!fig::test_object(*o, m->second)) continue;
           if ((o->comment.size()==0) || (i->text != o->comment[0])) continue;
           double dist = 1e99;
-          for (int n=0; n<min(o->x.size(),o->y.size());n++){
-            double d=sqrt( (i->x[0] - o->x[n])*(i->x[0] - o->x[n]) + 
-                           (i->y[0] - o->y[n])*(i->y[0] - o->y[n]) );
+          for (int n=0; n<o->size();n++){
+            double d=sqrt( ((*i)[0].x - (*i)[n].x)*((*i)[0].x - (*i)[n].x) + 
+                           ((*i)[0].y - (*i)[n].y)*((*i)[0].y - (*i)[n].y) );
             if (dist>d) dist=d;
           }
           if (mindist>dist) {mindist=dist; o1=o;}
@@ -193,9 +193,9 @@ main(int argc, char **argv){
         for (fig::fig_world::iterator o=F.begin(); o!=F.end(); o++){
           if (!fig::test_object(*o, m->second)) continue;
           double dist = 1e99;
-          for (int n=0; n<min(o->x.size(),o->y.size());n++){
-            double d=sqrt( (i->x[0] - o->x[n])*(i->x[0] - o->x[n]) + 
-                           (i->y[0] - o->y[n])*(i->y[0] - o->y[n]) );
+          for (int n=0; n<o->size();n++){
+            double d=sqrt( ((*i)[0].x - (*i)[n].x)*((*i)[0].x - (*i)[n].x) + 
+                           ((*i)[0].y - (*i)[n].y)*((*i)[0].y - (*i)[n].y) );
             if (dist>d) dist=d;
           }
           if (mindist>dist) {mindist=dist; o1=o;}
@@ -238,7 +238,7 @@ main(int argc, char **argv){
 
         if (!fig::test_object(*i, r->first)) continue;
         mp::mp_object o = mp::make_object(r->second); 
-        o = C.line_frw(i->get_vector());
+        o = C.line_frw(*i);
 
         // если линия замкнута - добавим посл.точку=первой
         if (((i->type==3) && ((i->sub_type==1)||(i->sub_type==3)||(i->sub_type==5)))||
@@ -340,8 +340,7 @@ main(int argc, char **argv){
       g_refpoint(maxx, maxy,W,0)};
     for (int n=0; n<4; n++){
       fig::fig_object o = fig::make_object("2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 *");
-      o.x.push_back( int(rps[n].xr) );
-      o.y.push_back( int(rps[n].yr) );
+      o.push_back( Point<int>(int(rps[n].xr), int(rps[n].yr)) );
       ostringstream comm;
       comm << "REF " << fixed << rps[n].x << " " << rps[n].y;
       o.comment.push_back(comm.str()); comm.str("");
@@ -382,14 +381,14 @@ main(int argc, char **argv){
             if ((o.sub_type==0)||(o.sub_type==1)) f=1;
             if ((o.sub_type==2)||(o.sub_type==3)) f=-1;
             if ((o.sub_type==4)||(o.sub_type==5)) f=0.4;
-            o.f.resize(o.x.size(), f);
+            o.f.resize(o.size(), f);
             if (o.f.size()>0){ // края
               o.f[0]=0; o.f[o.f.size()-1]=0;
             }
           }
           // полигон не может содержать менее чем 3 точки
-          if ((o.type==2)&&(o.sub_type>1)&&(o.x.size()<3)) o.sub_type=1;
-          if ((o.type==3)&&(o.sub_type%2==1)&&(o.x.size()<3)) o.sub_type--;
+          if ((o.type==2)&&(o.sub_type>1)&&(o.size()<3)) o.sub_type=1;
+          if ((o.type==3)&&(o.sub_type%2==1)&&(o.size()<3)) o.sub_type--;
 
 
           // Если объект - текст, то Label->text, comment->comment

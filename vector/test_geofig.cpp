@@ -7,7 +7,7 @@ main(int argc, char **argv){
     exit(0);
   }
   fig::fig_world W = fig::read(argv[1]);
-  g_map M=get_map(W);
+  g_map M=get_ref(W);
 
   fig::write(std::cout, W);
 }
