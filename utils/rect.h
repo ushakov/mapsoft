@@ -33,7 +33,9 @@ public:
     bool empty() const { return w <= 0 || h <= 0; }
 
     Point<T> TLC() const { return  Point<T>(x,y);}
+    Point<T> TRC() const { return  Point<T>(x+w,y);}
     Point<T> BRC() const { return  Point<T>(x+w,y+h);}
+    Point<T> BLC() const { return  Point<T>(x,y+h);}
 
     Rect<T> & operator/= (T k)
     {

@@ -25,6 +25,9 @@ fig_ukl: $(MAPSOFT_LIBS) fig_ukl.cpp
 fig_norm: $(MAPSOFT_LIBS) fig_norm.cpp
 	g++ fig_norm.cpp $(MAPSOFT_LIBS) -o fig_norm
 
+fig_bbx_test: $(MAPSOFT_LIBS) fig_bbx_test.cpp
+	g++ fig_bbx_test.cpp $(MAPSOFT_LIBS) -o fig_bbx_test
+
 
 test_geofig: $(MAPSOFT_LIBS) test_geofig.cpp 
 	g++ test_geofig.cpp $(GRLIB_FLAGS) $(MAPSOFT_LIBS) -o test_geofig

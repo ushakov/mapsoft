@@ -245,8 +245,8 @@ using namespace boost::spirit;
 
   // Добавить точки и треки в fig_world в соотв. с привязкой
 
-  void set_wpts(fig_world & w, const g_map & m, const geo_data & world){
-/*    vector<g_waypoint_list>::const_iterator wl;
+  void set_wpts(fig_world & fig, const g_map & m, const geo_data & world){
+    vector<g_waypoint_list>::const_iterator wl;
     vector<g_waypoint>::const_iterator w;
     convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"), Options());
     for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
@@ -255,7 +255,7 @@ using namespace boost::spirit;
         fig_object f_pt;
         f_pt.pen_color=0;
         f_pt.depth=6;
-        f_pt.width=2;
+        f_pt.thickness=2;
     
         fig_object f_txt;
         f_txt.pen_color=8;
@@ -267,7 +267,7 @@ using namespace boost::spirit;
         g_waypoint def_pt;
         cnv.bck(p);
   
-        
+/*        
         out << "# WPT " << w->name << "\n";
         if (w->z   < 1e20)                      out << "# alt:        " << fixed << setprecision(1) << w->z << "\n";
         if (w->t != def_pt.t)                   out << "# time:       " << time2str(w->t) << "\n";
@@ -296,9 +296,9 @@ using namespace boost::spirit;
         out << "4 " << td << " " << wpt_txt_color << " " << wpt_txt_depth
             << " -1 "<< wpt_txt_font << " " << wpt_txt_size << " 0.0000 4 105 150 "
             << int(p.x)+15*wpt_width << " " << int(p.y)+15*wpt_width << " " << w->name << "\\001\n";
-      }
+*/      }
     }
-*/
+
   }
   void set_trks(fig_world & w, const g_map & m, const geo_data & world){
 /*    vector<g_track>::const_iterator tl;

@@ -188,12 +188,20 @@ namespace fig {
            (text == o.text) && (comment == o.comment) && (f == o.f));
         }
         
+	// 
         operator std::vector<Point<double> > () const {
           std::vector<Point<double> > ret;
           for (int i=0; i<size(); i++) 
             ret.push_back(Point<double>((*this)[i].x, (*this)[i].y));
           return ret;
         }
+
+        // сместить на (x,y)
+	fig_object & operator += (const Point<int> & p) {
+          for (iterator i=begin(); i!=end(); i++) *i += p;
+	  return *this;
+        }
+
         void set_vector(const std::vector<Point<double> > & v);
     };
 
@@ -228,7 +236,15 @@ namespace fig {
         // точечных объектов, привязанных к линии, которые хочется изображать 
         // ориентированно)
         double nearest_pt(Point<double> & vec, Point<double> & pt, const std::string & mask, double maxdist=100) const;
+
+	// сместить на (x,y)
+        fig_world & operator +=(const Point<int> & p) {
+          for (iterator i=begin(); i!=end(); i++) *i += p; 
+          return *this;
+        }
+
     };
+
 
     fig_world read(const char* filename);
     bool write(std::ostream & out, const fig_world & world);
