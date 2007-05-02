@@ -18,26 +18,22 @@ main(int argc, char **argv){
   fig_psfonts fontnames;
   gs_bbx G;
 
-  double k=1200/72*1.05;
 
   for (fig_world::iterator i=W1.begin(); i!=W1.end(); i++){
     if (i->type!=4) continue;
     G.set_font(int(i->font_size), fontnames[i->font].c_str());
-    Rect<double> r = G.txt2bbx(i->text.c_str());
+    Rect<int> r = G.txt2bbx_fig(i->text.c_str());
 
     fig_object o = make_object("2 2 0 0 4 4 1 -1 20 0.000 0 1 7 0 0 5");
     o.clear();
     o.depth=i->depth+1;
-    r*=k;
-    Rect<int> ri(int(r.x), int(-r.y-r.h), int(r.w), int(r.h));
+    r+= (*i)[0];
 
-    ri+= (*i)[0];
-
-    o.push_back(ri.TLC());
-    o.push_back(ri.TRC());
-    o.push_back(ri.BRC());
-    o.push_back(ri.BLC());
-    o.push_back(ri.TLC());
+    o.push_back(r.TLC());
+    o.push_back(r.TRC());
+    o.push_back(r.BRC());
+    o.push_back(r.BLC());
+    o.push_back(r.TLC());
     W1.push_back(o);
   }
   ofstream out(argv[1]);

@@ -84,14 +84,20 @@ struct gs_bbx{
     puts(s.str().c_str());
   }
 
+  // в координатах postscript'a
   Rect<double> txt2bbx(const char * text) const{
-    puts("100 100 moveto (");
+    puts("500 500 moveto (");
     for (int i = 0; i< strlen(text); i++){
       if ((text[i]==')')||(text[i]=='\\')) putc('\\');
       putc(text[i]);
     }
     puts(") show showpage\n");
-    return (get()-Point<double>(100,100));
+    return (get()-Point<double>(500,500));
+  }
+  // в координатах fig'a
+  Rect<int> txt2bbx_fig(const char * text) const{
+    Rect<double> r = txt2bbx(text) * 1200/72*1.05;
+    return Rect<int>(int(r.x), int(-r.y-r.h), int(r.w), int(r.h));
   }
 
  
