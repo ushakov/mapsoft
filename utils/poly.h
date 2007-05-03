@@ -26,7 +26,7 @@ Point<T> find_cross(const Point<T> & p1, const Point<T> & p2,
   Point<T> p14 = p4-p1;
   double k1 = p12.x*p43.y - p12.y*p43.x;
   double k2 = p14.x*p43.y - p14.y*p43.x;
-  if (k1==0) throw; // параллельные линии(?)
+  if (k1==0) throw 0; // параллельные линии(?)
   double a = k2/k1;
   if ((a<0)||(a>=1)) throw 0; // пересечение - за пределами отрезка
   return Point<T>((T)(p1.x+a*p12.x), (T)(p1.y+a*p12.y));
@@ -63,45 +63,66 @@ struct Polygon : std::list<Line<T> > {
       // Контур с самопересечениями нужно разбить на несколько.
 
       // Будем так хранить пересечения
-      typedef std::map<typename Line<T>::iterator, typename Line<T>::iterator> crossings_t;
+      typedef std::pair<typename Line<T>::iterator, typename Line<T>::iterator> crossing_t;
+      typedef std::list<crossing_t> crossings_t;
       crossings_t crossings;
 
       // Разыщем все пересечения:
-      typename Line<T>::iterator p1,p2,p3,p4;
-      for (p1 = l.begin(); p1!=l.end(); p1++){
-        p2=p1; p2++; if (p2==l.end()) continue;
-        for (p3 = p2; p3!=l.end(); p3++){
-          p4=p3; p4++; if (p4==l.end()) continue;
-          try {
+      typename Line<T>::iterator p1=l.begin(),p2=l.begin(); p2++;
+      while (p2!=l.end()){
+        typename Line<T>::iterator p3=p2,p4=p2; p4++;
+        while (p4!=l.end()){
+	  try {
             Point<T> p = find_cross(*p1,*p2,*p3,*p4);
-	    typename Line<T>::iterator i1 = (p==*p1)? p1 : l.insert(p1,p);
-	    typename Line<T>::iterator i2 = (p==*p3)? p3 : l.insert(p3,p);
-            crossings[i1] = i2;
-            crossings[i2] = i1;
+	    // нашли пересечение
+std::cerr << "crossing: " << *p1 << *p2 << *p3 << *p4 << p << "\n";
+
+            typename Line<T>::iterator i1, i2;
+            if (p==*p1)      {i1=p1;} 
+            else if (p==*p2) {i1=p2;}
+            else {i1=l.insert(p2,p); p1++;}
+
+            if (p==*p3)      {i2=p3;} 
+            else if (p==*p4) {i2=p4;}
+            else {i2=l.insert(p4,p);}
+	    // переход туда и обратно
+            crossings.push_back(crossing_t(i1,i2));
+            crossings.push_back(crossing_t(i2,i1));
           } catch(int i){}
+          p3=p4; p4++;
         }
+        p1=p2; p2++;
       }
+      // между прочим, в числе прочего есть пара переходов между первой и последней точками.
+
       
       while (crossings.size()>0){
 	// собираем новую линюю из кусочков старой
 	Line<T> newline;
 
-        std::pair<typename Line<T>::iterator, typename Line<T>::iterator> 
-          cr = *crossings.begin();
-          crossings.erase(crossings.begin());
-        // пока не придем к тому же перекрестку
-        while (cr.first!=cr.second){
+	// берем переход
+        crossing_t cr = *crossings.begin();
+        crossings.pop_front();
+
+	// переход конец->начало нам вообще не интересен
+        if (cr.first == l.begin()) continue;
+
+	// мы выйдем из cr.second и дойдем до cr.first
+        newline.push_back(*(cr.second));
+        while (1){
+          cr.second++;
+          newline.push_back(*(cr.second));
+          if (cr.first==cr.second) break;
           // дошли ли мы до нового пересечения?
-          typename crossings_t::iterator f = crossings.find(cr.first);
-          if (f!=crossings.end()){
-            cr.first = f->second; // перейдем на другую ветку
-            crossings.erase(f);
+          for (typename crossings_t::iterator f=crossings.begin(); f!=crossings.end(); f++){
+            if (f->first == cr.second){
+              cr.second = f->second; // перейдем на другую ветку
+              crossings.erase(f);
+              break;
+            }
           }
-          // дошли ли мы до начала линии?
-	  if (cr.first == l.end()) cr.first=l.begin();
-          newline.push_back(*(cr.first));
         }
-        this->push_back(newline);
+        this->std::list<Line<T> >::push_back(newline);
       }
     }
 };
