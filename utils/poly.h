@@ -29,7 +29,7 @@ Point<T> find_cross(const Point<T> & p1, const Point<T> & p2,
   if (k1==0) throw; // параллельные линии(?)
   double a = k2/k1;
   if ((a<0)||(a>=1)) throw 0; // пересечение - за пределами отрезка
-  return p1+(T)(a*p12);
+  return Point<T>((T)(p1.x+a*p12.x), (T)(p1.y+a*p12.y));
 }
 
 // Обобщенный многоугольник:
@@ -51,25 +51,27 @@ Point<T> find_cross(const Point<T> & p1, const Point<T> & p2,
 // 
 
 template <typename T> 
-struct Polygon: std::list<Line<T> > {
+struct Polygon : std::list<Line<T> > {
 
     void push_back(Line<T> l){
       // Добавление контура.
       // Если в контуре меньше трех точек - нам не нужен такой
       if (l.size()<3) return;
       // Последняя точка должна иметь те же координаты, что и первая.
-      if (l.begin()!=l.rbegin()) l.push_back(*l.begin());
+      if (*l.begin() != *l.rbegin()) l.push_back(*l.begin());
 
       // Контур с самопересечениями нужно разбить на несколько.
 
       // Будем так хранить пересечения
-      std::map<typename Line<T>::iterator, typename Line<T>::iterator> crossings;
+      typedef std::map<typename Line<T>::iterator, typename Line<T>::iterator> crossings_t;
+      crossings_t crossings;
 
       // Разыщем все пересечения:
-      for (typename Line<T>::iterator p1 = l.begin(); p1!=l.end(); p1++){
-        p2=p1+1; if (p2==l.end()) continue;
-        for (typename Line<T>::iterator p3 = p2; p3!=l.end(); p3++){
-          p4=p3+1; if (p4==l.end()) continue;
+      typename Line<T>::iterator p1,p2,p3,p4;
+      for (p1 = l.begin(); p1!=l.end(); p1++){
+        p2=p1; p2++; if (p2==l.end()) continue;
+        for (p3 = p2; p3!=l.end(); p3++){
+          p4=p3; p4++; if (p4==l.end()) continue;
           try {
             Point<T> p = find_cross(*p1,*p2,*p3,*p4);
 	    typename Line<T>::iterator i1 = (p==*p1)? p1 : l.insert(p1,p);
@@ -85,11 +87,12 @@ struct Polygon: std::list<Line<T> > {
 	Line<T> newline;
 
         std::pair<typename Line<T>::iterator, typename Line<T>::iterator> 
-          cr = crossings.pop_front();
+          cr = *crossings.begin();
+          crossings.erase(crossings.begin());
         // пока не придем к тому же перекрестку
         while (cr.first!=cr.second){
           // дошли ли мы до нового пересечения?
-          typename Line<T>::iterator f = crossings.find(cr.first);
+          typename crossings_t::iterator f = crossings.find(cr.first);
           if (f!=crossings.end()){
             cr.first = f->second; // перейдем на другую ветку
             crossings.erase(f);
@@ -98,7 +101,7 @@ struct Polygon: std::list<Line<T> > {
 	  if (cr.first == l.end()) cr.first=l.begin();
           newline.push_back(*(cr.first));
         }
-        data.pish_back(newline);
+        this->push_back(newline);
       }
     }
 };
