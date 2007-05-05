@@ -6,10 +6,12 @@
 #include "../utils/image.h"
 #include "../geo_io/geo_data.h"
 
+#include "action_data.h"
+
 // Abstract class Layer
 
 // Layer -- знает, как отдать некоторую картинку в прямоугольных
-// целочисленных координатах. Рассчитан на необнократное обращение за
+// целочисленных координатах. Рассчитан на неоднократное обращение за
 // маленькими кусочками
 
 
@@ -21,6 +23,15 @@ public:
     Layer() {}
     Layer (Layer const & other) { }
     virtual void swap (Layer & other) { }
+
+    // actions
+    virtual ActionResult do_action (ActionData * ad) {
+	return AR_NoInterest;
+    }
+
+    virtual std::vector<std::string> action_names () {
+	return std::vector<std::string>();
+    }
 };
 
 

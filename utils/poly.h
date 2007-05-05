@@ -52,6 +52,7 @@ template<typename X, typename Y>
 bool sort_pairs(const std::pair<X,Y> & p1, const std::pair<X,Y> & p2)
      {return p1.first < p2.first;}
 
+
 template <typename T> 
 double plength(const Point<T> & p){
   return sqrt((double)(p.x*p.x + p.y*p.y));
@@ -103,7 +104,7 @@ struct Polygon : std::list<Line<T> > {
 
     void push_back(Line<T> l){
       // Добавление контура.
-      // Если в контуре меньше трех точек - нам не нужен такой
+      // Если в контуре меньше трех точек - нам не нужен такой контур
       if (l.size()<3) return;
       // Последняя точка должна иметь те же координаты, что и первая.
       if (*l.begin() != *l.rbegin()) l.push_back(*l.begin());

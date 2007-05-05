@@ -83,6 +83,9 @@ public:
           int x = int(dst_rect.x+((p.x-src_rect.x)*dst_rect.w)/src_rect.w);
           int y = int(dst_rect.y+((p.y-src_rect.y)*dst_rect.h)/src_rect.h);
 
+	  // ideally, we should draw a line (xo, yo) -- (x, y)
+	  // but part of the line can be outside the tile
+
           if (point_in_rect(Point<int>(int(p.x),int(p.y)), src_rect)){
 
             if (!pt->start) {
@@ -111,6 +114,59 @@ public:
         }
       }
 
+    }
+
+    enum Actions { A_Move, A_Modify, A_Delete, A_ActionsNumber };
+
+    g_waypoint * find_waypoint (Point<int> p) {
+	Rect<int> target_rect (p - Point<int>(5,5), p + Point<int>(5,5));
+	for (std::vector<g_waypoint_list>::const_iterator it = world->wpts.begin();
+	     it!= world->wpts.end(); it++){
+	    for (std::vector<g_waypoint>::const_iterator pt = it->begin();
+		 pt!= it->end(); pt++){
+		g_point wp(pt->x,pt->y); cnv.bck(wp);
+
+		if (point_in_rect(Point<int>(int(wp.x),int(wp.y)), target_rect)){
+		    return &(*pt);
+		}
+	    }
+	}
+	return 0;
+    }
+
+    virtual ActionResult do_action (const ActionData & ad) {
+	if (ad.items.size() == 0) return false;   // Nothing to do!
+	switch (ad.items[0].type) {
+	case A_Move:
+	    if (ad.items.size() == 1) {
+		g_waypoint * wpt = find_waypoint (ad.items[0].p);
+		if (wpt) return AR_GoOn;
+		return AR_NoInterest;
+	    } else {
+		if (ad.items.size() != 2) return AR_Error;
+		g_waypoint * wpt = find_waypoint (ad.items[0].p);
+		if (!wpt) return AR_Error;
+		wpt->x = ad.items[1].p.x;	
+		wpt->y = ad.items[1].p.y;
+		cnv.frw(*wpt);
+		return AR_Completed;
+	    }
+	    break;
+	case A_Modify:
+	case A_Delete:
+	    return AR_NoInterest;
+	default:
+	    return AR_Error;
+	}
+    }
+
+    virtual std::vector<std::string> action_names () {
+	std::vector<std::string> names;
+	names.resize(A_ActionsNumber);
+	names[A_Move] = "Move Waypoint";
+	names[A_Modify] = "Modify Waypoint";
+	names[A_Delete] = "Delete Waypoint";
+	return names;
     }
 
 

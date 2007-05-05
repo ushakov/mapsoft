@@ -8,8 +8,13 @@ all:  test_geofig mp2fig fig2mp fig_conv_podm fig_conv_hreb fig_norm test_poly
 
 test_fig: $(MAPSOFT_LIBS) test_fig.cpp
 	g++ test_fig.cpp $(MAPSOFT_LIBS) -o test_fig
+	
 test_poly: $(MAPSOFT_LIBS) test_poly.cpp
-	g++ test_poly.cpp $(MAPSOFT_LIBS) -o test_poly
+	g++ -ggdb test_poly.cpp $(MAPSOFT_LIBS) -o test_poly
+
+test_poly_binsearch: $(MAPSOFT_LIBS) test_poly_binsearch.cpp
+	g++ -ggdb test_poly_binsearch.cpp $(MAPSOFT_LIBS) -o test_poly_binsearch
+	
 test_mp: $(MAPSOFT_LIBS) test_mp.cpp
 	g++ test_mp.cpp $(MAPSOFT_LIBS) -o test_mp
 

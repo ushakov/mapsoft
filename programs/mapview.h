@@ -63,7 +63,7 @@ public:
 	    "      <menuitem action='Save'/>"
 	    "      <menuitem action='Clear'/>"
 	    "    </menu>"
-	    "    <menu action='Help'>"
+	    "    <menu action='MenuHelp'>"
 	    "    </menu>"
 	    "  </menubar>"
 	    "</ui>";

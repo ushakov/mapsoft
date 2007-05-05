@@ -5,8 +5,8 @@
 //#include <io_new/io.h>
 //#define DEBUG_VIEWER
 //#define DEBUG_GOOGLE
-#define DEBUG_LAYER_GEOMAP
-#define DEBUG_LAYER_GEODATA
+//#define DEBUG_LAYER_GEOMAP
+//#define DEBUG_LAYER_GEODATA
 #define DEBUG_JPEG
 
 #include "viewer.h"
