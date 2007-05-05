@@ -48,9 +48,9 @@ Point<T> find_cross(const Point<T> & p1, const Point<T> & p2,
   return Point<T>((T)(p1.x+ab.x*(p2.x-p1.x)), (T)(p1.y+ab.x*(p2.y-p1.y)));
 }
 
-template<typename X, typename Y>
-bool sort_pairs(const std::pair<X,Y> & p1, const std::pair<X,Y> & p2)
-     {return p1.first < p2.first;}
+//template<typename X, typename Y>
+//bool sort_pairs(const std::pair<X,Y> & p1, const std::pair<X,Y> & p2)
+//     {return p1.first < p2.first;}
 
 
 template <typename T> 
@@ -82,6 +82,8 @@ Point<double> pnorm(const Point<T> & p){
 // внутри себя, отрицательный - вне себя.
 // ("восьмерка" меняет состояние точек вне себя :))
 // 
+
+
 
 
 
@@ -213,7 +215,6 @@ struct Polygon : std::list<Line<T> > {
 // - знак интеграла xdy или ydx
 // - выбрать точку с минимальной координатой и посмотреть
 //   разницу азимутов на следующую и предыдущую точки
-// (но с самопересечениями это будет работать некорректно!)
 template <typename T> 
 int polygon_sign(const Polygon<T> & p){
 
