@@ -6,12 +6,12 @@
 
 #include <queue> 
 
-#include "workplane.h"
-#include <point.h>
-#include <cache.h>
-#include <rect.h>
-#include <image.h>
-#include <image_gdk.h>
+#include "viewer/workplane.h"
+#include <utils/point.h>
+#include <utils/cache.h>
+#include <utils/rect.h>
+#include <utils/image.h>
+#include <utils/image_gdk.h>
 
 // 
 class Viewer : public Gtk::DrawingArea {

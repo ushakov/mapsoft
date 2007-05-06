@@ -4,11 +4,11 @@
 #include <boost/shared_ptr.hpp>
 #include <gtkmm.h>
 
-#include "workplane.h"
-#include "viewer.h"
-#include "layer_geomap.h"
-#include "layer_geodata.h"
-#include "layerlist.h"
+#include "viewer/workplane.h"
+#include "viewer/viewer.h"
+#include "layers/layer_geomap.h"
+#include "layers/layer_geodata.h"
+#include "viewer/layerlist.h"
 
 class Mapview : public Gtk::Window {
 public:

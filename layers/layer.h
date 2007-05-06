@@ -1,12 +1,12 @@
 #ifndef LAYER_H
 #define LAYER_H
 
-#include "../utils/point.h"
-#include "../utils/rect.h"
-#include "../utils/image.h"
-#include "../geo_io/geo_data.h"
+#include "utils/point.h"
+#include "utils/rect.h"
+#include "utils/image.h"
+#include "geo_io/geo_data.h"
 
-#include "action_data.h"
+#include "layers/action_data.h"
 
 // Abstract class Layer
 
@@ -25,9 +25,7 @@ public:
     virtual void swap (Layer & other) { }
 
     // actions
-    virtual ActionResult do_action (ActionData * ad) {
-	return AR_NoInterest;
-    }
+    virtual void do_action (ActionData * ad) { }
 
     virtual std::vector<std::string> action_names () {
 	return std::vector<std::string>();

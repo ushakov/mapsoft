@@ -1,0 +1,12 @@
+Import ('env')
+le = env.Copy()
+sources = Split ("""
+		mapsoft_time.cpp
+		mapsoft_options.cpp
+		rect.cpp
+		""")
+
+le.Library('utils', sources)
+
+SConscript('tests/SConscript')
+

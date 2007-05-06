@@ -73,7 +73,7 @@ W1.colors[35]=0x888888;
         i->sub_type=1;
         i->pen_color=12;
         i->font_size=8;
-        i->x[0]+=int(i->length/2);
+        (*i)[0].x+=int(i->length/2);
       }
     }
 

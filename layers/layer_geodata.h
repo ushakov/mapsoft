@@ -6,6 +6,8 @@
 #include <fstream>
 #include <math.h>
 
+#include <assert.h>
+
 #include "layer_geo.h"
 #include "../geo_io/geo_convs.h"
 
@@ -17,14 +19,14 @@
 
 class LayerGeoData : public LayerGeo {
 private:
-  const geo_data * world; // указатель на геоданные
-  convs::map2pt cnv; 
-  g_map mymap;
-  Rect<int> myrange;
+    geo_data * world; // указатель на геоданные
+    convs::map2pt cnv; 
+    g_map mymap;
+    Rect<int> myrange;
 
 public:
 
-    LayerGeoData (const geo_data * _world) : 
+    LayerGeoData (geo_data * _world) : 
 	world(_world), mymap(convs::mymap(*world)), 
         cnv(convs::mymap(*world), Datum("wgs84"), Proj("lonlat"), Options()) {
       recalc_range();
@@ -116,13 +118,11 @@ public:
 
     }
 
-    enum Actions { A_Move, A_Modify, A_Delete, A_ActionsNumber };
-
     g_waypoint * find_waypoint (Point<int> p) {
 	Rect<int> target_rect (p - Point<int>(5,5), p + Point<int>(5,5));
-	for (std::vector<g_waypoint_list>::const_iterator it = world->wpts.begin();
+	for (std::vector<g_waypoint_list>::iterator it = world->wpts.begin();
 	     it!= world->wpts.end(); it++){
-	    for (std::vector<g_waypoint>::const_iterator pt = it->begin();
+	    for (std::vector<g_waypoint>::iterator pt = it->begin();
 		 pt!= it->end(); pt++){
 		g_point wp(pt->x,pt->y); cnv.bck(wp);
 
@@ -134,29 +134,46 @@ public:
 	return 0;
     }
 
-    virtual ActionResult do_action (const ActionData & ad) {
-	if (ad.items.size() == 0) return false;   // Nothing to do!
-	switch (ad.items[0].type) {
-	case A_Move:
-	    if (ad.items.size() == 1) {
-		g_waypoint * wpt = find_waypoint (ad.items[0].p);
-		if (wpt) return AR_GoOn;
-		return AR_NoInterest;
-	    } else {
-		if (ad.items.size() != 2) return AR_Error;
-		g_waypoint * wpt = find_waypoint (ad.items[0].p);
-		if (!wpt) return AR_Error;
-		wpt->x = ad.items[1].p.x;	
-		wpt->y = ad.items[1].p.y;
-		cnv.frw(*wpt);
-		return AR_Completed;
+    void action_move (ActionData * ad) {
+	if (ad->items.size() == 1) {
+	    g_waypoint * wpt = find_waypoint (ad->items[0].p);
+	    if (wpt) {
+		// Add rubber tail etc...
+		return;
 	    }
-	    break;
-	case A_Modify:
+	    ad->clear();
+	    return;
+	} else {
+	    assert(ad->items.size() == 2);
+	    g_waypoint * wpt = find_waypoint (ad->items[0].p);
+	    assert(wpt);
+	    wpt->x = ad->items[1].p.x;	
+	    wpt->y = ad->items[1].p.y;
+	    cnv.frw(*wpt);
+	    ad->clear();
+	    return;
+	}
+    }
+
+    enum Actions { A_Move, A_Modify, A_Delete, A_ActionsNumber };
+
+    virtual void do_action (ActionData * ad) {
+	if (ad->items.size() == 0) return;   // Nothing to do!
+	// check that all actions have the same type
+	for (int i = 1; i < ad->items.size(); ++i) {
+	    assert(ad->items[i].type == ad->items[0].type);
+	}
+	switch (ad->items[0].type) {
+	case A_Move:
+	    action_move(ad);
+	    return;
+	case A_Modify: // fallthrough
 	case A_Delete:
-	    return AR_NoInterest;
+	    // not yet implemented!
+	    ad->clear();
+	    return;
 	default:
-	    return AR_Error;
+	    assert (!"Wrong type of action!");
 	}
     }
 

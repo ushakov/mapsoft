@@ -9,11 +9,11 @@
 //#define DEBUG_LAYER_GEODATA
 #define DEBUG_JPEG
 
-#include "viewer.h"
-#include <point.h>
-#include "mapview.h"
+#include "viewer/viewer.h"
+#include "utils/point.h"
+#include "programs/mapview.h"
 
-#include "../geo_io/io.h"
+#include "geo_io/io.h"
 
 int
 main(int argc, char **argv)

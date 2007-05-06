@@ -2,11 +2,12 @@
 #define WORKPLANE_H
 
 #include <sigc++/sigc++.h>
-#include <image.h>
-#include <point.h>
-#include <rect.h>
 #include <assert.h>
-#include "layer.h"
+
+#include <utils/image.h>
+#include <utils/point.h>
+#include <utils/rect.h>
+#include "layers/layer.h"
 
 class Workplane {
 public:

@@ -3,8 +3,8 @@
 //#define DEBUG_IMAGE
 
 #include <iostream>
-#include <image.h>
-#include <image_google.h>
+#include "utils/image.h"
+#include <utils/image_google.h>
 
 // Сравнение скорости при загрузке сразу всей картинки 
 // и при организации случайного доспупа к ней.

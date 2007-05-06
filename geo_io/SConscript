@@ -1,0 +1,24 @@
+Import ('env')
+le = env.Copy()
+sources = Split ("""
+                 io.cpp
+		 io_gu.cpp
+		 io_oe.cpp
+		 io_gps.cpp
+		 io_xml.cpp
+		 geo_enums.cpp
+		 filters.cpp
+		 geo_convs.cpp
+		 o_fig.cpp
+		 o_fig.cpp
+		 o_htm.cpp
+		 fig.cpp
+		 mp.cpp
+		 geofig.cpp
+                 """)
+
+le.Library('geo_io', sources)
+
+dict = env.Dictionary()
+for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX', 'LIBPREFIX']:
+	print "key = %s, value = %s" % (key, dict[key])

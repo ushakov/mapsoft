@@ -2,7 +2,7 @@
 #define LAYERLIST_H
 
 #include <gtkmm.h>
-#include <layer.h>
+#include "layers/layer.h"
 
 class LayerListColumns : public Gtk::TreeModelColumnRecord {
 public:
