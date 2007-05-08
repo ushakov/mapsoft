@@ -1,5 +1,5 @@
 #include <iostream>
-#include "utils/mapsoft_options.h"
+#include <utils/mapsoft_options.h>
 
 int main(){
   Options o;
@@ -14,6 +14,15 @@ int main(){
 
   std::cerr << o;
 
+
+  GenericAccessor * ga = CreateGenericAccessor(&o);
+  std::vector<std::string> names = ga->get_names();
+  for (int i = 0; i < names.size(); ++i) {
+      std::cerr << i << ": " << names[i] << " -> " << ga->get(names[i]) << std::endl;
+  }
+  ga->set("o1", "abc");
+
+  std::cerr << o;
 
 }
 

@@ -8,11 +8,10 @@
 
 #include <assert.h>
 
-#include "layer_geo.h"
-#include "../geo_io/geo_convs.h"
-
-#include "../geo_io/io.h"
-#include "../utils/image_brez.h"
+#include <layers/layer_geo.h>
+#include <geo_io/geo_convs.h>
+#include <geo_io/io.h>
+#include <utils/image_brez.h>
 
 
 // Слой для показа точек и треков

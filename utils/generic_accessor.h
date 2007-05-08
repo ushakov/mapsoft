@@ -77,10 +77,9 @@ private:
 
 // Factory functions
 template <typename T>
-static GenericAccessor * create(T * object){
+inline GenericAccessor * CreateGenericAccessor(T * object){
     // Unsupported
     return 0;
 }
-
 
 #endif /* GENERIC_ACCESSOR_H */

@@ -18,7 +18,3 @@ sources = Split ("""
                  """)
 
 le.Library('geo_io', sources)
-
-dict = env.Dictionary()
-for key in ['OBJSUFFIX', 'LIBSUFFIX', 'PROGSUFFIX', 'LIBPREFIX']:
-	print "key = %s, value = %s" % (key, dict[key])

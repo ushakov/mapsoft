@@ -4,11 +4,14 @@
 #include <vector>
 #include <string>
 #include <cmath>
-#include "geo_names.h"
-#include "geo_enums.h"
-#include "../utils/point.h"
-#include "../utils/rect.h"
-#include "../utils/mapsoft_options.h"
+
+#include <geo_io/geo_names.h>
+#include <geo_io/geo_enums.h>
+#include <utils/point.h>
+#include <utils/rect.h>
+#include <utils/mapsoft_options.h>
+
+#include <utils/generic_accessor.h>
 
 /*********************************/
 // points:
@@ -51,6 +54,17 @@ struct g_waypoint : g_point {
     }
 };
 
+template<>
+inline GenericAccessor * CreateGenericAccessor<g_waypoint> (g_waypoint * wpt) {
+    GenericAccessor * ga = new GenericAccessor;
+    ga->add_item ("Longitude", &(wpt->x));
+    ga->add_item ("Latitude", &(wpt->y));
+    ga->add_item ("Height", &(wpt->z));
+    ga->add_item ("Name", &(wpt->name));
+    ga->add_item ("Comment", &(wpt->comm));
+    return ga;
+}
+
 // single trackpoint
 struct g_trackpoint : g_point {
     double z;
@@ -67,6 +81,18 @@ struct g_trackpoint : g_point {
     		t     = 0;
 	}
 };
+
+template<>
+inline GenericAccessor * CreateGenericAccessor<g_trackpoint> (g_trackpoint * tpt) {
+    GenericAccessor * ga = new GenericAccessor;
+    ga->add_item ("Longitude", &(tpt->x));
+    ga->add_item ("Latitude", &(tpt->y));
+    ga->add_item ("Height", &(tpt->z));
+    ga->add_item ("Time", &(tpt->t));
+    ga->add_item ("Start", &(tpt->start));
+    return ga;
+}
+
 
 // reference point
 struct g_refpoint : g_point {

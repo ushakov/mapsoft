@@ -5,7 +5,8 @@
 #include <vector>
 #include <map>
 #include <set>
-#include "point.h"
+#include <utils/point.h>
+#include <utils/generic_accessor.h>
 
 struct Options : std::map<std::string,std::string>{
 
@@ -27,5 +28,16 @@ struct Options : std::map<std::string,std::string>{
 };
 
 std::ostream & operator<< (std::ostream & s, const Options & o);
+
+template<>
+inline GenericAccessor * CreateGenericAccessor<Options> (Options * opt) {
+    GenericAccessor * ga = new GenericAccessor;
+    for (Options::iterator i = opt->begin();
+	 i != opt->end();
+	 ++i) {
+	ga->add_item (i->first, &(i->second));
+    }
+    return ga;
+}
 
 #endif
