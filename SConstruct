@@ -23,6 +23,16 @@ if ARGUMENTS.get('debug', 0):
 	env.Append (CCFLAGS='-ggdb')
 	env.Append (LINKFLAGS='-ggdb')
 
+if ARGUMENTS.get('profile', 0):
+	env.Append (CCFLAGS='-pg')
+	env.Append (LINKFLAGS='-pg')
+
+if ARGUMENTS.get('googleprofile', 0):
+	env.Append (LINKFLAGS='-lprofiler')
+	env.Append (LINKFLAGS='-ggdb')
+	env.Append (CCFLAGS='-ggdb')
+
+
 Export('env')
 SConscript (map (lambda(s): s+"/SConscript", subdirs))
 

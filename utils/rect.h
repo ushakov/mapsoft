@@ -14,7 +14,7 @@ public:
     T x,y,w,h;
 
     Rect (Point<T> p1, Point<T> p2)
-	: x(p1.x), y(p1.y), w(p2.x-p1.x),h(p2.y-p1.y) { 
+	: x(p1.x), y(p1.y), w(p2.x-p1.x),h(p2.y-p1.y) {
 	if (w<0) std::cerr << "Rect warning: w<0\n";
 	if (h<0) std::cerr << "Rect warning: h<0\n";
     }

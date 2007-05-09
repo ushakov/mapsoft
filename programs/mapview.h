@@ -116,11 +116,11 @@ public:
 
     void layer_edited (const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter) {
 	std::cout << "layer_edited at " << path.to_string() << std::endl;
-	for (int k = 0; k < data.size(); ++k) {
-	    for (int i = 0; i < data[k]->maps.size(); ++i) {
-		std::cout << "map " << i << "/" << k << ": " << data[k]->maps[i].file << std::endl;
-	    }
-	}
+//	for (int k = 0; k < data.size(); ++k) {
+//	    for (int i = 0; i < data[k]->maps.size(); ++i) {
+//		std::cout << "map " << i << "/" << k << ": " << data[k]->maps[i].file << std::endl;
+//	    }
+//	}
 	Gtk::TreeModel::Row row = *iter;
 	bool need_refresh = false;
 	

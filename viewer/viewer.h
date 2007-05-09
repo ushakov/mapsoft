@@ -12,6 +12,7 @@
 #include <utils/rect.h>
 #include <utils/image.h>
 #include <utils/image_gdk.h>
+#include <utils/image_brez.h>
 
 // 
 class Viewer : public Gtk::DrawingArea {
@@ -25,9 +26,9 @@ private:
     std::map<Point<int>, Image<int> > tile_cache;
     std::set<Point<int> >             tiles_todo;
     std::set<Point<int> >             tiles_todo2;
-    Point<int>                        tile_done;
+    std::queue<Point<int> >           tile_done_queue;
     
-    // плитки, полученные из workplane лежат в tile_cache.
+    // плитки, полученные из workplane, лежат в tile_cache.
     // если мы хотим нарисовать какую-то плитку,
     // мы кладем ее координаты в tiles_todo
     // крутящийся отдельно cache_updater_thread
@@ -57,9 +58,6 @@ private:
 
     // cache_updater_thread крутится, пока we_need_cache_updater == true
     bool we_need_cache_updater;
-    // нам нужно останавливать cache_updater, пока мы не прорисовали готовую плитку
-    // cache_updater_stopped = 0 -- запустить cache_updater.
-    int cache_updater_stopped;
 
 public:
 
@@ -69,8 +67,7 @@ public:
             int _scale_denom = 1)
 	: workplane (_workplane),
           window_origin(_window_origin),
-	  we_need_cache_updater(true),
-	  cache_updater_stopped(0)
+	  we_need_cache_updater(true)
     {
         workplane.set_scale(_scale_nom, _scale_denom);
         Glib::thread_init();
@@ -100,6 +97,21 @@ public:
         delete(cache_updater_cond);
     }
 
+    void fill_temp_tile (Image<int> & tile, int type = 0) {
+	image_brez::line(tile, 0, 0, tile.w, 0, 5, int(0xffff0000));
+	image_brez::line(tile, 0, 0, 0, tile.h, 5, int(0xffff0000));
+	image_brez::line(tile, tile.w, 0, tile.w, tile.h, 5, int(0xffff0000));
+	image_brez::line(tile, 0, tile.h, tile.w, tile.h, 5, int(0xffff0000));
+
+	if (type == 0) {
+	    image_brez::line(tile, 0, 0, tile.w, tile.h, 5, int(0xff00ff00));
+	    image_brez::line(tile, tile.w, 0, 0, tile.h, 5, int(0xff00ff00));
+	} else if (type == 1) {
+	    image_brez::line(tile, 0, 0, tile.w, tile.h, 5, int(0xff00ffff));
+	    image_brez::line(tile, tile.w, 0, 0, tile.h, 5, int(0xff00ffff));
+	}
+    }
+
 /**************************************/
 
     void cache_updater(){
@@ -107,13 +119,9 @@ public:
        while (1) {
 
           mutex->lock();
-          while (!(
-                   !we_need_cache_updater ||
-                   ( cache_updater_stopped == 0 &&
-                     (!tiles_todo.empty() ||
-                      !tiles_todo2.empty() )
-                   )
-                  ))
+          while (we_need_cache_updater &&
+		 tiles_todo.empty() &&
+		 tiles_todo2.empty())
              cache_updater_cond->wait(*mutex);
 
           if (!we_need_cache_updater) {
@@ -127,18 +135,22 @@ public:
              tiles_todo.erase(key);
              mutex->unlock();
 
+	     // просигналим, что мы начали обработку плитки
+	     fill_temp_tile (tile_cache.find(key)->second, 1);
+	     tile_done_queue.push(key);
+	     update_tile_signal.emit();
+
              Image<int> tile = workplane.get_image(key);
 
              mutex->lock();
-             //        // чтобы при перемасштабировании иобнулении кэша в него не попала старая картинка 8|
+             // чтобы при перемасштабировании иобнулении кэша в него не попала старая картинка 8|
              if (tile_cache.count(key)!=0){
                 tile_cache.erase(key);
-                tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
-             }
+		tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
+	     }
              mutex->unlock();
 
-             tile_done = key;
-             cache_updater_stopped=1; // остановимся, чтобы не потерять tile_done
+             tile_done_queue.push(key);
              update_tile_signal.emit();
              continue;
           }
@@ -167,12 +179,14 @@ public:
 
     // функция вызывается по сигналу от cache_updater'а
     void update_tile(){
+	Point<int> p = tile_done_queue.front();
+	tile_done_queue.pop();
 #ifdef DEBUG_VIEWER
-      std::cerr << "update_tile: " << tile_done << "\n";
+	std::cerr << "update_tile: " << p << "\n";
 #endif
-      draw_tile(tile_done);
-      cache_updater_stopped=0; // запускаем cache_updater
-      cache_updater_cond->signal();
+	draw_tile(p);
+	//cache_updater_stopped=0; // запускаем cache_updater
+	cache_updater_cond->signal();
     }
 
 /**************************************/
@@ -196,7 +210,9 @@ public:
         // Если такой плитки еще нет - добавим временную картинку
         // и поместим запрос на изготовление нормальной картинки в очередь
         mutex->lock();
-	tile_cache.insert(std::pair<Point<int>,Image<int> >(tile_key, Image<int>(tile_size,tile_size, 0xFF000000)));
+	Image<int> temp_tile(tile_size,tile_size, 0xFF000000);
+	fill_temp_tile (temp_tile);
+	tile_cache.insert(std::pair<Point<int>,Image<int> >(tile_key, temp_tile));
         tiles_todo.insert(tile_key);
         cache_updater_cond->signal();
         mutex->unlock();
@@ -358,8 +374,10 @@ public:
 #endif
 	Gdk::ModifierType dummy2;
 	get_window()->get_pointer(pos.x, pos.y, dummy2);
-	window_origin += drag_pos - pos;
-	fill (0, 0, get_width(), get_height());
+	Point<int> shift = pos - drag_pos;
+	window_origin -= shift;
+	// fill (0, 0, get_width(), get_height());
+	get_window()->scroll(shift.x, shift.y);
 	drag_pos = pos;
 	return true;
     }
