@@ -12,6 +12,7 @@
 #include <geo_io/geo_convs.h>
 #include <geo_io/io.h>
 #include <utils/image_brez.h>
+#include <utils/image_draw.h>
 
 
 // Слой для показа точек и треков
@@ -100,21 +101,38 @@ public:
         }
       }
 
+      int c1_wpt = 0xFFFF0000;
+      int c2_wpt = 0xFF00FFFF;
+
+      boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&dst_img));
+      Rect<int> dst_rect_pumped = rect_pump(dst_rect, 6);
       for (std::vector<g_waypoint_list>::const_iterator it = world->wpts.begin();
-                                         it!= world->wpts.end(); it++){
+	   it!= world->wpts.end(); it++){
         for (std::vector<g_waypoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
           g_point p(pt->x,pt->y); cnv.bck(p);
 
           int x = int(dst_rect.x+((p.x-src_rect.x)*dst_rect.w)/src_rect.w);
           int y = int(dst_rect.y+((p.y-src_rect.y)*dst_rect.h)/src_rect.h);
-
-          if (point_in_rect(Point<int>(int(p.x),int(p.y)), src_rect)){
-              image_brez::circ(dst_img, x,y,4,2, c2);
-          }
+	
+          if (point_in_rect(Point<int>(x, y), dst_rect_pumped)){
+//              image_brez::circ(dst_img, x,y,4,2, c1_wpt);
+	      ctx->DrawFilledRect(Rect<int>(x-3,y-3,6,6), c2_wpt);
+	      ctx->DrawRect(Rect<int>(x-3,y-3,6,6), 1, c1_wpt);
+	  }
+	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name);
+	  Rect<int> padded = rect_pump (textbb, 2);
+	  Point<int> wpt(x,y);
+	  Point<int> shifted = wpt + Point<int>(2,-10);
+	  if (point_in_rect(wpt, rect_pump (dst_rect, padded))) {
+	      ctx->DrawLine(wpt, (padded + shifted).TLC(), 1, c1_wpt);
+	      ctx->DrawFilledRect(padded + shifted, c2_wpt);
+	      ctx->DrawRect(padded + shifted, 1, c1_wpt);
+	      ctx->DrawText(shifted.x, shifted.y, c1_wpt, pt->name);
+	  }
         }
       }
-
+      ctx->StampAndClear();
     }
 
     g_waypoint * find_waypoint (Point<int> p) {

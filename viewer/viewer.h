@@ -254,10 +254,16 @@ public:
 	  draw_tile(Point<int>(ti,tj));
         }
       }
+    }
+
+    void change_viewport () {
+      // tiles -- прямоугольник плиток, необходимый для отрисовки экрана
+      Rect<int> tiles = tiles_on_rect(
+        Rect<int>(window_origin.x, window_origin.y, 
+        get_width(), get_height()), workplane.get_tile_size());
 
       // Плитки, которые были запрошены, но не сделаны, и уже уехали
       // с экрана -- нам неинтересны. Пропалываем tiles_todo
-
       std::set<Point<int> >::const_iterator it = tiles_todo.begin(), it1;
       while (it != tiles_todo.end()){
 	it1 = it; it1++;
@@ -276,7 +282,7 @@ public:
       // постепенно их заполнять.
       // а все более далекие плитки будем убирать из кэша
 
-      const int extra = 2;
+      const int extra = std::max(tiles.w, tiles.h);
 
       Rect<int> tiles_in_cache = Rect<int>
        (tiles.x-extra, tiles.y-extra, tiles.w+2*extra, tiles.h+2*extra);
@@ -298,6 +304,18 @@ public:
       tiles_todo2.clear();
       mutex->unlock();
 
+      for (int x = tiles_in_cache.x; x < tiles_in_cache.x+tiles_in_cache.w; ++x) {
+	for (int y = tiles_in_cache.y; y < tiles_in_cache.y+tiles_in_cache.h; ++y) {
+	  if (!point_in_rect(Point<int>(x,y), tiles) &&
+	      tile_cache.count(Point<int>(x,y))==0) {
+	    mutex->lock();
+	    tiles_todo2.insert(Point<int>(x,y));
+	    cache_updater_cond->signal();
+	    mutex->unlock();
+	  }
+	}
+      }
+#if 0      
       int x = tiles.x - 1;
       int y = tiles.y - 1;
       int dir = 0;
@@ -327,7 +345,9 @@ public:
             break;
         }
       } while (point_in_rect(Point<int>(x,y), tiles_in_cache));
+#endif
     }
+  
 /**************************************/
 
 
@@ -376,6 +396,7 @@ public:
 	get_window()->get_pointer(pos.x, pos.y, dummy2);
 	Point<int> shift = pos - drag_pos;
 	window_origin -= shift;
+	change_viewport();
 	// fill (0, 0, get_width(), get_height());
 	get_window()->scroll(shift.x, shift.y);
 	drag_pos = pos;
@@ -429,10 +450,12 @@ public:
 //	if (is_mapped()){
 //	    fill (0, 0, get_width(), get_height());
 //	}
+	change_viewport();
     }
 
     void set_window_origin(int x, int y){
 	set_window_origin(Point<int>(x,y));
+	change_viewport();
     }
 
     Point<int> get_window_origin (){

@@ -70,6 +70,16 @@ public:
 };
 
 template <typename T>
+Rect<T> rect_pump (Rect<T> const & R, T val) {
+    return Rect<T> (R.x-val, R.y-val, R.w+2*val, R.h+2*val);
+}
+
+template <typename T>
+Rect<T> rect_pump (Rect<T> const & R, Rect<T> bounds) {
+    return Rect<T> (R.x-bounds.BRC().x, R.y-bounds.BRC().y, R.w+bounds.w, R.h+bounds.h);
+}
+
+template <typename T>
 Rect<T> rect_intersect (Rect<T> const & R1, Rect<T> const & R2){
     T x1 =  std::max (R1.x, R2.x);
     T y1 =  std::max (R1.y, R2.y);

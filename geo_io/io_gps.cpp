@@ -11,11 +11,12 @@ namespace gps {
 
 // function for reading objects from gps into the world object
 
-	bool init_gps(const char* port){
+        bool init_gps(const char* port){
 		// почему-то только такая процедура позволяет подключить usb-gps с первого раза
 		if (GPS_Init(port) < 0) return false;
 		sleep(1);
 		if (GPS_Init(port) < 0) return false;
+		return true;
         }
 
 	bool get_waypoints (const char* port, geo_data & world, const Options &opt){

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 
 #include <geo_io/io.h>
 #include <geo_io/geo_convs.h>
@@ -9,12 +10,38 @@ int main (int argc, char **argv) {
 	io::in(std::string(argv[i]), world, Options());
     }
 
+    double speed, distance = 0;
+    std::queue<std::pair<double, double> > timedist;
+
+    g_trackpoint pp;
+    int k = 0;
+
+    double window = 120;
+
     convs::pt2ll pc(Datum("wgs84"), Proj("tmerc"), Options());
     for (int i = 0; i < world.trks.size(); ++i) {
 	for (int p = 0; p < world.trks[i].size(); ++p) {
 	    g_trackpoint & tp = world.trks[i][p];
 	    pc.bck(tp); // координаты -- в tmerc
-	    std::cout << (int)tp.x << " " << (int)tp.y << " " << (int)tp.z << " " << tp.t << " " << (tp.start ? 1 : 0) << std::endl;
+
+	    if (k != 0) {
+		// update values:
+		// distance
+		distance += hypot(tp.x - pp.x, tp.y - pp.y);
+		timedist.push(std::make_pair(tp.t, distance));
+		while (timedist.front().first < tp.t - window && timedist.size() > 2) {
+		    timedist.pop();
+		}
+		double traveled = timedist.back().second - timedist.front().second;
+		double time = timedist.back().first - timedist.front().first;
+		speed = traveled/time * 3.6;
+	    } else {
+		distance = 0;
+		speed = 0;
+	    }
+	    std::cout << (int)tp.x << " " << (int)tp.y << " " << (int)tp.z << " " << tp.t << " " << distance << " " << speed << std::endl;
+	    pp = tp;
+	    ++k;
 	}
     }
 }

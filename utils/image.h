@@ -145,11 +145,24 @@ struct Image{
     inline void set_na(int x, int y, T c){data[y*w+x]=c|0xFF000000;}
 
     inline void set_a(int x, int y, T c){
-      int a = c>>24;
-      data[y*w+x] = (a==0xFF) ? c :
-	((data[y*w+x]>>16) & 0xFF * (255-a) + (c>>16) & 0xFF * a) & 0xFF0000 + 
-	(((data[y*w+x]>>8) & 0xFF * (255-a) + (c>>8) & 0xFF * a) >> 8) & 0xFF00 + 
-	((data[y*w+x] & 0xFF * (255-a) + (c>>8) & 0xFF * a) >> 16) & 0xFF;
+	unsigned int color = c;
+	int a = color >> 24;
+	if (a == 0xff) {
+	    data[y*w+x] = color;
+//	} else if (a == 0) {
+//	    // do nothing
+	} else {
+	    int r = (((color >> 16) & 0xff) * a + ((data[y*w+x] >> 16) & 0xff) * (255-a)) / 255;
+	    int g = (((color >> 8) & 0xff) * a + ((data[y*w+x] >> 8) & 0xff) * (255-a)) / 255;
+	    int b = ((color & 0xff) * a + (data[y*w+x] & 0xff) * (255-a)) / 255;
+	    std::cout << "ALPHA: " << std::hex << data[y*w+x] << " + " << color << " = ";
+	    std::cout << "(" << r << g << b << ")";
+	    data[y*w+x] = data[y*w+x] & 0xff000000 +
+		(r << 16) +
+		(g << 8) +
+		b;
+	    std::cout << data[y*w+x] << std::dec << std::endl;
+	}
     }
 
     inline void safe_set(int x, int y, T c){
