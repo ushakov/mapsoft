@@ -12,7 +12,7 @@ subdirs = Split ("""
 		""")
 
 SetOption('implicit_cache', 1)
-env = Environment ()
+env = Environment (CXX='g++-4.1.1')
 
 env.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
 
@@ -24,8 +24,8 @@ env.Append (CPPPATH='#')
 env.Append (LIBS=Split('m usb jpeg tiff png'))
 env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
 
-env.Append (CCFLAGS='-O2 -ggdb')
-env.Append (LINKFLAGS='-O2 -ggdb')
+env.Append (CCFLAGS=['-O2', '-ggdb'])
+env.Append (LINKFLAGS=['-O2', '-ggdb'])
 
 if ARGUMENTS.get('debug', 0):
 	env.Append (CCFLAGS='-ggdb')
