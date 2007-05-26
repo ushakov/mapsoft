@@ -12,7 +12,7 @@ subdirs = Split ("""
 		""")
 
 SetOption('implicit_cache', 1)
-env = Environment (CXX='g++-4.1.1')
+env = Environment ()
 
 env.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
 
