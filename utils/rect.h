@@ -105,20 +105,19 @@ Rect<T> rect_bounding_box (Rect<T> const & R1, Rect<T> const & R2){
     return Rect<T>(x1,y1,w,h);
 }
 
-
+// точка не всегда будет входит в прямоугольник!!! 
 template <typename T>
 void clip_point_to_rect (Point<T> & p, const Rect<T> & r){
     p.x = std::max (r.x, p.x);
     p.x = std::min (r.x+r.w, p.x);
     p.y = std::max (r.y, p.y);
     p.y = std::min (r.y+r.h, p.y);
+// точка не всегда будет входит в прямоугольник!!! Исправить?
 }
 
 template <typename T>
 void clip_rect_to_rect (Rect<T> & r1, const Rect<T> & r2){
-//    std::cerr << r1 << " clip to " << r2 << "  ";
     r1 = rect_intersect(r1,r2);
-//    std::cerr << r1 << "\n";
 }
 
 template <typename T>
@@ -131,9 +130,6 @@ bool point_in_rect (const Point<T> & p, const Rect<T> & r){
 // при работе с целыми координатами иногда приятно считать,
 // что rect.BRC не входит в прямоугольник
 // (кстати, исходя из этого сделана и проверка на вхождение точки в прямоугольник)
-// В этом случае, при делении на целое число надо пользоваться
-// такой функцией:
-Rect<int> rect_intdiv(const Rect<int> & r, int i);
 */
 
 // диапазон плиток, накрывающих данный прямоугольник

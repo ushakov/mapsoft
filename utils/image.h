@@ -139,10 +139,45 @@ struct Image{
 
 
     inline T get(int x, int y) const {return data[y*w+x];}
-
     inline void set(int x, int y, T c){data[y*w+x]=c;}
+    inline T get(const Point<int> & p) const {return data[p.y*w+p.x];}
+    inline void set(const Point<int> & p, T c){data[p.y*w+p.x]=c;}
+
+    inline T safe_get(int x, int y) const{
+	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return 0;
+        return get(x,y);
+    }
+    inline void safe_set(int x, int y, T c){
+	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
+	set(x,y);
+    }
+    inline T safe_get(const Point<int> & p) const{
+	return safe_get(p.x, p.y);
+    }
+    inline void safe_set(const Point<int> & p, T c){
+	safe_set(p.x, p.y, c);
+    }
 
     inline void set_na(int x, int y, T c){data[y*w+x]=c|0xFF000000;}
+    inline void set_na(const Point<int> & p, T c){data[p.y*w+p.x]=c|0xFF000000;}
+    inline T get_na(int x, int y, T c) const { return data[y*w+x]|0xFF000000;}
+    inline T get_na(const Point<int> & p, T c) const {return data[p.y*w+p.x]|0xFF000000;}
+
+    inline T safe_get_na(int x, int y) const{
+	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return 0;
+        return get_na(x,y);
+    }
+    inline void safe_set_na(int x, int y, T c){
+	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
+	set_na(x,y);
+    }
+    inline T safe_get_na(const Point<int> & p) const{
+	return safe_get_na(p.x, p.y);
+    }
+    inline void safe_set_na(const Point<int> & p, T c){
+	safe_set_na(p.x, p.y, c);
+    }
+
 
     inline void set_a(int x, int y, T c){
 	unsigned int color = c;
@@ -164,10 +199,16 @@ struct Image{
 	    std::cout << data[y*w+x] << std::dec << std::endl;
 	}
     }
+    inline void set_a(const Point<int> & p, T c){ set_a(p.x, p.y, c); }
 
-    inline void safe_set(int x, int y, T c){
-	if ((x>=0)&&(y>=0)&&(x<w)&&(y<h)) data[y*w+x]=c;
+    inline void safe_set_a(int x, int y, T c){
+	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
+	set_a(x,y);
     }
+    inline void safe_set_a(const Point<int> & p, T c){
+	safe_set_a(p.x, p.y, c);
+    }
+
 
 
     Rect<int> range() const{
