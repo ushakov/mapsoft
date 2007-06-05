@@ -11,7 +11,7 @@
 #include <layers/layer_geo.h>
 #include <geo_io/geo_convs.h>
 #include <geo_io/io.h>
-#include <utils/image_brez.h>
+//#include <utils/image_brez.h>
 #include <utils/image_draw.h>
 
 
@@ -67,13 +67,21 @@ public:
       clip_rects_for_image_loader(range(), src_rect, dst_img.range(), dst_rect);
       if (src_rect.empty() || dst_rect.empty()) return;
 
+
 #ifdef DEBUG_LAYER_GEODATA
       std::cerr  << "LayerGeoData: draw " << src_rect << " -> "
                << dst_rect << " at " << dst_img <<  "\n";
 #endif
 
-      int c1 = 0xFF0000FF;
-      int c2 = 0xFFFF0000;
+      boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&dst_img));
+
+      int c_r = 0xFF0000FF;
+      int c_g = 0xFF00FF00;
+      int c_b = 0xFFFF0000;
+      int c_y = 0xFF00FFFF;
+      int c_m = 0xFFFF00FF;
+      int c_c = 0xFFFFFF00;
+      int c_bl = 0xFF000000;
 
       for (std::vector<g_track>::const_iterator it = world->trks.begin();
                                          it!= world->trks.end(); it++){
@@ -85,26 +93,18 @@ public:
           int x = int(dst_rect.x+((p.x-src_rect.x)*dst_rect.w)/src_rect.w);
           int y = int(dst_rect.y+((p.y-src_rect.y)*dst_rect.h)/src_rect.h);
 
-	  // ideally, we should draw a line (xo, yo) -- (x, y)
-	  // but part of the line can be outside the tile
-
           if (point_in_rect(Point<int>(int(p.x),int(p.y)), src_rect)){
 
             if (!pt->start) {
-              image_brez::line(dst_img, xo,yo, x, y, 3, c2);
-              image_brez::circ(dst_img, xo,yo, 2, 1, c1);
+	      ctx->DrawLine(Point<int>(xo,yo), Point<int>(x, y), 2, c_m);
+	      ctx->DrawFilledRect(Rect<int>(xo-2,yo-2,4,4), c_b);
             } else {
-              image_brez::circ(dst_img, x,y,2,1, c1);
+	      ctx->DrawFilledRect(Rect<int>(x-2,y-2,4,4), c_b);
             }
           }
           xo=x; yo=y;
         }
       }
-
-      int c1_wpt = 0xFFFF0000;
-      int c2_wpt = 0xFF00FFFF;
-
-      boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&dst_img));
       Rect<int> dst_rect_pumped = rect_pump(dst_rect, 6);
       for (std::vector<g_waypoint_list>::const_iterator it = world->wpts.begin();
 	   it!= world->wpts.end(); it++){
@@ -116,22 +116,23 @@ public:
           int y = int(dst_rect.y+((p.y-src_rect.y)*dst_rect.h)/src_rect.h);
 	
           if (point_in_rect(Point<int>(x, y), dst_rect_pumped)){
-//              image_brez::circ(dst_img, x,y,4,2, c1_wpt);
-	      ctx->DrawFilledRect(Rect<int>(x-3,y-3,6,6), c2_wpt);
-	      ctx->DrawRect(Rect<int>(x-3,y-3,6,6), 1, c1_wpt);
+	      ctx->DrawFilledRect(Rect<int>(x-3,y-3,6,6), c_y);
+	      ctx->DrawRect(Rect<int>(x-3,y-3,6,6), 1, c_b);
 	  }
 	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name);
 	  Rect<int> padded = rect_pump (textbb, 2);
 	  Point<int> wpt(x,y);
 	  Point<int> shifted = wpt + Point<int>(2,-10);
 	  if (point_in_rect(wpt, rect_pump (dst_rect, padded))) {
-	      ctx->DrawLine(wpt, (padded + shifted).TLC(), 1, c1_wpt);
-	      ctx->DrawFilledRect(padded + shifted, c2_wpt);
-	      ctx->DrawRect(padded + shifted, 1, c1_wpt);
-	      ctx->DrawText(shifted.x, shifted.y, c1_wpt, pt->name);
+	      ctx->DrawLine(wpt, (padded + shifted).TLC(), 1, c_b);
+	      ctx->DrawFilledRect(padded + shifted, c_y);
+	      ctx->DrawRect(padded + shifted, 1, c_b);
+	      ctx->DrawText(shifted.x, shifted.y, c_b, pt->name);
 	  }
         }
       }
+
+
       ctx->StampAndClear();
     }
 

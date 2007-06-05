@@ -143,7 +143,7 @@ public:
              Image<int> tile = workplane.get_image(key);
 
              mutex->lock();
-             // чтобы при перемасштабировании иобнулении кэша в него не попала старая картинка 8|
+             // чтобы при перемасштабировании и обнулении кэша в него не попала старая картинка 8|
              if (tile_cache.count(key)!=0){
                 tile_cache.erase(key);
 		tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
@@ -211,7 +211,7 @@ public:
         // и поместим запрос на изготовление нормальной картинки в очередь
         mutex->lock();
 	Image<int> temp_tile(tile_size,tile_size, 0xFF000000);
-	fill_temp_tile (temp_tile);
+//	fill_temp_tile (temp_tile);
 	tile_cache.insert(std::pair<Point<int>,Image<int> >(tile_key, temp_tile));
         tiles_todo.insert(tile_key);
         cache_updater_cond->signal();

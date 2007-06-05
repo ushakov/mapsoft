@@ -132,6 +132,8 @@ pt2pt::pt2pt(const Datum & sD, const Proj & sP, const Options & sPo,
 pc1(sD,sP,sPo), pc2(dD,dP,dPo), dc1(sD), dc2(dD), 
 triv1((sP.n==dP.n) && (sPo==dPo) && (sD.n==dD.n)), triv2(sD.n==dD.n){}
 
+pt2pt::pt2pt(): triv1(true), triv2(true){}
+
 void pt2pt::frw(g_point & p){
     if (triv1) return;
     pc1.frw(p);
@@ -186,26 +188,13 @@ int mdiag(int N, double *a){
 // преобразование из точки карты в геодезическую точку
 // здесь же - выяснение всяких параметров карты (размер изображения, масштам метров/точку)
 // сюда же - преобразование линий!
+
 map2pt::map2pt(const g_map & sM, 
                const Datum & dD, const Proj & dP, const Options & dPo):
 pc1(dD, sM.map_proj, dPo), pc2(dD, dP, dPo), dc(dD), 
 border(sM.border){
   // идеи про преобразование карт - прежние:
   // считается, что преобразование СК замена осевого меридиана - линейны в пределах карты.
-
-/*
-  // чтобы в преобразованиях pc1 и pc2 установился правильный осевой меридиан,
-  // если его не установили явно, надо прогнать через них какую-то точку на карте.
-  g_point p1(0,0);
-  int n=0;
-  for (int i=0; i<sM.size(); i++){
-    p1+=g_point(sM.points[i]);
-  }
-  p1/=n;
-  g_point p2(p1);
-  pc1.bck(p1);
-  pc2.bck(p2);
-*/
 
   // Разберемся с границей. Она нужна нам для всяких рисований и т.п. 
   // Но модифицировать карту мы не хотим - так что работаем со своей копией.

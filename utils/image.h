@@ -149,7 +149,7 @@ struct Image{
     }
     inline void safe_set(int x, int y, T c){
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
-	set(x,y);
+	set(x,y,c);
     }
     inline T safe_get(const Point<int> & p) const{
 	return safe_get(p.x, p.y);
@@ -169,7 +169,7 @@ struct Image{
     }
     inline void safe_set_na(int x, int y, T c){
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
-	set_na(x,y);
+	set_na(x,y,c);
     }
     inline T safe_get_na(const Point<int> & p) const{
 	return safe_get_na(p.x, p.y);
@@ -190,20 +190,20 @@ struct Image{
 	    int r = (((color >> 16) & 0xff) * a + ((data[y*w+x] >> 16) & 0xff) * (255-a)) / 255;
 	    int g = (((color >> 8) & 0xff) * a + ((data[y*w+x] >> 8) & 0xff) * (255-a)) / 255;
 	    int b = ((color & 0xff) * a + (data[y*w+x] & 0xff) * (255-a)) / 255;
-	    std::cout << "ALPHA: " << std::hex << data[y*w+x] << " + " << color << " = ";
-	    std::cout << "(" << r << g << b << ")";
+//	    std::cout << "ALPHA: " << std::hex << data[y*w+x] << " + " << color << " = ";
+//	    std::cout << "(" << r << g << b << ")";
 	    data[y*w+x] = data[y*w+x] & 0xff000000 +
 		(r << 16) +
 		(g << 8) +
 		b;
-	    std::cout << data[y*w+x] << std::dec << std::endl;
+//	    std::cout << data[y*w+x] << std::dec << std::endl;
 	}
     }
     inline void set_a(const Point<int> & p, T c){ set_a(p.x, p.y, c); }
 
     inline void safe_set_a(int x, int y, T c){
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
-	set_a(x,y);
+	set_a(x,y,c);
     }
     inline void safe_set_a(const Point<int> & p, T c){
 	safe_set_a(p.x, p.y, c);
