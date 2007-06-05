@@ -21,7 +21,7 @@ class ImageDrawContext {
 	
 	if (gd_a == 0x7f) return gd_color & 0xffffff;
 	unsigned int ret = (gd_color & 0xffffff) | ((0xff - gd_a*2) << 24);
-	std::cout << "from gd: " << std::hex << gd_color << " -> " << ret << std::dec << std::endl;
+//	std::cout << "from gd: " << std::hex << gd_color << " -> " << ret << std::dec << std::endl;
 	return ret;
 //	return gd_color | 0xff000000;
     }

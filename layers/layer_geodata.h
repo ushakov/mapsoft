@@ -97,15 +97,16 @@ public:
 
             if (!pt->start) {
 	      ctx->DrawLine(Point<int>(xo,yo), Point<int>(x, y), 2, c_m);
-	      ctx->DrawFilledRect(Rect<int>(xo-2,yo-2,4,4), c_b);
+	      ctx->DrawFilledRect(Rect<int>(xo-1,yo-1,2,2), c_b);
             } else {
-	      ctx->DrawFilledRect(Rect<int>(x-2,y-2,4,4), c_b);
+	      ctx->DrawFilledRect(Rect<int>(x-1,y-1,2,2), c_b);
             }
           }
           xo=x; yo=y;
         }
       }
       Rect<int> dst_rect_pumped = rect_pump(dst_rect, 6);
+
       for (std::vector<g_waypoint_list>::const_iterator it = world->wpts.begin();
 	   it!= world->wpts.end(); it++){
         for (std::vector<g_waypoint>::const_iterator pt = it->begin();
@@ -122,8 +123,9 @@ public:
 	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name);
 	  Rect<int> padded = rect_pump (textbb, 2);
 	  Point<int> wpt(x,y);
-	  Point<int> shifted = wpt + Point<int>(2,-10);
-	  if (point_in_rect(wpt, rect_pump (dst_rect, padded))) {
+	  Point<int> shift = Point<int>(2,-10);
+	  Point<int> shifted = wpt + shift;
+	  if (point_in_rect(wpt, rect_pump (dst_rect, padded+shift))) {
 	      ctx->DrawLine(wpt, (padded + shifted).TLC(), 1, c_b);
 	      ctx->DrawFilledRect(padded + shifted, c_y);
 	      ctx->DrawRect(padded + shifted, 1, c_b);
