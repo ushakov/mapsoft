@@ -11,6 +11,7 @@
 #include "../utils/cache.h"
 #include "../loaders/image_r.h"
 #include "../loaders/image_i.h"
+#include <utils/image_draw.h>
 
 #include "../geo_io/io.h"
 
@@ -85,8 +86,8 @@ public:
     virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
 
 #ifdef DEBUG_LAYER_GEOMAP
-      std::cerr  << "LayerMap: draw " << src_rect << " -> " 
-		 << dst_rect << " at " << dst_img << std::endl;
+        std::cerr  << "LayerMap: draw " << src_rect << " -> " 
+	           << dst_rect << " at " << dst_img << std::endl;
 #endif
         clip_rects_for_image_loader(map_range, src_rect, dst_img.range(), dst_rect);
         if (src_rect.empty() || dst_rect.empty()) return;
@@ -98,6 +99,9 @@ public:
 	double sc_y = src_rect.h/dst_rect.h;
 
         if ((world == NULL)||(world->maps.size()==0)) return;
+
+        boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&dst_img));
+
 	for (int i=0; i<world->maps.size(); i++){
 
           std::string file = world->maps[i].file;
@@ -132,8 +136,22 @@ public:
 	  Image<int> im = image_cache.get(i);
 
           m2ms[i].image_frw(im, iscales[i], src_rect, dst_img, dst_rect);
-        }
+
+          for (int j=0; j<m2ms[i].border_dst.size(); j++){
+            Point<double> p1(m2ms[i].border_dst[j]);
+            Point<double> p2 = (j==m2ms[i].border_dst.size()-1) ? m2ms[i].border_dst[0] : m2ms[i].border_dst[j+1];
+
+            Point<int> p1i ( int(dst_rect.x+((p1.x-src_rect.x)*dst_rect.w)/src_rect.w),
+                             int(dst_rect.y+((p1.y-src_rect.y)*dst_rect.h)/src_rect.h));
+            Point<int> p2i ( int(dst_rect.x+((p2.x-src_rect.x)*dst_rect.w)/src_rect.w),
+                             int(dst_rect.y+((p2.y-src_rect.y)*dst_rect.h)/src_rect.h));
+            ctx->DrawLine(p1i,p2i, 2, 0xFF0000FF);
+          }
+
+       }
+       ctx->StampAndClear();
     }
+
 
     virtual Rect<int> range (){
 	return map_range;
