@@ -30,6 +30,11 @@ namespace xml {
     bool write_file (const char* filename, const geo_data & world, const Options & opt);
 }
 
+namespace kml {
+//    bool read_file (const char* filename, geo_data & world, const Options & opt);
+    bool write_file (const char* filename, const geo_data & world, const Options & opt);
+}
+
 namespace oe {
     bool read_file (const char* filename, geo_data & world, const Options & opt);
     bool write_plt_file (const char* filename, const g_track & trk, const Options & opt);

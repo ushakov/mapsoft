@@ -135,6 +135,14 @@ namespace io {
 			xml::write_file (outfile.c_str(), world, opt);
 			return;
 		}
+		
+		// Запись KML-файла
+		if (testext(outfile, ".kml")){
+		
+			cerr << "Writing to Google KML file " << outfile << "\n";
+			kml::write_file (outfile.c_str(), world, opt);
+			return;
+		}
 /*
 		// Запись BMP-файла
 		if ((testext(outfile, ".bmp")) ||
