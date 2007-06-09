@@ -59,6 +59,17 @@ public:
 	gdImageLine(gd_image, a.x, a.y, b.x, b.y, convertToGD(color));
     }
 
+    void DrawCircle (Point<int> center, int radius, int width,
+		     int fgc,
+		     bool fill = false, int bgc = 0xffffffff) {
+	if (fill) {
+	    gdImageFilledArc(gd_image, center.x, center.y, radius, radius,
+			     0, 360, convertToGD(bgc), gdArc);
+	}
+	gdImageSetThickness(gd_image, width);
+	gdImageArc(gd_image, center.x, center.y, radius, radius, 0, 360, convertToGD(fgc));
+    }
+
     void Clear() {
 	gdImageAlphaBlending (gd_image, 0);
 	gdImageFilledRectangle(gd_image, 0, 0, gd_image->sx, gd_image->sy, 0x7f123456);

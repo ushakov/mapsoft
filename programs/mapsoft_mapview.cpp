@@ -27,3 +27,4 @@ main(int argc, char **argv)
     }
     kit.run(mapview);
 }
+

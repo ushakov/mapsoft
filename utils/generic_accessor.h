@@ -12,6 +12,8 @@ class GenericAccessor {
 public:
     GenericAccessor() { }
 
+    // Generic string interface:
+
     std::string get (std::string name) {
 	for (int i = 0; i < items.size(); ++i) {
 	    if (name == items[i]->name) return items[i]->get();
@@ -34,6 +36,8 @@ public:
 	}
 	return names;
     }
+
+    // Construction interface:
     
     template <typename T>
     void add_item (std::string name, T * var) {

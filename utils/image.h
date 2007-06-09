@@ -184,19 +184,16 @@ struct Image{
 	int a = color >> 24;
 	if (a == 0xff) {
 	    data[y*w+x] = color;
-//	} else if (a == 0) {
-//	    // do nothing
+	} else if (a == 0) {
+	    // do nothing
 	} else {
 	    int r = (((color >> 16) & 0xff) * a + ((data[y*w+x] >> 16) & 0xff) * (255-a)) / 255;
 	    int g = (((color >> 8) & 0xff) * a + ((data[y*w+x] >> 8) & 0xff) * (255-a)) / 255;
 	    int b = ((color & 0xff) * a + (data[y*w+x] & 0xff) * (255-a)) / 255;
-//	    std::cout << "ALPHA: " << std::hex << data[y*w+x] << " + " << color << " = ";
-//	    std::cout << "(" << r << g << b << ")";
-	    data[y*w+x] = data[y*w+x] & 0xff000000 +
+	    data[y*w+x] = (data[y*w+x] & 0xff000000) +
 		(r << 16) +
 		(g << 8) +
 		b;
-//	    std::cout << data[y*w+x] << std::dec << std::endl;
 	}
     }
     inline void set_a(const Point<int> & p, T c){ set_a(p.x, p.y, c); }
@@ -207,6 +204,18 @@ struct Image{
     }
     inline void safe_set_a(const Point<int> & p, T c){
 	safe_set_a(p.x, p.y, c);
+    }
+
+    inline void render (Point<int> offset, Image<T> const & other) {
+	Rect<int> r = rect_intersect(range(), other.range()+offset);
+	for (int y = 0; y < r.h; ++y) {
+	    for (int x = 0; x < r.w; ++x) {
+		set_a(x+offset.x, y+offset.y, other.get(x,y));
+	    }
+	}
+    }
+    inline void render (int x, int y, Image<T> const & other) {
+	render(Point<int>(x,y), other);
     }
 
 

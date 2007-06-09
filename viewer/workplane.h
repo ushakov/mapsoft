@@ -7,9 +7,11 @@
 #include <utils/image.h>
 #include <utils/point.h>
 #include <utils/rect.h>
+#include <utils/cache.h>
 #include "layers/layer.h"
 
 class Workplane {
+    static const int CacheCapacity = 200;
 public:
     Workplane (int _tile_size=256, int _scale_nom=1, int _scale_denom=1):
 	tile_size(_tile_size),
@@ -18,20 +20,24 @@ public:
      {}
     Image<int>  get_image(Point<int> tile_key){
 
-	// сделаем image
-        Image<int>  image(tile_size,tile_size, 0xFF000000);
+	Image<int>  image(tile_size,tile_size, 0xff000000);
 	Rect<int> dst_rect = image.range();
 	Rect<int> src_rect = (tile_key*tile_size + dst_rect)*scale_denom;
         src_rect = tiles_on_rect(src_rect, scale_nom);
 
-//	std::cerr << "Workplane: " << src_rect << " -> " << dst_rect << "\n";
-
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
 	     itl != layers.rend();  ++itl){
 	    std::cout << "WP: layer " << itl->second << std::endl;
-	    if (layers_active[itl->second]) {
+	    Layer * layer = itl->second;
+	    if (layers_active[layer]) {
 		std::cout << "WP: layer selected " << itl->second << std::endl;
-		itl->second->draw (src_rect, image, image.range());
+		if (!tile_cache[layer]->contains(tile_key)) {
+		    Image<int>  tile(tile_size,tile_size, 0);
+		    itl->second->draw (src_rect, tile, dst_rect);
+		    tile_cache[layer]->add(tile_key, tile);
+		}
+		Image<int> layer_tile = tile_cache[layer]->get(tile_key);
+		image.render(0,0,layer_tile);
 	    }
 	}
 
@@ -62,6 +68,7 @@ public:
 	}
 	layers.insert (std::make_pair (depth, layer));
 	layers_active[layer] = true;
+	tile_cache[layer].reset(new LayerCache(CacheCapacity));
     }
 
     void
@@ -76,19 +83,21 @@ public:
 	}
 	layers_active.erase(layer);
 	layers.erase(itl);
+	tile_cache.erase(layer);
     }
 
     void
     set_layer_depth (Layer * layer, int newdepth)
     {
 	std::cout << "Setting depth of layer " << layer << " to " << newdepth << std::endl;
-	if (find_layer(layer) == layers.end()) {
+	std::multimap<int, Layer *>::iterator itl = find_layer(layer);
+	if (itl == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
 	    return;
 	}
-	remove_layer (layer);
-	add_layer (layer, newdepth);
+	layers.erase(itl);
+	layers.insert(std::make_pair(newdepth, layer));
     }
 
     int
@@ -102,6 +111,13 @@ public:
 	    return -1;
 	}
 	return itl->first;
+    }
+
+    void
+    mark_level_dirty (Layer * layer)
+    {
+	tile_cache.erase(layer);
+	tile_cache[layer].reset(new LayerCache(CacheCapacity));
     }
 
     void set_layer_active (Layer * layer, bool active) {
@@ -130,39 +146,53 @@ public:
     }
 
     int set_scale_nom (int s) {
-       scale_nom=s;
+	if (s != scale_nom) {
+	    clear_tile_cache();
+	}
+	scale_nom=s;
     }
     int set_scale_denom (int s) {
-       scale_denom=s;
+	if (s != scale_denom) {
+	    clear_tile_cache();
+	}
+	scale_denom=s;
     }
 
     void set_scale (int _scale_nom, int _scale_denom) {
+	if (_scale_denom != scale_denom || _scale_nom != scale_nom) {
+	    clear_tile_cache();
+	}
 	scale_nom = _scale_nom;
 	scale_denom = _scale_denom;
-	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
-	     itl != layers.rend();
-	     ++itl)
-	{
-	    Layer * l = itl->second;
-//	    l->set_scale (scale);
-//	    itl->second->set_scale (scale);
-	}
     }
 
-  
-
     void set_tile_size(int s){
+	if (tile_size != s) {
+	    clear_tile_cache();
+	}
 	tile_size=s;
     }
 
-    int get_tile_size(){return tile_size;}
+    int get_tile_size() {
+	return tile_size;
+    }
 
+    inline void clear_tile_cache() {
+	tile_cache.clear();
+	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+	     itl != layers.end(); ++itl) {
+	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
+	}
+    }
 
 private:
     std::multimap <int, Layer *> layers;
     std::map <Layer *, bool> layers_active;
     int scale_nom, scale_denom;
     int tile_size;
+
+    typedef Cache<Point<int>,Image<int> > LayerCache;
+    std::map<Layer *, boost::shared_ptr<LayerCache> > tile_cache;
 };
 
 

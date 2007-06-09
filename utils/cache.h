@@ -6,7 +6,7 @@
 #include <set>
 #include <cassert>
 
-// makes a cache of pointers to V with keys of type V
+// Generic cache
 
 // DEBUG_CACHE      -- выдавать на stderr добавления/удаления элементов
 // DEBUG_CACHE_GET  -- выдавать обращения к кэшу
@@ -48,6 +48,13 @@ public:
     void erase(K const & key){
         int i = index[key];
         index.erase(key);
+	free_list.insert(i);
+	for (int k = 0; k < usage.size(); ++k) {
+	    if (usage[k] == i) {
+		usage.erase(usage.begin() + k);
+		break;
+	    }
+	}
     }
 
     int size(){

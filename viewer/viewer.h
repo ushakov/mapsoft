@@ -13,6 +13,7 @@
 #include <utils/image.h>
 #include <utils/image_gdk.h>
 #include <utils/image_brez.h>
+#include <viewer/rubber.h>
 
 // 
 class Viewer : public Gtk::DrawingArea {
@@ -59,6 +60,9 @@ private:
     // cache_updater_thread крутится, пока we_need_cache_updater == true
     bool we_need_cache_updater;
 
+    // Rubber things
+    boost::shared_ptr<Rubber> rubber;
+
 public:
 
     Viewer (Workplane & _workplane, 
@@ -85,6 +89,7 @@ public:
 		    Gdk::KEY_PRESS_MASK | 
 		    Gdk::KEY_RELEASE_MASK
 		   );
+
     }
     virtual ~Viewer (){
         mutex->lock();
@@ -223,12 +228,26 @@ public:
       Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(tile);
       Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
       Glib::RefPtr<Gdk::Window> widget = get_window();
-      
+
+      if (!rubber) {
+	  rubber.reset(new Rubber(this->get_window()));
+      }
+      bool reupdate_rubber = false;
+      if (rubber->is_visible()) {
+	  reupdate_rubber = true;
+	  rubber->hide();
+      }
       widget->draw_pixbuf(gc, pixbuf, 
 			  tile_in_screen.x-tile_rect.x, tile_in_screen.y-tile_rect.y, // on pixbuf
 			  tile_in_screen.x-window_origin.x, tile_in_screen.y-window_origin.y,
 			  tile_in_screen.w, tile_in_screen.h,
 			  Gdk::RGB_DITHER_NORMAL, 0, 0);
+      if (reupdate_rubber) {
+	  Point<int> pos;
+	  Gdk::ModifierType dummy2;
+	  get_window()->get_pointer(pos.x, pos.y, dummy2);
+	  rubber->update(pos, window_origin);
+      }
     }
 
 
@@ -315,37 +334,6 @@ public:
 	  }
 	}
       }
-#if 0      
-      int x = tiles.x - 1;
-      int y = tiles.y - 1;
-      int dir = 0;
-      do {
-        if (tile_cache.count(Point<int>(x,y))==0){
-           mutex->lock();
-           tiles_todo2.insert(Point<int>(x,y));
-           cache_updater_cond->signal();
-           mutex->unlock();
-        }
-        switch (dir){
-        case 0:
-            x++;
-            if (x-(tiles.x+tiles.w-1) == tiles.y-y) dir=1;
-            break;
-        case 1:
-            y++;
-            if (x-(tiles.x+tiles.w-1) == y-(tiles.y+tiles.h-1)) dir=2;
-            break;
-        case 2:
-            x--;
-            if (tiles.x-x == y-(tiles.y+tiles.h-1)) dir=3;
-            break;
-        case 3:
-            y--;
-            if (tiles.x - x == tiles.y - (y+1) ) dir=0;
-            break;
-        }
-      } while (point_in_rect(Point<int>(x,y), tiles_in_cache));
-#endif
     }
   
 /**************************************/
@@ -371,6 +359,10 @@ public:
 #endif
 	if (event->button == 1) {
 	    drag_pos = Point<int> ((int)event->x, (int)event->y);
+	    if (!rubber) {
+		rubber.reset(new Rubber(this->get_window()));
+	    }
+	    rubber->hide();
 	    return true;
 	} else {
 	    return Gtk::DrawingArea::on_button_press_event (event);
@@ -381,13 +373,16 @@ public:
     virtual bool
     on_motion_notify_event (GdkEventMotion * event) {
 	Point<int> pos ((int) event->x, (int) event->y);
-
 #ifdef DEBUG_VIEWER
 	std::cerr << "motion: " << pos << std::endl;
 #endif
 
-	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) 
+	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) {
+	    Gdk::ModifierType dummy2;
+	    get_window()->get_pointer(pos.x, pos.y, dummy2);
+	    rubber->update(pos, window_origin);
 	    return false;
+	}
 
 #ifdef DEBUG_VIEWER
 	std::cerr << "move-hint: " << event->x << "," << event->y << std::endl;
@@ -397,51 +392,13 @@ public:
 	Point<int> shift = pos - drag_pos;
 	window_origin -= shift;
 	change_viewport();
-	// fill (0, 0, get_width(), get_height());
+
 	get_window()->scroll(shift.x, shift.y);
 	drag_pos = pos;
+
 	return true;
     }
 
-/*
-    virtual bool
-    on_button_release_event (GdkEventButton * event) {
-	Point<int> pos ((int) event->x, (int) event->y);
-#ifdef DEBUG_VIEWER
-	std::cerr << "release: " << (int)event->x << "," << (int)event->y << std::endl;
-#endif
-	if (event->button == 1) {
-	    in_drag = false;
-	    return true;
-	} else {
-	    return Gtk::DrawingArea::on_button_release_event (event);
-	}
-    }
-*/
-
-/*    virtual bool
-    on_keypress_event ( GdkEventKey * event ) {
-#ifdef DEBUG_VIEWER
-	std::cerr << "key: " << event->keyval << std::endl;
-#endif
-      switch (event->keyval) {
-        case 43:
-        case 65451: // +
-        {
-	  scale_inc();
-          return true;
-        }
-        case 45:
-        case 65453: // -
-        {
-	  scale_dec();
-          return true;
-        }
-      }
-
-      return false;
-    }
-*/
     void set_window_origin(Point<int> p){ 
 	window_origin = p;
 #ifdef DEBUG_VIEWER
@@ -455,7 +412,6 @@ public:
 
     void set_window_origin(int x, int y){
 	set_window_origin(Point<int>(x,y));
-	change_viewport();
     }
 
     Point<int> get_window_origin (){
@@ -473,22 +429,13 @@ public:
       tiles_todo2.clear();
       mutex->unlock();
 
-//      if (is_mapped()){
-        fill (0, 0, get_width(), get_height());
-//      }
+      if (is_mapped()){
+	  fill (0, 0, get_width(), get_height());
+      }
     }
 
 // Работы с масштабами
 
-/*    void scale_inc(){
-	if     (scale_denom()/scale_nom() > 1) set_scale(1, scale_denom()/scale_nom()-1);
-        else set_scale(scale_nom()/scale_denom() + 1,1);
-    }
-    void scale_dec(){
-	if     (scale_nom()/scale_denom() > 1) set_scale(scale_nom()/scale_denom()-1,1);
-        else set_scale(1, scale_denom()/scale_nom() + 1);
-    }
-*/
     void scale_inc(){
 	if     (scale_denom()/scale_nom() > 1) set_scale(scale_nom(), scale_denom()/2);
         else set_scale(scale_nom()*2, scale_denom());
@@ -507,22 +454,13 @@ public:
       int n  = workplane.get_scale_denom()*scale_nom;
       int dn = workplane.get_scale_nom()*scale_denom;
       // todo -- перемасштабировать КЭШ
-      
-      Point<int> wcenter = get_window_origin() + get_window_size()/2;
-
-      mutex->lock();
-      tile_cache.clear();
-      tiles_todo.clear();
-      tiles_todo2.clear();
       workplane.set_scale_nom(scale_nom);
       workplane.set_scale_denom(scale_denom);
+
+      Point<int> wcenter = get_window_origin() + get_window_size()/2;
       window_origin = (wcenter*n)/dn-get_window_size()/2;
-      mutex->unlock();
 
-      if (is_mapped()){
-        fill (0, 0, get_width(), get_height());
-      }
-
+      clear_cache();
     }
 
     int scale_nom(){

@@ -9,7 +9,6 @@
 #include <layers/layer_geomap.h>
 #include <layers/layer_geodata.h>
 #include <viewer/layerlist.h>
-#include <viewer/generic_dialog.h>
 
 class Mapview : public Gtk::Window {
 public:
@@ -25,7 +24,6 @@ public:
 
 	workplane = new Workplane(256,0);
 	viewer = new Viewer(*workplane);
-	dialog = new GenericDialog;
 
 	//load file selector
 	file_sel_load.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::load_file_sel));
@@ -50,8 +48,6 @@ public:
 	actions->add(Gtk::Action::create("Save", Gtk::Stock::SAVE));
 	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT), sigc::mem_fun(this, &Gtk::Widget::hide));
 
-	actions->add(Gtk::Action::create("ShowDialog", "Show Dialog"), sigc::mem_fun(this, &Mapview::show_dialog));
-
 	ui_manager = Gtk::UIManager::create();
 	ui_manager->insert_action_group(actions);
 	add_accel_group(ui_manager->get_accel_group());
@@ -60,7 +56,6 @@ public:
 	    "<ui>"
 	    "  <menubar name='MenuBar'>"
 	    "    <menu action='MenuFile'>"
-	    "      <menuitem action='ShowDialog'/>"
 	    "      <menuitem action='Quit'/>"
 	    "    </menu>"
 	    "    <menu action='MenuGeodata'>"
@@ -102,16 +97,6 @@ public:
 	layer_list.store->signal_row_changed().connect (sigc::mem_fun (this, &Mapview::layer_edited));
 	
 	show_all();
-    }
-
-    void show_dialog () {
-	Options * o = new Options;
-	(*o)["Track No"] = "45";
-	(*o)["Time To Go"] = "45 min";
-	(*o)["Distance"] = "29 km";
-	(*o)["Efficiency"] = "0.8";
-	boost::shared_ptr<GenericAccessor> ga(CreateGenericAccessor(o));
-	dialog->activate("Test", ga);
     }
 
     void layer_edited (const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter) {
@@ -255,8 +240,6 @@ public:
 private:
     Workplane * workplane;
     Viewer * viewer;
-
-    GenericDialog * dialog;
 
     LayerList layer_list;
     Gtk::FileSelection file_sel_load;

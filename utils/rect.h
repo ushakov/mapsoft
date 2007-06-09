@@ -14,9 +14,9 @@ public:
     T x,y,w,h;
 
     Rect (Point<T> p1, Point<T> p2)
-	: x(p1.x), y(p1.y), w(p2.x-p1.x),h(p2.y-p1.y) {
-	if (w<0) std::cerr << "Rect warning: w<0\n";
-	if (h<0) std::cerr << "Rect warning: h<0\n";
+	: x(std::min(p1.x, p2.x)), y(std::min(p1.y, p2.y)),
+	  w(std::max(p1.x,p2.x) - std::min(p1.x,p2.x)),
+	  h(std::max(p1.y,p2.y) - std::min(p1.y,p2.y)) {
     }
 
     Rect (T _x, T _y, T _w=0, T _h=0)

@@ -72,7 +72,6 @@ public:
       std::cerr  << "LayerGeoData: draw " << src_rect << " -> "
                << dst_rect << " at " << dst_img <<  "\n";
 #endif
-
       boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&dst_img));
 
       int c_r = 0xFF0000FF;
@@ -85,6 +84,7 @@ public:
 
       for (std::vector<g_track>::const_iterator it = world->trks.begin();
                                          it!= world->trks.end(); it++){
+	
         int xo=0, yo=0;
         for (std::vector<g_trackpoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
@@ -93,18 +93,20 @@ public:
           int x = int(dst_rect.x+((p.x-src_rect.x)*dst_rect.w)/src_rect.w);
           int y = int(dst_rect.y+((p.y-src_rect.y)*dst_rect.h)/src_rect.h);
 
-          if (point_in_rect(Point<int>(int(p.x),int(p.y)), src_rect)){
-
-            if (!pt->start) {
-	      ctx->DrawLine(Point<int>(xo,yo), Point<int>(x, y), 2, c_m);
-	      ctx->DrawFilledRect(Rect<int>(xo-1,yo-1,2,2), c_b);
-            } else {
-	      ctx->DrawFilledRect(Rect<int>(x-1,y-1,2,2), c_b);
-            }
-          }
-          xo=x; yo=y;
+	  Rect<int> line_bb(Point<int>(xo, yo), Point<int>(x,y));
+	  line_bb = rect_pump(line_bb, 2);
+	  if (!rect_intersect(line_bb, dst_rect).empty()) {
+	      if (!pt->start) {
+		  ctx->DrawLine(Point<int>(xo,yo), Point<int>(x, y), 3, c_b);
+//		  ctx->DrawFilledRect(Rect<int>(x-1,y-1,2,2), c_b);
+	      } else {
+		  ctx->DrawFilledRect(Rect<int>(x-2,y-2,4,4), c_m);
+	      }
+	  }
+	  xo=x; yo=y;
         }
       }
+
       Rect<int> dst_rect_pumped = rect_pump(dst_rect, 6);
 
       for (std::vector<g_waypoint_list>::const_iterator it = world->wpts.begin();
