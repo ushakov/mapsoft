@@ -135,7 +135,8 @@ public:
           }
 	  Image<int> im = image_cache.get(i);
 
-          m2ms[i].image_frw(im, iscales[i], src_rect, dst_img, dst_rect);
+          if (scale<=32)
+            m2ms[i].image_frw(im, iscales[i], src_rect, dst_img, dst_rect);
 
           for (int j=0; j<m2ms[i].border_dst.size(); j++){
             Point<double> p1(m2ms[i].border_dst[j]);
