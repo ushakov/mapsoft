@@ -60,9 +60,9 @@ struct points{
   Cache <Point<int>, Image<int> > cache;
 
   points(std::string _dir, int _google_scale, int cache_size=200): cache(cache_size){
+    google_scale=_google_scale;
     if (google_scale<google_scale_min) google_scale=google_scale_min;
     if (google_scale>google_scale_max) google_scale=google_scale_max;
-    google_scale=_google_scale;
     width=int(pow(2,google_scale-1));
     dir=_dir;
   }

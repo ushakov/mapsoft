@@ -41,6 +41,9 @@ pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
           lat0 = Po.get_double("lat0",0);
           N0   = Po.get_double("N0",0);
           E0   = Po.get_double("E0",0);
+	  return;
+        case 4: // google
+	  return;
         default:
           std::cerr << "unknown proj: " << P.n << "\n";
           return;
@@ -74,6 +77,9 @@ void pt2ll::frw(g_point & p) const{
        GPS_Math_Mercator_EN_To_LatLon(p.x, p.y, &y, &x, lat0, l0, E0, N0, a, a*(1-f));
        p.x = x; p.y = y;
        break;
+    case 4: // google
+       p.y = 360/M_PI*atan(exp(p.y*M_PI/180)) - 90;
+       break;
     default:
        std::cerr << "unknown proj: " << proj.n << "\n";
        break;
@@ -103,6 +109,9 @@ void pt2ll::bck(g_point & p){
     return;
   case 3: // merc
     std::cerr << "conversion latlon -> utm is not supported. fixme!\n";
+    return;
+  case 4: // google
+    p.y = 180/M_PI * log(tan(M_PI/4*(1+p.y/90.0)));
     return;
   default:
     std::cerr << "unknown proj: " << proj.n << "\n";
@@ -559,43 +568,22 @@ int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
 
     if (cnv_rect.empty() || dst_rect.empty()) return 1;
 
-//    int dist;
-
 //      std::cerr  << "map2map: " << cnv_rect 
 //                 << " -> " << dst_rect << " at " << dst_img << "\n";
-
+    g_point p0;
     for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
       // откуда мы хотим взять строчку
-      int cnv_y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
-      // при таком делении может выйти  cnv_y1 = cnv_rect.BRC.y, что плохо!
-      if (cnv_y == cnv_rect.BRC().y) cnv_y--;
+      p0.y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
 
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
-        int cnv_x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
-        if (cnv_x == cnv_rect.BRC().x) cnv_x--;
-        if (!tst_frw.test(cnv_x, cnv_y)) continue;
-        g_point p(cnv_x, cnv_y);
+        p0.x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
+//        if (!tst_frw.test(cnv_x, cnv_y)) continue;
+	g_point p(p0);
         bck(p); p/=src_scale;
-        dst_img.set(dst_x, dst_y, src_img.get(int(p.x),int(p.y)));
+        dst_img.set_na(dst_x, dst_y, src_img.safe_get(int(p.x),int(p.y)));
 
       }
     }
-/*
-    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
-      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
-        dist = tst_frw.nearest_border(dst_x, dst_y);
-        if (dist<0) {
-            dst_x -= dist+1;
-        }
-        else{
-            if (dst_x+dist>dst_rect.x+dst_rect.w) dist=dst_rect.x+dst_rect.w-dst_x;
-            for (int x = dst_x; x<dst_x+dist; x++){
-                dst_img.set(x, dst_y, src_img.get(int(p.x),int(p.y)));
-            }
-            dst_x += dist;
-        }
-      }
-    }*/
     return 0;
 }
 
@@ -605,45 +593,65 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
 //      src_img.range(), src_rect, dst_img.range(), dst_rect);
     if (cnv_rect.empty() || dst_rect.empty()) return 1;
 
-
+    g_point p0;
     for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
       // откуда мы хотим взять строчку
-      int cnv_y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
-      // при таком делении может выйти  cnv_y1 = cnv_rect.BRC.y, что плохо!
-      if (cnv_y == cnv_rect.BRC().y) cnv_y--;
-
+      p0.y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
-        int cnv_x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
-        if (cnv_x == cnv_rect.BRC().x) cnv_x--;
-        if (!tst_bck.nearest_border(cnv_x, cnv_y)) continue;
-        g_point p(cnv_x, cnv_y);
+        p0.x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
+//        if (cnv_x == cnv_rect.BRC().x) cnv_x--;
+//        if (!tst_bck.nearest_border(cnv_x, cnv_y)) continue;
+        g_point p(p0);
         bck(p); p/=src_scale;
-        dst_img.set(dst_x, dst_y, src_img.get(int(p.x),int(p.y)));
-
+        dst_img.set_na(dst_x, dst_y, src_img.safe_get(int(p.x),int(p.y)));
       }
     }
-
-/*    int dist;
-
-    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
-      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
-        dist = tst_bck.nearest_border(dst_x, dst_y);
-        if (dist<0) {
-            dst_x -= dist+1;
-        }
-        else{
-            if (dst_x+dist>dst_rect.x+dst_rect.w) dist=dst_rect.x+dst_rect.w-dst_x;
-            for (int x = dst_x; x<dst_x+dist; x++){
-                g_point p(dst_x, dst_y);
-                frw(p); p/=src_scale;
-                dst_img.set(x, dst_y, src_img.get(int(p.x),int(p.y)));
-            }
-            dst_x += dist;
-        }
-      }
-    }*/
     return 0;
 }
+
+Rect<int> map2map::bb_frw(const Rect<int> & R){
+  vector<g_point> v1;
+  v1.push_back(g_point(R.TLC().x, R.TLC().y)); 
+  v1.push_back(g_point(R.TRC().x, R.TRC().y)); 
+  v1.push_back(g_point(R.BRC().x, R.BRC().y)); 
+  v1.push_back(g_point(R.BLC().x, R.BLC().y)); 
+  v1.push_back(g_point(R.TLC().x, R.TLC().y)); 
+  vector<g_point> v2 = line_frw(v1);
+  double minx = v2[0].x, maxx = v2[0].x;
+  double miny = v2[0].y, maxy = v2[0].y;
+  for (vector<g_point>::const_iterator i = v2.begin(); i!=v2.end(); i++){
+    if (i->x < minx) minx = i->x;
+    if (i->x > maxx) maxx = i->x;
+    if (i->y < miny) miny = i->y;
+    if (i->y > maxy) maxy = i->y;
+  }
+  minx = floor(minx); miny = floor(miny);
+  maxx = ceil(maxx);  maxy = ceil(maxy);
+  return Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny));
+}
+
+Rect<int> map2map::bb_bck(const Rect<int> & R){
+  vector<g_point> v1;
+  v1.push_back(g_point(R.TLC().x, R.TLC().y)); 
+  v1.push_back(g_point(R.TRC().x, R.TRC().y)); 
+  v1.push_back(g_point(R.BRC().x, R.BRC().y)); 
+  v1.push_back(g_point(R.BLC().x, R.BLC().y)); 
+  v1.push_back(g_point(R.TLC().x, R.TLC().y)); 
+  vector<g_point> v2 = line_bck(v1);
+  double minx = v2[0].x, maxx = v2[0].x;
+  double miny = v2[0].y, maxy = v2[0].y;
+  for (vector<g_point>::const_iterator i = v2.begin(); i!=v2.end(); i++){
+    if (i->x < minx) minx = i->x;
+    if (i->x > maxx) maxx = i->x;
+    if (i->y < miny) miny = i->y;
+    if (i->y > maxy) maxy = i->y;
+  }
+  minx = floor(minx); miny = floor(miny);
+  maxx = ceil(maxx);  maxy = ceil(maxy);
+  return Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny));
+}
+
+
 
 
 // Быстрая проверка границ

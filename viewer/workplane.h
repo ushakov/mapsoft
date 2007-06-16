@@ -10,6 +10,7 @@
 #include <utils/cache.h>
 #include "layers/layer.h"
 
+
 class Workplane {
     static const int CacheCapacity = 200;
 public:
@@ -27,10 +28,10 @@ public:
 
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
 	     itl != layers.rend();  ++itl){
-	    std::cout << "WP: layer " << itl->second << std::endl;
+//	    std::cout << "WP: layer " << itl->second << std::endl;
 	    Layer * layer = itl->second;
 	    if (layers_active[layer]) {
-		std::cout << "WP: layer selected " << itl->second << std::endl;
+//		std::cout << "WP: layer selected " << itl->second << std::endl;
 		if (!tile_cache[layer]->contains(tile_key)) {
 		    Image<int>  tile(tile_size,tile_size, 0);
 		    itl->second->draw (src_rect, tile, dst_rect);

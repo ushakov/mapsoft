@@ -140,10 +140,10 @@ public:
              tiles_todo.erase(key);
              mutex->unlock();
 
-	     // просигналим, что мы начали обработку плитки
-	     fill_temp_tile (tile_cache.find(key)->second, 1);
-	     tile_done_queue.push(key);
-	     update_tile_signal.emit();
+//	     // просигналим, что мы начали обработку плитки
+//	     fill_temp_tile (tile_cache.find(key)->second, 1);
+//	     tile_done_queue.push(key);
+//	     update_tile_signal.emit();
 
              Image<int> tile = workplane.get_image(key);
 
@@ -242,6 +242,7 @@ public:
 			  tile_in_screen.x-window_origin.x, tile_in_screen.y-window_origin.y,
 			  tile_in_screen.w, tile_in_screen.h,
 			  Gdk::RGB_DITHER_NORMAL, 0, 0);
+
       if (reupdate_rubber) {
 	  Point<int> pos;
 	  Gdk::ModifierType dummy2;

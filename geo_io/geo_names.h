@@ -74,6 +74,7 @@ public boost::equality_comparable<Proj>
     	    (name == "UTM")){n=2; return;}
 	if ((name == "merc")||
     	    (name == "Mercator")){n=3; return;}
+	if  (name == "google"){n=4; return;}
 	std::cerr << "Unknown proj: " << name << ". Using Latitude/Longitude.\n";
 	n=0;
     }
@@ -84,6 +85,7 @@ public boost::equality_comparable<Proj>
     	    case  1: return "tmerc";
     	    case  2: return "utm";
     	    case  3: return "merc";
+    	    case  4: return "google";
     	    default:
     	    std::cerr << "xml_str: unknown proj: " << n << "\n";
     	    return "unknown";
@@ -96,6 +98,7 @@ public boost::equality_comparable<Proj>
     	    case  1: return "Transverse Mercator";
     	    case  2: return "UTM";      // проверить, что в OE оно так называется!
     	    case  3: return "Mercator"; // проверить, что в OE оно так называется!
+    	    case  4: return "Google";   // Как это называется в Ozi???
     	    default:
     	    std::cerr << "oe_str: unknown proj: " << n << "\n";
     	    return "Unknown";

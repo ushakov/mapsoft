@@ -75,7 +75,7 @@ using namespace boost::spirit;
   }
 
   // Добавить привязку в fig_world
-  void set_ref(fig_world & w, const g_map & m, const Options O){
+  void set_ref(fig_world & w, const g_map & m, const Options & O){
     // Если хочется, можно записать точки привязки в нужной проекции
     Datum  datum(O.get_string("datum", "pulkovo"));
     Proj   proj(O.get_string("proj", "tmerc"));
@@ -89,8 +89,10 @@ using namespace boost::spirit;
     for (int n=0; n<m.size(); n++){
       fig::fig_object o = fig::make_object("2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 *");
       o.push_back(Point<int>( int(m[n].xr), int(m[n].yr) ));
+      g_point p(m[n]);
+      cnv.bck(p);
       ostringstream comm;
-      comm << "REF " << fixed << m[n].x << " " << m[n].y;
+      comm << "REF " << fixed << p.x << " " << p.y;
       o.comment.push_back(comm.str()); comm.str("");
       if (datum != Datum("wgs84"))
          comm << "datum: " << datum.xml_str();

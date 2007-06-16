@@ -7,6 +7,7 @@ sources = Split ("""
 		image_i.cpp
 		image_r.cpp
 		image_google.cpp
+		image_ks.cpp
 		""")
 
 le.Library('loaders', sources, LIBS=Split('tiff jpeg png'))

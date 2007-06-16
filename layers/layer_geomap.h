@@ -119,8 +119,10 @@ public:
 
 	  int scale = int((0.01+scales[i]) * (sc_x<sc_y? sc_x:sc_y));
 	  if (scale <=0) scale = 1;
-          if (!image_cache.contains(i) ||
-	      (image_cache.contains(i) && iscales[i] > scale)) {
+
+          if (scale<=32){
+            if (!image_cache.contains(i) ||
+  	       (image_cache.contains(i) && iscales[i] > scale)) {
 #ifdef DEBUG_LAYER_GEOMAP
       std::cerr  << "LayerMap: Loading Image " << file
 		 << " at scale " << scale 
@@ -130,13 +132,12 @@ public:
 #endif
 
 
-            image_cache.add(i, image_r::load(file.c_str(), scale));
-	    iscales[i] = scale;
-          }
-	  Image<int> im = image_cache.get(i);
-
-          if (scale<=32)
+              image_cache.add(i, image_r::load(file.c_str(), scale));
+	      iscales[i] = scale;
+            }
+            Image<int> im = image_cache.get(i);
             m2ms[i].image_frw(im, iscales[i], src_rect, dst_img, dst_rect);
+          }
 
           for (int j=0; j<m2ms[i].border_dst.size(); j++){
             Point<double> p1(m2ms[i].border_dst[j]);

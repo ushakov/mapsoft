@@ -115,6 +115,11 @@ struct map2map{
                 Image<int> & dst_img, Rect<int> dst_rect);
   int image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect, 
                 Image<int> & dst_img, Rect<int> dst_rect);
+  // преобразование прямоугольника (в произвольную фигуру) и нахождение 
+  // минимального прямоугольника, в котором она лежит
+  Rect<int> bb_frw(const Rect<int> & R);
+  Rect<int> bb_bck(const Rect<int> & R);
+
     map2pt c1,c2;
     border_tester tst_frw, tst_bck;
     std::vector<g_point> border_src; // граница sM

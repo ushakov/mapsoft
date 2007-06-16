@@ -1,45 +1,23 @@
-#include "image_google.h"
+#include "image_ks.h"
 
-namespace google{
+namespace ks{
 
 static CURL * curl_handle = 0;
 static char curl_error[CURL_ERROR_SIZE];
 
-// пересчет координат кусочка в его адрес
-std::string tile2addr(int google_scale, int xt, int yt){
-
-  std::string addr="t";
-  int h = (int)pow(2,google_scale-1);
-  for (int i=google_scale-1; i>0; i--){
-    char a=0;	
-    h /= 2; // half of picture width
-    if (xt>=h) {a|=1; xt-=h;}
-    if (yt>=h) {a|=2; yt-=h;}
-    addr += lett[a];
-  }
-  return addr;
-}
-
-std::string tile2file(int google_scale, int xt, int yt){
-  std::ostringstream addr;
-  addr << "/" << std::setfill('0') << std::setw(2) << google_scale 
-       << "/" << tile2addr(google_scale, xt, yt) << ".jpg";
-  return addr.str();
-}
-
 // Загрузка картинки
 int load(
     const std::string & dir, 
-    int google_scale,	
+    int ks_scale,	
     Rect<int> src_rect, 
     Image<int> & image, 
     Rect<int> dst_rect,
     bool do_download)
 {
-  if (google_scale<google_scale_min) google_scale=google_scale_min;
-  if (google_scale>google_scale_max) google_scale=google_scale_max;
+  if (ks_scale<ks_scale_min) ks_scale=ks_scale_min;
+  if (ks_scale>ks_scale_max) ks_scale=ks_scale_max;
  
-  int src_width = 256*(int)pow(2,google_scale-1);
+  int src_width = 5 * (1 << (8+ks_scale-3));
 
   Rect<int> src_points = Rect<int>(0,0,src_width,src_width);
 
@@ -67,29 +45,46 @@ int load(
       int dy1 = ((256*yt + sy1 - src_rect.y) * dst_rect.h)/src_rect.h + dst_rect.y;
       int dy2 = ((256*yt + sy2 - src_rect.y) * dst_rect.h)/src_rect.h + dst_rect.y;
 
-      std::string addr = dir + tile2file(google_scale, xt,yt);
 
       Rect<int> src(sx1,sy1,sx2-sx1,sy2-sy1);
       Rect<int> dst(dx1,dy1,dx2-dx1,dy2-dy1);
-#ifdef DEBUG_GOOGLE
-      std::cerr << "google: loading " << addr << " " << src << " --> " << dst << "\n";
+#ifdef DEBUG_KS
+      std::cerr << "ks: loading " << addr << " " << src << " --> " << dst << "\n";
 #endif
-      int ret = image_jpeg::load(addr.c_str(), src, image, dst);
+      std::ostringstream tile_file_s;
+      tile_file_s << dir << "/" << ks_scale << "/" << xt << "/" << yt << ".jpg";
+      std::string tile_file = tile_file_s.str();
+
+      int ret = image_jpeg::load(tile_file.c_str(), src, image, dst);
       if (ret == 3 && do_download) {
+
+
+          std::ostringstream tile_dir_s;
+          tile_dir_s << dir << "/" << ks_scale << "/";
+          mkdir(tile_dir_s.str().c_str(),0755);
+          tile_dir_s << xt << "/";
+          mkdir(tile_dir_s.str().c_str(),0755);
+
 	  // try libcurl loading
 	  if (!curl_handle) {
 	      curl_handle = curl_easy_init();
 	      if (!curl_handle) return 1;
 	      curl_easy_setopt (curl_handle, CURLOPT_ERRORBUFFER, curl_error);
 	  }
-	  FILE *f = fopen (addr.c_str(), "w");
+	  FILE *f = fopen (tile_file.c_str(), "w");
 	  if (!f) return 1;
-	  int n = rand() % 4;
-	  std::ostringstream urls;
-	  urls << "http://kh" << n << ".google.com/kh?n=404&v=11&t=" << tile2addr (google_scale, xt, yt);
-	  std::string url = urls.str();
-	  std::cerr << "fetching url " << url << std::endl;
-	  if (curl_easy_setopt (curl_handle, CURLOPT_URL, url.c_str())) {
+
+          std::ostringstream tile_url_s;
+
+	  tile_url_s << "http://images.new.kosmosnimki.ru/printtiles/?t=image_&zt=n&x=" 
+                     << (2*xt + 1) * (1 << (24-ks_scale))
+                     << "&y="
+                     << (src_width/128 - 2*yt - 1) * (1 << (24-ks_scale))
+                     << "&z=" << ks_scale;
+
+	  std::string tile_url = tile_url_s.str();
+	  std::cerr << "fetching url " << tile_url << std::endl;
+	  if (curl_easy_setopt (curl_handle, CURLOPT_URL, tile_url.c_str())) {
 	      std::cerr << curl_error;
 	      fclose (f); return 1;
 	  }
@@ -112,19 +107,19 @@ int load(
 	      fclose (f); return 1;
 	  }
 	  fclose (f);
-	  ret = image_jpeg::load(addr.c_str(), src, image, dst);
+	  ret = image_jpeg::load(tile_file.c_str(), src, image, dst);
       }
     }
   }
   return 0;
 }
 
-Image<int> load(const std::string & dir, int google_scale, const Rect<int> & src_rect, int scale, bool do_download){
+Image<int> load(const std::string & dir, int ks_scale, const Rect<int> & src_rect, int scale, bool do_download){
   int w = src_rect.w/scale;
   int h = src_rect.h/scale;
   Rect<int> dst_rect(0,0,w,h);
   Image<int> ret(w,h,0xFF000000);
-  load(dir, google_scale, src_rect, ret, dst_rect, do_download);
+  load(dir, ks_scale, src_rect, ret, dst_rect, do_download);
   return ret;
 }
 

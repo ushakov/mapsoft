@@ -14,7 +14,7 @@ namespace fig {
   // Убрать привязку из fig_world
   void rem_ref(fig_world & w);
   // Добавить привязку в fig_world
-  void set_ref(fig_world & w, const g_map & m);
+  void set_ref(fig_world & w, const g_map & m, const Options & o);
 
   // Извлечь треки и точки и поместить их в geo_data
   void get_wpts(const fig_world & w, const g_map & m, geo_data & d);

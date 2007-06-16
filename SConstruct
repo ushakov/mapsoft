@@ -21,7 +21,7 @@ env.ParseConfig('gdlib-config --cflags --ldflags --libs')
 env.Append (LIBS = '-lgd')
 
 env.Append (CPPPATH='#')
-env.Append (LIBS=Split('m usb jpeg tiff png'))
+env.Append (LIBS=Split('m usb jpeg tiff png curl'))
 env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
 
 env.Append (CCFLAGS=['-O2', '-ggdb'])

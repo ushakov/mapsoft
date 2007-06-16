@@ -1,5 +1,5 @@
-#ifndef IMAGE_GOOGLE_H
-#define IMAGE_GOOGLE_H
+#ifndef IMAGE_KS_H
+#define IMAGE_KS_H
 
 #include <string>
 #include <sstream>
@@ -16,23 +16,15 @@
 #include "../utils/image.h"
 #include "image_jpeg.h"
 
-namespace google{
+namespace ks{
 
-const int google_scale_min = 1;
-const int google_scale_max = 18;
-
-const char lett[4] = {'q','r','t','s'};
-
-// пересчет координат кусочка в его адрес
-// убрать это отсюда потом!
-std::string tile2addr(int google_scale, int xt, int yt);
-
-std::string tile2file(int google_scale, int xt, int yt);
+const int ks_scale_min = 3;
+const int ks_scale_max = 17;
 
 // Загрузка картинки
 int load(
     const std::string & dir, 
-    int google_scale,	
+    int ks_scale,	
     Rect<int> src_rect, 
     Image<int> & image, 
     Rect<int> dst_rect,
@@ -40,7 +32,7 @@ int load(
 
 Image<int> load(
     const std::string & dir,
-    int google_scale,
+    int ks_scale,
     const Rect<int> & src_rect,
     int scale=1,
     bool do_download = false);

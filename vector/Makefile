@@ -31,6 +31,8 @@ fig_ukl: $(MAPSOFT_LIBS) fig_ukl.cpp
 
 fig_norm: $(MAPSOFT_LIBS) fig_norm.cpp
 	g++ fig_norm.cpp $(MAPSOFT_LIBS) -o fig_norm
+fig_norm_h: $(MAPSOFT_LIBS) fig_norm_h.cpp
+	g++ fig_norm_h.cpp $(MAPSOFT_LIBS) -o fig_norm_h
 
 fig_bbx_test: $(MAPSOFT_LIBS) fig_bbx_test.cpp
 	g++ fig_bbx_test.cpp $(MAPSOFT_LIBS) -o fig_bbx_test

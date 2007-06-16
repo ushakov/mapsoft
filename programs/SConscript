@@ -4,6 +4,9 @@ mapsoft_libs = Split ("geo_io loaders utils jeeps viewer")
 
 le.Prepend(LIBS=mapsoft_libs)
 
+le.Program('mapsoft_googleview', 'mapsoft_googleview.cpp')
+le.Program('mapsoft_ksview', 'mapsoft_ksview.cpp')
+
 le.Program('mapsoft_convert', 'mapsoft_convert.cpp')
 # le.Program('mapsoft_imgview', 'mapsoft_imgview.cpp')
 le.Program('mapsoft_mapcnv', 'mapsoft_mapcnv.cpp')
