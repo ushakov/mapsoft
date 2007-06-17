@@ -22,8 +22,8 @@ public:
 	signal_delete_event().connect (sigc::mem_fun (this, &Mapview::on_delete));
 	set_default_size(640,480);
 
-	workplane = new Workplane(256,0);
-	viewer = new Viewer(*workplane);
+	workplane.reset(new Workplane(256,0));
+	viewer.reset(new Viewer(workplane));
 
 	//load file selector
 	file_sel_load.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::load_file_sel));
@@ -95,6 +95,10 @@ public:
 
 	// connect events from layer list
 	layer_list.store->signal_row_changed().connect (sigc::mem_fun (this, &Mapview::layer_edited));
+
+	// connect events from viewer
+	viewer->signal_motion_notify_event().connect (sigc::mem_fun (this, &Mapview::pointer_moved));
+	viewer->signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::mouse_button_pressed));
 	
 	show_all();
     }
@@ -230,16 +234,56 @@ public:
     void refresh () {
 	viewer->clear_cache();
     }
+
+    virtual bool
+    mouse_button_pressed (GdkEventButton * event) {
+#ifdef DEBUG_MAPVIEW
+	std::cerr << "press: " << event->x << "," << event->y << " " << event->button << std::endl;
+#endif
+	if (event->button == 1) {
+	    drag_pos = Point<int> ((int)event->x, (int)event->y);
+	    return true;
+	}
+    }
+
+    virtual bool
+    pointer_moved (GdkEventMotion * event) {
+	Point<int> pos ((int) event->x, (int) event->y);
+#ifdef DEBUG_MAPVIEW
+	std::cerr << "motion: " << pos << std::endl;
+#endif
+	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) {
+	    Gdk::ModifierType dummy2;
+	    viewer->get_window()->get_pointer(pos.x, pos.y, dummy2);
+//	    translate_coordinates(*viewer, pos.x, pos.y, pos.x, pos.y);
+	    viewer->pointer_notify(pos);
+	    return false;
+	}
+
+#ifdef DEBUG_MAPVIEW
+	std::cerr << "move-hint: " << event->x << "," << event->y << std::endl;
+#endif
+	Gdk::ModifierType dummy2;
+	viewer->get_window()->get_pointer(pos.x, pos.y, dummy2);
+	Point<int> shift = pos - drag_pos;
+	Point<int> window_origin = viewer->get_window_origin();
+	window_origin -= shift;
+	viewer->set_window_origin(window_origin);
+	drag_pos = pos;
+
+	return true;
+    }
+    
     
     virtual ~Mapview() {
-	delete workplane;
-	delete viewer;
+	workplane.reset();
+	viewer.reset();
 	delete status_bar;
     }
 
 private:
-    Workplane * workplane;
-    Viewer * viewer;
+    boost::shared_ptr<Workplane> workplane;
+    boost::shared_ptr<Viewer> viewer;
 
     LayerList layer_list;
     Gtk::FileSelection file_sel_load;
@@ -256,6 +300,8 @@ private:
 
     g_map reference;
     bool have_reference;
+
+    Point<int> drag_pos;
 };
 
 #endif /* MAPVIEW_H */

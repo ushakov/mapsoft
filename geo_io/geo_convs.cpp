@@ -577,11 +577,14 @@ int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
 
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
         p0.x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
-//        if (!tst_frw.test(cnv_x, cnv_y)) continue;
 	g_point p(p0);
-        bck(p); p/=src_scale;
-        dst_img.set_na(dst_x, dst_y, src_img.safe_get(int(p.x),int(p.y)));
-
+        bck(p);
+        if (!tst_bck.test(p.x, p.y)) continue;
+	p/=src_scale;
+	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
+	if (c != 0) {
+	    dst_img.set_na(dst_x, dst_y, c);
+	}
       }
     }
     return 0;
@@ -600,10 +603,13 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
         p0.x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
 //        if (cnv_x == cnv_rect.BRC().x) cnv_x--;
-//        if (!tst_bck.nearest_border(cnv_x, cnv_y)) continue;
         g_point p(p0);
+        if (!tst_bck.test(p.x, p.y)) continue;
         bck(p); p/=src_scale;
-        dst_img.set_na(dst_x, dst_y, src_img.safe_get(int(p.x),int(p.y)));
+	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
+	if (c != 0) {
+	    dst_img.set_na(dst_x, dst_y, c);
+	}
       }
     }
     return 0;

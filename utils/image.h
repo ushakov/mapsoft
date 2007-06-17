@@ -158,8 +158,11 @@ struct Image{
 	safe_set(p.x, p.y, c);
     }
 
-    inline void set_na(int x, int y, T c){data[y*w+x]=c|0xFF000000;}
-    inline void set_na(const Point<int> & p, T c){data[p.y*w+p.x]=c|0xFF000000;}
+    inline void set_na(int x, int y, T c) {
+	data[y*w+x] = (c | 0xff000000);
+    }
+    inline void set_na(const Point<int> & p, T c){ set_na(p.x, p.y, c); }
+    
     inline T get_na(int x, int y, T c) const { return data[y*w+x]|0xFF000000;}
     inline T get_na(const Point<int> & p, T c) const {return data[p.y*w+p.x]|0xFF000000;}
 
@@ -187,6 +190,7 @@ struct Image{
 	} else if (a == 0) {
 	    // do nothing
 	} else {
+	    static int qqqq = 0;
 	    int r = (((color >> 16) & 0xff) * a + ((data[y*w+x] >> 16) & 0xff) * (255-a)) / 255;
 	    int g = (((color >> 8) & 0xff) * a + ((data[y*w+x] >> 8) & 0xff) * (255-a)) / 255;
 	    int b = ((color & 0xff) * a + (data[y*w+x] & 0xff) * (255-a)) / 255;

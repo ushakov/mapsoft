@@ -24,6 +24,9 @@ private:
     g_map mymap;
     Rect<int> myrange;
 
+    static const int wpt_radius = 3;
+    static const int tpt_radius = 2;
+ 
 public:
 
     LayerGeoData (geo_data * _world) : 
@@ -98,7 +101,7 @@ public:
 	  if (!rect_intersect(line_bb, dst_rect).empty()) {
 	      if (!pt->start) {
 		  ctx->DrawLine(Point<int>(xo,yo), Point<int>(x, y), 3, c_b);
-//		  ctx->DrawFilledRect(Rect<int>(x-1,y-1,2,2), c_b);
+		  ctx->DrawFilledRect(Rect<int>(x-2,y-2,4,4), c_m);
 	      } else {
 		  ctx->DrawFilledRect(Rect<int>(x-2,y-2,4,4), c_m);
 	      }
@@ -140,74 +143,37 @@ public:
       ctx->StampAndClear();
     }
 
-    g_waypoint * find_waypoint (Point<int> p) {
-	Rect<int> target_rect (p - Point<int>(5,5), p + Point<int>(5,5));
-	for (std::vector<g_waypoint_list>::iterator it = world->wpts.begin();
-	     it!= world->wpts.end(); it++){
-	    for (std::vector<g_waypoint>::iterator pt = it->begin();
-		 pt!= it->end(); pt++){
-		g_point wp(pt->x,pt->y); cnv.bck(wp);
+    std::pair<int, int> find_waypoint (Point<int> p) {
+	Rect<int> target_rect (p,p);
+	target_rect = rect_pump(target_rect, wpt_radius);
+	for (int wptl = 0; wptl < world->wpts.size(); ++wptl) {
+	    for (int wpt = 0; wpt < world->wpts[wptl].size(); ++wpt) {
+		g_point wp(world->wpts[wptl][wpt].x,world->wpts[wptl][wpt].y);
+		cnv.bck(wp);
 
 		if (point_in_rect(Point<int>(int(wp.x),int(wp.y)), target_rect)){
-		    return &(*pt);
+		    std::make_pair(wptl, wpt);
 		}
 	    }
 	}
-	return 0;
+	return std::make_pair(-1,-1);
     }
+    
+    std::pair<int, int> find_trackpoint (Point<int> p) {
+	Rect<int> target_rect (p,p);
+	target_rect = rect_pump(target_rect, tpt_radius);
+	for (int track = 0; track < world->trks.size(); ++track) {
+	    for (int tpt = 0; tpt < world->trks[track].size(); ++tpt) {
+		g_point wp(world->trks[track][tpt].x,world->trks[track][tpt].y);
+		cnv.bck(wp);
 
-    void action_move (ActionData * ad) {
-	if (ad->items.size() == 1) {
-	    g_waypoint * wpt = find_waypoint (ad->items[0].p);
-	    if (wpt) {
-		// Add rubber tail etc...
-		return;
+		if (point_in_rect(Point<int>(int(wp.x),int(wp.y)), target_rect)){
+		    std::make_pair(track, tpt);
+		}
 	    }
-	    ad->clear();
-	    return;
-	} else {
-	    assert(ad->items.size() == 2);
-	    g_waypoint * wpt = find_waypoint (ad->items[0].p);
-	    assert(wpt);
-	    wpt->x = ad->items[1].p.x;	
-	    wpt->y = ad->items[1].p.y;
-	    cnv.frw(*wpt);
-	    ad->clear();
-	    return;
 	}
+	return std::make_pair(-1,-1);
     }
-
-    enum Actions { A_Move, A_Modify, A_Delete, A_ActionsNumber };
-
-    virtual void do_action (ActionData * ad) {
-	if (ad->items.size() == 0) return;   // Nothing to do!
-	// check that all actions have the same type
-	for (int i = 1; i < ad->items.size(); ++i) {
-	    assert(ad->items[i].type == ad->items[0].type);
-	}
-	switch (ad->items[0].type) {
-	case A_Move:
-	    action_move(ad);
-	    return;
-	case A_Modify: // fallthrough
-	case A_Delete:
-	    // not yet implemented!
-	    ad->clear();
-	    return;
-	default:
-	    assert (!"Wrong type of action!");
-	}
-    }
-
-    virtual std::vector<std::string> action_names () {
-	std::vector<std::string> names;
-	names.resize(A_ActionsNumber);
-	names[A_Move] = "Move Waypoint";
-	names[A_Modify] = "Modify Waypoint";
-	names[A_Delete] = "Delete Waypoint";
-	return names;
-    }
-
 
     virtual Rect<int> range (){ return myrange;}
     

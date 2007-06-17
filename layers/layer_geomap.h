@@ -28,7 +28,7 @@ private:
   Cache<int, Image<int> > image_cache;    // кэш изображений
   Options O; // для всех карт должны быть одинаковы!
   g_map mymap;
-
+ 
 public:
 
     LayerGeoMap (const geo_data *_world) : 
@@ -158,7 +158,7 @@ public:
     virtual Rect<int> range (){
 	return map_range;
     }
-    
+
     // полезная функция, чтобы смотреть, как выглядят границы исходных карт на новой карте
     void dump_maps(char *file){
       std::ofstream f(file);

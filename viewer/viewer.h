@@ -3,6 +3,7 @@
 
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
+#include <boost/shared_ptr.hpp>
 
 #include <queue> 
 
@@ -19,7 +20,7 @@
 class Viewer : public Gtk::DrawingArea {
 
 private:
-    Workplane & workplane;
+    boost::shared_ptr<Workplane> workplane;
     Point<int> window_origin;
     Rect<int>  visible_tiles;
     Point<int> drag_pos;
@@ -65,7 +66,7 @@ private:
 
 public:
 
-    Viewer (Workplane & _workplane, 
+    Viewer (boost::shared_ptr<Workplane> _workplane, 
             Point<int> _window_origin = Point<int>(0,0), 
 	    int _scale_nom = 1,
             int _scale_denom = 1)
@@ -73,7 +74,7 @@ public:
           window_origin(_window_origin),
 	  we_need_cache_updater(true)
     {
-        workplane.set_scale(_scale_nom, _scale_denom);
+        workplane->set_scale(_scale_nom, _scale_denom);
         Glib::thread_init();
 	mutex = new(Glib::Mutex);
         cache_updater_cond = new(Glib::Cond);
@@ -82,15 +83,17 @@ public:
         // joinable = true, чтобы подождать его завершения в деструкторе...
         cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer::cache_updater), true);
 
-	add_events (Gdk::BUTTON_PRESS_MASK | 
-		    Gdk::BUTTON_RELEASE_MASK | 
-		    Gdk::POINTER_MOTION_MASK | 
-		    Gdk::POINTER_MOTION_HINT_MASK | 
-		    Gdk::KEY_PRESS_MASK | 
-		    Gdk::KEY_RELEASE_MASK
-		   );
-
+ 	add_events (Gdk::BUTTON_PRESS_MASK | 
+ 		    Gdk::BUTTON_RELEASE_MASK | 
+ 		    Gdk::POINTER_MOTION_MASK | 
+ 		    Gdk::POINTER_MOTION_HINT_MASK
+	    );
     }
+
+//    virtual void on_realise() {
+//	  rubber.reset(new Rubber(this->get_window()));
+//    }
+    
     virtual ~Viewer (){
         mutex->lock();
 	we_need_cache_updater = false;
@@ -145,7 +148,7 @@ public:
 //	     tile_done_queue.push(key);
 //	     update_tile_signal.emit();
 
-             Image<int> tile = workplane.get_image(key);
+             Image<int> tile = workplane->get_image(key);
 
              mutex->lock();
              // чтобы при перемасштабировании и обнулении кэша в него не попала старая картинка 8|
@@ -166,7 +169,7 @@ public:
              tiles_todo2.erase(key);
              mutex->unlock();
 
-             Image<int> tile = workplane.get_image(key);
+             Image<int> tile = workplane->get_image(key);
 
              mutex->lock();
              tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
@@ -199,7 +202,7 @@ public:
     void draw_tile(const Point<int> & tile_key){
 
 
-      int tile_size = workplane.get_tile_size();
+      int tile_size = workplane->get_tile_size();
       Rect<int> screen(window_origin.x, 
                        window_origin.y, 
                        get_width(), get_height());
@@ -222,19 +225,18 @@ public:
         cache_updater_cond->signal();
         mutex->unlock();
       }
-
       Image<int> tile = tile_cache.find(tile_key)->second;
       
       Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(tile);
       Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
       Glib::RefPtr<Gdk::Window> widget = get_window();
-
+	  
       if (!rubber) {
 	  rubber.reset(new Rubber(this->get_window()));
       }
-      bool reupdate_rubber = false;
+      bool rubber_was_visible = false;
       if (rubber->is_visible()) {
-	  reupdate_rubber = true;
+	  rubber_was_visible = true;
 	  rubber->hide();
       }
       widget->draw_pixbuf(gc, pixbuf, 
@@ -242,8 +244,7 @@ public:
 			  tile_in_screen.x-window_origin.x, tile_in_screen.y-window_origin.y,
 			  tile_in_screen.w, tile_in_screen.h,
 			  Gdk::RGB_DITHER_NORMAL, 0, 0);
-
-      if (reupdate_rubber) {
+      if (rubber_was_visible) {
 	  Point<int> pos;
 	  Gdk::ModifierType dummy2;
 	  get_window()->get_pointer(pos.x, pos.y, dummy2);
@@ -260,7 +261,7 @@ public:
       // какие плитки видны на экране:
       Rect<int> tiles = tiles_on_rect(
         Rect<int>(window_origin.x + sx, window_origin.y + sy, 
-        w, h), workplane.get_tile_size());
+        w, h), workplane->get_tile_size());
 
 #ifdef DEBUG_VIEWER
 	std::cerr << "fill: " << sx << "," << sy << " " << w << "x" << h << std::endl;
@@ -276,25 +277,29 @@ public:
       }
     }
 
+
+/**************************************/
+private:
+
     void change_viewport () {
       // tiles -- прямоугольник плиток, необходимый для отрисовки экрана
       Rect<int> tiles = tiles_on_rect(
         Rect<int>(window_origin.x, window_origin.y, 
-        get_width(), get_height()), workplane.get_tile_size());
+        get_width(), get_height()), workplane->get_tile_size());
 
       // Плитки, которые были запрошены, но не сделаны, и уже уехали
       // с экрана -- нам неинтересны. Пропалываем tiles_todo
+      mutex->lock();
       std::set<Point<int> >::const_iterator it = tiles_todo.begin(), it1;
       while (it != tiles_todo.end()){
 	it1 = it; it1++;
         if (!point_in_rect(*it, tiles)){
-	  mutex->lock();
           tile_cache.erase(*it);
 	  tiles_todo.erase(*it);  
-	  mutex->unlock();
         }
         it = it1;
       }
+      mutex->unlock();
 
       // Пропалываем tile_cache
       // Здесь у нас такая политика:
@@ -337,11 +342,10 @@ public:
       }
     }
   
-/**************************************/
-
 
 /**************************************/
-    
+public:
+
     virtual bool
     on_expose_event (GdkEventExpose * event)
     {
@@ -353,62 +357,78 @@ public:
     }
 
 
-    virtual bool
-    on_button_press_event (GdkEventButton * event) {
-#ifdef DEBUG_VIEWER
-	std::cerr << "press: " << event->x << "," << event->y << " " << event->button << std::endl;
-#endif
-	if (event->button == 1) {
-	    drag_pos = Point<int> ((int)event->x, (int)event->y);
-	    if (!rubber) {
-		rubber.reset(new Rubber(this->get_window()));
-	    }
-	    rubber->hide();
-	    return true;
-	} else {
-	    return Gtk::DrawingArea::on_button_press_event (event);
-	}
+//     virtual bool
+//     on_button_press_event (GdkEventButton * event) {
+// #ifdef DEBUG_VIEWER
+// 	std::cerr << "press: " << event->x << "," << event->y << " " << event->button << std::endl;
+// #endif
+// 	if (event->button == 1) {
+// 	    drag_pos = Point<int> ((int)event->x, (int)event->y);
+// 	    if (!rubber) {
+// 		rubber.reset(new Rubber(this->get_window()));
+// 	    }
+// 	    rubber->hide();
+// 	    return true;
+// 	} else {
+// 	    return Gtk::DrawingArea::on_button_press_event (event);
+// 	}
 
+//     }
+
+//     virtual bool
+//     on_motion_notify_event (GdkEventMotion * event) {
+// 	Point<int> pos ((int) event->x, (int) event->y);
+// #ifdef DEBUG_VIEWER
+// 	std::cerr << "motion: " << pos << std::endl;
+// #endif
+
+// 	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) {
+// 	    Gdk::ModifierType dummy2;
+// 	    get_window()->get_pointer(pos.x, pos.y, dummy2);
+// 	    rubber->update(pos, window_origin);
+// 	    return false;
+// 	}
+
+// #ifdef DEBUG_VIEWER
+// 	std::cerr << "move-hint: " << event->x << "," << event->y << std::endl;
+// #endif
+// 	Gdk::ModifierType dummy2;
+// 	get_window()->get_pointer(pos.x, pos.y, dummy2);
+// 	Point<int> shift = pos - drag_pos;
+// 	window_origin -= shift;
+// 	change_viewport();
+
+// 	get_window()->scroll(shift.x, shift.y);
+// 	drag_pos = pos;
+
+// 	return true;
+//     }
+
+    void pointer_notify (Point<int> where) {
+	if (rubber->is_visible()) {
+	    rubber->update(where, window_origin);
+	}
     }
 
-    virtual bool
-    on_motion_notify_event (GdkEventMotion * event) {
-	Point<int> pos ((int) event->x, (int) event->y);
-#ifdef DEBUG_VIEWER
-	std::cerr << "motion: " << pos << std::endl;
-#endif
-
-	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) {
+    void set_window_origin (Point<int> new_origin) {
+	Point<int> shift = window_origin - new_origin;
+	if (!rubber) {
+	    rubber.reset(new Rubber(this->get_window()));
+	}
+	bool rubber_was_visible = false;
+	if (rubber->is_visible()) {
+	    rubber->hide();
+	    rubber_was_visible = true;
+	}
+	window_origin -= shift;
+	change_viewport();
+	get_window()->scroll(shift.x, shift.y);
+	if (rubber_was_visible) {
+	    Point<int> pos;
 	    Gdk::ModifierType dummy2;
 	    get_window()->get_pointer(pos.x, pos.y, dummy2);
 	    rubber->update(pos, window_origin);
-	    return false;
 	}
-
-#ifdef DEBUG_VIEWER
-	std::cerr << "move-hint: " << event->x << "," << event->y << std::endl;
-#endif
-	Gdk::ModifierType dummy2;
-	get_window()->get_pointer(pos.x, pos.y, dummy2);
-	Point<int> shift = pos - drag_pos;
-	window_origin -= shift;
-	change_viewport();
-
-	get_window()->scroll(shift.x, shift.y);
-	drag_pos = pos;
-
-	return true;
-    }
-
-    void set_window_origin(Point<int> p){ 
-	window_origin = p;
-#ifdef DEBUG_VIEWER
-	std::cerr << "new window_origin " << p.x << "," << p.y << std::endl;
-#endif
-//	if (is_mapped()){
-//	    fill (0, 0, get_width(), get_height());
-//	}
-	change_viewport();
     }
 
     void set_window_origin(int x, int y){
@@ -452,11 +472,11 @@ public:
 #ifdef DEBUG_VIEWER
 	std::cerr << "set_scale: " << scale_nom << ":" << scale_denom << std::endl;
 #endif
-      int n  = workplane.get_scale_denom()*scale_nom;
-      int dn = workplane.get_scale_nom()*scale_denom;
+      int n  = workplane->get_scale_denom()*scale_nom;
+      int dn = workplane->get_scale_nom()*scale_denom;
       // todo -- перемасштабировать КЭШ
-      workplane.set_scale_nom(scale_nom);
-      workplane.set_scale_denom(scale_denom);
+      workplane->set_scale_nom(scale_nom);
+      workplane->set_scale_denom(scale_denom);
 
       Point<int> wcenter = get_window_origin() + get_window_size()/2;
       window_origin = (wcenter*n)/dn-get_window_size()/2;
@@ -465,10 +485,10 @@ public:
     }
 
     int scale_nom(){
-      return workplane.get_scale_nom();
+      return workplane->get_scale_nom();
     }
     int scale_denom(){
-      return workplane.get_scale_denom();
+      return workplane->get_scale_denom();
     }
 };
 
