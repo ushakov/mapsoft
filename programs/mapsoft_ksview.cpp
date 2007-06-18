@@ -91,7 +91,7 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
     case 111:
     case 79: // -
     {
-	if (sc<=1) break;
+	if (sc<=3) break;
 	sc--;
 	gl = LayerKS(ks_dir,sc);
 	gl.set_downloading (downloading);
