@@ -23,13 +23,6 @@ public:
     Layer() {}
     Layer (Layer const & other) { }
     virtual void swap (Layer & other) { }
-
-    // actions
-    virtual void do_action (ActionData * ad) { }
-
-    virtual std::vector<std::string> action_names () {
-	return std::vector<std::string>();
-    }
 };
 
 

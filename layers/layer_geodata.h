@@ -143,6 +143,8 @@ public:
       ctx->StampAndClear();
     }
 
+    geo_data * get_world() { return world; }
+
     std::pair<int, int> find_waypoint (Point<int> p) {
 	Rect<int> target_rect (p,p);
 	target_rect = rect_pump(target_rect, wpt_radius);

@@ -22,8 +22,8 @@ public:
 	signal_delete_event().connect (sigc::mem_fun (this, &Mapview::on_delete));
 	set_default_size(640,480);
 
-	workplane.reset(new Workplane(256,0));
-	viewer.reset(new Viewer(workplane));
+	state.workplane.reset(new Workplane(256,0));
+	viewer.reset(new Viewer(state.workplane));
 
 	//load file selector
 	file_sel_load.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::load_file_sel));
@@ -116,14 +116,14 @@ public:
 	Layer * layer = row[layer_list.columns.layer];
 	if (!layer) return;
 	int new_depth = row[layer_list.columns.depth];
-	if (workplane->get_layer_depth (layer) != new_depth) {
-	    workplane->set_layer_depth (layer, new_depth);
+	if (state.workplane->get_layer_depth (layer) != new_depth) {
+	    state.workplane->set_layer_depth (layer, new_depth);
 	    need_refresh = true;
 	} 
 
 	int new_active = row[layer_list.columns.checked];
-	if (new_active != workplane->get_layer_active (layer)) {
-	    workplane->set_layer_active (layer, new_active);
+	if (new_active != state.workplane->get_layer_active (layer)) {
+	    state.workplane->set_layer_active (layer, new_active);
 	    need_refresh = true;
 	}
 
@@ -150,7 +150,7 @@ public:
 	g_print ("Loading: %s\n", selected_filename.c_str());
 	status_bar->push("Loading...", 0);
 	boost::shared_ptr<geo_data> world (new geo_data);
-	data.push_back(world);
+	state.data.push_back(world);
 	io::in(selected_filename, *(world.get()), Options());
 	std::cout <<"Loaded " << selected_filename << " to world at " << world.get() << std::endl;
 
@@ -164,7 +164,7 @@ public:
 		reference = map_layer->get_ref();
 		have_reference = true;
 	    }
-	    map_layers.push_back(map_layer);
+	    state.map_layers.push_back(map_layer);
 	    add_layer(map_layer.get(), 100, "Maps: " + selected_filename);
 	    viewer->set_window_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
 	}
@@ -179,7 +179,7 @@ public:
 		reference = layer_gd->get_ref();
 		have_reference = true;
 	    }
-	    data_layers.push_back(layer_gd);
+	    state.data_layers.push_back(layer_gd);
 	    add_layer(layer_gd.get(), 0, "Data: " + selected_filename);
 	    viewer->set_window_origin(layer_gd->range().TLC());
 	}
@@ -227,7 +227,7 @@ public:
     }
 
     void add_layer (Layer * layer, int depth, Glib::ustring name) {
-	workplane->add_layer(layer, depth);
+	state.workplane->add_layer(layer, depth);
 	layer_list.add_layer(layer, depth, name);
     }
 
@@ -276,14 +276,22 @@ public:
     
     
     virtual ~Mapview() {
-	workplane.reset();
+	state.workplane.reset();
 	viewer.reset();
 	delete status_bar;
     }
 
+    class State {
+	boost::shared_ptr<Workplane> workplane;
+	
+	std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
+	std::vector<boost::shared_ptr<LayerGeoData> > data_layers;
+	std::vector<boost::shared_ptr<geo_data> > data;
+    };
+    
 private:
-    boost::shared_ptr<Workplane> workplane;
     boost::shared_ptr<Viewer> viewer;
+    State state;
 
     LayerList layer_list;
     Gtk::FileSelection file_sel_load;
@@ -293,10 +301,6 @@ private:
 
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
-
-    std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
-    std::vector<boost::shared_ptr<LayerGeoData> > data_layers;
-    std::vector<boost::shared_ptr<geo_data> > data;
 
     g_map reference;
     bool have_reference;
