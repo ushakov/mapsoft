@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <list>
+#include <vector>
 #include <map>
 #include <set>
 #include <algorithm>
@@ -10,10 +11,10 @@
 
 #include "point.h"
 
-// Линия -- список точек
+// Линия 
 
 template <typename T> 
-struct Line : std::list<Point<T> > {
+struct Line : std::vector<Point<T> > {
 };
 
 
@@ -48,48 +49,20 @@ Point<T> find_cross(const Point<T> & p1, const Point<T> & p2,
   return Point<T>((T)(p1.x+ab.x*(p2.x-p1.x)), (T)(p1.y+ab.x*(p2.y-p1.y)));
 }
 
-//template<typename X, typename Y>
-//bool sort_pairs(const std::pair<X,Y> & p1, const std::pair<X,Y> & p2)
-//     {return p1.first < p2.first;}
-
 
 template <typename T> 
-double plength(const Point<T> & p){
-  return sqrt((double)(p.x*p.x + p.y*p.y));
-}
-
-template <typename T> 
-Point<double> pnorm(const Point<T> & p){
-  double l = plength(p);
-  return Point<double>(double(p.x)/l, double(p.y/l));
-}
-
+struct PolyLine : std::list<Line<T> > {};
 
 // Обобщенный многоугольник:
-// Есть множество замкнутых контуров. 
-// "положительный" контур - обходится по часовой стрелке,
-// "отрицательный" - против. 
+// Состоит из множества замкнутых контуров. 
 
-// Контур с самопересечениями разбивается на несколько 
-// контуров разных знаков. (Подумать еще про это! Видимо, надо
-// где-то разбивать специально?)
+// Контур с самопересечениями разбивается на несколько контуров.
 
-// Точка плоскости принадлежит многоугольнику, 
-// если число охватывающих ее положительных контуров
-// плюс число не охватывающих ее отрицательных контуров нечетно.
-
-// Другими словами: положительный контур меняет состояние всех точек
-// внутри себя, отрицательный - вне себя.
-// ("восьмерка" меняет состояние точек вне себя :))
-// 
-
-
-
-
+// Точка плоскости принадлежит многоугольнику, если ее охватывает 
+// нечетное число контуров
 
 template <typename T> 
-struct Polygon : std::list<Line<T> > {
-
+struct Polygon : private std::list<Line<T> > {
 
     // пересечение - два "адреса": итератор предыдущей точки + расстояние от нее,
     // на двух ветках
@@ -104,20 +77,20 @@ struct Polygon : std::list<Line<T> > {
     };
 
 
-    void push_back(Line<T> l){
-      // Добавление контура.
+    // Добавление контура.
+    void add(Line<T> l){
       // Если в контуре меньше трех точек - нам не нужен такой контур
       if (l.size()<3) return;
       // Последняя точка должна иметь те же координаты, что и первая.
+      // (Если нет - добавим такую точку)
       if (*l.begin() != *l.rbegin()) l.push_back(*l.begin());
 
       // Контур с самопересечениями нужно разбить на несколько.
 
-      std::list<crossing_t> crossings;
-
       // Разыщем все пересечения.
       // Для каждого звена ищем пересечения cо всеми следующими звеньями.
       // здесь же проверяем, что точка - это именно пересечение, а не касание
+      std::list<crossing_t> crossings;
 
       typename Line<T>::iterator pa1=l.end(),pa2=l.begin(), pa3=pa2; pa3++;
       while (pa3!=l.end()){ 
@@ -143,15 +116,13 @@ struct Polygon : std::list<Line<T> > {
 
       //Добавим к линии точки пересечения. Заменим итераторы в crossings.
       // Для каждого пересечения сделаем пару 
-      
       for (typename std::list<crossing_t>::iterator c=crossings.begin(); c!=crossings.end(); c++){
-
         typename Line<T>::iterator i;
 
         i = c->i1;
         while (i!=l.end()){ 
 	  i++;
-	  double ln = plength(*i - *c->i1);
+	  double ln = pdist(*i, *c->i1);
           if (ln < c->a1) {c->a1-=ln; c->i1 = i;} else break;
         }
 
@@ -165,7 +136,7 @@ struct Polygon : std::list<Line<T> > {
         i = c->i2; 
         while (i!=l.end()){ 
 	  i++;
-	  double ln = plength(*i - *c->i2);
+	  double ln = pdist(*i, *c->i2);
           if (ln<c->a2) {c->a2-=ln; c->i2 = i;} else break;
         }
 
@@ -207,26 +178,26 @@ struct Polygon : std::list<Line<T> > {
         this->std::list<Line<T> >::push_back(newline);
       }
     }
+
+    void clear(){this->clear();}
 };
 
 
-// Определение знака контура
-// тут могут быть такие варианты:
-// - знак интеграла xdy или ydx
-// - выбрать точку с минимальной координатой и посмотреть
-//   разницу азимутов на следующую и предыдущую точки
+// Принадлежит ли точка многоугольнику?
 template <typename T> 
-int polygon_sign(const Polygon<T> & p){
-
+bool point_in_poly(const Polygon<T> & poly, const Point<T> & pt){
+  int n = 0;
+  for (typename Polygon<T>::const_iterator cnt = poly.begin(); cnt!=poly.end(); cnt++){
+    int a = 0;
+    typename Line<T>::const_iterator p1,p2;
+    for (p1 = cnt.begin(), p2=p1+1; p2!=cnt.end(); p1++,p2++){
+      a += acos(pscal(pnorm(pt-*p1),pnorm(pt-*p2)));
+    }
+std::cerr << "point_in_poly a = " << a << "\n";
+    if (fabs(a)>M_PI) n++;
+  }
+  return n%2;
 }
-// Принадлежит ли точка многоугольнику
-// - для каждого контура найти ближайшую точку, 
-
-template <typename T> 
-bool pt_in_polygon(const Polygon<T> & plg, const Point<T> & p){
-}
-
-// Для двух отрезков p1-p2 и p3-p4 найти точку пересечения
 
 
 #endif /* POLY_H */
