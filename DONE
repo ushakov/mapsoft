@@ -1,4 +1,15 @@
 --------------------------------------------------------------------
+ushakov, 21.06.2007
+
+ * сделаны режимы и действия! 
+   viewer/generic_dialog.{h,cpp}
+   viewer/action_manager.h
+   viewer/action_mode.h
+   viewer/am_edit_wpt.h
+
+ * geo_io/geo_data.h: преобразования точек из/в Options
+
+--------------------------------------------------------------------
 ushakov, 17.06.2007
 
  * layers/layer_geodata.h: вычистил действия, пытаюсь вынести их в

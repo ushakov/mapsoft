@@ -150,7 +150,6 @@ bool Options::put_string  (const std::string & kv){
    return ret;
 }
 
-
 std::ostream & operator<< (std::ostream & s, const Options & o)
 {
   s << "Options(" << "\n";

@@ -1,6 +1,7 @@
 #ifndef MAPVIEW_H
 #define MAPVIEW_H
 
+#include <sys/time.h>
 #include <boost/shared_ptr.hpp>
 #include <gtkmm.h>
 
@@ -10,6 +11,17 @@
 #include <layers/layer_geodata.h>
 #include <viewer/layerlist.h>
 
+#include <viewer/action_manager.h>
+
+class MapviewState {
+public:
+    boost::shared_ptr<Workplane> workplane;
+	
+    std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
+    std::vector<boost::shared_ptr<LayerGeoData> > data_layers;
+    std::vector<boost::shared_ptr<geo_data> > data;
+};
+
 class Mapview : public Gtk::Window {
 public:
     Mapview () :
@@ -17,13 +29,13 @@ public:
 	file_sel_save ("Save as:"),
 	have_reference(false)
     {
-
 	// window initialization
 	signal_delete_event().connect (sigc::mem_fun (this, &Mapview::on_delete));
 	set_default_size(640,480);
 
 	state.workplane.reset(new Workplane(256,0));
 	viewer.reset(new Viewer(state.workplane));
+	action_manager.reset (new ActionManager (&state));
 
 	//load file selector
 	file_sel_load.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::load_file_sel));
@@ -48,6 +60,18 @@ public:
 	actions->add(Gtk::Action::create("Save", Gtk::Stock::SAVE));
 	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT), sigc::mem_fun(this, &Gtk::Widget::hide));
 
+	// make all modes!
+
+	actions->add(Gtk::Action::create("MenuModes", "_Modes"));
+	std::vector<std::string> modes = action_manager->get_mode_list();
+	for (int m = 0; m < modes.size(); ++m) {
+	    Glib::RefPtr<Gtk::RadioAction> mode_action =
+		Gtk::RadioAction::create(mode_group,
+					 "Mode" + boost::lexical_cast<std::string>(m),
+					 modes[m]);
+	    actions->add(mode_action, sigc::bind (sigc::mem_fun(*this, &Mapview::on_mode_change), m));
+	}
+	
 	ui_manager = Gtk::UIManager::create();
 	ui_manager->insert_action_group(actions);
 	add_accel_group(ui_manager->get_accel_group());
@@ -64,6 +88,13 @@ public:
 	    "      <menuitem action='Clear'/>"
 	    "    </menu>"
 	    "    <menu action='MenuHelp'>"
+	    "    </menu>"
+	    "    <menu action='MenuModes'>";
+	for (int m = 0; m < modes.size(); ++m) {
+	    ui += "<menuitem action='Mode"
+		+ boost::lexical_cast<std::string>(m) + "'/>";
+	}
+	ui +=
 	    "    </menu>"
 	    "  </menubar>"
 	    "</ui>";
@@ -99,6 +130,7 @@ public:
 	// connect events from viewer
 	viewer->signal_motion_notify_event().connect (sigc::mem_fun (this, &Mapview::pointer_moved));
 	viewer->signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::mouse_button_pressed));
+	viewer->signal_button_release_event().connect (sigc::mem_fun (this, &Mapview::mouse_button_released));
 	
 	show_all();
     }
@@ -139,6 +171,10 @@ public:
 // 	world.clear();
 // 	v->clear_cache();
 //     }
+
+    void on_mode_change (int m) {
+	action_manager->set_mode(m);
+    }
     
     void load_file_sel() {
 	std::string selected_filename;
@@ -242,7 +278,31 @@ public:
 #endif
 	if (event->button == 1) {
 	    drag_pos = Point<int> ((int)event->x, (int)event->y);
+	    gettimeofday (&click_started, NULL);
 	    return true;
+	}
+    }
+
+    virtual bool
+    mouse_button_released (GdkEventButton * event) {
+#ifdef DEBUG_MAPVIEW
+	std::cerr << "release: " << event->x << "," << event->y << " " << event->button << std::endl;
+#endif
+	if (event->button == 1) {
+	    struct timeval click_ended;
+	    gettimeofday (&click_ended, NULL);
+	    int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 + (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
+	    if (d < 100) {
+		Point<int> p(event->x, event->y);
+		p += viewer->get_window_origin();
+		p *= viewer->scale_denom();
+		p /= viewer->scale_nom();
+#ifdef DEBUG_MAPVIEW
+		std::cerr << "click at: " << p.x << "," << p.y << " " << event->button << std::endl;
+#endif
+		action_manager->click(p);
+		return true;
+	    }
 	}
     }
 
@@ -274,24 +334,15 @@ public:
 	return true;
     }
     
-    
     virtual ~Mapview() {
 	state.workplane.reset();
 	viewer.reset();
 	delete status_bar;
     }
 
-    class State {
-	boost::shared_ptr<Workplane> workplane;
-	
-	std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
-	std::vector<boost::shared_ptr<LayerGeoData> > data_layers;
-	std::vector<boost::shared_ptr<geo_data> > data;
-    };
-    
 private:
     boost::shared_ptr<Viewer> viewer;
-    State state;
+    MapviewState state;
 
     LayerList layer_list;
     Gtk::FileSelection file_sel_load;
@@ -306,6 +357,12 @@ private:
     bool have_reference;
 
     Point<int> drag_pos;
+
+    boost::shared_ptr<ActionManager> action_manager;
+    Gtk::RadioAction::Group mode_group;
+
+    struct timeval click_started;
 };
+
 
 #endif /* MAPVIEW_H */

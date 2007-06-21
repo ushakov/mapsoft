@@ -1,46 +1,55 @@
 #include <string>
 #include <sigc++/sigc++.h>
-#include "generic_dialog.h"
+#include <viewer/generic_dialog.h>
+#include <utils/mapsoft_options.h>
 
+GenericDialog * GenericDialog::instance = 0;
 
-void GenericDialog::activate (std::string title, boost::shared_ptr<GenericAccessor> _accessor) {
-    if (!_accessor) return;
-    if (dialog_active) {
-	desactivate();
+void GenericDialog::activate (std::string title, Options const & _options) {
+    if (dialog) {
+	deactivate();
     }
     dialog.reset (new Gtk::Dialog (title));
-    dialog->add_button ("Close", 0);
-    dialog->signal_response().connect (sigc::mem_fun (this, &GenericDialog::close_clicked));
+    dialog->add_button ("Ok", 0);
+    dialog->add_button ("Cancel", 0);
+    dialog->signal_response().connect (sigc::mem_fun (this, &GenericDialog::on_response));
+    dialog->signal_delete_event().connect (sigc::mem_fun (this, &GenericDialog::on_delete));
 
-    accessor = _accessor;
-    std::vector<std::string> names = accessor->get_names();
-    Gtk::Table *table = Gtk::manage(new Gtk::Table (names.size(), 2));
+    options = _options;
+    Gtk::Table *table = Gtk::manage(new Gtk::Table (options.size(), 2));
     dialog->get_vbox()->pack_start(*table);
-    for (int i = 0; i < names.size(); ++i) {
-	Gtk::Label * label = Gtk::manage(new Gtk::Label (names[i], 1.0, 0.5));
-	table->attach(*label, 0,1, i,i+1);
+    int k = 0;
+    for (Options::iterator i = options.begin(); i != options.end(); ++i, ++k) {
+	Gtk::Label * label = Gtk::manage(new Gtk::Label (i->first, 1.0, 0.5));
+	table->attach(*label, 0,1, k,k+1);
 	
 	Gtk::Entry * entry = Gtk::manage (new Gtk::Entry);
-	table->attach(*entry, 1,2, i,i+1);
+	table->attach(*entry, 1,2, k,k+1);
 	entry->set_editable(true);
-	entry->set_text(accessor->get(names[i]));
-	entry->signal_activate().connect (sigc::bind (sigc::mem_fun (this, &GenericDialog::cell_changed), names[i], entry));
+	entry->set_text(i->second);
+	entry->signal_activate().connect (sigc::bind (sigc::mem_fun (this, &GenericDialog::cell_changed), i->first, entry));
     }
     dialog->show_all();
 }
 
 void GenericDialog::cell_changed (std::string name, Gtk::Entry * entry) {
-    accessor->set(name, entry->get_text());
-    entry->set_text(accessor->get(name));
+    options[name]  = entry->get_text();
 }
 
-void GenericDialog::close_clicked (int response) {
-    desactivate();
+void GenericDialog::on_response (int response) {
+    m_signal_result.emit(response);
+    deactivate();
+}
+
+bool GenericDialog::on_delete (GdkEventAny * e) {
+    m_signal_result.emit(0);
+    deactivate();
 }
 
 
-void GenericDialog::desactivate () {
-    dialog->hide();
-    dialog.reset();
-    dialog_active = false;
+void GenericDialog::deactivate () {
+    if (dialog) {
+	dialog->hide();
+	dialog.reset();
+    }
 }

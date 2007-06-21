@@ -8,6 +8,7 @@
 //#define DEBUG_LAYER_GEOMAP
 #define DEBUG_LAYER_GEODATA
 //#define DEBUG_JPEG
+#define DEBUG_MAPVIEW
 
 #include <viewer/viewer.h>
 #include <utils/point.h>

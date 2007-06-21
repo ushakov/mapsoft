@@ -24,7 +24,7 @@ private:
     g_map mymap;
     Rect<int> myrange;
 
-    static const int wpt_radius = 3;
+    static const int wpt_radius = 9;
     static const int tpt_radius = 2;
  
 public:
@@ -152,9 +152,10 @@ public:
 	    for (int wpt = 0; wpt < world->wpts[wptl].size(); ++wpt) {
 		g_point wp(world->wpts[wptl][wpt].x,world->wpts[wptl][wpt].y);
 		cnv.bck(wp);
+		std::cout << "wpt: (" << wptl << "," << wpt << ")[" << world->wpts[wptl][wpt].name << "] @ " << wp << std::endl;
 
 		if (point_in_rect(Point<int>(int(wp.x),int(wp.y)), target_rect)){
-		    std::make_pair(wptl, wpt);
+		    return std::make_pair(wptl, wpt);
 		}
 	    }
 	}
@@ -170,7 +171,7 @@ public:
 		cnv.bck(wp);
 
 		if (point_in_rect(Point<int>(int(wp.x),int(wp.y)), target_rect)){
-		    std::make_pair(track, tpt);
+		    return std::make_pair(track, tpt);
 		}
 	    }
 	}

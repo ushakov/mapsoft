@@ -37,33 +37,69 @@ struct g_waypoint : g_point {
     int size;
 
     g_waypoint (){
-		x=0.0; 
-		y=0.0; 
-		z=1e24; 
-		prox_dist=0.0;
-		t=0;
-		symb=wpt_symb_enum.def; 
-		displ=0; 
-		color=0; 
-		bgcolor    = 0xFFFFFF; 
-		map_displ  = wpt_map_displ_enum.def;
-		pt_dir     = wpt_pt_dir_enum.def; 
-		font_size  = 6;
-		font_style = 0; 
-		size=17;
+	set_default_values();
+    }
+
+    void set_default_values () {
+	x=0.0; 
+	y=0.0; 
+	z=1e24; 
+	prox_dist=0.0;
+	t=0;
+	symb=wpt_symb_enum.def; 
+	displ=0; 
+	color=0; 
+	bgcolor    = 0xFFFFFF; 
+	map_displ  = wpt_map_displ_enum.def;
+	pt_dir     = wpt_pt_dir_enum.def; 
+	font_size  = 6;
+	font_style = 0; 
+	size=17;
+    }
+    
+    Options to_options (){
+	Options opt;
+	opt.put("lon", x);
+	opt.put("lat", y);
+	opt.put("height", z);
+	opt.put("prox_dist", prox_dist);
+	opt.put("t", t);
+	opt.put("symb", symb);
+	opt.put("displ", displ);
+	opt.put("color", color);
+	opt.put("bgcolor", bgcolor);
+	opt.put("map_displ", map_displ);
+	opt.put("pt_dir", pt_dir);
+	opt.put("font_size", font_size);
+	opt.put("font_style", font_style);
+	opt.put("size", size);
+	opt.put("name", name);
+	opt.put("comm", comm);
+
+	return opt;
+    }
+
+    void parse_from_options (Options const & opt){
+	set_default_values();
+	
+	opt.get("lon", x);
+	opt.get("lat", y);
+	opt.get("height", z);
+	opt.get("prox_dist", prox_dist);
+	opt.get("t", t);
+	opt.get("symb", symb);
+	opt.get("displ", displ);
+	opt.get("color", color);
+	opt.get("bgcolor", bgcolor);
+	opt.get("map_displ", map_displ);
+	opt.get("pt_dir", pt_dir);
+	opt.get("font_size", font_size);
+	opt.get("font_style", font_style);
+	opt.get("size", size);
+	opt.get("name", name);
+	opt.get("comm", comm);
     }
 };
-
-template<>
-inline GenericAccessor * CreateGenericAccessor<g_waypoint> (g_waypoint * wpt) {
-    GenericAccessor * ga = new GenericAccessor;
-    ga->add_item ("Longitude", &(wpt->x));
-    ga->add_item ("Latitude", &(wpt->y));
-    ga->add_item ("Height", &(wpt->z));
-    ga->add_item ("Name", &(wpt->name));
-    ga->add_item ("Comment", &(wpt->comm));
-    return ga;
-}
 
 // single trackpoint
 struct g_trackpoint : g_point {
@@ -72,27 +108,44 @@ struct g_trackpoint : g_point {
     bool start;
     time_t t;
     g_trackpoint()
-	{
-    		x   = 0; 
-		y   = 0; 
-		z   = 1e24; 
-		depth = 1e24;
-    		start = false;
-    		t     = 0;
-	}
+    {
+	set_default_values();
+    }
+
+    void set_default_values()
+    {
+	x   = 0; 
+	y   = 0; 
+	z   = 1e24; 
+	depth = 1e24;
+	start = false;
+	t     = 0;
+    }
+    
+    Options to_options (){
+	Options opt;
+	opt.put("lon", x);
+	opt.put("lat", y);
+	opt.put("height", z);
+	opt.put("depth", depth);
+	opt.put("start", start);
+	opt.put("t", t);
+
+	return opt;
+    }
+
+    void parse_from_options (Options const & opt){
+	set_default_values();
+	
+	opt.get("lon", x);
+	opt.get("lat", y);
+	opt.get("height", z);
+	opt.get("depth", depth);
+	opt.get("start", start);
+	opt.get("t", t);
+    }
+
 };
-
-template<>
-inline GenericAccessor * CreateGenericAccessor<g_trackpoint> (g_trackpoint * tpt) {
-    GenericAccessor * ga = new GenericAccessor;
-    ga->add_item ("Longitude", &(tpt->x));
-    ga->add_item ("Latitude", &(tpt->y));
-    ga->add_item ("Height", &(tpt->z));
-    ga->add_item ("Time", &(tpt->t));
-    ga->add_item ("Start", &(tpt->start));
-    return ga;
-}
-
 
 // reference point
 struct g_refpoint : g_point {

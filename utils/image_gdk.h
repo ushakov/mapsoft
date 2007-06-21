@@ -9,7 +9,7 @@
 #include <gdkmm/pixbuf.h>
 
 
-Glib::RefPtr<Gdk::Pixbuf> make_pixbuf_from_image (const Image<int> & image){
+inline Glib::RefPtr<Gdk::Pixbuf> make_pixbuf_from_image (const Image<int> & image){
 
         return Gdk::Pixbuf::create_from_data (
           (guint8 *)(image.data),

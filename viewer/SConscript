@@ -2,6 +2,7 @@ Import ('env')
 le = env.Copy()
 sources = Split ("""
 		generic_dialog.cpp
+		action_manager.cpp
 		""")
 
 le.Library("viewer", sources)
