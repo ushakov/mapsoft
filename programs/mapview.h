@@ -293,7 +293,7 @@ public:
 	    gettimeofday (&click_ended, NULL);
 	    int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 + (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
 	    if (d < 100) {
-		Point<int> p(event->x, event->y);
+		Point<int> p(int(event->x), int(event->y));
 		p += viewer->get_window_origin();
 		p *= viewer->scale_denom();
 		p /= viewer->scale_nom();

@@ -1,0 +1,67 @@
+#ifndef AM_ADD_WPT_H
+#define AM_ADD_WPT_H
+
+#include <viewer/action_mode.h>
+#include <viewer/action_manager.h>
+#include <viewer/generic_dialog.h>
+#include <programs/mapview.h>
+
+class AddWaypoint : public ActionMode {
+public:
+    AddWaypoint (MapviewState * state_) : state(state_) {
+	gend = GenericDialog::get_instance();
+	gend->signal_result().connect(sigc::mem_fun(this, &AddWaypoint::on_result));
+    }
+
+    // Returns name of the mode as string.
+    virtual std::string get_name() {
+	return "Add Waypoint";
+    }
+
+    // Activates this mode.
+    virtual void activate() { }
+
+    // Abandons any action in progress and deactivates mode.
+    virtual void abort() {
+	gend->deactivate();
+    }
+
+    // Sends user click. Coordinates are in workplane's discrete system.
+    virtual void handle_click(Point<int> p) {
+	std::cout << "ADDWPT: " << p << std::endl;
+	if (state->data_layers.size()==0) return;
+
+	current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[0].get());
+	assert (current_layer);
+        g_map map = current_layer->get_ref();
+
+        convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"),Options());
+        g_waypoint wpt;
+        wpt.x = p.x; wpt.y=p.y;
+	cnv.frw(wpt);
+	Options opt = wpt.to_options();
+	gend->activate("Add Waypoint", opt);
+    }
+
+private:
+    MapviewState * state;
+    GenericDialog * gend;
+    LayerGeoData * current_layer;
+
+    void on_result(int r) {
+	if (r == 0) { // OK
+          assert (current_layer);
+	  g_waypoint wpt; 
+          wpt.parse_from_options(gend->get_options());
+          if (current_layer->get_world()->wpts.size()==0) 
+	    current_layer->get_world()->wpts.push_back(g_waypoint_list());
+          current_layer->get_world()->wpts[0].push_back(wpt);
+	  current_layer->refresh();
+   	  std::cout << "ADDWPT: " << wpt.name << "\n";
+	} else {
+	  // do nothing
+	}
+    }
+};
+
+#endif /* AM_ADD_WPT_H */

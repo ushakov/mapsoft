@@ -579,7 +579,7 @@ int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
         p0.x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
 	g_point p(p0);
         bck(p);
-        if (!tst_bck.test(p.x, p.y)) continue;
+        if (!tst_bck.test(int(p.x), int(p.y))) continue;
 	p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
 	if (c != 0) {
@@ -604,7 +604,7 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
         p0.x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
 //        if (cnv_x == cnv_rect.BRC().x) cnv_x--;
         g_point p(p0);
-        if (!tst_bck.test(p.x, p.y)) continue;
+        if (!tst_bck.test(int(p.x), int(p.y))) continue;
         bck(p); p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
 	if (c != 0) {
@@ -617,11 +617,11 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
 
 Rect<int> map2map::bb_frw(const Rect<int> & R){
   vector<g_point> v1;
-  v1.push_back(g_point(R.TLC().x, R.TLC().y)); 
-  v1.push_back(g_point(R.TRC().x, R.TRC().y)); 
-  v1.push_back(g_point(R.BRC().x, R.BRC().y)); 
-  v1.push_back(g_point(R.BLC().x, R.BLC().y)); 
-  v1.push_back(g_point(R.TLC().x, R.TLC().y)); 
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
+  v1.push_back(g_point(R.TRC().x, R.TRC().y));
+  v1.push_back(g_point(R.BRC().x, R.BRC().y));
+  v1.push_back(g_point(R.BLC().x, R.BLC().y));
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
   vector<g_point> v2 = line_frw(v1);
   double minx = v2[0].x, maxx = v2[0].x;
   double miny = v2[0].y, maxy = v2[0].y;
@@ -638,11 +638,11 @@ Rect<int> map2map::bb_frw(const Rect<int> & R){
 
 Rect<int> map2map::bb_bck(const Rect<int> & R){
   vector<g_point> v1;
-  v1.push_back(g_point(R.TLC().x, R.TLC().y)); 
-  v1.push_back(g_point(R.TRC().x, R.TRC().y)); 
-  v1.push_back(g_point(R.BRC().x, R.BRC().y)); 
-  v1.push_back(g_point(R.BLC().x, R.BLC().y)); 
-  v1.push_back(g_point(R.TLC().x, R.TLC().y)); 
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
+  v1.push_back(g_point(R.TRC().x, R.TRC().y));
+  v1.push_back(g_point(R.BRC().x, R.BRC().y));
+  v1.push_back(g_point(R.BLC().x, R.BLC().y));
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
   vector<g_point> v2 = line_bck(v1);
   double minx = v2[0].x, maxx = v2[0].x;
   double miny = v2[0].y, maxy = v2[0].y;
@@ -657,6 +657,47 @@ Rect<int> map2map::bb_bck(const Rect<int> & R){
   return Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny));
 }
 
+Rect<double> map2pt::bb_frw(const Rect<int> & R){
+  vector<g_point> v1;
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
+  v1.push_back(g_point(R.TRC().x, R.TRC().y));
+  v1.push_back(g_point(R.BRC().x, R.BRC().y));
+  v1.push_back(g_point(R.BLC().x, R.BLC().y));
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
+  vector<g_point> v2 = line_frw(v1);
+  double minx = v2[0].x, maxx = v2[0].x;
+  double miny = v2[0].y, maxy = v2[0].y;
+  for (vector<g_point>::const_iterator i = v2.begin(); i!=v2.end(); i++){
+    if (i->x < minx) minx = i->x;
+    if (i->x > maxx) maxx = i->x;
+    if (i->y < miny) miny = i->y;
+    if (i->y > maxy) maxy = i->y;
+  }
+  minx = floor(minx); miny = floor(miny);
+  maxx = ceil(maxx);  maxy = ceil(maxy);
+  return Rect<double>(minx, miny, maxx-minx, maxy-miny);
+}
+
+Rect<int> map2pt::bb_bck(const Rect<double> & R){
+  vector<g_point> v1;
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
+  v1.push_back(g_point(R.TRC().x, R.TRC().y));
+  v1.push_back(g_point(R.BRC().x, R.BRC().y));
+  v1.push_back(g_point(R.BLC().x, R.BLC().y));
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
+  vector<g_point> v2 = line_bck(v1);
+  double minx = v2[0].x, maxx = v2[0].x;
+  double miny = v2[0].y, maxy = v2[0].y;
+  for (vector<g_point>::const_iterator i = v2.begin(); i!=v2.end(); i++){
+    if (i->x < minx) minx = i->x;
+    if (i->x > maxx) maxx = i->x;
+    if (i->y < miny) miny = i->y;
+    if (i->y > maxy) maxy = i->y;
+  }
+  minx = floor(minx); miny = floor(miny);
+  maxx = ceil(maxx);  maxy = ceil(maxy);
+  return Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny));
+}
 
 
 

@@ -35,6 +35,8 @@ public:
       myrange(cnv.bb_bck(world->range_geodata()))
     { }
 
+    void refresh(){myrange=cnv.bb_bck(world->range_geodata());}
+
     // получить/установить привязку layer'a
     virtual g_map get_ref() const {return mymap;}
     virtual void set_ref(const g_map & map){

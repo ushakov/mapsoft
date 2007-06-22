@@ -29,7 +29,7 @@ struct Options : std::map<std::string,std::string>{
     void warn_unused (const std::string * used) const;
 
     template<typename T>
-    void Options::put (std::string key, T val) {
+    void put (std::string key, T val) {
 	try {
 	    (*this)[key] = boost::lexical_cast<std::string>(val);
 	}
@@ -39,13 +39,14 @@ struct Options : std::map<std::string,std::string>{
     }
     
     template<typename T>
-    void Options::get (std::string key, T & val) const {
+    void get (std::string key, T & val) const {
 	const_iterator it = find(key);
 	if (it != end()) {
 	    try {
 		val = boost::lexical_cast<T>(it->second);
 	    }
 	    catch (boost::bad_lexical_cast & e) {
+		std::cerr << "Bad cast: " << val << " = " << it->second << "\n";
 		// leave as-is
 	    }
 	}

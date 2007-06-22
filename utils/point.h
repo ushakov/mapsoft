@@ -3,6 +3,7 @@
 
 #include <boost/operators.hpp>
 #include <iostream>
+#include <cmath>
 
 template <typename T> 
 struct Point

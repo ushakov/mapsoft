@@ -31,12 +31,12 @@ public:
     virtual void handle_click(Point<int> p) {
 	std::cout << "EDITWPT: " << p << std::endl;
 	for (int i = 0; i < state->data_layers.size(); ++i) {
-	    LayerGeoData * layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
-	    assert (layer);
-	    std::pair<int, int> d = layer->find_waypoint(p);
+	    current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+	    assert (current_layer);
+	    std::pair<int, int> d = current_layer->find_waypoint(p);
 	    if (d.first >= 0) {
-		std::cout << "EDITWPT: found at " << layer << std::endl;
-		current_wpt = &(layer->get_world()->wpts[d.first][d.second]);
+		std::cout << "EDITWPT: found at " << current_layer << std::endl;
+		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
 		Options opt = current_wpt->to_options();
 		gend->activate("Edit Waypoint", opt);
 	    }
@@ -45,13 +45,16 @@ public:
 
 private:
     MapviewState * state;
-    g_waypoint * current_wpt;
     GenericDialog * gend;
+    g_waypoint * current_wpt;
+    LayerGeoData * current_layer;
 
     void on_result(int r) {
 	if (current_wpt) {
 	    if (r == 0) { // OK
 		current_wpt->parse_from_options(gend->get_options());
+		current_layer->refresh();
+		std::cout << "EDITWPT: " << current_wpt->name << std::endl;
 	    } else {
 		// do nothing
 	    }

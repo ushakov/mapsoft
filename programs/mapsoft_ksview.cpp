@@ -1,5 +1,7 @@
 #include <gtkmm.h>
 
+#include <boost/shared_ptr.hpp>
+
 #include "../viewer/viewer.h"
 #include "../utils/point.h"
 #include "../viewer/workplane.h"
@@ -145,10 +147,10 @@ main(int argc, char **argv)
     dl.set_ref(gl.get_ref());
 
     //viewer/workplane/layers
-    Workplane w(256,0);
+    boost::shared_ptr<Workplane> w(new Workplain (256,0));
 
-    w.add_layer(&gl,200);
-    w.add_layer(&dl,50);
+    w->add_layer(&gl,200);
+    w->add_layer(&dl,50);
     Viewer viewer(w);
 
     //load file selector
