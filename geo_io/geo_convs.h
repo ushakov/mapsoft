@@ -67,6 +67,10 @@ struct map2pt{
   void bck(g_point & p);
   std::vector<g_point> line_frw(const std::vector<g_point> & l);
   std::vector<g_point> line_bck(const std::vector<g_point> & l);
+  // преобразование прямоугольника (в произвольную фигуру) и нахождение 
+  // минимального прямоугольника, в котором она лежит
+  Rect<double> bb_frw(const Rect<int> & R);
+  Rect<int> bb_bck(const Rect<double> & R);
   private:
     pt2ll pc1, pc2;
     ll2wgs dc;
@@ -115,6 +119,11 @@ struct map2map{
                 Image<int> & dst_img, Rect<int> dst_rect);
   int image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect, 
                 Image<int> & dst_img, Rect<int> dst_rect);
+
+  // новая версия
+  void image_frw(Image<int> & src_img, int src_scale, Point<int> origin, Image<int> & image);
+  void image_bck(Image<int> & src_img, int src_scale, Point<int> origin, Image<int> & image);
+
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
   Rect<int> bb_frw(const Rect<int> & R);

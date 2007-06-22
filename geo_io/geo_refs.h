@@ -17,10 +17,10 @@ g_map ref_google(int scale){
 
    double maxlat = 360/M_PI*atan(exp(M_PI/2)) - 90;
    double width = 256*(1<<(scale-1));
-   ret.push_back(g_refpoint(0  ,maxlat,  0,0));
-   ret.push_back(g_refpoint(360,maxlat,  width,0));
-   ret.push_back(g_refpoint(360,-maxlat, width,width));
-   ret.push_back(g_refpoint(0  ,-maxlat, 0,width));
+   ret.push_back(g_refpoint(-180,maxlat,  0,0));
+   ret.push_back(g_refpoint( 180,maxlat,  width,0));
+   ret.push_back(g_refpoint( 180,-maxlat, width,width));
+   ret.push_back(g_refpoint(-180,-maxlat, 0,width));
 
    ret.border.push_back(g_point(0,0));
    ret.border.push_back(g_point(width,0));
