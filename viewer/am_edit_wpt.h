@@ -9,8 +9,7 @@
 class EditWaypoint : public ActionMode {
 public:
     EditWaypoint (MapviewState * state_) : state(state_) {
-	gend = GenericDialog::get_instance();
-	gend->signal_result().connect(sigc::mem_fun(this, &EditWaypoint::on_result));
+      	gend = GenericDialog::get_instance();
 	current_wpt = 0;
     }
 
@@ -38,6 +37,8 @@ public:
 		std::cout << "EDITWPT: found at " << current_layer << std::endl;
 		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
 		Options opt = current_wpt->to_options();
+
+	        current_connection = gend->signal_result().connect(sigc::mem_fun(this, &EditWaypoint::on_result));
 		gend->activate("Edit Waypoint", opt);
 	    }
 	}
@@ -48,6 +49,7 @@ private:
     GenericDialog * gend;
     g_waypoint * current_wpt;
     LayerGeoData * current_layer;
+    sigc::connection current_connection;
 
     void on_result(int r) {
 	if (current_wpt) {
@@ -59,6 +61,7 @@ private:
 		// do nothing
 	    }
 	    current_wpt = 0;
+            current_connection.disconnect();
 	}
     }
 };

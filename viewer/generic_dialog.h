@@ -3,6 +3,7 @@
 
 #include <gtkmm.h>
 #include <string>
+#include <map>
 #include <boost/shared_ptr.hpp>
 
 #include <utils/mapsoft_options.h>
@@ -41,7 +42,7 @@ protected:
     { }
 
 private:
-    void cell_changed (std::string name, Gtk::Entry * entry);
+//    void cell_changed (std::string name, Gtk::Entry * entry);
     void on_response (int response);
     bool on_delete (GdkEventAny * e);
 
@@ -49,6 +50,8 @@ private:
 
     boost::shared_ptr<Gtk::Dialog> dialog;
     Options options;
+
+    std::map<std::string, Gtk::Entry *> entries;
 
     sigc::signal<void, int> m_signal_result;
 };

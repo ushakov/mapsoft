@@ -8,9 +8,8 @@
 
 class AddWaypoint : public ActionMode {
 public:
-    AddWaypoint (MapviewState * state_) : state(state_) {
+    AddWaypoint (MapviewState * state_) : state(state_) {   
 	gend = GenericDialog::get_instance();
-	gend->signal_result().connect(sigc::mem_fun(this, &AddWaypoint::on_result));
     }
 
     // Returns name of the mode as string.
@@ -40,6 +39,8 @@ public:
         wpt.x = p.x; wpt.y=p.y;
 	cnv.frw(wpt);
 	Options opt = wpt.to_options();
+
+	current_connection = gend->signal_result().connect(sigc::mem_fun(this, &AddWaypoint::on_result));
 	gend->activate("Add Waypoint", opt);
     }
 
@@ -47,6 +48,8 @@ private:
     MapviewState * state;
     GenericDialog * gend;
     LayerGeoData * current_layer;
+
+    sigc::connection current_connection;
 
     void on_result(int r) {
 	if (r == 0) { // OK
@@ -61,6 +64,7 @@ private:
 	} else {
 	  // do nothing
 	}
+        current_connection.disconnect();
     }
 };
 

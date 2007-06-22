@@ -68,6 +68,7 @@ public:
                                          it!= world->trks.end(); it++){
 	
         int xo=0, yo=0;
+	bool start=true;
         for (std::vector<g_trackpoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
           g_point p(pt->x,pt->y); cnv.bck(p);
@@ -78,7 +79,7 @@ public:
 	  Rect<int> line_bb(Point<int>(xo, yo), Point<int>(x,y));
 	  line_bb = rect_pump(line_bb, 2);
 	  if (!rect_intersect(line_bb, dst_rect).empty()) {
-	      if (!pt->start) {
+	      if ((!pt->start)&&(!start)) {
 		  ctx->DrawLine(Point<int>(xo,yo), Point<int>(x, y), 3, c_b);
 		  ctx->DrawFilledRect(Rect<int>(x-2,y-2,4,4), c_m);
 	      } else {
