@@ -42,19 +42,22 @@ public:
 
 
     virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
+
+        // какую часть картинки мы хотим загрузить
+	Rect<int> img_rect = cnv.bb_bck(src_rect);
+
 #ifdef DEBUG_LAYER_GOOGLE
         std::cerr  << "LayerGoogle: draw " << src_rect << " -> " 
 	           << dst_rect << " at " << dst_img << std::endl;
 #endif
-        clip_rects_for_image_loader(range(), src_rect, dst_img.range(), dst_rect);
+
+        clip_rects_for_image_loader(range(), img_rect, dst_img.range(), dst_rect);
         if (src_rect.empty() || dst_rect.empty()) return;
 
 #ifdef DEBUG_LAYER_GOOGLE
 	std::cerr  << "LayerGoogle: inside the map range" <<std::endl;
 #endif
 	
-        // какую часть картинки мы хотим загрузить
-	Rect<int> img_rect = cnv.bb_bck(src_rect);
         // мы загружаем часть картинки - поэтому сбивается привязка
         g_map new_map(mymap0);
         for (g_map::iterator i=new_map.begin(); i!=new_map.end(); i++){

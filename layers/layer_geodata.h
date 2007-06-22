@@ -30,42 +30,19 @@ private:
 public:
 
     LayerGeoData (geo_data * _world) : 
-	world(_world), mymap(convs::mymap(*world)), 
-        cnv(convs::mymap(*world), Datum("wgs84"), Proj("lonlat"), Options()) {
-      recalc_range();
-    }
+      world(_world), mymap(convs::mymap(*world)), 
+      cnv(convs::mymap(*world), Datum("wgs84"), Proj("lonlat"), Options()),
+      myrange(cnv.bb_bck(world->range_geodata()))
+    { }
 
     // получить/установить привязку layer'a
     virtual g_map get_ref() const {return mymap;}
     virtual void set_ref(const g_map & map){
       mymap=map; cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"), Options());
-      recalc_range();
+      myrange=cnv.bb_bck(world->range_geodata());
     }
     virtual void set_ref(){set_ref(convs::mymap(*world));}
 
-    void recalc_range(){
-      Rect<double> wgs_r = world->range_geodata();
-      g_point p[4] = {
-        g_point(wgs_r.x,wgs_r.y),
-        g_point(wgs_r.x+wgs_r.w,wgs_r.y),
-        g_point(wgs_r.x+wgs_r.w,wgs_r.y+wgs_r.h),
-        g_point(wgs_r.x,wgs_r.y+wgs_r.h)};
-      double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
-      for (int i=0; i<4; i++){
-        std::cerr << p[i] << " -> ";
-        cnv.bck(p[i]);
-        std::cerr << p[i] << "\n";
-        if (p[i].x<minx) minx=p[i].x;
-        if (p[i].y<miny) miny=p[i].y;
-        if (p[i].x>maxx) maxx=p[i].x;
-        if (p[i].y>maxy) maxy=p[i].y;
-      }
-
-      if ((minx<maxx)&&(miny<maxy)) myrange = Rect<int>(int(minx), int(miny), int(maxx-minx+1), int(maxy-miny+1));
-      else myrange = Rect<int>(0,0,0,0);
-    }
-      
-    
     virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
       clip_rects_for_image_loader(range(), src_rect, dst_img.range(), dst_rect);
       if (src_rect.empty() || dst_rect.empty()) return;
