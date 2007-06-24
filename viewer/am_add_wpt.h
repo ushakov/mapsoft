@@ -60,6 +60,7 @@ private:
 	    current_layer->get_world()->wpts.push_back(g_waypoint_list());
           current_layer->get_world()->wpts[0].push_back(wpt);
 	  current_layer->refresh();
+          state->workplane->mark_level_dirty(current_layer);
    	  std::cout << "ADDWPT: " << wpt.name << "\n";
 	} else {
 	  // do nothing
