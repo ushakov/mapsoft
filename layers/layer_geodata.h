@@ -80,11 +80,11 @@ public:
 	  line_bb = rect_pump(line_bb, 2);
 	  if (!rect_intersect(line_bb, dst_rect).empty()) {
 	      if ((!pt->start)&&(!start)) {
-                  start=false;
 		  ctx->DrawLine(Point<int>(xo,yo), Point<int>(x, y), 3, c_b);
 		  ctx->DrawFilledRect(Rect<int>(x-2,y-2,4,4), c_m);
 	      } else {
 		  ctx->DrawFilledRect(Rect<int>(x-2,y-2,4,4), c_m);
+                  start=false;
 	      }
 	  }
 	  xo=x; yo=y;
