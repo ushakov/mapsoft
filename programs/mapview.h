@@ -33,7 +33,7 @@ public:
 	signal_delete_event().connect (sigc::mem_fun (this, &Mapview::on_delete));
 	set_default_size(640,480);
 
-	state.workplane.reset(new Workplane(256,0));
+	state.workplane.reset(new Workplane(256));
 	viewer.reset(new Viewer(state.workplane));
 	action_manager.reset (new ActionManager (&state));
 
@@ -242,20 +242,44 @@ public:
 	switch (event->keyval) {
 	case 43:                                                                           
 	case 65451: // +                                                                   
-	{                                                                                  
-	    viewer->scale_inc();                                                                     
+	{        
+            int nom = state.workplane->get_scale_nom();
+            int denom = state.workplane->get_scale_denom();
+            if (denom/nom > 1) state.workplane->set_scale_denom(denom/2);
+            else state.workplane->set_scale_nom(nom*2);
+
+            int n = state.workplane->get_scale_nom()*denom;
+            int dn  = state.workplane->get_scale_denom()*nom;
+
+            Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2; 
+            Point<int> origin = (wcenter*n)/dn-viewer->get_window_size()/2;
+
+            viewer->set_window_origin(origin);                                                         
+	    viewer->clear_cache();
 	    std::cerr << " scale: " 
-		      << viewer->scale_nom() << ":" 
-		      << viewer->scale_denom() <<  std::endl;
+		      << state.workplane->get_scale_nom() << ":" 
+		      << state.workplane->get_scale_denom() <<  std::endl;
 	    return true;                                                                     
 	}                                                                                  
 	case 45:                                                                           
 	case 65453: // -                                                                   
 	{                                                                                  
-	    viewer->scale_dec();                                                                     
+            int nom = state.workplane->get_scale_nom();
+            int denom = state.workplane->get_scale_denom();
+            if (denom/nom >= 1) state.workplane->set_scale_denom(denom*2);
+            else state.workplane->set_scale_nom(nom/2);
+
+            int n = state.workplane->get_scale_nom()*denom;
+            int dn  = state.workplane->get_scale_denom()*nom;
+
+            Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
+            Point<int> origin = (wcenter*n)/dn-viewer->get_window_size()/2;
+
+            viewer->set_window_origin(origin);                                                         
+	    viewer->clear_cache();
 	    std::cerr << " scale: " 
-		      << viewer->scale_nom() << ":" 
-		      << viewer->scale_denom() <<  std::endl;
+		      << state.workplane->get_scale_nom() << ":" 
+		      << state.workplane->get_scale_denom() <<  std::endl;
 	    return true;                                                                     
 	}                                                                                  
 	}
@@ -295,8 +319,8 @@ public:
 	    if (d < 100) {
 		Point<int> p(int(event->x), int(event->y));
 		p += viewer->get_window_origin();
-		p *= viewer->scale_denom();
-		p /= viewer->scale_nom();
+		p *= state.workplane->get_scale_denom();
+		p /= state.workplane->get_scale_nom();
 #ifdef DEBUG_MAPVIEW
 		std::cerr << "click at: " << p.x << "," << p.y << " " << event->button << std::endl;
 #endif

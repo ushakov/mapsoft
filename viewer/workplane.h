@@ -17,8 +17,8 @@ public:
     Workplane (int _tile_size=256, int _scale_nom=1, int _scale_denom=1):
 	tile_size(_tile_size),
 	scale_nom(_scale_nom),
-	scale_denom(_scale_denom)
-     {}
+	scale_denom(_scale_denom){ }
+
     Image<int>  get_image(Point<int> tile_key){
 
 	Image<int>  image(tile_size,tile_size, 0xff000000);
@@ -26,6 +26,7 @@ public:
 	Rect<int> src_rect = (tile_key*tile_size + dst_rect)*scale_denom;
         src_rect = tiles_on_rect(src_rect, scale_nom);
 
+std::cerr << "WORKPLANE DRAW: " << src_rect << "\n";
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
 	     itl != layers.rend();  ++itl){
 //	    std::cout << "WP: layer " << itl->second << std::endl;
@@ -57,8 +58,7 @@ public:
 	return layers.end();
     }
 
-    void
-    add_layer (Layer * layer, int depth)
+    void add_layer (Layer * layer, int depth)
     {
 	std::cout << "Adding layer " << layer << " at depth " << depth << std::endl;
 	if (find_layer(layer) != layers.end()) {
@@ -72,8 +72,7 @@ public:
 	tile_cache[layer].reset(new LayerCache(CacheCapacity));
     }
 
-    void
-    remove_layer (Layer * layer)
+    void remove_layer (Layer * layer)
     {
 	std::cout << "Removing layer " << layer << std::endl;
 	std::multimap<int, Layer *>::iterator itl = find_layer(layer);	
@@ -87,8 +86,7 @@ public:
 	tile_cache.erase(layer);
     }
 
-    void
-    set_layer_depth (Layer * layer, int newdepth)
+    void set_layer_depth (Layer * layer, int newdepth)
     {
 	std::cout << "Setting depth of layer " << layer << " to " << newdepth << std::endl;
 	std::multimap<int, Layer *>::iterator itl = find_layer(layer);
@@ -101,8 +99,7 @@ public:
 	layers.insert(std::make_pair(newdepth, layer));
     }
 
-    int
-    get_layer_depth (Layer * layer)
+    int get_layer_depth (Layer * layer)
     {
 	std::cout << "Getting depth of layer " << layer << std::endl;
 	std::multimap<int, Layer *>::iterator itl = find_layer(layer);	
@@ -114,8 +111,7 @@ public:
 	return itl->first;
     }
 
-    void
-    mark_level_dirty (Layer * layer)
+    void mark_level_dirty (Layer * layer)
     {
 	layer->refresh();
 	tile_cache.erase(layer);
@@ -167,6 +163,18 @@ public:
 	scale_nom = _scale_nom;
 	scale_denom = _scale_denom;
     }
+/*
+    void scale_inc(){
+        if     (scale_denom/scale_nom > 1) set_scale_denom(scale_denom/2);
+        else set_scale_nom(scale_nom*2);
+    }
+
+    void scale_dec(){
+        if     (scale_denom/scale_nom >= 1) set_scale_denom(scale_denom*2);
+        else set_scale_nom(scale_nom/2);
+    }
+*/
+
 
     void set_tile_size(int s){
 	if (tile_size != s) {

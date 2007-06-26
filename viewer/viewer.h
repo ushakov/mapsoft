@@ -19,7 +19,139 @@
 // 
 class Viewer : public Gtk::DrawingArea {
 
+
+public:
+
+    Viewer (boost::shared_ptr<Workplane> _workplane, 
+            Point<int> _window_origin = Point<int>(0,0)/*, 
+	    int _scale_nom = 1,
+            int _scale_denom = 1*/)
+	: workplane (_workplane),
+          window_origin(_window_origin),
+	  we_need_cache_updater(true)
+    {
+//        workplane->set_scale(1, 1);
+        Glib::thread_init();
+	mutex = new(Glib::Mutex);
+        cache_updater_cond = new(Glib::Cond);
+        update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
+        // сделаем отдельный thread из функции cache_updater
+        // joinable = true, чтобы подождать его завершения в деструкторе...
+        cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer::cache_updater), true);
+
+ 	add_events (Gdk::BUTTON_PRESS_MASK | 
+ 		    Gdk::BUTTON_RELEASE_MASK | 
+ 		    Gdk::POINTER_MOTION_MASK | 
+ 		    Gdk::POINTER_MOTION_HINT_MASK
+	    );
+    }
+
+//    virtual void on_realise() {
+//	  rubber.reset(new Rubber(this->get_window()));
+//    }
+    
+    virtual ~Viewer (){
+        mutex->lock();
+	we_need_cache_updater = false;
+        cache_updater_cond->signal();
+        mutex->unlock();
+	// подождем, пока cache_updater_thread завершиться
+	cache_updater_thread->join();
+	delete(mutex);
+        delete(cache_updater_cond);
+    }
+
+
+    void pointer_notify (Point<int> where) {
+	if (rubber->is_visible()) {
+	    rubber->update(where, window_origin);
+	}
+    }
+
+    void set_window_origin (Point<int> new_origin) {
+	Point<int> shift = window_origin - new_origin;
+	if (!rubber) {
+	    rubber.reset(new Rubber(this->get_window()));
+	}
+	bool rubber_was_visible = false;
+	if (rubber->is_visible()) {
+	    rubber->hide();
+	    rubber_was_visible = true;
+	}
+	window_origin -= shift;
+	change_viewport();
+	get_window()->scroll(shift.x, shift.y);
+	if (rubber_was_visible) {
+	    Point<int> pos;
+	    Gdk::ModifierType dummy2;
+	    get_window()->get_pointer(pos.x, pos.y, dummy2);
+	    rubber->update(pos, window_origin);
+	}
+    }
+
+    void set_window_origin(int x, int y){
+	set_window_origin(Point<int>(x,y));
+    }
+
+    Point<int> get_window_origin (){
+	return window_origin;
+    }
+
+    Point<int> get_window_size (){
+	return Point<int>(get_width(), get_height());
+    }
+
+    void clear_cache(){
+      mutex->lock();
+      tile_cache.clear();
+      tiles_todo.clear();
+      tiles_todo2.clear();
+      mutex->unlock();
+
+      if (is_mapped()){
+	  fill (0, 0, get_width(), get_height());
+      }
+    }
+/*
+// Работы с масштабами
+
+    void scale_inc(){
+	if     (scale_denom()/scale_nom() > 1) set_scale(scale_nom(), scale_denom()/2);
+        else set_scale(scale_nom()*2, scale_denom());
+    }
+    void scale_dec(){
+	if     (scale_denom()/scale_nom() >= 1) set_scale(scale_nom(), scale_denom()*2);
+        else set_scale(scale_nom()/2, scale_denom());
+    }
+
+
+
+    void set_scale(int scale_nom, int scale_denom){
+#ifdef DEBUG_VIEWER
+	std::cerr << "set_scale: " << scale_nom << ":" << scale_denom << std::endl;
+#endif
+      int n  = workplane->get_scale_denom()*scale_nom;
+      int dn = workplane->get_scale_nom()*scale_denom;
+      // todo -- перемасштабировать КЭШ
+      workplane->set_scale_nom(scale_nom);
+      workplane->set_scale_denom(scale_denom);
+
+      Point<int> wcenter = get_window_origin() + get_window_size()/2;
+      window_origin = (wcenter*n)/dn-get_window_size()/2;
+
+      clear_cache();
+    }
+
+    int scale_nom(){
+      return workplane->get_scale_nom();
+    }
+    int scale_denom(){
+      return workplane->get_scale_denom();
+    }
+*/
+
 private:
+
     boost::shared_ptr<Workplane> workplane;
     Point<int> window_origin;
     Rect<int>  visible_tiles;
@@ -63,47 +195,6 @@ private:
 
     // Rubber things
     boost::shared_ptr<Rubber> rubber;
-
-public:
-
-    Viewer (boost::shared_ptr<Workplane> _workplane, 
-            Point<int> _window_origin = Point<int>(0,0), 
-	    int _scale_nom = 1,
-            int _scale_denom = 1)
-	: workplane (_workplane),
-          window_origin(_window_origin),
-	  we_need_cache_updater(true)
-    {
-        workplane->set_scale(_scale_nom, _scale_denom);
-        Glib::thread_init();
-	mutex = new(Glib::Mutex);
-        cache_updater_cond = new(Glib::Cond);
-        update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
-        // сделаем отдельный thread из функции cache_updater
-        // joinable = true, чтобы подождать его завершения в деструкторе...
-        cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer::cache_updater), true);
-
- 	add_events (Gdk::BUTTON_PRESS_MASK | 
- 		    Gdk::BUTTON_RELEASE_MASK | 
- 		    Gdk::POINTER_MOTION_MASK | 
- 		    Gdk::POINTER_MOTION_HINT_MASK
-	    );
-    }
-
-//    virtual void on_realise() {
-//	  rubber.reset(new Rubber(this->get_window()));
-//    }
-    
-    virtual ~Viewer (){
-        mutex->lock();
-	we_need_cache_updater = false;
-        cache_updater_cond->signal();
-        mutex->unlock();
-	// подождем, пока cache_updater_thread завершиться
-	cache_updater_thread->join();
-	delete(mutex);
-        delete(cache_updater_cond);
-    }
 
     void fill_temp_tile (Image<int> & tile, int type = 0) {
 	image_brez::line(tile, 0, 0, tile.w, 0, 5, int(0xffff0000));
@@ -278,9 +369,6 @@ public:
     }
 
 
-/**************************************/
-private:
-
     void change_viewport () {
       // tiles -- прямоугольник плиток, необходимый для отрисовки экрана
       Rect<int> tiles = tiles_on_rect(
@@ -341,10 +429,6 @@ private:
 	}
       }
     }
-  
-
-/**************************************/
-public:
 
     virtual bool
     on_expose_event (GdkEventExpose * event)
@@ -355,141 +439,9 @@ public:
 	fill (event->area.x, event->area.y, event->area.width, event->area.height);
 	return true;
     }
+  
 
-
-//     virtual bool
-//     on_button_press_event (GdkEventButton * event) {
-// #ifdef DEBUG_VIEWER
-// 	std::cerr << "press: " << event->x << "," << event->y << " " << event->button << std::endl;
-// #endif
-// 	if (event->button == 1) {
-// 	    drag_pos = Point<int> ((int)event->x, (int)event->y);
-// 	    if (!rubber) {
-// 		rubber.reset(new Rubber(this->get_window()));
-// 	    }
-// 	    rubber->hide();
-// 	    return true;
-// 	} else {
-// 	    return Gtk::DrawingArea::on_button_press_event (event);
-// 	}
-
-//     }
-
-//     virtual bool
-//     on_motion_notify_event (GdkEventMotion * event) {
-// 	Point<int> pos ((int) event->x, (int) event->y);
-// #ifdef DEBUG_VIEWER
-// 	std::cerr << "motion: " << pos << std::endl;
-// #endif
-
-// 	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) {
-// 	    Gdk::ModifierType dummy2;
-// 	    get_window()->get_pointer(pos.x, pos.y, dummy2);
-// 	    rubber->update(pos, window_origin);
-// 	    return false;
-// 	}
-
-// #ifdef DEBUG_VIEWER
-// 	std::cerr << "move-hint: " << event->x << "," << event->y << std::endl;
-// #endif
-// 	Gdk::ModifierType dummy2;
-// 	get_window()->get_pointer(pos.x, pos.y, dummy2);
-// 	Point<int> shift = pos - drag_pos;
-// 	window_origin -= shift;
-// 	change_viewport();
-
-// 	get_window()->scroll(shift.x, shift.y);
-// 	drag_pos = pos;
-
-// 	return true;
-//     }
-
-    void pointer_notify (Point<int> where) {
-	if (rubber->is_visible()) {
-	    rubber->update(where, window_origin);
-	}
-    }
-
-    void set_window_origin (Point<int> new_origin) {
-	Point<int> shift = window_origin - new_origin;
-	if (!rubber) {
-	    rubber.reset(new Rubber(this->get_window()));
-	}
-	bool rubber_was_visible = false;
-	if (rubber->is_visible()) {
-	    rubber->hide();
-	    rubber_was_visible = true;
-	}
-	window_origin -= shift;
-	change_viewport();
-	get_window()->scroll(shift.x, shift.y);
-	if (rubber_was_visible) {
-	    Point<int> pos;
-	    Gdk::ModifierType dummy2;
-	    get_window()->get_pointer(pos.x, pos.y, dummy2);
-	    rubber->update(pos, window_origin);
-	}
-    }
-
-    void set_window_origin(int x, int y){
-	set_window_origin(Point<int>(x,y));
-    }
-
-    Point<int> get_window_origin (){
-	return window_origin;
-    }
-
-    Point<int> get_window_size (){
-	return Point<int>(get_width(), get_height());
-    }
-
-    void clear_cache(){
-      mutex->lock();
-      tile_cache.clear();
-      tiles_todo.clear();
-      tiles_todo2.clear();
-      mutex->unlock();
-
-      if (is_mapped()){
-	  fill (0, 0, get_width(), get_height());
-      }
-    }
-
-// Работы с масштабами
-
-    void scale_inc(){
-	if     (scale_denom()/scale_nom() > 1) set_scale(scale_nom(), scale_denom()/2);
-        else set_scale(scale_nom()*2, scale_denom());
-    }
-    void scale_dec(){
-	if     (scale_denom()/scale_nom() >= 1) set_scale(scale_nom(), scale_denom()*2);
-        else set_scale(scale_nom()/2, scale_denom());
-    }
-
-
-
-    void set_scale(int scale_nom, int scale_denom){
-#ifdef DEBUG_VIEWER
-	std::cerr << "set_scale: " << scale_nom << ":" << scale_denom << std::endl;
-#endif
-      int n  = workplane->get_scale_denom()*scale_nom;
-      int dn = workplane->get_scale_nom()*scale_denom;
-      // todo -- перемасштабировать КЭШ
-      workplane->set_scale_nom(scale_nom);
-      workplane->set_scale_denom(scale_denom);
-
-      Point<int> wcenter = get_window_origin() + get_window_size()/2;
-      window_origin = (wcenter*n)/dn-get_window_size()/2;
-
-      clear_cache();
-    }
-
-    int scale_nom(){
-      return workplane->get_scale_nom();
-    }
-    int scale_denom(){
-      return workplane->get_scale_denom();
-    }
+/**************************************/
 };
 
 #endif /* VIEWER_H */
