@@ -55,7 +55,6 @@ private:
 	if (current_wpt) {
 	    if (r == 0) { // OK
 		current_wpt->parse_from_options(gend->get_options());
-		current_layer->refresh();
                 state->workplane->mark_level_dirty(current_layer);
  		std::cout << "EDITWPT: " << current_wpt->name << std::endl;
 	    } else {

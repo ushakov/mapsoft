@@ -117,6 +117,7 @@ public:
     void
     mark_level_dirty (Layer * layer)
     {
+	layer->refresh();
 	tile_cache.erase(layer);
 	tile_cache[layer].reset(new LayerCache(CacheCapacity));
     }

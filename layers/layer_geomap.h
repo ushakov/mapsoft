@@ -45,6 +45,8 @@ public:
     void set_ref(const g_map & map){mymap=map; make_m2ms(); image_cache.clear();}
     void set_ref(){set_ref(convs::mymap(*world));}
 
+    void refresh(){}
+
     // построение преобразований, вычисление габаритов карты
     void make_m2ms(){
       if ((world == NULL)||(world->maps.size()==0)) return;
