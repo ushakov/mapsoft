@@ -40,15 +40,16 @@ public:
         cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer::cache_updater), true);
 
  	add_events (Gdk::BUTTON_PRESS_MASK | 
- 		    Gdk::BUTTON_RELEASE_MASK | 
+		    Gdk::BUTTON_RELEASE_MASK | 
  		    Gdk::POINTER_MOTION_MASK | 
  		    Gdk::POINTER_MOTION_HINT_MASK
 	    );
     }
 
-//    virtual void on_realise() {
-//	  rubber.reset(new Rubber(this->get_window()));
-//    }
+    virtual void on_realise() {
+	  rubber.reset(new Rubber(this->get_window()));
+          rubber->add_line(RubberPoint(Point<int>(0,0), 0), RubberPoint(Point<int>(0,0), 1));
+    }
     
     virtual ~Viewer (){
         mutex->lock();
@@ -59,6 +60,7 @@ public:
 	cache_updater_thread->join();
 	delete(mutex);
         delete(cache_updater_cond);
+	rubber.reset();
     }
 
 

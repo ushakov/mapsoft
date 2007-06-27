@@ -42,10 +42,10 @@ public:
 	file_sel_load.get_ok_button()->signal_clicked().connect (sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
 	file_sel_load.get_cancel_button()->signal_clicked().connect (sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
 	
-// 	//save file selector
-// 	file_sel_save.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::save_file_sel));
-// 	file_sel_save.get_ok_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
-// 	file_sel_save.get_cancel_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
+ 	//save file selector
+ 	file_sel_save.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::save_file_sel));
+ 	file_sel_save.get_ok_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
+ 	file_sel_save.get_cancel_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
 	
 	/***************************************/
 	//start building menus
@@ -57,7 +57,7 @@ public:
 	
 	actions->add(Gtk::Action::create("Add", Gtk::Stock::ADD), sigc::mem_fun(file_sel_load, &Gtk::Widget::show));
 	actions->add(Gtk::Action::create("Clear", Gtk::Stock::CLEAR));
-	actions->add(Gtk::Action::create("Save", Gtk::Stock::SAVE));
+	actions->add(Gtk::Action::create("Save", Gtk::Stock::SAVE), sigc::mem_fun(file_sel_save, &Gtk::Widget::show));
 	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT), sigc::mem_fun(this, &Gtk::Widget::hide));
 
 	// make all modes!
@@ -223,13 +223,23 @@ public:
 	status_bar->pop();
     }
     
-//     void save_file_sel() {
-// 	std::string selected_filename;
-// 	selected_filename = file_selector->get_filename();
-// 	g_print ("Saving file: %s\n", selected_filename.c_str());
-// 	status_bar->push("Saving...", 0);
-// 	io::out(selected_filename, world, Options());
-//     }
+     void save_file_sel() {
+ 	std::string selected_filename;
+ 	selected_filename = file_sel_save.get_filename();
+ 	g_print ("Saving file: %s\n", selected_filename.c_str());
+ 	status_bar->push("Saving...", 0);
+
+        geo_data world;
+
+        for (int i=0; i<state.data.size()-1; i++){
+          world.wpts.insert( world.wpts.end(), state.data[i].get()->wpts.begin(), state.data[i].get()->wpts.end());
+          world.trks.insert( world.trks.end(), state.data[i].get()->trks.begin(), state.data[i].get()->trks.end());
+          world.maps.insert( world.maps.end(), state.data[i].get()->maps.begin(), state.data[i].get()->maps.end());
+        }
+  
+        if (state.data.size()<1) return;
+ 	io::out(selected_filename, world, Options());
+     }
 
     gboolean on_delete(GdkEventAny * e) {
 	g_print ("Exiting...\n");
@@ -280,6 +290,12 @@ public:
 	    std::cerr << " scale: " 
 		      << state.workplane->get_scale_nom() << ":" 
 		      << state.workplane->get_scale_denom() <<  std::endl;
+	    return true;                                                                     
+	}                                                                                  
+	case 'r':                                                                           
+	case 'R': // refresh
+	{                                                                                  
+	    viewer->clear_cache();
 	    return true;                                                                     
 	}                                                                                  
 	}
