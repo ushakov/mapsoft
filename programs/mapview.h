@@ -265,7 +265,7 @@ public:
             Point<int> origin = (wcenter*n)/dn-viewer->get_window_size()/2;
 
             viewer->set_window_origin(origin);                                                         
-	    viewer->clear_cache();
+	    viewer->refresh();
 	    std::cerr << " scale: " 
 		      << state.workplane->get_scale_nom() << ":" 
 		      << state.workplane->get_scale_denom() <<  std::endl;
@@ -286,7 +286,7 @@ public:
             Point<int> origin = (wcenter*n)/dn-viewer->get_window_size()/2;
 
             viewer->set_window_origin(origin);                                                         
-	    viewer->clear_cache();
+	    viewer->refresh();
 	    std::cerr << " scale: " 
 		      << state.workplane->get_scale_nom() << ":" 
 		      << state.workplane->get_scale_denom() <<  std::endl;
@@ -295,7 +295,7 @@ public:
 	case 'r':                                                                           
 	case 'R': // refresh
 	{                                                                                  
-	    viewer->clear_cache();
+	    viewer->refresh();
 	    return true;                                                                     
 	}                                                                                  
 	}
@@ -308,7 +308,7 @@ public:
     }
 
     void refresh () {
-	viewer->clear_cache();
+	viewer->refresh();
     }
 
     virtual bool

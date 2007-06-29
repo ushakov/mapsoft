@@ -2,6 +2,7 @@ Import ('env')
 le = env.Copy()
 mapsoft_libs = Split ("geo_io loaders utils jeeps")
 graph_libs = Split("jpeg tiff png")
+io_libs = Split("gd usb")
 
 le.Program('test_fig', 'test_fig.cpp', LIBS=mapsoft_libs)
 le.Program('test_poly', 'test_poly.cpp', LIBS=mapsoft_libs)
@@ -11,4 +12,5 @@ le.Program('fig_norm', 'fig_norm.cpp', LIBS=mapsoft_libs)
 le.Program('fig_bbx_test', 'fig_bbx_test.cpp', LIBS=mapsoft_libs)
 le.Program('test_geofig', 'test_geofig.cpp', LIBS = mapsoft_libs + graph_libs)
 le.Program('mp2fig', 'mp2fig.cpp', LIBS = mapsoft_libs + graph_libs)
+le.Program('add_per_to_fig', 'add_per_to_fig.cpp', LIBS = mapsoft_libs + graph_libs + io_libs)
 

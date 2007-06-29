@@ -35,6 +35,7 @@ public:
 	mutex = new(Glib::Mutex);
         cache_updater_cond = new(Glib::Cond);
         update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
+        workplane->signal_refresh.connect(sigc::mem_fun(*this, &Viewer::refresh));
         // сделаем отдельный thread из функции cache_updater
         // joinable = true, чтобы подождать его завершения в деструкторе...
         cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer::cache_updater), true);
@@ -103,16 +104,35 @@ public:
 	return Point<int>(get_width(), get_height());
     }
 
-    void clear_cache(){
+    void refresh(){
       mutex->lock();
-      tile_cache.clear();
       tiles_todo.clear();
       tiles_todo2.clear();
       mutex->unlock();
 
-      if (is_mapped()){
-	  fill (0, 0, get_width(), get_height());
+      // extra и т.п. должно быть таким же, как в change_viewport
+      Rect<int> tiles = tiles_on_rect(
+        Rect<int>(window_origin.x, window_origin.y,
+        get_width(), get_height()), workplane->get_tile_size());
+
+      const int extra = std::max(tiles.w, tiles.h);
+
+      Rect<int> tiles_in_cache = Rect<int>
+       (tiles.x-extra, tiles.y-extra, tiles.w+2*extra, tiles.h+2*extra);
+
+      for (int x = tiles_in_cache.x; x < tiles_in_cache.x+tiles_in_cache.w; ++x) {
+	for (int y = tiles_in_cache.y; y < tiles_in_cache.y+tiles_in_cache.h; ++y) {
+	  mutex->lock();
+	  if (point_in_rect(Point<int>(x,y), tiles)) tiles_todo.insert(Point<int>(x,y));
+          else tiles_todo2.insert(Point<int>(x,y));
+	  cache_updater_cond->signal();
+	  mutex->unlock();
+	}
       }
+
+//      if (is_mapped()){
+//	  fill (0, 0, get_width(), get_height());
+//      }
     }
 /*
 // Работы с масштабами

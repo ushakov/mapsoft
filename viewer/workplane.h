@@ -14,6 +14,9 @@
 class Workplane {
     static const int CacheCapacity = 200;
 public:
+
+    sigc::signal<void> signal_refresh;
+
     Workplane (int _tile_size=256, int _scale_nom=1, int _scale_denom=1):
 	tile_size(_tile_size),
 	scale_nom(_scale_nom),
@@ -116,6 +119,7 @@ std::cerr << "WORKPLANE DRAW: " << src_rect << "\n";
 	layer->refresh();
 	tile_cache.erase(layer);
 	tile_cache[layer].reset(new LayerCache(CacheCapacity));
+        signal_refresh.emit();
     }
 
     void set_layer_active (Layer * layer, bool active) {

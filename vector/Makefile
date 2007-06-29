@@ -49,3 +49,6 @@ mp2fig: $(MAPSOFT_LIBS) mp2fig.cpp
 fig2mp: mp2fig
 	ln -s mp2fig fig2mp
 
+add_per_to_fig: $(MAPSOFT_LIBS) add_per_to_fig.cpp
+	g++ $< $(GRLIB_FLAGS) $(MAPSOFT_LIBS) -o $@
+
