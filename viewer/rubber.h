@@ -40,6 +40,7 @@ private:
 	    drawn[i].first.y != 0 ||
 	    drawn[i].second.x != 0 ||
 	    drawn[i].second.y != 0) {
+            std::cerr << " -- " << drawn[i].first << " - " << drawn[i].second << "\n";
 	    xor_line (drawn[i]);
 	    drawn[i] = std::make_pair(Point<int>(0,0), Point<int>(0,0));
 	}
@@ -50,6 +51,7 @@ private:
 	std::pair<Point<int>, Point<int> > new_position;
 	new_position.first = lines[i].first.get(pointer, origin);
 	new_position.second = lines[i].second.get(pointer, origin);
+        std::cerr << " ++ " << new_position.first << " - " << new_position.second << "\n";
 	xor_line(new_position);
 	drawn[i] = new_position;
     }

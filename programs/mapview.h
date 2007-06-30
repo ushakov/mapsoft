@@ -350,21 +350,11 @@ public:
     pointer_moved (GdkEventMotion * event) {
 	Point<int> pos ((int) event->x, (int) event->y);
 #ifdef DEBUG_MAPVIEW
-	std::cerr << "motion: " << pos << std::endl;
+	std::cerr << "motion: " << pos << (event->is_hint? " hint ":"") << std::endl;
 #endif
-	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) {
-	    Gdk::ModifierType dummy2;
-	    viewer->get_window()->get_pointer(pos.x, pos.y, dummy2);
-//	    translate_coordinates(*viewer, pos.x, pos.y, pos.x, pos.y);
-	    viewer->pointer_notify(pos);
-	    return false;
-	}
 
-#ifdef DEBUG_MAPVIEW
-	std::cerr << "move-hint: " << event->x << "," << event->y << std::endl;
-#endif
-	Gdk::ModifierType dummy2;
-	viewer->get_window()->get_pointer(pos.x, pos.y, dummy2);
+	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) return false;
+
 	Point<int> shift = pos - drag_pos;
 	Point<int> window_origin = viewer->get_window_origin();
 	window_origin -= shift;

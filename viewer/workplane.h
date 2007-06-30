@@ -29,7 +29,7 @@ public:
 	Rect<int> src_rect = (tile_key*tile_size + dst_rect)*scale_denom;
         src_rect = tiles_on_rect(src_rect, scale_nom);
 
-std::cerr << "WORKPLANE DRAW: " << src_rect << "\n";
+//std::cerr << "WORKPLANE DRAW: " << src_rect << "\n";
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
 	     itl != layers.rend();  ++itl){
 //	    std::cout << "WP: layer " << itl->second << std::endl;

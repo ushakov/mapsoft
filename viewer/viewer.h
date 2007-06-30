@@ -22,6 +22,8 @@ class Viewer : public Gtk::DrawingArea {
 
 public:
 
+    boost::shared_ptr<Rubber> get_rubber(){return rubber;}
+
     Viewer (boost::shared_ptr<Workplane> _workplane, 
             Point<int> _window_origin = Point<int>(0,0)/*, 
 	    int _scale_nom = 1,
@@ -34,24 +36,25 @@ public:
         Glib::thread_init();
 	mutex = new(Glib::Mutex);
         cache_updater_cond = new(Glib::Cond);
+
         update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
+
         workplane->signal_refresh.connect(sigc::mem_fun(*this, &Viewer::refresh));
+
+
         // сделаем отдельный thread из функции cache_updater
         // joinable = true, чтобы подождать его завершения в деструкторе...
         cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer::cache_updater), true);
 
  	add_events (Gdk::BUTTON_PRESS_MASK | 
 		    Gdk::BUTTON_RELEASE_MASK | 
+ 		    Gdk::SCROLL_MASK | 
  		    Gdk::POINTER_MOTION_MASK | 
- 		    Gdk::POINTER_MOTION_HINT_MASK
-	    );
+ 		    Gdk::POINTER_MOTION_HINT_MASK );
+
     }
 
-    virtual void on_realise() {
-	  rubber.reset(new Rubber(this->get_window()));
-          rubber->add_line(RubberPoint(Point<int>(0,0), 0), RubberPoint(Point<int>(0,0), 1));
-    }
-    
+
     virtual ~Viewer (){
         mutex->lock();
 	we_need_cache_updater = false;
@@ -64,32 +67,32 @@ public:
 	rubber.reset();
     }
 
-
-    void pointer_notify (Point<int> where) {
-	if (rubber->is_visible()) {
-	    rubber->update(where, window_origin);
-	}
-    }
-
     void set_window_origin (Point<int> new_origin) {
 	Point<int> shift = window_origin - new_origin;
-	if (!rubber) {
-	    rubber.reset(new Rubber(this->get_window()));
-	}
-	bool rubber_was_visible = false;
-	if (rubber->is_visible()) {
-	    rubber->hide();
-	    rubber_was_visible = true;
-	}
+
+//	bool rubber_was_visible = false;
+//	  if (rubber->is_visible()) {
+//          rubber->hide();
+//	  rubber_was_visible = true;
+//        }
+
+std::cerr << "Rubber: hide before scroll by " << shift << ". wo: " << window_origin << "\n";
+	rubber->hide();
+
 	window_origin -= shift;
 	change_viewport();
+
 	get_window()->scroll(shift.x, shift.y);
-	if (rubber_was_visible) {
-	    Point<int> pos;
-	    Gdk::ModifierType dummy2;
-	    get_window()->get_pointer(pos.x, pos.y, dummy2);
-	    rubber->update(pos, window_origin);
-	}
+
+std::cerr << "Rubber: scroll done. wo: " << window_origin << "\n";
+        //  rubber ubdate произойдет при дорисовке краев!
+
+//	if (rubber_was_visible) {
+//	  Point<int> pos;
+//	  Gdk::ModifierType dummy2;
+//	  get_window()->get_pointer(pos.x, pos.y, dummy2);
+//	  rubber->update(pos, window_origin);
+//        }
     }
 
     void set_window_origin(int x, int y){
@@ -129,52 +132,14 @@ public:
 	  mutex->unlock();
 	}
       }
-
-//      if (is_mapped()){
-//	  fill (0, 0, get_width(), get_height());
-//      }
-    }
-/*
-// Работы с масштабами
-
-    void scale_inc(){
-	if     (scale_denom()/scale_nom() > 1) set_scale(scale_nom(), scale_denom()/2);
-        else set_scale(scale_nom()*2, scale_denom());
-    }
-    void scale_dec(){
-	if     (scale_denom()/scale_nom() >= 1) set_scale(scale_nom(), scale_denom()*2);
-        else set_scale(scale_nom()/2, scale_denom());
     }
 
 
-
-    void set_scale(int scale_nom, int scale_denom){
-#ifdef DEBUG_VIEWER
-	std::cerr << "set_scale: " << scale_nom << ":" << scale_denom << std::endl;
-#endif
-      int n  = workplane->get_scale_denom()*scale_nom;
-      int dn = workplane->get_scale_nom()*scale_denom;
-      // todo -- перемасштабировать КЭШ
-      workplane->set_scale_nom(scale_nom);
-      workplane->set_scale_denom(scale_denom);
-
-      Point<int> wcenter = get_window_origin() + get_window_size()/2;
-      window_origin = (wcenter*n)/dn-get_window_size()/2;
-
-      clear_cache();
-    }
-
-    int scale_nom(){
-      return workplane->get_scale_nom();
-    }
-    int scale_denom(){
-      return workplane->get_scale_denom();
-    }
-*/
 
 private:
 
     boost::shared_ptr<Workplane> workplane;
+    boost::shared_ptr<Rubber>    rubber;
     Point<int> window_origin;
     Rect<int>  visible_tiles;
     Point<int> drag_pos;
@@ -215,8 +180,6 @@ private:
     // cache_updater_thread крутится, пока we_need_cache_updater == true
     bool we_need_cache_updater;
 
-    // Rubber things
-    boost::shared_ptr<Rubber> rubber;
 
     void fill_temp_tile (Image<int> & tile, int type = 0) {
 	image_brez::line(tile, 0, 0, tile.w, 0, 5, int(0xffff0000));
@@ -344,25 +307,30 @@ private:
       Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
       Glib::RefPtr<Gdk::Window> widget = get_window();
 	  
-      if (!rubber) {
-	  rubber.reset(new Rubber(this->get_window()));
-      }
-      bool rubber_was_visible = false;
-      if (rubber->is_visible()) {
-	  rubber_was_visible = true;
+//      if (!rubber) {
+//	  rubber.reset(new Rubber(this->get_window()));
+//      }
+
+//      bool rubber_was_visible = false;
+//      if (rubber->is_visible()) {
+//	  rubber_was_visible = true;
+std::cerr << "Rubber: hide before drawing a tile \n";
+
 	  rubber->hide();
-      }
+//      }
       widget->draw_pixbuf(gc, pixbuf, 
 			  tile_in_screen.x-tile_rect.x, tile_in_screen.y-tile_rect.y, // on pixbuf
 			  tile_in_screen.x-window_origin.x, tile_in_screen.y-window_origin.y,
 			  tile_in_screen.w, tile_in_screen.h,
 			  Gdk::RGB_DITHER_NORMAL, 0, 0);
-      if (rubber_was_visible) {
+//      if (rubber_was_visible) {
 	  Point<int> pos;
 	  Gdk::ModifierType dummy2;
 	  get_window()->get_pointer(pos.x, pos.y, dummy2);
+std::cerr << "Rubber: update after drawing a tile. pos: " << pos << " wo: " << window_origin << "\n";
 	  rubber->update(pos, window_origin);
-      }
+
+//      }
     }
 
 
@@ -452,8 +420,7 @@ private:
       }
     }
 
-    virtual bool
-    on_expose_event (GdkEventExpose * event)
+    virtual bool on_expose_event (GdkEventExpose * event)
     {
 #ifdef DEBUG_VIEWER
 	std::cerr << "expose: " << event->area.x << "," << event->area.y << " " << event->area.width << "x" << event->area.height << std::endl;
@@ -461,7 +428,34 @@ private:
 	fill (event->area.x, event->area.y, event->area.width, event->area.height);
 	return true;
     }
-  
+
+    virtual void on_realize() {
+        Gtk::DrawingArea::on_realize();
+        rubber.reset(new Rubber(get_window()));
+        Point<int> p(0,0);
+        rubber->add_line(RubberPoint(p, 0), RubberPoint(p, 1));
+        rubber->update(p,p);
+
+// 	get_window()->add_events ( Gdk::SCROLL_MASK );
+//        get_window()->signal_scroll_event.connect(sigc::mem_fun(*this, &Viewer::on_window_scroll));
+
+    }
+
+    virtual bool on_motion_notify_event(GdkEventMotion * event){
+        Point<int> pos;
+        Gdk::ModifierType dummy2;
+        get_window()->get_pointer(pos.x, pos.y, dummy2);
+std::cerr << "Rubber: mouse move to " << Point<int>(event->x, event->y) << " " 
+          <<  pos << (rubber->is_visible()?" rubber update":" rubber is hidden") << "\n";
+        if (rubber->is_visible())  rubber->update(pos, window_origin);
+        return false;
+    }
+
+
+    virtual bool on_scroll_scroll(GdkEventScroll * event){
+      std::cerr << "SS scroll event " << Point<int>(event->x, event->y) << "\n";
+      return false;
+    }
 
 /**************************************/
 };
