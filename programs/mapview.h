@@ -233,13 +233,14 @@ public:
 
         geo_data world;
 
-        for (int i=0; i<state.data.size()-1; i++){
+        if (state.data.size()<1) return;
+
+        for (int i=0; i<state.data.size(); i++){
           world.wpts.insert( world.wpts.end(), state.data[i].get()->wpts.begin(), state.data[i].get()->wpts.end());
           world.trks.insert( world.trks.end(), state.data[i].get()->trks.begin(), state.data[i].get()->trks.end());
           world.maps.insert( world.maps.end(), state.data[i].get()->maps.begin(), state.data[i].get()->maps.end());
         }
   
-        if (state.data.size()<1) return;
  	io::out(selected_filename, world, Options());
      }
 
