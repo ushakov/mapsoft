@@ -22,13 +22,13 @@ class Viewer : public Gtk::DrawingArea {
 
 public:
 
-    boost::shared_ptr<Rubber> get_rubber(){return rubber;}
-
     Viewer (boost::shared_ptr<Workplane> _workplane, 
+            boost::shared_ptr<Rubber>    _rubber, 
             Point<int> _window_origin = Point<int>(0,0)/*, 
 	    int _scale_nom = 1,
             int _scale_denom = 1*/)
 	: workplane (_workplane),
+          rubber    (_rubber),
           window_origin(_window_origin),
 	  we_need_cache_updater(true)
     {
@@ -40,6 +40,7 @@ public:
         update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
 
         workplane->signal_refresh.connect(sigc::mem_fun(*this, &Viewer::refresh));
+        rubber->signal_refresh.connect(sigc::mem_fun(*this, &Viewer::rubber_render));
 
 
         // сделаем отдельный thread из функции cache_updater
@@ -64,35 +65,18 @@ public:
 	cache_updater_thread->join();
 	delete(mutex);
         delete(cache_updater_cond);
-	rubber.reset();
     }
 
     void set_window_origin (Point<int> new_origin) {
 	Point<int> shift = window_origin - new_origin;
 
-//	bool rubber_was_visible = false;
-//	  if (rubber->is_visible()) {
-//          rubber->hide();
-//	  rubber_was_visible = true;
-//        }
-
-std::cerr << "Rubber: hide before scroll by " << shift << ". wo: " << window_origin << "\n";
-	rubber->hide();
+	rubber_take_off();
 
 	window_origin -= shift;
 	change_viewport();
 
 	get_window()->scroll(shift.x, shift.y);
-
-std::cerr << "Rubber: scroll done. wo: " << window_origin << "\n";
         //  rubber ubdate произойдет при дорисовке краев!
-
-//	if (rubber_was_visible) {
-//	  Point<int> pos;
-//	  Gdk::ModifierType dummy2;
-//	  get_window()->get_pointer(pos.x, pos.y, dummy2);
-//	  rubber->update(pos, window_origin);
-//        }
     }
 
     void set_window_origin(int x, int y){
@@ -179,6 +163,8 @@ private:
 
     // cache_updater_thread крутится, пока we_need_cache_updater == true
     bool we_need_cache_updater;
+
+    Glib::RefPtr<Gdk::GC> rubber_gc;
 
 
     void fill_temp_tile (Image<int> & tile, int type = 0) {
@@ -307,30 +293,13 @@ private:
       Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
       Glib::RefPtr<Gdk::Window> widget = get_window();
 	  
-//      if (!rubber) {
-//	  rubber.reset(new Rubber(this->get_window()));
-//      }
-
-//      bool rubber_was_visible = false;
-//      if (rubber->is_visible()) {
-//	  rubber_was_visible = true;
-std::cerr << "Rubber: hide before drawing a tile \n";
-
-	  rubber->hide();
-//      }
+      rubber_take_off();
       widget->draw_pixbuf(gc, pixbuf, 
 			  tile_in_screen.x-tile_rect.x, tile_in_screen.y-tile_rect.y, // on pixbuf
 			  tile_in_screen.x-window_origin.x, tile_in_screen.y-window_origin.y,
 			  tile_in_screen.w, tile_in_screen.h,
 			  Gdk::RGB_DITHER_NORMAL, 0, 0);
-//      if (rubber_was_visible) {
-	  Point<int> pos;
-	  Gdk::ModifierType dummy2;
-	  get_window()->get_pointer(pos.x, pos.y, dummy2);
-std::cerr << "Rubber: update after drawing a tile. pos: " << pos << " wo: " << window_origin << "\n";
-	  rubber->update(pos, window_origin);
-
-//      }
+      rubber_render();
     }
 
 
@@ -429,33 +398,77 @@ std::cerr << "Rubber: update after drawing a tile. pos: " << pos << " wo: " << w
 	return true;
     }
 
+
+
+// относящееся к рисованию резины!
     virtual void on_realize() {
         Gtk::DrawingArea::on_realize();
-        rubber.reset(new Rubber(get_window()));
-        Point<int> p(0,0);
-        rubber->add_line(RubberPoint(p, 0), RubberPoint(p, 1));
-        rubber->update(p,p);
-
-// 	get_window()->add_events ( Gdk::SCROLL_MASK );
-//        get_window()->signal_scroll_event.connect(sigc::mem_fun(*this, &Viewer::on_window_scroll));
-
+        rubber_gc = Gdk::GC::create(get_window());
+        rubber_gc->set_rgb_fg_color(Gdk::Color("white"));
+        rubber_gc->set_function(Gdk::XOR);
     }
 
     virtual bool on_motion_notify_event(GdkEventMotion * event){
-        Point<int> pos;
-        Gdk::ModifierType dummy2;
-        get_window()->get_pointer(pos.x, pos.y, dummy2);
-std::cerr << "Rubber: mouse move to " << Point<int>(event->x, event->y) << " " 
-          <<  pos << (rubber->is_visible()?" rubber update":" rubber is hidden") << "\n";
-        if (rubber->is_visible())  rubber->update(pos, window_origin);
+        rubber_render();
         return false;
     }
 
-
-    virtual bool on_scroll_scroll(GdkEventScroll * event){
-      std::cerr << "SS scroll event " << Point<int>(event->x, event->y) << "\n";
-      return false;
+    void rubber_xor_line (std::pair<Point<int>, Point<int> > line) {
+        get_window()->draw_line(rubber_gc, line.first.x, line.first.y, line.second.x, line.second.y);
     }
+
+    void rubber_take_off_line(int i) {
+        if (rubber->drawn[i].first.x != 0 ||
+            rubber->drawn[i].first.y != 0 ||
+            rubber->drawn[i].second.x != 0 ||
+            rubber->drawn[i].second.y != 0) {
+            rubber_xor_line (rubber->drawn[i]);
+            rubber->drawn[i] = std::make_pair(Point<int>(0,0), Point<int>(0,0));
+        }
+    }
+    void rubber_render_line(int i, Point<int> pointer, Point<int> origin) {
+        rubber_take_off_line(i);
+        std::pair<Point<int>, Point<int> > new_position;
+        new_position.first = rubber->lines[i].first.get(pointer, origin);
+        new_position.second = rubber->lines[i].second.get(pointer, origin);
+        rubber_xor_line(new_position);
+        rubber->drawn[i] = new_position;
+    }
+    void rubber_render() {
+        Point<int> pointer;
+        Gdk::ModifierType dummy2;
+        get_window()->get_pointer(pointer.x, pointer.y, dummy2);
+
+        for (int i = 0; i < rubber->lines.size(); ++i) {
+            rubber_render_line(i, pointer, window_origin);
+        }
+/*        for (int i = 0; i < rubber->drawn.size(); ++i) {
+            if (rubber->drawn[i].first.x == 0 &&
+                rubber->drawn[i].first.y == 0 &&
+                rubber->drawn[i].second.x == 0 &&
+                rubber->drawn[i].second.y == 0) {
+                std::cerr << "Unrealised line after render: " 
+                          << rubber->drawn[i].first << "--" << rubber->drawn[i].second << std::endl;
+            }
+        }
+*/
+    }
+    void rubber_take_off() {
+        for (int i = 0; i < rubber->drawn.size(); ++i) {
+            rubber_take_off_line(i);
+        }
+/*        for (int i = 0; i < rubber->drawn.size(); ++i) {
+            if (rubber->drawn[i].first.x != 0 ||
+                rubber->drawn[i].first.y != 0 ||
+                rubber->drawn[i].second.x != 0 ||
+                rubber->drawn[i].second.y != 0) {
+                std::cerr << "Remaining line after take-off: " 
+                          << rubber->drawn[i].first << "--" << rubber->drawn[i].second << std::endl;
+            }
+        }
+*/
+    }
+
 
 /**************************************/
 };

@@ -20,12 +20,15 @@ public:
     virtual void activate() { }
 
     // Abandons any action in progress and deactivates mode.
-    virtual void abort() { }
+    virtual void abort() { 
+        state->rubber->clear();
+        mystate=0;
+    }
 
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(Point<int> p) {
 
-        if (mystate==0){
+        if (mystate==0){ // select point
           std::cout << " MOVEWPT: " << p << std::endl;
 	  for (int i = 0; i < state->data_layers.size(); ++i) {
             current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
@@ -34,10 +37,22 @@ public:
 	    if (d.first >= 0) {
 		std::cout << "MOVEWPT: found at " << current_layer << std::endl;
 		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
+                Point<int> dp(2,2);
+                state->rubber->add_line(RubberPoint(p+Point<int>(-2,-2),1), RubberPoint(p+Point<int>( 2,-2),1));
+                state->rubber->add_line(RubberPoint(p+Point<int>( 2,-2),1), RubberPoint(p+Point<int>( 2, 2),1));
+                state->rubber->add_line(RubberPoint(p+Point<int>( 2, 2),1), RubberPoint(p+Point<int>(-2, 2),1));
+                state->rubber->add_line(RubberPoint(p+Point<int>(-2, 2),1), RubberPoint(p+Point<int>(-2,-2),1));
+
+                state->rubber->add_line(RubberPoint(Point<int>(-2,-2),0), RubberPoint(Point<int>( 2,-2),0));
+                state->rubber->add_line(RubberPoint(Point<int>( 2,-2),0), RubberPoint(Point<int>( 2, 2),0));
+                state->rubber->add_line(RubberPoint(Point<int>( 2, 2),0), RubberPoint(Point<int>(-2, 2),0));
+                state->rubber->add_line(RubberPoint(Point<int>(-2, 2),0), RubberPoint(Point<int>(-2,-2),0));
+
+                state->rubber->add_line(RubberPoint(p,1), RubberPoint(Point<int>(0,0),0));
                 mystate=1;
             }
 	  }
-	} else {
+	} else { // move point
           assert (current_layer);
           g_map map = current_layer->get_ref();
           convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"),Options());
@@ -47,6 +62,7 @@ public:
           current_wpt->y = pt.y;
           state->workplane->mark_level_dirty(current_layer);
 	  mystate=0;
+          state->rubber->clear();
           current_layer=0;
           current_wpt=0;
         }

@@ -16,6 +16,7 @@
 class MapviewState {
 public:
     boost::shared_ptr<Workplane> workplane;
+    boost::shared_ptr<Rubber>    rubber;
 	
     std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
     std::vector<boost::shared_ptr<LayerGeoData> > data_layers;
@@ -34,7 +35,8 @@ public:
 	set_default_size(640,480);
 
 	state.workplane.reset(new Workplane(256));
-	viewer.reset(new Viewer(state.workplane));
+	state.rubber.reset(new Rubber);
+	viewer.reset(new Viewer(state.workplane, state.rubber));
 	action_manager.reset (new ActionManager (&state));
 
 	//load file selector
