@@ -11,7 +11,7 @@ void GenericDialog::activate (std::string title, Options const & _options) {
     }
     dialog.reset (new Gtk::Dialog (title));
     dialog->add_button ("Ok", 0);
-    dialog->add_button ("Cancel", 0);
+    dialog->add_button ("Cancel", 1);
     dialog->signal_response().connect (sigc::mem_fun (this, &GenericDialog::on_response));
     dialog->signal_delete_event().connect (sigc::mem_fun (this, &GenericDialog::on_delete));
 
