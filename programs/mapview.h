@@ -133,7 +133,7 @@ public:
 	viewer->signal_motion_notify_event().connect (sigc::mem_fun (this, &Mapview::pointer_moved));
 	viewer->signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::mouse_button_pressed));
 	viewer->signal_button_release_event().connect (sigc::mem_fun (this, &Mapview::mouse_button_released));
-	
+
 	show_all();
     }
 
@@ -188,20 +188,18 @@ public:
 	g_print ("Loading: %s\n", selected_filename.c_str());
 	status_bar->push("Loading...", 0);
 	boost::shared_ptr<geo_data> world (new geo_data);
+
 	state.data.push_back(world);
+
 	io::in(selected_filename, *(world.get()), Options());
 	std::cout <<"Loaded " << selected_filename << " to world at " << world.get() << std::endl;
+
+        if (!have_reference){ reference = convs::mymap(*world.get()); have_reference = true; }
 
 	if (world->maps.size() > 0) {
 	    // we are loading maps: if we already have reference, use it
 	    boost::shared_ptr<LayerGeoMap> map_layer(new LayerGeoMap(world.get()));
-	    if (have_reference) {
-		map_layer->set_ref(reference);
-	    } else {
-		map_layer->set_ref();
-		reference = map_layer->get_ref();
-		have_reference = true;
-	    }
+	    map_layer->set_ref(reference);
 	    state.map_layers.push_back(map_layer);
 	    add_layer(map_layer.get(), 100, "Maps: " + selected_filename);
 	    viewer->set_window_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
@@ -209,18 +207,16 @@ public:
 	
 	if (world->wpts.size() > 0 || world->trks.size() > 0) {
 	    // we are loading geodata: if we already have reference, use it
+
 	    boost::shared_ptr<LayerGeoData> layer_gd(new LayerGeoData(world.get()));
-	    if (have_reference) {
-		layer_gd->set_ref(reference);
-	    } else {
-		layer_gd->set_ref();
-		reference = layer_gd->get_ref();
-		have_reference = true;
-	    }
+	    layer_gd->set_ref(reference);
 	    state.data_layers.push_back(layer_gd);
 	    add_layer(layer_gd.get(), 0, "Data: " + selected_filename);
 	    viewer->set_window_origin(layer_gd->range().TLC());
 	}
+
+
+
 	refresh();
 	status_bar->pop();
     }

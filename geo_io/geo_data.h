@@ -214,11 +214,50 @@ struct g_track : std::vector<g_trackpoint>{
 };
 
 // map
-struct g_map : std::vector<g_refpoint>{
+struct g_map : 
+  std::vector<g_refpoint>,     
+  public boost::multiplicative<g_map,double>,
+  public boost::additive<g_map, double>
+{
     std::string comm;
     std::string file;
     Proj map_proj;
     std::vector<g_point>    border;
+
+    g_map & operator/= (double k){
+      std::vector<g_refpoint>::iterator i;
+      for (i=begin();i!=end();i++){
+          i->xr /= k;
+          i->yr /= k;
+      }
+      return *this;
+    }
+    g_map & operator*= (double k){
+      std::vector<g_refpoint>::iterator i;
+      for (i=begin();i!=end();i++){
+        i->xr *= k;
+        i->yr *= k;
+      }
+      return *this;
+    }
+    g_map & operator-= (double k){
+      std::vector<g_refpoint>::iterator i;
+      for (i=begin();i!=end();i++){
+          i->xr -= k;
+          i->yr -= k;
+      }
+      return *this;
+    }
+    g_map & operator+= (double k){
+      std::vector<g_refpoint>::iterator i;
+      for (i=begin();i!=end();i++){
+        i->xr += k;
+        i->yr += k;
+      }
+      return *this;
+    }
+
+
 
     Rect<double> range() const{
       double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
@@ -250,6 +289,8 @@ struct geo_data {
     // границам, поскольку здесь не очень хочется требовать наличия границ
     // и лазать в графический файлы карт за этими границами
     Rect<double> ret(0,0,0,0);
+    if (maps.size()>0) ret=maps[0].range();
+    else return ret;
     for (std::vector<g_map>::const_iterator i = maps.begin();
       i!=maps.end();i++) ret = rect_bounding_box(ret, i->range());
     return ret;
@@ -257,6 +298,10 @@ struct geo_data {
 
   Rect<double> range_geodata() const{
     Rect<double> ret(0,0,0,0);
+    if (wpts.size()>0) ret=wpts[0].range();
+    else if (trks.size()>0) ret=trks[0].range();
+    else return ret;
+
     for (std::vector<g_waypoint_list>::const_iterator i = wpts.begin(); 
       i!=wpts.end();i++) ret = rect_bounding_box(ret, i->range());
     for (std::vector<g_track>::const_iterator i = trks.begin(); 

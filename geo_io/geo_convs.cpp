@@ -300,39 +300,34 @@ border(sM.border){
     A7(6,3)+=lat*x; A7(6,4)+=lat*y; A7(6,5)+=lat;
   }
 
-/*for (int i=0;i<6; i++){
-  std::cerr << "A: "
-          << A7(0,i) << ", "
-          << A7(1,i) << ", "
-          << A7(2,i) << ", "
-          << A7(3,i) << ", "
-          << A7(4,i) << ", "
-          << A7(5,i) << ", "
-          << A7(6,i) << "\n";
-}*/
-
   if (mdiag (6, a) != 0) {
     cerr << "Bad reference points for map "
          << sM.file << " (" << sM.comm << ")\n";
+    for (int i=0;i<points.size();i++){
+      cerr << "x=" << points[i].x << " y=" << points[i].y << "\n";
+    }
     exit(0);
   }
+
+
   for (int i=0; i<6; i++){
     k_map2geo[i] = A7(6,i);
   }
 
-/*std::cerr << "k_map2geo: "
-          << k_map2geo[0] << ", "
-          << k_map2geo[1] << ", "
-          << k_map2geo[2] << ", "
-          << k_map2geo[3] << ", "
-          << k_map2geo[4] << ", "
-          << k_map2geo[5] << "\n";
-*/
 /*  k_map2geo[2]+=lon0;
   k_map2geo[5]+=lat0;*/
 
   // Make the inverse transformation
   double D = k_map2geo[0] * k_map2geo[4] - k_map2geo[1] * k_map2geo[3];
+
+  if (D==0) {
+    cerr << "Bad reference points for map "
+         << sM.file << " (" << sM.comm << ")\n";
+    for (int i=0;i<points.size();i++){
+      cerr << "x=" << points[i].x << " y=" << points[i].y << "\n";
+    }
+    exit(0);
+  }
 
   k_geo2map[0] = k_map2geo[4] / D;
   k_geo2map[1] = - k_map2geo[1] / D;
@@ -343,6 +338,11 @@ border(sM.border){
   k_geo2map[5] = (- k_map2geo[0] * k_map2geo[5] + k_map2geo[3] * k_map2geo[2]) / D;
 
   border_geo = line_frw(border);
+
+std::cerr << "map2pt" << k_map2geo[0] << " " << k_map2geo[1] << " " << k_map2geo[2] << "\n";
+std::cerr << "      " << k_map2geo[3] << " " << k_map2geo[4] << " " << k_map2geo[5] << "\n";
+std::cerr << "map2pt" << k_geo2map[0] << " " << k_geo2map[1] << " " << k_geo2map[2] << "\n";
+std::cerr << "      " << k_geo2map[3] << " " << k_geo2map[4] << " " << k_geo2map[5] << "\n";
 }
 
 void map2pt::frw(g_point & p){
@@ -371,9 +371,10 @@ void map2pt::bck(g_point & p){
              k_geo2map[3]*p.x + k_geo2map[4]*p.y + k_geo2map[5]);
   p.x=p1.x;
   p.y=p1.y;
+
   return;
 }
-
+/*
 vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
 
   vector<g_point> ret = l;
@@ -451,6 +452,84 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
   } while (i0!=ret.size()-2);
   return ret;
 }
+*/
+
+// новая версия...
+vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
+
+  vector<g_point> ret;
+  // добавим первую точку
+  if (l.size()==0) return ret;
+  g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
+  g_point P2, P2a;
+
+  for (int i=1; i<l.size(); i++){
+    P1 = l[i-1];
+    P2 = l[i];
+    do {
+      P1a = P1; frw(P1a);
+      P2a = P2; frw(P2a);
+      g_point C1 = (P1+P2)/2; // середина отрезка
+      g_point C2 = C1 + 0.5*g_point(P1.y-P2.y, -P1.x+P2.x)/pdist(P1,P2); // отступим на 0.5 в сторону от середины.
+      g_point C1a = C1; frw(C1a);
+      g_point C2a = C2; frw(C2a);
+      if (pdist(C1a, (P1a+P2a)/2) < pdist(C1a,C2a)){
+        ret.push_back(P2a);
+        P1 = P2;
+        P2 = l[i];
+//std::cerr << "map2pt::line_frw add " << P2a << "\n";
+      }
+      else {
+        P2 = C1;
+//std::cerr << "map2pt::line_frw div\n";
+      }
+//std::cerr << "map2pt::line_frw " << P1 << " " << P2 << "\n";
+    } while (P1!=P2);
+  }
+//std::cerr << "map2pt::line_frw ok\n";
+  return ret;
+}
+
+
+vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
+
+  vector<g_point> ret;
+  // добавим первую точку
+  if (l.size()==0) return ret;
+  g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
+  g_point P2, P2a;
+
+  for (int i=1; i<l.size(); i++){
+    P1 = l[i-1];
+    P2 = l[i];
+    do {
+      P1a = P1; bck(P1a);
+      P2a = P2; bck(P2a);
+      g_point C1 = (P1+P2)/2; // середина отрезка
+      g_point C1a = C1; bck(C1a);
+
+      if (pdist(C1a, (P1a+P2a)/2) < 0.5){
+        ret.push_back(P2a);
+        P1 = P2;
+        P2 = l[i];
+//std::cerr << "map2pt::line_bck add " << P2a << "\n";
+      }
+//      else if (pdist(P1a,P2a)< 0.5){
+//        ret.push_back(P2a);
+//        P1 = P2;
+//        P2 = l[i];
+//std::cerr << "map2pt::line_bck warning: close points " << P1a << " " << P2a << "\n";
+//      }
+      else {
+        P2 = C1;
+//std::cerr << "map2pt::line_bck div\n";
+      }
+    } while (P1!=P2);
+  }
+//std::cerr << "map2pt::line_bck ok\n";
+  return ret;
+}
+
 
 /*******************************************************************/
 // преобразование из карты в карту
@@ -493,6 +572,7 @@ map2map::map2map(const g_map & sM, const g_map & dM) :
 void map2map::frw(g_point & p) {c1.frw(p); c2.bck(p);}
 void map2map::bck(g_point & p) {c2.frw(p); c1.bck(p);}
 
+/*
 vector<g_point> map2map::line_frw(const vector<g_point> & l){
   vector<g_point> ret = l;
   for (vector<g_point>::iterator it = ret.begin(); it != ret.end(); it++) frw(*it);
@@ -555,6 +635,72 @@ vector<g_point> map2map::line_bck(const vector<g_point> & l){
       } else i0=i;
     }
   } while (i0!=ret.size()-2);
+  return ret;
+}
+*/
+
+vector<g_point> map2map::line_frw(const vector<g_point> & l) {
+
+  vector<g_point> ret;
+  // добавим первую точку
+  if (l.size()==0) return ret;
+  g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
+  g_point P2, P2a;
+
+  for (int i=1; i<l.size(); i++){
+    P1 = l[i-1];
+    P2 = l[i];
+    do {
+      P1a = P1; frw(P1a);
+      P2a = P2; frw(P2a);
+      g_point C1 = (P1+P2)/2; // середина отрезка
+      g_point C1a = C1; frw(C1a);
+      if (pdist(C1a, (P1a+P2a)/2) < 0.5){
+        ret.push_back(P2a);
+        P1 = P2;
+        P2 = l[i];
+//std::cerr << "map2map::line_frw add " << P2a << "\n";
+      }
+      else {
+        P2 = C1;
+//std::cerr << "map2map::line_frw div\n";
+      }
+    } while (P1!=P2);
+  }
+//std::cerr << "map2pt::line_frw ok\n";
+  return ret;
+}
+
+
+vector<g_point> map2map::line_bck(const vector<g_point> & l) {
+
+  vector<g_point> ret;
+  // добавим первую точку
+  if (l.size()==0) return ret;
+  g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
+  g_point P2, P2a;
+
+  for (int i=1; i<l.size(); i++){
+    P1 = l[i-1];
+    P2 = l[i];
+    do {
+      P1a = P1; bck(P1a);
+      P2a = P2; bck(P2a);
+      g_point C1 = (P1+P2)/2; // середина отрезка
+      g_point C1a = C1; bck(C1a);
+      if (pdist(C1a, (P1a+P2a)/2) < 0.5){
+        ret.push_back(P2a);
+        P1 = P2;
+        P2 = l[i];
+//std::cerr << "map2map::line_bck add " << P2a << "\n";
+      }
+      else {
+        P2 = C1;
+//std::cerr << "map2map::line_bck div\n";
+      }
+    } while (P1!=P2);
+  }
+//std::cerr << "map2pt::line_bck ok\n";
   return ret;
 }
 
@@ -696,6 +842,7 @@ Rect<int> map2pt::bb_bck(const Rect<double> & R){
   }
   minx = floor(minx); miny = floor(miny);
   maxx = ceil(maxx);  maxy = ceil(maxy);
+std::cerr << "map2pt::bb_bck " << R << " -> " << Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny)) <<"\n";
   return Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny));
 }
 
@@ -791,6 +938,7 @@ g_map mymap(const geo_data & world){ // естественная привязка геоданных
     // тип проекции -- по первой карте, или lonlat, если карт нет
     // осевой меридиан -- 6n+3, наиболее близкий к середине диапазона треков и точек,
     // а если их нет - к середине диапазона карт
+
     g_map ret;
     if (world.maps.size()>0) ret.map_proj=world.maps[0].map_proj;
     Rect<double> rd=world.range_geodata();
@@ -806,7 +954,8 @@ g_map mymap(const geo_data & world){ // естественная привязка геоданных
     // или 1/3600 градуса на точку, если карт нет
     double mpp=1e99;
     for (int i=0;i<world.maps.size();i++){ if (mpp>map_mpp(world.maps[i])) mpp=map_mpp(world.maps[i]);}
-    if ((mpp>1e90)||(mpp<1e-90)) mpp=1/3600;
+    if ((mpp>1e90)||(mpp<1e-90)) mpp=1/3600.0;
+
 
     // точки привязки
     pt2pt cnv(Datum("WGS84"), ret.map_proj, O, Datum("WGS84"), Proj("lonlat"), O);

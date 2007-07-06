@@ -74,7 +74,7 @@ public:
 	gdImageAlphaBlending (gd_image, 0);
 	gdImageFilledRectangle(gd_image, 0, 0, gd_image->sx, gd_image->sy, 0x7f123456);
 	gdImageAlphaBlending (gd_image, 1);
-	std::cout << "Check: " << gdImageGetTrueColorPixel(gd_image, 5, 5) << std::endl;
+//	std::cout << "Check: " << gdImageGetTrueColorPixel(gd_image, 5, 5) << std::endl;
     }
     
     void StampAndClear() {
@@ -85,7 +85,7 @@ public:
 		image->set_a(x, y, color);
 	    }
 	}
-	std::cout << "Stamping " << image << std::endl;
+//	std::cout << "Stamping " << image << std::endl;
 	Clear();
     }
 
@@ -98,7 +98,7 @@ public:
 	ImageDrawContext *ctx = new ImageDrawContext ();
 	ctx->image = image_;
 	ctx->gd_image = gdImageCreateTrueColor (image_->w, image_->h);
-	std::cerr << "fontconfig: " << gdFTUseFontConfig(1) << std::endl;
+//	std::cerr << "fontconfig: " << gdFTUseFontConfig(1) << std::endl;
 	ctx->Clear();
 	return ctx;
     }

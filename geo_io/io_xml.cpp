@@ -87,7 +87,7 @@ namespace xml {
 			>> str_p("</map>")[push_back_a(world.maps, pt_list)];
 
 		parse_info<iterator_t> info = parse(first, last,
-		   *(*space_p >> (wpt_object || trk_object || map_object)) >> *space_p);
+		   *(*space_p >> (wpt_object | trk_object | map_object)) >> *space_p);
 
 		return info.full;
 	}
