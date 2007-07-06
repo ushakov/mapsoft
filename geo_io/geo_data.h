@@ -217,7 +217,7 @@ struct g_track : std::vector<g_trackpoint>{
 struct g_map : 
   std::vector<g_refpoint>,     
   public boost::multiplicative<g_map,double>,
-  public boost::additive<g_map, double>
+  public boost::additive<g_map, g_point>
 {
     std::string comm;
     std::string file;
@@ -240,19 +240,19 @@ struct g_map :
       }
       return *this;
     }
-    g_map & operator-= (double k){
+    g_map & operator-= (g_point k){
       std::vector<g_refpoint>::iterator i;
       for (i=begin();i!=end();i++){
-          i->xr -= k;
-          i->yr -= k;
+          i->xr -= k.x;
+          i->yr -= k.y;
       }
       return *this;
     }
-    g_map & operator+= (double k){
+    g_map & operator+= (g_point k){
       std::vector<g_refpoint>::iterator i;
       for (i=begin();i!=end();i++){
-        i->xr += k;
-        i->yr += k;
+        i->xr += k.x;
+        i->yr += k.y;
       }
       return *this;
     }

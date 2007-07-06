@@ -17,6 +17,11 @@ public:
     virtual void set_ref(const g_map & map) = 0;
     virtual void set_ref() = 0;
 
+    virtual LayerGeo & operator/= (double k){ set_ref(get_ref()/k); return *this; }
+    virtual LayerGeo & operator*= (double k){ set_ref(get_ref()*k); return *this; }
+    virtual LayerGeo & operator-= (g_point k){ set_ref(get_ref()-k); return *this; }
+    virtual LayerGeo & operator+= (g_point k){ set_ref(get_ref()+k); return *this; }
+
     LayerGeo() {}
     LayerGeo (LayerGeo const & other) { }
     virtual void swap (LayerGeo & other) { }

@@ -252,7 +252,7 @@ public:
 	case 43:                                                                           
 	case 65451: // +                                                                   
 	{        
-            int nom = state.workplane->get_scale_nom();
+/*            int nom = state.workplane->get_scale_nom();
             int denom = state.workplane->get_scale_denom();
             if (denom/nom > 1) state.workplane->set_scale_denom(denom/2);
             else state.workplane->set_scale_nom(nom*2);
@@ -268,12 +268,20 @@ public:
 	    std::cerr << " scale: " 
 		      << state.workplane->get_scale_nom() << ":" 
 		      << state.workplane->get_scale_denom() <<  std::endl;
+*/
+	    Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
+            Point<int> origin = wcenter*2 - viewer->get_window_size()/2;
+            viewer->set_window_origin(origin);
+	    (*state.workplane)*=2;
+
+//            viewer->refresh();
+
 	    return true;                                                                     
 	}                                                                                  
 	case 45:                                                                           
 	case 65453: // -                                                                   
 	{                                                                                  
-            int nom = state.workplane->get_scale_nom();
+/*            int nom = state.workplane->get_scale_nom();
             int denom = state.workplane->get_scale_denom();
             if (denom/nom >= 1) state.workplane->set_scale_denom(denom*2);
             else state.workplane->set_scale_nom(nom/2);
@@ -289,6 +297,12 @@ public:
 	    std::cerr << " scale: " 
 		      << state.workplane->get_scale_nom() << ":" 
 		      << state.workplane->get_scale_denom() <<  std::endl;
+*/
+	    Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
+            Point<int> origin = wcenter/2 - viewer->get_window_size()/2;
+            viewer->set_window_origin(origin);
+	    (*state.workplane)/=2;
+
 	    return true;                                                                     
 	}                                                                                  
 	case 'r':                                                                           

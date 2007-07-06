@@ -167,6 +167,41 @@ public:
 	scale_nom = _scale_nom;
 	scale_denom = _scale_denom;
     }
+
+    Workplane & operator/= (double k){ 
+	tile_cache.clear();
+	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+	     itl != layers.end(); ++itl) {
+            (*itl->second)/=k;
+	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
+	}
+    }
+    Workplane & operator*= (double k){ 
+	tile_cache.clear();
+	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+	     itl != layers.end(); ++itl) {
+            (*itl->second)*=k;
+	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
+	}
+    }
+
+    Workplane & operator-= (g_point k){ 
+	tile_cache.clear();
+	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+	     itl != layers.end(); ++itl) {
+            (*itl->second)-=k;
+	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
+	}
+    }
+    Workplane & operator+= (g_point k){ 
+	tile_cache.clear();
+	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+	     itl != layers.end(); ++itl) {
+            (*itl->second)+=k;
+	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
+	}
+    }
+ 
 /*
     void scale_inc(){
         if     (scale_denom/scale_nom > 1) set_scale_denom(scale_denom/2);
