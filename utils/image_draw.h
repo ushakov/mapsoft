@@ -98,6 +98,7 @@ public:
 	ImageDrawContext *ctx = new ImageDrawContext ();
 	ctx->image = image_;
 	ctx->gd_image = gdImageCreateTrueColor (image_->w, image_->h);
+        gdFTUseFontConfig(1);
 //	std::cerr << "fontconfig: " << gdFTUseFontConfig(1) << std::endl;
 	ctx->Clear();
 	return ctx;

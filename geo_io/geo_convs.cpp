@@ -339,10 +339,6 @@ border(sM.border){
 
   border_geo = line_frw(border);
 
-std::cerr << "map2pt" << k_map2geo[0] << " " << k_map2geo[1] << " " << k_map2geo[2] << "\n";
-std::cerr << "      " << k_map2geo[3] << " " << k_map2geo[4] << " " << k_map2geo[5] << "\n";
-std::cerr << "map2pt" << k_geo2map[0] << " " << k_geo2map[1] << " " << k_geo2map[2] << "\n";
-std::cerr << "      " << k_geo2map[3] << " " << k_geo2map[4] << " " << k_geo2map[5] << "\n";
 }
 
 void map2pt::frw(g_point & p){
