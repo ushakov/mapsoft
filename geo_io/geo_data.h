@@ -48,19 +48,21 @@ struct g_waypoint : g_point {
 	y=0.0; 
 	z=1e24; 
 	prox_dist=0.0;
-	t=0;
+	t = Time(0);
 	symb=wpt_symb_enum.def; 
 	displ=0; 
-	color      = 0xFF000000; 
-	bgcolor    = 0xFFFFFFFF; 
+	color      = Color(0xFF000000); 
+	bgcolor    = Color(0xFFFFFFFF); 
 	map_displ  = wpt_map_displ_enum.def;
 	pt_dir     = wpt_pt_dir_enum.def; 
 	font_size  = 6;
 	font_style = 0; 
-	size=17;
+	size       = 17;
+	name       = "";
+	comm       = "";
     }
     
-    Options to_options (){
+    Options to_options () const{
 	Options opt;
 	opt.put("lon", x);
 	opt.put("lat", y);
@@ -110,8 +112,7 @@ struct g_trackpoint : g_point {
     double depth;
     bool start;
     Time t;
-    g_trackpoint()
-    {
+    g_trackpoint(){
 	set_default_values();
     }
 
@@ -125,7 +126,7 @@ struct g_trackpoint : g_point {
 	t     = 0;
     }
     
-    Options to_options (){
+    Options to_options () const{
 	Options opt;
 	opt.put("lon", x);
 	opt.put("lat", y);
@@ -133,13 +134,11 @@ struct g_trackpoint : g_point {
 	opt.put("depth", depth);
 	opt.put("start", start);
 	opt.put("t", t);
-
 	return opt;
     }
 
     void parse_from_options (Options const & opt){
 	set_default_values();
-	
 	opt.get("lon", x);
 	opt.get("lat", y);
 	opt.get("height", z);
@@ -152,11 +151,33 @@ struct g_trackpoint : g_point {
 
 // reference point
 struct g_refpoint : g_point {
-	double xr, yr; // raster points
-	g_refpoint(double _x = 0, double _y = 0, double _xr = 0, double _yr = 0){
-		x=_x; y=_y;
-		xr=_xr; yr=_yr;
-	}
+    double xr, yr; // raster points
+    g_refpoint(double _x, double _y, double _xr, double _yr){
+	x=_x; y=_y;
+    	xr=_xr; yr=_yr;
+    }
+    g_refpoint(){
+	set_default_values();
+    }
+    void set_default_values(){
+	x=0; y=0; xr=0; yr=0;
+    }	
+    Options to_options () const{
+	Options opt;
+	opt.put("lon", x);
+	opt.put("lat", y);
+	opt.put("xr", xr);
+	opt.put("yr", yr);
+	return opt;
+    }
+    void parse_from_options (Options const & opt){
+	set_default_values();
+	opt.get("lon", x);
+	opt.get("lat", y);
+	opt.get("xr", xr);
+	opt.get("yr", yr);
+    }
+
 };
 
 /*********************************/
@@ -167,6 +188,9 @@ struct g_refpoint : g_point {
 struct g_waypoint_list : std::vector<g_waypoint>{
     std::string symbset;
     g_waypoint_list(){
+	set_default_values();
+    }
+    void set_default_values(){
 	symbset = "garmin";
     }
     Rect<double> range() const{
@@ -181,6 +205,17 @@ struct g_waypoint_list : std::vector<g_waypoint>{
       if ((minx>maxx)||(miny>maxy)) return Rect<double>(0,0,0,0);
       return Rect<double>(minx,miny, maxx-minx, maxy-miny);
     }
+    Options to_options () const {
+	Options opt;
+	opt.put("symbset", symbset);
+	return opt;
+    }
+
+    void parse_from_options (Options const & opt){
+	set_default_values();
+	opt.get("symbset", symbset);
+    }
+
 };
 
 // track
@@ -194,14 +229,43 @@ struct g_track : std::vector<g_trackpoint>{
     Color cfill; // track fill color (RGB)
     std::string comm; // track description
     g_track(){
+	set_default_values();
+    }
+    void set_default_values(){
 	width = 2;
 	displ = 1;
-	color = 0xFF0000FF;
+	color = Color(0xFF0000FF);
 	skip  = 1;
 	type  = trk_type_enum.def;
 	fill  = trk_fill_enum.def;
-	cfill = 0xFF000000;
+	cfill = Color(0xFF000000);
+	comm  = "";
     }
+
+    Options to_options () const {
+	Options opt;
+	opt.put("width", width);
+	opt.put("displ", displ);
+	opt.put("color", color);
+	opt.put("skip",  skip);
+	opt.put("type",  type);
+	opt.put("fill",  fill);
+	opt.put("cfill", cfill);
+	opt.put("comm",  comm);
+	return opt;
+    }
+    void parse_from_options (Options const & opt){
+	set_default_values();
+	opt.get("width", width);
+	opt.get("displ", displ);
+	opt.get("color", color);
+	opt.get("skip",  skip);
+	opt.get("type",  type);
+	opt.get("fill",  fill);
+	opt.get("cfill", cfill);
+	opt.get("comm",  comm);
+    }
+
     Rect<double> range() const{
       double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
       std::vector<g_trackpoint>::const_iterator i;

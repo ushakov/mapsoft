@@ -40,7 +40,7 @@ public:
 		Options opt = current_wpt->to_options();
 
 	        current_connection = gend->signal_result().connect(sigc::mem_fun(this, &EditWaypoint::on_result));
-		gend->activate("Edit Waypoint", opt);
+		gend->activate(get_name(), opt);
 		break;
 	    }
 	}

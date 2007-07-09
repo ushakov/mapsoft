@@ -46,7 +46,7 @@ public:
 	Options opt = wpt.to_options();
 
 	current_connection = gend->signal_result().connect(sigc::mem_fun(this, &AddWaypoint::on_result));
-	gend->activate("Add Waypoint", opt);
+	gend->activate(get_name(), opt);
     }
 
 private:

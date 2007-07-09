@@ -24,9 +24,6 @@ private:
     g_map mymap;
     Rect<int> myrange;
 
-    static const int wpt_radius = 9;
-    static const int tpt_radius = 2;
- 
 public:
 
     LayerGeoData (geo_data * _world) : 
@@ -122,16 +119,16 @@ public:
 
     geo_data * get_world() { return world; }
 
-    std::pair<int, int> find_waypoint (Point<int> p) {
-	Rect<int> target_rect (p,p);
-	target_rect = rect_pump(target_rect, wpt_radius);
+    std::pair<int, int> find_waypoint (Point<int> pt, int radius = 3) {
+	Rect<int> target_rect (pt,pt);
+	target_rect = rect_pump(target_rect, radius);
 	for (int wptl = 0; wptl < world->wpts.size(); ++wptl) {
 	    for (int wpt = 0; wpt < world->wpts[wptl].size(); ++wpt) {
-		g_point wp(world->wpts[wptl][wpt].x,world->wpts[wptl][wpt].y);
-		cnv.bck(wp);
-		std::cout << "wpt: (" << wptl << "," << wpt << ")[" << world->wpts[wptl][wpt].name << "] @ " << wp << std::endl;
+		g_point p(world->wpts[wptl][wpt].x,world->wpts[wptl][wpt].y);
+		cnv.bck(p);
+//		std::cout << "wpt: (" << wptl << "," << wpt << ")[" << world->wpts[wptl][wpt].name << "] @ " << wp << std::endl;
 
-		if (point_in_rect(Point<int>(int(wp.x),int(wp.y)), target_rect)){
+		if (point_in_rect(Point<int>(p), target_rect)){
 		    return std::make_pair(wptl, wpt);
 		}
 	    }
@@ -139,17 +136,54 @@ public:
 	return std::make_pair(-1,-1);
     }
     
-    std::pair<int, int> find_trackpoint (Point<int> p) {
-	Rect<int> target_rect (p,p);
-	target_rect = rect_pump(target_rect, tpt_radius);
+    std::pair<int, int> find_trackpoint (Point<int> pt, int radius = 3) {
+	Rect<int> target_rect (pt,pt);
+	target_rect = rect_pump(target_rect, radius);
 	for (int track = 0; track < world->trks.size(); ++track) {
 	    for (int tpt = 0; tpt < world->trks[track].size(); ++tpt) {
-		g_point wp(world->trks[track][tpt].x,world->trks[track][tpt].y);
-		cnv.bck(wp);
+		g_point p(world->trks[track][tpt].x,world->trks[track][tpt].y);
+		cnv.bck(p);
 
-		if (point_in_rect(Point<int>(int(wp.x),int(wp.y)), target_rect)){
+		if (point_in_rect(Point<int>(p), target_rect)){
 		    return std::make_pair(track, tpt);
 		}
+	    }
+	}
+	return std::make_pair(-1,-1);
+    }
+
+    // поиск трека. Находится сегмент, в которые тыкают, возвращается 
+    // первая точка сегмента (0..size-2).
+    // если тыкают в первую точку - возвращается -2, если в последнюю -- -3.
+    std::pair<int, int> find_track (Point<int> pt, int radius = 3) {
+	Rect<int> target_rect (pt,pt);
+	target_rect = rect_pump(target_rect, radius);
+
+	for (int track = 0; track < world->trks.size(); ++track) {
+	    int ts = world->trks[track].size();
+   	    if (ts>0){
+		g_point p(world->trks[track][0].x,world->trks[track][0].y);
+		cnv.bck(p);
+		if (point_in_rect(Point<int>(p), target_rect)){
+		    return std::make_pair(track, -2);
+		}
+		p = g_point(world->trks[track][ts-1].x,world->trks[track][ts-1].y);
+		cnv.bck(p);
+		if (point_in_rect(Point<int>(p), target_rect)){
+		    return std::make_pair(track, -3);
+		}
+            }
+	    for (int tpt = 0; tpt < ts-1; ++tpt) {
+		g_point p1(world->trks[track][tpt].x,world->trks[track][tpt].y);
+		g_point p2(world->trks[track][tpt+1].x,world->trks[track][tpt+1].y);
+		cnv.bck(p1); cnv.bck(p2);
+
+		g_point v1 = pscal(g_point(pt)-p1, p2-p1)/pdist(p2,p1);
+		if ((pdist(v1) < 0)||(pdist(v1)>pdist(p2-p1))) continue;
+                if (pdist(g_point(pt)-p1, v1) < radius){
+		    return std::make_pair(track, tpt);
+		}
+
 	    }
 	}
 	return std::make_pair(-1,-1);
