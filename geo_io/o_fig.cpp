@@ -13,7 +13,6 @@
 #include "geo_names.h"
 #include "geo_convs.h"
 #include "../utils/mapsoft_options.h"
-#include "../utils/mapsoft_time.h"
 #include "../layers/layer_geomap.h"
 
 #include <math.h>
@@ -34,15 +33,18 @@ namespace fig{
 using namespace std;
 bool write(std::ostream & out, const geo_data & world, const Options & opt){
 
-  int tsize = opt.get_uint("tsize", 2000);
-  int msize = opt.get_uint("msize", 100000);
-  int dpi   = opt.get_uint("dpi",   150);
-  double scale = opt.get_udouble("scale", 1e-5);
-  Datum datum(opt.get_string("datum", "pulkovo"));
-  Proj  proj(opt.get_string("proj", "tmerc"));
-  string cache = opt.get_string("cache", "./");
+  int tsize = 2000;    opt.get("tsize", tsize);
+  int msize = 100000;  opt.get("msize", msize);
+  int dpi   = 150;     opt.get("dpi",   dpi);
+  double scale = 1e-5; opt.get("scale", scale);
+  string cache = "./"; opt.get("cache", cache);
+  double marg = 100;   opt.get("marg", marg);
 
-  double marg(opt.get_udouble("marg", 100));
+  string datum_str("pulkovo"); opt.get("datum", datum_str);
+  string proj_str("tmerc");    opt.get("proj", proj_str);
+
+  Datum datum(datum_str);
+  Proj  proj(proj_str);
 
   // найдем габариты данных в нужных нам координатах, 
   // посмотрим, не надо ли обрезать данные,
@@ -217,7 +219,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
 
       out << "# WPT " << w->name << "\n";
       if (w->z   < 1e20)                      out << "# alt:        " << fixed << setprecision(1) << w->z << "\n";
-      if (w->t != def_pt.t)                   out << "# time:       " << time2str(w->t) << "\n";
+      if (w->t != def_pt.t)                   out << "# time:       " << w->t << "\n";
       if (w->comm != def_pt.comm)             out << "# comm:       " << w->comm << "\n";
       if (w->prox_dist != def_pt.prox_dist)   out << "# prox_dist:  " << fixed << setprecision(1) << w->prox_dist << "\n";
       if (w->symb != def_pt.symb)             out << "# symb:       " << wpt_symb_enum.int2str(w->symb) << "\n";

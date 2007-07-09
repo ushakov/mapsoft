@@ -38,9 +38,9 @@ namespace gps {
 			new_w_pt.z     = wpt[i]->alt;
 			new_w_pt.symb  = wpt[i]->smbl;
 			new_w_pt.displ = wpt[i]->dspl;
-			new_w_pt.color = wpt[i]->colour;
-			if (wpt[i]->Time_populated)
-				new_w_pt.t   = wpt[i]->Time;
+			new_w_pt.color = Color(0xFF, wpt[i]->colour);
+			if (wpt[i]->Time_populated) new_w_pt.t 
+                                       = Time(wpt[i]->Time);
 			new_w.push_back(new_w_pt);
 		}
 		world.wpts.push_back(new_w);
@@ -67,7 +67,7 @@ namespace gps {
 					new_t = g_track();
 				}
 				new_t.displ = trk[i]->dspl;
-				new_t.color = trk[i]->colour;
+				new_t.color = Color(0xFF, trk[i]->colour);
 				new_t.comm  = trk[i]->trk_ident;
 			} else {
 				g_trackpoint new_t_pt;
@@ -77,7 +77,7 @@ namespace gps {
 				new_t_pt.x     = trk[i]->lon;
 				new_t_pt.z     = trk[i]->alt;
 				new_t_pt.depth = trk[i]->dpth;
-				new_t_pt.t     = trk[i]->Time;
+				new_t_pt.t     = Time(trk[i]->Time);
 				new_t.push_back(new_t_pt);
 			}
 		}
@@ -102,9 +102,9 @@ namespace gps {
 			wpts[n]->lon  = i->x;
 			wpts[n]->smbl = i->symb;
 			wpts[n]->dspl = i->displ;
-			wpts[n]->colour = i->color;
+			wpts[n]->colour = i->color.RGB().value;
 			wpts[n]->alt  = i->z;
-			wpts[n]->Time = i->t;
+			wpts[n]->Time = i->t.value;
 			n++;
 		}
 		GPS_Command_Send_Waypoint(port, wpts, n, NULL);
@@ -119,7 +119,7 @@ namespace gps {
 		trks[0] = GPS_Track_New();
 		trks[0]->ishdr = 1;
 		trks[0]->dspl   = tr.displ;
-		trks[0]->colour = tr.color;
+		trks[0]->colour = tr.color.RGB().value;
 		memccpy(trks[0]->trk_ident, tr.comm.c_str(), '\0', 255);
 
 		int n = 1;
@@ -129,7 +129,7 @@ namespace gps {
 			trks[n]->ishdr = 0;
 			trks[n]->lat  = i->y;
 			trks[n]->lon  = i->x;
-			trks[n]->Time = i->t;
+			trks[n]->Time = i->t.value;
 			trks[n]->alt  = i->z;
 			trks[n]->dpth = i->depth;
 			trks[n]->tnew = i->start ? 1:0;
@@ -157,7 +157,7 @@ namespace gps {
 				return false;
 			}
 		}
-		if (opt.get_bool("gps_switch_off")) GPS_Command_Off(port);
+		if (opt.find("gps_switch_off")!=opt.end()) GPS_Command_Off(port);
 		return true;
 	}
 
@@ -165,7 +165,7 @@ namespace gps {
 	bool get_all (const char* port, geo_data & world, const Options &opt){
 	    get_waypoints(port, world, opt);
 	    get_track(port, world, opt);
- 	    if (opt.get_bool("gps_switch_off")) GPS_Command_Off(port);
+	    if (opt.find("gps_switch_off")!=opt.end()) GPS_Command_Off(port);
 	    return true;
 	}
 }

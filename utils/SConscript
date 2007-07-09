@@ -1,9 +1,8 @@
 Import ('env')
 le = env.Copy()
 sources = Split ("""
-		mapsoft_time.cpp
 		mapsoft_options.cpp
-		rect.cpp
+		rect.cpp m_time.cpp m_color.cpp
 		""")
 
 le.Library('utils', sources)

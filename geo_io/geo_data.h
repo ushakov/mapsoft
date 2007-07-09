@@ -13,6 +13,9 @@
 
 #include <utils/generic_accessor.h>
 
+#include <utils/m_time.h>
+#include <utils/m_color.h>
+
 /*********************************/
 // points:
 
@@ -23,13 +26,13 @@ typedef Point<double> g_point;
 struct g_waypoint : g_point {
     double z;
     double prox_dist;
-    time_t t;
+    Time t;
     std::string name;
     std::string comm;
     int symb;
     int displ;
-    unsigned int color;
-    unsigned int bgcolor;
+    Color color;
+    Color bgcolor;
     int map_displ; 
     int pt_dir;
     int font_size;
@@ -106,7 +109,7 @@ struct g_trackpoint : g_point {
     double z;
     double depth;
     bool start;
-    time_t t;
+    Time t;
     g_trackpoint()
     {
 	set_default_values();
@@ -184,11 +187,11 @@ struct g_waypoint_list : std::vector<g_waypoint>{
 struct g_track : std::vector<g_trackpoint>{
     int width; // width of track plot line on screen (from OE)
     int displ; // 
-    unsigned int color; // track color (RGB)
+    Color color; // track color (RGB)
     int skip;  // 
     int type;
     int fill;  // track fill style
-    unsigned int cfill; // track fill color (RGB)
+    Color cfill; // track fill color (RGB)
     std::string comm; // track description
     g_track(){
 	width = 1;
@@ -313,6 +316,7 @@ struct geo_data {
     return rect_bounding_box(range_map(), range_geodata());
   }
 };
+
 
 #endif
 

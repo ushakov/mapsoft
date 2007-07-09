@@ -13,7 +13,6 @@
 #include "geo_names.h"
 #include "geo_convs.h"
 #include "../utils/mapsoft_options.h"
-#include "../utils/mapsoft_time.h"
 #include "../layers/layer_geomap.h"
 
 #include <math.h>
@@ -34,15 +33,18 @@ namespace html{
 using namespace std;
 bool write(std::ostream & out, const geo_data & world, const Options & opt){
 
-  int tsize = opt.get_uint("tsize", 2000);
-  int msize = opt.get_uint("msize", 100000);
-  int dpi   = opt.get_uint("dpi",   150);
-  double scale = opt.get_udouble("scale", 1e-5);
-  Datum datum(opt.get_string("datum", "pulkovo"));
-  Proj  proj(opt.get_string("proj", "tmerc"));
-  string cache = opt.get_string("cache", "./");
+  int tsize = 2000;    opt.get("tsize", tsize);
+  int msize = 100000;  opt.get("msize", msize);
+  int dpi   = 150;     opt.get("dpi",   dpi);
+  double scale = 1e-5; opt.get("scale", scale);
+  string cache = "./"; opt.get("cache", cache);
+  double marg = 100;   opt.get("marg", marg);
 
-  double marg(opt.get_udouble("marg", 100));
+  string datum_str("pulkovo"); opt.get("datum", datum_str);
+  string proj_str("tmerc");    opt.get("proj", proj_str);
+
+  Datum datum(datum_str);
+  Proj  proj(proj_str);
 
   // найдем габариты данных в нужных нам координатах, 
   // посмотрим, не надо ли обрезать данные,
@@ -212,7 +214,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
       for (int i = 0; i< pts.size(); i++){
         if (i!=0) out << ",\n";
         out << int((pts[i].x-minx)*k) << "," << int((maxy-pts[i].y)*k) 
-        << ",\"h: " << pts[i].z << "; t: " << time2str(pts[i].t) << "\"";
+        << ",\"h: " << pts[i].z << "; t: " << pts[i].t << "\"";
      }
       out << "),0);</script>\n";    
     } while (t!=tl->end());

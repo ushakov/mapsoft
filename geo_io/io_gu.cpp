@@ -6,10 +6,10 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <ctime>
 
 #include <vector>
 #include <string>
-#include <time.h>
 
 #include "geo_data.h"
 #include "io.h"
@@ -167,18 +167,12 @@ namespace gu {
 		f << "[tracks, " << num << " records]\n";
 		for (vector<g_trackpoint>::const_iterator p = tr.begin(); p != tr.end(); p++)
 		{
-			struct tm * ts = localtime(&p->t);
+			struct tm * ts = localtime(&p->t.value);
 			if (ts == NULL) { time_t t = time(NULL);  ts = localtime(&t);}
 			f << right << fixed << setprecision(6) << setfill(' ')
 			  << setw(10)<< p->y << " "
 			  << setw(11)<< p->x << " "
-			  << setfill('0')
-			  << setw(4) << ts->tm_year+1900 << "-"
-			  << setw(2) << ts->tm_mon+1 << "-"
-			  << setw(2) << ts->tm_mday  << " "
-			  << setw(2) << ts->tm_hour  << ":"
-			  << setw(2) << ts->tm_min   << ":"
-			  << setw(2) << ts->tm_sec
+			  << setfill('0') << &p->t
 			  << ((p->start)? " start":"") << "\n";
 		}
 		f << "[end transfer, " << num << "/" << num << " records]\n";

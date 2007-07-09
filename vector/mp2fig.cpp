@@ -111,18 +111,18 @@ main(int argc, char **argv){
     cerr << F.size() << " objects\n";
     NC.colors=colors;
 
-    if (opts.get_bool("white_fill_conv")){
+    if (opts.find("white_fill_conv") != opts.end()){
       for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++)
         if ((i->fill_color!=7)&&(i->area_fill==40)){i->fill_color=7; i->area_fill=20;}
     }
 
-    if (opts.get_bool("spl2poly")){
+    if (opts.find("spl2poly") != opts.end()){
       for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
         if (i->type==3){i->type=2; i->sub_type=1+2*(i->sub_type%2);}
       }
     }
     bool cfc=false; 
-    if (opts.get_bool("comm_from_comp")) cfc=true;
+    if (opts.find("comm_from_comp") != opts.end()) cfc=true;
 
     double txt_dist = 2; // максимальное расстояние (см), на котором ловится текст.
     opts.get_udouble("txt_dist");
@@ -297,8 +297,11 @@ main(int argc, char **argv){
     fig::fig_world F;
     F.colors=colors;
 
-    Datum  datum(opts.get_string("datum", "pulkovo"));
-    Proj   proj(opts.get_string("proj", "tmerc"));
+    string datum_str("pulkovo"); opt.get("datum", datum_str);
+    string proj_str("tmerc");    opt.get("proj", proj_str);
+
+    Datum datum(datum_str);
+    Proj  proj(proj_str);
     convs::pt2pt cnv(datum,proj,opts, Datum("wgs84"), Proj("lonlat"), Options());
 
     // определим реальный диапазон координат в нужной нам проекции:
@@ -320,13 +323,14 @@ main(int argc, char **argv){
     }
     lon0 = floor( lon0/ln/6.0 ) * 6 + 3;
 
+    double scale = 1e-5;
     // если диапазон явно указан в конфигурационном файле
-    minx=opts.get_double("minx", minx);
-    maxx=opts.get_double("maxx", maxx);
-    miny=opts.get_double("miny", miny);
-    maxy=opts.get_double("maxy", maxy);
-    lon0  = opts.get_double("lon0", lon0);
-    double scale = opts.get_udouble("scale", 1e-5);
+    opts.get("minx", minx);
+    opts.get("maxx", maxx);
+    opts.get("miny", miny);
+    opts.get("maxy", maxy);
+    opts.get("lon0", lon0);
+    opts.get("scale", scale);
 
     // построим привязку fig-файла
     // добавим в fig-файл точки привязки

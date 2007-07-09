@@ -31,6 +31,7 @@ public:
 	std::cout << "EDITWPT: " << p << std::endl;
 	for (int i = 0; i < state->data_layers.size(); ++i) {
 	    current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+            if (!state->workplane->get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_waypoint(p);
 	    if (d.first >= 0) {

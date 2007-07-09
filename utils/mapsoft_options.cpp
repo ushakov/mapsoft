@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include "mapsoft_time.h"
 #include "mapsoft_options.h"
 
 
@@ -13,7 +12,7 @@ std::string  Options::get_string  (const std::string & key, const std::string & 
   else return i->second;
 }
 
-double Options::get_double  (const std::string & key, const double dflt) const {
+/*double Options::get_double  (const std::string & key, const double dflt) const {
   using namespace boost::spirit;
   const_iterator i = find(key);
   if (i == end() ) return dflt;
@@ -64,8 +63,8 @@ unsigned int Options::get_uint (const std::string & key, const unsigned int dflt
             << key << " = " << i->second
             << " Using default value: " << dflt << "\n"; 
   return dflt;
-}
-
+}*/
+/*
 char Options::get_char (const std::string & key, const char dflt) const {
   const_iterator i = find(key);
   if (i == end() ) return dflt;
@@ -75,10 +74,10 @@ char Options::get_char (const std::string & key, const char dflt) const {
             << key << " = " << i->second
             << " Using default value: " << dflt << "\n"; 
   return dflt;
-}
+}*/
 
 // hex values "#FFFFFF"
-unsigned int Options::get_hex (const std::string & key, const unsigned int dflt) const {
+/*unsigned int Options::get_hex (const std::string & key, const unsigned int dflt) const {
   using namespace boost::spirit;
   const_iterator i = find(key);
   if (i == end() ) return dflt;
@@ -93,15 +92,15 @@ unsigned int Options::get_hex (const std::string & key, const unsigned int dflt)
 
 bool Options::get_bool(const std::string & key) const {
   return (find(key) != end());
-}
+}*/
 
 // default value - current time. See ./mapsoft_time.h
-time_t Options::get_time(const std::string & key, const time_t dflt) const {
+/*time_t Options::get_time(const std::string & key, const time_t dflt) const {
   using namespace boost::spirit;
   const_iterator i = find(key);
   if (i == end() ) return dflt;
   return str2time(i->second);
-}
+}*/
 
 std::vector<Point<double> > Options::get_poly 
     (const std::string & key, const std::vector<Point<double> > & dflt) const {

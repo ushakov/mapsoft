@@ -31,6 +31,7 @@ public:
 
         for (int i = 0; i < state->data_layers.size(); ++i) {
             current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+	    if (!state->workplane->get_layer_active(current_layer)) continue;
             assert (current_layer);
             point_addr = current_layer->find_waypoint(p);
             if (point_addr.first >= 0) {

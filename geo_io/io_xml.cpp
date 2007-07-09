@@ -19,7 +19,6 @@
 #include "io_xml.h"
 #include "geo_names.h"
 #include "../utils/mapsoft_options.h"
-#include "../utils/mapsoft_time.h"
 
 
 namespace xml {
@@ -98,14 +97,14 @@ namespace xml {
 		g_trackpoint def_pt;
 		g_track def_t;
 		f << "<track points=" << tr.size();
-		if (tr.width != def_t.width) f << " width=" << tr.width;
-		if (tr.displ != def_t.displ) f << " displ=" << tr.displ;
-                if (tr.color != def_t.color) f << " color=\"#" << setbase(16) << setw(6) << setfill('0') << tr.color << "\"" << setbase(10);
-		if (tr.skip  != def_t.skip)  f << " skip="  << tr.skip;
-		if (tr.type  != def_t.type)  f << " type="  << trk_type_enum.int2str(tr.type);
-		if (tr.fill  != def_t.fill)  f << " fill="  << trk_fill_enum.int2str(tr.fill);
-		if (tr.cfill != def_t.cfill) f << " cfill=\"#" << setbase(16) << setw(6) << setfill('0') << tr.cfill << "\"" << setbase(10);
-		if (tr.comm  != def_t.comm)  f << " comm=\""  << tr.comm << "\"";
+		if (tr.width != def_t.width) f << " width="    << tr.width;
+		if (tr.displ != def_t.displ) f << " displ="    << tr.displ;
+                if (tr.color != def_t.color) f << " color=\""  << tr.color << "\"";
+		if (tr.skip  != def_t.skip)  f << " skip="     << tr.skip;
+		if (tr.type  != def_t.type)  f << " type="     << trk_type_enum.int2str(tr.type);
+		if (tr.fill  != def_t.fill)  f << " fill="     << trk_fill_enum.int2str(tr.fill);
+		if (tr.cfill != def_t.cfill) f << " cfill=\""  << tr.cfill << "\"";
+		if (tr.comm  != def_t.comm)  f << " comm=\""   << tr.comm << "\"";
 		f << ">\n";
                 vector<g_trackpoint>::const_iterator p, b=tr.begin(), e=tr.end();
 		for (p = b; p != e; p++){
@@ -114,7 +113,7 @@ namespace xml {
                         if (p->x != def_pt.x) f << " lon=" << fixed << setprecision(6) << p->x;
                         if (p->z   < 1e20)    f << " alt=" << fixed << setprecision(1) << p->z;
                         if (p->depth < 1e20)  f << " depth=" << fixed << setprecision(1) << p->depth;
-			if (p->t != def_pt.t) f << " time=\"" << time2str(p->t) << "\"";
+			if (p->t != def_pt.t) f << " time=\"" << p->t << "\"";
                         if (p->start)         f << " start";
 			f << "/>\n";
 		}
@@ -133,14 +132,14 @@ namespace xml {
                         if (p->y != def_pt.y)       f << " lat=" << fixed << setprecision(6) << p->y;
                         if (p->x != def_pt.x)       f << " lon=" << fixed << setprecision(6) << p->x;
                         if (p->z   < 1e20)          f << " alt=" << fixed << setprecision(1) << p->z;
-			if (p->t != def_pt.t)       f << " time=\"" << time2str(p->t) << "\"";
+			if (p->t != def_pt.t)       f << " time=\"" << p->t << "\"";
                         if (p->name != def_pt.name) f << " name=\"" << p->name << "\"";
                         if (p->comm != def_pt.comm)             f << " comm=\"" << p->comm << "\"";
                         if (p->prox_dist != def_pt.prox_dist)   f << " prox_dist="  << fixed << setprecision(1) << p->prox_dist;
                         if (p->symb != def_pt.symb)             f << " symb="       << wpt_symb_enum.int2str(p->symb);
                         if (p->displ != def_pt.displ)           f << " displ="      << p->displ;
-                        if (p->color != def_pt.color)           f << " color=\"#"   << setbase(16) << setw(6) << setfill('0') << p->color << "\"" << setbase(10);
-                        if (p->bgcolor != def_pt.bgcolor)       f << " bgcolor=\"#" << setbase(16) << setw(6) << setfill('0') << p->bgcolor << "\"" << setbase(10);
+                        if (p->color != def_pt.color)           f << " color=\""    << p->color << "\"";
+                        if (p->bgcolor != def_pt.bgcolor)       f << " bgcolor=\""  << p->bgcolor << "\"";
                         if (p->map_displ != def_pt.map_displ)   f << " map_displ="  << wpt_map_displ_enum.int2str(p->map_displ);
                         if (p->pt_dir != def_pt.pt_dir)         f << " pt_dir="     << wpt_pt_dir_enum.int2str(p->pt_dir);
                         if (p->font_size != def_pt.font_size)   f << " font_size="  << p->font_size;

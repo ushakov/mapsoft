@@ -28,10 +28,15 @@ public:
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(Point<int> p) {
 	std::cout << "ADDWPT: " << p << std::endl;
-	if (state->data_layers.size()==0) return;
 
-	current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[0].get());
-	assert (current_layer);
+	for (int i=0; i<state->data_layers.size(); i++){
+          current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+          if (!state->workplane->get_layer_active(current_layer)) continue;
+	  break;
+        }
+        if (current_layer==0) return; // надо бы добавлять новый, но для этого нужен доступ
+                                      // к layer_list и т.п.
+
         g_map map = current_layer->get_ref();
 
         convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"),Options());

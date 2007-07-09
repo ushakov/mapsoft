@@ -10,7 +10,6 @@
 #include "geo_convs.h"
 #include "io_xml.h"
 #include "../utils/mapsoft_options.h"
-#include "../utils/mapsoft_time.h"
 #include "../loaders/image_r.h"
 
 namespace fig {
@@ -83,7 +82,7 @@ using namespace boost::spirit;
 
     double lon0 = m.range().x + m.range().w/2;
     lon0 = floor( lon0/6.0 ) * 6 + 3;
-    lon0 = O.get_double("lon0", lon0);
+    O.get("lon0", lon0);
 
     convs::pt2pt cnv(datum,proj,O, Datum("wgs84"), Proj("lonlat"), Options());
 
@@ -264,7 +263,7 @@ using namespace boost::spirit;
 	fig::fig_object f = fig::make_object("2 1 0 2 0 7 6 0 -1 1 1 1 -1 0 0 *"); 
                                              ADDCOMM("# WPT " << w->name);
         if (w->z   < 1e20)                   ADDCOMM("# alt:        " << fixed << setprecision(1) << w->z);
-        if (w->t != def.t)                   ADDCOMM("# time:       " << time2str(w->t));
+        if (w->t != def.t)                   ADDCOMM("# time:       " << w->t);
         if (w->comm != def.comm)             ADDCOMM("# comm:       " << w->comm);
         if (w->prox_dist != def.prox_dist)   ADDCOMM("# prox_dist:  " << fixed << setprecision(1) << w->prox_dist);
         if (w->symb != def.symb)             ADDCOMM("# symb:       " << wpt_symb_enum.int2str(w->symb));

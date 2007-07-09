@@ -48,9 +48,9 @@ typedef rule <scanner_t>        rule_t;
                 oe_waypoint(){
 			// all default values -- in geo_data.h
 			g_waypoint dflt;
-                        lat=dflt.y; lon=dflt.x; time=dflt.t;
+                        lat=dflt.y; lon=dflt.x; time=dflt.t.value;
                         symb=dflt.symb; displ=dflt.displ; map_displ=dflt.map_displ;
-			color=dflt.color; bgcolor=dflt.bgcolor; pt_dir=dflt.pt_dir;
+			color=dflt.color.RGB().value; bgcolor=dflt.bgcolor.RGB().value; pt_dir=dflt.pt_dir;
 			prox_dist=dflt.prox_dist; alt=dflt.z;
 			font_size=dflt.font_size; font_style=dflt.font_style; size=dflt.size;
                 }
@@ -60,13 +60,13 @@ typedef rule <scanner_t>        rule_t;
                         ret.comm  = comm;
                         ret.y     = lat;
                         ret.x     = lon;
-			if (time==0) ret.t = 0;
-			else ret.t = (time_t)(time* 3600.0 * 24.0 - 2209161600.0);
+			if (time==0) ret.t = Time(0);
+			else ret.t = Time(int(time* 3600.0 * 24.0 - 2209161600.0));
                         ret.symb  = symb;
                         ret.displ = displ;
                         ret.map_displ  = map_displ;
-                        ret.color      = color;
-                        ret.bgcolor   = bgcolor;
+                        ret.color      = Color(0xFF, color);
+                        ret.bgcolor    = Color(0xFF, bgcolor);
                         ret.pt_dir     = pt_dir;
                         ret.size       = size;
                         ret.font_size  = font_size;
@@ -84,15 +84,15 @@ typedef rule <scanner_t>        rule_t;
                 oe_trackpoint(){
 			g_trackpoint dflt;
                         lat=dflt.y; lon=dflt.x; start=dflt.start;
-                        time=dflt.t; alt=-dflt.z;
+                        time=dflt.t.value; alt=-dflt.z;
                 }
                 operator g_trackpoint () const{
                         g_trackpoint ret;
                         ret.y     = lat;
                         ret.x     = lon;
                         ret.start = start;
-			if (time==0) ret.t = 0;
-			else ret.t     = (time_t)(time* 3600.0 * 24.0 - 2209161600.0);
+			if (time==0) ret.t = Time(0);
+			else ret.t     = Time(int(time* 3600.0 * 24.0 - 2209161600.0));
 			if (alt == -777) ret.z=1e24;
 			else ret.z   = alt*0.3048;
                         return ret;
@@ -127,17 +127,17 @@ typedef rule <scanner_t>        rule_t;
                 vector<oe_trackpoint> points;
                 oe_track (){
 		  g_track dflt;
-                  width=dflt.width; color=dflt.color; skip=dflt.skip;
+                  width=dflt.width; color=dflt.color.RGB().value; skip=dflt.skip;
                   type=dflt.type;
                   fill=dflt.fill;
-                  cfill=dflt.cfill;
+                  cfill=dflt.cfill.RGB().value;
                 }
                 operator g_track () const{
                         g_track ret;
                         Datum D(datum);
                         convs::ll2wgs cnv(D);
                         ret.width = width;
-                        ret.color = color;
+                        ret.color = Color(0xFF, color);
                         ret.skip  = skip;
                         ret.type  = type;
                         ret.fill  = fill;
@@ -413,7 +413,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		  << "Reserved 3\r\n" 
 		  << "0,"
 		  << trk.width << ',' 
-		  << trk.color << ',' 
+		  << trk.color.RGB().value << ',' 
 		  << trk.comm  << ',' 
 		  << trk.skip  << ',' 
 		  << trk.type  << ',' 
@@ -422,8 +422,6 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		  << num << "\r\n";
 		for (vector<g_trackpoint>::const_iterator p = trk.begin(); 
 			 p!= trk.end(); p++){
-			struct tm * ts = localtime(&p->t);
-			if (ts == NULL) { time_t t = time(NULL);  ts = localtime(&t);}
 			f << right << fixed << setprecision(6) << setfill(' ')
 			  << setw(10)<< p->y << ','
 			  << setw(11)<< p->x << ','
@@ -431,14 +429,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << setprecision(1) << setw(6) 
 			  << (p->z >= 1e20 ? -777: p->z/0.3048) << ','
 			  << setprecision(7) << setw(13)
-			  << (p->t+2209161600.0)/3600.0/24.0 << ','
-			  << setfill('0') 
-			  << setw(4) << ts->tm_year+1900 << "-"
-			  << setw(2) << ts->tm_mon+1 << "-"
-			  << setw(2) << ts->tm_mday << ", "
-			  << setw(2) << ts->tm_hour << ":"
-			  << setw(2) << ts->tm_min  << ":"
-			  << setw(2) << ts->tm_sec  << "\r\n";
+			  << (p->t.value+2209161600.0)/3600.0/24.0 << ','
+			  << setfill('0') << p->t << "\r\n";
 		}
 		return f.good();
 	}
@@ -455,8 +447,6 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   
 		for (vector<g_waypoint>::const_iterator p = wpt.begin(); 
 			 p!= wpt.end(); p++){
-			struct tm * ts = localtime(&p->t);
-			if (ts == NULL) { time_t t = time(NULL);  ts = localtime(&t);}
 
 			f << right << setw(4) << (++n) << ','
 			  << left  << setw(6) << setfill(' ') << p->name << ','
@@ -464,11 +454,11 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << setw(10) << p->y << ','
 			  << setw(11) << p->x << ','
 			  << setprecision(7) << setw(13)
-			  << (p->t+2209161600.0)/3600.0/24.0 << ','
+			  << (p->t.value+2209161600.0)/3600.0/24.0 << ','
 			  << p->symb       << ",1,"
 			  << p->map_displ  << ','
-			  << p->color      << ','
-			  << p->bgcolor    << ','
+			  << p->color.RGB().value   << ','
+			  << p->bgcolor.RGB().value << ','
 			  << p->comm       << ','
 			  << p->pt_dir     << ','
 			  << p->displ      << ','

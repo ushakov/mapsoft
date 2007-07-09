@@ -85,11 +85,11 @@ namespace kml {
 	operator g_waypoint() const {
 	    g_waypoint ret;
 
-	    ret.name = get_string("name");
-	    ret.comm = get_string("comm");
-	    ret.x    = get_double("lon",  ret.x);
-	    ret.y    = get_double("lat",  ret.y);
-	    ret.z    = get_double("alt",  ret.z);
+	    get("name", ret.name);
+	    get("comm", ret.comm);
+	    get("lon",  ret.x);
+	    get("lat",  ret.y);
+	    get("alt",  ret.z);
 	    const std::string used[] = {
                 "name", "comm", "lon", "lat", "alt", ""};
 	    warn_unused(used);
@@ -99,9 +99,9 @@ namespace kml {
 	operator g_trackpoint() const {
 	    g_trackpoint ret;
 
-	    ret.x    = get_double("lon",  ret.x);
-	    ret.y    = get_double("lat",  ret.y);
-	    ret.z    = get_double("alt",  ret.z);
+	    get("lon",  ret.x);
+	    get("lat",  ret.y);
+	    get("alt",  ret.z);
 	    const std::string used[] = {
                 "lon", "lat", "alt", ""};
 	    warn_unused(used);

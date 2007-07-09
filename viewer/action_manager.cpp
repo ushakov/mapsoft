@@ -5,6 +5,7 @@
 #include <viewer/am_add_wpt.h>
 #include <viewer/am_move_wpt.h>
 #include <viewer/am_delete_wpt.h>
+#include <viewer/am_edit_tpt.h>
 
 ActionManager::ActionManager (MapviewState * state_)
     : state(state_)
@@ -15,5 +16,6 @@ ActionManager::ActionManager (MapviewState * state_)
     modes.push_back(boost::shared_ptr<ActionMode>(new AddWaypoint(state)));
     modes.push_back(boost::shared_ptr<ActionMode>(new MoveWaypoint(state)));
     modes.push_back(boost::shared_ptr<ActionMode>(new DeleteWaypoint(state)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrackpoint(state)));
 }
 

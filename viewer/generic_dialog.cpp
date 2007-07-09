@@ -28,15 +28,9 @@ void GenericDialog::activate (std::string title, Options const & _options) {
 	entry->set_editable(true);
 	entry->set_text(i->second);
 	entries[i->first]=entry;
-//	entry->signal_activate().connect (sigc::bind (sigc::mem_fun (this, &GenericDialog::cell_changed), i->first, entry));
     }
     dialog->show_all();
 }
-
-//void GenericDialog::cell_changed (std::string name, Gtk::Entry * entry) {
-//    std::cerr << "Cell changed: " << name << " = " << entry->get_text() << "\n";
-//    options[name]  = entry->get_text();
-//}
 
 void GenericDialog::on_response (int response) {
     for (std::map<std::string, Gtk::Entry *>::const_iterator i=entries.begin(); i!=entries.end();i++){

@@ -24,23 +24,24 @@ pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
 	case 0: // lonlat
 	  return;
 	case 1: // tmerc
-	  lon0 = Po.get_double("lon0",1e99);
-          lat0 = Po.get_double("lat0",0);
-          N0   = Po.get_double("N0",0);
-          E0   = Po.get_double("E0",500000);
-          k    = Po.get_double("k",1);
+	  
+	  lon0 = 1e99;   Po.get("lon0", lon0);
+          lat0 = 0;      Po.get("lat0", lat0);
+          N0   = 0;      Po.get("N0", N0);
+          E0   = 500000; Po.get("E0", E0);
+          k    = 1;      Po.get("k",  k);
 	  return;
 	case 2: // UTM
           // Я не знаю, какие здесь нужны параметры... Разберемся потом.
-          zone = Po.get_int("zone",0);
-          zc   = Po.get_char("zc",'C');
+          zone = 0;   Po.get("zone",zone);
+          zc   = 'C'; Po.get("zc",  zc);
 	  return;
         case 3: // merc
           // Я не знаю, какие здесь нужны параметры... Разберемся потом.
-          lon0 = Po.get_double("lon0",0);
-          lat0 = Po.get_double("lat0",0);
-          N0   = Po.get_double("N0",0);
-          E0   = Po.get_double("E0",0);
+          lon0 = 0; Po.get("lon0",lon0);
+          lat0 = 0; Po.get("lat0",lat0);
+          N0   = 0; Po.get("N0",N0);
+          E0   = 0; Po.get("E0",E0);
 	  return;
         case 4: // google
 	  return;
