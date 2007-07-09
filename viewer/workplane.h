@@ -17,46 +17,29 @@ public:
 
     sigc::signal<void> signal_refresh;
 
-    Workplane (int _tile_size=256, int _scale_nom=1, int _scale_denom=1):
-	tile_size(_tile_size),
-	scale_nom(_scale_nom),
-	scale_denom(_scale_denom){ }
+    Workplane (int _tile_size=256): tile_size(_tile_size) { }
 
     Image<int>  get_image(Point<int> tile_key){
+	Image<int> image(tile_size,tile_size, 0xff000000); // черная картинка-основа
+	Rect<int> src_rect = image.range() + tile_key*tile_size;
 
-	Image<int>  image(tile_size,tile_size, 0xff000000);
-	Rect<int> dst_rect = image.range();
-	Rect<int> src_rect = (tile_key*tile_size + dst_rect)*scale_denom;
-        src_rect = tiles_on_rect(src_rect, scale_nom);
-
-//std::cerr << "WORKPLANE DRAW: " << src_rect << "\n";
-	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin();
-	     itl != layers.rend();  ++itl){
-//	    std::cout << "WP: layer " << itl->second << std::endl;
+//	std::cerr << "WP: drawing " << src_rect << "\n";
+	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin(); itl != layers.rend();  ++itl){
 	    Layer * layer = itl->second;
 	    if (layers_active[layer]) {
-//		std::cout << "WP: layer selected " << itl->second << std::endl;
 		if (!tile_cache[layer]->contains(tile_key)) {
-		    Image<int>  tile(tile_size,tile_size, 0);
-		    itl->second->draw (src_rect, tile, dst_rect);
-		    tile_cache[layer]->add(tile_key, tile);
+		    tile_cache[layer]->add(tile_key, itl->second->get_image(src_rect));
 		}
-		Image<int> layer_tile = tile_cache[layer]->get(tile_key);
-		image.render(0,0,layer_tile);
+		image.render(0,0,tile_cache[layer]->get(tile_key));
 	    }
 	}
-
 	return image;
     }
 
     std::multimap<int, Layer *>::iterator find_layer (Layer * layer) {
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
-	     itl != layers.end(); ++itl)
-	{
-	    if (itl->second == layer)
-	    {
-		return itl;
-	    }
+	     itl != layers.end(); ++itl) {
+	    if (itl->second == layer) { return itl; }
 	}
 	return layers.end();
     }
@@ -114,11 +97,9 @@ public:
 	return itl->first;
     }
 
-    void mark_level_dirty (Layer * layer)
-    {
+    void mark_level_dirty (Layer * layer){
 	layer->refresh();
-	tile_cache.erase(layer);
-	tile_cache[layer].reset(new LayerCache(CacheCapacity));
+	tile_cache[layer]->clear();
         signal_refresh.emit();
     }
 
@@ -139,81 +120,37 @@ public:
 	}
 	return layers_active[layer];
     }
-    
-    int get_scale_nom () {
-	return scale_nom;
-    }
-    int get_scale_denom () {
-	return scale_denom;
-    }
-
-    int set_scale_nom (int s) {
-	if (s != scale_nom) {
-	    clear_tile_cache();
-	}
-	scale_nom=s;
-    }
-    int set_scale_denom (int s) {
-	if (s != scale_denom) {
-	    clear_tile_cache();
-	}
-	scale_denom=s;
-    }
-
-    void set_scale (int _scale_nom, int _scale_denom) {
-	if (_scale_denom != scale_denom || _scale_nom != scale_nom) {
-	    clear_tile_cache();
-	}
-	scale_nom = _scale_nom;
-	scale_denom = _scale_denom;
-    }
 
     Workplane & operator/= (double k){ 
-	tile_cache.clear();
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
             (*itl->second)/=k;
-	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
+	    tile_cache[itl->second]->clear();
 	}
     }
     Workplane & operator*= (double k){ 
-	tile_cache.clear();
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
             (*itl->second)*=k;
-	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
+	    tile_cache[itl->second]->clear();
 	}
     }
 
     Workplane & operator-= (g_point k){ 
-	tile_cache.clear();
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
             (*itl->second)-=k;
-	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
+	    tile_cache[itl->second]->clear();
 	}
     }
     Workplane & operator+= (g_point k){ 
-	tile_cache.clear();
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
             (*itl->second)+=k;
-	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
+	    tile_cache[itl->second]->clear();
 	}
     }
  
-/*
-    void scale_inc(){
-        if     (scale_denom/scale_nom > 1) set_scale_denom(scale_denom/2);
-        else set_scale_nom(scale_nom*2);
-    }
-
-    void scale_dec(){
-        if     (scale_denom/scale_nom >= 1) set_scale_denom(scale_denom*2);
-        else set_scale_nom(scale_nom/2);
-    }
-*/
-
 
     void set_tile_size(int s){
 	if (tile_size != s) {
@@ -227,7 +164,6 @@ public:
     }
 
     inline void clear_tile_cache() {
-	tile_cache.clear();
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
 	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
@@ -237,7 +173,6 @@ public:
 private:
     std::multimap <int, Layer *> layers;
     std::map <Layer *, bool> layers_active;
-    int scale_nom, scale_denom;
     int tile_size;
 
     typedef Cache<Point<int>,Image<int> > LayerCache;

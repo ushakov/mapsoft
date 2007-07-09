@@ -33,7 +33,11 @@ public:
       world(_world), mymap(convs::mymap(*world)), 
       cnv(convs::mymap(*world), Datum("wgs84"), Proj("lonlat"), Options()),
       myrange(cnv.bb_bck(world->range_geodata()))
-    { }
+    { 
+#ifdef DEBUG_LAYER_GEODATA
+      std::cerr  << "LayerGeoData: set_ref range: " << myrange << "\n";
+#endif
+    }
 
     void refresh(){myrange=cnv.bb_bck(world->range_geodata());}
 
@@ -42,85 +46,74 @@ public:
     virtual void set_ref(const g_map & map){
       mymap=map; cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"), Options());
       myrange=cnv.bb_bck(world->range_geodata());
+#ifdef DEBUG_LAYER_GEODATA
+      std::cerr  << "LayerGeoData: set_ref range: " << myrange << "\n";
+#endif
+
     }
     virtual void set_ref(){set_ref(convs::mymap(*world));}
 
-    virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
-      clip_rects_for_image_loader(range(), src_rect, dst_img.range(), dst_rect);
-      if (src_rect.empty() || dst_rect.empty()) return;
 
-
+    virtual void draw(const Point<int> origin, Image<int> & image){
+      Rect<int> src_rect = image.range() + origin;
 #ifdef DEBUG_LAYER_GEODATA
-      std::cerr  << "LayerGeoData: draw " << src_rect << " -> "
-               << dst_rect << " at " << dst_img <<  "\n";
+      std::cerr  << "LayerGeoData: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
-      boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&dst_img));
-
-      int c_r = 0xFF0000FF;
-      int c_g = 0xFF00FF00;
-      int c_b = 0xFFFF0000;
-      int c_y = 0xFF00FFFF;
-      int c_m = 0xFFFF00FF;
-      int c_c = 0xFFFFFF00;
-      int c_bl = 0xFF000000;
+      if (rect_intersect(myrange, src_rect).empty()) return;
+      boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&image));
 
       for (std::vector<g_track>::const_iterator it = world->trks.begin();
                                          it!= world->trks.end(); it++){
-	
-        int xo=0, yo=0;
 	bool start=true;
+	Point<int> pi, pio;
         for (std::vector<g_trackpoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
           g_point p(pt->x,pt->y); cnv.bck(p);
+	  pi = Point<int>(p)-origin;
 
-          int x = int(dst_rect.x+((p.x-src_rect.x)*dst_rect.w)/src_rect.w);
-          int y = int(dst_rect.y+((p.y-src_rect.y)*dst_rect.h)/src_rect.h);
+	  Rect<int> line_bb(pio, pi); 
 
-	  Rect<int> line_bb(Point<int>(xo, yo), Point<int>(x,y));
 	  line_bb = rect_pump(line_bb, 2);
-	  if (!rect_intersect(line_bb, dst_rect).empty()) {
+	  if (!rect_intersect(line_bb, image.range()).empty()) {
 	      if ((!pt->start)&&(!start)) {
-		  ctx->DrawLine(Point<int>(xo,yo), Point<int>(x, y), 3, c_b);
-		  ctx->DrawFilledRect(Rect<int>(x-2,y-2,4,4), c_m);
+		  ctx->DrawLine(pio, pi, 3, COLOR_BLUE);
+		  ctx->DrawFilledRect(Rect<int>(-2,-2,4,4) + pi, COLOR_MAGENTA);
 	      } else {
-		  ctx->DrawFilledRect(Rect<int>(x-2,y-2,4,4), c_m);
+		  ctx->DrawFilledRect(Rect<int>(-2,-2,4,4) + pi, COLOR_MAGENTA);
                   start=false;
 	      }
 	  }
-	  xo=x; yo=y;
+	  pio=pi;
         }
       }
 
-      Rect<int> dst_rect_pumped = rect_pump(dst_rect, 6);
+      Rect<int> rect_pumped = rect_pump(image.range(), 6);
 
       for (std::vector<g_waypoint_list>::const_iterator it = world->wpts.begin();
 	   it!= world->wpts.end(); it++){
+	Point<int> pi, pio;
         for (std::vector<g_waypoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
           g_point p(pt->x,pt->y); cnv.bck(p);
-
-          int x = int(dst_rect.x+((p.x-src_rect.x)*dst_rect.w)/src_rect.w);
-          int y = int(dst_rect.y+((p.y-src_rect.y)*dst_rect.h)/src_rect.h);
+	  pi = Point<int>(p)-origin;
 	
-          if (point_in_rect(Point<int>(x, y), dst_rect_pumped)){
-	      ctx->DrawFilledRect(Rect<int>(x-3,y-3,6,6), c_y);
-	      ctx->DrawRect(Rect<int>(x-3,y-3,6,6), 1, c_b);
+          if (point_in_rect(pi, rect_pumped)){
+	      ctx->DrawFilledRect(Rect<int>(-3,-3,6,6) + pi, COLOR_YELLOW);
+	      ctx->DrawRect(Rect<int>(-3,-3,6,6) + pi, 1, COLOR_BLUE);
 	  }
 	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name);
-	  Rect<int> padded = rect_pump (textbb, 2);
-	  Point<int> wpt(x,y);
+	  Rect<int> padded = rect_pump(textbb, 2);
 	  Point<int> shift = Point<int>(2,-10);
-	  Point<int> shifted = wpt + shift;
-	  if (point_in_rect(wpt, rect_pump (dst_rect, padded+shift))) {
-	      ctx->DrawLine(wpt, (padded + shifted).TLC(), 1, c_b);
-	      ctx->DrawFilledRect(padded + shifted, c_y);
-	      ctx->DrawRect(padded + shifted, 1, c_b);
-	      ctx->DrawText(shifted.x, shifted.y, c_b, pt->name);
+	  Point<int> shifted = pi + shift;
+	  if (point_in_rect(pi, rect_pump (image.range(), padded+shift))) {
+	      ctx->DrawLine(pi, (padded + shifted).TLC(), 1, COLOR_BLUE);
+	      ctx->DrawFilledRect(padded + shifted, COLOR_YELLOW);
+	      ctx->DrawRect(padded + shifted, 1, COLOR_BLUE);
+	      ctx->DrawText(shifted.x, shifted.y, COLOR_BLUE, pt->name);
 	  }
+          pio=pi;
         }
       }
-
-
       ctx->StampAndClear();
     }
 

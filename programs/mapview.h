@@ -348,8 +348,8 @@ public:
 	    if (d < 100) {
 		Point<int> p(int(event->x), int(event->y));
 		p += viewer->get_window_origin();
-		p *= state.workplane->get_scale_denom();
-		p /= state.workplane->get_scale_nom();
+//		p *= state.workplane->get_scale_denom();
+//		p /= state.workplane->get_scale_nom();
 #ifdef DEBUG_MAPVIEW
 		std::cerr << "click at: " << p.x << "," << p.y << " " << event->button << std::endl;
 #endif

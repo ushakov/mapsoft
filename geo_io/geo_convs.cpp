@@ -370,87 +370,7 @@ void map2pt::bck(g_point & p){
 
   return;
 }
-/*
-vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
 
-  vector<g_point> ret = l;
-  for (vector<g_point>::iterator it = ret.begin(); it != ret.end(); it++) frw(*it);
-
-  if (ret.size() < 2) return ret;
-
-  // добавление новых точек
-  unsigned i0=0;
-  g_point po(1e99,1e99);
-
-  do {
-    for (unsigned i = i0; i<ret.size()-1; i++){
-      g_point P1 =ret[i];
-      g_point P2 =ret[i+1];
-      g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-
-      bck(P1); bck(P2); bck(C1);
-      g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-
-      if  (( fabs(C1.x - C2.x) >0.5 )||
-           ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
-        frw(C2);
-        if ((*(ret.begin()+i)!=C2)&&(*(ret.begin()+i+1)!=C2))
-          ret.insert(ret.begin()+i+1, C2);
-        else{
-          std::cerr << "can't convert line!\n";
-          i0=i+1;
-        }
-        i0=i;
-        break;
-
-      } else i0=i;
-    }
-  } while (i0!=ret.size()-2);
-  return ret;
-}
-
-vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
-
-  vector<g_point> ret = l;
-  for (vector<g_point>::iterator it = ret.begin(); it != ret.end(); it++) bck(*it);
-
-  if (ret.size() < 2) return ret;
-
-//  g_point p1=ret[0];
-//  g_point p2=p1; p2.x+=0.5; p2.y+=0.5;
-//  frw(p1); frw(p2);
-  
-//  g_point dp(fabs(p2.x-p1.x), fabs(p2.y-p1.y));
-
-  // тут надо учитывать, что при перегонке точек туда-обратно 
-  // почему-то может накапливаться ошибка ~0.5pix!
-  unsigned i0=0;
-  do {
-    for (unsigned i = i0; i<ret.size()-1; i++){
-      g_point P1 =ret[i];
-      g_point P2 =ret[i+1];
-      frw(P1); frw(P2);
-      g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-      bck(P1); bck(P2); bck(C1);
-      g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-
-      if  (( fabs(C1.x - C2.x) >0.5 )||
-           ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
-        if (*(ret.begin()+i)!=C1)
-          ret.insert(ret.begin()+i+1, C1);
-        else{
-          std::cerr << "can't convert line!\n";
-          i0=i+1;
-        }
-        break;
-      } else i0=i;
-    }
-  } while (i0!=ret.size()-2);
-  return ret;
-}
-*/
-
-// новая версия...
 vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
 
   vector<g_point> ret;
@@ -473,16 +393,12 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
         ret.push_back(P2a);
         P1 = P2;
         P2 = l[i];
-//std::cerr << "map2pt::line_frw add " << P2a << "\n";
       }
       else {
         P2 = C1;
-//std::cerr << "map2pt::line_frw div\n";
       }
-//std::cerr << "map2pt::line_frw " << P1 << " " << P2 << "\n";
     } while (P1!=P2);
   }
-//std::cerr << "map2pt::line_frw ok\n";
   return ret;
 }
 
@@ -508,21 +424,12 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
         ret.push_back(P2a);
         P1 = P2;
         P2 = l[i];
-//std::cerr << "map2pt::line_bck add " << P2a << "\n";
       }
-//      else if (pdist(P1a,P2a)< 0.5){
-//        ret.push_back(P2a);
-//        P1 = P2;
-//        P2 = l[i];
-//std::cerr << "map2pt::line_bck warning: close points " << P1a << " " << P2a << "\n";
-//      }
       else {
         P2 = C1;
-//std::cerr << "map2pt::line_bck div\n";
       }
     } while (P1!=P2);
   }
-//std::cerr << "map2pt::line_bck ok\n";
   return ret;
 }
 
@@ -568,72 +475,6 @@ map2map::map2map(const g_map & sM, const g_map & dM) :
 void map2map::frw(g_point & p) {c1.frw(p); c2.bck(p);}
 void map2map::bck(g_point & p) {c2.frw(p); c1.bck(p);}
 
-/*
-vector<g_point> map2map::line_frw(const vector<g_point> & l){
-  vector<g_point> ret = l;
-  for (vector<g_point>::iterator it = ret.begin(); it != ret.end(); it++) frw(*it);
-
-  // добавление новых точек
-  unsigned i0=0;
-
-  do {
-    for (unsigned i = i0; i<ret.size()-1; i++){
-      g_point P1 =ret[i];
-      g_point P2 =ret[i+1];
-      g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-      bck(P1); bck(P2); bck(C1);
-
-      g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-
-      if  (( fabs(C1.x - C2.x) >0.5 )||
-           ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
-        frw(C2);
-        if ((*(ret.begin()+i)!=C2)&&(*(ret.begin()+i+1)!=C2))
-          ret.insert(ret.begin()+i+1, C2);
-        else{
-          std::cerr << "can't convert line!\n";
-          i0=i+1;
-        }
-        break;
-
-      } else i0=i;
-    }
-  } while (i0!=ret.size()-2);
-  return ret;
-}
-
-vector<g_point> map2map::line_bck(const vector<g_point> & l){
-  vector<g_point> ret = l;
-  for (vector<g_point>::iterator it = ret.begin(); it != ret.end(); it++) bck(*it);
-
-  // добавление новых точек
-  unsigned i0=0;
-
-  do {
-    for (unsigned i = i0; i<ret.size()-1; i++){
-      g_point P1 =ret[i];
-      g_point P2 =ret[i+1];
-      g_point C1 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-      frw(P1); frw(P2); frw(C1);
-      g_point C2 =g_point((P1.x+P2.x)/2, (P1.y+P2.y)/2);
-
-      if  (( fabs(C1.x - C2.x) >0.5 )||
-           ( fabs(C1.y - C2.y) >0.5 )){  // Why 0.5 pixels? I don't know...
-        bck(C2);
-        if ((*(ret.begin()+i)!=C2)&&(*(ret.begin()+i+1)!=C2))
-          ret.insert(ret.begin()+i+1, C2);
-        else{
-          std::cerr << "can't convert line!\n";
-          i0=i+1;
-        }
-
-        break;
-      } else i0=i;
-    }
-  } while (i0!=ret.size()-2);
-  return ret;
-}
-*/
 
 vector<g_point> map2map::line_frw(const vector<g_point> & l) {
 
@@ -655,15 +496,12 @@ vector<g_point> map2map::line_frw(const vector<g_point> & l) {
         ret.push_back(P2a);
         P1 = P2;
         P2 = l[i];
-//std::cerr << "map2map::line_frw add " << P2a << "\n";
       }
       else {
         P2 = C1;
-//std::cerr << "map2map::line_frw div\n";
       }
     } while (P1!=P2);
   }
-//std::cerr << "map2pt::line_frw ok\n";
   return ret;
 }
 
@@ -688,15 +526,12 @@ vector<g_point> map2map::line_bck(const vector<g_point> & l) {
         ret.push_back(P2a);
         P1 = P2;
         P2 = l[i];
-//std::cerr << "map2map::line_bck add " << P2a << "\n";
       }
       else {
         P2 = C1;
-//std::cerr << "map2map::line_bck div\n";
       }
     } while (P1!=P2);
   }
-//std::cerr << "map2pt::line_bck ok\n";
   return ret;
 }
 
@@ -838,7 +673,6 @@ Rect<int> map2pt::bb_bck(const Rect<double> & R){
   }
   minx = floor(minx); miny = floor(miny);
   maxx = ceil(maxx);  maxy = ceil(maxy);
-std::cerr << "map2pt::bb_bck " << R << " -> " << Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny)) <<"\n";
   return Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny));
 }
 
@@ -977,10 +811,8 @@ double map_mpp(const g_map &map){ // масштаб, метров или градусов (в зав.от прое
     g_point p1(map[i-1].x,map[i-1].y);
     g_point p2(map[i].x,  map[i].y);
     c.bck(p1); c.bck(p2);
-    l1+=sqrt( pow( p1.x  - p2.x,  2) +
-              pow( p1.y  - p2.y,  2));
-    l2+=sqrt( pow( map[i-1].xr - map[i].xr, 2) +
-              pow( map[i-1].yr - map[i].yr, 2));
+    l1+=pdist(p1,p2);
+    l2+=pdist(g_point(map[i].xr, map[i].yr), g_point(map[i-1].xr, map[i-1].yr));
   }
   if (l2==0) return 0;
   return l1/l2;

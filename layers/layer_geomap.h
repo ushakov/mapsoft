@@ -24,7 +24,7 @@ private:
   std::vector<convs::map2map> m2ms;  // преобразования из каждой карты в mymap
   std::vector<double> scales;        // во сколько раз мы сжимаем карты при загрузке
   std::vector<int>    iscales;       // во сколько раз мы сжимаем карты при загрузке
-  Rect<int> map_range;               // габариты карты
+  Rect<int> myrange;               // габариты карты
   Cache<int, Image<int> > image_cache;    // кэш изображений
   Options O; // для всех карт должны быть одинаковы!
   g_map mymap;
@@ -54,7 +54,8 @@ public:
       m2ms.clear();
       scales.clear();
       iscales.clear();
-      Point<int> brd_min(0xFFFFFF, 0xFFFFFF), brd_max(-0xFFFFFF,-0xFFFFFF);
+
+      bool start=true;
 
       for (int i=0; i< world->maps.size(); i++){
         convs::map2map c(world->maps[i], mymap);
@@ -62,69 +63,47 @@ public:
         
         g_point p1(0,0), p2(1000,0), p3(0,1000);
         c.frw(p1); c.frw(p2); c.frw(p3);
-        double sc_x = 1000/sqrt(pow(p2.x-p1.x,2)+pow(p2.y-p1.y,2));
-        double sc_y = 1000/sqrt(pow(p3.x-p1.x,2)+pow(p3.y-p1.y,2));
+        double sc_x = 1000/pdist(p1,p2);
+        double sc_y = 1000/pdist(p1,p3);
 
-        scales.push_back(sc_x<sc_y ? sc_x:sc_y);
-        iscales.push_back(1);
+        scales.push_back(sc_x<sc_y ? sc_x:sc_y); // каков масштаб карты в соотв.с проекцией
+        iscales.push_back(1);                    // в каком масштабе карта реально загружена
 
-        for (int j=0; j<c.border_dst.size(); j++){
-	  g_point p = c.border_dst[j];
-          if (brd_min.x > p.x) brd_min.x = int(p.x);
-          if (brd_min.y > p.y) brd_min.y = int(p.y);
-          if (brd_max.x < p.x) brd_max.x = int(p.x);
-          if (brd_max.y < p.y) brd_max.y = int(p.y);
-        }
+	if (start && (c.border_dst.size()!=0)){  myrange=Rect<int>(c.border_dst[0], c.border_dst[0]); start=false;};
+        for (int j=0; j<c.border_dst.size(); j++) {
+//	    std::cerr << myrange << " + " << Point<int>(c.border_dst[j]) << " = ";
+	    myrange = rect_pump(myrange, Point<int>(c.border_dst[j]));
+//	    std::cerr << myrange << "\n";
+	}
       }
-      if (brd_max.x<brd_min.x) {brd_max.x=0; brd_min.x=0;}
-      if (brd_max.y<brd_min.y) {brd_max.y=0; brd_min.y=0;}
-      map_range = Rect<int>(brd_min, brd_max);
-
-#ifdef DEBUG_LAYER_GEOMAP
-      std::cerr << "LayerMap: Setting map conversions. Range: " << map_range << "\n";
-#endif
+//#ifdef DEBUG_LAYER_GEOMAP
+      std::cerr << "LayerMap: Setting map conversions. Range: " << myrange << "\n";
+//#endif
     }
     
-    virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
+    virtual void draw(const Point<int> origin, Image<int> & image){
+      Rect<int> src_rect = image.range() + origin;
 
 #ifdef DEBUG_LAYER_GEOMAP
-        std::cerr  << "LayerMap: draw " << src_rect << " -> " 
-	           << dst_rect << " at " << dst_img << std::endl;
+        std::cerr  << "LayerMap: draw " << src_rect << " my: " << myrange << std::endl;
 #endif
-        clip_rects_for_image_loader(map_range, src_rect, dst_img.range(), dst_rect);
-        if (src_rect.empty() || dst_rect.empty()) return;
-
-#ifdef DEBUG_LAYER_GEOMAP
-	std::cerr  << "LayerMap: inside the map range" <<std::endl;
-#endif
-	double sc_x = src_rect.w/dst_rect.w;
-	double sc_y = src_rect.h/dst_rect.h;
-
+        if (rect_intersect(myrange, src_rect).empty()) return;
         if ((world == NULL)||(world->maps.size()==0)) return;
-
-        boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&dst_img));
+        boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&image));
 
 	for (int i=0; i<world->maps.size(); i++){
-
           std::string file = world->maps[i].file;
+          if (!m2ms[i].tst_frw.test_range(src_rect)) continue;
 
-          if (!m2ms[i].tst_frw.test_range(src_rect)){  
-#ifdef DEBUG_LAYER_GEOMAP
-            std::cerr  << "LayerMap: Skipping Image " << file << "\n";
-#endif
-	        
-	    continue;
-	  }
 #ifdef DEBUG_LAYER_GEOMAP
 	  std::cerr  << "LayerMap: Using Image " << file << "\n";
 #endif
 
-	  int scale = int((0.01+scales[i]) * (sc_x<sc_y? sc_x:sc_y));
+	  int scale = int(scales[i]);
 	  if (scale <=0) scale = 1;
 
           if (scale<=32){
-            if (!image_cache.contains(i) ||
-  	       (image_cache.contains(i) && iscales[i] > scale)) {
+            if (!image_cache.contains(i) || (iscales[i] > scale)) {
 #ifdef DEBUG_LAYER_GEOMAP
       std::cerr  << "LayerMap: Loading Image " << file
 		 << " at scale " << scale 
@@ -138,27 +117,24 @@ public:
 	      iscales[i] = scale;
             }
             Image<int> im = image_cache.get(i);
-            m2ms[i].image_frw(im, iscales[i], src_rect, dst_img, dst_rect);
+            m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
           }
 
           for (int j=0; j<m2ms[i].border_dst.size(); j++){
             Point<double> p1(m2ms[i].border_dst[j]);
-            Point<double> p2 = (j==m2ms[i].border_dst.size()-1) ? m2ms[i].border_dst[0] : m2ms[i].border_dst[j+1];
+            Point<double> p2((j==m2ms[i].border_dst.size()-1) ? m2ms[i].border_dst[0] : m2ms[i].border_dst[j+1]);
 
-            Point<int> p1i ( int(dst_rect.x+((p1.x-src_rect.x)*dst_rect.w)/src_rect.w),
-                             int(dst_rect.y+((p1.y-src_rect.y)*dst_rect.h)/src_rect.h));
-            Point<int> p2i ( int(dst_rect.x+((p2.x-src_rect.x)*dst_rect.w)/src_rect.w),
-                             int(dst_rect.y+((p2.y-src_rect.y)*dst_rect.h)/src_rect.h));
-            ctx->DrawLine(p1i,p2i, 2, 0xFF0000FF);
+            Point<int> p1i(p1); p1i-=src_rect.TLC();
+            Point<int> p2i(p2); p2i-=src_rect.TLC();
+            ctx->DrawLine(p1i,p2i, 2, COLOR_RED);
           }
-
        }
        ctx->StampAndClear();
     }
 
 
     virtual Rect<int> range (){
-	return map_range;
+	return myrange;
     }
 
     // полезная функция, чтобы смотреть, как выглядят границы исходных карт на новой карте

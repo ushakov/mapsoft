@@ -75,6 +75,16 @@ Rect<T> rect_pump (Rect<T> const & R, T val) {
 }
 
 template <typename T>
+Rect<T> rect_pump (Rect<T> & R, Point<T> p) {
+    Rect<T> ret = R;
+    if      (R.x>p.x)     {ret.x=p.x; ret.w+=R.x-p.x;}
+    else if (R.x+R.w<p.x) {           ret.w=p.x-R.x;}
+    if      (R.y>p.y)     {ret.y=p.y; ret.h+=R.y-p.y;}
+    else if (R.y+R.h<p.y) {           ret.h=p.y-R.y;}
+    return ret;
+}
+
+template <typename T>
 Rect<T> rect_pump (Rect<T> const & R, Rect<T> bounds) {
     return Rect<T> (R.x-bounds.BRC().x, R.y-bounds.BRC().y, R.w+bounds.w, R.h+bounds.h);
 }

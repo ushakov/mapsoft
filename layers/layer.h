@@ -20,7 +20,14 @@ class Layer:
   public boost::additive<g_map, g_point>
  {
 public:
-    virtual void draw (Rect<int> src, Image<int> & dst_img, Rect<int> dst) = 0;
+//    virtual void draw (Rect<int> src, Image<int> & dst_img, Rect<int> dst) = 0;
+    virtual void draw(const Point<int> origin, Image<int> & image) = 0;
+
+    virtual Image<int> get_image (Rect<int> src){
+	Image<int> ret(src.w, src.h, 0);
+	draw(src.TLC(), ret);
+	return ret;
+    }
 
     virtual Rect<int> range () = 0;
     virtual void refresh() = 0;

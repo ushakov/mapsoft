@@ -68,6 +68,14 @@ struct Point
 	return (x==p.x)&&(y==p.y);
   }
 
+  operator Point<double>() const{
+    return Point<double>(double(this->x), double(this->y));
+  }
+
+  operator Point<int>() const{
+    return Point<int>(int(this->x), int(this->y));
+  }
+
 };
 
 template <typename T>

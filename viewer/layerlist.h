@@ -33,7 +33,7 @@ public:
     }
 
     void add_layer (Layer * layer, int depth, Glib::ustring name) {
-	std::cout << "LL: add layer " << layer << " at depth " << depth << " named " << name << std::endl;
+//	std::cout << "LL: add layer " << layer << " at depth " << depth << " named " << name << std::endl;
 	Gtk::TreeModel::iterator it = store->append();
 	Gtk::TreeModel::Row row = *it;
 	row[columns.checked] = true;
