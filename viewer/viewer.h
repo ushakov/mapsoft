@@ -91,6 +91,7 @@ public:
     }
 
     void refresh(){
+      std::cerr << "Viewer refresh!\n";
       mutex->lock();
       tiles_todo.clear();
       tiles_todo2.clear();

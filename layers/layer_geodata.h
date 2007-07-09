@@ -66,6 +66,7 @@ public:
                                          it!= world->trks.end(); it++){
 	bool start=true;
 	Point<int> pi, pio;
+	int w = it->width;
         for (std::vector<g_trackpoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
           g_point p(pt->x,pt->y); cnv.bck(p);
@@ -73,15 +74,17 @@ public:
 
 	  Rect<int> line_bb(pio, pi); 
 
-	  line_bb = rect_pump(line_bb, 2);
+	  line_bb = rect_pump(line_bb, w);
 	  if (!rect_intersect(line_bb, image.range()).empty()) {
 	      if ((!pt->start)&&(!start)) {
-		  ctx->DrawLine(pio, pi, 3, COLOR_BLUE);
-		  ctx->DrawFilledRect(Rect<int>(-2,-2,4,4) + pi, COLOR_MAGENTA);
+		  ctx->DrawLine(pio, pi, w, it->color.value);
+//		  ctx->DrawFilledRect(Rect<int>(-w,-w,2*w,2*w) + pi, it->color.value);
 	      } else {
-		  ctx->DrawFilledRect(Rect<int>(-2,-2,4,4) + pi, COLOR_MAGENTA);
+//		  ctx->DrawFilledRect(Rect<int>(-w,-w,2*w,2*w) + pi, it->color.value);
+//		  ctx->DrawCircle(pi, int w, 1, it->color.value, true, 0);
                   start=false;
 	      }
+	      ctx->DrawCircle(pi, w, 1, it->color.value, true, 0);
 	  }
 	  pio=pi;
         }
@@ -98,18 +101,18 @@ public:
 	  pi = Point<int>(p)-origin;
 	
           if (point_in_rect(pi, rect_pumped)){
-	      ctx->DrawFilledRect(Rect<int>(-3,-3,6,6) + pi, COLOR_YELLOW);
-	      ctx->DrawRect(Rect<int>(-3,-3,6,6) + pi, 1, COLOR_BLUE);
+	      ctx->DrawFilledRect(Rect<int>(-3,-3,6,6) + pi, pt->bgcolor.value);
+	      ctx->DrawRect(Rect<int>(-3,-3,6,6) + pi, 1, pt->color.value);
 	  }
 	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name);
 	  Rect<int> padded = rect_pump(textbb, 2);
 	  Point<int> shift = Point<int>(2,-10);
 	  Point<int> shifted = pi + shift;
 	  if (point_in_rect(pi, rect_pump (image.range(), padded+shift))) {
-	      ctx->DrawLine(pi, (padded + shifted).TLC(), 1, COLOR_BLUE);
-	      ctx->DrawFilledRect(padded + shifted, COLOR_YELLOW);
-	      ctx->DrawRect(padded + shifted, 1, COLOR_BLUE);
-	      ctx->DrawText(shifted.x, shifted.y, COLOR_BLUE, pt->name);
+	      ctx->DrawLine(pi, (padded + shifted).TLC(), 1, pt->color.value);
+	      ctx->DrawFilledRect(padded + shifted, pt->bgcolor.value);
+	      ctx->DrawRect(padded + shifted, 1, pt->color.value);
+	      ctx->DrawText(shifted.x, shifted.y, pt->color.value, pt->name);
 	  }
           pio=pi;
         }

@@ -97,7 +97,7 @@ public:
 	return itl->first;
     }
 
-    void mark_level_dirty (Layer * layer){
+    void refresh_layer (Layer * layer){
 	layer->refresh();
 	tile_cache[layer]->clear();
         signal_refresh.emit();

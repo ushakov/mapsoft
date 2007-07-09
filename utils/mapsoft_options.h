@@ -46,7 +46,7 @@ struct Options : std::map<std::string,std::string>{
 	if (it != end()) {
 	    try {
 		val = boost::lexical_cast<T>(it->second);
-		std::cerr << "Good cast: " << key << " = " << it->second << "\n";
+//		std::cerr << "Good cast: " << key << " = " << it->second << "\n";
 	    }
 	    catch (boost::bad_lexical_cast & e) {
 		std::cerr << "Bad cast: " << key << " = " << it->second << "\n";

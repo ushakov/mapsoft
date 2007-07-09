@@ -55,7 +55,7 @@ private:
 	if (r == 0) { // OK
           current_layer->get_world()->wpts[point_addr.first].erase(
             current_layer->get_world()->wpts[point_addr.first].begin()+point_addr.second);
-          state->workplane->mark_level_dirty(current_layer);
+          state->workplane->refresh_layer(current_layer);
 	} else {
 	  // do nothing
 	}

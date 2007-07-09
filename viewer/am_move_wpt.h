@@ -51,6 +51,7 @@ public:
 
                 state->rubber->add_line(RubberPoint(p,1), RubberPoint(Point<int>(0,0),0));
                 mystate=1;
+		break;
             }
 	  }
 	} else { // move point
@@ -61,7 +62,7 @@ public:
           cnv.frw(pt);
           current_wpt->x = pt.x;
           current_wpt->y = pt.y;
-          state->workplane->mark_level_dirty(current_layer);
+          state->workplane->refresh_layer(current_layer);
 	  mystate=0;
           state->rubber->clear();
           current_layer=0;

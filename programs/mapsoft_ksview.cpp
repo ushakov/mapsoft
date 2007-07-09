@@ -85,7 +85,7 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	std::cerr << "ks scale: " << sc << " scale: " 
                   << v->scale_nom() << ":" 
                   << v->scale_denom() <<  std::endl;
-        w->mark_level_dirty(&gl);
+        w->refresh_layer(&gl);
 	v->set_window_origin(orig*2 - v->get_window_size()/2);
         v->clear_cache();
 	return true;
@@ -102,7 +102,7 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
                   << v->scale_nom() << ":" 
                   << v->scale_denom() <<  std::endl;
 	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
-        w->mark_level_dirty(&gl);
+        w->refresh_layer(&gl);
 	v->set_window_origin(orig/2 - v->get_window_size()/2);
         v->clear_cache();
 	return true;

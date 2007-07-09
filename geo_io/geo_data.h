@@ -51,8 +51,8 @@ struct g_waypoint : g_point {
 	t=0;
 	symb=wpt_symb_enum.def; 
 	displ=0; 
-	color=0; 
-	bgcolor    = 0xFFFFFF; 
+	color      = 0xFF000000; 
+	bgcolor    = 0xFFFFFFFF; 
 	map_displ  = wpt_map_displ_enum.def;
 	pt_dir     = wpt_pt_dir_enum.def; 
 	font_size  = 6;
@@ -194,13 +194,13 @@ struct g_track : std::vector<g_trackpoint>{
     Color cfill; // track fill color (RGB)
     std::string comm; // track description
     g_track(){
-	width = 1;
+	width = 2;
 	displ = 1;
-	color = 0;
+	color = 0xFF0000FF;
 	skip  = 1;
 	type  = trk_type_enum.def;
 	fill  = trk_fill_enum.def;
-	cfill = 0;
+	cfill = 0xFF000000;
     }
     Rect<double> range() const{
       double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
