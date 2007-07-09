@@ -160,13 +160,13 @@ namespace io {
 			gu::write_file (outfile.c_str(), world, opt);
 			return;
 		}
-		// Запись файла FIG
-		if (testext(outfile, ".fig")){
-			cerr << "Writing to FIG file " << outfile << "\n";
-			std::ofstream f(outfile.c_str());
-			fig::write (f, world, opt);
-			return;
-		}
+//		// Запись файла FIG
+//		if (testext(outfile, ".fig")){
+//			cerr << "Writing to FIG file " << outfile << "\n";
+//			std::ofstream f(outfile.c_str());
+//			fig::write (f, world, opt);
+//			return;
+//		}
 		// Запись файла HTML
 		if (testext(outfile, ".html") || testext(outfile, ".htm")){
 			cerr << "Writing to HTML file " << outfile << "\n";

@@ -10,6 +10,7 @@
 #include "geo_convs.h"
 #include "io_xml.h"
 #include "../utils/mapsoft_options.h"
+#include "../utils/mapsoft_time.h"
 #include "../loaders/image_r.h"
 
 namespace fig {
@@ -247,72 +248,55 @@ using namespace boost::spirit;
 
   // Добавить точки и треки в fig_world в соотв. с привязкой
 
-  void set_wpts(fig_world & fig, const g_map & m, const geo_data & world){
+#define ADDCOMM(x) {ostringstream s; s << x; f.comment.push_back(s.str());}
+
+  void put_wpts(fig_world & F, const g_map & m, const geo_data & world){
     vector<g_waypoint_list>::const_iterator wl;
     vector<g_waypoint>::const_iterator w;
     convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"), Options());
     for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
       for (w=wl->begin();w!=wl->end();w++){
 
-        fig_object f_pt;
-        f_pt.pen_color=0;
-        f_pt.depth=6;
-        f_pt.thickness=2;
-    
-        fig_object f_txt;
-        f_txt.pen_color=8;
-        f_txt.depth=5;
-        f_txt.font=18;
-        f_txt.font_size=6;
-      
         g_point p(w->x, w->y);
-        g_waypoint def_pt;
+        g_waypoint def;
         cnv.bck(p);
   
-/*        
-        out << "# WPT " << w->name << "\n";
-        if (w->z   < 1e20)                      out << "# alt:        " << fixed << setprecision(1) << w->z << "\n";
-        if (w->t != def_pt.t)                   out << "# time:       " << time2str(w->t) << "\n";
-        if (w->comm != def_pt.comm)             out << "# comm:       " << w->comm << "\n";
-        if (w->prox_dist != def_pt.prox_dist)   out << "# prox_dist:  " << fixed << setprecision(1) << w->prox_dist << "\n";
-        if (w->symb != def_pt.symb)             out << "# symb:       " << wpt_symb_enum.int2str(w->symb) << "\n";
-        if (w->displ != def_pt.displ)           out << "# displ:      " << w->displ << "\n";
-        if (w->color != def_pt.color)           out << "# color:      #" << setbase(16) << setw(6) << setfill('0') << w->color <<
-        if (w->bgcolor != def_pt.bgcolor)       out << "# bgcolor:    #" << setbase(16) << setw(6) << setfill('0') << w->bgcolor <      if (w->map_displ != def_pt.map_displ)   out << "# map_displ:  " << wpt_map_displ_enum.int2str(w->map_displ) << "\n";
-        if (w->pt_dir != def_pt.pt_dir)         out << "# pt_dir:     " << wpt_pt_dir_enum.int2str(w->pt_dir) << "\n";
-        if (w->font_size != def_pt.font_size)   out << "# font_size:  " << w->font_size << "\n";
-        if (w->font_style != def_pt.font_style) out << "# font_style: " << w->font_style << "\n";
-        if (w->size != def_pt.size)             out << "# size:       "  << w->size << "\n";
-  
-        out << "2 1 0 " << wpt_width << " " << wpt_color << " 7 " << wpt_depth
-            << " 0 -1 1 1 1 -1 0 0 1\n\t"
-            << int(p.x) << " " << int(p.y) << "\n";
-  
-        int td=0;
-        // 15 = 1200/80
-//                if (w->pt_dir == 0){tx=(int)p.x; ty=(int)p.y + 15*w->size; td=1;} // buttom
-//                if (w->pt_dir == 1){tx=(int)p.x; ty=(int)p.y - 15*w->size - 15*w->font_size; td=1;} // top
-//                if (w->pt_dir == 2){tx=(int)p.x + 15*w->size; ty=(int)p.y; td=0;} // left
-//                if (w->pt_dir == 3){tx=(int)p.x - 15*w->size; ty=(int)p.y; td=2;} // right
-//
-        out << "4 " << td << " " << wpt_txt_color << " " << wpt_txt_depth
-            << " -1 "<< wpt_txt_font << " " << wpt_txt_size << " 0.0000 4 105 150 "
-            << int(p.x)+15*wpt_width << " " << int(p.y)+15*wpt_width << " " << w->name << "\\001\n";
-*/      }
+	fig::fig_object f = fig::make_object("2 1 0 2 0 7 6 0 -1 1 1 1 -1 0 0 *"); 
+                                             ADDCOMM("# WPT " << w->name);
+        if (w->z   < 1e20)                   ADDCOMM("# alt:        " << fixed << setprecision(1) << w->z);
+        if (w->t != def.t)                   ADDCOMM("# time:       " << time2str(w->t));
+        if (w->comm != def.comm)             ADDCOMM("# comm:       " << w->comm);
+        if (w->prox_dist != def.prox_dist)   ADDCOMM("# prox_dist:  " << fixed << setprecision(1) << w->prox_dist);
+        if (w->symb != def.symb)             ADDCOMM("# symb:       " << wpt_symb_enum.int2str(w->symb));
+        if (w->displ != def.displ)           ADDCOMM("# displ:      " << w->displ);
+        if (w->color != def.color)           ADDCOMM("# color:      #" << setbase(16) << setw(6) << setfill('0') << w->color);
+        if (w->bgcolor != def.bgcolor)       ADDCOMM("# bgcolor:    #" << setbase(16) << setw(6) << setfill('0') << w->bgcolor);
+        if (w->map_displ != def.map_displ)   ADDCOMM("# map_displ:  " << wpt_map_displ_enum.int2str(w->map_displ));
+        if (w->pt_dir != def.pt_dir)         ADDCOMM("# pt_dir:     " << wpt_pt_dir_enum.int2str(w->pt_dir));
+        if (w->font_size != def.font_size)   ADDCOMM("# font_size:  " << w->font_size);
+        if (w->font_style != def.font_style) ADDCOMM("# font_style: " << w->font_style);
+        if (w->size != def.size)             ADDCOMM("# size:       "  << w->size);
+	f.push_back(Point<int>(int(p.x), int(p.y)));
+	F.push_back(f);
+
+	fig::fig_object ft = fig::make_object("4 0 8 5 -1 18 6 0.0000 4");
+	ft.push_back(Point<int>(int(p.x)+30, int(p.y)+30));
+	ft.text = w->name;
+	F.push_back(ft);
+      }
     }
 
   }
-  void set_trks(fig_world & w, const g_map & m, const geo_data & world){
-/*    vector<g_track>::const_iterator tl;
+  void put_trks(fig_world & F, const g_map & m, const geo_data & world){
+    vector<g_track>::const_iterator tl;
     vector<g_trackpoint>::const_iterator t;
     convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"), Options());
+    g_track def;
+
     for (tl=world.trks.begin();tl!=world.trks.end();tl++){
-      int trk_color=1, trk_depth=60, trk_width=1;
-  
       t=tl->begin();
       do {
         vector<Point<int> > pts;
-        g_track def_t;
         do{
           g_point p(t->x, t->y);
           cnv.bck(p);
@@ -320,21 +304,21 @@ using namespace boost::spirit;
           t++;
         } while ((t!=tl->end())&&(!t->start));
   
-        out << "# TRK " << tl->comm << "\n";
-        if (tl->width != def_t.width) out << "# width: "  << tl->width << "\n";
-        if (tl->displ != def_t.displ) out << "# displ: "  << tl->displ << "\n";
-        if (tl->color != def_t.color) out << "# color: #" << setbase(16) << setw(6) << setfill('0') << tl->color << setbase(10) <<      if (tl->skip  != def_t.skip)  out << "# skip:  "  << tl->skip << "\n";
-        if (tl->type  != def_t.type)  out << "# type:  "  << trk_type_enum.int2str(tl->type) << "\n";
-        if (tl->fill  != def_t.fill)  out << "# fill:  "  << trk_fill_enum.int2str(tl->fill) << "\n";
-        if (tl->cfill != def_t.cfill) out << "# cfill: #" << setbase(16) << setw(6) << setfill('0') << tl->cfill << setbase(10) <<
-        out << "2 1 0 " << trk_width << " " << trk_color << " 7 " << trk_depth
-            << " 0 -1 1 0 0 -1 0 0 " << pts.size() << "\n";
-        for (vector<Point<int> >::const_iterator p1=pts.begin(); p1!=pts.end(); p1++)
-          out << "\t" << p1->x << " " << p1->y << "\n";
+	fig::fig_object f = fig::make_object("2 1 0 1 1 7 7 0 -1 1 1 1 -1 0 0 *"); 
+                                    ADDCOMM("# TRK " << tl->comm);
+        if (tl->width != def.width) ADDCOMM("# width: "  << tl->width);
+        if (tl->displ != def.displ) ADDCOMM("# displ: "  << tl->displ);
+        if (tl->color != def.color) ADDCOMM("# color: #" << setbase(16) << setw(6) << setfill('0') << tl->color << setbase(10));
+        if (tl->skip  != def.skip)  ADDCOMM("# skip:  "  << tl->skip);
+        if (tl->type  != def.type)  ADDCOMM("# type:  "  << trk_type_enum.int2str(tl->type));
+        if (tl->fill  != def.fill)  ADDCOMM("# fill:  "  << trk_fill_enum.int2str(tl->fill));
+        if (tl->cfill != def.cfill) ADDCOMM("# cfill: #" << setbase(16) << setw(6) << setfill('0') << tl->cfill << setbase(10));
+
+        for (vector<Point<int> >::const_iterator p1=pts.begin(); p1!=pts.end(); p1++) f.push_back(*p1);
+	F.push_back(f);
+
       } while (t!=tl->end());
     }
-*/
   }
-
 
 }

@@ -22,7 +22,7 @@ namespace fig {
   // Извлечь привязку растровых картинок
   void get_maps(const fig_world & w, const g_map & m, geo_data & d);
   // Добавить точки и треки в fig_world в соотв. с привязкой
-  void set_wpts(fig_world & w, const g_map & m, const geo_data & d);
-  void set_trks(fig_world & w, const g_map & m, const geo_data & d);
+  void put_wpts(fig_world & w, const g_map & m, const geo_data & d);
+  void put_trks(fig_world & w, const g_map & m, const geo_data & d);
 }
 #endif

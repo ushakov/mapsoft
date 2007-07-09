@@ -42,10 +42,10 @@ namespace oe {
     bool write_map_file (const char* filename, const g_map & map, const Options & opt);
 }
 
-namespace fig {
-    bool write (std::ostream & out, const geo_data & world, const Options & opt);
-    bool parse_file (const char* filename, geo_data & world, const Options & opt);
-}
+//namespace fig {
+//    bool write (std::ostream & out, const geo_data & world, const Options & opt);
+//    bool parse_file (const char* filename, geo_data & world, const Options & opt);
+//}
 namespace html {
     bool write (std::ostream & out, const geo_data & world, const Options & opt);
 }
