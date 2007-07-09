@@ -9,6 +9,9 @@ slazav 09.07.2007
  * rect.h   Rect<T> rect_pump (Rect<T> const & R, Point<T> p);
  * point.h  operator Point<double>() const;
 	    operator Point<int>() const;
+
+ * упростил интерфейс Layer, вообще много всего 
+   упростил в workplane и layers. Сейчас все хорошо работает.
 --------------------------------------------------------------------
 
 slazav 06.07.2007
