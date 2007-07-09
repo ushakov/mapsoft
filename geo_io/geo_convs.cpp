@@ -540,27 +540,32 @@ vector<g_point> map2map::line_bck(const vector<g_point> & l) {
 
 int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
                        Image<int> & dst_img, Rect<int> dst_rect){
-//    clip_rects_for_image_loader(
-//      src_img.range(), src_img.range(), dst_img.range(), dst_rect);
 
     if (cnv_rect.empty() || dst_rect.empty()) return 1;
+    // во сколько раз придется растягивать картинку
+    int xscale = int(floor(dst_rect.w/cnv_rect.w));
+    int yscale = int(floor(dst_rect.h/cnv_rect.h));
+    if (xscale<1) xscale=1;
+    if (yscale<1) yscale=1;
 
-//      std::cerr  << "map2map: " << cnv_rect 
-//                 << " -> " << dst_rect << " at " << dst_img << "\n";
-    g_point p0;
-    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
+    double x,y;
+    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y+=yscale){
       // откуда мы хотим взять строчку
-      p0.y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
+      y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
 
-      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
-        p0.x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
-	g_point p(p0);
+      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x+=xscale){
+        x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
+	g_point p(x,y);
         bck(p);
         if (!tst_bck.test(int(p.x), int(p.y))) continue;
 	p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
-	if (c != 0) {
-	    dst_img.set_na(dst_x, dst_y, c);
+	if (c != 0){
+	  for (int jj=0;jj<yscale;jj++){
+	    for (int ii=0;ii<xscale;ii++){
+   	      dst_img.set_na(dst_x+ii, dst_y+jj, c);
+            }
+          }
 	}
       }
     }
@@ -569,24 +574,30 @@ int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
 
 int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect, 
                        Image<int> & dst_img, Rect<int> dst_rect){
-//    clip_rects_for_image_loader(
-//      src_img.range(), src_rect, dst_img.range(), dst_rect);
     if (cnv_rect.empty() || dst_rect.empty()) return 1;
+    // во сколько раз придется растягивать картинку
+    int xscale = int(floor(dst_rect.w/cnv_rect.w));
+    int yscale = int(floor(dst_rect.h/cnv_rect.h));
+    if (xscale<1) xscale=1;
+    if (yscale<1) yscale=1;
 
-    g_point p0;
+    double x,y;
     for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
       // откуда мы хотим взять строчку
-      p0.y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
+      y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
-        p0.x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
-//        if (cnv_x == cnv_rect.BRC().x) cnv_x--;
-        g_point p(p0);
+        x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
+        g_point p(x,y);
         if (!tst_bck.test(int(p.x), int(p.y))) continue;
         bck(p); p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
-	if (c != 0) {
-	    dst_img.set_na(dst_x, dst_y, c);
-	}
+	if (c != 0){
+	  for (int jj=0;jj<yscale;jj++){
+	    for (int ii=0;ii<xscale;ii++){
+   	      dst_img.set_na(dst_x+ii, dst_y+jj, c);
+            }
+          }
+        }
       }
     }
     return 0;

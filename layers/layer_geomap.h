@@ -35,17 +35,14 @@ public:
       world(_world),
       image_cache(4),
       mymap(convs::mymap(*_world))
-    {
-	make_m2ms();
-	image_cache.clear();
-    }
+    {make_m2ms();}
 
     // получить/установить привязку layer'a
     g_map get_ref() const {return mymap;}
-    void set_ref(const g_map & map){mymap=map; make_m2ms(); image_cache.clear();}
+    void set_ref(const g_map & map){mymap=map; make_m2ms();}
     void set_ref(){set_ref(convs::mymap(*world));}
 
-    void refresh(){}
+    void refresh(){image_cache.clear();}
 
     // построение преобразований, вычисление габаритов карты
     void make_m2ms(){
@@ -76,9 +73,9 @@ public:
 //	    std::cerr << myrange << "\n";
 	}
       }
-//#ifdef DEBUG_LAYER_GEOMAP
+#ifdef DEBUG_LAYER_GEOMAP
       std::cerr << "LayerMap: Setting map conversions. Range: " << myrange << "\n";
-//#endif
+#endif
     }
     
     virtual void draw(const Point<int> origin, Image<int> & image){
@@ -104,13 +101,10 @@ public:
 
           if (scale<=32){
             if (!image_cache.contains(i) || (iscales[i] > scale)) {
-#ifdef DEBUG_LAYER_GEOMAP
+//#ifdef DEBUG_LAYER_GEOMAP
       std::cerr  << "LayerMap: Loading Image " << file
-		 << " at scale " << scale 
-		 << " scales[i]: " << scales[i] 
-		 << " sc_x: " << sc_x  
-	         << " sc_y: " << sc_y << "\n";
-#endif
+		 << " at scale " << scale << "\n";
+//#endif
 
 
               image_cache.add(i, image_r::load(file.c_str(), scale));

@@ -69,11 +69,8 @@ public:
 
     void set_window_origin (Point<int> new_origin) {
 
-std::cerr << "set origin" << new_origin << "\n";
 	Point<int> shift = window_origin - new_origin;
-
 	rubber_take_off();
-
 	window_origin -= shift;
 	change_viewport();
 
