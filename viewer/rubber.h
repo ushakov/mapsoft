@@ -45,6 +45,8 @@ public:
       signal_refresh.emit();
     }
     sigc::signal<void> signal_refresh;
+
+    int size(){return lines.size();}
 };
 
 #endif /* RUBBER_H */

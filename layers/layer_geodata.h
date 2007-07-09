@@ -71,20 +71,17 @@ public:
 
 	  Rect<int> line_bb(pio, pi); 
 
-	  line_bb = rect_pump(line_bb, w);
+	  line_bb = rect_pump(line_bb, 2*w);
 	  if (!rect_intersect(line_bb, image.range()).empty()) {
-	      if ((!pt->start)&&(!start)) {
-		  ctx->DrawLine(pio, pi, w, it->color.value);
-//		  ctx->DrawFilledRect(Rect<int>(-w,-w,2*w,2*w) + pi, it->color.value);
-	      } else {
-//		  ctx->DrawFilledRect(Rect<int>(-w,-w,2*w,2*w) + pi, it->color.value);
-//		  ctx->DrawCircle(pi, int w, 1, it->color.value, true, 0);
-                  start=false;
+	      if (!start){
+	        if (!pt->start) ctx->DrawLine(pio, pi, w, it->color.value);
+	        ctx->DrawCircle(pio, 2*w, 1, COLOR_BLACK, true, it->color.value);
 	      }
-	      ctx->DrawCircle(pi, w, 1, it->color.value, true, 0);
+	      else start=false;
 	  }
 	  pio=pi;
         }
+        ctx->DrawCircle(pio, 2*w, 1, COLOR_BLACK, true, it->color.value);
       }
 
       Rect<int> rect_pumped = rect_pump(image.range(), 6);
@@ -98,8 +95,9 @@ public:
 	  pi = Point<int>(p)-origin;
 	
           if (point_in_rect(pi, rect_pumped)){
-	      ctx->DrawFilledRect(Rect<int>(-3,-3,6,6) + pi, pt->bgcolor.value);
-	      ctx->DrawRect(Rect<int>(-3,-3,6,6) + pi, 1, pt->color.value);
+//	      ctx->DrawFilledRect(Rect<int>(-3,-3,6,6) + pi, pt->bgcolor.value);
+//	      ctx->DrawRect(Rect<int>(-3,-3,6,6) + pi, 1, pt->color.value);
+	      ctx->DrawCircle(pi, 8, 1, pt->color.value, true, pt->bgcolor.value);
 	  }
 	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name);
 	  Rect<int> padded = rect_pump(textbb, 2);
