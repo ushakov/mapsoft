@@ -75,13 +75,13 @@ public:
 	  if (!rect_intersect(line_bb, image.range()).empty()) {
 	      if (!start){
 	        if (!pt->start) ctx->DrawLine(pio, pi, w, it->color.value);
-	        ctx->DrawCircle(pio, 2*w, 1, COLOR_BLACK, true, it->color.value);
+	        ctx->DrawCircle(pio, w, 2, it->color.value, false);
 	      }
 	      else start=false;
 	  }
 	  pio=pi;
         }
-        ctx->DrawCircle(pio, 2*w, 1, COLOR_BLACK, true, it->color.value);
+        ctx->DrawCircle(pio, w, 2, it->color.value, false);
       }
 
       Rect<int> rect_pumped = rect_pump(image.range(), 6);
