@@ -92,10 +92,11 @@ public:
 
     void refresh(){
       std::cerr << "Viewer refresh!\n";
-      mutex->lock();
-      tiles_todo.clear();
-      tiles_todo2.clear();
-      mutex->unlock();
+
+//      mutex->lock();
+//      tiles_todo.clear();
+//      tiles_todo2.clear();
+//      mutex->unlock();
 
       // extra и т.п. должно быть таким же, как в change_viewport
       Rect<int> tiles = tiles_on_rect(
@@ -216,7 +217,7 @@ private:
              // чтобы при перемасштабировании и обнулении кэша в него не попала старая картинка 8|
              if (tile_cache.count(key)!=0){
                 tile_cache.erase(key);
-		tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
+                tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
 	     }
              mutex->unlock();
 
@@ -238,6 +239,10 @@ private:
              mutex->unlock();
 
              // и ничего не скажем...
+	     // upd. скажем! Иначе refresh не работает!
+	     // upd. дело не в этом
+//             tile_done_queue.push(key);
+//             update_tile_signal.emit();
              continue;
           }
 
@@ -255,7 +260,6 @@ private:
 	std::cerr << "update_tile: " << p << "\n";
 #endif
 	draw_tile(p);
-	//cache_updater_stopped=0; // запускаем cache_updater
 	cache_updater_cond->signal();
     }
 
@@ -442,31 +446,11 @@ private:
         for (int i = 0; i < rubber->lines.size(); ++i) {
             rubber_render_line(i, pointer, window_origin);
         }
-/*        for (int i = 0; i < rubber->drawn.size(); ++i) {
-            if (rubber->drawn[i].first.x == 0 &&
-                rubber->drawn[i].first.y == 0 &&
-                rubber->drawn[i].second.x == 0 &&
-                rubber->drawn[i].second.y == 0) {
-                std::cerr << "Unrealised line after render: " 
-                          << rubber->drawn[i].first << "--" << rubber->drawn[i].second << std::endl;
-            }
-        }
-*/
     }
     void rubber_take_off() {
         for (int i = 0; i < rubber->drawn.size(); ++i) {
             rubber_take_off_line(i);
         }
-/*        for (int i = 0; i < rubber->drawn.size(); ++i) {
-            if (rubber->drawn[i].first.x != 0 ||
-                rubber->drawn[i].first.y != 0 ||
-                rubber->drawn[i].second.x != 0 ||
-                rubber->drawn[i].second.y != 0) {
-                std::cerr << "Remaining line after take-off: " 
-                          << rubber->drawn[i].first << "--" << rubber->drawn[i].second << std::endl;
-            }
-        }
-*/
     }
 
 

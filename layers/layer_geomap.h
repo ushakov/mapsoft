@@ -50,7 +50,6 @@ public:
 
       m2ms.clear();
       scales.clear();
-      iscales.clear();
 
       bool start=true;
 
@@ -64,15 +63,14 @@ public:
         double sc_y = 1000/pdist(p1,p3);
 
         scales.push_back(sc_x<sc_y ? sc_x:sc_y); // каков масштаб карты в соотв.с проекцией
-        iscales.push_back(1);                    // в каком масштабе карта реально загружена
 
 	if (start && (c.border_dst.size()!=0)){  myrange=Rect<int>(c.border_dst[0], c.border_dst[0]); start=false;};
         for (int j=0; j<c.border_dst.size(); j++) {
-//	    std::cerr << myrange << " + " << Point<int>(c.border_dst[j]) << " = ";
 	    myrange = rect_pump(myrange, Point<int>(c.border_dst[j]));
-//	    std::cerr << myrange << "\n";
 	}
       }
+      // старые данные нам тоже интересны (мы можем использовать уже загруженные картинки)
+      if (iscales.size() != world->maps.size()) iscales.resize(world->maps.size(),1);
 #ifdef DEBUG_LAYER_GEOMAP
       std::cerr << "LayerMap: Setting map conversions. Range: " << myrange << "\n";
 #endif
@@ -96,20 +94,24 @@ public:
 	  std::cerr  << "LayerMap: Using Image " << file << "\n";
 #endif
 
-	  int scale = int(scales[i]);
+	  int scale = int(scales[i]+0.05);
 	  if (scale <=0) scale = 1;
 
           if (scale<=32){
             if (!image_cache.contains(i) || (iscales[i] > scale)) {
-//#ifdef DEBUG_LAYER_GEOMAP
+#ifdef DEBUG_LAYER_GEOMAP
       std::cerr  << "LayerMap: Loading Image " << file
 		 << " at scale " << scale << "\n";
-//#endif
+#endif
 
 
               image_cache.add(i, image_r::load(file.c_str(), scale));
 	      iscales[i] = scale;
             }
+#ifdef DEBUG_LAYER_GEOMAP
+      std::cerr  << "LayerMap: Using Image " << file
+		 << " at scale " << scale << " (loaded at scale " << iscales[i] <<", scales[i]: " << scales[i] << ")\n";
+#endif
             Image<int> im = image_cache.get(i);
             m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
           }
