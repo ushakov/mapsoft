@@ -81,7 +81,7 @@ private:
 	  current_layer->get_world()->trks.push_back(new_track);
           state->workplane->refresh_layer(current_layer);
 	}
-	g_track = g_track();
+	new_track.clear();
 	state->rubber->clear();
         current_connection.disconnect();
     }

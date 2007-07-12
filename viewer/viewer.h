@@ -75,7 +75,7 @@ public:
 	change_viewport();
 
 	get_window()->scroll(shift.x, shift.y);
-        //  rubber ubdate произойдет при дорисовке краев!
+        //  rubber render произойдет при дорисовке краев!
     }
 
     void set_window_origin(int x, int y){
@@ -297,13 +297,11 @@ private:
       Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
       Glib::RefPtr<Gdk::Window> widget = get_window();
 	  
-      rubber_take_off();
       widget->draw_pixbuf(gc, pixbuf, 
 			  tile_in_screen.x-tile_rect.x, tile_in_screen.y-tile_rect.y, // on pixbuf
 			  tile_in_screen.x-window_origin.x, tile_in_screen.y-window_origin.y,
 			  tile_in_screen.w, tile_in_screen.h,
 			  Gdk::RGB_DITHER_NORMAL, 0, 0);
-      rubber_render();
     }
 
 
@@ -324,11 +322,13 @@ private:
 #endif
 
       // Нарисуем плитки, поместим запросы первой очереди.
+      rubber_take_off();
       for (int tj = tiles.y; tj<tiles.y+tiles.h; tj++){
 	for (int ti = tiles.x; ti<tiles.x+tiles.w; ti++){
 	  draw_tile(Point<int>(ti,tj));
         }
       }
+      rubber_render();
     }
 
 

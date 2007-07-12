@@ -37,8 +37,10 @@ public:
         refresh();
     }
     void clear() {
-	std::vector<std::pair<RubberPoint, RubberPoint> > dummy;
-	lines.swap(dummy);
+	std::vector<std::pair<RubberPoint, RubberPoint> > dummy1;
+	lines.swap(dummy1);
+	std::vector<std::pair<Point<int>, Point<int> > > dummy2;
+	drawn.swap(dummy2);
         refresh();
     }
     void refresh(){
