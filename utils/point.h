@@ -2,7 +2,7 @@
 #define POINT_H
 
 #include <boost/operators.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+//#include <boost/test/floating_point_comparison.hpp>
 #include <iostream>
 #include <cmath>
 
@@ -77,10 +77,10 @@ struct Point
     return Point<int>(int(this->x), int(this->y));
   }
 
-  bool equals (Point<T> const & other) const {
-      static boost::test_tools::close_at_tolerance<T, double> cls (1e-9);
-      return cls(x, other.x) && cls(y, other.y);
-  }
+//  bool equals (Point<T> const & other) const {
+//      static boost::test_tools::close_at_tolerance<T> cls (1e-9);
+//      return cls(x, other.x) && cls(y, other.y);
+//  }
 
 };
 

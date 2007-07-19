@@ -398,7 +398,8 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
       else {
         P2 = C1;
       }
-    } while (!P1.equals(P2));
+//    } while (!P1.equals(P2));
+    } while (P1!=P2);
   }
   return ret;
 }
@@ -429,7 +430,8 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
       else {
         P2 = C1;
       }
-    } while (!P1.equals(P2));
+//    } while (!P1.equals(P2));
+    } while (P1!=P2);
   }
   return ret;
 }
@@ -501,7 +503,8 @@ vector<g_point> map2map::line_frw(const vector<g_point> & l) {
       else {
         P2 = C1;
       }
-    } while (!P1.equals(P2));
+//    } while (!P1.equals(P2));
+    } while (P1!=P2);
   }
   return ret;
 }
@@ -531,7 +534,8 @@ vector<g_point> map2map::line_bck(const vector<g_point> & l) {
       else {
         P2 = C1;
       }
-    } while (!P1.equals(P2));
+//    } while (!P1.equals(P2));
+    } while (P1!=P2);
   }
   return ret;
 }
