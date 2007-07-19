@@ -386,11 +386,11 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
     do {
       P1a = P1; frw(P1a);
       P2a = P2; frw(P2a);
-      g_point C1 = (P1+P2)/2; // середина отрезка
+      g_point C1 = (P1+P2)/2.; // середина отрезка
       g_point C2 = C1 + 0.5*g_point(P1.y-P2.y, -P1.x+P2.x)/pdist(P1,P2); // отступим на 0.5 в сторону от середины.
       g_point C1a = C1; frw(C1a);
       g_point C2a = C2; frw(C2a);
-      if (pdist(C1a, (P1a+P2a)/2) < pdist(C1a,C2a)){
+      if (pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)){
         ret.push_back(P2a);
         P1 = P2;
         P2 = l[i];
@@ -398,7 +398,7 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
       else {
         P2 = C1;
       }
-    } while (P1!=P2);
+    } while (!P1.equals(P2));
   }
   return ret;
 }
@@ -418,10 +418,10 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
     do {
       P1a = P1; bck(P1a);
       P2a = P2; bck(P2a);
-      g_point C1 = (P1+P2)/2; // середина отрезка
+      g_point C1 = (P1+P2)/2.; // середина отрезка
       g_point C1a = C1; bck(C1a);
 
-      if (pdist(C1a, (P1a+P2a)/2) < 0.5){
+      if (pdist(C1a, (P1a+P2a)/2.) < 0.5){
         ret.push_back(P2a);
         P1 = P2;
         P2 = l[i];
@@ -429,7 +429,7 @@ vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
       else {
         P2 = C1;
       }
-    } while (P1!=P2);
+    } while (!P1.equals(P2));
   }
   return ret;
 }
@@ -491,9 +491,9 @@ vector<g_point> map2map::line_frw(const vector<g_point> & l) {
     do {
       P1a = P1; frw(P1a);
       P2a = P2; frw(P2a);
-      g_point C1 = (P1+P2)/2; // середина отрезка
+      g_point C1 = (P1+P2)/2.; // середина отрезка
       g_point C1a = C1; frw(C1a);
-      if (pdist(C1a, (P1a+P2a)/2) < 0.5){
+      if (pdist(C1a, (P1a+P2a)/2.) < 0.5){
         ret.push_back(P2a);
         P1 = P2;
         P2 = l[i];
@@ -501,7 +501,7 @@ vector<g_point> map2map::line_frw(const vector<g_point> & l) {
       else {
         P2 = C1;
       }
-    } while (P1!=P2);
+    } while (!P1.equals(P2));
   }
   return ret;
 }
@@ -521,9 +521,9 @@ vector<g_point> map2map::line_bck(const vector<g_point> & l) {
     do {
       P1a = P1; bck(P1a);
       P2a = P2; bck(P2a);
-      g_point C1 = (P1+P2)/2; // середина отрезка
+      g_point C1 = (P1+P2)/2.; // середина отрезка
       g_point C1a = C1; bck(C1a);
-      if (pdist(C1a, (P1a+P2a)/2) < 0.5){
+      if (pdist(C1a, (P1a+P2a)/2.) < 0.5){
         ret.push_back(P2a);
         P1 = P2;
         P2 = l[i];
@@ -531,7 +531,7 @@ vector<g_point> map2map::line_bck(const vector<g_point> & l) {
       else {
         P2 = C1;
       }
-    } while (P1!=P2);
+    } while (!P1.equals(P2));
   }
   return ret;
 }

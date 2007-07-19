@@ -68,7 +68,6 @@ public:
     }
 
     void set_window_origin (Point<int> new_origin) {
-
 	Point<int> shift = window_origin - new_origin;
 	rubber_take_off();
 	window_origin -= shift;

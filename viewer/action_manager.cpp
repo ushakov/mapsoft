@@ -10,6 +10,7 @@
 #include <viewer/am_move_tpt.h>
 #include <viewer/am_edit_track.h>
 #include <viewer/am_add_track.h>
+#include <viewer/am_mark_trk.h>
 
 ActionManager::ActionManager (MapviewState * state_)
     : state(state_)
@@ -25,5 +26,6 @@ ActionManager::ActionManager (MapviewState * state_)
     modes.push_back(boost::shared_ptr<ActionMode>(new DeleteTrackpoint(state)));
     modes.push_back(boost::shared_ptr<ActionMode>(new EditTrack(state)));
     modes.push_back(boost::shared_ptr<ActionMode>(new AddTrack(state)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new MarkTrack(state)));
 }
 
