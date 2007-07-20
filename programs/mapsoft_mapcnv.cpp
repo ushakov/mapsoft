@@ -57,9 +57,8 @@ main(int argc, char **argv){
 
     int w=int((X2-X1)*k);
     int h=int((Y2-Y1)*k);
-    Image<int> im(w, h);
-    ml.draw (im.range(), im, im.range());
-    ml.dump_maps("out.fig");
+    Image<int> im = ml.get_image (Rect<int>(0,0,w,h));
+    ml.dump_maps("out1.fig");
     image_r::save(im, "out.jpg", O);
 
 
@@ -76,7 +75,8 @@ main(int argc, char **argv){
     }
     o.push_back(Point<int>(int(ref[0].xr), int(ref[0].yr)));
     o.image_file = "out.jpg";
+    o.comment.push_back("MAP AAA");
     W.push_back(o);
-    std::ofstream f("out.fig");
+    std::ofstream f("out2.fig");
     fig::write(f, W);
 }
