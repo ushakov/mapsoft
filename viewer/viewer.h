@@ -90,12 +90,7 @@ public:
     }
 
     void refresh(){
-      std::cerr << "Viewer refresh!\n";
-
-//      mutex->lock();
-//      tiles_todo.clear();
-//      tiles_todo2.clear();
-//      mutex->unlock();
+      std::cerr << "Viewer::refresh()\n";
 
       // extra и т.п. должно быть таким же, как в change_viewport
       Rect<int> tiles = tiles_on_rect(
@@ -110,15 +105,16 @@ public:
       for (int x = tiles_in_cache.x; x < tiles_in_cache.x+tiles_in_cache.w; ++x) {
 	for (int y = tiles_in_cache.y; y < tiles_in_cache.y+tiles_in_cache.h; ++y) {
 	  mutex->lock();
-	  if (point_in_rect(Point<int>(x,y), tiles)) tiles_todo.insert(Point<int>(x,y));
-          else tiles_todo2.insert(Point<int>(x,y));
+	  if (point_in_rect(Point<int>(x,y), tiles)) {
+	      tiles_todo.insert(Point<int>(x,y));
+	  } else {
+	      tiles_todo2.insert(Point<int>(x,y));
+	  }
 	  cache_updater_cond->signal();
 	  mutex->unlock();
 	}
       }
     }
-
-
 
 private:
 
@@ -234,7 +230,8 @@ private:
              Image<int> tile = workplane->get_image(key);
 
              mutex->lock();
-             tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
+	     tile_cache.erase(key);
+             tile_cache.insert(std::make_pair(key, tile));
              mutex->unlock();
 
              // и ничего не скажем...

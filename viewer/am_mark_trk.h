@@ -59,16 +59,11 @@ public:
 		    current_layer->get_world()->wpts.push_back(g_waypoint_list());
 		}
 		g_waypoint_list * wpt_list = &(current_layer->get_world()->wpts[0]);
-		g_waypoint wpt;
-		wpt.x = (*track)[b].x;
-		wpt.y = (*track)[b].y;
-		wpt.name = "0km";
-		wpt_list->push_back(wpt);
+		add_wpt (wpt_list, (*track)[b], 0);
 
 		convs::pt2ll pc(Datum("wgs84"), Proj("tmerc"), Options());
 		double len = 0;	
 		g_trackpoint pp;
-		int count = 0;
 		double next = 1000;
 		for (int i = b; i != e; i += s) {
 		    g_trackpoint tp = (*track)[i];
@@ -81,7 +76,6 @@ public:
 			    double frac = (next - len) / this_len;
 			    where = (*track)[i-1] * (1 - frac) + (*track)[i] * frac;
 			    add_wpt (wpt_list, where, next);
-			    count++;
 			    next += 1000;
 			}
 			len += this_len;
@@ -89,7 +83,6 @@ public:
 		    pp = tp;
 		}
 		add_wpt(wpt_list, (*track)[e-s], len);
-		std::cout << "Inserted " << count << " waypoints" << std::endl;
 		state->workplane->refresh_layer(current_layer);
 		return;
 	    }
