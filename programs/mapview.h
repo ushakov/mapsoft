@@ -12,6 +12,7 @@
 #include <viewer/layerlist.h>
 
 #include <viewer/action_manager.h>
+#include <utils/log.h>
 
 class MapviewState {
 public:
@@ -138,12 +139,7 @@ public:
     }
 
     void layer_edited (const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter) {
-	std::cout << "layer_edited at " << path.to_string() << std::endl;
-//	for (int k = 0; k < data.size(); ++k) {
-//	    for (int i = 0; i < data[k]->maps.size(); ++i) {
-//		std::cout << "map " << i << "/" << k << ": " << data[k]->maps[i].file << std::endl;
-//	    }
-//	}
+	VLOG(2) << "layer_edited at " << path.to_string();
 	Gtk::TreeModel::Row row = *iter;
 	bool need_refresh = false;
 	
@@ -192,7 +188,7 @@ public:
 	state.data.push_back(world);
 
 	io::in(selected_filename, *(world.get()), Options());
-	std::cout <<"Loaded " << selected_filename << " to world at " << world.get() << std::endl;
+	LOG() << "Loaded " << selected_filename << " to world at " << world.get();
 
         if (!have_reference){ reference = convs::mymap(*world.get()); have_reference = true; }
 
@@ -252,52 +248,15 @@ public:
 	case 43:                                                                           
 	case 65451: // +                                                                   
 	{        
-/*            int nom = state.workplane->get_scale_nom();
-            int denom = state.workplane->get_scale_denom();
-            if (denom/nom > 1) state.workplane->set_scale_denom(denom/2);
-            else state.workplane->set_scale_nom(nom*2);
-
-            int n = state.workplane->get_scale_nom()*denom;
-            int dn  = state.workplane->get_scale_denom()*nom;
-
-            Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2; 
-            Point<int> origin = (wcenter*n)/dn-viewer->get_window_size()/2;
-
-            viewer->set_window_origin(origin);                                                         
-	    viewer->refresh();
-	    std::cerr << " scale: " 
-		      << state.workplane->get_scale_nom() << ":" 
-		      << state.workplane->get_scale_denom() <<  std::endl;
-*/
 	    Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
             Point<int> origin = wcenter*2 - viewer->get_window_size()/2;
             viewer->set_window_origin(origin);
 	    (*state.workplane)*=2;
-
-//            viewer->refresh();
-
 	    return true;                                                                     
 	}                                                                                  
 	case 45:                                                                           
 	case 65453: // -                                                                   
 	{                                                                                  
-/*            int nom = state.workplane->get_scale_nom();
-            int denom = state.workplane->get_scale_denom();
-            if (denom/nom >= 1) state.workplane->set_scale_denom(denom*2);
-            else state.workplane->set_scale_nom(nom/2);
-
-            int n = state.workplane->get_scale_nom()*denom;
-            int dn  = state.workplane->get_scale_denom()*nom;
-
-            Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
-            Point<int> origin = (wcenter*n)/dn-viewer->get_window_size()/2;
-
-            viewer->set_window_origin(origin);                                                         
-	    viewer->refresh();
-	    std::cerr << " scale: " 
-		      << state.workplane->get_scale_nom() << ":" 
-		      << state.workplane->get_scale_denom() <<  std::endl;
-*/
 	    Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
             Point<int> origin = wcenter/2 - viewer->get_window_size()/2;
             viewer->set_window_origin(origin);
@@ -326,9 +285,7 @@ public:
 
     virtual bool
     mouse_button_pressed (GdkEventButton * event) {
-#ifdef DEBUG_MAPVIEW
-	std::cerr << "press: " << event->x << "," << event->y << " " << event->button << std::endl;
-#endif
+	VLOG(2) << "press: " << event->x << "," << event->y << " " << event->button;
 	if (event->button == 1) {
 	    drag_pos = Point<int> ((int)event->x, (int)event->y);
 	    gettimeofday (&click_started, NULL);
@@ -338,21 +295,15 @@ public:
 
     virtual bool
     mouse_button_released (GdkEventButton * event) {
-#ifdef DEBUG_MAPVIEW
-	std::cerr << "release: " << event->x << "," << event->y << " " << event->button << std::endl;
-#endif
+	VLOG(2) << "release: " << event->x << "," << event->y << " " << event->button;
 	if (event->button == 1) {
 	    struct timeval click_ended;
 	    gettimeofday (&click_ended, NULL);
 	    int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 + (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
-	    if (d < 100) {
+	    if (d < 250) {
 		Point<int> p(int(event->x), int(event->y));
 		p += viewer->get_window_origin();
-//		p *= state.workplane->get_scale_denom();
-//		p /= state.workplane->get_scale_nom();
-#ifdef DEBUG_MAPVIEW
-		std::cerr << "click at: " << p.x << "," << p.y << " " << event->button << std::endl;
-#endif
+		VLOG(2) << "click at: " << p.x << "," << p.y << " " << event->button;
 		action_manager->click(p);
 		return true;
 	    }
@@ -362,9 +313,7 @@ public:
     virtual bool
     pointer_moved (GdkEventMotion * event) {
 	Point<int> pos ((int) event->x, (int) event->y);
-#ifdef DEBUG_MAPVIEW
-	std::cerr << "motion: " << pos << (event->is_hint? " hint ":"") << std::endl;
-#endif
+	VLOG(2) << "motion: " << pos << (event->is_hint? " hint ":"");
 
 	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) return false;
 
@@ -374,6 +323,8 @@ public:
 	viewer->set_window_origin(window_origin);
 	drag_pos = pos;
 
+	// ask for more events
+	get_pointer(pos.x, pos.y);
 	return true;
     }
     

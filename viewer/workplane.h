@@ -28,7 +28,7 @@ public:
 	    Layer * layer = itl->second;
 	    if (layers_active[layer]) {
 		if (!tile_cache[layer]->contains(tile_key)) {
-		    tile_cache[layer]->add(tile_key, itl->second->get_image(src_rect));
+		    tile_cache[layer]->add(tile_key, layer->get_image(src_rect));
 		}
 		image.render(0,0,tile_cache[layer]->get(tile_key));
 	    }

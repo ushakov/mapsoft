@@ -10,6 +10,37 @@
 #include <utils/m_time.h>
 
 
+namespace detail {
+
+    template <typename T>
+    struct map_getter {
+	static void get_from_map (std::map<std::string, std::string> const & map, std::string key, T & var) {
+	    std::map<std::string, std::string>::const_iterator it = map.find(key);
+	    if (it != map.end()) {
+		try {
+		    var = boost::lexical_cast<T>(it->second);
+		}
+		catch (boost::bad_lexical_cast & e) {
+		    std::cerr << "Bad cast: " << key << " = " << it->second << "\n";
+		    // leave as-is
+		}
+	    }
+	}
+    };
+
+    template <>
+    struct map_getter<bool> {
+	static void get_from_map (std::map<std::string, std::string> const & map, std::string key, bool & var) {
+	    std::map<std::string, std::string>::const_iterator it = map.find(key);
+	    if (it != map.end()) {
+		var = true;
+	    } else {
+		var = false;
+	    }
+	}
+    };
+}
+
 struct Options : std::map<std::string,std::string>{
     // добавить параметр из строки вида a[=b]
     bool         put_string  (const std::string & kv);
@@ -42,19 +73,8 @@ struct Options : std::map<std::string,std::string>{
     
     template<typename T>
     void get (std::string key, T & val) const {
-	const_iterator it = find(key);
-	if (it != end()) {
-	    try {
-		val = boost::lexical_cast<T>(it->second);
-//		std::cerr << "Good cast: " << key << " = " << it->second << "\n";
-	    }
-	    catch (boost::bad_lexical_cast & e) {
-		std::cerr << "Bad cast: " << key << " = " << it->second << "\n";
-		// leave as-is
-	    }
-	}
+	detail::map_getter<T>::get_from_map (*this, key, val);
     }
-
 
 };
 

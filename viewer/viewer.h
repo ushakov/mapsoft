@@ -61,7 +61,7 @@ public:
 	we_need_cache_updater = false;
         cache_updater_cond->signal();
         mutex->unlock();
-	// подождем, пока cache_updater_thread завершиться
+	// подождем, пока cache_updater_thread завершится
 	cache_updater_thread->join();
 	delete(mutex);
         delete(cache_updater_cond);
