@@ -1,0 +1,8 @@
+Import ('env')
+le = env.Copy()
+
+mapsoft_libs = Split ("geo_io loaders utils jeeps")
+le.Prepend(LIBS=mapsoft_libs)
+
+le.Program('mapconv', 'mapconv.cpp')
+le.Program('mapinfo', 'mapinfo.cpp')
