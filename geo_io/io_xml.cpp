@@ -172,7 +172,7 @@ namespace xml {
                         if (p->x    != def_pt.y)    f << " x="  << fixed << setprecision(6) << p->x;
                         if (p->y    != def_pt.x)    f << " y="  << fixed << setprecision(6) << p->y;
                         if (p->xr   != def_pt.xr)   f << " xr=" << fixed << setprecision(1) << p->xr;
-                        if (p->yr   != def_pt.yr)   f << " yr=" << fixed << setprecision(1) << p->yr; */
+                        if (p->yr   != def_pt.yr)   f << " yr=" << fixed << setprecision(1) << p->yr; 
 			f << "/>\n";
 		}
 		f << "</map>\n";
