@@ -125,7 +125,7 @@ main(int argc, char **argv){
     if (opts.find("comm_from_comp") != opts.end()) cfc=true;
 
     double txt_dist = 2; // максимальное расстояние (см), на котором ловится текст.
-    opts.get_udouble("txt_dist");
+    opts.get("txt_dist", txt_dist);
     txt_dist *= fig::cm2fig;
 
     mp::mp_world   M; 
@@ -297,8 +297,8 @@ main(int argc, char **argv){
     fig::fig_world F;
     F.colors=colors;
 
-    string datum_str("pulkovo"); opt.get("datum", datum_str);
-    string proj_str("tmerc");    opt.get("proj", proj_str);
+    string datum_str("pulkovo"); opts.get("datum", datum_str);
+    string proj_str("tmerc");    opts.get("proj", proj_str);
 
     Datum datum(datum_str);
     Proj  proj(proj_str);
@@ -342,6 +342,11 @@ main(int argc, char **argv){
       g_refpoint(minx, maxy,0,0), 
       g_refpoint(maxx, miny,W,H), 
       g_refpoint(maxx, maxy,W,0)};
+    g_point bps[4] = {
+      g_point(0,H), 
+      g_point(0,0), 
+      g_point(W,H), 
+      g_point(W,0)};
     for (int n=0; n<4; n++){
       fig::fig_object o = fig::make_object("2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 *");
       o.push_back( Point<int>(int(rps[n].xr), int(rps[n].yr)) );
@@ -361,8 +366,9 @@ main(int argc, char **argv){
       
       cnv.frw(rps[n]);
       map.push_back(rps[n]);
-      map.border.push_back(g_point(0,0));
+      map.border.push_back(bps[n]);
     }
+    
     map.map_proj=proj;
 
     convs::map2pt C(map, Datum("wgs84"), Proj("lonlat"), Options());
@@ -378,7 +384,29 @@ main(int argc, char **argv){
         if (mp::test_object(*i, r->first)){
           fig::fig_object o = fig::make_object(r->second);
           o.set_vector(C.line_bck(*i));
-
+/*          // отрежем все точки, выходящее за границы карты
+          convs::border_tester bt(map.border);
+          fig::fig_object::iterator it=o.begin(), it1;
+          while (it!=o.end()){
+	    bool t0 = bt.test(it->x, it->y);
+            it1 = it; it1++;
+            if (it1!=o.end()){
+  	      bool t1 = bt.test(it1->x, it1->y);
+              if ( t0 &&  t1) continue;
+              if (!t0 && !t1) {o.erase(it); continue;}
+              if (!t0 &&  t1) {// подвитуть it к границе
+                
+                continue;
+              }
+              if ( t0 && !t1) {// подвитуть it1 к границе
+                continue;
+              }
+            } else {
+              
+            }
+            it++;
+          }
+*/
           // если это сплайн:
           if (o.type==3){
             double f;

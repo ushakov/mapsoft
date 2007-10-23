@@ -109,7 +109,7 @@ void pt2ll::bck(g_point & p){
     std::cerr << "conversion latlon -> utm is not supported. fixme!\n";
     return;
   case 3: // merc
-    std::cerr << "conversion latlon -> utm is not supported. fixme!\n";
+    GPS_Math_Mercator_LatLon_To_EN(p.y, p.x, &x, &y, lat0, lon0, E0, N0, a, a*(1-f));
     return;
   case 4: // google
     p.y = 180/M_PI * log(tan(M_PI/4*(1+p.y/90.0)));

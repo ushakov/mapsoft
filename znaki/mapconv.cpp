@@ -18,7 +18,8 @@ using namespace std;
 форматах mp или fig (формат определяется по расширению) 
 mapconf <map1> <map2> конвертирует карту 1 в формат карты 2,
 оставляя у карты 2 родную проекцию fig-файла или заголовок 
-mp-файла. Если карты 2 не существует, то она создается. При этом
+mp-файла. В fig-файле также сохраняются объекты с глубинами < 30 и >= 200.
+Если карты 2 не существует, то она создается. При этом
 для fig-файла спрашиваются параметры проекции...
 */
 
@@ -27,6 +28,7 @@ void usage(){
   cout << "usage: mapconv [p|e] <infile> <outfile> [<style>]\n";
   cout << "Заголовок mp-файла сохраняется старый, если он есть\n";
   cout << "Проекция fig-файла сохраняется старой, если она есть\n";
+  cout << "Объекты с глубинами < 30 и >= 200 сохраняются\n";
   cout << "Формат файла определяется по расширению\n"; 
   exit(0);
 }
@@ -165,8 +167,18 @@ main(int argc, char **argv){
     else omap = get_user_map();
     convs::map2pt ocnv(omap, Datum("wgs84"), Proj("lonlat"), Options());
 
-    OW.clear();
-    znaki.fig_add_colors(OW);
+    cout << "erasing objects: ";
+
+    fig::fig_world::iterator fi = OW.begin();
+    while(fi!=OW.end()){
+      if ((fi->depth >= 30) && (fi->depth < 200)){
+        fi=OW.erase(fi);
+      } else fi++;
+    }
+    cout << OW.size() << " objects remain\n";
+    
+
+    znaki.fig_add_colors(OW); // добавим в fig цвета, нужные для знаков
     fig::set_ref(OW, omap, Options());
 
     cout << "converting objects...\n";

@@ -418,7 +418,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		  << trk.skip  << ',' 
 		  << trk.type  << ',' 
 		  << trk.fill  << ',' 
-		  << trk.cfill << "\r\n" 
+		  << trk.cfill.RGB().value << "\r\n" 
 		  << num << "\r\n";
 		for (vector<g_trackpoint>::const_iterator p = trk.begin(); 
 			 p!= trk.end(); p++){

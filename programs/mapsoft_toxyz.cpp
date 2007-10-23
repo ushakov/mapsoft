@@ -28,8 +28,8 @@ int main (int argc, char **argv) {
 		// update values:
 		// distance
 		distance += hypot(tp.x - pp.x, tp.y - pp.y);
-		timedist.push(std::make_pair(tp.t, distance));
-		while (timedist.front().first < tp.t - window && timedist.size() > 2) {
+		timedist.push(std::make_pair(tp.t.value, distance));
+		while (timedist.front().first < tp.t.value - window && timedist.size() > 2) {
 		    timedist.pop();
 		}
 		double traveled = timedist.back().second - timedist.front().second;

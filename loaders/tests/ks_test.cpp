@@ -26,6 +26,7 @@ int main(){
   r1.border.push_back(g_point(w,0));
 
   LayerGoogle layer(dir,zoom);
+  LayerKS layer1(dir,zoom);
   layer.set_ref(r1);
   
   Image<int> image(180,180);

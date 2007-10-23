@@ -19,12 +19,11 @@ main(int argc, char **argv){
 //  ofstream  uc(unconv.c_str());
 
   fig::fig_world W1  = fig::read(argv[1]);
-  fig::fig_world W2,UC;
 
-W1.colors[32]=0xaaffaa;
-W1.colors[33]=0x5066ff;
-W1.colors[34]=0x404040;
-W1.colors[35]=0x888888;
+//W1.colors[32]=0xaaffaa;
+//W1.colors[33]=0x5066ff;
+//W1.colors[34]=0x404040;
+//W1.colors[35]=0x888888;
 
   for (fig::fig_world::iterator i=W1.begin(); i!=W1.end(); i++){
 /*    // болота
@@ -36,19 +35,18 @@ W1.colors[35]=0x888888;
     }
 */
 
-// Убрать газопроводные кружки
-//    if (fig::test_object(*i, "1 3 0 1 35 7 57 -1 20 * * * * * * * * * * *")){
-//      i->depth=500;
-//      continue;
-//    }
 
-//    // овраги неправильные
-//    if (((fig::test_object(*i, "2 1 0 2 26 * * -1 * * * * * * * *"))||
-//        (fig::test_object(*i, "3 0 0 2 26 * * -1 * * * * * *"))) && 
-//        (i->x.size()<5)){
-//      i->pen_color=25; i->depth=89;
-//      continue;
-//    }
+    if (((fig::test_object(*i, "2 * * 1 * * 90 * * * * * * * * *"))||
+        (fig::test_object(*i,  "3 * * 1 * * 90 * * * * * * *"))) && 
+	(i->comment.size()>0) &&
+        ((i->comment[0] == "2000") ||
+         (i->comment[0] == "3000") || 
+         (i->comment[0] == "4000") || 
+         (i->comment[0] == "5000")))
+      {
+      i->thickness=2;
+      continue;
+    }
 
 //    // ручьи-5
 //    if (((fig::test_object(*i, "2 1 0 * 33 * 86 * -1 * * * * * * *"))||
@@ -57,26 +55,6 @@ W1.colors[35]=0x888888;
 //      i->thickness=5;
 //      continue;
 //    }
-
-
-    if ((fig::test_object(*i, "4 * 0 55 * 3 * * *"))||
-        (fig::test_object(*i, "4 * 0 55 * 1 * * *"))){
-      bool x=false;
-      bool num=true;
-      if ((i->text.size()>2)&&(i->text[0] == 'у')&&(i->text[1] == 'р')&&(i->text[2] == '.')) x=true;
-      if ((i->text.size()>3)&&(i->text[0] == 'б')&&(i->text[1] == 'о')&&(i->text[2] == 'л')&&(i->text[3] == '.')) x=true;
-      if (i->text.size()==0) num=false;
-      for (int n=0;n<i->text.size();n++)  
-        if (((i->text[n]<'0')||(i->text[n]>'9'))&&(i->text[n]!='.')) num=false;
-      if (x || num){
-        i->font=3;
-        i->sub_type=1;
-        i->pen_color=12;
-        i->font_size=8;
-        (*i)[0].x+=int(i->length/2);
-      }
-    }
-
 
 /* // вернуть назад преобразованные дороги...
     if ((fig::test_object(*i, "2 * 0 1 0 * 80 * * * * * * * * * "))||
@@ -194,7 +172,6 @@ W1.colors[35]=0x888888;
       continue;
     }*/
 
-    UC.push_back(*i);
   }
   fig::write(out, W1);
 }

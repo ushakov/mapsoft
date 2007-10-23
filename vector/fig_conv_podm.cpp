@@ -57,8 +57,10 @@ main(int argc, char **argv){
         i->sub_type = (i->sub_type%2)+4;
       }
       if (((*i)[0].x==(*i)[fs-1].x) && ((*i)[0].y==(*i)[fs-1].y)){
-        i->erase(i->begin()+fs-1);
-        fs=i->size();
+        if (((i->type==2) && (i->sub_type==1))||
+            ((i->type==3) && (i->sub_type==4))) i->sub_type=5;
+//        i->erase(i->begin()+fs-1);
+//        fs=i->size();
       }
 
       i->type=3;
@@ -145,7 +147,7 @@ main(int argc, char **argv){
       fig_object o = make_object(*i, "2 1 0 1 0 7 80 -1 -1 0.000 0 0 -1 0 0 *");
 
       double s1 = 80;
-      double s2 = 15;
+      double s2 = 20;
       double l=0;
       int seg=0;
       Point<double> p;
@@ -261,8 +263,66 @@ main(int argc, char **argv){
     // река-5
     if (test_object(*i, "2 * 0 5 33 * 86 * * * * * * * * *") ||
         test_object(*i, "3 * 0 5 33 * 86 * * * * * * *")) {
+      i->thickness = 3;
       fig_object o = *i;
-      o.pen_color = 3; o.depth = 84; o.thickness = 3; W.push_back(o);
+      o.pen_color = 3; o.depth = 84; o.thickness = 1; W.push_back(o);
+      continue;
+    }
+
+    // пунктирная река
+    if (test_object(*i, "2 * 1 1 33 * 86 * * * * * * * * *") ||
+        test_object(*i, "3 * 1 1 33 * 86 * * * * * * *")) {
+      i->pen_color=33;
+      i->type=2;
+
+      double ll0=0;
+      vector<double> ls;
+      vector<Point<double> > vs;
+      for (int j=1; j<fs; j++){
+        Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
+        Point<double> p2 ((*i)[j].x, (*i)[j].y);
+        double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+        ll0+=dl; ls.push_back(ll0);
+        if (p1!=p2){
+          Point<double> v ((p2.x-p1.x)/dl, (p2.y-p1.y)/dl);
+          vs.push_back(v);
+        }
+        else  vs.push_back(Point<double>(1,0));
+      }
+
+      i->line_style=0;
+      fig_object o = make_object(*i, "2 1 0 1 33 7 86 -1 -1 0.000 0 0 -1 0 0 *");
+
+      double s1 = 80;
+      double s2 = 20;
+      double l=0;
+      int seg=0;
+      Point<double> p;
+
+      while (l<ll0){
+        p.x = (*i)[seg].x + (l - (seg==0? 0: ls[seg-1]))*vs[seg].x;
+        p.y = (*i)[seg].y + (l - (seg==0? 0: ls[seg-1]))*vs[seg].y;
+
+        o.clear();
+        o.push_back(Point<int>(int(p.x),int(p.y)));
+
+        l+=s1;
+        while ((ls[seg]<=l)&&(seg<ls.size())){ 
+         seg++;
+         o.push_back(Point<int>(int((*i)[seg].x),int((*i)[seg].y))); 
+        }
+
+        p.x = (*i)[seg].x + (l - (seg==0? 0: ls[seg-1]))*vs[seg].x;
+        p.y = (*i)[seg].y + (l - (seg==0? 0: ls[seg-1]))*vs[seg].y;
+
+        if (l<=ll0) o.push_back(Point<int>(int(p.x),int(p.y)));
+
+        l+=s2;
+        while ((ls[seg]<=l)&&(seg<ls.size())){ seg++; }
+        W.push_back(o);
+
+      }
+      i = W.erase(i); i--;
       continue;
     }
 
@@ -625,7 +685,7 @@ main(int argc, char **argv){
         else  vsb.push_back(Point<double>(1,0));
       }
 
-      i->pen_color=0;
+      i->pen_color=18;
       i->cap_style=1;
       fig_object o = *i;
       o.type=2; o.sub_type=1;
@@ -660,6 +720,57 @@ main(int argc, char **argv){
         pb.y = psb[segb].y + (lb - (segb==0? 0: lsb[segb-1]))*vsb[segb].y;
       }
     }
+
+    // обрыв
+    if ((test_object(*i, "2 * 0 * 18 * 79 * * * * * * * * *")||
+         test_object(*i, "3 * 0 * 18 * 79 * * * * * * *"))&&(fs>1)){
+      int k=0;
+      if (i->backward_arrow==1) k=-1;
+      if (i->forward_arrow==1) k=1;
+      if (k==0) continue;
+      double ll0=0;
+      vector<double> ls;
+      vector<Point<double> > vt;
+      for (int j=1; j<fs; j++){
+        Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
+        Point<double> p2 ((*i)[j].x, (*i)[j].y);
+        double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+        ll0+=dl; ls.push_back(ll0);
+        if (p1!=p2){
+          Point<double> v ((p2.x-p1.x)/dl, (p2.y-p1.y)/dl);
+          vt.push_back(v);
+        }
+        else  vt.push_back(Point<double>(1,0));
+      }
+
+      i->pen_color=18;
+      i->forward_arrow=0;
+      i->backward_arrow=0;
+      i->cap_style=1;
+      fig_object o = *i;
+      o.type=2;
+      o.sub_type=1;
+
+      double step = 40;
+      step= ll0/floor(ll0/(step+1));
+      double w = 15;
+
+      double l=w/2;
+      int seg=0;
+
+      while (l+w/2<ll0){
+        Point<double> p(
+         (*i)[seg].x + (l - (seg==0? 0: ls[seg-1]))*vt[seg].x,
+         (*i)[seg].y + (l - (seg==0? 0: ls[seg-1]))*vt[seg].y);
+        o.clear();
+        o.push_back(Point<int>(int(p.x),int(p.y)));
+        o.push_back(Point<int>(int(p.x-k*vt[seg].y*w),int(p.y+k*vt[seg].x*w)));
+        W.push_back(o);
+        l+=step;
+        while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
+      }
+    }
+
     // кладбище
     if (test_object(*i, "2 * 0 1  0 32  92 *  5 * * * * * * *")){
       i->area_fill=10;
@@ -742,55 +853,6 @@ main(int argc, char **argv){
       }
     }
 
-    // обрыв
-    if ((test_object(*i, "2 * 0 * 18 * 79 * * * * * * * * *")||
-         test_object(*i, "3 * 0 * 18 * 79 * * * * * * *"))&&(fs>1)){
-      int k=0;
-      if (i->backward_arrow==1) k=-1;
-      if (i->forward_arrow==1) k=1;
-      if (k==0) continue;
-      double ll0=0;
-      vector<double> ls;
-      vector<Point<double> > vt;
-      for (int j=1; j<fs; j++){
-        Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
-        Point<double> p2 ((*i)[j].x, (*i)[j].y);
-        double dl = sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
-        ll0+=dl; ls.push_back(ll0);
-        if (p1!=p2){
-          Point<double> v ((p2.x-p1.x)/dl, (p2.y-p1.y)/dl);
-          vt.push_back(v);
-        }
-        else  vt.push_back(Point<double>(1,0));
-      }
-
-      i->pen_color=0;
-      i->forward_arrow=0;
-      i->backward_arrow=0;
-      i->cap_style=1;
-      fig_object o = *i;
-      o.type=2;
-      o.sub_type=1;
-
-      double step = 40;
-      step= ll0/floor(ll0/(step+1));
-      double w = 40;
-
-      double l=w/2;
-      int seg=0;
-
-      while (l+w/2<ll0){
-        Point<double> p(
-         (*i)[seg].x + (l - (seg==0? 0: ls[seg-1]))*vt[seg].x,
-         (*i)[seg].y + (l - (seg==0? 0: ls[seg-1]))*vt[seg].y);
-        o.clear();
-        o.push_back(Point<int>(int(p.x),int(p.y)));
-        o.push_back(Point<int>(int(p.x-k*vt[seg].y*w),int(p.y+k*vt[seg].x*w)));
-        W.push_back(o);
-        l+=step;
-        while ((ls[seg]<=l)&&(seg<ls.size())){ seg++;}
-      }
-    }
 
 
   }

@@ -9,6 +9,7 @@ subdirs = Split ("""
 		utils
 		vector
 		viewer
+		znaki
 		""")
 
 SetOption('implicit_cache', 1)

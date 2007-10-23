@@ -76,7 +76,7 @@ namespace xml {
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
 			>> str_p("</waypoints>")[push_back_a(world.wpts, pt_list)];
-		rule_t trk_object = str_p("<track")[clear_a(pt_list)][clear_a(pt_list.points)] 
+		rule_t trk_object = str_p("<track")[clear_a(pt_list)][clear_a(pt_list.points)]
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
 			>> str_p("</track>")[push_back_a(world.trks, pt_list)];
@@ -86,7 +86,7 @@ namespace xml {
 			>> str_p("</map>")[push_back_a(world.maps, pt_list)];
 
 		parse_info<iterator_t> info = parse(first, last,
-		   *(*space_p >> (wpt_object | trk_object | map_object)) >> *space_p);
+		   *(*space_p >> (wpt_object | map_object | trk_object)) >> *space_p);
 
 		return info.full;
 	}
@@ -169,10 +169,10 @@ namespace xml {
 		vector<g_refpoint>::const_iterator p, b=m.begin(), e=m.end();
 		for (p = b; p!=e; p++){
 			f << "  <pt";
-                        if (p->y    != def_pt.y)    f << " x="  << fixed << setprecision(6) << p->x;
-                        if (p->x    != def_pt.x)    f << " y="  << fixed << setprecision(6) << p->y;
+                        if (p->x    != def_pt.y)    f << " x="  << fixed << setprecision(6) << p->x;
+                        if (p->y    != def_pt.x)    f << " y="  << fixed << setprecision(6) << p->y;
                         if (p->xr   != def_pt.xr)   f << " xr=" << fixed << setprecision(1) << p->xr;
-                        if (p->yr   != def_pt.yr)   f << " yr=" << fixed << setprecision(1) << p->yr;
+                        if (p->yr   != def_pt.yr)   f << " yr=" << fixed << setprecision(1) << p->yr; */
 			f << "/>\n";
 		}
 		f << "</map>\n";

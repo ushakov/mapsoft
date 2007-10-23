@@ -31,14 +31,16 @@ g_map ref_google(int scale){
 
 g_map ref_ks(int scale){
    g_map ret;
-   ret.map_proj = Proj("google");
+   ret.map_proj = Proj("merc");
    ret.comm = "new.kosmosnimki.ru";
 
    if (scale<ks::ks_scale_min) scale=ks::ks_scale_min;
    if (scale>ks::ks_scale_max) scale=ks::ks_scale_max;
 
-   double maxlat = 360/M_PI*atan(exp(M_PI/2)) - 90;
+// проверить
    double width = 5*256*(1<<(scale-3));
+   double maxlat = 85.00405660174; // proj(laxlat, 180) = (20037508.34, 20037508.34) - квадрат
+   // определил с помощью proj
    ret.push_back(g_refpoint(0  ,maxlat, 0,0));
    ret.push_back(g_refpoint(180,maxlat, width,0));
    ret.push_back(g_refpoint(180,0,      width,width));

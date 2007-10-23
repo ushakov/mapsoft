@@ -2,5 +2,5 @@ Import ('env')
 le = env.Copy()
 
 le.Program('generic_accessor_unittest', 'generic_accessor_unittest.cpp', LIBS=['utils'])
-le.Program('options_test', 'options_test.cpp', LIBS=['utils'])
+# le.Program('options_test', 'options_test.cpp', LIBS=['utils'])
 

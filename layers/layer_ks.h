@@ -21,14 +21,15 @@
 
 class LayerKS : public LayerGeo {
 private:
+public:
   std::string dir;
   int scale;
-  g_map mymap;
-  g_map mymap0;
-  convs::map2map cnv;
+  g_map mymap;  // текущая привязка layer'a
+  g_map mymap0; // родная привязка снимков
+  convs::map2map cnv; // преобразование mymap0 -> mymap
   bool do_download;
 
-public:
+//public:
 
     LayerKS (const std::string & dir_, const int scale_) : 
       dir(dir_), scale(scale_), mymap0(ref_ks(scale)), mymap(ref_ks(scale)), cnv(mymap0,mymap), do_download(false){}
@@ -41,26 +42,21 @@ public:
     void set_ref(){set_ref(mymap0);}
 
 
-    virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
-#ifdef DEBUG_LAYER_KS
-        std::cerr  << "LayerKS: draw " << src_rect << " -> " 
-	           << dst_rect << " at " << dst_img << std::endl;
-#endif
-        clip_rects_for_image_loader(range(), src_rect, dst_img.range(), dst_rect);
-        if (src_rect.empty() || dst_rect.empty()) return;
+    virtual void refresh(){}
+
+    virtual void draw (Point<int> origin, Image<int> & image){
+        Rect<int> dst_rect = image.range() + origin;
+        Rect<int> src_rect = cnv.bb_bck(dst_rect);
+
 
 #ifdef DEBUG_LAYER_KS
-	std::cerr  << "LayerKS: inside the map range" <<std::endl;
+        std::cerr  << "LayerKS: drawing " << dst_rect << std::endl;
+        std::cerr  << "LayerKS: loading " << src_rect << std::endl;
 #endif
 	
-        // какую часть картинки мы хотим загрузить
-	Rect<int> img_rect = cnv.bb_bck(src_rect);
         // мы загружаем часть картинки - поэтому сбивается привязка
         g_map new_map(mymap0);
-        for (g_map::iterator i=new_map.begin(); i!=new_map.end(); i++){
-          i->xr-=img_rect.x;
-          i->yr-=img_rect.y;
-        }
+        new_map-=src_rect.TLC();
         convs::map2map new_cnv(new_map, mymap);
 
         // в каком масштабе мы будем загружать картинку
@@ -69,8 +65,8 @@ public:
 	int sc = int(sc_x<sc_y? sc_x:sc_y);
 	if (sc <=0) sc = 1;
         
-	Image<int> im0 = ks::load(dir, scale, img_rect, sc, do_download);
-        new_cnv.image_frw(im0, sc, src_rect, dst_img, dst_rect);
+	Image<int> im0 = ks::load(dir, scale, src_rect, sc, do_download);
+        new_cnv.image_frw(im0, sc, src_rect, image, dst_rect);
     }
 
 

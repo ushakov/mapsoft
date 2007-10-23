@@ -18,7 +18,7 @@ namespace io {
 	
 	using namespace std;
 
-	bool testext(const string & nstr, char *ext){
+	bool testext(const string & nstr, const char *ext){
 		int pos = nstr.rfind(ext);
 		return ((pos>0)&&(pos == nstr.length()-strlen(ext)));
 	}
