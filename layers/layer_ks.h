@@ -66,7 +66,8 @@ public:
 	if (sc <=0) sc = 1;
         
 	Image<int> im0 = ks::load(dir, scale, src_rect, sc, do_download);
-        new_cnv.image_frw(im0, sc, src_rect, image, dst_rect);
+
+        new_cnv.image_frw(im0, sc, dst_rect, image, image.range());
     }
 
 

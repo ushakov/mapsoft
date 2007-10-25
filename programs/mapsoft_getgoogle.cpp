@@ -57,24 +57,6 @@ main(int argc, char **argv){
     int w=int((X2-X1)/m_per_pt);
     int h=int((Y2-Y1)/m_per_pt);
     Image<int> im = ml.get_image (Rect<int>(0,0,w,h));
-    image_r::save(im, "out.jpg", O);
+    image_r::save(im, "out_g.jpg", O);
 
-/*
-    for (g_map::iterator i=ref.begin(); i!=ref.end(); i++){
-      i->xr *= 2.54/dpi * fig::cm2fig;
-      i->yr *= 2.54/dpi * fig::cm2fig;
-    }
-    fig::fig_world W;
-    fig::set_ref(W, ref, Options());
-    fig::fig_object o = fig::make_object("2 5 0 1 0 -1 500 -1 -1 0.000 0 0 -1 0 0 *");
-
-    for (g_map::iterator i=ref.begin(); i!=ref.end(); i++){
-      o.push_back(Point<int>(int(i->xr), int(i->yr)));
-    }
-    o.push_back(Point<int>(int(ref[0].xr), int(ref[0].yr)));
-    o.image_file = "out.jpg";
-    o.comment.push_back("MAP AAA");
-    W.push_back(o);
-    std::ofstream f("out2.fig");
-    fig::write(f, W);*/
 }

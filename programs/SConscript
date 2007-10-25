@@ -13,7 +13,6 @@ le.Program('mapsoft_convert', 'mapsoft_convert.cpp')
 le.Program('mapsoft_mapcnv', 'mapsoft_mapcnv.cpp')
 le.Program('mapsoft_getks', 'mapsoft_getks.cpp')
 le.Program('mapsoft_getks_ll', 'mapsoft_getks_ll.cpp')
-
 le.Program('mapsoft_getgoogle', 'mapsoft_getgoogle.cpp')
 le.Program('mapsoft_mapview', 'mapsoft_mapview.cpp')
 le.Program('mapsoft_mkmap', 'mapsoft_mkmap.cpp')

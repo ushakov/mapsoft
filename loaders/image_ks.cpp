@@ -17,7 +17,7 @@ int load(
   if (ks_scale<ks_scale_min) ks_scale=ks_scale_min;
   if (ks_scale>ks_scale_max) ks_scale=ks_scale_max;
  
-  int src_width = 5 * (1 << (8+ks_scale-3));
+  int src_width = 5 * 256* (1 << (ks_scale-3));
 
   Rect<int> src_points = Rect<int>(0,0,src_width,src_width);
 

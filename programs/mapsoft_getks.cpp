@@ -31,8 +31,8 @@ main(int argc, char **argv){
     LayerKS     ml("/d/MAPS/KS", zoom);
     ml.set_downloading(true);
 
-    double width = 5*256*(1<<(zoom-3));
-    double deg_per_pt = 188.0/width; // ~188
+    double width = 256*(1<<(zoom));
+    double deg_per_pt = 180.0/width; // ~188
     double m_per_pt   = deg_per_pt * M_PI/180 * 6378137.0;
 
     g_point p1(X1,Y2), p2(X2,Y2), p3(X2,Y1), p4(X1,Y1);

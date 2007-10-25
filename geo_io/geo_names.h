@@ -75,6 +75,7 @@ public boost::equality_comparable<Proj>
 	if ((name == "merc")||
     	    (name == "Mercator")){n=3; return;}
 	if  (name == "google"){n=4; return;}
+	if  (name == "ks"){n=5; return;}
 	std::cerr << "Unknown proj: " << name << ". Using Latitude/Longitude.\n";
 	n=0;
     }
@@ -86,6 +87,7 @@ public boost::equality_comparable<Proj>
     	    case  2: return "utm";
     	    case  3: return "merc";
     	    case  4: return "google";
+    	    case  5: return "ks";
     	    default:
     	    std::cerr << "xml_str: unknown proj: " << n << "\n";
     	    return "unknown";

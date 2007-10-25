@@ -64,7 +64,7 @@ public:
         convs::map2map new_cnv(new_map, mymap);
 
         Image<int> im0 = google::load(dir, scale, src_rect, sc, do_download);
-        new_cnv.image_frw(im0, sc, src_rect, image, dst_rect);
+        new_cnv.image_frw(im0, sc, dst_rect, image, image.range());
     }
 
 

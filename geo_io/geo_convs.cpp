@@ -45,6 +45,8 @@ pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
 	  return;
         case 4: // google
 	  return;
+        case 5: // ks
+	  return;
         default:
           std::cerr << "unknown proj: " << P.n << "\n";
           return;
@@ -81,6 +83,29 @@ void pt2ll::frw(g_point & p) const{
     case 4: // google
        p.y = 360/M_PI*atan(exp(p.y*M_PI/180)) - 90;
        break;
+    case 5: // ks
+      { 
+      double r_a = 6378137.000;
+      double r_b = 6356752.3142;
+      double r_ba = r_b/r_a;
+      double r_e = sqrt(1.0-r_ba*r_ba);
+      double ts = exp(-p.y/r_a);
+
+
+      double phi = M_PI/2.0 - 2.0*atan(ts);
+      int i = 15;
+      double dphi = 0.1;
+
+      while ((abs(dphi)>1e-7)&&(--i>0)){
+        double con = r_e * sin(phi);
+        dphi = M_PI/2.0 - 2.0 * atan(ts * pow((1.0 - con)/(1.0 + con), r_e/2)) - phi;
+        phi += dphi;
+      } 
+      p.y = phi *180.0/M_PI; 
+      p.x = (p.x/r_a)*180.0/M_PI;
+      }
+      break;
+
     default:
        std::cerr << "unknown proj: " << proj.n << "\n";
        break;
@@ -114,6 +139,23 @@ void pt2ll::bck(g_point & p){
   case 4: // google
     p.y = 180/M_PI * log(tan(M_PI/4*(1+p.y/90.0)));
     return;
+  case 5: // ks
+    {
+    double r_a = 6378137.000;
+    double r_b = 6356752.3142;
+    double r_ba = r_b/r_a;
+    double r_e = sqrt(1.0-r_ba*r_ba);
+
+    if (p.y > 89.5) p.y = 89.5;
+    if (p.y < -89.5) p.y = -89.5;
+
+    double con = r_e * sin(p.y*M_PI/180.0);
+    con = pow(((1.0-con)/(1.0+con)), r_e/2);
+    double ts = tan(M_PI/4 * (1 - p.y/90.0))/con;
+    p.y = 0 - r_a * log(ts);
+    p.x *= r_a * M_PI/180.0;
+    }
+    break;
   default:
     std::cerr << "unknown proj: " << proj.n << "\n";
     return;
