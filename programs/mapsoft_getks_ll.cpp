@@ -7,6 +7,7 @@
 #include "../geo_io/geo_convs.h"
 
 #include "../geo_io/geofig.h"
+#include <iostream>
 
 int zoom;
 double X1;
@@ -42,11 +43,25 @@ main(int argc, char **argv){
     ref.map_proj=Proj("lonlat");
 
     ml.set_ref(ref);
+/*
+convs::pt2pt c(Datum("wgs84"),Proj("ks"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
 
+g_point p;
+p = g_point(0,0);    std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
+p = g_point(180,0);  std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
+p = g_point(180,90); std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
+p = g_point(0,90);   std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
+p = g_point(90,45);  std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
+p = g_point(50,60);  std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
+
+g_point p1(22537507-2000000, 22537507-2000000);
+c.frw(p1);
+ std::cerr << " " << p1 << "\n";
+*/
     int w=int((X2-X1)/deg_per_pt);
     int h=int((Y2-Y1)/deg_per_pt);
     Image<int> im = ml.get_image (Rect<int>(0,0,w,h));
-    image_r::save(im, "out.jpg", O);
+    image_r::save(im, "out.jpg", Options());
 
     geo_data W;
     W.maps.push_back(ref);
