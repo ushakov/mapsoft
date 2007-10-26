@@ -15,7 +15,7 @@ g_map ref_google(int scale){
    if (scale<google::google_scale_min) scale=google::google_scale_min;
    if (scale>google::google_scale_max) scale=google::google_scale_max;
 
-   double maxlat = 360/M_PI*atan(exp(M_PI/2)) - 90;
+   double maxlat = 360/M_PI*atan(exp(M_PI)) - 90;
    double width = 256*(1<<(scale-1));
    ret.push_back(g_refpoint(-180,maxlat,  0,0));
    ret.push_back(g_refpoint( 180,maxlat,  width,0));

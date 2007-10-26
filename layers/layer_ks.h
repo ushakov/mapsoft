@@ -21,7 +21,6 @@
 
 class LayerKS : public LayerGeo {
 private:
-public:
   std::string dir;
   int scale;
   g_map mymap;  // текущая привязка layer'a
@@ -29,7 +28,7 @@ public:
   convs::map2map cnv; // преобразование mymap0 -> mymap
   bool do_download;
 
-//public:
+public:
 
     LayerKS (const std::string & dir_, const int scale_) : 
       dir(dir_), scale(scale_), mymap0(ref_ks(scale)), mymap(ref_ks(scale)), cnv(mymap0,mymap), do_download(false){}
@@ -66,7 +65,6 @@ public:
 	if (sc <=0) sc = 1;
         
 	Image<int> im0 = ks::load(dir, scale, src_rect, sc, do_download);
-
         new_cnv.image_frw(im0, sc, dst_rect, image, image.range());
     }
 

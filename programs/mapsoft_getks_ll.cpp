@@ -43,47 +43,10 @@ main(int argc, char **argv){
     ref.map_proj=Proj("lonlat");
 
     ml.set_ref(ref);
-/*
-convs::pt2pt c(Datum("wgs84"),Proj("ks"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
 
-g_point p;
-p = g_point(0,0);    std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
-p = g_point(180,0);  std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
-p = g_point(180,90); std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
-p = g_point(0,90);   std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
-p = g_point(90,45);  std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
-p = g_point(50,60);  std::cerr << "p " << p; c.bck(p); std::cerr << " -> " << p; c.frw(p); std::cerr << " -> " << p << "\n";
-
-g_point p1(22537507-2000000, 22537507-2000000);
-c.frw(p1);
- std::cerr << " " << p1 << "\n";
-*/
     int w=int((X2-X1)/deg_per_pt);
     int h=int((Y2-Y1)/deg_per_pt);
     Image<int> im = ml.get_image (Rect<int>(0,0,w,h));
     image_r::save(im, "out.jpg", Options());
 
-    geo_data W;
-    W.maps.push_back(ref);
-    W.maps.push_back(ml.mymap);
-    W.maps.push_back(ml.mymap0);
-    xml::write_file("out.xml", W, Options());
-/*
-    for (g_map::iterator i=ref.begin(); i!=ref.end(); i++){
-      i->xr *= 2.54/dpi * fig::cm2fig;
-      i->yr *= 2.54/dpi * fig::cm2fig;
-    }
-    fig::fig_world W;
-    fig::set_ref(W, ref, Options());
-    fig::fig_object o = fig::make_object("2 5 0 1 0 -1 500 -1 -1 0.000 0 0 -1 0 0 *");
-
-    for (g_map::iterator i=ref.begin(); i!=ref.end(); i++){
-      o.push_back(Point<int>(int(i->xr), int(i->yr)));
-    }
-    o.push_back(Point<int>(int(ref[0].xr), int(ref[0].yr)));
-    o.image_file = "out.jpg";
-    o.comment.push_back("MAP AAA");
-    W.push_back(o);
-    std::ofstream f("out2.fig");
-    fig::write(f, W);*/
 }
