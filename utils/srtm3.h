@@ -61,6 +61,7 @@ class srtm3 {
     std::ifstream in(file.str().c_str());
     if (!in){
       std::cerr << "can't find file " << file.str() << '\n';
+      srtm_cache.add(key, Image<short>(0,0));
       return false;
     }
     char c1, c2;
@@ -71,6 +72,7 @@ class srtm3 {
           im.set(Point<int>(x,y), (short)(unsigned char)c2 + ((short)(unsigned char)c1 <<8) );
         else {
           std::cerr << "error while reading from file " << file.str() << '\n';
+          srtm_cache.add(key, Image<short>(0,0));
           return false;
         }
       }
@@ -89,6 +91,7 @@ class srtm3 {
     if ((key.y<-max_lat)||(key.y>=max_lat)) return srtm_nofile;
 
     if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
+    if (srtm_cache.get(key).empty()) return srtm_nofile;
     
     return srtm_cache.get(key).get(crd);
   }

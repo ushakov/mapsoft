@@ -41,7 +41,8 @@ main(int argc, char** argv){
   if (lon2<lon1)   swap(lon2,lon1);
   if (step2<step1) swap(step2,step1);
 
-  srtm3 s("/d/MAPS/SRTMv2/", 10, interp_mode_off);
+//  srtm3 s("/d/MAPS/SRTMv2/", 10, interp_mode_off);
+  srtm3 s("./", 10, interp_mode_off);
 
 cout << 
   "[IMG ID]\r\n" <<
