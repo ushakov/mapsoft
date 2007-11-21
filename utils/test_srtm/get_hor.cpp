@@ -91,10 +91,18 @@ cout <<
           if (h1%step1 ==0) pts.insert(pair<short, double>(h1,0.5+k)); 
           continue;
         }
-        for (int s = min; s<=max; s+=step1){
-          double x = double(s-h1)/double(h2-h1);
+        for (int hh = min; hh<=max; hh+=step1){
+          double x = double(hh-h1)/double(h2-h1);
           if ((x<0)||(x>=1)) continue;
-          pts.insert(pair<short, double>(s,x+k));
+          if (hh==h1) continue; 
+          if (hh==h2){
+            // второй край включаем только если там не экстремум
+            Point<int> p3 = p+crn(k+2);
+            short h3 = s.geth(p3);
+            if ((h2-h1)*(h3-h2) > 0) pts.insert(pair<short, double>(hh,k+1));
+            continue; 
+          }
+          pts.insert(pair<short, double>(hh,x+k));
         }
       }
       // найдем, какие горизонтали пересекают квадрат дважды,
