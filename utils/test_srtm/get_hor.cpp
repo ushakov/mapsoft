@@ -124,6 +124,7 @@ cout <<
 //          pts.insert(p1);
 //          pts.insert(p2);
 //          hors.insert(pair<short, vector<point> >(h, pts));
+          h=srtm_undef;
         }
       }
       //
