@@ -18,12 +18,25 @@ void fig_make_comp(std::list<fig::fig_object> & objects){
   int maxy=(*objects.begin())[0].y;
   for (std::list<fig::fig_object>::const_iterator 
        i = objects.begin(); i != objects.end(); i++){
-     for (int j = 0; j < i->size(); j++){
-       if (minx > (*i)[j].x) minx = (*i)[j].x;
-       if (maxx < (*i)[j].x) maxx = (*i)[j].x;
-       if (miny > (*i)[j].y) miny = (*i)[j].y;
-       if (maxy < (*i)[j].y) maxy = (*i)[j].y;
-     }
+     if (i->type == 1){
+       int rx = i->radius_x;
+       int ry = i->radius_y;
+       int cx = i->center_x;
+       int cy = i->center_y;
+       if (minx > cx-rx) minx = cx-rx;
+       if (maxx < cx+rx) maxx = cx+rx;
+       if (miny > cy-ry) miny = cy-ry;
+       if (maxy < cy+ry) maxy = cy+ry;
+     } else {
+       for (int j = 0; j < i->size(); j++){
+         int x = (*i)[j].x;
+         int y = (*i)[j].y;
+         if (minx > x) minx = x;
+         if (maxx < x) maxx = x;
+         if (miny > y) miny = y;
+         if (maxy < y) maxy = y;
+      }
+    }
   }
   fig::fig_object o = *objects.begin();
   o.type=6;

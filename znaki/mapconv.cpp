@@ -163,8 +163,9 @@ main(int argc, char **argv){
 
     // определяем проекцию файла
     g_map omap;
+    bool oldref=true;
     if (OW.size()>0) omap = fig::get_ref(OW);
-    else omap = get_user_map();
+    else {omap = get_user_map(); oldref=false;}
     convs::map2pt ocnv(omap, Datum("wgs84"), Proj("lonlat"), Options());
 
     cout << "erasing objects: ";
@@ -179,7 +180,7 @@ main(int argc, char **argv){
     
 
     znaki.fig_add_colors(OW); // добавим в fig цвета, нужные для знаков
-    fig::set_ref(OW, omap, Options());
+    if (!oldref) fig::set_ref(OW, omap, Options());
 
     cout << "converting objects...\n";
     for (list<map_object>::iterator i=MAP.begin(); i!=MAP.end(); i++){

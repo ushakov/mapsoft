@@ -1,3 +1,6 @@
+slazav 20.11.2007
+ * utils/srtm3.h
+
 slazav 26.10.2007
  * проекция "ks", используемая космоснимками
  * программы mapsoft_getks, mapsoft_getgoogle

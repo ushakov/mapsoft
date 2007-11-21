@@ -15,7 +15,7 @@
 
 class zn{
   public: // разные параметры. Потомкам может быть удобно менять эти параметры, но не менять сами процедуры вывода по умолчанию...
-    std::string descr;
+    std::string descr, name;
     int mp_type;
     double pfig_smooth; // насколько сглаживать углы в версии для печати? 0 - не сглаживать
     std::string style;
@@ -25,8 +25,9 @@ class zn{
 
  
     zn(const std::string & _style = ""){
-      descr       = "неизвестный науке знак!";
-      base_fig    = fig::make_object("2 1 0 1  4 6 3 -1 -1 0.000 1 1 0 0 0 *");
+      name        = "неизвестный знак!";
+      descr       = "Прародитель всех вообще знаков!";
+      base_fig    = fig::make_object("2 1 0 1  4 6 3 -1 -1 4.000 1 1 0 0 0 *");
       base_mp     = mp::make_object("POI 0xFFFFFFFF 0 0");
       pfig_smooth = 0;
       typ_order   = 1;
@@ -63,7 +64,7 @@ class zn{
       return ret;
     }
 
-    virtual std::list<mp::mp_object>   map2mp(const map_object & o) const {
+    virtual std::list<mp::mp_object> map2mp(const map_object & o) const {
       std::list<mp::mp_object> ret;
       mp::mp_object obj=base_mp;
       obj.Label = o.name;
@@ -76,7 +77,7 @@ class zn{
 
     // fig и mp "для печати"
     // по умолчанию -- такие же, как и для редактирования
-    virtual std::list<fig::fig_object>  map2pfig(const map_object & o, convs::map2pt & cnv) const {
+    virtual std::list<fig::fig_object> map2pfig(const map_object & o, convs::map2pt & cnv) const {
       std::list<fig::fig_object> ret = map2fig(o,cnv); 
       std::list<fig::fig_object>::iterator l0 = ret.begin();
 
@@ -107,7 +108,8 @@ class zn{
       }
       return ret;
     }
-    virtual std::list<mp::mp_object>    map2pmp(const map_object & o) const {
+
+    virtual std::list<mp::mp_object> map2pmp(const map_object & o) const {
       return map2mp(o);
     }
 
@@ -195,11 +197,7 @@ class zn{
     }
 
     virtual std::string get_typ(const std::string & style) const{
-      std::ostringstream s;
-      if (base_mp.Type==0xFFFFFFFF) return std::string();
-      s << "; " << base_mp.Class << std::setbase(16) 
-        << " 0x" << base_mp.Type << " " << descr << "\n";
-      return s.str();
+      return "";
     }
 
 };
