@@ -76,8 +76,10 @@ cout <<
 //      cout << "---" << p  << "\n"; 
 
       // пересечения четырех сторон клетки с горизонталями:
+      // при подсчетах мы опустим все данные на полметра,
+      // чтоб не разбирать кучу случаев с попаданием горизонталей в узлы сетки
       multimap<short, double> pts;
-      for (int k=0; k<4; k++){
+/*      for (int k=0; k<4; k++){
         Point<int> p1 = p+crn(k);
         Point<int> p2 = p+crn(k+1);
         short h1 = s.geth(p1);
@@ -107,7 +109,26 @@ cout <<
           if ((x<0)||(x>1)) continue;
           pts.insert(pair<short, double>(hh,x+k));
         }
-      }
+      } */
+
+      for (int k=0; k<4; k++){
+        Point<int> p1 = p+crn(k);
+        Point<int> p2 = p+crn(k+1);
+        short h1 = s.geth(p1);
+        short h2 = s.geth(p2);
+        if ((h1<srtm_min) || (h2<srtm_min)) continue;
+        int min = (h1<h2)? h1:h2;
+        int max = (h1<h2)? h2:h1;
+        min = int( floor(double(min)/step1)) * step1;
+        max = int( ceil(double(max)/step1))  * step1;
+        if (h2==h1) continue;
+        for (int hh = min; hh<=max; hh+=step1){
+          double x = double(hh-h1+0.1)/double(h2-h1);
+          if ((x<0)||(x>1)) continue;
+          pts.insert(pair<short, double>(hh,x+k));
+        }
+      } 
+
       // найдем, какие горизонтали пересекают квадрат дважды,
       // поместим их в специальный список горизонталей
       multimap<short, vector<Point<double> > > hors;
