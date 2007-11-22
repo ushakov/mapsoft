@@ -19,26 +19,19 @@ struct Line
     std::vector<Point<T> >
 {
   
-  Line<T> & operator+= (Line const & t)
-  {
-	x += t.x;
-	y += t.y;
-	return *this;
-  }
-
   Line<T> & operator/= (T k) {
-    for(typename Line<T>::iterator i=begin(); i!=end(); i++) (*i)/=k;
+    for (typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)/=k;
     return *this;
   }
 
   Line<T> & operator*= (T k) {
-    for(typename Line<T>::iterator i=begin(); i!=end(); i++) (*i)*=k;
+    for (typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)*=k;
     return *this;
   }
 
   double length () const {
     double ret=0;
-    for(typename Line<T>::iterator i=begin(); i!=end(); i++) 
+    for(typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) 
       ret+=sqrt(i->x*i->x + i->y*i->y);
     return ret;
   }
@@ -46,9 +39,9 @@ struct Line
   // линия меньше, если первая отличающаяся точка меньше,
   // или не существует
   bool operator< (const Line<T> & p) const {
-    Line<T>::iterator i1=begin(), i2=p.begin();
+    typename Line<T>::iterator i1=this->begin(), i2=p.begin();
     do {
-      if (i1==end()){
+      if (i1==this->end()){
         if (i2!=p.end()) return true;
         else return false;
       }
@@ -58,10 +51,10 @@ struct Line
   }
 
   bool operator== (const Line<T> & p) const {
-    if (size()!=p.size()) return false;
-    Line<T>::iterator i1=begin(), i2=p.begin();
+    if (this->size()!=p.size()) return false;
+    typename Line<T>::iterator i1=this->begin(), i2=p.begin();
     do {
-      if (i1==end()) return true;
+      if (i1==this->end()) return true;
       if ((*i1)!=(*i2)) return false;
       i1++; i2++;
     } while(1);
@@ -69,22 +62,41 @@ struct Line
 };
 
 // склеивание линий в одну, если их концы ближе e
-std::vector<Line<double> > merge (const std::vector<Line<double> >& lines, double e){
+std::vector<Line<double> > merge (std::vector<Line<double> > lines, double e){
   for (std::vector<Line<double> >::iterator i1 = lines.begin(); i1!=lines.end(); i1++){
   for (std::vector<Line<double> >::iterator i2 = i1; i2!=lines.end(); i2++){
     if (i1==i2) continue;
-    if (pdist(i1->begin(),i2->begin())<e) {i1.push_back(i2.begin()+1, i2.end()); lines.erase(i2); i2=i1; continue;}
-    if (pdist(i1->begin(),i2->rbegin())<e) {i1.push_back(i2.rbegin()+1, i2.rend()); lines.erase(i2); i2=i1; continue;}
-    if (pdist(i1->rbegin(),i2->begin())<e) {i1.insert(i2.begin(), i2.rbegin()+1, i2.rend()); lines.erase(i2); i2=i1; continue;}
+/*    Line<double>::iterator a,b,c,d;
+    if      (pdist(*(i1->begin()),*(i2->begin()))<e)   {a=i1->rbegin(); b=i1->rend(); c=i2->begin();  d=i2->end();}
+    else if (pdist(*(i1->begin()),*(i2->rbegin()))<e)  {a=i1->rbegin(); b=i1->rend(); c=i2->rbegin(); d=i2->rend();}
+    else if (pdist(*(i1->rbegin()),*(i2->begin()))<e)  {a=i1->begin();  b=i1->end();  c=i2->begin();  d=i2->end();}
+    else if (pdist(*(i1->rbegin()),*(i2->rbegin()))<e) {a=i1->begin();  b=i1->end();  c=i2->rbegin(); d=i2->rend();}
+    else continue;
+    Line<double> tmp;
+    tmp.insert(tmp.end(),a,b);
+    tmp.insert(tmp.end(),c,d);
+    i1->swap(tmp);
+    lines.erase(i2); 
+    i2=i1;*/
+    Line<double> tmp;
+    if      (pdist(*(i1->begin()),*(i2->begin()))<e)   {tmp.insert(tmp.end(), i1->rbegin(), i1->rend()); tmp.insert(tmp.end(), i2->begin(), i2->end());}
+    else if (pdist(*(i1->begin()),*(i2->rbegin()))<e)  {tmp.insert(tmp.end(), i1->rbegin(), i1->rend()); tmp.insert(tmp.end(), i2->rbegin(), i2->rend());}
+    else if (pdist(*(i1->rbegin()),*(i2->begin()))<e)  {tmp.insert(tmp.end(), i1->begin(), i1->end()); tmp.insert(tmp.end(), i2->begin(), i2->end());}
+    else if (pdist(*(i1->rbegin()),*(i2->rbegin()))<e) {tmp.insert(tmp.end(), i1->begin(), i1->end()); tmp.insert(tmp.end(), i2->rbegin(), i2->rend());}
+    else continue;
+    i1->swap(tmp);
+    lines.erase(i2); 
+    i2=i1;
   }
   }
+  return lines;
 }
 
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Line<T> & p)
 {
   s << "Line(";
-  for(typename Line<T>::iterator i=begin(); i!=end(); i++) 
+  for(typename Line<T>::iterator i=p.begin(); i!=p.end(); i++) 
     s << "(" << i->x << "," << i->y << ")";
   s << ")\n";
   return s;

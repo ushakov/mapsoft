@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "../srtm3.h"
+#include "../line.h"
 
 
 // получаем название .hgt файла, отдаем .mp файл с горизонталями на stdout
@@ -67,6 +68,8 @@ cout <<
   "Zoom3=3\r\n" <<
   "[END-IMG ID]\r\n\r\n";
 
+  map<short, vector<Line<double> > > hors;
+
 
   for (int lat=lat2; lat>lat1; lat--){
     for (int lon=lon1; lon<lon2-1; lon++){
@@ -79,6 +82,7 @@ cout <<
       // при подсчетах мы опустим все данные на полметра,
       // чтоб не разбирать кучу случаев с попаданием горизонталей в узлы сетки
       multimap<short, double> pts;
+
 /*      for (int k=0; k<4; k++){
         Point<int> p1 = p+crn(k);
         Point<int> p2 = p+crn(k+1);
@@ -130,8 +134,8 @@ cout <<
       } 
 
       // найдем, какие горизонтали пересекают квадрат дважды,
-      // поместим их в специальный список горизонталей
-      multimap<short, vector<Point<double> > > hors;
+      // поместим их в список горизонталей hors
+
       short h=srtm_undef;
       double x1,x2;
 
@@ -141,27 +145,53 @@ cout <<
           x1 = i->second;
         } else{
           x2 = i->second;
-          Point<double> p1 = Point<double>(p) + Point<double>(crn(int(x1))) + Point<double>(dir(int(x1)))*(x1-int(x1));
-          Point<double> p2 = Point<double>(p) + Point<double>(crn(int(x2))) + Point<double>(dir(int(x2)))*(x2-int(x2));
+          Line<double> hor;
+          hor.push_back(Point<double>(p) + Point<double>(crn(int(x1))) + Point<double>(dir(int(x1)))*double(x1-int(x1)));
+          hor.push_back(Point<double>(p) + Point<double>(crn(int(x2))) + Point<double>(dir(int(x2)))*double(x2-int(x2)));
+          hors[h].push_back(hor);
 
-    cout << 
-      "[POLYLINE]\r\n" <<
-      "Type=0x21\r\n" <<
-      "Label=" << h << "\r\n" << 
-      "Data0=(" << p1.y/1200.0 << "," << p1.x/1200.0 << "),("<< p2.y/1200.0 << "," << p2.x/1200.0 << ")";
-    cout << "\r\n[END]\r\n\r\n";
-
-//          vector<point> pst;
-//          pts.insert(p1);
-//          pts.insert(p2);
-//          hors.insert(pair<short, vector<point> >(h, pts));
           h=srtm_undef;
         }
       }
       //
-
     }
   }
+  
+  for(map<short, vector<Line<double> > >::iterator im = hors.begin(); im!=hors.end(); im++){
+    /*
+    for(vector<Line<double> >::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
+      cout << 
+        "[POLYLINE]\r\n" <<
+        "Type=0x21\r\n" <<
+        "Label=" << im->first << "\r\n" << 
+        "Data0=";
+      for(Line<double>::iterator i = iv->begin(); i!=iv->end(); i++){
+        if (i!=iv->begin()) cout << ",";
+        cout << "(" << i->x/1200.0 << "," << i->y/1200.0 << ")";
+      }
+      cout << "\r\n[END]\r\n\r\n";
+    }*/
+    vector<Line<double> > tmp = merge(im->second, 1e-4);
+    for(vector<Line<double> >::iterator iv = tmp.begin(); iv!=tmp.end(); iv++){
+      cout << 
+        "[POLYLINE]\r\n" <<
+        "Type=0x21\r\n" <<
+        "Label=" << im->first << "\r\n" << 
+        "Data0=";
+      for(Line<double>::iterator i = iv->begin(); i!=iv->end(); i++){
+        if (i!=iv->begin()) cout << ",";
+        cout << "(" << i->x/1200.0 << "," << i->y/1200.0 << ")";
+      }
+      cout << "\r\n[END]\r\n\r\n";
+    }
+
+  }
+
+//      "Data0=(" << p1.y/1200.0 << "," << p1.x/1200.0 << "),("<< p2.y/1200.0 << "," << p2.x/1200.0 << ")";
+//    cout << "\r\n[END]\r\n\r\n";
+
+
+
 }
 /*
 
