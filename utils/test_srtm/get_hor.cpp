@@ -141,10 +141,9 @@ cout <<
           x1 = i->second;
         } else{
           x2 = i->second;
-          Point<double> p1 = 1.4*Point<double>(p) + Point<double>(crn(int(x1))) + Point<double>(dir(int(x1)))*(x1-int(x1));
-          Point<double> p2 = 1.4*Point<double>(p) + Point<double>(crn(int(x2))) + Point<double>(dir(int(x2)))*(x2-int(x2));
-//          cout << h << " " << x1 << " " << x2 << "\n";
-//          cout << p1 << " " << p2 <<  "\n";
+          Point<double> p1 = Point<double>(p) + Point<double>(crn(int(x1))) + Point<double>(dir(int(x1)))*(x1-int(x1));
+          Point<double> p2 = Point<double>(p) + Point<double>(crn(int(x2))) + Point<double>(dir(int(x2)))*(x2-int(x2));
+
     cout << 
       "[POLYLINE]\r\n" <<
       "Type=0x21\r\n" <<
