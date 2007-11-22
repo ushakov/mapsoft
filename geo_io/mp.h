@@ -8,10 +8,11 @@
 #include <iostream>
 
 #include "../utils/point.h"
+#include "../utils/line.h"
 
 namespace mp {
 
-    struct mp_object : std::vector<Point<double> >{
+    struct mp_object : Line<double>{
         std::string          Class; 
         int                  Type;
         std::string          Label;
@@ -29,9 +30,9 @@ namespace mp {
             (Class==o.Class) && (Type==o.Type) && (Label==o.Label) &&
             (BL==o.BL) && (EL==o.EL) && (Comment==o.Comment) && (DirIndicator==o.DirIndicator));
         }
-        mp_object & operator= (const std::vector<Point<double> > v){
+        mp_object & operator= (const Line<double> v){
           clear();
-          for (std::vector<Point<double> >::const_iterator i=v.begin(); i!=v.end(); i++)
+          for (Line<double>::const_iterator i=v.begin(); i!=v.end(); i++)
             push_back(*i);
           return *this;
         }

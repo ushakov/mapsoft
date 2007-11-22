@@ -85,6 +85,7 @@ class srtm3 {
   short geth_(const Point<int> & p){
     Point<int> key = p/(srtm_width-1);
     Point<int> crd = p - key*(srtm_width-1);
+    crd.y = (srtm_width-1)-crd.y;
 
     while (key.x < -max_lon) key.x+=2*max_lon;
     while (key.x >= max_lon) key.x-=2*max_lon;
@@ -100,6 +101,7 @@ class srtm3 {
   short seth_(const Point<int> & p, short h){
     Point<int> key = p/(srtm_width-1);
     Point<int> crd = p - key*(srtm_width-1);
+    crd.y = (srtm_width-1)-crd.y;
 
     if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
     srtm_cache.get(key).set(crd, h);

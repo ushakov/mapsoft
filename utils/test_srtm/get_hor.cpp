@@ -7,6 +7,7 @@
 
 #include "../srtm3.h"
 #include "../line.h"
+#include "../../geo_io/mp.h"
 
 
 // получаем название .hgt файла, отдаем .mp файл с горизонталями на stdout
@@ -45,75 +46,17 @@ main(int argc, char** argv){
 //  srtm3 s("/d/MAPS/SRTMv2/", 10, interp_mode_off);
   srtm3 s("./", 10, interp_mode_off);
 
-cout << 
-  "[IMG ID]\r\n" <<
-  "ID=14401206\r\n" <<
-  "Name=srtm_hor\r\n" <<
-  "Elevation=M\r\n" <<
-  "Preprocess=F\r\n" <<
-  "CodePage=1251\r\n" <<
-  "LblCoding=9\r\n" <<
-  "TreSize=511\r\n" <<
-  "TreMargin=0.000000\r\n" <<
-  "RgnLimit=127\r\n" <<
-  "POIIndex=N\r\n" <<
-  "Levels=4\r\n" <<
-  "Level0=22\r\n" <<
-  "Level1=21\r\n" <<
-  "Level2=19\r\n" <<
-  "Level3=17\r\n" <<
-  "Zoom0=0\r\n" <<
-  "Zoom1=1\r\n" <<
-  "Zoom2=2\r\n" <<
-  "Zoom3=3\r\n" <<
-  "[END-IMG ID]\r\n\r\n";
 
+  // нарисуем горизонтали!
   map<short, vector<Line<double> > > hors;
-
-
   for (int lat=lat2; lat>lat1; lat--){
     for (int lon=lon1; lon<lon2-1; lon++){
 
-
       Point<int> p(lon,lat);
-//      cout << "---" << p  << "\n"; 
-
       // пересечения четырех сторон клетки с горизонталями:
       // при подсчетах мы опустим все данные на полметра,
       // чтоб не разбирать кучу случаев с попаданием горизонталей в узлы сетки
       multimap<short, double> pts;
-
-/*      for (int k=0; k<4; k++){
-        Point<int> p1 = p+crn(k);
-        Point<int> p2 = p+crn(k+1);
-        short h1 = s.geth(p1);
-        short h2 = s.geth(p2);
-        if ((h1<srtm_min) || (h2<srtm_min)) continue;
-        int min = (h1<h2)? h1:h2;
-        int max = (h1<h2)? h2:h1;
-        min = int( floor(double(min)/step1)) * step1;
-        max = int( ceil(double(max)/step1))  * step1;
-        if (h2==h1){
-          if ((h1%step1 ==0) && (k<2)){
-            pts.insert(pair<short, double>(h1,k)); 
-            pts.insert(pair<short, double>(h1,k+1)); 
-          }
-          continue;
-        }
-        for (int hh = min; hh<=max; hh+=step1){
-          if (hh==h1) continue; 
-          if (hh==h2){
-            // второй край включаем только если там не экстремум
-            Point<int> p3 = p+crn(k+2);
-            short h3 = s.geth(p3);
-            if ((h2-h1)*(h3-h2) > 0) pts.insert(pair<short, double>(hh,k+1));
-            continue; 
-          }
-          double x = double(hh-h1)/double(h2-h1);
-          if ((x<0)||(x>1)) continue;
-          pts.insert(pair<short, double>(hh,x+k));
-        }
-      } */
 
       for (int k=0; k<4; k++){
         Point<int> p1 = p+crn(k);
@@ -135,7 +78,6 @@ cout <<
 
       // найдем, какие горизонтали пересекают квадрат дважды,
       // поместим их в список горизонталей hors
-
       short h=srtm_undef;
       double x1,x2;
 
@@ -146,50 +88,35 @@ cout <<
         } else{
           x2 = i->second;
           Line<double> hor;
-          hor.push_back(Point<double>(p) + Point<double>(crn(int(x1))) + Point<double>(dir(int(x1)))*double(x1-int(x1)));
-          hor.push_back(Point<double>(p) + Point<double>(crn(int(x2))) + Point<double>(dir(int(x2)))*double(x2-int(x2)));
+          hor.push_back((Point<double>(p) + Point<double>(crn(int(x1))) + Point<double>(dir(int(x1)))*double(x1-int(x1)))/1200.0);
+          hor.push_back((Point<double>(p) + Point<double>(crn(int(x2))) + Point<double>(dir(int(x2)))*double(x2-int(x2)))/1200.0);
           hors[h].push_back(hor);
-
           h=srtm_undef;
         }
       }
-      //
     }
   }
+
+  mp::mp_world MP;
   
   for(map<short, vector<Line<double> > >::iterator im = hors.begin(); im!=hors.end(); im++){
-    /*
-    for(vector<Line<double> >::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
-      cout << 
-        "[POLYLINE]\r\n" <<
-        "Type=0x21\r\n" <<
-        "Label=" << im->first << "\r\n" << 
-        "Data0=";
-      for(Line<double>::iterator i = iv->begin(); i!=iv->end(); i++){
-        if (i!=iv->begin()) cout << ",";
-        cout << "(" << i->x/1200.0 << "," << i->y/1200.0 << ")";
-      }
-      cout << "\r\n[END]\r\n\r\n";
-    }*/
     vector<Line<double> > tmp = merge(im->second, 1e-4);
     for(vector<Line<double> >::iterator iv = tmp.begin(); iv!=tmp.end(); iv++){
-      cout << 
-        "[POLYLINE]\r\n" <<
-        "Type=0x21\r\n" <<
-        "Label=" << im->first << "\r\n" << 
-        "Data0=";
-      for(Line<double>::iterator i = iv->begin(); i!=iv->end(); i++){
-        if (i!=iv->begin()) cout << ",";
-        cout << "(" << i->x/1200.0 << "," << i->y/1200.0 << ")";
-      }
-      cout << "\r\n[END]\r\n\r\n";
+      mp::mp_object O;
+      O.Class = "POLYLINE";
+      ostringstream s; s << im->first;
+      O.Label = s.str();
+      O.Type = 0x21;
+      if (im->first%step2==0) O.Type = 0x22;
+      O.insert(O.end(), iv->begin(), iv->end());
+      MP.push_back(O);
     }
-
   }
 
-//      "Data0=(" << p1.y/1200.0 << "," << p1.x/1200.0 << "),("<< p2.y/1200.0 << "," << p2.x/1200.0 << ")";
-//    cout << "\r\n[END]\r\n\r\n";
+  // нарисуем что-то еще...
 
+  
+  mp::write(cout, MP);
 
 
 }

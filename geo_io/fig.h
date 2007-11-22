@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "../utils/point.h"
+#include "../utils/line.h"
 
 namespace fig {
 
@@ -189,8 +190,8 @@ namespace fig {
         }
         
 	// 
-        operator std::vector<Point<double> > () const {
-          std::vector<Point<double> > ret;
+        operator Line<double> () const {
+          Line<double> ret;
           for (int i=0; i<size(); i++) 
             ret.push_back(Point<double>((*this)[i].x, (*this)[i].y));
           return ret;
@@ -202,7 +203,7 @@ namespace fig {
 	  return *this;
         }
 
-        void set_vector(const std::vector<Point<double> > & v);
+        void set_vector(const Line<double> & v);
     };
 
     struct fig_world:std::list<fig_object>{
