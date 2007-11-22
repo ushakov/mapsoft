@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <queue>
 
 #include "image.h"
 #include "point.h"
@@ -143,8 +144,30 @@ class srtm3 {
 
     return (short)( h12 + (h34-h12)*(p.x*1200-x1)/double(x2-x1) );
   }
+
+  // найти множество соседних точек одной высоты (не более max точек)
+  std::set<Point<int> > plane(const Point<int>& p, int max=1000){
+    std::set<Point<int> > ret;
+    std::queue<Point<int> > q;
+    short h = geth_(p);
+
+    q.push(p);
+    ret.insert(p);
+
+    while (!q.empty()){
+      Point<int> p1 = q.front();
+      q.pop();
+      for (int i=0; i<8; i++){
+        Point<int> p2 = p1.adjacent(i);
+        if ((geth_(p2) == h)&&(ret.insert(p2).second)) q.push(p2);
+      }
+      if ((max!=0)&&(ret.size()>max)) break;
+    }
+    return ret;
+  }
    
-//  std::set<Point<int> > plane(const Point<int>& p, int max=0);
 };
+
+
 
 #endif

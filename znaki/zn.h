@@ -99,7 +99,7 @@ class zn{
         l0->type=3;
         l0->f.clear();
 
-        for (int j=0; j< fs; j++) l0->f.push_back(0.3);
+        for (int j=0; j< fs; j++) l0->f.push_back(pfig_smooth);
         if (l0->sub_type==4){
           l0->f[0]=0;
           l0->f[fs-1]=0;

@@ -7,6 +7,7 @@
 
 #include "../srtm3.h"
 #include "../line.h"
+#include "../point_int.h"
 #include "../../geo_io/mp.h"
 
 
@@ -48,6 +49,7 @@ main(int argc, char** argv){
 
 
   // нарисуем горизонтали!
+  cerr << "находим кусочки горизонталей\n";
   map<short, vector<Line<double> > > hors;
   for (int lat=lat2; lat>lat1; lat--){
     for (int lon=lon1; lon<lon2-1; lon++){
@@ -99,6 +101,7 @@ main(int argc, char** argv){
 
   mp::mp_world MP;
   
+  cerr << "сливаем кусочки горизонталей в линии\n";
   for(map<short, vector<Line<double> > >::iterator im = hors.begin(); im!=hors.end(); im++){
     vector<Line<double> > tmp = merge(im->second, 1e-4);
     for(vector<Line<double> >::iterator iv = tmp.begin(); iv!=tmp.end(); iv++){
@@ -114,8 +117,87 @@ main(int argc, char** argv){
   }
 
   // нарисуем что-то еще...
-
+  // поиск вершин: 
+  // 1. найдем все локальные максимумы (не забудем про максимумы из многих точек!)
+  // 2. от каждого будем строить множество точек, добавляя наивысшую точку границы
+  // 3. если высота последней добаленной точки ниже исходной более чем на DH м,
+  //    или если размер множества больше PS точек - процедуру прекращаем, 
+  //    объявляем исходную точку вершиной.
+  // 4. Если высота последней добавленной точки больше исходной - процедуру
+  //    прекращаем
   
+  int DH = 20;
+  int PS = 200;
+  cerr << "ищем вершины!\n";
+  
+  set<Point<int> > done;
+  for (int lat=lat2; lat>lat1; lat--){
+    for (int lon=lon1; lon<lon2-1; lon++){
+
+      Point<int> p(lon,lat);
+      if (done.find(p)!=done.end()) continue;
+      short h = s.geth(p);
+
+      set<Point<int> > pts; pts.insert(p);
+      set<Point<int> > brd = border(pts);
+      // ищем максимум границы
+
+      do{
+        short max = srtm_undef;
+        Point<int> maxpt;
+        for (set<Point<int> >::const_iterator i = brd.begin(); i!=brd.end(); i++){
+          short h1 = s.geth(*i);
+          if (h1>max) {max = h1; maxpt=*i;}
+        }
+        
+        // если максимум выше исходной точки - выходим.
+        if (max > h) { break; }
+
+        // если мы спустились от исходной точки более чем на DH или размер области более PS
+        if ((h - max > DH ) || (pts.size() > PS)) {
+          mp::mp_object O;
+          O.Class = "POI";
+          ostringstream s; s << h;
+          O.Label = s.str();
+          O.Type = 0x1100;
+          O.push_back(Point<double>(p)/1200.0);
+          MP.push_back(O);
+          break;
+        }
+
+        add_pb(maxpt, pts, brd);
+        done.insert(maxpt);
+
+      } while (true);
+
+/*
+
+      short h = s.geth(p);
+      bool max=true;
+      set<Point<int> > pts = s.plane(p);  // соседние точки одной высоты
+      set<Point<int> > brd = border(pts); // их граница
+      for (set<Point<int> >::const_iterator i = brd.begin(); i!=brd.end(); i++){
+        if (s.geth(*i)>h) {max = false;}
+        else {done.insert(*i);}
+      }
+      done.insert(pts.begin(), pts.end());
+      if (!max) continue;
+      // теперь в pts -- локальный максимум.
+      // выберем самую центральную точку из множества:
+          mp::mp_object O;
+          O.Class = "POI";
+          ostringstream s; s << h;
+          O.Label = s.str();
+          O.Type = 0x1100;
+          O.push_back(Point<double>(p)/1200.0);
+          MP.push_back(O);
+
+*/
+
+    }
+  }
+
+  cerr << "записываем все в файл!\n";
   mp::write(cout, MP);
 
 

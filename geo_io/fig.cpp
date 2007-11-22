@@ -529,7 +529,7 @@ bool test_object(const fig_object & o, const std::string & mask){
   return make_object(o, mask)==o;  
 }
 
-void fig_object::set_vector(const vector<Point<double> > & v){
+void fig_object::set_vector(const Line<double> & v){
   this->clear();
   for (int i=0;i<v.size();i++){
     push_back(Point<int>(int(v[i].x), int(v[i].y)));

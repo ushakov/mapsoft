@@ -19,6 +19,8 @@ class zn_p : public zn{
   }
 };
 
+
+
 class zn_p_cerkov : public zn_p{
 
   int d1; // размер крестика
@@ -93,6 +95,26 @@ class zn_p_avt : public zn_p{
     ret.push_back(o1);
 
     fig_make_comp(ret);
+    return ret;
+  }
+};
+
+class zn_p_vys : public zn_p{
+
+  public:
+  zn_p_vys(const std::string & _style = ""){
+    name = "отметка высоты";
+    descr = "";
+    base_fig.pen_color = 24;
+    base_fig.thickness = 4;
+    base_fig.cap_style = 1;
+    base_fig.depth     = 57;
+    base_mp.Type       = 0x1100;
+    style = _style;
+  }
+  virtual std::list<fig::fig_object>  map2pfig(const map_object & o, convs::map2pt & cnv) const {
+    std::list<fig::fig_object> ret = map2fig(o,cnv);
+    fig_make_label(ret, o.name, "4 0 0 55 -1 18 7 0.0 4");
     return ret;
   }
 };

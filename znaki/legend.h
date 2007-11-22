@@ -57,6 +57,7 @@ class legend{
 
     Z.push_back(new zn_p_cerkov(style));
     Z.push_back(new zn_p_avt(style));
+    Z.push_back(new zn_p_vys(style));
 
     Z.push_back(new zn_p(style));
     Z.push_back(new zn_l(style));

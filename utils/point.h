@@ -82,6 +82,29 @@ struct Point
 //      return cls(x, other.x) && cls(y, other.y);
 //  }
 
+  // Доступ к 8 соседним точкам
+  Point<int> adjacent(int dir) const {
+    switch(dir%8){
+      case 0: return Point<int>(x-1,y-1);
+      case 1: return Point<int>(  x,y-1);
+      case 2: return Point<int>(x+1,y-1);
+      case 3: return Point<int>(x+1,  y);
+      case 4: return Point<int>(x+1,y+1);
+      case 5: return Point<int>(  x,y+1);
+      case 6: return Point<int>(x-1,y+1);
+      case 7: return Point<int>(x-1,  y);
+    }
+  }
+  // Проверка, являются ли точка соседней.
+  // Если да, то возвращается направление на нее,
+  // если нет, то -1
+  int isadjacent(Point<int> p){
+    for (int i = 0; i<8; i++){
+      if (adjacent(i)==p) return i;
+    } return -1;
+  }
+
+
 };
 
 template <typename T>

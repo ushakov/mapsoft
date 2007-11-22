@@ -3,7 +3,7 @@ le = env.Copy()
 sources = Split ("""
 		mapsoft_options.cpp
 		rect.cpp m_time.cpp m_color.cpp
-		log.cpp line.cpp
+		log.cpp line.cpp point_int.cpp
 		""")
 
 le.Library('utils', sources)
