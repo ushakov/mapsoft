@@ -88,12 +88,13 @@ cout <<
         min = int( floor(double(min)/step1)) * step1;
         max = int( ceil(double(max)/step1))  * step1;
         if (h2==h1){
-          if (h1%step1 ==0) pts.insert(pair<short, double>(h1,0.5+k)); 
+          if ((h1%step1 ==0) && (k<2)){
+            pts.insert(pair<short, double>(h1,k)); 
+            pts.insert(pair<short, double>(h1,k+1)); 
+          }
           continue;
         }
         for (int hh = min; hh<=max; hh+=step1){
-          double x = double(hh-h1)/double(h2-h1);
-          if ((x<0)||(x>=1)) continue;
           if (hh==h1) continue; 
           if (hh==h2){
             // второй край включаем только если там не экстремум
@@ -102,6 +103,8 @@ cout <<
             if ((h2-h1)*(h3-h2) > 0) pts.insert(pair<short, double>(hh,k+1));
             continue; 
           }
+          double x = double(hh-h1)/double(h2-h1);
+          if ((x<0)||(x>1)) continue;
           pts.insert(pair<short, double>(hh,x+k));
         }
       }
@@ -117,8 +120,8 @@ cout <<
           x1 = i->second;
         } else{
           x2 = i->second;
-          Point<double> p1 = Point<double>(p) + Point<double>(crn(int(x1))) + Point<double>(dir(int(x1)))*(x1-int(x1));
-          Point<double> p2 = Point<double>(p) + Point<double>(crn(int(x2))) + Point<double>(dir(int(x2)))*(x2-int(x2));
+          Point<double> p1 = 1.4*Point<double>(p) + Point<double>(crn(int(x1))) + Point<double>(dir(int(x1)))*(x1-int(x1));
+          Point<double> p2 = 1.4*Point<double>(p) + Point<double>(crn(int(x2))) + Point<double>(dir(int(x2)))*(x2-int(x2));
 //          cout << h << " " << x1 << " " << x2 << "\n";
 //          cout << p1 << " " << p2 <<  "\n";
     cout << 
