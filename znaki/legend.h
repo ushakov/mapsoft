@@ -21,8 +21,10 @@ class legend{
     Z.push_back(new zn_l_horiz(style));  // горизонталь
     Z.push_back(new zn_l_thoriz(style)); // 
     Z.push_back(new zn_l_dhoriz(style)); // 
+    Z.push_back(new zn_l_kan(style));    // канава
     Z.push_back(new zn_l_ovrag(style));  // 
     Z.push_back(new zn_l_hreb(style));   // 
+    Z.push_back(new zn_l_cnt(style));    // контур растительности
     Z.push_back(new zn_l_reka3(style));  // 
     Z.push_back(new zn_l_reka2(style));  // 
     Z.push_back(new zn_l_reka1(style));  // 
@@ -38,6 +40,9 @@ class legend{
     Z.push_back(new zn_l_pros2(style));  // широкая просека
     Z.push_back(new zn_l_trop(style));   // тропа
     Z.push_back(new zn_l_dom(style));    // отдельные строения
+    Z.push_back(new zn_l_lep(style));    // ЛЭП
+    Z.push_back(new zn_l_leps(style));   // маленькая ЛЭП
+    Z.push_back(new zn_l_gaz(style));    // газопровод
 
     Z.push_back(new zn_a_der(style));    // 
     Z.push_back(new zn_a_gor(style));    // 
@@ -58,6 +63,7 @@ class legend{
     Z.push_back(new zn_p_cerkov(style));
     Z.push_back(new zn_p_avt(style));
     Z.push_back(new zn_p_vys(style));
+    Z.push_back(new zn_p_vys1(style));
 
     Z.push_back(new zn_p(style));
     Z.push_back(new zn_l(style));

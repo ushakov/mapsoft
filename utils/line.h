@@ -52,7 +52,19 @@ struct Line
 
   bool operator== (const Line<T> & p) const {
     if (this->size()!=p.size()) return false;
-    typename Line<T>::iterator i1=this->begin(), i2=p.begin();
+    typename Line<T>::const_iterator i1=this->begin(), i2=p.begin();
+    do {
+      if (i1==this->end()) return true;
+      if ((*i1)!=(*i2)) return false;
+      i1++; i2++;
+    } while(1);
+  }
+
+  // такая же проверка, как ==, но для линий идущих навстречу...
+  bool isinv(const Line<T> & p) const {
+    if (this->size()!=p.size()) return false;
+    typename Line<T>::const_iterator i1=this->begin();
+    typename Line<T>::const_reverse_iterator  i2=p.rbegin();
     do {
       if (i1==this->end()) return true;
       if ((*i1)!=(*i2)) return false;

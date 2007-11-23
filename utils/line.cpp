@@ -2,6 +2,18 @@
 
 // склеивание линий в одну, если их концы ближе e
 std::vector<Line<double> > merge (std::vector<Line<double> > lines, double e){
+  //убираем вообще двойные линии
+  for (std::vector<Line<double> >::iterator i1 = lines.begin(); i1!=lines.end(); i1++){
+  for (std::vector<Line<double> >::iterator i2 = i1; i2!=lines.end(); i2++){
+    if (i1==i2) continue;
+    if ((*i1==*i2) || (i1->isinv(*i2))){
+      lines.erase(i2);
+      i1 = lines.erase(i1); i1--;
+      i2 = i1;
+    }
+  }
+  }
+
   for (std::vector<Line<double> >::iterator i1 = lines.begin(); i1!=lines.end(); i1++){
   for (std::vector<Line<double> >::iterator i2 = i1; i2!=lines.end(); i2++){
     if (i1==i2) continue;

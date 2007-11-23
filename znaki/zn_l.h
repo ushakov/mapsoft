@@ -34,6 +34,9 @@ class zn_l_horiz : public zn_l{
     return zn::get_typ(style) +
      "[_line]\nType=0x21\nstring1=0x4"+name+"\nLineWidth=1\nXpm=\"0 0 1 1\"\n\"1 c #BD0000\",\n[end]\n";
   }
+  virtual void fig_add_colors(fig::fig_world & W){
+    if (style == "hr") base_fig.pen_color = zn::fig_add_color(W, 0xd0b090);
+  }
 };
 
 class zn_l_thoriz : public zn_l_horiz{
@@ -68,6 +71,33 @@ class zn_l_dhoriz : public zn_l_horiz{
   }
 };
 
+class zn_l_kan : public zn_l_horiz{
+  public:
+  zn_l_kan(const std::string & _style = ""){
+    name  = "сухая канава";
+    descr = "";
+    base_fig.line_style = 2;
+    base_fig.cap_style  = 2;
+    base_fig.style_val  = 2;
+    base_mp.Type       = 0x2b;
+    style = _style;
+  }
+  virtual std::string get_typ(const std::string & style) const {
+    return zn::get_typ(style) +
+     "[_line]\n"+
+     "Type=0x2b\n"+
+     "string1=0x4,"+name+"\n"+
+     "Xpm=\"32 2 2 1\"\n"+
+     "\"* c #BD0000\",\n"+
+     "\"  c none\",\n"+
+     "\"*****   *****   *****   *****   \",\n"+
+     "\"*****   *****   *****   *****   \",\n"+
+     "[end]\n";
+  }
+  virtual void fig_add_colors(fig::fig_world & W){}
+};
+
+
 class zn_l_ovrag : public zn_l{
   public:
   zn_l_ovrag(const std::string & _style = ""){
@@ -101,6 +131,35 @@ class zn_l_hreb : public zn_l{
   virtual std::string get_typ(const std::string & style) const {
     return zn::get_typ(style) +
      "[_line]\nType=0x0c\nstring1=0x4"+name+"\nLineWidth=3\nXpm=\"0 0 1 1\"\n\"1 c #BD0000\",\n[end]\n";
+  }
+};
+
+class zn_l_cnt : public zn_l{
+  public:
+  zn_l_cnt(const std::string & _style = ""){
+    name  = "контур растительности";
+    descr = "";
+    base_fig.pen_color = 12;
+    base_fig.depth     = 87;
+    base_fig.thickness = 1;
+    base_mp.Type = 0x23;
+    pfig_smooth = 0.3;
+    base_fig.line_style = 2;
+    base_fig.cap_style  = 2;
+    base_fig.style_val  = 2;
+    style = _style;
+  }
+  virtual std::string get_typ(const std::string & style) const {
+    return zn::get_typ(style) +
+     "[_line]\n"+
+     "Type=0x23\n"+
+     "string1=0x4,"+name+"\n"+
+     "Xpm=\"32 2 2 1\"\n"+
+     "\"* c #009500\",\n"+
+     "\"  c none\",\n"+
+     "\"**  **  **  **  **  **  **  **  \",\n"+
+     "\"**  **  **  **  **  **  **  **  \",\n"+
+     "[end]\n";
   }
 };
 
@@ -539,6 +598,102 @@ class zn_l_dom : public zn_l{
      "[_line]\nType=0x3\nstring1=0x4"+name+"\nLineWidth=4\nXpm=\"0 0 1 1\"\n\"1 c #000000\",\n[end]\n";
   }
 };
+
+class zn_l_lep : public zn_l{
+  public:
+  zn_l_lep(const std::string & _style = ""){
+    name  = "ЛЭП";
+    descr = "";
+    base_fig.depth     = 83;
+    base_fig.thickness = 3;
+    base_fig.cap_style = 0;
+    base_mp.Type = 0x29;
+    style = _style;
+  }
+  virtual void fig_add_colors(fig::fig_world & W){
+    base_fig.pen_color = zn::fig_add_color(W, 0x888888);
+  }
+  virtual std::string get_typ(const std::string & style) const {
+    return zn::get_typ(style) +
+      "[_line]\n"+
+      "Type=0x29\n"+
+      "string1=0x4,"+name+"\n"+
+      "Xpm=\"32 5 1 1\"\n"+
+      "\"* c #000000\",\n"+
+      "\"        *             ***       \",\n"+
+      "\"        *               ***     \",\n"+
+      "\"********************************\",\n"+
+      "\"        *               ***     \",\n"+
+      "\"        *             ***       \",\n"+
+      "[end]\n";
+  }
+};
+
+class zn_l_leps : public zn_l{
+  public:
+  zn_l_leps(const std::string & _style = ""){
+    name  = "маленькая ЛЭП";
+    descr = "";
+    base_fig.depth     = 83;
+    base_fig.thickness = 2;
+    base_fig.cap_style = 0;
+    base_mp.Type = 0x1A;
+    style = _style;
+  }
+  virtual void fig_add_colors(fig::fig_world & W){
+    base_fig.pen_color = zn::fig_add_color(W, 0x888888);
+  }
+  virtual std::string get_typ(const std::string & style) const {
+    return zn::get_typ(style) +
+      "[_line]\n"+
+      "Type=0x1A\n"+
+      "string1=0x4,"+name+"\n"+
+      "Xpm=\"32 5 1 1\"\n"+
+      "\"* c #959595\",\n"+
+      "\"        *             ***       \",\n"+
+      "\"        *               ***     \",\n"+
+      "\"********************************\",\n"+
+      "\"        *               ***     \",\n"+
+      "\"        *             ***       \",\n"+
+      "[end]\n";
+  }
+
+};
+
+class zn_l_gaz : public zn_l{
+  public:
+  zn_l_gaz(const std::string & _style = ""){
+    name  = "Газопровод";
+    descr = "";
+    base_fig.depth     = 83;
+    base_fig.thickness = 3;
+    base_fig.cap_style = 0;
+    base_fig.line_style = 1;
+    base_mp.Type = 0x28;
+    style = _style;
+  }
+  virtual void fig_add_colors(fig::fig_world & W){
+    base_fig.pen_color = zn::fig_add_color(W, 0x888888);
+  }
+  virtual std::string get_typ(const std::string & style) const {
+    return zn::get_typ(style) +
+      "[_line]\n"+
+      "Type=0x28\n"+
+      "string1=0x4,"+name+"\n"+
+      "Xpm=\"32 5 1 1\"\n"+
+      "\"* c #000000\",\n"+
+      "\"              ***               \",\n"+
+      "\"             *   *              \",\n"+
+      "\"**************   ***************\",\n"+
+      "\"             *   *              \",\n"+
+      "\"              ***               \",\n"+
+      "[end]\n";
+  }
+
+};
+
+
+
 
 
 #endif

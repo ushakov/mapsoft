@@ -105,6 +105,7 @@ main(int argc, char** argv){
   for(map<short, vector<Line<double> > >::iterator im = hors.begin(); im!=hors.end(); im++){
     vector<Line<double> > tmp = merge(im->second, 1e-4);
     for(vector<Line<double> >::iterator iv = tmp.begin(); iv!=tmp.end(); iv++){
+      if (iv->size()<3) continue;
       mp::mp_object O;
       O.Class = "POLYLINE";
       ostringstream s; s << im->first;
@@ -116,7 +117,6 @@ main(int argc, char** argv){
     }
   }
 
-  // нарисуем что-то еще...
   // поиск вершин: 
   // 1. найдем все локальные максимумы (не забудем про максимумы из многих точек!)
   // 2. от каждого будем строить множество точек, добавляя наивысшую точку границы
@@ -127,8 +127,8 @@ main(int argc, char** argv){
   //    прекращаем
   
   int DH = 20;
-  int PS = 200;
-  cerr << "ищем вершины!\n";
+  int PS = 500;
+  cerr << "ищем вершины\n";
   
   set<Point<int> > done;
   for (int lat=lat2; lat>lat1; lat--){
@@ -169,32 +169,64 @@ main(int argc, char** argv){
         done.insert(maxpt);
 
       } while (true);
-
-/*
-
-      short h = s.geth(p);
-      bool max=true;
-      set<Point<int> > pts = s.plane(p);  // соседние точки одной высоты
-      set<Point<int> > brd = border(pts); // их граница
-      for (set<Point<int> >::const_iterator i = brd.begin(); i!=brd.end(); i++){
-        if (s.geth(*i)>h) {max = false;}
-        else {done.insert(*i);}
-      }
-      done.insert(pts.begin(), pts.end());
-      if (!max) continue;
-      // теперь в pts -- локальный максимум.
-      // выберем самую центральную точку из множества:
-          mp::mp_object O;
-          O.Class = "POI";
-          ostringstream s; s << h;
-          O.Label = s.str();
-          O.Type = 0x1100;
-          O.push_back(Point<double>(p)/1200.0);
-          MP.push_back(O);
-
-*/
-
     }
+  }
+
+  cerr << "ищем крутые склоны\n";
+  // поиск крутых склонов
+  double latdeg = 6380000/1200.0/180.0*M_PI; 
+  double londeg = latdeg * cos(double(lat2+lat1)/2400.0/180.0*M_PI);
+
+  std::set<Point<int> > aset;
+  for (int lat=lat2; lat>lat1; lat--){
+    for (int lon=lon1; lon<lon2-1; lon++){
+      Point<int> p(lon,lat);
+      short h = s.geth(p);
+      short hx = s.geth(p+Point<int>(1,0));
+      short hy = s.geth(p+Point<int>(0,1));
+      if ((h<srtm_min) || (hx<srtm_min) || (hy<srtm_min)) continue;
+      Point<double> gr(double(hx-h)/londeg, double(hy-h)/latdeg);
+      double a = atan(pdist(gr))*180/M_PI;
+      if (a > 45) aset.insert(p);
+    }
+  }
+
+  cerr << " преобразуем множество точек в многоугольники\n";
+  std::vector<Line<double> > aline = pset2line(aset);
+  for(vector<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+    if (iv->size()<3) continue;
+    Line<double> l = (*iv)/1200.0;
+    mp::mp_object O;
+    O.Class = "POLYGON";
+    O.Label = "high slope";
+    O.Type = 0x15;
+    O.insert(O.end(), l.begin(), l.end());
+    MP.push_back(O);
+  }
+
+  // поиск дырок
+  cerr << "ищем дырки\n";
+  aset.clear();
+  aline.clear();
+  for (int lat=lat2; lat>lat1; lat--){
+    for (int lon=lon1; lon<lon2-1; lon++){
+      Point<int> p(lon,lat);
+      short h = s.geth(p);
+      if (h==srtm_undef) aset.insert(p);
+    }
+  }
+
+  cerr << " преобразуем множество точек в многоугольники\n";
+  aline = pset2line(aset);
+  for(vector<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+    if (iv->size()<3) continue;
+    Line<double> l = (*iv)/1200.0;
+    mp::mp_object O;
+    O.Class = "POLYGON";
+    O.Label = "hole in srtm data";
+    O.Type = 0x29;
+    O.insert(O.end(), l.begin(), l.end());
+    MP.push_back(O);
   }
 
   cerr << "записываем все в файл!\n";

@@ -10,7 +10,7 @@ void usage(){
   exit(0);
 }
 
-char *styles[] = {"mmb500", "mmb250", "hr1000", NULL};
+char *styles[] = {"mmb", "hr", NULL};
 
 main(){
 

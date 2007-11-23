@@ -91,8 +91,9 @@ class zn{
         if (l0->type==3){
           l0->sub_type = (l0->sub_type%2)+4;
         }
-        if ((*l0)[0]==(*l0)[fs-1]){
-          l0->erase(l0->begin()+fs-1);
+        if (((*l0)[0]!=(*l0)[fs-1]) && 
+            (l0->sub_type%2 ==1)){
+          l0->push_back((*l0)[0]);
           fs=l0->size();
         }
 
