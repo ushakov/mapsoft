@@ -10,13 +10,13 @@
 #include "../point_int.h"
 #include "../../geo_io/mp.h"
 
-
-// получаем название .hgt файла, отдаем .mp файл с горизонталями на stdout
+// Проверка работы srtm3.h, line.h, point_int.h 
+// Автоматическое построение карты района (горизонтали, вершины и т.п.)...
 
 using namespace std;
 
 void usage(){
-    cerr << "usage: get_hor lon1 lon2 lat1 lat2 step1 step2 > out.mp\n";
+    cerr << "usage: get_hor lon1 lon2 lat1 lat2 step1 step2 srtm_dir > out.mp\n";
     exit(0);
 }
 
@@ -32,21 +32,20 @@ Point<int> dir (int k){
 
 
 main(int argc, char** argv){
-  if (argc != 7) usage();
+  if (argc != 8) usage();
   int lon1  = int(1200*atof(argv[1]));
   int lon2  = int(1200*atof(argv[2]));
   int lat1  = int(1200*atof(argv[3]));
   int lat2  = int(1200*atof(argv[4]));
   int step1 = atoi(argv[5]);
   int step2 = atoi(argv[6]);
+  string srtm_dir = argv[7];
 
   if (lat2<lat1)   swap(lat2,lat1);
   if (lon2<lon1)   swap(lon2,lon1);
   if (step2<step1) swap(step2,step1);
 
-//  srtm3 s("/d/MAPS/SRTMv2/", 10, interp_mode_off);
-  srtm3 s("./", 10, interp_mode_off);
-
+  srtm3 s(srtm_dir, 10, interp_mode_off);
 
   // нарисуем горизонтали!
   cerr << "находим кусочки горизонталей\n";
@@ -172,12 +171,14 @@ main(int argc, char** argv){
     }
   }
 
+  std::set<Point<int> > aset;
+  std::vector<Line<double> > aline;
+
   cerr << "ищем крутые склоны\n";
   // поиск крутых склонов
   double latdeg = 6380000/1200.0/180.0*M_PI; 
   double londeg = latdeg * cos(double(lat2+lat1)/2400.0/180.0*M_PI);
 
-  std::set<Point<int> > aset;
   for (int lat=lat2; lat>lat1; lat--){
     for (int lon=lon1; lon<lon2-1; lon++){
       Point<int> p(lon,lat);
@@ -192,7 +193,7 @@ main(int argc, char** argv){
   }
 
   cerr << " преобразуем множество точек в многоугольники\n";
-  std::vector<Line<double> > aline = pset2line(aset);
+  aline = pset2line(aset);
   for(vector<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
     Line<double> l = (*iv)/1200.0;
@@ -205,7 +206,7 @@ main(int argc, char** argv){
   }
 
   // поиск дырок
-  cerr << "ищем дырки\n";
+  cerr << "ищем дырки srtm\n";
   aset.clear();
   aline.clear();
   for (int lat=lat2; lat>lat1; lat--){
