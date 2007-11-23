@@ -31,8 +31,8 @@ Point<int> my_crn (int k){
 }
 
 
-std::vector<Line<double> > pset2line (const std::set<Point<int> >& pset){
-  std::vector<Line<double> > ret, ret1;
+std::list<Line<double> > pset2line (const std::set<Point<int> >& pset){
+  std::list<Line<double> > ret, ret1;
   //добавляем все обходы точек
   for (std::set<Point<int> >::const_iterator i = pset.begin(); i!=pset.end(); i++){
     for (int k = 0; k<4; k++){

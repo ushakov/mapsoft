@@ -46,10 +46,12 @@ main(int argc, char** argv){
   if (step2<step1) swap(step2,step1);
 
   srtm3 s(srtm_dir, 10, interp_mode_off);
+  mp::mp_world MP;
 
   // нарисуем горизонтали!
-  cerr << "находим кусочки горизонталей\n";
-  map<short, vector<Line<double> > > hors;
+  cerr << "находим кусочки горизонталей: ";
+  map<short, list<Line<double> > > hors;
+  int count = 0; 
   for (int lat=lat2; lat>lat1; lat--){
     for (int lon=lon1; lon<lon2-1; lon++){
 
@@ -93,17 +95,18 @@ main(int argc, char** argv){
           hor.push_back((Point<double>(p) + Point<double>(crn(int(x2))) + Point<double>(dir(int(x2)))*double(x2-int(x2)))/1200.0);
           hors[h].push_back(hor);
           h=srtm_undef;
+          count+=hor.size();
         }
       }
     }
   }
+  cerr << count << " шт\n";
 
-  mp::mp_world MP;
-  
-  cerr << "сливаем кусочки горизонталей в линии\n";
-  for(map<short, vector<Line<double> > >::iterator im = hors.begin(); im!=hors.end(); im++){
-    vector<Line<double> > tmp = merge(im->second, 1e-4);
-    for(vector<Line<double> >::iterator iv = tmp.begin(); iv!=tmp.end(); iv++){
+  count = 0; 
+  cerr << "  сливаем кусочки горизонталей в линии: ";
+  for(map<short, list<Line<double> > >::iterator im = hors.begin(); im!=hors.end(); im++){
+    list<Line<double> > tmp = merge(im->second, 1e-4);
+    for(list<Line<double> >::iterator iv = tmp.begin(); iv!=tmp.end(); iv++){
       if (iv->size()<3) continue;
       mp::mp_object O;
       O.Class = "POLYLINE";
@@ -113,8 +116,11 @@ main(int argc, char** argv){
       if (im->first%step2==0) O.Type = 0x22;
       O.insert(O.end(), iv->begin(), iv->end());
       MP.push_back(O);
+      count++;
     }
   }
+  cerr << count << " шт\n";
+  
 
   // поиск вершин: 
   // 1. найдем все локальные максимумы (не забудем про максимумы из многих точек!)
@@ -127,7 +133,8 @@ main(int argc, char** argv){
   
   int DH = 20;
   int PS = 500;
-  cerr << "ищем вершины\n";
+  count = 0;
+  cerr << "ищем вершины: ";
   
   set<Point<int> > done;
   for (int lat=lat2; lat>lat1; lat--){
@@ -161,6 +168,7 @@ main(int argc, char** argv){
           O.Type = 0x1100;
           O.push_back(Point<double>(p)/1200.0);
           MP.push_back(O);
+          count++;
           break;
         }
 
@@ -170,11 +178,12 @@ main(int argc, char** argv){
       } while (true);
     }
   }
+  cerr << count << " шт\n";
 
   std::set<Point<int> > aset;
-  std::vector<Line<double> > aline;
+  std::list<Line<double> > aline;
 
-  cerr << "ищем крутые склоны\n";
+  cerr << "ищем крутые склоны: ";
   // поиск крутых склонов
   double latdeg = 6380000/1200.0/180.0*M_PI; 
   double londeg = latdeg * cos(double(lat2+lat1)/2400.0/180.0*M_PI);
@@ -191,10 +200,11 @@ main(int argc, char** argv){
       if (a > 45) aset.insert(p);
     }
   }
+  cerr << aset.size() << " точек\n";
 
-  cerr << " преобразуем множество точек в многоугольники\n";
+  cerr << " преобразуем множество точек в многоугольники: ";
   aline = pset2line(aset);
-  for(vector<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+  for(list<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
     Line<double> l = (*iv)/1200.0;
     mp::mp_object O;
@@ -204,9 +214,10 @@ main(int argc, char** argv){
     O.insert(O.end(), l.begin(), l.end());
     MP.push_back(O);
   }
+  cerr << aline.size() << " шт\n";
 
   // поиск дырок
-  cerr << "ищем дырки srtm\n";
+  cerr << "ищем дырки srtm: ";
   aset.clear();
   aline.clear();
   for (int lat=lat2; lat>lat1; lat--){
@@ -216,10 +227,11 @@ main(int argc, char** argv){
       if (h==srtm_undef) aset.insert(p);
     }
   }
+  cerr << aset.size() << " точек\n";
 
-  cerr << " преобразуем множество точек в многоугольники\n";
+  cerr << " преобразуем множество точек в многоугольники: ";
   aline = pset2line(aset);
-  for(vector<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+  for(list<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
     Line<double> l = (*iv)/1200.0;
     mp::mp_object O;
@@ -229,9 +241,11 @@ main(int argc, char** argv){
     O.insert(O.end(), l.begin(), l.end());
     MP.push_back(O);
   }
+  cerr << aline.size() << " шт\n";
 
-  cerr << "записываем все в файл!\n";
+  cerr << "записываем все в файл: ";
   mp::write(cout, MP);
+  cerr << MP.size() << " объектов\n";
 
 
 }

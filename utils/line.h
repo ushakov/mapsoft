@@ -5,6 +5,7 @@
 //#include <boost/test/floating_point_comparison.hpp>
 #include <iostream>
 #include <cmath>
+#include <list>
 #include <vector>
 #include "point.h"
 
@@ -74,7 +75,7 @@ struct Line
 };
 
 // склеивание линий в одну, если их концы ближе e
-std::vector<Line<double> > merge (std::vector<Line<double> > lines, double e);
+std::list<Line<double> > merge(std::list<Line<double> > lines, double e);
 
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Line<T> & p)

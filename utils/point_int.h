@@ -11,6 +11,6 @@ std::set<Point<int> > border(const std::set<Point<int> >& pset);
 // изменить его границу bord
 int add_pb(const Point<int>& p, std::set<Point<int> >& pset, std::set<Point<int> >& bord);
 // ппреобразовать множество точек в линию границы
-std::vector<Line<double> > pset2line (const std::set<Point<int> >& pset);
+std::list<Line<double> > pset2line (const std::set<Point<int> >& pset);
 
 #endif
