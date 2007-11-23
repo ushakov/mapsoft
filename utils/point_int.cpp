@@ -38,9 +38,21 @@ std::list<Line<double> > pset2line (const std::set<Point<int> >& pset){
     for (int k = 0; k<4; k++){
       Line<double> side;
       Point<double> dp(0.5,0.5);
-      side.push_back(Point<double>(*i)+Point<double>(my_crn(k)) - dp);
-      side.push_back(Point<double>(*i)+Point<double>(my_crn(k+1)) - dp);
-      ret.push_back(side);
+      side.push_back(Point<double>(*i+my_crn(k)) - dp);
+      side.push_back(Point<double>(*i+my_crn(k+1)) - dp);
+      // у нас уже может быть такая линия, пройденная в обратном направлении.
+      // merge такую пару отловит и удалит, но это долгая процедура.
+      // поэтому посмотрим здесь:
+      // upd. это не сильно все убыстрило...
+      bool ispair=false;
+      for (std::list<Line<double> >::iterator i = ret.begin(); i!=ret.end(); i++){
+        if (i->isinv(side)){
+           ispair = true;
+           ret.erase(i);
+           break;
+        }
+      }
+      if (!ispair) ret.push_back(side);
     }
   }
   ret1 = merge(ret,0.1);

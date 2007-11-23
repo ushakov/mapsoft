@@ -33,3 +33,18 @@ std::list<Line<double> > merge (std::list<Line<double> > lines, double e){
 //std::cerr << "  ок\n";
   return lines;
 }
+
+// разбиение линии на несколько, каждая не более points точек
+std::list<Line<double> > split (std::list<Line<double> > lines, int points){
+  if (points < 2) return lines;
+  for (std::list<Line<double> >::iterator i = lines.begin(); i!=lines.end(); i++){
+    while (i->size() > points){
+      // points последних точек
+      Line<double> newline;
+      newline.insert(newline.begin(), i->rbegin(), i->rbegin()+points);
+      lines.push_back(newline);
+      i->resize(i->size()-points+1);
+    }
+  }
+  return lines;
+}

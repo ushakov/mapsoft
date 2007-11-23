@@ -105,7 +105,8 @@ main(int argc, char** argv){
   count = 0; 
   cerr << "  сливаем кусочки горизонталей в линии: ";
   for(map<short, list<Line<double> > >::iterator im = hors.begin(); im!=hors.end(); im++){
-    list<Line<double> > tmp = merge(im->second, 1e-4);
+    list<Line<double> > tmp = split(merge(im->second, 1e-4), 100);
+    
     for(list<Line<double> >::iterator iv = tmp.begin(); iv!=tmp.end(); iv++){
       if (iv->size()<3) continue;
       mp::mp_object O;
@@ -143,6 +144,7 @@ main(int argc, char** argv){
       Point<int> p(lon,lat);
       if (done.find(p)!=done.end()) continue;
       short h = s.geth(p);
+      if (h<srtm_min) continue;
 
       set<Point<int> > pts; pts.insert(p);
       set<Point<int> > brd = border(pts);
@@ -153,9 +155,12 @@ main(int argc, char** argv){
         Point<int> maxpt;
         for (set<Point<int> >::const_iterator i = brd.begin(); i!=brd.end(); i++){
           short h1 = s.geth(*i);
+          // исходная точка слишком близка к краю данных
+          if ((h1<srtm_min) && (pdist(*i,p)<1.5)) {max = h1; break;}
           if (h1>max) {max = h1; maxpt=*i;}
         }
-        
+        if (max < srtm_min) break;
+
         // если максимум выше исходной точки - выходим.
         if (max > h) { break; }
 
@@ -183,8 +188,10 @@ main(int argc, char** argv){
   std::set<Point<int> > aset;
   std::list<Line<double> > aline;
 
-  cerr << "ищем крутые склоны: ";
+
+
   // поиск крутых склонов
+  cerr << "ищем крутые склоны: ";
   double latdeg = 6380000/1200.0/180.0*M_PI; 
   double londeg = latdeg * cos(double(lat2+lat1)/2400.0/180.0*M_PI);
 
@@ -236,8 +243,8 @@ main(int argc, char** argv){
     Line<double> l = (*iv)/1200.0;
     mp::mp_object O;
     O.Class = "POLYGON";
-    O.Label = "hole in srtm data";
-    O.Type = 0x29;
+    O.Label = "no data";
+    O.Type = 0x100;
     O.insert(O.end(), l.begin(), l.end());
     MP.push_back(O);
   }

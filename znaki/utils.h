@@ -63,8 +63,8 @@ std::string make_key(const std::vector<Point<T> > & o){
 bool key_cmp(const std::string &k1, const std::string &k2, double min){
   std::istringstream s1(k1), s2(k2);
   if ((k1.compare(0,4, "KEY:")!=0) || (k2.compare(0,4, "KEY:")!=0)) return false;
-std::cerr << "KEY COMP:\n";
-std::cerr << k1 << "\n" << k2 << "\n";
+//std::cerr << "KEY COMP:\n";
+//std::cerr << k1 << "\n" << k2 << "\n";
   s1.seekg(4); s2.seekg(4);
   while (!s1.eof() && !s2.eof()){
     double n1, n2;
@@ -72,7 +72,7 @@ std::cerr << k1 << "\n" << k2 << "\n";
     if (fabs(n1-n2)>min) return false;
   }
   if (!s1.eof() || !s2.eof()) return false;
-std::cerr << "OK\n";
+//std::cerr << "OK\n";
   return true;
 }
 

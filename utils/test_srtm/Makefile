@@ -9,6 +9,6 @@ test.fig: test.mp
 	../../znaki/mapconv p test.mp test.fig hr
 
 test.mp: get_hor
-	./get_hor 68.01 68.1 38.9 38.99 100 500 ./ > test.mp
+	./get_hor 68.01 68.1 38.8 38.99 100 500 ./ > test.mp
 
 get_hor: ../../geo_io/mp.cpp ../line.cpp ../point_int.cpp
