@@ -134,13 +134,13 @@ class legend{
 
     // тестовые объекты - точка, линия, прямоугольник
     map_object o1pt, o2pt, o4pt, *o;       
-    o1pt.push_back(g_point(.5,.5));
+    o1pt.push_back(g_point(1,.5));
     o2pt.push_back(g_point(0,.5));
-    o2pt.push_back(g_point(1,.5));
-    o4pt.push_back(g_point(0,.25));
-    o4pt.push_back(g_point(1,.25));
-    o4pt.push_back(g_point(1,.75));
-    o4pt.push_back(g_point(0,.75));
+    o2pt.push_back(g_point(2,.5));
+    o4pt.push_back(g_point(0.5,.25));
+    o4pt.push_back(g_point(1.5,.25));
+    o4pt.push_back(g_point(1.5,.75));
+    o4pt.push_back(g_point(0.5,.75));
    
     fig::fig_world W0; // fig для общего файла
     // поток для вывода общего файла
@@ -148,8 +148,8 @@ class legend{
 
     fig::fig_object box = fig::make_object("2 2 0 0 0 30 101 -1 20 0.000 0 0 7 0 0 *");
     box.push_back(Point<int>(-ll/2,0));
-    box.push_back(Point<int>((ll*7)/2,0));
-    box.push_back(Point<int>((ll*7)/2,ll*Z.size()));
+    box.push_back(Point<int>(ll*6,0));
+    box.push_back(Point<int>(ll*6,ll*Z.size()));
     box.push_back(Point<int>(-ll/2,ll*Z.size()));
     box.push_back(Point<int>(-ll/2,0));
     W0.push_back(box);
@@ -179,7 +179,7 @@ class legend{
       // кусочки для общего списка
       Z[i]->fig_add_colors(W0);
       std::list<fig::fig_object> l1 = Z[i]->map2fig ((*o)+ g_point(0,i), cnv);
-      std::list<fig::fig_object> l2 = Z[i]->map2pfig((*o)+ g_point(2,i), cnv);
+      std::list<fig::fig_object> l2 = Z[i]->map2pfig((*o)+ g_point(3.5,i), cnv);
       W0.insert(W0.end(), l1.begin(), l1.end());
       W0.insert(W0.end(), l2.begin(), l2.end());
       fig::fig_object txt;
@@ -188,7 +188,7 @@ class legend{
       txt.font_size = 6;
       txt.font_flags = 4;
       txt.text = Z[i]->name;
-      txt.push_back(g_point(4*ll,(i+0.5)*ll));
+      txt.push_back(g_point(6*ll,(i+0.5)*ll));
       W0.push_back(txt);
       std::ostringstream htype; 
       htype << "0x" << std::setbase(16) << Z[i]->base_mp.Type << std::setbase(10);

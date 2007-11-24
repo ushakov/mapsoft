@@ -5,4 +5,5 @@ mapsoft_libs = Split ("geo_io loaders utils jeeps")
 le.Prepend(LIBS=mapsoft_libs)
 
 le.Program('mapconv',  'mapconv.cpp')  
+le.Program('add2map',  'add2map.cpp')  
 le.Program('auto_gen', 'auto_gen.cpp') 
