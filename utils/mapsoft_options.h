@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include <utils/point.h>
+#include <utils/line.h>
 #include <boost/lexical_cast.hpp>
 #include <utils/m_time.h>
 
@@ -55,9 +56,9 @@ struct Options : std::map<std::string,std::string>{
 //    bool         get_bool    (const std::string & key) const;
 //    time_t       get_time    (const std::string & key, const time_t dflt=0) const;
     
-    std::vector<Point<double> >
+    Line<double>
     get_poly (const std::string & key,
-	      const std::vector<Point<double> > & dflt = std::vector<Point<double> >() ) const;
+	      const Line<double> & dflt = Line<double>() ) const;
     
     void warn_unused (const std::string * used) const;
 

@@ -80,6 +80,10 @@ std::list<Line<double> > merge(std::list<Line<double> > lines, double e);
 // разбиение линии на несколько, каждая не более points точек
 std::list<Line<double> > split (std::list<Line<double> > lines, int points);
 
+// Убрать из линии некоторые точки, так, чтобы линия
+// не сместилась от исходного положения более чем на e
+Line<double> generalize (Line<double> line, double e);
+
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Line<T> & p)
 {

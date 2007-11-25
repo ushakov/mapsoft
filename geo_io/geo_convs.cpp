@@ -414,9 +414,9 @@ void map2pt::bck(g_point & p){
   return;
 }
 
-vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
+g_line map2pt::line_frw(const g_line & l) {
 
-  vector<g_point> ret;
+  g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
   g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
@@ -447,9 +447,9 @@ vector<g_point> map2pt::line_frw(const vector<g_point> & l) {
 }
 
 
-vector<g_point> map2pt::line_bck(const vector<g_point> & l) {
+g_line map2pt::line_bck(const g_line & l) {
 
-  vector<g_point> ret;
+  g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
   g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
@@ -521,9 +521,9 @@ void map2map::frw(g_point & p) {c1.frw(p); c2.bck(p);}
 void map2map::bck(g_point & p) {c2.frw(p); c1.bck(p);}
 
 
-vector<g_point> map2map::line_frw(const vector<g_point> & l) {
+g_line map2map::line_frw(const g_line & l) {
 
-  vector<g_point> ret;
+  g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
   g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
@@ -552,9 +552,9 @@ vector<g_point> map2map::line_frw(const vector<g_point> & l) {
 }
 
 
-vector<g_point> map2map::line_bck(const vector<g_point> & l) {
+g_line map2map::line_bck(const g_line & l) {
 
-  vector<g_point> ret;
+  g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
   g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
@@ -651,16 +651,16 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
 }
 
 Rect<int> map2map::bb_frw(const Rect<int> & R){
-  vector<g_point> v1;
+  g_line v1;
   v1.push_back(g_point(R.TLC().x, R.TLC().y));
   v1.push_back(g_point(R.TRC().x, R.TRC().y));
   v1.push_back(g_point(R.BRC().x, R.BRC().y));
   v1.push_back(g_point(R.BLC().x, R.BLC().y));
   v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  vector<g_point> v2 = line_frw(v1);
+  g_line v2 = line_frw(v1);
   double minx = v2[0].x, maxx = v2[0].x;
   double miny = v2[0].y, maxy = v2[0].y;
-  for (vector<g_point>::const_iterator i = v2.begin(); i!=v2.end(); i++){
+  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
     if (i->x < minx) minx = i->x;
     if (i->x > maxx) maxx = i->x;
     if (i->y < miny) miny = i->y;
@@ -672,16 +672,16 @@ Rect<int> map2map::bb_frw(const Rect<int> & R){
 }
 
 Rect<int> map2map::bb_bck(const Rect<int> & R){
-  vector<g_point> v1;
+  g_line v1;
   v1.push_back(g_point(R.TLC().x, R.TLC().y));
   v1.push_back(g_point(R.TRC().x, R.TRC().y));
   v1.push_back(g_point(R.BRC().x, R.BRC().y));
   v1.push_back(g_point(R.BLC().x, R.BLC().y));
   v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  vector<g_point> v2 = line_bck(v1);
+  g_line v2 = line_bck(v1);
   double minx = v2[0].x, maxx = v2[0].x;
   double miny = v2[0].y, maxy = v2[0].y;
-  for (vector<g_point>::const_iterator i = v2.begin(); i!=v2.end(); i++){
+  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
     if (i->x < minx) minx = i->x;
     if (i->x > maxx) maxx = i->x;
     if (i->y < miny) miny = i->y;
@@ -693,16 +693,16 @@ Rect<int> map2map::bb_bck(const Rect<int> & R){
 }
 
 Rect<double> map2pt::bb_frw(const Rect<int> & R){
-  vector<g_point> v1;
+  g_line v1;
   v1.push_back(g_point(R.TLC().x, R.TLC().y));
   v1.push_back(g_point(R.TRC().x, R.TRC().y));
   v1.push_back(g_point(R.BRC().x, R.BRC().y));
   v1.push_back(g_point(R.BLC().x, R.BLC().y));
   v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  vector<g_point> v2 = line_frw(v1);
+  g_line v2 = line_frw(v1);
   double minx = v2[0].x, maxx = v2[0].x;
   double miny = v2[0].y, maxy = v2[0].y;
-  for (vector<g_point>::const_iterator i = v2.begin(); i!=v2.end(); i++){
+  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
     if (i->x < minx) minx = i->x;
     if (i->x > maxx) maxx = i->x;
     if (i->y < miny) miny = i->y;
@@ -714,16 +714,16 @@ Rect<double> map2pt::bb_frw(const Rect<int> & R){
 }
 
 Rect<int> map2pt::bb_bck(const Rect<double> & R){
-  vector<g_point> v1;
+  g_line v1;
   v1.push_back(g_point(R.TLC().x, R.TLC().y));
   v1.push_back(g_point(R.TRC().x, R.TRC().y));
   v1.push_back(g_point(R.BRC().x, R.BRC().y));
   v1.push_back(g_point(R.BLC().x, R.BLC().y));
   v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  vector<g_point> v2 = line_bck(v1);
+  g_line v2 = line_bck(v1);
   double minx = v2[0].x, maxx = v2[0].x;
   double miny = v2[0].y, maxy = v2[0].y;
-  for (vector<g_point>::const_iterator i = v2.begin(); i!=v2.end(); i++){
+  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
     if (i->x < minx) minx = i->x;
     if (i->x > maxx) maxx = i->x;
     if (i->y < miny) miny = i->y;
@@ -737,7 +737,7 @@ Rect<int> map2pt::bb_bck(const Rect<double> & R){
 
 
 // Быстрая проверка границ
-  border_tester::border_tester(std::vector<g_point> & brd) : border(brd){
+  border_tester::border_tester(g_line & brd) : border(brd){
     sides.clear();
     int n = border.size();
     for (int i = 0; i < n; i++){
@@ -803,7 +803,7 @@ Rect<int> map2pt::bb_bck(const Rect<double> & R){
     int rx = 0; int ry=0;
     Point<int> p1 = range.TLC();
     Point<int> p2 = range.BRC();
-    vector<g_point>::const_iterator p;
+    g_line::const_iterator p;
 //    std::cerr << "brd::tst: " << p1 << " " << p2 << "\n";
     for (p = border.begin(); p !=border.end(); p++){
 //    std::cerr << *p << " ";

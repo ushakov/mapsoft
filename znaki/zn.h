@@ -57,7 +57,7 @@ class zn{
       obj.comment.push_back(o.name);
       for (int i=0; i<o.comm.size(); i++) obj.comment.push_back(o.comm[i]);
 
-      std::vector<g_point> pts = cnv.line_bck(o);
+      g_line pts = cnv.line_bck(o);
       for (int i=0; i<pts.size(); i++) obj.push_back(pts[i]);
 
       if (obj.size()!=0) ret.push_back(obj);
@@ -180,7 +180,7 @@ class zn{
 //      std::cerr << "fig2map: " << descr << "\n";
       map_object ret(this);
       
-      std::vector<g_point> pts = cnv.line_bck(o);
+      g_line pts = cnv.line_bck(o);
 
       for (int i=0; i<pts.size(); i++) ret.push_back(pts[i]);
       if (o.comment.size()>0) ret.name = *o.comment.begin();

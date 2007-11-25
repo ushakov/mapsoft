@@ -149,7 +149,7 @@ void map_nom_brd(geo_data & world){
     
     convs::map2pt conv(*i, Datum("pulk42"), Proj("lonlat"), Options());
 
-    vector<g_point> brd;
+    g_line brd;
     brd.push_back(g_point(lon1,lat2));
     brd.push_back(g_point(lon2,lat2));
     brd.push_back(g_point(lon2,lat1));

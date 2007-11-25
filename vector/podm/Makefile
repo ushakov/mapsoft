@@ -1,4 +1,4 @@
-FIG2MP = ../fig2mp
+FIG2MP = ../mp2fig
 FIGCNV = ../fig_conv_podm
 FIGCYR = ~/bin/figcyr
 MAPPUBL = ./MAP_PUBL.pl

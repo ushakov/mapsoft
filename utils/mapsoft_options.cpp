@@ -102,8 +102,8 @@ bool Options::get_bool(const std::string & key) const {
   return str2time(i->second);
 }*/
 
-std::vector<Point<double> > Options::get_poly 
-    (const std::string & key, const std::vector<Point<double> > & dflt) const {
+Line<double> Options::get_poly 
+    (const std::string & key, const Line<double> & dflt) const {
   using namespace boost::spirit;
   const_iterator i = find(key);
   if (i == end() ) return dflt;
@@ -111,7 +111,7 @@ std::vector<Point<double> > Options::get_poly
   std::string str = "," + i->second;
 
   Point<double> pt;
-  std::vector<Point<double> > ret;
+  Line<double> ret;
 
   if (parse(str.c_str(), *(
           *space_p >> ',' >>  *space_p >>

@@ -130,7 +130,7 @@ main(int argc, char **argv){
 
       double ll0=0;
       vector<double> ls;
-      vector<Point<double> > vs;
+      Line<double> vs;
       for (int j=1; j<fs; j++){
         Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
         Point<double> p2 ((*i)[j].x, (*i)[j].y);
@@ -187,7 +187,7 @@ main(int argc, char **argv){
 
       double ll0=0;
       vector<double> ls;
-      vector<Point<double> > vs;
+      Line<double> vs;
       for (int j=1; j<fs; j++){
         Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
         Point<double> p2 ((*i)[j].x, (*i)[j].y);
@@ -277,7 +277,7 @@ main(int argc, char **argv){
 
       double ll0=0;
       vector<double> ls;
-      vector<Point<double> > vs;
+      Line<double> vs;
       for (int j=1; j<fs; j++){
         Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
         Point<double> p2 ((*i)[j].x, (*i)[j].y);
@@ -488,8 +488,8 @@ main(int argc, char **argv){
       if ((fs<2)||(i->comment.size()<1)||(i->comment[0].size()<1)) continue;
       double l=0;
       vector<double> ls;
-      vector<Point<double> > vs;
-      vector<Point<double> > ps;
+      Line<double> vs;
+      Line<double> ps;
       ps.push_back(Point<double>((*i)[0].x, (*i)[0].y));
       for (int j=1; j<fs; j++){
         Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
@@ -535,7 +535,7 @@ main(int argc, char **argv){
     if ((test_object(*i, "2 * 0 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
       double ll0=0;
       vector<double> ls;
-      vector<Point<double> > vs;
+      Line<double> vs;
       for (int j=1; j<fs; j++){
         Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
         Point<double> p2 ((*i)[j].x, (*i)[j].y);
@@ -582,7 +582,7 @@ main(int argc, char **argv){
     if ((test_object(*i, "2 * 1 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
       double ll0=0;
       vector<double> ls;
-      vector<Point<double> > vs;
+      Line<double> vs;
       for (int j=1; j<fs; j++){
         Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
         Point<double> p2 ((*i)[j].x, (*i)[j].y);
@@ -650,7 +650,7 @@ main(int argc, char **argv){
 
       double l0a=0, l0b=0;
       vector<double> lsa, lsb;
-      vector<Point<double> > vsa, vsb, psa, psb;
+      Line<double> vsa, vsb, psa, psb;
       fs1=nomin->size();
 
       for (int j=1; j<fs; j++){
@@ -730,7 +730,7 @@ main(int argc, char **argv){
       if (k==0) continue;
       double ll0=0;
       vector<double> ls;
-      vector<Point<double> > vt;
+      Line<double> vt;
       for (int j=1; j<fs; j++){
         Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
         Point<double> p2 ((*i)[j].x, (*i)[j].y);
@@ -806,7 +806,7 @@ main(int argc, char **argv){
       if (k==0) continue;
       double ll0=0;
       vector<double> ls;
-      vector<Point<double> > vt;
+      Line<double> vt;
       for (int j=1; j<fs; j++){
         Point<double> p1 ((*i)[j-1].x, (*i)[j-1].y);
         Point<double> p2 ((*i)[j].x, (*i)[j].y);

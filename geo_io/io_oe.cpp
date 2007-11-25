@@ -180,7 +180,7 @@ typedef rule <scanner_t>        rule_t;
 		double proj_E0, proj_N0;
 		double proj_lat1, proj_lat2, proj_hgt; // I don't know how to use this things
                 vector<oe_mappoint> points;
-                vector<g_point> border;
+                g_line border;
 
 	        oe_map ()
 		    : mag_var_h(0), mag_var_d(0), mag_var_m(0),
@@ -480,7 +480,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		// и m_per_pix
 		// TODO -- заполнить их честно!
 
-		vector<g_point> border_wgs;
+		g_line border_wgs;
 		double m_per_pix=0;
 
 		f << "OziExplorer Map Data File Version 2.2\r\n"
@@ -530,7 +530,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			f << "MM0,Yes\r\n"
 			  << "MMPNUM," << m.border.size() << "\r\n";
 			int n=0;
-			for (vector<g_point>::const_iterator it =m.border.begin();
+			for (g_line::const_iterator it =m.border.begin();
 				 it!=m.border.end(); it++){
 				n++;
 				f << "MMPXY," << n << "," 
@@ -539,7 +539,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			}
 			n=0;
 			f.precision(8);
-			for (vector<g_point>::const_iterator it =border_wgs.begin();
+			for (g_line::const_iterator it =border_wgs.begin();
 				 it!=border_wgs.end(); it++){
 				n++;
 				f << "MMPLL," << n << "," 

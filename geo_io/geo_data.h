@@ -8,6 +8,7 @@
 #include <geo_io/geo_names.h>
 #include <geo_io/geo_enums.h>
 #include <utils/point.h>
+#include <utils/line.h>
 #include <utils/rect.h>
 #include <utils/mapsoft_options.h>
 
@@ -21,6 +22,7 @@
 
 // abstract point
 typedef Point<double> g_point;
+typedef Line<double>  g_line;
 
 // single waypoint
 struct g_waypoint : g_point {
@@ -288,8 +290,8 @@ struct g_map :
 {
     std::string comm;
     std::string file;
-    Proj map_proj;
-    std::vector<g_point>    border;
+    Proj   map_proj;
+    g_line border;
 
     g_map & operator/= (double k){
       std::vector<g_refpoint>::iterator i;

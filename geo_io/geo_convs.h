@@ -65,8 +65,8 @@ struct map2pt{
          const Datum & dD, const Proj & dP, const Options & dPo);
   void frw(g_point & p);
   void bck(g_point & p);
-  std::vector<g_point> line_frw(const std::vector<g_point> & l);
-  std::vector<g_point> line_bck(const std::vector<g_point> & l);
+  g_line line_frw(const g_line & l);
+  g_line line_bck(const g_line & l);
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
   Rect<double> bb_frw(const Rect<int> & R);
@@ -77,8 +77,8 @@ struct map2pt{
     double k_map2geo[6];
     double k_geo2map[6];
   public:
-    std::vector<g_point> border;
-    std::vector<g_point> border_geo;
+    g_line border;
+    g_line border_geo;
 };
 
 // Быстрая проверка границ
@@ -89,9 +89,9 @@ struct border_tester{
    double k;
   };
   std::vector<side> sides;
-  std::vector<g_point> border;
+  g_line border;
   public:
-  border_tester(std::vector<g_point> & brd);
+  border_tester(g_line & brd);
   // попадает ли точка в пределы границы
   bool test(const int x, const int y) const;
   // расстояние до ближайшей границы справа
@@ -111,8 +111,8 @@ struct map2map{
   void frw(g_point & p);
   void bck(g_point & p);
 
-  std::vector<g_point> line_frw(const std::vector<g_point> & l);
-  std::vector<g_point> line_bck(const std::vector<g_point> & l);
+  g_line line_frw(const g_line & l);
+  g_line line_bck(const g_line & l);
   // src_scale -- во сколько раз была уменьшена растровая картинка при загрузке
   // cnv_rect - прямоугольник в плоскости _преобразованной картинки_!!!
   int image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
@@ -131,8 +131,8 @@ struct map2map{
 
     map2pt c1,c2;
     border_tester tst_frw, tst_bck;
-    std::vector<g_point> border_src; // граница sM
-    std::vector<g_point> border_dst; // это след от границы sM на dM! 
+    g_line border_src; // граница sM
+    g_line border_dst; // это след от границы sM на dM! 
 };
 
 g_map mymap(const geo_data & world); // естественная привязка геоданных

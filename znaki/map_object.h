@@ -7,7 +7,7 @@
 
 class zn;
 
-struct map_object : public std::vector<g_point>{
+struct map_object : public g_line{
   std::string               name;
   std::vector<std::string>  comm;
   const zn * type;
@@ -16,7 +16,7 @@ struct map_object : public std::vector<g_point>{
   map_object(const zn * _type=0): type(_type) {}
   map_object operator + (const g_point & p) { 
     map_object ret(*this);
-    for (std::vector<g_point>::iterator i = ret.begin(); i!=ret.end();i++){
+    for (g_line::iterator i = ret.begin(); i!=ret.end();i++){
       (*i)+=p;
     }
     return ret;

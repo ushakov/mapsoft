@@ -189,7 +189,7 @@ main(int argc, char** argv){
   std::list<Line<double> > aline;
 
 
-
+/*
   // поиск крутых склонов
   cerr << "ищем крутые склоны: ";
   double latdeg = 6380000/1200.0/180.0*M_PI; 
@@ -222,7 +222,7 @@ main(int argc, char** argv){
     MP.push_back(O);
   }
   cerr << aline.size() << " шт\n";
-
+*/
   // поиск дырок
   cerr << "ищем дырки srtm: ";
   aset.clear();
