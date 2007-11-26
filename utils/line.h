@@ -91,7 +91,7 @@ template <typename T>
 std::ostream & operator<< (std::ostream & s, const Line<T> & p)
 {
   s << "Line(";
-  for(typename Line<T>::iterator i=p.begin(); i!=p.end(); i++) 
+  for(typename Line<T>::const_iterator i=p.begin(); i!=p.end(); i++) 
     s << "(" << i->x << "," << i->y << ")";
   s << ")\n";
   return s;

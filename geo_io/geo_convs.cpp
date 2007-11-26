@@ -225,7 +225,7 @@ g_line pt2pt::line_frw(const g_line & l, double acc) {
       P1a = P1; frw(P1a);
       P2a = P2; frw(P2a);
       g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C2 = C1 + acc*g_point(P1.y-P2.y, -P1.x+P2.x)/pdist(P1,P2); // отступим на acc в сторону от середины.
+      g_point C2 = C1 + acc*pnorm(g_point(P1.y-P2.y, -P1.x+P2.x)); // отступим на acc в сторону от середины.
       g_point C1a = C1; frw(C1a);
       g_point C2a = C2; frw(C2a);
       if (pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)){

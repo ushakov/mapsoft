@@ -91,5 +91,50 @@ void generalize (std::list<Line<double> > & lines, double e){
 
 }
 
+// лежит ли точка в многоугольнике poly
+bool test_pt (const Point<double> & pt, const Line<double> & poly){
+  double a = 0;
+  Line<double>::const_iterator p1,p2;
+  for (int i = 0; i<poly.size(); i++){
+    Point<double> v1 = poly[i] - pt;
+    Point<double> v2 = poly[(i+1)%poly.size()] - pt;
+    
+    double s = v1.x*v2.y - v1.y*v2.x;
+    double c = acos(pscal(v1,v2)/pdist(v1)/pdist(v2));
+    if (s<0) a+=c; else a-=c;
+  }
+  return (fabs(a)>M_PI);
+}
+
 void crop_lines(std::list<Line<double> > & lines, const Line<double> & cutter){
+  for (std::list<Line<double> >::iterator l = lines.begin(); l!=lines.end(); l++){
+    for (int i = 0; i<l->size()-1; i++){
+      for (int j = 0; j<cutter.size(); j++){
+        Point<double> pt;
+        try { pt = find_cross((*l)[i], (*l)[i+1], cutter[j], cutter[(j+1)%cutter.size()]); }
+        catch (int i) {continue;}
+        // разбиваем линию на две, уже обработанный кусок помещаем перед l
+        Line<double> l1;
+        for (int k=0; k<=i; k++) l1.push_back((*l)[k]);
+        l1.push_back(pt);
+        lines.insert(l, l1);
+        // из *l стираем все точки до i-й 
+        l->erase(l->begin(), l->begin()+i);
+        *(l->begin()) = pt;
+        // возвращаемся в начало обоих циклов
+        i=0; break;
+      }
+    }
+  }
+  // теперь удалим те линии, которые не попадают в нужный район
+  for (std::list<Line<double> >::iterator l = lines.begin(); l!=lines.end(); l++){
+    if (l->size()==0) {l=lines.erase(l); l--; continue;}
+
+    // для проверки надо выбрать точку, не лежащую на линии cutter
+    Point<double> testpt;
+    if (l->size()==1) {testpt = (*l)[0];}
+    else {testpt = ((*l)[0]+(*l)[1])/2;} 
+    // (здесь может произойти фигня, если линия касается первым звеном cutter)
+    if (!test_pt(testpt, cutter)) {l=lines.erase(l); l--; continue;}
+  }
 }
