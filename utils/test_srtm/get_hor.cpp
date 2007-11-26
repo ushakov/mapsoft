@@ -105,9 +105,12 @@ main(int argc, char** argv){
   count = 0; 
   cerr << "  сливаем кусочки горизонталей в линии: ";
   for(map<short, list<Line<double> > >::iterator im = hors.begin(); im!=hors.end(); im++){
-    list<Line<double> > tmp = split(merge(im->second, 1e-4), 100);
+    std::cerr << im->first << " ";
+    merge(im->second, 1e-4);
+    generalize(im->second, 1e-4); // точность генерализации 1e-4 - примерно 1/8 от 3 секунд
+    split(im->second, 100);
     
-    for(list<Line<double> >::iterator iv = tmp.begin(); iv!=tmp.end(); iv++){
+    for(list<Line<double> >::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
       if (iv->size()<3) continue;
       mp::mp_object O;
       O.Class = "POLYLINE";

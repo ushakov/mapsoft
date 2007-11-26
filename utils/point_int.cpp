@@ -55,6 +55,6 @@ std::list<Line<double> > pset2line (const std::set<Point<int> >& pset){
       if (!ispair) ret.push_back(side);
     }
   }
-  ret1 = merge(ret,0.1);
-  return ret1;
+  merge(ret,0.1);
+  return ret;
 }

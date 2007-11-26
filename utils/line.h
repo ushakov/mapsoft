@@ -75,14 +75,14 @@ struct Line
 };
 
 // склеивание линий в одну, если их концы ближе e
-std::list<Line<double> > merge(std::list<Line<double> > lines, double e);
+void merge(std::list<Line<double> > & lines, double e);
 
 // разбиение линии на несколько, каждая не более points точек
-std::list<Line<double> > split (std::list<Line<double> > lines, int points);
+void split (std::list<Line<double> > & lines, int points);
 
 // Убрать из линии некоторые точки, так, чтобы линия
 // не сместилась от исходного положения более чем на e
-Line<double> generalize (Line<double> line, double e);
+void generalize (std::list<Line<double> > & lines, double e);
 
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Line<T> & p)
