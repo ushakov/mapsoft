@@ -70,7 +70,7 @@ class srtm3 {
     for (int y=0; y < srtm_width; y++){
       for (int x=0; x < srtm_width; x++){
         if (in.get(c1) && in.get(c2))
-          im.set(Point<int>(x,y), (short)(unsigned char)c2 + ((short)(unsigned char)c1 <<8) );
+          im.set(Point<int>(x,srtm_width-1-y), (short)(unsigned char)c2 + ((short)(unsigned char)c1 <<8) );
         else {
           std::cerr << "error while reading from file " << file.str() << '\n';
           srtm_cache.add(key, Image<short>(0,0));
@@ -86,7 +86,11 @@ class srtm3 {
   short geth_(const Point<int> & p){
     Point<int> key = p/(srtm_width-1);
     Point<int> crd = p - key*(srtm_width-1);
-    crd.y = (srtm_width-1)-crd.y;
+ 
+    // в исправленных srtm-данных последняя строчка 
+    // (которая стала 0-й) иногда содержит нули.
+    // и ее не надо использовать!
+    if (crd.y==0) {crd.y=srtm_width-1; key.y--;}
 
     while (key.x < -max_lon) key.x+=2*max_lon;
     while (key.x >= max_lon) key.x-=2*max_lon;
