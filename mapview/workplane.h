@@ -1,6 +1,12 @@
 #ifndef WORKPLANE_H
 #define WORKPLANE_H
 
+// Workplane -- бесконечная растровая плоскость,
+// умеющая отдавать картинки в виде плиток фиксированного размера.
+// В нее можно добавлять слои (class Layer), 
+// при этом Workplane их накладывает друг на друга 
+// и кэширует
+
 #include <sigc++/sigc++.h>
 #include <assert.h>
 

@@ -91,3 +91,5 @@ void generalize (std::list<Line<double> > & lines, double e){
 
 }
 
+void crop_lines(std::list<Line<double> > & lines, const Line<double> & cutter){
+}

@@ -1,6 +1,9 @@
 #ifndef RUBBER_H
 #define RUBBER_H
 
+// "резина" - xor-линии, цепляющиеся к мышке
+// Viewer умеет их показывать!
+
 #include <gtkmm.h>
 #include <utils/point.h>
 

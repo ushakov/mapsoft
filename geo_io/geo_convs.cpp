@@ -205,6 +205,75 @@ void pt2pt::bck(g_point & p){
     pc1.bck(p);
 }
 
+// преобразования линий
+// точность acc - в координатах исходной проекции
+// код одинаков с map2pt::line_frw/line_bck
+// но как их объединить - пока не придумал...
+
+g_line pt2pt::line_frw(const g_line & l, double acc) {
+
+  g_line ret;
+  // добавим первую точку
+  if (l.size()==0) return ret;
+  g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
+  g_point P2, P2a;
+
+  for (int i=1; i<l.size(); i++){
+    P1 = l[i-1];
+    P2 = l[i];
+    do {
+      P1a = P1; frw(P1a);
+      P2a = P2; frw(P2a);
+      g_point C1 = (P1+P2)/2.; // середина отрезка
+      g_point C2 = C1 + acc*g_point(P1.y-P2.y, -P1.x+P2.x)/pdist(P1,P2); // отступим на acc в сторону от середины.
+      g_point C1a = C1; frw(C1a);
+      g_point C2a = C2; frw(C2a);
+      if (pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)){
+        ret.push_back(P2a);
+        P1 = P2;
+        P2 = l[i];
+      }
+      else {
+        P2 = C1;
+      }
+    } while (P1!=P2);
+  }
+  return ret;
+}
+
+
+g_line pt2pt::line_bck(const g_line & l, double acc) {
+
+  g_line ret;
+  // добавим первую точку
+  if (l.size()==0) return ret;
+  g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
+  g_point P2, P2a;
+
+  for (int i=1; i<l.size(); i++){
+    P1 = l[i-1];
+    P2 = l[i];
+    do {
+      P1a = P1; bck(P1a);
+      P2a = P2; bck(P2a);
+      g_point C1 = (P1+P2)/2.; // середина отрезка
+      g_point C1a = C1; bck(C1a);
+
+      if (pdist(C1a, (P1a+P2a)/2.) < acc){
+        ret.push_back(P2a);
+        P1 = P2;
+        P2 = l[i];
+      }
+      else {
+        P2 = C1;
+      }
+    } while (P1!=P2);
+  }
+  return ret;
+}
+
+
+
 /*******************************************************************/
 /* Приведение матрицы к диагональному виду */
 // здесь все неаккуратно написано: фукция подходит для любого N, 

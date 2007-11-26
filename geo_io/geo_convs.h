@@ -50,6 +50,8 @@ struct pt2pt{
   pt2pt();
   void frw(g_point & p);
   void bck(g_point & p);
+  g_line line_frw(const g_line & l, double acc);
+  g_line line_bck(const g_line & l, double acc);
 
   private:
     pt2ll pc1, pc2;
@@ -62,7 +64,7 @@ struct pt2pt{
 // сюда же - преобразование линий!
 struct map2pt{
   map2pt(const g_map & sM, 
-         const Datum & dD, const Proj & dP, const Options & dPo);
+         const Datum & dD, const Proj & dP, const Options & dPo = Options());
   void frw(g_point & p);
   void bck(g_point & p);
   g_line line_frw(const g_line & l);

@@ -1,7 +1,14 @@
 #ifndef MAPVIEW_H
 #define MAPVIEW_H
 
-// Класс, связывающий все компоненты вьюера в одно окно
+// Класс, создающий все компоненты вьюера и
+// связывающий их в одно окно
+//
+// ссылка на этот класс дается всем ActionManager'ам,
+// чтоб они творили со всеми компонентами разное.
+
+#include <gtkmm.h>
+#include <boost/shared_ptr.hpp>
 
 #include "mapview_data.h"
 
@@ -19,16 +26,16 @@
 
 class Mapview : public Gtk::Window{
   public:
-    boost::shared_ptr<MapviewData> mapview_data;
-    boost::shared_ptr<Rubber>      rubber;
-    boost::shared_ptr<Viewer>      viewer;
-    boost::shared_ptr<ViewerAM>    viewer_am;
-    boost::shared_ptr<DataList>    data_list;
-    boost::shared_ptr<DataListAM>  data_list_am;
-    boost::shared_ptr<MenuData>    menu_data;
-    boost::shared_ptr<MenuBar>     menubar;
-    boost::shared_ptr<MenuBarAM>   menubar_am;
-    boost::shared_ptr<StatusBar>   status_bar;
+    boost::shared_ptr<MapviewData> mapview_data; // структура со всеми геоданными и workplane'ом
+    boost::shared_ptr<Rubber>      rubber;       // "резина" - xor-линии, цепляющиеся к мышке
+    boost::shared_ptr<Viewer>      viewer;       // интерфейсный gtk-widget, показывающий workplane и rubber
+    boost::shared_ptr<ViewerAM>    viewer_am;    // ActionManager для viewer'а
+    boost::shared_ptr<DataList>    data_list;    // интерфейсный gtk-widget, показывающий mapview_data
+    boost::shared_ptr<DataListAM>  data_list_am; // ActionManager для data_list'а
+    boost::shared_ptr<MenuData>    menu_data;    // данные меню
+    boost::shared_ptr<MenuBar>     menubar;      // интерфейсный gtk-widget, показывающий menu_data
+    boost::shared_ptr<MenuBarAM>   menubar_am;   // ActionManager для menubar
+    boost::shared_ptr<StatusBar>   status_bar;   // gtk-widget показывающий разный текст
 
   Mapview(){
     // создадим все компоненты

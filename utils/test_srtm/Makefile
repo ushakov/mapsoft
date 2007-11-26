@@ -16,4 +16,5 @@ get_hor: ../../geo_io/mp.cpp ../line.cpp ../point_int.cpp
 
 CPPFLAGS=-I../../
 range_conv: ../../geo_io/libgeo_io.a ../../jeeps/libjeeps.a ../../loaders/libloaders.a -lpng -ljpeg -ltiff ../../utils/libutils.a
+get_hor_gk: ../../geo_io/libgeo_io.a ../../jeeps/libjeeps.a ../../loaders/libloaders.a -lpng -ljpeg -ltiff ../../utils/libutils.a
 

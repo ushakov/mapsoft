@@ -84,6 +84,9 @@ void split (std::list<Line<double> > & lines, int points);
 // не сместилась от исходного положения более чем на e
 void generalize (std::list<Line<double> > & lines, double e);
 
+// обрезать все линии, вылезающие за многоугольник cutter 
+void crop_lines(std::list<Line<double> > & lines, const Line<double> & cutter);
+
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Line<T> & p)
 {

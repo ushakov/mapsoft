@@ -24,15 +24,12 @@ public:
 
     Viewer (boost::shared_ptr<Workplane> _workplane, 
             boost::shared_ptr<Rubber>    _rubber, 
-            Point<int> _window_origin = Point<int>(0,0)/*, 
-	    int _scale_nom = 1,
-            int _scale_denom = 1*/)
+            Point<int> _window_origin = Point<int>(0,0))
 	: workplane (_workplane),
           rubber    (_rubber),
           window_origin(_window_origin),
 	  we_need_cache_updater(true)
     {
-//        workplane->set_scale(1, 1);
         Glib::thread_init();
 	mutex = new(Glib::Mutex);
         cache_updater_cond = new(Glib::Cond);
