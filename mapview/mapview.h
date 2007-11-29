@@ -14,10 +14,10 @@
 
 #include "rubber.h"
 #include "viewer.h"
-#include "viewer_am.h"
+//#include "viewer_am.h"
 
 #include "data_list.h"
-#include "data_list_am.h"
+//#include "data_list_am.h"
 
 #include "menubar.h"
 #include "statusbar.h"
@@ -27,9 +27,9 @@ class Mapview : public Gtk::Window{
     boost::shared_ptr<MapviewData> mapview_data; // структура со всеми геоданными и workplane'ом
     boost::shared_ptr<Rubber>      rubber;       // "резина" - xor-линии, цепляющиеся к мышке
     boost::shared_ptr<Viewer>      viewer;       // интерфейсный gtk-widget, показывающий workplane и rubber
-    boost::shared_ptr<ViewerAM>    viewer_am;    // ActionManager для viewer'а
+//    boost::shared_ptr<ViewerAM>    viewer_am;    // ActionManager для viewer'а
     boost::shared_ptr<DataList>    data_list;    // интерфейсный gtk-widget, показывающий mapview_data
-    boost::shared_ptr<DataListAM>  data_list_am; // ActionManager для data_list'а
+//    boost::shared_ptr<DataListAM>  data_list_am; // ActionManager для data_list'а
     boost::shared_ptr<MenuBar>     menubar;      // меню (кажется, это не должен быть интерфейс в нашем смысле :))
     boost::shared_ptr<StatusBar>   statusbar;    // gtk-widget показывающий разный текст
 
@@ -38,9 +38,9 @@ class Mapview : public Gtk::Window{
     mapview_data.reset(new MapviewData());
     rubber.reset(new Rubber);
     viewer.reset(new Viewer(mapview_data->workplane, rubber));
-    viewer_am.reset(new ViewerAM(viewer, this));
+//    viewer_am.reset(new ViewerAM(viewer, this));
     data_list.reset(new DataList(mapview_data));
-    data_list_am.reset(new DataListAM(data_list, this));
+//    data_list_am.reset(new DataListAM(data_list, this));
     menubar.reset(new MenuBar());
     statusbar.reset(new StatusBar());
 

@@ -8,6 +8,6 @@ class StatusBar : public Gtk::Statusbar{
   StatusBar(){
     push("Welcome to mapsoft viewer!",0);
   }
-}
+};
 
 #endif

@@ -3,8 +3,6 @@
 
 // ActionManager для DataList
 
-#include "mapview.h"
-
 class Mapview;
 
 class ViewerAM{
