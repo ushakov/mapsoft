@@ -18,10 +18,7 @@
 #include "data_list.h"
 #include "data_list_am.h"
 
-#include "menu_data.h"
 #include "menubar.h"
-#include "menubar_am.h"
-
 #include "statusbar.h"
 
 class Mapview : public Gtk::Window{
@@ -32,9 +29,7 @@ class Mapview : public Gtk::Window{
     boost::shared_ptr<ViewerAM>    viewer_am;    // ActionManager для viewer'а
     boost::shared_ptr<DataList>    data_list;    // интерфейсный gtk-widget, показывающий mapview_data
     boost::shared_ptr<DataListAM>  data_list_am; // ActionManager для data_list'а
-    boost::shared_ptr<MenuData>    menu_data;    // данные меню
-    boost::shared_ptr<MenuBar>     menubar;      // интерфейсный gtk-widget, показывающий menu_data
-    boost::shared_ptr<MenuBarAM>   menubar_am;   // ActionManager для menubar
+    boost::shared_ptr<MenuBar>     menubar;      // gtk-widget, меню (кажется, это не должен быть интерфейс в нашем смысле :))
     boost::shared_ptr<StatusBar>   status_bar;   // gtk-widget показывающий разный текст
 
   Mapview(){
