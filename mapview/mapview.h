@@ -14,6 +14,7 @@
 
 #include "rubber.h"
 #include "viewer.h"
+#include "viewer_am.h"
 
 #include "data_list.h"
 #include "data_list_am.h"
@@ -29,8 +30,8 @@ class Mapview : public Gtk::Window{
     boost::shared_ptr<ViewerAM>    viewer_am;    // ActionManager для viewer'а
     boost::shared_ptr<DataList>    data_list;    // интерфейсный gtk-widget, показывающий mapview_data
     boost::shared_ptr<DataListAM>  data_list_am; // ActionManager для data_list'а
-    boost::shared_ptr<MenuBar>     menubar;      // gtk-widget, меню (кажется, это не должен быть интерфейс в нашем смысле :))
-    boost::shared_ptr<StatusBar>   status_bar;   // gtk-widget показывающий разный текст
+    boost::shared_ptr<MenuBar>     menubar;      // меню (кажется, это не должен быть интерфейс в нашем смысле :))
+    boost::shared_ptr<StatusBar>   statusbar;    // gtk-widget показывающий разный текст
 
   Mapview(){
     // создадим все компоненты
@@ -40,9 +41,7 @@ class Mapview : public Gtk::Window{
     viewer_am.reset(new ViewerAM(viewer, this));
     data_list.reset(new DataList(mapview_data));
     data_list_am.reset(new DataListAM(data_list, this));
-    menudata.reset(new MenuData());
-    menubar.reset(new MenuBar(menudata));
-    menubar_am.reset(new MenuBarAM(menubar, this));
+    menubar.reset(new MenuBar());
     statusbar.reset(new StatusBar());
 
     // запакуем все GTK-компоненты в окно
@@ -50,7 +49,7 @@ class Mapview : public Gtk::Window{
 
     // ScrolledWindow scrw <- data_list
     Gtk::ScrolledWindow * scrw = manage(new Gtk::ScrolledWindow);
-    scrw->add(data_list);
+    scrw->add(*data_list);
     scrw->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     scrw->set_size_request(128,-1);
 
@@ -59,11 +58,11 @@ class Mapview : public Gtk::Window{
     paned->pack1(*viewer, Gtk::EXPAND | Gtk::FILL);
     paned->pack2(*scrw, Gtk::FILL);
 
-    // VBox vbox <- menubar + paned + status_bar
+    // VBox vbox <- menubar + paned + statusbar
     Gtk::VBox * vbox = manage(new Gtk::VBox);
-    vbox->pack_start(*menubar, false, true, 0);
+    vbox->pack_start(*(menubar->get_widget()), false, true, 0);
     vbox->pack_start(*paned, true, true, drawing_padding);
-    vbox->pack_start(*status_bar, false, true, 0);
+    vbox->pack_start(*statusbar, false, true, 0);
     add (*vbox);
     show_all();
   }

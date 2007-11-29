@@ -3,9 +3,10 @@
 
 // StatusBar. Пока непонятно, чем отличается от обычного Gtk::Statusbar :)
 
-class StatusBar : Gtk::Statusbar{
+class StatusBar : public Gtk::Statusbar{
+  public:
   StatusBar(){
-    status_bar->push("Welcome to mapsoft viewer!",0);
+    push("Welcome to mapsoft viewer!",0);
   }
 }
 

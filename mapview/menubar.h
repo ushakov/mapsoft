@@ -11,6 +11,7 @@
 #include <string>
 
 class MenuBar{
+
   Glib::RefPtr<Gtk::ActionGroup> actions;
   Glib::ustring ui;
 
@@ -22,8 +23,8 @@ class MenuBar{
 
   // добавить пункт в меню.
   void add_item(const std::string & addr,  // адрес вида "File/Save" или "Data/Create/Track"...
-                const AccelKey& accel_key, 
-                const Action::SlotActivate& slot){
+                const Gtk::AccelKey & accel_key, 
+                const Gtk::Action::SlotActivate & slot){
 
     std::vector<std::string> splitted;
 
@@ -104,10 +105,11 @@ class MenuBar{
   }
 
   // создать Gtk::Widget  
-  Glib::RefPtr<Gtk::Widget> get_widget(){
+  Gtk::Widget * get_widget(){
     Glib::RefPtr<Gtk::UIManager> ui_manager = Gtk::UIManager::create();
     ui_manager->insert_action_group(actions);
-    add_accel_group(ui_manager->get_accel_group());
+// понять, что это такое, надо ли нам это, если да - прицепить к Gtk::Window
+//    add_accel_group(ui_manager->get_accel_group());
     ui_manager->add_ui_from_string(get_xml());
     return ui_manager->get_widget("/MenuBar");
   }

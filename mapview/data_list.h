@@ -3,7 +3,14 @@
 
 // Gtk::Widget, показывающий MapviewData
 
-class DataList{
+class DataList : public Gtk::Widget{
+  boost::shared_ptr<MapviewData> mapview_data;
+
+  public:
+  DataList(boost::shared_ptr<MapviewData> mapview_data_):
+    mapview_data(mapview_data_){
+  }
+
 };
 
 #endif

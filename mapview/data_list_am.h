@@ -3,7 +3,18 @@
 
 // ActionManager для DataList
 
+#include "mapview.h"
+
+class Mapview;
+
 class DataListAM{
+  boost::shared_ptr<DataList> data_list;
+  Mapview * mapview;
+
+  public:
+  DataListAM(boost::shared_ptr<DataList> data_list_, Mapview * mapview_):
+    data_list(data_list_), mapview(mapview_){
+  }
 };
 
 #endif
