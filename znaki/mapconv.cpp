@@ -135,11 +135,14 @@ main(int argc, char **argv){
     fig::fig_world IW = fig::read(infile.c_str());
     cout << IW.size() << " objects\n";
     // определяем проекцию файла
+    cout << "getting ref\n";
     g_map imap = fig::get_ref(IW);
     convs::map2pt icnv(imap, Datum("wgs84"), Proj("lonlat"), Options());
     // преобразования объектов
+    cout << "converting objects\n";
     for (fig::fig_world::iterator i=IW.begin(); i!=IW.end(); i++){
       map_object obj = znaki.fig2map(*i, IW, icnv);
+      cout << obj.type->name << "\n";
       if (obj.size()>0) MAP.push_back(obj);
     }
   } else 

@@ -25,5 +25,8 @@ int main(int argc, char **argv){
     trks_list_am.reset(new TRKSListAM(mapview->trks_list, mapview));
     maps_list_am.reset(new MAPSListAM(mapview->maps_list, mapview));
 
+    mapview->mapview_data->new_file("test1");
+    mapview->mapview_data->new_file("test2");
+
     kit.run(*mapview);
 }

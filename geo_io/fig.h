@@ -108,9 +108,10 @@ namespace fig {
     };
 
 
-    struct fig_object : 
-      std::vector<Point<int> >,
-      public boost::equality_comparable<fig_object>{
+    struct fig_object : Line<int>,
+      public boost::equality_comparable<fig_object>,
+      public boost::additive<fig_object, Point<int> >
+    {
         int     type;
         int     sub_type;
         int     line_style;          //    (enumeration type, solid, dash, dotted, etc.)
@@ -266,6 +267,6 @@ namespace fig {
 
     // найти прямоугольники, накрывающие весь текст
 //    std::vector<Rect<int> > text_bbxs(const fig_world & world);
- 
+
 }
 #endif

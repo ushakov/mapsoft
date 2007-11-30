@@ -14,6 +14,7 @@
 template <typename T> 
 struct Line
   : public boost::additive<Line<T> >,
+    public boost::additive<Line<T>, Point<T> >,
     public boost::multiplicative<Line<T>,T>,
     public boost::less_than_comparable<Line<T> >,
     public boost::equality_comparable<Line<T> >,
@@ -29,6 +30,17 @@ struct Line
     for (typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)*=k;
     return *this;
   }
+
+  Line<T> & operator+= (Point<T> p) {
+    for (typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)+=p;
+    return *this;
+  }
+
+  Line<T> & operator-= (Point<T> p) {
+    for (typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)-=p;
+    return *this;
+  }
+
 
   double length () const {
     double ret=0;
@@ -72,6 +84,23 @@ struct Line
       i1++; i2++;
     } while(1);
   }
+
+  // проверить, не переходит ли линия в линию l сдвигом на некоторый вектор
+  // (вектор записывается в shift)
+  bool isshifted(const Line<T> & l, Point<T> & shift) const{
+    shift = Point<T>(0,0);
+    if (this->size()!=l.size()) return false;
+    if (this->size()==0) return true;
+    typename Line<T>::const_iterator i1=this->begin(), i2=l.begin();
+    shift = (*i2) - (*i1);
+    do {
+      if (i1==this->end()) return true;
+      if ((*i2)-(*i1) != shift) return false;
+      i1++; i2++;
+    } while(1);
+  }
+
+
 };
 
 // склеивание линий в одну, если их концы ближе e
@@ -88,13 +117,13 @@ void generalize (std::list<Line<double> > & lines, double e);
 void crop_lines(std::list<Line<double> > & lines, const Line<double> & cutter);
 
 template <typename T>
-std::ostream & operator<< (std::ostream & s, const Line<T> & p)
-{
+std::ostream & operator<< (std::ostream & s, const Line<T> & p){
   s << "Line(";
   for(typename Line<T>::const_iterator i=p.begin(); i!=p.end(); i++) 
     s << "(" << i->x << "," << i->y << ")";
   s << ")\n";
   return s;
 }
+
 
 #endif /* LINE_H */

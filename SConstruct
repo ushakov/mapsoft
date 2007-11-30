@@ -10,6 +10,7 @@ subdirs = Split ("""
 		vector
 		viewer
 		znaki
+		mapview
 		""")
 
 SetOption('implicit_cache', 1)

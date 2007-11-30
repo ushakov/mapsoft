@@ -15,6 +15,8 @@ struct Time:
     Time(const Time & t){value=t.value;}
     Time(time_t v){value=v;}
 
+    void set_current();
+
   bool operator<  (const Time & t) const { return value < t.value; }
   bool operator== (const Time & t) const { return value == t.value; }
 };

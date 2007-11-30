@@ -17,6 +17,9 @@ std::ostream & operator<< (std::ostream & s, const Time & t){
     << std::setw(2) << ts->tm_sec;
   return s;
 }
+
+void Time::set_current(){ value = time(NULL); }
+
 std::istream & operator>> (std::istream & s, Time & t){
   // date and time "yyyy-mm-dd HH:MM:SS"
   //               "yy-mm-dd HH:MM:SS"

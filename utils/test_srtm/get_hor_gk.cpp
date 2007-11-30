@@ -19,7 +19,7 @@
 using namespace std;
 
 void usage(){
-    cerr << "usage: get_hor lon0 x1 x2 y1 y2 step1 step2 srtm_dir > out.mp\n";
+    cerr << "usage: get_hor_gk lon0 x1 x2 y1 y2 step1 step2 srtm_dir > out.mp\n";
     exit(0);
 }
 
