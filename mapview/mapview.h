@@ -60,10 +60,12 @@ class Mapview : public Gtk::Window{
 
     // VBox vbox <- menubar + paned + statusbar
     Gtk::VBox * vbox = manage(new Gtk::VBox);
-    vbox->pack_start(*(menubar->get_widget()), false, true, 0);
+    vbox->pack_start(*menubar->get_widget(), false, true, 0);
     vbox->pack_start(*paned, true, true, drawing_padding);
     vbox->pack_start(*statusbar, false, true, 0);
-    add (*vbox);
+    add(*vbox);
+    set_default_size(640,480);
+
     show_all();
   }
 };

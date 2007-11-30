@@ -13,12 +13,14 @@
 class MenuBar{
 
   Glib::RefPtr<Gtk::ActionGroup> actions;
+  Glib::RefPtr<Gtk::UIManager> ui_manager;
   Glib::ustring ui;
 
   public:
 
   MenuBar(){
     actions = Gtk::ActionGroup::create();
+    ui_manager = Gtk::UIManager::create();
   }
 
   // добавить пункт в меню.
@@ -106,7 +108,6 @@ class MenuBar{
 
   // создать Gtk::Widget  
   Gtk::Widget * get_widget(){
-    Glib::RefPtr<Gtk::UIManager> ui_manager = Gtk::UIManager::create();
     ui_manager->insert_action_group(actions);
 // понять, что это такое, надо ли нам это, если да - прицепить к Gtk::Window
 //    add_accel_group(ui_manager->get_accel_group());
