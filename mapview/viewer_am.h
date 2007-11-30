@@ -6,11 +6,12 @@
 class Mapview;
 
 class ViewerAM{
-  boost::shared_ptr<Viewer> viewer;
-  Mapview * mapview;
+  boost::shared_ptr<Viewer>  viewer;
+  boost::shared_ptr<Mapview> mapview;
 
   public:
-  ViewerAM(boost::shared_ptr<Viewer> viewer_, Mapview * mapview_):
+  ViewerAM(boost::shared_ptr<Viewer> viewer_, 
+           boost::shared_ptr<Mapview> mapview_):
     viewer(viewer_), mapview(mapview_){
   }
 };
