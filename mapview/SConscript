@@ -1,6 +1,6 @@
 Import ('env')
 le = env.Copy()
-mapsoft_libs = Split ("geo_io loaders utils jeeps viewer")
+mapsoft_libs = Split ("geo_io loaders utils jeeps")
 le.Prepend(LIBS=mapsoft_libs)
 le.Program('mapview', 'mapview.cpp')
 
