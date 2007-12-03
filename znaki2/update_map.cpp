@@ -2,6 +2,8 @@
 
 #include <string>
 #include <fstream>
+#include <sstream>
+#include <iomanip>
 #include "../geo_io/geofig.h"
 #include "../geo_io/mp.h"
 #include "../geo_io/geo_convs.h"
@@ -46,8 +48,20 @@ main(int argc, char** argv){
 
   zn::zn_conv zconverter(conf_file);
 
-// здесь надо сделать backup исходной карты!!!!!
-
+  // backup исходной карты!
+  int ver_num = 0;
+  std::string backup;
+  do{ 
+    ostringstream fn;
+    fn << maps_dir << "/" << map_name << std::setw(6) << std::setfill('0') << ver_num << ".fig";
+    backup = fn.str();
+    ifstream test(backup.c_str());
+    if (!test) break;
+  } while (true);
+  ofstream bu(backup.c_str());
+  fig::write(bu, MAP);
+  // ... сделать diff?
+  
 
   fig::fig_world FIG; // заготовка для новой карты
   // Если мы обновляемся из fig - прочитаем сюда
@@ -60,10 +74,10 @@ main(int argc, char** argv){
   } else
   if (testext(infile, ".mp")){ // читаем mp
     mp::mp_world MP = mp::read(infile.c_str());
-    // копируем в FIG из MAP все объекты с глубинами 1-29 и 200-999
+    // копируем в FIG из MAP все объекты с глубинами 1-44 и 400-999
     // (сетку, привязку и т.п.)
     for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++)
-      if ((i->depth <30) || (i->depth >=200)) FIG.push_back(*i);
+      if ((i->depth <45) || (i->depth >=400)) FIG.push_back(*i);
     // преобразуем объекты из MP в FIG
     // для новых объектов (без ключа) создается неполный ключ - только с типом
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++)
@@ -90,11 +104,30 @@ main(int argc, char** argv){
   MAP.clear();
 
   for (fig::fig_world::iterator i=FIG.begin(); i!=FIG.end(); i++){
-    // объекты с глубинами 1-29 и 200-999 (сетка, привязка и т.п.)
-    if ((i->depth <30) || (i->depth >=200)) {
+
+    if (i->type = 6){ // составной объект
+      // копируем комментарий в следующий объект (до последней непустой строчки!).
+      fig::fig_world::iterator j = i; j++;
+      if (j!=FIG.end()){
+        if (j->comment.size()< i->comment.size()) j->comment.resize(i->comment.size());
+        for (int n=0; n<i->comment.size(); n++) j->comment[n] = i->comment[n];
+      }
+    }
+
+    // объекты с глубинами 1-44 и 400-999 (сетка, привязка и т.п.)
+    if ((i->depth <45) || (i->depth >=400)) {
+      MAP.push_back(*i); 
+      continue;
+    } 
+    // объекты с глубинами 45-49 (картинки, которые нам не нужны)
+    if ((i->depth >=45) && (i->depth <50)) continue;
+
+    // не-линии - копируем без изменений
+    if ((i->type !=2) && (i->type !=3) && (i->type !=4)){
       MAP.push_back(*i); 
       continue;
     }
+
     // остальные объекты
     zn::zn_key key = zconverter.get_key(*i);
     if ((key.map == map_name) && (key.id !=0)){ // есть старый ключ от этой карты
@@ -134,7 +167,7 @@ main(int argc, char** argv){
         }
       } else { 
         // иначе - сгенерить подписи заново
-        new_labels = zconverter.make_labels(*i, key);
+        new_labels = zconverter.make_labels(*i);
       }
       MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());  // записать подписи
     } 
@@ -148,13 +181,13 @@ main(int argc, char** argv){
       key.sid    = 0;
       zconverter.add_key(*i, key);  // добавим ключ
       MAP.push_back(*i);            // запишем объект
-      list<fig::fig_object> new_labels = zconverter.make_labels(*i, key); // изготовить новые подписи
+      list<fig::fig_object> new_labels = zconverter.make_labels(*i); // изготовить новые подписи
       MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());        // записать подписи
     }
   }
 
-// записываем MAP
-//  ofstream out(file.c_str());
-//  fig::write(out, MAP);
+  // записываем MAP
+  ofstream out(file.c_str());
+  fig::write(out, MAP);
 
 }

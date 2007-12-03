@@ -29,7 +29,7 @@ struct zn_key{
  
   bool label;
 
-  zn_key():mp_type(0), id(0), sid(0), label(false){}
+  zn_key(): type(0), id(0), sid(0), label(false){}
 };
 
 std::ostream & operator<< (std::ostream & s, const zn_key & t);
@@ -52,7 +52,7 @@ struct zn{
 class zn_conv{
   std::map<int, zn> znaki;      // упорядочены по типу
   fig::fig_object default_fig;  // как рисовать неизвестные знаки
-  fig::fig_object default_mp;   // как рисовать неизвестные знаки
+  mp::mp_object default_mp;   // как рисовать неизвестные знаки
 
   public:
   // Конструктор - чтение конфигурационного файла
@@ -81,14 +81,12 @@ class zn_conv{
     // требуется конф.файл
 
   // определить тип mp-объекта (почти тривиальная функция :))
-  int zn_conv::get_type(const mp::mp_object & o) const;
+  int get_type(const mp::mp_object & o) const;
 
   // определить тип fig-объекта.
   // если есть ключ - тип определяется из него, иначе -
   // по внешнему виду, в соответствии с конф.файлом)
-  int zn_conv::get_type(const fig::fig_object & o) const;
-
-
+  int get_type(const fig::fig_object & o) const;
 
   // преобразовать mp-объект в fig-объект
   // ключ сохраняется старый, или создается неполный (только с типом)
@@ -98,53 +96,19 @@ class zn_conv{
   // ключ сохраняется старый, или создается неполный (только с типом)
   mp::mp_object fig2mp(const fig::fig_object & fig, convs::map2pt & cnv) const;
 
+  // заключить fig-объекты в составной объект. Комментарий
+  // составного объекта копируется из первого объекта (!)
+  void fig_make_comp(std::list<fig::fig_object> & objects);
 
-
-  // подготовить объект для отдачи пользователю:
+  // Подготовить объект для отдачи пользователю:
   // - поменять параметры в соответствии с ключом
   // - создать картинку, если надо
-  // ключ берется из комментария к объекту.
-  std::list<fig::fig_object> fig2user(const fig::fig_object & fig){
-    // ...
-  }
+  // Объект должен иметь полный ключ!
+  std::list<fig::fig_object> fig2user(const fig::fig_object & fig);
 
-  // создать подписи к объекту. Объект должен иметь полный ключ!
-  std::list<fig::fig_object> make_labels(const fig::fig_object & fig){
+  // Создать подписи к объекту. Объект должен иметь полный ключ!
+  std::list<fig::fig_object> make_labels(const fig::fig_object & fig);
 
-    txt_dist = 10; // fig units
-
-    std::list<fig::fig_object> ret;
-    zn_key key = get_key(fig);
-    if (fig.size() < 1) return ret;                    // странный объект
-    if ((key.id == 0) && (key.type == 0)) return ret;  // неполный ключ
-    if (znaki.find(key.type)==znaki.end()) return ret; // про такой тип объектов неизвестно
-    if (!znaki[key.type].istxt) return ret; // подпись не нужна
-    // заготовка для подписи
-    fig::fig_object txt = znaki[fig.type].txt;
-
-    // определим координаты и наклон подписи
-    Point<int> p = fig[0] + Point<int>(1,1)*txt_dist;
-    if (fig.size()>=2){
-      if ((key.type > line_mask) && (key.type < area_mask)){ // линия
-        p = (fig[fig.size()/2-1] + fig[fig.size()/2]) / 2;
-        Point<int> v = fig[fig.size()/2-1] - fig[fig.size()/2];
-        if (v.x<0) v.x=-v.x;
-        txt.angle = atan2(v.x, v.y);
-        txt.sub_type = 1; // centered text
-        Point<int> vp(-v.y, v.x);
-        p+=vp*txt_dist;
-      } 
-      else { // площадной объект
-        Point<int> max = p;
-        for (int i = 0; i<fig.size(); i++){
-          
-        }
-      }
-    }
-    txt.push_back(p);
-    ret.push_back(txt)
-    return(ret);
-  }
 };
 
 

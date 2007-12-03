@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iostream>
 #include <iomanip>
 #include "zn.h"
 
@@ -43,7 +44,7 @@ std::istream & operator>> (std::istream & s, zn_key & t){
         ch_p('-') | 
         (ch_p('+') >> uint_p[assign_a(newkey.id)] >> '@' >> (+alnum_p)[assign_a(newkey.map)] 
         )[assign_a(newkey.label, true)] |
-        ('0' >> 'x' >> hex_p[assign_a(newkey.type)] >> +blank_p >>
+        (ch_p('0') >> 'x' >> hex_p[assign_a(newkey.type)] >> +blank_p >>
          (+graph_p >> +blank_p >> +graph_p)[assign_a(timestr)] >> +blank_p >>
          uint_p[assign_a(newkey.id)] >> '@' >> (+alnum_p)[assign_a(newkey.map)] >>
          !(+blank_p >> 
@@ -198,10 +199,10 @@ int zn_conv::get_type (const fig::fig_object & o) const {
 fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv) const{
   fig::fig_object ret = default_fig;
   int type = get_type(mp);
-  if (znaki.find(type) != znaki.end()) ret = znaki[type].fig;
-  fig.comment.push_back(mp.Label);
-  fig.comment.insert(fig.comment.end(), mp.Comment.begin(), mp.Comment.end());
-  add_key(fig, get_key(mp));
+  if (znaki.find(type) != znaki.end()) ret = znaki.find(type)->second.fig;
+  ret.comment.push_back(mp.Label);
+  ret.comment.insert(ret.comment.end(), mp.Comment.begin(), mp.Comment.end());
+  add_key(ret, get_key(mp));
   g_line pts = cnv.line_bck(mp);
   for (int i=0; i<pts.size(); i++) ret.push_back(pts[i]);
   return ret;
@@ -213,10 +214,10 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv) 
   mp::mp_object ret = default_mp;
   zn_key key = get_key(fig); 
   if (key.type == 0) key.type = get_type(fig);
-  if (znaki.find(type) != znaki.end()) ret = znaki[type].mp;
+  if (znaki.find(key.type) != znaki.end()) ret = znaki.find(key.type)->second.mp;
 
   if (fig.comment.size()>0){
-    ret.Label.push_back(fig.comment[0]);
+    ret.Label = fig.comment[0];
     ret.Comment.insert(ret.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
   }
   add_key(ret, key);
@@ -226,7 +227,115 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv) 
   return ret;
 }
 
+// заключить fig-объекты в составной объект. Комментарий
+// составного объекта копируется из первого объекта (!)
+void zn_conv::fig_make_comp(std::list<fig::fig_object> & objects){
+  if ((objects.size()<1) || (objects.begin()->size()<1)) return;
 
+  int minx=(*objects.begin())[0].x;
+  int maxx=(*objects.begin())[0].x;
+  int miny=(*objects.begin())[0].y;
+  int maxy=(*objects.begin())[0].y;
+  for (std::list<fig::fig_object>::const_iterator
+       i = objects.begin(); i != objects.end(); i++){
+     if (i->type == 1){
+       int rx = i->radius_x;
+       int ry = i->radius_y;
+       int cx = i->center_x;
+       int cy = i->center_y;
+       if (minx > cx-rx) minx = cx-rx;
+       if (maxx < cx+rx) maxx = cx+rx;
+       if (miny > cy-ry) miny = cy-ry;
+       if (maxy < cy+ry) maxy = cy+ry;
+     } else {
+       for (int j = 0; j < i->size(); j++){
+         int x = (*i)[j].x;
+         int y = (*i)[j].y;
+         if (minx > x) minx = x;
+         if (maxx < x) maxx = x;
+         if (miny > y) miny = y;
+         if (maxy < y) maxy = y;
+      }
+    }
+  }
+  fig::fig_object o = *objects.begin();
+  o.type=6;
+  o.clear();
+  o.push_back(Point<int>(minx,miny));
+  o.push_back(Point<int>(maxx,maxy));
+  objects.insert(objects.begin(), o);
+  o.type = -6; o.comment.clear();
+  objects.insert(objects.end(), o);
+}
+
+// Подготовить объект для отдачи пользователю:
+// - поменять параметры в соответствии с ключом
+// - создать картинку, если надо
+// Объект должен иметь полный ключ!
+std::list<fig::fig_object> zn_conv::fig2user(const fig::fig_object & fig){
+  std::list<fig::fig_object> ret;
+
+  zn_key key = get_key(fig);
+  if (znaki.find(key.type)==znaki.end()) {
+    std::cerr << "can't find type " << key.type << " in conf.file\n";
+    ret.push_back(fig);
+    return ret;
+  }
+  fig::fig_object fig1 = znaki[key.type].fig;
+  fig1.insert(fig1.begin(), fig.begin(), fig.end());
+  ret.push_back(fig1);
+
+  if ((znaki[key.type].pic=="") || (fig1.size()!=1)) return ret;
+
+  fig::fig_world PIC = fig::read(znaki[key.type].pic.c_str());
+  ret.insert(ret.end(), PIC.begin(), PIC.end());
+  fig_make_comp(ret);
+  return ret;
+}
+
+// Создать подписи к объекту. Объект должен иметь полный ключ!
+std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
+
+  int txt_dist = 10; // fig units
+
+  std::list<fig::fig_object> ret;
+  zn_key key = get_key(fig);
+  if (fig.size() < 1) return ret;                    // странный объект
+  if ((key.id == 0) && (key.type == 0)) return ret;  // неполный ключ
+  if (znaki.find(key.type)==znaki.end()) return ret; // про такой тип объектов неизвестно
+  if (!znaki[key.type].istxt) return ret; // подпись не нужна
+  // заготовка для подписи
+  fig::fig_object txt = znaki[fig.type].txt;
+
+  // определим координаты и наклон подписи
+  Point<int> p = fig[0] + Point<int>(1,1)*txt_dist;
+  if (fig.size()>=2){
+    if ((key.type > line_mask) && (key.type < area_mask)){ // линия
+      p = (fig[fig.size()/2-1] + fig[fig.size()/2]) / 2;
+      Point<int> v = fig[fig.size()/2-1] - fig[fig.size()/2];
+      if (v.x<0) v.x=-v.x;
+      txt.angle = atan2(v.x, v.y);
+      txt.sub_type = 1; // centered text
+      Point<int> vp(-v.y, v.x);
+      p+=vp*txt_dist;
+    }
+    else { // площадной объект
+      // ищем точку с максимальным x-y
+      p = fig[0];
+      int max = p.x-p.y;
+      for (int i = 0; i<fig.size(); i++){
+        if (fig[i].x-fig[i].y > max) {
+          max = fig[i].x-fig[i].y;
+          p = fig[i];
+        }
+      }
+      p+=Point<int>(1,1)*txt_dist;
+    }
+  }
+  txt.push_back(p);
+  ret.push_back(txt);
+  return(ret);
+}
 
 
 } // namespace
