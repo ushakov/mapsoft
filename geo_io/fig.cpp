@@ -172,6 +172,7 @@ rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_
             c6_compound_start | c6_compound_end) [push_back_a(world,o)] )).full)
         cerr << "Can't parse fig file!\n";
 
+        // преобразование символов из восьмиричного вида \??? 
         for (fig::fig_world::iterator i=world.begin(); i!=world.end(); i++){
            string t;
            for (int n=0;n<i->text.size();n++){
@@ -182,6 +183,18 @@ rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_
             else t+=i->text[n];
            }
            i->text=t;
+        }
+
+        // преобразование цветов
+        for (fig::fig_world::iterator i=world.begin(); i!=world.end(); i++){
+          if (i->pen_color > 31){
+            if (world.colors.find(i->pen_color)!=world.colors.end()) i->pen_color = 0x1000000+world.colors[i->pen_color];
+            else std::cerr << "unknown fig-color " << i->pen_color;
+          }
+          if (i->fill_color > 31){
+            if (world.colors.find(i->fill_color)!=world.colors.end()) i->fill_color = 0x1000000+world.colors[i->fill_color];
+            else std::cerr << "unknown fig-color " << i->fill_color;
+          }
         }
 
 
@@ -207,10 +220,47 @@ bool write(ostream & out, const fig_world & world){
   out << world.resolution << " " 
       << world.coord_system << "\n";
 
+  std::map<int,int> color_tr;
+  fig::fig_colors colors = world.colors;
+
+  // поиск новых цветов
+  for (fig::fig_world::const_iterator i=world.begin(); i!=world.end(); i++){
+
+    if (i->pen_color >= 0x1000000){
+      int maxc = 31;
+      bool found_col = false;
+      for (std::map<int,int>::const_iterator c = colors.begin(); c != colors.end(); c++){
+        if (c->first <= 31) continue;
+        if (c->first > maxc) maxc=c->first;
+        if (c->second == i->pen_color-0x1000000) {color_tr[i->pen_color] = c->first; found_col = true;}
+      }
+      if (!found_col){
+        color_tr[i->pen_color] = maxc+1;
+        colors.insert(std::pair<int,int>(maxc+1, i->pen_color-0x1000000));
+      }
+    }
+
+    if (i->fill_color >= 0x1000000){
+      int maxc = 31;
+      bool found_col = false;
+      for (std::map<int,int>::const_iterator c = colors.begin(); c != colors.end(); c++){
+        if (c->first <= 31) continue;
+        if (c->first > maxc) maxc=c->first;
+        if (c->second == i->fill_color-0x1000000) {color_tr[i->fill_color] = c->first; found_col = true;}
+      }
+      if (!found_col){
+        color_tr[i->fill_color] = maxc+1;
+        colors.insert(std::pair<int,int>(maxc+1, i->fill_color-0x1000000));
+      }
+    }
+
+  }
+
+
   // запись цветов
   for (fig_colors::const_iterator 
-       i  = world.colors.begin(); 
-       i != world.colors.end(); i++){
+       i  = colors.begin(); 
+       i != colors.end(); i++){
     if (i->first > 31) 
       out << "0 " << i->first << " #" 
           << setbase(16) << setw(6) << setfill('0')
@@ -227,6 +277,11 @@ bool write(ostream & out, const fig_world & world){
     int nn = i->size();
     int nn1=nn;
 
+    int pen_color = i->pen_color;
+    int fill_color = i->fill_color;
+    if (pen_color > 0x1000000) pen_color = color_tr[pen_color];
+    if (fill_color > 0x1000000) fill_color = color_tr[fill_color];
+
     switch (i->type){
     case 0: // Color
       break;
@@ -235,8 +290,8 @@ bool write(ostream & out, const fig_world & world){
 	<< i->sub_type   << " "
         << i->line_style << " "
         << i->thickness  << " "
-	<< i->pen_color  << " "
-        << i->fill_color << " "
+	<< pen_color     << " "
+        << fill_color    << " "
         << i->depth      << " "
 	<< i->pen_style  << " " 
         << i->area_fill  << " " 
@@ -263,8 +318,8 @@ bool write(ostream & out, const fig_world & world){
         << i->sub_type   << " "
         << i->line_style << " "
         << i->thickness  << " "
-        << i->pen_color  << " " 
-        << i->fill_color << " "
+        << pen_color     << " " 
+        << fill_color    << " "
         << i->depth      << " "
         << i->pen_style  << " "
         << i->area_fill  << " "
@@ -305,8 +360,8 @@ bool write(ostream & out, const fig_world & world){
         << i->sub_type   << " "
         << i->line_style << " "
         << i->thickness  << " "
-        << i->pen_color  << " " 
-        << i->fill_color << " "
+        << pen_color     << " " 
+        << fill_color    << " "
         << i->depth      << " "
         << i->pen_style  << " "
         << i->area_fill  << " "
@@ -343,7 +398,7 @@ bool write(ostream & out, const fig_world & world){
       }
       out << "4 "
         << i->sub_type   << " "
-        << i->pen_color  << " " 
+        << pen_color     << " " 
         << i->depth      << " "
         << i->pen_style  << " "
         << i->font       << " "
@@ -365,8 +420,8 @@ bool write(ostream & out, const fig_world & world){
         << i->sub_type   << " "
         << i->line_style << " "
         << i->thickness  << " "
-        << i->pen_color  << " "
-        << i->fill_color << " "
+        << pen_color     << " "
+        << fill_color    << " "
         << i->depth      << " "
         << i->pen_style  << " "
         << i->area_fill  << " " 

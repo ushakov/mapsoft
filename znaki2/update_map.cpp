@@ -1,6 +1,7 @@
 // Обновление карты из fig или mp файла
 
 #include <string>
+#include <fstream>
 #include "../geo_io/geofig.h"
 #include "../geo_io/mp.h"
 #include "../geo_io/geo_convs.h"
@@ -41,6 +42,7 @@ main(int argc, char** argv){
   }
   // извлекаем привязку
   g_map ref = fig::get_ref(MAP);
+  convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"), Options());
 
   zn::zn_conv zconverter(conf_file);
 
@@ -48,6 +50,10 @@ main(int argc, char** argv){
 
 
   fig::fig_world FIG; // заготовка для новой карты
+  // Если мы обновляемся из fig - прочитаем сюда
+  // все объекты из fig-файла
+  // Если из mp - то сетки и т.п. возьмем из старого файла,
+  // а объекты преобразуем
   
   if (testext(infile, ".fig")){ // читаем fig
     FIG = fig::read(infile.c_str());
@@ -59,8 +65,9 @@ main(int argc, char** argv){
     for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++)
       if ((i->depth <30) || (i->depth >=200)) FIG.push_back(*i);
     // преобразуем объекты из MP в FIG
+    // для новых объектов (без ключа) создается неполный ключ - только с типом
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++)
-      FIG.push_back(zconverter.mp2fig(*i, ref));
+      FIG.push_back(zconverter.mp2fig(*i, cnv));
   } else usage();
   // Теперь в FIG у нас новая карта с привязкой.
 
@@ -73,7 +80,7 @@ main(int argc, char** argv){
   int maxid=0;
   for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
     zn::zn_key key = zconverter.get_key(*i);
-    if ((key.map_name != map_name) || (key.id == 0)) continue;
+    if ((key.map != map_name) || (key.id == 0)) continue;
     if (key.label) labels.insert(pair<int, fig::fig_object>(key.id, *i));
     else objects.insert(pair<int, fig::fig_object>(key.id, *i));
     if (key.id > maxid) maxid=key.id;
@@ -82,7 +89,7 @@ main(int argc, char** argv){
   //  Обнулим старую карту и будем ее заполнять постепенно из FIG
   MAP.clear();
 
-  for (fig::fig_world::const_iterator i=FIG.begin(); i!=FIG.end(); i++){
+  for (fig::fig_world::iterator i=FIG.begin(); i!=FIG.end(); i++){
     // объекты с глубинами 1-29 и 200-999 (сетка, привязка и т.п.)
     if ((i->depth <30) || (i->depth >=200)) {
       MAP.push_back(*i); 
@@ -90,7 +97,7 @@ main(int argc, char** argv){
     }
     // остальные объекты
     zn::zn_key key = zconverter.get_key(*i);
-    if ((key.map_name == map_name) && (key.id !=0)){ // есть старый ключ от этой карты
+    if ((key.map == map_name) && (key.id !=0)){ // есть старый ключ от этой карты
       map<int, fig::fig_object>::iterator o = objects.find(key.id);
       if (o==objects.end()){
         cerr << "Конфликт: объект " << key.id << " был удален\n";
@@ -105,16 +112,17 @@ main(int argc, char** argv){
         //... обвести рамкой
         continue;
       }
-      // ... проверить еще конфликты, когда два близких 
+      // ... проверить еще конфликты, когда два однотипных
       // объекта были нарисованы в одном районе!
+
       key.time.set_current();
-      key.source_id  = 0;
-      key.source     = source;
+      key.sid    = 0;
+      key.source = source;
 
       zconverter.add_key(*i, key);  // добавим ключ
       MAP.push_back(*i);            // запишем объект 
 
-      // перерь еще подписи:
+      // теперь еще подписи:
       list<fig::fig_object> new_labels;
       Point<int> shift;
       if (i->isshifted(o->second, shift)){
@@ -129,16 +137,15 @@ main(int argc, char** argv){
         new_labels = zconverter.make_labels(*i, key);
       }
       MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());  // записать подписи
-
     } 
-    else { // объект без ключа
+    else { // объект без ключа или с неполным ключом
       maxid++;
-      key = zconverter.make_key(*i);            // создать новый ключ
+      if (key.type == 0) key.type = zconverter.get_type(*i);
       key.time.set_current();
-      key.id        = maxid;
-      key.map_name  = map_name;
-      key.source    = source;
-      key.source_id = 0;
+      key.id     = maxid;
+      key.map    = map_name;
+      key.source = source;
+      key.sid    = 0;
       zconverter.add_key(*i, key);  // добавим ключ
       MAP.push_back(*i);            // запишем объект
       list<fig::fig_object> new_labels = zconverter.make_labels(*i, key); // изготовить новые подписи
@@ -146,7 +153,8 @@ main(int argc, char** argv){
     }
   }
 
-  // записываем MAP
-  fig::write(MAP, file.c_str());
+// записываем MAP
+//  ofstream out(file.c_str());
+//  fig::write(out, MAP);
 
 }
