@@ -454,15 +454,21 @@ bool write(ostream & out, const fig_world & world){
       break;
     case 6: // Compound begin
       // сделать пересчет размеров!
+      int x1,y1,x2,y2;
       if (nn<2){
         cerr << "fig::write (compound): can't get x and y values\n";
-        return false;
+        x1=y1=x2=y2=0;
+      } else {
+        x1 = (*i)[0].x;
+        y1 = (*i)[0].y;
+        x2 = (*i)[1].x;
+        y2 = (*i)[1].y;
       }
       out << "6 " 
-          << (*i)[0].x << " " 
-          << (*i)[0].y << " "
-          << (*i)[1].x << " " 
-          << (*i)[1].y << "\n";
+          << x1 << " " 
+          << y1 << " "
+          << x2 << " " 
+          << y2 << "\n";
       break;
     case -6: // Compound end
       out << "-6\n"; 

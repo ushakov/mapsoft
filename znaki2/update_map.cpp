@@ -71,6 +71,7 @@ main(int argc, char** argv){
   
   if (testext(infile, ".fig")){ // читаем fig
     FIG = fig::read(infile.c_str());
+    /// ... преобразовать координаты!
   } else
   if (testext(infile, ".mp")){ // читаем mp
     mp::mp_world MP = mp::read(infile.c_str());
@@ -93,6 +94,7 @@ main(int argc, char** argv){
 
   int maxid=0;
   for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
+    if ((i->depth < 50)||(i->depth>=400)) continue;
     zn::zn_key key = zconverter.get_key(*i);
     if ((key.map != map_name) || (key.id == 0)) continue;
     if (key.label) labels.insert(pair<int, fig::fig_object>(key.id, *i));
@@ -105,7 +107,7 @@ main(int argc, char** argv){
 
   for (fig::fig_world::iterator i=FIG.begin(); i!=FIG.end(); i++){
 
-    if (i->type = 6){ // составной объект
+    if (i->type == 6){ // составной объект
       // копируем комментарий в следующий объект (до последней непустой строчки!).
       fig::fig_world::iterator j = i; j++;
       if (j!=FIG.end()){
@@ -130,6 +132,7 @@ main(int argc, char** argv){
 
     // остальные объекты
     zn::zn_key key = zconverter.get_key(*i);
+
     if ((key.map == map_name) && (key.id !=0)){ // есть старый ключ от этой карты
       map<int, fig::fig_object>::iterator o = objects.find(key.id);
       if (o==objects.end()){
@@ -170,20 +173,21 @@ main(int argc, char** argv){
         new_labels = zconverter.make_labels(*i);
       }
       MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());  // записать подписи
+      continue;
     } 
-    else { // объект без ключа или с неполным ключом
-      maxid++;
-      if (key.type == 0) key.type = zconverter.get_type(*i);
-      key.time.set_current();
-      key.id     = maxid;
-      key.map    = map_name;
-      key.source = source;
-      key.sid    = 0;
-      zconverter.add_key(*i, key);  // добавим ключ
-      MAP.push_back(*i);            // запишем объект
-      list<fig::fig_object> new_labels = zconverter.make_labels(*i); // изготовить новые подписи
-      MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());        // записать подписи
-    }
+    // остались объекты без ключа или с неполным ключом
+    maxid++;
+    if (key.type == 0) key.type = zconverter.get_type(*i);
+    if (key.type == 0) {std::cerr << "can't get valid type\n"; continue;}
+    key.time.set_current();
+    key.id     = maxid;
+    key.map    = map_name;
+    key.source = source;
+    key.sid    = 0;
+    zconverter.add_key(*i, key);  // добавим ключ
+    MAP.push_back(*i);            // запишем объект
+    list<fig::fig_object> new_labels = zconverter.make_labels(*i); // изготовить новые подписи
+    MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());        // записать подписи
   }
 
   // записываем MAP

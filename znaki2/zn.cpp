@@ -88,8 +88,7 @@ zn_conv::zn_conv(const std::string & conf_file){
   // mp_mask
   // fig_mask
   // fig_mask for text
-  // fig-picture
-  // fig-picture
+  // picture fig-file
   // <blank line>
 
   zn               z;
@@ -97,27 +96,28 @@ zn_conv::zn_conv(const std::string & conf_file){
   std::string      str;
   while (!conf.eof()){
 
-   do { getline(conf, str); } while (str == "");
-   z.name = str;
-   getline(conf, z.descr);
-   getline(conf, str); 
-   z.mp = mp::make_object(str);
-
-   std::string fig_mask; 
-   getline(conf, fig_mask); 
-   z.fig = fig::make_object(fig_mask);
-
-   std::string txt_mask; 
-   getline(conf, txt_mask);
+   do { getline(conf, str); } while (str == "");  z.name = str;
+   getline(conf, z.descr);  
+   getline(conf, str);   z.mp = mp::make_object(str);  std::cerr << z.mp.Class << " " << z.mp.Type <<"\n";
+   getline(conf, str);   z.fig = fig::make_object(str);
+   getline(conf, str);
    z.istxt=true;
-   if (txt_mask!="") z.txt = fig::make_object(txt_mask);
+   if (str!="") z.txt = fig::make_object(str);
    else z.istxt = false;
+
+   getline(conf, z.pic); 
+
+   std::cerr << (z.mp.Type
+     + ((z.mp.Class == "POLYLINE")?line_mask:0)
+     + ((z.mp.Class == "POLYGON")?area_mask:0)) << " " << get_type(z.mp) << " " << z.name << "\n";
+
    znaki.insert(std::pair<int, zn>(get_type(z.mp), z));
   }
 
   default_fig.pen_color = 4;
   default_fig.thickness = 4;
   default_fig.depth = 2;
+
 }
 
 
@@ -155,13 +155,13 @@ void zn_conv::add_key(mp::mp_object & mp, const zn_key & key) const{
 // определить тип mp-объекта (почти тривиальная функция :))
 int zn_conv::get_type(const mp::mp_object & o) const{
   return o.Type
-     + (o.Class == "POLYLINE")?line_mask:0
-     + (o.Class == "POLYGON")?area_mask:0;
+     + ((o.Class == "POLYLINE")?line_mask:0)
+     + ((o.Class == "POLYGON")?area_mask:0);
 }
 
 // определить тип fig-объекта по внешнему виду.
 int zn_conv::get_type (const fig::fig_object & o) const {
-  if ((o.type!=2) && (o.type==3)) return 0; // объект неинтересного вида
+  if ((o.type!=2) && (o.type!=3)) return 0; // объект неинтересного вида
 
   for (std::map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
     // по умолчанию должны совпасть глубина, толщина,
