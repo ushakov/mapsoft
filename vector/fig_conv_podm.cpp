@@ -33,7 +33,7 @@ main(int argc, char **argv){
       test_object(*i, "2 * * *  * * 84 * * * * * * * * *") || // водоемы
       test_object(*i, "2 * * *  * * 85 * * * * * * * * *") ||
       test_object(*i, "2 * * *  * * 86 * * * * * * * * *") ||
-      test_object(*i, "2 * * * 34 * 80 * * * * * * * * *") || // серые дороги
+      test_object(*i, "2 * * * 20987968 * 80 * * * * * * * * *") || // серые дороги
       test_object(*i, "2 * 0 *  0 * 80 * * * * * * * * *") || // черные непунктирные дороги
       test_object(*i, "2 * 2 *  0 * 80 * * * * * * * * *") || // тропы
       test_object(*i, "2 * * * 18 * 79 * * * * * * * * *") || // обрывы
@@ -43,7 +43,7 @@ main(int argc, char **argv){
       test_object(*i, "3 * * *  * * 84 * * * * * * *") || // водоемы
       test_object(*i, "3 * * *  * * 85 * * * * * * *") ||
       test_object(*i, "3 * * *  * * 86 * * * * * * *") ||
-      test_object(*i, "3 * * * 34 * 80 * * * * * * *") || // серые дороги
+      test_object(*i, "3 * * * 20987968 * 80 * * * * * * *") || // серые дороги
       test_object(*i, "3 * 0 *  0 * 80 * * * * * * *") || // черные непунктирные дороги
       test_object(*i, "3 * 2 *  0 * 80 * * * * * * *") || // тропы
       test_object(*i, "3 * * * 18 * 79 * * * * * * *") || // обрывы
@@ -79,8 +79,8 @@ main(int argc, char **argv){
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
     int fs=i->size();
     // автомагистраль
-    if (test_object(*i, "2 * 0 7 34 * 80 * * * * * * * * *") ||
-        test_object(*i, "3 * 0 7 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 0 7 20987968 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 7 20987968 * 80 * * * * * * *")) {
       i->pen_color=0;
       fig_object o = *i;
       o.depth = 78; o.thickness = 1; W.push_back(o);
@@ -88,32 +88,32 @@ main(int argc, char **argv){
       continue;
     }
     // шоссе
-    if (test_object(*i, "2 * 0 4 34 * 80 * * * * * * * * *") ||
-        test_object(*i, "3 * 0 4 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 0 4 20987968 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 4 20987968 * 80 * * * * * * *")) {
       i->pen_color=0;
       fig_object o = *i;
       o.pen_color = 27; o.depth = 79; o.thickness = 2; W.push_back(o);
       continue;
     }
     // грейдер
-    if (test_object(*i, "2 * 0 3 34 * 80 * * * * * * * * *") ||
-        test_object(*i, "3 * 0 3 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 0 3 20987968 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 3 20987968 * 80 * * * * * * *")) {
       i->pen_color=0;
       fig_object o = *i;
       o.pen_color = 7; o.depth = 79; o.thickness = 1; W.push_back(o);
       continue;
     }
     // непроезжий грейдер
-    if (test_object(*i, "2 * 1 3 34 * 80 * * * * * * * * *") ||
-        test_object(*i, "3 * 1 3 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 1 3 20987968 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 1 3 20987968 * 80 * * * * * * *")) {
       i->pen_color=0;
       fig_object o = *i;
       o.pen_color = 7; o.depth = 79; o.thickness = 1; o.line_style=0; W.push_back(o);
       continue;
     }
 /*    // непроезжая грунтовка
-    if (test_object(*i, "2 * 0 1 34 * 80 * * * * * * * * *") ||
-        test_object(*i, "3 * 0 1 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 0 1 20987968 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 1 20987968 * 80 * * * * * * *")) {
       i->pen_color=0;
       fig_object o = *i;
       o.pen_color  = 7; o.depth = 79; 
@@ -123,8 +123,8 @@ main(int argc, char **argv){
     }*/
 
     // непроезжая грунтовка
-    if (test_object(*i, "2 * 0 1 34 * 80 * * * * * * * * *") ||
-        test_object(*i, "3 * 0 1 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 0 1 20987968 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 1 20987968 * 80 * * * * * * *")) {
       i->pen_color=0;
       i->type=2;
 
@@ -180,8 +180,8 @@ main(int argc, char **argv){
     }
 
     // заросшая дорога 
-    if (test_object(*i, "2 * 1 1 34 * 80 * * * * * * * * *") ||
-        test_object(*i, "3 * 1 1 34 * 80 * * * * * * *")) {
+    if (test_object(*i, "2 * 1 1 20987968 * 80 * * * * * * * * *") ||
+        test_object(*i, "3 * 1 1 20987968 * 80 * * * * * * *")) {
       i->pen_color=0;
       i->type=2;
 
@@ -261,8 +261,9 @@ main(int argc, char **argv){
 
 
     // река-5
-    if (test_object(*i, "2 * 0 5 33 * 86 * * * * * * * * *") ||
-        test_object(*i, "3 * 0 5 33 * 86 * * * * * * *")) {
+    if ((test_object(*i, "2 * 0 * 22046463 * 86 * * * * * * * * *") ||
+        test_object(*i, "3 * 0 * 22046463 * 86 * * * * * * *") ) && (i->thickness >2)
+       ){
       i->thickness = 3;
       fig_object o = *i;
       o.pen_color = 3; o.depth = 84; o.thickness = 1; W.push_back(o);
@@ -270,8 +271,8 @@ main(int argc, char **argv){
     }
 
     // пунктирная река
-    if (test_object(*i, "2 * 1 1 33 * 86 * * * * * * * * *") ||
-        test_object(*i, "3 * 1 1 33 * 86 * * * * * * *")) {
+    if (test_object(*i, "2 * 1 1 22046463 * 86 * * * * * * * * *") ||
+        test_object(*i, "3 * 1 1 22046463 * 86 * * * * * * *")) {
       i->pen_color=33;
       i->type=2;
 
@@ -291,7 +292,7 @@ main(int argc, char **argv){
       }
 
       i->line_style=0;
-      fig_object o = make_object(*i, "2 1 0 1 33 7 86 -1 -1 0.000 0 0 -1 0 0 *");
+      fig_object o = make_object(*i, "2 1 0 1 22046463 7 86 -1 -1 0.000 0 0 -1 0 0 *");
 
       double s1 = 80;
       double s2 = 20;
@@ -327,8 +328,8 @@ main(int argc, char **argv){
     }
 
     // большой водоем
-    if (test_object(*i, "2 * 0 1 33  3  85 * 15 * * * * * * *") ||
-        test_object(*i, "3 * 0 1 33  3  85 * 15 * * * * *")) {
+    if (test_object(*i, "2 * 0 1 22046463 3  85 * 15 * * * * * * *") ||
+        test_object(*i, "3 * 0 1 22046463 3  85 * 15 * * * * *")) {
       i->area_fill = 20;
       continue;
     }
@@ -370,8 +371,8 @@ main(int argc, char **argv){
     if (test_object(*i, "2 * * * 8 * 57 * * * * 0 * * * 1")){
       Point<double> p1((*i)[0].x, (*i)[0].y), p2=p1;
       Point<double> v1, v2;
-      if ( W.nearest_pt(v2, p2, "2 * 0 * 33 * 86 * * * * * * * * *") <
-           W.nearest_pt(v1, p1, "3 * 0 * 33 * 86 * * * * * * *")){
+      if ( W.nearest_pt(v2, p2, "2 * 0 * 22046463 * 86 * * * * * * * * *") <
+           W.nearest_pt(v1, p1, "3 * 0 * 22046463 * 86 * * * * * * *")){
         v1=v2; p1=p2;
       }
       v2=Point<double>(-v1.y,v1.x);
@@ -387,8 +388,8 @@ main(int argc, char **argv){
     if (test_object(*i, "2 * * * 17 * 57 * * * * 0 * * * 1")){
       Point<double> p1((*i)[0].x, (*i)[0].y), p2=p1;
       Point<double> v1, v2;
-      if ( W.nearest_pt(v2, p2, "2 * 0 * 33 * 86 * * * * * * * * *") <
-           W.nearest_pt(v1, p1, "3 * 0 * 33 * 86 * * * * * * *")){
+      if ( W.nearest_pt(v2, p2, "2 * 0 * 22046463 * 86 * * * * * * * * *") <
+           W.nearest_pt(v1, p1, "3 * 0 * 22046463 * 86 * * * * * * *")){
         v1=v2; p1=p2;
       }
       v2=Point<double>(-v1.y,v1.x);
@@ -402,7 +403,7 @@ main(int argc, char **argv){
     }
     // отметка уреза воды
     if (test_object(*i, "2 * * * 1 * 57 * * * * 1 * 0 0 1")){
-      *i = make_object(*i, "1 3 0 1 33 7 57 -1 20 2.000 1 0.000 * * 23 23 * * * *");
+      *i = make_object(*i, "1 3 0 1 22046463 7 57 -1 20 2.000 1 0.000 * * 23 23 * * * *");
       i->center_x = i->start_x = i->end_x = (*i)[0].x;
       i->center_y = i->start_y = i->end_y = (*i)[0].y;
       continue;
@@ -532,7 +533,7 @@ main(int argc, char **argv){
     }
 
     // ЛЭП
-    if ((test_object(*i, "2 * 0 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
+    if ((test_object(*i, "2 * 0 * 25725064 * 83 * * * * * * * * *"))&&(fs>1)){
       double ll0=0;
       vector<double> ls;
       Line<double> vs;
@@ -549,7 +550,7 @@ main(int argc, char **argv){
       }
 
 
-      fig_object o = make_object(*i, "2 1 0 2 35 7 82 -1 -1 0.000 0 0 -1 1 1 * 0 0 2.00 90.00 90.00 0 0 2.00 90.00 90.00");
+      fig_object o = make_object(*i, "2 1 0 2 25725064 7 82 -1 -1 0.000 0 0 -1 1 1 * 0 0 2.00 90.00 90.00 0 0 2.00 90.00 90.00");
       o.farrow_width = (i->thickness<3)? 60:90;
       o.barrow_width = (i->thickness<3)? 60:90;
       o.farrow_height = (i->thickness<3)? 60:90;
@@ -579,7 +580,7 @@ main(int argc, char **argv){
     }
 
     // газопровод
-    if ((test_object(*i, "2 * 1 * 35 * 83 * * * * * * * * *"))&&(fs>1)){
+    if ((test_object(*i, "2 * 1 * 25725064 * 83 * * * * * * * * *"))&&(fs>1)){
       double ll0=0;
       vector<double> ls;
       Line<double> vs;
@@ -596,7 +597,7 @@ main(int argc, char **argv){
       }
 
       i->line_style=0;
-      fig_object o = make_object(*i, "1 3 0 1 35 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
+      fig_object o = make_object(*i, "1 3 0 1 25725064 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
 
       double step = 600;
       double l=0;
@@ -772,7 +773,7 @@ main(int argc, char **argv){
     }
 
     // кладбище
-    if (test_object(*i, "2 * 0 1  0 32  92 *  5 * * * * * * *")){
+    if (test_object(*i, "2 * 0 1  0 27983786  92 *  5 * * * * * * *")){
       i->area_fill=10;
       int w1=23, w2=45;
 

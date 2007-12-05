@@ -1,0 +1,31 @@
+#FIG 3.2
+Portrait
+Center
+Metric
+A4      
+375.00
+Single
+-2
+1200 2
+0 32 #aaffaa
+0 33 #5066ff
+0 34 #404040
+0 35 #888888
+# REF 7408000 6232000
+# datum: pulkovo
+# proj: tmerc
+# lon0: 39
+2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 1
+	0 21600
+# REF 7408000 6256000
+# datum: pulkovo
+# proj: tmerc
+# lon0: 39
+2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 1
+	0 0
+# REF 7432000 6256000
+# datum: pulkovo
+# proj: tmerc
+# lon0: 39
+2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 1
+	21600 0

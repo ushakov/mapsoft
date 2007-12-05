@@ -473,6 +473,9 @@ bool write(ostream & out, const fig_world & world){
     case -6: // Compound end
       out << "-6\n"; 
       break;
+    default:
+      cerr << "fig::write: bad object type!\n";
+      break;
     }
   }
 }

@@ -7,6 +7,7 @@
 #include "../geo_io/geo_convs.h"
 #include "../geo_io/geofig.h"
 #include "../geo_io/mp.h"
+#include "../yaml/yaml.h"
 
 #include "../utils/m_time.h"
 
@@ -39,7 +40,7 @@ std::istream & operator>> (std::istream & s, zn_key & t);
 
 // информация об условном обозначении, прочитанная из конф.файла
 struct zn{
-  std::string name, descr; // название, подробное описание
+  std::string name, desc;  // название, подробное описание
   mp::mp_object mp;        // заготовка mp-объекта
   fig::fig_object fig;     // заготовка fig-объекта
   fig::fig_object txt;     // заготовка fig-объекта подписи
@@ -58,6 +59,7 @@ class zn_conv{
   // Конструктор - чтение конфигурационного файла
   zn_conv(const std::string & conf_file);
 
+  bool load_znaki(YAML::Node &root, std::map<int, zn> &znaki);
 
     // Простые операции с ключом 
 

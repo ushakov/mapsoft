@@ -65,8 +65,54 @@ std::istream & operator>> (std::istream & s, zn_key & t){
   return s;
 }
 
+//============================================================
 
+// Заполняет массив знаков 
+bool zn_conv::load_znaki(YAML::Node &root, std::map<int, zn> &znaki) {
+   using namespace YAML;
+   if (root.type != ARRAY) return false;
 
+   NodeList::iterator it = root.value_array.begin();
+   for (it;it!=root.value_array.end();it++) {
+      Node child = *it;
+      if (child.type != HASH)
+        return false;
+
+      zn z;
+
+      const char *v = child.hash_str_value("mp");
+      if (v==NULL) return false;
+      z.mp = mp::make_object(v);
+
+      v = child.hash_str_value("fig");
+      if (v==NULL) return false;
+      z.fig = fig::make_object(v);
+
+      v = child.hash_str_value("name");
+      if (v==NULL) return false;
+      z.name = v;
+
+      v = child.hash_str_value("desc");
+      if (v!=NULL) z.desc = v;
+
+      v = child.hash_str_value("txt");
+      if (v==NULL) z.istxt=false;
+      else {
+        z.istxt=true;
+        z.txt = fig::make_object(v);
+        if (z.txt.type!=4){ 
+          std::cerr << "not a text in txt object!\n";
+          return false;
+        }
+      }
+
+      v = child.hash_str_value("pic");
+      if (v!=NULL) z.pic = v;
+
+      znaki.insert(std::pair<int, zn>(get_type(z.mp), z));   
+   }
+   return true;
+}
 
 
 
@@ -76,44 +122,22 @@ std::istream & operator>> (std::istream & s, zn_key & t){
 zn_conv::zn_conv(const std::string & conf_file){
 
   // читаем конф.файл.
-  std::ifstream conf(conf_file.c_str());
-  if (!conf) {
-    std::cerr << "Can't open " << conf_file << "\n";
-    exit(0);
+  FILE *file = fopen(conf_file.c_str(), "r");
+  if (file == NULL) {
+      cout << "Проблемы с чтением файла " << conf_file << endl;
+      exit(0);
   }
-
-  // простой конф.файл: 
-  // name
-  // descr
-  // mp_mask
-  // fig_mask
-  // fig_mask for text
-  // picture fig-file
-  // <blank line>
-
-  zn               z;
-  mp::mp_object    m;
-  std::string      str;
-  while (!conf.eof()){
-
-   do { getline(conf, str); } while (str == "");  z.name = str;
-   getline(conf, z.descr);  
-   getline(conf, str);   z.mp = mp::make_object(str);  std::cerr << z.mp.Class << " " << z.mp.Type <<"\n";
-   getline(conf, str);   z.fig = fig::make_object(str);
-   getline(conf, str);
-   z.istxt=true;
-   if (str!="") z.txt = fig::make_object(str);
-   else z.istxt = false;
-
-   getline(conf, z.pic); 
-
-   std::cerr << (z.mp.Type
-     + ((z.mp.Class == "POLYLINE")?line_mask:0)
-     + ((z.mp.Class == "POLYGON")?area_mask:0)) << " " << get_type(z.mp) << " " << z.name << "\n";
-
-   znaki.insert(std::pair<int, zn>(get_type(z.mp), z));
-  }
-
+  YAML::Node &root = YAML::parse(file);
+  if (!YAML::error.empty()) {
+      cout << "Проблемы с разбором файла " << conf_file << ":" << endl;
+      cout << YAML::error;
+      cout << endl;
+      exit(0);
+   }
+   if (!load_znaki(root, znaki)) {
+      cout << "Файл " << conf_file << " содержит неподходящую структуру данных" << endl;
+      exit(0);
+   }
   default_fig.pen_color = 4;
   default_fig.thickness = 4;
   default_fig.depth = 2;
@@ -161,34 +185,47 @@ int zn_conv::get_type(const mp::mp_object & o) const{
 
 // определить тип fig-объекта по внешнему виду.
 int zn_conv::get_type (const fig::fig_object & o) const {
-  if ((o.type!=2) && (o.type!=3)) return 0; // объект неинтересного вида
+  if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return 0; // объект неинтересного вида
 
   for (std::map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
-    // по умолчанию должны совпасть глубина, толщина,
-    if ((o.depth     != i->second.fig.depth) ||
-        (o.thickness != i->second.fig.thickness)) continue;
-    // для линий толщины не 0 - еще и цвет и тип линии
-    if ((o.thickness  != 0 ) &&
-        ((o.pen_color != i->second.fig.pen_color) ||
-         (o.line_style != i->second.fig.line_style))) continue;
-    // для многоугольников - еще и цвет и вид заливки
-    bool closed1 = false, closed2 = false;
-    if ((o.type==2)&&(o.sub_type>1))       closed1 = true;
-    if ((o.type==3)&&(o.sub_type %2 == 1)) closed1 = true;
-    if ((i->second.fig.type==2)&&(i->second.fig.sub_type>1))       closed2 = true;
-    if ((i->second.fig.type==3)&&(i->second.fig.sub_type %2 == 1)) closed2 = true;
-    if (closed1!=closed2) continue;
-    int af1 = o.area_fill;
-    int af2 = i->second.fig.area_fill;
-    int fc1 = o.fill_color;
-    int fc2 = i->second.fig.fill_color;
-    // белая заливка бывает двух видов
-    if ((fc1!=7)&&(af1==40)) {fc1=7; af1=20;}
-    if ((fc2!=7)&&(af2==40)) {fc2=7; af2=20;}
-    if (closed1 && ((fc1 != fc2) || (af1 != af2))) continue;
-    // проведя все тесты, мы считаем, что наш объект соответствует
-    // объекту из znaki!
-    return i->first;
+    if ((o.type==2) || (o.type==3)){
+      // должны совпасть глубина и толщина
+      if ((o.depth     != i->second.fig.depth) ||
+          (o.thickness != i->second.fig.thickness)) continue;
+      // для линий толщины не 0 - еще и цвет и тип линии
+      if ((o.thickness  != 0 ) &&
+          ((o.pen_color != i->second.fig.pen_color) ||
+           (o.line_style != i->second.fig.line_style))) continue;
+    
+      // заливки
+      int af1 = o.area_fill;
+      int af2 = i->second.fig.area_fill;
+      int fc1 = o.fill_color;
+      int fc2 = i->second.fig.fill_color;
+      // белая заливка бывает двух видов
+      if ((fc1!=7)&&(af1==40)) {fc1=7; af1=20;}
+      if ((fc2!=7)&&(af2==40)) {fc2=7; af2=20;}
+    
+      // тип заливки должен совпасть
+      if (af1 != af2) continue;
+      // если заливка непрозрачна, то и цвет заливки должен совпасть
+      if ((af1!=-1) && (fc1 != fc2)) continue;
+    
+      // если заливка - штриховка, то и pen_color должен совпасть 
+      // (даже для линий толщины 0)
+      if ((af1>41) && (o.pen_color != i->second.fig.pen_color)) continue;
+    
+      // проведя все тесты, мы считаем, что наш объект соответствует
+      // объекту из znaki!
+      return i->first;
+    }
+    else if (o.type==4){ //текст
+      // должны совпасть глубина, цвет, и шрифт
+      if ((o.depth     == i->second.fig.depth) &&
+          (o.pen_color == i->second.fig.pen_color) &&
+          (o.font      == i->second.fig.font))
+        return i->first;
+    }
   }
   return 0;
 }
@@ -296,28 +333,29 @@ std::list<fig::fig_object> zn_conv::fig2user(const fig::fig_object & fig){
 // Создать подписи к объекту. Объект должен иметь полный ключ!
 std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
 
-  int txt_dist = 10; // fig units
+  int txt_dist = 30; // fig units
 
   std::list<fig::fig_object> ret;
   zn_key key = get_key(fig);
   if (fig.size() < 1) return ret;                    // странный объект
-  if ((key.id == 0) && (key.type == 0)) return ret;  // неполный ключ
+  if ((key.id == 0) || (key.type == 0)) return ret;  // неполный ключ
   if (znaki.find(key.type)==znaki.end()) return ret; // про такой тип объектов неизвестно
-  if (!znaki[key.type].istxt) return ret; // подпись не нужна
+  if (!znaki[key.type].istxt) return ret;            // подпись не нужна
+  if ((fig.comment.size()==0)||
+      (fig.comment[0].size()==0)) return ret;     // нечего писать!
   // заготовка для подписи
-  fig::fig_object txt = znaki[fig.type].txt;
+  fig::fig_object txt = znaki[key.type].txt;
 
   // определим координаты и наклон подписи
-  Point<int> p = fig[0] + Point<int>(1,1)*txt_dist;
+  Point<int> p = fig[0] + Point<int>(1,-1)*txt_dist;
   if (fig.size()>=2){
     if ((key.type > line_mask) && (key.type < area_mask)){ // линия
       p = (fig[fig.size()/2-1] + fig[fig.size()/2]) / 2;
-      Point<int> v = fig[fig.size()/2-1] - fig[fig.size()/2];
-      if (v.x<0) v.x=-v.x;
-      txt.angle = atan2(v.x, v.y);
+      Point<double> v = pnorm(fig[fig.size()/2-1] - fig[fig.size()/2]);
+      if (v.x<0) v=-1*v;
+      txt.angle = atan2(-v.y, v.x);
       txt.sub_type = 1; // centered text
-      Point<int> vp(-v.y, v.x);
-      p+=vp*txt_dist;
+      p-= Point<int>(int(-v.y*txt_dist), int(v.x*txt_dist));
     }
     else { // площадной объект
       // ищем точку с максимальным x-y
@@ -329,9 +367,12 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
           p = fig[i];
         }
       }
-      p+=Point<int>(1,1)*txt_dist;
+      p+=Point<int>(1,-1)*txt_dist;
     }
   }
+  key.label=true;
+  add_key(txt, key);
+  txt.text = fig.comment[0];
   txt.push_back(p);
   ret.push_back(txt);
   return(ret);
