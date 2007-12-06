@@ -201,6 +201,8 @@ namespace fig {
         // сместить на (x,y)
 	fig_object & operator += (const Point<int> & p) {
           for (iterator i=begin(); i!=end(); i++) *i += p;
+          center_x+=p.x;
+          center_y+=p.y;
 	  return *this;
         }
 

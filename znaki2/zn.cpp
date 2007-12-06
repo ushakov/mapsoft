@@ -188,7 +188,7 @@ int zn_conv::get_type (const fig::fig_object & o) const {
   if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return 0; // объект неинтересного вида
 
   for (std::map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
-    if ((o.type==2) || (o.type==3)){
+    if (((o.type==2) || (o.type==3)) && (o.size()>1)){
       // должны совпасть глубина и толщина
       if ((o.depth     != i->second.fig.depth) ||
           (o.thickness != i->second.fig.thickness)) continue;
@@ -218,6 +218,14 @@ int zn_conv::get_type (const fig::fig_object & o) const {
       // проведя все тесты, мы считаем, что наш объект соответствует
       // объекту из znaki!
       return i->first;
+    }
+    else if (((o.type==2) || (o.type==3)) && (o.size()==1)){ // точки
+      // должны совпасть глубина, толщина, цвет, и закругление
+      if ((o.depth     == i->second.fig.depth) &&
+          (o.thickness == i->second.fig.thickness) &&
+          (o.pen_color == i->second.fig.pen_color) &&
+          (o.cap_style%2  == i->second.fig.cap_style%2))
+        return i->first;
     }
     else if (o.type==4){ //текст
       // должны совпасть глубина, цвет, и шрифт
@@ -295,6 +303,7 @@ void zn_conv::fig_make_comp(std::list<fig::fig_object> & objects){
       }
     }
   }
+cerr << "making compound with " << objects.size() << "objects\n";
   fig::fig_object o = *objects.begin();
   o.type=6;
   o.clear();
@@ -319,12 +328,16 @@ std::list<fig::fig_object> zn_conv::fig2user(const fig::fig_object & fig){
     return ret;
   }
   fig::fig_object fig1 = znaki[key.type].fig;
+//fig1.clear();
   fig1.insert(fig1.begin(), fig.begin(), fig.end());
+  fig1.comment.insert(fig1.comment.begin(), fig.comment.begin(), fig.comment.end());
   ret.push_back(fig1);
 
-  if ((znaki[key.type].pic=="") || (fig1.size()!=1)) return ret;
+  if ((znaki[key.type].pic=="") || (fig1.size()==0)) return ret;
 
   fig::fig_world PIC = fig::read(znaki[key.type].pic.c_str());
+  PIC+=fig1[0];
+
   ret.insert(ret.end(), PIC.begin(), PIC.end());
   fig_make_comp(ret);
   return ret;

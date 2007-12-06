@@ -581,7 +581,6 @@ rule<> r_font_flags     = +blank_p >> (ch_p('*') | int_p[assign_a(o.font_flags)]
   if (!parse(mask.c_str(), *blank_p >> (c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
       c6_compound_start | c6_compound_end) >> *blank_p ).full)
     cerr << "Can't parse fig mask: " << mask << "\n";
-  if (npoints>=0) o.resize(npoints);
   return o;
 }
 
