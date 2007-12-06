@@ -208,9 +208,6 @@ main(int argc, char** argv){
 
   std::cerr << MAP.size() << " objects converted\n";
   std::cerr << NC.size() << " objects not converted\n";
-  for (fig::fig_world::iterator i = MAP.begin(); i!=MAP.end(); i++){
-    std::cerr << i->type << " ";
-  }
  
   // записываем MAP
   ofstream out(file.c_str());

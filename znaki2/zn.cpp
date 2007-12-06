@@ -224,7 +224,7 @@ int zn_conv::get_type (const fig::fig_object & o) const {
       if ((o.depth     == i->second.fig.depth) &&
           (o.thickness == i->second.fig.thickness) &&
           (o.pen_color == i->second.fig.pen_color) &&
-          (o.cap_style%2  == i->second.fig.cap_style%2))
+          (o.cap_style%2 == i->second.fig.cap_style%2))
         return i->first;
     }
     else if (o.type==4){ //текст
@@ -346,7 +346,6 @@ std::list<fig::fig_object> zn_conv::fig2user(const fig::fig_object & fig){
 // Создать подписи к объекту. Объект должен иметь полный ключ!
 std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
 
-  int txt_dist = 30; // fig units
 
   std::list<fig::fig_object> ret;
   zn_key key = get_key(fig);
@@ -358,6 +357,8 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
       (fig.comment[0].size()==0)) return ret;     // нечего писать!
   // заготовка для подписи
   fig::fig_object txt = znaki[key.type].txt;
+
+  int txt_dist = 10 * (fig.thickness+2); // fig units
 
   // определим координаты и наклон подписи
   Point<int> p = fig[0] + Point<int>(1,-1)*txt_dist;
