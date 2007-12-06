@@ -172,11 +172,11 @@ main(int argc, char** argv){
       MAP.push_back(*i);            // запишем объект 
 
       // теперь еще подписи:
-      list<fig::fig_object> new_labels;
+/*      list<fig::fig_object> new_labels;
       Point<int> shift;
       if (i->isshifted(o->second, shift)){
         // если старый и новый объекты различаются только смещением -
-        // перетащить в new_labels старые подписи, сдвинув их
+        // перетащить в new_labels старые подписи, сдвинув их 
         for (multimap<int, fig::fig_object>::const_iterator l = labels.find(key.id); 
               (l != labels.end()) && (l->first == key.id); l++){
           new_labels.push_back(l->second + shift);
@@ -185,8 +185,14 @@ main(int argc, char** argv){
         // иначе - сгенерить подписи заново
         new_labels = zconverter.make_labels(*i);
       }
-      MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());  // записать подписи
-      continue;
+      MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());  // записать подписи*/
+
+      // перетащим старые подписи для этого объекта
+      for (multimap<int, fig::fig_object>::const_iterator l = labels.find(key.id); 
+          (l != labels.end()) && (l->first == key.id); l++)
+        MAP.push_back(l->second);
+
+      continue; 
     } 
     // остались объекты без ключа или с неполным ключом
     maxid++;
