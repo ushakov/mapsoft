@@ -444,7 +444,7 @@ fig::fig_world zn_conv::make_legend(int grid){
     key.map = "get_legend_map";
 
     ostringstream mp_key;
-    if (i->first > area_mask){
+    if (i->first >= area_mask){
       o.push_back(Point<int>(0,       0));
       o.push_back(Point<int>(grid*5,  0));
       o.push_back(Point<int>(grid*5,  grid));
@@ -452,7 +452,7 @@ fig::fig_world zn_conv::make_legend(int grid){
       o.push_back(Point<int>(0,       0)); 
       mp_key << "POLYGON 0x" << std::setbase(16) << i->first - area_mask;
     }
-    else if (i->first > line_mask){
+    else if (i->first >= line_mask){
       o.push_back(Point<int>(0,       grid));
       o.push_back(Point<int>(grid*5,  grid));
       mp_key << "POLYLINE 0x" << std::setbase(16) << i->first - line_mask;
