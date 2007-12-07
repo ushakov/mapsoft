@@ -62,7 +62,8 @@ main(int argc, char** argv){
     mp::mp_world M;
     for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
       if ((i->depth >=50) && (i->depth <400)){
-        M.push_back(zconverter.fig2mp(*i, cnv));
+        std::list<mp::mp_object> mp_list = zconverter.fig2mp(*i, cnv);
+        M.insert(M.end(), mp_list.begin(), mp_list.end());
       }
     }
     ofstream out(out_file.c_str());

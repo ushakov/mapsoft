@@ -96,7 +96,8 @@ class zn_conv{
 
   // преобразовать fig-объект в mp-объект
   // ключ сохраняется старый, или создается неполный (только с типом)
-  mp::mp_object fig2mp(const fig::fig_object & fig, convs::map2pt & cnv) const;
+  // подписи не преобразовываются.
+  std::list<mp::mp_object> fig2mp(const fig::fig_object & fig, convs::map2pt & cnv) const;
 
   // заключить fig-объекты в составной объект. Комментарий
   // составного объекта копируется из первого объекта (!)
@@ -111,6 +112,8 @@ class zn_conv{
   // Создать подписи к объекту. Объект должен иметь полный ключ!
   std::list<fig::fig_object> make_labels(const fig::fig_object & fig);
 
+  // список всех знаков в формате fig
+  fig::fig_world make_legend(int grid = 100);
 };
 
 

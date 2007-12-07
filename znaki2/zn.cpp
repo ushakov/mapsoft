@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include "zn.h"
 
 #include <boost/lexical_cast.hpp>
@@ -46,7 +47,7 @@ std::istream & operator>> (std::istream & s, zn_key & t){
         )[assign_a(newkey.label, true)] |
         (ch_p('0') >> 'x' >> hex_p[assign_a(newkey.type)] >> +blank_p >>
          (+graph_p >> +blank_p >> +graph_p)[assign_a(timestr)] >> +blank_p >>
-         uint_p[assign_a(newkey.id)] >> '@' >> (+alnum_p)[assign_a(newkey.map)] >>
+         uint_p[assign_a(newkey.id)] >> '@' >> (+(alnum_p|'_'))[assign_a(newkey.map)] >>
          !(+blank_p >> 
            ( 
              (uint_p[assign_a(newkey.sid)] >> '@' >> (+alnum_p)[assign_a(newkey.source)]) ||
@@ -255,20 +256,27 @@ fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv) c
 
 // преобразовать fig-объект в mp-объект
 // ключ сохраняется старый, или создается неполный (только с типом)
-mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv) const{
-  mp::mp_object ret = default_mp;
+std::list<mp::mp_object> zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv) const{
+  std::list<mp::mp_object> ret;
+
   zn_key key = get_key(fig); 
-  if (key.type == 0) key.type = get_type(fig);
-  if (znaki.find(key.type) != znaki.end()) ret = znaki.find(key.type)->second.mp;
+
+  if (key.type == 0) return ret;
+  if (key.label) return ret;
+
+  mp::mp_object mp;
+  if (znaki.find(key.type) != znaki.end()) mp = znaki.find(key.type)->second.mp;
+  else mp = default_mp;
 
   if (fig.comment.size()>0){
-    ret.Label = fig.comment[0];
-    ret.Comment.insert(ret.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
+    mp.Label = fig.comment[0];
+    mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
   }
-  add_key(ret, key);
+  add_key(mp, key);
 
   g_line pts = cnv.line_frw(fig);
-  for (int i=0; i<pts.size(); i++) ret.push_back(pts[i]);
+  for (int i=0; i<pts.size(); i++) mp.push_back(pts[i]);
+  ret.push_back(mp);
   return ret;
 }
 
@@ -358,12 +366,19 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
   // заготовка для подписи
   fig::fig_object txt = znaki[key.type].txt;
 
-  int txt_dist = 10 * (fig.thickness+2); // fig units
+  int txt_dist = 7 * (fig.thickness+2); // fig units
+
+
 
   // определим координаты и наклон подписи
-  Point<int> p = fig[0] + Point<int>(1,-1)*txt_dist;
+  Point<int> p = fig[0];
+  if      (txt.sub_type == 0 ) p += Point<int>(1,-1)*txt_dist;
+  else if (txt.sub_type == 1 ) p += Point<int>(0,-2)*txt_dist;
+  else if (txt.sub_type == 2 ) p += Point<int>(-1,-1)*txt_dist;
+
   if (fig.size()>=2){
-    if ((key.type > line_mask) && (key.type < area_mask)){ // линия
+    if ((key.type >= line_mask) && (key.type < area_mask)){ // линия
+      // текст центруется, ставится в середину линии
       p = (fig[fig.size()/2-1] + fig[fig.size()/2]) / 2;
       Point<double> v = pnorm(fig[fig.size()/2-1] - fig[fig.size()/2]);
       if (v.x<0) v=-1*v;
@@ -372,16 +387,40 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
       p-= Point<int>(int(-v.y*txt_dist), int(v.x*txt_dist));
     }
     else { // площадной объект
-      // ищем точку с максимальным x-y
-      p = fig[0];
-      int max = p.x-p.y;
-      for (int i = 0; i<fig.size(); i++){
-        if (fig[i].x-fig[i].y > max) {
-          max = fig[i].x-fig[i].y;
-          p = fig[i];
+      if (txt.sub_type == 0 ) { // left just.text
+        // ищем точку с максимальным x-y
+        p = fig[0];
+        int max = p.x-p.y;
+        for (int i = 0; i<fig.size(); i++){
+          if (fig[i].x-fig[i].y > max) {
+            max = fig[i].x-fig[i].y;
+            p = fig[i];
+          }
         }
+        p+=Point<int>(1,-1)*txt_dist;
+      } else if (txt.sub_type == 2 ) { // right just.text
+        // ищем точку с минимальным x+y
+        p = fig[0];
+        int min = p.x+p.y;
+        for (int i = 0; i<fig.size(); i++){
+          if (fig[i].x+fig[i].y < min) {
+            min = fig[i].x+fig[i].y;
+            p = fig[i];
+          }
+        }
+        p+=Point<int>(-1,-1)*txt_dist;
+      } else if (txt.sub_type == 1 ) { // centered text
+        // ищем середину объекта
+        Point<int> pmin = fig[0];
+        Point<int> pmax = fig[0];
+        for (int i = 0; i<fig.size(); i++){
+          if (pmin.x > fig[i].x) pmin.x = fig[i].x;
+          if (pmin.y > fig[i].y) pmin.y = fig[i].y;
+          if (pmax.x < fig[i].x) pmax.x = fig[i].x;
+          if (pmax.y < fig[i].y) pmax.y = fig[i].y;
+        }
+        p=(pmin+pmax)/2;
       }
-      p+=Point<int>(1,-1)*txt_dist;
     }
   }
   key.label=true;
@@ -390,6 +429,61 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
   txt.push_back(p);
   ret.push_back(txt);
   return(ret);
+}
+
+// список всех знаков в формате fig
+fig::fig_world zn_conv::make_legend(int grid){
+  int count=0;
+  fig::fig_world ret;
+
+  for (std::map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
+    fig::fig_object o = i->second.fig;
+    Point<int> shift(0, count*2*grid);
+    zn_key key;
+    key.type = i->first;
+    key.map = "get_legend_map";
+
+    ostringstream mp_key;
+    if (i->first > area_mask){
+      o.push_back(Point<int>(0,       0));
+      o.push_back(Point<int>(grid*5,  0));
+      o.push_back(Point<int>(grid*5,  grid));
+      o.push_back(Point<int>(0,       grid));
+      o.push_back(Point<int>(0,       0)); 
+      mp_key << "POLYGON 0x" << std::setbase(16) << i->first - area_mask;
+    }
+    else if (i->first > line_mask){
+      o.push_back(Point<int>(0,       grid));
+      o.push_back(Point<int>(grid*5,  grid));
+      mp_key << "POLYLINE 0x" << std::setbase(16) << i->first - line_mask;
+    }
+    else{
+      o.push_back(Point<int>(grid*2,  grid));
+      mp_key << "POI 0x" << std::setbase(16) << i->first;
+    }
+    o+=shift;
+    add_key(o, key);
+    o.comment.push_back("название");
+    std::list<fig::fig_object> l1 = zn_conv::fig2user(o);
+    std::list<fig::fig_object> l2 = zn_conv::make_labels(o);
+    ret.insert(ret.end(), l1.begin(), l1.end());
+    ret.insert(ret.end(), l2.begin(), l2.end());
+    fig::fig_object text = fig::make_object("4 0 0 55 -1 18 8 0.0000 4");
+    text.text = i->second.name;
+    text.push_back(Point<int>(grid*8, grid));
+    text+=shift;
+    ret.push_back(text);
+    
+    text.text = mp_key.str();
+    text.clear();
+    text.push_back(Point<int>(-1*grid, grid));
+    text+=shift;
+    text.sub_type = 2;
+    ret.push_back(text);
+
+    count++;
+  }
+  return ret;
 }
 
 

@@ -66,7 +66,12 @@ main(int argc, char** argv){
   ofstream bu(backup.c_str());
   fig::write(bu, MAP);
   // ... сделать diff?
-  
+
+  bool fig_not_mp;
+  if      (testext(infile, ".fig")) fig_not_mp=true;
+  else if (testext(infile, ".mp"))  fig_not_mp=false;
+  else usage();
+ 
 
   fig::fig_world FIG; 
   // заготовка для новой карты
@@ -74,13 +79,11 @@ main(int argc, char** argv){
   // все объекты из fig-файла
   // Если из mp - то сетки и т.п. возьмем из старого файла,
   // а объекты преобразуем
-
   std::cerr << "Reading new map...\n";  
-  if (testext(infile, ".fig")){ // читаем fig
+  if (fig_not_mp){ // читаем fig
     FIG = fig::read(infile.c_str());
-    /// ... преобразовать координаты!
-  } else
-  if (testext(infile, ".mp")){ // читаем mp
+  } 
+  else { // читаем mp
     mp::mp_world MP = mp::read(infile.c_str());
     // копируем в FIG из MAP все объекты с глубинами 1-44 и 400-999
     // (сетку, привязку и т.п.)
@@ -90,12 +93,14 @@ main(int argc, char** argv){
     // для новых объектов (без ключа) создается неполный ключ - только с типом
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++)
       FIG.push_back(zconverter.mp2fig(*i, cnv));
-  } else usage();
+  }
   // Теперь в FIG у нас новая карта с привязкой.
 
 
   // найдем максимальный id элементов старой карты
   // распихаем объекты и подписи в хэши
+  // еслиобновляемся из mp - подписи берем из старой карты,
+  // иначе - из новой.
   map<int, fig::fig_object> objects;
   multimap<int, fig::fig_object> labels;
 
@@ -105,9 +110,17 @@ main(int argc, char** argv){
     if ((i->depth < 50)||(i->depth>=400)) continue;
     zn::zn_key key = zconverter.get_key(*i);
     if ((key.map != map_name) || (key.id == 0)) continue;
-    if (key.label) labels.insert(pair<int, fig::fig_object>(key.id, *i));
+    if (key.label && !fig_not_mp) labels.insert(pair<int, fig::fig_object>(key.id, *i));
     else objects.insert(pair<int, fig::fig_object>(key.id, *i));
     if (key.id > maxid) maxid=key.id;
+  }
+  if (fig_not_mp){
+    for (fig::fig_world::const_iterator i=FIG.begin(); i!=FIG.end(); i++){
+      if ((i->depth < 50)||(i->depth>=400)) continue;
+      zn::zn_key key = zconverter.get_key(*i);
+      if ((key.map != map_name) || (key.id == 0)) continue;
+      if (key.label) labels.insert(pair<int, fig::fig_object>(key.id, *i));
+    }
   }
 
   //  Обнулим старую карту и будем ее заполнять постепенно из FIG
