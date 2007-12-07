@@ -339,7 +339,9 @@ std::list<fig::fig_object> zn_conv::fig2user(const fig::fig_object & fig){
 //fig1.clear();
   fig1.insert(fig1.begin(), fig.begin(), fig.end());
   fig1.comment.insert(fig1.comment.begin(), fig.comment.begin(), fig.comment.end());
+  fig1.text=fig.text;
   ret.push_back(fig1);
+
 
   if ((znaki[key.type].pic=="") || (fig1.size()==0)) return ret;
 
@@ -358,7 +360,7 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
   std::list<fig::fig_object> ret;
   zn_key key = get_key(fig);
   if (fig.size() < 1) return ret;                    // странный объект
-  if ((key.id == 0) || (key.type == 0)) return ret;  // неполный ключ
+  if ((key.type == 0)||(key.id==0))  return ret;     // неполный ключ
   if (znaki.find(key.type)==znaki.end()) return ret; // про такой тип объектов неизвестно
   if (!znaki[key.type].istxt) return ret;            // подпись не нужна
   if ((fig.comment.size()==0)||
@@ -441,6 +443,7 @@ fig::fig_world zn_conv::make_legend(int grid){
     Point<int> shift(0, count*2*grid);
     zn_key key;
     key.type = i->first;
+    key.id = count+1;
     key.map = "get_legend_map";
 
     ostringstream mp_key;
@@ -462,12 +465,14 @@ fig::fig_world zn_conv::make_legend(int grid){
       mp_key << "POI 0x" << std::setbase(16) << i->first;
     }
     o+=shift;
+    o.comment.push_back("text");
+    if (o.type==4) o.text="10";
     add_key(o, key);
-    o.comment.push_back("название");
     std::list<fig::fig_object> l1 = zn_conv::fig2user(o);
     std::list<fig::fig_object> l2 = zn_conv::make_labels(o);
     ret.insert(ret.end(), l1.begin(), l1.end());
     ret.insert(ret.end(), l2.begin(), l2.end());
+
     fig::fig_object text = fig::make_object("4 0 0 55 -1 18 8 0.0000 4");
     text.text = i->second.name;
     text.push_back(Point<int>(grid*8, grid));
