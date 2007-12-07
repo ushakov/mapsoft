@@ -553,6 +553,12 @@ fig::fig_world zn_conv::make_legend(int grid){
 
     count++;
   }
+  fig::fig_object o = fig::make_object("2 2 0 0 30 30 150 -1 20 0.000 0 1 7 0 0 0");
+  o.push_back(Point<int>(-15*grid,-grid));
+  o.push_back(Point<int>(+40*grid,-grid));
+  o.push_back(Point<int>(+40*grid,(2*count+1)*grid));
+  o.push_back(Point<int>(-15*grid,(2*count+1)*grid));
+  ret.push_back(o);
   return ret;
 }
 

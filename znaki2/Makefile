@@ -8,9 +8,23 @@ get_legend:  zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libload
 
 key_test: zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a
 
-legends: mmb.fig hr.fig
+
+
+legends: mmb.png hr.png mmb.conv.png hr.conv.png
+
+FIGCNV = ../vector/fig_conv_podm
+FIGCYR = ~/bin/figcyr
+
+%.conv.fig: %.fig
+	$(FIGCNV) $< $@
+%.eps: %.fig
+	fig2dev  -L eps -m 3.75 -F  $< | $(FIGCYR) > $@
+%.png: %.eps
+	gs -q -dNOPAUSE -dBATCH -dSAFER -dEPSCrop -sDEVICE=png16m -r80 -sOutputFile=$@ $<
+
 
 mmb.fig: mmb.cnf get_legend
 	./get_legend mmb.cnf > mmb.fig
 hr.fig: hr.cnf get_legend
 	./get_legend hr.cnf > hr.fig
+
