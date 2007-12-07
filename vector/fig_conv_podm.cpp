@@ -50,27 +50,7 @@ main(int argc, char **argv){
       test_object(*i, "3 * * *  * * 89 * * * * * * *") || // овраги, хребты
       test_object(*i, "3 * * *  * * 90 * * * * * * *")    // горизонтали
     )){
-      if (i->type==2){ 
-        if (i->sub_type<=1) i->sub_type=4; else i->sub_type=5;
-      }
-      if (i->type==3){ 
-        i->sub_type = (i->sub_type%2)+4;
-      }
-      if (((*i)[0].x==(*i)[fs-1].x) && ((*i)[0].y==(*i)[fs-1].y)){
-        if (((i->type==2) && (i->sub_type==1))||
-            ((i->type==3) && (i->sub_type==4))) i->sub_type=5;
-//        i->erase(i->begin()+fs-1);
-//        fs=i->size();
-      }
-
-      i->type=3;
-      i->f.clear();
-  
-      for (int j=0; j< fs; j++) i->f.push_back(0.3);
-      if (i->sub_type==4){
-        i->f[0]=0;
-        i->f[fs-1]=0;
-      }
+      i->any2xspl(0.3);
     }
   }
 

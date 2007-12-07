@@ -89,6 +89,7 @@ main(int argc, char** argv){
     // для новых объектов (без ключа) создается неполный ключ - только с типом
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++)
       FIG.push_back(zconverter.mp2fig(*i, cnv));
+    
   }
   // Теперь в FIG у нас новая карта с привязкой.
 

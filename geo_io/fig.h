@@ -205,6 +205,48 @@ namespace fig {
           center_y+=p.y;
 	  return *this;
         }
+        bool is_ellipse()  const {return (type==1);}
+        bool is_polyline() const {return (type==2);}
+        bool is_spline()   const {return (type==3);}
+        bool is_text()     const {return (type==4);}
+        bool is_arc()      const {return (type==5);}
+        bool is_compound() const {return (type==6);}
+        bool is_compound_end() const {return (type==-6);}
+        bool is_closed() const {
+          if (is_polyline()) return (sub_type>1);
+          if (is_spline())   return (sub_type%2==1);
+          if (is_ellipse())  return true;
+          if (is_arc()||is_text()||is_compound()||is_compound_end()) return false;
+        }
+        void close(){
+          if (is_closed()) return;
+          if (is_polyline()){ sub_type=3; return;}
+          if (is_spline())  { sub_type++; return;}
+          return;
+        }
+        void open(){
+          if (!is_closed()) return;
+          if (is_polyline()&&(sub_type==3)){ sub_type=1; return;}
+          if (is_spline())  { sub_type--; return;}
+          return;
+        }
+        void any2xspl(const double x){
+          if (is_polyline()){
+            if      (sub_type==1) sub_type = 4;
+            else if (sub_type==3) sub_type = 5;
+            else return;
+          } 
+          else if (is_spline()) sub_type = sub_type%2+4;
+          else return;
+          type = 3;
+          f.clear();
+          for (int j=0; j<size(); j++) f.push_back(0.3);
+          if (sub_type==4){
+            f[0]=0;
+            f[size()-1]=0;
+          }
+          return;
+        }
 
         void set_vector(const Line<double> & v);
     };

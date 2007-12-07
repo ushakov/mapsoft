@@ -290,6 +290,12 @@ fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv) c
   add_key(ret, get_key(mp));
   g_line pts = cnv.line_bck(mp);
   for (int i=0; i<pts.size(); i++) ret.push_back(pts[i]);
+  // замкнутая линия
+  if ((mp.Class == "POLYLINE") && (ret.size()>1) && (ret[0]==ret[ret.size()-1])){
+    ret.resize(ret.size()-1);
+    ret.close();
+  }
+
   return ret;
 }
 
@@ -314,6 +320,11 @@ std::list<mp::mp_object> zn_conv::fig2mp(const fig::fig_object & fig, convs::map
 
   g_line pts = cnv.line_frw(fig);
   for (int i=0; i<pts.size(); i++) mp.push_back(pts[i]);
+
+  // если у нас замкнутая линия - добавим в mp еще одну точку:
+  if ((mp.Class == "POLYLINE") && (fig.is_closed()) && (fig.size()>0))
+    mp.push_back(mp[0]);
+
   ret.push_back(mp);
   return ret;
 }
@@ -373,19 +384,28 @@ std::list<fig::fig_object> zn_conv::fig2user(const fig::fig_object & fig){
     return ret;
   }
   // заготовка для объекта в нужном нам стиле.
-  fig::fig_object fig1 = znaki[key.type].fig;
-  // копируем в нее точки, комментарии, текст
-  fig1.insert(fig1.begin(), fig.begin(), fig.end());
-  fig1.comment.insert(fig1.comment.begin(), fig.comment.begin(), fig.comment.end());
-  fig1.text=fig.text;
-  ret.push_back(fig1);
+  fig::fig_object o(fig);
+  // из заготовки копируем разные параметры:
+  o.line_style = znaki[key.type].fig.line_style;
+  o.thickness  = znaki[key.type].fig.thickness;
+  o.pen_color  = znaki[key.type].fig.pen_color;
+  o.fill_color = znaki[key.type].fig.fill_color;
+  o.depth      = znaki[key.type].fig.depth;
+  o.pen_style  = znaki[key.type].fig.pen_style;
+  o.area_fill  = znaki[key.type].fig.area_fill;
+  o.style_val  = znaki[key.type].fig.style_val;
+  o.cap_style  = znaki[key.type].fig.cap_style;
+  o.join_style = znaki[key.type].fig.join_style;
+  o.font       = znaki[key.type].fig.font;
+  o.font_size  = znaki[key.type].fig.font_size;
+  o.font_flags = znaki[key.type].fig.font_flags;
+  ret.push_back(o);
 
-
-  if ((znaki[key.type].pic=="") || (fig1.size()==0)) return ret;
+  if ((znaki[key.type].pic=="") || (o.size()==0)) return ret;
 
   fig::fig_world PIC = fig::read(znaki[key.type].pic.c_str());
   for (fig::fig_world::iterator i = PIC.begin(); i!=PIC.end(); i++){
-    (*i) += fig1[0];
+    (*i) += o[0];
     if (is_map_depth(*i)){
       cerr << "warning: picture in " << znaki[key.type].pic 
            << " has objects with wrong depth!\n";
@@ -470,7 +490,7 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
       }
     }
   }
-  add_key(txt, key);
+  add_key(txt, zn_label_key(key));
   txt.text = fig.comment[0];
   txt.push_back(p);
   ret.push_back(txt);
@@ -501,7 +521,8 @@ fig::fig_world zn_conv::make_legend(int grid){
     }
     else if (i->first >= line_mask){
       o.push_back(Point<int>(0,       grid));
-      o.push_back(Point<int>(grid*5,  grid));
+      o.push_back(Point<int>(grid*4,  grid));
+      o.push_back(Point<int>(grid*5,  0));
       mp_key << "POLYLINE 0x" << std::setbase(16) << i->first - line_mask;
     }
     else{

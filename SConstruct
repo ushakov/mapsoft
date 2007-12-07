@@ -9,7 +9,6 @@ subdirs = Split ("""
 		utils
 		vector
 		viewer
-		znaki
 		mapview
 		""")
 
