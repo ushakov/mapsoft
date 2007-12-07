@@ -37,19 +37,14 @@ main(int argc, char** argv){
   string ncfile    = argv[5];
   string file = maps_dir+"/"+map_name+".fig";
 
-  // пробуем прочитать карту
+  bool fig_not_mp;
+  if      (testext(infile, ".fig")) fig_not_mp=true;
+  else if (testext(infile, ".mp"))  fig_not_mp=false;
+  else usage();
+
+  // читаем старую карту
   std::cerr << "Reading old map...\n";  
   fig::fig_world MAP = fig::read(file.c_str());
-  if (MAP.size()==0) {
-    cerr << "bad file " << file << "\n";
-    exit(0);
-  }
-  // извлекаем привязку
-  std::cerr << "Getting old ref...\n";  
-  g_map ref = fig::get_ref(MAP);
-  convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"), Options());
-
-  zn::zn_conv zconverter(conf_file);
 
   // backup исходной карты!
   std::cerr << "Backup...\n";  
@@ -67,28 +62,29 @@ main(int argc, char** argv){
   fig::write(bu, MAP);
   // ... сделать diff?
 
-  bool fig_not_mp;
-  if      (testext(infile, ".fig")) fig_not_mp=true;
-  else if (testext(infile, ".mp"))  fig_not_mp=false;
-  else usage();
- 
+  zn::zn_conv zconverter(conf_file);
 
+
+  // новая карта
   fig::fig_world FIG; 
-  // заготовка для новой карты
   // Если мы обновляемся из fig - прочитаем сюда
   // все объекты из fig-файла
-  // Если из mp - то сетки и т.п. возьмем из старого файла,
-  // а объекты преобразуем
+  // Если из mp - то картографические объекты возьмем из mp, 
+  // а все остальное - из старой карты!
   std::cerr << "Reading new map...\n";  
   if (fig_not_mp){ // читаем fig
     FIG = fig::read(infile.c_str());
   } 
   else { // читаем mp
     mp::mp_world MP = mp::read(infile.c_str());
-    // копируем в FIG из MAP все объекты с глубинами 1-44 и 400-999
-    // (сетку, привязку и т.п.)
+    // копируем в FIG из MAP все некартографические объекты
     for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++)
-      if ((i->depth <45) || (i->depth >=400)) FIG.push_back(*i);
+      if (!zconverter.is_map_depth(*i)) FIG.push_back(*i);
+
+    // извлекаем привязку из старой карты:
+    g_map ref = fig::get_ref(MAP);
+    convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"), Options());
+
     // преобразуем объекты из MP в FIG
     // для новых объектов (без ключа) создается неполный ключ - только с типом
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++)
@@ -98,34 +94,30 @@ main(int argc, char** argv){
 
 
   // найдем максимальный id элементов старой карты
-  // распихаем объекты и подписи в хэши
-  // еслиобновляемся из mp - подписи берем из старой карты,
-  // иначе - из новой.
+  // распихаем старые объекты в хэш
   map<int, fig::fig_object> objects;
-  multimap<int, fig::fig_object> labels;
-
-  std::cerr << "Reading old map...\n";  
   int maxid=0;
   for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
-    if ((i->depth < 50)||(i->depth>=400)) continue;
+    if (!zconverter.is_map_depth(*i)) continue;
     zn::zn_key key = zconverter.get_key(*i);
     if ((key.map != map_name) || (key.id == 0)) continue;
-    if (key.label && !fig_not_mp) labels.insert(pair<int, fig::fig_object>(key.id, *i));
-    else objects.insert(pair<int, fig::fig_object>(key.id, *i));
+    objects.insert(pair<int, fig::fig_object>(key.id, *i));
     if (key.id > maxid) maxid=key.id;
   }
-  if (fig_not_mp){
-    for (fig::fig_world::const_iterator i=FIG.begin(); i!=FIG.end(); i++){
-      if ((i->depth < 50)||(i->depth>=400)) continue;
-      zn::zn_key key = zconverter.get_key(*i);
-      if ((key.map != map_name) || (key.id == 0)) continue;
-      if (key.label) labels.insert(pair<int, fig::fig_object>(key.id, *i));
-    }
+
+  // распихаем новые подписи в хэш
+  multimap<int, fig::fig_object> labels;
+  for (fig::fig_world::const_iterator i=FIG.begin(); i!=FIG.end(); i++){
+    if (zconverter.is_map_depth(*i)) continue;
+    zn::zn_label_key key = zconverter.get_label_key(*i);
+    if ((key.map != map_name) || (key.id == 0)) continue;
+    labels.insert(pair<int, fig::fig_object>(key.id, *i));
   }
 
+
   //  Обнулим старую карту и будем ее заполнять постепенно из FIG
-  MAP.clear();
   // а в NC будем записывать объекты, которые мы не смогли преобразовать...
+  MAP.clear();
   fig::fig_world NC; 
 
   std::cerr << "Merging maps...\n";  
@@ -140,24 +132,21 @@ main(int argc, char** argv){
       }
     }
 
-    // объекты с глубинами 1-44 и 400-999 (сетка, привязка и т.п.)
-    if ((i->depth <45) || (i->depth >=400)) {
+    // некартографические объекты
+    if (!zconverter.is_map_depth(*i)) {
+      if (i->comment.size()>1){ 
+         if (i->comment[1]!="[skip]") continue;
+         zn::zn_label_key k = zconverter.get_label_key(*i);
+         if ((k.id!=0) && (k.map==map_name)) continue; // подпись нам не нужна
+      }
       MAP.push_back(*i); 
       continue;
     } 
-    // объекты с глубинами 45-49 (картинки, которые нам _вообще_ не нужны)
-    if ((i->depth >=45) && (i->depth <50)) continue;
 
-    // не-линии - копируем без изменений
-    if ((i->type !=2) && (i->type !=3) && (i->type !=4)){
-      MAP.push_back(*i); 
-      continue;
-    }
-
-    // остальные объекты
+    // картографические объекты
     zn::zn_key key = zconverter.get_key(*i);
 
-    if ((key.map == map_name) && (key.id !=0)){ // есть старый ключ от этой карты
+    if ((key.map == map_name) && (key.id !=0)){ // в объекте есть ключ от этой карты
       map<int, fig::fig_object>::iterator o = objects.find(key.id);
       if (o==objects.end()){
         cerr << "Конфликт: объект " << key.id << " был удален\n";
@@ -174,36 +163,25 @@ main(int argc, char** argv){
         NC.push_back(*i);
         continue;
       }
-      // ... проверить еще конфликты, когда два однотипных
+      // ... проверить бы еще конфликты, когда два однотипных
       // объекта были нарисованы в одном районе!
 
       key.time.set_current();
       key.sid    = 0;
       key.source = source;
 
-      zconverter.add_key(*i, key);  // добавим ключ
+      zconverter.add_key(*i, key);  // добавим обновленный ключ
       MAP.push_back(*i);            // запишем объект 
 
       // теперь еще подписи:
-/*      list<fig::fig_object> new_labels;
-      Point<int> shift;
-      if (i->isshifted(o->second, shift)){
-        // если старый и новый объекты различаются только смещением -
-        // перетащить в new_labels старые подписи, сдвинув их 
-        for (multimap<int, fig::fig_object>::const_iterator l = labels.find(key.id); 
-              (l != labels.end()) && (l->first == key.id); l++){
-          new_labels.push_back(l->second + shift);
-        }
-      } else { 
-        // иначе - сгенерить подписи заново
-        new_labels = zconverter.make_labels(*i);
-      }
-      MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());  // записать подписи*/
 
-      // перетащим старые подписи для этого объекта
+      // вытащим из хэша подписи для этого объекта
       for (multimap<int, fig::fig_object>::const_iterator l = labels.find(key.id); 
-          (l != labels.end()) && (l->first == key.id); l++)
+          (l != labels.end()) && (l->first == key.id); l++){
+        // здесь надо бы еще обработать ситуации, когда объект сдвинут,
+        // название объекта поменялось и т.п.
         MAP.push_back(l->second);
+      }
 
       continue; 
     } 
@@ -211,6 +189,7 @@ main(int argc, char** argv){
     maxid++;
     if (key.type == 0) key.type = zconverter.get_type(*i);
     if (key.type == 0) {
+      cerr <<  "Объект неизвестного вида\n";
       NC.push_back(*i);
       continue;
     }
@@ -222,7 +201,7 @@ main(int argc, char** argv){
     zconverter.add_key(*i, key);  // добавим ключ
     MAP.push_back(*i);            // запишем объект
     list<fig::fig_object> new_labels = zconverter.make_labels(*i); // изготовить новые подписи
-    MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());        // записать подписи
+    MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());   
   }
 
   std::cerr << MAP.size() << " objects converted\n";

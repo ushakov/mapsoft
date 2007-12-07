@@ -12,19 +12,13 @@ namespace zn{
 
 
 std::ostream & operator<< (std::ostream & s, const zn_key & t){
-  if ((t.id==0)&&(t.type==0)&&(t.map=="")) 
-    s << "-";
-  else if (t.label) 
-    s << "+" << t.id << "@" << t.map;
-  else  {
-    s << "0x" << std::setbase(16) << std::setw(6) << std::setfill('0') 
-      << t.type << std::setbase(10) << " " 
-      << t.time << " "
-      << t.id << "@" << t.map << " ";
-    if (t.source != ""){
-      if (t.sid!=0) s << t.sid << "@";
-      s << t.source;
-    }
+  s << "0x" << std::setbase(16) << std::setw(6) << std::setfill('0') 
+    << t.type << std::setbase(10) << " " 
+    << t.time << " "
+    << t.id << "@" << t.map << " ";
+  if (t.source != ""){
+    if (t.sid!=0) s << t.sid << "@";
+    s << t.source;
   }
   return s;
 }
@@ -38,14 +32,11 @@ std::istream & operator>> (std::istream & s, zn_key & t){
   std::string timestr;
   std::string classstr;
 
-  newkey.label=false;
+  if (str.empty()) {t = newkey; return s;}
 
   if (parse(str.c_str(),
-      *blank_p >> (
-        ch_p('-') | 
-        (ch_p('+') >> uint_p[assign_a(newkey.id)] >> '@' >> (+alnum_p)[assign_a(newkey.map)] 
-        )[assign_a(newkey.label, true)] |
-        (ch_p('0') >> 'x' >> hex_p[assign_a(newkey.type)] >> +blank_p >>
+      *blank_p >> 
+         ch_p('0') >> 'x' >> hex_p[assign_a(newkey.type)] >> +blank_p >>
          (+graph_p >> +blank_p >> +graph_p)[assign_a(timestr)] >> +blank_p >>
          uint_p[assign_a(newkey.id)] >> '@' >> (+(alnum_p|'_'))[assign_a(newkey.map)] >>
          !(+blank_p >> 
@@ -53,26 +44,54 @@ std::istream & operator>> (std::istream & s, zn_key & t){
              (uint_p[assign_a(newkey.sid)] >> '@' >> (+alnum_p)[assign_a(newkey.source)]) ||
              (+alnum_p)[assign_a(newkey.source)]
            )
-         )
-        )
-      ) >> *blank_p     
+         ) >> *blank_p     
      ).full){
-    if (timestr!="") newkey.time = boost::lexical_cast<Time>(timestr);
+    if (!timestr.empty()) newkey.time = boost::lexical_cast<Time>(timestr);
   } else {
-    if (!str.empty()) std::cerr << "zn_key: can't find valid key in " << str << "\n";
+    std::cerr << "zn_key: can't find valid key in " << str << "\n";
     newkey = zn_key();
   }
   t = newkey;
   return s;
 }
 
+std::ostream & operator<< (std::ostream & s, const zn_label_key & t){
+  s << "+" << t.id << "@" << t.map;
+  return s;
+}
+
+std::istream & operator>> (std::istream & s, zn_label_key & t){
+  using namespace boost::spirit;
+  std::string str;
+  std::getline(s, str);
+
+  if (str.empty()) {t = zn_label_key(); return s;}
+
+  if (parse(str.c_str(),
+      *blank_p >> ch_p('+') >> 
+      uint_p[assign_a(t.id)] >> '@' >> (+(alnum_p|'_'))[assign_a(t.map)] >> *blank_p
+     ).full){
+    return s;
+  } else {
+//    std::cerr << "zn_label_key: can't find valid key in " << str << "\n";
+    t = zn_label_key(); return s;
+  }
+}
+
 //============================================================
 
+// в этом диапазоне глубин должны лежать 
+// только картографические объекты!
+bool zn_conv::is_map_depth(const fig::fig_object & o) const{
+  return ((o.depth>=50) && (o.depth<400));
+}
+
 // Заполняет массив знаков 
-bool zn_conv::load_znaki(YAML::Node &root, std::map<int, zn> &znaki) {
+bool zn_conv::load_znaki(YAML::Node &root) {
    using namespace YAML;
    if (root.type != ARRAY) return false;
 
+   znaki.clear();
    NodeList::iterator it = root.value_array.begin();
    for (it;it!=root.value_array.end();it++) {
       Node child = *it;
@@ -81,17 +100,21 @@ bool zn_conv::load_znaki(YAML::Node &root, std::map<int, zn> &znaki) {
 
       zn z;
 
-      const char *v = child.hash_str_value("mp");
+      const char *v = child.hash_str_value("name");
+      if (v==NULL) return false;
+      z.name = v;
+
+      v = child.hash_str_value("mp");
       if (v==NULL) return false;
       z.mp = mp::make_object(v);
 
       v = child.hash_str_value("fig");
       if (v==NULL) return false;
       z.fig = fig::make_object(v);
-
-      v = child.hash_str_value("name");
-      if (v==NULL) return false;
-      z.name = v;
+      if (!is_map_depth(z.fig)){
+        std::cerr << "reading conf.file: depth of fig object is not in valid range in "<< z.name <<"\n";
+        return false;
+      }
 
       v = child.hash_str_value("desc");
       if (v!=NULL) z.desc = v;
@@ -102,9 +125,14 @@ bool zn_conv::load_znaki(YAML::Node &root, std::map<int, zn> &znaki) {
         z.istxt=true;
         z.txt = fig::make_object(v);
         if (z.txt.type!=4){ 
-          std::cerr << "not a text in txt object!\n";
+          std::cerr << "reading conf.file: not a text in txt object in "<< z.name <<"\n";
           return false;
         }
+        if (is_map_depth(z.txt)){
+          std::cerr << "reading conf.file: depth of txt object is not in valid range in "<< z.name <<"\n";
+          return false;
+        }
+
       }
 
       v = child.hash_str_value("pic");
@@ -135,7 +163,7 @@ zn_conv::zn_conv(const std::string & conf_file){
       cout << endl;
       exit(0);
    }
-   if (!load_znaki(root, znaki)) {
+   if (!load_znaki(root)) {
       cout << "Файл " << conf_file << " содержит неподходящую структуру данных" << endl;
       exit(0);
    }
@@ -147,10 +175,15 @@ zn_conv::zn_conv(const std::string & conf_file){
 
 
 // Извлечь ключ из комментария (2-я строчка) к fig-объекту
-// Тип объекта - из ключа
 zn_key zn_conv::get_key(const fig::fig_object & fig) const{
   if (fig.comment.size() < 2) return zn_key();
   return boost::lexical_cast<zn_key>(fig.comment[1]);
+}
+
+// Извлечь ключ подписи из комментария (2-я строчка) к fig-объекту
+zn_label_key zn_conv::get_label_key(const fig::fig_object & fig) const{
+  if (fig.comment.size() < 2) return zn_label_key();
+  return boost::lexical_cast<zn_label_key>(fig.comment[1]);
 }
 
 // Извлечь ключ из комментария (1-я строчка) к mp-объекту
@@ -165,6 +198,12 @@ zn_key zn_conv::get_key(const mp::mp_object & mp) const{
 
 // поместить ключ в комментарий к fig-объекту
 void zn_conv::add_key(fig::fig_object & fig, const zn_key & key) const{
+  if (fig.comment.size()<2) fig.comment.resize(2);
+  fig.comment[1] = boost::lexical_cast<std::string>(key);
+}
+
+// поместить ключ подписи в комментарий к fig-объекту
+void zn_conv::add_key(fig::fig_object & fig, const zn_label_key & key) const{
   if (fig.comment.size()<2) fig.comment.resize(2);
   fig.comment[1] = boost::lexical_cast<std::string>(key);
 }
@@ -262,7 +301,6 @@ std::list<mp::mp_object> zn_conv::fig2mp(const fig::fig_object & fig, convs::map
   zn_key key = get_key(fig); 
 
   if (key.type == 0) return ret;
-  if (key.label) return ret;
 
   mp::mp_object mp;
   if (znaki.find(key.type) != znaki.end()) mp = znaki.find(key.type)->second.mp;
@@ -311,7 +349,6 @@ void zn_conv::fig_make_comp(std::list<fig::fig_object> & objects){
       }
     }
   }
-cerr << "making compound with " << objects.size() << "objects\n";
   fig::fig_object o = *objects.begin();
   o.type=6;
   o.clear();
@@ -335,8 +372,9 @@ std::list<fig::fig_object> zn_conv::fig2user(const fig::fig_object & fig){
     ret.push_back(fig);
     return ret;
   }
+  // заготовка для объекта в нужном нам стиле.
   fig::fig_object fig1 = znaki[key.type].fig;
-//fig1.clear();
+  // копируем в нее точки, комментарии, текст
   fig1.insert(fig1.begin(), fig.begin(), fig.end());
   fig1.comment.insert(fig1.comment.begin(), fig.comment.begin(), fig.comment.end());
   fig1.text=fig.text;
@@ -346,9 +384,16 @@ std::list<fig::fig_object> zn_conv::fig2user(const fig::fig_object & fig){
   if ((znaki[key.type].pic=="") || (fig1.size()==0)) return ret;
 
   fig::fig_world PIC = fig::read(znaki[key.type].pic.c_str());
-  PIC+=fig1[0];
-
-  ret.insert(ret.end(), PIC.begin(), PIC.end());
+  for (fig::fig_world::iterator i = PIC.begin(); i!=PIC.end(); i++){
+    (*i) += fig1[0];
+    if (is_map_depth(*i)){
+      cerr << "warning: picture in " << znaki[key.type].pic 
+           << " has objects with wrong depth!\n";
+    }
+    i->comment.resize(2); 
+    i->comment[1] = "[skip]";
+    ret.push_back(*i);
+  }
   fig_make_comp(ret);
   return ret;
 }
@@ -425,7 +470,6 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
       }
     }
   }
-  key.label=true;
   add_key(txt, key);
   txt.text = fig.comment[0];
   txt.push_back(p);
@@ -473,7 +517,7 @@ fig::fig_world zn_conv::make_legend(int grid){
     ret.insert(ret.end(), l1.begin(), l1.end());
     ret.insert(ret.end(), l2.begin(), l2.end());
 
-    fig::fig_object text = fig::make_object("4 0 0 55 -1 18 8 0.0000 4");
+    fig::fig_object text = fig::make_object("4 0 0 40 -1 18 8 0.0000 4");
     text.text = i->second.name;
     text.push_back(Point<int>(grid*8, grid));
     text+=shift;

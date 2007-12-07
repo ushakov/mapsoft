@@ -110,7 +110,7 @@ rule_t r_points         = *( eps_p(&point_counter) >> r_push_xy );
 rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_back_a(o.f)] );
 
 	/*******************************************/
-	rule_t c0_color = ch_p('0')[assign_a(o.type,0)]
+	rule_t c0_color = ch_p('0')
 		>> +blank_p >> uint_p[assign_a(color_num)]
 		>> +blank_p >> '#' >> hex_p[insert_at_a(world.colors,color_num)]
 		>> eol_p;
@@ -168,8 +168,8 @@ rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_
 
 	if (!parse(first, last, header >> 
 	  *( eps_p[assign_a(o,o0)] >> comm[assign_a(o.comment, comment)] >> 
-	    ( c0_color | c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
-            c6_compound_start | c6_compound_end) [push_back_a(world,o)] )).full)
+	    ( c0_color | (c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
+            c6_compound_start | c6_compound_end) [push_back_a(world,o)]) )).full)
         cerr << "Can't parse fig file!\n";
 
         // преобразование символов из восьмиричного вида \??? 
@@ -189,11 +189,11 @@ rule_t r_fpoints        = *( eps_p(&point_f_counter) >> +space_p >> real_p[push_
         for (fig::fig_world::iterator i=world.begin(); i!=world.end(); i++){
           if (i->pen_color > 31){
             if (world.colors.find(i->pen_color)!=world.colors.end()) i->pen_color = 0x1000000+world.colors[i->pen_color];
-            else std::cerr << "unknown fig-color " << i->pen_color;
+            else std::cerr << "unknown fig-color " << i->pen_color << "\n";
           }
           if (i->fill_color > 31){
             if (world.colors.find(i->fill_color)!=world.colors.end()) i->fill_color = 0x1000000+world.colors[i->fill_color];
-            else std::cerr << "unknown fig-color " << i->fill_color;
+            else std::cerr << "unknown fig-color " << i->fill_color << "\n";
           }
         }
 

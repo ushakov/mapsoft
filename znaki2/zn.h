@@ -28,13 +28,25 @@ struct zn_key{
   int sid;            // уникальный номер в источнике
   std::string source; // идентификатор источника
  
-  bool label;
-
-  zn_key(): type(0), id(0), sid(0), label(false){}
+  zn_key(): type(0), id(0), sid(0) {}
 };
 
 std::ostream & operator<< (std::ostream & s, const zn_key & t);
 std::istream & operator>> (std::istream & s, zn_key & t);
+
+// ключ привязанного объекта
+struct zn_label_key{
+  int id;             // номер объекта, к которому привязываваемся
+  std::string map;    // идентификатор карты
+  zn_label_key(const int i=0, const std::string & s=""): id(i), map(s) {}
+  zn_label_key(const zn_key & k): id(k.id), map(k.map) {}
+  zn_label_key operator= (const zn_key & k){id=k.id; map=k.map;}
+  bool operator== (const zn_label_key & k){return (id==k.id)&&(map==k.map);}
+  bool operator== (const zn_key & k){return (id==k.id)&&(map==k.map);}
+};
+
+std::ostream & operator<< (std::ostream & s, const zn_label_key & t);
+std::istream & operator>> (std::istream & s, zn_label_key & t);
 
 
 
@@ -58,13 +70,19 @@ class zn_conv{
   public:
   // Конструктор - чтение конфигурационного файла
   zn_conv(const std::string & conf_file);
+  bool load_znaki(YAML::Node &root);
 
-  bool load_znaki(YAML::Node &root, std::map<int, zn> &znaki);
+  // в этом диапазоне глубин должны лежать
+  // только картографические объекты!
+  bool is_map_depth(const fig::fig_object & o) const;
 
     // Простые операции с ключом 
 
   // Извлечь ключ из комментария (2-я строчка) к fig-объекту
   zn_key get_key(const fig::fig_object & fig) const;
+
+  // Извлечь ключ подписи из комментария (2-я строчка) к fig-объекту
+  zn_label_key get_label_key(const fig::fig_object & fig) const;
 
   // Извлечь ключ из комментария (1-я строчка) к mp-объекту
   // Тип объекта в ключе заполняется из mp-типа, а не из ключа!
@@ -73,6 +91,9 @@ class zn_conv{
 
   // поместить ключ в комментарий к fig-объекту
   void add_key(fig::fig_object & fig, const zn_key & key) const;
+
+  // поместить ключ подписи в комментарий к fig-объекту
+  void add_key(fig::fig_object & fig, const zn_label_key & key) const;
 
   // поместить ключ в комментарий к mp-объекту
   void add_key(mp::mp_object & mp, const zn_key & key) const;
