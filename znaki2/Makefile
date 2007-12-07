@@ -10,7 +10,7 @@ key_test: zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders
 
 
 
-legends: mmb.png hr.png mmb.conv.png hr.conv.png
+l: mmb.png hr.png mmb.conv.png hr.conv.png
 
 FIGCNV = ../vector/fig_conv_podm
 FIGCYR = ~/bin/figcyr
