@@ -231,6 +231,7 @@ namespace fig {
           return;
         }
         void any2xspl(const double x){
+          if (size()<3) return;
           if (is_polyline()){
             if      (sub_type==1) sub_type = 4;
             else if (sub_type==3) sub_type = 5;

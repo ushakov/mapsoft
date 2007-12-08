@@ -82,9 +82,53 @@ std::istream & operator>> (std::istream & s, zn_label_key & t){
 
 // в этом диапазоне глубин должны лежать 
 // только картографические объекты!
-bool zn_conv::is_map_depth(const fig::fig_object & o) const{
+bool is_map_depth(const fig::fig_object & o){
   return ((o.depth>=50) && (o.depth<400));
 }
+
+// Извлечь ключ из комментария (2-я строчка) к fig-объекту
+zn_key get_key(const fig::fig_object & fig){
+  if (fig.comment.size() < 2) return zn_key();
+  return boost::lexical_cast<zn_key>(fig.comment[1]);
+}
+
+// Извлечь ключ подписи из комментария (2-я строчка) к fig-объекту
+zn_label_key get_label_key(const fig::fig_object & fig){
+  if (fig.comment.size() < 2) return zn_label_key();
+  return boost::lexical_cast<zn_label_key>(fig.comment[1]);
+}
+
+// Извлечь ключ из комментария (1-я строчка) к mp-объекту
+// Тип объекта берется из mp, а не из ключа!
+// (поскольку из ключа он _никогда_ не должен браться)
+zn_key get_key(const mp::mp_object & mp){
+  zn_key ret;
+  if (mp.Comment.size() > 0) ret = boost::lexical_cast<zn_key>(mp.Comment[0]);
+  ret.type = mp.Type + ((mp.Class == "POLYLINE")?line_mask:0) + ((mp.Class == "POLYGON")?area_mask:0);
+
+  return ret;
+}
+
+// поместить ключ в комментарий к fig-объекту
+void add_key(fig::fig_object & fig, const zn_key & key){
+  if (fig.comment.size()<2) fig.comment.resize(2);
+  fig.comment[1] = boost::lexical_cast<std::string>(key);
+}
+
+// поместить ключ подписи в комментарий к fig-объекту
+void add_key(fig::fig_object & fig, const zn_label_key & key){
+  if (fig.comment.size()<2) fig.comment.resize(2);
+  fig.comment[1] = boost::lexical_cast<std::string>(key);
+}
+
+// поместить ключ в комментарий к mp-объекту
+void add_key(mp::mp_object & mp, const zn_key & key){
+  if (mp.Comment.size()<1) mp.Comment.resize(1);
+  mp.Comment[0] = boost::lexical_cast<std::string>(key);
+}
+
+
+//============================================================
 
 // Заполняет массив знаков 
 bool zn_conv::load_znaki(YAML::Node &root) {
@@ -171,47 +215,6 @@ zn_conv::zn_conv(const std::string & conf_file){
   default_fig.thickness = 4;
   default_fig.depth = 2;
 
-}
-
-
-// Извлечь ключ из комментария (2-я строчка) к fig-объекту
-zn_key zn_conv::get_key(const fig::fig_object & fig) const{
-  if (fig.comment.size() < 2) return zn_key();
-  return boost::lexical_cast<zn_key>(fig.comment[1]);
-}
-
-// Извлечь ключ подписи из комментария (2-я строчка) к fig-объекту
-zn_label_key zn_conv::get_label_key(const fig::fig_object & fig) const{
-  if (fig.comment.size() < 2) return zn_label_key();
-  return boost::lexical_cast<zn_label_key>(fig.comment[1]);
-}
-
-// Извлечь ключ из комментария (1-я строчка) к mp-объекту
-// Тип объекта берется из mp, а не из ключа!
-// (поскольку из ключа он _никогда_ не должен браться)
-zn_key zn_conv::get_key(const mp::mp_object & mp) const{
-  zn_key ret;
-  if (mp.Comment.size() > 0) ret = boost::lexical_cast<zn_key>(mp.Comment[0]);
-  ret.type = get_type(mp);
-  return ret;
-}
-
-// поместить ключ в комментарий к fig-объекту
-void zn_conv::add_key(fig::fig_object & fig, const zn_key & key) const{
-  if (fig.comment.size()<2) fig.comment.resize(2);
-  fig.comment[1] = boost::lexical_cast<std::string>(key);
-}
-
-// поместить ключ подписи в комментарий к fig-объекту
-void zn_conv::add_key(fig::fig_object & fig, const zn_label_key & key) const{
-  if (fig.comment.size()<2) fig.comment.resize(2);
-  fig.comment[1] = boost::lexical_cast<std::string>(key);
-}
-
-// поместить ключ в комментарий к mp-объекту
-void zn_conv::add_key(mp::mp_object & mp, const zn_key & key) const{
-  if (mp.Comment.size()<1) mp.Comment.resize(1);
-  mp.Comment[0] = boost::lexical_cast<std::string>(key);
 }
 
 
@@ -510,24 +513,20 @@ fig::fig_world zn_conv::make_legend(int grid){
     key.id = count+1;
     key.map = "get_legend_map";
 
-    ostringstream mp_key;
     if (i->first >= area_mask){
       o.push_back(Point<int>(0,       0));
       o.push_back(Point<int>(grid*5,  0));
       o.push_back(Point<int>(grid*5,  grid));
       o.push_back(Point<int>(0,       grid));
       o.push_back(Point<int>(0,       0)); 
-      mp_key << "POLYGON 0x" << std::setbase(16) << i->first - area_mask;
     }
     else if (i->first >= line_mask){
       o.push_back(Point<int>(0,       grid));
       o.push_back(Point<int>(grid*4,  grid));
       o.push_back(Point<int>(grid*5,  0));
-      mp_key << "POLYLINE 0x" << std::setbase(16) << i->first - line_mask;
     }
     else{
       o.push_back(Point<int>(grid*2,  grid));
-      mp_key << "POI 0x" << std::setbase(16) << i->first;
     }
     o+=shift;
     o.comment.push_back("text");
@@ -544,6 +543,8 @@ fig::fig_world zn_conv::make_legend(int grid){
     text+=shift;
     ret.push_back(text);
     
+    ostringstream mp_key;
+    mp_key << i->second.mp.Class << " 0x" << std::setbase(16) << i->second.mp.Type;
     text.text = mp_key.str();
     text.clear();
     text.push_back(Point<int>(-1*grid, grid));
@@ -562,6 +563,14 @@ fig::fig_world zn_conv::make_legend(int grid){
   return ret;
 }
 
+// текстовый список всех знаков
+std::string zn_conv::make_text(){
+  ostringstream out;
+  for (std::map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
+    out << std::setbase(16) << i->first << "\t" << i->second.name << " // " << i->second.desc << "\n";
+  }
+  return out.str();
+}
 
 } // namespace
 

@@ -49,6 +49,32 @@ std::ostream & operator<< (std::ostream & s, const zn_label_key & t);
 std::istream & operator>> (std::istream & s, zn_label_key & t);
 
 
+// в этом диапазоне глубин должны лежать
+// только картографические объекты!
+bool is_map_depth(const fig::fig_object & o);
+
+  // Простые операции с ключом 
+
+// Извлечь ключ из комментария (2-я строчка) к fig-объекту
+zn_key get_key(const fig::fig_object & fig);
+
+// Извлечь ключ подписи из комментария (2-я строчка) к fig-объекту
+zn_label_key get_label_key(const fig::fig_object & fig);
+
+// Извлечь ключ из комментария (1-я строчка) к mp-объекту
+// Тип объекта в ключе заполняется из mp-типа, а не из ключа!
+// (поскольку из ключа mp-объекта он _никогда_ не должен браться)
+zn_key get_key(const mp::mp_object & mp);
+
+// поместить ключ в комментарий к fig-объекту
+void add_key(fig::fig_object & fig, const zn_key & key);
+
+// поместить ключ подписи в комментарий к fig-объекту
+void add_key(fig::fig_object & fig, const zn_label_key & key);
+
+// поместить ключ в комментарий к mp-объекту
+void add_key(mp::mp_object & mp, const zn_key & key);
+
 
 // информация об условном обозначении, прочитанная из конф.файла
 struct zn{
@@ -71,33 +97,6 @@ class zn_conv{
   // Конструктор - чтение конфигурационного файла
   zn_conv(const std::string & conf_file);
   bool load_znaki(YAML::Node &root);
-
-  // в этом диапазоне глубин должны лежать
-  // только картографические объекты!
-  bool is_map_depth(const fig::fig_object & o) const;
-
-    // Простые операции с ключом 
-
-  // Извлечь ключ из комментария (2-я строчка) к fig-объекту
-  zn_key get_key(const fig::fig_object & fig) const;
-
-  // Извлечь ключ подписи из комментария (2-я строчка) к fig-объекту
-  zn_label_key get_label_key(const fig::fig_object & fig) const;
-
-  // Извлечь ключ из комментария (1-я строчка) к mp-объекту
-  // Тип объекта в ключе заполняется из mp-типа, а не из ключа!
-  // (поскольку из ключа mp-объекта он _никогда_ не должен браться)
-  zn_key get_key(const mp::mp_object & mp) const;
-
-  // поместить ключ в комментарий к fig-объекту
-  void add_key(fig::fig_object & fig, const zn_key & key) const;
-
-  // поместить ключ подписи в комментарий к fig-объекту
-  void add_key(fig::fig_object & fig, const zn_label_key & key) const;
-
-  // поместить ключ в комментарий к mp-объекту
-  void add_key(mp::mp_object & mp, const zn_key & key) const;
-
 
 
     // Операции с mp- и fig-объектами, для которых 
@@ -135,6 +134,9 @@ class zn_conv{
 
   // список всех знаков в формате fig
   fig::fig_world make_legend(int grid = 100);
+
+  // текстовый список всех знаков
+  std::string make_text();
 };
 
 

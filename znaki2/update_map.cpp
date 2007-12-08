@@ -79,7 +79,7 @@ main(int argc, char** argv){
     mp::mp_world MP = mp::read(infile.c_str());
     // копируем в FIG из MAP все некартографические объекты
     for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++)
-      if (!zconverter.is_map_depth(*i)) FIG.push_back(*i);
+      if (!zn::is_map_depth(*i)) FIG.push_back(*i);
 
     // извлекаем привязку из старой карты:
     g_map ref = fig::get_ref(MAP);
@@ -99,8 +99,8 @@ main(int argc, char** argv){
   map<int, fig::fig_object> objects;
   int maxid=0;
   for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
-    if (!zconverter.is_map_depth(*i)) continue;
-    zn::zn_key key = zconverter.get_key(*i);
+    if (!zn::is_map_depth(*i)) continue;
+    zn::zn_key key = zn::get_key(*i);
     if ((key.map != map_name) || (key.id == 0)) continue;
     objects.insert(pair<int, fig::fig_object>(key.id, *i));
     if (key.id > maxid) maxid=key.id;
@@ -109,8 +109,8 @@ main(int argc, char** argv){
   // распихаем новые подписи в хэш
   multimap<int, fig::fig_object> labels;
   for (fig::fig_world::const_iterator i=FIG.begin(); i!=FIG.end(); i++){
-    if (zconverter.is_map_depth(*i)) continue;
-    zn::zn_label_key key = zconverter.get_label_key(*i);
+    if (zn::is_map_depth(*i)) continue;
+    zn::zn_label_key key = zn::get_label_key(*i);
     if ((key.map != map_name) || (key.id == 0)) continue;
     labels.insert(pair<int, fig::fig_object>(key.id, *i));
   }
@@ -134,10 +134,10 @@ main(int argc, char** argv){
     }
 
     // некартографические объекты
-    if (!zconverter.is_map_depth(*i)) {
+    if (!zn::is_map_depth(*i)) {
       if (i->comment.size()>1){ 
          if (i->comment[1]!="[skip]") continue;
-         zn::zn_label_key k = zconverter.get_label_key(*i);
+         zn::zn_label_key k = zn::get_label_key(*i);
          if ((k.id!=0) && (k.map==map_name)) continue; // подпись нам не нужна
       }
       MAP.push_back(*i); 
@@ -145,7 +145,7 @@ main(int argc, char** argv){
     } 
 
     // картографические объекты
-    zn::zn_key key = zconverter.get_key(*i);
+    zn::zn_key key = zn::get_key(*i);
 
     if ((key.map == map_name) && (key.id !=0)){ // в объекте есть ключ от этой карты
       map<int, fig::fig_object>::iterator o = objects.find(key.id);
@@ -156,7 +156,7 @@ main(int argc, char** argv){
         NC.push_back(*i);
         continue;
       }
-      zn::zn_key oldkey = zconverter.get_key(o->second);
+      zn::zn_key oldkey = zn::get_key(o->second);
       if (oldkey.time > key.time){
         cerr << "Конфликт: объект " << key.id << " был изменен\n";
         cerr << "не добавляю его!\n";
@@ -171,7 +171,7 @@ main(int argc, char** argv){
       key.sid    = 0;
       key.source = source;
 
-      zconverter.add_key(*i, key);  // добавим обновленный ключ
+      zn::add_key(*i, key);  // добавим обновленный ключ
       MAP.push_back(*i);            // запишем объект 
 
       // теперь еще подписи:
@@ -199,7 +199,7 @@ main(int argc, char** argv){
     key.map    = map_name;
     key.source = source;
     key.sid    = 0;
-    zconverter.add_key(*i, key);  // добавим ключ
+    zn::add_key(*i, key);  // добавим ключ
     MAP.push_back(*i);            // запишем объект
     list<fig::fig_object> new_labels = zconverter.make_labels(*i); // изготовить новые подписи
     MAP.insert(MAP.end(), new_labels.begin(), new_labels.end());   
