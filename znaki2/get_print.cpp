@@ -5,6 +5,8 @@
 #include "zn.h"
 #include "line_dist.h"
 
+#include "gs_bbx.h"
+
 using namespace std;
 using namespace fig;
 
@@ -485,6 +487,8 @@ main(int argc, char **argv){
     list<fig_object> l1 = zconverter.make_pic(*i);
     NW.insert(NW.end(), l1.begin(), l1.end());
   }
+
+
 //  text_bbxs(W);
   ofstream out(outfile.c_str());
   write(out, NW);

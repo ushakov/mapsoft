@@ -169,7 +169,7 @@ main(int argc, char** argv){
       // ... проверить бы еще конфликты, когда два однотипных
       // объекта были нарисованы в одном районе!
 
-      key.time.set_current();
+      if ( *i != o->second) key.time.set_current();
       key.sid    = 0;
       key.source = source;
 
