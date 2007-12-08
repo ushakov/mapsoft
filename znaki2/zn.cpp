@@ -298,6 +298,10 @@ fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv) c
     ret.close();
   }
 
+  // стрелки
+  if      (mp.DirIndicator==1){ret.forward_arrow=1;}
+  else if (mp.DirIndicator==2){ret.backward_arrow=1;}
+
   return ret;
 }
 
@@ -324,8 +328,14 @@ std::list<mp::mp_object> zn_conv::fig2mp(const fig::fig_object & fig, convs::map
   for (int i=0; i<pts.size(); i++) mp.push_back(pts[i]);
 
   // если у нас замкнутая линия - добавим в mp еще одну точку:
-  if ((mp.Class == "POLYLINE") && (fig.is_closed()) && (fig.size()>0))
+  if ((mp.Class == "POLYLINE") && (fig.is_closed()) && (fig.size()>0) && (fig[0]!=fig[fig.size()-1]))
     mp.push_back(mp[0]);
+
+  // если есть стрелка вперед -- установить DirIndicator=1
+  // если есть стрелка назад -- установить  DirIndicator=2
+  // если 0 или 2 стрелки - DirIndicator=0
+  if ((fig.forward_arrow==1)&&(fig.backward_arrow==0)) mp.DirIndicator=1;
+  if ((fig.forward_arrow==0)&&(fig.backward_arrow==1)) mp.DirIndicator=2;
 
   ret.push_back(mp);
   return ret;
@@ -333,7 +343,7 @@ std::list<mp::mp_object> zn_conv::fig2mp(const fig::fig_object & fig, convs::map
 
 // заключить fig-объекты в составной объект. Комментарий
 // составного объекта копируется из первого объекта (!)
-void zn_conv::fig_make_comp(std::list<fig::fig_object> & objects){
+void zn_conv::fig_make_comp(std::list<fig::fig_object> & objects) const{
   if ((objects.size()<1) || (objects.begin()->size()<1)) return;
 
   int minx=(*objects.begin())[0].x;
@@ -372,44 +382,52 @@ void zn_conv::fig_make_comp(std::list<fig::fig_object> & objects){
   objects.insert(objects.end(), o);
 }
 
-// Подготовить объект для отдачи пользователю:
-// - поменять параметры в соответствии с ключом
-// - создать картинку, если надо
+// Поменять параметры в соответствии с конф.файлм.
 // Объект должен иметь полный ключ!
-std::list<fig::fig_object> zn_conv::fig2user(const fig::fig_object & fig){
+void zn_conv::fig_update(fig::fig_object & fig) const{
+  zn_key key = get_key(fig);
+  map<int, zn>::const_iterator z = znaki.find(key.type);
+  if (z==znaki.end()) {
+    std::cerr << "can't find type " << key.type << " in conf.file\n";
+    return;
+  }
+  // копируем разные параметры:
+  fig.line_style = z->second.fig.line_style;
+  fig.thickness  = z->second.fig.thickness;
+  fig.pen_color  = z->second.fig.pen_color;
+  fig.fill_color = z->second.fig.fill_color;
+  fig.depth      = z->second.fig.depth;
+  fig.pen_style  = z->second.fig.pen_style;
+  fig.area_fill  = z->second.fig.area_fill;
+  fig.style_val  = z->second.fig.style_val;
+  fig.cap_style  = z->second.fig.cap_style;
+  fig.join_style = z->second.fig.join_style;
+  fig.font       = z->second.fig.font;
+  fig.font_size  = z->second.fig.font_size;
+  fig.font_flags = z->second.fig.font_flags;
+}
+
+// Создать картинку к объекту. Объект должен иметь полный ключ!
+std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig) const{
+
   std::list<fig::fig_object> ret;
+  if (fig.size()==0) return ret;
+  ret.push_back(fig);
 
   zn_key key = get_key(fig);
-  if (znaki.find(key.type)==znaki.end()) {
+  map<int, zn>::const_iterator z = znaki.find(key.type);
+  if (z==znaki.end()) {
     std::cerr << "can't find type " << key.type << " in conf.file\n";
-    ret.push_back(fig);
     return ret;
   }
-  // заготовка для объекта в нужном нам стиле.
-  fig::fig_object o(fig);
-  // из заготовки копируем разные параметры:
-  o.line_style = znaki[key.type].fig.line_style;
-  o.thickness  = znaki[key.type].fig.thickness;
-  o.pen_color  = znaki[key.type].fig.pen_color;
-  o.fill_color = znaki[key.type].fig.fill_color;
-  o.depth      = znaki[key.type].fig.depth;
-  o.pen_style  = znaki[key.type].fig.pen_style;
-  o.area_fill  = znaki[key.type].fig.area_fill;
-  o.style_val  = znaki[key.type].fig.style_val;
-  o.cap_style  = znaki[key.type].fig.cap_style;
-  o.join_style = znaki[key.type].fig.join_style;
-  o.font       = znaki[key.type].fig.font;
-  o.font_size  = znaki[key.type].fig.font_size;
-  o.font_flags = znaki[key.type].fig.font_flags;
-  ret.push_back(o);
 
-  if ((znaki[key.type].pic=="") || (o.size()==0)) return ret;
+  if (z->second.pic=="") return ret; // нет картинки
 
-  fig::fig_world PIC = fig::read(znaki[key.type].pic.c_str());
+  fig::fig_world PIC = fig::read(z->second.pic.c_str());
   for (fig::fig_world::iterator i = PIC.begin(); i!=PIC.end(); i++){
-    (*i) += o[0];
+    (*i) += fig[0];
     if (is_map_depth(*i)){
-      cerr << "warning: picture in " << znaki[key.type].pic 
+      cerr << "warning: picture in " << z->second.pic 
            << " has objects with wrong depth!\n";
     }
     i->comment.resize(2); 
@@ -421,23 +439,27 @@ std::list<fig::fig_object> zn_conv::fig2user(const fig::fig_object & fig){
 }
 
 // Создать подписи к объекту. Объект должен иметь полный ключ!
-std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
-
+std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig) const {
 
   std::list<fig::fig_object> ret;
-  zn_key key = get_key(fig);
   if (fig.size() < 1) return ret;                    // странный объект
+
+  zn_key key = get_key(fig);
   if ((key.type == 0)||(key.id==0))  return ret;     // неполный ключ
-  if (znaki.find(key.type)==znaki.end()) return ret; // про такой тип объектов неизвестно
-  if (!znaki[key.type].istxt) return ret;            // подпись не нужна
+
+  map<int, zn>::const_iterator z = znaki.find(key.type);
+  if (z==znaki.end()) {
+    std::cerr << "can't find type " << key.type << " in conf.file\n";
+    return ret;
+  }
+
+  if (!z->second.istxt) return ret;            // подпись не нужна
   if ((fig.comment.size()==0)||
       (fig.comment[0].size()==0)) return ret;     // нечего писать!
   // заготовка для подписи
-  fig::fig_object txt = znaki[key.type].txt;
+  fig::fig_object txt = z->second.txt;
 
   int txt_dist = 7 * (fig.thickness+2); // fig units
-
-
 
   // определим координаты и наклон подписи
   Point<int> p = fig[0];
@@ -446,16 +468,16 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
   else if (txt.sub_type == 2 ) p += Point<int>(-1,-1)*txt_dist;
 
   if (fig.size()>=2){
-    if ((key.type >= line_mask) && (key.type < area_mask)){ // линия
-      // текст центруется, ставится в середину линии
+
+    if ((key.type >= line_mask) && (key.type < area_mask) && (txt.sub_type == 1)){ // линия с центрированным текстом
+      // ставится в середину линии
       p = (fig[fig.size()/2-1] + fig[fig.size()/2]) / 2;
       Point<double> v = pnorm(fig[fig.size()/2-1] - fig[fig.size()/2]);
       if (v.x<0) v=-1*v;
       txt.angle = atan2(-v.y, v.x);
-      txt.sub_type = 1; // centered text
       p-= Point<int>(int(-v.y*txt_dist), int(v.x*txt_dist));
     }
-    else { // площадной объект
+    else { // другие случаи 
       if (txt.sub_type == 0 ) { // left just.text
         // ищем точку с максимальным x-y
         p = fig[0];
@@ -500,7 +522,7 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
 }
 
 // список всех знаков в формате fig
-fig::fig_world zn_conv::make_legend(int grid, int dg){
+fig::fig_world zn_conv::make_legend(int grid, int dg) const{
   int count=0;
   fig::fig_world ret;
 
@@ -530,7 +552,8 @@ fig::fig_world zn_conv::make_legend(int grid, int dg){
     o.comment.push_back("text");
     if (o.type==4) o.text="10";
     add_key(o, key);
-    std::list<fig::fig_object> l1 = zn_conv::fig2user(o);
+    
+    std::list<fig::fig_object> l1 = zn_conv::make_pic(o);
     std::list<fig::fig_object> l2 = zn_conv::make_labels(o);
     ret.insert(ret.end(), l1.begin(), l1.end());
     ret.insert(ret.end(), l2.begin(), l2.end());
@@ -562,7 +585,7 @@ fig::fig_world zn_conv::make_legend(int grid, int dg){
 }
 
 // текстовый список всех знаков
-std::string zn_conv::make_text(){
+std::string zn_conv::make_text() const{
   ostringstream out;
   for (std::map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
     out << std::setbase(16) << i->first << "\t" << i->second.name << " // " << i->second.desc << "\n";

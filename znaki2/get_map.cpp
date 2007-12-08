@@ -44,10 +44,11 @@ main(int argc, char** argv){
   
   if (testext(out_file, ".fig")){ // пишем fig
     fig::fig_world F;
-    for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
+    for (fig::fig_world::iterator i=MAP.begin(); i!=MAP.end(); i++){
       if ((i->depth >=50) && (i->depth <400)){
-        list<fig::fig_object> o = zconverter.fig2user(*i);
-        F.insert(F.begin(), o.begin(), o.end());
+        zconverter.fig_update(*i);
+        list<fig::fig_object> l1 = zconverter.make_pic(*i);
+        F.insert(F.begin(), l1.begin(), l1.end());
       }
       else F.push_back(*i);
     }

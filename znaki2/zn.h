@@ -121,22 +121,23 @@ class zn_conv{
 
   // заключить fig-объекты в составной объект. Комментарий
   // составного объекта копируется из первого объекта (!)
-  void fig_make_comp(std::list<fig::fig_object> & objects);
+  void fig_make_comp(std::list<fig::fig_object> & objects) const;
 
-  // Подготовить объект для отдачи пользователю:
-  // - поменять параметры в соответствии с ключом
-  // - создать картинку, если надо
+  // Поменять параметры в соответствии с конф.файлм.
   // Объект должен иметь полный ключ!
-  std::list<fig::fig_object> fig2user(const fig::fig_object & fig);
+  void fig_update(fig::fig_object & fig) const;
+
+  // Создать картинку к объекту. Объект должен иметь полный ключ!
+  std::list<fig::fig_object> make_pic(const fig::fig_object & fig) const;
 
   // Создать подписи к объекту. Объект должен иметь полный ключ!
-  std::list<fig::fig_object> make_labels(const fig::fig_object & fig);
+  std::list<fig::fig_object> make_labels(const fig::fig_object & fig) const;
 
   // список всех знаков в формате fig
-  fig::fig_world make_legend(int grid = 100, int dg=30);
+  fig::fig_world make_legend(int grid = 100, int dg=30) const;
 
   // текстовый список всех знаков
-  std::string make_text();
+  std::string make_text() const;
 };
 
 
