@@ -107,28 +107,6 @@ bool test_pt (const Point<double> & pt, const Line<double> & poly){
 }
 
 void crop_lines(std::list<Line<double> > & lines, const Line<double> & cutter){
-
-/*  for (std::list<Line<double> >::iterator l = lines.begin(); l!=lines.end(); l++){
-    for (int i = 0; i<l->size()-1; i++){
-      for (int j = 0; j<cutter.size(); j++){
-        Point<double> pt;
-        try { pt = find_cross((*l)[i], (*l)[i+1], cutter[j], cutter[(j+1)%cutter.size()]); }
-        catch (int n) {continue;}
-        // разбиваем линию на две, уже обработанный кусок помещаем перед l
-        Line<double> l1;
-        for (int k=0; k<=i; k++) l1.push_back((*l)[k]);
-        l1.push_back(pt);
-        lines.insert(l, l1);
-        // из *l стираем все точки до i-1-й 
-        l->erase(l->begin(), l->begin()+i);
-        *(l->begin()) = pt;
-std::cerr << i << " " << j << " " << pt << " " << l1.size() << " " << l->size() << "\n";
-        // возвращаемся в начало обоих циклов
-        i=0; break; 
-      }
-    }
-  }*/
-
   for (int j = 0; j<cutter.size(); j++){
     for (std::list<Line<double> >::iterator l = lines.begin(); l!=lines.end(); l++){
 

@@ -315,6 +315,10 @@ namespace fig {
     // заключить fig-объекты в составной объект.
     void fig_make_comp(std::list<fig::fig_object> & objects);
 
+    // повернуть на угол a вокруг точки p0
+    void fig_rotate(std::list<fig_object> & objs, const double a, const Point<int> & p0 = Point<int>(0,0));
+
+
     // Маска -- строчка информации об объекте в том виде, в каком она 
     // встречается в fig-файле (но информация о стрелках - на той же строке, 
     // а размера и координат текста и координат эллипсов - нет)

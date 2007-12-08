@@ -116,10 +116,24 @@ void generalize (std::list<Line<double> > & lines, double e);
 // обрезать все линии, вылезающие за многоугольник cutter 
 void crop_lines(std::list<Line<double> > & lines, const Line<double> & cutter);
 
+// повернуть линии на угол a вокруг точки p0.
+template<typename T>
+void lrotate(std::list<Line<double> > & lines, const double a, const Point<T> & p0 = Point<T>(0,0)){
+  double c = cos(a);
+  double s = sin(a);
+  for (typename std::list<Line<T> >::iterator l = lines.begin(); l!=lines.end(); l++){
+    for (typename Line<T>::iterator p = l->begin(); p!=l->end(); p++){
+      double x = p->x-p0.x, y = p->y-p0.y;
+      p->x = x*c - y*s + p0.x;
+      p->y = x*s + y*c + p0.y;
+    }
+  }
+}
+
 template <typename T>
-std::ostream & operator<< (std::ostream & s, const Line<T> & p){
+std::ostream & operator<< (std::ostream & s, const Line<T> & l){
   s << "Line(";
-  for(typename Line<T>::const_iterator i=p.begin(); i!=p.end(); i++) 
+  for(typename Line<T>::const_iterator i=l.begin(); i!=l.end(); i++) 
     s << "(" << i->x << "," << i->y << ")";
   s << ")\n";
   return s;

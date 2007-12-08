@@ -115,19 +115,20 @@ main(int argc, char **argv){
          (k.type == 0x200053)    // остров
        ) i->any2xspl(1);
 
-
-    if (k.type == 0x1000){ // отметка уреза воды
+    // отметка уреза воды
+    if (k.type == 0x1000){ 
       *i = make_object(*i, "1 3 0 1 22046463 7 57 -1 20 2.000 1 0.000 * * 23 23 * * * *");
       i->center_x = (*i)[0].x;
       i->center_y = (*i)[0].y;
       NW.push_back(*i); continue;
     }
-    if (k.type == 0x2800){ // подпись урочища
+    // подпись урочища
+    if (k.type == 0x2800){
       i->pen_color=0;  
       NW.push_back(*i); continue;
     }
-
-    if (k.type == 0x5905){ // платформа
+    // платформа
+    if (k.type == 0x5905){
       Point<double> t, p((*i)[0]);
       nearest_line(W, 0x100027, t, p);
 
@@ -141,32 +142,46 @@ main(int argc, char **argv){
       o.push_back(p-t+n);
       NW.push_back(o); continue;
     }
-
-/*
-    // порог
-    if (k.type == 0x650E){
-      
+    // все перевалы разом!
+    if ((k.type == 0x6406)||
+        (k.type == 0x6621)||
+        (k.type == 0x6622)||
+        (k.type == 0x6623)||
+        (k.type == 0x6624)||
+        (k.type == 0x6625)||
+        (k.type == 0x6626)){
       Point<double> t, p((*i)[0]);
+      nearest_line(W, 0x10000C, t, p);
+      list<fig_object> l1 = zconverter.make_pic(*i);
+      fig::fig_rotate(l1, atan2(t.y, t.x), p);
+      NW.insert(NW.end(), l1.begin(), l1.end());
+      continue;
+    }
+    // порог и водопад
+    if ((k.type == 0x650E) || (k.type == 0x6508)){
+      
+      Point<double> t1, p1((*i)[0]);
+      Point<double> t2, p2((*i)[0]);
+      Point<double> t3, p3((*i)[0]);
+      Point<double> t4, p4((*i)[0]);
 
       double d1 = nearest_line(W, 0x100015, t1, p1);
       double d2 = nearest_line(W, 0x100018, t2, p2);
       double d3 = nearest_line(W, 0x10001F, t3, p3);
       double d4 = nearest_line(W, 0x100026, t4, p4);
+      if (d2<d1) {t1=t2; p1=p2;}
+      if (d4<d3) {t3=t4; p3=p4;}
+      if (d3<d1) {t1=t3; p1=p3;}
 
-      if ( W.nearest_pt(v2, p2, "2 * 0 * 22046463 * 86 * * * * * * * * *") <
-           W.nearest_pt(v1, p1, "3 * 0 * 22046463 * 86 * * * * * * *")){
-        v1=v2; p1=p2;
-      }
-      v2=Point<double>(-v1.y,v1.x);
-      fig_object o = make_object(*i, "2 1 0 2 1 0 * * 0 * 0 1 0 0 0 *");
-      o.clear();
+      Point<double> n(-t1.y,t1.x);
+      fig_object o = make_object("2 1 0 2 1 0 57 -1 0 0 0 1 0 0 0 *");
       double w = 30; // длина штриха
-      o.push_back(Point<int>(int(p1.x + v2.x*w),int(p1.y + v2.y*w)));
-      o.push_back(Point<int>(int(p1.x - v2.x*w),int(p1.y - v2.y*w)));
-      *i=o;
+      if (k.type == 0x6508) o.thickness=3;
+      o.push_back(p1+n*w);
+      o.push_back(p1-n*w);
+      NW.push_back(o);
       continue;
     }
-*/
 
     
     if ((k.type == 0x100001)|| // автомагистраль

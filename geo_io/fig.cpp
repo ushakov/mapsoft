@@ -682,5 +682,27 @@ void fig_make_comp(std::list<fig::fig_object> & objects){
   objects.insert(objects.end(), o);
 }
 
+// повернуть на угол a вокруг точки p0
+void fig_rotate(std::list<fig_object> & objs, const double a, const Point<int> & p0){
+  double c = cos(a);
+  double s = sin(a);
+  for (std::list<fig_object>::iterator l = objs.begin(); l!=objs.end(); l++){
+    for (fig_object::iterator p = l->begin(); p!=l->end(); p++){
+      double x = p->x-p0.x, y = p->y-p0.y;
+      p->x = x*c - y*s + p0.x;
+      p->y = x*s + y*c + p0.y;
+    }
+    if ((l->type == 4)||(l->type==1)) {
+      l->angle += a;
+      while (l->angle>M_PI) l->angle-=2*M_PI;
+    }
+    if (l->type == 1) {
+      double x = l->center_x-p0.x, y = l->center_y-p0.y;
+      l->center_x = x*c - y*s + p0.x;
+      l->center_y = x*s + y*c + p0.y;
+    }
+  }
+}
+
 
 }
