@@ -131,12 +131,14 @@ main(int argc, char** argv){
         if (j->comment.size()< i->comment.size()) j->comment.resize(i->comment.size());
         for (int n=0; n<i->comment.size(); n++) j->comment[n] = i->comment[n];
       }
+      continue;
     }
+    if (i->type == -6) continue;
 
     // некартографические объекты
     if (!zn::is_map_depth(*i)) {
       if (i->comment.size()>1){ 
-         if (i->comment[1]!="[skip]") continue;
+         if (i->comment[1]=="[skip]") continue;
          zn::zn_label_key k = zn::get_label_key(*i);
          if ((k.id!=0) && (k.map==map_name)) continue; // подпись нам не нужна
       }

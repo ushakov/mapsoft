@@ -230,15 +230,23 @@ namespace fig {
           if (is_spline())  { sub_type--; return;}
           return;
         }
+
         void any2xspl(const double x){
           if (size()<3) return;
+
           if (is_polyline()){
             if      (sub_type==1) sub_type = 4;
-            else if (sub_type==3) sub_type = 5;
+            else if (sub_type==3) {
+              //в замкнутой ломаной последняя точка совпадает с первой
+              //в замкнутом сплайне - нет!
+              if ((*this)[0]==(*this)[size()-1]) resize(size()-1);
+              sub_type = 5;
+            }
             else return;
           } 
           else if (is_spline()) sub_type = sub_type%2+4;
           else return;
+
           type = 3;
           f.clear();
           for (int j=0; j<size(); j++) f.push_back(0.3);
@@ -249,7 +257,8 @@ namespace fig {
           return;
         }
 
-        void set_vector(const Line<double> & v);
+        void set_points(const Line<double> & v);
+        void set_points(const Line<int> & v);
     };
 
     struct fig_world:std::list<fig_object>{

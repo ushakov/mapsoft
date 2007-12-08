@@ -133,7 +133,7 @@ class zn_conv{
   std::list<fig::fig_object> make_labels(const fig::fig_object & fig);
 
   // список всех знаков в формате fig
-  fig::fig_world make_legend(int grid = 100);
+  fig::fig_world make_legend(int grid = 100, int dg=30);
 
   // текстовый список всех знаков
   std::string make_text();

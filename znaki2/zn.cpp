@@ -73,7 +73,6 @@ std::istream & operator>> (std::istream & s, zn_label_key & t){
      ).full){
     return s;
   } else {
-//    std::cerr << "zn_label_key: can't find valid key in " << str << "\n";
     t = zn_label_key(); return s;
   }
 }
@@ -501,7 +500,7 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig){
 }
 
 // список всех знаков в формате fig
-fig::fig_world zn_conv::make_legend(int grid){
+fig::fig_world zn_conv::make_legend(int grid, int dg){
   int count=0;
   fig::fig_world ret;
 
@@ -514,15 +513,14 @@ fig::fig_world zn_conv::make_legend(int grid){
     key.map = "get_legend_map";
 
     if (i->first >= area_mask){
-      o.push_back(Point<int>(0,       0));
-      o.push_back(Point<int>(grid*5,  0));
+      o.push_back(Point<int>(dg,      -dg));
+      o.push_back(Point<int>(grid*5-dg,  0));
       o.push_back(Point<int>(grid*5,  grid));
       o.push_back(Point<int>(0,       grid));
-      o.push_back(Point<int>(0,       0)); 
     }
     else if (i->first >= line_mask){
-      o.push_back(Point<int>(0,       grid));
-      o.push_back(Point<int>(grid*4,  grid));
+      o.push_back(Point<int>(0,       grid-dg));
+      o.push_back(Point<int>(grid*4+dg,  grid));
       o.push_back(Point<int>(grid*5,  0));
     }
     else{

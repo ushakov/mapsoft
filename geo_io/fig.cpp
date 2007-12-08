@@ -309,7 +309,7 @@ bool write(ostream & out, const fig_world & world){
         break;
     case 2: // Polyline
 
-      
+      // в замкнутых многоугольниках последняя точкадолжна совпадать с первой
       if ((i->sub_type > 1) && (nn>0) && ((*i)[nn-1]!=(*i)[0])){
         nn1=nn+1;
       }
@@ -592,11 +592,14 @@ bool test_object(const fig_object & o, const std::string & mask){
   return make_object(o, mask)==o;  
 }
 
-void fig_object::set_vector(const Line<double> & v){
-  this->clear();
-  for (int i=0;i<v.size();i++){
+void fig_object::set_points(const Line<double> & v){
+  clear();
+  for (int i=0;i<v.size();i++)
     push_back(Point<int>(int(v[i].x), int(v[i].y)));
-  }
+}
+void fig_object::set_points(const Line<int> & v){
+  clear();
+  insert(end(), v.begin(), v.end());
 }
 
 
