@@ -272,7 +272,7 @@ main(int argc, char** argv){
     mp::mp_object mpo;
     mpo.Class = "POLYGON";
     mpo.Label = "high slope";
-    mpo.Type = 0x15;
+    mpo.Type = 0x19;
     mpo.insert(mpo.end(), l.begin(), l.end());
     MP.push_back(mpo);
   }
@@ -299,7 +299,7 @@ main(int argc, char** argv){
     mp::mp_object mpo;
     mpo.Class = "POLYGON";
     mpo.Label = "no data";
-    mpo.Type = 0x100;
+    mpo.Type = 0xA;
     mpo.insert(mpo.end(), l.begin(), l.end());
     MP.push_back(mpo);
   }

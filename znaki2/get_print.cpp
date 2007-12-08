@@ -341,6 +341,44 @@ main(int argc, char **argv){
       NW.push_back(o);
       NW.push_back(*i); continue;
     }
+ 
+   if ((k.type == 0x20004C) || (k.type == 0x200051)){ // болота
+      int step = 40; // расстояние между штрихами
+
+      // ищем габариты объекта
+      Point<int> pmin = (*i)[0];
+      Point<int> pmax = (*i)[0];
+      Line<double> c;
+      for (int j = 0; j<i->size(); j++){
+        c.push_back((*i)[j]);
+        if (pmin.x > (*i)[j].x) pmin.x = (*i)[j].x;
+        if (pmin.y > (*i)[j].y) pmin.y = (*i)[j].y;
+        if (pmax.x < (*i)[j].x) pmax.x = (*i)[j].x;
+        if (pmax.y < (*i)[j].y) pmax.y = (*i)[j].y;
+      }
+      list<Line<double> > ls;
+      int n=0;
+      for (int y = pmin.y; y< pmax.y; y+=step){
+        Line<double> l; 
+        if (n%2==0){
+          l.push_back(Point<int>(pmin.x, y));
+          l.push_back(Point<int>(pmax.x, y));
+        } else {
+          l.push_back(Point<int>(pmax.x, y));
+          l.push_back(Point<int>(pmin.x, y));
+        }
+        ls.push_back(l);
+        n++;
+      }
+      crop_lines(ls, c);
+      fig_object o = make_object("2 1 0 1 22046463 7 87 -1 -1 0.000 0 1 0 0 0 0");
+      if (k.type == 0x200051) {o.line_style=1; o.style_val=5;}
+      for (list<Line<double> >::iterator l = ls.begin(); l!=ls.end(); l++){
+        o.set_points(*l);
+        NW.push_back(o);
+      }
+      continue;
+   }
 
     // прочие объекты - без изменений
     list<fig_object> l1 = zconverter.make_pic(*i);
