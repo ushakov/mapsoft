@@ -341,6 +341,7 @@ std::list<mp::mp_object> zn_conv::fig2mp(const fig::fig_object & fig, convs::map
   return ret;
 }
 
+/*
 // заключить fig-объекты в составной объект. Комментарий
 // составного объекта копируется из первого объекта (!)
 void zn_conv::fig_make_comp(std::list<fig::fig_object> & objects) const{
@@ -381,6 +382,7 @@ void zn_conv::fig_make_comp(std::list<fig::fig_object> & objects) const{
   o.type = -6; o.comment.clear();
   objects.insert(objects.end(), o);
 }
+*/
 
 // Поменять параметры в соответствии с конф.файлм.
 // Объект должен иметь полный ключ!
@@ -434,7 +436,12 @@ std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig) const{
     i->comment[1] = "[skip]";
     ret.push_back(*i);
   }
-  fig_make_comp(ret);
+  fig::fig_make_comp(ret);
+
+  // скопируем комментарии из первого объекта в составной объект.
+  if (ret.size()>1)
+    ret.begin()->comment.insert(ret.begin()->comment.begin(), fig.comment.begin(), fig.comment.end());
+
   return ret;
 }
 

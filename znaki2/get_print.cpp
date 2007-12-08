@@ -86,7 +86,6 @@ main(int argc, char **argv){
     if (
          (k.type == 0x100001) || // автомагистраль
          (k.type == 0x100002) || // шоссе
-         (k.type == 0x100003) || // верхний край обрыва
          (k.type == 0x100004) || // грейдер
          (k.type == 0x100006) || // черная дорога
          (k.type == 0x100007) || // непроезжий грейдер
@@ -269,9 +268,12 @@ main(int argc, char **argv){
       o.barrow_height = (i->thickness<3)? 60:90;
       double w = (i->thickness<3)? 40:60; // ширина черточек
       
-      LineDist<int> ld(*i); ld.move_frw(step/4);
+      LineDist<int> ld(*i); 
+      if (ld.length()<=step) step = ld.length();
+      else step = ld.length()/floor(ld.length()/step);
+      ld.move_frw(step/2);
       int n=1;
-      while (ld.dist() < ld.length()-step/4){
+      while (ld.dist() < ld.length()){
         Point<double> v, p=ld.pt();
         if (n%2 == 0){ o.forward_arrow = 0; o.backward_arrow = 0; v=ld.norm();}
         if (n%4 == 1){ o.forward_arrow = 1; o.backward_arrow = 0; v=ld.tang();}
@@ -292,19 +294,103 @@ main(int argc, char **argv){
       double step = 600;
       fig_object o = make_object(*i, "1 3 0 1 25725064 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
       
-      LineDist<int> ld(*i); ld.move_frw(step/4);
-      int n=0;
-      while (ld.dist() < ld.length()-step/4){
+      LineDist<int> ld(*i); 
+      if (ld.length()<=step) step = ld.length();
+      else step = ld.length()/floor(ld.length()/step);
+      ld.move_frw(step/2);
+      while (ld.dist() < ld.length()){
         Point<double> p=ld.pt();
         o.clear();
         o.center_x = p.x;
         o.center_y = p.y;
         NW.push_back(o);
-        n++;
         ld.move_frw(step);
       }
       continue;
     }
+
+    if (k.type == 0x100000){ // кривая надпись
+      if ((i->size()<2)||(i->comment.size()<1)||(i->comment[0].size()<1)) continue;
+
+      LineDist<int> ld(*i); 
+      double shift = 7.5*i->thickness;
+
+      fig_object o = make_object(*i, "4 1 * * * 3 * * 4");
+      o.font_size=i->thickness;
+
+      double step=ld.length()/i->comment[0].size();
+
+      ld.move_frw(step/2);
+      for (int n=0; n<i->comment[0].size(); n++){
+        Point<double> p=ld.pt(), t=ld.tang();
+        o.text=i->comment[0][n];
+        o.angle = -atan2(t.y, t.x);
+        o.clear(); o.push_back(p);
+        NW.push_back(o);
+        ld.move_frw(step);
+      }
+      continue;
+    }
+
+    if (k.type == 0x100019){ // забор
+      double step = 130;
+      double w    = 30;
+      int k=1;
+      if (i->backward_arrow==1) k=-1;
+
+      i->pen_color=0;
+      i->forward_arrow=0;
+      i->backward_arrow=0;
+      i->type=2; i->sub_type=1;
+      NW.push_back(*i);
+      fig_object o = *i; o.clear();
+
+      LineDist<int> ld(*i);
+      if (ld.length()<=step) step = ld.length();
+      else step = ld.length()/floor(ld.length()/step);
+      ld.move_frw((step-w)/2);
+      int n=0;
+      while (ld.dist() < ld.length()){
+        Point<double> p=ld.pt(), vt=ld.tang(), vn=ld.norm();
+        o.clear();
+        o.push_back(p);
+        o.push_back(p+k*(vn-vt)*w);
+        NW.push_back(o);
+        ld.move_frw((n%2==0) ? w:(step-w));
+        n++;
+      }
+      continue;
+    }
+
+    if (k.type == 0x100003){ // верхний край обрыва
+      double step = 40;
+      double w    = 20;
+      int k=1;
+      if (i->backward_arrow==1) k=-1;
+
+      i->forward_arrow=0;
+      i->backward_arrow=0;
+      i->cap_style=1;
+      i->type=2; i->sub_type=1;
+      NW.push_back(*i);
+      fig_object o = *i; o.clear();
+
+      LineDist<int> ld(*i);
+      if (ld.length()<=step) step = ld.length();
+      else step = ld.length()/floor(ld.length()/step);
+      ld.move_frw(step/2);
+
+      while (ld.dist() < ld.length()){
+        Point<double> p=ld.pt(), vn=ld.norm();
+        o.clear();
+        o.push_back(p);
+        o.push_back(p+k*vn*w);
+        NW.push_back(o);
+        ld.move_frw(step);
+      }
+      continue;
+    }
+    
 
 
 
