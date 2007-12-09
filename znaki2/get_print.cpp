@@ -5,8 +5,6 @@
 #include "zn.h"
 #include "line_dist.h"
 
-#include "gs_bbx.h"
-
 using namespace std;
 using namespace fig;
 

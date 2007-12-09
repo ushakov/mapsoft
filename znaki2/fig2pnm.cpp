@@ -3,15 +3,20 @@
 //#include <sys/types.h>
 
 #include <iostream>
+#include <vector>
 
 
 struct ppm_reader{
   int   out_pipe[2];
   pid_t pid;
 
+  std::vector <unsigned char *> data;
+  int pos;
+  int data_width;
+
   int w,h;
 
-  ppm_reader(const char *depth_range, const char *infile){
+  ppm_reader(const char *depth_range, const char *infile, int _data_width){
 
     char a1[strlen(depth_range)+1];   strcpy(a1, depth_range);
     char a2[strlen(infile)+1];        strcpy(a2, infile);
@@ -40,8 +45,12 @@ struct ppm_reader{
 
     s=gets();
     if (s!="255") {w=0; h=0; return;}
+    pos=-1;
+    data_width = _data_width;
+    data.resize(data_width, NULL);
     return;    
   }
+
   ~ppm_reader(){close(out_pipe[0]);}
 
   std::string gets() const {
@@ -50,6 +59,27 @@ struct ppm_reader{
     while ((read(out_pipe[0], &c, 1)==1) && (c!='\n')) ret.push_back(c);
     return ret;
   }
+
+  void data_shift(){
+    if (data[data_width-1]!=NULL) delete(data[data_width-1]);
+    for (int i = data_width-1; i>0; i--) data[i] = data[i-1];
+    data[0]=NULL;
+    pos++;
+    if (pos<h){
+      data[0] = new unsigned char[3*w];
+      int n=3*w, m=3*w;
+      while ((m>0) && (n>0)){
+        m=read(out_pipe[0], data[0]+(3*w-n), n);
+        n-=m;
+      }
+      if (m==0){
+        std::cerr << "read error!\n";
+        exit(0);
+      }
+    } 
+  }
+
+
   int fd(){return out_pipe[0];}
 };
 
@@ -67,56 +97,114 @@ bool pipe_read(int fd, unsigned char *buf, int N){
   return !(m==0);
 }
 
+
+// почему-то fig2dev, если его просить сделать 
+// какой-то фоновый цвет, соблюдает его с точностью +-1 ?? Ошибки округления?
+// поэтому просим 0xFFFFFD и смотрим, чтоб было в диапазоне +-1
+bool is_color(const unsigned char r, const unsigned char g, const unsigned char b){
+  return ((r < 0xFC) || (r > 0xFE) ||
+          (g < 0xFC) || (g > 0xFE) ||
+          (b < 0xFC) || (b > 0xFE));
+}
+
+bool is_color(const unsigned char *c){
+  return ((*c < 0xFC) || (*c > 0xFE) ||
+          (*(c+1) < 0xFC) || (*(c+1) > 0xFE) ||
+          (*(c+2) < 0xFC) || (*(c+2) > 0xFE));
+}
+
+bool is_dark(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char thr){
+  return (r/3 + g/3 + b/3 < thr);
+}
+
+bool is_dark(const unsigned char *c, const unsigned char thr){
+  return ((*c)/3 + (*(c+1))/3 + (*(c+2))/3 < thr);
+}
+
 main(int argc, char **argv){
 
   if (argc != 2) usage();
   std::string infile = argv[1];
 
-  ppm_reader lgnd("-D+30:34", infile.c_str());
-  ppm_reader grid("-D+35:39", infile.c_str());
-  ppm_reader text("-D+40",    infile.c_str());
-  ppm_reader map("-D+41:400", infile.c_str());
-  int N = 3*map.w;
-  unsigned char buf_l[N];
-  unsigned char buf_g[N];
-  unsigned char buf_m[N];
-  unsigned char buf_t[N];
-  int a = 128;
+  int r1 = 5; // поля текста
+  int r2 = 5; // окрестность поиска при закрашивании темных линий
 
-  std::cout << "P6\n" << map.w << " " << map.h << "\n255\n";
-  for (int y = 0; y < map.h; y++){
-    if (!pipe_read(lgnd.fd(), buf_l, N)) {std::cerr << "read error l\n"; exit(0);}
-    if (!pipe_read(grid.fd(), buf_g, N)) {std::cerr << "read error g\n"; exit(0);}
-    if (!pipe_read(text.fd(), buf_t, N)) {std::cerr << "read error t\n"; exit(0);}
-    if (!pipe_read(map.fd(),  buf_m, N)) {std::cerr << "read error m\n"; exit(0);}
-    for (int x = 0; x < map.w; x++){
+  int dw = 2*(r1+r2)+1; // ширина загружаемых данных
+  int d0 = r1+r2;       // средняя линия данных
 
-      unsigned char rm = buf_m[3*x], gm = buf_m[3*x+1], bm = buf_m[3*x+2];
-      unsigned char rt = buf_t[3*x], gt = buf_t[3*x+1], bt = buf_t[3*x+2];
-      unsigned char rg = buf_g[3*x], gg = buf_g[3*x+1], bg = buf_g[3*x+2];
-      unsigned char rl = buf_l[3*x], gl = buf_l[3*x+1], bl = buf_l[3*x+2];
+  int thr = 128;  // порог темных линий (r/3+g/3+b/3)
 
-// почему-то fig2dev, если его просить сделать 
-// какой-то фоновый цвет, соблюдает его с точностью +-1 ?? Ошибки округления?
-// поэтому просим 0xFFFFFD и смотрим, чтоб было в диапазоне +-1
+  int a = 128;    // прозрачность сетки
 
-      if ((rt < 0xFC) || (rt > 0xFE) ||
-          (gt < 0xFC) || (gt > 0xFE) ||
-          (bt < 0xFC) || (bt > 0xFE)) {rm=rt; gm=gt; bm=bt;}
+  ppm_reader lgnd("-D+30:34", infile.c_str(), dw);
+  ppm_reader grid("-D+35:39", infile.c_str(), dw);
+  ppm_reader text("-D+40",    infile.c_str(), dw);
+  ppm_reader map("-D+41:400", infile.c_str(), dw);
 
-      if ((rg < 0xFC) || (rg > 0xFE) ||
-          (gg < 0xFC) || (gg > 0xFE) ||
-          (bg < 0xFC) || (bg > 0xFE)) {
-        rm = (rg*a + rm*(255-a))/255;
-        gm = (gg*a + gm*(255-a))/255;
-        bm = (bg*a + bm*(255-a))/255;
-      }
-
-      if ((rl < 0xFC) || (rl > 0xFE) ||
-          (gl < 0xFC) || (gl > 0xFE) ||
-          (bl < 0xFC) || (bl > 0xFE)) {rm=rl; gm=gl; bm=bl;}
-
-      std::cout << rm << gm << bm;
-    }
+  if ((lgnd.w!=grid.w)||(lgnd.w!=text.w)||(lgnd.w!=map.w)||
+      (lgnd.h!=grid.h)||(lgnd.h!=text.h)||(lgnd.h!=map.h)){
+    std::cerr << "different image sizes\n";
+    exit(0);
   }
+  int N = 3*map.w;
+
+  unsigned char buf[N];
+  std::cout << "P6\n" << map.w << " " << map.h << "\n255\n";
+
+  for (int i = 0; i<map.h+dw; i++){
+    if (map.data[d0]!=NULL){
+
+      for (int j = 0; j < map.w; j++){
+        unsigned char rm = map.data[d0][3*j],  gm = map.data[d0][3*j+1],  bm = map.data[d0][3*j+2];
+        unsigned char rt = text.data[d0][3*j], gt = text.data[d0][3*j+1], bt = text.data[d0][3*j+2];
+        unsigned char rg = grid.data[d0][3*j], gg = grid.data[d0][3*j+1], bg = grid.data[d0][3*j+2];
+        unsigned char rl = lgnd.data[d0][3*j], gl = lgnd.data[d0][3*j+1], bl = lgnd.data[d0][3*j+2];
+
+        // наложение текста
+        if (is_color(rt,gt,bt)) {
+          // область, в которой нам надо стереть черные линии...
+          for (int y = d0-r1; y<=d0+r1; y++){
+            if (map.data[y]==NULL) continue;
+            for (int x = j-r1; x<=j+r1; x++){
+              if ((x<0)||(x>=map.w)) continue;
+              if (abs(d0-y)*abs(d0-y) + abs(j-x)*abs(j-x) > r1*r1) continue;
+              if (is_color(text.data[y]+3*x)) continue;
+              if (!is_dark(map.data[y]+3*x, thr)) continue;
+              
+              // надо закрасить темную 
+              map.data[y][3*x]   = 0xFF;
+              map.data[y][3*x+1] = 0xFF;
+              map.data[y][3*x+2] = 0xFF;
+            }
+          }
+          // рисуем собственно текст
+          rm=rt; gm=gt; bm=bt;
+        }
+
+        // наложение сетки
+        if (is_color(rg,gg,bg)) {
+          rm = (rg*a + rm*(255-a))/255;
+          gm = (gg*a + gm*(255-a))/255;
+          bm = (bg*a + bm*(255-a))/255;
+        }
+
+        // наложение легенды
+        if (is_color(rl,gl,bl)) {rm=rl; gm=gl; bm=bl;}
+
+        map.data[d0][3*j]   = rm;
+        map.data[d0][3*j+1] = gm;
+        map.data[d0][3*j+2] = bm;
+      }
+    }
+    if (map.data[dw-1]!=NULL){
+      for (int j=0; j<N; j++) std::cout << map.data[dw-1][j];
+    }
+    map.data_shift();
+    text.data_shift();
+    grid.data_shift();
+    lgnd.data_shift();
+  }
+
+
+
 }
