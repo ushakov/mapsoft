@@ -135,12 +135,14 @@ main(int argc, char** argv){
     }
     if (i->type == -6) continue;
 
+    if (i->comment.size()>1)
+      if (i->comment[1]=="[skip]") continue;
+
     // некартографические объекты
     if (!zn::is_map_depth(*i)) {
       if (i->comment.size()>1){ 
-         if (i->comment[1]=="[skip]") continue;
          zn::zn_label_key k = zn::get_label_key(*i);
-         if ((k.id!=0) && (k.map==map_name)) continue; // подпись нам не нужна
+         if ((k.id!=0) && (k.map==map_name)) continue; // подпись нам не нужна, она уже в хэше
       }
       MAP.push_back(*i); 
       continue;
@@ -153,8 +155,10 @@ main(int argc, char** argv){
 
       zn::zn_key oldkey;
       map<int, fig::fig_object>::iterator o = objects.find(key.id);
+
       if (o==objects.end()){
-        cerr << "Конфликт: объект " << key.id << " был удален\n";
+        cerr << "Конфликт: из системы объект " << key.id << " был удален,\n";
+        cerr << "а вы его опять туда запихиваете... :(\n";
         //... обвести рамкой
 //        NC.push_back(*i);
 //        continue;
@@ -163,27 +167,28 @@ main(int argc, char** argv){
         key.source = source;
         key.id     = maxid;
         key.map    = map_name;
+        objects[key.id] = *i;
       } else {
         oldkey = zn::get_key(o->second);
         if (oldkey.time > key.time){
-          cerr << "Конфликт: объект " << key.id << " был изменен\n";
-          //... обвести рамкой
-//          NC.push_back(*i);
-//          continue; 
-          key.sid    = 0;
-          key.source = source;
-          key.time.set_current();
+          cerr << "Конфликт: объект " << key.id << " был изменен,\n";
+          cerr << "а вы старую версию пытаетесь положить... :( Не выйдет!\n";
+          key = oldkey;
         } else if ( *i != o->second){
           key.time.set_current();
           key.sid    = 0;
           key.source = source;
-        } else key = oldkey;
+          objects[key.id] = *i;
+        } else{
+          key = oldkey;
+          objects[key.id] = *i;
+        }
       }
       // ... проверить бы еще конфликты, когда два однотипных
       // объекта были нарисованы в одном районе!
 
-      zn::add_key(*i, key);  // добавим обновленный ключ
-      MAP.push_back(*i);            // запишем объект 
+      zn::add_key(objects[key.id], key);  // добавим обновленный ключ
+      MAP.push_back(objects[key.id]);     // запишем объект 
 
       // теперь еще подписи:
       // вытащим из хэша подписи для этого объекта

@@ -119,11 +119,6 @@ class zn_conv{
   // подписи не преобразовываются.
   std::list<mp::mp_object> fig2mp(const fig::fig_object & fig, convs::map2pt & cnv) const;
 
-/*  // заключить fig-объекты в составной объект. Комментарий
-  // составного объекта копируется из первого объекта (!)
-  void fig_make_comp(std::list<fig::fig_object> & objects) const;
-*/
-
   // Поменять параметры в соответствии с конф.файлм.
   // Объект должен иметь полный ключ!
   void fig_update(fig::fig_object & fig) const;

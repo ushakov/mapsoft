@@ -341,49 +341,6 @@ std::list<mp::mp_object> zn_conv::fig2mp(const fig::fig_object & fig, convs::map
   return ret;
 }
 
-/*
-// заключить fig-объекты в составной объект. Комментарий
-// составного объекта копируется из первого объекта (!)
-void zn_conv::fig_make_comp(std::list<fig::fig_object> & objects) const{
-  if ((objects.size()<1) || (objects.begin()->size()<1)) return;
-
-  int minx=(*objects.begin())[0].x;
-  int maxx=(*objects.begin())[0].x;
-  int miny=(*objects.begin())[0].y;
-  int maxy=(*objects.begin())[0].y;
-  for (std::list<fig::fig_object>::const_iterator
-       i = objects.begin(); i != objects.end(); i++){
-     if (i->type == 1){
-       int rx = i->radius_x;
-       int ry = i->radius_y;
-       int cx = i->center_x;
-       int cy = i->center_y;
-       if (minx > cx-rx) minx = cx-rx;
-       if (maxx < cx+rx) maxx = cx+rx;
-       if (miny > cy-ry) miny = cy-ry;
-       if (maxy < cy+ry) maxy = cy+ry;
-     } else {
-       for (int j = 0; j < i->size(); j++){
-         int x = (*i)[j].x;
-         int y = (*i)[j].y;
-         if (minx > x) minx = x;
-         if (maxx < x) maxx = x;
-         if (miny > y) miny = y;
-         if (maxy < y) maxy = y;
-      }
-    }
-  }
-  fig::fig_object o = *objects.begin();
-  o.type=6;
-  o.clear();
-  o.push_back(Point<int>(minx,miny));
-  o.push_back(Point<int>(maxx,maxy));
-  objects.insert(objects.begin(), o);
-  o.type = -6; o.comment.clear();
-  objects.insert(objects.end(), o);
-}
-*/
-
 // Поменять параметры в соответствии с конф.файлм.
 // Объект должен иметь полный ключ!
 void zn_conv::fig_update(fig::fig_object & fig) const{
