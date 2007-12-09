@@ -132,7 +132,7 @@ main(int argc, char **argv){
   int dw = 2*(r1+r2)+1; // ширина загружаемых данных
   int d0 = r1+r2;       // средняя линия данных
 
-  int thr = 128;  // порог темных линий (r/3+g/3+b/3)
+  int thr = 170;  // порог темных линий (r/3+g/3+b/3)
 
   int a = 128;    // прозрачность сетки
 
@@ -169,12 +169,30 @@ main(int argc, char **argv){
               if ((x<0)||(x>=map.w)) continue;
               if (abs(d0-y)*abs(d0-y) + abs(j-x)*abs(j-x) > r1*r1) continue;
               if (is_color(text.data[y]+3*x)) continue;
+              // 
+              grid.data[y][3*x]   = 0xFD;
+              grid.data[y][3*x+1] = 0xFD;
+              grid.data[y][3*x+2] = 0xFD;
+
               if (!is_dark(map.data[y]+3*x, thr)) continue;
-              
-              // надо закрасить темную 
-              map.data[y][3*x]   = 0xFF;
-              map.data[y][3*x+1] = 0xFF;
-              map.data[y][3*x+2] = 0xFF;
+              // надо закрасить темную точку
+              // найдем цвет ближайшей к ней светлой точки
+              int dd = r2*r2+1;
+              int yym, xxm;
+              for (int yy = y-r2; yy<=y+r1; yy++){
+                if (map.data[yy]==NULL) continue;
+                for (int xx = x-r2; xx<=x+r2; xx++){
+                  if ((xx<0)||(xx>=map.w)) continue;
+                  if (is_dark(map.data[yy]+3*xx, thr)) continue;
+                  if (abs(y-yy)*abs(y-yy) + abs(x-xx)*abs(x-xx) < dd){
+                    dd = abs(y-yy)*abs(y-yy) + abs(x-xx)*abs(x-xx);
+                    yym=yy; xxm=xx;
+                  }
+                }
+              }
+              map.data[y][3*x]   = (dd>r2*r2)? 0xFF:map.data[yym][3*xxm];
+              map.data[y][3*x+1] = (dd>r2*r2)? 0xFF:map.data[yym][3*xxm+1];
+              map.data[y][3*x+2] = (dd>r2*r2)? 0xFF:map.data[yym][3*xxm+2];
             }
           }
           // рисуем собственно текст

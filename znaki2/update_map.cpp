@@ -150,34 +150,42 @@ main(int argc, char** argv){
     zn::zn_key key = zn::get_key(*i);
 
     if ((key.map == map_name) && (key.id !=0)){ // в объекте есть ключ от этой карты
+
+      zn::zn_key oldkey;
       map<int, fig::fig_object>::iterator o = objects.find(key.id);
       if (o==objects.end()){
         cerr << "Конфликт: объект " << key.id << " был удален\n";
-        cerr << "не добавляю его!\n";
         //... обвести рамкой
-        NC.push_back(*i);
-        continue;
-      }
-      zn::zn_key oldkey = zn::get_key(o->second);
-      if (oldkey.time > key.time){
-        cerr << "Конфликт: объект " << key.id << " был изменен\n";
-        cerr << "не добавляю его!\n";
-        //... обвести рамкой
-        NC.push_back(*i);
-        continue;
+//        NC.push_back(*i);
+//        continue;
+        key.time.set_current();
+        key.sid    = 0;
+        key.source = source;
+        key.id     = maxid;
+        key.map    = map_name;
+      } else {
+        oldkey = zn::get_key(o->second);
+        if (oldkey.time > key.time){
+          cerr << "Конфликт: объект " << key.id << " был изменен\n";
+          //... обвести рамкой
+//          NC.push_back(*i);
+//          continue; 
+          key.sid    = 0;
+          key.source = source;
+          key.time.set_current();
+        } else if ( *i != o->second){
+          key.time.set_current();
+          key.sid    = 0;
+          key.source = source;
+        } else key = oldkey;
       }
       // ... проверить бы еще конфликты, когда два однотипных
       // объекта были нарисованы в одном районе!
-
-      if ( *i != o->second) key.time.set_current();
-      key.sid    = 0;
-      key.source = source;
 
       zn::add_key(*i, key);  // добавим обновленный ключ
       MAP.push_back(*i);            // запишем объект 
 
       // теперь еще подписи:
-
       // вытащим из хэша подписи для этого объекта
       for (multimap<int, fig::fig_object>::const_iterator l = labels.find(key.id); 
           (l != labels.end()) && (l->first == key.id); l++){

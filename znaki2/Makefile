@@ -1,4 +1,4 @@
-all: make_map_gk update_map get_map get_legend
+all: make_map_gk update_map get_map get_legend get_print fig2pnm
 
 CPPFLAGS=-I../
 make_map_gk: ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a

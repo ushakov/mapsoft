@@ -8,21 +8,17 @@
 using namespace std;
 using namespace fig;
 
-// Найти ближайшую к точке pt линию типа type.
+
+// Найти ближайшую к точке pt линию из списка.
 // В pt запихать эту ближайшую точку, в vec - едиичный вектор направления линии,
 // вернуть расстояние. 
 // Поиск происходит на расстоянии не более maxdist (xfig units)
-double nearest_line(list<fig_object> fig, int type, Point<double> & vec, Point<double> & pt, double maxdist=100){
+double nearest_line(const list<Line<int> > & lines, Point<double> & vec, Point<double> & pt, double maxdist=100){
 
   Point<double> minp(pt),minvec(1,0);
   double minl=maxdist;
 
-  for (list<fig_object>::const_iterator i  = fig.begin(); i != fig.end(); i++){
-
-    if (!zn::is_map_depth(*i)) continue;
-    zn::zn_key k = zn::get_key(*i);
-    if (k.type!=type) continue;
-
+  for (list<Line<int> >::const_iterator i  = lines.begin(); i != lines.end(); i++){
     for (int j=1; j<i->size(); j++){
       Point<double> p1((*i)[j-1]);
       Point<double> p2((*i)[j]);
@@ -52,6 +48,9 @@ double nearest_line(list<fig_object> fig, int type, Point<double> & vec, Point<d
 }
 
 
+
+
+
 main(int argc, char **argv){
 
   if (argc!=4){
@@ -67,22 +66,36 @@ main(int argc, char **argv){
   fig_world W = read(infile.c_str());
   fig_world NW;
 
+
+  // для убыстрения делаем два прогона - в первом распихиваем 
+  // по  отдельным спискам все линейные объекты, к которым мы хотим привязывать точки:
+  // ж/д, реки и хребты. Во втором уже делаем собственно преобразование объектов...
+
+  list<Line<int> > list_zd, list_r, list_h;
+
+  for (int pass =0 ; pass<2; pass++)
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
-
     if ((i->type == 6) || (i->type == -6)) continue;
-
     if ((i->comment.size()>1) && (i->comment[1] == "[skip]")) continue;
-
     if ((i->depth >=30) && (i->depth<50)) {NW.push_back(*i); continue;}
-
     if ((i->depth <30) || (i->depth>=400)) continue;
-
     if (i->size() == 0) continue;
 
-    zconverter.fig_update(*i);    
-
-    // преобразуем некоторые объекты в x-spline
     zn::zn_key k = zn::get_key(*i);
+
+    if (pass ==0){
+      if (k.type == 0x100027) list_zd.push_back(*i);
+      if ((k.type == 0x100015)||
+          (k.type == 0x100018)||
+          (k.type == 0x10001F)|| 
+          (k.type == 0x100026)) list_r.push_back(*i);
+      if (k.type == 0x10000C)   list_h.push_back(*i);
+      continue;
+    }
+
+
+    zconverter.fig_update(*i);    
+    // преобразуем некоторые объекты в x-spline
     if (
          (k.type == 0x100001) || // автомагистраль
          (k.type == 0x100002) || // шоссе
@@ -124,13 +137,14 @@ main(int argc, char **argv){
     }
     // подпись урочища
     if (k.type == 0x2800){
-      i->pen_color=0;  
+      i->pen_color=0;
+      i->depth=40; //! чтоб под текстом линии стирались!
       NW.push_back(*i); continue;
     }
     // платформа
     if (k.type == 0x5905){
       Point<double> t, p((*i)[0]);
-      nearest_line(W, 0x100027, t, p);
+      nearest_line(list_zd, t, p);
 
       Point<double> n(-t.y,t.x);
       fig_object o = make_object(*i, "2 3 0 1 0 7 * * 20 * 0 0 0 0 0 *");
@@ -151,7 +165,7 @@ main(int argc, char **argv){
         (k.type == 0x6625)||
         (k.type == 0x6626)){
       Point<double> t, p((*i)[0]);
-      nearest_line(W, 0x10000C, t, p);
+      nearest_line(list_h, t, p);
       list<fig_object> l1 = zconverter.make_pic(*i);
       fig::fig_rotate(l1, atan2(t.y, t.x), p);
       NW.insert(NW.end(), l1.begin(), l1.end());
@@ -161,17 +175,7 @@ main(int argc, char **argv){
     if ((k.type == 0x650E) || (k.type == 0x6508)){
       
       Point<double> t1, p1((*i)[0]);
-      Point<double> t2, p2((*i)[0]);
-      Point<double> t3, p3((*i)[0]);
-      Point<double> t4, p4((*i)[0]);
-
-      double d1 = nearest_line(W, 0x100015, t1, p1);
-      double d2 = nearest_line(W, 0x100018, t2, p2);
-      double d3 = nearest_line(W, 0x10001F, t3, p3);
-      double d4 = nearest_line(W, 0x100026, t4, p4);
-      if (d2<d1) {t1=t2; p1=p2;}
-      if (d4<d3) {t3=t4; p3=p4;}
-      if (d3<d1) {t1=t3; p1=p3;}
+      nearest_line(list_r, t1, p1);
 
       Point<double> n(-t1.y,t1.x);
       fig_object o = make_object("2 1 0 2 1 0 57 -1 0 0 0 1 0 0 0 *");
@@ -183,23 +187,25 @@ main(int argc, char **argv){
       continue;
     }
 
-    
-    if ((k.type == 0x100001)|| // автомагистраль
-        (k.type == 0x100002)|| // шоссе 
-        (k.type == 0x100004)){ // грейдер
-      i->pen_color=0; NW.push_back(*i);
+    // автомагистраль, шоссе, грейдер
+    if ((k.type == 0x100001)||
+        (k.type == 0x100002)||
+        (k.type == 0x100004)){
+      i->pen_color=0; NW.push_back(*i); 
       fig_object o = *i;
       o.pen_color = o.fill_color; o.depth--; o.thickness-=2; NW.push_back(o);
       if (o.thickness>2) {o.pen_color = 0; o.depth--; o.thickness=1;  NW.push_back(o);}
       continue;
     }
-    if (k.type == 0x100007){ // непроезжий грейдер
+    // непроезжий грейдер
+    if (k.type == 0x100007){
       i->pen_color=0; i->cap_style=0; i->line_style=0; NW.push_back(*i);
       fig_object o = *i; o.line_style=2; o.style_val=6; o.depth--; o.pen_color=7; NW.push_back(o);
       o.line_style=0; o.thickness-=2; NW.push_back(o);
       continue;
     }
-    if (k.type == 0x10000A){ // непроезжая грунтовка
+    // непроезжая грунтовка
+    if (k.type == 0x10000A){
       i->pen_color=0; i->type=2; i->sub_type=1;
       LineDist<int> ld(*i);
       while (!ld.is_end()){
@@ -210,13 +216,15 @@ main(int argc, char **argv){
       }
       continue;
     }
-    if (k.type == 0x10001F){ // река-3
+    // река-3
+    if (k.type == 0x10001F){ 
       NW.push_back(*i);
       fig_object o = *i; o.pen_color = o.fill_color; o.depth--; o.thickness-=2; 
       NW.push_back(o);  continue;
     }
 
-    if ((k.type == 0x100008) || (k.type == 0x100009) || (k.type == 0x10000B)){ // мост
+    // мост
+    if ((k.type == 0x100008) || (k.type == 0x100009) || (k.type == 0x10000B)){ 
         i->resize(2);
         Point<double> p1=(*i)[0], p2=(*i)[1];
         double ll = pdist(p1,p2);
@@ -246,7 +254,8 @@ main(int argc, char **argv){
         NW.push_back(o); continue;
     }
 
-    if (k.type == 0x10001B){ // пешеходный тоннель
+    // пешеходный тоннель
+    if (k.type == 0x10001B){ 
 
         i->resize(2);
         Point<double> p1=(*i)[0], p2=(*i)[1];
@@ -272,7 +281,8 @@ main(int argc, char **argv){
         NW.push_back(o); continue;
     }
 
-    if ((k.type == 0x100029)||(k.type == 0x10001A)){ // ЛЭП
+    // ЛЭП
+    if ((k.type == 0x100029)||(k.type == 0x10001A)){ 
       NW.push_back(*i);
       double step = 400;
       fig_object o = make_object(*i,
@@ -303,7 +313,8 @@ main(int argc, char **argv){
       continue;
     }
 
-    if (k.type == 0x100028){ // газопровод
+    // газопровод
+    if (k.type == 0x100028){
       i->line_style=0;
       NW.push_back(*i);
       double step = 600;
@@ -324,7 +335,8 @@ main(int argc, char **argv){
       continue;
     }
 
-    if (k.type == 0x100000){ // кривая надпись
+    // кривая надпись
+    if (k.type == 0x100000){ 
       if ((i->size()<2)||(i->comment.size()<1)||(i->comment[0].size()<1)) continue;
 
       LineDist<int> ld(*i); 
@@ -347,7 +359,8 @@ main(int argc, char **argv){
       continue;
     }
 
-    if (k.type == 0x100019){ // забор
+    // забор
+    if (k.type == 0x100019){ 
       double step = 130;
       double w    = 30;
       int k=1;
@@ -377,7 +390,8 @@ main(int argc, char **argv){
       continue;
     }
 
-    if (k.type == 0x100003){ // верхний край обрыва
+    // верхний край обрыва
+    if (k.type == 0x100003){ 
       double step = 40;
       double w    = 20;
       int k=1;
@@ -409,14 +423,16 @@ main(int argc, char **argv){
 
 
 
-
-    if (k.type == 0x20003B){ // большой водоем
+    // большой водоем
+    if (k.type == 0x20003B){ 
       i->area_fill = 20; NW.push_back(*i); continue;
     }
-    if (k.type == 0x200001){ // город
+    // город
+    if (k.type == 0x200001){ 
       i->area_fill = 20; NW.push_back(*i); continue;
     }
-    if (k.type == 0x20001A){ // кладбище
+    // кладбище
+    if (k.type == 0x20001A){ 
       i->area_fill=10;
       int w1=23, w2=45; // размер крестика
 
@@ -443,7 +459,8 @@ main(int argc, char **argv){
       NW.push_back(*i); continue;
     }
  
-   if ((k.type == 0x20004C) || (k.type == 0x200051)){ // болота
+   // болота
+   if ((k.type == 0x20004C) || (k.type == 0x200051)){ 
       int step = 40; // расстояние между штрихами
 
       // ищем габариты объекта
