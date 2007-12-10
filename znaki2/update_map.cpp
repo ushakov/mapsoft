@@ -230,6 +230,7 @@ main(int argc, char** argv){
       zn::add_key(i->second, key);  // добавим ключ
       NEW.push_back(i->second);     // запишем объект
       list<fig::fig_object> l1 = zconverter.make_labels(i->second, key.type); // изготовим новые подписи
+      add_key(l1, zn::zn_label_key(key));
       NEW.insert(NEW.end(), l1.begin(), l1.end());   
       l_n_count+=l1.size();
     }
@@ -277,6 +278,7 @@ main(int argc, char** argv){
           (i->second.comment[0] != "") &&
           (labels.count(key.id) == 0)){
         list<fig::fig_object> l1 = zconverter.make_labels(i->second, key.type); // изготовим новые подписи
+        add_key(l1, zn::zn_label_key(key));
         NEW.insert(NEW.end(), l1.begin(), l1.end());   
         l_n_count+=l1.size();
         continue;
