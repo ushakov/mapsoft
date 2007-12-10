@@ -48,9 +48,11 @@ main(int argc, char** argv){
   if (testext(out_file, ".fig")){ // пишем fig
     fig::fig_world F;
 
-    // вынем из карты подписи
     std::multimap<int, fig::fig_object> labels; 
     fig::fig_world::iterator i=MAP.begin(); 
+
+
+    // вынем из карты подписи
     while (i!=MAP.end()){
       if (!zn::is_map_depth(*i)){
         zn::zn_label_key k = zn::get_label_key(*i);
@@ -72,7 +74,7 @@ main(int argc, char** argv){
         // вытащим из хэша все подписи для этого объекта
         for (multimap<int, fig::fig_object>::iterator l = labels.find(k.id);
             (l != labels.end()) && (l->first == k.id); l++){
-          zconverter.label_update(*i, k.type);
+          zconverter.label_update(l->second, k.type);
           F.push_back(l->second);
         }
 
