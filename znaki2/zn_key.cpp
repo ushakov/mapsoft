@@ -89,8 +89,11 @@ zn_key get_key(const fig::fig_object & fig){
 
 // Извлечь ключ подписи из комментария (2-я строчка) к fig-объекту
 zn_label_key get_label_key(const fig::fig_object & fig){
-  if (fig.comment.size() < 2) return zn_label_key();
-  return boost::lexical_cast<zn_label_key>(fig.comment[1]);
+  zn_label_key k;
+  if (fig.comment.size() < 2) return k;
+  try {k=boost::lexical_cast<zn_label_key>(fig.comment[1]);} 
+  catch(boost::bad_lexical_cast a){}
+  return k;
 }
 
 // Извлечь ключ из комментария (1-я строчка) к mp-объекту
