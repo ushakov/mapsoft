@@ -75,6 +75,11 @@ class zn_conv{
   // Создать подписи к объекту
   std::list<fig::fig_object> make_labels(const fig::fig_object & fig, int type=0) const;
 
+  // Поменять параметры подписи в соответствии с типом
+  // (шрифт, размер, цвет, глубина)
+  // Если тип 0 - ничего не менять
+  void label_update(fig::fig_object & fig, int type) const;
+
 };
 
 

@@ -244,6 +244,20 @@ void zn_conv::fig_update(fig::fig_object & fig, int type) const{
   fig.font_flags = tmp.font_flags;
 }
 
+// Поменять параметры подписи в соответствии с типом
+// (шрифт, размер, цвет)
+// Если тип 0 - ничего не менять
+void zn_conv::label_update(fig::fig_object & fig, int type) const{
+
+  std::map<int, zn>::iterator z = znaki.find(type);
+  if (z != znaki.end()){
+    fig.pen_color = z->second.txt.pen_color;
+    fig.font      = z->second.txt.font;
+    fig.font_size = z->second.txt.font_size;
+    fig.depth     = z->second.txt.depth;
+  }
+}
+
 // Создать картинку к объекту в соответствии с типом.
 std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type) const{
 

@@ -47,15 +47,39 @@ main(int argc, char** argv){
   
   if (testext(out_file, ".fig")){ // пишем fig
     fig::fig_world F;
+
+    // вынем из карты подписи
+    std::multimap<int, fig::fig_object> labels; 
+    fig::fig_world::iterator i=MAP.begin(); 
+    while (i!=MAP.end()){
+      if (!zn::is_map_depth(*i)){
+        zn::label_key k = zconverter.get_label_key(*i);
+        if ((k.id!=0) && (k.map ==map_name)){
+          labels.insert(std::pair<int, fig::fig_object>(k.id, *i));
+          i=MAP.erase(*i);
+          continue;
+        }
+      }
+      i++;
+    }
+
     for (fig::fig_world::iterator i=MAP.begin(); i!=MAP.end(); i++){
       if (zn::is_map_depth(*i)){
         zn::zn_key k = zn::get_key(*i);
         zconverter.fig_update(*i, k.type);
         list<fig::fig_object> l1 = zconverter.make_pic(*i, k.type);
         F.insert(F.begin(), l1.begin(), l1.end());
+        // вытащим из хэша все подписи для этого объекта
+        for (multimap<int, fig::fig_object>::iterator l = labels.find(key.id);
+            (l != labels.end()) && (l->first == key.id); l++){
+          zconverter.label_update(*i, k.type);
+          F.push_back(l->second);
+        }
+
       }
       else F.push_back(*i);
     }
+
     ofstream out(out_file.c_str());
     fig::write(out, F);
   } 

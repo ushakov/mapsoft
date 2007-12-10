@@ -177,7 +177,7 @@ main(int argc, char **argv){
               if (!is_dark(map.data[y]+3*x, thr)) continue;
               // надо закрасить темную точку
               // найдем цвет ближайшей к ней светлой точки
-              int dd = r2*r2+1;
+              int dd = 2*r2*r2+1;
               int yym, xxm;
               for (int yy = y-r2; yy<=y+r1; yy++){
                 if (map.data[yy]==NULL) continue;
@@ -190,9 +190,9 @@ main(int argc, char **argv){
                   }
                 }
               }
-              map.data[y][3*x]   = (dd>r2*r2)? 0xFF:map.data[yym][3*xxm];
-              map.data[y][3*x+1] = (dd>r2*r2)? 0xFF:map.data[yym][3*xxm+1];
-              map.data[y][3*x+2] = (dd>r2*r2)? 0xFF:map.data[yym][3*xxm+2];
+              map.data[y][3*x]   = (dd>2*r2*r2)? 0xFF:map.data[yym][3*xxm];
+              map.data[y][3*x+1] = (dd>2*r2*r2)? 0xFF:map.data[yym][3*xxm+1];
+              map.data[y][3*x+2] = (dd>2*r2*r2)? 0xFF:map.data[yym][3*xxm+2];
             }
           }
           // рисуем собственно текст
