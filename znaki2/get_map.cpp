@@ -48,7 +48,7 @@ main(int argc, char** argv){
   if (testext(out_file, ".fig")){ // пишем fig
     fig::fig_world F;
     for (fig::fig_world::iterator i=MAP.begin(); i!=MAP.end(); i++){
-      if (is_map_depth(*i)){
+      if (zn::is_map_depth(*i)){
         zn::zn_key k = zn::get_key(*i);
         zconverter.fig_update(*i, k.type);
         list<fig::fig_object> l1 = zconverter.make_pic(*i, k.type);
@@ -67,7 +67,7 @@ main(int argc, char** argv){
 
     mp::mp_world M;
     for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
-      if (is_map_depth(*i)){
+      if (zn::is_map_depth(*i)){
         zn::zn_key k = zn::get_key(*i);
         M.push_back(zconverter.fig2mp(*i, cnv, k.type));
       }

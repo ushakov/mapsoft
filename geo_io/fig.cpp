@@ -356,8 +356,12 @@ bool write(ostream & out, const fig_world & world){
         cerr << "fig::write (spline): different amount of x,y and f values\n";
         break;
       }
-      if ((sub_type%2==1) && (nn<3)){ 
+      if ((i->sub_type%2==1) && (nn<3)){ 
         cerr << "fig::write (spline): closed spline with <3 points\n";
+        break;
+      }
+      if ((i->sub_type%2==0) && (nn<2)){ 
+        cerr << "fig::write (spline): spline with <2 points\n";
         break;
       }
       out << "3 "
