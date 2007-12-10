@@ -83,7 +83,6 @@ main(int argc, char** argv){
   std::map<int, fig::fig_object> old_objects;      // по id
   std::multimap<int, fig::fig_object> labels;      // по id объекта
 
-
   int unk_count=0;
 
   std::cerr << "Reading new map...\n";  
@@ -223,9 +222,9 @@ main(int argc, char** argv){
       key.source = source;
       key.sid    = 0;
       zn::add_key(i->second, key);  // добавим ключ
-      MAP.push_back(i->second);     // запишем объект
-      list<fig::fig_object> l1 = zconverter.make_labels(i->second); // изготовим новые подписи
-      MAP.insert(MAP.end(), l1.begin(), l1.end());   
+      NEW.push_back(i->second);     // запишем объект
+      list<fig::fig_object> l1 = zconverter.make_labels(i->second, key.type); // изготовим новые подписи
+      NEW.insert(NEW.end(), l1.begin(), l1.end());   
     }
     else { // В объекте есть ключ. Тут все сложнее
       key.type = i->first; // сразу, чтоб не забыть. тип нового объекта - по его виду.
@@ -236,7 +235,7 @@ main(int argc, char** argv){
         cerr << "Конфликт: из системы объект " << key.id << " был удален,\n";
         cerr << "а вы его опять туда запихиваете... :( В глубину 11 его!\n";
         i->second.depth = 11; con_count++;
-        MAP.push_back(i->second);
+        NEW.push_back(i->second);
         continue;
       }
       zn::zn_key oldkey = zn::get_key(o->second);
@@ -245,7 +244,7 @@ main(int argc, char** argv){
         cerr << "Конфликт: объект " << key.id << " был изменен,\n";
         cerr << "а вы старую версию пытаетесь положить... :( В глубину 11 ее!\n";
         i->second.depth = 11; con_count++;
-        MAP.push_back(i->second);
+        NEW.push_back(i->second);
         // новый объект подменим старым...
         i->second = o->second;
         key = oldkey;
@@ -261,15 +260,15 @@ main(int argc, char** argv){
       } else old_count++;
 
       zn::add_key(i->second, key);  // добавим обновленный ключ
-      MAP.push_back(i->second);     // запишем объект
+      NEW.push_back(i->second);     // запишем объект
 
       // теперь еще подписи:
       // если у объекта есть название, но нет подписи - сделаем ее
       if ((i->second.comment.size()>0) && 
           (i->second.comment[0] != "") &&
           (labels.count(key.id) == 0)){
-        list<fig::fig_object> l1 = zconverter.make_labels(i->second); // изготовим новые подписи
-        MAP.insert(MAP.end(), l1.begin(), l1.end());   
+        list<fig::fig_object> l1 = zconverter.make_labels(i->second, key.type); // изготовим новые подписи
+        NEW.insert(NEW.end(), l1.begin(), l1.end());   
         continue;
       } 
       // вытащим из хэша все старые подписи для этого объекта
@@ -279,7 +278,7 @@ main(int argc, char** argv){
         if (i->second.comment.size()>0) l->second.text = i->second.comment[0];
         else l->second.text = "";
 
-        if (l->second.text !="") MAP.push_back(l->second);
+        if (l->second.text !="") NEW.push_back(l->second);
       }
 
     }
@@ -290,9 +289,9 @@ main(int argc, char** argv){
   std::cerr << old_count << " non-modified objects\n";
   std::cerr << unk_count << " unknown objects (see depth 10)\n";
   std::cerr << con_count << " conflicts (see depth 11)\n";
-  std::cerr << MAP.size() << " objects \n";
+  std::cerr << NEW.size() << " objects \n";
   // записываем MAP
   ofstream out(file.c_str());
-  fig::write(out, MAP);
+  fig::write(out, NEW);
 
 }
