@@ -3,17 +3,23 @@
 #include <string>
 #include <fstream>
 #include "zn.h"
+#include "zn_key.h"
 
 using namespace std;
+
+/*
+выдача карты из хранилища в формате fig или mp.
+все параметры картографических объектов устанавливаются
+в зависимости от их ключа (в хранилище внешний 
+вид объектов не важен!)
+*/
 
 void usage(){
     cerr << "usage: get_map <map> <conf_file> <out.fig|out.mp>\n";
     exit(0);
 }
 
-
 const string maps_dir  = "./maps";
-
 
 // проверка расширения
 bool testext(const string & nstr, const char *ext){
@@ -37,25 +43,24 @@ main(int argc, char** argv){
     exit(0);
   }
 
-
-
   zn::zn_conv zconverter(conf_file);
-  
   
   if (testext(out_file, ".fig")){ // пишем fig
     fig::fig_world F;
     for (fig::fig_world::iterator i=MAP.begin(); i!=MAP.end(); i++){
       if ((i->depth >=50) && (i->depth <400)){
-        zconverter.fig_update(*i);
-        list<fig::fig_object> l1 = zconverter.make_pic(*i);
+        zn::zn_key k = zn::get_key(*i);
+        zconverter.fig_update(*i, k.type);
+        list<fig::fig_object> l1 = zconverter.make_pic(*i, k.type);
         F.insert(F.begin(), l1.begin(), l1.end());
       }
       else F.push_back(*i);
     }
     ofstream out(out_file.c_str());
     fig::write(out, F);
-  } else
-  if (testext(out_file, ".mp")){ // читаем mp
+  } 
+
+  else if (testext(out_file, ".mp")){ // читаем mp
     // извлекаем привязку
     g_map ref = fig::get_ref(MAP);
     convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"), Options());
@@ -63,8 +68,8 @@ main(int argc, char** argv){
     mp::mp_world M;
     for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
       if ((i->depth >=50) && (i->depth <400)){
-        std::list<mp::mp_object> mp_list = zconverter.fig2mp(*i, cnv);
-        M.insert(M.end(), mp_list.begin(), mp_list.end());
+        zn::zn_key k = zn::get_key(*i);
+        M.push_back(zconverter.fig2mp(*i, cnv, k.type));
       }
     }
     ofstream out(out_file.c_str());

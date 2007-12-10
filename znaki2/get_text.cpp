@@ -2,12 +2,14 @@
 
 #include <string>
 #include <fstream>
-#include "zn.h"
+#include "zn_lists.h"
 
 using namespace std;
 
+// изготовление текстовой таблички с названиями знаков
+
 void usage(){
-    cerr << "usage: get_legend <conf_file> > out.fig\n";
+    cerr << "usage: get_text <conf_file> > out.txt\n";
     exit(0);
 }
 

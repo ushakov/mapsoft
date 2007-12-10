@@ -8,6 +8,12 @@
 using namespace std;
 using namespace fig;
 
+/*
+Преобразование fig -> fig для печати.
+Тип объекта определяется по его внешнему виду, 
+хранилище карт и ключи никак не используются
+*/
+
 
 // Найти ближайшую к точке pt линию из списка.
 // В pt запихать эту ближайшую точку, в vec - едиичный вектор направления линии,
@@ -81,68 +87,68 @@ main(int argc, char **argv){
     if ((i->depth <30) || (i->depth>=400)) continue;
     if (i->size() == 0) continue;
 
-    zn::zn_key k = zn::get_key(*i);
+
+    int type = zconverter.get_type(*i);
 
     if (pass ==0){
-      if (k.type == 0x100027) list_zd.push_back(*i);
-      if ((k.type == 0x100015)||
-          (k.type == 0x100018)||
-          (k.type == 0x10001F)|| 
-          (k.type == 0x100026)) list_r.push_back(*i);
-      if (k.type == 0x10000C)   list_h.push_back(*i);
+      if (type == 0x100027) list_zd.push_back(*i);
+      if ((type == 0x100015)||
+          (type == 0x100018)||
+          (type == 0x10001F)|| 
+          (type == 0x100026)) list_r.push_back(*i);
+      if (type == 0x10000C)   list_h.push_back(*i);
       continue;
     }
 
-
-    zconverter.fig_update(*i);    
+    zconverter.fig_update(*i, type);
     // преобразуем некоторые объекты в x-spline
     if (
-         (k.type == 0x100001) || // автомагистраль
-         (k.type == 0x100002) || // шоссе
-         (k.type == 0x100004) || // грейдер
-         (k.type == 0x100006) || // черная дорога
-         (k.type == 0x100007) || // непроезжий грейдер
-         (k.type == 0x10000C) || // хребет
-         (k.type == 0x100015) || // река-1
-         (k.type == 0x100018) || // река-2
-         (k.type == 0x10001E) || // нижний край обрыва
-         (k.type == 0x10001F) || // река-3
-         (k.type == 0x100020) || // горизонталь пунктирная
-         (k.type == 0x100021) || // горизонталь обычная
-         (k.type == 0x100022) || // горизонталь жирная
-         (k.type == 0x100025) || // овраг
-         (k.type == 0x100026) || // пересыхающий ручей
-         (k.type == 0x100027) || // ж/д
-         (k.type == 0x10002A) || // тропа
-         (k.type == 0x10002B) || // сухая канава
-         (k.type == 0x100032) || // плохой путь
-         (k.type == 0x100033) || // 
-         (k.type == 0x100034) || // 
-         (k.type == 0x100035) || // отличнй путь
-         (k.type == 0x200014) || // редколесье
-         (k.type == 0x200015) || // остров леса
-         (k.type == 0x200029) || // озеро
-         (k.type == 0x20003B) || // большое озеро
-         (k.type == 0x20004D) || // ледник
-         (k.type == 0x200052) || // поле
-         (k.type == 0x200053)    // остров
+         (type == 0x100001) || // автомагистраль
+         (type == 0x100002) || // шоссе
+         (type == 0x100004) || // грейдер
+         (type == 0x100006) || // черная дорога
+         (type == 0x100007) || // непроезжий грейдер
+         (type == 0x10000C) || // хребет
+         (type == 0x100015) || // река-1
+         (type == 0x100018) || // река-2
+         (type == 0x10001E) || // нижний край обрыва
+         (type == 0x10001F) || // река-3
+         (type == 0x100020) || // горизонталь пунктирная
+         (type == 0x100021) || // горизонталь обычная
+         (type == 0x100022) || // горизонталь жирная
+         (type == 0x100025) || // овраг
+         (type == 0x100026) || // пересыхающий ручей
+         (type == 0x100027) || // ж/д
+         (type == 0x10002A) || // тропа
+         (type == 0x10002B) || // сухая канава
+         (type == 0x100032) || // плохой путь
+         (type == 0x100033) || // 
+         (type == 0x100034) || // 
+         (type == 0x100035) || // отличнй путь
+         (type == 0x200014) || // редколесье
+         (type == 0x200015) || // остров леса
+         (type == 0x200029) || // озеро
+         (type == 0x20003B) || // большое озеро
+         (type == 0x20004D) || // ледник
+         (type == 0x200052) || // поле
+         (type == 0x200053)    // остров
        ) i->any2xspl(1);
 
     // отметка уреза воды
-    if (k.type == 0x1000){ 
+    if (type == 0x1000){ 
       *i = make_object(*i, "1 3 0 1 22046463 7 57 -1 20 2.000 1 0.000 * * 23 23 * * * *");
       i->center_x = (*i)[0].x;
       i->center_y = (*i)[0].y;
       NW.push_back(*i); continue;
     }
     // подпись урочища
-    if (k.type == 0x2800){
+    if (type == 0x2800){
       i->pen_color=0;
       i->depth=40; //! чтоб под текстом линии стирались!
       NW.push_back(*i); continue;
     }
     // платформа
-    if (k.type == 0x5905){
+    if (type == 0x5905){
       Point<double> t, p((*i)[0]);
       nearest_line(list_zd, t, p);
 
@@ -157,22 +163,22 @@ main(int argc, char **argv){
       NW.push_back(o); continue;
     }
     // все перевалы разом!
-    if ((k.type == 0x6406)||
-        (k.type == 0x6621)||
-        (k.type == 0x6622)||
-        (k.type == 0x6623)||
-        (k.type == 0x6624)||
-        (k.type == 0x6625)||
-        (k.type == 0x6626)){
+    if ((type == 0x6406)||
+        (type == 0x6621)||
+        (type == 0x6622)||
+        (type == 0x6623)||
+        (type == 0x6624)||
+        (type == 0x6625)||
+        (type == 0x6626)){
       Point<double> t, p((*i)[0]);
       nearest_line(list_h, t, p);
-      list<fig_object> l1 = zconverter.make_pic(*i);
+      list<fig_object> l1 = zconverter.make_pic(*i, type);
       fig::fig_rotate(l1, atan2(t.y, t.x), p);
       NW.insert(NW.end(), l1.begin(), l1.end());
       continue;
     }
     // порог и водопад
-    if ((k.type == 0x650E) || (k.type == 0x6508)){
+    if ((type == 0x650E) || (type == 0x6508)){
       
       Point<double> t1, p1((*i)[0]);
       nearest_line(list_r, t1, p1);
@@ -180,7 +186,7 @@ main(int argc, char **argv){
       Point<double> n(-t1.y,t1.x);
       fig_object o = make_object("2 1 0 2 1 0 57 -1 0 0 0 1 0 0 0 *");
       double w = 30; // длина штриха
-      if (k.type == 0x6508) o.thickness=3;
+      if (type == 0x6508) o.thickness=3;
       o.push_back(p1+n*w);
       o.push_back(p1-n*w);
       NW.push_back(o);
@@ -188,9 +194,9 @@ main(int argc, char **argv){
     }
 
     // автомагистраль, шоссе, грейдер
-    if ((k.type == 0x100001)||
-        (k.type == 0x100002)||
-        (k.type == 0x100004)){
+    if ((type == 0x100001)||
+        (type == 0x100002)||
+        (type == 0x100004)){
       i->pen_color=0; NW.push_back(*i); 
       fig_object o = *i;
       o.pen_color = o.fill_color; o.depth--; o.thickness-=2; NW.push_back(o);
@@ -198,14 +204,14 @@ main(int argc, char **argv){
       continue;
     }
     // непроезжий грейдер
-    if (k.type == 0x100007){
+    if (type == 0x100007){
       i->pen_color=0; i->cap_style=0; i->line_style=0; NW.push_back(*i);
       fig_object o = *i; o.line_style=2; o.style_val=6; o.depth--; o.pen_color=7; NW.push_back(o);
       o.line_style=0; o.thickness-=2; NW.push_back(o);
       continue;
     }
     // непроезжая грунтовка
-    if (k.type == 0x10000A){
+    if (type == 0x10000A){
       i->pen_color=0; i->type=2; i->sub_type=1;
       LineDist<int> ld(*i);
       while (!ld.is_end()){
@@ -217,14 +223,14 @@ main(int argc, char **argv){
       continue;
     }
     // река-3
-    if (k.type == 0x10001F){ 
+    if (type == 0x10001F){ 
       NW.push_back(*i);
       fig_object o = *i; o.pen_color = o.fill_color; o.depth--; o.thickness-=2; 
       NW.push_back(o);  continue;
     }
 
     // мост
-    if ((k.type == 0x100008) || (k.type == 0x100009) || (k.type == 0x10000B)){ 
+    if ((type == 0x100008) || (type == 0x100009) || (type == 0x10000B)){ 
         i->resize(2);
         Point<double> p1=(*i)[0], p2=(*i)[1];
         double ll = pdist(p1,p2);
@@ -255,7 +261,7 @@ main(int argc, char **argv){
     }
 
     // пешеходный тоннель
-    if (k.type == 0x10001B){ 
+    if (type == 0x10001B){ 
 
         i->resize(2);
         Point<double> p1=(*i)[0], p2=(*i)[1];
@@ -282,7 +288,7 @@ main(int argc, char **argv){
     }
 
     // ЛЭП
-    if ((k.type == 0x100029)||(k.type == 0x10001A)){ 
+    if ((type == 0x100029)||(type == 0x10001A)){ 
       NW.push_back(*i);
       double step = 400;
       fig_object o = make_object(*i,
@@ -314,7 +320,7 @@ main(int argc, char **argv){
     }
 
     // газопровод
-    if (k.type == 0x100028){
+    if (type == 0x100028){
       i->line_style=0;
       NW.push_back(*i);
       double step = 600;
@@ -336,7 +342,7 @@ main(int argc, char **argv){
     }
 
     // кривая надпись
-    if (k.type == 0x100000){ 
+    if (type == 0x100000){ 
       if ((i->size()<2)||(i->comment.size()<1)||(i->comment[0].size()<1)) continue;
 
       LineDist<int> ld(*i); 
@@ -360,7 +366,7 @@ main(int argc, char **argv){
     }
 
     // забор
-    if (k.type == 0x100019){ 
+    if (type == 0x100019){ 
       double step = 130;
       double w    = 30;
       int k=1;
@@ -391,7 +397,7 @@ main(int argc, char **argv){
     }
 
     // верхний край обрыва
-    if (k.type == 0x100003){ 
+    if (type == 0x100003){ 
       double step = 40;
       double w    = 20;
       int k=1;
@@ -424,15 +430,15 @@ main(int argc, char **argv){
 
 
     // большой водоем
-    if (k.type == 0x20003B){ 
+    if (type == 0x20003B){ 
       i->area_fill = 20; NW.push_back(*i); continue;
     }
     // город
-    if (k.type == 0x200001){ 
+    if (type == 0x200001){ 
       i->area_fill = 20; NW.push_back(*i); continue;
     }
     // кладбище
-    if (k.type == 0x20001A){ 
+    if (type == 0x20001A){ 
       i->area_fill=10;
       int w1=23, w2=45; // размер крестика
 
@@ -460,7 +466,7 @@ main(int argc, char **argv){
     }
  
    // болота
-   if ((k.type == 0x20004C) || (k.type == 0x200051)){ 
+   if ((type == 0x20004C) || (type == 0x200051)){ 
       int step = 40; // расстояние между штрихами
 
       // ищем габариты объекта
@@ -490,7 +496,7 @@ main(int argc, char **argv){
       }
       crop_lines(ls, c);
       fig_object o = make_object("2 1 0 1 22046463 7 87 -1 -1 0.000 0 1 0 0 0 0");
-      if (k.type == 0x200051) {o.line_style=1; o.style_val=5;}
+      if (type == 0x200051) {o.line_style=1; o.style_val=5;}
       for (list<Line<double> >::iterator l = ls.begin(); l!=ls.end(); l++){
         o.set_points(*l);
         NW.push_back(o);
@@ -499,7 +505,7 @@ main(int argc, char **argv){
    }
 
     // прочие объекты - без изменений
-    list<fig_object> l1 = zconverter.make_pic(*i);
+    list<fig_object> l1 = zconverter.make_pic(*i, type);
     NW.insert(NW.end(), l1.begin(), l1.end());
   }
 

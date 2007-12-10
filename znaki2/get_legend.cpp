@@ -2,7 +2,7 @@
 
 #include <string>
 #include <fstream>
-#include "zn.h"
+#include "zn_lists.h"
 
 using namespace std;
 
@@ -18,6 +18,6 @@ main(int argc, char** argv){
   string conf_file = argv[1];
 
   zn::zn_conv zconverter(conf_file);
-  fig::fig_world F = zconverter.make_legend();
+  fig::fig_world F = make_legend(zconverter);
   fig::write(cout, F);
 }

@@ -309,7 +309,7 @@ bool write(ostream & out, const fig_world & world){
         break;
     case 2: // Polyline
 
-      // в замкнутых многоугольниках последняя точкадолжна совпадать с первой
+      // в замкнутых многоугольниках последняя точка должна совпадать с первой
       if ((i->sub_type > 1) && (nn>0) && ((*i)[nn-1]!=(*i)[0])){
         nn1=nn+1;
       }
@@ -354,7 +354,11 @@ bool write(ostream & out, const fig_world & world){
     case 3: // Spline
       if (nn!=i->f.size()){
         cerr << "fig::write (spline): different amount of x,y and f values\n";
-        return false;
+        break;
+      }
+      if ((sub_type%2==1) && (nn<3)){ 
+        cerr << "fig::write (spline): closed spline with <3 points\n";
+        break;
       }
       out << "3 "
         << i->sub_type   << " "
@@ -394,7 +398,7 @@ bool write(ostream & out, const fig_world & world){
       // сделать пересчет размеров (height length)!
       if (nn<1){
         cerr << "fig::write (text): can't get x and y values\n";
-        return false;
+        break;
       }
       out << "4 "
         << i->sub_type   << " "
@@ -414,7 +418,7 @@ bool write(ostream & out, const fig_world & world){
     case 5: // Arc
       if (nn<3){
         cerr << "fig::write (arc): can't get x and y values\n";
-        return false;
+        break;
       }
       out << "5 "
         << i->sub_type   << " "

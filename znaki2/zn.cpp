@@ -10,124 +10,11 @@
 
 namespace zn{
 
-
-std::ostream & operator<< (std::ostream & s, const zn_key & t){
-  s << "0x" << std::setbase(16) << std::setw(6) << std::setfill('0') 
-    << t.type << std::setbase(10) << " " 
-    << t.time << " "
-    << t.id << "@" << t.map << " ";
-  if (t.source != ""){
-    if (t.sid!=0) s << t.sid << "@";
-    s << t.source;
-  }
-  return s;
-}
-
-std::istream & operator>> (std::istream & s, zn_key & t){
-  using namespace boost::spirit;
-  std::string str;
-  std::getline(s, str);
-
-  zn_key newkey;
-  std::string timestr;
-  std::string classstr;
-
-  if (str.empty()) {t = newkey; return s;}
-
-  if (parse(str.c_str(),
-      *blank_p >> 
-         ch_p('0') >> 'x' >> hex_p[assign_a(newkey.type)] >> +blank_p >>
-         (+graph_p >> +blank_p >> +graph_p)[assign_a(timestr)] >> +blank_p >>
-         uint_p[assign_a(newkey.id)] >> '@' >> (*(alnum_p|'_'))[assign_a(newkey.map)] >>
-         !(+blank_p >> 
-           ( 
-             (uint_p[assign_a(newkey.sid)] >> '@' >> (+alnum_p)[assign_a(newkey.source)]) ||
-             (+alnum_p)[assign_a(newkey.source)]
-           )
-         ) >> *blank_p     
-     ).full){
-    if (!timestr.empty()) newkey.time = boost::lexical_cast<Time>(timestr);
-  } else {
-    std::cerr << "zn_key: can't find valid key in " << str << "\n";
-    newkey = zn_key();
-  }
-  t = newkey;
-  return s;
-}
-
-std::ostream & operator<< (std::ostream & s, const zn_label_key & t){
-  s << "+" << t.id << "@" << t.map;
-  return s;
-}
-
-std::istream & operator>> (std::istream & s, zn_label_key & t){
-  using namespace boost::spirit;
-  std::string str;
-  std::getline(s, str);
-
-  if (str.empty()) {t = zn_label_key(); return s;}
-
-  if (parse(str.c_str(),
-      *blank_p >> ch_p('+') >> 
-      uint_p[assign_a(t.id)] >> '@' >> (+(alnum_p|'_'))[assign_a(t.map)] >> *blank_p
-     ).full){
-    return s;
-  } else {
-    t = zn_label_key(); return s;
-  }
-}
-
-//============================================================
-
 // в этом диапазоне глубин должны лежать 
 // только картографические объекты!
 bool is_map_depth(const fig::fig_object & o){
   return ((o.depth>=50) && (o.depth<400));
 }
-
-// Извлечь ключ из комментария (2-я строчка) к fig-объекту
-zn_key get_key(const fig::fig_object & fig){
-  if (fig.comment.size() < 2) return zn_key();
-  return boost::lexical_cast<zn_key>(fig.comment[1]);
-}
-
-// Извлечь ключ подписи из комментария (2-я строчка) к fig-объекту
-zn_label_key get_label_key(const fig::fig_object & fig){
-  if (fig.comment.size() < 2) return zn_label_key();
-  return boost::lexical_cast<zn_label_key>(fig.comment[1]);
-}
-
-// Извлечь ключ из комментария (1-я строчка) к mp-объекту
-// Тип объекта берется из mp, а не из ключа!
-// (поскольку из ключа он _никогда_ не должен браться)
-zn_key get_key(const mp::mp_object & mp){
-  zn_key ret;
-  if (mp.Comment.size() > 0) ret = boost::lexical_cast<zn_key>(mp.Comment[0]);
-  ret.type = mp.Type + ((mp.Class == "POLYLINE")?line_mask:0) + ((mp.Class == "POLYGON")?area_mask:0);
-
-  return ret;
-}
-
-// поместить ключ в комментарий к fig-объекту
-void add_key(fig::fig_object & fig, const zn_key & key){
-  if (fig.comment.size()<2) fig.comment.resize(2);
-  fig.comment[1] = boost::lexical_cast<std::string>(key);
-}
-
-// поместить ключ подписи в комментарий к fig-объекту
-void add_key(fig::fig_object & fig, const zn_label_key & key){
-  if (fig.comment.size()<2) fig.comment.resize(2);
-  fig.comment[1] = boost::lexical_cast<std::string>(key);
-}
-
-// поместить ключ в комментарий к mp-объекту
-void add_key(mp::mp_object & mp, const zn_key & key){
-  if (mp.Comment.size()<1) mp.Comment.resize(1);
-  mp.Comment[0] = boost::lexical_cast<std::string>(key);
-}
-
-
-//============================================================
 
 // Заполняет массив знаков 
 bool zn_conv::load_znaki(YAML::Node &root) {
@@ -188,9 +75,7 @@ bool zn_conv::load_znaki(YAML::Node &root) {
 
 
 
-// класс, знающий (из конф.файла) про конкретные условные обозначения 
-// и умеющий их преобразовывать
-
+//конструктор zn_conv
 zn_conv::zn_conv(const std::string & conf_file){
 
   // читаем конф.файл.
@@ -212,7 +97,7 @@ zn_conv::zn_conv(const std::string & conf_file){
    }
   default_fig.pen_color = 4;
   default_fig.thickness = 4;
-  default_fig.depth = 2;
+  default_fig.depth = 10;
 
 }
 
@@ -280,16 +165,17 @@ int zn_conv::get_type (const fig::fig_object & o) const {
   return 0;
 }
 
+// Преобразовать mp-объект в fig-объект
+// Если тип 0, то он определяется функцией get_type по объекту
+fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type) const{
+  if (type ==0) type = get_type(mp);
 
-// преобразовать mp-объект в fig-объект
-// ключ сохраняется старый, или создается неполный (только с типом)
-fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv) const{
   fig::fig_object ret = default_fig;
-  int type = get_type(mp);
   if (znaki.find(type) != znaki.end()) ret = znaki.find(type)->second.fig;
+  else {std::cerr << "fig2mp: unknown type: " << type << "\n";}
+
   ret.comment.push_back(mp.Label);
   ret.comment.insert(ret.comment.end(), mp.Comment.begin(), mp.Comment.end());
-  add_key(ret, get_key(mp));
   g_line pts = cnv.line_bck(mp);
   for (int i=0; i<pts.size(); i++) ret.push_back(pts[i]);
   // замкнутая линия
@@ -297,32 +183,25 @@ fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv) c
     ret.resize(ret.size()-1);
     ret.close();
   }
-
   // стрелки
   if      (mp.DirIndicator==1){ret.forward_arrow=1;}
   else if (mp.DirIndicator==2){ret.backward_arrow=1;}
-
   return ret;
 }
 
 // преобразовать fig-объект в mp-объект
-// ключ сохраняется старый, или создается неполный (только с типом)
-std::list<mp::mp_object> zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv) const{
-  std::list<mp::mp_object> ret;
+// Если тип 0, то он определяется функцией get_type по объекту
+mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type) const{
+  if (type ==0) type = get_type(fig);
 
-  zn_key key = get_key(fig); 
-
-  if (key.type == 0) return ret;
-
-  mp::mp_object mp;
-  if (znaki.find(key.type) != znaki.end()) mp = znaki.find(key.type)->second.mp;
-  else mp = default_mp;
+  mp::mp_object mp = default_mp;
+  if (znaki.find(type) != znaki.end()) mp = znaki.find(type)->second.mp;
+  else {std::cerr << "mp2fig: unknown type: " << type << "\n";}
 
   if (fig.comment.size()>0){
     mp.Label = fig.comment[0];
     mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
   }
-  add_key(mp, key);
 
   g_line pts = cnv.line_frw(fig);
   for (int i=0; i<pts.size(); i++) mp.push_back(pts[i]);
@@ -337,48 +216,44 @@ std::list<mp::mp_object> zn_conv::fig2mp(const fig::fig_object & fig, convs::map
   if ((fig.forward_arrow==1)&&(fig.backward_arrow==0)) mp.DirIndicator=1;
   if ((fig.forward_arrow==0)&&(fig.backward_arrow==1)) mp.DirIndicator=2;
 
-  ret.push_back(mp);
-  return ret;
+  return mp;
 }
 
-// Поменять параметры в соответствии с конф.файлм.
-// Объект должен иметь полный ключ!
-void zn_conv::fig_update(fig::fig_object & fig) const{
-  zn_key key = get_key(fig);
-  map<int, zn>::const_iterator z = znaki.find(key.type);
-  if (z==znaki.end()) {
-    std::cerr << "can't find type " << key.type << " in conf.file\n";
-    return;
-  }
+// Поменять параметры в соответствии с типом.
+// Если тип 0, то он определяется функцией get_type по объекту
+void zn_conv::fig_update(fig::fig_object & fig, int type) const{
+  if (type ==0) type = get_type(fig);
+
+  fig::fig_object tmp = default_fig;
+  if (znaki.find(type) != znaki.end()) tmp = znaki.find(type)->second.fig;
+  else {std::cerr << "fig_update: unknown type: " << type << "\n"; return;}
+
   // копируем разные параметры:
-  fig.line_style = z->second.fig.line_style;
-  fig.thickness  = z->second.fig.thickness;
-  fig.pen_color  = z->second.fig.pen_color;
-  fig.fill_color = z->second.fig.fill_color;
-  fig.depth      = z->second.fig.depth;
-  fig.pen_style  = z->second.fig.pen_style;
-  fig.area_fill  = z->second.fig.area_fill;
-  fig.style_val  = z->second.fig.style_val;
-  fig.cap_style  = z->second.fig.cap_style;
-  fig.join_style = z->second.fig.join_style;
-  fig.font       = z->second.fig.font;
-  fig.font_size  = z->second.fig.font_size;
-  fig.font_flags = z->second.fig.font_flags;
+  fig.line_style = tmp.line_style;
+  fig.thickness  = tmp.thickness;
+  fig.pen_color  = tmp.pen_color;
+  fig.fill_color = tmp.fill_color;
+  fig.depth      = tmp.depth;
+  fig.pen_style  = tmp.pen_style;
+  fig.area_fill  = tmp.area_fill;
+  fig.style_val  = tmp.style_val;
+  fig.cap_style  = tmp.cap_style;
+  fig.join_style = tmp.join_style;
+  fig.font       = tmp.font;
+  fig.font_size  = tmp.font_size;
+  fig.font_flags = tmp.font_flags;
 }
 
-// Создать картинку к объекту. Объект должен иметь полный ключ!
-std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig) const{
+// Создать картинку к объекту в соответствии с типом.
+std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type) const{
 
   std::list<fig::fig_object> ret;
   if (fig.size()==0) return ret;
   ret.push_back(fig);
 
-  zn_key key = get_key(fig);
-  map<int, zn>::const_iterator z = znaki.find(key.type);
-  if (z==znaki.end()) {
-    std::cerr << "can't find type " << key.type << " in conf.file\n";
-    return ret;
-  }
+  if (type ==0) type = get_type(fig);
+  std::map<int, zn>::const_iterator z = znaki.find(type);
+  if (z == znaki.end()){ std::cerr << "make_pic: unknown type: " << type << "\n"; return ret; }
 
   if (z->second.pic=="") return ret; // нет картинки
 
@@ -402,20 +277,16 @@ std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig) const{
   return ret;
 }
 
-// Создать подписи к объекту. Объект должен иметь полный ключ!
-std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig) const {
+// Создать подписи к объекту.
+std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type) const {
 
   std::list<fig::fig_object> ret;
-  if (fig.size() < 1) return ret;                    // странный объект
+  if (fig.size() == 0) return ret;                   // странный объект
 
-  zn_key key = get_key(fig);
-  if ((key.type == 0)||(key.id==0))  return ret;     // неполный ключ
+  if (type ==0) type = get_type(fig);
 
-  map<int, zn>::const_iterator z = znaki.find(key.type);
-  if (z==znaki.end()) {
-    std::cerr << "can't find type " << key.type << " in conf.file\n";
-    return ret;
-  }
+  map<int, zn>::const_iterator z = znaki.find(type);
+  if (z==znaki.end()) {std::cerr << "make_pic: unknown type: " << type << "\n"; return ret;}
 
   if (!z->second.istxt) return ret;            // подпись не нужна
   if ((fig.comment.size()==0)||
@@ -433,7 +304,7 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig) con
 
   if (fig.size()>=2){
 
-    if ((key.type >= line_mask) && (key.type < area_mask) && (txt.sub_type == 1)){ // линия с центрированным текстом
+    if ((type >= line_mask) && (type < area_mask) && (txt.sub_type == 1)){ // линия с центрированным текстом
       // ставится в середину линии
       p = (fig[fig.size()/2-1] + fig[fig.size()/2]) / 2;
       Point<double> v = pnorm(fig[fig.size()/2-1] - fig[fig.size()/2]);
@@ -478,84 +349,10 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig) con
       }
     }
   }
-  add_key(txt, zn_label_key(key));
   txt.text = fig.comment[0];
   txt.push_back(p);
   ret.push_back(txt);
   return(ret);
 }
-
-// список всех знаков в формате fig
-fig::fig_world zn_conv::make_legend(int grid, int dg) const{
-  int count=0;
-  fig::fig_world ret;
-
-  for (std::map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
-    fig::fig_object o = i->second.fig;
-    Point<int> shift(0, count*2*grid);
-    zn_key key;
-    key.type = i->first;
-    key.id = count+1;
-    key.map = "get_legend_map";
-
-    if (i->first >= area_mask){
-      o.push_back(Point<int>(dg,      -dg));
-      o.push_back(Point<int>(grid*5-dg,  0));
-      o.push_back(Point<int>(grid*5,  grid));
-      o.push_back(Point<int>(0,       grid));
-    }
-    else if (i->first >= line_mask){
-      o.push_back(Point<int>(0,       grid-dg));
-      o.push_back(Point<int>(grid*4+dg,  grid));
-      o.push_back(Point<int>(grid*5,  0));
-    }
-    else{
-      o.push_back(Point<int>(grid*2,  grid));
-    }
-    o+=shift;
-    o.comment.push_back("text");
-    if (o.type==4) o.text="10";
-    add_key(o, key);
-    
-    std::list<fig::fig_object> l1 = zn_conv::make_pic(o);
-    std::list<fig::fig_object> l2 = zn_conv::make_labels(o);
-    ret.insert(ret.end(), l1.begin(), l1.end());
-    ret.insert(ret.end(), l2.begin(), l2.end());
-
-    fig::fig_object text = fig::make_object("4 0 0 40 -1 18 8 0.0000 4");
-    text.text = i->second.name;
-    text.push_back(Point<int>(grid*8, grid));
-    text+=shift;
-    ret.push_back(text);
-    
-    ostringstream mp_key;
-    mp_key << i->second.mp.Class << " 0x" << std::setbase(16) << i->second.mp.Type;
-    text.text = mp_key.str();
-    text.clear();
-    text.push_back(Point<int>(-1*grid, grid));
-    text+=shift;
-    text.sub_type = 2;
-    ret.push_back(text);
-
-    count++;
-  }
-  fig::fig_object o = fig::make_object("2 2 0 0 30 30 150 -1 20 0.000 0 1 7 0 0 0");
-  o.push_back(Point<int>(-15*grid,-grid));
-  o.push_back(Point<int>(+40*grid,-grid));
-  o.push_back(Point<int>(+40*grid,(2*count+1)*grid));
-  o.push_back(Point<int>(-15*grid,(2*count+1)*grid));
-  ret.push_back(o);
-  return ret;
-}
-
-// текстовый список всех знаков
-std::string zn_conv::make_text() const{
-  ostringstream out;
-  for (std::map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
-    out << std::setbase(16) << i->first << "\t" << i->second.name << " // " << i->second.desc << "\n";
-  }
-  return out.str();
-}
-
 } // namespace
 
