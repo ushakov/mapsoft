@@ -120,6 +120,7 @@ main(int argc, char** argv){
         if (type==0) {
           cerr << "can't determin object type! Making it's depth=10!!!\n";
           i->depth=10; unk_count++;
+          if (i->comment.size()>1) i->comment[1]="";
           NEW.push_back(*i);
           continue;
         }
@@ -173,6 +174,7 @@ main(int argc, char** argv){
       if (type==0) {
         cerr << "can't determin object type! Making it's depth=10!!!\n";
         fig.depth=10; unk_count++;
+        if (fig.comment.size()>1) fig.comment[1]="";
         NEW.push_back(fig);
         continue;
       }
@@ -207,6 +209,10 @@ main(int argc, char** argv){
   int old_count = 0;
   int con_count = 0;
 
+  int l_o_count = 0;
+  int l_m_count = 0;
+  int l_n_count = 0;
+
   std::cerr << "Merging maps...\n";  
   for (std::multimap<int, fig::fig_object>::iterator i = new_objects.begin(); i!=new_objects.end(); i++){
 
@@ -225,6 +231,7 @@ main(int argc, char** argv){
       NEW.push_back(i->second);     // запишем объект
       list<fig::fig_object> l1 = zconverter.make_labels(i->second, key.type); // изготовим новые подписи
       NEW.insert(NEW.end(), l1.begin(), l1.end());   
+      l_n_count+=l1.size();
     }
     else { // В объекте есть ключ. Тут все сложнее
       key.type = i->first; // сразу, чтоб не забыть. тип нового объекта - по его виду.
@@ -271,26 +278,36 @@ main(int argc, char** argv){
           (labels.count(key.id) == 0)){
         list<fig::fig_object> l1 = zconverter.make_labels(i->second, key.type); // изготовим новые подписи
         NEW.insert(NEW.end(), l1.begin(), l1.end());   
+        l_n_count+=l1.size();
         continue;
       } 
       // вытащим из хэша все старые подписи для этого объекта
       for (multimap<int, fig::fig_object>::iterator l = labels.find(key.id); 
           (l != labels.end()) && (l->first == key.id); l++){
         // текст подписи = название объекта
-        if (i->second.comment.size()>0) l->second.text = i->second.comment[0];
-        else l->second.text = "";
+        std::string text = (i->second.comment.size()>0)? i->second.comment[0]:"";
+        if (text != l->second.text){
+          l->second.text = text;
+          l_m_count++;
+        } else l_o_count++;
 
-        if (l->second.text !="") NEW.push_back(l->second);
+        if (text !="") NEW.push_back(l->second);
       }
 
     }
   }
 
-  std::cerr << new_count << " new objects\n";
-  std::cerr << mod_count << " modified objects\n";
-  std::cerr << old_count << " non-modified objects\n";
+  std::cerr << " --- map objects:\n";
+  std::cerr << new_count << " new\n";
+  std::cerr << mod_count << " modified\n";
+  std::cerr << old_count << " non-modified\n";
   std::cerr << unk_count << " unknown objects (see depth 10)\n";
   std::cerr << con_count << " conflicts (see depth 11)\n";
+  std::cerr << " --- labels:\n";
+  std::cerr << l_n_count << " new\n";
+  std::cerr << l_m_count << " modified\n";
+  std::cerr << l_o_count << " non-modified\n";
+  std::cerr << " ---\n";
   std::cerr << NEW.size() << " fig objects \n";
   // записываем MAP
   ofstream out(file.c_str());
