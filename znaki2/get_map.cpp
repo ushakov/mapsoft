@@ -53,10 +53,10 @@ main(int argc, char** argv){
     fig::fig_world::iterator i=MAP.begin(); 
     while (i!=MAP.end()){
       if (!zn::is_map_depth(*i)){
-        zn::label_key k = zconverter.get_label_key(*i);
+        zn::zn_label_key k = zn::get_label_key(*i);
         if ((k.id!=0) && (k.map ==map_name)){
           labels.insert(std::pair<int, fig::fig_object>(k.id, *i));
-          i=MAP.erase(*i);
+          i=MAP.erase(i);
           continue;
         }
       }
@@ -70,8 +70,8 @@ main(int argc, char** argv){
         list<fig::fig_object> l1 = zconverter.make_pic(*i, k.type);
         F.insert(F.begin(), l1.begin(), l1.end());
         // вытащим из хэша все подписи для этого объекта
-        for (multimap<int, fig::fig_object>::iterator l = labels.find(key.id);
-            (l != labels.end()) && (l->first == key.id); l++){
+        for (multimap<int, fig::fig_object>::iterator l = labels.find(k.id);
+            (l != labels.end()) && (l->first == k.id); l++){
           zconverter.label_update(*i, k.type);
           F.push_back(l->second);
         }

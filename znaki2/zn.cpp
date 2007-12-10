@@ -249,7 +249,7 @@ void zn_conv::fig_update(fig::fig_object & fig, int type) const{
 // Если тип 0 - ничего не менять
 void zn_conv::label_update(fig::fig_object & fig, int type) const{
 
-  std::map<int, zn>::iterator z = znaki.find(type);
+  std::map<int, zn>::const_iterator z = znaki.find(type);
   if (z != znaki.end()){
     fig.pen_color = z->second.txt.pen_color;
     fig.font      = z->second.txt.font;
