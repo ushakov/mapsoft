@@ -289,7 +289,7 @@ main(int argc, char** argv){
   std::cerr << old_count << " non-modified objects\n";
   std::cerr << unk_count << " unknown objects (see depth 10)\n";
   std::cerr << con_count << " conflicts (see depth 11)\n";
-  std::cerr << NEW.size() << " objects \n";
+  std::cerr << NEW.size() << " fig objects \n";
   // записываем MAP
   ofstream out(file.c_str());
   fig::write(out, NEW);
