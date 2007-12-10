@@ -119,5 +119,10 @@ void add_key(mp::mp_object & mp, const zn_key & key){
   mp.Comment[0] = boost::lexical_cast<std::string>(key);
 }
 
+// удалить любой ключ (да и всю вторую стоку комментария)
+void clear_key(fig::fig_object & fig){
+  if (fig.comment.size()>1) fig.comment[1]="";
+}
+
 } // namespace
 

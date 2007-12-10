@@ -65,6 +65,9 @@ void add_key(std::list<fig::fig_object> & l, const zn_label_key & key);
 // поместить ключ в комментарий к mp-объекту
 void add_key(mp::mp_object & mp, const zn_key & key);
 
+// удалить любой ключ (да и всю вторую стоку комментария)
+void clear_key(fig::fig_object & fig);
+
 
 } // namespace
 

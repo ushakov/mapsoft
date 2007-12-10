@@ -85,6 +85,8 @@ main(int argc, char** argv){
 
   int unk_count=0;
 
+  std:set<int> ids; // для проверки на повторы ключей...
+
   std::cerr << "Reading new map...\n";  
   if (fig_not_mp){ // читаем fig
     fig::fig_world FIG = fig::read(infile.c_str());
@@ -120,9 +122,13 @@ main(int argc, char** argv){
         if (type==0) {
           cerr << "can't determin object type! Making it's depth=10!!!\n";
           i->depth=10; unk_count++;
-          if (i->comment.size()>1) i->comment[1]="";
           NEW.push_back(*i);
           continue;
+        }
+        zn::zn_key k = zn::get_key(*i);
+        if (k.id!=0){
+          if (ids.find(k.id) != ids.end()) { zn::clear_key(*i);}
+          else ids.insert(k.id);
         }
         new_objects.insert(std::pair<int, fig::fig_object>(type, *i));
       }
@@ -174,7 +180,7 @@ main(int argc, char** argv){
       if (type==0) {
         cerr << "can't determin object type! Making it's depth=10!!!\n";
         fig.depth=10; unk_count++;
-        if (fig.comment.size()>1) fig.comment[1]="";
+        zn::clear_key(fig);
         NEW.push_back(fig);
         continue;
       }
@@ -243,7 +249,7 @@ main(int argc, char** argv){
         cerr << "Конфликт: из системы объект " << key.id << " был удален,\n";
         cerr << "а вы его опять туда запихиваете... :( В глубину 11 его!\n";
         i->second.depth = 11; con_count++;
-        if (i->second.comment.size()>1) i->second.comment[1]="";
+        zn::clear_key(i->second);
         NEW.push_back(i->second);
         continue;
       }
@@ -253,7 +259,7 @@ main(int argc, char** argv){
         cerr << "Конфликт: объект " << key.id << " был изменен,\n";
         cerr << "а вы старую версию пытаетесь положить... :( В глубину 11 ее!\n";
         i->second.depth = 11; con_count++;
-        if (i->second.comment.size()>1) i->second.comment[1]="";
+        zn::clear_key(i->second);
         NEW.push_back(i->second);
         // новый объект подменим старым...
         i->second = o->second;
