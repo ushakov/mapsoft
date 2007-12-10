@@ -235,6 +235,7 @@ main(int argc, char** argv){
         cerr << "Конфликт: из системы объект " << key.id << " был удален,\n";
         cerr << "а вы его опять туда запихиваете... :( В глубину 11 его!\n";
         i->second.depth = 11; con_count++;
+        if (i->second.comment.size()>1) i->second.comment[1]="";
         NEW.push_back(i->second);
         continue;
       }
@@ -244,6 +245,7 @@ main(int argc, char** argv){
         cerr << "Конфликт: объект " << key.id << " был изменен,\n";
         cerr << "а вы старую версию пытаетесь положить... :( В глубину 11 ее!\n";
         i->second.depth = 11; con_count++;
+        if (i->second.comment.size()>1) i->second.comment[1]="";
         NEW.push_back(i->second);
         // новый объект подменим старым...
         i->second = o->second;
