@@ -68,7 +68,7 @@ std::istream & operator>> (std::istream & s, zn_label_key & t){
 
   if (parse(str.c_str(),
       *blank_p >> ch_p('+') >> 
-      uint_p[assign_a(t.id)] >> '@' >> (+(alnum_p|'_'))[assign_a(t.map)] >> *blank_p
+      uint_p[assign_a(t.id)] >> '@' >> (+(alnum_p|'_'|'-'))[assign_a(t.map)] >> *blank_p
      ).full){
     return s;
   } else {
