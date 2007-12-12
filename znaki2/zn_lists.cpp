@@ -8,40 +8,48 @@
 
 namespace zn{
 
+// сделать пример объекта
+fig::fig_object make_sample(const std::map<int, zn>::const_iterator &i, int grid, int dg){
+  fig::fig_object o = i->second.fig;
+  if (i->first >= area_mask){
+    o.push_back(Point<int>(dg,      -dg));
+    o.push_back(Point<int>(grid*5-dg,  0));
+    o.push_back(Point<int>(grid*5,  grid));
+    o.push_back(Point<int>(0,       grid));
+  }
+  else if (i->first >= line_mask){
+    o.push_back(Point<int>(0,       grid-dg));
+    o.push_back(Point<int>(grid*4+dg,  grid));
+    o.push_back(Point<int>(grid*5,  0));
+  }
+  else{
+    o.push_back(Point<int>(grid*2,  grid));
+  }
+  if (o.type==4) o.text="10";
+  return o;
+}
+
+
 // список всех знаков в формате fig
 fig::fig_world make_legend(const zn_conv & z, int grid, int dg){
   int count=0;
   fig::fig_world ret;
 
   for (std::map<int, zn>::const_iterator i = z.znaki.begin(); i!=z.znaki.end(); i++){
-    fig::fig_object o = i->second.fig;
+    fig::fig_object o = make_sample(i, grid, dg);
+
     Point<int> shift(0, count*2*grid);
+    o+=shift;
+    o.comment.push_back("text");
+
     zn_key key;
     key.type = i->first;
     key.id = count+1;
     key.map = "get_legend_map";
-
-    if (i->first >= area_mask){
-      o.push_back(Point<int>(dg,      -dg));
-      o.push_back(Point<int>(grid*5-dg,  0));
-      o.push_back(Point<int>(grid*5,  grid));
-      o.push_back(Point<int>(0,       grid));
-    }
-    else if (i->first >= line_mask){
-      o.push_back(Point<int>(0,       grid-dg));
-      o.push_back(Point<int>(grid*4+dg,  grid));
-      o.push_back(Point<int>(grid*5,  0));
-    }
-    else{
-      o.push_back(Point<int>(grid*2,  grid));
-    }
-    o+=shift;
-    o.comment.push_back("text");
-    if (o.type==4) o.text="10";
     add_key(o, key);
     
-    std::list<fig::fig_object> l1 = z.make_pic(o);
-    std::list<fig::fig_object> l2 = z.make_labels(o);
+    std::list<fig::fig_object> l1 = z.make_pic(o, i->first);
+    std::list<fig::fig_object> l2 = z.make_labels(o, i->first);
     add_key(l2, zn_label_key(key));
 
     ret.insert(ret.end(), l1.begin(), l1.end());
