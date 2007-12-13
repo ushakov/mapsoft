@@ -81,10 +81,20 @@ main(int argc, char **argv){
 
   for (int pass =0 ; pass<2; pass++)
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
-    if ((i->type == 6) || (i->type == -6)) continue;
+    if (i->type == 6){ // составной объект
+      // копируем комментарий в следующий объект (до последней непустой строчки!).
+      // остальное нам не нужно
+      fig::fig_world::iterator j = i; j++;
+      if (j!=W.end()){
+        if (j->comment.size()< i->comment.size()) j->comment.resize(i->comment.size());
+        for (int n=0; n<i->comment.size(); n++) j->comment[n] = i->comment[n];
+      }
+      continue;
+    }
+    if (i->type == -6) continue;
     if ((i->comment.size()>1) && (i->comment[1] == "[skip]")) continue;
     if ((i->depth >=30) && (i->depth<50)) {NW.push_back(*i); continue;}
-    if ((i->depth <30) || (i->depth>=400)) continue;
+    if ((i->depth <50) || (i->depth>=400)) continue;
     if (i->size() == 0) continue;
 
 

@@ -12,6 +12,9 @@ get_text:   zn_lists.cpp zn_key.cpp zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjee
 
 key_test: zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a
 
+make_nom:  ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a
+
+
 tmp: zn_key.cpp ../geo_io/fig.cpp ../utils/libutils.a
 
 
