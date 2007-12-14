@@ -101,6 +101,19 @@ struct Line
     } while(1);
   }
 
+  Rect<T> range() const{
+    if (this->size()<1) return Rect<T>(0,0,0,0);
+    Point<T> min((*this)[0]), max((*this)[0]);
+
+    for (typename Line<T>::const_iterator i = this->begin(); i!=this->end(); i++){
+      if (i->x > max.x) max.x = i->x;
+      if (i->y > max.y) max.y = i->y;
+      if (i->x < min.x) min.x = i->x;
+      if (i->y < min.y) min.y = i->y;
+    }
+    return Rect<T>(min,max);
+  }
+
 
 };
 
@@ -133,13 +146,11 @@ bool test_pt (const Point<double> & pt, const T & poly){
 
     double s = v1.x*v2.y - v1.y*v2.x;
     double c = pscal(v1,v2)/dd;
-//std::cerr << poly[i] << " " <<  poly[(i+1)%poly.size()] << " " << pt <<  "c: " << c << "\n";
     if (fabs(c)>=1) {continue;}
 
     if (s<0) a+=acos(c); else a-=acos(c);
   }
 
-std::cerr << "a: " << a << "\n";
   return (fabs(a)>M_PI);
 }
 

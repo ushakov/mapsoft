@@ -21,6 +21,7 @@ using namespace boost::spirit;
   // Извлечь привязку из fig-картинки
   g_map get_ref(const fig_world & w){
     g_map ret;
+    fig::fig_object brd; // граница
 
     // В комментарии к файлу может быть указано, в какой он проекции
     // default - tmerc
@@ -30,6 +31,7 @@ using namespace boost::spirit;
     }
     ret.map_proj=Proj(proj);
 
+    g_point min(1e99,1e99), max(-1e99,-1e99);
     fig_world::const_iterator i;
     for (i=w.begin();i!=w.end();i++){
       if ((i->type!=2)&&(i->type!=3)) continue;
@@ -46,15 +48,30 @@ using namespace boost::spirit;
             (*(anychar_p-':'-space_p))[insert_at_a(O, key)]);
         }
  	g_refpoint ref(x,y,(*i)[0].x,(*i)[0].y);
+        if (min.x>(*i)[0].x) min.x = (*i)[0].x;
+        if (min.y>(*i)[0].y) min.y = (*i)[0].y;
+        if (max.x<(*i)[0].x) max.x = (*i)[0].x;
+        if (max.y<(*i)[0].y) max.y = (*i)[0].y;
 
         convs::pt2pt c(Datum(O.get_string("datum","wgs84")), 
                        Proj(O.get_string("proj","lonlat")), O, Datum("wgs84"), Proj("lonlat"), O);
         c.frw(ref);
 	ret.push_back(ref);
+        continue;
       }
+      if ((i->comment.size()>0)&&(i->comment[0].size()>3) &&
+          i->comment[0].compare(0,3,"BRD")) brd = *i; 
+
     }
-    // границы - довольно произвольные, чтобы не искали граф.файл.
-    for (int i=0;i<3;i++) ret.border.push_back(g_point(0,0));
+    // границы - по точкам привязки или по объекту BRD
+    if (brd.size() < 3) {
+      ret.border.push_back(min);
+      ret.border.push_back(g_point(min.x,max.y));
+      ret.border.push_back(max);
+      ret.border.push_back(g_point(max.x,max.y));
+    } else {
+      ret.border.insert(ret.border.end(), brd.begin(), brd.end());
+    }
     return ret;
   }
 

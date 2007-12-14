@@ -303,6 +303,7 @@ struct g_map :
           i->xr /= k;
           i->yr /= k;
       }
+      border/=k;
       return *this;
     }
     g_map & operator*= (double k){
@@ -311,6 +312,7 @@ struct g_map :
         i->xr *= k;
         i->yr *= k;
       }
+      border*=k;
       return *this;
     }
     g_map & operator-= (g_point k){
@@ -319,6 +321,7 @@ struct g_map :
           i->xr -= k.x;
           i->yr -= k.y;
       }
+      border-=k;
       return *this;
     }
     g_map & operator+= (g_point k){
@@ -327,6 +330,7 @@ struct g_map :
         i->xr += k.x;
         i->yr += k.y;
       }
+      border+=k;
       return *this;
     }
 

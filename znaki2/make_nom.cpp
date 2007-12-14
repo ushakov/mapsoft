@@ -106,6 +106,7 @@ main(int argc, char** argv){
   F.push_back(brd_o);
 
   brd_o.clear();
+  brd_o.comment.push_back("BRD "+map_name);
   brd_o.insert(brd_o.end(), brd_f.begin(), brd_f.end());
   brd_o.push_back(brd_o[0]);
   F.push_back(brd_o);
@@ -125,7 +126,7 @@ main(int argc, char** argv){
 
   for (int i = int(ceil(f_min.y*fig::fig2cm/step)); 
            i < int(floor(f_max.y*fig::fig2cm/step)); i++){
-    int y = i*fig::cm2fig*step - f_min.y;
+    int y = f_max.y - i*fig::cm2fig*step;
     o.clear();
     o.push_back(Point<int>(0, y));
     o.push_back(Point<int>(f_max.x-f_min.x, y));

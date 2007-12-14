@@ -38,6 +38,9 @@ mapsoft_mkmap: $(MAPSOFT_LIBS) mapsoft_mkmap.cpp
 mapsoft_mapview: $(MAPSOFT_LIBS) mapsoft_mapview.o ../layers/layer_geomap.h ../layers/layer_geodata.h
 	g++  mapsoft_mapview.o  $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@
 
+mapsoft_map2fig: $(MAPSOFT_LIBS) mapsoft_map2fig.o ../layers/layer_geomap.h ../layers/layer_geodata.h
+	g++  mapsoft_map2fig.o  $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) -o $@
+
 mapsoft_googleview1: $(MAPSOFT_LIBS) mapsoft_googleview1.cpp
 	g++  mapsoft_googleview1.cpp $(CPPFLAGS) $(MAPSOFT_LIBS) $(GRAPH_FLAGS) $(USB_FLAGS) $(GOOGLE_FLAGS) -o $@ 
 
