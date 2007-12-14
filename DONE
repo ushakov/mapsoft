@@ -1,17 +1,25 @@
 slazav 14.12.2007
+
  * znaki2/make_nom <название> > out.fig
-   изготовление привязанного fig-файла заготовки для
+   изготовление привязанного fig-файла - заготовки для
    номенклатурного листа. 
-   Название вида N45-001-1, N45-002, N45-03, N45-1, N45
+   Название листа - вида N45-001-1, N45-002, N45-03, N45-1, N45
    сдвоенные: P45-46, P45-1-2, P45-03-04, P45-111-112, P45-111-1-2
+
  * программа для подкладывания растров в привязанный fig-файл!
-    mapsoft_map2fig <fig> map <map file 1> [<map file 2> ...]
-    mapsoft_map2fig <fig> google <scale> <google_dir>
-    mapsoft_map2fig <fig> ks <scale> <ks_dir>
+     mapsoft_map2fig <fig> map <map file 1> [<map file 2> ...]
+     mapsoft_map2fig <fig> google <scale> <google_dir>
+     mapsoft_map2fig <fig> ks <scale> <ks_dir>
    Картинки режутся на плитки не более чем 1024х1024 и идут в
    директорию <fig>.img
    Граница прямоугольника, который надо заполнять картинками
    берется либо из объекта с комментарием BRD, либо из точек привязки.
+
+ * программа для подкладывания srtm-данных в привязанный fig-файл!
+     mapsoft_srtm2fig <fig> hor   <srtm_dir> <step1> <step2>
+     mapsoft_srtm2fig <fig> ver   <srtm_dir>
+   добавление, соответственно, горизонталей (обычных через step1 м 
+   и толстых через step2 м) и вершин...
 
 slazav 8.12.2007
  * директория znaki признана ненужной - скоро уберу

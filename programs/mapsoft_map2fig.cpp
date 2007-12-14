@@ -21,10 +21,10 @@
 const int tsize = 1024;
 
 void usage(){
-  std::cerr << "usage: "
-    "mapsoft_map2fig <fig> map <map file 1> [<map file 2> ...]\n";
-    "mapsoft_map2fig <fig> google <scale> <google_dir>\n";
-    "mapsoft_map2fig <fig> ks <scale> <ks_dir>\n";
+  std::cerr << "usage: \n"
+    " mapsoft_map2fig <fig> map <map file 1> [<map file 2> ...]\n"
+    " mapsoft_map2fig <fig> google <scale> <google_dir>\n"
+    " mapsoft_map2fig <fig> ks <scale> <ks_dir>\n";
    exit(0);
 }
 

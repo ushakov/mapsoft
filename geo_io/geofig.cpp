@@ -60,7 +60,7 @@ using namespace boost::spirit;
         continue;
       }
       if ((i->comment.size()>0)&&(i->comment[0].size()>3) &&
-          i->comment[0].compare(0,3,"BRD")) brd = *i; 
+          (i->comment[0].compare(0,3,"BRD")==0)) brd = *i; 
 
     }
     // границы - по точкам привязки или по объекту BRD

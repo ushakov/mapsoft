@@ -121,7 +121,7 @@ main(int argc, char** argv){
         }
       }
     }
-    cerr << " - " << count << " ÛÔ\n";
+    cerr << count << " ÛÔ\n";
   
 
     count = 0; 
@@ -147,7 +147,7 @@ main(int argc, char** argv){
         count++;
       }
     }
-    cerr << count << " ÛÔ\n";
+    cerr << " - " << count << " ÛÔ\n";
 
   } 
   else if (cmd == "ver"){
