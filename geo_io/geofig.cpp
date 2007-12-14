@@ -94,7 +94,7 @@ using namespace boost::spirit;
   // Добавить привязку в fig_world
   void set_ref(fig_world & w, const g_map & m, const Options & O){
     // Если хочется, можно записать точки привязки в нужной проекции
-    Datum  datum(O.get_string("datum", "pulkovo"));
+    Datum  datum(O.get_string("datum", "wgs84"));
     Proj   proj(O.get_string("proj", "tmerc"));
 
     double lon0 = m.range().x + m.range().w/2;

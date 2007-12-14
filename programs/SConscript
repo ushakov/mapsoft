@@ -19,4 +19,5 @@ le.Program('mapsoft_mkmap', 'mapsoft_mkmap.cpp')
 le.Program('mapsoft_ref', 'mapsoft_ref.cpp')
 le.Program('mapsoft_toxyz', 'mapsoft_toxyz.cpp')
 le.Program('mapsoft_map2fig', 'mapsoft_map2fig.cpp')
+le.Program('mapsoft_srtm2fig', 'mapsoft_srtm2fig.cpp')
 

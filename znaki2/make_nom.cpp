@@ -104,7 +104,7 @@ main(int argc, char** argv){
   g_line brd_f = cnv_f.line_bck(brd);
   ref.border = brd_f;
 
-  fig::fig_object brd_o = fig::make_object("2 3 0 2 15 7 36 -1 -1 0.000 0 0 -1 0 0 5");
+  fig::fig_object brd_o = fig::make_object("2 3 0 2 15 7 31 -1 -1 0.000 0 0 -1 0 0 5");
 
   brd_o.push_back(Point<int>(0,0));
   brd_o.push_back(Point<int>(f_max.x-f_min.x,0));
@@ -121,6 +121,7 @@ main(int argc, char** argv){
   F.push_back(brd_o);
 
   fig::fig_object o = fig::make_object("2 1 0 2 15 7 36 -1 -1 0.000 0 0 -1 0 0 5");
+  fig::fig_object t = fig::make_object("4 1 15 31 -1 18 10 0.0000 4");
   int step = 2;
   for (int i = int(ceil(f_min.x*fig::fig2cm/step)); 
            i < int(floor(f_max.x*fig::fig2cm/step)); i++){
@@ -131,8 +132,17 @@ main(int argc, char** argv){
     list<fig::fig_object> l1, l2; l1.push_back(o);
     crop_lines(l1, l2, brd_o, true);
     F.insert(F.end(), l1.begin(), l1.end());
+    if (l1.size()>0){
+      t.clear();
+      t.text = boost::lexical_cast<std::string>(i);
+      t.push_back(l1.front()[0] + Point<int>(0, -0.2*fig::cm2fig));
+      F.push_back(t);
+      t.clear();
+      t.push_back(l1.back()[l1.back().size()-1] + Point<int>(0, 0.6*fig::cm2fig));
+      F.push_back(t);
+    }
   }
-
+ 
   for (int i = int(ceil(f_min.y*fig::fig2cm/step)); 
            i < int(floor(f_max.y*fig::fig2cm/step)); i++){
     int y = f_max.y - i*fig::cm2fig*step;
@@ -142,23 +152,33 @@ main(int argc, char** argv){
     list<fig::fig_object> l1, l2; l1.push_back(o);
     crop_lines(l1, l2, brd_o, true);
     F.insert(F.end(), l1.begin(), l1.end());
+    if (l1.size()>0){
+      t.clear(); t.sub_type = 2;
+      t.text = boost::lexical_cast<std::string>(i);
+      t.push_back(l1.front()[0] + Point<int>(-0.2*fig::cm2fig,0.2*fig::cm2fig));
+      F.push_back(t);
+      t.clear(); t.sub_type = 0;
+      t.push_back(l1.back()[l1.back().size()-1] + Point<int>(0.2*fig::cm2fig,0.2*fig::cm2fig));
+      F.push_back(t);
+    }
   }
 
-  o.type = 4; o.sub_type=0; o.font=18; o.font_size=20; o.font_flags=4;
-  o.text = map_name;
-  o.clear();
-  o.push_back(Point<int>(0.5*fig::cm2fig, 1.2*fig::cm2fig));
-  F.push_back(o);
+  t.font_size=20;
+  t.sub_type = 0;
+  t.text  = map_name;
+  t.clear();
+  t.push_back(Point<int>(0.5*fig::cm2fig, 1.2*fig::cm2fig));
+  F.push_back(t);
 
-  o.sub_type = 1; o.text="z"; o.clear(); 
-  o.push_back(Point<int>(f_max.x-f_min.x-1*fig::cm2fig, f_max.y-f_min.y-1*fig::cm2fig));
-  F.push_back(o);
+  t.sub_type = 1; t.text="z"; t.clear(); 
+  t.push_back(Point<int>(f_max.x-f_min.x-1*fig::cm2fig, f_max.y-f_min.y-1*fig::cm2fig));
+  F.push_back(t);
 
-  o.type = 1;
-  o.radius_x = o.radius_y = 0.3*fig::cm2fig;
-  o.center_x = o[0].x;
-  o.center_y = o[0].y - 0.2*fig::cm2fig;
-  F.push_back(o);
+  t.type = 1;
+  t.radius_x = t.radius_y = 0.3*fig::cm2fig;
+  t.center_x = t[0].x;
+  t.center_y = t[0].y - 0.2*fig::cm2fig;
+  F.push_back(t);
 
   fig::write(cout, F);
 }
