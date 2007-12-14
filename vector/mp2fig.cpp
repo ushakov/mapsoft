@@ -383,7 +383,7 @@ main(int argc, char **argv){
       for (vector<mask>::const_iterator r=m2f.begin(); r!=m2f.end(); r++){
         if (mp::test_object(*i, r->first)){
           fig::fig_object o = fig::make_object(r->second);
-          o.set_vector(C.line_bck(*i));
+          o.set_points(C.line_bck(*i));
 /*          // отрежем все точки, выходящее за границы карты
           convs::border_tester bt(map.border);
           fig::fig_object::iterator it=o.begin(), it1;
