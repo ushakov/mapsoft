@@ -142,6 +142,7 @@ std::cerr << dx << " x " << dy << " tile_size\n";
       o.push_back((tlc+g_point(0,dy))*rescale);
       o.push_back(tlc*rescale);
       o.image_file = fname.str();
+      o.comment.push_back("MAP "+fname.str());
       F.push_back(o);
     }
     }
