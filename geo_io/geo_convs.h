@@ -109,7 +109,7 @@ struct border_tester{
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
 struct map2map{
-  map2map(const g_map & sM, const g_map & dM);
+  map2map(const g_map & sM, const g_map & dM, bool test_brd_ = true);
   void frw(g_point & p);
   void bck(g_point & p);
 
@@ -131,6 +131,7 @@ struct map2map{
   Rect<int> bb_frw(const Rect<int> & R);
   Rect<int> bb_bck(const Rect<int> & R);
 
+    bool test_brd;
     map2pt c1,c2;
     border_tester tst_frw, tst_bck;
     g_line border_src; // граница sM

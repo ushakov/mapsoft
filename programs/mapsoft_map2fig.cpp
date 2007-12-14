@@ -38,12 +38,14 @@ main(int argc, char **argv){
 
     LayerGeo *ml;    
 
+
     if (source == "map") {
       geo_data *world = new geo_data;
       ml = new LayerGeoMap(world);
       for(int i=3;i<argc;i++)
         io::in(std::string(argv[i]), *world, Options());
       depth = "500"; 
+   
     }
     else if (source == "ks") {
       if (argc!=5) usage();
@@ -60,7 +62,7 @@ main(int argc, char **argv){
       depth = "502"; 
     } else usage();
 
-    // читам fig
+    // читаем fig
     fig::fig_world F = fig::read(fig_name.c_str());
     g_map fig_ref = fig::get_ref(F);
 
@@ -71,10 +73,29 @@ main(int argc, char **argv){
     // нужным образом 
     g_map map_ref = ml->get_ref();
 
+
     // rescale > 1, если точки fig меньше точки растра
-    double rescale = convs::map_mpp(map_ref)/convs::map_mpp(fig_ref);
+    double rescale;
+    if (source == "map") rescale = convs::map_mpp(map_ref)/convs::map_mpp(fig_ref);
+    else { // с google map_mpp не работает (т.к. во всех точках все разное)
+      // например, горизонтальный масштаб
+      Rect<double> range = fig_ref.border.range();
+      g_point p1(range.TLC()), p2(range.TRC());
+      convs::map2map c(map_ref, fig_ref);
+      double l1=0,l2=0;
+      for (int i=1; i<fig_ref.size();i++){
+        g_point p1(fig_ref[i-1].xr,fig_ref[i-1].yr);
+        g_point p2(fig_ref[i].xr,  fig_ref[i].yr);
+        c.bck(p1); c.bck(p2);
+        l1+=pdist(p1,p2);
+        l2+=pdist(g_point(fig_ref[i].xr, fig_ref[i].yr), g_point(fig_ref[i-1].xr, fig_ref[i-1].yr));
+      }
+      rescale = l2/l1;
+    }
+
 
     fig_ref/=rescale; // теперь fig_ref - в координатах растра
+
     ml->set_ref(fig_ref);
 
     // диапазон картинки в координатах растра
@@ -100,6 +121,8 @@ main(int argc, char **argv){
     double dx = range.w / double(nx);  // размер плиток
     double dy = range.h / double(ny);
 
+std::cerr << " rescale: " << rescale << "\n";
+std::cerr << " range: " << range << "\n";
 std::cerr << nx << " x " << ny << " tiles\n";
 std::cerr << dx << " x " << dy << " tile_size\n";
 

@@ -37,7 +37,7 @@ public:
     // получить/установить привязку layer'a
     g_map get_ref() const {return mymap;}
 
-    void set_ref(const g_map & map){mymap=map; cnv = convs::map2map(mymap0,mymap);}
+    void set_ref(const g_map & map){mymap=map; cnv = convs::map2map(mymap0,mymap,false);}
     void set_ref(){set_ref(mymap0);}
 
 
@@ -56,7 +56,7 @@ public:
         // мы загружаем часть картинки - поэтому сбивается привязка
         g_map new_map(mymap0);
         new_map-=src_rect.TLC();
-        convs::map2map new_cnv(new_map, mymap);
+        convs::map2map new_cnv(new_map, mymap, true);
 
         // в каком масштабе мы будем загружать картинку
 	double sc_x = src_rect.w/dst_rect.w;

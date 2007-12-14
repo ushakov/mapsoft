@@ -554,15 +554,13 @@ g_line map2pt::line_bck(const g_line & l) {
 // здесь же - преобразование линий
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
-map2map::map2map(const g_map & sM, const g_map & dM) :
+map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
     c1(sM, Datum("wgs84"), Proj("lonlat"), Options()),
     c2(dM, Datum("wgs84"), Proj("lonlat"), Options()),
     tst_frw(c1.border),
-    tst_bck(c1.border)
+    tst_bck(c1.border),
+    test_brd(test_brd_)
 {
-
-  // нам надо, чтобы координаты преобразовывались правильно.
-  // к сожалению, 
 
   // чтобы в преобразованиях pc1 и pc2 установился правильный осевой меридиан,
   // если его не установили явно, надо прогнать через них какую-то точку на карте.
@@ -581,9 +579,11 @@ map2map::map2map(const g_map & sM, const g_map & dM) :
   c2 = map2pt(dM, Datum("wgs84"), sM.map_proj, O),
 
   border_src = c1.border;
-  border_dst = line_frw(c1.border);
-  tst_frw = border_tester(border_dst);
   tst_bck = border_tester(border_src);
+  if (test_brd){
+    border_dst = line_frw(c1.border);
+    tst_frw = border_tester(border_dst);
+  }
 }
 
 void map2map::frw(g_point & p) {c1.frw(p); c2.bck(p);}
@@ -673,7 +673,7 @@ int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
         x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
 	g_point p(x,y);
         bck(p);
-        if (!tst_bck.test(int(p.x), int(p.y))) continue;
+        if (test_brd && !tst_bck.test(int(p.x), int(p.y))) continue;
 	p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
 	if (c != 0){
@@ -704,7 +704,7 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
         x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
         g_point p(x,y);
-        if (!tst_bck.test(int(p.x), int(p.y))) continue;
+        if (test_brd && !tst_bck.test(int(p.x), int(p.y))) continue;
         bck(p); p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
 	if (c != 0){
