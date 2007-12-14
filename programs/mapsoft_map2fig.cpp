@@ -126,7 +126,7 @@ std::cerr << " range: " << range << "\n";
 std::cerr << nx << " x " << ny << " tiles\n";
 std::cerr << dx << " x " << dy << " tile_size\n";
 
-    for (int j = 0; j<nx; j++){
+    for (int j = 0; j<ny; j++){
     for (int i = 0; i<nx; i++){
       g_point tlc(range.x+i*dx, range.y+j*dy);
 
