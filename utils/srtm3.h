@@ -56,8 +56,9 @@ class srtm3 {
     if (key.x<0) {EW='W'; key.x=-key.x;}
     // название файла
     std::ostringstream file;
-    file << srtm_dir << NS << std::setfill('0') << std::setw(2) << key.y
-                     << EW << std::setw(3) << key.x << ".hgt";
+    file << srtm_dir << "/" 
+         << NS << std::setfill('0') << std::setw(2) << key.y
+         << EW << std::setw(3) << key.x << ".hgt";
 
     std::ifstream in(file.str().c_str());
     if (!in){
