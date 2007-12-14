@@ -28,7 +28,6 @@ main(int argc, char** argv){
 
 // определим диапазон карты в координатах lonlat
   Rect<double> r = filters::nom_range(map_name);
-  g_line border = rect2line(r);
 
 // определим осевой меридиан
   double lon0 = (r.TLC().x + r.TRC().x)/2;
@@ -46,7 +45,17 @@ main(int argc, char** argv){
   else if (r.h < 3.99) scale = 1/500000.0;
   else scale = 1/1000000.0;
 
-  convs::pt2pt cnv(Datum("pulkovo"), Proj("lonlat"), Options(),
+  // Наш прямоугольник в СК Пулково!
+
+  convs::pt2pt c0(Datum("pulkovo"), Proj("lonlat"), Options(),
+                  Datum("wgs84"),   Proj("lonlat"), Options());
+  g_point p01(r.TLC()), p02(r.BRC());
+  c0.frw(p01); c0.frw(p02);
+  r = Rect<double>(p01, p02);
+
+  g_line border = rect2line(r);
+
+  convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
                    Datum("pulkovo"), Proj("tmerc"), O);
 
   g_point p1(r.TLC()), p2(r.TRC()), p3(r.BRC()), p4(r.BLC());
