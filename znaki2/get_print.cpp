@@ -490,7 +490,7 @@ main(int argc, char **argv){
         if (pmax.x < (*i)[j].x) pmax.x = (*i)[j].x;
         if (pmax.y < (*i)[j].y) pmax.y = (*i)[j].y;
       }
-      list<Line<double> > ls;
+      list<Line<double> > ls, ls1;
       int n=0;
       for (int y = pmin.y; y< pmax.y; y+=step){
         Line<double> l; 
@@ -504,7 +504,7 @@ main(int argc, char **argv){
         ls.push_back(l);
         n++;
       }
-      crop_lines(ls, c);
+      crop_lines(ls, ls1, c, true);
       fig_object o = make_object("2 1 0 1 22046463 7 87 -1 -1 0.000 0 1 0 0 0 0");
       if (type == 0x200051) {o.line_style=1; o.style_val=5;}
       for (list<Line<double> >::iterator l = ls.begin(); l!=ls.end(); l++){

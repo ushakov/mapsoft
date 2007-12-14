@@ -119,7 +119,7 @@ main(int argc, char** argv){
     o.push_back(Point<int>(x, 0));
     o.push_back(Point<int>(x, f_max.y-f_min.y));
     list<fig::fig_object> l1, l2; l1.push_back(o);
-    crop_lines1(l1, l2, brd_o, true);
+    crop_lines(l1, l2, brd_o, true);
     F.insert(F.end(), l1.begin(), l1.end());
   }
 
@@ -130,7 +130,7 @@ main(int argc, char** argv){
     o.push_back(Point<int>(0, y));
     o.push_back(Point<int>(f_max.x-f_min.x, y));
     list<fig::fig_object> l1, l2; l1.push_back(o);
-    crop_lines1(l1, l2, brd_o, true);
+    crop_lines(l1, l2, brd_o, true);
     F.insert(F.end(), l1.begin(), l1.end());
   }
 

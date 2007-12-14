@@ -145,7 +145,7 @@ std::cerr << "a: " << a << "\n";
 
 // обрезать все линии, входящие/не входящие в многоугольник cutter и добавить их в lines1
 template<typename T>
-void crop_lines1(std::list<T> & lines,
+void crop_lines(std::list<T> & lines,
                 std::list<T> & lines1,
                 const T & cutter, bool cutouter){
   for (int j = 0; j<cutter.size(); j++){
