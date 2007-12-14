@@ -90,7 +90,7 @@ void generalize (std::list<Line<double> > & lines, double e){
   }
 
 }
-
+/*
 // лежит ли точка в многоугольнике poly
 bool test_pt (const Point<double> & pt, const Line<double> & poly){
   double a = 0;
@@ -128,8 +128,6 @@ void crop_lines(std::list<Line<double> > & lines, const Line<double> & cutter){
 
     }
   }
-
-
   // теперь удалим те линии, которые не попадают в нужный район
   for (std::list<Line<double> >::iterator l = lines.begin(); l!=lines.end(); l++){
     if (l->size()==0) {l=lines.erase(l); l--; continue;}
@@ -141,4 +139,42 @@ void crop_lines(std::list<Line<double> > & lines, const Line<double> & cutter){
     // (здесь может произойти фигня, если линия касается первым звеном cutter)
     if (!test_pt(testpt, cutter)) {l=lines.erase(l); l--; continue;}
   }
+}*/
+/*
+// обрезать все линии, входящие/не входящие в многоугольник cutter и добавить их в lines1
+void crop_lines(std::list<Line<double> > & lines, 
+                std::list<Line<double> > & lines1, 
+                const Line<double> & cutter, bool cutouter){
+  for (int j = 0; j<cutter.size(); j++){
+    for (std::list<Line<double> >::iterator l = lines.begin(); l!=lines.end(); l++){
+
+      for (int i = 0; i<l->size()-1; i++){
+        Point<double> pt;
+        try { pt = find_cross((*l)[i], (*l)[i+1], cutter[j], cutter[(j+1)%cutter.size()]); }
+        catch (int n) {continue;}
+        // разбиваем линию на две, уже обработанный кусок помещаем перед l
+        Line<double> l1;
+        for (int k=0; k<=i; k++) l1.push_back((*l)[k]);
+        l1.push_back(pt);
+        lines.insert(l, l1);
+        // из *l стираем все точки до i-1-й 
+        l->erase(l->begin(), l->begin()+i);
+        *(l->begin()) = pt;
+        // продолжаем со второго звена оставшейся линии
+        i=1;
+      }
+
+    }
+  }
+  // теперь переместим те линии, которые не попадают в нужный район
+  for (std::list<Line<double> >::iterator l = lines.begin(); l!=lines.end(); l++){
+    if (l->size()==0) {l=lines.erase(l); l--; continue;}
+    // для проверки надо выбрать точку, не лежащую на линии cutter
+    Point<double> testpt;
+    if (l->size()==1) {testpt = (*l)[0];}
+    else {testpt = ((*l)[0]+(*l)[1])/2;} 
+    // (здесь может произойти фигня, если линия касается первым звеном cutter)
+    if (cutouter xor test_pt(testpt, cutter)) {lines1.push_back(*l);  l=lines.erase(l); l--; continue;}
+  }
 }
+*/

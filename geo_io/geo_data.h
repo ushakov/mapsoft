@@ -158,6 +158,10 @@ struct g_refpoint : g_point {
 	x=_x; y=_y;
     	xr=_xr; yr=_yr;
     }
+    g_refpoint(g_point p, g_point r){
+	x=p.x; y=p.y;
+    	xr=r.x; yr=r.y;
+    }
     g_refpoint(){
 	set_default_values();
     }

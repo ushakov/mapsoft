@@ -8,6 +8,7 @@
 #include <list>
 #include <vector>
 #include "point.h"
+#include "rect.h"
 
 // Класс для ломаной линии
 
@@ -113,8 +114,85 @@ void split (std::list<Line<double> > & lines, int points);
 // не сместилась от исходного положения более чем на e
 void generalize (std::list<Line<double> > & lines, double e);
 
-// обрезать все линии, вылезающие за многоугольник cutter 
-void crop_lines(std::list<Line<double> > & lines, const Line<double> & cutter);
+//// обрезать все линии, вылезающие за многоугольник cutter 
+//void crop_lines(std::list<Line<double> > & lines, const Line<double> & cutter);
+
+// обрезать все линии, входящие/не входящие в многоугольник cutter и добавить их в lines1
+//void crop_lines(std::list<Line<double> > & lines, std::list<Line<double> > & lines1, const Line<double> & cutter, bool cutouter);
+
+// лежит ли точка в многоугольнике poly
+template<typename T>
+bool test_pt (const Point<double> & pt, const T & poly){
+  double a = 0;
+  typename T::const_iterator p1,p2;
+  for (int i = 0; i<poly.size(); i++){
+    Point<double> v1 = Point<double>(poly[i]) - pt;
+    Point<double> v2 = Point<double>(poly[(i+1)%poly.size()]) - pt;
+    double dd = pdist(v1)*pdist(v2);
+    if (dd==0) return true;
+
+    double s = v1.x*v2.y - v1.y*v2.x;
+    double c = pscal(v1,v2)/dd;
+//std::cerr << poly[i] << " " <<  poly[(i+1)%poly.size()] << " " << pt <<  "c: " << c << "\n";
+    if (fabs(c)>=1) {continue;}
+
+    if (s<0) a+=acos(c); else a-=acos(c);
+  }
+
+std::cerr << "a: " << a << "\n";
+  return (fabs(a)>M_PI);
+}
+
+// обрезать все линии, входящие/не входящие в многоугольник cutter и добавить их в lines1
+template<typename T>
+void crop_lines1(std::list<T> & lines,
+                std::list<T> & lines1,
+                const T & cutter, bool cutouter){
+  for (int j = 0; j<cutter.size(); j++){
+    for (typename std::list<T>::iterator l = lines.begin(); l!=lines.end(); l++){
+      for (int i = 0; i<l->size()-1; i++){
+        Point<double> pt;
+        try { pt = find_cross((*l)[i], (*l)[i+1], cutter[j], cutter[(j+1)%cutter.size()]); }
+        catch (int n) {continue;}
+        // разбиваем линию на две, уже обработанный кусок помещаем перед l
+        T l1(*l); l1.clear(); // мы хотим работать не только с линиями, но и с потомками!
+        for (int k=0; k<=i; k++) l1.push_back((*l)[k]);
+        l1.push_back(pt);
+        lines.insert(l, l1);
+        // из *l стираем все точки до i-1-й
+        l->erase(l->begin(), l->begin()+i);
+        *(l->begin()) = pt;
+        // продолжаем со второго звена оставшейся линии
+        i=1;
+      }
+    }
+  }
+  // теперь переместим те линии, которые не попадают в нужный район
+  typename std::list<T>::iterator l=lines.begin();
+  while (l!=lines.end()){
+    if (l->size()==0) {l=lines.erase(l); continue;}
+    // для проверки надо выбрать точку, не лежащую на линии cutter
+    Point<double> testpt;
+    if (l->size()==1) {testpt = (*l)[0];}
+    else {testpt = ((*l)[0]+(*l)[1])/2.0;}
+    // (здесь может произойти фигня, если линия касается первым звеном cutter)
+    if (cutouter xor test_pt(testpt, cutter)) {lines1.push_back(*l);  l=lines.erase(l); continue;}
+    l++;
+  }
+}
+// ==================
+
+
+//преобразовать прямоугольник в линию из 4 точек
+template<typename T>
+Line<T> rect2line(const Rect<T> & r){
+  Line<T> ret;
+  ret.push_back(r.TLC());
+  ret.push_back(r.TRC());
+  ret.push_back(r.BRC());
+  ret.push_back(r.BLC());
+  return  ret;
+}
 
 // повернуть линии на угол a вокруг точки p0.
 template<typename T>
