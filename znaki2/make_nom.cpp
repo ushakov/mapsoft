@@ -134,46 +134,21 @@ main(int argc, char** argv){
     F.insert(F.end(), l1.begin(), l1.end());
   }
 
+  o.type = 4; o.sub_type=0; o.font=18; o.font_size=20; o.font_flags=4;
+  o.text = map_name;
+  o.clear();
+  o.push_back(Point<int>(0.5*fig::cm2fig, 1.2*fig::cm2fig));
+  F.push_back(o);
+
+  o.sub_type = 1; o.text="z"; o.clear(); 
+  o.push_back(Point<int>(f_max.x-f_min.x-1*fig::cm2fig, f_max.y-f_min.y-1*fig::cm2fig));
+  F.push_back(o);
+
+  o.type = 1;
+  o.radius_x = o.radius_y = 0.3*fig::cm2fig;
+  o.center_x = o[0].x;
+  o.center_y = o[0].y - 0.2*fig::cm2fig;
+  F.push_back(o);
+
   fig::write(cout, F);
-
-/*
-
- string file = maps_dir+"/"+map_name+".fig";
-
-  if (x2<x1)   swap(x2,x1);
-  if (y2<y1)   swap(y2,y1);
-
-  Options O;
-  O["lon0"] = lon0;
-  convs::pt2pt c(Datum("pulkovo"), Proj("tmerc"), O,
-                 Datum("wgs84"), Proj("lonlat"), Options());
-
-  g_point p1(x1,y1), p2(x1,y2), p3(x2,y2), p4(x2,y1);
-  c.frw(p1); c.frw(p2); c.frw(p3); c.frw(p4);
-
-  double xf = (x2-x1)*fig::cm2fig/scale;
-  double yf = (y2-y1)*fig::cm2fig/scale;
-
-  g_map ref;
-  ref.map_proj = Proj("tmerc");
-  ref.push_back(g_refpoint(p1.x, p1.y,  0, yf));
-  ref.push_back(g_refpoint(p2.x, p2.y,  0,  0));
-  ref.push_back(g_refpoint(p3.x, p3.y, xf,  0));
-  ref.push_back(g_refpoint(p4.x, p4.y, xf, yf));
-
-
-  
-  struct stat buf;
-  if (stat(file.c_str(), &buf)==0) {
-    cerr << "file " << file << " exists!\n";
-    exit(0);
-  }
-  ofstream ff(file.c_str());
-  if (!ff) {
-    cerr << "can't write to file " << file << "!\n";
-    exit(0);
-  }
-
-  fig::write(ff, F);
-*/
 }
