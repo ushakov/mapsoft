@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "../geo_io/fig.h"
-#include "../utils/time.h"
+#include "../utils/m_time.h"
 #include <cmath>
 #include "zn.h"
 #include "line_dist.h"
@@ -82,6 +82,13 @@ main(int argc, char **argv){
 
   for (int pass =0 ; pass<2; pass++)
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
+
+    // текущее время
+    if ((i->type == 4) && (i->comment.size()>0) && (i->comment[0] == "CURRENT DATE")){
+      Time t; t.set_current();
+      i->text = t.date_str();
+    }
+
     if (i->type == 6){ // составной объект
       // копируем комментарий в следующий объект (до последней непустой строчки!).
       // остальное нам не нужно
@@ -93,11 +100,12 @@ main(int argc, char **argv){
       continue;
     }
     if (i->type == -6) continue;
+
+    if ((i->comment.size()>0) && (i->comment[0] == "[skip]")) continue;
     if ((i->comment.size()>1) && (i->comment[1] == "[skip]")) continue;
     if ((i->depth >=30) && (i->depth<50)) {NW.push_back(*i); continue;}
     if ((i->depth <50) || (i->depth>=400)) continue;
     if (i->size() == 0) continue;
-
 
     int type = zconverter.get_type(*i);
 
@@ -113,12 +121,6 @@ main(int argc, char **argv){
 
     // второй прогон.
 
-    // текущее время
-    if ((i->type==4) && (i->comment.size()>0) && (i->comment[0] == "CURRENT DATE")){
-      Time t; t.set_current();
-      i->text = t.date_str();
-      continue;
-    }
 
     zconverter.fig_update(*i, type);
     // преобразуем некоторые объекты в x-spline
