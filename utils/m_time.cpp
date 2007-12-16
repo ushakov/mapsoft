@@ -1,5 +1,6 @@
 #include <iomanip>
 #include <string>
+#include <sstream>
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/assign_actor.hpp>
 
@@ -16,6 +17,28 @@ std::ostream & operator<< (std::ostream & s, const Time & t){
     << std::setw(2) << ts->tm_min   << ":"
     << std::setw(2) << ts->tm_sec;
   return s;
+}
+
+std::string Time::time_str(){
+  struct tm * ts = localtime(&value);
+  if (ts == NULL) { time_t t = 0;  ts = localtime(&t);}
+  std::ostringstream s;
+  s << std::setfill('0')
+    << std::setw(2) << ts->tm_hour  << ":"
+    << std::setw(2) << ts->tm_min   << ":"
+    << std::setw(2) << ts->tm_sec;
+  return s.str();
+}
+
+std::string Time::date_str(){
+  struct tm * ts = localtime(&value);
+  if (ts == NULL) { time_t t = 0;  ts = localtime(&t);}
+  std::ostringstream s;
+  s << std::setfill('0')
+    << std::setw(4) << ts->tm_year+1900 << "-"
+    << std::setw(2) << ts->tm_mon+1 << "-"
+    << std::setw(2) << ts->tm_mday;
+  return s.str();
 }
 
 void Time::set_current(){ value = time(NULL); }

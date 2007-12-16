@@ -69,7 +69,13 @@ void generalize (std::list<Line<double> > & lines, double e){
         Point<double> p1 = (*l)[ip];
         Point<double> p2 = (*l)[i];
         Point<double> p3 = (*l)[in];
-        double dp = pdist((p3-p1)/2 - (p2-p1));
+        double ll = pdist(p3-p1);
+        Point<double> v = (p3-p1)/ll;
+        double prj = pscal(v, p2-p1);
+        double dp;
+        if      (prj<=0)  dp = pdist(p2,p1);
+        else if (prj>=ll) dp = pdist(p2,p3);
+        else              dp = pdist(p2-p1-v*prj);
         // в начале у нас обязатеьно i==1
         if ((i==1) || (min>dp)) {min = dp; mini=i;}
       }

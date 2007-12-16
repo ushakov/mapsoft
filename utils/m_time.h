@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <iostream>
+#include <string>
 #include <boost/operators.hpp>
 
 struct Time:
@@ -16,6 +17,8 @@ struct Time:
     Time(time_t v){value=v;}
 
     void set_current();
+    std::string time_str();
+    std::string date_str();
 
   bool operator<  (const Time & t) const { return value < t.value; }
   bool operator== (const Time & t) const { return value == t.value; }
