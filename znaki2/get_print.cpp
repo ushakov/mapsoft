@@ -82,7 +82,6 @@ main(int argc, char **argv){
 
   for (int pass =0 ; pass<2; pass++)
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
-
     // текущее время
     if ((i->type == 4) && (i->comment.size()>0) && (i->comment[0] == "CURRENT DATE")){
       Time t; t.set_current();
@@ -103,13 +102,16 @@ main(int argc, char **argv){
 
     if ((i->comment.size()>0) && (i->comment[0] == "[skip]")) continue;
     if ((i->comment.size()>1) && (i->comment[1] == "[skip]")) continue;
-    if ((i->depth >=30) && (i->depth<50)) {NW.push_back(*i); continue;}
+    if ((i->depth >=30) && (i->depth<50)) {
+      if (pass==1) NW.push_back(*i); 
+      continue;
+    }
     if ((i->depth <50) || (i->depth>=400)) continue;
     if (i->size() == 0) continue;
 
     int type = zconverter.get_type(*i);
 
-    if (pass ==0){
+    if (pass == 0){
       if (type == 0x100027) list_zd.push_back(*i);
       if ((type == 0x100015)||
           (type == 0x100018)||

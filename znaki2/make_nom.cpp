@@ -104,7 +104,7 @@ main(int argc, char** argv){
   g_line brd_f = cnv_f.line_bck(brd);
   ref.border = brd_f;
 
-  fig::fig_object brd_o = fig::make_object("2 3 0 2 15 7 31 -1 -1 0.000 0 0 -1 0 0 5");
+  fig::fig_object brd_o = fig::make_object("2 3 0 2 0 7 31 -1 -1 0.000 0 0 -1 0 0 5");
 
   brd_o.push_back(Point<int>(0,0));
   brd_o.push_back(Point<int>(f_max.x-f_min.x,0));
@@ -120,8 +120,8 @@ main(int argc, char** argv){
   brd_o.push_back(brd_o[0]);
   F.push_back(brd_o);
 
-  fig::fig_object o = fig::make_object("2 1 0 2 15 7 36 -1 -1 0.000 0 0 -1 0 0 5");
-  fig::fig_object t = fig::make_object("4 1 15 31 -1 18 10 0.0000 4");
+  fig::fig_object o = fig::make_object("2 1 0 2 0 7 36 -1 -1 0.000 0 0 -1 0 0 5");
+  fig::fig_object t = fig::make_object("4 1 0 31 -1 18 10 0.0000 4");
   int step = 2;
   for (int i = int(ceil(f_min.x*fig::fig2cm/step)); 
            i < int(floor(f_max.x*fig::fig2cm/step)); i++){
@@ -163,8 +163,16 @@ main(int argc, char** argv){
     }
   }
 
-  t.font_size=20;
+  t.font_size=12;
   t.sub_type = 0;
+  t.text  = "0000-00-00";
+  t.comment.clear(); t.comment.push_back("CURRENT DATE");
+  t.clear();
+  t.push_back(Point<int>(0.5*fig::cm2fig, 1.8*fig::cm2fig));
+  F.push_back(t);
+  t.comment.clear();
+
+  t.font_size=20;
   t.text  = map_name;
   t.clear();
   t.push_back(Point<int>(0.5*fig::cm2fig, 1.2*fig::cm2fig));
@@ -173,6 +181,7 @@ main(int argc, char** argv){
   t.sub_type = 1; t.text="z"; t.clear(); 
   t.push_back(Point<int>(f_max.x-f_min.x-1*fig::cm2fig, f_max.y-f_min.y-1*fig::cm2fig));
   F.push_back(t);
+
 
   t.type = 1;
   t.radius_x = t.radius_y = 0.3*fig::cm2fig;

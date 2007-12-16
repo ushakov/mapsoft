@@ -155,13 +155,8 @@ main(int argc, char **argv){
     if (map.data[d0]!=NULL){
 
       for (int j = 0; j < map.w; j++){
-        unsigned char rm = map.data[d0][3*j],  gm = map.data[d0][3*j+1],  bm = map.data[d0][3*j+2];
-        unsigned char rt = text.data[d0][3*j], gt = text.data[d0][3*j+1], bt = text.data[d0][3*j+2];
-        unsigned char rg = grid.data[d0][3*j], gg = grid.data[d0][3*j+1], bg = grid.data[d0][3*j+2];
-        unsigned char rl = lgnd.data[d0][3*j], gl = lgnd.data[d0][3*j+1], bl = lgnd.data[d0][3*j+2];
-
         // наложение текста
-        if (is_color(rt,gt,bt)) {
+        if (is_color(text.data[d0]+3*j)) {
           // область, в которой нам надо стереть черные линии...
           for (int y = d0-r1; y<=d0+r1; y++){
             if (map.data[y]==NULL) continue;
@@ -195,27 +190,27 @@ main(int argc, char **argv){
               map.data[y][3*x+2] = (dd>2*r2*r2)? 0xFF:map.data[yym][3*xxm+2];
             }
           }
-          // рисуем собственно текст
-          rm=rt; gm=gt; bm=bt;
         }
-
+      }
+    }
+    if (map.data[dw-1]!=NULL){
+      // сольем слои и запишем линию.      
+      for (int j = 0; j < map.w; j++){
+        unsigned char rm = map.data[dw-1][3*j],  gm = map.data[dw-1][3*j+1],  bm = map.data[dw-1][3*j+2];
+        unsigned char rt = text.data[dw-1][3*j], gt = text.data[dw-1][3*j+1], bt = text.data[dw-1][3*j+2];
+        unsigned char rg = grid.data[dw-1][3*j], gg = grid.data[dw-1][3*j+1], bg = grid.data[dw-1][3*j+2];
+        unsigned char rl = lgnd.data[dw-1][3*j], gl = lgnd.data[dw-1][3*j+1], bl = lgnd.data[dw-1][3*j+2];
+        if (is_color(rt,gt,bt)) { rm=rt; gm=gt; bm=bt; }
         // наложение сетки
         if (is_color(rg,gg,bg)) {
           rm = (rg*a + rm*(255-a))/255;
           gm = (gg*a + gm*(255-a))/255;
           bm = (bg*a + bm*(255-a))/255;
         }
-
         // наложение легенды
         if (is_color(rl,gl,bl)) {rm=rl; gm=gl; bm=bl;}
-
-        map.data[d0][3*j]   = rm;
-        map.data[d0][3*j+1] = gm;
-        map.data[d0][3*j+2] = bm;
+        std::cout << rm << gm << bm;
       }
-    }
-    if (map.data[dw-1]!=NULL){
-      for (int j=0; j<N; j++) std::cout << map.data[dw-1][j];
     }
     map.data_shift();
     text.data_shift();
