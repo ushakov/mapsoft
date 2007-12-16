@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "../geo_io/fig.h"
+#include "../utils/time.h"
 #include <cmath>
 #include "zn.h"
 #include "line_dist.h"
@@ -110,6 +111,15 @@ main(int argc, char **argv){
       continue;
     }
 
+    // второй прогон.
+
+    // текущее время
+    if ((i->type==4) && (i->comment.size()>0) && (i->comment[0] == "CURRENT DATE")){
+      Time t; t.set_current();
+      i->text = t.date_str();
+      continue;
+    }
+
     zconverter.fig_update(*i, type);
     // преобразуем некоторые объекты в x-spline
     if (
@@ -184,7 +194,7 @@ main(int argc, char **argv){
       nearest_line(list_h, t, p);
       list<fig_object> l1 = zconverter.make_pic(*i, type);
       fig::fig_rotate(l1, atan2(t.y, t.x), p);
-      NW.insert(NW.end(), l1.begin(), l1.end());
+      NW.insert(NW.begin(), l1.begin(), l1.end());
       continue;
     }
     // порог и водопад
@@ -516,7 +526,7 @@ main(int argc, char **argv){
 
     // прочие объекты - без изменений
     list<fig_object> l1 = zconverter.make_pic(*i, type);
-    NW.insert(NW.end(), l1.begin(), l1.end());
+    NW.insert(NW.begin(), l1.begin(), l1.end());
   }
 
 
