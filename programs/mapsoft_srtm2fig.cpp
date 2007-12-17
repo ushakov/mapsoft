@@ -220,8 +220,8 @@ main(int argc, char** argv){
   else if (cmd == "holes"){
     // поиск дырок
     cerr << "ищем дырки srtm: ";
-    set<g_point> aset;
-    g_line aline;
+    set<Point<int> > aset;
+    Line<int> aline;
     for (int lat=lat2; lat>lat1; lat--){
       for (int lon=lon1; lon<lon2-1; lon++){
         Point<int> p(lon,lat);
