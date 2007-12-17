@@ -8,6 +8,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <sys/stat.h>
 
 using namespace std;
@@ -27,11 +29,11 @@ main(int argc, char** argv){
   string map_name  = argv[1];
 
 // определим диапазон карты в координатах lonlat
-  Rect<double> r = filters::nom_range(map_name);
+  Rect<double> r0 = filters::nom_range(map_name);
 
 // определим осевой меридиан
-  double lon0 = (r.TLC().x + r.TRC().x)/2;
-  if (r.w > 11.9) lon0 = floor( lon0/3 ) * 3; // сдвоенные десятки
+  double lon0 = (r0.TLC().x + r0.TRC().x)/2;
+  if (r0.w > 11.9) lon0 = floor( lon0/3 ) * 3; // сдвоенные десятки
   else lon0 = floor( lon0/6.0 ) * 6 + 3;
 
   Options O;
@@ -39,20 +41,19 @@ main(int argc, char** argv){
 
 //масштаб карты
   double scale;
-  if      (r.h < 0.33) scale = 1/50000.0;
-  else if (r.h < 0.66) scale = 1/100000.0;
-  else if (r.h < 1.99) scale = 1/200000.0;
-  else if (r.h < 3.99) scale = 1/500000.0;
+  if      (r0.h < 0.33) scale = 1/50000.0;
+  else if (r0.h < 0.66) scale = 1/100000.0;
+  else if (r0.h < 1.99) scale = 1/200000.0;
+  else if (r0.h < 3.99) scale = 1/500000.0;
   else scale = 1/1000000.0;
 
   // Наш прямоугольник в СК Пулково!
 
   convs::pt2pt c0(Datum("pulkovo"), Proj("lonlat"), Options(),
                   Datum("wgs84"),   Proj("lonlat"), Options());
-  g_point p01(r.TLC()), p02(r.BRC());
+  g_point p01(r0.TLC()), p02(r0.BRC());
   c0.frw(p01); c0.frw(p02);
-  r = Rect<double>(p01, p02);
-
+  Rect<double> r = Rect<double>(p01, p02);
 
   g_line border_ll = rect2line(r);
   border_ll.push_back(p01);
@@ -163,6 +164,32 @@ main(int argc, char** argv){
       F.push_back(t);
     }
   }
+
+  ostringstream s; 
+  for (int i = 0; i<4; i++){
+    
+    Point<double> p(ref[i]);
+    Point<int> pr(ref[i].xr, ref[i].yr);
+    c0.bck(p); // в Пулково
+    s.str(""); t.clear(); t.sub_type = 2-(((i+1)/2)%2) *2; t.font_size = 8;
+    int deg = int(floor(p.y+1/120.0));
+    int min = int(floor(p.y*60+1/2.0))-deg*60;
+    s << deg << "*"
+      << setw(2) << setfill('0') << min;
+    t.text = s.str();
+    t.push_back(pr-Point<int>((t.sub_type-1) * 0.2*fig::cm2fig, 0));
+    F.push_back(t);
+
+    s.str(""); t.clear(); t.sub_type = 1;
+    deg = int(floor(p.x+1/120.0));
+    min = int(floor(p.x*60+1/2.0))-deg*60;
+    s << deg << "*" 
+      << setw(2) << setfill('0') << min;
+    t.text = s.str();
+    t.push_back(pr+Point<int>(0, (1-(i/2)*2)* 0.3*fig::cm2fig));
+    F.push_back(t);
+  }
+
 
   t.font_size=12;
   t.sub_type = 2;

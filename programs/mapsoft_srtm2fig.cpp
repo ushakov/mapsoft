@@ -220,13 +220,13 @@ main(int argc, char** argv){
   else if (cmd == "holes"){
     // поиск дырок
     cerr << "ищем дырки srtm: ";
-    aset.clear();
-    aline.clear();
+    set<g_point> aset;
+    g_line aline;
     for (int lat=lat2; lat>lat1; lat--){
       for (int lon=lon1; lon<lon2-1; lon++){
         Point<int> p(lon,lat);
         short h = s.geth(p);
-        if ((h==srtm_undef)&&test_pt(p1, border_ll)) aset.insert(p);
+        if ((h==srtm_undef)&&test_pt(p, border_ll)) aset.insert(p);
       }
     }
     cerr << aset.size() << " точек\n";
