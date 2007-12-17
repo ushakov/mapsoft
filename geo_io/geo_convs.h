@@ -50,6 +50,8 @@ struct pt2pt{
   pt2pt();
   void frw(g_point & p);
   void bck(g_point & p);
+  // преобразования линий
+  // точность acc - в координатах исходной проекции
   g_line line_frw(const g_line & l, double acc);
   g_line line_bck(const g_line & l, double acc);
 

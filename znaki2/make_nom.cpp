@@ -53,19 +53,25 @@ main(int argc, char** argv){
   c0.frw(p01); c0.frw(p02);
   r = Rect<double>(p01, p02);
 
-  g_line border = rect2line(r);
 
-  convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
-                   Datum("pulkovo"), Proj("tmerc"), O);
+  g_line border_ll = rect2line(r);
+  border_ll.push_back(p01);
 
+
+  convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), O, 
+                   Datum("wgs84"), Proj("lonlat"), Options());
+
+//  g_line border_fig = cnv.line_frw(border_ll) * fig::cm2fig*scale*100;
+  
   g_point p1(r.TLC()), p2(r.TRC()), p3(r.BRC()), p4(r.BLC());
 
-  cnv.frw(p1); cnv.frw(p2); cnv.frw(p3); cnv.frw(p4);
+  cnv.bck(p1); cnv.bck(p2); cnv.bck(p3); cnv.bck(p4);
 
-  p1*=fig::cm2fig*scale*100; 
-  p2*=fig::cm2fig*scale*100;
-  p3*=fig::cm2fig*scale*100;
-  p4*=fig::cm2fig*scale*100;
+  double m2fig = fig::cm2fig*scale*100;
+  p1*=m2fig; 
+  p2*=m2fig;
+  p3*=m2fig;
+  p4*=m2fig;
 
   double marg = 2*fig::cm2fig;
 
@@ -88,21 +94,16 @@ main(int argc, char** argv){
   ref.border.push_back(p3);
   ref.border.push_back(p4);
 
-  convs::map2pt cnv_f(ref, Datum("wgs84"), Proj("lonlat"), Options());
+  convs::map2pt cnv_f(ref, Datum("wgs84"), Proj("lonlat"), O);
 
   O["proj"] = "lonlat";
   O["datum"] = "pulkovo";
   fig::fig_world F;
   set_ref(F, ref, O);
 
-  g_line brd;
-  brd.push_back(r.TLC());
-  brd.push_back(r.TRC());
-  brd.push_back(r.BRC());
-  brd.push_back(r.BLC());
+  ref.border = cnv_f.line_bck(border_ll);
 
-  g_line brd_f = cnv_f.line_bck(brd);
-  ref.border = brd_f;
+//  ref.border = cnv.line_bck(border_ll, 1/m2fig) * m2fig;
 
   fig::fig_object brd_o = fig::make_object("2 3 0 2 0 7 31 -1 -1 0.000 0 0 -1 0 0 5");
 
@@ -116,7 +117,7 @@ main(int argc, char** argv){
 
   brd_o.clear();
   brd_o.comment.push_back("BRD "+map_name);
-  brd_o.insert(brd_o.end(), brd_f.begin(), brd_f.end());
+  brd_o.insert(brd_o.end(), ref.border.begin(), ref.border.end());
   brd_o.push_back(brd_o[0]);
   F.push_back(brd_o);
 
@@ -134,7 +135,7 @@ main(int argc, char** argv){
     F.insert(F.end(), l1.begin(), l1.end());
     if (l1.size()>0){
       t.clear();
-      t.text = boost::lexical_cast<std::string>(i);
+      t.text = boost::lexical_cast<std::string>(int(2*i/scale/100000.0));
       t.push_back(l1.front()[0] + Point<int>(0, -0.2*fig::cm2fig));
       F.push_back(t);
       t.clear();
@@ -154,7 +155,7 @@ main(int argc, char** argv){
     F.insert(F.end(), l1.begin(), l1.end());
     if (l1.size()>0){
       t.clear(); t.sub_type = 2;
-      t.text = boost::lexical_cast<std::string>(i);
+      t.text = boost::lexical_cast<std::string>(int(2*i/scale/100000.0));
       t.push_back(l1.front()[0] + Point<int>(-0.2*fig::cm2fig,0.2*fig::cm2fig));
       F.push_back(t);
       t.clear(); t.sub_type = 0;
@@ -164,22 +165,25 @@ main(int argc, char** argv){
   }
 
   t.font_size=12;
-  t.sub_type = 0;
+  t.sub_type = 2;
+  t.angle = M_PI/2;
   t.text  = "0000-00-00";
   t.comment.clear(); t.comment.push_back("CURRENT DATE");
   t.clear();
-  t.push_back(Point<int>(0.5*fig::cm2fig, 1.8*fig::cm2fig));
+  t.push_back(Point<int>(0.5*fig::cm2fig, 6.0*fig::cm2fig));
   F.push_back(t);
   t.comment.clear();
 
   t.font_size=20;
+  t.sub_type = 0;
+  t.angle = 0;
   t.text  = map_name;
   t.clear();
-  t.push_back(Point<int>(0.5*fig::cm2fig, 1.2*fig::cm2fig));
+  t.push_back(Point<int>(1.8*fig::cm2fig, 1.0*fig::cm2fig));
   F.push_back(t);
 
   t.sub_type = 1; t.text="z"; t.clear(); 
-  t.push_back(Point<int>(f_max.x-f_min.x-1*fig::cm2fig, f_max.y-f_min.y-1*fig::cm2fig));
+  t.push_back(Point<int>(0.8*fig::cm2fig, 1.0*fig::cm2fig));
   F.push_back(t);
 
 
