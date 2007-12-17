@@ -2,6 +2,8 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <set>
+#include <list>
 #include <stdexcept>
 #include <cmath>
 
@@ -221,7 +223,7 @@ main(int argc, char** argv){
     // поиск дырок
     cerr << "ищем дырки srtm: ";
     set<Point<int> > aset;
-    Line<int> aline;
+    list<Line<double> > aline;
     for (int lat=lat2; lat>lat1; lat--){
       for (int lon=lon1; lon<lon2-1; lon++){
         Point<int> p(lon,lat);
