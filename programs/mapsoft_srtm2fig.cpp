@@ -218,6 +218,28 @@ main(int argc, char** argv){
 
   } 
   else if (cmd == "holes"){
+    // поиск дырок
+    cerr << "ищем дырки srtm: ";
+    aset.clear();
+    aline.clear();
+    for (int lat=lat2; lat>lat1; lat--){
+      for (int lon=lon1; lon<lon2-1; lon++){
+        Point<int> p(lon,lat);
+        short h = s.geth(p);
+        if ((h==srtm_undef)&&test_pt(p1, border_ll)) aset.insert(p);
+      }
+    }
+    cerr << aset.size() << " точек\n";
+    cerr << " преобразуем множество точек в многоугольники: ";
+    aline = pset2line(aset);
+    for(list<g_line>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+      if (iv->size()<3) continue;
+      g_line l = fig_cnv.line_bck((*iv)/1200.0);
+      fig::fig_object o = fig::make_object("2 3 0 0 0 4 110 -1 20 0.000 0 0 -1 0 0 0");
+      o.insert(o.end(), l.begin(), l.end());
+      F.push_back(o);
+    }
+    cerr << aline.size() << " шт\n";
   }
   else usage();
 
@@ -260,33 +282,7 @@ main(int argc, char** argv){
   cerr << aline.size() << " шт\n";
 */
 
-/*  // поиск дырок
-  cerr << "ищем дырки srtm: ";
-  aset.clear();
-  aline.clear();
-  for (int lat=lat2; lat>lat1; lat--){
-    for (int lon=lon1; lon<lon2-1; lon++){
-      Point<int> p(lon,lat);
-      short h = s.geth(p);
-      if (h==srtm_undef) aset.insert(p);
-    }
-  }
-  cerr << aset.size() << " точек\n";
-
-  cerr << " преобразуем множество точек в многоугольники: ";
-  aline = pset2line(aset);
-  for(list<g_line>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
-    if (iv->size()<3) continue;
-    g_line l = (*iv)/1200.0;
-    mp::mp_object mpo;
-    mpo.Class = "POLYGON";
-    mpo.Label = "no data";
-    mpo.Type = 0xA;
-    mpo.insert(mpo.end(), l.begin(), l.end());
-    MP.push_back(mpo);
-  }
-  cerr << aline.size() << " шт\n";
-
+/*
   cerr << "Обрезаем данные до нужного нам района\n";
 
 
