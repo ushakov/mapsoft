@@ -265,13 +265,13 @@ main(int argc, char** argv){
         i->second = o->second;
         key = oldkey;
       }
-      // если объект изменился - заменим время в ключе и источник.
+      // если объект изменился - заменим время в ключе
       // сравниваем тип, текст и координаты
       if ((i->first != oldkey.type) || 
           (i->second.text != o->second.text) || 
           (i->second != o->second)){
         key.time.set_current();
-        key.source = source;
+//        key.source = source; // не надо менять!!!
         mod_count++;
       } else old_count++;
 

@@ -10,7 +10,7 @@ ID=0\r
 Name=\r
 Elevation=M\r
 Preprocess=F\r
-CodePage=1251\r
+CodePage=KOI8-R\r
 LblCoding=9\r
 TreSize=511\r
 TreMargin=0.000000\r
@@ -62,6 +62,6 @@ Data0=($lat,$lon)\r
 
 my $o1 = decode('koi8-r', $out);
 my $o2 = encode('cp1251', $o1);
-print $o2;
+print $out;
 
 }

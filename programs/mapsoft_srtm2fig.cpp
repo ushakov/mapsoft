@@ -228,7 +228,8 @@ main(int argc, char** argv){
       for (int lon=lon1; lon<lon2-1; lon++){
         Point<int> p(lon,lat);
         short h = s.geth(p);
-        if ((h==srtm_undef)&&test_pt(p, border_ll)) aset.insert(p);
+        g_point p1 = g_point(p)/1200;
+        if ((h==srtm_undef)&&test_pt(p1, border_ll)) aset.insert(p);
       }
     }
     cerr << aset.size() << " точек\n";
