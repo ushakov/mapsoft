@@ -14,7 +14,7 @@
 using namespace std;
 
 void usage(){
-    cerr << "usage: update_map_gk <map> <source> <conf file> <file.mp|file.fig>\n";
+    cerr << "usage: update_map <map> <source> <conf file> <file.mp|file.fig>\n";
     exit(0);
 }
 

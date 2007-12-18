@@ -1,8 +1,9 @@
-all: make_map_gk update_map get_map get_legend get_print fig2pnm get_figlib make_nom
+all: make_map_gk update_map get_map get_legend get_print fig2pnm get_figlib make_nom update_ext
 
 CPPFLAGS=-I../
 make_map_gk: ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a
 update_map:  ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck zn_key.cpp zn.cpp 
+update_ext:  ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck zn_key.cpp zn.cpp 
 get_map:     ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck zn_key.cpp zn.cpp 
 get_print:   zn_key.cpp zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck
 

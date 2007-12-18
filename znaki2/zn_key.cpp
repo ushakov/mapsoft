@@ -37,11 +37,11 @@ std::istream & operator>> (std::istream & s, zn_key & t){
       *blank_p >> 
          ch_p('0') >> 'x' >> hex_p[assign_a(newkey.type)] >> +blank_p >>
          (+graph_p >> +blank_p >> +graph_p)[assign_a(timestr)] >> +blank_p >>
-         uint_p[assign_a(newkey.id)] >> '@' >> (*(alnum_p|'_'|'-'))[assign_a(newkey.map)] >>
+         uint_p[assign_a(newkey.id)] >> '@' >> (+(alnum_p|'_'|'-'))[assign_a(newkey.map)] >>
          !(+blank_p >> 
            ( 
-             (uint_p[assign_a(newkey.sid)] >> '@' >> (+alnum_p|'_'|'-')[assign_a(newkey.source)]) ||
-             (+alnum_p)[assign_a(newkey.source)]
+             (uint_p[assign_a(newkey.sid)] >> '@' >> (+(alnum_p|'_'|'-'))[assign_a(newkey.source)]) ||
+             (+(alnum_p|'_'|'-'))[assign_a(newkey.source)]
            )
          ) >> *blank_p     
      ).full){
