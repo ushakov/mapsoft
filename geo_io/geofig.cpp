@@ -68,7 +68,7 @@ using namespace boost::spirit;
       ret.border.push_back(min);
       ret.border.push_back(g_point(min.x,max.y));
       ret.border.push_back(max);
-      ret.border.push_back(g_point(max.x,max.y));
+      ret.border.push_back(g_point(max.x,min.y));
     } else {
       ret.border.insert(ret.border.end(), brd.begin(), brd.end());
     }
