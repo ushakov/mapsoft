@@ -196,6 +196,7 @@ main(int argc, char **argv){
         (type == 0x6626)){
       Point<double> t, p((*i)[0]);
       nearest_line(list_h, t, p);
+      (*i)[0]=p;
       list<fig_object> l1 = zconverter.make_pic(*i, type);
       fig::fig_rotate(l1, atan2(t.y, t.x), p);
       NW.insert(NW.begin(), l1.begin(), l1.end());

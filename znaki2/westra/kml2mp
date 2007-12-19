@@ -54,6 +54,8 @@ my $label;
 if ($type ne "0x1100") {$label = $name;}
 else {$label = "$alt $name"; next; }# нам пока вершины не нужны...
 
+$label =~ s/&quot;/\"/g;
+
 my $out = qq*
 ; $type 0000-00-00 00:00:00 $westra_n\@westra_passes
 [POI]\r
