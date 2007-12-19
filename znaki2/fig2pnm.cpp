@@ -163,7 +163,7 @@ main(int argc, char **argv){
             for (int x = j-r1; x<=j+r1; x++){
               if ((x<0)||(x>=map.w)) continue;
               if (abs(d0-y)*abs(d0-y) + abs(j-x)*abs(j-x) > r1*r1) continue;
-              if (is_color(text.data[y]+3*x)) continue;
+//              if (is_color(text.data[y]+3*x)) continue;
               // 
               grid.data[y][3*x]   = 0xFD;
               grid.data[y][3*x+1] = 0xFD;

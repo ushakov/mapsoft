@@ -50,11 +50,15 @@ $type = "0x6625" if ($ks =~ /3А/) || ($ks =~ /3а/);
 $type = "0x6626" if ($ks =~ /3Б/) || ($ks =~ /3б/);
 $type = "0x1100" if ($name =~ /^в./);
 
+my $label;
+if ($type ne "0x1100") {$label = $name;}
+else {$label = "$alt $name"; next; }# нам пока вершины не нужны...
+
 my $out = qq*
 ; $type 0000-00-00 00:00:00 $westra_n\@westra_passes
 [POI]\r
 Type=$type\r
-Label=$alt $name$altname\r
+Label=$label\r
 EndLevel=1\r
 Data0=($lat,$lon)\r
 [END]\r
