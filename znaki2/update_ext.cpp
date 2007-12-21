@@ -123,6 +123,7 @@ cerr << i->Label << " " << k.type << " " << k.id << "\n";
       old_obj_ids.insert(k.id);
       continue;
     }
+    if (k.id > maxid) maxid=k.id;
     NEW.push_back(*i);
   }
 
