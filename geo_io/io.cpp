@@ -201,8 +201,8 @@ namespace io {
 					oef << base << setw(ww) << setfill('0') << n+1 << ".wpt";
 				else 
 					oef << base << ".wpt";
-
-				if (!oe::write_wpt_file (oef.str().c_str(), world.wpts[n], opt))
+				ofstream f(oef.str().c_str());
+				if (!oe::write_wpt_file (f, world.wpts[n], opt))
 				{
 					cerr << "! " << oef.str() << " FAILURE\n";
 				}
@@ -220,7 +220,8 @@ namespace io {
 				else 
 					oef << base << ".plt";
 
-				if (!oe::write_plt_file (oef.str().c_str(), world.trks[n], opt))
+				ofstream f(oef.str().c_str());
+				if (!oe::write_plt_file (f, world.trks[n], opt))
 				{
 					cerr << "! " << oef.str() << " FAILURE\n";
 				}
@@ -239,7 +240,8 @@ namespace io {
 				else 
 					oef << base << ".map";
 			
-				if (!oe::write_map_file (oef.str().c_str(), world.maps[n], opt))
+				ofstream f(oef.str().c_str());
+				if (!oe::write_map_file (f, world.maps[n], opt))
 				{
 					cerr << "! " << oef.str() << " FAILURE\n";
 				}

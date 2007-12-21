@@ -5,6 +5,9 @@
 #include "../geo_io/geo_convs.h"
 #include "../geo_io/io.h"
 
+#include "../loaders/image_r.h" // определение размеров картинки (image_r::size)
+
+
 #include <boost/lexical_cast.hpp>
 
 #include <fstream>
@@ -16,6 +19,7 @@ using namespace std;
 
 void usage(){
     cerr << "usage: make_map_nom <map name> > out.fig\n";
+    cerr << "       make_map_nom <png map name> <dpi> > out.map\n";
     cerr << "(pulkovo-42 datum, tmerc proj)\n";
     exit(0);
 }
@@ -25,8 +29,14 @@ const string maps_dir = "./maps";
 
 main(int argc, char** argv){
 
-  if (argc != 2) usage();
+  bool dofig;
+
+  if (argc == 2) dofig = true;
+  else if (argc == 3) dofig = false; 
+  else usage();
   string map_name  = argv[1];
+  int dpi; 
+
 
 // определим диапазон карты в координатах lonlat
   Rect<double> r0 = filters::nom_range(map_name);
@@ -68,13 +78,23 @@ main(int argc, char** argv){
 
   cnv.bck(p1); cnv.bck(p2); cnv.bck(p3); cnv.bck(p4);
 
-  double m2fig = fig::cm2fig*scale*100;
-  p1*=m2fig; 
-  p2*=m2fig;
-  p3*=m2fig;
-  p4*=m2fig;
 
-  double marg = 2*fig::cm2fig;
+  double cm2pt = fig::cm2fig;
+
+  if (!dofig){
+    double dpi = atof(argv[2]);
+    cm2pt = dpi/2.54;
+  }
+
+  double m2pt  = cm2pt*scale*100;
+
+
+  p1*=m2pt; 
+  p2*=m2pt;
+  p3*=m2pt;
+  p4*=m2pt;
+
+  double marg = 2*cm2pt;
 
   g_point f_min(min(p1.x, p4.x)-marg, min(p1.y, p2.y)-marg);
   g_point f_max(max(p2.x, p3.x)+marg, max(p3.y, p4.y)+marg);
@@ -86,6 +106,7 @@ main(int argc, char** argv){
 
   g_map ref;
   ref.map_proj = Proj("tmerc");
+  ref.file = map_name;
   ref.push_back(g_refpoint(r.TLC(), p1));
   ref.push_back(g_refpoint(r.TRC(), p2));
   ref.push_back(g_refpoint(r.BRC(), p3));
@@ -96,129 +117,139 @@ main(int argc, char** argv){
   ref.border.push_back(p4);
 
   convs::map2pt cnv_f(ref, Datum("wgs84"), Proj("lonlat"), O);
-
-  O["proj"] = "lonlat";
-  O["datum"] = "pulkovo";
-  fig::fig_world F;
-  set_ref(F, ref, O);
-
   ref.border = cnv_f.line_bck(border_ll);
 
-//  ref.border = cnv.line_bck(border_ll, 1/m2fig) * m2fig;
+  if (dofig){
 
-  fig::fig_object brd_o = fig::make_object("2 3 0 2 0 7 31 -1 -1 0.000 0 0 -1 0 0 5");
-
-  brd_o.push_back(Point<int>(0,0));
-  brd_o.push_back(Point<int>(f_max.x-f_min.x,0));
-  brd_o.push_back(Point<int>(f_max.x-f_min.x,f_max.y-f_min.y));
-  brd_o.push_back(Point<int>(0, f_max.y-f_min.y));
-  brd_o.push_back(Point<int>(0,0));
-
-  F.push_back(brd_o);
-
-  brd_o.clear();
-  brd_o.comment.push_back("BRD "+map_name);
-  brd_o.insert(brd_o.end(), ref.border.begin(), ref.border.end());
-  brd_o.push_back(brd_o[0]);
-  F.push_back(brd_o);
-
-  fig::fig_object o = fig::make_object("2 1 0 2 0 7 36 -1 -1 0.000 0 0 -1 0 0 5");
-  fig::fig_object t = fig::make_object("4 1 0 31 -1 18 10 0.0000 4");
-  int step = 2;
-  for (int i = int(ceil(f_min.x*fig::fig2cm/step)); 
-           i < int(floor(f_max.x*fig::fig2cm/step)); i++){
-    int x = i*fig::cm2fig*step - f_min.x;
-    o.clear();
-    o.push_back(Point<int>(x, 0));
-    o.push_back(Point<int>(x, f_max.y-f_min.y));
-    list<fig::fig_object> l1, l2; l1.push_back(o);
-    crop_lines(l1, l2, brd_o, true);
-    F.insert(F.end(), l1.begin(), l1.end());
-    if (l1.size()>0){
-      t.clear();
-      t.text = boost::lexical_cast<std::string>(int(2*i/scale/100000.0));
-      t.push_back(l1.front()[0] + Point<int>(0, -0.2*fig::cm2fig));
-      F.push_back(t);
-      t.clear();
-      t.push_back(l1.back()[l1.back().size()-1] + Point<int>(0, 0.6*fig::cm2fig));
-      F.push_back(t);
-    }
-  }
- 
-  for (int i = int(ceil(f_min.y*fig::fig2cm/step)); 
-           i < int(floor(f_max.y*fig::fig2cm/step)); i++){
-    int y = f_max.y - i*fig::cm2fig*step;
-    o.clear();
-    o.push_back(Point<int>(0, y));
-    o.push_back(Point<int>(f_max.x-f_min.x, y));
-    list<fig::fig_object> l1, l2; l1.push_back(o);
-    crop_lines(l1, l2, brd_o, true);
-    F.insert(F.end(), l1.begin(), l1.end());
-    if (l1.size()>0){
-      t.clear(); t.sub_type = 2;
-      t.text = boost::lexical_cast<std::string>(int(2*i/scale/100000.0));
-      t.push_back(l1.front()[0] + Point<int>(-0.2*fig::cm2fig,0.2*fig::cm2fig));
-      F.push_back(t);
-      t.clear(); t.sub_type = 0;
-      t.push_back(l1.back()[l1.back().size()-1] + Point<int>(0.2*fig::cm2fig,0.2*fig::cm2fig));
-      F.push_back(t);
-    }
-  }
-
-  ostringstream s; 
-  for (int i = 0; i<4; i++){
+    O["proj"] = "lonlat";
+    O["datum"] = "pulkovo";
+    fig::fig_world F;
+    set_ref(F, ref, O);
     
-    Point<double> p(ref[i]);
-    Point<int> pr(ref[i].xr, ref[i].yr);
-    c0.bck(p); // в Пулково
-    s.str(""); t.clear(); t.sub_type = 2-(((i+1)/2)%2) *2; t.font_size = 8;
-    int deg = int(floor(p.y+1/120.0));
-    int min = int(floor(p.y*60+1/2.0))-deg*60;
-    s << deg << "*"
-      << setw(2) << setfill('0') << min;
-    t.text = s.str();
-    t.push_back(pr-Point<int>((t.sub_type-1) * 0.2*fig::cm2fig, 0));
+    fig::fig_object brd_o = fig::make_object("2 3 0 1 0 7 31 -1 -1 0.000 0 0 -1 0 0 5");
+  
+    brd_o.push_back(Point<int>(0,0));
+    brd_o.push_back(Point<int>(f_max.x-f_min.x,0));
+    brd_o.push_back(Point<int>(f_max.x-f_min.x,f_max.y-f_min.y));
+    brd_o.push_back(Point<int>(0, f_max.y-f_min.y));
+    brd_o.push_back(Point<int>(0,0));
+  
+    F.push_back(brd_o);
+  
+    brd_o.clear();
+    brd_o.comment.push_back("BRD "+map_name);
+    brd_o.insert(brd_o.end(), ref.border.begin(), ref.border.end());
+    brd_o.push_back(brd_o[0]);
+    F.push_back(brd_o);
+  
+    fig::fig_object o = fig::make_object("2 1 0 1 0 7 36 -1 -1 0.000 0 0 -1 0 0 5");
+    fig::fig_object t = fig::make_object("4 1 0 31 -1 18 10 0.0000 4");
+    o.comment.push_back("[grid]");
+    t.comment.push_back("[grid labels]");
+    int step = 2;
+  
+    for (int i = int(ceil(f_min.x*fig::fig2cm/step)); 
+             i < int(floor(f_max.x*fig::fig2cm/step)); i++){
+      int x = i*cm2pt*step - f_min.x;
+      o.clear();
+      o.push_back(Point<int>(x, 0));
+      o.push_back(Point<int>(x, f_max.y-f_min.y));
+      list<fig::fig_object> l1, l2; l1.push_back(o);
+      crop_lines(l1, l2, brd_o, true);
+      F.insert(F.end(), l1.begin(), l1.end());
+      if (l1.size()>0){
+        t.clear();
+        t.text = boost::lexical_cast<std::string>(int(floor(2*i/scale/100000.0+0.5)));
+        t.push_back(l1.front()[0] + Point<int>(0, -0.3*cm2pt));
+        F.push_back(t);
+        t.clear();
+        t.push_back(l1.back()[l1.back().size()-1] + Point<int>(0, 0.7*cm2pt));
+        F.push_back(t);
+      }
+    }
+   
+    for (int i = int(ceil(f_min.y*fig::fig2cm/step)); 
+             i < int(floor(f_max.y*fig::fig2cm/step)); i++){
+      int y = f_max.y - i*cm2pt*step;
+      o.clear();
+      o.push_back(Point<int>(0, y));
+      o.push_back(Point<int>(f_max.x-f_min.x, y));
+      list<fig::fig_object> l1, l2; l1.push_back(o);
+      crop_lines(l1, l2, brd_o, true);
+      F.insert(F.end(), l1.begin(), l1.end());
+      if (l1.size()>0){
+        t.clear(); t.sub_type = 2;
+        t.text = boost::lexical_cast<std::string>(int(floor(2*i/scale/100000.0 + 0.5)));
+        t.push_back(l1.front()[0] + Point<int>(-0.2*cm2pt, 0.2*cm2pt));
+        F.push_back(t);
+        t.clear(); t.sub_type = 0;
+        t.push_back(l1.back()[l1.back().size()-1] + Point<int>(0.2*cm2pt, 0.2*cm2pt));
+        F.push_back(t);
+      }
+    }
+  
+    ostringstream s; 
+    for (int i = 0; i<4; i++){
+      
+      Point<double> p(ref[i]);
+      Point<int> pr(ref[i].xr, ref[i].yr);
+      c0.bck(p); // в Пулково
+  
+      s.str(""); t.clear(); t.sub_type = 2-(((i+1)/2)%2) *2; t.font_size = 8;
+      int deg = int(floor(p.y+1/120.0));
+      int min = int(floor(p.y*60+1/2.0))-deg*60;
+      s << deg << "*"
+        << setw(2) << setfill('0') << min;
+      t.text = s.str();
+      t.push_back(pr-Point<int>((t.sub_type-1) * 0.1*cm2pt, -(i/2)*0.2*cm2pt));
+      F.push_back(t);
+  
+      s.str(""); t.clear(); t.sub_type = 1;
+      deg = int(floor(p.x+1/120.0));
+      min = int(floor(p.x*60+1/2.0))-deg*60;
+      s << deg << "*" 
+        << setw(2) << setfill('0') << min;
+      t.text = s.str();
+      t.push_back(pr+Point<int>(0, (1.7-(i/2)*2)* 0.2*cm2pt));
+      F.push_back(t);
+    }
+  
+  
+    t.font_size=12;
+    t.sub_type = 2;
+    t.angle = M_PI/2;
+    t.text  = "0000-00-00";
+    t.comment.clear(); t.comment.push_back("CURRENT DATE");
+    t.clear();
+    t.push_back(Point<int>(0.5*cm2pt, 6.0*cm2pt));
     F.push_back(t);
+    t.comment.clear();
+  
+    t.font_size=20;
+    t.sub_type = 0;
+    t.angle = 0;
+    t.text  = map_name;
+    t.clear();
+    t.push_back(Point<int>(1.8*cm2pt, 1.0*cm2pt));
+    F.push_back(t);
+  
+    t.sub_type = 1; t.text="z"; t.clear(); 
+    t.push_back(Point<int>(0.8*cm2pt, 1.0*cm2pt));
+    F.push_back(t);
+  
+  
+    t.type = 1;
+    t.radius_x = t.radius_y = 0.3*cm2pt;
+    t.center_x = t[0].x;
+    t.center_y = t[0].y - 0.2*cm2pt;
+    F.push_back(t);
+  
+    fig::write(cout, F);
+  } else {
+    cerr << "writing map file\n";
+    Point<double> wh = image_r::size(map_name.c_str());
+    ref -= (f_max-f_min-wh)/2;
 
-    s.str(""); t.clear(); t.sub_type = 1;
-    deg = int(floor(p.x+1/120.0));
-    min = int(floor(p.x*60+1/2.0))-deg*60;
-    s << deg << "*" 
-      << setw(2) << setfill('0') << min;
-    t.text = s.str();
-    t.push_back(pr+Point<int>(0, (1-(i/2)*2)* 0.3*fig::cm2fig));
-    F.push_back(t);
+    oe::write_map_file(cout, ref, Options());
   }
-
-
-  t.font_size=12;
-  t.sub_type = 2;
-  t.angle = M_PI/2;
-  t.text  = "0000-00-00";
-  t.comment.clear(); t.comment.push_back("CURRENT DATE");
-  t.clear();
-  t.push_back(Point<int>(0.5*fig::cm2fig, 6.0*fig::cm2fig));
-  F.push_back(t);
-  t.comment.clear();
-
-  t.font_size=20;
-  t.sub_type = 0;
-  t.angle = 0;
-  t.text  = map_name;
-  t.clear();
-  t.push_back(Point<int>(1.8*fig::cm2fig, 1.0*fig::cm2fig));
-  F.push_back(t);
-
-  t.sub_type = 1; t.text="z"; t.clear(); 
-  t.push_back(Point<int>(0.8*fig::cm2fig, 1.0*fig::cm2fig));
-  F.push_back(t);
-
-
-  t.type = 1;
-  t.radius_x = t.radius_y = 0.3*fig::cm2fig;
-  t.center_x = t[0].x;
-  t.center_y = t[0].y - 0.2*fig::cm2fig;
-  F.push_back(t);
-
-  fig::write(cout, F);
 }

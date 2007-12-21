@@ -403,8 +403,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
 /***********************************************************/
 
-	bool write_plt_file (const char* filename, const g_track & trk, const Options & opt){
-		ofstream f(filename);
+	bool write_plt_file (ostream & f, const g_track & trk, const Options & opt){
 		if (!f.good()) return false;
 		int num = trk.size();
 		f << "OziExplorer Track Point File Version 2.0\r\n"
@@ -435,8 +434,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		return f.good();
 	}
 
-	bool write_wpt_file (const char* filename, const g_waypoint_list & wpt, const Options & opt){
-		ofstream f(filename);
+	bool write_wpt_file (ostream & f, const g_waypoint_list & wpt, const Options & opt){
 		if (!f.good ()) return false;
 		int num = wpt.size();
 		int n=0;
@@ -471,9 +469,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		return f.good();
 	}
 
-	bool write_map_file (const char* filename, const g_map & m, const Options & opt){
+	bool write_map_file (ostream & f, const g_map & m, const Options & opt){
 
-		ofstream f(filename);
 		if (!f.good()) return false;
 
 		// нам понадобятся координаты границы в wgs84

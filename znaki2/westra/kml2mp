@@ -36,10 +36,9 @@ while ($l1 =~ m|<Placemark>(.*?)</Placemark>|sg){
     $per =~ m|<th>Другие\s+названия</th><td>(.*?)</td>|s;     my $altname = ($1 eq '')? '':" ($1)";
     $per =~ m|<th>Категория\s+сложности</th><td>(.*?)</td>|s; my $ks = $1;
     $per =~ m|<th>Высота</th><td>(.*?)</td>|s;                my $alt = $1;
-    $per =~ m|http://www.westra.ru/passes/Passes/(\d+)>|s;    my $westra_n = $1;
+    $per =~ m|http://www.westra.ru/passes/Passes/(\d+)[^\d]|s;    my $westra_n = $1;
     $per =~ m|<longitude>(.*?)</longitude>|s;                 my $lon = $1;
     $per =~ m|<latitude>(.*?)</latitude>|s;                   my $lat = $1;
-
 my $type = "0x6406";
 $type = "0x6620" if ($ks =~ /н\/к/) || ($ks =~ /н.к/) || ($ks =~ /Н.К/) || ($ks =~ /Н\/К/);
 $type = "0x6621" if ($ks =~ /1А/) || ($ks =~ /1а/);

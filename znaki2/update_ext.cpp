@@ -67,7 +67,6 @@ main(int argc, char** argv){
 
 /*  
 Из новой карты нам интересны только объекты с ключом!
-Из старой мы 
 */
 
   
@@ -103,6 +102,7 @@ main(int argc, char** argv){
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++){
       zn::zn_key k = zn::get_key(*i);
       if ((k.type==0) || (k.map!=source) || (k.id==0)) continue;
+cerr << i->Label << " " << k.type << " " << k.id << "\n";
       fig::fig_object o = zconverter.mp2fig(*i, cnv, k.type);
       new_objects.insert(std::pair<int, fig::fig_object>(k.id, o));
     }
