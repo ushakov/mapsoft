@@ -13,6 +13,10 @@
 #include "../layers/layer.h"
 #include "workplane.h"
 
+// вообще-то хочется сюда другие layer'ы сделать...
+#include "../layers/layer_geodata.h"
+#include "../layers/layer_geomap.h"
+
 // файл данных
 struct MapviewDataFile : public geo_data{
   std::string name;
@@ -30,7 +34,6 @@ class MapviewData : public std::list<MapviewDataFile>{
     std::list<MapviewDataFile>::iterator current_file;
 
     // сигнал, что данные изменились
-    // его должен ловить DataList
     sigc::signal<void> signal_refresh;
 
     MapviewData(){
@@ -53,7 +56,15 @@ class MapviewData : public std::list<MapviewDataFile>{
       file.maps_l.resize(file.maps.size());
 // надо завести layer's для точек, треков и карт...
 //      for (int i=0; i<file.wpts.size(); i++) wpts_l = new LayerGeoWPT(file);
+      boost::shared_ptr<Layer> ML, DL;
+      ML.reset(new LayerGeoMap(&file));
+      DL.reset(new LayerGeoData(&file));
+      file.wpts_l.push_back(DL);
+      file.maps_l.push_back(ML);
+      workplane->add_layer(DL, 100);
+      workplane->add_layer(ML, 200);
       push_back(file);
+      signal_refresh.emit();
     }
 
     void save_file(std::string name){
@@ -63,7 +74,6 @@ class MapviewData : public std::list<MapviewDataFile>{
       MapviewDataFile new_file;
       new_file.name = name;
       push_back(new_file);
-//      current_file = push_back(new_file);
       signal_refresh.emit();
     }
 

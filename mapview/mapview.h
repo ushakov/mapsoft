@@ -28,13 +28,30 @@ class Mapview : public Gtk::Window{
     boost::shared_ptr<TRKSList>    trks_list;    // интерфейсный gtk-widget, показывающий треки текущего файла из mapview_data
     boost::shared_ptr<MAPSList>    maps_list;    // интерфейсный gtk-widget, показывающий карты текущего файла из mapview_data
 
-    Glib::RefPtr<Gtk::Statusbar>    statusbar;    // 
+    Gtk::Statusbar                  statusbar;    
     Glib::RefPtr<Gtk::ActionGroup>  actiongroup;  // набор actions для разных меню...
     Glib::RefPtr<Gtk::UIManager>    uimanager;    // menu manager
 
   Mapview(){
 
-    // создадим все компоненты
+    actiongroup = Gtk::ActionGroup::create();
+    uimanager   = Gtk::UIManager::create();
+    uimanager->insert_action_group(actiongroup);
+    add_accel_group(uimanager->get_accel_group()); // чтоб во всем окне кнопки работали!
+
+    // creating actions
+    actiongroup->add( Gtk::Action::create("mapview_quit", Gtk::Stock::QUIT),
+      sigc::mem_fun(this, &Gtk::Widget::hide) );
+
+    // adding actions to menues
+    uimanager->add_ui_from_string(
+      "<ui>"
+      "  <menubar action='menubar'>"
+      "  </menubar>"
+      "</ui>"
+    );
+
+    // создадим все остальные компоненты
     mapview_data.reset(new MapviewData());
     rubber.reset(new Rubber());
     viewer.reset(new Viewer(mapview_data->workplane, rubber));
@@ -44,33 +61,8 @@ class Mapview : public Gtk::Window{
     trks_list.reset(new TRKSList(mapview_data));
     maps_list.reset(new MAPSList(mapview_data));
 
-    statusbar = Gtk::Statusbar::create();
-    actiongroup = Gtk::ActionGroup::create();
-    uimanager   = Gtk::UIManager::create();
-    uimanager->insert_action_group(actiongroup);
-    add_accel_group(uimanager->get_accel_group()); // чтоб во всем окне кнопки работали!
-
-
-    // сделаем здесь menubar с какими-то общими action'ами...
-    // ActionManager'ы будут добавлять свои пункты в это меню,
-    // также они сделают свои popup меню, если надо...
-    uimanager->add_ui_from_string(
-      "<ui>"
-      "  <menubar name='menubar' action='menubar'>"
-      "    <menu name='file_menu' action='file_menu'>"
-      "      <menuitem name='quit' action='quit'/>"
-      "    </menu>"
-      "  </menubar>"
-      "</ui>"
-    );
-
-    actiongroup->add( Gtk::Action::create("file_menu", "File"));
-    actiongroup->add( Gtk::Action::create("quit", Gtk::Stock::QUIT),
-      sigc::mem_fun(this, &Gtk::Widget::hide) );
-
     uimanager->ensure_update();
 //    std::cerr << uimanager->get_ui();
-
 
     // запакуем все GTK-компоненты в окно
     guint drawing_padding = 5;
@@ -114,10 +106,9 @@ class Mapview : public Gtk::Window{
 
     // VBox vbox <- menubar + paned + statusbar
     Gtk::VBox * vbox = manage(new Gtk::VBox);
-//    vbox->pack_start(*menubar->get_widget(), false, true, 0);
     vbox->pack_start(*(uimanager->get_widget("/menubar")), false, true, 0);
     vbox->pack_start(*paned, true, true, drawing_padding);
-    vbox->pack_start(*statusbar, false, true, 0);
+    vbox->pack_start(statusbar, false, true, 0);
     add(*vbox);
     set_default_size(640,480);
 

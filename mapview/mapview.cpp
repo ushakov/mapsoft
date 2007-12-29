@@ -19,8 +19,9 @@ int main(int argc, char **argv){
     boost::shared_ptr<TRKSListAM>  trks_list_am; // ActionManager для trks_list'а
     boost::shared_ptr<MAPSListAM>  maps_list_am; // ActionManager для maps_list'а
 
-    viewer_am.reset(new ViewerAM(mapview->viewer, mapview));
+    // от порядка зависит порядок пунктов в меню!
     file_list_am.reset(new FileListAM(mapview->file_list, mapview));
+    viewer_am.reset(new ViewerAM(mapview->viewer, mapview));
     wpts_list_am.reset(new WPTSListAM(mapview->wpts_list, mapview));
     trks_list_am.reset(new TRKSListAM(mapview->trks_list, mapview));
     maps_list_am.reset(new MAPSListAM(mapview->maps_list, mapview));
