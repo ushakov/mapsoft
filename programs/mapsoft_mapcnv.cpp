@@ -30,7 +30,7 @@ main(int argc, char **argv){
     Y2    = atof(argv[7]);
 
     geo_data world;
-    LayerGeoMap     ml(&world);
+    LayerGeoMap     ml(&world, false);
     //чтение файлов из командной строки:
     for(int i=8;i<argc;i++){
       io::in(std::string(argv[i]), world, Options());

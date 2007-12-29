@@ -28,13 +28,15 @@ private:
   Cache<int, Image<int> > image_cache;    // кэш изображений
   Options O; // для всех карт должны быть одинаковы!
   g_map mymap;
+  bool drawborder;
  
 public:
 
-    LayerGeoMap (const geo_data *_world) : 
+    LayerGeoMap (const geo_data *_world, bool _drawborder=true) : 
       world(_world),
       image_cache(4),
-      mymap(convs::mymap(*_world))
+      mymap(convs::mymap(*_world)),
+      drawborder(_drawborder)
     {make_m2ms();}
 
     // получить/установить привязку layer'a
@@ -116,6 +118,7 @@ public:
             m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
           }
 
+          if (drawborder)
           for (int j=0; j<m2ms[i].border_dst.size(); j++){
             Point<double> p1(m2ms[i].border_dst[j]);
             Point<double> p2((j==m2ms[i].border_dst.size()-1) ? m2ms[i].border_dst[0] : m2ms[i].border_dst[j+1]);

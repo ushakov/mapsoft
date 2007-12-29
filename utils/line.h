@@ -182,12 +182,12 @@ void crop_lines(std::list<T> & lines,
   typename std::list<T>::iterator l=lines.begin();
   while (l!=lines.end()){
     if (l->size()==0) {l=lines.erase(l); continue;}
-    // для проверки надо выбрать точку, не лежащую на линии cutter
-    Point<double> testpt;
-    if (l->size()==1) {testpt = (*l)[0];}
-    else {testpt = ((*l)[0]+(*l)[1])/2.0;}
-    // (здесь может произойти фигня, если линия касается первым звеном cutter)
-    if (cutouter xor test_pt(testpt, cutter)) {lines1.push_back(*l);  l=lines.erase(l); continue;}
+    // посчитаем число точек внутри - число точек вне.
+    int sum=0;
+    for (int i = 1; i<l->size(); i++){
+      sum+= (cutouter xor test_pt(((*l)[i]+(*l)[i-1])/2, cutter))? -1:1;
+    }
+    if (sum<0) {lines1.push_back(*l);  l=lines.erase(l); continue;}
     l++;
   }
 }
