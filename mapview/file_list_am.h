@@ -29,8 +29,8 @@ class FileListAM{
 //    file_list->signal_cursor_changed().connect
 //      (sigc::mem_fun (this, &FileListAM::cursor_changed));
 
-    file_list->signal_row_activated().connect
-      (sigc::mem_fun (this, &FileListAM::row_activated));
+//    file_list->signal_row_activated().connect
+//      (sigc::mem_fun (this, &FileListAM::row_activated));
 
     //load file selector
     file_load_sel.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &FileListAM::load_file));
@@ -103,10 +103,10 @@ class FileListAM{
     std::cerr << "file n " << p.front() << " selected\n";
   }
 
-  void row_activated(const TreeModel::Path& p, TreeViewColumn* c) {
-    mapview->mapview_data->set_current_file(p.front());
-    std::cerr << "file n " << p.front() << " selected\n";
-  }
+//  void row_activated(const TreeModel::Path& p, TreeViewColumn* c) {
+//    mapview->mapview_data->set_current_file(p.front());
+//    std::cerr << "file n " << p.front() << " selected\n";
+// }
 
 
 };

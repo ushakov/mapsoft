@@ -42,21 +42,21 @@ main(int argc, char **argv){
     if (source == "map") {
       geo_data *world = new geo_data;
       ml = new LayerGeoMap(world);
-      for(int i=3;i<argc;i++)
+      for(int i=4;i<argc;i++)
         io::in(std::string(argv[i]), *world, Options());
 //      depth = "500"; 
    
     }
     else if (source == "ks") {
-      if (argc!=5) usage();
-      LayerKS *l = new LayerKS(argv[4], atoi(argv[3]));
+      if (argc!=6) usage();
+      LayerKS *l = new LayerKS(argv[5], atoi(argv[4]));
       l->set_downloading(true);
       ml=l;
 //      depth = "501"; 
     }
     else if (source == "google") {
-      if (argc!=5) usage();
-      LayerGoogle *l = new LayerGoogle(argv[4], atoi(argv[3]));
+      if (argc!=6) usage();
+      LayerGoogle *l = new LayerGoogle(argv[5], atoi(argv[4]));
       l->set_downloading(true);
       ml=l;
 //      depth = "502"; 
