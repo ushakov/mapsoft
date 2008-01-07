@@ -5,8 +5,10 @@
 
 class FileListColumns : public Gtk::TreeModelColumnRecord {
   public:
-    FileListColumns() {  add(text);}
-    Gtk::TreeModelColumn<Glib::ustring> text;
+    Gtk::TreeModelColumn<Glib::ustring> name;
+    FileListColumns() {  
+      add(name);
+    }
 };
 
 
@@ -20,26 +22,30 @@ class FileList : public Gtk::TreeView{
   public:
   FileList(boost::shared_ptr<MapviewData> mapview_data_):
     mapview_data(mapview_data_){
-    // подцепим сигнал
+    // подцепим сигнал, чтоб обнавляться, когда меняются данные...
     mapview_data->signal_refresh.connect(sigc::mem_fun(*this, &FileList::refresh));
     store = Gtk::ListStore::create(columns);
     set_model(store);
-    append_column_editable("", columns.text);
-    store->set_sort_column(columns.text, Gtk::SORT_ASCENDING);
+    append_column("files:", columns.name);
+    set_headers_visible(false);
+//    store->set_sort_column(columns.name, Gtk::SORT_ASCENDING);
     set_enable_search(false);
-    add_events(Gdk::BUTTON_PRESS_MASK);
     refresh();
   }
 
   // обновить данные
   void refresh(){
     store->clear();
+    int n=0;
     for (MapviewData::iterator i = mapview_data->begin(); i!=mapview_data->end(); i++){
       Gtk::TreeModel::iterator it = store->append();
       Gtk::TreeModel::Row row = *it;
-      row[columns.text] = i->name;
+      row[columns.name] = i->name;
+//      if (i == mapview_data->current_file) set_cursor(Gtk::TreePath(n));
+      n++;
     }
   }
+
 
 };
 

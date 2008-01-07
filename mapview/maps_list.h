@@ -25,8 +25,9 @@ class MAPSList : public Gtk::TreeView{
     mapview_data->signal_refresh.connect(sigc::mem_fun(*this, &MAPSList::refresh));
     store = Gtk::ListStore::create(columns);
     set_model(store);
-    append_column_editable("comm", columns.comm);
-    append_column_editable("file", columns.file);
+    set_headers_visible(false);
+    append_column_editable("", columns.comm);
+    append_column_editable("", columns.file);
     store->set_sort_column(columns.file, Gtk::SORT_ASCENDING);
     set_enable_search(false);
     add_events(Gdk::BUTTON_PRESS_MASK);
@@ -39,7 +40,7 @@ class MAPSList : public Gtk::TreeView{
     if (mapview_data->current_file == mapview_data->end()) return;
     for (std::vector<g_map>::const_iterator 
         i = mapview_data->current_file->maps.begin();
-        i!= mapview_data->current_file->maps.begin(); i++){
+        i!= mapview_data->current_file->maps.end(); i++){
       Gtk::TreeModel::iterator it = store->append();
       Gtk::TreeModel::Row row = *it;
       row[columns.file] = i->file;

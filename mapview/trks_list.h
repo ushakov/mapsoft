@@ -24,6 +24,7 @@ class TRKSList : public Gtk::TreeView{
     mapview_data->signal_refresh.connect(sigc::mem_fun(*this, &TRKSList::refresh));
     store = Gtk::ListStore::create(columns);
     set_model(store);
+    set_headers_visible(false);
     append_column_editable("", columns.comm);
     store->set_sort_column(columns.comm, Gtk::SORT_ASCENDING);
     set_enable_search(false);
@@ -36,7 +37,7 @@ class TRKSList : public Gtk::TreeView{
     store->clear();
     if (mapview_data->current_file == mapview_data->end()) return;
     for (std::vector<g_track>::const_iterator
-        i = mapview_data->current_file->trks.begin();
+        i = mapview_data->current_file->trks.end();
         i!= mapview_data->current_file->trks.begin(); i++){
       Gtk::TreeModel::iterator it = store->append();
       Gtk::TreeModel::Row row = *it;

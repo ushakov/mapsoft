@@ -22,19 +22,19 @@ const int tsize = 1024;
 
 void usage(){
   std::cerr << "usage: \n"
-    " mapsoft_map2fig <fig> map <map file 1> [<map file 2> ...]\n"
-    " mapsoft_map2fig <fig> google <scale> <google_dir>\n"
-    " mapsoft_map2fig <fig> ks <scale> <ks_dir>\n";
+    " mapsoft_map2fig <fig> map <depth> <map file 1> [<map file 2> ...]\n"
+    " mapsoft_map2fig <fig> google <depth> <scale> <google_dir>\n"
+    " mapsoft_map2fig <fig> ks <depth> <scale> <ks_dir>\n";
    exit(0);
 }
 
 int
 main(int argc, char **argv){
-    if (argc<4) usage();
+    if (argc<5) usage();
 
     std::string fig_name = argv[1];
     std::string source   = argv[2];
-    std::string depth;
+    std::string depth = argv[3];
 
     LayerGeo *ml;    
 
@@ -44,7 +44,7 @@ main(int argc, char **argv){
       ml = new LayerGeoMap(world);
       for(int i=3;i<argc;i++)
         io::in(std::string(argv[i]), *world, Options());
-      depth = "500"; 
+//      depth = "500"; 
    
     }
     else if (source == "ks") {
@@ -52,14 +52,14 @@ main(int argc, char **argv){
       LayerKS *l = new LayerKS(argv[4], atoi(argv[3]));
       l->set_downloading(true);
       ml=l;
-      depth = "501"; 
+//      depth = "501"; 
     }
     else if (source == "google") {
       if (argc!=5) usage();
       LayerGoogle *l = new LayerGoogle(argv[4], atoi(argv[3]));
       l->set_downloading(true);
       ml=l;
-      depth = "502"; 
+//      depth = "502"; 
     } else usage();
 
     // читаем fig
@@ -131,7 +131,7 @@ std::cerr << dx << " x " << dy << " tile_size\n";
       g_point tlc(range.x+i*dx, range.y+j*dy);
 
       Image<int> im = ml->get_image(Rect<int>(tlc, tlc+g_point(dx,dy)));
-      std::ostringstream fname; fname << dir_name << "/" << source[0] << i << "-" << j << ".jpg"; 
+      std::ostringstream fname; fname << dir_name << "/" << source[0] << depth << "-" << i << "-" << j << ".jpg"; 
       image_r::save(im, fname.str().c_str(), Options());
 
       fig::fig_object o = fig::make_object("2 5 0 1 0 -1 "+depth+" -1 -1 0.000 0 0 -1 0 0 *");

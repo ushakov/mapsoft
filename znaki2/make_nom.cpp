@@ -135,12 +135,18 @@ main(int argc, char** argv){
     brd_o.push_back(Point<int>(0,0));
   
     F.push_back(brd_o);
+
+    fig::fig_object brd_w = fig::make_object("2 3 0 0 0 7 32 -1 20 0.000 0 0 -1 0 0 *");
+    brd_w.insert(brd_w.end(), brd_o.begin(), brd_o.end());
   
     brd_o.clear();
     brd_o.comment.push_back("BRD "+map_name);
     brd_o.insert(brd_o.end(), ref.border.begin(), ref.border.end());
     brd_o.push_back(brd_o[0]);
     F.push_back(brd_o);
+
+    brd_w.insert(brd_w.end(), brd_o.begin(), brd_o.end());
+    F.push_back(brd_w);
   
     fig::fig_object o = fig::make_object("2 1 0 1 0 7 36 -1 -1 0.000 0 0 -1 0 0 5");
     fig::fig_object t = fig::make_object("4 1 0 31 -1 18 10 0.0000 4");

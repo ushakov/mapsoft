@@ -1,12 +1,14 @@
 #ifndef WPTS_LIST_H
 #define WPTS_LIST_H
 
+#include "../utils/m_time.h"
 // Gtk::Widget, показывающий waypoints активного файла из MapviewData
 
 class WPTSListColumns : public Gtk::TreeModelColumnRecord {
   public:
-    WPTSListColumns() {  add(text);}
-    Gtk::TreeModelColumn<Glib::ustring> text;
+    WPTSListColumns() {  add(name);}
+    Gtk::TreeModelColumn<Glib::ustring> name;
+//    Gtk::TreeModelColumn<Time>          time;
 };
 
 
@@ -24,8 +26,10 @@ class WPTSList : public Gtk::TreeView{
     mapview_data->signal_refresh.connect(sigc::mem_fun(*this, &WPTSList::refresh));
     store = Gtk::ListStore::create(columns);
     set_model(store);
-    append_column_editable("", columns.text);
-    store->set_sort_column(columns.text, Gtk::SORT_ASCENDING);
+    set_headers_visible(false);
+    append_column_editable("name", columns.name);
+//    append_column_editable("time", columns.time);
+    store->set_sort_column(columns.name, Gtk::SORT_ASCENDING);
     set_enable_search(false);
     add_events(Gdk::BUTTON_PRESS_MASK);
     refresh();
@@ -36,14 +40,15 @@ class WPTSList : public Gtk::TreeView{
     if (mapview_data->current_file == mapview_data->end()) return;
     for (std::vector<g_waypoint_list>::const_iterator
         i = mapview_data->current_file->wpts.begin();
-        i!= mapview_data->current_file->wpts.begin(); i++){
+        i!= mapview_data->current_file->wpts.end(); i++){
       Gtk::TreeModel::iterator it = store->append();
       Gtk::TreeModel::Row row = *it;
-      row[columns.text] = "---";
+      row[columns.name] = "---";
       for (g_waypoint_list::const_iterator w = i->begin(); w!=i->end(); i++){
         Gtk::TreeModel::iterator it = store->append();
         Gtk::TreeModel::Row row = *it;
-        row[columns.text] = w->name;
+        row[columns.name] = w->name;
+//        row[columns.time] = w->t;
       }
     }
   }

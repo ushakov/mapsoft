@@ -1,7 +1,8 @@
 #ifndef FILE_LIST_AM_H
 #define FILE_LIST_AM_H
 
-// ActionManager для DataList
+// ActionManager для FileList
+// загрузка/сохранение/удаление файлов
 
 #include "mapview.h"
 
@@ -24,6 +25,12 @@ class FileListAM{
     // connect events from file_list
     file_list->signal_button_press_event().connect
       (sigc::mem_fun (this, &FileListAM::mouse_button_pressed));
+
+//    file_list->signal_cursor_changed().connect
+//      (sigc::mem_fun (this, &FileListAM::cursor_changed));
+
+    file_list->signal_row_activated().connect
+      (sigc::mem_fun (this, &FileListAM::row_activated));
 
     //load file selector
     file_load_sel.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &FileListAM::load_file));
@@ -87,6 +94,18 @@ class FileListAM{
   void new_file() {
     mapview->statusbar.push("Creating new file");
     mapview->mapview_data->new_file();
+  }
+  void cursor_changed() {
+    Gtk::TreeModel::Path p;
+    Gtk::TreeViewColumn *c;
+    file_list->get_cursor(p,c);
+    mapview->mapview_data->set_current_file(p.front());
+    std::cerr << "file n " << p.front() << " selected\n";
+  }
+
+  void row_activated(const TreeModel::Path& p, TreeViewColumn* c) {
+    mapview->mapview_data->set_current_file(p.front());
+    std::cerr << "file n " << p.front() << " selected\n";
   }
 
 

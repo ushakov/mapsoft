@@ -76,7 +76,7 @@ int load(
 
           std::ostringstream tile_url_s;
 
-	  tile_url_s << "http://images.new.kosmosnimki.ru/printtiles/?t=image_&zt=n&x=" 
+	  tile_url_s << "http://images.new.kosmosnimki.ru/printtilesrescaled/?t=image_&zt=n&x=" 
                      << (2*xt + 1) * (1 << (24-ks_scale))
                      << "&y="
                      << (src_width/128 - 2*yt - 1) * (1 << (24-ks_scale))

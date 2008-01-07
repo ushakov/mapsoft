@@ -77,6 +77,13 @@ class MapviewData : public std::list<MapviewDataFile>{
       signal_refresh.emit();
     }
 
+    void set_current_file(int i){
+      if (i<0) return;
+      current_file = begin();
+      for (int j=0; (current_file!=end()) && (j<i); j++) current_file++;
+      signal_refresh.emit();
+    }
+
 };
 
 #endif
