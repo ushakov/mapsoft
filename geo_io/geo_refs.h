@@ -31,7 +31,7 @@ g_map ref_google(int scale){
 
 
 
-g_map ref_ks(int scale){
+g_map ref_ks_old(int scale){
    g_map ret;
    ret.map_proj = Proj("ks");
    ret.comm = "new.kosmosnimki.ru";
@@ -59,6 +59,40 @@ g_map ref_ks(int scale){
    ret.border.push_back(g_point(width,0));
    ret.border.push_back(g_point(width,width));
    ret.border.push_back(g_point(0,width));
+   return ret;
+}
+
+g_map ref_ks(int scale){
+   g_map ret;
+   ret.map_proj = Proj("ks");
+   ret.comm = "new.kosmosnimki.ru";
+
+   if (scale<ks::ks_scale_min) scale=ks::ks_scale_min;
+   if (scale>ks::ks_scale_max) scale=ks::ks_scale_max;
+
+//   convs::pt2pt cc(Datum("wgs84"), Proj("lonlat"), Options(),
+//                   Datum("wgs84"), Proj("ks"), Options());
+//   Point<double> p (1<<24, 1<<24);
+//   std::cerr << p << "\n"; cc.bck(p);
+//   std::cerr << p << "\n"; cc.frw(p);
+//   std::cerr << p << "\n"; cc.bck(p);
+
+   double width = 256*(1<<(scale-1));
+//   double maxlat = 360/M_PI*atan(exp(M_PI)) - 90;
+//   double maxlat = 85.08405905;
+   double maxlat = 85.16;
+//   double maxlat = 86;
+
+   ret.push_back(g_refpoint(0,  maxlat, 0,0));
+   ret.push_back(g_refpoint(180,maxlat, width,0));
+   ret.push_back(g_refpoint(180,0,      width,width));
+   ret.push_back(g_refpoint(0,  0,      0,width));
+
+   ret.border.push_back(g_point(0,0));
+   ret.border.push_back(g_point(width,0));
+   ret.border.push_back(g_point(width,width));
+   ret.border.push_back(g_point(0,width));
+
    return ret;
 }
 #endif
