@@ -91,7 +91,6 @@ void pt2ll::frw(g_point & p) const{
       double r_e = sqrt(1.0-r_ba*r_ba);
       double ts = exp(-p.y/r_a);
 
-
       double phi = M_PI/2.0 - 2.0*atan(ts);
       int i = 15;
       double dphi = 0.1;
@@ -101,8 +100,8 @@ void pt2ll::frw(g_point & p) const{
         dphi = M_PI/2.0 - 2.0 * atan(ts * pow((1.0 - con)/(1.0 + con), r_e/2)) - phi;
         phi += dphi;
       } 
-      p.y = phi *180.0/M_PI; 
-      p.x = (p.x/r_a)*180.0/M_PI;
+      p.y = 180.0 * phi/M_PI; 
+      p.x *= 180.0/r_a/M_PI;
       }
       break;
 

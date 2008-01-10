@@ -17,14 +17,14 @@ int load(
   if (ks_scale<ks_scale_min) ks_scale=ks_scale_min;
   if (ks_scale>ks_scale_max) ks_scale=ks_scale_max;
  
-  int src_width = 5 * 256* (1 << (ks_scale-3));
+  int src_width = 256* (1 << (ks_scale-1));
 
   Rect<int> src_points = Rect<int>(0,0,src_width,src_width);
 
-  // подрежем прямоугольники
-  clip_rects_for_image_loader(
-      src_points, src_rect,
-      Rect<int>(0,0,image.w,image.h), dst_rect);
+//  // подрежем прямоугольники
+//  clip_rects_for_image_loader(
+//      src_points, src_rect,
+//      Rect<int>(0,0,image.w,image.h), dst_rect);
 
   if (src_rect.empty() || dst_rect.empty()) return 1;
 
@@ -77,9 +77,9 @@ int load(
           std::ostringstream tile_url_s;
 
 	  tile_url_s << "http://images.new.kosmosnimki.ru/printtilesrescaled/?t=image_&zt=n&x=" 
-                     << (2*xt + 1) * (1 << (24-ks_scale))
+                     << int((2*xt + 1) * (1 << (24-ks_scale))*1.194329)
                      << "&y="
-                     << (src_width/128 - 2*yt - 1) * (1 << (24-ks_scale))
+                     << int((src_width/128 - 2*yt - 1) * (1 << (24-ks_scale))*1.194329)
                      << "&z=" << ks_scale;
 
 	  std::string tile_url = tile_url_s.str();

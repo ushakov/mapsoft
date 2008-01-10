@@ -79,8 +79,8 @@ g_map ref_ks(int scale){
 
    double width = 256*(1<<(scale-1));
 //   double maxlat = 360/M_PI*atan(exp(M_PI)) - 90;
-//   double maxlat = 85.08405905;
-   double maxlat = 85.16;
+   double maxlat = 85.08405905;
+//   double maxlat = 85.16;
 //   double maxlat = 86;
 
    ret.push_back(g_refpoint(0,  maxlat, 0,0));
