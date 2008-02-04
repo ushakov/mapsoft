@@ -23,5 +23,7 @@ le.Program('mapsoft_map2fig', 'mapsoft_map2fig.cpp')
 le.Program('mapsoft_srtm2fig', 'mapsoft_srtm2fig.cpp')
 le.Program('mapsoft_fig2fig', 'mapsoft_fig2fig.cpp')
 
+le.Program('mapsoft_calc_nom2ll', 'mapsoft_calc_nom2ll.cpp')
+
 
 #le.Program('mapsoft_ksview', 'mapsoft_ksview.cpp')

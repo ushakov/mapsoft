@@ -172,10 +172,15 @@ fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, i
 
   fig::fig_object ret = default_fig;
   if (znaki.find(type) != znaki.end()) ret = znaki.find(type)->second.fig;
-  else {std::cerr << "fig2mp: unknown type: " << type << "\n";}
+  else {std::cerr << "mp2fig: unknown type: " << type << "\n";}
 
-  ret.comment.push_back(mp.Label);
+  if (ret.type == 4){
+    ret.text = mp.Label;
+  } else {
+    ret.comment.push_back(mp.Label);
+  }
   ret.comment.insert(ret.comment.end(), mp.Comment.begin(), mp.Comment.end());
+
   g_line pts = cnv.line_bck(mp);
   for (int i=0; i<pts.size(); i++) ret.push_back(pts[i]);
   // замкнутая линия
@@ -196,9 +201,12 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, 
 
   mp::mp_object mp = default_mp;
   if (znaki.find(type) != znaki.end()) mp = znaki.find(type)->second.mp;
-  else {std::cerr << "mp2fig: unknown type: " << type << "\n";}
+  else {std::cerr << "fig2mp: unknown type: " << type << "\n";}
 
-  if (fig.comment.size()>0){
+  if (fig.type == 4){
+    mp.Label = fig.text;
+    mp.Comment.insert(mp.Comment.begin(), fig.comment.begin(), fig.comment.end());
+  } else if (fig.comment.size()>0){
     mp.Label = fig.comment[0];
     mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
   }
