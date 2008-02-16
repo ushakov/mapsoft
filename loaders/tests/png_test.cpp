@@ -12,7 +12,7 @@ int main(){
 //  std::cerr << a.range() << "\n";
 
 //  image_tiff::save(a, Rect<int>(-100,-100,200,200),"tst1.tif");
-  image_tiff::save(a,"tst1.tif");
+  image_png::save(a,"tst1.png");
 
 }
 

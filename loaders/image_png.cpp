@@ -146,12 +146,14 @@ int load(const char *file, Rect<int> src_rect,
               row_buf[4*src_x] + (row_buf[4*src_x+1]<<8) + (row_buf[4*src_x+2]<<16) + (row_buf[4*src_x+3]<<24));
         }
       }
+      png_free(png_ptr, row_buf);
       png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
       fclose(infile);
       return 0;
     }
 
     if (interlace_type == PNG_INTERLACE_ADAM7){
+      png_free(png_ptr, row_buf);
       png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
       std::cerr << "PNG_INTERLACE_ADAM7 not supported yet! Fixme!\n";
       fclose(infile);
@@ -187,42 +189,47 @@ int load(const char *file, Rect<int> src_rect,
     }
 
     // других типов PNG_INTERLACE вообще-то не должно быть...
+    png_free(png_ptr, row_buf);
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
     fclose(infile);
     return 2;
 }
 
-/*
 // save part of image
 int save(const Image<int> & im, const Rect<int> & src_rect, 
-         const char *file, int quality=75){
+         const char *file){
 
-    if ((quality<0)||(quality>100)){
-        std::cerr << "JPEG quality not in range 0..100 (" << quality << ")\n";
-        return 1;
+    FILE *outfile = fopen(file, "wb");
+    if (!outfile) return 2;
+
+    png_structp png_ptr = png_create_write_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png_ptr) return 2;
+
+    png_infop info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr) {
+       png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+       return 2;
     }
 
-    struct jpeg_compress_struct cinfo;
-    struct jpeg_error_mgr jerr;
-    cinfo.err = jpeg_std_error(&jerr);
-    jpeg_create_compress(&cinfo);
-
-    FILE * outfile;
-    if ((outfile = fopen(file, "wb")) == NULL) {
-        std::cerr << "Can't open " << file << "\n";
-        return 1;
+    if (setjmp(png_jmpbuf(png_ptr))){
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        fclose(outfile);
+        return 2;
     }
 
-    jpeg_stdio_dest(&cinfo, outfile);
-    cinfo.image_width = src_rect.w;
-    cinfo.image_height = src_rect.h;
-    cinfo.input_components = 3;
-    cinfo.in_color_space = JCS_RGB;
-    jpeg_set_defaults(&cinfo);
-    jpeg_set_quality (&cinfo, quality, true);
-    jpeg_start_compress(&cinfo, TRUE);
+    png_init_io(png_ptr, outfile);
 
-    char *buf  = new char[src_rect.w * 3];
+    png_set_IHDR(png_ptr, info_ptr, src_rect.w, src_rect.h,
+       8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+       PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+    png_write_info(png_ptr, info_ptr);
+
+    png_bytep buf = (png_bytep)png_malloc(png_ptr, src_rect.w*3);
+    if (!info_ptr) {
+      png_destroy_write_struct(&png_ptr, &info_ptr);
+      return 2;
+    }
 
     for (int y = src_rect.y; y < src_rect.y+src_rect.h; y++){
       if ((y<0)||(y>=im.h)){
@@ -237,15 +244,14 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
           buf[3*x+2]   = (c >> 16) & 0xFF;
         }
       }
-      jpeg_write_scanlines(&cinfo, (JSAMPLE**)&buf, 1);
+      png_write_row(png_ptr, buf);
     }
-    delete [] buf;
-
-    jpeg_finish_compress(&cinfo);
-    jpeg_destroy_compress(&cinfo);
+    png_free(png_ptr, buf);
+    png_write_end(png_ptr, info_ptr);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
     fclose(outfile);
 }
-*/
+
 // load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
 Image<int> load(const char *file, const int scale){
   Point<int> s = size(file);
@@ -254,10 +260,8 @@ Image<int> load(const char *file, const int scale){
   load(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
   return ret;
 }
-/*
-// save the whole image
-int save(const Image<int> & im, const char * file, int quality=75){
-  return save(im, im.range(), file, quality);
+
+int save(const Image<int> & im, const char * file){
+  return save(im, im.range(), file);
 }
-*/
 } // namespace
