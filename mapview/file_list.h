@@ -19,15 +19,14 @@ class FileList : public Gtk::TreeView{
   boost::shared_ptr<MapviewData> mapview_data;
  
   Glib::RefPtr<Gtk::ListStore> store;
-  bool do_refresh;
 
   public:
   FileListColumns columns;
 
   FileList(boost::shared_ptr<MapviewData> mapview_data_):
-    mapview_data(mapview_data_), do_refresh(true){
+    mapview_data(mapview_data_){
     // подцепим сигнал, чтоб обновляться, когда меняются данные...
-    mapview_data->signal_refresh.connect(sigc::mem_fun(*this, &FileList::refresh));
+    mapview_data->signal_refresh_files.connect(sigc::mem_fun(*this, &FileList::refresh));
 
     store = Gtk::ListStore::create(columns);
 
@@ -47,23 +46,14 @@ class FileList : public Gtk::TreeView{
   // при этом все игналы должны испускаться:
   //  refresh от mapview_data должен быть пойман WPTList и К
   //  select от file_list должен быть пойман am и направлен в mapview_data, 
+
   void refresh(){
-    if (!do_refresh){do_refresh=true; return;}
     store->clear();
     for (MapviewData::iterator i = mapview_data->begin(); i!=mapview_data->end(); i++){
       Gtk::TreeModel::iterator it = store->append();
       (*it)[columns.name] = i->name;
-      if (i==mapview_data->active_file){
-        do_refresh=false;
-        get_selection()->select(*it);
-      }
+      if (i==mapview_data->active_file)  get_selection()->select(*it);
     }
-    /*
-    for (Gtk::TreeModel::Children::iterator it = store->children().begin(); 
-         it!=store->children().end(); it++){
-      if ((*it)[columns.name]==mapview_data->active_file->name) 
-        get_selection()->select(*it);
-    }*/
   }
 
 

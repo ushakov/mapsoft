@@ -27,7 +27,6 @@
 struct MapviewDataFile : public geo_data{
   std::string name;
   int         id;
-  std::vector<int> wpts_d, trks_d, maps_d; // Глубины всех элементов
   std::vector<int> wpts_v, trks_v, maps_v; // Видимость всех элементов
   std::vector<boost::shared_ptr<Layer> > wpts_l, trks_l, maps_l;
 };
@@ -40,8 +39,9 @@ class MapviewData : public std::list<MapviewDataFile>{
     // активный файл
     std::list<MapviewDataFile>::iterator active_file;
 
-    // сигнал, что данные изменились
-    sigc::signal<void> signal_refresh;
+    // сигналы, что данные изменились
+    sigc::signal<void> signal_refresh_files; // для file_list
+    sigc::signal<void> signal_refresh_data;  // для wpts_list, trks_list, maps_list, viewer
 
     MapviewData(){
       workplane.reset(new Workplane());
@@ -62,9 +62,6 @@ class MapviewData : public std::list<MapviewDataFile>{
         return;
       }
 
-      file.wpts_d.resize(file.wpts.size(), 100);
-      file.trks_d.resize(file.trks.size(), 200);
-      file.maps_d.resize(file.maps.size(), 300);
       file.wpts_v.resize(file.wpts.size(), true);
       file.trks_v.resize(file.trks.size(), true);
       file.maps_v.resize(file.maps.size(), true);
@@ -81,11 +78,12 @@ class MapviewData : public std::list<MapviewDataFile>{
       workplane->add_layer(DL, 100);
       workplane->add_layer(ML, 200);
       push_back(file);
-      signal_refresh.emit();
+      signal_refresh_files.emit();
+      signal_refresh_data.emit();
     }
 
-    void save_file(std::string name){
-    }
+    void get_from_usb(){ load_file("usb:"); }
+
 
     void new_file(std::string name = "new_file"){
       for ( MapviewData::const_iterator i = begin(); i!=end(); i++){
@@ -97,14 +95,16 @@ class MapviewData : public std::list<MapviewDataFile>{
       MapviewDataFile new_file;
       new_file.name = name;
       push_back(new_file);
-      signal_refresh.emit();
+      signal_refresh_files.emit();
+      signal_refresh_data.emit();
     }
 
-    void set_active_file(std::string name){
+    void set_active_file(std::string name, bool emit_refresh_files=true){
       for ( MapviewData::iterator i = begin(); i!=end(); i++){
         if (i->name == name) active_file=i;
       }
-      signal_refresh.emit();
+      if (emit_refresh_files) signal_refresh_files.emit();
+      signal_refresh_data.emit();
     }
 
     void change_active_file_name(std::string name){
@@ -116,16 +116,22 @@ class MapviewData : public std::list<MapviewDataFile>{
       }
       if (active_file==end()) return;
       active_file->name=name;
-      signal_refresh.emit();
+      signal_refresh_files.emit();
     }
 
     void delete_active_file(){
       if (active_file==end()) return;
       active_file = erase(active_file);
-      signal_refresh.emit();
+      signal_refresh_files.emit();
+      signal_refresh_data.emit();
     }
 
-    void save_active_file(){
+    void save_active_file(std::string name=""){
+      if (name=="") name = active_file->name;
+	//TODO
+    }
+
+    void put_active_to_usb(){
 	//TODO
     }
 

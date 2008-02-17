@@ -21,7 +21,7 @@ class TRKSList : public Gtk::TreeView{
   TRKSList(boost::shared_ptr<MapviewData> mapview_data_):
     mapview_data(mapview_data_){
     // подцепим сигнал
-    mapview_data->signal_refresh.connect(sigc::mem_fun(*this, &TRKSList::refresh));
+    mapview_data->signal_refresh_data.connect(sigc::mem_fun(*this, &TRKSList::refresh));
     store = Gtk::ListStore::create(columns);
     set_model(store);
     set_headers_visible(false);

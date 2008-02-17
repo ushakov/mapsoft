@@ -23,7 +23,7 @@ class WPTSList : public Gtk::TreeView{
   WPTSList(boost::shared_ptr<MapviewData> mapview_data_):
     mapview_data(mapview_data_){
     // подцепим сигнал
-    mapview_data->signal_refresh.connect(sigc::mem_fun(*this, &WPTSList::refresh));
+    mapview_data->signal_refresh_data.connect(sigc::mem_fun(*this, &WPTSList::refresh));
     store = Gtk::ListStore::create(columns);
     set_model(store);
     set_headers_visible(false);
@@ -36,10 +36,8 @@ class WPTSList : public Gtk::TreeView{
   }
   // обновить данные
   void refresh(){
-std::cerr << "WPTSList: refresh\n";
     store->clear();
     if (mapview_data->active_file == mapview_data->end()) return;
-std::cerr << "WPTSList: find_active\n";
     for (std::vector<g_waypoint_list>::const_iterator
         i = mapview_data->active_file->wpts.begin();
         i!= mapview_data->active_file->wpts.end(); i++){

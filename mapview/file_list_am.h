@@ -51,6 +51,10 @@ class FileListAM{
       sigc::mem_fun(this, &FileListAM::save_file));
     mapview->actiongroup->add( Gtk::Action::create("file_list_save_as", Gtk::Stock::SAVE_AS),
       sigc::mem_fun(file_save_sel, &Gtk::Widget::show));
+    mapview->actiongroup->add( Gtk::Action::create("file_list_get_usb", "from USB port"),
+      sigc::mem_fun(this, &FileListAM::get_from_usb));
+    mapview->actiongroup->add( Gtk::Action::create("file_list_put_usb", "to USB port"),
+      sigc::mem_fun(this, &FileListAM::put_to_usb));
     mapview->actiongroup->add( Gtk::Action::create("file_list_delete", Gtk::Stock::DELETE),
       sigc::mem_fun(this, &FileListAM::delete_file));
 
@@ -61,6 +65,7 @@ class FileListAM{
       "    <menu action='file_list_menu'>"
       "      <menuitem action='file_list_new'/>"
       "      <menuitem action='file_list_load'/>"
+      "      <menuitem action='file_list_get_usb'/>"
       "      <menuitem action='mapview_quit'/>"
       "    </menu>"
       "  </menubar>"
@@ -69,6 +74,8 @@ class FileListAM{
       "    <menuitem action='file_list_load'/>"
       "    <menuitem action='file_list_save'/>"
       "    <menuitem action='file_list_save_as'/>"
+      "    <menuitem action='file_list_get_usb'/>"
+      "    <menuitem action='file_list_put_usb'/>"
       "    <menuitem action='file_list_delete'/>"
       "    <menuitem action='mapview_quit'/>"
       "  </popup>"
@@ -83,13 +90,14 @@ class FileListAM{
     if (event->button == 3)  if(popup) popup->popup(event->button, event->time);
   }
 
+
   void load_file() {
     mapview->statusbar.push("Loading file " + file_load_sel.get_filename());
     mapview->mapview_data->load_file(file_load_sel.get_filename());
   }
   void save_file_as() {
     mapview->statusbar.push("Saving file " + file_save_sel.get_filename());
-    mapview->mapview_data->save_file(file_save_sel.get_filename());
+    mapview->mapview_data->save_active_file(file_save_sel.get_filename());
   }
   void save_file() {
     mapview->statusbar.push("Saving file");
@@ -103,11 +111,19 @@ class FileListAM{
     mapview->statusbar.push("Creating new file");
     mapview->mapview_data->new_file();
   }
+  void get_from_usb() {
+    mapview->statusbar.push("Aquiring data from USB port");
+    mapview->mapview_data->get_from_usb();
+  }
+  void put_to_usb() {
+    mapview->statusbar.push("Sending data to USB port");
+    mapview->mapview_data->put_active_to_usb();
+  }
   void set_active_file() {
     Gtk::TreeModel::iterator i = file_list->get_selection()->get_selected();
     if (!i) return;
     Glib::ustring name = (*i)[file_list->columns.name];
-    mapview->mapview_data->set_active_file(name);
+    mapview->mapview_data->set_active_file(name, false);
     std::cerr << "file " << name << " selected\n";
   }
   void change_filename() {
