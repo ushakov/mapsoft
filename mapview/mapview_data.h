@@ -3,6 +3,12 @@
 
 // класс со всеми геоданными и workplane'ом
 
+// данные упорядочены так:
+// есть файлы, в которых находятся треки, наборы точек, карты. Файл - один объект deodata
+// один файл - активен
+// для каждого файла есть три layer'a: для показа всех треков, всех наборов точек и всех карт
+// рисуются сперва все карты, потом все треки, потом все точки, в порядке файлов и объектов в них
+
 #include <boost/shared_ptr.hpp>
 #include <sigc++/sigc++.h>
 #include <vector>
@@ -20,6 +26,7 @@
 // файл данных
 struct MapviewDataFile : public geo_data{
   std::string name;
+  int         id;
   std::vector<int> wpts_d, trks_d, maps_d; // Глубины всех элементов
   std::vector<int> wpts_v, trks_v, maps_v; // Видимость всех элементов
   std::vector<boost::shared_ptr<Layer> > wpts_l, trks_l, maps_l;
@@ -31,20 +38,30 @@ class MapviewData : public std::list<MapviewDataFile>{
     boost::shared_ptr<Workplane> workplane;
 
     // активный файл
-    std::list<MapviewDataFile>::iterator current_file;
+    std::list<MapviewDataFile>::iterator active_file;
 
     // сигнал, что данные изменились
     sigc::signal<void> signal_refresh;
 
     MapviewData(){
       workplane.reset(new Workplane());
-      current_file=end();
+      active_file=end();
     }
 
     void load_file(std::string name){
+      for ( MapviewData::const_iterator i = begin(); i!=end(); i++){
+        if (i->name == name){
+          std::cerr << "file " << name << " exists!\n";
+          return;
+        }
+      }
       MapviewDataFile file;
       file.name = name;
-      io::in(name, file, Options());
+      if (!io::in(name, file, Options())){
+        std::cerr << "can't read file " << name << "\n";
+        return;
+      }
+
       file.wpts_d.resize(file.wpts.size(), 100);
       file.trks_d.resize(file.trks.size(), 200);
       file.maps_d.resize(file.maps.size(), 300);
@@ -71,17 +88,45 @@ class MapviewData : public std::list<MapviewDataFile>{
     }
 
     void new_file(std::string name = "new_file"){
+      for ( MapviewData::const_iterator i = begin(); i!=end(); i++){
+        if (i->name == name){
+          std::cerr << "file " << name << " exists!\n";
+          return;
+        }
+      }
       MapviewDataFile new_file;
       new_file.name = name;
       push_back(new_file);
       signal_refresh.emit();
     }
 
-    void set_current_file(int i){
-      if (i<0) return;
-      current_file = begin();
-      for (int j=0; (current_file!=end()) && (j<i); j++) current_file++;
+    void set_active_file(std::string name){
+      for ( MapviewData::iterator i = begin(); i!=end(); i++){
+        if (i->name == name) active_file=i;
+      }
       signal_refresh.emit();
+    }
+
+    void change_active_file_name(std::string name){
+      for ( MapviewData::const_iterator i = begin(); i!=end(); i++){
+        if ((i!=active_file)&&(i->name == name)){
+          std::cerr << "file " << name << " exists!\n";
+          return;
+        }
+      }
+      if (active_file==end()) return;
+      active_file->name=name;
+      signal_refresh.emit();
+    }
+
+    void delete_active_file(){
+      if (active_file==end()) return;
+      active_file = erase(active_file);
+      signal_refresh.emit();
+    }
+
+    void save_active_file(){
+	//TODO
     }
 
 };

@@ -62,7 +62,6 @@ class Mapview : public Gtk::Window{
     maps_list.reset(new MAPSList(mapview_data));
 
     uimanager->ensure_update();
-//    std::cerr << uimanager->get_ui();
 
     // запакуем все GTK-компоненты в окно
     guint drawing_padding = 5;

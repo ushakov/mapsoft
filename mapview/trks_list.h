@@ -35,10 +35,10 @@ class TRKSList : public Gtk::TreeView{
   // обновить данные
   void refresh(){
     store->clear();
-    if (mapview_data->current_file == mapview_data->end()) return;
+    if (mapview_data->active_file == mapview_data->end()) return;
     for (std::vector<g_track>::const_iterator
-        i = mapview_data->current_file->trks.end();
-        i!= mapview_data->current_file->trks.begin(); i++){
+        i = mapview_data->active_file->trks.begin();
+        i!= mapview_data->active_file->trks.end(); i++){
       Gtk::TreeModel::iterator it = store->append();
       Gtk::TreeModel::Row row = *it;
       row[columns.comm] = i->comm;

@@ -1,4 +1,6 @@
-Library('loaders', \
+Import ('env')
+
+l = env.Library('loaders', \
     Split("""
 	image_jpeg.cpp
         image_tiff.cpp
@@ -8,3 +10,5 @@ Library('loaders', \
         image_google.cpp
         image_ks.cpp
     """))
+env.NoClean(l)
+ 

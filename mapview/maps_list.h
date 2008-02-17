@@ -37,10 +37,10 @@ class MAPSList : public Gtk::TreeView{
   // обновить данные
   void refresh(){
     store->clear();
-    if (mapview_data->current_file == mapview_data->end()) return;
+    if (mapview_data->active_file == mapview_data->end()) return;
     for (std::vector<g_map>::const_iterator 
-        i = mapview_data->current_file->maps.begin();
-        i!= mapview_data->current_file->maps.end(); i++){
+        i = mapview_data->active_file->maps.begin();
+        i!= mapview_data->active_file->maps.end(); i++){
       Gtk::TreeModel::iterator it = store->append();
       Gtk::TreeModel::Row row = *it;
       row[columns.file] = i->file;

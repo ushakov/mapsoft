@@ -5,10 +5,10 @@
 #include <vector>
 #include <map>
 #include <set>
-#include <utils/point.h>
-#include <utils/line.h>
+#include "point.h"
+#include "line.h"
 #include <boost/lexical_cast.hpp>
-#include <utils/m_time.h>
+#include "m_time.h"
 
 
 namespace detail {

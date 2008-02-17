@@ -36,15 +36,17 @@ class WPTSList : public Gtk::TreeView{
   }
   // обновить данные
   void refresh(){
+std::cerr << "WPTSList: refresh\n";
     store->clear();
-    if (mapview_data->current_file == mapview_data->end()) return;
+    if (mapview_data->active_file == mapview_data->end()) return;
+std::cerr << "WPTSList: find_active\n";
     for (std::vector<g_waypoint_list>::const_iterator
-        i = mapview_data->current_file->wpts.begin();
-        i!= mapview_data->current_file->wpts.end(); i++){
+        i = mapview_data->active_file->wpts.begin();
+        i!= mapview_data->active_file->wpts.end(); i++){
       Gtk::TreeModel::iterator it = store->append();
       Gtk::TreeModel::Row row = *it;
       row[columns.name] = "---";
-      for (g_waypoint_list::const_iterator w = i->begin(); w!=i->end(); i++){
+      for (g_waypoint_list::const_iterator w = i->begin(); w!=i->end(); w++){
         Gtk::TreeModel::iterator it = store->append();
         Gtk::TreeModel::Row row = *it;
         row[columns.name] = w->name;
