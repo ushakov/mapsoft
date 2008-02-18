@@ -19,15 +19,11 @@ env.Append (CPPPATH='#')
 env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
 
 #env.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
-
 # libgd is bad: its --libs does not include the library itself!
 #env.ParseConfig('gdlib-config --cflags --ldflags --libs')
 #env.Append (LIBS = '-lgd')
-
 #env.Append (LIBS=Split('m curl'))
 #
-
-
 #env.Append (LINKFLAGS=['-O2', '-ggdb'])
 #
 #if ARGUMENTS.get('debug', 0):
@@ -40,8 +36,7 @@ env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
 #
 #if ARGUMENTS.get('googleprofile', 0):
 #	env.Append (LINKFLAGS='-lprofiler')
-#
-#
+
 
 Export('env')
 SConscript (map (lambda(s): s+"/SConscript", subdirs))

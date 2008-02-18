@@ -43,7 +43,7 @@ std::string Time::date_str(){
 
 void Time::set_current(){ value = time(NULL); }
 
-std::istream & operator>> (std::istream & s, Time & t){
+Time::Time(const std::string & str){
   // date and time "yyyy-mm-dd HH:MM:SS"
   //               "yy-mm-dd HH:MM:SS"
   //               "yyyy-mm-dd HH:MM"
@@ -53,8 +53,6 @@ std::istream & operator>> (std::istream & s, Time & t){
   ts.tm_hour=0;
   ts.tm_min=0;
   ts.tm_sec=0;
-  std::string str;
-  std::getline(s, str);
 
   if (parse(str.c_str(),
       uint_p[assign_a(ts.tm_year)] >> '-' >>
@@ -68,14 +66,21 @@ std::istream & operator>> (std::istream & s, Time & t){
       ).full){
     ts.tm_mon-=1;
     if (ts.tm_year>1900) ts.tm_year-=1900;
-    t.value = mktime(&ts);
+    value = mktime(&ts);
   }
 
   // ругаемся, если строчка непуста.
   // возвращаем 0.
   else {
     if (!str.empty()) std::cerr << "Time: can't find valid date and time in " << str << "\n";
-    t.value = 0;
+    value = 0;
   }
+}
+
+std::istream & operator>> (std::istream & s, Time & t){
+  std::string str;
+  std::getline(s, str);
+  Time t1(str);
+  t.value=t1.value;
   return s;
 }

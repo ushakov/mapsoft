@@ -1,6 +1,5 @@
 Import ('env')
- 
-l = env.Library('jeeps',\
+env.Library('jeeps',\
     Split ("""
 	gpsapp.c
 	gpscom.c
@@ -23,4 +22,3 @@ l = env.Library('jeeps',\
 	gpsutil.c
 	util.c
     """))
-env.NoClean(l)

@@ -45,7 +45,7 @@ class FileListAM{
     mapview->actiongroup->add( Gtk::Action::create("file_list_menu", "File"));
     mapview->actiongroup->add( Gtk::Action::create("file_list_new", Gtk::Stock::NEW),
       sigc::mem_fun (this, &FileListAM::new_file));
-    mapview->actiongroup->add( Gtk::Action::create("file_list_load", Gtk::Stock::ADD),
+    mapview->actiongroup->add( Gtk::Action::create("file_list_load", Gtk::Stock::OPEN),
       sigc::mem_fun(file_load_sel, &Gtk::Widget::show));
     mapview->actiongroup->add( Gtk::Action::create("file_list_save", Gtk::Stock::SAVE),
       sigc::mem_fun(this, &FileListAM::save_file));

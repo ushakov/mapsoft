@@ -3,6 +3,8 @@
 
 // Gtk::Widget, показывающий список файлов из MapviewData
 
+#include <gtkmm.h>
+
 class FileListColumns : public Gtk::TreeModelColumnRecord {
   public:
     Gtk::TreeModelColumn<Glib::ustring> name;

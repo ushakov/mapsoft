@@ -26,33 +26,33 @@ typedef Line<double>  g_line;
 
 // single waypoint
 struct g_waypoint : g_point {
-    double z;
-    double prox_dist;
-    Time t;
-    std::string name;
-    std::string comm;
-    int symb;
-    int displ;
-    Color color;
-    Color bgcolor;
-    int map_displ; 
-    int pt_dir;
-    int font_size;
-    int font_style;
-    int size;
+    std::string  name;
+    std::string  comm;
+    Time         t;
+    double  z;
+    double  prox_dist;
+    int     symb;
+    int     displ;
+    int     map_displ; 
+    int     pt_dir;
+    int     font_size;
+    int     font_style;
+    int     size;
+    Color   color;
+    Color   bgcolor;
 
     g_waypoint (){
 	set_default_values();
     }
 
     void set_default_values () {
-	x=0.0; 
-	y=0.0; 
-	z=1e24; 
-	prox_dist=0.0;
-	t = Time(0);
-	symb=wpt_symb_enum.def; 
-	displ=0; 
+	x          = 0.0; 
+	y          = 0.0; 
+	z          = 1e24; 
+	prox_dist  = 0.0;
+	t          = Time(0);
+	symb       = wpt_symb_enum.def; 
+	displ      = 0; 
 	color      = Color(0xFF000000); 
 	bgcolor    = Color(0xFFFFFFFF); 
 	map_displ  = wpt_map_displ_enum.def;

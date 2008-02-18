@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <boost/operators.hpp>
 
@@ -15,6 +16,7 @@ struct Time:
     Time(){value=0;}
     Time(const Time & t){value=t.value;}
     Time(time_t v){value=v;}
+    Time(const std::string & s);
 
     void set_current();
     std::string time_str();

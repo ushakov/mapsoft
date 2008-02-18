@@ -5,10 +5,9 @@ le.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
 
 mapsoft_libs = Split ("geo_io loaders utils jeeps")
 other_libs   = Split ("usb tiff jpeg png gd")
+le.Append(LIBS=[mapsoft_libs,other_libs])
 
-le.Prepend(LIBS=mapsoft_libs)
-le.Prepend(LIBS=other_libs)
-
-le.Program('mapview', 'mapview.cpp')
+le.Program('mapview.cpp')
+le.Program('test1.cpp')
 
 

@@ -172,7 +172,7 @@ namespace gu {
 			f << right << fixed << setprecision(6) << setfill(' ')
 			  << setw(10)<< p->y << " "
 			  << setw(11)<< p->x << " "
-			  << setfill('0') << &p->t
+			  << setfill('0') << p->t
 			  << ((p->start)? " start":"") << "\n";
 		}
 		f << "[end transfer, " << num << "/" << num << " records]\n";
