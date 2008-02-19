@@ -10,9 +10,9 @@ struct Color:
 {
     int value;
 
-    Color(){value=0xFF000000;}
-    Color(const Color & t){value=t.value;}
-    Color(int v){value=v;}
+    Color(const Color & t):value(t.value){}
+    Color(int v=0xFF000000):value(v){}
+    Color(const std::string & s);
 
     Color(int alpha, int v){value=v + ((alpha &0xFF) << 24);}
     Color RGB() const {return Color(value & 0xFFFFFF);} 
@@ -20,6 +20,7 @@ struct Color:
 
   bool operator<  (const Color & t) const { return value < t.value; }
   bool operator== (const Color & t) const { return value == t.value; }
+  operator std::string () const;
 };
 
 std::ostream & operator<< (std::ostream & s, const Color & t);

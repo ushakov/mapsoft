@@ -80,7 +80,6 @@ Time::Time(const std::string & str){
 std::istream & operator>> (std::istream & s, Time & t){
   std::string str;
   std::getline(s, str);
-  Time t1(str);
-  t.value=t1.value;
+  t.value=Time(str).value;
   return s;
 }
