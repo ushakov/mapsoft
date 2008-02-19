@@ -16,7 +16,7 @@
 #include "../geo_io/io.h"
 
 
-// Слой для показа привязанных карт.
+/// Растровый слой для показа привязанных карт.
 
 class LayerGeoMap : public LayerGeo {
 private:

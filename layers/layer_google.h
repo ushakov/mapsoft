@@ -17,7 +17,7 @@
 #include "../geo_io/io.h"
 
 
-// Слой для показа снимков google.
+/// Растровый слой для показа снимков google.
 
 class LayerGoogle : public LayerGeo {
 private:

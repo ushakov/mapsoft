@@ -15,7 +15,7 @@
 #include <utils/image_draw.h>
 
 
-// Слой для показа точек и треков
+/// Растровый слой для показа точек и треков
 
 class LayerGeoData : public LayerGeo {
 private:

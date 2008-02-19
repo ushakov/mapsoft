@@ -17,7 +17,7 @@
 #include "../geo_io/io.h"
 
 
-// Слой для показа снимков kosmosnimki.ru.
+/// Слой для показа снимков kosmosnimki.ru.
 
 class LayerKS : public LayerGeo {
 private:

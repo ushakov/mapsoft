@@ -6,15 +6,16 @@
 #include <set>
 #include <cassert>
 
-// Generic cache
-
-// DEBUG_CACHE      -- выдавать на stderr добавления/удаления элементов
-// DEBUG_CACHE_GET  -- выдавать обращения к кэшу
-
+/** Кэш объектов типа V, упорядоченных по ключу типа K.
+  директивы компилятору:
+  DEBUG_CACHE      -- выдавать на stderr добавления/удаления элементов
+  DEBUG_CACHE_GET  -- выдавать обращения к кэшу
+*/
 template <typename K, typename V>
 class Cache {
 public:
-    Cache (int _capacity) : capacity (_capacity) {
+    /** Коструктор: создание кэша из n элементов*/
+    Cache (int n) : capacity (n) {
 	for (int i = 0; i < capacity; ++i)
 	{
 	    free_list.insert (i);
@@ -45,6 +46,7 @@ public:
 	return *this;
     }
 
+    /** Удаление элемента из кэша */
     void erase(K const & key){
         int i = index[key];
         index.erase(key);
@@ -61,6 +63,7 @@ public:
       return free_list.size();
     }
 
+    /** Добавление элемента*/
     int
     add (K const & key, V const & value)
     {
@@ -110,12 +113,14 @@ public:
 	return 0;
     }
 
+    /** Проверка наличия элемента в кэше */
     bool
     contains (K const & key)
     {
 	return index.count (key) > 0;
     }
 
+    /** Получение элемента из кэша */
     V &
     get (K const & key)
     {
@@ -130,6 +135,7 @@ public:
 	return free_list.size();
     }
 
+    /** очистка кэша*/
     void
     clear ()
     {
@@ -180,6 +186,7 @@ private:
     }
 };
 
+/** Вывод в iostream всех элементов кэша*/
 template <typename K, typename V>
 std::ostream & operator<< (std::ostream & s, const Cache<K,V> & cache)
 {
