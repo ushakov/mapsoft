@@ -24,7 +24,7 @@
 typedef Point<double> g_point;
 typedef Line<double>  g_line;
 
-// single waypoint
+/// single waypoint
 struct g_waypoint : g_point {
     std::string  name;
     std::string  comm;
@@ -108,7 +108,7 @@ struct g_waypoint : g_point {
     }
 };
 
-// single trackpoint
+/// single trackpoint
 struct g_trackpoint : g_point {
     double z;
     double depth;
@@ -151,7 +151,7 @@ struct g_trackpoint : g_point {
 
 };
 
-// reference point
+/// reference point
 struct g_refpoint : g_point {
     double xr, yr; // raster points
     g_refpoint(double _x, double _y, double _xr, double _yr){
@@ -190,15 +190,17 @@ struct g_refpoint : g_point {
 // lists 
 /*********************************/
 
-// waypoint list
+/// g_waypoint_list : std::vecor<g_waypoint>
 struct g_waypoint_list : std::vector<g_waypoint>{
-    std::string symbset;
+
+    std::string symbset; /// garmin symbol set -- not used now
     g_waypoint_list(){
 	set_default_values();
     }
     void set_default_values(){
 	symbset = "garmin";
     }
+    /// get range in lon-lat coords
     Rect<double> range() const{
       double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
       std::vector<g_waypoint>::const_iterator i;
@@ -211,12 +213,14 @@ struct g_waypoint_list : std::vector<g_waypoint>{
       if ((minx>maxx)||(miny>maxy)) return Rect<double>(0,0,0,0);
       return Rect<double>(minx,miny, maxx-minx, maxy-miny);
     }
+    /// convert waypoint_list values to Options object
     Options to_options () const {
 	Options opt;
 	opt.put("symbset", symbset);
 	return opt;
     }
 
+    /// set waypoint_list values from Options object
     void parse_from_options (Options const & opt){
 	set_default_values();
 	opt.get("symbset", symbset);
@@ -224,16 +228,16 @@ struct g_waypoint_list : std::vector<g_waypoint>{
 
 };
 
-// track
+/// track
 struct g_track : std::vector<g_trackpoint>{
-    int width; // width of track plot line on screen (from OE)
-    int displ; // 
-    Color color; // track color (RGB)
+    int width; /// width of track plot line on screen (from OE)
+    int displ; //  
+    Color color; /// track color (RGB)
     int skip;  // 
     int type;
-    int fill;  // track fill style
-    Color cfill; // track fill color (RGB)
-    std::string comm; // track description
+    int fill;  /// track fill style
+    Color cfill; /// track fill color (RGB)
+    std::string comm; /// track description
     g_track(){
 	set_default_values();
     }
@@ -272,6 +276,7 @@ struct g_track : std::vector<g_trackpoint>{
 	opt.get("comm",  comm);
     }
 
+    /// get range in lon-lat coords
     Rect<double> range() const{
       double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
       std::vector<g_trackpoint>::const_iterator i;
@@ -286,9 +291,8 @@ struct g_track : std::vector<g_trackpoint>{
     }
 };
 
-// map
-struct g_map : 
-  std::vector<g_refpoint>,     
+/// map
+struct g_map : std::vector<g_refpoint>,    
   public boost::multiplicative<g_map,double>,
   public boost::additive<g_map, g_point>
 {
@@ -335,7 +339,7 @@ struct g_map :
     }
 
 
-
+  /// get range in lon-lat coords
     Rect<double> range() const{
       double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
       std::vector<g_refpoint>::const_iterator i;
@@ -354,13 +358,16 @@ struct g_map :
 // geo_data
 /*********************************/
 
+/// geo data
 struct geo_data {
   std::vector<g_waypoint_list> wpts;
   std::vector<g_track> trks;
   std::vector<g_map> maps;
 
+  /// clear all data
   void clear(){ wpts.clear(); trks.clear(); maps.clear();}
 
+  /// get range of all maps in lon-lat coords
   Rect<double> range_map() const{ 
     // диапазон карт определяется по точкам привязки, а не по
     // границам, поскольку здесь не очень хочется требовать наличия границ
@@ -373,6 +380,7 @@ struct geo_data {
     return ret;
   }
 
+  /// get range of all tracks and waypoints in lon-lat coords
   Rect<double> range_geodata() const{
     Rect<double> ret(0,0,0,0);
     if (wpts.size()>0) ret=wpts[0].range();
@@ -386,6 +394,7 @@ struct geo_data {
     return ret;
   }
 
+  /// get range of all data in lon-lat coords
   Rect<double> range() const{
     return rect_bounding_box(range_map(), range_geodata());
   }

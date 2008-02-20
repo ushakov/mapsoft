@@ -9,20 +9,22 @@
 
 namespace fig {
 
-  // Прочитать привязку из fig_world
+  /// get geo reference from fig_world object
   g_map get_ref(const fig_world & w);
-  // Убрать привязку из fig_world
+  /// remove geo reference from fig_world object
   void rem_ref(fig_world & w);
-  // Добавить привязку в fig_world
+  /// add geo reference from fig_world object
   void set_ref(fig_world & w, const g_map & m, const Options & o);
 
-  // Извлечь треки и точки и поместить их в geo_data
+  /// get waypoints from w and put them to d
   void get_wpts(const fig_world & w, const g_map & m, geo_data & d);
+  /// get tracks from w and put them to d
   void get_trks(const fig_world & w, const g_map & m, geo_data & d);
-  // Извлечь привязку растровых картинок
+  /// get refrences for raster images from w and put them to d
   void get_maps(const fig_world & w, const g_map & m, geo_data & d);
-  // Добавить точки и треки в fig_world в соотв. с привязкой
+  /// add waypoints from d to w
   void put_wpts(fig_world & w, const g_map & m, const geo_data & d);
+  /// add tracks from d to w
   void put_trks(fig_world & w, const g_map & m, const geo_data & d);
 }
 #endif

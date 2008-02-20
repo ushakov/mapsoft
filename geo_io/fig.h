@@ -12,6 +12,7 @@
 #include "../utils/point.h"
 #include "../utils/line.h"
 
+/// связанное с fig-файлами
 namespace fig {
 
     // FIG units, 1.05/1200in 
@@ -108,34 +109,35 @@ namespace fig {
     };
 
 
+    /// fig object
     struct fig_object : Line<int>,
       public boost::equality_comparable<fig_object>,
       public boost::additive<fig_object, Point<int> >
     {
         int     type;
         int     sub_type;
-        int     line_style;          //    (enumeration type, solid, dash, dotted, etc.)
-	int     thickness;           //    (1/80 inch)
-	int     pen_color;           //    (enumeration type, pen color)
-	int     fill_color;          //    (enumeration type, fill color)
-	int     depth;               //    (enumeration type)
-        int     pen_style;           //    (pen style, not used)
-	int     area_fill;           //    (enumeration type, -1 = no fill)
-	float   style_val;           //    (1/80 inch, specification for dash/dotted lines)
-        int     join_style;          //    (enumeration type)
-        int     cap_style;           //    (enumeration type)
-        int     radius;              //    (1/80 inch, radius of arc-boxes)
-	int     direction;           //    (0: clockwise, 1: counterclockwise)
-        float   angle;               //    (radians, the angle of the x-axis)
-        int     forward_arrow;       //    (0: no forward arrow, 1: on)
-        int     backward_arrow;      //    (0: no forward arrow, 1: on)
-        float   center_x, center_y;  //    (center of the arc)
-        int     radius_x, radius_y;  //    (Fig units)
-        int     start_x, start_y;    //    (Fig units; the 1st point entered)
-        int     end_x, end_y;        //    (Fig units; the last point entered)
-        int     font;                //    (enumeration type)
-        float   font_size;           //    (font size in points)
-        int     font_flags;          //    (bit vector)
+        int     line_style;          ///    (enumeration type, solid, dash, dotted, etc.)
+	int     thickness;           ///    (1/80 inch)
+	int     pen_color;           ///    (enumeration type, pen color)
+	int     fill_color;          ///    (enumeration type, fill color)
+	int     depth;               ///    (enumeration type)
+        int     pen_style;           ///    (pen style, not used)
+	int     area_fill;           ///    (enumeration type, -1 = no fill)
+	float   style_val;           ///    (1/80 inch, specification for dash/dotted lines)
+        int     join_style;          ///    (enumeration type)
+        int     cap_style;           ///    (enumeration type)
+        int     radius;              ///    (1/80 inch, radius of arc-boxes)
+	int     direction;           ///    (0: clockwise, 1: counterclockwise)
+        float   angle;               ///    (radians, the angle of the x-axis)
+        int     forward_arrow;       ///    (0: no forward arrow, 1: on)
+        int     backward_arrow;      ///    (0: no forward arrow, 1: on)
+        float   center_x, center_y;  ///    (center of the arc)
+        int     radius_x, radius_y;  ///    (Fig units)
+        int     start_x, start_y;    ///    (Fig units; the 1st point entered)
+        int     end_x, end_y;        ///    (Fig units; the last point entered)
+        int     font;                ///    (enumeration type)
+        float   font_size;           ///    (font size in points)
+        int     font_flags;          ///    (bit vector)
         float   height, length;
         int     farrow_type, barrow_type;
         int     farrow_style, barrow_style;
@@ -190,7 +192,7 @@ namespace fig {
            (text == o.text) && (comment == o.comment) && (f == o.f));
         }
         
-	// 
+	/// преобразовать в линию 
         operator Line<double> () const {
           Line<double> ret;
           for (int i=0; i<size(); i++) 
@@ -198,7 +200,7 @@ namespace fig {
           return ret;
         }
 
-        // сместить на (x,y)
+        /// сместить на (x,y)
 	fig_object & operator += (const Point<int> & p) {
           for (iterator i=begin(); i!=end(); i++) *i += p;
           center_x+=p.x;
@@ -261,6 +263,7 @@ namespace fig {
         void set_points(const Line<int> & v);
     };
 
+    /// fig-file
     struct fig_world:std::list<fig_object>{
 	std::string orientation;
 	std::string justification;

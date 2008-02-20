@@ -1,10 +1,33 @@
 #include "list_store_for_wpt.h"
 #include "../geo_io/io.h"
 
+
+
 class Mapview : public Gtk::Window{
   WPT_List list;
+
+  Gtk::Statusbar                  statusbar;
+  Glib::RefPtr<Gtk::ActionGroup>  actiongroup;  // набор actions для разных ме
+  Glib::RefPtr<Gtk::UIManager>    uimanager;    // menu manager
+
   public:
   Mapview(const g_waypoint_list & w):list(w){
+    actiongroup = Gtk::ActionGroup::create();
+    uimanager   = Gtk::UIManager::create();
+    uimanager->insert_action_group(actiongroup);
+    add_accel_group(uimanager->get_accel_group()); // чтоб во всем окне кнопки р
+
+    // creating actions
+    actiongroup->add( Gtk::Action::create("mapview_quit", Gtk::Stock::QUIT),
+      sigc::mem_fun(this, &Gtk::Widget::hide) );
+
+    // adding actions to menues
+    uimanager->add_ui_from_string(
+      "<ui>"
+      "  <menubar action='menubar'>"
+      "  </menubar>"
+      "</ui>"
+    );
     add(list);
     set_default_size(640,480);
     show_all();
