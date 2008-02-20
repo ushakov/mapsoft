@@ -149,9 +149,11 @@ using namespace boost::spirit;
           >> +space_p >> (*anychar_p)[insert_at_a(p,"name")]).full)){
         string key;
         for (int n=1; n<i->comment.size(); n++){
+          // Удалил ограничение не позволявшее использовать ' ' и ':' в
+          // комментариях. Тим
           parse(i->comment[n].c_str(), (*(anychar_p-':'-space_p))[assign_a(key)] >>
             *space_p >> ch_p(':') >> *space_p >>
-            (*(anychar_p-':'-space_p))[insert_at_a(p, key)]);
+            (*(anychar_p))[insert_at_a(p, key)]);
         }
         g_waypoint wp(p);
         wp.x = (*i)[0].x;
