@@ -48,6 +48,7 @@ mp_world read(const char* filename){
       ( "RgnLimit="   >> !uint_p[assign_a(world.RgnLimit)]   >> eol_p) |
       ( "Transparent=">> (*ch)[assign_a(world.Transparent)] >> eol_p) |
       ( "POIIndex="   >> (*ch)[assign_a(world.POIIndex)]    >> eol_p) |
+      ( "Copyright="  >> (*ch)[assign_a(world.Copyright)]    >> eol_p) |
       ( "Levels="     >> !uint_p >> eol_p) |
       ( "Level" >> uint_p[assign_a(l)] >> "=" 
                 >> !uint_p[insert_at_a(world.Levels,l)] >> eol_p) |
@@ -76,7 +77,7 @@ mp_world read(const char* filename){
       ) >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p;
       
     if (!parse(first, last, header >> 
-      *( eps_p[assign_a(o,o0)] >> object >> *space_p)).full)
+      *( eps_p[assign_a(o,o0)] >> object >> *(*space_p >> *comment) ) ).full)
       cerr << "Can't parse mp file!\n";
 
     return world;
@@ -98,6 +99,7 @@ bool write(std::ostream & out, const mp_world & world){
       << "\r\nRgnLimit="   << world.RgnLimit
       << "\r\nTransparent="<< world.Transparent
       << "\r\nPOIIndex="   << world.POIIndex
+      << "\r\nCopyright="  << world.Copyright
       << "\r\nLevels="     << world.Levels.size();
   map<int,int>::const_iterator l;
   for (l=world.Levels.begin(); l!=world.Levels.end(); l++)

@@ -51,6 +51,7 @@ namespace mp {
         int         RgnLimit;
         std::string Transparent;
         std::string POIIndex;
+        std::string Copyright;
         std::vector<std::string> Comment;
 
         std::map<int,int> Levels;
