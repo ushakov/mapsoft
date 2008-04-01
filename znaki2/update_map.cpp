@@ -14,7 +14,7 @@
 using namespace std;
 
 void usage(){
-    cerr << "usage: update_map <map> <source> <conf file> <file.mp|file.fig>\n";
+    cerr << "usage: update_map [--add] <map> <source> <conf file> <file.mp|file.fig>\n";
     exit(0);
 }
 
@@ -30,6 +30,13 @@ bool testext(const string & nstr, const char *ext){
 //
 main(int argc, char** argv){
 
+  // сохранять ли старые объекты?
+  bool add=false;
+  if ((argc>1) && (strcmp(argv[1],"--add")==0)){
+    argv++; argc--;
+    add=true;
+  }
+
   if (argc != 5) usage();
   string map_name  = argv[1];
   string source    = argv[2];
@@ -43,7 +50,7 @@ main(int argc, char** argv){
   else usage();
 
   // читаем старую карту
-  std::cerr << "Reading old map...\n";  
+  std::cerr << "Reading old map: " << file << "\n";  
   fig::fig_world MAP = fig::read(file.c_str());
 
   // backup исходной карты!
@@ -87,8 +94,8 @@ main(int argc, char** argv){
 
   std:set<int> ids; // для проверки на повторы ключей...
 
-  std::cerr << "Reading new map...\n";  
   if (fig_not_mp){ // читаем fig
+    std::cerr << "Reading new map: " << infile <<"\n";  
     fig::fig_world FIG = fig::read(infile.c_str());
     for (fig::fig_world::iterator i=FIG.begin(); i!=FIG.end(); i++){
 
@@ -166,12 +173,15 @@ main(int argc, char** argv){
     }
 
     // извлекаем привязку из старой карты:
+    std::cerr << "Getting ref...\n";
     g_map ref = fig::get_ref(MAP);
     convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"), Options());
 
+    std::cerr << "Reading new map: " << infile <<"\n";  
     mp::mp_world MP = mp::read(infile.c_str());
 
     // mp->fig
+    std::cerr << "mp->fig\n";  
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++){
       int type = zconverter.get_type(*i);
       fig::fig_object fig = zconverter.mp2fig(*i, cnv, type);
@@ -187,6 +197,7 @@ main(int argc, char** argv){
       new_objects.insert(std::pair<int, fig::fig_object>(type, fig));
     }
   }
+  std::cerr << "ok\n";  
 
 
   // найдем максимальный id элементов старой карты
@@ -304,6 +315,20 @@ main(int argc, char** argv){
 
     }
   }
+  // если надо - сохраним старые объекты и подписи к ним:
+  if (add){
+    for (std::map<int, fig::fig_object>::const_iterator 
+        o=old_objects.begin(); o!=old_objects.end(); o++){
+      NEW.push_back(o->second);
+      old_count++;
+      for (multimap<int, fig::fig_object>::iterator l = labels.find(o->first);
+          (l != labels.end()) && (l->first == o->first); l++){
+        NEW.push_back(l->second);
+        l_o_count++;
+      }
+    }
+  }
+
 
   std::cerr << " --- map objects:\n";
   std::cerr << new_count << " new\n";

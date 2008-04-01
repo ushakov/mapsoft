@@ -259,6 +259,19 @@ namespace fig {
           return;
         }
 
+        /// середина объекта
+        Point<int> center() const{
+          Point<int> pmin = (*this)[0];
+          Point<int> pmax = (*this)[0];
+          for (int j = 0; j<size(); j++){
+            if (pmin.x > (*this)[j].x) pmin.x = (*this)[j].x;
+            if (pmin.y > (*this)[j].y) pmin.y = (*this)[j].y;
+            if (pmax.x < (*this)[j].x) pmax.x = (*this)[j].x;
+            if (pmax.y < (*this)[j].y) pmax.y = (*this)[j].y;
+          }
+          return (pmin+pmax)/2;
+        }
+
         void set_points(const Line<double> & v);
         void set_points(const Line<int> & v);
     };

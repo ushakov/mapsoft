@@ -10,7 +10,7 @@
 #include "point.h"
 #include "rect.h"
 
-// Класс для ломаной линии
+/** Ломаная линия (std::vector<Point<T> >). */
 
 template <typename T> 
 struct Line

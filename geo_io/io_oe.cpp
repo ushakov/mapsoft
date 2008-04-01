@@ -517,8 +517,20 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << (lon<0? 'W':'E') << ','
 			  << " grid,   ,           ,           ,N\r\n";
 		}
-		f << "Projection Setup,,,,,,,,,,\r\n"
-		  << "Map Feature = MF ; Map Comment = MC     These follow if they exist\r\n"
+		if (m.map_proj == Proj("tmerc")){
+		  double lon0=1e90;
+                  opt.get("lon0", lon0);
+                  if (lon0==1e90){
+                    lon0=0;
+                    for (int i=0; i<m.size(); i++) lon0+=m[i].x;
+		    if (m.size()>1) lon0/=m.size();
+                    lon0 = floor( lon0/6.0 ) * 6 + 3;
+                  }
+		  f << "Projection Setup,     0.000000000, "<< lon0
+                    << ", 1.000000000,       500000.00,            0.00,,,,,\r\n";
+		} 
+                else f << "Projection Setup,,,,,,,,,,\r\n";
+		f << "Map Feature = MF ; Map Comment = MC     These follow if they exist\r\n"
 		  << "Track File = TF      These follow if they exist\r\n"
 		  << "Moving Map Parameters = MM?    These follow if they exist\r\n";
 

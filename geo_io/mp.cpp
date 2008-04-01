@@ -76,8 +76,10 @@ mp_world read(const char* filename){
            >> pt_r >> *(',' >> pt_r) >> eol_p)[push_back_a(world,o)][clear_a(o)] 
       ) >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p;
       
-    if (!parse(first, last, header >> 
-      *( eps_p[assign_a(o,o0)] >> object >> *(*space_p >> *comment) ) ).full)
+    if (!parse(first, last, 
+      *space_p >> *(+comment >> *space_p) >> header >>
+      *( eps_p[assign_a(o,o0)] >> object )
+      >> *space_p >> *(+comment >> *space_p) ).full)
       cerr << "Can't parse mp file!\n";
 
     return world;

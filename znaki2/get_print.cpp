@@ -468,15 +468,7 @@ main(int argc, char **argv){
       int w1=23, w2=45; // размер крестика
 
       // ищем середину объекта
-      Point<int> pmin = (*i)[0];
-      Point<int> pmax = (*i)[0];
-      for (int j = 0; j<i->size(); j++){
-        if (pmin.x > (*i)[j].x) pmin.x = (*i)[j].x;
-        if (pmin.y > (*i)[j].y) pmin.y = (*i)[j].y;
-        if (pmax.x < (*i)[j].x) pmax.x = (*i)[j].x;
-        if (pmax.y < (*i)[j].y) pmax.y = (*i)[j].y;
-      }
-      Point<int> p=(pmin+pmax)/2;
+      Point<int> p=i->center();
       p.y-=(w2-w1)/2;
 
       fig_object o = make_object("2 1 0 1 0 * 57 * * * * 0 * * * *");
@@ -529,6 +521,10 @@ main(int argc, char **argv){
       continue;
    }
 
+   // точки для нас.пунктов
+   if ((type == 0x700) || (type == 0x800) || (type == 0x900)){
+     continue;
+   }
     // прочие объекты - без изменений
     list<fig_object> l1 = zconverter.make_pic(*i, type);
     NW.insert(NW.begin(), l1.begin(), l1.end());
