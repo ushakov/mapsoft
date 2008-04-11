@@ -261,8 +261,12 @@ main(int argc, char **argv){
         double ll = pdist(p1,p2);
         Point<double> vt = (p1-p2)/ll, vn(-vt.y, vt.x);
 
-        double w = (i->thickness+2)*12/2.0; // ширина моста
-        double l = 20.0;                    // длина "стрелок"
+        double w = 24.0;  // ширина моста
+        double l = 20.0;  // длина "стрелок"
+        switch (i->thickness){
+          case 1: w=8; break;
+          case 5: w=45; break;
+        }
 
         fig_object o = make_object("2 1 0 0 0 7 77 * 20 * 0 0 0 0 0 *");
         o.push_back(p1+vn*w);

@@ -20,13 +20,16 @@ env_comm.Program('mapsoft_getks.cpp',     LIBS=['curl', mapsoft_libs,other_libs]
 env_comm.Program('mapsoft_getks_ll.cpp',  LIBS=['curl', mapsoft_libs,other_libs])
 env_comm.Program('mapsoft_getks_nom.cpp',  LIBS=['curl', mapsoft_libs,other_libs])
 env_comm.Program('mapsoft_getgoogle.cpp', LIBS=['curl', mapsoft_libs,other_libs])
-env_comm.Program('mapsoft_mkmap', 'mapsoft_mkmap.cpp')
-env_comm.Program('mapsoft_ref', 'mapsoft_ref.cpp')
-env_comm.Program('mapsoft_toxyz', 'mapsoft_toxyz.cpp')
-env_comm.Program('mapsoft_map2fig', 'mapsoft_map2fig.cpp')
-env_comm.Program('mapsoft_srtm2fig', 'mapsoft_srtm2fig.cpp')
-env_comm.Program('mapsoft_fig2fig', 'mapsoft_fig2fig.cpp')
-env_comm.Program('mapsoft_calc_nom2ll', 'mapsoft_calc_nom2ll.cpp')
+env_comm.Program('mapsoft_mkmap.cpp')
+env_comm.Program('mapsoft_ref.cpp')
+env_comm.Program('mapsoft_toxyz.cpp')
+env_comm.Program('mapsoft_map2fig.cpp', LIBS=['curl', mapsoft_libs,other_libs])
+env_comm.Program('mapsoft_srtm2fig.cpp')
+env_comm.Program('mapsoft_fig2fig.cpp')
+env_comm.Program('mapsoft_calc_nom2ll.cpp')
+
+env.Program(['fig_crop.cpp','../geo_io/fig.o'])
+
 
 env_gtk.Program('mapsoft_mapview.cpp')
 
