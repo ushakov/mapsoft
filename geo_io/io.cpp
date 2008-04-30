@@ -80,7 +80,8 @@ namespace io {
 			return true;
 		case '#': {
 			cerr << "Reading data from Fig file " << name << "\n";
-                        fig::fig_world F = fig::read(name.c_str());
+                        fig::fig_world F;
+                        fig::read(name.c_str(), F);
                         g_map m=fig::get_ref(F);
                         fig::get_wpts(F, m, world);
                         fig::get_trks(F, m, world);

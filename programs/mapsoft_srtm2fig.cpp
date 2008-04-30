@@ -47,7 +47,12 @@ main(int argc, char** argv){
   srtm3 s(srtm_dir, 10, interp_mode_off);
 
   // читаем fig
-  fig::fig_world F = fig::read(fig_name.c_str());
+  fig::fig_world F;
+  if (!fig::read(fig_name.c_str(), F)) {
+    std::cerr << "File is not modified, exiting.\n";
+    exit(1);
+  }
+
   g_map fig_ref = fig::get_ref(F);
   convs::map2pt fig_cnv(fig_ref, Datum("wgs84"), Proj("lonlat"), Options());
 

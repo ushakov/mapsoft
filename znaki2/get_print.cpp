@@ -102,11 +102,12 @@ main(int argc, char **argv){
 
     if ((i->comment.size()>0) && (i->comment[0] == "[skip]")) continue;
     if ((i->comment.size()>1) && (i->comment[1] == "[skip]")) continue;
-    if ((i->depth >=30) && (i->depth<50)) {
+    if (((i->depth >=30) && (i->depth<50)) ||
+        ((i->depth >=200) && (i->depth<400))){
       if (pass==1) NW.push_back(*i); 
       continue;
     }
-    if ((i->depth <50) || (i->depth>=400)) continue;
+    if ((i->depth <50) || (i->depth>=200)) continue;
     if (i->size() == 0) continue;
 
     int type = zconverter.get_type(*i);

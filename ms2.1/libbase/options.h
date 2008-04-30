@@ -25,9 +25,20 @@ namespace mapsoft{
   было хранить в виде строки "key1=val1 ke\\y\=2=va\ l2" :)
 */
 
+/** Стили ввода-вывода */
+typedef OPTIONS_IO_STYLE_ENUM enum{
+  DEFAULT, /// = XML
+  AUTO,    /// 
+  XML,     /// a="aaa" b=1 c=2 
+  MHEAD    /// a:\taaa\nb:\t1\nc:\t2
+};
+
 struct Options : std::map<std::string,std::string>{
 
-    /** Поиск неизвестных (не перечисленных в known) ключей... */
+    static OPTIONS_IO_STYLE_ENUM io_style;
+
+    /** Поиск неизвестных (не перечисленных в known :)) ключей... 
+    тупая, но полезная функция */
     std::set<std::string> unknown (const std::set<std::string> & known) const;
 
     /** Запись в Options значения val для ключа key. При неудаче с
@@ -66,8 +77,11 @@ struct Options : std::map<std::string,std::string>{
 
 };
 
-/** Оператор вывода для Options */
+/** Операторы вывода-вывода для Options */
 std::ostream & operator<< (std::ostream & s, const Options & o);
+std::ostream & operator>> (std::istream & s, Options & o);
+
+Options get_cmdline_options(int argc, char **argv);
 
 }//namespace
 #endif

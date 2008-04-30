@@ -13,7 +13,7 @@ namespace zn{
 // в этом диапазоне глубин должны лежать 
 // только картографические объекты!
 bool is_map_depth(const fig::fig_object & o){
-  return ((o.depth>=50) && (o.depth<400));
+  return ((o.depth>=50) && (o.depth<200));
 }
 
 // Заполняет массив знаков 
@@ -329,10 +329,17 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int
     if ((type >= line_mask) && (type < area_mask) && (txt.sub_type == 1)){ // линия с центрированным текстом
       // ставится в середину линии
       p = (fig[fig.size()/2-1] + fig[fig.size()/2]) / 2;
-      Point<double> v = pnorm(fig[fig.size()/2-1] - fig[fig.size()/2]);
+      Point<int> p1 = fig[fig.size()/2-1] - fig[fig.size()/2];
+
+      if ((p1.x == 0) && (p1.y == 0)) p1.x = 1;
+
+      Point<double> v = pnorm(p1);
       if (v.x<0) v=-1*v;
       txt.angle = atan2(-v.y, v.x);
+
       p-= Point<int>(int(-v.y*txt_dist), int(v.x*txt_dist));
+
+std::cerr << "P = " << p << " p1 = " << p1 << " v = " << v << "\n";
     }
     else { // другие случаи 
       if (txt.sub_type == 0 ) { // left just.text

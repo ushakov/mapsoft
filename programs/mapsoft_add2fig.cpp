@@ -15,7 +15,7 @@
 using namespace std;
 
 void usage(const char *fname){
-  cerr << "Usage: "<< fname << " <in1> ... <inN> -f <filter1> ... -f <filterN> -O option1[=value1] ... -i <infig> -o <outfig>\n";
+  cerr << "Usage: "<< fname << " <in1> ... <inN> -f <filter1> ... -f <filterN> -O option1[=value1] ... -o <figfile>\n";
 // не все так просто, надо будет написать подробнее...
   exit(0);
 }
@@ -25,8 +25,7 @@ int main(int argc, char *argv[]) {
   Options opts;
   list<string> infiles;
   list<string> filters;
-  string outfile = "";
-  string infile = "";
+  string figfile = "";
 
 // разбор командной строки
   for (int i=1; i<argc; i++){ 
@@ -38,14 +37,7 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[i], "-o")==0){
       if (i==argc-1) usage(argv[0]);
       i+=1;
-      outfile = argv[i];
-      continue;
-    }
-
-    if (strcmp(argv[i], "-i")==0){
-      if (i==argc-1) usage(argv[0]);
-      i+=1;
-      infile = argv[i];
+      figfile = argv[i];
       continue;
     }
 
@@ -65,13 +57,17 @@ int main(int argc, char *argv[]) {
 
     infiles.push_back(argv[i]);
   }
-  if (outfile == "") usage(argv[0]);
-  if (infile == "") usage(argv[0]);
+  if (figfile == "") usage(argv[0]);
 
 // чтение файлов
 
   geo_data world;
-  fig::fig_world F = fig::read(infile.c_str());
+  fig::fig_world F;
+  if (!fig::read(figfile.c_str(), F)) {
+    std::cerr << "File is not modified.\n";
+    exit(1);
+  }
+
   g_map ref = fig::get_ref(F);
 
   list<string>::const_iterator i;
@@ -83,7 +79,10 @@ int main(int argc, char *argv[]) {
   put_wpts(F, ref, world);
   put_trks(F, ref, world);
 
-  ofstream out(outfile.c_str());
-  fig::write(out, F);
+  ofstream out(figfile.c_str());
+  if (!fig::write(out, F)) {
+    std::cerr << "Error while writing file.\n";
+    exit(1);
+  }
 }
 

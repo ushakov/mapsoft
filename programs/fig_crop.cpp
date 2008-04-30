@@ -1,14 +1,19 @@
 #include <fstream>
 #include "../geo_io/fig_utils.h"
 
-// обрезка fig-файла по последнему объекту-прямоугольнику с комментарием CUTTER
+// Обрезка fig-файла по объекту-прямоугольнику с комментарием CUTTER
+// (из нескольких - по последнему)
 
 main(int argc, char **argv){
-  if (argc<3) {
-      std::cerr << "usage: " << argv[0] << " in_fig out_fig\n";
+  if (argc<2) {
+      std::cerr << "usage: " << argv[0] << " fig\n";
       exit(0);
   }
-  fig::fig_world W = fig::read(argv[1]);
+  fig::fig_world W;
+  if (! fig::read(argv[1], W)){
+    std::cerr << "File is not modified.\n";
+    exit(1);
+  }
 
   fig::fig_world::iterator o = W.begin();
 
@@ -27,6 +32,6 @@ main(int argc, char **argv){
   }
 
   fig::rect_crop(cutter, W);
-  std::ofstream f(argv[2]);
+  std::ofstream f(argv[1]);
   fig::write(f, W);
 }

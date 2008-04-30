@@ -1,5 +1,3 @@
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/iterator/file_iterator.hpp>
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/insert_at_actor.hpp>
@@ -8,28 +6,18 @@
 #include <iomanip>
 
 #include "mp.h"
+#include "../utils/spirit_utils.h"
 
 namespace mp {
 
 using namespace std;
 using namespace boost::spirit;
 
-typedef char                    char_t;
-typedef file_iterator <char_t>  iterator_t;
-typedef scanner<iterator_t>     scanner_t;
-typedef rule <scanner_t>        rule_t;
-
-mp_world read(const char* filename){
+bool read(const char* filename, mp_world & world){
 
   mp_object o, o0;
-  mp_world world;
   int l=0;
   Point<double> pt;
-
-  // iterators for parsing
-  iterator_t first(filename);
-  if (!first) { cerr << "can't find file " << filename << '\n'; return world;}
-  iterator_t last = first.make_end();
 
   rule_t ch = anychar_p - eol_p;
   rule_t comment = (ch_p(';') >> (*ch)[push_back_a(o.Comment)] >> eol_p) | space_p;
@@ -70,19 +58,19 @@ mp_world read(const char* filename){
         ( "Type=0x"   >> hex_p[assign_a(o.Type)]      >> eol_p) |
         ( "Label="    >> (*ch)[assign_a(o.Label)]     >> eol_p) |
         ( "EndLevel=" >> uint_p[assign_a(o.EL)] >> eol_p) |
+        ( "Endlevel=" >> uint_p[assign_a(o.EL)] >> eol_p) |
         ( "Levels="   >> uint_p[assign_a(o.EL)] >> eol_p) |
         ( "DirIndicator="   >> uint_p[assign_a(o.DirIndicator)] >> eol_p) |
         ( (str_p("Data") | str_p("Origin")) >> uint_p[assign_a(o.BL)] >> "="
            >> pt_r >> *(',' >> pt_r) >> eol_p)[push_back_a(world,o)][clear_a(o)] 
       ) >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p;
-      
-    if (!parse(first, last, 
-      *space_p >> *(+comment >> *space_p) >> header >>
-      *( eps_p[assign_a(o,o0)] >> object )
-      >> *space_p >> *(+comment >> *space_p) ).full)
-      cerr << "Can't parse mp file!\n";
 
-    return world;
+
+    rule_t main_rule = *space_p >> *(+comment >> *space_p) >> header >>
+        *( eps_p[assign_a(o,o0)] >> object )
+        >> *space_p >> *(+comment >> *space_p);
+
+    return parse_file("mp::read", filename, main_rule); 
 }
 
 bool write(std::ostream & out, const mp_world & world){

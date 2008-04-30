@@ -5,6 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include "../geo_io/geofig.h"
+#include "../geo_io/fig_utils.h"
 #include "../geo_io/mp.h"
 #include "../geo_io/geo_convs.h"
 
@@ -77,6 +78,15 @@ main(int argc, char** argv){
   std::multimap<int, fig::fig_object> labels; // по id в map
 
 
+  // прямоугольник, по которому мы будем обрезать объекты.
+  Rect<int> cutter;
+  for (g_map::iterator p = old_ref.begin(); p!=old_ref.end(); p++){
+    Point<int> r(p->xr, p->yr);
+    if (p==old_ref.begin()) cutter=Rect<int>(r,r);
+    else cutter=rect_pump(cutter, r);
+  }
+  std::cerr << "Cutter: " << cutter << "\n";
+
 
   std::cerr << "Reading new map: ";  
   if (fig_not_mp){ // читаем fig
@@ -92,7 +102,9 @@ main(int argc, char** argv){
       if ((k.type==0) || (k.map!=source) || (k.id==0)) continue;
       fig::fig_object o = *i;
       o.set_points(cnv.line_bck(*i));
-      new_objects.insert(std::pair<int, fig::fig_object>(k.id, o));
+      fig::rect_crop(cutter, o);
+      if (o.size()>0)
+        new_objects.insert(std::pair<int, fig::fig_object>(k.id, o));
     }
   } 
   else { // читаем mp
@@ -102,9 +114,11 @@ main(int argc, char** argv){
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++){
       zn::zn_key k = zn::get_key(*i);
       if ((k.type==0) || (k.map!=source) || (k.id==0)) continue;
-cerr << i->Label << " " << k.type << " " << k.id << "\n";
+//cerr << i->Label << " " << k.type << " " << k.id << "\n";
       fig::fig_object o = zconverter.mp2fig(*i, cnv, k.type);
-      new_objects.insert(std::pair<int, fig::fig_object>(k.id, o));
+      fig::rect_crop(cutter, o);
+      if (o.size()>0)
+        new_objects.insert(std::pair<int, fig::fig_object>(k.id, o));
     }
   }
   std::cerr << new_objects.size() << " objects\n";

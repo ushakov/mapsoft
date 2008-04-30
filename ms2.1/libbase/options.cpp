@@ -15,9 +15,28 @@ std::set<std::string> Options::unknown (const std::set<std::string> & known) con
 
 std::ostream & operator<< (std::ostream & s, const Options & o){
   for (Options::const_iterator i=o.begin(); i!=o.end(); i++){
-    s << ((i==o.begin())?"":" ") << i->first << "=" << i->second;
+
+    if (io_style == MHEAD){
+      if (i!=o.begin()) s << "\n";
+      if ()
+      s << i->first << "="
+    }
+
+    else{
+      if (i!=o.begin()) s << " ";
+    }
+    
+      s << ((i==o.begin())?"":" ") << i->first << "=" << i->second;
   }
   return s;
 }
+
+
+/** Операторы вывода-вывода для Options */
+std::ostream & operator<< (std::ostream & s, const Options & o);
+std::ostream & operator>> (std::istream & s, Options & o);
+
+Options get_cmdline_options(int argc, char **argv);
+
 
 }//namespace

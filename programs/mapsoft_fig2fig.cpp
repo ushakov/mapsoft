@@ -3,6 +3,7 @@
 #include <fstream>
 
 // Перенесение данных из одного fig-файла в другой с обрезкой 
+// Обрезка пока неаккуратная!!!
 
 using namespace std;
 
@@ -19,9 +20,18 @@ main(int argc, char** argv){
   std::string in_fig  = argv[2];
 
   // читаем fig
-  fig::fig_world F1 = fig::read(out_fig.c_str());
+  fig::fig_world F1;
+  if (!fig::read(out_fig.c_str(), F1)) {
+    std::cerr << "File is not modified.\n";
+    exit(1);
+  }
   g_map out_ref = fig::get_ref(F1);
-  fig::fig_world F2 = fig::read(in_fig.c_str());
+
+  fig::fig_world F2;
+  if (!fig::read(in_fig.c_str(), F2)) {
+    std::cerr << "File is not modified.\n";
+    exit(1);
+  }
   g_map in_ref = fig::get_ref(F2);
 
   convs::map2map cnv(in_ref, out_ref);

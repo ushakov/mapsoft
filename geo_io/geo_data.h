@@ -23,6 +23,7 @@
 // abstract point
 typedef Point<double> g_point;
 typedef Line<double>  g_line;
+typedef Rect<double>  g_rect;
 
 /// single waypoint
 struct g_waypoint : g_point {
@@ -201,7 +202,7 @@ struct g_waypoint_list : std::vector<g_waypoint>{
 	symbset = "garmin";
     }
     /// get range in lon-lat coords
-    Rect<double> range() const{
+    g_rect range() const{
       double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
       std::vector<g_waypoint>::const_iterator i;
       for (i=begin();i!=end();i++){
@@ -210,8 +211,8 @@ struct g_waypoint_list : std::vector<g_waypoint>{
         if (i->x < minx) minx = i->x;
         if (i->y < miny) miny = i->y;
       }
-      if ((minx>maxx)||(miny>maxy)) return Rect<double>(0,0,0,0);
-      return Rect<double>(minx,miny, maxx-minx, maxy-miny);
+      if ((minx>maxx)||(miny>maxy)) return g_rect(0,0,0,0);
+      return g_rect(minx,miny, maxx-minx, maxy-miny);
     }
     /// convert waypoint_list values to Options object
     Options to_options () const {
@@ -277,7 +278,7 @@ struct g_track : std::vector<g_trackpoint>{
     }
 
     /// get range in lon-lat coords
-    Rect<double> range() const{
+    g_rect range() const{
       double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
       std::vector<g_trackpoint>::const_iterator i;
       for (i=begin();i!=end();i++){
@@ -286,8 +287,8 @@ struct g_track : std::vector<g_trackpoint>{
         if (i->x < minx) minx = i->x;
         if (i->y < miny) miny = i->y;
       }
-      if ((minx>maxx)||(miny>maxy)) return Rect<double>(0,0,0,0);
-      return Rect<double>(minx,miny, maxx-minx, maxy-miny);
+      if ((minx>maxx)||(miny>maxy)) return g_rect(0,0,0,0);
+      return g_rect(minx,miny, maxx-minx, maxy-miny);
     }
 };
 
@@ -340,7 +341,7 @@ struct g_map : std::vector<g_refpoint>,
 
 
   /// get range in lon-lat coords
-    Rect<double> range() const{
+    g_rect range() const{
       double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
       std::vector<g_refpoint>::const_iterator i;
       for (i=begin();i!=end();i++){
@@ -349,8 +350,8 @@ struct g_map : std::vector<g_refpoint>,
         if (i->x < minx) minx = i->x;
         if (i->y < miny) miny = i->y;
       }
-      if ((minx>maxx)||(miny>maxy)) return Rect<double>(0,0,0,0);
-      return Rect<double>(minx,miny, maxx-minx, maxy-miny);
+      if ((minx>maxx)||(miny>maxy)) return g_rect(0,0,0,0);
+      return g_rect(minx,miny, maxx-minx, maxy-miny);
     }
 };
 
@@ -368,11 +369,11 @@ struct geo_data {
   void clear(){ wpts.clear(); trks.clear(); maps.clear();}
 
   /// get range of all maps in lon-lat coords
-  Rect<double> range_map() const{ 
+  g_rect range_map() const{ 
     // диапазон карт определяется по точкам привязки, а не по
     // границам, поскольку здесь не очень хочется требовать наличия границ
     // и лазать в графический файлы карт за этими границами
-    Rect<double> ret(0,0,0,0);
+    g_rect ret(0,0,0,0);
     if (maps.size()>0) ret=maps[0].range();
     else return ret;
     for (std::vector<g_map>::const_iterator i = maps.begin();
@@ -381,8 +382,8 @@ struct geo_data {
   }
 
   /// get range of all tracks and waypoints in lon-lat coords
-  Rect<double> range_geodata() const{
-    Rect<double> ret(0,0,0,0);
+  g_rect range_geodata() const{
+    g_rect ret(0,0,0,0);
     if (wpts.size()>0) ret=wpts[0].range();
     else if (trks.size()>0) ret=trks[0].range();
     else return ret;
@@ -395,7 +396,7 @@ struct geo_data {
   }
 
   /// get range of all data in lon-lat coords
-  Rect<double> range() const{
+  g_rect range() const{
     return rect_bounding_box(range_map(), range_geodata());
   }
 };

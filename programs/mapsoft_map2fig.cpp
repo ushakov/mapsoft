@@ -44,26 +44,26 @@ main(int argc, char **argv){
       ml = new LayerGeoMap(world);
       for(int i=4;i<argc;i++)
         io::in(std::string(argv[i]), *world, Options());
-//      depth = "500"; 
-   
     }
     else if (source == "ks") {
       if (argc!=6) usage();
       LayerKS *l = new LayerKS(argv[5], atoi(argv[4]));
       l->set_downloading(true);
       ml=l;
-//      depth = "501"; 
     }
     else if (source == "google") {
       if (argc!=6) usage();
       LayerGoogle *l = new LayerGoogle(argv[5], atoi(argv[4]));
       l->set_downloading(true);
       ml=l;
-//      depth = "502"; 
     } else usage();
 
     // читаем fig
-    fig::fig_world F = fig::read(fig_name.c_str());
+    fig::fig_world F;
+    if (!fig::read(fig_name.c_str(), F)) {
+      std::cerr << "File is not modified, exiting.\n";
+      exit(1);
+    }
     g_map fig_ref = fig::get_ref(F);
 
     // в LayerGeo установим привязку, подходящую для карты

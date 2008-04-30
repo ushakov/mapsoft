@@ -78,7 +78,7 @@ namespace mp {
         }
     };
 
-    mp_world read(const char* filename);
+    bool read(const char* filename, mp_world & world);
     bool write(std::ostream & out, const mp_world & world);
 
     // Построить mp-объект на основе obj, подставив все не-звездочки из маски
