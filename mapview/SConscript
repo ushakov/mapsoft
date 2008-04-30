@@ -1,9 +1,9 @@
 Import ('env')
-le = env.Copy()
+le = env.Clone()
 
 le.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
 
-mapsoft_libs = Split ("geo_io loaders utils jeeps")
+mapsoft_libs = Split ("geo_io loaders utils jeeps fig")
 other_libs   = Split ("usb tiff jpeg png gd")
 le.Append(LIBS=[mapsoft_libs,other_libs])
 

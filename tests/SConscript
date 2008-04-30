@@ -1,5 +1,5 @@
 Import ('env')
-le = env.Copy()
+le = env.Clone()
 sources = Split ("""
 		""")
 

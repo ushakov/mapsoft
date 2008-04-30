@@ -1,5 +1,5 @@
 Import ('env')
-le = env.Copy()
+le = env.Clone()
 mapsoft_libs = Split ("geo_io loaders utils jeeps")
 graph_libs = Split("jpeg tiff png")
 io_libs = Split("gd usb")

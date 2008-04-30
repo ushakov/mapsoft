@@ -1,5 +1,5 @@
 Import ('env')
-le = env.Copy()
+le = env.Clone()
 le.Library('geo_io', \
     Split ("""
         io.cpp
@@ -13,7 +13,6 @@ le.Library('geo_io', \
 	geo_convs.cpp
 	o_fig.cpp
 	o_htm.cpp
-	fig.cpp
 	mp.cpp
 	geofig.cpp
      """))

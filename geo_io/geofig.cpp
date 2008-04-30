@@ -6,7 +6,7 @@
 
 #include <sstream>
 #include <iomanip>
-#include "fig.h"
+#include "geofig.h"
 #include "geo_convs.h"
 #include "io_xml.h"
 #include "../utils/mapsoft_options.h"

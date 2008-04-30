@@ -10,6 +10,7 @@ subdirs = Split ("""
 		vector
 		viewer
 		mapview
+		libfig
 		""")
 
 SetOption('implicit_cache', 1)

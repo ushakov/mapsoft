@@ -1,0 +1,10 @@
+e = Environment ()
+e.Append (CCFLAGS=['-O2'])
+
+e.Library('fig', \
+    Split ("""
+        fig_io.cpp
+        fig_mask.cpp
+        fig_utils.cpp
+        fig_data.cpp
+     """))

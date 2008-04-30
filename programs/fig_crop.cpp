@@ -1,5 +1,6 @@
 #include <fstream>
-#include "../geo_io/fig_utils.h"
+#include "../libfig/fig_utils.h"
+#include "../libfig/fig_io.h"
 
 // Обрезка fig-файла по объекту-прямоугольнику с комментарием CUTTER
 // (из нескольких - по последнему)

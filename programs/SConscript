@@ -1,8 +1,8 @@
 Import ('env')
-env_gtk = env.Copy()
-env_geo = env.Copy()
+env_gtk = env.Clone()
+env_geo = env.Clone()
 
-mapsoft_libs = Split ("geo_io loaders utils jeeps")
+mapsoft_libs = Split ("geo_io loaders utils jeeps fig")
 other_libs   = Split ("usb tiff jpeg png gd")
 
 env_gtk.Prepend(LIBS=[mapsoft_libs,other_libs])
@@ -28,7 +28,7 @@ env_geo.Program('mapsoft_srtm2fig.cpp')
 env_geo.Program('mapsoft_fig2fig.cpp')
 env_geo.Program('mapsoft_calc_nom2ll.cpp')
 
-env.Program(['fig_crop.cpp','../geo_io/fig.o'])
+env.Program('fig_crop.cpp', LIBS='fig')
 env_geo.Program('fig_ref_mod.cpp')
 
 env_gtk.Program('mapsoft_mapview.cpp')

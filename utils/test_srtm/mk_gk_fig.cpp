@@ -1,4 +1,4 @@
-#include "../../geo_io/geofig.h"
+#include "../../libfig/geofig.h"
 #include "../../geo_io/geo_convs.h"
 
 // Изготовление правильного привязанного fig-файла

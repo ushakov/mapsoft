@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "fig.h"
+#include "../libfig/fig.h"
 #include "geo_data.h"
 
 

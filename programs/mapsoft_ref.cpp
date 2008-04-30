@@ -12,7 +12,7 @@
 #include <iomanip>
 
 #include "../geo_io/io.h"
-#include "../geo_io/fig.h"
+#include "../libfig/fig.h"
 
 using namespace std;
 

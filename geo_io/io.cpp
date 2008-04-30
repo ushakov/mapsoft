@@ -11,7 +11,6 @@
 #include <math.h>
 
 #include "io.h"
-#include "fig.h"
 #include "geofig.h"
 
 namespace io {
