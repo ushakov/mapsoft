@@ -17,7 +17,7 @@ test.mp: get_hor_gk
 #test.mp: get_hor
 #	./get_hor 68.01 68.1 38.8 38.99 100 500 ./ > test.mp
 
-get_hor: ../../geo_io/mp.cpp ../line.cpp ../point_int.cpp
+get_hor: ../../libmp/libmp.a ../../utils/libutils.a 
 
 CPPFLAGS=-I../../
 range_conv: ../../geo_io/libgeo_io.a ../../jeeps/libjeeps.a ../../loaders/libloaders.a -lpng -ljpeg -ltiff ../../utils/libutils.a

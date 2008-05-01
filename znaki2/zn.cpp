@@ -95,10 +95,7 @@ zn_conv::zn_conv(const std::string & conf_file){
       cout << "Файл " << conf_file << " содержит неподходящую структуру данных" << endl;
       exit(0);
    }
-  default_fig.pen_color = 4;
-  default_fig.thickness = 4;
-  default_fig.depth = 10;
-
+  default_fig = fig::make_object("2 1 2 2 4 7 10 -1 -1 6.000 0 2 -1 0 0 0");
 }
 
 
@@ -123,7 +120,7 @@ int zn_conv::get_type (const fig::fig_object & o) const {
       if ((o.thickness  != 0 ) &&
           ((o.pen_color != i->second.fig.pen_color) ||
            (o.line_style != i->second.fig.line_style))) continue;
-    
+
       // заливки
       int af1 = o.area_fill;
       int af2 = i->second.fig.area_fill;
@@ -132,13 +129,13 @@ int zn_conv::get_type (const fig::fig_object & o) const {
       // белая заливка бывает двух видов
       if ((fc1!=7)&&(af1==40)) {fc1=7; af1=20;}
       if ((fc2!=7)&&(af2==40)) {fc2=7; af2=20;}
-    
+
       // тип заливки должен совпасть
       if (af1 != af2) continue;
       // если заливка непрозрачна, то и цвет заливки должен совпасть
       if ((af1!=-1) && (fc1 != fc2)) continue;
-    
-      // если заливка - штриховка, то и pen_color должен совпасть 
+
+    // если заливка - штриховка, то и pen_color должен совпасть 
       // (даже для линий толщины 0)
       if ((af1>41) && (o.pen_color != i->second.fig.pen_color)) continue;
     
@@ -201,12 +198,17 @@ fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, i
 
 // преобразовать fig-объект в mp-объект
 // Если тип 0, то он определяется функцией get_type по объекту
-mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type) const{
+mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type){
   if (type ==0) type = get_type(fig);
 
   mp::mp_object mp = default_mp;
   if (znaki.find(type) != znaki.end()) mp = znaki.find(type)->second.mp;
-  else {std::cerr << "fig2mp: unknown type: " << type << "\n";}
+  else {
+    if (unknown_types.count(type) == 0){
+      std::cerr << "fig2mp: unknown type: 0x" << std::setbase(16) << type << std::setbase(10) << "\n";
+      unknown_types.insert(type);
+    }
+  }
 
   if (fig.type == 4){
     mp.Label = fig.text;
@@ -234,12 +236,17 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, 
 
 // Поменять параметры в соответствии с типом.
 // Если тип 0, то он определяется функцией get_type по объекту
-void zn_conv::fig_update(fig::fig_object & fig, int type) const{
+void zn_conv::fig_update(fig::fig_object & fig, int type){
   if (type ==0) type = get_type(fig);
 
   fig::fig_object tmp = default_fig;
   if (znaki.find(type) != znaki.end()) tmp = znaki.find(type)->second.fig;
-  else {std::cerr << "fig_update: unknown type: " << type << "\n"; return;}
+  else {
+    if (unknown_types.count(type) == 0){
+      std::cerr << "fig_update: unknown type: 0x" << std::setbase(16) << type << std::setbase(10) << "\n";
+      unknown_types.insert(type);
+    }
+  }
 
   // копируем разные параметры:
   fig.line_style = tmp.line_style;
@@ -272,7 +279,7 @@ void zn_conv::label_update(fig::fig_object & fig, int type) const{
 }
 
 // Создать картинку к объекту в соответствии с типом.
-std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type) const{
+std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type){
 
   std::list<fig::fig_object> ret;
   if (fig.size()==0) return ret;
@@ -280,7 +287,13 @@ std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int ty
 
   if (type ==0) type = get_type(fig);
   std::map<int, zn>::const_iterator z = znaki.find(type);
-  if (z == znaki.end()){ std::cerr << "make_pic: unknown type: " << type << "\n"; return ret; }
+  if (z == znaki.end()){
+    if (unknown_types.count(type) == 0){
+      std::cerr << "make_pic: unknown type: 0x" << std::setbase(16) << type << std::setbase(10) << "\n";
+      unknown_types.insert(type);
+    }
+    return ret;
+  }
 
   if (z->second.pic=="") return ret; // нет картинки
 
@@ -307,7 +320,7 @@ std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int ty
 }
 
 // Создать подписи к объекту.
-std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type) const {
+std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type){
 
   std::list<fig::fig_object> ret;
   if (fig.size() == 0) return ret;                   // странный объект
@@ -315,7 +328,13 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int
   if (type ==0) type = get_type(fig);
 
   map<int, zn>::const_iterator z = znaki.find(type);
-  if (z==znaki.end()) {std::cerr << "make_pic: unknown type: " << type << "\n"; return ret;}
+  if (z==znaki.end()){
+    if (unknown_types.count(type) == 0){
+      std::cerr << "make_labels: unknown type: 0x" << std::setbase(16) << type << std::setbase(10) << "\n";
+      unknown_types.insert(type);
+    }
+    return ret;
+  }
 
   if (!z->second.istxt) return ret;            // подпись не нужна
   if ((fig.comment.size()==0)||
@@ -346,7 +365,6 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int
 
       p-= Point<int>(int(-v.y*txt_dist), int(v.x*txt_dist));
 
-std::cerr << "P = " << p << " p1 = " << p1 << " v = " << v << "\n";
     }
     else { // другие случаи 
       if (txt.sub_type == 0 ) { // left just.text

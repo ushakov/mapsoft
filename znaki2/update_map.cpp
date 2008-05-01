@@ -189,15 +189,6 @@ main(int argc, char** argv){
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++){
       int type = zconverter.get_type(*i);
       fig::fig_object fig = zconverter.mp2fig(*i, cnv, type);
-      // неизвестные объекты сами должны уйти на глубину 10
-      // но на всякий случай продублируем...
-      if (type==0) {
-        cerr << "can't determin object type! Making it's depth=10!!!\n";
-        fig.depth=10; unk_count++;
-        zn::clear_key(fig);
-        NEW.push_back(fig);
-        continue;
-      }
       new_objects.insert(std::pair<int, fig::fig_object>(type, fig));
     }
   }

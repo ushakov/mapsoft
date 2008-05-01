@@ -230,8 +230,13 @@ bool write(ostream & out, const fig_world & world){
       << setprecision(3) 
       << world.multiple_page << "\n"
       << world.transparent_color << "\n";
-  for (n=0;n<world.comment.size();n++) 
-    out << "# " << cnv.from_utf(world.comment[n]) << "\n";
+  for (n=0;n<world.comment.size();n++){
+    if (n>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
+    string s = cnv.from_utf(world.comment[n]);
+    if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
+    out << "# " << s << "\n";
+  }
+
   out << world.resolution << " " 
       << world.coord_system << "\n";
 
@@ -286,8 +291,12 @@ bool write(ostream & out, const fig_world & world){
   for (fig_world::const_iterator
        i  = world.begin(); 
        i != world.end(); i++){
-    for (n=0;n<i->comment.size();n++) 
-      out << "# " << cnv.from_utf(i->comment[n]) << "\n";
+    for (n=0;n<i->comment.size();n++){
+      if (n>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
+      string s = cnv.from_utf(i->comment[n]);
+      if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
+      out << "# " << s << "\n";
+    }
 
     int nn = i->size();
     int nn1=nn;

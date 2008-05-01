@@ -8,21 +8,21 @@ void IConv::print_cnv_err(const char *e1, const char *e2){
 }
 
 IConv::IConv(const char *enc, const char *def_enc){
-  cd_to_utf = iconv_open(enc, IConv_UTF);
+  cd_to_utf = iconv_open(IConv_UTF, enc);
   if (cd_to_utf == (iconv_t)-1){
     print_cnv_err(enc, IConv_UTF);
     std::cerr << "Trying default charset \"" << def_enc << "\"\n";
-    cd_to_utf = iconv_open(def_enc, IConv_UTF);
+    cd_to_utf = iconv_open(IConv_UTF, def_enc);
     if (cd_to_utf == (iconv_t)-1){
       print_cnv_err(def_enc, IConv_UTF);
       std::cerr << "Skipping conversion\n";
     }
   }
-  cd_from_utf = iconv_open(IConv_UTF, enc);
+  cd_from_utf = iconv_open(enc, IConv_UTF);
   if (cd_from_utf == (iconv_t)-1){
     print_cnv_err(IConv_UTF, enc);
     std::cerr << "Trying default charset \"" << def_enc << "\"\n";
-    cd_from_utf = iconv_open(IConv_UTF, def_enc);
+    cd_from_utf = iconv_open(def_enc, IConv_UTF);
     if (cd_from_utf == (iconv_t)-1){
       print_cnv_err(IConv_UTF, def_enc);
       std::cerr << "Skipping conversion\n";
@@ -62,6 +62,7 @@ std::string IConv::convert_string(iconv_t cd, const std::string & str) const{
         // непонятные буквы
         icnt--; ocnt--;  *obuf_ptr=*ibuf_ptr; ibuf_ptr++; obuf_ptr++;
       }
+      obuf[OSIZE-ocnt] = 0;
       ret += obuf;
   }
   return ret;

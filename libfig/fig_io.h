@@ -17,6 +17,8 @@ namespace fig {
     bool read(const char* filename, fig_world & world);
 
     /// Запись fig-файла
+    /// разные проверки на правильность файла
+    /// - комментарий должен быть не длиннее 100 строк, по 1022 символов в каждой
     bool write(std::ostream & out, const fig_world & world);
 }
 #endif

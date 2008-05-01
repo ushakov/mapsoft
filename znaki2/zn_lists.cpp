@@ -31,7 +31,7 @@ fig::fig_object make_sample(const std::map<int, zn>::const_iterator &i, int grid
 
 
 // список всех знаков в формате fig
-fig::fig_world make_legend(const zn_conv & z, int grid, int dg){
+fig::fig_world make_legend(zn_conv & z, int grid, int dg){
   int count=0;
   fig::fig_world ret;
 
@@ -82,7 +82,7 @@ fig::fig_world make_legend(const zn_conv & z, int grid, int dg){
 }
 
 // текстовый список всех знаков
-std::string make_text(const zn_conv & z){
+std::string make_text(zn_conv & z){
   ostringstream out;
   for (std::map<int, zn>::const_iterator i = z.znaki.begin(); i!=z.znaki.end(); i++){
     out << std::setbase(16) << i->first << "\t" << i->second.name << " // " << i->second.desc << "\n";

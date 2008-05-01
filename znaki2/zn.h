@@ -66,16 +66,16 @@ class zn_conv{
   fig::fig_object mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type=0);
 
   // преобразовать fig-объект в mp-объект
-  mp::mp_object fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type=0) const;
+  mp::mp_object fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type=0);
 
   // Поменять параметры в соответствии с типом
-  void fig_update(fig::fig_object & fig, int type=0) const;
+  void fig_update(fig::fig_object & fig, int type=0);
 
   // Создать картинку к объекту
-  std::list<fig::fig_object> make_pic(const fig::fig_object & fig, int type=0) const;
+  std::list<fig::fig_object> make_pic(const fig::fig_object & fig, int type=0);
 
   // Создать подписи к объекту
-  std::list<fig::fig_object> make_labels(const fig::fig_object & fig, int type=0) const;
+  std::list<fig::fig_object> make_labels(const fig::fig_object & fig, int type=0);
 
   // Поменять параметры подписи в соответствии с типом
   // (шрифт, размер, цвет, глубина)
