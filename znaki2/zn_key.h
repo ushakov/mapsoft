@@ -6,7 +6,7 @@
 #include <map>
 #include "../geo_io/geo_convs.h"
 #include "../geo_io/geofig.h"
-#include "../geo_io/mp.h"
+#include "../libmp/mp.h"
 
 #include "../utils/m_time.h"
 

@@ -4,9 +4,10 @@
 #include <string>
 #include <list>
 #include <map>
+#include <set>
 #include "../geo_io/geo_convs.h"
 #include "../geo_io/geofig.h"
-#include "../geo_io/mp.h"
+#include "../libmp/mp.h"
 #include "../yaml/yaml.h"
 
 #include "../utils/m_time.h"
@@ -42,6 +43,7 @@ class zn_conv{
   fig::fig_object default_fig;  // как рисовать неизвестные знаки
   mp::mp_object default_mp;     // как рисовать неизвестные знаки
 
+  std::set<int> unknown_types; // база неизвестных типов, чтоб на каждый ругаться единожды
 
   // Конструктор - чтение конфигурационного файла
   zn_conv(const std::string & conf_file);
@@ -61,7 +63,7 @@ class zn_conv{
       // в следующих функциях, если указан тип 0, то он определяется по объекту
 
   // Преобразовать mp-объект в fig-объект
-  fig::fig_object mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type=0) const;
+  fig::fig_object mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type=0);
 
   // преобразовать fig-объект в mp-объект
   mp::mp_object fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type=0) const;

@@ -5,8 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include "../geo_io/geofig.h"
-#include "../geo_io/fig_utils.h"
-#include "../geo_io/mp.h"
+#include "../libmp/mp.h"
 #include "../geo_io/geo_convs.h"
 
 #include "zn.h"
@@ -45,7 +44,8 @@ main(int argc, char** argv){
 
   // читаем старую карту
   std::cerr << "Reading old map...\n";  
-  fig::fig_world MAP = fig::read(file.c_str());
+  fig::fig_world MAP;
+  if (!fig::read(file.c_str(), MAP)) {cerr << "Bad fig file " << file << "\n"; exit(0);}
   g_map old_ref = get_ref(MAP);
 
   // backup исходной карты!
@@ -90,7 +90,8 @@ main(int argc, char** argv){
 
   std::cerr << "Reading new map: ";  
   if (fig_not_mp){ // читаем fig
-    fig::fig_world FIG = fig::read(infile.c_str());
+    fig::fig_world FIG;
+    if (!fig::read(infile.c_str(), FIG)) {cerr << "Bad fig file " << infile << "\n"; exit(0);}
     g_map new_ref = fig::get_ref(FIG);
     convs::map2map cnv(old_ref, new_ref);
 
@@ -108,7 +109,8 @@ main(int argc, char** argv){
     }
   } 
   else { // читаем mp
-    mp::mp_world MP = mp::read(infile.c_str());
+    mp::mp_world MP;
+    if (!mp::read(infile.c_str(), MP)) {cerr << "Bad mp file " << infile << "\n"; exit(0);}
     convs::map2pt cnv(old_ref, Datum("wgs84"), Proj("lonlat"), Options());
 
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++){

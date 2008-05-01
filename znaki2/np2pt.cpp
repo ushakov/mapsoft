@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "../geo_io/fig.h"
+#include "../libfig/fig.h"
 #include "../utils/m_time.h"
 #include <cmath>
 #include "zn.h"
@@ -28,7 +28,8 @@ main(int argc, char **argv){
 
   zn::zn_conv zconverter(conf_file);
 
-  fig_world W = read(infile.c_str());
+  fig_world W;
+  if (!read(infile.c_str(), W)){cerr << "Bad fig file " << infile << "\n"; exit(0);}
   fig_world NW;
 
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){

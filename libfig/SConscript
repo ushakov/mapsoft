@@ -1,7 +1,6 @@
-e = Environment ()
-e.Append (CCFLAGS=['-O2'])
+Import('env')
 
-e.Library('fig', \
+env.Library('fig', \
     Split ("""
         fig_io.cpp
         fig_mask.cpp

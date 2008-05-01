@@ -11,6 +11,7 @@ subdirs = Split ("""
 		viewer
 		mapview
 		libfig
+		libmp
 		""")
 
 SetOption('implicit_cache', 1)

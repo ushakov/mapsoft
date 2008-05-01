@@ -114,6 +114,11 @@ struct Line
     return Rect<T>(min,max);
   }
 
+  Point<T> center() const{
+    Rect<T> r=range();
+    return (r.TLC() + r.BRC())/2;
+  }
+
 
 };
 

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "../geo_io/fig.h"
+#include "../libfig/fig.h"
 #include "../utils/m_time.h"
 #include <cmath>
 #include "zn.h"
@@ -70,9 +70,9 @@ main(int argc, char **argv){
 
   zn::zn_conv zconverter(conf_file);
 
-  fig_world W = read(infile.c_str());
+  fig_world W;
+  if (!read(infile.c_str(), W)){cerr << "Bad fig file " << infile << "\n"; exit(0);}
   fig_world NW;
-
 
   // для убыстрения делаем два прогона - в первом распихиваем 
   // по  отдельным спискам все линейные объекты, к которым мы хотим привязывать точки:
@@ -157,7 +157,7 @@ main(int argc, char **argv){
          (type == 0x20004D) || // ледник
          (type == 0x200052) || // поле
          (type == 0x200053)    // остров
-       ) i->any2xspl(1);
+       ) any2xspl(*i, 1);
 
     // отметка уреза воды
     if (type == 0x1000){ 
@@ -205,7 +205,7 @@ main(int argc, char **argv){
     }
     // порог и водопад
     if ((type == 0x650E) || (type == 0x6508)){
-      
+
       Point<double> t1, p1((*i)[0]);
       nearest_line(list_r, t1, p1);
 
@@ -304,7 +304,7 @@ main(int argc, char **argv){
         o.push_back(p1);
         o.push_back(p2);
         NW.push_back(o); o.clear();
-        
+
         o.push_back(p1+(vt+vn)*l);
         o.push_back(p1);
         o.push_back(p1+(vt-vn)*l);
@@ -328,7 +328,7 @@ main(int argc, char **argv){
       o.farrow_height = (i->thickness<3)? 60:90;
       o.barrow_height = (i->thickness<3)? 60:90;
       double w = (i->thickness<3)? 40:60; // ширина черточек
-      
+
       LineDist<int> ld(*i); 
       if (ld.length()<=step) step = ld.length();
       else step = ld.length()/floor(ld.length()/step);
@@ -355,7 +355,7 @@ main(int argc, char **argv){
       NW.push_back(*i);
       double step = 600;
       fig_object o = make_object(*i, "1 3 0 1 25725064 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
-      
+
       LineDist<int> ld(*i); 
       if (ld.length()<=step) step = ld.length();
       else step = ld.length()/floor(ld.length()/step);
@@ -486,7 +486,7 @@ main(int argc, char **argv){
       NW.push_back(o);
       NW.push_back(*i); continue;
     }
- 
+
    // болота
    if ((type == 0x20004C) || (type == 0x200051)){ 
       int step = 40; // расстояние между штрихами

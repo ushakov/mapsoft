@@ -1,0 +1,7 @@
+Import('env')
+
+env.Library('mp', \
+    Split ("""
+        mp_io.cpp
+        mp_mask.cpp
+     """))

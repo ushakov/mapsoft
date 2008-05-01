@@ -4,7 +4,7 @@
 #include <string>
 #include <list>
 #include <map>
-#include "../geo_io/fig.h"
+#include "../libfig/fig.h"
 
 #include "zn.h"
 

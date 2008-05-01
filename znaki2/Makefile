@@ -1,24 +1,25 @@
 all: make_map_gk update_map get_map get_legend get_print fig2pnm get_figlib make_nom update_ext np2pt
 
+MAPSOFT_LIBS = ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../yaml/yaml.cpp -lsyck ../libfig/libfig.a ../libmp/libmp.a ../utils/libutils.a
+
 CPPFLAGS=-I../
-make_map_gk: ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a
-update_map:  ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck zn_key.cpp zn.cpp 
-update_ext:  ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck zn_key.cpp zn.cpp 
-get_map:     ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck zn_key.cpp zn.cpp 
-get_print:   zn_key.cpp zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck
-np2pt:   zn_key.cpp zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck
 
-get_legend: zn_lists.cpp zn_key.cpp zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck
-get_figlib: zn_lists.cpp zn_key.cpp zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck
-get_text:   zn_lists.cpp zn_key.cpp zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a ../yaml/yaml.cpp -lsyck
+make_map_gk: $(MAPSOFT_LIBS)
+make_nom:    $(MAPSOFT_LIBS)
 
-key_test: zn.cpp ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a
+update_map:  zn_key.cpp zn.cpp $(MAPSOFT_LIBS)
+update_ext:  zn_key.cpp zn.cpp $(MAPSOFT_LIBS)
+get_map:     zn_key.cpp zn.cpp $(MAPSOFT_LIBS)
+get_print:   zn_key.cpp zn.cpp $(MAPSOFT_LIBS)
+np2pt:       zn_key.cpp zn.cpp $(MAPSOFT_LIBS)
 
-make_nom:  ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../utils/libutils.a
+get_legend:  zn_lists.cpp zn_key.cpp zn.cpp $(MAPSOFT_LIBS)
+get_figlib:  zn_lists.cpp zn_key.cpp zn.cpp $(MAPSOFT_LIBS)
+get_text:    zn_lists.cpp zn_key.cpp zn.cpp $(MAPSOFT_LIBS)
 
+key_test:    zn.cpp $(MAPSOFT_LIBS)
 
-tmp: zn_key.cpp ../geo_io/fig.cpp ../utils/libutils.a
-
+tmp:         zn_key.cpp $(MAPSOFT_LIBS)
 
 
 l: mmb.png hr.png mmb.conv.png hr.conv.png mmb_lib hr_lib

@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iomanip>
 #include "../geo_io/geofig.h"
-#include "../geo_io/mp.h"
+#include "../libmp/mp.h"
 #include "../geo_io/geo_convs.h"
 
 #include "zn.h"
@@ -42,6 +42,7 @@ main(int argc, char** argv){
   string source    = argv[2];
   string conf_file = argv[3];
   string infile    = argv[4];
+
   string file = maps_dir+"/"+map_name+".fig";
 
   bool fig_not_mp;
@@ -51,7 +52,8 @@ main(int argc, char** argv){
 
   // читаем старую карту
   std::cerr << "Reading old map: " << file << "\n";  
-  fig::fig_world MAP = fig::read(file.c_str());
+  fig::fig_world MAP;
+  if (!fig::read(file.c_str(), MAP)) {cerr << "Bad fig file " << file << "\n"; exit(0);}
 
   // backup исходной карты!
   std::cerr << "Backup...\n";  
@@ -96,7 +98,8 @@ main(int argc, char** argv){
 
   if (fig_not_mp){ // читаем fig
     std::cerr << "Reading new map: " << infile <<"\n";  
-    fig::fig_world FIG = fig::read(infile.c_str());
+    fig::fig_world FIG;
+    if (!fig::read(infile.c_str(), FIG)) {cerr << "Bad fig file " << infile << "\n"; exit(0);}
     for (fig::fig_world::iterator i=FIG.begin(); i!=FIG.end(); i++){
 
       if (i->type == 6){ // составной объект
@@ -178,7 +181,8 @@ main(int argc, char** argv){
     convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"), Options());
 
     std::cerr << "Reading new map: " << infile <<"\n";  
-    mp::mp_world MP = mp::read(infile.c_str());
+    mp::mp_world MP;
+    if (!mp::read(infile.c_str(), MP)){cerr << "Bad mp file " << infile << "\n"; exit(0);}
 
     // mp->fig
     std::cerr << "mp->fig\n";  

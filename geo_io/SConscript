@@ -13,6 +13,5 @@ le.Library('geo_io', \
 	geo_convs.cpp
 	o_fig.cpp
 	o_htm.cpp
-	mp.cpp
 	geofig.cpp
      """))

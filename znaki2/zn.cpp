@@ -167,12 +167,17 @@ int zn_conv::get_type (const fig::fig_object & o) const {
 
 // Преобразовать mp-объект в fig-объект
 // Если тип 0, то он определяется функцией get_type по объекту
-fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type) const{
+fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
   if (type ==0) type = get_type(mp);
 
   fig::fig_object ret = default_fig;
   if (znaki.find(type) != znaki.end()) ret = znaki.find(type)->second.fig;
-  else {std::cerr << "mp2fig: unknown type: " << type << "\n";}
+  else {
+    if (unknown_types.count(type) == 0){
+      std::cerr << "mp2fig: unknown type: 0x" << std::setbase(16) << type << std::setbase(10) << "\n";
+      unknown_types.insert(type);
+    }
+  }
 
   if (ret.type == 4){
     ret.text = mp.Label;
@@ -279,7 +284,9 @@ std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int ty
 
   if (z->second.pic=="") return ret; // нет картинки
 
-  fig::fig_world PIC = fig::read(z->second.pic.c_str());
+  fig::fig_world PIC;
+  if (!fig::read(z->second.pic.c_str(), PIC)) return ret; // нет картинки
+
   for (fig::fig_world::iterator i = PIC.begin(); i!=PIC.end(); i++){
     (*i) += fig[0];
     if (is_map_depth(*i)){

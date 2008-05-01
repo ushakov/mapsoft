@@ -7,8 +7,11 @@
 
 #include "fig_io.h"
 #include "../utils/spirit_utils.h"
+#include "../utils/iconv_utils.h"
 
 namespace fig {
+
+const char *default_charset = "KOI8-R";
 
 using namespace std;
 using namespace boost::spirit;
@@ -27,6 +30,8 @@ bool no_picture(){return sub_type!=5;}
 // function for reading objects from file
 bool read(const char* filename, fig_world & world){
 
+  fig_world ret;
+
   fig_object o, o0;
   Point<int> p;
   std::vector<std::string> comment;
@@ -40,16 +45,16 @@ bool read(const char* filename, fig_world & world){
           *(str_p("# ") >> (*ch)[push_back_a(comment)] >> eol_p);
 
   rule_t header = str_p("#FIG 3.2") >> *ch >> eol_p >>
-	(*ch)[assign_a(world.orientation)] >> eol_p >>       // orientation ("Landscape" or "Portrait")
-	(*ch)[assign_a(world.justification)] >> eol_p >>     // justification ("Center" or "Flush Left")
-	(*ch)[assign_a(world.units)] >> eol_p >>             // units ("Metric" or "Inches")
-	(*ch)[assign_a(world.papersize)] >> eol_p >>         // papersize ("A4", etc.)
-	ureal_p[assign_a(world.magnification)] >> eol_p >>   // magnification (export and print magnification, %)
-	(*ch)[assign_a(world.multiple_page)] >> eol_p >>     // multiple-page ("Single" or "Multiple" pages)
-	int_p[assign_a(world.transparent_color)] >> eol_p >> // transparent color
-	comm[assign_a(world.comment, comment)] >>            // comments
-	uint_p[assign_a(world.resolution)] >> +space_p >>    // resolution
-                uint_p[assign_a(world.coord_system)] >> eol_p;       // coord_system
+	(*ch)[assign_a(ret.orientation)] >> eol_p >>       // orientation ("Landscape" or "Portrait")
+	(*ch)[assign_a(ret.justification)] >> eol_p >>     // justification ("Center" or "Flush Left")
+	(*ch)[assign_a(ret.units)] >> eol_p >>             // units ("Metric" or "Inches")
+	(*ch)[assign_a(ret.papersize)] >> eol_p >>         // papersize ("A4", etc.)
+	ureal_p[assign_a(ret.magnification)] >> eol_p >>   // magnification (export and print magnification, %)
+	(*ch)[assign_a(ret.multiple_page)] >> eol_p >>     // multiple-page ("Single" or "Multiple" pages)
+	int_p[assign_a(ret.transparent_color)] >> eol_p >> // transparent color
+	comm[assign_a(ret.comment, comment)] >>            // comments
+	uint_p[assign_a(ret.resolution)] >> +space_p >>    // resolution
+                uint_p[assign_a(ret.coord_system)] >> eol_p;       // coord_system
 
   /****************************************************************/
   rule_t r_sub_type       = +blank_p >> uint_p[assign_a(o.sub_type)][assign_a(sub_type)];
@@ -101,7 +106,7 @@ bool read(const char* filename, fig_world & world){
   /*******************************************/
   rule_t c0_color = ch_p('0')
 	>> +blank_p >> uint_p[assign_a(color_num)]
-	>> +blank_p >> '#' >> hex_p[insert_at_a(world.colors,color_num)]
+	>> +blank_p >> '#' >> hex_p[insert_at_a(ret.colors,color_num)]
 	>> eol_p;
   /*******************************************/
   rule_t c5_arc   = ch_p('5')[assign_a(o.type,5)]  // Arc
@@ -158,12 +163,12 @@ bool read(const char* filename, fig_world & world){
   rule_t main_rule = header >>
        *( eps_p[assign_a(o,o0)] >> comm[assign_a(o.comment, comment)] >>
         ( c0_color | (c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc |
-        c6_compound_start | c6_compound_end) [push_back_a(world,o)]) );
+        c6_compound_start | c6_compound_end) [push_back_a(ret,o)]) );
 
-  bool res = parse_file("fig::read", filename, main_rule);
+  if (!parse_file("fig::read", filename, main_rule)) return false;
 
   // преобразование символов из восьмиричного вида \??? 
-  for (fig::fig_world::iterator i=world.begin(); i!=world.end(); i++){
+  for (fig::fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
     string t;
     for (int n=0;n<i->text.size();n++){
       if ((i->text[n] == '\\')&&(n+3<i->text.size())){
@@ -175,22 +180,43 @@ bool read(const char* filename, fig_world & world){
     i->text=t;
   }
 
+  //преобразование комментариев и текстов в UTF-8
+  IConv cnv(default_charset, default_charset);
+  for (fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
+    i->text = cnv.to_utf(i->text);
+    for (vector<string>::iterator
+          c = i->comment.begin(); c != i->comment.end(); c++){
+      *c = cnv.to_utf(*c);
+    }
+  }
+  for (vector<string>::iterator
+      c = ret.comment.begin(); c != ret.comment.end(); c++){
+    *c = cnv.to_utf(*c);
+  }
+
   // преобразование цветов
-  for (fig::fig_world::iterator i=world.begin(); i!=world.end(); i++){
+  for (fig::fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
     if (i->pen_color > 31){
-      if (world.colors.find(i->pen_color)!=world.colors.end()) i->pen_color = 0x1000000+world.colors[i->pen_color];
+      if (ret.colors.find(i->pen_color)!=ret.colors.end()) i->pen_color = 0x1000000+ret.colors[i->pen_color];
       else std::cerr << "unknown fig-color " << i->pen_color << "\n";
     }
     if (i->fill_color > 31){
-      if (world.colors.find(i->fill_color)!=world.colors.end()) i->fill_color = 0x1000000+world.colors[i->fill_color];
+      if (ret.colors.find(i->fill_color)!=ret.colors.end()) i->fill_color = 0x1000000+ret.colors[i->fill_color];
       else std::cerr << "unknown fig-color " << i->fill_color << "\n";
     }
   }
-  return res;
+
+  // merging world and ret
+  world.swap(ret);
+  world.insert(world.begin(), ret.begin(), ret.end());
+
+  return true;
 }
 
 /***********************************************************/
 bool write(ostream & out, const fig_world & world){
+
+  IConv cnv(default_charset, default_charset);
 
   int n;
   // запись заголовка
@@ -204,7 +230,8 @@ bool write(ostream & out, const fig_world & world){
       << setprecision(3) 
       << world.multiple_page << "\n"
       << world.transparent_color << "\n";
-  for (n=0;n<world.comment.size();n++) out << "# " << world.comment[n] << "\n";
+  for (n=0;n<world.comment.size();n++) 
+    out << "# " << cnv.from_utf(world.comment[n]) << "\n";
   out << world.resolution << " " 
       << world.coord_system << "\n";
 
@@ -260,7 +287,7 @@ bool write(ostream & out, const fig_world & world){
        i  = world.begin(); 
        i != world.end(); i++){
     for (n=0;n<i->comment.size();n++) 
-      out << "# " << i->comment[n] << "\n";
+      out << "# " << cnv.from_utf(i->comment[n]) << "\n";
 
     int nn = i->size();
     int nn1=nn;
@@ -405,7 +432,7 @@ bool write(ostream & out, const fig_world & world){
         << i->length     << " "
         << (*i)[0].x     << " "
         << (*i)[0].y     << " "
-        << i->text       << "\\001\n";
+        << cnv.from_utf(i->text) << "\\001\n";
         break;
     case 5: // Arc
       if (nn<3){

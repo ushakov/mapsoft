@@ -37,14 +37,11 @@ main(int argc, char** argv){
   string file = maps_dir+"/"+map_name+".fig";
 
   // пробуем прочитать карту
-  fig::fig_world MAP = fig::read(file.c_str());
-  if (MAP.size()==0) {
-    cerr << "bad file " << file << "\n";
-    exit(0);
-  }
+  fig::fig_world MAP;
+  if (!fig::read(file.c_str(), MAP)){ cerr << "bad fig file " << file << "\n"; exit(0);}
 
   zn::zn_conv zconverter(conf_file);
-  
+
   if (testext(out_file, ".fig")){ // пишем fig
     fig::fig_world F;
 
