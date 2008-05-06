@@ -4,7 +4,6 @@
 #include <iostream>
 #include <sys/stat.h>
 
-#include "../utils/point.h"
 #include "../layers/layer_geomap.h"
 #include "../layers/layer_google.h"
 #include "../layers/layer_ks.h"

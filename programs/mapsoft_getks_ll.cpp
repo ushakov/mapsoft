@@ -1,7 +1,6 @@
 #define DEBUG_LAYER_KS
 
 #include "../loaders/image_r.h"
-#include "../utils/point.h"
 #include "../layers/layer_ks.h"
 #include "../geo_io/io.h"
 #include "../geo_io/geo_convs.h"

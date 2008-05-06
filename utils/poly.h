@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "point.h"
+#include "../lib2d/point.h"
 
 // Линия 
 

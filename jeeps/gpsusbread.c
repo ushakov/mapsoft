@@ -19,6 +19,7 @@
 
  */
 #include <ctype.h>
+#include <string.h>
 #include "gps.h"
 #include "garminusb.h"
 #include "gpsusbint.h"

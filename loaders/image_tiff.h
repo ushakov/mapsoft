@@ -1,9 +1,7 @@
 #ifndef IMAGE_TIFF_H
 #define IMAGE_TIFF_H
 
-#include "../utils/image.h"
-#include "../utils/rect.h"
-#include "../utils/point.h"
+#include "../lib2d/image.h"
 
 #include <tiffio.h>
 

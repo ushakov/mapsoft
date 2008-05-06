@@ -7,12 +7,9 @@
 
 #include <geo_io/geo_names.h>
 #include <geo_io/geo_enums.h>
-#include <utils/point.h>
-#include <utils/line.h>
-#include <utils/rect.h>
+#include <lib2d/line.h>
+#include <lib2d/rect.h>
 #include <utils/mapsoft_options.h>
-
-#include <utils/generic_accessor.h>
 
 #include <utils/m_time.h>
 #include <utils/m_color.h>
@@ -42,71 +39,9 @@ struct g_waypoint : g_point {
     Color   color;
     Color   bgcolor;
 
-    g_waypoint (){
-	set_default_values();
-    }
-
-    void set_default_values () {
-	x          = 0.0; 
-	y          = 0.0; 
-	z          = 1e24; 
-	prox_dist  = 0.0;
-	t          = Time(0);
-	symb       = wpt_symb_enum.def; 
-	displ      = 0; 
-	color      = Color(0xFF000000); 
-	bgcolor    = Color(0xFFFFFFFF); 
-	map_displ  = wpt_map_displ_enum.def;
-	pt_dir     = wpt_pt_dir_enum.def; 
-	font_size  = 6;
-	font_style = 0; 
-	size       = 17;
-	name       = "";
-	comm       = "";
-    }
-    
-    Options to_options () const{
-	Options opt;
-	opt.put("lon", x);
-	opt.put("lat", y);
-	opt.put("height", z);
-	opt.put("prox_dist", prox_dist);
-	opt.put("t", t);
-	opt.put("symb", symb);
-	opt.put("displ", displ);
-	opt.put("color", color);
-	opt.put("bgcolor", bgcolor);
-	opt.put("map_displ", map_displ);
-	opt.put("pt_dir", pt_dir);
-	opt.put("font_size", font_size);
-	opt.put("font_style", font_style);
-	opt.put("size", size);
-	opt.put("name", name);
-	opt.put("comm", comm);
-
-	return opt;
-    }
-
-    void parse_from_options (Options const & opt){
-	set_default_values();
-	
-	opt.get("lon", x);
-	opt.get("lat", y);
-	opt.get("height", z);
-	opt.get("prox_dist", prox_dist);
-	opt.get("t", t);
-	opt.get("symb", symb);
-	opt.get("displ", displ);
-	opt.get("color", color);
-	opt.get("bgcolor", bgcolor);
-	opt.get("map_displ", map_displ);
-	opt.get("pt_dir", pt_dir);
-	opt.get("font_size", font_size);
-	opt.get("font_style", font_style);
-	opt.get("size", size);
-	opt.get("name", name);
-	opt.get("comm", comm);
-    }
+    g_waypoint();
+    Options to_options() const;
+    void parse_from_options(Options const & opt);
 };
 
 /// single trackpoint
@@ -115,76 +50,21 @@ struct g_trackpoint : g_point {
     double depth;
     bool start;
     Time t;
-    g_trackpoint(){
-	set_default_values();
-    }
 
-    void set_default_values()
-    {
-	x   = 0; 
-	y   = 0; 
-	z   = 1e24; 
-	depth = 1e24;
-	start = false;
-	t     = 0;
-    }
-    
-    Options to_options () const{
-	Options opt;
-	opt.put("lon", x);
-	opt.put("lat", y);
-	opt.put("height", z);
-	opt.put("depth", depth);
-	opt.put("start", start);
-	opt.put("t", t);
-	return opt;
-    }
-
-    void parse_from_options (Options const & opt){
-	set_default_values();
-	opt.get("lon", x);
-	opt.get("lat", y);
-	opt.get("height", z);
-	opt.get("depth", depth);
-	opt.get("start", start);
-	opt.get("t", t);
-    }
-
+    g_trackpoint();
+    Options to_options () const;
+    void parse_from_options (Options const & opt);
 };
 
 /// reference point
 struct g_refpoint : g_point {
     double xr, yr; // raster points
-    g_refpoint(double _x, double _y, double _xr, double _yr){
-	x=_x; y=_y;
-    	xr=_xr; yr=_yr;
-    }
-    g_refpoint(g_point p, g_point r){
-	x=p.x; y=p.y;
-    	xr=r.x; yr=r.y;
-    }
-    g_refpoint(){
-	set_default_values();
-    }
-    void set_default_values(){
-	x=0; y=0; xr=0; yr=0;
-    }	
-    Options to_options () const{
-	Options opt;
-	opt.put("lon", x);
-	opt.put("lat", y);
-	opt.put("xr", xr);
-	opt.put("yr", yr);
-	return opt;
-    }
-    void parse_from_options (Options const & opt){
-	set_default_values();
-	opt.get("lon", x);
-	opt.get("lat", y);
-	opt.get("xr", xr);
-	opt.get("yr", yr);
-    }
 
+    g_refpoint(double _x, double _y, double _xr, double _yr);
+    g_refpoint(g_point p, g_point r);
+    g_refpoint();
+    Options to_options () const;
+    void parse_from_options (Options const & opt);
 };
 
 /*********************************/
@@ -195,38 +75,17 @@ struct g_refpoint : g_point {
 struct g_waypoint_list : std::vector<g_waypoint>{
 
     std::string symbset; /// garmin symbol set -- not used now
-    g_waypoint_list(){
-	set_default_values();
-    }
-    void set_default_values(){
-	symbset = "garmin";
-    }
-    /// get range in lon-lat coords
-    g_rect range() const{
-      double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
-      std::vector<g_waypoint>::const_iterator i;
-      for (i=begin();i!=end();i++){
-        if (i->x > maxx) maxx = i->x;
-        if (i->y > maxy) maxy = i->y;
-        if (i->x < minx) minx = i->x;
-        if (i->y < miny) miny = i->y;
-      }
-      if ((minx>maxx)||(miny>maxy)) return g_rect(0,0,0,0);
-      return g_rect(minx,miny, maxx-minx, maxy-miny);
-    }
+
+    g_waypoint_list();
+
     /// convert waypoint_list values to Options object
-    Options to_options () const {
-	Options opt;
-	opt.put("symbset", symbset);
-	return opt;
-    }
+    Options to_options () const;
 
     /// set waypoint_list values from Options object
-    void parse_from_options (Options const & opt){
-	set_default_values();
-	opt.get("symbset", symbset);
-    }
+    void parse_from_options (Options const & opt);
 
+    /// get range in lon-lat coords
+    g_rect range() const;
 };
 
 /// track
@@ -239,61 +98,17 @@ struct g_track : std::vector<g_trackpoint>{
     int fill;  /// track fill style
     Color cfill; /// track fill color (RGB)
     std::string comm; /// track description
-    g_track(){
-	set_default_values();
-    }
-    void set_default_values(){
-	width = 2;
-	displ = 1;
-	color = Color(0xFF0000FF);
-	skip  = 1;
-	type  = trk_type_enum.def;
-	fill  = trk_fill_enum.def;
-	cfill = Color(0xFF000000);
-	comm  = "";
-    }
 
-    Options to_options () const {
-	Options opt;
-	opt.put("width", width);
-	opt.put("displ", displ);
-	opt.put("color", color);
-	opt.put("skip",  skip);
-	opt.put("type",  type);
-	opt.put("fill",  fill);
-	opt.put("cfill", cfill);
-	opt.put("comm",  comm);
-	return opt;
-    }
-    void parse_from_options (Options const & opt){
-	set_default_values();
-	opt.get("width", width);
-	opt.get("displ", displ);
-	opt.get("color", color);
-	opt.get("skip",  skip);
-	opt.get("type",  type);
-	opt.get("fill",  fill);
-	opt.get("cfill", cfill);
-	opt.get("comm",  comm);
-    }
+    g_track();
+    Options to_options () const;
+    void parse_from_options (Options const & opt);
 
     /// get range in lon-lat coords
-    g_rect range() const{
-      double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
-      std::vector<g_trackpoint>::const_iterator i;
-      for (i=begin();i!=end();i++){
-        if (i->x > maxx) maxx = i->x;
-        if (i->y > maxy) maxy = i->y;
-        if (i->x < minx) minx = i->x;
-        if (i->y < miny) miny = i->y;
-      }
-      if ((minx>maxx)||(miny>maxy)) return g_rect(0,0,0,0);
-      return g_rect(minx,miny, maxx-minx, maxy-miny);
-    }
+    g_rect range() const;
 };
 
 /// map
-struct g_map : std::vector<g_refpoint>,    
+struct g_map : std::vector<g_refpoint>,
   public boost::multiplicative<g_map,double>,
   public boost::additive<g_map, g_point>
 {
@@ -302,57 +117,13 @@ struct g_map : std::vector<g_refpoint>,
     Proj   map_proj;
     g_line border;
 
-    g_map & operator/= (double k){
-      std::vector<g_refpoint>::iterator i;
-      for (i=begin();i!=end();i++){
-          i->xr /= k;
-          i->yr /= k;
-      }
-      border/=k;
-      return *this;
-    }
-    g_map & operator*= (double k){
-      std::vector<g_refpoint>::iterator i;
-      for (i=begin();i!=end();i++){
-        i->xr *= k;
-        i->yr *= k;
-      }
-      border*=k;
-      return *this;
-    }
-    g_map & operator-= (g_point k){
-      std::vector<g_refpoint>::iterator i;
-      for (i=begin();i!=end();i++){
-          i->xr -= k.x;
-          i->yr -= k.y;
-      }
-      border-=k;
-      return *this;
-    }
-    g_map & operator+= (g_point k){
-      std::vector<g_refpoint>::iterator i;
-      for (i=begin();i!=end();i++){
-        i->xr += k.x;
-        i->yr += k.y;
-      }
-      border+=k;
-      return *this;
-    }
+    g_map & operator/= (double k);
+    g_map & operator*= (double k);
+    g_map & operator-= (g_point k);
+    g_map & operator+= (g_point k);
 
-
-  /// get range in lon-lat coords
-    g_rect range() const{
-      double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
-      std::vector<g_refpoint>::const_iterator i;
-      for (i=begin();i!=end();i++){
-        if (i->x > maxx) maxx = i->x;
-        if (i->y > maxy) maxy = i->y;
-        if (i->x < minx) minx = i->x;
-        if (i->y < miny) miny = i->y;
-      }
-      if ((minx>maxx)||(miny>maxy)) return g_rect(0,0,0,0);
-      return g_rect(minx,miny, maxx-minx, maxy-miny);
-    }
+    /// get range in lon-lat coords
+    g_rect range() const;
 };
 
 /*********************************/
@@ -366,39 +137,14 @@ struct geo_data {
   std::vector<g_map> maps;
 
   /// clear all data
-  void clear(){ wpts.clear(); trks.clear(); maps.clear();}
+  void clear();
 
   /// get range of all maps in lon-lat coords
-  g_rect range_map() const{ 
-    // диапазон карт определяется по точкам привязки, а не по
-    // границам, поскольку здесь не очень хочется требовать наличия границ
-    // и лазать в графический файлы карт за этими границами
-    g_rect ret(0,0,0,0);
-    if (maps.size()>0) ret=maps[0].range();
-    else return ret;
-    for (std::vector<g_map>::const_iterator i = maps.begin();
-      i!=maps.end();i++) ret = rect_bounding_box(ret, i->range());
-    return ret;
-  }
-
+  g_rect range_map() const;
   /// get range of all tracks and waypoints in lon-lat coords
-  g_rect range_geodata() const{
-    g_rect ret(0,0,0,0);
-    if (wpts.size()>0) ret=wpts[0].range();
-    else if (trks.size()>0) ret=trks[0].range();
-    else return ret;
-
-    for (std::vector<g_waypoint_list>::const_iterator i = wpts.begin(); 
-      i!=wpts.end();i++) ret = rect_bounding_box(ret, i->range());
-    for (std::vector<g_track>::const_iterator i = trks.begin(); 
-      i!=trks.end();i++) ret = rect_bounding_box(ret, i->range());
-    return ret;
-  }
-
+  g_rect range_geodata() const;
   /// get range of all data in lon-lat coords
-  g_rect range() const{
-    return rect_bounding_box(range_map(), range_geodata());
-  }
+  g_rect range() const;
 };
 
 

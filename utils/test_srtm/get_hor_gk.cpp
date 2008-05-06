@@ -73,8 +73,7 @@ main(int argc, char** argv){
 
   Options O;
   O["lon0"] = lon0;
-  convs::pt2pt c1(Datum("pulkovo"), Proj("tmerc"), O,
-                  Datum("wgs84"), Proj("lonlat"), Options());
+  convs::pt2pt c1("pulkovo", "tmerc", O, "wgs84", "lonlat", Options());
   g_line brd;
   brd.push_back(g_point(x1,y1));
   brd.push_back(g_point(x1,y2));

@@ -14,4 +14,5 @@ le.Library('geo_io', \
 	o_fig.cpp
 	o_htm.cpp
 	geofig.cpp
+	geo_data.cpp
      """))

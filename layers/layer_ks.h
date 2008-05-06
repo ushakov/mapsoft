@@ -12,7 +12,7 @@
 #include "../utils/cache.h"
 #include "../loaders/image_ks.h"
 #include "../loaders/image_i.h"
-#include <utils/image_draw.h>
+#include <utils/image_gd.h>
 
 #include "../geo_io/io.h"
 

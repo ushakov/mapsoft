@@ -10,7 +10,7 @@
 #include <cmath>
 
 #include "../geo_io/geofig.h"
-#include "../geo_io/mp.h"
+#include "../libmp/mp.h"
 #include "../geo_io/geo_convs.h"
 #include "../geo_io/io.h"
 
@@ -38,7 +38,7 @@ main(int argc, char **argv){
   fig::fig_world fig = fig::read(figfile.c_str());
   g_map ref=get_ref(fig);
 
-  convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"), Options());
+  convs::map2pt cnv(ref, "wgs84", "lonlat");
 
   for (int j = 0; j< world.wpts.size(); j++){
     for (int i = 0; i< world.wpts[j].size(); i++){
@@ -65,8 +65,8 @@ main(int argc, char **argv){
 
       Point<double> p1(pt.x, pt.y), p2=p1;
       Point<double> v1, v2;
-      if ( fig.nearest_pt(v2, p2, "2 * * * * * 89 * * * * * * * * *") <
-           fig.nearest_pt(v1, p1, "3 * * * * * 89 * * * * * * *")){
+      if ( nearest_pt(fig, v2, p2, "2 * * * * * 89 * * * * * * * * *") <
+           nearest_pt(fig, v1, p1, "3 * * * * * 89 * * * * * * *")){
         v1=v2; p1=p2;
       }
       v1=Point<double>(v1.x-v1.y,v1.y+v1.x)/sqrt(2.0); 

@@ -147,7 +147,7 @@ void map_nom_brd(geo_data & world){
     double lon2 = lon1 + r.w;
     double lat2 = lat1 + r.h;
     
-    convs::map2pt conv(*i, Datum("pulk42"), Proj("lonlat"), Options());
+    convs::map2pt conv(*i, "pulk42", "lonlat");
 
     g_line brd;
     brd.push_back(g_point(lon1,lat2));

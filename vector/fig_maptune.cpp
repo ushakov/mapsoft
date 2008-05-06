@@ -23,7 +23,7 @@ main(int argc, char **argv){
   ofstream out(argv[2]);
 
   g_map map = fig::get_ref(W1);
-  convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"), Options());
+  convs::map2pt cnv(map, "wgs84", "lonlat");
 
   rem_ref(W1);
   g_map new_map;

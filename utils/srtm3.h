@@ -11,8 +11,8 @@
 #include <map>
 #include <queue>
 
-#include "image.h"
-#include "point.h"
+#include "../lib2d/image.h"
+#include "../lib2d/point_int.h"
 #include "cache.h"
 
 // Получение высоты любой точки из директории с srtm-данными
@@ -163,7 +163,7 @@ class srtm3 {
       Point<int> p1 = q.front();
       q.pop();
       for (int i=0; i<8; i++){
-        Point<int> p2 = p1.adjacent(i);
+        Point<int> p2 = adjacent(p1, i);
         if ((geth_(p2) == h)&&(ret.insert(p2).second)) q.push(p2);
       }
       if ((max!=0)&&(ret.size()>max)) break;

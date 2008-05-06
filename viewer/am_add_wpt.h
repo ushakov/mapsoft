@@ -39,7 +39,7 @@ public:
 
         g_map map = current_layer->get_ref();
 
-        convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"),Options());
+        convs::map2pt cnv(map, "wgs84", "lonlat");
         g_waypoint wpt;
         wpt.x = p.x; wpt.y=p.y;
 	cnv.frw(wpt);

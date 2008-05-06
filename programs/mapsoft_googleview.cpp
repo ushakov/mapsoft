@@ -7,7 +7,6 @@
 //#define DEBUG_GOOGLE
 
 #include "../viewer/viewer.h"
-#include "../utils/point.h"
 #include "../viewer/workplane.h"
 #include "../layers/layer_google.h"
 #include "../layers/layer_geodata.h"

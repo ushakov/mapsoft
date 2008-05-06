@@ -3,7 +3,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../viewer/viewer.h"
-#include "../utils/point.h"
 #include "../viewer/workplane.h"
 #include "../layers/layer_ks.h"
 #include "../layers/layer_geodata.h"

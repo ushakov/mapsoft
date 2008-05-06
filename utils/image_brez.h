@@ -4,7 +4,7 @@
 // рисование линий и кругов!
 // сюда б еще многоугольники...
 
-#include <utils/image.h>
+#include <lib2d/image.h>
 
 namespace image_brez{
 

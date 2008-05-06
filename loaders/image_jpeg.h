@@ -1,9 +1,7 @@
 #ifndef IMAGE_JPEG_H
 #define IMAGE_JPEG_H
 
-#include "../utils/image.h"
-#include "../utils/rect.h"
-#include "../utils/point.h"
+#include "../lib2d/image.h"
 
 #include <jpeglib.h>
 

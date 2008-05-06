@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <string.h>
-#include "../utils/rect.h"
+#include "../lib2d/rect.h"
 #include <fcntl.h>
 
 #include <iostream>

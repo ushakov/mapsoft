@@ -53,8 +53,8 @@ using namespace boost::spirit;
         if (max.x<(*i)[0].x) max.x = (*i)[0].x;
         if (max.y<(*i)[0].y) max.y = (*i)[0].y;
 
-        convs::pt2pt c(Datum(O.get_string("datum","wgs84")), 
-                       Proj(O.get_string("proj","lonlat")), O, Datum("wgs84"), Proj("lonlat"), O);
+        convs::pt2pt c(O.get_string("datum","wgs84").c_str(),
+                       O.get_string("proj","lonlat").c_str(), O, "wgs84", "lonlat", O);
         c.frw(ref);
 	ret.push_back(ref);
         continue;
@@ -135,7 +135,7 @@ using namespace boost::spirit;
   // Извлечь треки и точки и поместить их в geo_data
   void get_wpts(const fig_world & w, const g_map & m, geo_data & d){
     // сделаем привязку
-    convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::map2pt cnv(m, "wgs84", "lonlat");
 
     fig_world::const_iterator i;
 
@@ -166,7 +166,7 @@ using namespace boost::spirit;
   }
 
   void get_trks(const fig_world & w, const g_map & m, geo_data & d){
-    convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::map2pt cnv(m, "wgs84", "lonlat");
 
     fig_world::const_iterator i;
     for (i=w.begin();i!=w.end();i++){
@@ -196,7 +196,7 @@ using namespace boost::spirit;
 
   // Извлечь привязку растровых картинок
   void get_maps(const fig_world & w, const g_map & m, geo_data & d){
-    convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::map2pt cnv(m, "wgs84", "lonlat");
     fig_world::const_iterator i;
     for (i=w.begin();i!=w.end();i++){
       if ((i->type!=2)||(i->sub_type!=5)) continue;
@@ -271,7 +271,7 @@ using namespace boost::spirit;
   void put_wpts(fig_world & F, const g_map & m, const geo_data & world){
     vector<g_waypoint_list>::const_iterator wl;
     vector<g_waypoint>::const_iterator w;
-    convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::map2pt cnv(m, "wgs84", "lonlat");
     for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
       for (w=wl->begin();w!=wl->end();w++){
 
@@ -308,7 +308,7 @@ using namespace boost::spirit;
   void put_trks(fig_world & F, const g_map & m, const geo_data & world){
     vector<g_track>::const_iterator tl;
     vector<g_trackpoint>::const_iterator t;
-    convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::map2pt cnv(m, "wgs84", "lonlat");
     g_track def;
 
     for (tl=world.trks.begin();tl!=world.trks.end();tl++){

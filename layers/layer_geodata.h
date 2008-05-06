@@ -12,7 +12,9 @@
 #include <geo_io/geo_convs.h>
 #include <geo_io/io.h>
 //#include <utils/image_brez.h>
-#include <utils/image_draw.h>
+#include <utils/image_gd.h>
+
+#include "../lib2d/point_utils.h"
 
 
 /// Растровый слой для показа точек и треков
@@ -28,7 +30,7 @@ public:
 
     LayerGeoData (geo_data * _world) : 
       world(_world), mymap(convs::mymap(*world)), 
-      cnv(convs::mymap(*world), Datum("wgs84"), Proj("lonlat"), Options()),
+      cnv(convs::mymap(*world), "wgs84", "lonlat"),
       myrange(cnv.bb_bck(world->range_geodata()))
     { 
 #ifdef DEBUG_LAYER_GEODATA
@@ -41,7 +43,7 @@ public:
     // получить/установить привязку layer'a
     virtual g_map get_ref() const {return mymap;}
     virtual void set_ref(const g_map & map){
-      mymap=map; cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"), Options());
+      mymap=map; cnv = convs::map2pt(mymap, "wgs84", "lonlat");
       myrange=cnv.bb_bck(world->range_geodata());
 #ifdef DEBUG_LAYER_GEODATA
       std::cerr  << "LayerGeoData: set_ref range: " << myrange << "\n";
@@ -99,7 +101,7 @@ public:
 //	      ctx->DrawRect(Rect<int>(-3,-3,6,6) + pi, 1, pt->color.value);
 	      ctx->DrawCircle(pi, 8, 1, pt->color.value, true, pt->bgcolor.value);
 	  }
-	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name);
+	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name.c_str());
 	  Rect<int> padded = rect_pump(textbb, 2);
 	  Point<int> shift = Point<int>(2,-10);
 	  Point<int> shifted = pi + shift;
@@ -107,7 +109,7 @@ public:
 	      ctx->DrawLine(pi, (padded + shifted).TLC(), 1, pt->color.value);
 	      ctx->DrawFilledRect(padded + shifted, pt->bgcolor.value);
 	      ctx->DrawRect(padded + shifted, 1, pt->color.value);
-	      ctx->DrawText(shifted.x, shifted.y, pt->color.value, pt->name);
+	      ctx->DrawText(shifted.x, shifted.y, pt->color.value, pt->name.c_str());
 	  }
           pio=pi;
         }

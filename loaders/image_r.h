@@ -4,9 +4,7 @@
 // загрузка/сохранение произольного растрового изображения
 // (jpeg, tiff, png)
 
-#include "../utils/point.h"
-#include "../utils/rect.h"
-#include "../utils/image.h"
+#include "../lib2d/image.h"
 #include "../utils/mapsoft_options.h"
 
 // из-за фигни с setjmp.h надо, чтобы image_png.h был раньше

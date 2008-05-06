@@ -4,9 +4,7 @@
 #include <sigc++/sigc++.h>
 #include <assert.h>
 
-#include <utils/image.h>
-#include <utils/point.h>
-#include <utils/rect.h>
+#include <lib2d/image.h>
 #include <utils/cache.h>
 #include "layers/layer.h"
 

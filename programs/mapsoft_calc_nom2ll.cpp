@@ -7,8 +7,7 @@ int main(int argc, char **argv){
   else { 
     Rect<double> brd = filters::nom_range(argv[1]);
     Point<double> p1 = brd.TLC(), p2 = brd.TRC(), p3 = brd.BRC(), p4 = brd.BLC();
-    convs::pt2pt c(Datum("pulkovo"), Proj("lonlat"), Options(), 
-                  Datum("wgs84"), Proj("lonlat"), Options());
+    convs::pt2pt c("pulkovo", "lonlat", Options(), "wgs84", "lonlat", Options());
     c.frw(p1); c.frw(p2);     c.frw(p3); c.frw(p4);
     std::cout << std::fixed 
               << "  " << std::setprecision(14)<< p1.x << " " << std::setprecision(14)<< p1.y 

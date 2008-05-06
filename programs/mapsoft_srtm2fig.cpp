@@ -8,8 +8,11 @@
 #include <cmath>
 
 #include "../utils/srtm3.h"
-#include "../utils/line.h"
-#include "../utils/point_int.h"
+#include "../lib2d/line.h"
+
+#include "../lib2d/line_utils.h"
+#include "../lib2d/line_polycrop.h"
+
 #include "../geo_io/geofig.h"
 #include "../geo_io/geo_data.h"
 #include "../geo_io/geo_convs.h"
@@ -54,7 +57,7 @@ main(int argc, char** argv){
   }
 
   g_map fig_ref = fig::get_ref(F);
-  convs::map2pt fig_cnv(fig_ref, Datum("wgs84"), Proj("lonlat"), Options());
+  convs::map2pt fig_cnv(fig_ref, "wgs84", "lonlat");
 
   // диапазон картинки в lonlat
   Rect<double> range = fig_ref.range();

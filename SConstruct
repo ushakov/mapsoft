@@ -7,14 +7,14 @@ subdirs = Split ("""
 		loaders
 		programs
 		utils
-		vector
 		viewer
 		mapview
 		libfig
 		libmp
+		lib2d
 		""")
 
-SetOption('implicit_cache', 1)
+#SetOption('implicit_cache', 1)
 env = Environment ()
 env.Append (CCFLAGS=['-O2'])
 env.Append (CPPPATH='#')

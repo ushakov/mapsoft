@@ -131,7 +131,7 @@ main(int argc, char **argv){
     mp::mp_world   M; 
    
     g_map map = fig::get_ref(F);
-    convs::map2pt C(map, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::map2pt C(map, "wgs84", "lonlat");
 
     // ловля подписей!
     // для каждого текста ищем объекты подходящего вида
@@ -302,7 +302,7 @@ main(int argc, char **argv){
 
     Datum datum(datum_str);
     Proj  proj(proj_str);
-    convs::pt2pt cnv(datum,proj,opts, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::pt2pt cnv(datum,proj,opts, "wgs84", "lonlat", Options());
 
     // определим реальный диапазон координат в нужной нам проекции:
     double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
@@ -371,7 +371,7 @@ main(int argc, char **argv){
     
     map.map_proj=proj;
 
-    convs::map2pt C(map, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::map2pt C(map, "wgs84", "lonlat");
 
     // собственно преобразования
     for (mp::mp_world::const_iterator i=M.begin(); i!=M.end(); i++){

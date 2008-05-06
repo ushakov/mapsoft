@@ -2,6 +2,8 @@
 #include <cmath>
 #include <sstream>
 
+#include "../lib2d/point_utils.h"
+
 #include "../loaders/image_r.h" // определение размеров картинки (image_r::size)
 #include "../jeeps/gpsdatum.h"
 #include "../jeeps/gpsproj.h"
@@ -52,6 +54,11 @@ pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
           return;
     }
 }
+pt2ll::pt2ll(const char * d, const char * p, const Options & Po){
+  pt2ll tmp(Datum(d), Proj(p), Po);
+  *this=tmp;
+}
+
 
 void pt2ll::frw(g_point & p) const{
   double x,y;
@@ -162,6 +169,8 @@ void pt2ll::bck(g_point & p){
 }
 
 ll2wgs::ll2wgs(const Datum & D): datum(D){}
+ll2wgs::ll2wgs(const char * d):datum(Datum(d)){}
+
 void ll2wgs::frw(g_point & p) const{
   if (datum.n!=0){
     double x,y,h;
@@ -182,6 +191,11 @@ pt2pt::pt2pt(const Datum & sD, const Proj & sP, const Options & sPo,
              const Datum & dD, const Proj & dP, const Options & dPo):
 pc1(sD,sP,sPo), pc2(dD,dP,dPo), dc1(sD), dc2(dD), 
 triv1((sP.n==dP.n) && (sPo==dPo) && (sD.n==dD.n)), triv2(sD.n==dD.n){}
+
+pt2pt::pt2pt(const char * sD, const char * sP, const Options & sPo,
+        const char * dD, const char * dP, const Options & dPo){
+  pt2pt(Datum(sD), Proj(sP), sPo, Datum(dD), Proj(dP), dPo);
+}
 
 pt2pt::pt2pt(): triv1(true), triv2(true){}
 
@@ -459,6 +473,12 @@ border(sM.border){
   border_geo = line_frw(border);
 
 }
+map2pt::map2pt(const g_map & sM,
+         const char * dD, const char * dP, const Options & dPo){
+  map2pt tmp(sM, Datum(dD), Proj(dP), dPo);
+  *this=tmp;
+}
+
 
 void map2pt::frw(g_point & p){
   // линейное преобразование в проекцию карты, заданную pc1
@@ -562,8 +582,8 @@ g_line map2pt::line_bck(const g_line & l) {
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
 map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
-    c1(sM, Datum("wgs84"), Proj("lonlat"), Options()),
-    c2(dM, Datum("wgs84"), Proj("lonlat"), Options()),
+    c1(sM, "wgs84", "lonlat"),
+    c2(dM, "wgs84", "lonlat"),
     tst_frw(c1.border),
     tst_bck(c1.border),
     test_brd(test_brd_)

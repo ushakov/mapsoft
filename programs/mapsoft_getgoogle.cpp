@@ -1,7 +1,6 @@
 #define DEBUG_LAYER_GOOGLE
 
 #include "../loaders/image_r.h"
-#include "../utils/point.h"
 #include "../layers/layer_google.h"
 #include "../geo_io/io.h"
 #include "../geo_io/geo_convs.h"
@@ -39,7 +38,7 @@ main(int argc, char **argv){
     g_point p1(X1,Y2), p2(X2,Y2), p3(X2,Y1), p4(X1,Y1);
     Options O;
     O["lon0"]=lon0;
-    convs::pt2pt c(Datum("pulk42"), Proj("tmerc"), O, Datum("wgs84"), Proj("lonlat"), O);
+    convs::pt2pt c("pulk42", "tmerc", O, "wgs84", "lonlat", O);
     c.frw(p1); c.frw(p2); c.frw(p3); c.frw(p4);
 
     g_map ref;

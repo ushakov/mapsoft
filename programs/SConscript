@@ -2,10 +2,10 @@ Import ('env')
 env_gtk = env.Clone()
 env_geo = env.Clone()
 
-mapsoft_libs = Split ("geo_io loaders jeeps fig mp utils")
+mapsoft_libs = Split ("geo_io loaders jeeps fig mp utils 2d")
 other_libs   = Split ("usb tiff jpeg png gd")
 
-env_gtk.Prepend(LIBS=[mapsoft_libs,other_libs])
+env_gtk.Prepend(LIBS=["viewer", mapsoft_libs,other_libs])
 env_gtk.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
 
 env_geo.Prepend(LIBS=[mapsoft_libs,other_libs])

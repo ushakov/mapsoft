@@ -178,7 +178,7 @@ main(int argc, char** argv){
     // извлекаем привязку из старой карты:
     std::cerr << "Getting ref...\n";
     g_map ref = fig::get_ref(MAP);
-    convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::map2pt cnv(ref, "wgs84", "lonlat");
 
     std::cerr << "Reading new map: " << infile <<"\n";  
     mp::mp_world MP;

@@ -3,7 +3,21 @@
       libgeo_data -- геоданные, преобразования
       libgeo_io   -- ввод-вывод геоданных
     * использовать spirit_utils.h и перекодировку в UTF при разборе геоданных
+    * разобраться с lib2d/crop.h
 
+slazav 5.05.2008
+ * вынес из geo_data.h описание функций в geo_data.cpp
+ * избавился в нем от функций set_default_values()
+ * geo_convs - сделал версии конструкторов преобразований с const char * параметрами
+   (типа pt2pt cnv("wgs84", "lonlat", Options(), "pulkovo", "tmerc", Options()); )
+ * сделал отдельную библиотеку lib2d для point, line, rect, image и т.п...
+   - выделил из line.h  отдельные функции в line_utils.h и line_polycrop.h (и переделал кое-что в templates)
+   - выделил из point.h  отдельные функции в point_int.h (и слил со старым point_int.h), point_utils.h, point_cross.h
+   - перенес utils/rect_crop.h -> lib2d/line_rectcrop.h
+ * убрал из utils неиспользуемые файлы image_google_misc.h и image_ks_misc.h
+ * переделал передачу char * параметров в image_draw, чтоб компилятор не ругался :)
+ * переименовал image_draw в image_gd, вынес описанеи функций в image_gd.cpp
+ * вынес описанеи функций из image_gdk.h в image_gdk.cpp
 
 slazav 1.05.2008
  * znaki2 

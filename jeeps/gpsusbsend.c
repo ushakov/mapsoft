@@ -22,6 +22,7 @@
 #include "gps.h"
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 #include "garminusb.h"
 #include "gpsusbint.h"
 

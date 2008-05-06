@@ -7,8 +7,7 @@
 #include <map>
 #include <iostream>
 
-#include "../utils/point.h"
-#include "../utils/line.h"
+#include "../lib2d/line.h"
 
 /// связанное с fig-файлами
 namespace fig {

@@ -5,7 +5,7 @@
 // Viewer умеет их показывать!
 
 #include <gtkmm.h>
-#include <utils/point.h>
+#include <lib2d/point.h>
 
 class RubberPoint {
 public:

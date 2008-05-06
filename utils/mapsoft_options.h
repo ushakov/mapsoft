@@ -5,8 +5,7 @@
 #include <vector>
 #include <map>
 #include <set>
-#include "point.h"
-#include "line.h"
+#include "../lib2d/line.h"
 #include <boost/lexical_cast.hpp>
 #include "m_time.h"
 

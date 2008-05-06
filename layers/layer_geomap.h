@@ -11,9 +11,11 @@
 #include "../utils/cache.h"
 #include "../loaders/image_r.h"
 #include "../loaders/image_i.h"
-#include <utils/image_draw.h>
+#include <utils/image_gd.h>
 
 #include "../geo_io/io.h"
+
+#include "../lib2d/point_utils.h"
 
 
 /// Растровый слой для показа привязанных карт.
@@ -86,7 +88,7 @@ public:
 #endif
         if (rect_intersect(myrange, src_rect).empty()) return;
         if ((world == NULL)||(world->maps.size()==0)) return;
-        boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&image));
+        ImageDrawContext * ctx  = ImageDrawContext::Create(&image);
 
 	for (int i=0; i<world->maps.size(); i++){
           std::string file = world->maps[i].file;
@@ -137,7 +139,7 @@ public:
     }
 
     // полезная функция, чтобы смотреть, как выглядят границы исходных карт на новой карте
-    void dump_maps(char *file){
+    void dump_maps(const char *file){
       std::ofstream f(file);
       f<< "#FIG 3.2\n"
        << "Portrait\n"

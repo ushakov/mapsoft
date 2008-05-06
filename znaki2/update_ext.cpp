@@ -111,7 +111,7 @@ main(int argc, char** argv){
   else { // читаем mp
     mp::mp_world MP;
     if (!mp::read(infile.c_str(), MP)) {cerr << "Bad mp file " << infile << "\n"; exit(0);}
-    convs::map2pt cnv(old_ref, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::map2pt cnv(old_ref, "wgs84", "lonlat", Options());
 
     for (mp::mp_world::const_iterator i=MP.begin(); i!=MP.end(); i++){
       zn::zn_key k = zn::get_key(*i);

@@ -39,7 +39,7 @@ public:
 	    if (d.first >= 0) {
 		std::cout << "MOVETPT: found at " << current_layer << std::endl;
                 g_map map = current_layer->get_ref();
-                convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"),Options());
+                convs::map2pt cnv(map, "wgs84", "lonlat");
 
 		current_tpt = &(current_layer->get_world()->trks[d.first][d.second]);
 		if ((d.second > 0)&&(!current_layer->get_world()->trks[d.first][d.second].start)){
@@ -62,7 +62,7 @@ public:
 	} else { // move point
           assert (current_layer);
           g_map map = current_layer->get_ref();
-          convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"),Options());
+          convs::map2pt cnv(map, "wgs84", "lonlat");
           g_point pt(p.x, p.y);
           cnv.frw(pt);
           current_tpt->x = pt.x;

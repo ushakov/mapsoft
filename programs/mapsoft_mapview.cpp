@@ -11,7 +11,6 @@
 //#define DEBUG_MAPVIEW
 
 #include <viewer/viewer.h>
-#include <utils/point.h>
 #include <programs/mapview.h>
 
 #include <geo_io/io.h>

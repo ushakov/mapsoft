@@ -3,7 +3,7 @@
 
 #include <sys/time.h>
 #include <boost/lexical_cast.hpp>
-#include "../utils/point.h"
+#include "../lib2d/point.h"
 #include "../utils/log.h"
 
 // ActionManager для DataList

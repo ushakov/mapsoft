@@ -50,8 +50,12 @@ int main(int argc, char *argv[]) {
   list<string>::const_iterator i;
   for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, d, Options());
 
-  // чтение fig-файла
-  fig::fig_world F = fig::read(outfile.c_str());
+  // читаем fig
+  fig::fig_world F;
+  if (!fig::read(outfile.c_str(), F)) {
+    exit(1);
+  }
+
   // теперь все точки и треки заменяем на точки привязки!
   using namespace boost::spirit;
   for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){

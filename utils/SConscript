@@ -3,8 +3,9 @@ Import ('env')
 env.Library('utils', \
   Split("""
     mapsoft_options.cpp
-    rect.cpp m_time.cpp m_color.cpp
-    log.cpp line.cpp point_int.cpp
+    m_time.cpp m_color.cpp
+    log.cpp 
     iconv_utils.cpp spirit_utils.cpp
+    image_gd.cpp
   """))
 

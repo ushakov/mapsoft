@@ -1,0 +1,7 @@
+Import ('env')
+le = env.Clone()
+le.Library('2d', \
+    Split ("""
+        point_int.cpp
+        rect.cpp
+     """))

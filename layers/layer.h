@@ -1,9 +1,7 @@
 #ifndef LAYER_H
 #define LAYER_H
 
-#include "utils/point.h"
-#include "utils/rect.h"
-#include "utils/image.h"
+#include "lib2d/image.h"
 #include "geo_io/geo_data.h"
 
 #include "layers/action_data.h"

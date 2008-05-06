@@ -8,12 +8,10 @@
 #include <queue> 
 
 #include "viewer/workplane.h"
-#include <utils/point.h>
-#include <utils/cache.h>
-#include <utils/rect.h>
-#include <utils/image.h>
+#include <lib2d/image.h>
 #include <utils/image_gdk.h>
 #include <utils/image_brez.h>
+#include <utils/cache.h>
 #include <viewer/rubber.h>
 
 // 

@@ -1,9 +1,7 @@
 #ifndef IMAGE_PNG_H
 #define IMAGE_PNG_H
 
-#include "../utils/image.h"
-#include "../utils/rect.h"
-#include "../utils/point.h"
+#include "../lib2d/image.h"
 
 // lippng загружает setjmp.h,
 // а потом его же может загружать image_jpeg...

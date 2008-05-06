@@ -7,7 +7,6 @@
 #include <string>
 #include <iostream>
 #include "geo_data.h"
-#include "../utils/rect.h"
 #include "../utils/mapsoft_options.h"
 
 namespace gps {
