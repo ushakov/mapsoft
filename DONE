@@ -16,6 +16,9 @@ slazav 6.05.2008
  * move gs_bbx_test.cpp from vector/ to geo_io/
  * pack some of vector/ files to arc/vector.tgz arc/vector-znaki.tgz
  * remove vector/
+ * add *.gpx, *.crs *.hst *.mbcrs track files to geo_io/test
+ * remove Makefiles from geo_io/ programs/ utils/
+ * fix znaki2/ building
 
 slazav 5.05.2008
  * вынес из geo_data.h описание функций в geo_data.cpp
@@ -29,7 +32,6 @@ slazav 5.05.2008
  * убрал из utils неиспользуемые файлы image_google_misc.h и image_ks_misc.h
  * переделал передачу char * параметров в image_draw, чтоб компилятор не ругался :)
  * переименовал image_draw в image_gd, вынес описанеи функций в image_gd.cpp
- * вынес описанеи функций из image_gdk.h в image_gdk.cpp
 
 slazav 1.05.2008
  * znaki2 

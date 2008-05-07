@@ -5,6 +5,9 @@
 #include "../geo_io/geo_convs.h"
 #include "../geo_io/io.h"
 
+#include "../lib2d/line_utils.h"
+#include "../lib2d/line_polycrop.h"
+
 #include "../loaders/image_r.h" // определение размеров картинки (image_r::size)
 
 

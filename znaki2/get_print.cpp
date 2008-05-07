@@ -5,6 +5,7 @@
 #include <cmath>
 #include "zn.h"
 #include "line_dist.h"
+#include "../lib2d/line_polycrop.h"
 
 using namespace std;
 using namespace fig;

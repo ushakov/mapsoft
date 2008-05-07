@@ -4,6 +4,8 @@
 #include <sstream>
 #include "zn.h"
 
+#include "../lib2d/point_utils.h"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/assign_actor.hpp>

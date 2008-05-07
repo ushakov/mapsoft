@@ -1,6 +1,6 @@
 all: make_map_gk update_map get_map get_legend get_print fig2pnm get_figlib make_nom update_ext np2pt
 
-MAPSOFT_LIBS = ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../yaml/yaml.cpp -lsyck ../libfig/libfig.a ../libmp/libmp.a ../utils/libutils.a
+MAPSOFT_LIBS = ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../yaml/yaml.cpp -lsyck ../libfig/libfig.a ../libmp/libmp.a ../utils/libutils.a ../lib2d/lib2d.a
 
 CPPFLAGS=-I../
 
