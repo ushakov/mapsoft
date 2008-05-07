@@ -1,9 +1,21 @@
   TODO на ближайшее время: 
-    * вынести из geo_io две библиотеки:
-      libgeo_data -- геоданные, преобразования
-      libgeo_io   -- ввод-вывод геоданных
-    * использовать spirit_utils.h и перекодировку в UTF при разборе геоданных
+    * перекодировку в UTF при разборе геоданных
     * разобраться с lib2d/crop.h
+
+slazav 6.05.2008
+ * IConv - use std::string in interface, tot const char *.
+         - default value for def_enc - empty string. If def_enc empty - it is not used.
+         - modify libfig and libmp to use new IConv.
+ * io_oe.h, io_xml.h и т.п.
+ * use spirit_utils in io_oe, io_gu, io_xml
+ * use UTF-8 in geodata:
+   - io_gps: in - w/o changes. out - utf->koi8->7bit (wpt: name, comm, track: comm)
+   - 
+
+ * remove some files from ms2.1/
+ * move gs_bbx_test.cpp from vector/ to geo_io/
+ * pack some of vector/ files to arc/vector.tgz arc/vector-znaki.tgz
+ * remove vector/
 
 slazav 5.05.2008
  * вынес из geo_data.h описание функций в geo_data.cpp
@@ -64,6 +76,8 @@ slazav 30.04.2008
 
  * mapsoft_fig2fig mapsoft_srtm2fig, mapsoft_map2fig - при неудачном разборе
    ругаются, отваливаются и не портят файла.
+
+
 
 
 slazav 11.04.2008

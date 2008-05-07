@@ -79,7 +79,7 @@ bool read(const char* filename, mp_world & world){
     if (!parse_file("mp::read", filename, main_rule)) return false;
 
     // converting some fields to UTF8
-    IConv cnv(("CP" + ret.CodePage).c_str(), ("CP" + default_codepage).c_str());
+    IConv cnv("CP" + ret.CodePage, "CP" + default_codepage);
     ret.Name = cnv.to_utf(ret.Name);
     for (mp_world::iterator i = ret.begin(); i != ret.end(); i++){
       i->Label = cnv.to_utf(i->Label);
@@ -107,7 +107,7 @@ bool write(std::ostream & out, const mp_world & world){
   // converting some fields from UTF8 to default codepage
   // setting CodePage to default_charset;
 
-  IConv cnv(("CP"+default_codepage).c_str(), ("CP"+default_codepage).c_str());
+  IConv cnv("CP"+default_codepage);
 
   for (vector<string>::const_iterator c = world.Comment.begin();
        c!=world.Comment.end(); c++) out << ";" << cnv.from_utf(*c) << "\n";

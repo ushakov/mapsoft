@@ -1,23 +1,16 @@
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/iterator/file_iterator.hpp>
+#include "../utils/spirit_utils.h"
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/insert_at_actor.hpp>
 #include <boost/spirit/actor/clear_actor.hpp>
 
 #include <iostream>
-#include <fstream>
 #include <iomanip>
 
-#include <vector>
 #include <string>
 #include <time.h>
 
-#include "geo_data.h"
-#include "geo_enums.h"
-#include "io.h"
 #include "io_xml.h"
-#include "geo_names.h"
 #include "../utils/mapsoft_options.h"
 
 
@@ -26,20 +19,9 @@ namespace xml {
 	using namespace std;
 	using namespace boost::spirit;
 
-	typedef char                    char_t;
-	typedef file_iterator <char_t>  iterator_t;
-	typedef scanner<iterator_t>     scanner_t;
-	typedef rule <scanner_t>        rule_t;
-
-
 // function for reading objects from XML file
 // into the world object
 	bool read_file(const char* filename, geo_data & world, const Options & opt){
-
-		// iterators for parsing
-		iterator_t first(filename);
-		if (!first) { cerr << "can't find file " << filename << '\n'; return 0;}
-		iterator_t last = first.make_end();
 
 		xml_point pt;
 		xml_point_list pt_list;
@@ -85,10 +67,9 @@ namespace xml {
 			>> *(*space_p >> point_object) >> *space_p 
 			>> str_p("</map>")[push_back_a(world.maps, pt_list)];
 
-		parse_info<iterator_t> info = parse(first, last,
-		   *(*space_p >> (wpt_object | trk_object | map_object)) >> *space_p);
+		rule_t main_rule = *(*space_p >> (wpt_object | trk_object | map_object)) >> *space_p;
 
-		return info.full;
+		return parse_file("fig::read", filename, main_rule);
 	}
 
 /********************************************/
@@ -191,4 +172,101 @@ namespace xml {
 			write_map(f, *i, opt);
 		return true;
 	}
+
+/********************************************/
+
+// Для всех типов точек - один map<string,string>, но разные преобразования
+// Это все вынесено в отдельный h-файл, поскольку используется и при чтении точек из fig
+	xml_point::operator g_waypoint () const {
+		g_waypoint ret; // здесь уже возникли значения по умолчанию
+		get("name", ret.name);
+		get("comm", ret.comm);
+		get("lon",  ret.x);
+		get("lat",  ret.y);
+		get("alt",  ret.z);
+		get("prox_dist",  ret.prox_dist);
+                ret.symb       = wpt_symb_enum.str2int(get_string("symb"));
+		get("displ",    ret.displ);
+		get("color",    ret.color);
+		get("bgcolor",  ret.bgcolor);
+                ret.map_displ  = wpt_map_displ_enum.str2int(get_string("map_displ"));
+                ret.pt_dir     = wpt_pt_dir_enum.str2int(get_string("pt_dir"));
+		get("font_size",  ret.font_size);
+		get("font_style", ret.font_style);
+		get("size",       ret.size);
+		get("time", ret.t);
+		const std::string used[] = {
+                "name", "comm", "lon", "lat", "alt", "prox_dist", "symb", 
+                "displ", "color", "bgcolor", "map_displ", "pt_dir", "font_size",
+                "font_style", "size", "time", ""};
+		warn_unused(used);
+		return ret;
+	}
+	xml_point::operator g_trackpoint () const{
+		g_trackpoint ret;
+		get("lon",   ret.x);
+		get("lat",   ret.y);
+		get("alt",   ret.z);
+		get("depth", ret.depth);
+		get("start", ret.start);
+		get("time",  ret.t);
+              const std::string used[] = {"lon", "lat", "alt", "depth", "start", "time", ""};
+              warn_unused(used);
+		return ret;
+	}
+	xml_point::operator g_refpoint () const{
+		g_refpoint ret;
+		get("x",  ret.x);
+		get("y",  ret.y);
+		get("xr", ret.xr);
+		get("yr", ret.yr);
+              const std::string used[] = {"x", "y", "xr", "yr", ""};
+              warn_unused(used);
+		return ret;
+	}
+
+	xml_point_list::operator g_waypoint_list () const {
+		g_waypoint_list ret;
+		ret.symbset = get_string("symbset", ret.symbset);
+		const std::string used[] = {"symbset","points",""}; //points - только записывается, не читается.
+                warn_unused(used);
+		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
+			ret.push_back(*i);
+		return ret;
+	}
+	xml_point_list::operator g_track () const {
+		g_track ret;
+		get("comm",  ret.comm);
+		get("width", ret.width);
+		get("color", ret.color);
+		get("skip",  ret.skip);
+		get("displ", ret.displ);
+                ret.type  = trk_type_enum.str2int(get_string("type"));
+                ret.fill  = trk_fill_enum.str2int(get_string("fill"));
+		get("cfill", ret.cfill);
+                const std::string used[] = {"comm", "width", "color", "skip", "displ", "type", "fill", "cfill", "points", ""};
+                warn_unused(used);
+		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
+			ret.push_back(*i);
+		return ret;
+	}
+	xml_point_list::operator g_map () const {
+		g_map ret;
+		ret.comm = get_string("comm",  ret.comm);
+		ret.file = get_string("file",  ret.file);
+
+		std::string prefix = get_string("prefix",  "");
+               // если не абсолютный путь - добавим prefix
+                if ((ret.file.size()<1)||(ret.file[0]!='/'))
+                    ret.file=prefix+ret.file;
+
+                ret.map_proj = Proj(get_string("map_proj"));
+		ret.border = get_poly("border");
+                const std::string used[] = {"comm", "file", "map_proj", "border", "points", "prefix", ""};
+                warn_unused(used);
+		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
+			ret.push_back(*i);
+		return ret;
+	}
+
 }

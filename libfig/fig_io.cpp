@@ -1,3 +1,4 @@
+#include "../utils/spirit_utils.h"
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/insert_at_actor.hpp>
@@ -6,7 +7,6 @@
 #include <iomanip>
 
 #include "fig_io.h"
-#include "../utils/spirit_utils.h"
 #include "../utils/iconv_utils.h"
 
 namespace fig {
@@ -181,7 +181,7 @@ bool read(const char* filename, fig_world & world){
   }
 
   //преобразование комментариев и текстов в UTF-8
-  IConv cnv(default_charset, default_charset);
+  IConv cnv(default_charset);
   for (fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
     i->text = cnv.to_utf(i->text);
     for (vector<string>::iterator
@@ -216,7 +216,7 @@ bool read(const char* filename, fig_world & world){
 /***********************************************************/
 bool write(ostream & out, const fig_world & world){
 
-  IConv cnv(default_charset, default_charset);
+  IConv cnv(default_charset);
 
   int n;
   // запись заголовка

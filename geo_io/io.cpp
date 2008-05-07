@@ -168,12 +168,12 @@ namespace io {
 //			return;
 //		}
 		// Запись файла HTML
-		if (testext(outfile, ".html") || testext(outfile, ".htm")){
-			cerr << "Writing to HTML file " << outfile << "\n";
-			std::ofstream f(outfile.c_str());
-			html::write (f, world, opt);
-			return;
-		}
+//		if (testext(outfile, ".html") || testext(outfile, ".htm")){
+//			cerr << "Writing to HTML file " << outfile << "\n";
+//			std::ofstream f(outfile.c_str());
+//			html::write (f, world, opt);
+//			return;
+//		}
 
 		// Запись файла OziExplorer
 		if ((testext(outfile, ".wpt"))||

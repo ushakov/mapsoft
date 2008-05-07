@@ -1,5 +1,4 @@
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/iterator/file_iterator.hpp>
+#include "../utils/spirit_utils.h"
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 
@@ -11,19 +10,13 @@
 #include <vector>
 #include <string>
 
-#include "geo_data.h"
-#include "io.h"
+#include "io_gu.h"
 
 
 namespace gu {
 
 	using namespace std;
 	using namespace boost::spirit;
-
-	typedef char                    char_t;
-	typedef file_iterator <char_t>  iterator_t;
-	typedef scanner<iterator_t>     scanner_t;
-	typedef rule <scanner_t>        rule_t;
 
 // format-specific data types and conversions to geo_data.h types...
 	struct gu_waypoint{
@@ -100,11 +93,6 @@ namespace gu {
 // into the world object
 	bool read_file(const char* filename, geo_data & world, const Options & opt){
 
-		// iterators for parsing
-		iterator_t first(filename);
-		if (!first) { cerr << "can't find file " << filename << '\n'; return 0;}
-		iterator_t last = first.make_end();
-
 		// нам здесь не требуется инициализация объектов, так как 
 		// мы обязательно заполняем все поля
 		// (только с полем t_pt.start возникает легкая проблема)
@@ -153,11 +141,9 @@ namespace gu {
 										>> (+ch_p('\n') >> "[end transfer," >> +blank_p >> uint_p >> ch_p('/')
 											>> uint_p >> " records]" >> *blank_p)[push_back_a(world.trks, t)];
 
-		parse_info<iterator_t> info =
-			parse(first, last,
-				  header >> +( wpt_block | trk_block ) >> *space_p);
+		rule_t main_rule = header >> +( wpt_block | trk_block ) >> *space_p;
 
-		return info.full;
+                return parse_file("fig::read", filename, main_rule);
 	}
 
 /********************************************/

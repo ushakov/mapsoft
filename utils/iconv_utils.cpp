@@ -2,29 +2,34 @@
 #include <errno.h>
 #include <iostream>
 
-void IConv::print_cnv_err(const char *e1, const char *e2){
+const std::string IConv_UTF("UTF-8");
+
+void IConv::print_cnv_err(const std::string & e1, const std::string & e2){
   std::cerr << "IConv: Bad conversion from charset \"" << e1 << "\""
        << " to \"" << e2 << "\"\n";
 }
 
-IConv::IConv(const char *enc, const char *def_enc){
-  cd_to_utf = iconv_open(IConv_UTF, enc);
+IConv::IConv(const std::string & enc, const std::string & def_enc){
+  std::string def = def_enc;
+  if (def.size() == 0) def = enc;
+
+  cd_to_utf = iconv_open(IConv_UTF.c_str(), enc.c_str());
   if (cd_to_utf == (iconv_t)-1){
     print_cnv_err(enc, IConv_UTF);
-    std::cerr << "Trying default charset \"" << def_enc << "\"\n";
-    cd_to_utf = iconv_open(IConv_UTF, def_enc);
+    std::cerr << "Trying default charset \"" << def << "\"\n";
+    cd_to_utf = iconv_open(IConv_UTF.c_str(), def.c_str());
     if (cd_to_utf == (iconv_t)-1){
-      print_cnv_err(def_enc, IConv_UTF);
+      print_cnv_err(def, IConv_UTF);
       std::cerr << "Skipping conversion\n";
     }
   }
-  cd_from_utf = iconv_open(enc, IConv_UTF);
+  cd_from_utf = iconv_open(enc.c_str(), IConv_UTF.c_str());
   if (cd_from_utf == (iconv_t)-1){
     print_cnv_err(IConv_UTF, enc);
-    std::cerr << "Trying default charset \"" << def_enc << "\"\n";
-    cd_from_utf = iconv_open(def_enc, IConv_UTF);
+    std::cerr << "Trying default charset \"" << def << "\"\n";
+    cd_from_utf = iconv_open(def.c_str(), IConv_UTF.c_str());
     if (cd_from_utf == (iconv_t)-1){
-      print_cnv_err(IConv_UTF, def_enc);
+      print_cnv_err(IConv_UTF, def);
       std::cerr << "Skipping conversion\n";
     }
   }
@@ -73,5 +78,10 @@ std::string IConv::to_utf(const std::string &str) const{
 }
 std::string IConv::from_utf(const std::string &str) const{
   return convert_string(cd_from_utf, str);
+}
+std::string IConv::from_utf_7bit(const std::string &str) const{
+  std::string ret = convert_string(cd_from_utf, str);
+  for (std::string::iterator i=ret.begin(); i!=ret.end(); i++) *i &= 0x7F;
+  return ret;
 }
 

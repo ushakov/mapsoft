@@ -3,8 +3,9 @@
 #include <vector>
 #include <string>
 
-#include "io.h"
+#include "io_gps.h"
 #include "../jeeps/gps.h"
+#include "../utils/iconv_utils.h"
 
 namespace gps {
 	using namespace std;
@@ -22,6 +23,8 @@ namespace gps {
 	bool get_waypoints (const char* port, geo_data & world, const Options &opt){
 		GPS_PWay   *wpt;
                 if (!init_gps(port)) return false;
+
+		IConv cnv("KOI8-R");
 
 		int n;
 		if ((n = GPS_Command_Get_Waypoint (port, &wpt, NULL)) <= 0) return false;
@@ -88,7 +91,10 @@ namespace gps {
 	bool put_waypoints (const char * port, const g_waypoint_list & wp, const Options & opt){
 		int num = wp.size();
                 if (!init_gps(port)) return false;
+
 		GPS_PWay *wpts = (GPS_PWay *) calloc(num, sizeof(GPS_PWay));
+
+		IConv cnv("KOI8-R");
 
 		int n=0;
 		for (vector<g_waypoint>::const_iterator i =  wp.begin();
@@ -96,8 +102,8 @@ namespace gps {
 			 i++)
 		{
 			wpts[n] = GPS_Way_New();
-			memccpy(wpts[n]->ident, i->name.c_str(), '\0', 255);
-			memccpy(wpts[n]->cmnt,  i->comm.c_str(), '\0', 255);
+			memccpy(wpts[n]->ident, cnv.from_utf_7bit(i->name).c_str(), '\0', 255);
+			memccpy(wpts[n]->cmnt,  cnv.from_utf_7bit(i->comm).c_str(), '\0', 255);
 			wpts[n]->lat  = i->y;
 			wpts[n]->lon  = i->x;
 			wpts[n]->smbl = i->symb;
@@ -114,13 +120,16 @@ namespace gps {
 	bool put_track (const char * port, const g_track & tr, const Options & opt){
 		int num = tr.size()+1;
                 if (!init_gps(port)) return false;
+
 		GPS_PTrack *trks = (GPS_PTrack *) calloc(num, sizeof(GPS_PTrack));
+
+		IConv cnv("KOI8-R");
 
 		trks[0] = GPS_Track_New();
 		trks[0]->ishdr = 1;
 		trks[0]->dspl   = tr.displ;
 		trks[0]->colour = tr.color.RGB().value;
-		memccpy(trks[0]->trk_ident, tr.comm.c_str(), '\0', 255);
+		memccpy(trks[0]->trk_ident, cnv.from_utf_7bit(tr.comm).c_str(), '\0', 255);
 
 		int n = 1;
 		for (vector<g_trackpoint>::const_iterator i =  tr.begin();
@@ -143,21 +152,13 @@ namespace gps {
 	{
 		int num=0;
 
-		for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++)
-		{
-			if (!put_waypoints (port, *i, opt))
-			{
-				return false;
-			}
+		for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++){
+			if (!put_waypoints (port, *i, opt)) return false;
 		}
-		for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++)
-		{
-			if (!put_track (port, *i, opt))
-			{
-				return false;
-			}
+		for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++){
+			if (!put_track (port, *i, opt)) return false;
 		}
-		if (opt.find("gps_switch_off")!=opt.end()) GPS_Command_Off(port);
+		if (opt.find("gps_off")!=opt.end()) GPS_Command_Off(port);
 		return true;
 	}
 
@@ -165,7 +166,7 @@ namespace gps {
 	bool get_all (const char* port, geo_data & world, const Options &opt){
 	    get_waypoints(port, world, opt);
 	    get_track(port, world, opt);
-	    if (opt.find("gps_switch_off")!=opt.end()) GPS_Command_Off(port);
+	    if (opt.find("gps_off")!=opt.end()) GPS_Command_Off(port);
 	    return true;
 	}
 }

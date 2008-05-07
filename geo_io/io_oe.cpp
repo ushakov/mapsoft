@@ -1,9 +1,7 @@
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/iterator/file_iterator.hpp>
+#include "../utils/spirit_utils.h"
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/clear_actor.hpp>
-//#include <boost/spirit/utility/lists.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -13,9 +11,7 @@
 #include <string>
 #include <map>
 
-#include "io.h"
-#include "geo_enums.h"
-#include "geo_names.h"
+#include "io_oe.h"
 #include "geo_convs.h"
 #include "../utils/mapsoft_options.h"
 
@@ -29,11 +25,6 @@ namespace oe{
 
 using namespace std;
 using namespace boost::spirit;
-
-typedef char                    char_t;
-typedef file_iterator <char_t>  iterator_t;
-typedef scanner<iterator_t>     scanner_t;
-typedef rule <scanner_t>        rule_t;
 
 // format-specific data types and conversions to geo_data.h types...
 
@@ -233,11 +224,6 @@ typedef rule <scanner_t>        rule_t;
 // into the world object
 bool read_file(const char* filename, geo_data & world, const Options & opt){
 
-  // iterators for parsing
-  iterator_t first(filename);
-  if (!first) { cerr << "can't find file " << filename << '\n'; return 0;}
-  iterator_t last = first.make_end();
-
   oe_waypoint    wpt, wpt0; // wawpoint
   oe_trackpoint  tpt, tpt0; // trackpoint
   oe_mappoint    mpt, mpt0; // map ref point
@@ -388,18 +374,13 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
     "MM0" >> scs >> *ch >> eol_p >> // Yes or No, does not matter
     MM >> 
     *anychar_p;
-    
 
-  parse_info<iterator_t> info =
-    parse(first, last,
-           (wpt_head >> *(wpt_point))[push_back_a(world.wpts, w)] ||
-           (trk_head >> *(trk_point))[push_back_a(world.trks, t)] || 
-           map_rule[push_back_a(world.maps, m)]);
-	   
-  return info.full;
+  rule_t main_rule = (wpt_head >> *(wpt_point))[push_back_a(world.wpts, w)] ||
+                     (trk_head >> *(trk_point))[push_back_a(world.trks, t)] ||
+                      map_rule[push_back_a(world.maps, m)];
+
+  return parse_file("fig::read", filename, main_rule);
 }
-
-
 
 /***********************************************************/
 

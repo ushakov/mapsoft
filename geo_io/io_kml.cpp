@@ -1,5 +1,4 @@
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/iterator/file_iterator.hpp>
+#include "../utils/spirit_utils.h"
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/clear_actor.hpp>
@@ -12,11 +11,7 @@
 #include <string>
 #include <map>
 
-#include "io.h"
-#include "geo_enums.h"
-#include "geo_names.h"
-#include "geo_convs.h"
-#include "../utils/mapsoft_options.h"
+#include "io_kml.h"
 
 #include <math.h>
 
@@ -80,7 +75,7 @@ namespace kml {
 	
 	return f.good();
     }
-
+/*
     struct kml_point : public Options {
 	operator g_waypoint() const {
 	    g_waypoint ret;
@@ -131,7 +126,7 @@ namespace kml {
 	    return ret;
 	}
     };
-
+*/
 
 //     // incomplete!
 //     bool read_file(const char* filename, geo_data & world, const Options & opt) {
