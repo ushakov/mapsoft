@@ -1,0 +1,1 @@
+ocad2fig: ../libfig/libfig.a ../utils/libutils.a ../lib2d/lib2d.a
