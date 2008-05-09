@@ -235,6 +235,7 @@ g_line pt2pt::line_frw(const g_line & l, double acc, int max) {
   for (int i=1; i<l.size(); i++){
     P1 = l[i-1];
     P2 = l[i];
+    int m=max;
     do {
       P1a = P1; frw(P1a);
       P2a = P2; frw(P2a);
@@ -250,8 +251,8 @@ g_line pt2pt::line_frw(const g_line & l, double acc, int max) {
       else {
         P2 = C1;
       }
-      max--;
-    } while ((P1!=P2)&&(max>0));
+      m--;
+    } while ((P1!=P2)&&(m>0));
   }
   return ret;
 }
@@ -268,6 +269,7 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) {
   for (int i=1; i<l.size(); i++){
     P1 = l[i-1];
     P2 = l[i];
+    int m=max;
     do {
       P1a = P1; bck(P1a);
       P2a = P2; bck(P2a);
@@ -282,8 +284,8 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) {
       else {
         P2 = C1;
       }
-      max--;
-    } while ((P1!=P2) && (max>0));
+      m--;
+    } while ((P1!=P2) && (m>0));
   }
   return ret;
 }
@@ -525,6 +527,7 @@ g_line map2pt::line_frw(const g_line & l, int max) {
   for (int i=1; i<l.size(); i++){
     P1 = l[i-1];
     P2 = l[i];
+    int m = max;
     do {
       P1a = P1; frw(P1a);
       P2a = P2; frw(P2a);
@@ -541,8 +544,8 @@ g_line map2pt::line_frw(const g_line & l, int max) {
         P2 = C1;
       }
 //    } while (!P1.equals(P2));
-      max--;
-    } while ((P1!=P2)&&(max>0));
+      m--;
+    } while ((P1!=P2)&&(m>0));
   }
   return ret;
 }
@@ -559,6 +562,7 @@ g_line map2pt::line_bck(const g_line & l, int max) {
   for (int i=1; i<l.size(); i++){
     P1 = l[i-1];
     P2 = l[i];
+    int m=max;
     do {
       P1a = P1; bck(P1a);
       P2a = P2; bck(P2a);
@@ -574,8 +578,8 @@ g_line map2pt::line_bck(const g_line & l, int max) {
         P2 = C1;
       }
 //    } while (!P1.equals(P2));
-      max--;
-    } while ((P1!=P2) && (max>0));
+      m--;
+    } while ((P1!=P2) && (m>0));
   }
   return ret;
 }
@@ -633,6 +637,7 @@ g_line map2map::line_frw(const g_line & l, int max) {
   for (int i=1; i<l.size(); i++){
     P1 = l[i-1];
     P2 = l[i];
+    int m=max;
     do {
       P1a = P1; frw(P1a);
       P2a = P2; frw(P2a);
@@ -647,8 +652,8 @@ g_line map2map::line_frw(const g_line & l, int max) {
         P2 = C1;
       }
 //    } while (!P1.equals(P2));
-      max--;
-    } while ((P1!=P2) && (max>0));
+      m--;
+    } while ((P1!=P2) && (m>0));
   }
   return ret;
 }
@@ -665,6 +670,7 @@ g_line map2map::line_bck(const g_line & l, int max) {
   for (int i=1; i<l.size(); i++){
     P1 = l[i-1];
     P2 = l[i];
+    int m=max;
     do {
       P1a = P1; bck(P1a);
       P2a = P2; bck(P2a);
@@ -679,8 +685,8 @@ g_line map2map::line_bck(const g_line & l, int max) {
         P2 = C1;
       }
 //    } while (!P1.equals(P2));
-      max--;
-    } while ((P1!=P2) && (max>0));
+      m--;
+    } while ((P1!=P2) && (m>0));
   }
   return ret;
 }

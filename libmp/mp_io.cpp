@@ -51,10 +51,44 @@ bool read(const char* filename, mp_world & world){
 
     rule_t pt_r = ch_p('(') 
 		  >> real_p[assign_a(pt.y)] >> ',' 
-		  >> real_p[assign_a(pt.x)] 
+		  >> real_p[assign_a(pt.x)]
                   >> ch_p(')')[push_back_a(o, pt)];
 
-    rule_t object = *comment >> ch_p('[') >> (
+    rule_t obj_params = 
+       (( "Type=0x"   >> hex_p[assign_a(o.Type)]) |
+        ( "Label="    >> (*ch)[assign_a(o.Label)]) |
+        ( "EndLevel=" >> uint_p[assign_a(o.EL)]) |
+        ( "Endlevel=" >> uint_p[assign_a(o.EL)]) |
+        ( "Levels="   >> uint_p[assign_a(o.EL)]) |
+        ( "DirIndicator="   >> uint_p[assign_a(o.DirIndicator)])) >> eol_p;
+
+
+    rule_t poi_object =
+      ch_p('[') >> (str_p("POI") | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] >> ch_p(']') >> eol_p
+      >> *(obj_params |
+         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)] >> "="
+           >> pt_r >> eol_p))
+      >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p
+      [push_back_a(ret,o)][clear_a(o)];
+
+    rule_t polyline_object =
+      ch_p('[') >> (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] >> ch_p(']') >> eol_p
+      >> *(obj_params |
+         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)] >> "="
+           >> pt_r >> *(',' >> pt_r) >> eol_p) [push_back_a(ret,o)][clear_a(o)] )
+      >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p;
+
+    rule_t polygon_object =
+      ch_p('[') >> (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")] >> ch_p(']') >> eol_p
+      >> *(obj_params |
+         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)] >> "="
+           >> pt_r[push_back_a(o.fpoints, pt)] >> *(',' >> pt_r) >> eol_p[push_back_a(o.lpoints, pt)])
+         )
+      >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p [push_back_a(ret,o)];
+
+      rule_t object = eps_p[assign_a(o,o0)] >> *comment >> (poi_object | polyline_object | polygon_object);
+
+/*    rule_t object = *comment >> ch_p('[') >> (
       (str_p("POI")      | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] |
       (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] |
       (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")] ) 
@@ -67,13 +101,13 @@ bool read(const char* filename, mp_world & world){
         ( "Levels="   >> uint_p[assign_a(o.EL)] >> eol_p) |
         ( "DirIndicator="   >> uint_p[assign_a(o.DirIndicator)] >> eol_p) |
         ( (str_p("Data") | str_p("Origin")) >> uint_p[assign_a(o.BL)] >> "="
-           >> pt_r >> *(',' >> pt_r) >> eol_p)
-      ) >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p [push_back_a(ret,o)][clear_a(o)];
+           >> pt_r[push_back_a(o.fl_points, pt)] >> *(',' >> pt_r) >> eol_p) [push_back_a(o.fl_points, pt)]
+      ) >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p 
+         [push_back_a(ret,o)][clear_a(o)];*/
 
 
     rule_t main_rule = header >>
-        *( eps_p[assign_a(o,o0)] >> object )
-        >> *space_p >> *(+comment >> *space_p);
+        *object >> *space_p >> *(+comment >> *space_p);
     // комментарии после объектов - теряются!
 
     if (!parse_file("mp::read", filename, main_rule)) return false;
@@ -91,6 +125,35 @@ bool read(const char* filename, mp_world & world){
     for (vector<string>::iterator
                   c = world.Comment.begin(); c != world.Comment.end(); c++){
       *c = cnv.to_utf(*c);
+    }
+
+    // Modifying multipart objects
+    for (mp_world::iterator i = ret.begin(); i != ret.end(); i++){
+      if ((i->fpoints.size() < 2)||
+          (i->lpoints.size() < 2)||
+          (i->Class != "POLYGON")) continue;
+
+      if (i->fpoints.size() != i->lpoints.size()){
+        cerr << "fpoints.size() != lpoints.size()!\n";
+        continue;
+      }
+
+      for(int n=i->fpoints.size()-1; n>=0; n--){
+
+        Point<double> p1,p2;
+        p1 = i->fpoints[n];
+        p2 = i->lpoints[n];
+
+        if (n==0) i->push_back(p2);
+        else {
+          if (n==i->fpoints.size()-1) i->push_back(p1);
+          else {
+            i->push_back(p2);
+            if (p2!=p1) i->push_back(p1);
+          }
+        }
+      }
+
     }
 
     // merging world with ret
