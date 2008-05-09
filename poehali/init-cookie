@@ -1,0 +1,11 @@
+#!/bin/bash
+
+rm -f cookie code code.png mapstor
+
+wget http://mapstor.com/mapstorfile.php?file=050k--n37-027-2.gif -O/dev/null --save-cookies=cookies --keep-session-cookies 2>&1 | grep 'm.\+\.mapstor\.com' | sed -n '1 s/.*m\(.\+\)\.mapstor\.com.*/\1/p' > mapstor
+mapstor=`cat mapstor`
+wget --load-cookies=cookies -O code.png http://m$mapstor.mapstor.com/p_getfile.php?mode=showpic >/dev/null 2>&1 
+display code.png &
+printf "Введите код: "
+read code
+echo $code > code

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Пример: get-map n37 050k 027-1
+
+lon=$1
+scale=$2
+page=$3
+code=`cat code`
+mapstor=`cat mapstor`
+
+wget -O $scale--$lon-$page.gif --load-cookies=cookies --post-data="m=$lon/$scale/$scale--$lon-$page.gif&code=$code" http://m$mapstor.mapstor.com/p_getfile.php?m=$lon%2F$scale%2F$scale--$lon-$page.gif
