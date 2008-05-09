@@ -300,6 +300,7 @@ bool write(ostream & out, const fig_world & world){
 
     int nn = i->size();
     int nn1=nn;
+    std::vector<float> f = i->f;
 
     int pen_color = i->pen_color;
     int fill_color = i->fill_color;
@@ -376,9 +377,9 @@ bool write(ostream & out, const fig_world & world){
       out << "\n";
       break;
     case 3: // Spline
-      if (nn!=i->f.size()){
+      if (nn!=f.size()){
+        f.resize(nn, 1);
         cerr << "fig::write (spline): different amount of x,y and f values\n";
-        break;
       }
       if ((i->sub_type%2==1) && (nn<3)){ 
         cerr << "fig::write (spline): closed spline with <3 points\n";
@@ -419,7 +420,7 @@ bool write(ostream & out, const fig_world & world){
               << (*i)[n].x << " " << (*i)[n].y;
         for (n=0; n<nn; n++)
           out << ((n%6==0) ? "\n\t":" ")
-              << i->f[n];
+              << f[n];
         out << "\n";
         break;
     case 4: // Text

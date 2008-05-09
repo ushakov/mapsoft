@@ -7,5 +7,6 @@ env.Library('utils', \
     log.cpp 
     iconv_utils.cpp spirit_utils.cpp
     image_gd.cpp
+    pnm_shifter.cpp
   """))
 
