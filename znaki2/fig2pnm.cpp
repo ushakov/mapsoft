@@ -2,27 +2,30 @@
 //#include <unistd.h>
 //#include <sys/types.h>
 
+#include "../utils/pnm_shifter.h"
+#include "../lib2d/point.h"
+
 #include <iostream>
 #include <vector>
+#include <set>
 
+#define LGND_DEPTHS "-D+1:34"
+#define GRID_DEPTHS "-D+35:39"
+#define TEXT_DEPTHS "-D+40"
+#define BASE_DEPTHS "-D+41:999"
 
-struct ppm_reader{
-  int   out_pipe[2];
-  pid_t pid;
+struct fig2dev_reader{
+  int fig2dev_fd;
 
-  std::vector <unsigned char *> data;
-  int pos;
-  int data_width;
-
-  int w,h;
-
-  ppm_reader(const char *depth_range, const char *infile, int _data_width){
-
+  fig2dev_reader(const char *depth_range, const char *infile){
+    int   out_pipe[2];
+    pid_t pid;
     char a1[strlen(depth_range)+1];   strcpy(a1, depth_range);
     char a2[strlen(infile)+1];        strcpy(a2, infile);
 
-    char  *name = "fig2dev";
-    char  *args[] = {"fig2dev", "-Lppm", "-j", "-F", "-m3.75", "-g#FDFDFD", a1, a2, NULL};
+
+    const char  *name = "fig2dev";
+    char *args[] = {"fig2dev", "-Lppm", "-j", "-F", "-m3.75", "-g#FDFDFD", a1, a2, NULL};
 
     if (pipe(out_pipe)!=0){ std::cerr << "can't open pipe\n"; exit(-1); }
 
@@ -35,67 +38,43 @@ struct ppm_reader{
       execvp(name, args);
     }
     close(out_pipe[1]);
-
-    std::string s = gets();
-    if (s!="P6") {w=0; h=0; return;}
-    do {s=gets(); } while ((s.size()>0) && (s[0]=='#'));
-    std::string::size_type i = s.find(' ');
-    w = atoi(s.substr(0,   i).c_str());
-    h = atoi(s.substr(i+1, s.size()-(i+1)).c_str());
-
-    s=gets();
-    if (s!="255") {w=0; h=0; return;}
-    pos=-1;
-    data_width = _data_width;
-    data.resize(data_width, NULL);
-    return;    
+    fig2dev_fd = out_pipe[0];
   }
 
-  ~ppm_reader(){close(out_pipe[0]);}
-
-  std::string gets() const {
-    std::string ret;
-    char c;
-    while ((read(out_pipe[0], &c, 1)==1) && (c!='\n')) ret.push_back(c);
-    return ret;
-  }
-
-  void data_shift(){
-    if (data[data_width-1]!=NULL) delete(data[data_width-1]);
-    for (int i = data_width-1; i>0; i--) data[i] = data[i-1];
-    data[0]=NULL;
-    pos++;
-    if (pos<h){
-      data[0] = new unsigned char[3*w];
-      int n=3*w, m=3*w;
-      while ((m>0) && (n>0)){
-        m=read(out_pipe[0], data[0]+(3*w-n), n);
-        n-=m;
-      }
-      if (m==0){
-        std::cerr << "read error!\n";
-        exit(0);
-      }
-    } 
-  }
-
-
-  int fd(){return out_pipe[0];}
+  ~fig2dev_reader(){close(fig2dev_fd);}
 };
+
+struct fig2dev_shifter: fig2dev_reader, public pnm_shifter{
+  fig2dev_shifter(const char *depth_range, const char *infile, int _data_width): 
+    fig2dev_reader(depth_range, infile), pnm_shifter(fig2dev_fd, _data_width){}
+};
+
+
+struct cnt_data{
+  // контур цвета с3 между цветами с1 и с2
+  int c1,c2,c3;
+  int dots; //расстояние между точками в пунктире
+
+  std::set<Point<int> > pts;
+
+  cnt_data(const int _c1, const int _c2, const int _c3, const int _dots = 0):
+    c1(_c1), c2(_c2), c3(_c3), dots(_dots){}
+};
+
 
 void usage(){
     std::cerr << "usage: fig2pnm <file.fig> > out.pnm\n";
     exit(0);
 }
 
-bool pipe_read(int fd, unsigned char *buf, int N){
+/*bool pipe_read(int fd, unsigned char *buf, int N){
   int n=N,m=N;
   while ((m>0) && (n>0)){
     m=read(fd, buf+(N-n), n);
     n-=m;
   }
   return !(m==0);
-}
+}*/
 
 
 // почему-то fig2dev, если его просить сделать 
@@ -121,11 +100,25 @@ bool is_dark(const unsigned char *c, const unsigned char thr){
   return ((*c)/3 + (*(c+1))/3 + (*(c+2))/3 < thr);
 }
 
+#define COL(x,y)  ((map.data[y][3*(x)] << 16) + (map.data[y][3*(x)+1] << 8) + map.data[y][3*(x)+2])
+#define COL_SET(x,y,c)  map.data[y][3*(x)]=(c>>16)&0xFF; map.data[y][3*(x)+1] = (c>>8)&0xFF; map.data[y][3*(x)+2]=c&0xFF;
+#define ADJ(x,y,i)  COL( x+ ((i==1)?1:0) - ((i==3)?1:0), y + ((i==2)?1:0) - ((i==0)?1:0))
+
+#define DIST2(x,y) ((x)*(x) + (y)*(y))
+
+
 main(int argc, char **argv){
+
+  std::vector<cnt_data> cnts;
+  cnts.push_back(cnt_data(0x00ffff, 0xAAFFAA, 0x5066FF, 0));
+  cnts.push_back(cnt_data(0x00ffff, 0xFFFFFF, 0x5066FF, 0));
+  cnts.push_back(cnt_data(0xAAFFAA, 0xFFFFFF, 0x009000, 7));
+
 
   if (argc != 2) usage();
   std::string infile = argv[1];
 
+  int r  = 1; // радиус точки контура
   int r1 = 5; // поля текста
   int r2 = 5; // окрестность поиска при закрашивании темных линий
 
@@ -136,10 +129,10 @@ main(int argc, char **argv){
 
   int a = 128;    // прозрачность сетки
 
-  ppm_reader lgnd("-D+30:34", infile.c_str(), dw);
-  ppm_reader grid("-D+35:39", infile.c_str(), dw);
-  ppm_reader text("-D+40",    infile.c_str(), dw);
-  ppm_reader map("-D+41:400", infile.c_str(), dw);
+  fig2dev_shifter lgnd(LGND_DEPTHS, infile.c_str(), dw);
+  fig2dev_shifter grid(GRID_DEPTHS, infile.c_str(), dw);
+  fig2dev_shifter text(TEXT_DEPTHS, infile.c_str(), dw);
+  fig2dev_shifter  map(BASE_DEPTHS, infile.c_str(), dw);
 
   if ((lgnd.w!=grid.w)||(lgnd.w!=text.w)||(lgnd.w!=map.w)||
       (lgnd.h!=grid.h)||(lgnd.h!=text.h)||(lgnd.h!=map.h)){
@@ -155,6 +148,37 @@ main(int argc, char **argv){
     if (map.data[d0]!=NULL){
 
       for (int j = 0; j < map.w; j++){
+
+        for (std::vector<cnt_data>::iterator cnt=cnts.begin(); cnt!=cnts.end(); cnt++){
+
+          if ((i+d0-1<0)||(i+d0+1>=map.w)) continue;
+          if ((j-1<0)||(j+1>=map.h)) continue;
+
+          // если точка имеет цвет с1 и соседа с цветом с2
+          if (COL(j, d0)==cnt->c1){
+            bool make_pt = false;
+            for (int k=0;k<4;k++) if (ADJ(j,d0,k) == cnt->c2) {make_pt = true; break;}
+
+            std::set<Point<int> >::iterator pt = cnt->pts.begin();
+            while (pt!=cnt->pts.end()){
+              if ((cnt->dots > 0) && (DIST2(pt->x - j, pt->y - i - d0) < cnt->dots*cnt->dots)) {make_pt = false; break;}
+              if (pt->y < i+d0 - cnt->dots) cnt->pts.erase(pt);
+              pt++;
+            }
+
+            if (make_pt){
+              cnt->pts.insert(Point<int>(j,i+d0));
+              for (int y = d0-r; y<=d0+r; y++){
+                if (map.data[y]==NULL) continue;
+                for (int x = j-r; x<=j+r; x++){
+                  if ((x<0)||(x>=map.w)) continue;
+                  COL_SET(x,y, cnt->c3);
+                }
+              }
+            }
+          }
+        }
+
         // наложение текста
         if (is_color(text.data[d0]+3*j)) {
           // область, в которой нам надо стереть черные линии...
@@ -163,8 +187,7 @@ main(int argc, char **argv){
             for (int x = j-r1; x<=j+r1; x++){
               if ((x<0)||(x>=map.w)) continue;
               if (abs(d0-y)*abs(d0-y) + abs(j-x)*abs(j-x) > r1*r1) continue;
-//              if (is_color(text.data[y]+3*x)) continue;
-              // 
+
               grid.data[y][3*x]   = 0xFD;
               grid.data[y][3*x+1] = 0xFD;
               grid.data[y][3*x+2] = 0xFD;
@@ -194,7 +217,7 @@ main(int argc, char **argv){
       }
     }
     if (map.data[dw-1]!=NULL){
-      // сольем слои и запишем линию.      
+      // сольем слои и запишем линию.
       for (int j = 0; j < map.w; j++){
         unsigned char rm = map.data[dw-1][3*j],  gm = map.data[dw-1][3*j+1],  bm = map.data[dw-1][3*j+2];
         unsigned char rt = text.data[dw-1][3*j], gt = text.data[dw-1][3*j+1], bt = text.data[dw-1][3*j+2];

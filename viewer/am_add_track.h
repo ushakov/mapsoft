@@ -47,7 +47,7 @@ public:
         }
 
         g_map map = current_layer->get_ref();
-        convs::map2pt cnv(map, "wgs84", "lonlat");
+        convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
 
         g_trackpoint pt;
         pt.x = p.x; pt.y=p.y;

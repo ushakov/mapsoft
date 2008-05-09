@@ -48,8 +48,9 @@ main(int argc, char **argv){
     ref.push_back(g_refpoint(p3.x, p3.y, (X2-X1)*k, (Y2-Y1)*k));
     ref.push_back(g_refpoint(p4.x, p4.y, 0, (Y2-Y1)*k));
     ref.border.push_back(g_point(0,0));
-    ref.border.push_back(g_point(0,0));
-    ref.border.push_back(g_point(0,0));
+    ref.border.push_back(g_point((X2-X1)*k, 0));
+    ref.border.push_back(g_point((X2-X1)*k, (Y2-Y1)*k));
+    ref.border.push_back(g_point(0, (Y2-Y1)*k));
     ref.map_proj=Proj("tmerc");
 
     ml.set_ref(ref);
@@ -57,25 +58,8 @@ main(int argc, char **argv){
     int w=int((X2-X1)*k);
     int h=int((Y2-Y1)*k);
     Image<int> im = ml.get_image (Rect<int>(0,0,w,h));
-    ml.dump_maps("out1.fig");
     image_r::save(im, "out.jpg", O);
-
-
-    for (g_map::iterator i=ref.begin(); i!=ref.end(); i++){
-      i->xr *= 2.54/dpi * fig::cm2fig;
-      i->yr *= 2.54/dpi * fig::cm2fig;
-    }
-    fig::fig_world W;
-    fig::set_ref(W, ref, Options());
-    fig::fig_object o = fig::make_object("2 5 0 1 0 -1 500 -1 -1 0.000 0 0 -1 0 0 *");
-
-    for (g_map::iterator i=ref.begin(); i!=ref.end(); i++){
-      o.push_back(Point<int>(int(i->xr), int(i->yr)));
-    }
-    o.push_back(Point<int>(int(ref[0].xr), int(ref[0].yr)));
-    o.image_file = "out.jpg";
-    o.comment.push_back("MAP AAA");
-    W.push_back(o);
-    std::ofstream f("out2.fig");
-    fig::write(f, W);
+    ref.file = "out.jpg";
+    std::ofstream f("out.map");
+    oe::write_map_file(f, ref, Options());
 }

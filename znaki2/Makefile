@@ -7,6 +7,9 @@ CPPFLAGS=-I../
 make_map_gk: $(MAPSOFT_LIBS)
 make_nom:    $(MAPSOFT_LIBS)
 
+fig2pnm:     ../utils/pnm_shifter.cpp
+pnm_cnt:     ../utils/pnm_shifter.cpp
+
 update_map:  zn_key.cpp zn.cpp $(MAPSOFT_LIBS)
 update_ext:  zn_key.cpp zn.cpp $(MAPSOFT_LIBS)
 get_map:     zn_key.cpp zn.cpp $(MAPSOFT_LIBS)

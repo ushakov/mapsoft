@@ -30,7 +30,7 @@ public:
 
     LayerGeoData (geo_data * _world) : 
       world(_world), mymap(convs::mymap(*world)), 
-      cnv(convs::mymap(*world), "wgs84", "lonlat"),
+      cnv(convs::mymap(*world), Datum("wgs84"), Proj("lonlat")),
       myrange(cnv.bb_bck(world->range_geodata()))
     { 
 #ifdef DEBUG_LAYER_GEODATA
@@ -43,7 +43,7 @@ public:
     // получить/установить привязку layer'a
     virtual g_map get_ref() const {return mymap;}
     virtual void set_ref(const g_map & map){
-      mymap=map; cnv = convs::map2pt(mymap, "wgs84", "lonlat");
+      mymap=map; cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"));
       myrange=cnv.bb_bck(world->range_geodata());
 #ifdef DEBUG_LAYER_GEODATA
       std::cerr  << "LayerGeoData: set_ref range: " << myrange << "\n";

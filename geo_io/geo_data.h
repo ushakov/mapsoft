@@ -5,14 +5,14 @@
 #include <string>
 #include <cmath>
 
-#include <geo_io/geo_names.h>
-#include <geo_io/geo_enums.h>
-#include <lib2d/line.h>
-#include <lib2d/rect.h>
-#include <utils/mapsoft_options.h>
+#include "geo_names.h"
+#include "geo_enums.h"
+#include "../lib2d/line.h"
+#include "../lib2d/rect.h"
+#include "../utils/mapsoft_options.h"
 
-#include <utils/m_time.h>
-#include <utils/m_color.h>
+#include "../utils/m_time.h"
+#include "../utils/m_color.h"
 
 /*********************************/
 // points:

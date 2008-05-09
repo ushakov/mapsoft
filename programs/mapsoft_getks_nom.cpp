@@ -40,7 +40,7 @@ main(int argc, char **argv){
     O.put("lon0", lon0);
 
     // определим диапазон карты в координатах lonlat (в СК wgs84)
-    convs::pt2pt c0("pulkovo", "lonlat", Options(), "wgs84", "lonlat", Options());
+    convs::pt2pt c0(Datum("pulkovo"), Proj("lonlat"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
     g_point p01(r0.TLC()), p02(r0.BRC());
     c0.frw(p01); c0.frw(p02);
     Rect<double> r = Rect<double>(p01, p02);
@@ -50,7 +50,7 @@ main(int argc, char **argv){
     border_ll.push_back(p01);
 
     // углы в координытах lonlat -> углы в координатах карты
-    convs::pt2pt cnv("pulkovo", "tmerc", O, "pulkovo", "lonlat", Options());
+    convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), O, Datum("pulkovo"), Proj("lonlat"), Options());
     g_point p1(r0.TLC()), p2(r0.TRC()), p3(r0.BRC()), p4(r0.BLC());
     cnv.bck(p1); cnv.bck(p2); cnv.bck(p3); cnv.bck(p4);
 
@@ -76,7 +76,7 @@ main(int argc, char **argv){
     ref.push_back(g_refpoint(r.TRC(), p2));
     ref.push_back(g_refpoint(r.BRC(), p3));
     ref.push_back(g_refpoint(r.BLC(), p4));
-    convs::map2pt cnv_f(ref, "wgs84", "lonlat");
+    convs::map2pt cnv_f(ref, Datum("wgs84"), Proj("lonlat"));
     ref.border = cnv_f.line_bck(border_ll);
 
     LayerKS     ml("/d/MAPS/KS", zoom);

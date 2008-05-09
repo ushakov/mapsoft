@@ -39,7 +39,7 @@ main(int argc, char **argv){
   g_rect  range  = map.range();
   g_point center = (range.TLC() + range.BRC())/2;
 
-  convs::pt2pt cnv("wgs84", "lonlat", Options(), "wgs84", "tmerc", Options());
+  convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(), Datum("wgs84"), Proj("tmerc"), Options());
   cnv.frw(center);
 
   if (action == 'r'){

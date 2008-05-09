@@ -54,10 +54,10 @@ pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
           return;
     }
 }
-pt2ll::pt2ll(const char * d, const char * p, const Options & Po){
-  pt2ll tmp(Datum(d), Proj(p), Po);
-  *this=tmp;
-}
+//pt2ll::pt2ll(const char * d, const char * p, const Options & Po){
+//  pt2ll tmp(Datum(d), Proj(p), Po);
+//  *this=tmp;
+//}
 
 
 void pt2ll::frw(g_point & p) const{
@@ -169,7 +169,7 @@ void pt2ll::bck(g_point & p){
 }
 
 ll2wgs::ll2wgs(const Datum & D): datum(D){}
-ll2wgs::ll2wgs(const char * d):datum(Datum(d)){}
+//ll2wgs::ll2wgs(const char * d):datum(Datum(d)){}
 
 void ll2wgs::frw(g_point & p) const{
   if (datum.n!=0){
@@ -189,13 +189,14 @@ void ll2wgs::bck(g_point & p) const{
 
 pt2pt::pt2pt(const Datum & sD, const Proj & sP, const Options & sPo, 
              const Datum & dD, const Proj & dP, const Options & dPo):
-pc1(sD,sP,sPo), pc2(dD,dP,dPo), dc1(sD), dc2(dD), 
+pc1(sD,sP,sPo), pc2(dD,dP,dPo), dc1(sD), dc2(dD),
 triv1((sP.n==dP.n) && (sPo==dPo) && (sD.n==dD.n)), triv2(sD.n==dD.n){}
 
-pt2pt::pt2pt(const char * sD, const char * sP, const Options & sPo,
-        const char * dD, const char * dP, const Options & dPo){
-  pt2pt(Datum(sD), Proj(sP), sPo, Datum(dD), Proj(dP), dPo);
-}
+
+//pt2pt::pt2pt(const char * sD, const char * sP, const Options & sPo,
+//        const char * dD, const char * dP, const Options & dPo){
+//  pt2pt(Datum(sD), Proj(sP), sPo, Datum(dD), Proj(dP), dPo);
+//}
 
 pt2pt::pt2pt(): triv1(true), triv2(true){}
 
@@ -223,7 +224,7 @@ void pt2pt::bck(g_point & p){
 // код одинаков с map2pt::line_frw/line_bck
 // но как их объединить - пока не придумал...
 
-g_line pt2pt::line_frw(const g_line & l, double acc) {
+g_line pt2pt::line_frw(const g_line & l, double acc, int max) {
 
   g_line ret;
   // добавим первую точку
@@ -249,13 +250,14 @@ g_line pt2pt::line_frw(const g_line & l, double acc) {
       else {
         P2 = C1;
       }
-    } while (P1!=P2);
+      max--;
+    } while ((P1!=P2)&&(max>0));
   }
   return ret;
 }
 
 
-g_line pt2pt::line_bck(const g_line & l, double acc) {
+g_line pt2pt::line_bck(const g_line & l, double acc, int max) {
 
   g_line ret;
   // добавим первую точку
@@ -280,7 +282,8 @@ g_line pt2pt::line_bck(const g_line & l, double acc) {
       else {
         P2 = C1;
       }
-    } while (P1!=P2);
+      max--;
+    } while ((P1!=P2) && (max>0));
   }
   return ret;
 }
@@ -327,6 +330,7 @@ map2pt::map2pt(const g_map & sM,
                const Datum & dD, const Proj & dP, const Options & dPo):
 pc1(dD, sM.map_proj, dPo), pc2(dD, dP, dPo), dc(dD), 
 border(sM.border){
+
   // идеи про преобразование карт - прежние:
   // считается, что преобразование СК замена осевого меридиана - линейны в пределах карты.
 
@@ -471,13 +475,13 @@ border(sM.border){
   k_geo2map[5] = (- k_map2geo[0] * k_map2geo[5] + k_map2geo[3] * k_map2geo[2]) / D;
 
   border_geo = line_frw(border);
+}
 
-}
-map2pt::map2pt(const g_map & sM,
-         const char * dD, const char * dP, const Options & dPo){
-  map2pt tmp(sM, Datum(dD), Proj(dP), dPo);
-  *this=tmp;
-}
+//map2pt::map2pt(const g_map & sM,
+//         const char * dD, const char * dP, const Options & dPo){
+//  map2pt tmp(sM, Datum(dD), Proj(dP), dPo);
+//  *this=tmp;
+//}
 
 
 void map2pt::frw(g_point & p){
@@ -486,11 +490,11 @@ void map2pt::frw(g_point & p){
              k_map2geo[3]*p.x + k_map2geo[4]*p.y + k_map2geo[5]);
 
   // если карта в той же проекции, что нам нужна - то это все (!)
-  
   if (pc1.proj.n != pc2.proj.n){
     pc1.frw(p1); // преобразование к lon-lat
     pc2.bck(p1); // к нужной проекции
   }
+
   p.x=p1.x;
   p.y=p1.y;
 
@@ -510,7 +514,7 @@ void map2pt::bck(g_point & p){
   return;
 }
 
-g_line map2pt::line_frw(const g_line & l) {
+g_line map2pt::line_frw(const g_line & l, int max) {
 
   g_line ret;
   // добавим первую точку
@@ -537,13 +541,14 @@ g_line map2pt::line_frw(const g_line & l) {
         P2 = C1;
       }
 //    } while (!P1.equals(P2));
-    } while (P1!=P2);
+      max--;
+    } while ((P1!=P2)&&(max>0));
   }
   return ret;
 }
 
 
-g_line map2pt::line_bck(const g_line & l) {
+g_line map2pt::line_bck(const g_line & l, int max) {
 
   g_line ret;
   // добавим первую точку
@@ -569,7 +574,8 @@ g_line map2pt::line_bck(const g_line & l) {
         P2 = C1;
       }
 //    } while (!P1.equals(P2));
-    } while (P1!=P2);
+      max--;
+    } while ((P1!=P2) && (max>0));
   }
   return ret;
 }
@@ -582,8 +588,7 @@ g_line map2pt::line_bck(const g_line & l) {
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
 map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
-    c1(sM, "wgs84", "lonlat"),
-    c2(dM, "wgs84", "lonlat"),
+    c1(sM, Datum("wgs84"), Proj("lonlat")), c2(dM, Datum("wgs84"), Proj("lonlat")),
     tst_frw(c1.border),
     tst_bck(c1.border),
     test_brd(test_brd_)
@@ -617,7 +622,7 @@ void map2map::frw(g_point & p) {c1.frw(p); c2.bck(p);}
 void map2map::bck(g_point & p) {c2.frw(p); c1.bck(p);}
 
 
-g_line map2map::line_frw(const g_line & l) {
+g_line map2map::line_frw(const g_line & l, int max) {
 
   g_line ret;
   // добавим первую точку
@@ -642,13 +647,14 @@ g_line map2map::line_frw(const g_line & l) {
         P2 = C1;
       }
 //    } while (!P1.equals(P2));
-    } while (P1!=P2);
+      max--;
+    } while ((P1!=P2) && (max>0));
   }
   return ret;
 }
 
 
-g_line map2map::line_bck(const g_line & l) {
+g_line map2map::line_bck(const g_line & l, int max) {
 
   g_line ret;
   // добавим первую точку
@@ -673,7 +679,8 @@ g_line map2map::line_bck(const g_line & l) {
         P2 = C1;
       }
 //    } while (!P1.equals(P2));
-    } while (P1!=P2);
+      max--;
+    } while ((P1!=P2) && (max>0));
   }
   return ret;
 }

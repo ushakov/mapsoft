@@ -86,7 +86,7 @@ main(int argc, char** argv){
   else if (testext(out_file, ".mp")){ // читаем mp
     // извлекаем привязку
     g_map ref = fig::get_ref(MAP);
-    convs::map2pt cnv(ref, "wgs84", "lonlat");
+    convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
 
     mp::mp_world M;
     for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){

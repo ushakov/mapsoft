@@ -41,7 +41,7 @@ g_map ref_ks_old(int scale){
  
    // Datum тут должен быть wgs, 
    // в Proj(ks) параметры эллипсоида записаны жестко
-   convs::pt2pt c1("wgs84", "ks", Options(), "wgs84", "lonlat", Options());
+   convs::pt2pt c1(Datum("wgs84"), Proj("ks"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
 
    g_point p(5 * (1<<14) * 256, 5 * (1<<14) * 256);
    c1.frw(p);

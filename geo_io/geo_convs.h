@@ -20,8 +20,6 @@ namespace convs{
 // удобно разбить преобразование на части:
 struct pt2ll{ // преобразование к широте-долготе и обратно
   pt2ll(const Datum & D = Datum("wgs84"), const Proj & P = Proj("lonlat"), const Options & Po = Options());
-  pt2ll(const char * d, const char * p = "lonlat", const Options & Po = Options());
-
   void frw(g_point & p) const;
   void bck(g_point & p); // может поменять lon0!
 
@@ -35,10 +33,8 @@ struct pt2ll{ // преобразование к широте-долготе и обратно
     Proj  proj;
 };
 
-
 struct ll2wgs{ // преобразование широты-долготы в wgs84 и обратно
   ll2wgs(const Datum & D = Datum("wgs84"));
-  ll2wgs(const char * d);
   void frw(g_point & p) const;
   void bck(g_point & p) const;
 
@@ -53,8 +49,8 @@ struct pt2pt{
   pt2pt(const Datum & sD, const Proj & sP, const Options & sPo, 
         const Datum & dD, const Proj & dP, const Options & dPo);
 
-  pt2pt(const char * sD, const char * sP, const Options & sPo, 
-        const char * dD, const char * dP, const Options & dPo);
+//  pt2pt(const char * sD, const char * sP, const Options & sPo, 
+//        const char * dD, const char * dP, const Options & dPo);
 
   pt2pt();
 
@@ -62,8 +58,8 @@ struct pt2pt{
   void bck(g_point & p);
   // преобразования линий
   // точность acc - в координатах исходной проекции
-  g_line line_frw(const g_line & l, double acc);
-  g_line line_bck(const g_line & l, double acc);
+  g_line line_frw(const g_line & l, double acc, int max=100);
+  g_line line_bck(const g_line & l, double acc, int max=100);
 
   private:
     pt2ll pc1, pc2;
@@ -77,13 +73,13 @@ struct pt2pt{
 struct map2pt{
   map2pt(const g_map & sM,
          const Datum & dD, const Proj & dP, const Options & dPo = Options());
-  map2pt(const g_map & sM,
-         const char * dD, const char * dP, const Options & dPo = Options());
+//  map2pt(const g_map & sM,
+//         const char * dD, const char * dP, const Options & dPo = Options());
 
   void frw(g_point & p);
   void bck(g_point & p);
-  g_line line_frw(const g_line & l);
-  g_line line_bck(const g_line & l);
+  g_line line_frw(const g_line & l, int max=100);
+  g_line line_bck(const g_line & l, int max=100);
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
   Rect<double> bb_frw(const Rect<int> & R);
@@ -128,8 +124,8 @@ struct map2map{
   void frw(g_point & p);
   void bck(g_point & p);
 
-  g_line line_frw(const g_line & l);
-  g_line line_bck(const g_line & l);
+  g_line line_frw(const g_line & l, int max=100);
+  g_line line_bck(const g_line & l, int max=100);
   // src_scale -- во сколько раз была уменьшена растровая картинка при загрузке
   // cnv_rect - прямоугольник в плоскости _преобразованной картинки_!!!
   int image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,

@@ -67,8 +67,8 @@ bool read(const char* filename, mp_world & world){
         ( "Levels="   >> uint_p[assign_a(o.EL)] >> eol_p) |
         ( "DirIndicator="   >> uint_p[assign_a(o.DirIndicator)] >> eol_p) |
         ( (str_p("Data") | str_p("Origin")) >> uint_p[assign_a(o.BL)] >> "="
-           >> pt_r >> *(',' >> pt_r) >> eol_p)[push_back_a(ret,o)][clear_a(o)] 
-      ) >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p;
+           >> pt_r >> *(',' >> pt_r) >> eol_p)
+      ) >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p [push_back_a(ret,o)][clear_a(o)];
 
 
     rule_t main_rule = header >>
