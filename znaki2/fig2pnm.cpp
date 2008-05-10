@@ -17,15 +17,21 @@
 struct fig2dev_reader{
   int fig2dev_fd;
 
-  fig2dev_reader(const char *depth_range, const char *infile){
+  fig2dev_reader(const char *depth_range, const char *bg, const char *infile){
     int   out_pipe[2];
     pid_t pid;
     char a1[strlen(depth_range)+1];   strcpy(a1, depth_range);
-    char a2[strlen(infile)+1];        strcpy(a2, infile);
+    char a2[strlen(bg)+1];            strcpy(a2, bg);
+    char a3[strlen(infile)+1];        strcpy(a3, infile);
 
 
     const char  *name = "fig2dev";
-    char *args[] = {"fig2dev", "-Lppm", "-j", "-F", "-m3.75", "-g#FDFDFD", a1, a2, NULL};
+    char *args[9] = {"fig2dev", "-Lppm", "-j", "-F", "-m3.75", a1, a2, a3, NULL};
+    int p=5;
+    if (strlen(depth_range)!=0){args[p++] = a1;}
+    if (strlen(bg)!=0){args[p++] = a2;}
+    if (strlen(infile)!=0){args[p++] = a3;}
+    args[p]=NULL;
 
     if (pipe(out_pipe)!=0){ std::cerr << "can't open pipe\n"; exit(-1); }
 
@@ -40,23 +46,21 @@ struct fig2dev_reader{
     close(out_pipe[1]);
     fig2dev_fd = out_pipe[0];
   }
-
   ~fig2dev_reader(){close(fig2dev_fd);}
 };
 
 struct fig2dev_shifter: fig2dev_reader, public pnm_shifter{
-  fig2dev_shifter(const char *depth_range, const char *infile, int _data_width): 
-    fig2dev_reader(depth_range, infile), pnm_shifter(fig2dev_fd, _data_width){}
+  fig2dev_shifter(const char *depth_range, const char *bg, const char *infile, int _data_width): 
+    fig2dev_reader(depth_range, bg, infile), pnm_shifter(fig2dev_fd, _data_width){}
 };
+
 
 
 struct cnt_data{
   // контур цвета с3 между цветами с1 и с2
   int c1,c2,c3;
   int dots; //расстояние между точками в пунктире
-
   std::set<Point<int> > pts;
-
   cnt_data(const int _c1, const int _c2, const int _c3, const int _dots = 0):
     c1(_c1), c2(_c2), c3(_c3), dots(_dots){}
 };
@@ -66,16 +70,6 @@ void usage(){
     std::cerr << "usage: fig2pnm <file.fig> > out.pnm\n";
     exit(0);
 }
-
-/*bool pipe_read(int fd, unsigned char *buf, int N){
-  int n=N,m=N;
-  while ((m>0) && (n>0)){
-    m=read(fd, buf+(N-n), n);
-    n-=m;
-  }
-  return !(m==0);
-}*/
-
 
 // почему-то fig2dev, если его просить сделать 
 // какой-то фоновый цвет, соблюдает его с точностью +-1 ?? Ошибки округления?
@@ -100,6 +94,10 @@ bool is_dark(const unsigned char *c, const unsigned char thr){
   return ((*c)/3 + (*(c+1))/3 + (*(c+2))/3 < thr);
 }
 
+bool is_dark(int c, const unsigned char thr){
+  return ((c>>16)&0xFF)/3 + ((c>>8)&0xFF)/3 + (c&0xFF)/3 < thr;
+}
+
 #define COL(x,y)  ((map.data[y][3*(x)] << 16) + (map.data[y][3*(x)+1] << 8) + map.data[y][3*(x)+2])
 #define COL_SET(x,y,c)  map.data[y][3*(x)]=(c>>16)&0xFF; map.data[y][3*(x)+1] = (c>>8)&0xFF; map.data[y][3*(x)+2]=c&0xFF;
 #define ADJ(x,y,i)  COL( x+ ((i==1)?1:0) - ((i==3)?1:0), y + ((i==2)?1:0) - ((i==0)?1:0))
@@ -109,66 +107,102 @@ bool is_dark(const unsigned char *c, const unsigned char thr){
 
 main(int argc, char **argv){
 
+  //-1 -- all colors
+  //-2 -- lite colors
   std::vector<cnt_data> cnts;
   cnts.push_back(cnt_data(0x00ffff, 0xAAFFAA, 0x5066FF, 0));
   cnts.push_back(cnt_data(0x00ffff, 0xFFFFFF, 0x5066FF, 0));
+  cnts.push_back(cnt_data(0x00ffff, 0xc06000, 0x5066FF, 0));
+//  cnts.push_back(cnt_data(0x00ffff, 30453904, 0x5066FF, 0));
   cnts.push_back(cnt_data(0xAAFFAA, 0xFFFFFF, 0x009000, 7));
 
 
   if (argc != 2) usage();
   std::string infile = argv[1];
 
+  // у нас есть три области работы:
+  // 0 : 2 -- удаление тонких линий
+  // 3 : 3+2*r+1 -- постановка точек, средняя линия d0a=3+r
+  // 4+2*r : 4+2r + 2*(r1+r2)+1 -- работа с надписями
+
   int r  = 1; // радиус точки контура
+
   int r1 = 5; // поля текста
   int r2 = 5; // окрестность поиска при закрашивании темных линий
 
-  int dw = 2*(r1+r2)+1; // ширина загружаемых данных
-  int d0 = r1+r2;       // средняя линия данных
+  int d0a = 3+r; // средняя линия для рассановки контуров
+
+  int dw = 3 + 2*r+1 + 2*(r1+r2)+1; // ширина загружаемых данных
+  int d0 = 3 + 2*r+1 + r1+r2;       // средняя линия данных
 
   int thr = 170;  // порог темных линий (r/3+g/3+b/3)
 
   int a = 128;    // прозрачность сетки
 
-  fig2dev_shifter lgnd(LGND_DEPTHS, infile.c_str(), dw);
-  fig2dev_shifter grid(GRID_DEPTHS, infile.c_str(), dw);
-  fig2dev_shifter text(TEXT_DEPTHS, infile.c_str(), dw);
-  fig2dev_shifter  map(BASE_DEPTHS, infile.c_str(), dw);
+  fig2dev_shifter lgnd(LGND_DEPTHS, "-g#FDFDFD", infile.c_str(), dw);
+  fig2dev_shifter grid(GRID_DEPTHS, "-g#FDFDFD", infile.c_str(), dw);
+  fig2dev_shifter text(TEXT_DEPTHS, "-g#FDFDFD", infile.c_str(), dw);
+  fig2dev_shifter  map(BASE_DEPTHS, "",          infile.c_str(), dw);
 
   if ((lgnd.w!=grid.w)||(lgnd.w!=text.w)||(lgnd.w!=map.w)||
       (lgnd.h!=grid.h)||(lgnd.h!=text.h)||(lgnd.h!=map.h)){
     std::cerr << "different image sizes\n";
     exit(0);
   }
-  int N = 3*map.w;
+//  int N = 3*map.w;
+//  unsigned char buf[N];
 
-  unsigned char buf[N];
   std::cout << "P6\n" << map.w << " " << map.h << "\n255\n";
 
   for (int i = 0; i<map.h+dw; i++){
-    if (map.data[d0]!=NULL){
 
+    if (map.data[1]!=NULL){
+      for (int j = 1; j < map.w-1; j++){
+        int c  = COL(j,1);
+        int c1 = COL(j-1,1);
+        int c2 = COL(j+1,1);
+        if ((c!=c1)&&(c!=c2)) {COL_SET(j,1,c1);}
+
+        if ((map.data[0]==NULL) || (map.data[2]==NULL)) continue;
+        c1 = COL(j,0);
+        c2 = COL(j,2);
+        if ((c!=c1)&&(c!=c2)) {COL_SET(j,1,c1);}
+      }
+    }
+
+
+    if (map.data[d0a]!=NULL){
       for (int j = 0; j < map.w; j++){
 
         for (std::vector<cnt_data>::iterator cnt=cnts.begin(); cnt!=cnts.end(); cnt++){
 
-          if ((i+d0-1<0)||(i+d0+1>=map.w)) continue;
+          if ((i+d0a-1<0)||(i+d0a+1>=map.w)) continue;
           if ((j-1<0)||(j+1>=map.h)) continue;
 
           // если точка имеет цвет с1 и соседа с цветом с2
-          if (COL(j, d0)==cnt->c1){
+          if (COL(j, d0a)==cnt->c1){
             bool make_pt = false;
-            for (int k=0;k<4;k++) if (ADJ(j,d0,k) == cnt->c2) {make_pt = true; break;}
+            for (int k=0;k<4;k++){
+              int c2 = ADJ(j,d0a,k);
+              if (c2==cnt->c1) continue;
+              if (c2==cnt->c3) continue;
+              if ((cnt->c2 ==-1) || 
+                  ((cnt->c2==-2) && (!is_dark(c2,thr)))||
+                  (cnt->c2 == c2)) {make_pt = true; break;}
+            }
+
 
             std::set<Point<int> >::iterator pt = cnt->pts.begin();
+
             while (pt!=cnt->pts.end()){
-              if ((cnt->dots > 0) && (DIST2(pt->x - j, pt->y - i - d0) < cnt->dots*cnt->dots)) {make_pt = false; break;}
-              if (pt->y < i+d0 - cnt->dots) cnt->pts.erase(pt);
+              if ((cnt->dots > 0) && (DIST2(pt->x - j, pt->y - i - d0a) < cnt->dots*cnt->dots)) {make_pt = false; break;}
+              if (pt->y < i+d0a - cnt->dots) cnt->pts.erase(pt);
               pt++;
             }
 
             if (make_pt){
-              cnt->pts.insert(Point<int>(j,i+d0));
-              for (int y = d0-r; y<=d0+r; y++){
+              cnt->pts.insert(Point<int>(j,i+d0a));
+              for (int y = d0a-r; y<=d0a+r; y++){
                 if (map.data[y]==NULL) continue;
                 for (int x = j-r; x<=j+r; x++){
                   if ((x<0)||(x>=map.w)) continue;
@@ -178,8 +212,13 @@ main(int argc, char **argv){
             }
           }
         }
+      }
+    }
 
-        // наложение текста
+
+    // наложение текста
+    if (map.data[d0]!=NULL){
+      for (int j = 0; j < map.w; j++){
         if (is_color(text.data[d0]+3*j)) {
           // область, в которой нам надо стереть черные линии...
           for (int y = d0-r1; y<=d0+r1; y++){
@@ -216,8 +255,9 @@ main(int argc, char **argv){
         }
       }
     }
+
+    // в последней строке сольем слои и запишем линию.
     if (map.data[dw-1]!=NULL){
-      // сольем слои и запишем линию.
       for (int j = 0; j < map.w; j++){
         unsigned char rm = map.data[dw-1][3*j],  gm = map.data[dw-1][3*j+1],  bm = map.data[dw-1][3*j+2];
         unsigned char rt = text.data[dw-1][3*j], gt = text.data[dw-1][3*j+1], bt = text.data[dw-1][3*j+2];
@@ -240,7 +280,6 @@ main(int argc, char **argv){
     grid.data_shift();
     lgnd.data_shift();
   }
-
 
 
 }

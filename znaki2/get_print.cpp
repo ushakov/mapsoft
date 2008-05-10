@@ -81,7 +81,8 @@ main(int argc, char **argv){
 
   list<Line<int> > list_zd, list_r, list_h;
 
-  for (int pass =0 ; pass<2; pass++)
+
+  for (int pass =0 ; pass<2; pass++){
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
     // текущее время
     if ((i->type == 4) && (i->comment.size()>0) && (i->comment[0] == "CURRENT DATE")){
@@ -125,7 +126,6 @@ main(int argc, char **argv){
 
     // второй прогон.
 
-
     zconverter.fig_update(*i, type);
     // преобразуем некоторые объекты в x-spline
     if (
@@ -150,14 +150,14 @@ main(int argc, char **argv){
          (type == 0x100032) || // плохой путь
          (type == 0x100033) || // 
          (type == 0x100034) || // 
-         (type == 0x100035) || // отличнй путь
-         (type == 0x200014) || // редколесье
-         (type == 0x200015) || // остров леса
-         (type == 0x200029) || // озеро
-         (type == 0x20003B) || // большое озеро
-         (type == 0x20004D) || // ледник
-         (type == 0x200052) || // поле
-         (type == 0x200053)    // остров
+         (type == 0x100035)  // отличнй путь
+//         (type == 0x200014) || // редколесье
+//         (type == 0x200015) || // остров леса
+//         (type == 0x200029) || // озеро
+//         (type == 0x20003B) || // большое озеро
+//         (type == 0x20004D) || // ледник
+//         (type == 0x200052) || // поле
+//         (type == 0x200053)    // остров
        ) any2xspl(*i, 1);
 
     // отметка уреза воды
@@ -429,6 +429,7 @@ main(int argc, char **argv){
 
     // верхний край обрыва
     if (type == 0x100003){ 
+
       double step = 40;
       double w    = 20;
       int k=1;
@@ -456,9 +457,6 @@ main(int argc, char **argv){
       }
       continue;
     }
-    
-
-
 
     // большой водоем
     if (type == 0x20003B){ 
@@ -535,7 +533,9 @@ main(int argc, char **argv){
     list<fig_object> l1 = zconverter.make_pic(*i, type);
     NW.insert(NW.begin(), l1.begin(), l1.end());
   }
+  }//pass
 
+  std::cerr << "write fig\n";
 
 //  text_bbxs(W);
   ofstream out(outfile.c_str());

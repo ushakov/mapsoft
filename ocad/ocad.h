@@ -13,7 +13,7 @@ typedef double   ocad_double;
 /**********************************/
 struct ocad_head{ // 38 bytes
   ocad_small ocad_mark;   // 3245
-  ocad_byte  file_type;   // 0: normal map, 1: course setting project, 3: OCAD 8 course setting project
+  ocad_byte  file_type;   // 0: normal map, 1: course setting project, 2: OCAD8 MAP 3: OCAD 8 course setting project
   ocad_byte  file_status; // not used
   ocad_small version;     // 9
   ocad_small subversion;  // (0 for 9.00, 1 for 9.1 etc.)

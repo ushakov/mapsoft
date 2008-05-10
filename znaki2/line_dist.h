@@ -91,6 +91,7 @@ class LineDist{
 
   // подвинуть текущую точку вперед на dl
   void move_frw(double dl){
+
     if (dl < 0) {move_bck(-dl); return;}
     if (dl == 0) return;
     double l = current_l + dl;
@@ -99,7 +100,7 @@ class LineDist{
       move_frw_to_node();
     }
     current_n--;
-    current_l=l;    
+    current_l=l;
   }
   // подвинуть текущую точку назад на dl
   void move_bck(double dl){
@@ -114,7 +115,7 @@ class LineDist{
   }
   // подвинуть текущую точку вперед до ближайшего узла
   void move_frw_to_node(){
-    if (current_n == line.size()-1) return;
+    if (current_n == ls.size()-1) return;
     current_n++;
     current_l=ls[current_n];
   }
@@ -124,7 +125,7 @@ class LineDist{
     current_l=ls[current_n];
   }
   bool is_end() const{
-    return (current_n == line.size()-1);
+    return (current_n == ls.size()-1);
   }
 
 };
