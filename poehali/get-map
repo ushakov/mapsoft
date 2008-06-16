@@ -2,10 +2,58 @@
 
 # Пример: get-map n37 050k 027-1
 
+if [[ $# < 3 ]]
+then
+   echo "Пример: $0 n37 050k 027-1"
+   exit
+fi
+
+CONFDIR=$HOME/.poehali
+
 lon=$1
 scale=$2
 page=$3
-code=`cat code`
-mapstor=`cat mapstor`
+gifcode=`cat $CONFDIR/gifcode`
+mapcode=`cat $CONFDIR/mapcode`
+gifmapstor=`cat $CONFDIR/gifmapstor`
+mapmapstor=`cat $CONFDIR/mapmapstor`
+basefilename=$scale--$lon-$page
 
-wget -O $scale--$lon-$page.gif --load-cookies=cookies --post-data="m=$lon/$scale/$scale--$lon-$page.gif&code=$code" http://m$mapstor.mapstor.com/p_getfile.php?m=$lon%2F$scale%2F$scale--$lon-$page.gif
+printf "Скачиваю $basefilename.gif ... "
+if wget -q -O$basefilename.gif --load-cookies=$CONFDIR/cookies --post-data="m=$lon/$scale/$basefilename.gif&code=$gifcode" http://m$gifmapstor.mapstor.com/p_getfile.php?m=$lon%2F$scale%2F$basefilename.gif
+then
+   echo "готово"
+else
+   echo "ошибка"
+   exit
+fi
+
+printf "Скачиваю $basefilename.map ... "
+if wget -q -O$basefilename.map --load-cookies=$CONFDIR/cookies --post-data="m=$lon/$scale/$basefilename.map&code=$mapcode" http://m$mapmapstor.mapstor.com/p_getfileref.php?m=$lon%2F$scale%2F$basefilename.map
+then
+   echo "готово"
+else
+   echo "ошибка"
+   exit
+fi
+
+printf "Преобразую $basefilename.gif в $basefilename.png ... "
+if convert $basefilename.gif $basefilename.png
+then
+   echo "готово"
+   rm $basefilename.gif
+else
+   echo "ошибка"
+   exit
+fi
+
+printf "Правлю $basefilename.map ... "
+if sed -i "s/$basefilename.gif/$basefilename.png/g" $basefilename.map
+then
+   echo "готово"
+else
+   echo "ошибка"
+   exit
+fi
+
+# vim: tw=0

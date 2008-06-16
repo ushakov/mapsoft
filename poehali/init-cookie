@@ -1,11 +1,41 @@
 #!/bin/bash
 
-rm -f cookie code code.png mapstor
+CONFDIR=$HOME/.poehali
 
-wget http://mapstor.com/mapstorfile.php?file=050k--n37-027-2.gif -O/dev/null --save-cookies=cookies --keep-session-cookies 2>&1 | grep 'm.\+\.mapstor\.com' | sed -n '1 s/.*m\(.\+\)\.mapstor\.com.*/\1/p' > mapstor
-mapstor=`cat mapstor`
-wget --load-cookies=cookies -O code.png http://m$mapstor.mapstor.com/p_getfile.php?mode=showpic >/dev/null 2>&1 
-display code.png &
-printf "Введите код: "
+if [ ! -d $CONFDIR ]; then mkdir $CONFDIR || exit; fi
+if [ ! -f $CONFDIR/mapmapstor ]; then echo "01" > $CONFDIR/mapmapstor; fi
+
+rm -f $CONFDIR/cookie $CONFDIR/gifcode $CONFDIR/code.png $CONFDIR/gifmapstor
+
+mapmapstor=`cat $CONFDIR/mapmapstor`
+
+# Для беззвучного убийства display
+set +m
+
+# Пишу cookies и gifmapstor для карт
+wget http://mapstor.com/mapstorfile.php?file=050k--n37-027-2.gif -O/dev/null --save-cookies=$CONFDIR/cookies --keep-session-cookies 2>&1 | grep 'm.\+\.mapstor\.com' | sed -n '1 s/.*m\(.\+\)\.mapstor\.com.*/\1/p' > $CONFDIR/gifmapstor
+# Пишу cookies для привязок
+wget http://m$mapmapstor.mapstor.com/p_getfileref.php?m=n37%2F050k%2F050k--n37-027-2.map -O/dev/null --load-cookies=$CONFDIR/cookies --save-cookies=$CONFDIR/cookies --keep-session-cookies > /dev/null 2>&1
+
+# Скачиваю картинку с кодом для карт и спрашиваю, что нарисовано
+gifmapstor=`cat $CONFDIR/gifmapstor`
+wget --load-cookies=$CONFDIR/cookies -O $CONFDIR/code.png http://m$gifmapstor.mapstor.com/p_getfile.php?mode=showpic >/dev/null 2>&1 
+display $CONFDIR/code.png &
+printf "Введите код для карт: "
 read code
-echo $code > code
+echo $code > $CONFDIR/gifcode
+kill %- 2>/dev/null
+wait %- 2>/dev/null
+rm $CONFDIR/code.png
+
+# Скачиваю картинку с кодом для привязок и спрашиваю, что нарисовано
+wget --load-cookies=$CONFDIR/cookies -O $CONFDIR/code.png http://m$mapmapstor.mapstor.com/p_getfileref.php?mode=showpic >/dev/null 2>&1 
+display $CONFDIR/code.png &
+printf "Введите код для привязок: "
+read code
+echo $code > $CONFDIR/mapcode
+kill %- 2>/dev/null
+wait %- 2>/dev/null
+rm $CONFDIR/code.png
+
+# vim: tw=0
