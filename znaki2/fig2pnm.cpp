@@ -130,7 +130,7 @@ main(int argc, char **argv){
   int r1 = 5; // поля текста
   int r2 = 5; // окрестность поиска при закрашивании темных линий
 
-  int d0a = 3+r; // средняя линия для рассановки контуров
+  int d0a = 3+r; // средняя линия для расстановки контуров
 
   int dw = 3 + 2*r+1 + 2*(r1+r2)+1; // ширина загружаемых данных
   int d0 = 3 + 2*r+1 + r1+r2;       // средняя линия данных
@@ -176,8 +176,8 @@ main(int argc, char **argv){
 
         for (std::vector<cnt_data>::iterator cnt=cnts.begin(); cnt!=cnts.end(); cnt++){
 
-          if ((i+d0a-1<0)||(i+d0a+1>=map.w)) continue;
-          if ((j-1<0)||(j+1>=map.h)) continue;
+          if ((i+d0a-1<0)||(i+d0a+1>=map.h)) continue;
+          if ((j-1<0)||(j+1>=map.w)) continue;
 
           // если точка имеет цвет с1 и соседа с цветом с2
           if (COL(j, d0a)==cnt->c1){

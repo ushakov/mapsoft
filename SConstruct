@@ -16,7 +16,7 @@ subdirs = Split ("""
 
 #SetOption('implicit_cache', 1)
 env = Environment ()
-env.Append (CCFLAGS=['-O2'])
+env.Append (CCFLAGS=['-O2','-g'])
 env.Append (CPPPATH='#')
 env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
 

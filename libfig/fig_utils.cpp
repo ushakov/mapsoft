@@ -1,5 +1,6 @@
 #include "fig_utils.h"
 #include "../lib2d/line_rectcrop.h"
+#include "../lib2d/point_utils.h"
 
 namespace fig {
 using namespace std;
@@ -107,7 +108,7 @@ void fig_rotate(std::list<fig_object> & objects, const double a, const Point<int
 }
 
 // преобразовать ломаную в сплайн
-void any2xspl(fig_object & o, const double x){
+void any2xspl(fig_object & o, const double x, const double y){
   if (o.size()<3) return;
   if (o.is_polyline()){
     if      (o.sub_type==1) o.sub_type = 4;
@@ -121,9 +122,27 @@ void any2xspl(fig_object & o, const double x){
   }
   else if (o.is_spline()) o.sub_type = o.sub_type%2+4;
   else return;
+
+  // добавим точки в соответствии с параметром y
+  // Если звено ломаной длиннее, чем 3y, добавим две точки на
+  // расстоянии y от края.
+  if (y>0){
+    fig_object::iterator i=o.begin(), j=i;
+    j++; // у нас >3 точек, т.ч. все хорошо
+    do{
+      double l = pdist(*i,*j);
+      if (l > 3*y){
+        Point<double> p = pnorm(*j-*i) * y;
+        j=o.insert(j, *i + Point<int>(p) ); j++;
+        j=o.insert(j, *j - Point<int>(p) ); j++;
+      }
+      i=j; j++;
+    } while (j!=o.end()); 
+  }
+
   o.type = 3;
   o.f.clear();
-  for (int j=0; j<o.size(); j++) o.f.push_back(0.3);
+  for (int j=0; j<o.size(); j++) o.f.push_back(x);
   if (o.sub_type==4){
     o.f[0]=0;
     o.f[o.size()-1]=0;

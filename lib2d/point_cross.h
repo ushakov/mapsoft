@@ -34,4 +34,5 @@ Point<T> find_cross(const Point<T> & p1, const Point<T> & p2,
   return Point<T>((T)(p1.x+ab.x*(p2.x-p1.x)), (T)(p1.y+ab.x*(p2.y-p1.y)));
 }
 
+
 #endif /* POINT_CROSS_H */

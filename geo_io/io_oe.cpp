@@ -14,6 +14,7 @@
 #include "io_oe.h"
 #include "geo_convs.h"
 #include "../utils/mapsoft_options.h"
+#include "../lib2d/line_utils.h"
 
 #include <math.h>
 
@@ -454,12 +455,6 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
 		if (!f.good()) return false;
 
-		// нам понадобятся координаты границы в wgs84
-		// и m_per_pix
-		// TODO -- заполнить их честно!
-
-		g_line border_wgs;
-		double m_per_pix=0;
 
 		f << "OziExplorer Map Data File Version 2.2\r\n"
 		  << m.comm << "\r\n"
@@ -517,26 +512,46 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
 
 		if (m.border.size()>0){
+
+			// Ozi wants only 4 border points!
+                        g_rect r(m.border[0], m.border[0]);
+                        for (g_line::const_iterator p =m.border.begin();
+                                 p!=m.border.end(); p++) r=rect_pump(r, *p);
+
+			g_line b4=rect2line(r); 
+                        g_line b4wgs;
+
+			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"), Options());
+                        for (g_line::const_iterator p =b4.begin();
+                                 p!=b4.end(); p++){
+                          g_point p1=*p; cnv.frw(p1); b4wgs.push_back(p1);
+                        }
+
 			f << "MM0,Yes\r\n"
-			  << "MMPNUM," << m.border.size() << "\r\n";
+			  << "MMPNUM," << b4.size() << "\r\n";
 			int n=0;
-			for (g_line::const_iterator it =m.border.begin();
-				 it!=m.border.end(); it++){
+			for (g_line::const_iterator it =b4.begin();
+				 it!=b4.end(); it++){
 				n++;
 				f << "MMPXY," << n << "," 
                                   << right << fixed << setprecision(0) << setfill(' ')
                                   << it->x << "," << it->y << "\r\n"; 
 			}
 			n=0;
+
 			f.precision(8);
-			for (g_line::const_iterator it =border_wgs.begin();
-				 it!=border_wgs.end(); it++){
+			for (g_line::const_iterator it =b4wgs.begin();
+				 it!=b4wgs.end(); it++){
 				n++;
 				f << "MMPLL," << n << "," 
 				  << right << fixed << setprecision(6) << setfill(' ')
                                   << setw(10) << it->y << ','
                                   << setw(11) << it->x << "\r\n"; 
 			}
+
+			// TODO -- заполнить честно!
+			double m_per_pix=0;
+
 			f << "MM1B," << m_per_pix << "\r\n";
 		}
 		return f.good();

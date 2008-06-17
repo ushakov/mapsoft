@@ -18,7 +18,7 @@ namespace mp {
         int 		     DirIndicator;
         std::vector<std::string> Comment;
 	int                  BL,EL; // begin/end level
-        Line<double>         fpoints, lpoints; // first and last points, for lines, made from parts
+        Line<double>         fpoints, lpoints; // first and last points, for lines made from parts
 	mp_object(){ 
 	  Class="POI"; Type=-1; BL=0; EL=0; DirIndicator=0;
         }
@@ -51,6 +51,7 @@ namespace mp {
         std::string Transparent;
         std::string POIIndex;
         std::string Copyright;
+        std::string PolygonEvaluate;
         std::vector<std::string> Comment;
 
         std::map<int,int> Levels;
@@ -66,6 +67,7 @@ namespace mp {
           RgnLimit=127;
           Transparent="Y";
           POIIndex="N";
+          PolygonEvaluate="Y";
           Levels[0]=22;
           Levels[1]=21;
           Levels[2]=19;

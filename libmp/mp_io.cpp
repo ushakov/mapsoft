@@ -8,6 +8,7 @@
 #include "mp_io.h"
 #include "../utils/spirit_utils.h"
 #include "../utils/iconv_utils.h"
+#include "../lib2d/point_utils.h"
 
 namespace mp {
 
@@ -17,6 +18,58 @@ using namespace boost::spirit;
 // Название charset'a получается добавлением "CP"
 string default_codepage = "1251";
 
+
+// Специальный класс для склеивания многоугольников, состоящих из
+// многих частей, в один
+
+struct polygon_joiner : list<Line<double> >{
+
+  operator Line<double> () const {
+    Line<double> ret;
+    if (size()==0) return ret;
+
+    list<Line<double> >::const_iterator l = begin();
+    ret = *l; l++;
+    while (l!=end()){
+
+      // Найдем место кратчайшего разреза между ret и очередным куском.
+      // Честно пока делать лень, поэтому найдем минимальное расстояние 
+      // между вершинами...
+
+      double dist = 1e99;
+      
+      Line<double>::iterator  i1,q1 ;
+      Line<double>::const_iterator  i2,q2;
+        // i1,i2 -- пара вершин
+        // q1,q2 -- искомое
+
+      for (i1=ret.begin(); i1!=ret.end(); i1++){
+        for (i2=l->begin(); i2!=l->end(); i2++){
+          
+          double d = pdist(*i1, *i2);
+          if (d < dist){
+            dist = d;
+            q1=i1; q2=i2;
+          }
+        }
+      }
+
+      // вставим кусок в разрез
+      Line<double> tmp;
+      tmp.push_back(*q1);
+      tmp.insert(tmp.end(), q2, l->end());
+      tmp.insert(tmp.end(), l->begin(), q2);
+      tmp.push_back(*q2);
+      ret.insert(q1, tmp.begin(), tmp.end());
+
+      l++;
+    }
+    return ret;
+  }
+ 
+};
+
+
 bool read(const char* filename, mp_world & world){
 
   mp_world ret;
@@ -24,25 +77,29 @@ bool read(const char* filename, mp_world & world){
   int l=0;
   Point<double> pt;
 
+  Line<double>   line;
+  polygon_joiner joiner;
+
   rule_t ch = anychar_p - eol_p;
   rule_t comment = (ch_p(';') >> (*ch)[push_back_a(o.Comment)] >> eol_p) | space_p;
 
   rule_t header = 
     *((ch_p(';') >> (*ch)[push_back_a(ret.Comment)] >> eol_p) | space_p) >>
       ("[IMG ID]") >> eol_p >> *(
-      ( "ID="         >> !uint_p[assign_a(ret.ID)]         >> eol_p) |
-      ( "Name="       >> (*ch)[assign_a(ret.Name)]        >> eol_p) |
-      ( "Elevation="  >> (*ch)[assign_a(ret.Elevation)]   >> eol_p) |
-      ( "Preprocess=" >> (*ch)[assign_a(ret.Preprocess)]  >> eol_p) |
-      ( "CodePage="   >> (*ch)[assign_a(ret.CodePage)]    >> eol_p) |
-      ( "LblCoding="  >> !uint_p[assign_a(ret.LblCoding)]  >> eol_p) |
-      ( "TreSize="    >> !uint_p[assign_a(ret.TreSize)]    >> eol_p) |
-      ( "TreMargin="  >> !ureal_p[assign_a(ret.TreMargin)] >> eol_p) |
-      ( "RgnLimit="   >> !uint_p[assign_a(ret.RgnLimit)]   >> eol_p) |
-      ( "Transparent=">> (*ch)[assign_a(ret.Transparent)] >> eol_p) |
-      ( "POIIndex="   >> (*ch)[assign_a(ret.POIIndex)]    >> eol_p) |
-      ( "Copyright="  >> (*ch)[assign_a(ret.Copyright)]    >> eol_p) |
-      ( "Levels="     >> !uint_p >> eol_p) |
+      ( "ID="              >> !uint_p[assign_a(ret.ID)]            >> eol_p) |
+      ( "Name="            >> (*ch)[assign_a(ret.Name)]            >> eol_p) |
+      ( "Elevation="       >> (*ch)[assign_a(ret.Elevation)]       >> eol_p) |
+      ( "Preprocess="      >> (*ch)[assign_a(ret.Preprocess)]      >> eol_p) |
+      ( "CodePage="        >> (*ch)[assign_a(ret.CodePage)]        >> eol_p) |
+      ( "LblCoding="       >> !uint_p[assign_a(ret.LblCoding)]     >> eol_p) |
+      ( "TreSize="         >> !uint_p[assign_a(ret.TreSize)]       >> eol_p) |
+      ( "TreMargin="       >> !ureal_p[assign_a(ret.TreMargin)]    >> eol_p) |
+      ( "RgnLimit="        >> !uint_p[assign_a(ret.RgnLimit)]      >> eol_p) |
+      ( "Transparent="     >> (*ch)[assign_a(ret.Transparent)]     >> eol_p) |
+      ( "POIIndex="        >> (*ch)[assign_a(ret.POIIndex)]        >> eol_p) |
+      ( "PolygonEvaluate=" >> (*ch)[assign_a(ret.PolygonEvaluate)] >> eol_p) |
+      ( "Copyright="       >> (*ch)[assign_a(ret.Copyright)]       >> eol_p) |
+      ( "Levels="          >> !uint_p >> eol_p) |
       ( "Level" >> uint_p[assign_a(l)] >> "=" 
                 >> !uint_p[insert_at_a(ret.Levels,l)] >> eol_p) |
       ( "Zoom"  >> uint_p[assign_a(l)] >> "=" 
@@ -52,7 +109,7 @@ bool read(const char* filename, mp_world & world){
     rule_t pt_r = ch_p('(') 
 		  >> real_p[assign_a(pt.y)] >> ',' 
 		  >> real_p[assign_a(pt.x)]
-                  >> ch_p(')')[push_back_a(o, pt)];
+                  >> ch_p(')');
 
     rule_t obj_params = 
        (( "Type=0x"   >> hex_p[assign_a(o.Type)]) |
@@ -67,7 +124,7 @@ bool read(const char* filename, mp_world & world){
       ch_p('[') >> (str_p("POI") | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] >> ch_p(']') >> eol_p
       >> *(obj_params |
          ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)] >> "="
-           >> pt_r >> eol_p))
+           >> pt_r[push_back_a(o, pt)] >> eol_p))
       >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p
       [push_back_a(ret,o)][clear_a(o)];
 
@@ -75,16 +132,20 @@ bool read(const char* filename, mp_world & world){
       ch_p('[') >> (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] >> ch_p(']') >> eol_p
       >> *(obj_params |
          ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)] >> "="
-           >> pt_r >> *(',' >> pt_r) >> eol_p) [push_back_a(ret,o)][clear_a(o)] )
+           >> pt_r[push_back_a(o, pt)] >> *(',' >> pt_r[push_back_a(o, pt)]) >> eol_p) 
+              [push_back_a(ret,o)][clear_a(o)] )
       >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p;
 
     rule_t polygon_object =
-      ch_p('[') >> (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")] >> ch_p(']') >> eol_p
+      ch_p('[') >> (str_p("POLYGON")  | "RGN80") >> ch_p(']') >> eol_p
+        [assign_a(o.Class, "POLYGON")] [clear_a(joiner)]
       >> *(obj_params |
-         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)] >> "="
-           >> pt_r[push_back_a(o.fpoints, pt)] >> *(',' >> pt_r) >> eol_p[push_back_a(o.lpoints, pt)])
+         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)][clear_a(line)] >> "="
+           >> pt_r[push_back_a(line, pt)] >> *(',' >> pt_r[push_back_a(line, pt)]) >> eol_p)
+           [push_back_a(joiner,line)]
          )
-      >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p [push_back_a(ret,o)];
+      >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p 
+      [assign_a(o,joiner)][push_back_a(ret,o)];
 
       rule_t object = eps_p[assign_a(o,o0)] >> *comment >> (poi_object | polyline_object | polygon_object);
 
@@ -176,19 +237,20 @@ bool write(std::ostream & out, const mp_world & world){
        c!=world.Comment.end(); c++) out << ";" << cnv.from_utf(*c) << "\n";
   out << setprecision(6) << fixed
       << "\r\n[IMG ID]" 
-      << "\r\nID="         << world.ID 
-      << "\r\nName="       << cnv.from_utf(world.Name)
-      << "\r\nElevation="  << world.Elevation
-      << "\r\nPreprocess=" << world.Preprocess
-      << "\r\nCodePage="   << default_codepage
-      << "\r\nLblCoding="  << world.LblCoding
-      << "\r\nTreSize="    << world.TreSize
-      << "\r\nTreMargin="  << world.TreMargin
-      << "\r\nRgnLimit="   << world.RgnLimit
-      << "\r\nTransparent="<< world.Transparent
-      << "\r\nPOIIndex="   << world.POIIndex
-      << "\r\nCopyright="  << world.Copyright
-      << "\r\nLevels="     << world.Levels.size();
+      << "\r\nID="              << world.ID 
+      << "\r\nName="            << cnv.from_utf(world.Name)
+      << "\r\nElevation="       << world.Elevation
+      << "\r\nPreprocess="      << world.Preprocess
+      << "\r\nCodePage="        << default_codepage
+      << "\r\nLblCoding="       << world.LblCoding
+      << "\r\nTreSize="         << world.TreSize
+      << "\r\nTreMargin="       << world.TreMargin
+      << "\r\nRgnLimit="        << world.RgnLimit
+      << "\r\nTransparent="     << world.Transparent
+      << "\r\nPOIIndex="        << world.POIIndex
+      << "\r\nCopyright="       << world.Copyright
+      << "\r\nPolygonEvaluate=" << world.PolygonEvaluate
+      << "\r\nLevels="          << world.Levels.size();
   map<int,int>::const_iterator l;
   for (l=world.Levels.begin(); l!=world.Levels.end(); l++)
      out << "\r\nLevel" << l->first << "=" << l->second;
@@ -212,6 +274,7 @@ bool write(std::ostream & out, const mp_world & world){
     }
     out << "\r\n[END]\r\n";
   }
+  return true;
 }
 
 } //namespace

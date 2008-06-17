@@ -150,15 +150,15 @@ main(int argc, char **argv){
          (type == 0x100032) || // плохой путь
          (type == 0x100033) || // 
          (type == 0x100034) || // 
-         (type == 0x100035)  // отличнй путь
-//         (type == 0x200014) || // редколесье
-//         (type == 0x200015) || // остров леса
-//         (type == 0x200029) || // озеро
-//         (type == 0x20003B) || // большое озеро
-//         (type == 0x20004D) || // ледник
-//         (type == 0x200052) || // поле
-//         (type == 0x200053)    // остров
-       ) any2xspl(*i, 1);
+         (type == 0x100035) || // отличнй путь
+         (type == 0x200014) || // редколесье
+         (type == 0x200015) || // остров леса
+         (type == 0x200029) || // озеро
+         (type == 0x20003B) || // большое озеро
+         (type == 0x20004D) || // ледник
+         (type == 0x200052) || // поле
+         (type == 0x200053)    // остров
+       ) any2xspl(*i, 0.6, fig::cm2fig*0.3);
 
     // отметка уреза воды
     if (type == 0x1000){ 
@@ -245,6 +245,18 @@ main(int argc, char **argv){
         fig_object o = *i;
         o.set_points(ld.get_points(80));
         ld.move_frw(20);
+        NW.push_back(o);
+      }
+      continue;
+    }
+    // горизонталь пунктирная
+    if (type == 0x100020){
+      i->type=2; i->sub_type=1; i->line_style=0;
+      LineDist<int> ld(*i);
+      while (!ld.is_end()){
+        fig_object o = *i;
+        o.set_points(ld.get_points(70));
+        ld.move_frw(40);
         NW.push_back(o);
       }
       continue;
@@ -485,6 +497,11 @@ main(int argc, char **argv){
       NW.push_back(o);
       NW.push_back(*i); continue;
     }
+
+   if (type == 0x200014){ // редколесье 
+     i->pen_color=0x1ACFFAC;
+     NW.push_back(*i); continue;
+   }
 
    // болота
    if ((type == 0x20004C) || (type == 0x200051)){ 

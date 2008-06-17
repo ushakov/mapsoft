@@ -24,7 +24,7 @@ namespace fig {
     const double a, const Point<int> & p0 = Point<int>(0,0));
 
   // преобразовать ломаную в сплайн
-  void any2xspl(fig_object & o, const double x);
+  void any2xspl(fig_object & o, const double x, const double y=0);
 
   /// обрезка fig-файла по прямоугольнику
   void rect_crop(const Rect<int> & cutter, std::list<fig_object> & objects);

@@ -511,6 +511,7 @@ bool write(ostream & out, const fig_world & world){
       break;
     }
   }
+  return true;
 }
 
 } //namespace
