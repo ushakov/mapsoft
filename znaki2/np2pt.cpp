@@ -3,8 +3,8 @@
 #include "../libfig/fig.h"
 #include "../utils/m_time.h"
 #include <cmath>
-#include "zn.h"
-#include "zn_key.h"
+#include "../libzn/zn.h"
+#include "../libzn/zn_key.h"
 #include "line_dist.h"
 
 using namespace std;

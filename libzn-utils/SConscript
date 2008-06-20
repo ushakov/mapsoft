@@ -1,0 +1,9 @@
+Import ('env')
+env_geo = env.Clone()
+
+mapsoft_libs = Split ("geo_io loaders jeeps fig mp utils 2d zn fig mp")
+other_libs   = Split ("usb tiff jpeg png gd syck")
+
+env_geo.Prepend(LIBS=[mapsoft_libs,other_libs])
+
+env_geo.Program(['zn.cpp', '../yaml/yaml.cpp'])

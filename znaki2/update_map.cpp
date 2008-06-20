@@ -8,8 +8,8 @@
 #include "../libmp/mp.h"
 #include "../geo_io/geo_convs.h"
 
-#include "zn.h"
-#include "zn_key.h"
+#include "../libzn/zn.h"
+#include "../libzn/zn_key.h"
 
 using namespace std;
 

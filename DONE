@@ -3,6 +3,15 @@
     * разобраться с lib2d/crop.h
 
 
+slazav 20.06.2008
+ * вынес отдельно библиотеку zn
+ * начал писать новый набор программ для работы с ней zn/utils
+TODO: не разрешать запись mp POI с многими точками
+      у неизвестных объектов с многими точками выставлять тип в POLYLINE
+      определение допустимых глубин - по conf-файлу?
+      исправить запись ozi map
+      zn-labels, zn-keys
+
 slazav 9.05.2008
  * переделал fig2pnm, для рисования контуров и убирания тонких линий...
 
@@ -24,7 +33,7 @@ slazav 8.05.2008
  * Исправил суровую ошибку в znaki2/line_dist.h - удивительно, почему я до сих пор на нее не натыкался...
 
 slazav 6.05.2008
- * IConv - use std::string in interface, tot const char *.
+ * IConv - use std::string in interface, not const char *.
          - default value for def_enc - empty string. If def_enc empty - it is not used.
          - modify libfig and libmp to use new IConv.
  * io_oe.h, io_xml.h и т.п.

@@ -12,6 +12,8 @@ subdirs = Split ("""
 		libfig
 		libmp
 		lib2d
+		libzn
+		libzn-utils
 		""")
 
 #SetOption('implicit_cache', 1)

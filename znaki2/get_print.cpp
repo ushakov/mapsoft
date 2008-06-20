@@ -3,7 +3,7 @@
 #include "../libfig/fig.h"
 #include "../utils/m_time.h"
 #include <cmath>
-#include "zn.h"
+#include "../libzn/zn.h"
 #include "line_dist.h"
 #include "../lib2d/line_polycrop.h"
 
