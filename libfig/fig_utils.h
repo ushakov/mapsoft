@@ -16,6 +16,9 @@ namespace fig {
   double nearest_pt(Point<double> & vec, Point<double> & pt,
     const std::list<fig_object> & objects, const std::string & mask, double maxdist=100);
 
+  // размер fig-объектов
+  Rect<int> range(std::list<fig_object> & objects);
+
   // заключить fig-объекты в составной объект.
   void fig_make_comp(std::list<fig_object> & objects);
 

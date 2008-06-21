@@ -4,6 +4,7 @@
 
 #include "../utils/pnm_shifter.h"
 #include "../lib2d/point.h"
+#include "../geo_io/geofig.h"
 
 #include <iostream>
 #include <vector>
@@ -119,6 +120,25 @@ main(int argc, char **argv){
 
   if (argc != 2) usage();
   std::string infile = argv[1];
+
+
+  // читаем fig
+  std::cerr << "  reading fig: " << fig_file <<"\n";
+  fig::fig_world F;
+  if (!fig::read(fig_file.c_str(), F)) {
+    cerr << "Bad fig file " << fig_file << "\n"; return 1;
+  }
+
+  // привязка fig-файла
+  g_map ref = fig::get_ref(F);
+  Rect<int> r = fig::range(F);
+  if ((ref.size()>2) && (!r.empty())){
+    cerr << "  making MAP-file\n";
+    convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+    if 
+  }
+
+
 
   // у нас есть три области работы:
   // 0 : 2 -- удаление тонких линий

@@ -46,10 +46,9 @@ double nearest_pt(Point<double> & vec, Point<double> & pt,
   return minl;
 }
 
-// заключить fig-объекты в составной объект.
-void fig_make_comp(std::list<fig_object> & objects){
-  if ((objects.size()<1) || (objects.begin()->size()<1)) return;
-
+// размер fig-объектов
+Rect<int> range(std::list<fig_object> & objects){
+  if ((objects.size()<1) || (objects.begin()->size()<1)) return Rect<int>(0,0,0,0);
   int minx=(*objects.begin())[0].x;
   int maxx=(*objects.begin())[0].x;
   int miny=(*objects.begin())[0].y;
@@ -76,10 +75,19 @@ void fig_make_comp(std::list<fig_object> & objects){
       }
     }
   }
+  return Rect<int>(Point<int>(minx,miny), Point<int>(maxx,maxy));
+}
+
+
+// заключить fig-объекты в составной объект.
+void fig_make_comp(std::list<fig_object> & objects){
+  if ((objects.size()<1) || (objects.begin()->size()<1)) return;
+  Rect<int> r = range(objects);
+
   fig_object o;
   o.type=6;
-  o.push_back(Point<int>(minx,miny));
-  o.push_back(Point<int>(maxx,maxy));
+  o.push_back(r.TLC());
+  o.push_back(r.BRC());
   objects.insert(objects.begin(), o);
   o.type = -6;
   objects.insert(objects.end(), o);
