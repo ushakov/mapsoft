@@ -37,7 +37,7 @@ main(int argc, char **argv){
   fig::rem_ref(W);
 
   g_rect  range  = map.range();
-  g_point center = (range.TLC() + range.BRC())/2;
+  g_point center = (range.TLC() + range.BRC())/2.0;
 
   convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(), Datum("wgs84"), Proj("tmerc"), Options());
   cnv.frw(center);

@@ -362,7 +362,7 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int
       if ((p1.x == 0) && (p1.y == 0)) p1.x = 1;
 
       Point<double> v = pnorm(p1);
-      if (v.x<0) v=-1*v;
+      if (v.x<0) v=-1.0*v;
       txt.angle = atan2(-v.y, v.x);
 
       p-= Point<int>(int(-v.y*txt_dist), int(v.x*txt_dist));

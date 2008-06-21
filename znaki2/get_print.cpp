@@ -431,7 +431,7 @@ main(int argc, char **argv){
         Point<double> p=ld.pt(), vt=ld.tang(), vn=ld.norm();
         o.clear();
         o.push_back(p);
-        o.push_back(p+k*(vn-vt)*w);
+        o.push_back(p+k*w*(vn-vt));
         NW.push_back(o);
         ld.move_frw((n%2==0) ? w:(step-w));
         n++;
@@ -463,7 +463,7 @@ main(int argc, char **argv){
         Point<double> p=ld.pt(), vn=ld.norm();
         o.clear();
         o.push_back(p);
-        o.push_back(p+k*vn*w);
+        o.push_back(p+k*w*vn);
         NW.push_back(o);
         ld.move_frw(step);
       }

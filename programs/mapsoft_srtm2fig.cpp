@@ -208,7 +208,7 @@ main(int argc, char** argv){
   
           // если мы спустились от исходной точки более чем на DH или размер области более PS
           if ((h - max > DH ) || (pts.size() > PS)) {
-            g_point p1 = g_point(p)/1200;
+            g_point p1 = g_point(p)/1200.0;
             if (!test_pt(p1, border_ll)) break;
             fig::fig_object o = fig::make_object("2 1 0 3 24 7  57 -1 -1 0.000 0 1 -1 0 0 1");
             fig_cnv.bck(p1);
@@ -236,7 +236,7 @@ main(int argc, char** argv){
       for (int lon=lon1; lon<lon2-1; lon++){
         Point<int> p(lon,lat);
         short h = s.geth(p);
-        g_point p1 = g_point(p)/1200;
+        g_point p1 = g_point(p)/1200.0;
         if ((h==srtm_undef)&&test_pt(p1, border_ll)) aset.insert(p);
       }
     }

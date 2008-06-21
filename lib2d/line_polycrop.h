@@ -60,7 +60,7 @@ void crop_lines(std::list<T> & lines,
     // посчитаем число точек внутри - число точек вне.
     int sum=0;
     for (int i = 1; i<l->size(); i++){
-      sum+= (cutouter xor test_pt(((*l)[i]+(*l)[i-1])/2, cutter))? -1:1;
+      sum+= (cutouter xor test_pt(Point<double>((*l)[i]+(*l)[i-1])/2.0, cutter))? -1:1;
     }
     if (sum<0) {lines1.push_back(*l);  l=lines.erase(l); continue;}
     l++;
