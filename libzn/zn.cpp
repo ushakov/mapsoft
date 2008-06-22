@@ -108,14 +108,22 @@ int zn_conv::get_type(const mp::mp_object & o) const{
 int zn_conv::get_type (const fig::fig_object & o) const {
   if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return 0; // объект неинтересного вида
 
+
   for (std::map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
+
+    int c1 = o.pen_color;
+    int c2 = i->second.fig.pen_color;
+    // цвет -1 совпадает с цветом 0!
+    if (c1 == -1) c1 = 0;
+    if (c2 == -1) c2 = 0;
+
     if (((o.type==2) || (o.type==3)) && (o.size()>1)){
       // должны совпасть глубина и толщина
       if ((o.depth     != i->second.fig.depth) ||
           (o.thickness != i->second.fig.thickness)) continue;
       // для линий толщины не 0 - еще и цвет и тип линии
       if ((o.thickness  != 0 ) &&
-          ((o.pen_color != i->second.fig.pen_color) ||
+          ((c1 != c2) ||
            (o.line_style != i->second.fig.line_style))) continue;
 
       // заливки
@@ -123,6 +131,9 @@ int zn_conv::get_type (const fig::fig_object & o) const {
       int af2 = i->second.fig.area_fill;
       int fc1 = o.fill_color;
       int fc2 = i->second.fig.fill_color;
+      // цвет -1 совпадает с цветом 0!
+      if (fc1 == -1) fc1 = 0;
+      if (fc2 == -1) fc2 = 0;
       // белая заливка бывает двух видов
       if ((fc1!=7)&&(af1==40)) {fc1=7; af1=20;}
       if ((fc2!=7)&&(af2==40)) {fc2=7; af2=20;}
@@ -134,7 +145,7 @@ int zn_conv::get_type (const fig::fig_object & o) const {
 
     // если заливка - штриховка, то и pen_color должен совпасть 
       // (даже для линий толщины 0)
-      if ((af1>41) && (o.pen_color != i->second.fig.pen_color)) continue;
+      if ((af1>41) && (c1 != c2)) continue;
     
       // проведя все тесты, мы считаем, что наш объект соответствует
       // объекту из znaki!
@@ -144,14 +155,14 @@ int zn_conv::get_type (const fig::fig_object & o) const {
       // должны совпасть глубина, толщина, цвет, и закругление
       if ((o.depth     == i->second.fig.depth) &&
           (o.thickness == i->second.fig.thickness) &&
-          (o.pen_color == i->second.fig.pen_color) &&
+          (c1          == c2) &&
           (o.cap_style%2 == i->second.fig.cap_style%2))
         return i->first;
     }
     else if (o.type==4){ //текст
       // должны совпасть глубина, цвет, и шрифт
       if ((o.depth     == i->second.fig.depth) &&
-          (o.pen_color == i->second.fig.pen_color) &&
+          (c1          == c2) &&
           (o.font      == i->second.fig.font))
         return i->first;
     }
