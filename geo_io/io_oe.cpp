@@ -15,6 +15,7 @@
 #include "geo_convs.h"
 #include "../utils/mapsoft_options.h"
 #include "../lib2d/line_utils.h"
+#include "../utils/iconv_utils.h"
 
 #include <math.h>
 
@@ -24,6 +25,8 @@
 
 namespace oe{
 
+const char *default_charset = "WINDOWS-1251";
+ 
 using namespace std;
 using namespace boost::spirit;
 
@@ -232,6 +235,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   oe_waypoint_list w;
   oe_track         t;
   oe_map           m;
+  geo_data ret;
 
   // prefix -- директория, в которой лежит map-файл, на случай, 
   // если в нем относительные названия граф.файлов
@@ -376,17 +380,43 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
     MM >> 
     *anychar_p;
 
-  rule_t main_rule = (wpt_head >> *(wpt_point))[push_back_a(world.wpts, w)] ||
-                     (trk_head >> *(trk_point))[push_back_a(world.trks, t)] ||
-                      map_rule[push_back_a(world.maps, m)];
+  rule_t main_rule = (wpt_head >> *(wpt_point))[push_back_a(ret.wpts, w)] ||
+                     (trk_head >> *(trk_point))[push_back_a(ret.trks, t)] ||
+                      map_rule[push_back_a(ret.maps, m)];
 
-  return parse_file("fig::read", filename, main_rule);
+  if (!parse_file("oe::read", filename, main_rule)) return false;
+
+  //преобразование комментариев и названий точек в UTF-8
+  IConv cnv(default_charset);
+  for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
+    for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
+      p->name = cnv.to_utf(p->name);
+      p->comm = cnv.to_utf(p->comm);
+    }
+  }
+  //преобразование комментариев к трекам в UTF-8
+  for (vector<g_track>::iterator l=ret.trks.begin(); l!=ret.trks.end(); l++){
+    l->comm = cnv.to_utf(l->comm);
+  }
+  //преобразование комментариев к картам в UTF-8
+  for (vector<g_map>::iterator l=ret.maps.begin(); l!=ret.maps.end(); l++){
+    l->comm = cnv.to_utf(l->comm);
+  }
+
+  world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
+  world.trks.insert(world.trks.end(), ret.trks.begin(), ret.trks.end());
+  world.maps.insert(world.maps.end(), ret.maps.begin(), ret.maps.end());
+
+  return true;
 }
 
 /***********************************************************/
 
 	bool write_plt_file (ostream & f, const g_track & trk, const Options & opt){
+
 		if (!f.good()) return false;
+		IConv cnv(default_charset);
+                
 		int num = trk.size();
 		f << "OziExplorer Track Point File Version 2.0\r\n"
 		  << "WGS 84\r\n"
@@ -395,7 +425,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		  << "0,"
 		  << trk.width << ',' 
 		  << trk.color.RGB().value << ',' 
-		  << trk.comm  << ',' 
+		  << cnv.from_utf(trk.comm)  << ',' 
 		  << trk.skip  << ',' 
 		  << trk.type  << ',' 
 		  << trk.fill  << ',' 
@@ -417,7 +447,10 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 	}
 
 	bool write_wpt_file (ostream & f, const g_waypoint_list & wpt, const Options & opt){
+
 		if (!f.good ()) return false;
+		IConv cnv(default_charset);
+
 		int num = wpt.size();
 		int n=0;
 		f << "OziExplorer Waypoint File Version 1.1\r\n"
@@ -429,7 +462,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			 p!= wpt.end(); p++){
 
 			f << right << setw(4) << (++n) << ','
-			  << left  << setw(6) << setfill(' ') << p->name << ','
+			  << left  << setw(6) << setfill(' ') << cnv.from_utf(p->name) << ','
 			  << right << fixed << setprecision(6)
 			  << setw(10) << p->y << ','
 			  << setw(11) << p->x << ','
@@ -439,7 +472,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << p->map_displ  << ','
 			  << p->color.RGB().value   << ','
 			  << p->bgcolor.RGB().value << ','
-			  << p->comm       << ','
+			  << cnv.from_utf(p->comm)  << ','
 			  << p->pt_dir     << ','
 			  << p->displ      << ','
 			  << p->prox_dist  << ','
@@ -454,10 +487,10 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 	bool write_map_file (ostream & f, const g_map & m, const Options & opt){
 
 		if (!f.good()) return false;
-
+		IConv cnv(default_charset);
 
 		f << "OziExplorer Map Data File Version 2.2\r\n"
-		  << m.comm << "\r\n"
+		  << cnv.from_utf(m.comm) << "\r\n"
 		  << m.file << "\r\n"
 		  << "1 ,Map Code,\r\n"
 		  << "WGS 84,,   0.0000,   0.0000,WGS 84\r\n"
@@ -513,25 +546,27 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
 		if (m.border.size()>0){
 
-			// Ozi wants only 4 border points!
-                        g_rect r(m.border[0], m.border[0]);
-                        for (g_line::const_iterator p =m.border.begin();
-                                 p!=m.border.end(); p++) r=rect_pump(r, *p);
+//			// Ozi wants only 4 border points!
+//                        g_rect r(m.border[0], m.border[0]);
+//                        for (g_line::const_iterator p =m.border.begin();
+//                                 p!=m.border.end(); p++) r=rect_pump(r, *p);
 
-			g_line b4=rect2line(r); 
-                        g_line b4wgs;
+//			g_line b4=rect2line(r); 
 
 			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"), Options());
-                        for (g_line::const_iterator p =b4.begin();
-                                 p!=b4.end(); p++){
-                          g_point p1=*p; cnv.frw(p1); b4wgs.push_back(p1);
+
+                        g_line border_wgs;
+
+                        for (g_line::const_iterator p =m.border.begin();
+                                 p!=m.border.end(); p++){
+                          g_point p1=*p; cnv.frw(p1); border_wgs.push_back(p1);
                         }
 
 			f << "MM0,Yes\r\n"
-			  << "MMPNUM," << b4.size() << "\r\n";
+			  << "MMPNUM," << m.border.size() << "\r\n";
 			int n=0;
-			for (g_line::const_iterator it =b4.begin();
-				 it!=b4.end(); it++){
+			for (g_line::const_iterator it =m.border.begin();
+				 it!=m.border.end(); it++){
 				n++;
 				f << "MMPXY," << n << "," 
                                   << right << fixed << setprecision(0) << setfill(' ')
@@ -540,8 +575,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			n=0;
 
 			f.precision(8);
-			for (g_line::const_iterator it =b4wgs.begin();
-				 it!=b4wgs.end(); it++){
+			for (g_line::const_iterator it =border_wgs.begin();
+				 it!=border_wgs.end(); it++){
 				n++;
 				f << "MMPLL," << n << "," 
 				  << right << fixed << setprecision(6) << setfill(' ')

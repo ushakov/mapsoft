@@ -109,6 +109,13 @@ main(int argc, char **argv){
       if (pass==1) NW.push_back(*i); 
       continue;
     }
+    // сохраним привязку!
+    if ((pass==1) && (i->comment.size()>0) && (0==strncmp(i->comment[0].c_str(), "REF", 3))){
+       i->thickness=0;
+       NW.push_back(*i);
+       continue;
+    }
+
     if ((i->depth <50) || (i->depth>=200)) continue;
     if (i->size() == 0) continue;
 

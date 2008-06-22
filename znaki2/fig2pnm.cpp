@@ -2,9 +2,12 @@
 //#include <unistd.h>
 //#include <sys/types.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include "../utils/pnm_shifter.h"
 #include "../lib2d/point.h"
 #include "../geo_io/geofig.h"
+#include "../geo_io/io.h"
 
 #include <iostream>
 #include <vector>
@@ -15,23 +18,30 @@
 #define TEXT_DEPTHS "-D+40"
 #define BASE_DEPTHS "-D+41:999"
 
+#define SCALE 3.75
+
 struct fig2dev_reader{
   int fig2dev_fd;
 
   fig2dev_reader(const char *depth_range, const char *bg, const char *infile){
     int   out_pipe[2];
     pid_t pid;
-    char a1[strlen(depth_range)+1];   strcpy(a1, depth_range);
-    char a2[strlen(bg)+1];            strcpy(a2, bg);
-    char a3[strlen(infile)+1];        strcpy(a3, infile);
+
+    const char  *m = ("-m" + boost::lexical_cast<std::string>(SCALE)).c_str();
+    char a1[strlen(m)+1];             strcpy(a1, m);
+    char a2[strlen(depth_range)+1];   strcpy(a2, depth_range);
+    char a3[strlen(bg)+1];            strcpy(a3, bg);
+    char a4[strlen(infile)+1];        strcpy(a4, infile);
 
 
     const char  *name = "fig2dev";
-    char *args[9] = {"fig2dev", "-Lppm", "-j", "-F", "-m3.75", a1, a2, a3, NULL};
-    int p=5;
-    if (strlen(depth_range)!=0){args[p++] = a1;}
-    if (strlen(bg)!=0){args[p++] = a2;}
-    if (strlen(infile)!=0){args[p++] = a3;}
+
+    char *args[9] = {"fig2dev", "-Lppm", "-j", "-F", a1, a2, a3, a4, NULL};
+    int p=4;
+    if (strlen(m)!=0){args[p++] = a1;}
+    if (strlen(depth_range)!=0){args[p++] = a2;}
+    if (strlen(bg)!=0){args[p++] = a3;}
+    if (strlen(infile)!=0){args[p++] = a4;}
     args[p]=NULL;
 
     if (pipe(out_pipe)!=0){ std::cerr << "can't open pipe\n"; exit(-1); }
@@ -68,7 +78,12 @@ struct cnt_data{
 
 
 void usage(){
-    std::cerr << "usage: fig2pnm <file.fig> > out.pnm\n";
+    std::cerr << "usage: fig2pnm <options> <file.fig> > out.pnm\n"
+              << "options:\n"
+              << "  --help   help\n"
+              << "  --no_thinrem - don't remove thin lines\n"
+              << "  --no_cntrs   - don't draw countours\n"
+              << "  --map <file> - make map file\n";
     exit(0);
 }
 
@@ -106,8 +121,66 @@ bool is_dark(int c, const unsigned char thr){
 #define DIST2(x,y) ((x)*(x) + (y)*(y))
 
 
+
 main(int argc, char **argv){
 
+  bool thinrem=true, cntrs=true;
+  std::string infile  = "";
+  std::string mapfile = "";
+
+  // разбор командной строки
+  for (int i=1; i<argc; i++){
+
+    if ((strcmp(argv[i], "-h")==0)||
+        (strcmp(argv[i], "-help")==0)||
+        (strcmp(argv[i], "--help")==0)) usage();
+
+    if (strcmp(argv[i], "--no_thinrem")==0) { thinrem=false; continue; }
+    if (strcmp(argv[i], "--no_cntrs")==0)   { cntrs=false; continue; }
+    if (strcmp(argv[i], "--map")==0){
+      if (i==argc-1) usage();
+      i+=1;
+      mapfile=argv[i];
+      continue;
+    }
+
+    infile = argv[i];
+  }
+  if (infile == "") usage();
+
+
+
+  // построение привязки
+  if (mapfile!=""){
+
+    // читаем fig
+    std::cerr << "  reading fig: " << infile <<"\n";
+    fig::fig_world F;
+    if (!fig::read(infile.c_str(), F)) {
+      std::cerr << "Bad fig file " << infile << "\n"; return 1;
+    }
+
+    // привязка fig-файла
+    std::cerr << "  get ref\n";
+    g_map ref = fig::get_ref(F);
+    std::cerr << "  calc range\n";
+    Rect<int> r = fig::range(F);
+    std::cerr << r << "\n";
+    std::cerr << ref.size() << "\n";
+    if ((ref.size()>2) && (!r.empty())){
+      std::cerr << "  making MAP-file\n";
+      ref += r.TLC();
+      ref *= fig::fig2cm / 2.54 * 80 * SCALE;
+      geo_data w;
+      w.maps.push_back(ref);
+      io::out(mapfile, w, Options());
+    } else {
+      std::cerr << "  can't find geo-reference in fig-file!\n";
+    }
+  }
+
+
+  // правила для построения контуров
   //-1 -- all colors
   //-2 -- lite colors
   std::vector<cnt_data> cnts;
@@ -116,28 +189,6 @@ main(int argc, char **argv){
   cnts.push_back(cnt_data(0x00ffff, 0xc06000, 0x5066FF, 0));
 //  cnts.push_back(cnt_data(0x00ffff, 30453904, 0x5066FF, 0));
   cnts.push_back(cnt_data(0xAAFFAA, 0xFFFFFF, 0x009000, 7));
-
-
-  if (argc != 2) usage();
-  std::string infile = argv[1];
-
-
-  // читаем fig
-  std::cerr << "  reading fig: " << fig_file <<"\n";
-  fig::fig_world F;
-  if (!fig::read(fig_file.c_str(), F)) {
-    cerr << "Bad fig file " << fig_file << "\n"; return 1;
-  }
-
-  // привязка fig-файла
-  g_map ref = fig::get_ref(F);
-  Rect<int> r = fig::range(F);
-  if ((ref.size()>2) && (!r.empty())){
-    cerr << "  making MAP-file\n";
-    convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
-    if 
-  }
-
 
 
   // у нас есть три области работы:
@@ -159,6 +210,7 @@ main(int argc, char **argv){
 
   int a = 128;    // прозрачность сетки
 
+
   fig2dev_shifter lgnd(LGND_DEPTHS, "-g#FDFDFD", infile.c_str(), dw);
   fig2dev_shifter grid(GRID_DEPTHS, "-g#FDFDFD", infile.c_str(), dw);
   fig2dev_shifter text(TEXT_DEPTHS, "-g#FDFDFD", infile.c_str(), dw);
@@ -169,14 +221,15 @@ main(int argc, char **argv){
     std::cerr << "different image sizes\n";
     exit(0);
   }
-//  int N = 3*map.w;
-//  unsigned char buf[N];
+
 
   std::cout << "P6\n" << map.w << " " << map.h << "\n255\n";
 
   for (int i = 0; i<map.h+dw; i++){
 
-    if (map.data[1]!=NULL){
+std::cerr << i << " ";
+
+    if ((map.data[1]!=NULL) && thinrem){
       for (int j = 1; j < map.w-1; j++){
         int c  = COL(j,1);
         int c1 = COL(j-1,1);
@@ -191,7 +244,7 @@ main(int argc, char **argv){
     }
 
 
-    if (map.data[d0a]!=NULL){
+    if ((map.data[d0a]!=NULL) && cntrs){
       for (int j = 0; j < map.w; j++){
 
         for (std::vector<cnt_data>::iterator cnt=cnts.begin(); cnt!=cnts.end(); cnt++){

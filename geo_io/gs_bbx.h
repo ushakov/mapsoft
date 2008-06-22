@@ -94,12 +94,25 @@ struct gs_bbx{
     puts(") show showpage\n");
     return (get()-Point<double>(500,500));
   }
+
   // в координатах fig'a
   Rect<int> txt2bbx_fig(const char * text) const{
     Rect<double> r = txt2bbx(text) * 1200/72*1.05;
     return Rect<int>(int(r.x), int(-r.y-r.h), int(r.w), int(r.h));
   }
 
+  Rect<double> file2bbx(const char *file) const{
+    puts("(");
+    puts(file);
+    puts(") (r) open run");
+    return get();
+  }
+
+  // в координатах fig'a
+  Rect<int> file2bbx_fig(const char * file) const{
+    Rect<double> r = file2bbx(file) * 1200/72*1.05;
+    return Rect<int>(int(r.x), int(-r.y-r.h), int(r.w), int(r.h));
+  }
  
   ~gs_bbx(){
       close(in_pipe[1]);

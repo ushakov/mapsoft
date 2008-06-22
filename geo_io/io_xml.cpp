@@ -12,9 +12,12 @@
 
 #include "io_xml.h"
 #include "../utils/mapsoft_options.h"
+#include "../utils/iconv_utils.h"
 
 
 namespace xml {
+
+        const char *default_charset = "KOI8-R";
 
 	using namespace std;
 	using namespace boost::spirit;
@@ -25,6 +28,7 @@ namespace xml {
 
 		xml_point pt;
 		xml_point_list pt_list;
+                geo_data ret;
 
 		// prefix -- директория, в которой лежит map-файл, на случай,
 		// если в нем относительные названия граф.файлов
@@ -57,24 +61,51 @@ namespace xml {
 		rule_t wpt_object = str_p("<waypoints")[clear_a(pt_list)][clear_a(pt_list.points)]
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
-			>> str_p("</waypoints>")[push_back_a(world.wpts, pt_list)];
+			>> str_p("</waypoints>")[push_back_a(ret.wpts, pt_list)];
 		rule_t trk_object = str_p("<track")[clear_a(pt_list)][clear_a(pt_list.points)]
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
-			>> str_p("</track>")[push_back_a(world.trks, pt_list)];
+			>> str_p("</track>")[push_back_a(ret.trks, pt_list)];
 		rule_t map_object = str_p("<map")[clear_a(pt_list)][clear_a(pt_list.points)][insert_at_a(pt_list, "prefix", prefix)]
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
-			>> str_p("</map>")[push_back_a(world.maps, pt_list)];
+			>> str_p("</map>")[push_back_a(ret.maps, pt_list)];
 
 		rule_t main_rule = *(*space_p >> (wpt_object | trk_object | map_object)) >> *space_p;
 
-		return parse_file("fig::read", filename, main_rule);
+		if (!parse_file("fig::read", filename, main_rule)) return false;
+
+		//преобразование комментариев и названий точек в UTF-8
+		IConv cnv(default_charset);
+		for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
+		  for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
+		    p->name = cnv.to_utf(p->name);
+		    p->comm = cnv.to_utf(p->comm);
+		  }
+		}
+		//преобразование комментариев к трекам в UTF-8
+		for (vector<g_track>::iterator l=ret.trks.begin(); l!=ret.trks.end(); l++){
+		  l->comm = cnv.to_utf(l->comm);
+		}
+		//преобразование комментариев к картам в UTF-8
+		for (vector<g_map>::iterator l=ret.maps.begin(); l!=ret.maps.end(); l++){
+		  l->comm = cnv.to_utf(l->comm);
+		}
+
+                world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
+                world.trks.insert(world.trks.end(), ret.trks.begin(), ret.trks.end());
+                world.maps.insert(world.maps.end(), ret.maps.begin(), ret.maps.end());
+
+                return true;
 	}
 
 /********************************************/
 
 	bool write_track(ofstream & f, const g_track & tr, const Options & opt){
+
+                if (!f.good()) return false;
+                IConv cnv(default_charset);
+
 		g_trackpoint def_pt;
 		g_track def_t;
 		f << "<track points=" << tr.size();
@@ -85,7 +116,7 @@ namespace xml {
 		if (tr.type  != def_t.type)  f << " type="     << trk_type_enum.int2str(tr.type);
 		if (tr.fill  != def_t.fill)  f << " fill="     << trk_fill_enum.int2str(tr.fill);
 		if (tr.cfill != def_t.cfill) f << " cfill=\""  << tr.cfill << "\"";
-		if (tr.comm  != def_t.comm)  f << " comm=\""   << tr.comm << "\"";
+		if (tr.comm  != def_t.comm)  f << " comm=\""   << cnv.from_utf(tr.comm) << "\"";
 		f << ">\n";
                 vector<g_trackpoint>::const_iterator p, b=tr.begin(), e=tr.end();
 		for (p = b; p != e; p++){
@@ -102,6 +133,10 @@ namespace xml {
 	}
 
 	bool write_waypoint_list(ofstream & f, const g_waypoint_list & wp, const Options & opt){
+
+                if (!f.good()) return false;
+                IConv cnv(default_charset);
+
 		g_waypoint def_pt;
 		g_waypoint_list def_w;
 		f << "<waypoints points=" << wp.size();
@@ -114,8 +149,8 @@ namespace xml {
                         if (p->x != def_pt.x)       f << " lon=" << fixed << setprecision(6) << p->x;
                         if (p->z   < 1e20)          f << " alt=" << fixed << setprecision(1) << p->z;
 			if (p->t != def_pt.t)       f << " time=\"" << p->t << "\"";
-                        if (p->name != def_pt.name) f << " name=\"" << p->name << "\"";
-                        if (p->comm != def_pt.comm)             f << " comm=\"" << p->comm << "\"";
+                        if (p->name != def_pt.name) f << " name=\"" << cnv.from_utf(p->name) << "\"";
+                        if (p->comm != def_pt.comm)             f << " comm=\"" << cnv.from_utf(p->comm) << "\"";
                         if (p->prox_dist != def_pt.prox_dist)   f << " prox_dist="  << fixed << setprecision(1) << p->prox_dist;
                         if (p->symb != def_pt.symb)             f << " symb="       << wpt_symb_enum.int2str(p->symb);
                         if (p->displ != def_pt.displ)           f << " displ="      << p->displ;
@@ -132,10 +167,14 @@ namespace xml {
 	}
 
 	bool write_map(ofstream & f, const g_map & m, const Options & opt){
+
+                if (!f.good()) return false;
+                IConv cnv(default_charset);
+
 		g_refpoint def_pt;
 		g_map def_m;
 		f << "<map points=" << m.size();
-                if (m.comm != def_m.comm) f << " comm=\""   << m.comm << "\"";
+                if (m.comm != def_m.comm) f << " comm=\""   << cnv.from_utf(m.comm) << "\"";
                 if (m.file != def_m.file) f << " file=\""   << m.file << "\"";
                 if (m.map_proj != def_m.map_proj) f << " map_proj=" << m.map_proj.xml_str();
 		if (m.border.size()!=0){

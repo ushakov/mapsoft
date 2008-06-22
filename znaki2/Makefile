@@ -1,13 +1,13 @@
 all: make_map_gk update_map get_map get_legend get_print fig2pnm get_figlib make_nom update_ext np2pt
 
-MAPSOFT_LIBS = ../libzn/libzn.a ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff ../yaml/yaml.cpp -lsyck ../libfig/libfig.a ../libmp/libmp.a ../utils/libutils.a ../lib2d/lib2d.a
+MAPSOFT_LIBS = ../libzn/libzn.a ../geo_io/libgeo_io.a ../jeeps/libjeeps.a ../loaders/libloaders.a -lpng -ljpeg -ltiff -lusb ../yaml/yaml.cpp -lsyck ../libfig/libfig.a ../libmp/libmp.a ../utils/libutils.a ../lib2d/lib2d.a
 
 CPPFLAGS=-I../ -g
 
 make_map_gk: $(MAPSOFT_LIBS)
 make_nom:    $(MAPSOFT_LIBS)
 
-fig2pnm:     ../utils/pnm_shifter.cpp
+fig2pnm:     ../utils/pnm_shifter.cpp $(MAPSOFT_LIBS)
 pnm_cnt:     ../utils/pnm_shifter.cpp
 
 update_map:  $(MAPSOFT_LIBS)

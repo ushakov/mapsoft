@@ -11,9 +11,13 @@
 #include <string>
 
 #include "io_gu.h"
+#include "../utils/iconv_utils.h"
+
 
 
 namespace gu {
+
+	const char *default_charset = "KOI8-R";
 
 	using namespace std;
 	using namespace boost::spirit;
@@ -101,6 +105,7 @@ namespace gu {
 		gu_trackpoint tpt;
 		gu_waypoint_list w;
 		gu_track t;
+                geo_data ret;
 
 		rule_t header = str_p("[product ") >> uint_p >> ", version " >>
 			uint_p >> ": " >> +(print_p - ']') >>
@@ -133,22 +138,39 @@ namespace gu {
 							>> uint_p >> " records]"  >> *blank_p)
 										>> *wpt_line[push_back_a(w.points, wpt)]
 										>> (+ch_p('\n') >> "[end transfer," >> +blank_p >> uint_p >> '/'
-											>> uint_p >> " records]" >> *blank_p)[push_back_a(world.wpts, w)];
+											>> uint_p >> " records]" >> *blank_p)[push_back_a(ret.wpts, w)];
 
 		rule_t trk_block = (+ch_p('\n') >> str_p("[tracks,") >> +blank_p
 							>> uint_p >> " records]"  >> *blank_p)
 										>> *trk_line[push_back_a(t.points, tpt)]
 										>> (+ch_p('\n') >> "[end transfer," >> +blank_p >> uint_p >> ch_p('/')
-											>> uint_p >> " records]" >> *blank_p)[push_back_a(world.trks, t)];
+											>> uint_p >> " records]" >> *blank_p)[push_back_a(ret.trks, t)];
 
 		rule_t main_rule = header >> +( wpt_block | trk_block ) >> *space_p;
 
-                return parse_file("fig::read", filename, main_rule);
+                if (!parse_file("gu::read", filename, main_rule)) return false;
+
+                //преобразование комментариев и названий точек в UTF-8
+                IConv cnv(default_charset);
+                for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
+                  for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
+                    p->name = cnv.to_utf(p->name);
+                    p->comm = cnv.to_utf(p->comm);
+                  }
+                }
+
+                world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
+                world.trks.insert(world.trks.end(), ret.trks.begin(), ret.trks.end());
+
+                return true;
 	}
 
 /********************************************/
 
 	bool write_track(ofstream & f, const g_track & tr, const Options & opt){
+
+                if (!f.good()) return false;
+
 		int num = tr.size();
 		f << "[tracks, " << num << " records]\n";
 		for (vector<g_trackpoint>::const_iterator p = tr.begin(); p != tr.end(); p++)
@@ -165,16 +187,20 @@ namespace gu {
 	}
 
 	bool write_waypoint_list(ofstream & f, const g_waypoint_list & wp, const Options & opt){
+
+                if (!f.good()) return false;
+                IConv cnv(default_charset);
+
 		int num = wp.size();
 		f << "[waypoints, " << num << " records]\n";
 		for (vector<g_waypoint>::const_iterator p = wp.begin(); p!=wp.end(); p++){
-			f << left << setw(6) << setfill(' ') << p->name << " " 
+			f << left << setw(6) << setfill(' ') << cnv.from_utf(p->name) << " " 
 			  << right << fixed << setprecision(6)
 			  << setw(10) << p->y << " "
 			  << setw(11) << p->x << " "
 			  << setw(5) << p->symb << "/"
 			  << p->displ << " "
-			  << p->comm  << "\n";
+			  << cnv.from_utf(p->comm)  << "\n";
 		}
 		f << "[end transfer, " << num << "/" << num << " records]\n";
 	}
