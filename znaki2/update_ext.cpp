@@ -98,7 +98,7 @@ main(int argc, char** argv){
     for (fig::fig_world::iterator i=FIG.begin(); i!=FIG.end(); i++){
       if ((i->type != 2) && (i->type != 3) && (i->type != 4)) continue;
       if ((i->comment.size()>1) && (i->comment[1]=="[skip]")) continue;
-      if (!zn::is_map_depth(*i)) continue;
+      if (!zconverter.is_map_depth(*i)) continue;
       zn::zn_key k = zn::get_key(*i);
       if ((k.type==0) || (k.map!=source) || (k.id==0)) continue;
       fig::fig_object o = *i;
@@ -132,7 +132,7 @@ main(int argc, char** argv){
   int maxid=0;
   std::set<int> old_obj_ids;
   for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
-    if (!zn::is_map_depth(*i)) continue;
+    if (!zconverter.is_map_depth(*i)) continue;
     zn::zn_key k = zn::get_key(*i);
     if ((k.map == map_name) && (k.id!=0) && (k.source == source) && (k.sid != 0)){
       old_objects.insert(std::pair<int, fig::fig_object>(k.sid, *i));
@@ -146,7 +146,7 @@ main(int argc, char** argv){
   // подписи к интересующим нас объектам - в свой хэш
   // остальные подписи и прочие объекты - без изменений в новую карту.
   for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
-    if (zn::is_map_depth(*i)) continue;
+    if (zconverter.is_map_depth(*i)) continue;
     zn::zn_label_key k = zn::get_label_key(*i);
     if ((k.map == map_name) && (k.id!=0) && old_obj_ids.count(k.id)!=0){
       labels.insert(std::pair<int, fig::fig_object>(k.id, *i));

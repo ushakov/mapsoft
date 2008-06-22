@@ -116,7 +116,7 @@ main(int argc, char** argv){
       if ((i->comment.size()>1) && (i->comment[1]=="[skip]")) continue;
 
       // некартографические объекты
-      if (!zn::is_map_depth(*i)) {
+      if (!zconverter.is_map_depth(*i)) {
         if (i->comment.size()>1){ 
           zn::zn_label_key k = zn::get_label_key(*i);
           if ((k.id!=0) && (k.map==map_name)){// подписи
@@ -162,7 +162,7 @@ main(int argc, char** argv){
       if ((i->comment.size()>1) && (i->comment[1]=="[skip]")) continue;
 
       // некартографические объекты
-      if (!zn::is_map_depth(*i)) {
+      if (!zconverter.is_map_depth(*i)) {
         if (i->comment.size()>1){ 
           zn::zn_label_key k = zn::get_label_key(*i);
           if ((k.id!=0) && (k.map==map_name)){// подписи
@@ -202,7 +202,7 @@ main(int argc, char** argv){
   // тип объектов из хранилища должен определяться только по ключу!
   int maxid=0;
   for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
-    if (!zn::is_map_depth(*i)) continue;
+    if (!zconverter.is_map_depth(*i)) continue;
     zn::zn_key key = zn::get_key(*i);
     if ((key.map != map_name) || (key.id == 0)){
       std::cerr << "strange object in map storage! skipping...\n";

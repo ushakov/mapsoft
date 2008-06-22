@@ -51,7 +51,7 @@ main(int argc, char** argv){
 
     // вынем из карты подписи
     while (i!=MAP.end()){
-      if (!zn::is_map_depth(*i)){
+      if (!zconverter.is_map_depth(*i)){
         zn::zn_label_key k = zn::get_label_key(*i);
         if ((k.id!=0) && (k.map ==map_name)){
           labels.insert(std::pair<int, fig::fig_object>(k.id, *i));
@@ -63,7 +63,7 @@ main(int argc, char** argv){
     }
 
     for (fig::fig_world::iterator i=MAP.begin(); i!=MAP.end(); i++){
-      if (zn::is_map_depth(*i)){
+      if (zconverter.is_map_depth(*i)){
         zn::zn_key k = zn::get_key(*i);
         zconverter.fig_update(*i, k.type);
         list<fig::fig_object> l1 = zconverter.make_pic(*i, k.type);
@@ -90,7 +90,7 @@ main(int argc, char** argv){
 
     mp::mp_world M;
     for (fig::fig_world::const_iterator i=MAP.begin(); i!=MAP.end(); i++){
-      if (zn::is_map_depth(*i)){
+      if (zconverter.is_map_depth(*i)){
         zn::zn_key k = zn::get_key(*i);
         M.push_back(zconverter.fig2mp(*i, cnv, k.type));
       }

@@ -14,8 +14,8 @@ namespace zn{
 
 // в этом диапазоне глубин должны лежать 
 // только картографические объекты!
-bool is_map_depth(const fig::fig_object & o){
-  return ((o.depth>=50) && (o.depth<200));
+bool zn_conv::is_map_depth(const fig::fig_object & o){
+  return ((o.depth>=min_depth) && (o.depth<=max_depth));
 }
 
 // Заполняет массив знаков 
@@ -23,6 +23,8 @@ bool zn_conv::load_znaki(YAML::Node &root) {
    using namespace YAML;
    if (root.type != ARRAY) return false;
 
+   min_depth=999;
+   max_depth=0;
    znaki.clear();
    NodeList::iterator it = root.value_array.begin();
    for (it;it!=root.value_array.end();it++) {
@@ -43,10 +45,8 @@ bool zn_conv::load_znaki(YAML::Node &root) {
       v = child.hash_str_value("fig");
       if (v==NULL) return false;
       z.fig = fig::make_object(v);
-      if (!is_map_depth(z.fig)){
-        std::cerr << "reading conf.file: depth of fig object is not in valid range in "<< z.name <<"\n";
-        return false;
-      }
+      if (min_depth>z.fig.depth) min_depth=z.fig.depth;
+      if (max_depth<z.fig.depth) max_depth=z.fig.depth;
 
       v = child.hash_str_value("desc");
       if (v!=NULL) z.desc = v;
@@ -60,11 +60,6 @@ bool zn_conv::load_znaki(YAML::Node &root) {
           std::cerr << "reading conf.file: not a text in txt object in "<< z.name <<"\n";
           return false;
         }
-        if (is_map_depth(z.txt)){
-          std::cerr << "reading conf.file: depth of txt object is not in valid range in "<< z.name <<"\n";
-          return false;
-        }
-
       }
 
       v = child.hash_str_value("pic");
