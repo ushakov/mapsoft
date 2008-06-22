@@ -15,7 +15,7 @@ namespace zn{
 // в этом диапазоне глубин должны лежать 
 // только картографические объекты!
 bool zn_conv::is_map_depth(const fig::fig_object & o){
-  return ((o.depth>=min_depth) && (o.depth<=max_depth));
+  return ((o.type!=6) && (o.type!=-6) && (o.depth>=min_depth) && (o.depth<=max_depth));
 }
 
 // Заполняет массив знаков 
@@ -349,6 +349,11 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int
       (fig.comment[0].size()==0)) return ret;     // нечего писать!
   // заготовка для подписи
   fig::fig_object txt = z->second.txt;
+
+  if (is_map_depth(txt)){
+    std::cerr << "Error: label depth " << txt.depth << " is in map object depth range!";
+    return ret;
+  }
 
   int txt_dist = 7 * (fig.thickness+2); // fig units
 

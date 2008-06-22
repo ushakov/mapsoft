@@ -6,4 +6,4 @@ other_libs   = Split ("usb tiff jpeg png gd syck")
 
 env_geo.Prepend(LIBS=[mapsoft_libs,other_libs])
 
-env_geo.Program(['zn.cpp', '../yaml/yaml.cpp'])
+env_geo.Program(['mapsoft_vmap.cpp', '../yaml/yaml.cpp'])
