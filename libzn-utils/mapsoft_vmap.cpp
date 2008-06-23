@@ -33,12 +33,17 @@ std::string filter_help(void){
 
 void copy_comment(const fig::fig_world::iterator & i, const fig::fig_world::iterator & end){
   if (i->type == 6){ // составной объект
-    // копируем первую строку комментария в следующий объект
+    // копируем первые непустые строки комментария в следующий объект
     // остальное нам не нужно
     fig::fig_world::iterator j=i; j++;
+
+    // пропускаем подписи
+    while ((j!=end) && (j->comment.size()>1) && (j->comment[1]=="[skip]")) j++;
+
     if ((j!=end) && (i->comment.size()>0)){
-      if (j->comment.size()< 1) j->comment.resize(1);
-      j->comment[0] = i->comment[0];
+      if (j->comment.size()< i->comment.size()) j->comment.resize(i->comment.size());
+      for (int n=0; n<i->comment.size(); n++) j->comment[n] = i->comment[n];
+
     }
   }
 }
@@ -451,8 +456,74 @@ int keys(int argc, char** argv){
 
 /*****************************************************/
 /// Обновить картинки (fig)
-//  все старые картинки удаляются, новые создаются.
+//  - раскрываются все старые составные объекты
+//  - удаляются все старые картинки (объекты с комментариями [skip])
+//  - новые картинки создаются
+//  картинки добавляются ко всем объектам (вне зависимости от ключа)
+//  объект и его картинка оборачиваются в compound, комментарий объекта
+//  переносится в комментарий compound'a
+
 int pics(int argc, char** argv){
+
+  if (argc != 2){
+    cerr << "Remove compounds and old pics, add new pics (fig).\n"
+         << "  usage: mapsoft_vmap pics <conf> <fig>\n";
+    return 1;
+  }
+
+  string cfile    = argv[0];
+  string file     = argv[1];
+
+  // первый проход: удаляем составные объекты и объекты с комментарием [skip] во второй строке
+  // или создаем заново
+  std::cerr << "removing compounds and pics in" << file <<": ";  
+  if (!testext(file, ".fig")){ std::cerr << "file is not a .fig\n"; return 1;}
+
+  fig::fig_world F;
+  if (!fig::read(file.c_str(), F)) {
+    cerr << "bad fig file\n"; return 1;
+  }
+
+
+  int obj_r_cnt=0;
+  fig::fig_world::iterator i=F.begin();
+  while (i!=F.end()){
+    if (i->type==6) copy_comment(i, F.end());
+    if ((i->type==6) || (i->type==-6) ||
+        ((i->comment.size()>1) && (i->comment[1] == "[skip]"))){
+      i=F.erase(i); obj_r_cnt++;
+      continue;
+    }
+    i++;
+  }
+  cerr << obj_r_cnt << " objects removed\n";
+
+  // второй проход: для каждого объекта создаем картинку, если это надо
+  std::cerr << "creating new pictures in " << file <<": ";  
+
+  list<fig::fig_object> NEW;
+  int l_o_count=0;
+
+  zn::zn_conv zconverter(cfile);
+
+  i=F.begin();
+  while (i!=F.end()){
+    if (zconverter.is_map_depth(*i)){
+      list<fig::fig_object> l1 = zconverter.make_pic(*i, zconverter.get_type(*i));
+      if (l1.size()!=1) l_o_count++;
+      NEW.insert(NEW.end(), l1.begin(), l1.end());
+      i=F.erase(i);
+      continue;
+    }
+    i++;
+  }
+  F.insert(F.end(), NEW.begin(), NEW.end());
+  std::cerr << l_o_count << " pics added\n";
+
+  ofstream out(file.c_str());
+  fig::write(out, F);
+  return 0;
+
 }
 
 /*****************************************************/
