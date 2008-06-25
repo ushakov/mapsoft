@@ -52,6 +52,7 @@ namespace mp {
         std::string POIIndex;
         std::string Copyright;
         std::string PolygonEvaluate;
+        std::string MG;
         std::vector<std::string> Comment;
 
         std::map<int,int> Levels;
@@ -68,6 +69,7 @@ namespace mp {
           Transparent="Y";
           POIIndex="N";
           PolygonEvaluate="Y";
+          MG="Y";
           Levels[0]=22;
           Levels[1]=21;
           Levels[2]=19;

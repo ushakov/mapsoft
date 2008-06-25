@@ -207,8 +207,9 @@ bool read(const char* filename, fig_world & world){
   }
 
   // merging world and ret
-  world.swap(ret);
-  world.insert(world.begin(), ret.begin(), ret.end());
+  fig::fig_world tmp=world;
+  world=ret;
+  world.insert(world.begin(), tmp.begin(), tmp.end());
 
   return true;
 }

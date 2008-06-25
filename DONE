@@ -7,10 +7,11 @@ TODO:
     * у неизвестных объектов с многими точками выставлять тип в POLYLINE
     * защищать запрещенные символы при записи геоданных (',' в OE, '"' в XML, ' ' в GU)
     * исправить запись ozi map -- done 
-    * zn-labels, zn-keys -- ??
-    * проблема с дописываением файлов (откуда брать заголовок?)!!!
 
-slazav 24.06.1008
+slazav 25.06.2008
+ * modify fig and mp read functions to get new headers.
+
+slazav 24.06.2008
  * small fixes of libzn and mapsoft_vmap
  * add libzn-utils/scripts
 

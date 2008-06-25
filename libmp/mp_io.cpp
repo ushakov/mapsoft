@@ -99,6 +99,7 @@ bool read(const char* filename, mp_world & world){
       ( "POIIndex="        >> (*ch)[assign_a(ret.POIIndex)]        >> eol_p) |
       ( "PolygonEvaluate=" >> (*ch)[assign_a(ret.PolygonEvaluate)] >> eol_p) |
       ( "Copyright="       >> (*ch)[assign_a(ret.Copyright)]       >> eol_p) |
+      ( "MG="              >> (*ch)[assign_a(ret.MG)]              >> eol_p) |
       ( "Levels="          >> !uint_p >> eol_p) |
       ( "Level" >> uint_p[assign_a(l)] >> "=" 
                 >> !uint_p[insert_at_a(ret.Levels,l)] >> eol_p) |
@@ -251,8 +252,9 @@ bool write(std::ostream & out, const mp_world & world){
       << "\r\nRgnLimit="        << world.RgnLimit
       << "\r\nTransparent="     << world.Transparent
       << "\r\nPOIIndex="        << world.POIIndex
-      << "\r\nCopyright="       << world.Copyright
+      << "\r\nCopyright="       << cnv.from_utf(world.Copyright)
       << "\r\nPolygonEvaluate=" << world.PolygonEvaluate
+      << "\r\nMG="              << world.MG
       << "\r\nLevels="          << world.Levels.size();
   map<int,int>::const_iterator l;
   for (l=world.Levels.begin(); l!=world.Levels.end(); l++)
