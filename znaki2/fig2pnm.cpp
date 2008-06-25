@@ -227,7 +227,7 @@ main(int argc, char **argv){
 
   for (int i = 0; i<map.h+dw; i++){
 
-std::cerr << i << " ";
+//std::cerr << i << " ";
 
     if ((map.data[1]!=NULL) && thinrem){
       for (int j = 1; j < map.w-1; j++){

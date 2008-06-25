@@ -235,6 +235,7 @@ bool write(std::ostream & out, const mp_world & world){
 
   for (vector<string>::const_iterator c = world.Comment.begin();
        c!=world.Comment.end(); c++) out << ";" << cnv.from_utf(*c) << "\n";
+//cerr <<"Name" << world.Name << "->" << cnv.from_utf(world.Name) << "\n";
   out << setprecision(6) << fixed
       << "\r\n[IMG ID]" 
       << "\r\nID="              << world.ID 
