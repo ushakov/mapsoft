@@ -176,6 +176,7 @@ bool read(const char* filename, mp_world & world){
     // converting some fields to UTF8
     IConv cnv("CP" + ret.CodePage, "CP" + default_codepage);
     ret.Name = cnv.to_utf(ret.Name);
+    ret.Copyright = cnv.to_utf(ret.Copyright);
     for (mp_world::iterator i = ret.begin(); i != ret.end(); i++){
       i->Label = cnv.to_utf(i->Label);
       for (vector<string>::iterator
@@ -184,7 +185,7 @@ bool read(const char* filename, mp_world & world){
       }
     }
     for (vector<string>::iterator
-                  c = world.Comment.begin(); c != world.Comment.end(); c++){
+                  c = ret.Comment.begin(); c != ret.Comment.end(); c++){
       *c = cnv.to_utf(*c);
     }
 
@@ -218,8 +219,9 @@ bool read(const char* filename, mp_world & world){
     }
 
     // merging world with ret
-    world.swap(ret);
-    world.insert(world.begin(), ret.begin(), ret.end());
+    mp::mp_world tmp = world;
+    world=ret;
+    world.insert(world.begin(), tmp.begin(), tmp.end());
 
     return true;
 }
