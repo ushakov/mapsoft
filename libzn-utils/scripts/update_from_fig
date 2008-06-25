@@ -1,0 +1,20 @@
+#!/bin/bash
+
+VMAP="/home/sla/MS2/libzn-utils/mapsoft_vmap"
+
+MAP="$1"
+EDITOR="slazav"
+CONF="./conf"
+
+MAP=${MAP%%.*} # cutting all extentions
+
+if [ -z "$MAP" -o -z "$CONF" -o -z "$EDITOR" ]; then 
+  echo "usage: $0 <MAP>"
+  exit 1
+fi
+
+$VMAP keys   "$CONF" "$MAP" "$EDITOR" "$MAP".fig
+$VMAP labels "$CONF" "$MAP" "$MAP".fig
+$VMAP pics   "$CONF" "$MAP".fig
+$VMAP remove "$CONF" "$MAP".mp all
+$VMAP copy   "$CONF" "$MAP".fig "$MAP".mp all

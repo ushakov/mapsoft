@@ -98,9 +98,11 @@ zn_label_key get_label_key(const fig::fig_object & fig){
 
 // Извлечь ключ из комментария (1-я строчка) к mp-объекту
 zn_key get_key(const mp::mp_object & mp){
-  zn_key ret;
-  if (mp.Comment.size() > 0) ret = boost::lexical_cast<zn_key>(mp.Comment[0]);
-  return ret;
+  zn_key k;
+  if (mp.Comment.size() < 1) return k;
+  try {k=boost::lexical_cast<zn_key>(mp.Comment[0]);} 
+  catch(boost::bad_lexical_cast a){}
+  return k;
 }
 
 // поместить ключ в комментарий к fig-объекту

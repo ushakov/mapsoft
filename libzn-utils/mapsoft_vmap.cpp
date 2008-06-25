@@ -128,7 +128,7 @@ int copy(int argc, char** argv){
     }
     convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
     for (mp::mp_world::const_iterator i=IM.begin(); i!=IM.end(); i++){
-      if (testfilter(filter, arg, zn::get_key(*i))){
+      if ((filter=="all") || testfilter(filter, arg, zn::get_key(*i))){
         obj_cnt++;
         OF.push_back(zconverter.mp2fig(*i, cnv));
       }
@@ -140,7 +140,7 @@ int copy(int argc, char** argv){
     mp::read(ofile.c_str(), OM);
     // если файла нет - OM остается пустым
     for (mp::mp_world::const_iterator i=IM.begin(); i!=IM.end(); i++){
-      if (testfilter(filter, arg, zn::get_key(*i))){
+      if ((filter=="all") || testfilter(filter, arg, zn::get_key(*i))){
         obj_cnt++;
         OM.push_back(*i);
       }
@@ -199,8 +199,9 @@ int remove(int argc, char** argv){
 
     fig::fig_world::iterator i=F.begin(); 
     while (i!=F.end()){
-      if (zconverter.is_map_depth(*i) && 
-          testfilter(filter, arg, zn::get_key(*i))) {i=F.erase(i); obj_cnt++;}
+      if (zconverter.is_map_depth(*i) &&
+          ((filter=="all") || testfilter(filter, arg, zn::get_key(*i)))) 
+             {i=F.erase(i); obj_cnt++;}
       else i++;
     }
 
@@ -216,7 +217,8 @@ int remove(int argc, char** argv){
 
     mp::mp_world::iterator i=M.begin(); 
     while (i!=M.end()){
-      if (testfilter(filter, arg, zn::get_key(*i))) {i=M.erase(i); obj_cnt++;}
+      if ((filter=="all") || testfilter(filter, arg, zn::get_key(*i))) 
+        {i=M.erase(i); obj_cnt++;}
       else i++;
     }
 

@@ -10,6 +10,10 @@ TODO:
     * исправить запись ozi map
     * zn-labels, zn-keys
 
+slazav 24.06.1008
+ * small fixes of libzn and mapsoft_vmap
+ * add libzn-utils/scripts
+
 slazav 22.06.1008
  * переделал проверку картографических объектов (is_map_depth in libzn/zn.h)
    Раньше объект считался картографическим объектом, если его глубина находилась 
