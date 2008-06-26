@@ -546,22 +546,6 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
 		if (m.border.size()>0){
 
-//			// Ozi wants only 4 border points!
-//                        g_rect r(m.border[0], m.border[0]);
-//                        for (g_line::const_iterator p =m.border.begin();
-//                                 p!=m.border.end(); p++) r=rect_pump(r, *p);
-
-//			g_line b4=rect2line(r); 
-
-			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"), Options());
-
-                        g_line border_wgs;
-
-                        for (g_line::const_iterator p =m.border.begin();
-                                 p!=m.border.end(); p++){
-                          g_point p1=*p; cnv.frw(p1); border_wgs.push_back(p1);
-                        }
-
 			f << "MM0,Yes\r\n"
 			  << "MMPNUM," << m.border.size() << "\r\n";
 			int n=0;
@@ -573,13 +557,14 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
                                   << it->x << "," << it->y << "\r\n"; 
 			}
 			n=0;
-
+			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"), Options());
 			f.precision(8);
-			for (g_line::const_iterator it =border_wgs.begin();
-				 it!=border_wgs.end(); it++){
+			for (g_line::const_iterator it =m.border.begin();
+				 it!=m.border.end(); it++){
 				n++;
+                                g_point p1=*it; cnv.frw(p1);
 				f << "MMPLL," << n << "," 
-				  << right << fixed << setprecision(6) << setfill(' ')
+                                  << right << fixed << setprecision(6) << setfill(' ')
                                   << setw(10) << it->y << ','
                                   << setw(11) << it->x << "\r\n"; 
 			}
