@@ -232,6 +232,7 @@ int remove(int argc, char** argv){
   return 0;
 }
 
+
 /*****************************************************/
 ///  Обновить подписи (fig)
 // Рассматриваются только объекты с ключами, относящиеся к указанной карте.
@@ -525,7 +526,49 @@ int pics(int argc, char** argv){
   ofstream out(file.c_str());
   fig::write(out, F);
   return 0;
+}
 
+/*****************************************************/
+/// Удалить сетку и т.п.оформление (fig). Остаются: привязка, подписи, объекты
+int remove_grids(int argc, char** argv){
+
+  if (argc < 2){
+    cerr << "Remove non-map objects from fig. Keep reference, labels, map-objects\n"
+         << "  usage: mapsoft_vmap remove_grids <conf> <fig>\n";
+    return 1;
+  }
+
+  string cfile  = argv[0];
+  string file   = argv[1];
+
+  std::cerr << "removing non-map objects from " << file <<": ";  
+
+  zn::zn_conv zconverter(cfile);
+
+  int obj_cnt=0;
+  
+  if (!testext(file, ".fig")){ std::cerr << "file is not a .fig\n"; return 1;}
+
+  fig::fig_world F;
+  if (!fig::read(file.c_str(), F)) {
+    cerr << "bad fig file\n"; return 1;
+  }
+
+  fig::fig_world::iterator i=F.begin(); 
+  while (i!=F.end()){
+    if (!zconverter.is_map_depth(*i) &&
+        (zn::get_label_key(*i).map=="") &&
+        ((i->comment.size()==0) || (0!=strncmp(i->comment[0].c_str(), "REF",3))))
+           {i=F.erase(i); obj_cnt++;}
+    else i++;
+  }
+
+  ofstream out(file.c_str());
+  fig::write(out, F);
+
+  std::cerr << obj_cnt << " fig objects removed\n";
+
+  return 0;
 }
 
 /*****************************************************/
@@ -538,14 +581,16 @@ int main(int argc, char** argv){
          << "  - labels -- update labels in fig map\n"
          << "  - pics   -- update pics in map\n"
          << "  - keys   -- update keys in map\n"
+         << "  - remove_grids   -- remove all but reference lables and map objects\n"
     ;
     exit(0);
   }
-  if (strcmp(argv[1], "copy")==0)   exit(copy(argc-2, argv+2));
-  if (strcmp(argv[1], "remove")==0) exit(remove(argc-2, argv+2));
-  if (strcmp(argv[1], "labels")==0) exit(labels(argc-2, argv+2));
-  if (strcmp(argv[1], "keys")==0)   exit(keys(argc-2, argv+2));
-  if (strcmp(argv[1], "pics")==0)   exit(pics(argc-2, argv+2));
+  if (strcmp(argv[1], "copy")==0)           exit(copy(argc-2, argv+2));
+  if (strcmp(argv[1], "remove")==0)         exit(remove(argc-2, argv+2));
+  if (strcmp(argv[1], "labels")==0)         exit(labels(argc-2, argv+2));
+  if (strcmp(argv[1], "keys")==0)           exit(keys(argc-2, argv+2));
+  if (strcmp(argv[1], "pics")==0)           exit(pics(argc-2, argv+2));
+  if (strcmp(argv[1], "remove_grids")==0)   exit(remove_grids(argc-2, argv+2));
 
   cerr << "unknown command: " << argv[1] << "\n";
   exit(1);

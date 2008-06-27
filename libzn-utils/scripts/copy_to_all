@@ -1,0 +1,23 @@
+#!/bin/bash
+
+VMAP="/home/sla/MS2/libzn-utils/mapsoft_vmap"
+
+# make single fig "all.fig" from set of figs
+
+MAPS="$@"
+
+ALL_NAME="all.fig"
+CONF="./conf"
+
+if [ -z "$MAPS" -o -z "$CONF" -o -z "$ALL_NAME" ]; then 
+  echo "usage: $0 <MAPS.fig>"
+  exit 1
+fi
+
+cp "$1" "$ALL_NAME"
+
+$VMAP remove_grids "$CONF" "$ALL_NAME"
+for i in $@; do
+  ## TODO -- copy labels!!!
+  $VMAP copy   "$CONF" "$i" "$ALL_NAME" all
+done
