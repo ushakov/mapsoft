@@ -2,8 +2,6 @@
 
 VMAP="/home/sla/MS2/libzn-utils/mapsoft_vmap"
 
-# make single fig "all.fig" from set of figs
-
 MAPS="$@"
 
 ALL_NAME="all.fig"
@@ -17,7 +15,9 @@ fi
 cp "$1" "$ALL_NAME"
 
 $VMAP remove_grids "$CONF" "$ALL_NAME"
+$VMAP remove       "$CONF" "$ALL_NAME" all
 for i in $@; do
-  ## TODO -- copy labels!!!
-  $VMAP copy   "$CONF" "$i" "$ALL_NAME" all
+  echo $i
+  $VMAP copy        "$CONF" "$i" "$ALL_NAME" all
+  $VMAP copy_labels "$CONF" "$i" "$ALL_NAME" all
 done

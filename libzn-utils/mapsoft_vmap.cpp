@@ -630,6 +630,61 @@ int copy_labels(int argc, char** argv){
 }
 
 /*****************************************************/
+/// Показать карты, объекты из которых присутствуют в (fig|mp)
+int show_maps(int argc, char** argv){
+
+  if (argc != 2){
+    cerr << "Show maps.\n"
+         << "  usage: mapsoft_vmap maps <conf> <fig|mp>\n";
+    return 1;
+  }
+
+  map<string, int> cnt;
+
+  string cfile    = argv[0];
+  string file     = argv[1];
+
+  zn::zn_conv zconverter(cfile);
+
+  if (testext(file, ".fig")){
+    fig::fig_world F;
+    if (!fig::read(file.c_str(), F)) {
+      cerr << "bad fig file\n"; return 1;
+    }
+
+    int maxid=0;
+    for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
+      if (!zconverter.is_map_depth(*i)) continue;
+      zn::zn_key key = zn::get_key(*i);
+      if (key.map == "") continue;
+      if (cnt.count(key.map)==0) cnt[key.map]=0;
+      else cnt[key.map]++;
+    }
+  }
+  else if (testext(file, ".mp")){
+    mp::mp_world M;
+    if (!mp::read(file.c_str(), M)) {
+      cerr << "Bad mp file\n"; return 1;
+    }
+
+    int maxid=0;
+    for (mp::mp_world::iterator i=M.begin(); i!=M.end(); i++){
+      zn::zn_key key = zn::get_key(*i);
+      if (key.map == "") continue;
+      if (cnt.count(key.map)==0) cnt[key.map]=1;
+      else cnt[key.map]++;
+    }
+  }
+  else { cerr << "file is not .fig or .mp\n"; return 1; }
+
+  for (map<string,int>::const_iterator i=cnt.begin(); i!=cnt.end(); i++){
+    cout << i->first << "\t" << i->second << "\n";
+  }
+  return 0;
+}
+
+
+/*****************************************************/
 int main(int argc, char** argv){
   if (argc < 2){
     cerr << "usage: mapsoft_vmap <command> <args>\n"
@@ -641,7 +696,8 @@ int main(int argc, char** argv){
          << "  - keys   -- update keys in (fig|mp) map\n"
          << "  - remove_grids  -- remove all but reference lables and map objects in fig\n"
          << "  - copy_labels   -- copy all labels from (fig) to (fig)\n"
-    ;
+         << "  - show_maps     -- show map_names in object keys in (fig|mp)\n"
+;
     exit(0);
   }
   if (strcmp(argv[1], "copy")==0)           exit(copy(argc-2, argv+2));
@@ -651,6 +707,7 @@ int main(int argc, char** argv){
   if (strcmp(argv[1], "pics")==0)           exit(pics(argc-2, argv+2));
   if (strcmp(argv[1], "remove_grids")==0)   exit(remove_grids(argc-2, argv+2));
   if (strcmp(argv[1], "copy_labels")==0)    exit(copy_labels(argc-2, argv+2));
+  if (strcmp(argv[1], "show_maps")==0)      exit(show_maps(argc-2, argv+2));
 
   cerr << "unknown command: " << argv[1] << "\n";
   exit(1);
