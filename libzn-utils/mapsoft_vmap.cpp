@@ -572,16 +572,75 @@ int remove_grids(int argc, char** argv){
 }
 
 /*****************************************************/
+/// Копировать все подписи (объекты, имеющие ключ подписи) из (fig) в (fig).
+int copy_labels(int argc, char** argv){
+
+  if (argc < 3){
+    cerr << "Copy labels from fig to fig.\n"
+         << "  usage: mapsoft_vmap copy_labels <conf> <infig> <outfig>\n";
+    return 1;
+  }
+
+  string cfile  = argv[0];
+  string ifile   = argv[1];
+  string ofile   = argv[2];
+
+  std::cerr << "copying labels from " << ifile <<" to " << ofile << ": ";  
+
+  zn::zn_conv zconverter(cfile);
+
+  int obj_cnt=0;
+  
+  if (!testext(ifile, ".fig")){ std::cerr << ifile << " is not a .fig\n"; return 1;}
+  if (!testext(ofile, ".fig")){ std::cerr << ofile << " is not a .fig\n"; return 1;}
+
+  fig::fig_world IF;
+  if (!fig::read(ifile.c_str(), IF)) {
+    cerr << "bad fig file " << ifile << "\n"; return 1;
+  }
+  g_map iref = fig::get_ref(IF);
+  if (iref.size()<3){
+    cerr << "not a GEO-fig: "<< ifile << "\n"; return 1;
+  }
+
+  fig::fig_world OF;
+  if (!fig::read(ofile.c_str(), OF)) {
+    cerr << "bad fig file " << ofile << "\n"; return 1;
+  }
+  g_map oref = fig::get_ref(OF);
+  if (oref.size()<3){
+    cerr << "not a GEO-fig: "<< ofile << "\n"; return 1;
+  }
+  convs::map2map cnv(iref, oref);
+
+  for (fig::fig_world::iterator i=IF.begin(); i!=IF.end(); i++){
+    if (zn::get_label_key(*i).map=="")  continue;
+    obj_cnt++;
+    fig::fig_object j=*i; j.clear();
+    j.set_points(cnv.line_frw(*i));
+    OF.push_back(j);
+  }
+
+  ofstream out(ofile.c_str());
+  fig::write(out, OF);
+
+  std::cerr << obj_cnt << " labels copied\n";
+
+  return 0;
+}
+
+/*****************************************************/
 int main(int argc, char** argv){
   if (argc < 2){
     cerr << "usage: mapsoft_vmap <command> <args>\n"
          << "commands: \n"
-         << "  - copy   -- copy map objects from map to map\n"
-         << "  - remove -- remove map objects from map\n"
+         << "  - copy   -- copy map objects from (fig|mp) to (fig|mp)\n"
+         << "  - remove -- remove map objects from (fig|mp) map\n"
          << "  - labels -- update labels in fig map\n"
-         << "  - pics   -- update pics in map\n"
-         << "  - keys   -- update keys in map\n"
-         << "  - remove_grids   -- remove all but reference lables and map objects\n"
+         << "  - pics   -- update pics in fig map\n"
+         << "  - keys   -- update keys in (fig|mp) map\n"
+         << "  - remove_grids  -- remove all but reference lables and map objects in fig\n"
+         << "  - copy_labels   -- copy all labels from (fig) to (fig)\n"
     ;
     exit(0);
   }
@@ -591,6 +650,7 @@ int main(int argc, char** argv){
   if (strcmp(argv[1], "keys")==0)           exit(keys(argc-2, argv+2));
   if (strcmp(argv[1], "pics")==0)           exit(pics(argc-2, argv+2));
   if (strcmp(argv[1], "remove_grids")==0)   exit(remove_grids(argc-2, argv+2));
+  if (strcmp(argv[1], "copy_labels")==0)    exit(copy_labels(argc-2, argv+2));
 
   cerr << "unknown command: " << argv[1] << "\n";
   exit(1);

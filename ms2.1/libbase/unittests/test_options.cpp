@@ -29,10 +29,10 @@ main(){
   Options O;
   int err = 0;
 
-  string s0="mystring", s1;
-  int    i0 = 5,    i1;
-  double d0 = 0.01, d1;
-  bool   b0 = true, b1;
+  string s0="mystring", s1="";
+  int    i0 = 5,    i1=0;
+  double d0 = 0.01, d1=0.1;
+  bool   b0 = true, b1=false;
 
 
   // запись/чтение новых ключей

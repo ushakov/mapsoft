@@ -51,7 +51,7 @@ struct Options : std::map<std::string,std::string>{
 	  (*this)[key] = boost::lexical_cast<std::string>(val);
 	}
 	catch (boost::bad_lexical_cast & e) {
-	  LOG(std::string(e.what()) + " for key: \"" + key + "\"");
+	  LOG(std::string(e.what()) + " (key: \"" + key + "\")");
 	}
     }
 
@@ -67,7 +67,7 @@ struct Options : std::map<std::string,std::string>{
           val = boost::lexical_cast<T>(it->second);
         }
         catch (boost::bad_lexical_cast & e) {
-	  LOG(std::string(e.what()) + " for key: \"" + key + "\" value: \"" + it->second + "\"");
+	  LOG(std::string(e.what()) + " (key: \"" + key + "\" value: \"" + it->second + "\")");
         }
       }
     }
