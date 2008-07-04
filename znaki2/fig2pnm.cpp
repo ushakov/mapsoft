@@ -1,6 +1,6 @@
 #include <cstdio>
 //#include <unistd.h>
-//#include <sys/types.h>
+#include <cstring>
 
 #include <boost/lexical_cast.hpp>
 

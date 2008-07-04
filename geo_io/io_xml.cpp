@@ -8,6 +8,7 @@
 #include <iomanip>
 
 #include <string>
+#include <cstring>
 #include <time.h>
 
 #include "io_xml.h"

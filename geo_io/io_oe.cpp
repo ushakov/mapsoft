@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <string>
+#include <cstring>
 #include <map>
 
 #include "io_oe.h"

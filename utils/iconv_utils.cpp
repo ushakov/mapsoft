@@ -1,6 +1,7 @@
 #include "iconv_utils.h"
 #include <errno.h>
 #include <iostream>
+#include <cstring>
 
 const std::string IConv_UTF("UTF-8");
 

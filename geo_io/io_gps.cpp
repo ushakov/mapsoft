@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <cstring>
 
 #include "io_gps.h"
 #include "../jeeps/gps.h"
@@ -14,7 +15,7 @@ namespace gps {
 
         bool init_gps(const char* port){
 		// почему-то только такая процедура позволяет подключить usb-gps с первого раза
-		if (GPS_Init(port) < 0) return false;
+                GPS_Init(port);
 		sleep(1);
 		if (GPS_Init(port) < 0) return false;
 		return true;
@@ -24,10 +25,8 @@ namespace gps {
 		GPS_PWay   *wpt;
                 if (!init_gps(port)) return false;
 
-		IConv cnv("KOI8-R");
-
 		int n;
-		if ((n = GPS_Command_Get_Waypoint (port, &wpt, NULL)) <= 0) return false;
+		if ((n = GPS_Command_Get_Waypoint (port, &wpt, NULL)) <= 0) {std::cerr << "can't get waypoints";return false;}
 
 		g_waypoint_list new_w;
 
@@ -55,7 +54,7 @@ namespace gps {
 		GPS_PTrack *trk;
                 if (!init_gps(port)) return false;
                 int n;
-		if((n = GPS_Command_Get_Track (port, &trk)) < 0) return false;
+		if((n = GPS_Command_Get_Track (port, &trk)) < 0) {std::cerr << "can't get track";return false;}
 
 		g_track new_t;
 		bool begin=true;
@@ -164,8 +163,8 @@ namespace gps {
 
 
 	bool get_all (const char* port, geo_data & world, const Options &opt){
-	    get_waypoints(port, world, opt);
-	    get_track(port, world, opt);
+	    if (!get_waypoints(port, world, opt) || 
+	        !get_track(port, world, opt)) {return false;}
 	    if (opt.find("gps_off")!=opt.end()) GPS_Command_Off(port);
 	    return true;
 	}

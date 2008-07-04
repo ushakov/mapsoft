@@ -20,8 +20,8 @@ bool testfilter(const string & filter, const string & arg, const zn::zn_key & k)
             ((filter == "src")  && (arg == k.source)) ||
             ((filter == "nsrc") && (arg != k.source)));
 }
-std::string filter_help(void){
-  return  std::string("filters:\n") +
+string filter_help(void){
+  return  string("filters:\n") +
           "  all        -- all map objects\n" +
           "  map  <map> -- objects with keys having map=<map>\n" +
           "  map  ""    -- objects without keys\n" +
@@ -74,18 +74,18 @@ int copy(int argc, char** argv){
   if ((filter != "all") && 
       (filter != "map") && (filter != "nmap") &&
       (filter != "src") && (filter != "nsrc")){
-    cerr << "unknown filter!\n";
+    cerr << "ERR: unknown filter!\n";
     return 1;
   }
   if (filter!="all"){
     if (argc<5){
-      cerr << "argument required!\n";
+      cerr << "ERR: argument required!\n";
       return 1;
     }
     arg=argv[4];
   }
 
-  std::cerr << "copying from " << ifile << " to " << ofile << ": ";  
+  cerr << "copying from " << ifile << " to " << ofile << ": ";  
 
   fig::fig_world IF, OF;
   mp::mp_world   IM, OM;
@@ -95,11 +95,11 @@ int copy(int argc, char** argv){
   // читаем входной файл, преобразуем все в IM
   if (testext(ifile, ".fig")){
     if (!fig::read(ifile.c_str(), IF)) {
-      cerr << "bad fig file " << ifile << "\n"; return 1;
+      cerr << "ERR: bad fig file " << ifile << "\n"; return 1;
     }
     g_map ref = fig::get_ref(IF);
     if (ref.size()<3){
-      cerr << "not a GEO-fig\n"; return 1;
+      cerr << "ERR: not a GEO-fig\n"; return 1;
     }
     convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
     for (fig::fig_world::iterator i=IF.begin(); i!=IF.end(); i++){
@@ -110,21 +110,21 @@ int copy(int argc, char** argv){
   }
   else if (testext(ifile, ".mp")){
     if (!mp::read(ifile.c_str(), IM)) {
-      cerr << "bad mp file " << ifile << "\n"; return 1;
+      cerr << "ERR: bad mp file " << ifile << "\n"; return 1;
     }
   }
-  else { cerr << "input file is not .fig or .mp\n"; return 1;}
+  else { cerr << "ERR: input file is not .fig or .mp\n"; return 1;}
 
   int obj_cnt=0;
 
   // читаем выходной файл, дописываем туда новые объекты (фильтруя их), записываем
   if (testext(ofile, ".fig")){
     if (!fig::read(ofile.c_str(), OF)) {
-      cerr << "bad fig file " << ofile << "\n"; return 1;
+      cerr << "ERR: bad fig file " << ofile << "\n"; return 1;
     }
     g_map ref = fig::get_ref(OF);
     if (ref.size()<3){
-      cerr << "not a GEO-fig\n"; return 1;
+      cerr << "ERR: not a GEO-fig\n"; return 1;
     }
     convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
     for (mp::mp_world::const_iterator i=IM.begin(); i!=IM.end(); i++){
@@ -148,9 +148,9 @@ int copy(int argc, char** argv){
     ofstream out(ofile.c_str());
     mp::write(out, OM);
   }
-  else { cerr << "output file is not .fig or .mp\n"; return 1; }
+  else { cerr << "ERR: output file is not .fig or .mp\n"; return 1; }
 
-  std::cerr << obj_cnt << " map objects copied\n";
+  cerr << obj_cnt << " map objects copied\n";
 
   return 0;
 }
@@ -174,18 +174,18 @@ int remove(int argc, char** argv){
   if ((filter != "all") && 
       (filter != "map") && (filter != "nmap") &&
       (filter != "src") && (filter != "nsrc")){
-    cerr << "unknown filter!\n";
+    cerr << "ERR: unknown filter!\n";
     return 1;
   }
   if (filter!="all"){
     if (argc<4){
-      cerr << "argument required!\n";
+      cerr << "ERR: argument required!\n";
       return 1;
     }
     arg=argv[3];
   }
 
-  std::cerr << "removing map objects from " << file <<": ";  
+  cerr << "removing map objects from " << file <<": ";  
 
   zn::zn_conv zconverter(cfile);
 
@@ -194,7 +194,7 @@ int remove(int argc, char** argv){
   if (testext(file, ".fig")){
     fig::fig_world F;
     if (!fig::read(file.c_str(), F)) {
-      cerr << "bad fig file\n"; return 1;
+      cerr << "ERR: bad fig file\n"; return 1;
     }
 
     fig::fig_world::iterator i=F.begin(); 
@@ -212,7 +212,7 @@ int remove(int argc, char** argv){
   else if (testext(file, ".mp")){
     mp::mp_world M;
     if (!mp::read(file.c_str(), M)) {
-      cerr << "bad mb file\n"; return 1;
+      cerr << "ERR: bad mp file\n"; return 1;
     }
 
     mp::mp_world::iterator i=M.begin(); 
@@ -225,51 +225,125 @@ int remove(int argc, char** argv){
     ofstream out(file.c_str());
     mp::write(out, M);
   }
-  else { cerr << "file is not .fig or .mp\n"; return 1; }
+  else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
 
-  std::cerr << obj_cnt << " map objects removed\n";
+  cerr << obj_cnt << " map objects removed\n";
+
+  return 0;
+}
+
+/*****************************************************/
+/// Удалить ключи картографических объектов (fig|mp)
+int remove_keys(int argc, char** argv){
+
+  if (argc < 3){
+    cerr << "Remove keys of map objects from mp or fig.\n"
+         << "  usage: mapsoft_vmap remove <conf> <fig|mp> <filter> <filter arg>\n"
+         << filter_help();
+    return 1;
+  }
+
+  string cfile  = argv[0];
+  string file   = argv[1];
+  string filter = argv[2];
+  string arg;
+  if ((filter != "all") && 
+      (filter != "map") && (filter != "nmap") &&
+      (filter != "src") && (filter != "nsrc")){
+    cerr << "ERR: unknown filter!\n";
+    return 1;
+  }
+  if (filter!="all"){
+    if (argc<4){
+      cerr << "ERR: argument required!\n";
+      return 1;
+    }
+    arg=argv[3];
+  }
+
+  cerr << "removing keys from " << file <<": ";  
+
+  zn::zn_conv zconverter(cfile);
+
+  int obj_cnt=0;
+  
+  if (testext(file, ".fig")){
+    fig::fig_world F;
+    if (!fig::read(file.c_str(), F)) {
+      cerr << "ERR: bad fig file\n"; return 1;
+    }
+
+    for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
+      if (zconverter.is_map_depth(*i) && 
+          testfilter(filter, arg, zn::get_key(*i)))
+             {zn::clear_key(*i); obj_cnt++;}
+    }
+
+    ofstream out(file.c_str());
+    fig::write(out, F);
+  }
+
+  else if (testext(file, ".mp")){
+    mp::mp_world M;
+    if (!mp::read(file.c_str(), M)) {
+      cerr << "ERR: bad mp file\n"; return 1;
+    }
+
+    for (mp::mp_world::iterator i=M.begin(); i!=M.end(); i++){
+      if (testfilter(filter, arg, zn::get_key(*i)))
+         {zn::clear_key(*i); obj_cnt++;}
+    }
+
+    ofstream out(file.c_str());
+    mp::write(out, M);
+  }
+  else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
+
+  cerr << obj_cnt << " keys removed\n";
 
   return 0;
 }
 
 
+
 /*****************************************************/
 ///  Обновить подписи (fig)
-// Рассматриваются только объекты с ключами, относящиеся к указанной карте.
+// --Рассматриваются только объекты с ключами, относящиеся к указанной карте.--
+// TODO: При этом если у объекта ненулевой sid - подпись привязывается к sid@source
 // - если к объекту есть подписи - оставить их
 // - если нет - создать
 // - если у объекта поменялось название - поменять подпись
 // - если исчез объект, к которому привязана подпись - удалить подпись
 
 int labels(int argc, char** argv){
-  if (argc != 3){
+  if (argc != 2){
     cerr << "Update labels in fig.\n"
-         << "  usage: mapsoft_vmap labels <conf> <map name> <fig>\n";
+         << "  usage: mapsoft_vmap labels <conf> <fig>\n";
     return 1;
   }
 
   string cfile    = argv[0];
-  string map_name = argv[1];
-  string file     = argv[2];
+  string file     = argv[1];
 
-  std::cerr << "updating labels in " << file <<": ";  
-  if (!testext(file, ".fig")){ std::cerr << "file is not a .fig\n"; return 1;}
+  cerr << "updating labels in " << file <<": ";  
+  if (!testext(file, ".fig")){ cerr << "ERR: file is not a .fig\n"; return 1;}
 
   fig::fig_world F;
   if (!fig::read(file.c_str(), F)) {
-    cerr << "bad fig file\n"; return 1;
+    cerr << "ERR: bad fig file\n"; return 1;
   }
 
   zn::zn_conv zconverter(cfile);
 
   //первый проход: удаляем подписи из файла, переносим их в multimap
-  std::multimap<int, fig::fig_object> labels;      // по id объекта
+  map<string, multimap<int, fig::fig_object> > labels;      // по id объекта
+
   fig::fig_world::iterator i=F.begin();
   while (i!=F.end()){
     if (i->comment.size()>1){
       zn::zn_label_key k = zn::get_label_key(*i);
-      if ((k.id!=0) && (k.map==map_name)){// подписи
-        labels.insert(std::pair<int, fig::fig_object>(k.id, *i));
+      if (k.id!=0){// подписи
+        labels[k.map].insert(pair<int, fig::fig_object>(k.id,*i));
         i=F.erase(i);
         continue;
       }
@@ -285,18 +359,28 @@ int labels(int argc, char** argv){
   int l_o_count=0;
   int l_m_count=0;
 
+  // контроль за повторяющимися ключами (здесь это важно)
+  map<string, set<int> > done;      
+
   for (i=F.begin(); i!=F.end(); i++){
     if (i->type==6) copy_comment(i, F.end());
 
     if (!zconverter.is_map_depth(*i)) continue;
 
     zn::zn_key key = zn::get_key(*i);
-    if ((key.map != map_name) || (key.id ==0)) continue;
+    // подписи должны привязываться к sid@source, если sid!=0
+    if (key.sid!=0){ key.id=key.sid; key.map=key.source;}
+    if (key.id ==0) continue;
+
+    if (done[key.map].count(key.id)!=0){
+      cerr << "ERR: duplicated key " << key.id << "@" << key.map << ".\n"; return 1;
+    }
+    done[key.map].insert(key.id);
 
     // если у объекта есть название, но нет подписи - сделаем ее
     if ((i->comment.size()>0) &&
         (i->comment[0] != "") &&
-        (labels.count(key.id) == 0)){
+        (labels[key.map].count(key.id) == 0)){
       list<fig::fig_object> l1 = zconverter.make_labels(*i, key.type); // изготовим новые подписи
       add_key(l1, zn::zn_label_key(key));
       NEW.insert(NEW.end(), l1.begin(), l1.end());
@@ -304,10 +388,10 @@ int labels(int argc, char** argv){
       continue;
     }
     // вытащим из хэша все старые подписи для этого объекта
-    for (multimap<int, fig::fig_object>::iterator l = labels.find(key.id);
-        (l != labels.end()) && (l->first == key.id); l++){
+    for (multimap<int, fig::fig_object>::iterator l = labels[key.map].find(key.id);
+        (l != labels[key.map].end()) && (l->first == key.id); l++){
       // текст подписи = название объекта
-      std::string text = (i->comment.size()>0)? i->comment[0]:"";
+      string text = (i->comment.size()>0)? i->comment[0]:"";
       if (text != l->second.text){
         l->second.text = text;
         l_m_count++;
@@ -319,7 +403,7 @@ int labels(int argc, char** argv){
   }
   F.insert(F.end(), NEW.begin(), NEW.end());
 
-  std::cerr << l_n_count << " new, "
+  cerr << l_n_count << " new, "
             << l_m_count << " modified, "
             << l_o_count << " non-modified\n";
 
@@ -346,7 +430,7 @@ int keys(int argc, char** argv){
   string source   = argv[2];
   string file     = argv[3];
 
-  std::cerr << "updating keys in " << file <<": ";  
+  cerr << "updating keys in " << file <<": ";  
 
   int obj_n_cnt=0;
   int obj_i_cnt=0;
@@ -354,19 +438,31 @@ int keys(int argc, char** argv){
 
   zn::zn_conv zconverter(cfile);
 
+  // контроль за повторяющимися ключами (здесь это будем исправлять)
+  map<string, set<int> > done;      
+
   if (testext(file, ".fig")){
     fig::fig_world F;
     if (!fig::read(file.c_str(), F)) {
-      cerr << "bad fig file\n"; return 1;
+      cerr << "ERR: bad fig file\n"; return 1;
     }
 
     // первый проход: найдем максимальный id
+    // удалим повторяющиеся ключи (для всех карт)
     int maxid=0;
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
       if (!zconverter.is_map_depth(*i)) continue;
       zn::zn_key key = zn::get_key(*i);
-      if ((key.map != map_name) || (key.id == 0)) continue;
-      if (key.id > maxid) maxid=key.id;
+      if ((key.map == "") || (key.id == 0)) continue;
+
+      // повторяющийся ключ!
+      if (done[key.map].count(key.id) != 0){
+        zn::clear_key(*i);
+        continue;
+      }
+      done[key.map].insert(key.id);
+
+      if ((key.map == map_name) && (key.id > maxid)) maxid=key.id;
     }
  
     // второй проход
@@ -406,16 +502,25 @@ int keys(int argc, char** argv){
   else if (testext(file, ".mp")){
     mp::mp_world M;
     if (!mp::read(file.c_str(), M)) {
-      cerr << "Bad mp file\n"; return 1;
+      cerr << "ERR: bad mp file\n"; return 1;
     }
 
     // первый проход: найдем максимальный id
     int maxid=0;
     for (mp::mp_world::iterator i=M.begin(); i!=M.end(); i++){
       zn::zn_key key = zn::get_key(*i);
-      if ((key.map != map_name) || (key.id == 0)) continue;
-      if (key.id > maxid) maxid=key.id;
+      if ((key.map == "") || (key.id == 0)) continue;
+
+      // повторяющийся ключ!
+      if (done[key.map].count(key.id) != 0){
+        zn::clear_key(*i);
+        continue;
+      }
+      done[key.map].insert(key.id);
+
+      if ((key.map == map_name) && (key.id > maxid)) maxid=key.id;
     }
+
  
     // второй проход
     for (mp::mp_world::iterator i=M.begin(); i!=M.end(); i++){
@@ -449,13 +554,14 @@ int keys(int argc, char** argv){
     ofstream out(file.c_str());
     mp::write(out, M);
   }
-  else { cerr << "file is not .fig or .mp\n"; return 1; }
+  else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
 
-  std::cerr << obj_n_cnt << " new, " 
+  cerr << obj_n_cnt << " new, " 
             << obj_i_cnt << " imports, " 
             << obj_o_cnt << " old\n";
   return 0;
 }
+
 
 /*****************************************************/
 /// Обновить картинки (fig)
@@ -479,12 +585,12 @@ int pics(int argc, char** argv){
 
   // первый проход: удаляем составные объекты и объекты с комментарием [skip] во второй строке
   // или создаем заново
-  std::cerr << "removing compounds and pics in" << file <<": ";  
-  if (!testext(file, ".fig")){ std::cerr << "file is not a .fig\n"; return 1;}
+  cerr << "removing compounds and pics in" << file <<": ";  
+  if (!testext(file, ".fig")){ cerr << "ERR: file is not a .fig\n"; return 1;}
 
   fig::fig_world F;
   if (!fig::read(file.c_str(), F)) {
-    cerr << "bad fig file\n"; return 1;
+    cerr << "ERR: bad fig file\n"; return 1;
   }
 
 
@@ -502,7 +608,7 @@ int pics(int argc, char** argv){
   cerr << obj_r_cnt << " objects removed\n";
 
   // второй проход: для каждого объекта создаем картинку, если это надо
-  std::cerr << "creating new pictures in " << file <<": ";  
+  cerr << "creating new pictures in " << file <<": ";  
 
   list<fig::fig_object> NEW;
   int l_o_count=0;
@@ -521,7 +627,7 @@ int pics(int argc, char** argv){
     i++;
   }
   F.insert(F.end(), NEW.begin(), NEW.end());
-  std::cerr << l_o_count << " pics added\n";
+  cerr << l_o_count << " pics added\n";
 
   ofstream out(file.c_str());
   fig::write(out, F);
@@ -541,17 +647,17 @@ int remove_grids(int argc, char** argv){
   string cfile  = argv[0];
   string file   = argv[1];
 
-  std::cerr << "removing non-map objects from " << file <<": ";  
+  cerr << "removing non-map objects from " << file <<": ";  
 
   zn::zn_conv zconverter(cfile);
 
   int obj_cnt=0;
   
-  if (!testext(file, ".fig")){ std::cerr << "file is not a .fig\n"; return 1;}
+  if (!testext(file, ".fig")){ cerr << "ERR: file is not a .fig\n"; return 1;}
 
   fig::fig_world F;
   if (!fig::read(file.c_str(), F)) {
-    cerr << "bad fig file\n"; return 1;
+    cerr << "ERR: bad fig file\n"; return 1;
   }
 
   fig::fig_world::iterator i=F.begin(); 
@@ -566,7 +672,48 @@ int remove_grids(int argc, char** argv){
   ofstream out(file.c_str());
   fig::write(out, F);
 
-  std::cerr << obj_cnt << " fig objects removed\n";
+  cerr << obj_cnt << " fig objects removed\n";
+
+  return 0;
+}
+
+/*****************************************************/
+/// Удалить подписи из (fig).
+int remove_labels(int argc, char** argv){
+
+  if (argc < 2){
+    cerr << "Remove labels from fig.\n"
+         << "  usage: mapsoft_vmap remove_labels <conf> <fig>\n";
+    return 1;
+  }
+
+  string cfile  = argv[0];
+  string file   = argv[1];
+
+  cerr << "removing labels objects from " << file <<": ";  
+
+  zn::zn_conv zconverter(cfile);
+
+  int obj_cnt=0;
+  
+  if (!testext(file, ".fig")){ cerr << "ERR: file is not a .fig\n"; return 1;}
+
+  fig::fig_world F;
+  if (!fig::read(file.c_str(), F)) {
+    cerr << "ERR: bad fig file\n"; return 1;
+  }
+
+  fig::fig_world::iterator i=F.begin(); 
+  while (i!=F.end()){
+    if (zn::get_label_key(*i).map!="")
+      {i=F.erase(i); obj_cnt++;}
+    else i++;
+  }
+
+  ofstream out(file.c_str());
+  fig::write(out, F);
+
+  cerr << obj_cnt << " labels removed\n";
 
   return 0;
 }
@@ -585,31 +732,31 @@ int copy_labels(int argc, char** argv){
   string ifile   = argv[1];
   string ofile   = argv[2];
 
-  std::cerr << "copying labels from " << ifile <<" to " << ofile << ": ";  
+  cerr << "copying labels from " << ifile <<" to " << ofile << ": ";  
 
   zn::zn_conv zconverter(cfile);
 
   int obj_cnt=0;
   
-  if (!testext(ifile, ".fig")){ std::cerr << ifile << " is not a .fig\n"; return 1;}
-  if (!testext(ofile, ".fig")){ std::cerr << ofile << " is not a .fig\n"; return 1;}
+  if (!testext(ifile, ".fig")){ cerr << "ERR: " << ifile << " is not a .fig\n"; return 1;}
+  if (!testext(ofile, ".fig")){ cerr << "ERR: " << ofile << " is not a .fig\n"; return 1;}
 
   fig::fig_world IF;
   if (!fig::read(ifile.c_str(), IF)) {
-    cerr << "bad fig file " << ifile << "\n"; return 1;
+    cerr << "ERR: bad fig file " << ifile << "\n"; return 1;
   }
   g_map iref = fig::get_ref(IF);
   if (iref.size()<3){
-    cerr << "not a GEO-fig: "<< ifile << "\n"; return 1;
+    cerr << "ERR: not a GEO-fig: "<< ifile << "\n"; return 1;
   }
 
   fig::fig_world OF;
   if (!fig::read(ofile.c_str(), OF)) {
-    cerr << "bad fig file " << ofile << "\n"; return 1;
+    cerr << "ERR: bad fig file " << ofile << "\n"; return 1;
   }
   g_map oref = fig::get_ref(OF);
   if (oref.size()<3){
-    cerr << "not a GEO-fig: "<< ofile << "\n"; return 1;
+    cerr << "ERR: not a GEO-fig: "<< ofile << "\n"; return 1;
   }
   convs::map2map cnv(iref, oref);
 
@@ -624,7 +771,7 @@ int copy_labels(int argc, char** argv){
   ofstream out(ofile.c_str());
   fig::write(out, OF);
 
-  std::cerr << obj_cnt << " labels copied\n";
+  cerr << obj_cnt << " labels copied\n";
 
   return 0;
 }
@@ -649,7 +796,7 @@ int show_maps(int argc, char** argv){
   if (testext(file, ".fig")){
     fig::fig_world F;
     if (!fig::read(file.c_str(), F)) {
-      cerr << "bad fig file\n"; return 1;
+      cerr << "ERR: bad fig file\n"; return 1;
     }
 
     int maxid=0;
@@ -664,7 +811,7 @@ int show_maps(int argc, char** argv){
   else if (testext(file, ".mp")){
     mp::mp_world M;
     if (!mp::read(file.c_str(), M)) {
-      cerr << "Bad mp file\n"; return 1;
+      cerr << "ERR: bad mp file\n"; return 1;
     }
 
     int maxid=0;
@@ -675,7 +822,7 @@ int show_maps(int argc, char** argv){
       else cnt[key.map]++;
     }
   }
-  else { cerr << "file is not .fig or .mp\n"; return 1; }
+  else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
 
   for (map<string,int>::const_iterator i=cnt.begin(); i!=cnt.end(); i++){
     cout << i->first << "\t" << i->second << "\n";
@@ -694,7 +841,9 @@ int main(int argc, char** argv){
          << "  - labels -- update labels in fig map\n"
          << "  - pics   -- update pics in fig map\n"
          << "  - keys   -- update keys in (fig|mp) map\n"
-         << "  - remove_grids  -- remove all but reference lables and map objects in fig\n"
+         << "  - remove_grids  -- remove all but reference lables and map objects from fig\n"
+         << "  - remove_labels -- remove lables from fig\n"
+         << "  - remove_keys   -- remove keys from objects\n"
          << "  - copy_labels   -- copy all labels from (fig) to (fig)\n"
          << "  - show_maps     -- show map_names in object keys in (fig|mp)\n"
 ;
@@ -706,6 +855,8 @@ int main(int argc, char** argv){
   if (strcmp(argv[1], "keys")==0)           exit(keys(argc-2, argv+2));
   if (strcmp(argv[1], "pics")==0)           exit(pics(argc-2, argv+2));
   if (strcmp(argv[1], "remove_grids")==0)   exit(remove_grids(argc-2, argv+2));
+  if (strcmp(argv[1], "remove_labels")==0)  exit(remove_labels(argc-2, argv+2));
+  if (strcmp(argv[1], "remove_keys")==0)    exit(remove_keys(argc-2, argv+2));
   if (strcmp(argv[1], "copy_labels")==0)    exit(copy_labels(argc-2, argv+2));
   if (strcmp(argv[1], "show_maps")==0)      exit(show_maps(argc-2, argv+2));
 

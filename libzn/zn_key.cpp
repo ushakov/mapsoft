@@ -132,5 +132,9 @@ void clear_key(fig::fig_object & fig){
   if (fig.comment.size()>1) fig.comment[1]="";
 }
 
+void clear_key(mp::mp_object & mp){
+  if (mp.Comment.size()>0) mp.Comment[0]="";
+}
+
 } // namespace
 

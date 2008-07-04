@@ -14,8 +14,9 @@ fi
 
 cp "$1" "$ALL_NAME"
 
-$VMAP remove_grids "$CONF" "$ALL_NAME"
-$VMAP remove       "$CONF" "$ALL_NAME" all
+$VMAP remove_grids  "$CONF" "$ALL_NAME"
+$VMAP remove_labels "$CONF" "$ALL_NAME"
+$VMAP remove        "$CONF" "$ALL_NAME" all
 for i in $@; do
   echo $i
   $VMAP copy        "$CONF" "$i" "$ALL_NAME" all

@@ -67,6 +67,7 @@ void add_key(mp::mp_object & mp, const zn_key & key);
 
 // удалить любой ключ (да и всю вторую стоку комментария)
 void clear_key(fig::fig_object & fig);
+void clear_key(mp::mp_object & mp);
 
 
 } // namespace

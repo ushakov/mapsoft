@@ -1,4 +1,5 @@
 #include "image_gd.h"
+#include <cstring>
 
 
 //char *strdupnew(char const *str){

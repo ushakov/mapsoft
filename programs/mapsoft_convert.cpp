@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include <string>
+#include <cstring>
 #include <list>
 
 #include <sys/stat.h>

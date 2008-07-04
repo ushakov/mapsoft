@@ -186,6 +186,7 @@ fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, i
 
   if (ret.type == 4){
     ret.text = mp.Label;
+    ret.comment.push_back("");
   } else {
     ret.comment.push_back(mp.Label);
   }
@@ -218,12 +219,14 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, 
     }
   }
 
-  if (fig.type == 4){
-    mp.Label = fig.text;
-    mp.Comment.insert(mp.Comment.begin(), fig.comment.begin(), fig.comment.end());
-  } else if (fig.comment.size()>0){
-    mp.Label = fig.comment[0];
-    mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
+  if (fig.comment.size()>1){
+    if (fig.type == 4){
+      mp.Label = fig.text;
+      mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
+    } else if (fig.comment.size()>0){
+      mp.Label = fig.comment[0];
+      mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
+    }
   }
 
   g_line pts = cnv.line_frw(fig);
