@@ -27,8 +27,10 @@ env_geo.Program('mapsoft_map2fig.cpp', LIBS=['curl', mapsoft_libs, other_libs])
 env_geo.Program('mapsoft_srtm2fig.cpp')
 env_geo.Program('mapsoft_fig2fig.cpp')
 env_geo.Program('mapsoft_calc_nom2ll.cpp')
+env_geo.Program('mapsoft_calc_wu2pg.cpp')
 env_geo.Program('mapsoft_measure.cpp')
 env_geo.Program('mapsoft_srtmprofile.cpp')
+
 
 env.Program('fig_crop.cpp', LIBS=['fig', 'utils'])
 env_geo.Program('fig_ref_mod.cpp')

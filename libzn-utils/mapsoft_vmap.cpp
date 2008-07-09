@@ -396,6 +396,7 @@ int labels(int argc, char** argv){
         l->second.text = text;
         l_m_count++;
       } else l_o_count++;
+      zconverter.label_update(l->second, key.type);
 
       if (text !="") NEW.push_back(l->second);
     }
@@ -470,6 +471,7 @@ int keys(int argc, char** argv){
       if (!zconverter.is_map_depth(*i)) continue;
       zn::zn_key key = zn::get_key(*i);
       key.type   = zconverter.get_type(*i); // тип объекта - по внешнему виду
+      if (key.type==0) continue;
 
       if ((key.map == map_name) && (key.id !=0)){ // свой ключ
         obj_o_cnt++;

@@ -14,10 +14,10 @@ int main(int argc, char **argv){
               << "  " << std::setprecision(14)<< p2.x << " " << std::setprecision(14)<< p2.y 
               << "  " << std::setprecision(14)<< p3.x << " " << std::setprecision(14)<< p3.y 
               << "  " << std::setprecision(14)<< p4.x << " " << std::setprecision(14)<< p4.y ;
-    std::cout << p1.x-p4.x << " "
-              << p2.x-p3.x << " "
-              << p1.y-p2.y << " "
-              << p3.y-p4.y << " ";
+//    std::cout << p1.x-p4.x << " "
+//              << p2.x-p3.x << " "
+//              << p1.y-p2.y << " "
+//              << p3.y-p4.y << " ";
 
   }
 }

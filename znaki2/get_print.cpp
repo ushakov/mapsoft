@@ -122,7 +122,8 @@ main(int argc, char **argv){
     int type = zconverter.get_type(*i);
 
     if (pass == 0){
-      if (type == 0x100027) list_zd.push_back(*i);
+      if ((type == 0x100027)||
+          (type == 0x10000D)) list_zd.push_back(*i);
       if ((type == 0x100015)||
           (type == 0x100018)||
           (type == 0x10001F)|| 
@@ -141,7 +142,9 @@ main(int argc, char **argv){
          (type == 0x100004) || // грейдер
          (type == 0x100006) || // черная дорога
          (type == 0x100007) || // непроезжий грейдер
+         (type == 0x10000B) || // большое шоссе
          (type == 0x10000C) || // хребет
+         (type == 0x10000D) || // УЖД
          (type == 0x100015) || // река-1
          (type == 0x100018) || // река-2
          (type == 0x10001E) || // нижний край обрыва
@@ -276,7 +279,7 @@ main(int argc, char **argv){
     }
 
     // мост
-    if ((type == 0x100008) || (type == 0x100009) || (type == 0x10000B)){ 
+    if ((type == 0x100008) || (type == 0x100009) || (type == 0x10000E)){ 
         i->resize(2);
         Point<double> p1=(*i)[0], p2=(*i)[1];
         double ll = pdist(p1,p2);
