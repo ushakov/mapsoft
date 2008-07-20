@@ -843,11 +843,11 @@ int main(int argc, char** argv){
          << "  - labels -- update labels in fig map\n"
          << "  - pics   -- update pics in fig map\n"
          << "  - keys   -- update keys in (fig|mp) map\n"
-         << "  - remove_grids  -- remove all but reference lables and map objects from fig\n"
+         << "  - remove_grids  -- remove all but reference, lables, and map objects from fig\n"
          << "  - remove_labels -- remove lables from fig\n"
          << "  - remove_keys   -- remove keys from objects\n"
          << "  - copy_labels   -- copy all labels from (fig) to (fig)\n"
-         << "  - show_maps     -- show map_names in object keys in (fig|mp)\n"
+         << "  - show_maps     -- show map_names of objects in (fig|mp)\n"
 ;
     exit(0);
   }
