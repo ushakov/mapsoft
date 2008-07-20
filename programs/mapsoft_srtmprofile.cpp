@@ -6,6 +6,7 @@
 #include <list>
 #include <stdexcept>
 #include <cmath>
+#include <cstring>
 
 #include "../utils/srtm3.h"
 #include "../lib2d/line.h"

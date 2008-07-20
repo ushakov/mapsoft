@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 
+#include <cstring>
 #include <string>
 #include <list>
 

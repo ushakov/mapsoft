@@ -1,0 +1,12 @@
+slazav, 2008/07/21
+- all #include <cstring> to 
+  fig_ref_mod.cpp
+  mapsoft_add2fig.cpp
+  mapsoft_measure.cpp
+  mapsoft_mkmap.cpp
+  mapsoft_ref.cpp
+  mapsoft_srtmprofile.cpp
+  (for strcmp used in cmd-line parameter parsing)
+- comment out env_geo.Program('mapsoft_calc_wu2pg.cpp') in Sconstruct
+  (this program was created for my purposes and not useful now)
+- add this changelog file

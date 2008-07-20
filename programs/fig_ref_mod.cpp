@@ -1,4 +1,5 @@
 #include <fstream>
+#include <cstring>
 #include "../geo_io/geofig.h"
 #include "../geo_io/geo_convs.h"
 

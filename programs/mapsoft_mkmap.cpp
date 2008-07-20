@@ -6,6 +6,7 @@
 #include <boost/spirit/actor/assign_actor.hpp>
 
 #include <string>
+#include <cstring>
 
 #include <sys/stat.h>
 #include <math.h>

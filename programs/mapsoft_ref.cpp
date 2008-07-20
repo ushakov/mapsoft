@@ -6,6 +6,7 @@
 #include <boost/spirit/actor/assign_actor.hpp>
 
 
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <sstream>
