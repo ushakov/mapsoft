@@ -10,7 +10,7 @@
  первой точки до последней */
 
 template <typename T>
-void rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
+bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
 
   T xl=cutter.x;
   T xh=cutter.x+cutter.w;
@@ -19,6 +19,8 @@ void rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
 
   if (line.size()<3) closed=false;
   Line<T> e; // for stable end iterator
+
+  bool res=false;
 
   // для каждой стороны прямоугольника
   for (int i=0; i<4; i++){
@@ -117,14 +119,13 @@ void rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
         continue;
       }
 
+      if (skip) res=true;
       skip=false;
       p++;
     }
   }
-
+  return res;
 }
-
-
 
 #endif
 

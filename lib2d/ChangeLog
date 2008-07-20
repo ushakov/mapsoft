@@ -1,0 +1,3 @@
+- modify line_rectcrop() to return bool value: is lane was really cropped.
+  (need testing!)
+- add this ChangeLog file
