@@ -36,6 +36,8 @@ namespace mp {
             push_back(*i);
           return *this;
         }
+        // сделать из линии
+        void set_points(const Line<double> & v);
     };
 
     struct mp_world:std::list<mp_object>{
