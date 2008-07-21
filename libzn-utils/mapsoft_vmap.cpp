@@ -7,6 +7,8 @@
 #include "../libzn/zn.h"
 #include "../libzn/zn_key.h"
 
+#include "../lib2d/line_rectcrop.h"
+
 using namespace std;
 
 bool testext(const string & nstr, const char *ext){
@@ -637,6 +639,86 @@ int pics(int argc, char** argv){
 }
 
 /*****************************************************/
+/// Обрезать картографические объекты (fig|mp)
+int crop(int argc, char** argv){
+
+  if (argc != 8){
+    cerr << "Update keys.\n"
+         << "  usage: mapsoft_vmap crop <conf> <proj> <datum> <x> <y> <w> <h> <fig|mp>\n";
+    return 1;
+  }
+
+  string cfile    = argv[0];
+  string proj     = argv[1];
+  string datum    = argv[2];
+  double x        = atof(argv[3]);
+  double y        = atof(argv[4]);
+  double w        = atof(argv[5]);
+  double h        = atof(argv[6]);
+  string file     = argv[7];
+  Rect<double> cutter(x,y,w,h);
+
+  cerr << "cropping " << file <<": ";  
+
+  int obj_n_cnt=0;
+  int obj_c_cnt=0;
+  int obj_d_cnt=0;
+
+  zn::zn_conv zconverter(cfile);
+
+  if (testext(file, ".fig")){
+    fig::fig_world F;
+    if (!fig::read(file.c_str(), F)) {
+      cerr << "ERR: bad fig file\n"; return 1;
+    }
+    g_map ref = fig::get_ref(F);
+    if (ref.size()<3){
+      cerr << "ERR: not a GEO-fig\n"; return 1;
+    }
+    convs::map2pt cnv(ref, Datum(datum), Proj(proj));
+
+    fig::fig_world::iterator i=F.begin();
+    while (i!=F.end()){
+      if (!zconverter.is_map_depth(*i)) continue;
+      Line<double> l = cnv.line_frw(*i);
+      bool closed= i->is_closed() || (i->area_fill != -1);
+      if (rect_crop(cutter, l, closed)) obj_c_cnt++; else obj_n_cnt++;
+      i->set_points(cnv.line_bck(l));
+      if (i->size()==0) {i=F.erase(i); obj_d_cnt++; obj_c_cnt--;} else i++;
+    }
+    ofstream out(file.c_str());
+    fig::write(out, F);
+  }
+
+  else if (testext(file, ".mp")){
+    mp::mp_world M;
+    if (!mp::read(file.c_str(), M)) {
+      cerr << "ERR: bad mp file\n"; return 1;
+    }
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(), 
+                     Datum(datum), Proj(proj), Options());
+
+    mp::mp_world::iterator i=M.begin();
+    while (i!=M.end()){
+      Line<double> l = cnv.line_frw(*i, 1e-7);
+      bool closed= (i->Class == "POLYGON");
+      if (rect_crop(cutter, l, closed)) obj_c_cnt++; else obj_n_cnt++;
+      i->set_points(cnv.line_bck(l, 1e-7));
+      if (i->size()==0) {i=M.erase(i); obj_d_cnt++; obj_c_cnt--;} else i++;
+    }
+    ofstream out(file.c_str());
+    mp::write(out, M);
+  }
+  else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
+
+  cerr << obj_n_cnt << " non-modified, " 
+       << obj_c_cnt << " cropped, " 
+       << obj_d_cnt << " deleted\n";
+  return 0;
+}
+
+
+/*****************************************************/
 /// Удалить сетку и т.п.оформление (fig). Остаются: привязка, подписи, объекты
 int remove_grids(int argc, char** argv){
 
@@ -843,6 +925,7 @@ int main(int argc, char** argv){
          << "  - labels -- update labels in fig map\n"
          << "  - pics   -- update pics in fig map\n"
          << "  - keys   -- update keys in (fig|mp) map\n"
+         << "  - crop          -- crop map objects in (fig|mp)\n"
          << "  - remove_grids  -- remove all but reference, lables, and map objects from fig\n"
          << "  - remove_labels -- remove lables from fig\n"
          << "  - remove_keys   -- remove keys from objects\n"
@@ -856,6 +939,7 @@ int main(int argc, char** argv){
   if (strcmp(argv[1], "labels")==0)         exit(labels(argc-2, argv+2));
   if (strcmp(argv[1], "keys")==0)           exit(keys(argc-2, argv+2));
   if (strcmp(argv[1], "pics")==0)           exit(pics(argc-2, argv+2));
+  if (strcmp(argv[1], "crop")==0)           exit(crop(argc-2, argv+2));
   if (strcmp(argv[1], "remove_grids")==0)   exit(remove_grids(argc-2, argv+2));
   if (strcmp(argv[1], "remove_labels")==0)  exit(remove_labels(argc-2, argv+2));
   if (strcmp(argv[1], "remove_keys")==0)    exit(remove_keys(argc-2, argv+2));
