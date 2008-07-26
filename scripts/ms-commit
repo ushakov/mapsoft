@@ -36,7 +36,7 @@ if ! git-commit -m "$curdir: $message"; then
    echo "Nothing to commit"
    exit
 fi
-
+echo "######" >> TempLog
 git-log --name-only -1 | grep -v '^commit' >> TempLog
 echo >> TempLog
 cat ChangeLog >> TempLog
