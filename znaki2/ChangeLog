@@ -1,5 +1,17 @@
 ######
 Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Sat Jul 26 19:46:58 2008 +0400
+
+    znaki2: remove some old unused programs (see ../arc/znaki2.tgz)
+
+znaki2/Makefile
+znaki2/get_map.cpp
+znaki2/txt
+znaki2/update_ext.cpp
+znaki2/update_map.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sat Jul 26 19:32:13 2008 +0400
 
     znaki2: remove unused zn* files from znaki2 (long time ago they was moved to libzn dir)
