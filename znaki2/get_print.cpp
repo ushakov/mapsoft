@@ -177,12 +177,6 @@ main(int argc, char **argv){
       i->center_y = (*i)[0].y;
       NW.push_back(*i); continue;
     }
-    // подпись урочища
-    if (type == 0x2800){
-      i->pen_color=0;
-      i->depth=40; //! чтоб под текстом линии стирались!
-      NW.push_back(*i); continue;
-    }
     // платформа
     if (type == 0x5905){
       Point<double> t, p((*i)[0]);
@@ -552,8 +546,8 @@ main(int argc, char **argv){
       continue;
    }
 
-   // точки для нас.пунктов
-   if ((type == 0x700) || (type == 0x800) || (type == 0x900)){
+   // точки для нас.пунктов и урочищь
+   if ((type == 0x700) || (type == 0x800) || (type == 0x900) || (type == 0x2800)){
      continue;
    }
     // прочие объекты - без изменений
