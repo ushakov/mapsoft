@@ -1,5 +1,19 @@
 ######
 Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Sat Jul 26 19:32:13 2008 +0400
+
+    znaki2: remove unused zn* files from znaki2 (long time ago they was moved to libzn dir)
+
+znaki2/ChangeLog
+znaki2/zn.cpp
+znaki2/zn.h
+znaki2/zn_key.cpp
+znaki2/zn_key.h
+znaki2/zn_lists.cpp
+znaki2/zn_lists.h
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sat Jul 26 19:27:14 2008 +0400
 
     znaki2: update get_print.cpp for new map objects. You need to filter all your maps through tx2pt
