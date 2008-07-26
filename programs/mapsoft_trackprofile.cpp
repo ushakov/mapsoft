@@ -6,6 +6,7 @@
 #include <list>
 #include <stdexcept>
 #include <cmath>
+#include <cstring>
 
 #include "../lib2d/line.h"
 

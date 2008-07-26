@@ -10,3 +10,4 @@ slazav, 2008/07/21
 - comment out env_geo.Program('mapsoft_calc_wu2pg.cpp') in Sconstruct
   (this program was created for my purposes and not useful now)
 - add this changelog file
+

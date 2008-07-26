@@ -32,7 +32,7 @@ main(int argc, char **argv){
     double deg_per_pt = 360.0/256.0/(2 << (zoom-1));
     double m_per_pt   = 6380000.0 * 2*M_PI /256.0/(2 << (zoom-1));
 
-    LayerGoogle ml("/d/MAPS/GOOGLE", zoom);
+    LayerGoogle ml("/space/maps/google", zoom);
     ml.set_downloading(true);
 
     g_point p1(X1,Y2), p2(X2,Y2), p3(X2,Y1), p4(X1,Y1);
