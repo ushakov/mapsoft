@@ -6,14 +6,16 @@ Date:   Sat Jul 26 19:27:14 2008 +0400
 
 znaki2/get_print.cpp
 
+######
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sat Jul 26 19:15:11 2008 +0400
 
-    znaki2: add tx2pt.cpp program to converd old text objects to points with labels
+    znaki2: add tx2pt.cpp program to convert old text objects to points with labels
 
 znaki2/Makefile
 znaki2/tx2pt.cpp
 
+######
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sat Jul 26 19:14:18 2008 +0400
 
@@ -22,6 +24,7 @@ Date:   Sat Jul 26 19:14:18 2008 +0400
 znaki2/hr.cnf
 znaki2/mmb.cnf
 
+######
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sat Jul 26 18:53:16 2008 +0400
 
