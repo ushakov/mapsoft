@@ -1,0 +1,11 @@
+######
+Author: Tim Alexeevsky <tim@zhuchka.(none)>
+Date:   Sat Jul 26 20:13:55 2008 +0400
+
+    loaders: Исправлена загрузка google
+
+loaders/ChangeLog
+loaders/image_google.cpp
+poehali/init-cookie
+znaki2/westra/Makefile
+
