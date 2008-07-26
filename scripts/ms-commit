@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [[ $# < 1 ]]; then
+   echo "Usage: $0 message"
+   exit
+fi
+
+while [ ! -f ./ChangeLog ]; do
+   if [ `pwd` == '/' ]; then
+      echo "ChangeLog is not found"
+      exit
+   fi
+   cd ..
+done
+curdir="`pwd | sed 's/^.*\///'`"
+message="$1"
+changes=`git-diff --name-only .`
+
+pushd `pwd` > /dev/null
+
+while [ ! -d ./.git ]; do
+   if [ `pwd` == '/' ]; then
+      echo "Git root is not found"
+      exit
+   fi
+   cd ..
+done
+
+if [ "x$changes" != "x" ]; then
+   echo $changes | xargs git-add
+fi
+
+popd > /dev/null
+
+if ! git-commit -m "$curdir: $message"
+   echo "Nothing to commit"
+   exit
+fi
+
+git-log --name-only -1 | grep -v '^commit' >> TempLog
+echo >> TempLog
+cat ChangeLog >> TempLog
+mv TempLog ChangeLog
+git-add ChangeLog
+git-commit -m 'update ChangeLog'
