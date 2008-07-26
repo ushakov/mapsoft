@@ -1,2 +1,10 @@
-- add crop function to mapsoft_vmap
-- add this changelog file
+Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Sat Jul 26 14:07:12 2008 +0400
+
+    - fix crop function for fig files
+
+Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Mon Jul 21 08:13:42 2008 +0400
+
+    - add crop function to mapsoft_vmap
+    - add changelog file
