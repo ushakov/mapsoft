@@ -679,7 +679,7 @@ int crop(int argc, char** argv){
 
     fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
-      if (!zconverter.is_map_depth(*i)) continue;
+      if (!zconverter.is_map_depth(*i)) { i++; continue;}
       Line<double> l = cnv.line_frw(*i);
       bool closed= i->is_closed() || (i->area_fill != -1);
       if (rect_crop(cutter, l, closed)) obj_c_cnt++; else obj_n_cnt++;
