@@ -32,7 +32,7 @@ fi
 
 popd > /dev/null
 
-if ! git-commit -m "$curdir: $message"
+if ! git-commit -m "$curdir: $message"; then
    echo "Nothing to commit"
    exit
 fi
