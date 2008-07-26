@@ -1,0 +1,7 @@
+Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Sat Jul 26 18:54:02 2008 +0400
+
+    scripts: fix bug in ms-commit
+
+scripts/ms-commit
+
