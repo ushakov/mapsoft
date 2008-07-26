@@ -1,3 +1,11 @@
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Sat Jul 26 19:23:56 2008 +0400
+
+    scripts: add separator to ChangeLog
+
+scripts/ms-commit
+
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sat Jul 26 18:54:02 2008 +0400
 
