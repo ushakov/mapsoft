@@ -1,3 +1,11 @@
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Sat Jul 26 19:27:14 2008 +0400
+
+    znaki2: update get_print.cpp for new map objects. You need to filter all your maps through tx2pt
+
+znaki2/get_print.cpp
+
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sat Jul 26 19:15:11 2008 +0400
 
