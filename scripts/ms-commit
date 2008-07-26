@@ -26,9 +26,9 @@ while [ ! -d ./.git ]; do
    cd ..
 done
 
-if [ "x$changes" != "x" ]; then
-   echo $changes | xargs git-add
-fi
+for f in $changes; do
+  [ -f "$f" ] && git-add "$f" || git-rm "$f"
+done
 
 popd > /dev/null
 
