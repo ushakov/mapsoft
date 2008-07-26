@@ -2,6 +2,9 @@
 
 CONFDIR=$HOME/.poehali
 
+POECODE=`which poecode`
+GOCR=`which gocr`
+
 if [ ! -d $CONFDIR ]; then mkdir $CONFDIR || exit; fi
 if [ ! -f $CONFDIR/mapmapstor ]; then echo "01" > $CONFDIR/mapmapstor; fi
 
@@ -20,22 +23,42 @@ wget http://m$mapmapstor.mapstor.com/p_getfileref.php?m=n37%2F050k%2F050k--n37-0
 # Скачиваю картинку с кодом для карт и спрашиваю, что нарисовано
 gifmapstor=`cat $CONFDIR/gifmapstor`
 wget --load-cookies=$CONFDIR/cookies -O $CONFDIR/code.png http://m$gifmapstor.mapstor.com/p_getfile.php?mode=showpic >/dev/null 2>&1 
-display $CONFDIR/code.png &
-printf "Введите код для карт: "
-read code
-echo $code > $CONFDIR/gifcode
-kill %- 2>/dev/null
-wait %- 2>/dev/null
-rm $CONFDIR/code.png
+
+if [ -n "$POECODE" -a -x "$POECODE" -a -n "$GOCR" -a -x "$GOCR" ]
+then
+   $POECODE $CONFDIR/code.png $CONFDIR/code-clean.png > /dev/null
+   $GOCR -C 0123456789 $CONFDIR/code-clean.png > $CONFDIR/gifcode
+   printf "Код для карт: "
+   cat $CONFDIR/gifcode
+   rm $CONFDIR/code.png $CONFDIR/code-clean.png
+else
+   display $CONFDIR/code.png &
+   printf "Введите код для карт: "
+   read code
+   echo $code > $CONFDIR/gifcode
+   kill %- 2>/dev/null
+   wait %- 2>/dev/null
+   rm $CONFDIR/code.png
+fi
 
 # Скачиваю картинку с кодом для привязок и спрашиваю, что нарисовано
 wget --load-cookies=$CONFDIR/cookies -O $CONFDIR/code.png http://m$mapmapstor.mapstor.com/p_getfileref.php?mode=showpic >/dev/null 2>&1 
-display $CONFDIR/code.png &
-printf "Введите код для привязок: "
-read code
-echo $code > $CONFDIR/mapcode
-kill %- 2>/dev/null
-wait %- 2>/dev/null
-rm $CONFDIR/code.png
+
+if [ -n "$POECODE" -a -x "$POECODE" -a -n "$GOCR" -a -x "$GOCR" ]
+then
+   $POECODE $CONFDIR/code.png $CONFDIR/code-clean.png > /dev/null
+   $GOCR -C 0123456789 $CONFDIR/code-clean.png > $CONFDIR/mapcode
+   printf "Код для привязок: "
+   cat $CONFDIR/mapcode
+   rm $CONFDIR/code.png $CONFDIR/code-clean.png
+else
+   display $CONFDIR/code.png &
+   printf "Введите код для привязок: "
+   read code
+   echo $code > $CONFDIR/mapcode
+   kill %- 2>/dev/null
+   wait %- 2>/dev/null
+   rm $CONFDIR/code.png
+fi
 
 # vim: tw=0

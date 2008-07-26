@@ -25,6 +25,9 @@ pass_va.kml:
 pass_hib.kml:
 	wget -O $@ http://www.westra.ru/passes/kml/passes.php?BBOX=30,60,40,70
 
+pass_kav.kml:
+	wget -O $@ http://www.westra.ru/passes/kml/passes.php?BBOX=41,41,45,45
+
 %.mp: %.kml
 	./kml2mp < $< > $@
 
