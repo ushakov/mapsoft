@@ -27,7 +27,7 @@ main(int argc, char **argv){
     Y1    = atof(argv[5]);
     Y2    = atof(argv[6]);
 
-    LayerKS     ml("/space/maps/ks", zoom);
+    LayerKS     ml("/d/MAPS/KS", zoom);
     ml.set_downloading(true);
 
     double width = 4 * 256*(1<<(zoom-2));
