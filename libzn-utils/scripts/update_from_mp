@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VMAP="/home/sla/MS2/libzn-utils/mapsoft_vmap"
+VMAP="/home/sla/MS3/libzn-utils/mapsoft_vmap"
 
 MAP="$1"
 EDITOR="chupikin"
