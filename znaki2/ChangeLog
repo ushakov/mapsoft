@@ -1,5 +1,15 @@
 ######
 Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Sun Jul 27 16:52:07 2008 +0400
+
+    znaki2: исправил программу для преобразования урочищь из текстового объекта в точечный
+
+znaki2/hr.cnf
+znaki2/mmb.cnf
+znaki2/tx2pt.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sun Jul 27 14:47:41 2008 +0400
 
     znaki2: исправил картинки для шахт и развалин
