@@ -1,5 +1,14 @@
 ######
 Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Sun Jul 27 14:47:41 2008 +0400
+
+    znaki2: исправил картинки для шахт и развалин
+
+znaki2/pics/razv.fig
+znaki2/pics/shaht.fig
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sun Jul 27 14:45:08 2008 +0400
 
     znaki2: добавил потерявшиеся картинки для шахт и развалин
