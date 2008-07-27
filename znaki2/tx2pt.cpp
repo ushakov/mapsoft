@@ -32,11 +32,13 @@ main(int argc, char **argv){
   if (!read(infile.c_str(), W)){cerr << "Bad fig file " << infile << "\n"; exit(0);}
   fig_world NW;
 
+  int cnt=0;
+
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
 
-    int type = zconverter.get_type(*i);
+//    int type = zconverter.get_type(*i);
 
-    if (type == 0x2800){
+    if (test_object(*i, "4 1 12 55 * * * * 4")){
       if (i->size()<1) continue;
       // создаем точку
       fig_object o = make_object("2 1 0 4 12 7  55 -1 -1 0.000 0 1 -1 0 0 1");
@@ -47,10 +49,12 @@ main(int argc, char **argv){
       i->depth=40;
       i->pen_color=0;
       add_key(*i,  zn::zn_label_key(zn::get_key(o)));
+      cnt++;
     }
     // прочие объекты - без изменений
     NW.push_back(*i);
   }
   ofstream out(outfile.c_str());
   write(out, NW);
+  cerr << cnt << " objects converted\n";
 }
