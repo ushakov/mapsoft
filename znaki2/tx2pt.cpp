@@ -38,7 +38,7 @@ main(int argc, char **argv){
 
 //    int type = zconverter.get_type(*i);
 
-    if (test_object(*i, "4 1 12 55 * * * * 4")){
+    if (test_object(*i, "4 * 12 55 * * * * 4")){
       if (i->size()<1) continue;
       // создаем точку
       fig_object o = make_object("2 1 0 4 12 7  55 -1 -1 0.000 0 1 -1 0 0 1");
