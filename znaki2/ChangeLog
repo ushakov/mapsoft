@@ -1,5 +1,13 @@
 ######
 Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Fri Aug 1 09:14:48 2008 +0400
+
+    znaki2: fix tx2pt to work with text objects with broken alignment
+
+znaki2/tx2pt.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sun Jul 27 17:05:16 2008 +0400
 
     znaki2: еще одно исправление с урочищами. Выкинул старые знаки из cnf
