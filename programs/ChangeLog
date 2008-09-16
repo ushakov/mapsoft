@@ -1,4 +1,13 @@
 ######
+Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Wed Sep 17 00:23:37 2008 +0400
+
+    programs: add mapsoft_pano -- creating panoramas from srtm and mp map
+
+programs/SConscript
+programs/mapsoft_pano.cpp
+
+######
 Author: Tim Alexeevsky <tim@zhuchka.(none)>
 Date:   Sat Jul 26 20:30:49 2008 +0400
 
