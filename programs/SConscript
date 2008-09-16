@@ -32,6 +32,8 @@ env_geo.Program('mapsoft_measure.cpp')
 env_geo.Program('mapsoft_trackprofile.cpp')
 env_geo.Program('mapsoft_srtmprofile.cpp')
 
+env_geo.Program('mapsoft_pano.cpp')
+
 
 env.Program('fig_crop.cpp', LIBS=['fig', 'utils'])
 env_geo.Program('fig_ref_mod.cpp')
