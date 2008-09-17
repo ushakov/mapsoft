@@ -86,7 +86,9 @@ int load(
 	  if (!f) return 1;
 	  int n = rand() % 4;
 	  std::ostringstream urls;
-	  urls << "http://khm" << n << ".google.com/kh?n=404&v=28&hl=ru&t=" << tile2addr (google_scale, xt, yt);
+	  urls << "http://khm" << n << ".google.com/kh?&v=31&hl=ru" 
+               << "&x=" << xt << "&y=" << yt << "&z=" << google_scale-1 << "&s=";
+          urls.write("Galileo", (xt*3+yt)%8);
 	  std::string url = urls.str();
 	  std::cerr << "fetching url " << url << std::endl;
 	  if (curl_easy_setopt (curl_handle, CURLOPT_URL, url.c_str())) {
