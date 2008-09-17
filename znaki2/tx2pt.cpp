@@ -44,6 +44,8 @@ main(int argc, char **argv){
       fig_object o = make_object("2 1 0 4 12 7  55 -1 -1 0.000 0 1 -1 0 0 1");
       o.push_back((*i)[0]);
       o.comment.swap(i->comment);
+      // ???
+      if (o.comment.size()==0) o.comment.resize(1);
       o.comment[0]=i->text;
       NW.push_back(o);
       i->depth=40;
