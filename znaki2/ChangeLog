@@ -1,5 +1,13 @@
 ######
 Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Wed Sep 17 10:57:06 2008 +0400
+
+    znaki2: fig tx2pt.cpp
+
+znaki2/tx2pt.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Fri Aug 1 09:14:48 2008 +0400
 
     znaki2: fix tx2pt to work with text objects with broken alignment
