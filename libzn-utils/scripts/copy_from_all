@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VMAP="/home/sla/MS2/libzn-utils/mapsoft_vmap"
+VMAP="/home/sla/MS3/libzn-utils/mapsoft_vmap"
 
 MAP="all.fig"
 CONF="./conf"
@@ -16,6 +16,6 @@ for m in $maps; do
   echo "$m"
   $VMAP remove "$CONF"        "$m".fig all
   $VMAP copy   "$CONF" "$MAP" "$m".fig map "$m"
-  $VMAP labels "$CONF" "$m"   "$m".fig
+  $VMAP labels "$CONF"        "$m".fig
   $VMAP pics   "$CONF"        "$m".fig
 done

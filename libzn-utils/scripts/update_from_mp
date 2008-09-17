@@ -3,7 +3,7 @@
 VMAP="/home/sla/MS3/libzn-utils/mapsoft_vmap"
 
 MAP="$1"
-EDITOR="chupikin"
+EDITOR="atonis"
 CONF="./conf"
 
 MAP=${MAP%%.*} # cutting all extentions
@@ -16,5 +16,5 @@ fi
 $VMAP keys   "$CONF" "$MAP" "$EDITOR" "$MAP".mp
 $VMAP remove "$CONF" "$MAP".fig all
 $VMAP copy   "$CONF" "$MAP".mp "$MAP".fig all
-$VMAP labels "$CONF" "$MAP" "$MAP".fig
+$VMAP labels "$CONF" "$MAP".fig
 $VMAP pics   "$CONF" "$MAP".fig
