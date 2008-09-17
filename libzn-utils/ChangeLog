@@ -1,5 +1,15 @@
 ######
 Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Wed Sep 17 10:57:59 2008 +0400
+
+    libzn-utils: fix scripts
+
+libzn-utils/scripts/copy_from_all
+libzn-utils/scripts/copy_to_all
+libzn-utils/scripts/update_from_mp
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sun Jul 27 17:09:53 2008 +0400
 
     libzn-utils: вставил в скрипты автоматическое исправление знаков урочищ
