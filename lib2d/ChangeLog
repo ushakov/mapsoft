@@ -1,3 +1,12 @@
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Fri Sep 26 11:07:34 2008 +0400
+
+    lib2d: point_cross.h: fix and test find_cross(), add find_dist()
+
+lib2d/point.h
+lib2d/point_cross.h
+
 - modify line_rectcrop() to return bool value: is lane was really cropped.
   (need testing!)
 - add this ChangeLog file
