@@ -4,8 +4,9 @@
 #include <boost/operators.hpp>
 //#include <boost/test/floating_point_comparison.hpp>
 #include <iostream>
+#include <cmath> // for rint
 
-template <typename T> 
+template <typename T>
 struct Point
   : public boost::additive<Point<T> >,
     public boost::multiplicative<Point<T>,T>,
@@ -17,7 +18,7 @@ struct Point
   Point(T _x=0, T _y=0)
 	: x(_x), y(_y)
   { }
-  
+
   void
   swap (Point & other)
   {
@@ -73,7 +74,7 @@ struct Point
   }
 
   operator Point<int>() const{
-    return Point<int>(int(this->x), int(this->y));
+    return Point<int>(int(rint(this->x)), int(rint(this->y)));
   }
 
 //  bool equals (Point<T> const & other) const {
