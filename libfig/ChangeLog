@@ -1,0 +1,8 @@
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Thu Oct 9 00:16:08 2008 +0400
+
+    libfig: make fig_object to be less_than_comparable
+
+libfig/fig_data.h
+
