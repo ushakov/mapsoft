@@ -109,6 +109,7 @@ namespace fig {
     /// fig object
     struct fig_object : Line<int>,
       public boost::equality_comparable<fig_object>,
+      public boost::less_than_comparable<fig_object>,
       public boost::additive<fig_object, Point<int> >
     {
         int     type;
@@ -163,9 +164,7 @@ namespace fig {
 	}
 	bool operator== (const fig_object & o) const{
           // полное совпадение объектов
-          if (size()!=o.size()) return false;
-          for (int i=0; i<size(); i++) if ((*this)[i]!=o[i]) return false;
-          return ( 
+          return (
            (type == o.type) && (sub_type == o.sub_type) &&
            (line_style == o.line_style) && (thickness == o.thickness) &&
 	   (pen_color == o.pen_color) && (fill_color == o.fill_color) &&
@@ -186,9 +185,33 @@ namespace fig {
 	   (farrow_width == o.farrow_width) && (barrow_width == o.barrow_width) &&
 	   (farrow_height == o.farrow_height) && (barrow_height == o.barrow_height) &&
            (image_file == o.image_file) && (image_orient == o.image_orient) &&
-           (text == o.text) && (comment == o.comment) && (f == o.f));
+           (text == o.text) && (comment == o.comment) && (f == o.f) && Line<int>::operator==(o));
         }
-        
+
+	bool operator< (const fig_object & o) const{
+          return (
+           (type < o.type) || (sub_type < o.sub_type) ||
+           (line_style < o.line_style) || (thickness < o.thickness) ||
+	   (pen_color < o.pen_color) || (fill_color < o.fill_color) ||
+	   (depth < o.depth) || (pen_style < o.pen_style) ||
+	   (area_fill < o.area_fill) || (style_val < o.style_val) ||
+           (join_style < o.join_style) || (cap_style < o.cap_style) ||
+           (radius < o.radius) || (direction < o.direction) || (angle < o.angle) || 
+           (forward_arrow < o.forward_arrow) || (backward_arrow < o.backward_arrow) ||
+           (center_x < o.center_x) || (center_y < o.center_y) ||
+           (radius_x < o.radius_x) || (radius_y < o.radius_y) ||
+           (start_x < o.start_x) || (start_y < o.start_y) ||
+           (end_x < o.end_x) || (end_y < o.end_y) ||
+           (font < o.font) || (font_size < o.font_size) || (font_flags < o.font_flags) ||
+           (height < o.height) || (length < o.length) ||
+           (farrow_type < o.farrow_type) || (barrow_type < o.barrow_type) ||
+           (farrow_style < o.farrow_style) || (barrow_style < o.barrow_style) ||
+           (farrow_thickness < o.farrow_thickness) || (barrow_thickness < o.barrow_thickness) ||
+	   (farrow_width < o.farrow_width) || (barrow_width < o.barrow_width) ||
+	   (farrow_height < o.farrow_height) || (barrow_height < o.barrow_height) ||
+           (image_file < o.image_file) || (image_orient < o.image_orient) ||
+           (text < o.text) || (comment < o.comment) || (f < o.f) || Line<int>::operator<(o));
+        }
 
         /// сместить на (x,y)
 	fig_object & operator += (const Point<int> & p) {
