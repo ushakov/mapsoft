@@ -51,7 +51,7 @@ struct Line
   // линия меньше, если первая отличающаяся точка меньше,
   // или не существует
   bool operator< (const Line<T> & p) const {
-    typename Line<T>::iterator i1=this->begin(), i2=p.begin();
+    typename Line<T>::const_iterator i1=this->begin(), i2=p.begin();
     do {
       if (i1==this->end()){
         if (i2!=p.end()) return true;
