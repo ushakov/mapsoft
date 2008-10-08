@@ -54,9 +54,11 @@ struct Line
     typename Line<T>::const_iterator i1=this->begin(), i2=p.begin();
     do {
       if (i1==this->end()){
-        if (i2!=p.end()) return true;
-        else return false;
+        if (i2==p.end()) return false;
+        else return true;
       }
+      else if (i2==p.end()) return false;
+
       if ((*i1)!=(*i2)) return (*i1) < (*i2);
       i1++; i2++;
     } while(1);
