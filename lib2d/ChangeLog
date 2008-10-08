@@ -1,5 +1,13 @@
 ######
 Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Thu Oct 9 00:17:11 2008 +0400
+
+    lib2d: fix Line<T>::operator< to use const iterator
+
+lib2d/line.h
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Fri Sep 26 11:07:34 2008 +0400
 
     lib2d: point_cross.h: fix and test find_cross(), add find_dist()
