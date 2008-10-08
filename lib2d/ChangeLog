@@ -1,4 +1,12 @@
 ######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Thu Oct 9 02:34:30 2008 +0400
+
+    lib2d: fix SEGV error in Line<t>::operator<
+
+lib2d/line.h
+
+######
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Thu Oct 9 00:17:11 2008 +0400
 
