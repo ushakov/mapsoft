@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <math.h>
 
-#include "../geo_io/io.h"
+#include "../libgeo_io/io.h"
 
 using namespace std;
 

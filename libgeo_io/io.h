@@ -4,7 +4,7 @@
 // function for I/O
 
 #include <string>
-#include "geo_data.h"
+#include "../libgeo/geo_data.h"
 #include "../utils/mapsoft_options.h"
 
 #include "io_gps.h"
@@ -12,6 +12,7 @@
 #include "io_xml.h"
 #include "io_kml.h"
 #include "io_oe.h"
+#include "o_img.h"
 
 
 /** Reading data from file into geo_data object. */

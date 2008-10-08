@@ -8,8 +8,8 @@
 #include "../utils/srtm3.h"
 #include "../jeeps/gpsmath.h"
 
-#include "../geo_io/io.h"
-#include "../geo_io/geo_convs.h"
+#include "../libgeo_io/io.h"
+#include "../libgeo/geo_convs.h"
 #include "../loaders/image_r.h"
 #include "../libmp/mp.h"
 #include "../libfig/fig.h"

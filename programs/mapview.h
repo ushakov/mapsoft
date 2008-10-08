@@ -5,6 +5,7 @@
 #include <boost/shared_ptr.hpp>
 #include <gtkmm.h>
 
+#include <libgeo_io/io.h>
 #include <viewer/workplane.h>
 #include <viewer/viewer.h>
 #include <layers/layer_geomap.h>

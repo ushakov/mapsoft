@@ -7,13 +7,13 @@
 #include <math.h>
 
 #include "layer_geo.h"
-#include "../geo_io/geo_convs.h"
+#include "../libgeo/geo_convs.h"
 #include "../utils/cache.h"
 #include "../loaders/image_r.h"
 #include "../loaders/image_i.h"
 #include <utils/image_gd.h>
 
-#include "../geo_io/io.h"
+//#include "../libgeo_io/io.h"
 
 #include "../lib2d/point_utils.h"
 

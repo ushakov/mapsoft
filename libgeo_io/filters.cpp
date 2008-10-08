@@ -1,5 +1,5 @@
 #include "io.h"
-#include "geo_convs.h"
+#include "../libgeo/geo_convs.h"
 
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/assign_actor.hpp>

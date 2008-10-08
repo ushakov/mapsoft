@@ -8,11 +8,11 @@
 
 #include <assert.h>
 
-#include <layers/layer_geo.h>
-#include <geo_io/geo_convs.h>
-#include <geo_io/io.h>
-//#include <utils/image_brez.h>
-#include <utils/image_gd.h>
+#include "layer_geo.h"
+#include "../libgeo/geo_convs.h"
+//#include "../libgeo_io/io.h"
+//#include "../utils/image_brez.h"
+#include "../utils/image_gd.h"
 
 #include "../lib2d/point_utils.h"
 

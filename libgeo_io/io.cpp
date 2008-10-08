@@ -144,17 +144,17 @@ namespace io {
 			kml::write_file (outfile.c_str(), world, opt);
 			return;
 		}
-/*
-		// Запись BMP-файла
+
+		// Запись растровой картинки
 		if ((testext(outfile, ".bmp")) ||
 			(testext(outfile, ".png")) ||
 			(testext(outfile, ".jpg")) ){
 		
 			cerr << "Writing image " << outfile << "\n";
-			bmp::write_image(outfile.c_str(), world, opt);
+			img::write_file(outfile.c_str(), world, opt);
 			return;
 		}
-*/
+
 		// Запись файла Garmin-Utils
 		if (testext(outfile, ".gu")){
 			cerr << "Writing to Garmin-utils file " << outfile << "\n";

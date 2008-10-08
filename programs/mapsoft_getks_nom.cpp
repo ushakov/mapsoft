@@ -4,10 +4,10 @@
 
 #include "../loaders/image_r.h"
 #include "../layers/layer_ks.h"
-#include "../geo_io/io.h"
-#include "../geo_io/geo_convs.h"
+#include "../libgeo_io/io.h"
+#include "../libgeo/geo_convs.h"
 
-#include "../geo_io/geofig.h"
+#include "../libgeo_io/geofig.h"
 #include "../lib2d/line_utils.h"
 
 #include "../utils/image_gd.h"

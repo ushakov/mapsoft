@@ -1,8 +1,8 @@
 #include <iostream>
 #include <queue>
 
-#include <geo_io/io.h>
-#include <geo_io/geo_convs.h>
+#include <libgeo_io/io.h>
+#include <libgeo/geo_convs.h>
 
 int main (int argc, char **argv) {
     geo_data world;

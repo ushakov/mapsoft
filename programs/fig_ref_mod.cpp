@@ -1,7 +1,7 @@
 #include <fstream>
 #include <cstring>
-#include "../geo_io/geofig.h"
-#include "../geo_io/geo_convs.h"
+#include "../libgeo_io/geofig.h"
+#include "../libgeo/geo_convs.h"
 
 // Модификация привязки fig-файла.
 // Меняются только координаты в точках привязки!

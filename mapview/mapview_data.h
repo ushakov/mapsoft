@@ -14,8 +14,8 @@
 #include <vector>
 #include <string>
 
-#include "../geo_io/geo_data.h"
-#include "../geo_io/io.h"
+#include "../libgeo/geo_data.h"
+#include "../libgeo_io/io.h"
 #include "../layers/layer.h"
 #include "workplane.h"
 

@@ -4,7 +4,7 @@ env.Library('utils', \
   Split("""
     mapsoft_options.cpp
     m_time.cpp m_color.cpp
-    log.cpp 
+    log.cpp
     iconv_utils.cpp spirit_utils.cpp
     image_gd.cpp
     pnm_shifter.cpp

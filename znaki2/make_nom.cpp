@@ -1,9 +1,9 @@
 // Изготовление закотоввки для номенклатурной карты
 // в проекции Гаусса-Крюгера, СК Пулково-42.
 
-#include "../geo_io/geofig.h"
-#include "../geo_io/geo_convs.h"
-#include "../geo_io/io.h"
+#include "../libgeo/geo_convs.h"
+#include "../libgeo_io/geofig.h"
+#include "../libgeo_io/io.h"
 
 #include "../lib2d/line_utils.h"
 #include "../lib2d/line_polycrop.h"

@@ -9,9 +9,9 @@
 #include <sys/stat.h>
 
 #include "io.h"
-#include "geo_enums.h"
-#include "geo_names.h"
-#include "geo_convs.h"
+#include "../libgeo/geo_enums.h"
+#include "../libgeo/geo_names.h"
+#include "../libgeo/geo_convs.h"
 #include "../utils/mapsoft_options.h"
 #include "../layers/layer_geomap.h"
 

@@ -7,7 +7,7 @@
 #include "../layers/layer_ks.h"
 #include "../layers/layer_geodata.h"
 
-#include "../geo_io/io.h"
+#include "../libgeo_io/io.h"
 
 int sc = 3;
 geo_data world;

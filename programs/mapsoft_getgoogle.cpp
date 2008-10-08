@@ -2,10 +2,10 @@
 
 #include "../loaders/image_r.h"
 #include "../layers/layer_google.h"
-#include "../geo_io/io.h"
-#include "../geo_io/geo_convs.h"
+#include "../libgeo_io/io.h"
+#include "../libgeo/geo_convs.h"
 
-#include "../geo_io/geofig.h"
+#include "../libgeo_io/geofig.h"
 
 int zoom;
 double scale;

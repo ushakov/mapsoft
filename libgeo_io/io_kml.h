@@ -1,7 +1,7 @@
 #ifndef IO_KML_H
 #define IO_KML_H
 
-#include "geo_data.h"
+#include "../libgeo/geo_data.h"
 #include "../utils/mapsoft_options.h"
 
 namespace kml {

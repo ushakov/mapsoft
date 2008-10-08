@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "../libfig/fig.h"
-#include "geo_data.h"
+#include "../libgeo/geo_data.h"
 
 
 namespace fig {

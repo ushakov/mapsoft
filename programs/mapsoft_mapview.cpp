@@ -13,7 +13,7 @@
 #include <viewer/viewer.h>
 #include <programs/mapview.h>
 
-#include <geo_io/io.h>
+#include <libgeo_io/io.h>
 
 int
 main(int argc, char **argv)

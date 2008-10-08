@@ -2,7 +2,7 @@
 #define LAYER_GEO_H
 
 #include "layer.h"
-#include "../geo_io/geo_data.h"
+#include "../libgeo/geo_data.h"
 
 /// Растровый слой, содержащий информацию о геодезической привязке - 
 /// абстрактный класс.

@@ -4,7 +4,7 @@
 #include <vector>
 #include <fstream>
 
-#include "geo_data.h"
+#include "../libgeo/geo_data.h"
 #include "../utils/mapsoft_options.h"
 
 namespace xml {

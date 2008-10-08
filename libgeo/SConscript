@@ -1,0 +1,8 @@
+Import ('env')
+le = env.Clone()
+le.Library('geo', \
+    Split ("""
+	geo_enums.cpp
+	geo_convs.cpp
+	geo_data.cpp
+     """))

@@ -1,10 +1,10 @@
 #ifndef LAYER_H
 #define LAYER_H
 
-#include "lib2d/image.h"
-#include "geo_io/geo_data.h"
+#include "../lib2d/image.h"
+#include "../libgeo/geo_data.h"
 
-#include "layers/action_data.h"
+//#include "action_data.h"
 
 /// Растровый слой -- абстрактный класс.
 /// Знает, как отдать некоторую растровую картинку в прямоугольных

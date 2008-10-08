@@ -1,7 +1,7 @@
 
 #include <string>
 #include <fstream>
-#include "../geo_io/geofig.h"
+#include "../libgeo_io/geofig.h"
 #include "../libmp/mp.h"
 
 #include "../libzn/zn.h"

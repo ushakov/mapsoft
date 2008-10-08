@@ -1,7 +1,11 @@
 import os
 
 subdirs = Split ("""
-		geo_io
+		lib2d
+		libfig
+		libmp
+		libgeo
+		libgeo_io
 		jeeps
 		layers
 		loaders
@@ -9,9 +13,6 @@ subdirs = Split ("""
 		utils
 		viewer
 		mapview
-		libfig
-		libmp
-		lib2d
 		libzn
 		libzn-utils
 		""")

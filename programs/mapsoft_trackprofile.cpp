@@ -13,9 +13,9 @@
 #include "../lib2d/line_utils.h"
 #include "../lib2d/line_polycrop.h"
 
-#include "../geo_io/io.h"
-#include "../geo_io/geo_data.h"
-#include "../geo_io/geo_convs.h"
+#include "../libgeo_io/io.h"
+#include "../libgeo/geo_data.h"
+#include "../libgeo/geo_convs.h"
 
 using namespace std;
 

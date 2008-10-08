@@ -7,14 +7,14 @@
 #include <math.h>
 
 #include "layer_geo.h"
-#include "../geo_io/geo_convs.h"
-#include "../geo_io/geo_refs.h"
+#include "../libgeo/geo_convs.h"
+#include "../libgeo/geo_refs.h"
 #include "../utils/cache.h"
 #include "../loaders/image_ks.h"
 #include "../loaders/image_i.h"
 #include <utils/image_gd.h>
 
-#include "../geo_io/io.h"
+//#include "../libgeo_io/io.h"
 
 
 /// Слой для показа снимков kosmosnimki.ru.
