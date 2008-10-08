@@ -1,5 +1,13 @@
 ######
 Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Thu Oct 9 00:46:13 2008 +0400
+
+    libfig: remove strange fig_test.cpp
+
+libfig/test_fig.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Thu Oct 9 00:16:08 2008 +0400
 
     libfig: make fig_object to be less_than_comparable
