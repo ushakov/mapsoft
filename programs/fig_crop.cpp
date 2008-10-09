@@ -7,7 +7,7 @@
 
 main(int argc, char **argv){
   if (argc<2) {
-      std::cerr << "usage: " << argv[0] << " fig\n";
+      std::cerr << "usage: " << argv[0] << " <fig>\n";
       exit(0);
   }
   fig::fig_world W;

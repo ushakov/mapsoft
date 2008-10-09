@@ -36,6 +36,7 @@ env_geo.Program('mapsoft_pano.cpp')
 
 
 env.Program('fig_crop.cpp', LIBS=['fig', 'utils'])
+env.Program('fig_sort.cpp', LIBS=['fig', 'utils'])
 env_geo.Program('fig_ref_mod.cpp')
 
 env_gtk.Program('mapsoft_mapview.cpp')
