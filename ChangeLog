@@ -1,4 +1,17 @@
 ######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Thu Oct 9 12:10:51 2008 +0400
+
+    MS3: add new-style utils/options.h (with operators << >> and test programs)
+
+DONE
+utils/SConscript
+utils/options.cpp
+utils/options.h
+utils/options_read.cpp
+utils/options_test.cpp
+
+######
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sat Jul 26 20:01:54 2008 +0400
 
