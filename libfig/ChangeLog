@@ -1,4 +1,12 @@
 ######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Thu Oct 9 09:49:44 2008 +0400
+
+    libfig: fix broken operator< in fig_object
+
+libfig/fig_data.h
+
+######
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Thu Oct 9 00:46:13 2008 +0400
 
