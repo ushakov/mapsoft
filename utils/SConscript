@@ -10,3 +10,5 @@ env.Library('utils', \
     pnm_shifter.cpp
   """))
 
+env.Program(['options_test.cpp', 'options.cpp'])
+env.Program(['options_read.cpp', 'options.cpp'])
