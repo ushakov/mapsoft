@@ -189,28 +189,52 @@ namespace fig {
         }
 
 	bool operator< (const fig_object & o) const{
-          return (
-           (type < o.type) || (sub_type < o.sub_type) ||
-           (line_style < o.line_style) || (thickness < o.thickness) ||
-	   (pen_color < o.pen_color) || (fill_color < o.fill_color) ||
-	   (depth < o.depth) || (pen_style < o.pen_style) ||
-	   (area_fill < o.area_fill) || (style_val < o.style_val) ||
-           (join_style < o.join_style) || (cap_style < o.cap_style) ||
-           (radius < o.radius) || (direction < o.direction) || (angle < o.angle) || 
-           (forward_arrow < o.forward_arrow) || (backward_arrow < o.backward_arrow) ||
-           (center_x < o.center_x) || (center_y < o.center_y) ||
-           (radius_x < o.radius_x) || (radius_y < o.radius_y) ||
-           (start_x < o.start_x) || (start_y < o.start_y) ||
-           (end_x < o.end_x) || (end_y < o.end_y) ||
-           (font < o.font) || (font_size < o.font_size) || (font_flags < o.font_flags) ||
-           (height < o.height) || (length < o.length) ||
-           (farrow_type < o.farrow_type) || (barrow_type < o.barrow_type) ||
-           (farrow_style < o.farrow_style) || (barrow_style < o.barrow_style) ||
-           (farrow_thickness < o.farrow_thickness) || (barrow_thickness < o.barrow_thickness) ||
-	   (farrow_width < o.farrow_width) || (barrow_width < o.barrow_width) ||
-	   (farrow_height < o.farrow_height) || (barrow_height < o.barrow_height) ||
-           (image_file < o.image_file) || (image_orient < o.image_orient) ||
-           (text < o.text) || (comment < o.comment) || (f < o.f) || Line<int>::operator<(o));
+          if (type != o.type) return (type < o.type);
+          if (sub_type != o.sub_type) return (sub_type < o.sub_type);
+          if (line_style != o.line_style) return (line_style < o.line_style);
+	  if (thickness != o.thickness) return (thickness < o.thickness);
+	  if (pen_color != o.pen_color) return (pen_color < o.pen_color);
+	  if (fill_color != o.fill_color) return (fill_color < o.fill_color);
+	  if (depth != o.depth) return (depth < o.depth);
+	  if (pen_style != o.pen_style) return (pen_style < o.pen_style);
+	  if (area_fill != o.area_fill) return (area_fill < o.area_fill);
+          if (style_val != o.style_val) return (style_val < o.style_val);
+          if (join_style != o.join_style) return (join_style < o.join_style);
+          if (cap_style != o.cap_style) return (cap_style < o.cap_style);
+          if (radius != o.radius) return (radius < o.radius);
+          if (direction != o.direction) return (direction < o.direction);
+          if (angle != o.angle) return (angle < o.angle);
+          if (forward_arrow != o.forward_arrow) return (forward_arrow < o.forward_arrow);
+          if (backward_arrow != o.backward_arrow) return (backward_arrow < o.backward_arrow);
+          if (center_x != o.center_x) return (center_x < o.center_x);
+          if (center_y != o.center_y) return (center_y < o.center_y);
+          if (radius_x != o.radius_x) return (radius_x < o.radius_x);
+          if (radius_y != o.radius_y) return (radius_y < o.radius_y);
+          if (start_x != o.start_x) return (start_x < o.start_x);
+          if (start_y != o.start_y) return (start_y < o.start_y);
+          if (end_x != o.end_x) return (end_x < o.end_x);
+          if (end_y != o.end_y) return (end_y < o.end_y);
+          if (font != o.font) return (font < o.font);
+          if (font_size != o.font_size) return (font_size < o.font_size);
+          if (font_flags != o.font_flags) return (font_flags < o.font_flags);
+          if (height != o.height) return (height < o.height);
+          if (length != o.length) return (length < o.length);
+          if (farrow_type != o.farrow_type) return (farrow_type < o.farrow_type);
+          if (barrow_type != o.barrow_type) return (barrow_type < o.barrow_type);
+          if (farrow_style != o.farrow_style) return (farrow_style < o.farrow_style);
+          if (barrow_style != o.barrow_style) return (barrow_style < o.barrow_style);
+          if (farrow_thickness != o.farrow_thickness) return (farrow_thickness < o.farrow_thickness);
+          if (barrow_thickness != o.barrow_thickness) return (barrow_thickness < o.barrow_thickness);
+	  if (farrow_width != o.farrow_width) return (farrow_width < o.farrow_width);
+          if (barrow_width != o.barrow_width) return (barrow_width < o.barrow_width);
+	  if (farrow_height != o.farrow_height) return (farrow_height < o.farrow_height);
+          if (barrow_height != o.barrow_height) return (barrow_height < o.barrow_height);
+          if (image_file != o.image_file) return (image_file < o.image_file);
+          if (image_orient != o.image_orient) return (image_orient < o.image_orient);
+          if (text != o.text) return (text < o.text);
+          if (comment != o.comment) return (comment < o.comment);
+          if (f != o.f) return (f < o.f);
+          return Line<int>::operator<(o);
         }
 
         /// сместить на (x,y)
