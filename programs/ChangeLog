@@ -1,4 +1,14 @@
 ######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Thu Oct 9 09:50:45 2008 +0400
+
+    programs: fig_sort program for sorting fig files
+
+programs/SConscript
+programs/fig_crop.cpp
+programs/fig_sort.cpp
+
+######
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Wed Sep 17 00:23:37 2008 +0400
 
