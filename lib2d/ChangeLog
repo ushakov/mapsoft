@@ -1,5 +1,18 @@
 ######
 Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Fri Oct 10 11:10:42 2008 +0400
+
+    lib2d: lib2d: io2d.h for lexical_casts of objects. Test for casts. Make Rect to be < and = comparable
+
+lib2d/io2d.h
+lib2d/line.h
+lib2d/point.h
+lib2d/point_cross_test.cpp
+lib2d/rect.h
+lib2d/test_io2d.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
 Date:   Thu Oct 9 02:34:30 2008 +0400
 
     lib2d: fix SEGV error in Line<t>::operator<
