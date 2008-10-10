@@ -32,9 +32,9 @@ std::ostream & operator<< (std::ostream & s, const Rect<T> & r){
 template <typename T>
 std::istream & operator>> (std::istream & s, Point<T> & p){
   char sep;
-  s >> p.x >> sep;
-  if (sep!=',') return s;
-  s >> p.y;
+  s >> std::ws >> p.x >> std::ws >> sep >> std::ws;
+  if (sep!=',') {s.unget(); return s;}
+  s >> p.y >> std::ws;
   return s;
 }
 
@@ -45,8 +45,8 @@ std::istream & operator>> (std::istream & s, Line<T> & l){
   s >> p;
   l.push_back(p);
   while (!s.eof()){
-    s >> sep >> p;
-    if (sep!=',') return s;
+    s >> std::ws >> sep >> std::ws >> p;
+    if (sep!=',') {s.unget(); return s;}
     l.push_back(p);
   }
   return s;

@@ -33,6 +33,10 @@ std::cerr << " * Points:\n";
 
   Point<double> p(1,2);
   cast_test("1,2",   p, true);
+  cast_test("1, 2",   p, true);
+  cast_test("1 ,2",   p, true);
+  cast_test("1 ,2 ",   p, true);
+  cast_test(" 1 ,2 ",   p, true);
   cast_test("1,2,",  p, false);
   cast_test("1 ,2,", p, false);
   cast_test("1 2",   p, false);
@@ -47,11 +51,14 @@ std::cerr << " * Lines:\n";
 
   cast_test("1.1,2.2",   l1, true);
   cast_test("1.1,2.2,3.1,4.2",  l2, true);
-  cast_test("1.1,2.2, 3.1,4.2", l2, true);
-  cast_test("1,2,",      l2, false);
-  cast_test("1 ,2,",     l2, false);
-  cast_test("1 2",       l2, false);
-  cast_test("1 2,3",     l2, false);
+  cast_test("1.1, 2.2, 3.1,4.2", l2, true);
+  cast_test(" 1.1 , 2.2 ,3.1 ,4.2 ", l2, true);
+  cast_test("1,2,",      l1, false);
+  cast_test("1 ,2,",     l1, false);
+  cast_test("1 2",       l1, false);
+  cast_test("1 2,3",     l1, false);
+  cast_test("1.1 1.1,2.2",     l1, false);
+  cast_test("1.1,2.2,",     l1, false);
 
 std::cerr << " * Rects:\n";
 
