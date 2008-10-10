@@ -5,7 +5,7 @@
 
 #include <string>
 #include "../libgeo/geo_data.h"
-#include "../utils/mapsoft_options.h"
+#include "../utils/options.h"
 
 #include "io_gps.h"
 #include "io_gu.h"

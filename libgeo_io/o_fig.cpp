@@ -12,7 +12,7 @@
 #include "../libgeo/geo_enums.h"
 #include "../libgeo/geo_names.h"
 #include "../libgeo/geo_convs.h"
-#include "../utils/mapsoft_options.h"
+#include "../utils/options.h"
 #include "../layers/layer_geomap.h"
 
 #include <math.h>

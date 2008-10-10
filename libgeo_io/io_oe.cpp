@@ -14,7 +14,7 @@
 
 #include "io_oe.h"
 #include "../libgeo/geo_convs.h"
-#include "../utils/mapsoft_options.h"
+#include "../utils/options.h"
 #include "../lib2d/line_utils.h"
 #include "../utils/iconv_utils.h"
 

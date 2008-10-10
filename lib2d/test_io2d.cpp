@@ -29,7 +29,7 @@ bool cast_test(const T1 & p1, const T2 & p2, bool good){
 
 int main(){
 
-std::cerr << " * Points:\n";
+std::cerr << " * Points\n";
 
   Point<double> p(1,2);
   cast_test("1,2",   p, true);
@@ -42,7 +42,7 @@ std::cerr << " * Points:\n";
   cast_test("1 2",   p, false);
   cast_test("1 2,3", p, false);
 
-std::cerr << " * Lines:\n";
+std::cerr << " * Lines\n";
 
   Line<double> l1,l2;
   l1.push_back(Point<double>(1.1,2.2));
@@ -60,7 +60,7 @@ std::cerr << " * Lines:\n";
   cast_test("1.1 1.1,2.2",     l1, false);
   cast_test("1.1,2.2,",     l1, false);
 
-std::cerr << " * Rects:\n";
+std::cerr << " * Rects\n";
 
   Rect<double> r1(100,110,    12,23);
   Rect<double> r2(-100, -120, 12,23);
@@ -68,5 +68,7 @@ std::cerr << " * Rects:\n";
   cast_test("12x23-100-120",   r2, true);
   cast_test("12x23+-100+-120", r2, true);
   cast_test("12x23+-100+-120,", r2, false);
+
+  cast_test(Point<double>(1.1,2.2), l1, true);
 
 }

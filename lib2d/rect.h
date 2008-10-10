@@ -23,9 +23,10 @@ public:
 
     Rect (T _x, T _y, T _w=0, T _h=0)
 	: x(_x), y(_y), w(_w), h(_h)
-    { 
-	if (w<0) std::cerr << "Rect warning: w<0 (" << *this << ")\n";
-	if (h<0) std::cerr << "Rect warning: h<0 (" << *this << ")\n";
+    {
+	if ((w<0)||(h<0)) std::cerr 
+          << "Rect warning: bad geometry: "
+          << w << "x" << h << "+" << x << "+" << y << "\n";
     }
 
     Rect () : x(0), y(0), w(0), h(0)
@@ -170,15 +171,5 @@ void transform_rect(const Rect<int> & src, const Rect<int> & dst, Rect<int> & r)
 void clip_rects_for_image_loader(
     const Rect<int> & src_img, Rect<int> & src,
     const Rect<int> & dst_img, Rect<int> & dst);
-/*
-template <typename T>
-std::ostream & operator<< (std::ostream & s, const Rect<T> & r){
-  s << "Rect("
-    << r.w << "x" << r.h
-    << "+" << r.x
-    << "+" << r.y
-    << ")";
-  return s;
-}*/
 
 #endif /* RECT_H */

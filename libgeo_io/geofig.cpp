@@ -9,7 +9,7 @@
 #include "geofig.h"
 #include "../libgeo/geo_convs.h"
 #include "io_xml.h"
-#include "../utils/mapsoft_options.h"
+#include "../utils/options.h"
 #include "../loaders/image_r.h"
 
 namespace fig {
@@ -54,8 +54,10 @@ using namespace boost::spirit;
         if (max.x<(*i)[0].x) max.x = (*i)[0].x;
         if (max.y<(*i)[0].y) max.y = (*i)[0].y;
 
-        convs::pt2pt c(Datum(O.get_string("datum","wgs84").c_str()),
-                       Proj(O.get_string("proj","lonlat").c_str()), O, 
+	string pdatum="wgs84"; O.get("datum", pdatum);
+	string pproj="lonlat"; O.get("proj", pproj);
+
+        convs::pt2pt c(Datum(pdatum.c_str()), Proj(pproj.c_str()), O,
                        Datum("wgs84"), Proj("lonlat"), O);
         c.frw(ref);
 	ret.push_back(ref);
@@ -96,14 +98,15 @@ using namespace boost::spirit;
   // Добавить привязку в fig_world
   void set_ref(fig_world & w, const g_map & m, const Options & O){
     // Если хочется, можно записать точки привязки в нужной проекции
-    Datum  datum(O.get_string("datum", "wgs84"));
-    Proj   proj(O.get_string("proj", "tmerc"));
+    string pdatum="wgs84"; O.get("datum", pdatum);
+    string pproj="lonlat"; O.get("proj", pproj);
 
     double lon0 = m.range().x + m.range().w/2;
     lon0 = floor( lon0/6.0 ) * 6 + 3;
     O.get("lon0", lon0);
 
-    convs::pt2pt cnv(datum,proj,O, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::pt2pt cnv(Datum(pdatum.c_str()), Proj(pproj.c_str()), O,
+                     Datum("wgs84"), Proj("lonlat"), O);
 
     for (int n=0; n<m.size(); n++){
       fig::fig_object o = fig::make_object("2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 *");
@@ -113,13 +116,13 @@ using namespace boost::spirit;
       ostringstream comm;
       comm << "REF " << fixed << p.x << " " << p.y;
       o.comment.push_back(comm.str()); comm.str("");
-      if (datum != Datum("wgs84"))
-         comm << "datum: " << datum.xml_str();
+      if (Datum(pdatum) != Datum("wgs84"))
+         comm << "datum: " << Datum(pdatum).xml_str();
       o.comment.push_back(comm.str()); comm.str("");
-      if (proj != Proj("lonlat"))
-         comm << "proj: " << proj.xml_str();
+      if (Proj(pproj) != Proj("lonlat"))
+         comm << "proj: " << Proj(pproj).xml_str();
       o.comment.push_back(comm.str()); comm.str("");
-      if ((proj == Proj("tmerc")) && (lon0!=0))
+      if ((Proj(pproj) == Proj("tmerc")) && (lon0!=0))
          comm << "lon0: " << lon0;
       o.comment.push_back(comm.str()); comm.str("");
       w.push_back(o);

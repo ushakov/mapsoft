@@ -9,7 +9,7 @@
 #include "geo_enums.h"
 #include "../lib2d/line.h"
 #include "../lib2d/rect.h"
-#include "../utils/mapsoft_options.h"
+#include "../utils/options.h"
 
 #include "../utils/m_time.h"
 #include "../utils/m_color.h"

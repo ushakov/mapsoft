@@ -6,7 +6,7 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 
-#include <utils/mapsoft_options.h>
+#include <utils/options.h>
 
 
 // Manager of a Gtk::Dialog showing and allowing to edit the supplied Options' content

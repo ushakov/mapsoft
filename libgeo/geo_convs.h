@@ -5,7 +5,7 @@
 
 #include <vector>
 #include "geo_data.h"
-#include "../utils/mapsoft_options.h"
+#include "../utils/options.h"
 #include "../lib2d/image.h"
 
 // все сделано в виде объектов, чтобы в начале спокойно обработать все параметры 

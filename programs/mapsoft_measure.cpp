@@ -31,12 +31,12 @@ int main(int argc, char *argv[]) {
         (strcmp(argv[i], "-help")==0)||
         (strcmp(argv[i], "--help")==0)) usage(argv[0]);
 
-    if (strcmp(argv[i], "-O")==0){
-      if (i==argc-1) usage(argv[0]);
-      i+=1;
-      opts.put_string(argv[i]);
-      continue;
-    }
+//    if (strcmp(argv[i], "-O")==0){
+//      if (i==argc-1) usage(argv[0]);
+//      i+=1;
+//      opts.put_string(argv[i]);
+//      continue;
+//    }
 
     infiles.push_back(argv[i]);
   }

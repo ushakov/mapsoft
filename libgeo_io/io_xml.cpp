@@ -12,8 +12,9 @@
 #include <time.h>
 
 #include "io_xml.h"
-#include "../utils/mapsoft_options.h"
+#include "../utils/options.h"
 #include "../utils/iconv_utils.h"
+#include "../lib2d/io2d.h"
 
 
 namespace xml {
@@ -219,18 +220,19 @@ namespace xml {
 // Это все вынесено в отдельный h-файл, поскольку используется и при чтении точек из fig
 	xml_point::operator g_waypoint () const {
 		g_waypoint ret; // здесь уже возникли значения по умолчанию
+                string str;
 		get("name", ret.name);
 		get("comm", ret.comm);
 		get("lon",  ret.x);
 		get("lat",  ret.y);
 		get("alt",  ret.z);
 		get("prox_dist",  ret.prox_dist);
-                ret.symb       = wpt_symb_enum.str2int(get_string("symb"));
+                str=""; get("symb", str); ret.symb = wpt_symb_enum.str2int(str);
 		get("displ",    ret.displ);
 		get("color",    ret.color);
 		get("bgcolor",  ret.bgcolor);
-                ret.map_displ  = wpt_map_displ_enum.str2int(get_string("map_displ"));
-                ret.pt_dir     = wpt_pt_dir_enum.str2int(get_string("pt_dir"));
+                str=""; get("map_displ", str); ret.map_displ  = wpt_map_displ_enum.str2int(str);
+                str=""; get("pt_dir", str); ret.pt_dir     = wpt_pt_dir_enum.str2int(str);
 		get("font_size",  ret.font_size);
 		get("font_style", ret.font_style);
 		get("size",       ret.size);
@@ -267,7 +269,7 @@ namespace xml {
 
 	xml_point_list::operator g_waypoint_list () const {
 		g_waypoint_list ret;
-		ret.symbset = get_string("symbset", ret.symbset);
+		get("symbset", ret.symbset);
 		const std::string used[] = {"symbset","points",""}; //points - только записывается, не читается.
                 warn_unused(used);
 		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
@@ -276,13 +278,14 @@ namespace xml {
 	}
 	xml_point_list::operator g_track () const {
 		g_track ret;
+		string str;
 		get("comm",  ret.comm);
 		get("width", ret.width);
 		get("color", ret.color);
 		get("skip",  ret.skip);
 		get("displ", ret.displ);
-                ret.type  = trk_type_enum.str2int(get_string("type"));
-                ret.fill  = trk_fill_enum.str2int(get_string("fill"));
+                str=""; get("type", str); ret.type  = trk_type_enum.str2int(str);
+                str=""; get("fill", str); ret.fill  = trk_fill_enum.str2int(str);
 		get("cfill", ret.cfill);
                 const std::string used[] = {"comm", "width", "color", "skip", "displ", "type", "fill", "cfill", "points", ""};
                 warn_unused(used);
@@ -292,16 +295,17 @@ namespace xml {
 	}
 	xml_point_list::operator g_map () const {
 		g_map ret;
-		ret.comm = get_string("comm",  ret.comm);
-		ret.file = get_string("file",  ret.file);
+		string str;
+		get("comm",  ret.comm);
+		get("file",  ret.file);
 
-		std::string prefix = get_string("prefix",  "");
+		std::string prefix; get("prefix", prefix);
                // если не абсолютный путь - добавим prefix
                 if ((ret.file.size()<1)||(ret.file[0]!='/'))
                     ret.file=prefix+ret.file;
 
-                ret.map_proj = Proj(get_string("map_proj"));
-		ret.border = get_poly("border");
+                str=""; get("map_proj", str); ret.map_proj = Proj(str);
+		get("border", ret.border);
                 const std::string used[] = {"comm", "file", "map_proj", "border", "points", "prefix", ""};
                 warn_unused(used);
 		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)

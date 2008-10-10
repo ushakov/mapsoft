@@ -3,12 +3,10 @@
 
 #include <string>
 #include <iostream>
-#include <set>
+//#include <set>
 #include <map>
 
 #include <boost/lexical_cast.hpp>
-
-namespace mapsoft{
 
 /** Хранилище для объектов произвольного типа с ключом типа string 
   Удобно для хранения разных параметров типа "count=10 width=0.5
@@ -53,7 +51,11 @@ struct Options : std::map<std::string,std::string>{
 
     /** Поиск неизвестных (не перечисленных в known :)) ключей... 
     тупая, но полезная функция */
-    std::set<std::string> unknown (const std::set<std::string> & known) const;
+    //std::set<std::string> unknown (const std::set<std::string> & known) const;
+
+    /** Поиск неизвестных (не перечисленных в known :)) ключей....
+        Старая версия */
+    void warn_unused (const std::string * used) const;
 
     /** Проверить наличие ключа */
     bool exists (const std::string & key) const;
@@ -66,5 +68,4 @@ std::istream & operator>> (std::istream & s, Options & o);
 
 Options get_cmdline_options(int argc, char **argv);
 
-}//namespace
 #endif

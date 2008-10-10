@@ -7,19 +7,36 @@
 
 #include "options.h"
 
-namespace mapsoft{
 
 using namespace boost::spirit;
 
 bool Options::exists (const std::string & key) const {return (find(key) != end());}
 
+/*
 std::set<std::string> Options::unknown (const std::set<std::string> & known) const{
     std::set<std::string> ret;
     for (const_iterator i=begin(); i!=end(); i++){
       if (known.count(i->first)==0) ret.insert(i->first);
     }
     return ret;
+}*/
+
+void Options::warn_unused (const std::string * used) const{
+  const_iterator i;
+  for (i=begin(); i!=end(); i++){
+    const std::string * str = &used[0];
+    bool find = false;
+    while (str->length()!=0){
+      if (*str == i->first ) find = true;
+      str++;
+    }
+    if (!find)
+      std::cerr << "Unknown option: "
+                << i->first << " = " << i->second << "\n";
+  }
+  return;
 }
+
 
 /** Операторы вывода-вывода для Options */
 
@@ -63,4 +80,3 @@ std::istream & operator>> (std::istream & s, Options & o){
 Options get_cmdline_options(int argc, char **argv);
 
 
-}//namespace

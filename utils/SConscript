@@ -2,7 +2,7 @@ Import ('env')
 
 env.Library('utils', \
   Split("""
-    mapsoft_options.cpp
+    options.cpp
     m_time.cpp m_color.cpp
     log.cpp
     iconv_utils.cpp spirit_utils.cpp

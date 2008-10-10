@@ -120,13 +120,4 @@ struct Line
   }
 };
 
-/*template <typename T>
-std::ostream & operator<< (std::ostream & s, const Line<T> & l){
-  s << "Line(";
-  for(typename Line<T>::const_iterator i=l.begin(); i!=l.end(); i++) 
-    s << "(" << i->x << "," << i->y << ")";
-  s << ")\n";
-  return s;
-}*/
-
 #endif /* LINE_H */

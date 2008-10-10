@@ -5,7 +5,7 @@
 // (jpeg, tiff, png)
 
 #include "../lib2d/image.h"
-#include "../utils/mapsoft_options.h"
+#include "../utils/options.h"
 
 // из-за фигни с setjmp.h надо, чтобы image_png.h был раньше
 // чем image_jpeg.h

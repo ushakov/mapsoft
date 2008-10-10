@@ -9,7 +9,7 @@
 
 
 #include <string>
-#include "../utils/mapsoft_options.h"
+#include "../utils/options.h"
 #include <boost/operators.hpp>
 
 

@@ -48,12 +48,12 @@ int main(int argc, char *argv[]) {
       continue;
     }
 
-    if (strcmp(argv[i], "-O")==0){
-      if (i==argc-1) usage(argv[0]);
-      i+=1;
-      opts.put_string(argv[i]);
-      continue;
-    }
+//    if (strcmp(argv[i], "-O")==0){
+//      if (i==argc-1) usage(argv[0]);
+//      i+=1;
+//      opts.put_string(argv[i]);
+//      continue;
+//    }
 
     infiles.push_back(argv[i]);
   }

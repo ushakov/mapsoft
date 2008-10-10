@@ -4,7 +4,6 @@
 
 //unit-test for Options object
 using namespace std;
-using namespace mapsoft;
 
 
 class myclass{
