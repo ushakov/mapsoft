@@ -1,5 +1,17 @@
 ######
 Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Sat Oct 11 02:13:50 2008 +0400
+
+    MS3: add read_conf.h read_conf.cpp read_conf_test.cpp -- reading options from config files and command line parameters
+
+utils/SConscript
+utils/options_read.cpp
+utils/read_conf.cpp
+utils/read_conf.h
+utils/read_conf_test.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
 Date:   Thu Oct 9 12:10:51 2008 +0400
 
     MS3: add new-style utils/options.h (with operators << >> and test programs)
