@@ -82,12 +82,12 @@ struct Point
 //      return cls(x, other.x) && cls(y, other.y);
 //  }
 };
-
+/*
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Point<T> & p)
 {
   s << "Point(" << p.x << "," << p.y << ")";
   return s;
-}
+}*/
 
 #endif /* POINT_H */

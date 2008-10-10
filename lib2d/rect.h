@@ -5,9 +5,11 @@
 #include "point.h"
 
 template <typename T>
-class Rect : 
+class Rect :
       public boost::multiplicative<Rect<T>,T>,
-      public boost::additive<Rect<T>,Point<T> >
+      public boost::additive<Rect<T>,Point<T> >,
+      public boost::less_than_comparable<Rect<T> >,
+      public boost::equality_comparable<Rect<T> >
 {
 public:
 
@@ -66,6 +68,18 @@ public:
         y += p.y;
         return *this;
     }
+
+  bool operator< (const Rect<T> & r) const
+  {
+        if (TLC()!=r.TLC()) return (TLC()<r.TLC());
+        return (BRC()<r.BRC());
+  }
+
+  bool operator== (const Rect<T> & r) const
+  {
+        return (x==r.x)&&(y==r.y)&&(w==r.w)&&(h==r.h);
+  }
+
 
 };
 
@@ -156,7 +170,7 @@ void transform_rect(const Rect<int> & src, const Rect<int> & dst, Rect<int> & r)
 void clip_rects_for_image_loader(
     const Rect<int> & src_img, Rect<int> & src,
     const Rect<int> & dst_img, Rect<int> & dst);
-
+/*
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Rect<T> & r){
   s << "Rect("
@@ -165,6 +179,6 @@ std::ostream & operator<< (std::ostream & s, const Rect<T> & r){
     << "+" << r.y
     << ")";
   return s;
-}
+}*/
 
 #endif /* RECT_H */
