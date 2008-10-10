@@ -2,8 +2,8 @@
 #include <fstream>
 #include "options.h"
 
-//unit-test for Options object
 using namespace std;
+
 
 
 main(int argc, char **argv){

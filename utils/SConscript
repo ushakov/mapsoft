@@ -3,6 +3,7 @@ Import ('env')
 env.Library('utils', \
   Split("""
     options.cpp
+    read_conf.cpp
     m_time.cpp m_color.cpp
     log.cpp
     iconv_utils.cpp spirit_utils.cpp
@@ -12,3 +13,4 @@ env.Library('utils', \
 
 env.Program(['options_test.cpp', 'options.cpp'])
 env.Program(['options_read.cpp', 'options.cpp'])
+env.Program(['read_conf_test.cpp', 'options.cpp', 'read_conf.cpp'])
