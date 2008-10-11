@@ -1,5 +1,14 @@
 ######
 Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Sat Oct 11 21:41:25 2008 +0400
+
+    MS3: fix read_conf.cpp
+
+programs/mapsoft_convert.cpp
+utils/read_conf.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
 Date:   Sat Oct 11 06:13:25 2008 +0400
 
     MS3: fix read_conf.cpp
