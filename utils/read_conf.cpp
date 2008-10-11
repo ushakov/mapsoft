@@ -124,7 +124,7 @@ bool read_conf(int argc, char **argv, Options & opts, std::vector<std::string> &
   // if local_conf was not set via command line option
   // try value from global config, then use default value:
 
-  if (!cmdline_opts.exists("local_conf"))
+  if (!cmdline_opts.exists("local_conf")){
     if (opts.exists("local_conf")) cmdline_opts["global_conf"] = opts["global_conf"];
     else cmdline_opts["global_conf"]="~/.mpsf";
   }
