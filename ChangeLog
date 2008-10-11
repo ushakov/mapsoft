@@ -1,5 +1,13 @@
 ######
 Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Sat Oct 11 06:13:25 2008 +0400
+
+    MS3: fix read_conf.cpp
+
+utils/read_conf.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
 Date:   Sat Oct 11 02:13:50 2008 +0400
 
     MS3: add read_conf.h read_conf.cpp read_conf_test.cpp -- reading options from config files and command line parameters
