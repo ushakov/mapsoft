@@ -29,7 +29,8 @@ main(int argc, char **argv){
         ((o->sub_type == 2) || (o->sub_type == 5)) &&
         (o->size() > 3)){
       cutter = Rect<int>((*o)[0], (*o)[2]);
-//      o=W.erase(o);
+      W1.push_back(*o);
+      o=W.erase(o);
       o++;
     }
     else if (o->depth<40){ // FIXHACK!
