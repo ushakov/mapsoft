@@ -1,5 +1,17 @@
 ######
 Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Sun Oct 12 22:51:58 2008 +0400
+
+    MS3: update DONE
+
+DONE
+libzn-utils/scripts/update_from_mp
+utils/read_conf.cpp
+utils/read_conf.h
+utils/read_conf_test.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
 Date:   Sat Oct 11 21:41:25 2008 +0400
 
     MS3: fix read_conf.cpp
