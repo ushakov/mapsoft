@@ -32,7 +32,7 @@ from being treated as options:
   exit(0);
 }
 
-bool read_conf(int argc, char **argv, Options & opts, std::vector<std::string> & non_opts){
+bool read_conf(int argc, char **argv, Options & opts, list<string> & non_opts){
   Options cmdline_opts, global_opts, local_opts;
 
 
@@ -92,7 +92,7 @@ bool read_conf(int argc, char **argv, Options & opts, std::vector<std::string> &
       }
 
       if (argv[i][0]=='-'){
-        std::cerr << "Uknown option: " << argv[i] << "\n";
+        cerr << "Uknown option: " << argv[i] << "\n";
       }
 
     }
@@ -101,7 +101,7 @@ bool read_conf(int argc, char **argv, Options & opts, std::vector<std::string> &
 
   /***** reading global config file *****/
 
-  std::string global_conf;
+  string global_conf;
 
   // if global_conf was not set via command line option
   // use default value:
@@ -114,12 +114,12 @@ bool read_conf(int argc, char **argv, Options & opts, std::vector<std::string> &
   if (global_conf != ""){
     ifstream gstr(global_conf.c_str());
     if (gstr.good()) gstr >> opts; 
-    else std::cerr << "Can't read global_conf file: " << global_conf << "\n";
+    else cerr << "Can't read global_conf file: " << global_conf << "\n";
   }
 
   /***** reading local config file *****/
 
-  std::string local_conf;
+  string local_conf;
 
   // if local_conf was not set via command line option
   // try value from global config, then use default value:
@@ -134,7 +134,7 @@ bool read_conf(int argc, char **argv, Options & opts, std::vector<std::string> &
   if (local_conf != ""){
     ifstream lstr(local_conf.c_str());
     if (lstr.good()) lstr >> opts;
-    else std::cerr << "Can't read local_conf file: " << local_conf << "\n";
+    else cerr << "Can't read local_conf file: " << local_conf << "\n";
   }
 
   /***** move options from cmdline_opts to opts *****/
