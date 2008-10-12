@@ -24,14 +24,17 @@ void geo_filter(const geo_data & world, const Options & opts=Options());
 /** Writing geo_data object to file. */
 void geo_write(const std::string & file, const geo_data & world, const Options & opts=Options());
 
-
-
-
-
 namespace io {
+        // read data from file
 	bool in(const std::string & name, geo_data & world, const Options & opt);
-	void out(const std::string & outfile, const geo_data & world, const Options & opt);
+
+        // write data to file
+        void out(const std::string & outfile, const geo_data & world, const Options & opt);
+
         bool testext(const std::string & nstr, char *ext);
+
+        // erase some data according to "skip" option
+	void skip(geo_data & world, const Options & opt);
 }
 
 namespace filters {

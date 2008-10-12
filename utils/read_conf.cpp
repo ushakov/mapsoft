@@ -10,16 +10,17 @@ using namespace std;
 void read_conf_usage(){
 /*
 
-This program use read_conf library. So, 
-
    -O <name>=<value>
 
    abbriviations:
 
-   -o file	-O out_file=<file>
-   -a file	-O app_file=<file>
-   -c file	-O local_conf=<file>  (default "/etc/mpsf.conf")
-   -C file	-O global_conf=<file> (default "~/.mpsf")
+   -o file	-O out_file=<file>    // file for output
+   -a file	-O app_file=<file>    // file for appending
+   -c file	-O local_conf=<file>  // local config (default "/etc/mpsf.conf")
+   -C file	-O global_conf=<file> // global config (default "~/.mpsf")
+   -s <tow>	-O skip=<tow>         // 
+      // skip maps [m], tracks [t], waypoints [w], 
+      // or old (not "active log") tracks [o]
 
    -h		-O showhelp
 
@@ -83,6 +84,13 @@ bool read_conf(int argc, char **argv, Options & opts, list<string> & non_opts){
         if (i>=argc-1) return false;
         i+=1;
         cmdline_opts["global_conf"] = argv[i];
+        continue;
+      }
+
+      if (strcmp(argv[i], "-s")==0){
+        if (i>=argc-1) return false;
+        i+=1;
+        cmdline_opts["skip"] = argv[i];
         continue;
       }
 
