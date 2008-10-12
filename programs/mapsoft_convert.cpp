@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
   Options opts;
   list<string> infiles;
 
-  if (!read_conf(argc, argv, opts, infiles) usage(argv[0]);
+  if (!read_conf(argc, argv, opts, infiles)) usage(argv[0]);
   if (opts.exists("showhelp")) usage(argv[0]);
 
   string outfile="";
