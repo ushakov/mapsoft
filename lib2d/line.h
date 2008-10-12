@@ -120,4 +120,26 @@ struct Line
   }
 };
 
+template <typename T>
+std::ostream & operator<< (std::ostream & s, const Line<T> & l){
+  for (typename Line<T>::const_iterator i=l.begin(); i!=l.end(); i++)
+    s << ((i==l.begin())? "":",") << *i;
+  return s;
+}
+
+template <typename T>
+std::istream & operator>> (std::istream & s, Line<T> & l){
+  Point<T> p;
+  char sep;
+  s >> p;
+  l.push_back(p);
+  while (!s.eof()){
+    s >> std::ws >> sep >> std::ws >> p;
+    if (sep!=',') {s.unget(); return s;}
+    l.push_back(p);
+  }
+  return s;
+}
+
+
 #endif /* LINE_H */

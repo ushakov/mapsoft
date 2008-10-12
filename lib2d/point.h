@@ -83,4 +83,19 @@ struct Point
 //  }
 };
 
+template <typename T>
+std::ostream & operator<< (std::ostream & s, const Point<T> & p){
+  s << p.x << "," << p.y;
+  return s;
+}
+
+template <typename T>
+std::istream & operator>> (std::istream & s, Point<T> & p){
+  char sep;
+  s >> std::ws >> p.x >> std::ws >> sep >> std::ws;
+  if (sep!=',') {s.unget(); return s;}
+  s >> p.y >> std::ws;
+  return s;
+}
+
 #endif /* POINT_H */

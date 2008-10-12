@@ -13,7 +13,6 @@
 #include "../loaders/image_google.h"
 #include "../loaders/image_i.h"
 #include "../utils/image_gd.h"
-#include "../lib2d/io2d.h"
 
 //#include "../libgeo_io/io.h"
 

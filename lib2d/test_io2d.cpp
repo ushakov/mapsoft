@@ -1,4 +1,6 @@
-#include "io2d.h"
+#include "point.h"
+#include "line.h"
+#include "rect.h"
 #include <boost/lexical_cast.hpp>
 
 template<typename T1, typename T2>

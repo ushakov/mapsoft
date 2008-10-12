@@ -85,6 +85,31 @@ public:
 };
 
 template <typename T>
+std::ostream & operator<< (std::ostream & s, const Rect<T> & r){
+  s << r.w << "x" << r.h << std::showpos << r.x << r.y << std::noshowpos;
+  return s;
+}
+
+template <typename T>
+std::istream & operator>> (std::istream & s, Rect<T> & r){
+  char sep;
+
+  s >> r.w >> sep >> r.h;
+  if (sep!='x') return s;
+
+  s >> sep >> r.x;
+  if (sep=='-') r.x=-r.x;
+  else if (sep!='+') return s;
+
+  s >> sep >> r.y;
+  if (sep=='-') r.y=-r.y;
+  else if (sep!='+') return s;
+
+  return s;
+}
+
+
+template <typename T>
 Rect<T> rect_pump (Rect<T> const & R, T val) {
     return Rect<T> (R.x-val, R.y-val, R.w+2*val, R.h+2*val);
 }

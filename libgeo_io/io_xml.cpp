@@ -14,7 +14,6 @@
 #include "io_xml.h"
 #include "../utils/options.h"
 #include "../utils/iconv_utils.h"
-#include "../lib2d/io2d.h"
 
 
 namespace xml {
