@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
   if (opts.exists("showhelp")) usage(argv[0]);
 
   string figfile="";
-  opts.get("add_file", figfile);
+  opts.get("app_file", figfile);
   if (figfile == "") usage(argv[0]);
 
 
@@ -53,6 +53,8 @@ int main(int argc, char *argv[]) {
 /*  for(i=filters.begin(); i!=filters.end(); i++){
     if (*i == "map_nom_brd") filters::map_nom_brd(world);
   }*/
+
+  io::skip(world, opts);
 
   put_wpts(F, ref, world);
   put_trks(F, ref, world);
