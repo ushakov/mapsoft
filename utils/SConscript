@@ -10,7 +10,3 @@ env.Library('utils', \
     image_gd.cpp
     pnm_shifter.cpp
   """))
-
-env.Program(['options_test.cpp', 'options.cpp'])
-env.Program(['options_read.cpp', 'options.cpp'])
-env.Program(['read_conf_test.cpp', 'options.cpp', 'read_conf.cpp'])

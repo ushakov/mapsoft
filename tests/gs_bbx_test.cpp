@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "../libfig/fig.h"
-#include "gs_bbx.h"
+#include "../utils/gs_bbx.h"
 #include <cmath>
 
 using namespace std;
