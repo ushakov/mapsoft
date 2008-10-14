@@ -5,8 +5,7 @@
 #include <string>
 #include <cmath>
 
-#include "geo_names.h"
-#include "geo_enums.h"
+#include "geo_types.h"
 #include "../lib2d/line.h"
 #include "../lib2d/rect.h"
 #include "../utils/options.h"
@@ -27,17 +26,17 @@ struct g_waypoint : g_point {
     std::string  name;
     std::string  comm;
     Time         t;
-    double  z;
-    double  prox_dist;
-    int     symb;
-    int     displ;
-    int     map_displ; 
-    int     pt_dir;
-    int     font_size;
-    int     font_style;
-    int     size;
-    Color   color;
-    Color   bgcolor;
+    double       z;
+    double       prox_dist;
+    wptSymb      symb;
+    int          displ;
+    wptMapDispl  map_displ;
+    wptPtDir     pt_dir;
+    int          font_size;
+    int          font_style;
+    int          size;
+    Color        color;
+    Color        bgcolor;
 
     g_waypoint();
     Options to_options() const;
@@ -90,13 +89,13 @@ struct g_waypoint_list : std::vector<g_waypoint>{
 
 /// track
 struct g_track : std::vector<g_trackpoint>{
-    int width; /// width of track plot line on screen (from OE)
-    int displ; //  
-    Color color; /// track color (RGB)
-    int skip;  // 
-    int type;
-    int fill;  /// track fill style
-    Color cfill; /// track fill color (RGB)
+    int     width; /// width of track plot line on screen (from OE)
+    int     displ; //
+    Color   color; /// track color (RGB)
+    int     skip;  //
+    trkType type;
+    trkFill fill;  /// track fill style
+    Color   cfill; /// track fill color (RGB)
     std::string comm; /// track description
 
     g_track();

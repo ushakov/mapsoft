@@ -104,6 +104,7 @@ using namespace boost::spirit;
     double lon0 = m.range().x + m.range().w/2;
     lon0 = floor( lon0/6.0 ) * 6 + 3;
     O.get("lon0", lon0);
+    Enum::output_fmt=Enum::xml_fmt;
 
     convs::pt2pt cnv(Datum(pdatum.c_str()), Proj(pproj.c_str()), O,
                      Datum("wgs84"), Proj("lonlat"), O);
@@ -114,13 +115,14 @@ using namespace boost::spirit;
       g_point p(m[n]);
       cnv.bck(p);
       ostringstream comm;
+      Enum::output_fmt=Enum::xml_fmt;
       comm << "REF " << fixed << p.x << " " << p.y;
       o.comment.push_back(comm.str()); comm.str("");
       if (Datum(pdatum) != Datum("wgs84"))
-         comm << "datum: " << Datum(pdatum).xml_str();
+         comm << "datum: " << Datum(pdatum);
       o.comment.push_back(comm.str()); comm.str("");
       if (Proj(pproj) != Proj("lonlat"))
-         comm << "proj: " << Proj(pproj).xml_str();
+         comm << "proj: " << Proj(pproj);
       o.comment.push_back(comm.str()); comm.str("");
       if ((Proj(pproj) == Proj("tmerc")) && (lon0!=0))
          comm << "lon0: " << lon0;
@@ -131,7 +133,7 @@ using namespace boost::spirit;
     // по умолчанию - tmerc
     if (m.map_proj != Proj("tmerc")){
       ostringstream comm;
-      comm << "proj: " << m.map_proj.xml_str();
+      comm << "proj: " << m.map_proj;
       w.comment.push_back(comm.str());
     }
   }
@@ -277,6 +279,8 @@ using namespace boost::spirit;
     vector<g_waypoint_list>::const_iterator wl;
     vector<g_waypoint>::const_iterator w;
     convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"));
+    Enum::output_fmt=Enum::xml_fmt;
+
     for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
       for (w=wl->begin();w!=wl->end();w++){
 
@@ -290,12 +294,12 @@ using namespace boost::spirit;
         if (w->t != def.t)                   ADDCOMM("# time:       " << w->t);
         if (w->comm != def.comm)             ADDCOMM("# comm:       " << w->comm);
         if (w->prox_dist != def.prox_dist)   ADDCOMM("# prox_dist:  " << fixed << setprecision(1) << w->prox_dist);
-        if (w->symb != def.symb)             ADDCOMM("# symb:       " << wpt_symb_enum.int2str(w->symb));
+        if (w->symb != def.symb)             ADDCOMM("# symb:       " << w->symb);
         if (w->displ != def.displ)           ADDCOMM("# displ:      " << w->displ);
         if (w->color != def.color)           ADDCOMM("# color:      #" << setbase(16) << setw(6) << setfill('0') << w->color);
         if (w->bgcolor != def.bgcolor)       ADDCOMM("# bgcolor:    #" << setbase(16) << setw(6) << setfill('0') << w->bgcolor);
-        if (w->map_displ != def.map_displ)   ADDCOMM("# map_displ:  " << wpt_map_displ_enum.int2str(w->map_displ));
-        if (w->pt_dir != def.pt_dir)         ADDCOMM("# pt_dir:     " << wpt_pt_dir_enum.int2str(w->pt_dir));
+        if (w->map_displ != def.map_displ)   ADDCOMM("# map_displ:  " << w->map_displ);
+        if (w->pt_dir != def.pt_dir)         ADDCOMM("# pt_dir:     " << w->pt_dir);
         if (w->font_size != def.font_size)   ADDCOMM("# font_size:  " << w->font_size);
         if (w->font_style != def.font_style) ADDCOMM("# font_style: " << w->font_style);
         if (w->size != def.size)             ADDCOMM("# size:       "  << w->size);
@@ -314,6 +318,7 @@ using namespace boost::spirit;
     vector<g_track>::const_iterator tl;
     vector<g_trackpoint>::const_iterator t;
     convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"));
+    Enum::output_fmt=Enum::xml_fmt;
     g_track def;
 
     for (tl=world.trks.begin();tl!=world.trks.end();tl++){
@@ -333,8 +338,8 @@ using namespace boost::spirit;
         if (tl->displ != def.displ) ADDCOMM("# displ: "  << tl->displ);
         if (tl->color != def.color) ADDCOMM("# color: #" << setbase(16) << setw(6) << setfill('0') << tl->color << setbase(10));
         if (tl->skip  != def.skip)  ADDCOMM("# skip:  "  << tl->skip);
-        if (tl->type  != def.type)  ADDCOMM("# type:  "  << trk_type_enum.int2str(tl->type));
-        if (tl->fill  != def.fill)  ADDCOMM("# fill:  "  << trk_fill_enum.int2str(tl->fill));
+        if (tl->type  != def.type)  ADDCOMM("# type:  "  << tl->type);
+        if (tl->fill  != def.fill)  ADDCOMM("# fill:  "  << tl->fill);
         if (tl->cfill != def.cfill) ADDCOMM("# cfill: #" << setbase(16) << setw(6) << setfill('0') << tl->cfill << setbase(10));
 
         for (vector<Point<int> >::const_iterator p1=pts.begin(); p1!=pts.end(); p1++) f.push_back(*p1);

@@ -106,6 +106,7 @@ namespace xml {
 
                 if (!f.good()) return false;
                 IConv cnv(default_charset);
+		Enum::output_fmt=Enum::xml_fmt;
 
 		g_trackpoint def_pt;
 		g_track def_t;
@@ -114,8 +115,8 @@ namespace xml {
 		if (tr.displ != def_t.displ) f << " displ="    << tr.displ;
                 if (tr.color != def_t.color) f << " color=\""  << tr.color << "\"";
 		if (tr.skip  != def_t.skip)  f << " skip="     << tr.skip;
-		if (tr.type  != def_t.type)  f << " type="     << trk_type_enum.int2str(tr.type);
-		if (tr.fill  != def_t.fill)  f << " fill="     << trk_fill_enum.int2str(tr.fill);
+		if (tr.type  != def_t.type)  f << " type="     << tr.type;
+		if (tr.fill  != def_t.fill)  f << " fill="     << tr.fill;
 		if (tr.cfill != def_t.cfill) f << " cfill=\""  << tr.cfill << "\"";
 		if (tr.comm  != def_t.comm)  f << " comm=\""   << cnv.from_utf(tr.comm) << "\"";
 		f << ">\n";
@@ -137,6 +138,7 @@ namespace xml {
 
                 if (!f.good()) return false;
                 IConv cnv(default_charset);
+		Enum::output_fmt=Enum::xml_fmt;
 
 		g_waypoint def_pt;
 		g_waypoint_list def_w;
@@ -153,12 +155,12 @@ namespace xml {
                         if (p->name != def_pt.name) f << " name=\"" << cnv.from_utf(p->name) << "\"";
                         if (p->comm != def_pt.comm)             f << " comm=\"" << cnv.from_utf(p->comm) << "\"";
                         if (p->prox_dist != def_pt.prox_dist)   f << " prox_dist="  << fixed << setprecision(1) << p->prox_dist;
-                        if (p->symb != def_pt.symb)             f << " symb="       << wpt_symb_enum.int2str(p->symb);
+                        if (p->symb != def_pt.symb)             f << " symb="       << p->symb;
                         if (p->displ != def_pt.displ)           f << " displ="      << p->displ;
                         if (p->color != def_pt.color)           f << " color=\""    << p->color << "\"";
                         if (p->bgcolor != def_pt.bgcolor)       f << " bgcolor=\""  << p->bgcolor << "\"";
-                        if (p->map_displ != def_pt.map_displ)   f << " map_displ="  << wpt_map_displ_enum.int2str(p->map_displ);
-                        if (p->pt_dir != def_pt.pt_dir)         f << " pt_dir="     << wpt_pt_dir_enum.int2str(p->pt_dir);
+                        if (p->map_displ != def_pt.map_displ)   f << " map_displ="  << p->map_displ;
+                        if (p->pt_dir != def_pt.pt_dir)         f << " pt_dir="     << p->pt_dir;
                         if (p->font_size != def_pt.font_size)   f << " font_size="  << p->font_size;
                         if (p->font_style != def_pt.font_style) f << " font_style=" << p->font_style;
                         if (p->size != def_pt.size)             f << " size="       << p->size;
@@ -171,13 +173,14 @@ namespace xml {
 
                 if (!f.good()) return false;
                 IConv cnv(default_charset);
+		Enum::output_fmt=Enum::xml_fmt;
 
 		g_refpoint def_pt;
 		g_map def_m;
 		f << "<map points=" << m.size();
                 if (m.comm != def_m.comm) f << " comm=\""   << cnv.from_utf(m.comm) << "\"";
                 if (m.file != def_m.file) f << " file=\""   << m.file << "\"";
-                if (m.map_proj != def_m.map_proj) f << " map_proj=" << m.map_proj.xml_str();
+                if (m.map_proj != def_m.map_proj) f << " map_proj=" << m.map_proj;
 		if (m.border.size()!=0){
 			f << " border=\"";
 			for (int i = 0; i<m.border.size(); i++){
@@ -219,19 +222,18 @@ namespace xml {
 // Это все вынесено в отдельный h-файл, поскольку используется и при чтении точек из fig
 	xml_point::operator g_waypoint () const {
 		g_waypoint ret; // здесь уже возникли значения по умолчанию
-                string str;
 		get("name", ret.name);
 		get("comm", ret.comm);
 		get("lon",  ret.x);
 		get("lat",  ret.y);
 		get("alt",  ret.z);
 		get("prox_dist",  ret.prox_dist);
-                str=""; get("symb", str); ret.symb = wpt_symb_enum.str2int(str);
-		get("displ",    ret.displ);
-		get("color",    ret.color);
-		get("bgcolor",  ret.bgcolor);
-                str=""; get("map_displ", str); ret.map_displ  = wpt_map_displ_enum.str2int(str);
-                str=""; get("pt_dir", str); ret.pt_dir     = wpt_pt_dir_enum.str2int(str);
+                get("symb",       ret.symb);
+		get("displ",      ret.displ);
+		get("color",      ret.color);
+		get("bgcolor",    ret.bgcolor);
+                get("map_displ",  ret.map_displ);
+                get("pt_dir",     ret.pt_dir);
 		get("font_size",  ret.font_size);
 		get("font_style", ret.font_style);
 		get("size",       ret.size);
@@ -277,14 +279,13 @@ namespace xml {
 	}
 	xml_point_list::operator g_track () const {
 		g_track ret;
-		string str;
 		get("comm",  ret.comm);
 		get("width", ret.width);
 		get("color", ret.color);
 		get("skip",  ret.skip);
 		get("displ", ret.displ);
-                str=""; get("type", str); ret.type  = trk_type_enum.str2int(str);
-                str=""; get("fill", str); ret.fill  = trk_fill_enum.str2int(str);
+                get("type",  ret.type);
+                get("fill",  ret.fill);
 		get("cfill", ret.cfill);
                 const std::string used[] = {"comm", "width", "color", "skip", "displ", "type", "fill", "cfill", "points", ""};
                 warn_unused(used);

@@ -45,8 +45,8 @@ using namespace boost::spirit;
 			// all default values -- in geo_data.h
 			g_waypoint dflt;
                         lat=dflt.y; lon=dflt.x; time=dflt.t.value;
-                        symb=dflt.symb; displ=dflt.displ; map_displ=dflt.map_displ;
-			color=dflt.color.RGB().value; bgcolor=dflt.bgcolor.RGB().value; pt_dir=dflt.pt_dir;
+                        symb=dflt.symb.val; displ=dflt.displ; map_displ=dflt.map_displ.val;
+			color=dflt.color.RGB().value; bgcolor=dflt.bgcolor.RGB().value; pt_dir=dflt.pt_dir.val;
 			prox_dist=dflt.prox_dist; alt=dflt.z;
 			font_size=dflt.font_size; font_style=dflt.font_style; size=dflt.size;
                 }
@@ -58,12 +58,12 @@ using namespace boost::spirit;
                         ret.x     = lon;
 			if (time==0) ret.t = Time(0);
 			else ret.t = Time(int(time* 3600.0 * 24.0 - 2209161600.0));
-                        ret.symb  = symb;
-                        ret.displ = displ;
-                        ret.map_displ  = map_displ;
+                        ret.symb.val   = symb;
+                        ret.displ      = displ;
+                        ret.map_displ.val  = map_displ;
                         ret.color      = Color(0xFF, color);
                         ret.bgcolor    = Color(0xFF, bgcolor);
-                        ret.pt_dir     = pt_dir;
+                        ret.pt_dir.val = pt_dir;
                         ret.size       = size;
                         ret.font_size  = font_size;
                         ret.font_style = font_style;
@@ -124,8 +124,8 @@ using namespace boost::spirit;
                 oe_track (){
 		  g_track dflt;
                   width=dflt.width; color=dflt.color.RGB().value; skip=dflt.skip;
-                  type=dflt.type;
-                  fill=dflt.fill;
+                  type=dflt.type.val;
+                  fill=dflt.fill.val;
                   cfill=dflt.cfill.RGB().value;
                 }
                 operator g_track () const{
@@ -135,8 +135,8 @@ using namespace boost::spirit;
                         ret.width = width;
                         ret.color = Color(0xFF, color);
                         ret.skip  = skip;
-                        ret.type  = type;
-                        ret.fill  = fill;
+                        ret.type.val  = type;
+                        ret.fill.val  = fill;
                         ret.cfill = cfill;
 			ret.comm  = comm;
                         vector<oe_trackpoint>::const_iterator i,
@@ -197,8 +197,8 @@ using namespace boost::spirit;
                         Datum D(datum);
                         convs::ll2wgs cnv(D);
 
-                        double a = GPS_Ellipse[GPS_Datum[D.n].ellipse].a;
-                        double f = 1/GPS_Ellipse[GPS_Datum[D.n].ellipse].invf;
+                        double a = GPS_Ellipse[GPS_Datum[D.val].ellipse].a;
+                        double f = 1/GPS_Ellipse[GPS_Datum[D.val].ellipse].invf;
 
                         vector<oe_mappoint>::const_iterator i,
                                 b=points.begin(), e=points.end();
@@ -490,6 +490,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		if (!f.good()) return false;
 		IConv cnv(default_charset);
 
+		Enum::output_fmt=Enum::oe_fmt;
 		f << "OziExplorer Map Data File Version 2.2\r\n"
 		  << cnv.from_utf(m.comm) << "\r\n"
 		  << m.file << "\r\n"
@@ -499,7 +500,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		  << "Reserved 2\r\n" 
 		  << "Magnetic Variation,,,E\r\n"
 		  << "Map Projection," 
-		  << m.map_proj.oe_str()
+		  << m.map_proj
 		  << ",PolyCal,No,AutoCalOnly,No,BSBUseWPX,No\r\n";
 
 		for (int n=1; n<=30; n++){

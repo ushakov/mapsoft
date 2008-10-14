@@ -19,10 +19,10 @@ using namespace std;
 pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
     datum = D;
     proj = P;
-    a = GPS_Ellipse[GPS_Datum[D.n].ellipse].a;
-    f = 1/GPS_Ellipse[GPS_Datum[D.n].ellipse].invf;
+    a = GPS_Ellipse[GPS_Datum[D.val].ellipse].a;
+    f = 1/GPS_Ellipse[GPS_Datum[D.val].ellipse].invf;
     // разбираем параметры
-    switch (proj.n){
+    switch (proj.val){
 	case 0: // lonlat
 	  return;
 	case 1: // tmerc
@@ -50,7 +50,7 @@ pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
         case 5: // ks
 	  return;
         default:
-          std::cerr << "unknown proj: " << P.n << "\n";
+          std::cerr << "unknown proj: " << P.val << "\n";
           return;
     }
 }
@@ -64,7 +64,7 @@ void pt2ll::frw(g_point & p) const{
   double x,y;
   // сперва преобразуем к широте-долготе
   double l0=lon0;
-  switch (proj.n){
+  switch (proj.val){
     case 0: break;
     case 1: // tmerc 
        // Мы можем использовать префикс в координате X, как на советских картах.
@@ -113,7 +113,7 @@ void pt2ll::frw(g_point & p) const{
       break;
 
     default:
-       std::cerr << "unknown proj: " << proj.n << "\n";
+       std::cerr << "unknown proj: " << proj.val << "\n";
        break;
   }
 }
@@ -122,7 +122,7 @@ void pt2ll::bck(g_point & p){
   double x,y;
 
   // преобразуем в нужную нам проекцию
-  switch (proj.n){
+  switch (proj.val){
   case 0: return;
   case 1: //tmerc
     // если lon0 не указали явно - определим его автоматически:
@@ -163,7 +163,7 @@ void pt2ll::bck(g_point & p){
     }
     break;
   default:
-    std::cerr << "unknown proj: " << proj.n << "\n";
+    std::cerr << "unknown proj: " << proj.val << "\n";
     return;
   }
 }
@@ -172,16 +172,16 @@ ll2wgs::ll2wgs(const Datum & D): datum(D){}
 //ll2wgs::ll2wgs(const char * d):datum(Datum(d)){}
 
 void ll2wgs::frw(g_point & p) const{
-  if (datum.n!=0){
+  if (datum.val!=0){
     double x,y,h;
-    GPS_Math_Known_Datum_To_WGS84_M(p.y, p.x, 0, &y, &x, &h, datum.n);
+    GPS_Math_Known_Datum_To_WGS84_M(p.y, p.x, 0, &y, &x, &h, datum.val);
     p.x=x; p.y=y;
   }
 }
 void ll2wgs::bck(g_point & p) const{
-  if (datum.n!=0){
+  if (datum.val!=0){
     double x,y,h;
-    GPS_Math_WGS84_To_Known_Datum_M(p.y, p.x, 0, &y, &x, &h, datum.n);
+    GPS_Math_WGS84_To_Known_Datum_M(p.y, p.x, 0, &y, &x, &h, datum.val);
     p.x=x; p.y=y;
   }
 }
@@ -190,7 +190,7 @@ void ll2wgs::bck(g_point & p) const{
 pt2pt::pt2pt(const Datum & sD, const Proj & sP, const Options & sPo, 
              const Datum & dD, const Proj & dP, const Options & dPo):
 pc1(sD,sP,sPo), pc2(dD,dP,dPo), dc1(sD), dc2(dD),
-triv1((sP.n==dP.n) && (sPo==dPo) && (sD.n==dD.n)), triv2(sD.n==dD.n){}
+triv1((sP==dP) && (sPo==dPo) && (sD==dD)), triv2(sD==dD){}
 
 
 //pt2pt::pt2pt(const char * sD, const char * sP, const Options & sPo,
@@ -492,7 +492,7 @@ void map2pt::frw(g_point & p){
              k_map2geo[3]*p.x + k_map2geo[4]*p.y + k_map2geo[5]);
 
   // если карта в той же проекции, что нам нужна - то это все (!)
-  if (pc1.proj.n != pc2.proj.n){
+  if (pc1.proj != pc2.proj){
     pc1.frw(p1); // преобразование к lon-lat
     pc2.bck(p1); // к нужной проекции
   }
@@ -504,7 +504,7 @@ void map2pt::frw(g_point & p){
 }
 
 void map2pt::bck(g_point & p){
-  if (pc1.proj.n != pc2.proj.n){
+  if (pc1.proj != pc2.proj){
     pc2.frw(p); // преобразование к lon-lat
     pc1.bck(p); // к проекции карты
   }

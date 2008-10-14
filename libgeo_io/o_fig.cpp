@@ -9,8 +9,6 @@
 #include <sys/stat.h>
 
 #include "io.h"
-#include "../libgeo/geo_enums.h"
-#include "../libgeo/geo_names.h"
 #include "../libgeo/geo_convs.h"
 #include "../utils/options.h"
 #include "../layers/layer_geomap.h"
@@ -222,12 +220,12 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
       if (w->t != def_pt.t)                   out << "# time:       " << w->t << "\n";
       if (w->comm != def_pt.comm)             out << "# comm:       " << w->comm << "\n";
       if (w->prox_dist != def_pt.prox_dist)   out << "# prox_dist:  " << fixed << setprecision(1) << w->prox_dist << "\n";
-      if (w->symb != def_pt.symb)             out << "# symb:       " << wpt_symb_enum.int2str(w->symb) << "\n";
+      if (w->symb != def_pt.symb)             out << "# symb:       " << w->symb << "\n";
       if (w->displ != def_pt.displ)           out << "# displ:      " << w->displ << "\n";
       if (w->color != def_pt.color)           out << "# color:      #" << setbase(16) << setw(6) << setfill('0') << w->color << setbase(10)   << "\n";
       if (w->bgcolor != def_pt.bgcolor)       out << "# bgcolor:    #" << setbase(16) << setw(6) << setfill('0') << w->bgcolor << setbase(10) << "\n";
-      if (w->map_displ != def_pt.map_displ)   out << "# map_displ:  " << wpt_map_displ_enum.int2str(w->map_displ) << "\n";
-      if (w->pt_dir != def_pt.pt_dir)         out << "# pt_dir:     " << wpt_pt_dir_enum.int2str(w->pt_dir) << "\n";
+      if (w->map_displ != def_pt.map_displ)   out << "# map_displ:  " << w->map_disp << "\n";
+      if (w->pt_dir != def_pt.pt_dir)         out << "# pt_dir:     " << w->pt_dir << "\n";
       if (w->font_size != def_pt.font_size)   out << "# font_size:  " << w->font_size << "\n";
       if (w->font_style != def_pt.font_style) out << "# font_style: " << w->font_style << "\n";
       if (w->size != def_pt.size)             out << "# size:       "  << w->size << "\n";
@@ -269,8 +267,8 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
       if (tl->displ != def_t.displ) out << "# displ: "  << tl->displ << "\n";
       if (tl->color != def_t.color) out << "# color: #" << setbase(16) << setw(6) << setfill('0') << tl->color << setbase(10) << "\n";
       if (tl->skip  != def_t.skip)  out << "# skip:  "  << tl->skip << "\n";
-      if (tl->type  != def_t.type)  out << "# type:  "  << trk_type_enum.int2str(tl->type) << "\n";
-      if (tl->fill  != def_t.fill)  out << "# fill:  "  << trk_fill_enum.int2str(tl->fill) << "\n";
+      if (tl->type  != def_t.type)  out << "# type:  "  << tl->type << "\n";
+      if (tl->fill  != def_t.fill)  out << "# fill:  "  << tl->fill << "\n";
       if (tl->cfill != def_t.cfill) out << "# cfill: #" << setbase(16) << setw(6) << setfill('0') << tl->cfill << setbase(10) << "\n";
   
       out << "2 1 0 " << trk_width << " " << trk_color << " 7 " << trk_depth 

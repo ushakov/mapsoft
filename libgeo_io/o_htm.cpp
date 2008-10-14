@@ -9,8 +9,6 @@
 #include <sys/stat.h>
 
 #include "io.h"
-#include "../libgeo/geo_enums.h"
-#include "../libgeo/geo_names.h"
 #include "../libgeo/geo_convs.h"
 #include "../utils/options.h"
 #include "../layers/layer_geomap.h"

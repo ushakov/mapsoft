@@ -33,16 +33,16 @@ namespace gps {
 		for (int i=0; i<n; i++){
 			g_waypoint new_w_pt;
 
-			new_w_pt.name  = wpt[i]->ident;
-			new_w_pt.comm  = wpt[i]->cmnt;
-			new_w_pt.y     = wpt[i]->lat;
-			new_w_pt.x     = wpt[i]->lon;
-			new_w_pt.z     = wpt[i]->alt;
-			new_w_pt.symb  = wpt[i]->smbl;
-			new_w_pt.displ = wpt[i]->dspl;
-			new_w_pt.color = Color(0xFF, wpt[i]->colour);
-			if (wpt[i]->Time_populated) new_w_pt.t 
-                                       = Time(wpt[i]->Time);
+			new_w_pt.name      = wpt[i]->ident;
+			new_w_pt.comm      = wpt[i]->cmnt;
+			new_w_pt.y         = wpt[i]->lat;
+			new_w_pt.x         = wpt[i]->lon;
+			new_w_pt.z         = wpt[i]->alt;
+			new_w_pt.symb.val  = wpt[i]->smbl;
+			new_w_pt.displ     = wpt[i]->dspl;
+			new_w_pt.color     = Color(0xFF, wpt[i]->colour);
+			if (wpt[i]->Time_populated) new_w_pt.t
+                                           = Time(wpt[i]->Time);
 			new_w.push_back(new_w_pt);
 		}
 		world.wpts.push_back(new_w);
@@ -105,7 +105,7 @@ namespace gps {
 			memccpy(wpts[n]->cmnt,  cnv.from_utf_7bit(i->comm).c_str(), '\0', 255);
 			wpts[n]->lat  = i->y;
 			wpts[n]->lon  = i->x;
-			wpts[n]->smbl = i->symb;
+			wpts[n]->smbl = i->symb.val;
 			wpts[n]->dspl = i->displ;
 			wpts[n]->colour = i->color.RGB().value;
 			wpts[n]->alt  = i->z;

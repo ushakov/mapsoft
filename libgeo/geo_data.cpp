@@ -6,12 +6,9 @@ g_waypoint::g_waypoint (){
     z          = 1e24; 
     prox_dist  = 0.0;
     t          = Time(0);
-    symb       = wpt_symb_enum.def; 
     displ      = 0; 
     color      = Color(0xFF000000); 
     bgcolor    = Color(0xFFFFFFFF); 
-    map_displ  = wpt_map_displ_enum.def;
-    pt_dir     = wpt_pt_dir_enum.def; 
     font_size  = 6;
     font_style = 0; 
     size       = 17;
@@ -166,8 +163,6 @@ g_track::g_track(){
     displ = 1;
     color = Color(0xFF0000FF);
     skip  = 1;
-    type  = trk_type_enum.def;
-    fill  = trk_fill_enum.def;
     cfill = Color(0xFF000000);
     comm  = "";
 }

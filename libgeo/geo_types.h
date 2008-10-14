@@ -46,6 +46,39 @@ struct Proj : Enum {
   void create_table();
 };
 
+struct wptMapDispl : Enum {
+  static geo_types_table names;
+  wptMapDispl(const std::string & str = "");
+  geo_types_table & get_table() const { return names;}
+  void create_table();
+};
 
+struct wptPtDir : Enum {
+  static geo_types_table names;
+  wptPtDir(const std::string & str = "");
+  geo_types_table & get_table() const { return names;}
+  void create_table();
+};
+
+struct trkType : Enum {
+  static geo_types_table names;
+  trkType(const std::string & str = "");
+  geo_types_table & get_table() const { return names;}
+  void create_table();
+};
+
+struct trkFill : Enum {
+  static geo_types_table names;
+  trkFill(const std::string & str = "");
+  geo_types_table & get_table() const { return names;}
+  void create_table();
+};
+
+struct wptSymb : Enum {
+  static geo_types_table names;
+  wptSymb(const std::string & str = "");
+  geo_types_table & get_table() const { return names;}
+  void create_table();
+};
 
 #endif

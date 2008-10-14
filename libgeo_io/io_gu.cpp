@@ -31,7 +31,7 @@ namespace gu {
 			g_waypoint def;
 			lat=def.y; 
 			lon=def.x; 
-			symb=def.symb;
+			symb=def.symb.val;
 			displ=def.displ;
 		}
 		operator g_waypoint () const{
@@ -41,7 +41,7 @@ namespace gu {
 			ret.name  = name;
 			ret.comm  = comm;
 			ret.displ = displ;
-			ret.symb  = symb;
+			ret.symb.val = symb;
 			return ret;
 		}
 	};
