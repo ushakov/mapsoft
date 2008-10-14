@@ -7,7 +7,6 @@
 #include <iostream>
 #include <string>
 #include <map>
-#include <memory>
 
 typedef std::map<std::string, int> geo_types_table;
 
