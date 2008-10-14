@@ -1,6 +1,7 @@
-#include "point.h"
-#include "line.h"
-#include "rect.h"
+#include "../lib2d/point.h"
+#include "../lib2d/line.h"
+#include "../lib2d/rect.h"
+#include "../libgeo/geo_types.h"
 #include <boost/lexical_cast.hpp>
 
 template<typename T1, typename T2>
@@ -72,5 +73,38 @@ std::cerr << " * Rects\n";
   cast_test("12x23+-100+-120,", r2, false);
 
   cast_test(Point<double>(1.1,2.2), l1, true);
+
+std::cerr << " * Datum\n";
+
+  cast_test("wgs84", Datum("wgs84"), true);
+  cast_test("wgs84 ", Datum("wgs84"), false);
+
+
+std::cerr << " * XML format:\n";
+
+  Enum::output_fmt=Enum::xml_fmt;
+  std::cerr << "Datum(\"aaa\") -> "     << Datum("aaa")     << "\n";
+  std::cerr << "Datum(\"pulkovo\") -> " << Datum("pulkovo") << "\n";
+  std::cerr << "Datum(\"wgs84\") -> "   << Datum("wgs84")   << "\n";
+  std::cerr << "Datum(\"10\") -> "      << Datum("10")      << "\n";
+  std::cerr << "Datum(\"\") -> "        << Datum("")        << "\n";
+  std::cerr << "Datum() -> "            << Datum()          << "\n";
+  std::cerr << "Datum(\"0x10\") -> "    << Datum("0x10")    << "\n";
+
+  std::cerr << "Proj(\"aaa\") -> "     << Proj("aaa")     << "\n";
+  std::cerr << "Proj(\"lonlat\") -> "  << Proj("lonlat") << "\n";
+  std::cerr << "Proj(\"tmerc\") -> "   << Proj("tmerc")   << "\n";
+  std::cerr << "Proj(\"10\") -> "      << Proj("10")      << "\n";
+  std::cerr << "Proj(\"\") -> "        << Proj("")        << "\n";
+  std::cerr << "Proj() -> "            << Proj()          << "\n";
+  std::cerr << "Proj(\"0x10\") -> "    << Proj("0x10")    << "\n";
+
+std::cerr << " * OE format:\n";
+
+  Enum::output_fmt=Enum::oe_fmt;
+  std::cerr << "Datum(\"pulkovo\") -> " << Datum("pulkovo") << "\n";
+  std::cerr << "Datum(\"wgs84\") -> "   << Datum("wgs84")   << "\n";
+  std::cerr << "Proj(\"lonlat\") -> "  << Proj("lonlat") << "\n";
+  std::cerr << "Proj(\"tmerc\") -> "   << Proj("tmerc")   << "\n";
 
 }
