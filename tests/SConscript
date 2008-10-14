@@ -1,5 +1,0 @@
-Import ('env')
-le = env.Clone()
-sources = Split ("""
-		""")
-
