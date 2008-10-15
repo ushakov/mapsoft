@@ -86,7 +86,8 @@ public:
 
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Rect<T> & r){
-  s << r.w << "x" << r.h << std::showpos << r.x << r.y << std::noshowpos;
+  // std::showpos don't add + to zeros :(
+  s << r.w << "x" << r.h << ((r.x>=0)? "+":"") << r.x << ((r.y>=0)? "+":"") << r.y;
   return s;
 }
 
