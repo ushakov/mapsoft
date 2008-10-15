@@ -11,7 +11,7 @@
 
 namespace fig {
 
-const char *default_charset = "KOI8-R";
+const char *default_enc = "KOI8-R";
 
 using namespace std;
 using namespace boost::spirit;
@@ -28,7 +28,7 @@ int sub_type;
 bool no_picture(){return sub_type!=5;}
 
 // function for reading objects from file
-bool read(const char* filename, fig_world & world){
+bool read(const char* filename, fig_world & world, const Options & opts){
 
   fig_world ret;
 
@@ -181,7 +181,10 @@ bool read(const char* filename, fig_world & world){
   }
 
   //преобразование комментариев и текстов в UTF-8
-  IConv cnv(default_charset);
+  string enc(default_enc);
+  opts.get("fig_enc", enc);
+  IConv cnv(enc);
+
   for (fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
     i->text = cnv.to_utf(i->text);
     for (vector<string>::iterator
@@ -215,9 +218,11 @@ bool read(const char* filename, fig_world & world){
 }
 
 /***********************************************************/
-bool write(ostream & out, const fig_world & world){
+bool write(ostream & out, const fig_world & world, const Options & opts){
 
-  IConv cnv(default_charset);
+  string enc(default_enc);
+  opts.get("fig_enc", enc);
+  IConv cnv(enc);
 
   int n;
   // запись заголовка

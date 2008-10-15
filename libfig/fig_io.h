@@ -4,21 +4,24 @@
 #include <iostream>
 
 #include "fig_data.h"
+#include "../utils/options.h"
 
 namespace fig {
 
-    extern const char *default_charset;
+    ///   Common Options:
+    /// * fig_enc=<enc> -- encoding for reading and writing files.
+    ///   Default value = KOI8-R
 
-    /// Чтение fig-файла.
-    /// Новые объекты дописываются в world, заголовок world полностью перезаписывается
-    /// При ошибке возвращается false, а world не портится.
-    /// Комментарии и текст преобразуется из default_charset в UTF-8
-    /// Нестандартные цвета преобразуются в "длинные" числа > 0x1000000
-    bool read(const char* filename, fig_world & world);
+    /// Read fig-file specified by <filename> into <world>. If some data
+    /// already exists in <world> then objects are appended and the header
+    /// is overwrited...
+    /// Non-standart colors are converted to "long" values (> 0x1000000)
+    /// Text is converted to UTF8 encoding.
+    bool read(const char* filename, fig_world & world, const Options & opts = Options());
 
-    /// Запись fig-файла
-    /// разные проверки на правильность файла
-    /// - комментарий должен быть не длиннее 100 строк, по 1022 символов в каждой
-    bool write(std::ostream & out, const fig_world & world);
+    /// Write <world> into mp-file <filename>
+    /// Some tests are performed here:
+    /// - comments must be not more then 100 lines, 1022 chars each
+    bool write(std::ostream & out, const fig_world & world, const Options & opts = Options());
 }
 #endif
