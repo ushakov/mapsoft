@@ -12,7 +12,7 @@
 #include <math.h>
 
 #include "io.h"
-#include "geofig.h"
+//#include "geofig.h"
 
 namespace io {
 	
@@ -78,7 +78,7 @@ namespace io {
 				return false;
 			}
 			return true;
-		case '#': {
+/*		case '#': {
 			cerr << "Reading data from Fig file " << name << "\n";
                         fig::fig_world F;
                         fig::read(name.c_str(), F);
@@ -86,7 +86,7 @@ namespace io {
                         fig::get_wpts(F, m, world);
                         fig::get_trks(F, m, world);
                         fig::get_maps(F, m, world);
-			return true; }
+			return true; }*/
 		default:
 			cerr << "Unknown format in file " << name << "\n";
 			return false;

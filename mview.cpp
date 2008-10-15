@@ -10,10 +10,10 @@
 //#define DEBUG_JPEG
 //#define DEBUG_MAPVIEW
 
-#include <viewer/viewer.h>
-#include <programs/mapview.h>
+#include "viewer/viewer.h"
+#include "mview.h"
 
-#include <libgeo_io/io.h>
+#include "libgeo_io/io.h"
 
 int
 main(int argc, char **argv)
@@ -21,7 +21,7 @@ main(int argc, char **argv)
     Gtk::Main kit (argc, argv);
 
     Mapview mapview;
-    
+
     for (int i = 1; i < argc; ++i) {
 	mapview.load_file(argv[i]);
     }

@@ -58,7 +58,7 @@ public:
 #ifdef DEBUG_LAYER_GEODATA
       std::cerr  << "LayerGeoData: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
-      if (rect_intersect(myrange, src_rect).empty()) return;
+      if (rect_intersect(rect_pump(myrange(),110), src_rect).empty()) return;
       boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&image));
 
       for (std::vector<g_track>::const_iterator it = world->trks.begin();
@@ -86,8 +86,9 @@ public:
         ctx->DrawCircle(pio, w, 2, it->color.value, false);
       }
 
-      Rect<int> rect_pumped = rect_pump(image.range(), 6);
+      Rect<int> rect_pumped = rect_pump(image.range(), 110);
 
+std::cerr << ">>> rect: " << image.range() << "   " << rect_pumped << "\n";
       for (std::vector<g_waypoint_list>::const_iterator it = world->wpts.begin();
 	   it!= world->wpts.end(); it++){
 	Point<int> pi, pio;
@@ -97,19 +98,9 @@ public:
 	  pi = Point<int>(p)-origin;
 	
           if (point_in_rect(pi, rect_pumped)){
-//	      ctx->DrawFilledRect(Rect<int>(-3,-3,6,6) + pi, pt->bgcolor.value);
-//	      ctx->DrawRect(Rect<int>(-3,-3,6,6) + pi, 1, pt->color.value);
-	      ctx->DrawCircle(pi, 8, 1, pt->color.value, true, pt->bgcolor.value);
-	  }
-	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name.c_str());
-	  Rect<int> padded = rect_pump(textbb, 2);
-	  Point<int> shift = Point<int>(2,-10);
-	  Point<int> shifted = pi + shift;
-	  if (point_in_rect(pi, rect_pump (image.range(), padded+shift))) {
-	      ctx->DrawLine(pi, (padded + shifted).TLC(), 1, pt->color.value);
-	      ctx->DrawFilledRect(padded + shifted, pt->bgcolor.value);
-	      ctx->DrawRect(padded + shifted, 1, pt->color.value);
-	      ctx->DrawText(shifted.x, shifted.y, pt->color.value, pt->name.c_str());
+	      ctx->DrawCircle(pi, 100, 4, 0xFF0000FF, false, 0xFF000000);
+	      ctx->DrawLine(pi+Point<int>(0,55), pi-Point<int>(0,55), 2, 0xFF0000FF);
+	      ctx->DrawLine(pi+Point<int>(55,0), pi-Point<int>(55,0), 2, 0xFF0000FF);
 	  }
           pio=pi;
         }

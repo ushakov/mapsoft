@@ -9,12 +9,7 @@ subdirs = Split ("""
 		jeeps
 		layers
 		loaders
-		programs
 		utils
-		viewer
-		mapview
-		libzn
-		libzn-utils
 		""")
 
 #SetOption('implicit_cache', 1)
@@ -23,25 +18,14 @@ env.Append (CCFLAGS=['-O2','-g'])
 env.Append (CPPPATH='#')
 env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
 
-#env.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
-# libgd is bad: its --libs does not include the library itself!
-#env.ParseConfig('gdlib-config --cflags --ldflags --libs')
-#env.Append (LIBS = '-lgd')
-#env.Append (LIBS=Split('m curl'))
-#
-#env.Append (LINKFLAGS=['-O2', '-ggdb'])
-#
-#if ARGUMENTS.get('debug', 0):
-#	env.Append (CCFLAGS='-ggdb')
-#	env.Append (LINKFLAGS='-ggdb')
-#
-#if ARGUMENTS.get('profile', 0):
-#	env.Append (CCFLAGS='-pg')
-#	env.Append (LINKFLAGS='-pg')
-#
-#if ARGUMENTS.get('googleprofile', 0):
-#	env.Append (LINKFLAGS='-lprofiler')
+mapsoft_libs = Split ("geo_io geo loaders jeeps utils 2d")
+other_libs   = Split ("usb tiff jpeg png gd")
 
+env.Prepend(LIBS=[mapsoft_libs,other_libs])
+env.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
+
+
+env.Program('mview.cpp')
 
 Export('env')
 SConscript (map (lambda(s): s+"/SConscript", subdirs))
