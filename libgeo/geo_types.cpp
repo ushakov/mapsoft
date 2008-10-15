@@ -113,7 +113,7 @@ wptMapDispl::wptMapDispl(const std::string & str){
 }
 
 void wptMapDispl::create_table(){
-  int m = Enum::xml_fmt | Enum::oe_fmt;
+  int m = Enum::xml_fmt;
   names[""] = 4;
   names["numb_only"] = 0 | m;
   names["name_only"] = 1 | m;
@@ -136,7 +136,7 @@ wptPtDir::wptPtDir(const std::string & str){
 }
 
 void wptPtDir::create_table(){
-  int m = Enum::xml_fmt | Enum::oe_fmt;
+  int m = Enum::xml_fmt;
   names[""] = 1;
   names["buttom"] = 0 | m;
   names["top"]    = 1 | m;
@@ -154,7 +154,7 @@ trkType::trkType(const std::string & str){
 }
 
 void trkType::create_table(){
-  int m = Enum::xml_fmt | Enum::oe_fmt;
+  int m = Enum::xml_fmt;
   names[""] = 0;
   names["normal"] = 0 | m;
   names["closed"] = 1 | m;
@@ -171,7 +171,7 @@ trkFill::trkFill(const std::string & str){
 }
 
 void trkFill::create_table(){
-  int m = Enum::xml_fmt | Enum::oe_fmt;
+  int m = Enum::xml_fmt;
   names[""] = 1;
   names["solid"]  = 0 | m;
   names["clear"]  = 1 | m;
@@ -193,7 +193,7 @@ wptSymb::wptSymb(const std::string & str){
 }
 
 void wptSymb::create_table(){
-  int m = Enum::xml_fmt | Enum::oe_fmt;
+  int m = Enum::xml_fmt;
 // from http://www.wasab.dk/morten/2003/10/garmin_waypoint_symbols.py
   names[""] = 18 | m;
   names["anchor"]        = 0 | m; // white anchor symbol
