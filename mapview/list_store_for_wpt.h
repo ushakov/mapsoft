@@ -16,10 +16,10 @@ class WPT_ListColumns : public Gtk::TreeModelColumnRecord {
     Gtk::TreeModelColumn<double>        y;
     Gtk::TreeModelColumn<double>        z;
     Gtk::TreeModelColumn<double>        prox_dist;
-    Gtk::TreeModelColumn<int>           symb;
+    Gtk::TreeModelColumn<wptSymb>       symb;
     Gtk::TreeModelColumn<int>           displ;
-    Gtk::TreeModelColumn<int>           map_displ;
-    Gtk::TreeModelColumn<int>           pt_dir;
+    Gtk::TreeModelColumn<wptMapDispl>   map_displ;
+    Gtk::TreeModelColumn<wptPtDir>      pt_dir;
     Gtk::TreeModelColumn<int>           font_size;
     Gtk::TreeModelColumn<int>           font_style;
     Gtk::TreeModelColumn<int>           size;

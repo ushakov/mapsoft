@@ -8,6 +8,5 @@ other_libs   = Split ("usb tiff jpeg png gd")
 le.Append(LIBS=[mapsoft_libs,other_libs])
 
 le.Program('mapview.cpp')
-#le.Program('test1.cpp')
-
+le.Program('test1.cpp')
 
