@@ -15,7 +15,7 @@ namespace mp {
 using namespace std;
 using namespace boost::spirit;
 
-// Название charset'a получается добавлением "CP"
+// encoding получается добавлением "CP"
 string default_codepage = "1251";
 
 
@@ -37,7 +37,7 @@ struct polygon_joiner : list<Line<double> >{
       // между вершинами...
 
       double dist = 1e99;
-      
+
       Line<double>::iterator  i1,q1 ;
       Line<double>::const_iterator  i2,q2;
         // i1,i2 -- пара вершин
@@ -45,7 +45,7 @@ struct polygon_joiner : list<Line<double> >{
 
       for (i1=ret.begin(); i1!=ret.end(); i1++){
         for (i2=l->begin(); i2!=l->end(); i2++){
-          
+
           double d = pdist(*i1, *i2);
           if (d < dist){
             dist = d;
@@ -70,7 +70,7 @@ struct polygon_joiner : list<Line<double> >{
 };
 
 
-bool read(const char* filename, mp_world & world){
+bool read(const char* filename, mp_world & world, const Options & opts){
 
   mp_world ret;
   mp_object o, o0;
@@ -175,7 +175,10 @@ bool read(const char* filename, mp_world & world){
     if (!parse_file("mp::read", filename, main_rule)) return false;
 
     // converting some fields to UTF8
-    IConv cnv("CP" + ret.CodePage, "CP" + default_codepage);
+    string codepage(default_codepage);
+    opts.get("mp_codepage", codepage);
+    IConv cnv("CP" + ret.CodePage, "CP" + codepage);
+
     ret.Name = cnv.to_utf(ret.Name);
     ret.Copyright = cnv.to_utf(ret.Copyright);
     for (mp_world::iterator i = ret.begin(); i != ret.end(); i++){
@@ -229,12 +232,14 @@ bool read(const char* filename, mp_world & world){
 
 
 
-bool write(std::ostream & out, const mp_world & world){
+bool write(std::ostream & out, const mp_world & world, const Options & opts){
 
   // converting some fields from UTF8 to default codepage
-  // setting CodePage to default_charset;
+  // setting CodePage to default_codepage;
 
-  IConv cnv("CP"+default_codepage);
+  string codepage(default_codepage);
+  opts.get("mp_codepage", codepage);
+  IConv cnv("CP"+codepage);
 
   for (vector<string>::const_iterator c = world.Comment.begin();
        c!=world.Comment.end(); c++) out << ";" << cnv.from_utf(*c) << "\n";
@@ -245,7 +250,7 @@ bool write(std::ostream & out, const mp_world & world){
       << "\r\nName="            << cnv.from_utf(world.Name)
       << "\r\nElevation="       << world.Elevation
       << "\r\nPreprocess="      << world.Preprocess
-      << "\r\nCodePage="        << default_codepage
+      << "\r\nCodePage="        << codepage
       << "\r\nLblCoding="       << world.LblCoding
       << "\r\nTreSize="         << world.TreSize
       << "\r\nTreMargin="       << world.TreMargin

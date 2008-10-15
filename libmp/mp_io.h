@@ -5,24 +5,26 @@
 #include <string>
 
 #include "mp_data.h"
+#include "../utils/options.h"
 
 
 namespace mp {
 
-  // Обычно codepage есть в заголовке файла
-  // Значение по умолчанию используется для чтения файлов с
-  // не указанной кодировкой и для записи файлов
-  // Название charset'a получается добавлением "CP"
-  extern std::string default_codepage;
+  /// Common options:
+  ///  * mp_codepage <cpage> -- Codepage for text. Used for writing
+  ///    files and for reading files with unspecified codepage.
+  ///    Default value is 1251.
+  ///    Encoding = "CP" + codepage.
 
-  /// Чтение mp-файла.
-  /// Новые объекты дописываются в world, заголовок world полностью перезаписывается
-  /// При ошибке возвращается false, а world не портится.
-  /// Комментарии и текст преобразуется из default_codepage в UTF-8
-  bool read(const char* filename, mp_world & world);
+  /// Read mp-file specified by <filename> into <world>. If some data
+  /// already exists in <world> then objects are appended and the header
+  /// is overwrited...
+  /// Text is converted to UTF8 encoding
 
-  /// Запись mp-файла
-  bool write(std::ostream & out, const mp_world & world);
+  bool read(const char* filename, mp_world & world, const Options & opts = Options());
+
+  /// Write <world> into mp-file <filename>
+  bool write(std::ostream & out, const mp_world & world, const Options & opts = Options());
 
 }
 #endif
