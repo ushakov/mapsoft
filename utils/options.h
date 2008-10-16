@@ -16,7 +16,7 @@
   преобразования в std::string и обратно)
 */
 
-struct Options : std::map<std::string,std::string>{
+struct Options : public std::map<std::string,std::string>{
 
     /** Запись в Options значения val для ключа key. При неудаче с
     преобразованием val в std::string ничего не записывается, в Log

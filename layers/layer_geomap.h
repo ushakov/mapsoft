@@ -120,7 +120,7 @@ public:
             m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
           }
 
-          if (drawborder)
+          if (drawborder || (scale>32))
           for (int j=0; j<m2ms[i].border_dst.size(); j++){
             Point<double> p1(m2ms[i].border_dst[j]);
             Point<double> p2((j==m2ms[i].border_dst.size()-1) ? m2ms[i].border_dst[0] : m2ms[i].border_dst[j+1]);

@@ -67,14 +67,14 @@ namespace xml {
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
 			>> str_p("</track>")[push_back_a(ret.trks, pt_list)];
-		rule_t map_object = str_p("<map")[clear_a(pt_list)][clear_a(pt_list.points)][insert_at_a(pt_list, "prefix", prefix)]
+		rule_t map_object = str_p("<map")[clear_a(pt_list)][insert_at_a(pt_list, "prefix", prefix)][clear_a(pt_list.points)]
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
 			>> str_p("</map>")[push_back_a(ret.maps, pt_list)];
 
-		rule_t main_rule = *(*space_p >> (wpt_object | trk_object | map_object)) >> *space_p;
+		rule_t main_rule = *(*space_p >> (wpt_object | map_object | trk_object)) >> *space_p;
 
-		if (!parse_file("fig::read", filename, main_rule)) return false;
+		if (!parse_file("xml::read", filename, main_rule)) return false;
 
 		//преобразование комментариев и названий точек в UTF-8
 		IConv cnv(default_charset);

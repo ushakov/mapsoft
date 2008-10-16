@@ -64,7 +64,7 @@ public:
 
         if (world->maps.size() > 0) {
             // we are loading maps: if we already have reference, use it
-            boost::shared_ptr<LayerGeoMap> map_layer(new LayerGeoMap(world.get()));
+            boost::shared_ptr<LayerGeoMap> map_layer(new LayerGeoMap(world.get(), false));
             map_layer->set_ref(reference);
             state.map_layers.push_back(map_layer);
             add_layer(map_layer.get(), 100, "Maps: " + selected_filename);
@@ -84,6 +84,20 @@ public:
         }
         refresh();
     }
+
+   void zoom_out(int i){
+      Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
+      Point<int> origin = wcenter/i - viewer->get_window_size()/2;
+      viewer->set_window_origin(origin);
+      (*state.workplane)/=i;
+   }
+
+   void zoom_in(int i){
+      Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
+      Point<int> origin = wcenter*i - viewer->get_window_size()/2;
+      viewer->set_window_origin(origin);
+      (*state.workplane)*=i;
+   }
 
     void layer_edited (const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter) {
 	VLOG(2) << "layer_edited at " << path.to_string();
@@ -120,21 +134,14 @@ public:
 	switch (event->keyval) {
 	case 43:
 	case 65451: // +
-	{
-	    Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
-            Point<int> origin = wcenter*2 - viewer->get_window_size()/2;
-            viewer->set_window_origin(origin);
-	    (*state.workplane)*=2;
+	{   
+	    zoom_in(2);
 	    return true;
 	}
 	case 45:
 	case 65453: // -
 	{
-	    Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
-            Point<int> origin = wcenter/2 - viewer->get_window_size()/2;
-            viewer->set_window_origin(origin);
-	    (*state.workplane)/=2;
-
+	    zoom_out(2);
 	    return true;
 	}
 	case 'r':

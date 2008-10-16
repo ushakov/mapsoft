@@ -25,6 +25,8 @@ main(int argc, char **argv)
     for (int i = 1; i < argc; ++i) {
 	mapview.load_file(argv[i]);
     }
+    mapview.zoom_out(4);
+
     kit.run(mapview);
 }
 
