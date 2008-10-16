@@ -134,14 +134,14 @@ public:
 	}
     }
 
-    Workplane & operator-= (g_point k){ 
+    Workplane & operator-= (Point<double> k){ 
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
             (*itl->second)-=k;
 	    tile_cache[itl->second]->clear();
 	}
     }
-    Workplane & operator+= (g_point k){ 
+    Workplane & operator+= (Point<double> k){ 
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
             (*itl->second)+=k;
