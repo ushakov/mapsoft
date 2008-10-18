@@ -571,6 +571,7 @@ int keys(int argc, char** argv){
 /// Обновить картинки (fig)
 //  - раскрываются все старые составные объекты
 //  - удаляются все старые картинки (объекты с комментариями [skip])
+//  - fig-файл сортируется
 //  - новые картинки создаются
 //  картинки добавляются ко всем объектам (вне зависимости от ключа)
 //  объект и его картинка оборачиваются в compound, комментарий объекта
@@ -579,7 +580,7 @@ int keys(int argc, char** argv){
 int pics(int argc, char** argv){
 
   if (argc != 2){
-    cerr << "Remove compounds and old pics, add new pics (fig).\n"
+    cerr << "Remove compounds and old pics, sort fig, add new pics (fig).\n"
          << "  usage: mapsoft_vmap pics <conf> <fig>\n";
     return 1;
   }
@@ -610,6 +611,10 @@ int pics(int argc, char** argv){
     i++;
   }
   cerr << obj_r_cnt << " objects removed\n";
+
+  // сортировка
+
+  F.sort();
 
   // второй проход: для каждого объекта создаем картинку, если это надо
   cerr << "creating new pictures in " << file <<": ";  
@@ -923,7 +928,7 @@ int main(int argc, char** argv){
          << "  - copy   -- copy map objects from (fig|mp) to (fig|mp)\n"
          << "  - remove -- remove map objects from (fig|mp) map\n"
          << "  - labels -- update labels in fig map\n"
-         << "  - pics   -- update pics in fig map\n"
+         << "  - pics   -- update pics in fig map, sort fig\n"
          << "  - keys   -- update keys in (fig|mp) map\n"
          << "  - crop          -- crop map objects in (fig|mp)\n"
          << "  - remove_grids  -- remove all but reference, lables, and map objects from fig\n"
