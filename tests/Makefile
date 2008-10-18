@@ -7,3 +7,5 @@ options_test: ../utils/options.cpp
 options_read: ../utils/options.cpp
 read_conf_test: ../utils/options.cpp ../utils/read_conf.cpp
 gs_bbx_test: ../libfig/libfig.a ../utils/libutils.a
+
+test_mp: ../libmp/libmp.a ../utils/libutils.a
