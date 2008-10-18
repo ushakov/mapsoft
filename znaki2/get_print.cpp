@@ -227,8 +227,11 @@ main(int argc, char **argv){
     // автомагистраль, шоссе, грейдер
     if ((type == 0x100001)||
         (type == 0x100002)||
+        (type == 0x10000B)||
         (type == 0x100004)){
-      i->pen_color=0; NW.push_back(*i); 
+      i->pen_color=0; 
+      if (type != 0x100004) i->thickness--; 
+      NW.push_back(*i); 
       fig_object o = *i;
       o.pen_color = o.fill_color; o.depth--; o.thickness-=2; NW.push_back(o);
       if (o.thickness>2) {o.pen_color = 0; o.depth--; o.thickness=1;  NW.push_back(o);}
