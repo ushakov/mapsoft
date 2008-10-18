@@ -18,7 +18,6 @@ namespace mp {
         int 		     DirIndicator;
         std::vector<std::string> Comment;
 	int                  BL,EL; // begin/end level
-        Line<double>         fpoints, lpoints; // first and last points, for lines made from parts
 	mp_object(){ 
 	  Class="POI"; Type=-1; BL=0; EL=0; DirIndicator=0;
         }
