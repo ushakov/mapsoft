@@ -170,6 +170,26 @@ bool read(const char* filename, mp_world & world, const Options & opts){
       *c = cnv.to_utf(*c);
     }
 
+    // removing bad objects
+    mp_world::iterator i = ret.begin();
+    while (i!= ret.end()){
+      if (i->size()==0){
+        std::cerr << "MP:read warning: deleting object with 0 points\n";
+        i = ret.erase(i);
+        continue;
+      }
+      if ((i->Class!="POI") && (i->size()==1)){
+        std::cerr << "MP:read warning: deleting line with 1 point\n";
+        i = ret.erase(i);
+        continue;
+      }
+      if ((i->Class=="POI") && (i->size()>1)){
+        std::cerr << "MP:read warning: cropping POI with > 2 points\n";
+        i->resize(1);
+      }
+      i++;
+    }
+
     // merging world with ret
     mp::mp_world tmp = world;
     world=ret;
