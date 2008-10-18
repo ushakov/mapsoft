@@ -24,6 +24,8 @@ string default_codepage = "1251";
 
 struct polygon_joiner : list<Line<double> >{
 
+  std::string Class;
+
   operator Line<double> () const {
     Line<double> ret;
     if (size()==0) return ret;
@@ -31,6 +33,13 @@ struct polygon_joiner : list<Line<double> >{
     list<Line<double> >::const_iterator l = begin();
     ret = *l; l++;
     while (l!=end()){
+
+      // for any object class excludind POLYGON we are just join all lines
+      if (Class != "POLYGON"){
+        ret.insert(ret.end(), l->begin(), l->end());
+        l++;
+        continue;
+      }
 
       // Найдем место кратчайшего разреза между ret и очередным куском.
       // Честно пока делать лень, поэтому найдем минимальное расстояние 
@@ -83,7 +92,7 @@ bool read(const char* filename, mp_world & world, const Options & opts){
   rule_t ch = anychar_p - eol_p;
   rule_t comment = (ch_p(';') >> (*ch)[push_back_a(o.Comment)] >> eol_p) | space_p;
 
-  rule_t header = 
+  rule_t header =
     *((ch_p(';') >> (*ch)[push_back_a(ret.Comment)] >> eol_p) | space_p) >>
       ("[IMG ID]") >> eol_p >> *(
       ( "ID="              >> !uint_p[assign_a(ret.ID)]            >> eol_p) |
@@ -112,43 +121,29 @@ bool read(const char* filename, mp_world & world, const Options & opts){
 		  >> real_p[assign_a(pt.x)]
                   >> ch_p(')');
 
-    rule_t obj_params = 
-       (( "Type=0x"   >> hex_p[assign_a(o.Type)]) |
-        ( "Label="    >> (*ch)[assign_a(o.Label)]) |
-        ( "EndLevel=" >> uint_p[assign_a(o.EL)]) |
-        ( "Endlevel=" >> uint_p[assign_a(o.EL)]) |
-        ( "Levels="   >> uint_p[assign_a(o.EL)]) |
-        ( "DirIndicator="   >> uint_p[assign_a(o.DirIndicator)])) >> eol_p;
+    rule_t object =
+      eps_p[assign_a(o,o0)] >> *comment >>
+      ch_p('[') >>
+       ((str_p("POI") | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] |
+        (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] |
+        (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")]
+       ) [clear_a(joiner)][assign_a(joiner.Class, o.Class)] >>
+      ch_p(']') >> eol_p >>
 
+      *(( "Type=0x"   >> hex_p[assign_a(o.Type)]  >> eol_p) |
+        ( "Label="    >> (*ch)[assign_a(o.Label)] >> eol_p) |
+        ( "EndLevel=" >> uint_p[assign_a(o.EL)]   >> eol_p) |
+        ( "Endlevel=" >> uint_p[assign_a(o.EL)]   >> eol_p) |
+        ( "Levels="   >> uint_p[assign_a(o.EL)]   >> eol_p) |
+        ( "DirIndicator=" >> uint_p[assign_a(o.DirIndicator)]   >> eol_p) |
 
-    rule_t poi_object =
-      ch_p('[') >> (str_p("POI") | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] >> ch_p(']') >> eol_p
-      >> *(obj_params |
-         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)] >> "="
-           >> pt_r[push_back_a(o, pt)] >> eol_p))
-      >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p
-      [push_back_a(ret,o)][clear_a(o)];
-
-    rule_t polyline_object =
-      ch_p('[') >> (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] >> ch_p(']') >> eol_p
-      >> *(obj_params |
-         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)] >> "="
-           >> pt_r[push_back_a(o, pt)] >> *(',' >> pt_r[push_back_a(o, pt)]) >> eol_p) 
-              [push_back_a(ret,o)][clear_a(o)] )
-      >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p;
-
-    rule_t polygon_object =
-      ch_p('[') >> (str_p("POLYGON")  | "RGN80") >> ch_p(']') >> eol_p
-        [assign_a(o.Class, "POLYGON")] [clear_a(joiner)]
-      >> *(obj_params |
-         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)][clear_a(line)] >> "="
-           >> pt_r[push_back_a(line, pt)] >> *(',' >> pt_r[push_back_a(line, pt)]) >> eol_p)
-           [push_back_a(joiner,line)]
-         )
-      >> "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p 
-      [assign_a(o,joiner)][push_back_a(ret,o)];
-
-      rule_t object = eps_p[assign_a(o,o0)] >> *comment >> (poi_object | polyline_object | polygon_object);
+        ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)][clear_a(line)] >> "=" >>
+           (eol_p |
+           (pt_r[push_back_a(line, pt)] >> *(',' >> pt_r[push_back_a(line, pt)]) >> eol_p) [push_back_a(joiner,line)]
+           )
+        )
+        ) >>
+      "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p[assign_a(o,joiner)][push_back_a(ret,o)];
 
 /*    rule_t object = *comment >> ch_p('[') >> (
       (str_p("POI")      | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] |
