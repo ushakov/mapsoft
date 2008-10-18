@@ -93,6 +93,7 @@ zn_conv::zn_conv(const std::string & conf_file){
       exit(0);
    }
   default_fig = fig::make_object("2 1 2 2 4 7 10 -1 -1 6.000 0 2 -1 0 0 0");
+  default_mp = mp::make_object("POLYLINE 0x0 0 1");
 }
 
 
