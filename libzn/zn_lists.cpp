@@ -47,7 +47,7 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
     key.id = count+1;
     key.map = "get_legend_map";
     add_key(o, key);
-    
+
     std::list<fig::fig_object> l1 = z.make_pic(o, i->first);
     std::list<fig::fig_object> l2 = z.make_labels(o, i->first);
     add_key(l2, zn_label_key(key));
@@ -72,7 +72,7 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
 
     count++;
   }
-  fig::fig_object o = fig::make_object("2 2 0 0 30 30 150 -1 20 0.000 0 1 7 0 0 0");
+  fig::fig_object o = fig::make_object("2 2 0 0 30 30 250 -1 20 0.000 0 1 7 0 0 0");
   o.push_back(Point<int>(-15*grid,-grid));
   o.push_back(Point<int>(+40*grid,-grid));
   o.push_back(Point<int>(+40*grid,(2*count+1)*grid));
