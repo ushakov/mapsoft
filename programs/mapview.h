@@ -150,7 +150,7 @@ public:
 	if (state.workplane->get_layer_depth (layer) != new_depth) {
 	    state.workplane->set_layer_depth (layer, new_depth);
 	    need_refresh = true;
-	} 
+	}
 
 	int new_active = row[layer_list.columns.checked];
 	if (new_active != state.workplane->get_layer_active (layer)) {
@@ -162,7 +162,7 @@ public:
 	    refresh();
 	}
     }
-    
+
 
 //     void clear_data(Viewer * v) {
 // 	g_print ("Clear all data");
@@ -174,13 +174,13 @@ public:
     void on_mode_change (int m) {
 	action_manager->set_mode(m);
     }
-    
+
     void load_file_sel() {
 	std::string selected_filename;
 	selected_filename = file_sel_load.get_filename();
 	load_file(selected_filename);
     }
-    
+
     void load_file(std::string selected_filename) {
 	g_print ("Loading: %s\n", selected_filename.c_str());
 	status_bar->push("Loading...", 0);
@@ -217,7 +217,7 @@ public:
 	refresh();
 	status_bar->pop();
     }
-    
+
      void save_file_sel() {
  	std::string selected_filename;
  	selected_filename = file_sel_save.get_filename();
@@ -233,7 +233,7 @@ public:
           world.trks.insert( world.trks.end(), state.data[i].get()->trks.begin(), state.data[i].get()->trks.end());
           world.maps.insert( world.maps.end(), state.data[i].get()->maps.begin(), state.data[i].get()->maps.end());
         }
-  
+
  	io::out(selected_filename, world, Options());
      }
 
@@ -243,34 +243,42 @@ public:
 	return true;
     }
 
+    void zoom_out(int i){
+       Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
+       Point<int> origin = wcenter/i - viewer->get_window_size()/2;
+       viewer->set_window_origin(origin);
+       (*state.workplane)/=i;
+    }
+
+    void zoom_in(int i){
+       Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
+       Point<int> origin = wcenter*i - viewer->get_window_size()/2;
+       viewer->set_window_origin(origin);
+       (*state.workplane)*=i;
+    }
+
+
     gboolean on_keypress(GdkEventKey * event) {
 
 	switch (event->keyval) {
-	case 43:                                                                           
-	case 65451: // +                                                                   
-	{        
-	    Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
-            Point<int> origin = wcenter*2 - viewer->get_window_size()/2;
-            viewer->set_window_origin(origin);
-	    (*state.workplane)*=2;
-	    return true;                                                                     
-	}                                                                                  
-	case 45:                                                                           
-	case 65453: // -                                                                   
-	{                                                                                  
-	    Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
-            Point<int> origin = wcenter/2 - viewer->get_window_size()/2;
-            viewer->set_window_origin(origin);
-	    (*state.workplane)/=2;
-
-	    return true;                                                                     
-	}                                                                                  
-	case 'r':                                                                           
+	case 43:
+	case 65451: // +
+	{
+	    zoom_in(2);
+	    return true;
+	}
+	case 45:
+	case 65453: // -
+	{
+	    zoom_out(2);
+	    return true;
+	}
+	case 'r':
 	case 'R': // refresh
-	{                                                                                  
+	{
 	    viewer->refresh();
-	    return true;                                                                     
-	}                                                                                  
+	    return true;
+	}
 	}
 	return false;
     }
@@ -328,7 +336,7 @@ public:
 	get_pointer(pos.x, pos.y);
 	return true;
     }
-    
+
     virtual ~Mapview() {
 	state.workplane.reset();
 	viewer.reset();

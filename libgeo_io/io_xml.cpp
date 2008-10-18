@@ -67,7 +67,7 @@ namespace xml {
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
 			>> str_p("</track>")[push_back_a(ret.trks, pt_list)];
-		rule_t map_object = str_p("<map")[clear_a(pt_list)][clear_a(pt_list.points)][insert_at_a(pt_list, "prefix", prefix)]
+		rule_t map_object = str_p("<map")[clear_a(pt_list)][insert_at_a(pt_list, "prefix", prefix)][clear_a(pt_list.points)]
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
 			>> str_p("</map>")[push_back_a(ret.maps, pt_list)];
