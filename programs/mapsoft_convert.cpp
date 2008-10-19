@@ -56,7 +56,16 @@ int main(int argc, char *argv[]) {
 
   for(i=infiles.begin(); i!=infiles.end(); i++) io::in(i->first, world, opts);
 
+// all these things -> io::filters ?
   io::skip(world, opts);
+
+  double rescale_maps=1;
+  opts.get("rescale_maps", rescale_maps);
+  if (rescale_maps !=1){
+    for (vector<g_map>::iterator m=world.maps.begin(); m!=world.maps.end(); m++){
+      *m*=rescale_maps;
+    }
+  }
 
 /*  for(i=filters.begin(); i!=filters.end(); i++){
     if (*i == "map_nom_brd") filters::map_nom_brd(world);
