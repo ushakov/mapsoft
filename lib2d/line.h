@@ -118,6 +118,20 @@ struct Line
     Rect<T> r=range();
     return (r.TLC() + r.BRC())/2;
   }
+
+  operator Line<double>() const{
+    Line<double> ret;
+    for (typename Line<T>::const_iterator i=this->begin(); i!=this->end(); i++)
+      ret.push_back(Point<double>(*i));
+    return ret;
+  }
+
+  operator Line<int>() const{
+    Line<int> ret;
+    for (typename Line<T>::const_iterator i=this->begin(); i!=this->end(); i++)
+      ret.push_back(Point<int>(*i));
+    return ret;
+  }
 };
 
 template <typename T>
