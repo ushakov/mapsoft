@@ -57,8 +57,6 @@ main(int argc, char **argv){
 
   string outfile="";
   opts.get("out_file", outfile);
-  if (outfile == "") usage(argv[0]);
-
   string figfile="";
   opts.get("fig_file", figfile);
   string htmfile="";
@@ -149,16 +147,20 @@ main(int argc, char **argv){
     fig::fig_world W;
     g_map fig_ref= (ref - g_point(ref[0].xr, ref[0].yr)) * k * 2.54 / dpi * factor * fig::cm2fig;
     fig::set_ref(W, fig_ref, Options());
-    fig::fig_object o = fig::make_object("2 5 0 1 0 -1 500 -1 -1 0.000 0 0 -1 0 0 *");
 
-    for (g_map::iterator i=fig_ref.begin(); i!=fig_ref.end(); i++){
-      o.push_back(Point<int>(int(i->xr), int(i->yr)));
+    if (outfile != ""){
+      fig::fig_object o = fig::make_object("2 5 0 1 0 -1 500 -1 -1 0.000 0 0 -1 0 0 *");
+
+      for (g_map::iterator i=fig_ref.begin(); i!=fig_ref.end(); i++){
+        o.push_back(Point<int>(int(i->xr), int(i->yr)));
+      }
+      o.push_back(Point<int>(int(fig_ref[0].xr), int(fig_ref[0].yr)));
+
+      o.image_file = outfile;
+      o.comment.push_back("MAP " + outfile);
+      W.push_back(o);
     }
-    o.push_back(Point<int>(int(fig_ref[0].xr), int(fig_ref[0].yr)));
 
-    o.image_file = outfile;
-    o.comment.push_back("MAP " + outfile);
-    W.push_back(o);
     ofstream f(figfile.c_str());
     fig::write(f, W);
   }
