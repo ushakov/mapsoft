@@ -94,10 +94,6 @@ public:
           std::string file = world->maps[i].file;
           if (!m2ms[i].tst_frw.test_range(src_rect)) continue;
 
-#ifdef DEBUG_LAYER_GEOMAP
-	  std::cerr  << "LayerMap: Using Image " << file << "\n";
-#endif
-
 	  int scale = int(scales[i]+0.05);
 	  if (scale <=0) scale = 1;
 
