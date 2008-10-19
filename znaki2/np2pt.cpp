@@ -38,6 +38,7 @@ main(int argc, char **argv){
 
     // город, деревня
     if ((type == 0x200001) || (type == 0x20000E)){
+      if ((i->comment.size() == 0)||(i->comment[0]=="")) {NW.push_back(*i); continue;}
       // ищем середину объекта
       Point<int> p=i->center();
       // создаем точку
