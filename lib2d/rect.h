@@ -81,6 +81,15 @@ public:
         return (x==r.x)&&(y==r.y)&&(w==r.w)&&(h==r.h);
   }
 
+  operator Rect<double>() const{
+    return Rect<double>(double(this->x), double(this->y),
+                        double(this->w), double(this->h));
+  }
+
+  operator Rect<int>() const{
+    return Rect<int>(int(rint(this->x)), int(rint(this->y)),
+                     int(rint(this->w)), int(rint(this->h)));
+  }
 
 };
 
