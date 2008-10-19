@@ -123,7 +123,7 @@ public:
 
             Point<int> p1i(p1); p1i-=src_rect.TLC();
             Point<int> p2i(p2); p2i-=src_rect.TLC();
-            ctx->DrawLine(p1i,p2i, 2, COLOR_RED);
+            ctx->DrawLine(p1i,p2i, 1, COLOR_RED);
           }
        }
        ctx->StampAndClear();
