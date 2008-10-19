@@ -33,13 +33,14 @@ from being treated as options:
   exit(0);
 }
 
-bool read_conf(int argc, char **argv, Options & opts, list<string> & non_opts){
+bool read_conf(int argc, char **argv, Options & opts){
   Options cmdline_opts, global_opts, local_opts;
 
 
   /***** parse command line options to cmdline_opts *****/
 
   bool skip = false;
+  Options args;
 
   for (int i=1; i<argc; i++){
 
@@ -53,7 +54,7 @@ bool read_conf(int argc, char **argv, Options & opts, list<string> & non_opts){
       }
 
       if (strcmp(argv[i], "-h")==0){
-        cmdline_opts["help"] = argv[i];
+        cmdline_opts["help"] = "";
         continue;
       }
 
@@ -129,8 +130,10 @@ bool read_conf(int argc, char **argv, Options & opts, list<string> & non_opts){
       }
 
     }
-    non_opts.push_back(argv[i]);
+    args[argv[i]]="";
   }
+
+  if (args.size()!=0) cmdline_opts.put("args", args);
 
   /***** reading global config file *****/
 

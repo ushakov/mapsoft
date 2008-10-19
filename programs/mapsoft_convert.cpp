@@ -39,22 +39,22 @@ cerr <<
 int main(int argc, char *argv[]) {
 
   Options opts;
-  list<string> infiles;
 
-  if (!read_conf(argc, argv, opts, infiles)) usage(argv[0]);
-  if (opts.exists("showhelp")) usage(argv[0]);
+  if (!read_conf(argc, argv, opts)) usage(argv[0]);
+  if (opts.exists("help")) usage(argv[0]);
 
   string outfile="";
   opts.get("out_file", outfile);
   if (outfile == "") usage(argv[0]);
 
+  Options infiles; opts.get("args", infiles);
 
 // чтение файлов
 
   geo_data world;
-  list<string>::const_iterator i;
+  Options::const_iterator i;
 
-  for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, world, opts);
+  for(i=infiles.begin(); i!=infiles.end(); i++) io::in(i->first, world, opts);
 
   io::skip(world, opts);
 

@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   list<string> infiles;
 
   if (!read_conf(argc, argv, opts, infiles)) usage(argv[0]);
-  if (opts.exists("showhelp")) usage(argv[0]);
+  if (opts.exists("help")) usage(argv[0]);
 
   string figfile="";
   opts.get("app_file", figfile);
