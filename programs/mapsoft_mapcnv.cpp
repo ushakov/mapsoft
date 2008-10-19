@@ -135,13 +135,32 @@ main(int argc, char **argv){
       image_r::save(im, outfile.c_str(), opts);
     }
     // ml.dump_maps("out1.fig");
+
+    if (htmfile != ""){
+      ofstream f(htmfile.c_str());
+      f << "<html><body>\n"
+        << "<img border=\"0\" "
+        <<      "src=\""    << outfile << "\" "
+        <<      "width=\""  << int(rint(geom.w*k*factor)) << "\" " 
+        <<      "height=\"" << int(rint(geom.h*k*factor)) << "\" " 
+        <<      "usemap=\"#m\">\n"
+        << "<map name=\"m\">\n";
+      for (vector<g_map>::const_iterator i=world.maps.begin(); i!=world.maps.end(); i++){
+        convs::map2map cnv(*i, ref*k*factor);
+        g_line brd=cnv.line_frw(i->border) - geom.TLC()*k*factor;
+        f << "<area shape=\"poly\" " 
+          <<       "href=\""   << i->file << "\" "
+          <<       "alt=\""    << i->comm << "\" "
+          <<       "coords=\"" << Line<int>(brd) << "\">\n";
+      }
+      f << "</map>\n"
+        << "</body></html>";
+      f.close();
+    }
   }
 
   if (k==0) k=scale/2.54e-2*dpi;
 
-  if (htmfile != ""){
-    /// todo
-  }
 
   if (figfile != ""){
     fig::fig_world W;
