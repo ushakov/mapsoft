@@ -151,6 +151,7 @@ main(int argc, char **argv){
         f << "<area shape=\"poly\" " 
           <<       "href=\""   << i->file << "\" "
           <<       "alt=\""    << i->comm << "\" "
+          <<       "title=\""  << i->comm << "\" "
           <<       "coords=\"" << Line<int>(brd) << "\">\n";
       }
       f << "</map>\n"
