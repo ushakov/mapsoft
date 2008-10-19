@@ -66,6 +66,4 @@ struct Options : std::map<std::string,std::string>{
 std::ostream & operator<< (std::ostream & s, const Options & o);
 std::istream & operator>> (std::istream & s, Options & o);
 
-Options get_cmdline_options(int argc, char **argv);
-
 #endif

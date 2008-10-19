@@ -52,10 +52,8 @@ bool read_conf(int argc, char **argv, Options & opts, list<string> & non_opts){
         continue;
       }
 
-      if ((strcmp(argv[i], "-h")==0)||
-          (strcmp(argv[i], "-help")==0)||
-          (strcmp(argv[i], "--help")==0)){
-        cmdline_opts["showhelp"] = argv[i];
+      if (strcmp(argv[i], "-h")==0){
+        cmdline_opts["help"] = argv[i];
         continue;
       }
 
@@ -94,8 +92,35 @@ bool read_conf(int argc, char **argv, Options & opts, list<string> & non_opts){
         continue;
       }
 
+      if (strcmp(argv[i], "-g")==0){
+        if (i>=argc-1) return false;
+        i+=1;
+        cmdline_opts["geom"] = argv[i];
+        continue;
+      }
+
+      if (strcmp(argv[i], "-p")==0){
+        if (i>=argc-1) return false;
+        i+=1;
+        cmdline_opts["proj"] = argv[i];
+        continue;
+      }
+
+      if (strcmp(argv[i], "-d")==0){
+        if (i>=argc-1) return false;
+        i+=1;
+        cmdline_opts["datum"] = argv[i];
+        continue;
+      }
+
       if (strcmp(argv[i], "--")==0){
         skip=true;
+        continue;
+      }
+
+      if (strncmp(argv[i], "--", 2)==0){
+        istringstream istr(argv[i]+2);
+        istr >> cmdline_opts;
         continue;
       }
 
@@ -133,8 +158,8 @@ bool read_conf(int argc, char **argv, Options & opts, list<string> & non_opts){
   // try value from global config, then use default value:
 
   if (!cmdline_opts.exists("local_conf")){
-    if (opts.exists("local_conf")) cmdline_opts["global_conf"] = opts["global_conf"];
-    else cmdline_opts["global_conf"]="~/.mpsf";
+    if (opts.exists("local_conf")) cmdline_opts["local_conf"] = opts["local_conf"];
+    else cmdline_opts["local_conf"]="~/.mpsf";
   }
 
   cmdline_opts.get("local_conf",  local_conf);

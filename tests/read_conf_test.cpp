@@ -11,7 +11,7 @@ int main(int argc, char **argv){
     cerr << "Error reading options\n";
   }
 
-  cout << "Options: " << opts << "\n";
+  cout << "  Options:\n" << opts << "\n";
   for (list<string>::const_iterator i=non_opts.begin(); i!=non_opts.end(); i++)
-    cout << "Non-options: " << *i << "\n";
+    cout << "  Non-options: " << *i << "\n";
 }
