@@ -648,9 +648,9 @@ int pics(int argc, char** argv){
 /// Обрезать картографические объекты (fig|mp)
 int crop(int argc, char** argv){
 
-  if ((argc != 8) && (argc!=3)){
+  if ((argc != 5) && (argc!=3)){
     cerr << "Update keys.\n"
-         << "  usage: mapsoft_vmap crop <conf> <proj> <datum> <x> <y> <w> <h> <fig|mp>\n"
+         << "  usage: mapsoft_vmap crop <conf> <proj> <datum> <geom> <fig|mp>\n"
          << "         mapsoft_vmap crop <conf> <nom> <fig|mp>\n";
     return 1;
   }
@@ -660,15 +660,11 @@ int crop(int argc, char** argv){
   string datum;
   string file;
   Rect<double> cutter;
-  if (argc==8){
+  if (argc==5){
     proj     = argv[1];
     datum    = argv[2];
-    double x = atof(argv[3]);
-    double y = atof(argv[4]);
-    double w = atof(argv[5]);
-    double h = atof(argv[6]);
-    cutter=Rect<double>(x,y,w,h);
-    file     = argv[7];
+    cutter=boost::lexical_cast<Rect<double> >(argv[3]);
+    file     = argv[4];
   } else {
     proj     = "lonlat";
     datum    = "pulkovo";
