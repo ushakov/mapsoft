@@ -25,14 +25,15 @@ void usage(const char *fname){
 int main(int argc, char *argv[]) {
 
   Options opts;
-  list<string> infiles;
 
-  if (!read_conf(argc, argv, opts, infiles)) usage(argv[0]);
+  if (!read_conf(argc, argv, opts)) usage(argv[0]);
   if (opts.exists("help")) usage(argv[0]);
 
   string figfile="";
   opts.get("app_file", figfile);
   if (figfile == "") usage(argv[0]);
+
+
 
 
   list<string> filters;
@@ -48,8 +49,9 @@ int main(int argc, char *argv[]) {
 
   g_map ref = fig::get_ref(F);
 
-  list<string>::const_iterator i;
-  for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, world, opts);
+  Options infiles; opts.get("args", infiles);
+  for(Options::const_iterator i=infiles.begin(); i!=infiles.end(); i++) io::in(i->first, world, opts);
+
 /*  for(i=filters.begin(); i!=filters.end(); i++){
     if (*i == "map_nom_brd") filters::map_nom_brd(world);
   }*/
