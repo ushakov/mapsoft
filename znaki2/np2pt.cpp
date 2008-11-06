@@ -48,6 +48,10 @@ main(int argc, char **argv){
       o.comment.swap(i->comment);
       NW.push_back(o);
     }
+    // удаляем пустые точки
+    if ((type == 0x700) || (type == 0x800) || (type == 0x900)){
+      if ((i->comment.size() < 1) || (i->comment[0]=="")) {continue;}
+    }
     // прочие объекты - без изменений
     NW.push_back(*i);
   }

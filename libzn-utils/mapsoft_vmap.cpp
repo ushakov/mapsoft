@@ -312,7 +312,7 @@ int remove_keys(int argc, char** argv){
 /*****************************************************/
 ///  Обновить подписи (fig)
 // --Рассматриваются только объекты с ключами, относящиеся к указанной карте.--
-// TODO: При этом если у объекта ненулевой sid - подпись привязывается к sid@source
+//   При этом если у объекта ненулевой sid - подпись привязывается к sid@source
 // - если к объекту есть подписи - оставить их
 // - если нет - создать
 // - если у объекта поменялось название - поменять подпись
@@ -420,6 +420,7 @@ int labels(int argc, char** argv){
 /// Обновить ключи (fig|mp)
 // - для объектов со своим ключом - если надо, меняется тип объекта в зависимости от внешнего вида (только в fig)
 // - для объектов с чужим ключом - создается новый ключ, старая карта и номер сдвигается в source, старое время сохраняется
+//   при этом, если у объекта уже был sourceid@source -- оставляем именно его
 // - для объектов без ключа - создается новый ключ, source устанавливается из параметра source
 int keys(int argc, char** argv){
 
@@ -481,15 +482,24 @@ int keys(int argc, char** argv){
         zn::add_key(*i, key);  // добавим ключ
         continue;
       }
+
       if ((key.map != map_name) && (key.id !=0)){ // чужой ключ
         maxid++; obj_i_cnt++;
-        key.sid    = key.id; // (id,map) -> (sid,source)
-        key.source = key.map;
+
+        // if key wihout sid@source -- shift (id,map) -> (sid,source)
+        // else keep old sid@source
+        if (key.sid==0){
+          maxid++; obj_i_cnt++;
+          key.sid    = key.id;
+          key.source = key.map;
+        }
+
         key.id     = maxid;
         key.map    = map_name;
         zn::add_key(*i, key);  // добавим ключ
         continue;
       }
+
       // новый ключ
       maxid++; obj_n_cnt++;
       key.time.set_current();
