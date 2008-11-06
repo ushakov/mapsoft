@@ -361,6 +361,9 @@ int labels(int argc, char** argv){
   int l_o_count=0;
   int l_m_count=0;
 
+// ERROR - FIXME: перепутываются подписи, привязанные к n@map и к n@source!!!
+// FIXME: как-то надо обрабатывать повторы чужих объектов... Скорее в update_keys
+
   // контроль за повторяющимися ключами (здесь это важно)
   map<string, set<int> > done;
 
