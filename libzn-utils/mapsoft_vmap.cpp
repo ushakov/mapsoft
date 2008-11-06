@@ -606,7 +606,7 @@ int pics(int argc, char** argv){
 
   // первый проход: удаляем составные объекты и объекты с комментарием [skip] во второй строке
   // или создаем заново
-  cerr << "removing compounds and pics in" << file <<": ";  
+  cerr << "removing compounds and pics in " << file <<": ";  
   if (!testext(file, ".fig")){ cerr << "ERR: file is not a .fig\n"; return 1;}
 
   fig::fig_world F;
