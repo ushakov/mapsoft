@@ -1,4 +1,3 @@
-
 #include <string>
 #include <fstream>
 #include "../libgeo_io/geofig.h"
@@ -363,7 +362,7 @@ int labels(int argc, char** argv){
   int l_m_count=0;
 
   // контроль за повторяющимися ключами (здесь это важно)
-  map<string, set<int> > done;      
+  map<string, set<int> > done;
 
   for (i=F.begin(); i!=F.end(); i++){
     if (i->type==6) copy_comment(i, F.end());
@@ -443,8 +442,8 @@ int keys(int argc, char** argv){
 
   zn::zn_conv zconverter(cfile);
 
-  // контроль за повторяющимися ключами (здесь это будем исправлять)
-  map<string, set<int> > done;      
+  // for duplicated keys control
+  map<string, set<int> > done;
 
   if (testext(file, ".fig")){
     fig::fig_world F;
@@ -452,15 +451,15 @@ int keys(int argc, char** argv){
       cerr << "ERR: bad fig file\n"; return 1;
     }
 
-    // первый проход: найдем максимальный id
-    // удалим повторяющиеся ключи (для всех карт)
+    // first pass: find maximum id
+    // remove duplicated keys (for all maps)
     int maxid=0;
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
       if (!zconverter.is_map_depth(*i)) continue;
       zn::zn_key key = zn::get_key(*i);
       if ((key.map == "") || (key.id == 0)) continue;
 
-      // повторяющийся ключ!
+      // duplicated key!
       if (done[key.map].count(key.id) != 0){
         zn::clear_key(*i);
         continue;
@@ -470,20 +469,22 @@ int keys(int argc, char** argv){
       if ((key.map == map_name) && (key.id > maxid)) maxid=key.id;
     }
  
-    // второй проход
+    // second pass
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
       if (!zconverter.is_map_depth(*i)) continue;
       zn::zn_key key = zn::get_key(*i);
       key.type   = zconverter.get_type(*i); // тип объекта - по внешнему виду
       if (key.type==0) continue;
 
-      if ((key.map == map_name) && (key.id !=0)){ // свой ключ
+      // our key
+      if ((key.map == map_name) && (key.id !=0)){
         obj_o_cnt++;
-        zn::add_key(*i, key);  // добавим ключ
+        zn::add_key(*i, key);  // add key
         continue;
       }
 
-      if ((key.map != map_name) && (key.id !=0)){ // чужой ключ
+      // foreign key
+      if ((key.map != map_name) && (key.id !=0)){
         maxid++; obj_i_cnt++;
 
         // if key wihout sid@source -- shift (id,map) -> (sid,source)
@@ -496,18 +497,18 @@ int keys(int argc, char** argv){
 
         key.id     = maxid;
         key.map    = map_name;
-        zn::add_key(*i, key);  // добавим ключ
+        zn::add_key(*i, key);  // add key
         continue;
       }
 
-      // новый ключ
+      // new key
       maxid++; obj_n_cnt++;
       key.time.set_current();
       key.id     = maxid;
       key.map    = map_name;
       key.source = source;
       key.sid    = 0;
-      zn::add_key(*i, key);  // добавим ключ
+      zn::add_key(*i, key);  // add key
     }
 
     ofstream out(file.c_str());
@@ -520,13 +521,13 @@ int keys(int argc, char** argv){
       cerr << "ERR: bad mp file\n"; return 1;
     }
 
-    // первый проход: найдем максимальный id
+    // fist pass: find maximum id
     int maxid=0;
     for (mp::mp_world::iterator i=M.begin(); i!=M.end(); i++){
       zn::zn_key key = zn::get_key(*i);
       if ((key.map == "") || (key.id == 0)) continue;
 
-      // повторяющийся ключ!
+      // duplicated key!
       if (done[key.map].count(key.id) != 0){
         zn::clear_key(*i);
         continue;
