@@ -17,7 +17,7 @@
   name: триангуляционный знак
   mp:   POI 0x0F00 0 0
   fig:  2 1 0 2 24 7 57 -1 20 0.000 1 1 -1 0 0 1  
-  pic:  pics/trig_hr.fig
+  pic:  trig_hr.fig
   txt:  4 0 24 40 -1 18 7 0.0000 4
 -
   name: отметка высоты
@@ -44,18 +44,18 @@
   name: памятник
   mp:   POI 0x2c04 0 0
   fig:  2 1 0 1  4 7 157 -1 -1 0.000 0 1 -1 0 0 1 
-  pic:  pics/pam.fig
+  pic:  pam.fig
   txt:  4 0 0 40 -1 3 8 0.0000 4
 -
   name: церковь
   mp:   POI 0x2C0B 0 0
   fig:  2 1 0 1 11 7 157 -1 -1 0.000 0 1 -1 0 0 1 
-  pic:  pics/cerkov.fig
+  pic:  cerkov.fig
 -
   name: остановка автобуса
   mp:   POI 0x2F08 0 0
   fig:  2 1 0 4  4 7  57 -1 -1 0.000 0 1 -1 0 0 1 
-  pic:  pics/avt.fig
+  pic:  avt.fig
 -
   name: ж/д станция
   desc: 
@@ -67,61 +67,61 @@
   mp:   POI 0x6406 0 0
   fig:  2 1 0 1 1 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  pics/per.fig
+  pic:  per.fig
 -
   name: перевал н/к
   mp:   POI 0x6620 0 0
   fig:  2 1 0 1 2 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  pics/pernk.fig
+  pic:  pernk.fig
 -
   name: перевал 1А
   mp:   POI 0x6621 0 0
   fig:  2 1 0 1 3 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  pics/per1a.fig
+  pic:  per1a.fig
 -
   name: перевал 1Б
   mp:   POI 0x6622 0 0
   fig:  2 1 0 1 4 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  pics/per1b.fig
+  pic:  per1b.fig
 -
   name: перевал 2А
   mp:   POI 0x6623 0 0
   fig:  2 1 0 1 5 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  pics/per2a.fig
+  pic:  per2a.fig
 -
   name: перевал 2Б
   mp:   POI 0x6624 0 0
   fig:  2 1 0 1 6 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  pics/per2b.fig
+  pic:  per2b.fig
 -
   name: перевал 3А
   mp:   POI 0x6625 0 0
   fig:  2 1 0 1 7 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  pics/per3a.fig
+  pic:  per3a.fig
 -
   name: перевал 3Б
   mp:   POI 0x6626 0 0
   fig:  2 1 0 1 8 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  pics/per3b.fig
+  pic:  per3b.fig
 -
   name: каньон
   mp:   POI 0x660B 0 0
   fig:  2 1 0 1 9 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 24 40 -1 18 7 0.0000 4
-  pic:  pics/kan.fig
+  pic:  kan.fig
 -
   name: ледопад
   mp:   POI 0x650A 0 0
   fig:  2 1 0 1 10 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 1 40 -1 3 7 0.0000 4
-  pic:  pics/ldp.fig
+  pic:  ldp.fig
 -
   name: дом
   mp:   POI 0x6402 0 1
@@ -131,12 +131,12 @@
   name: кладбище
   mp:   POI 0x6403 0 1
   fig:  2 1 0 1 12 7 157 -1 -1 0.000 0 1 -1 0 0 1 
-  pic:  pics/kladb.fig
+  pic:  kladb.fig
 -
   name: башня
   mp:   POI 0x6411 0 0
   fig:  2 1 0 1  5 7 157 -1 -1 0.000 0 1 -1 0 0 1 
-  pic:  pics/bash.fig
+  pic:  bash.fig
 -
   name: родник
   mp:   POI 0x6414 0 0
@@ -147,13 +147,13 @@
   mp:   POI 0x6415 0 1
   fig:  2 1 0 1 0 7  156 -1 -1 0.000 0 1 -1 0 0 1 
   txt:  4 0 0 40 -1 3 8 0.0000 4
-  pic:  pics/razv.fig
+  pic:  razv.fig
 -
   name: шахты
   mp:   POI 0x640C 0 1
   fig:  2 1 0 1 0 7  155 -1 -1 0.000 0 1 -1 0 0 1 
   txt:  4 0 0 40 -1 3 8 0.0000 4
-  pic:  pics/shaht.fig
+  pic:  shaht.fig
 -
   name: водопад
   mp:   POI 0x6508 0 0
@@ -168,24 +168,24 @@
   name: яма
   mp:   POI 0x6603 0 0
   fig:  2 1 0 1 25 7 157 -1 -1 0.000 0 1 -1 0 0 1 
-  pic:  pics/yama.fig
+  pic:  yama.fig
   txt:  4 0 26 40 -1 3 8 0.0000 4
 -
   name: охотничья вышка, кормушка и т.п.
   mp:   POI 0x6606 0 0
   fig:  2 1 0 1  6 7 157 -1 -1 0.000 0 1 -1 0 0 1 
-  pic:  pics/ohotn.fig
+  pic:  ohotn.fig
 -
   name: курган
   mp:   POI 0x6613 0 0
   fig:  2 1 0 1 26 7 157 -1 -1 0.000 0 1 -1 0 0 1 
-  pic:  pics/pupyr.fig
+  pic:  pupyr.fig
   txt:  4 0 26 40 -1 3 8 0.0000 4
 -
   name: скала-останец
   mp:   POI 0x6616 0 0
   fig:  2 1 0 1 20 7 157 -1 -1 0.000 0 1 -1 0 0 1
-  pic:  pics/skala.fig
+  pic:  skala.fig
   txt:  4 0 0 40 -1 3 8 0.0000 4
 
 

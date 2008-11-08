@@ -2,6 +2,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <sys/stat.h>
+
 #include "zn.h"
 
 #include "../lib2d/point_utils.h"
@@ -64,6 +66,21 @@ bool zn_conv::load_znaki(YAML::Node &root) {
 
       v = child.hash_str_value("pic");
       if (v!=NULL) z.pic = v;
+
+      if (z.pic!=""){
+        struct stat st_buf;
+        std::string g_pd="/usr/share/mapsoft/pics/";
+        std::string l_pd="./pics/";
+        if (stat((g_pd+z.pic).c_str(), &st_buf) == 0)
+          z.pic=g_pd+z.pic;
+        else if (stat((l_pd+z.pic).c_str(), &st_buf) == 0)
+          z.pic=l_pd+z.pic;
+        else {
+          std::cerr << "Can't find zn picture " << z.pic
+                    << " in " << g_pd << " or " << l_pd << "\n";
+	  exit(1);
+        }
+      }
 
       znaki.insert(std::pair<int, zn>(get_type(z.mp), z));   
    }
