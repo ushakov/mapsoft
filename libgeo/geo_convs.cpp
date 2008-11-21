@@ -219,6 +219,23 @@ void pt2pt::bck(g_point & p){
     pc1.bck(p);
 }
 
+void pt2pt::frw_safe(g_point & p){
+    if (triv1) return;
+    frw(p);
+    g_point p1=p;
+    bck(p);
+    frw(p);
+    p-=(p-p1)*1.5;
+}
+void pt2pt::bck_safe(g_point & p){
+    if (triv1) return;
+    bck(p);
+    g_point p1=p;
+    frw(p);
+    bck(p);
+    p-=(p-p1)*1.5;
+}
+
 // преобразования линий
 // точность acc - в координатах исходной проекции
 // код одинаков с map2pt::line_frw/line_bck
@@ -229,7 +246,7 @@ g_line pt2pt::line_frw(const g_line & l, double acc, int max) {
   g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
+  g_point P1 = l[0], P1a =P1; frw_safe(P1a); ret.push_back(P1a);
   g_point P2, P2a;
 
   for (int i=1; i<l.size(); i++){
@@ -237,12 +254,12 @@ g_line pt2pt::line_frw(const g_line & l, double acc, int max) {
     P2 = l[i];
     int m=max;
     do {
-      P1a = P1; frw(P1a);
-      P2a = P2; frw(P2a);
+      P1a = P1; frw_safe(P1a);
+      P2a = P2; frw_safe(P2a);
       g_point C1 = (P1+P2)/2.; // середина отрезка
       g_point C2 = C1 + acc*pnorm(g_point(P1.y-P2.y, -P1.x+P2.x)); // отступим на acc в сторону от середины.
-      g_point C1a = C1; frw(C1a);
-      g_point C2a = C2; frw(C2a);
+      g_point C1a = C1; frw_safe(C1a);
+      g_point C2a = C2; frw_safe(C2a);
       if (pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)){
         ret.push_back(P2a);
         P1 = P2;
@@ -263,7 +280,7 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) {
   g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
+  g_point P1 = l[0], P1a =P1; bck_safe(P1a); ret.push_back(P1a);
   g_point P2, P2a;
 
   for (int i=1; i<l.size(); i++){
@@ -271,10 +288,10 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) {
     P2 = l[i];
     int m=max;
     do {
-      P1a = P1; bck(P1a);
-      P2a = P2; bck(P2a);
+      P1a = P1; bck_safe(P1a);
+      P2a = P2; bck_safe(P2a);
       g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C1a = C1; bck(C1a);
+      g_point C1a = C1; bck_safe(C1a);
 
       if (pdist(C1a, (P1a+P2a)/2.) < acc){
         ret.push_back(P2a);
@@ -516,12 +533,28 @@ void map2pt::bck(g_point & p){
   return;
 }
 
+void map2pt::frw_safe(g_point & p){
+    frw(p);
+    g_point p1=p;
+    bck(p);
+    frw(p);
+    p-=(p-p1)*1.5;
+}
+void map2pt::bck_safe(g_point & p){
+    bck(p);
+    g_point p1=p;
+    frw(p);
+    bck(p);
+    p-=(p-p1)*1.5;
+}
+
+
 g_line map2pt::line_frw(const g_line & l, int max) {
 
   g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
+  g_point P1 = l[0], P1a =P1; frw_safe(P1a); ret.push_back(P1a);
   g_point P2, P2a;
 
   for (int i=1; i<l.size(); i++){
@@ -529,12 +562,12 @@ g_line map2pt::line_frw(const g_line & l, int max) {
     P2 = l[i];
     int m = max;
     do {
-      P1a = P1; frw(P1a);
-      P2a = P2; frw(P2a);
+      P1a = P1; frw_safe(P1a);
+      P2a = P2; frw_safe(P2a);
       g_point C1 = (P1+P2)/2.; // середина отрезка
       g_point C2 = C1 + 0.5*g_point(P1.y-P2.y, -P1.x+P2.x)/pdist(P1,P2); // отступим на 0.5 в сторону от середины.
-      g_point C1a = C1; frw(C1a);
-      g_point C2a = C2; frw(C2a);
+      g_point C1a = C1; frw_safe(C1a);
+      g_point C2a = C2; frw_safe(C2a);
       if (pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)){
         ret.push_back(P2a);
         P1 = P2;
@@ -556,7 +589,7 @@ g_line map2pt::line_bck(const g_line & l, int max) {
   g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
+  g_point P1 = l[0], P1a =P1; bck_safe(P1a); ret.push_back(P1a);
   g_point P2, P2a;
 
   for (int i=1; i<l.size(); i++){
@@ -564,10 +597,10 @@ g_line map2pt::line_bck(const g_line & l, int max) {
     P2 = l[i];
     int m=max;
     do {
-      P1a = P1; bck(P1a);
-      P2a = P2; bck(P2a);
+      P1a = P1; bck_safe(P1a);
+      P2a = P2; bck_safe(P2a);
       g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C1a = C1; bck(C1a);
+      g_point C1a = C1; bck_safe(C1a);
 
       if (pdist(C1a, (P1a+P2a)/2.) < 0.5){
         ret.push_back(P2a);

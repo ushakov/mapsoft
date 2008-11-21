@@ -56,6 +56,8 @@ struct pt2pt{
 
   void frw(g_point & p);
   void bck(g_point & p);
+  void frw_safe(g_point & p);
+  void bck_safe(g_point & p);
   // преобразования линий
   // точность acc - в координатах исходной проекции
   g_line line_frw(const g_line & l, double acc, int max=100);
@@ -78,6 +80,8 @@ struct map2pt{
 
   void frw(g_point & p);
   void bck(g_point & p);
+  void frw_safe(g_point & p);
+  void bck_safe(g_point & p);
   g_line line_frw(const g_line & l, int max=100);
   g_line line_bck(const g_line & l, int max=100);
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
