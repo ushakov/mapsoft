@@ -1,8 +1,7 @@
-all: mmb.png hr.png mmb.conv.png hr.conv.png 
+all: mmb.png hr.png mmb.conv.png hr.conv.png  mmb_fig hr_fig
 # mmb_lib hr_lib
 
 GET_L="../znaki2/get_legend"
-GET_FL="../znaki2/get_figlib"
 GET_P="../znaki2/get_print"
 F2P="../znaki2/fig2pnm"
 
@@ -28,3 +27,12 @@ hr_lib: hr.cnf
 	if [ ! -d lib_hr ]; then mkdir fig_hr; fi
 	$(GET_FL) hr.cnf fig_hr
 
+mmb_fig: mmb.cnf
+	mkdir -p "$@"
+	rm "$@/*" ||:
+	../libzn-utils/zn_mkfiglib $< $@
+
+hr_fig: hr.cnf
+	mkdir -p "$@"
+	rm "$@/*" ||:
+	../libzn-utils/zn_mkfiglib $< $@
