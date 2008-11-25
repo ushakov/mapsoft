@@ -21,10 +21,8 @@ main(int argc, char** argv){
 
   zn::zn_conv z(conf_file);
   for (map<int, zn::zn>::const_iterator i = z.znaki.begin(); i!=z.znaki.end(); i++){
-    fig::fig_object o=make_sample(i);
     fig::fig_world F;
-    list<fig::fig_object> l=z.make_pic(o, i->first);
-    F.push_back(o);
+    list<fig::fig_object> l=z.make_pic(make_sample(i), i->first);
     F.insert(F.end(), l.begin(), l.end());
     ostringstream name;
     name << out_dir << "/0x" << setw(6) << setfill('0') << setbase(16) << i->first << setbase(10) << ".fig";
