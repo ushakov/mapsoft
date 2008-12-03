@@ -481,10 +481,6 @@ main(int argc, char **argv){
     if (type == 0x20003B){ 
       i->area_fill = 20; NW.push_back(*i); continue;
     }
-    // город
-    if (type == 0x200001){ 
-      i->area_fill = 20; NW.push_back(*i); continue;
-    }
     // кладбище
     if (type == 0x20001A){ 
       i->area_fill=10;
