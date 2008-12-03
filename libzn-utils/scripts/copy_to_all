@@ -1,11 +1,10 @@
 #!/bin/bash
 
-VMAP="/home/sla/MS3/libzn-utils/mapsoft_vmap"
+. ../settings.sh
 
 MAPS="$@"
 
 ALL_NAME="all.fig"
-CONF="./conf"
 
 if [ -z "$MAPS" -o -z "$CONF" -o -z "$ALL_NAME" ]; then 
   echo "usage: $0 <MAPS.fig>"
@@ -14,11 +13,11 @@ fi
 
 cp "$1" "$ALL_NAME"
 
-$VMAP remove_grids  "$CONF" "$ALL_NAME"
-$VMAP remove_labels "$CONF" "$ALL_NAME"
-$VMAP remove        "$CONF" "$ALL_NAME" all
+mapsoft_vmap remove_grids  "$CONF" "$ALL_NAME"
+mapsoft_vmap remove_labels "$CONF" "$ALL_NAME"
+mapsoft_vmap remove        "$CONF" "$ALL_NAME" all
 for i in $@; do
   echo $i
-  $VMAP copy        "$CONF" "$i" "$ALL_NAME" all
-  $VMAP copy_labels "$CONF" "$i" "$ALL_NAME" all
+  mapsoft_vmap copy        "$CONF" "$i" "$ALL_NAME" all
+  mapsoft_vmap copy_labels "$CONF" "$i" "$ALL_NAME" all
 done

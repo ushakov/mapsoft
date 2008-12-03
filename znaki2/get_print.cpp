@@ -230,7 +230,7 @@ main(int argc, char **argv){
         (type == 0x10000B)||
         (type == 0x100004)){
       i->pen_color=0; 
-      if (type != 0x100004) i->thickness--; 
+      if (type == 0x100001) i->thickness--; 
       NW.push_back(*i); 
       fig_object o = *i;
       o.pen_color = o.fill_color; o.depth--; o.thickness-=2; NW.push_back(o);

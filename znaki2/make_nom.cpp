@@ -35,10 +35,10 @@ main(int argc, char** argv){
   bool dofig;
 
   if (argc == 2) dofig = true;
-  else if (argc == 3) dofig = false; 
+  else if (argc == 3) dofig = false;
   else usage();
   string map_name  = argv[1];
-  int dpi; 
+  int dpi;
 
 
 // определим диапазон карты в координатах lonlat
@@ -74,7 +74,7 @@ main(int argc, char** argv){
   convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), O, Datum("wgs84"), Proj("lonlat"), Options());
 
 //  g_line border_fig = cnv.line_frw(border_ll) * fig::cm2fig*scale*100;
-  
+
   g_point p1(r.TLC()), p2(r.TRC()), p3(r.BRC()), p4(r.BLC());
 
   cnv.bck(p1); cnv.bck(p2); cnv.bck(p3); cnv.bck(p4);
@@ -90,7 +90,7 @@ main(int argc, char** argv){
   double m2pt  = cm2pt*scale*100;
 
 
-  p1*=m2pt; 
+  p1*=m2pt;
   p2*=m2pt;
   p3*=m2pt;
   p4*=m2pt;
@@ -126,20 +126,20 @@ main(int argc, char** argv){
     O["datum"] = "pulkovo";
     fig::fig_world F;
     set_ref(F, ref, O);
-    
+
     fig::fig_object brd_o = fig::make_object("2 3 0 1 0 7 31 -1 -1 0.000 0 0 -1 0 0 5");
-  
+
     brd_o.push_back(Point<int>(0,0));
     brd_o.push_back(Point<int>(f_max.x-f_min.x,0));
     brd_o.push_back(Point<int>(f_max.x-f_min.x,f_max.y-f_min.y));
     brd_o.push_back(Point<int>(0, f_max.y-f_min.y));
     brd_o.push_back(Point<int>(0,0));
-  
+
     F.push_back(brd_o);
 
     fig::fig_object brd_w = fig::make_object("2 3 0 0 0 7 32 -1 20 0.000 0 0 -1 0 0 *");
     brd_w.insert(brd_w.end(), brd_o.begin(), brd_o.end());
-  
+
     brd_o.clear();
     brd_o.comment.push_back("BRD "+map_name);
     brd_o.insert(brd_o.end(), ref.border.begin(), ref.border.end());
@@ -148,14 +148,14 @@ main(int argc, char** argv){
 
     brd_w.insert(brd_w.end(), brd_o.begin(), brd_o.end());
     F.push_back(brd_w);
-  
+
     fig::fig_object o = fig::make_object("2 1 0 1 0 7 36 -1 -1 0.000 0 0 -1 0 0 5");
     fig::fig_object t = fig::make_object("4 1 0 31 -1 18 10 0.0000 4");
     o.comment.push_back("[grid]");
     t.comment.push_back("[grid labels]");
     int step = 2;
-  
-    for (int i = int(ceil(f_min.x*fig::fig2cm/step)); 
+
+    for (int i = int(ceil(f_min.x*fig::fig2cm/step));
              i < int(floor(f_max.x*fig::fig2cm/step)); i++){
       int x = i*cm2pt*step - f_min.x;
       o.clear();
@@ -174,8 +174,8 @@ main(int argc, char** argv){
         F.push_back(t);
       }
     }
-   
-    for (int i = int(ceil(f_min.y*fig::fig2cm/step)); 
+
+    for (int i = int(ceil(f_min.y*fig::fig2cm/step));
              i < int(floor(f_max.y*fig::fig2cm/step)); i++){
       int y = f_max.y - i*cm2pt*step;
       o.clear();
@@ -194,14 +194,14 @@ main(int argc, char** argv){
         F.push_back(t);
       }
     }
-  
-    ostringstream s; 
+
+    ostringstream s;
     for (int i = 0; i<4; i++){
-      
+
       Point<double> p(ref[i]);
       Point<int> pr(ref[i].xr, ref[i].yr);
       c0.bck(p); // в Пулково
-  
+
       s.str(""); t.clear(); t.sub_type = 2-(((i+1)/2)%2) *2; t.font_size = 8;
       int deg = int(floor(p.y+1/120.0));
       int min = int(floor(p.y*60+1/2.0))-deg*60;
@@ -210,18 +210,18 @@ main(int argc, char** argv){
       t.text = s.str();
       t.push_back(pr-Point<int>((t.sub_type-1) * 0.1*cm2pt, -(i/2)*0.2*cm2pt));
       F.push_back(t);
-  
+
       s.str(""); t.clear(); t.sub_type = 1;
       deg = int(floor(p.x+1/120.0));
       min = int(floor(p.x*60+1/2.0))-deg*60;
-      s << deg << "*" 
+      s << deg << "*"
         << setw(2) << setfill('0') << min;
       t.text = s.str();
       t.push_back(pr+Point<int>(0, (1.7-(i/2)*2)* 0.2*cm2pt));
       F.push_back(t);
     }
-  
-  
+
+
     t.font_size=12;
     t.sub_type = 2;
     t.angle = M_PI/2;
@@ -231,7 +231,7 @@ main(int argc, char** argv){
     t.push_back(Point<int>(0.5*cm2pt, 6.0*cm2pt));
     F.push_back(t);
     t.comment.clear();
-  
+
     t.font_size=20;
     t.sub_type = 0;
     t.angle = 0;
@@ -239,18 +239,18 @@ main(int argc, char** argv){
     t.clear();
     t.push_back(Point<int>(1.8*cm2pt, 1.0*cm2pt));
     F.push_back(t);
-  
-    t.sub_type = 1; t.text="z"; t.clear(); 
+
+    t.sub_type = 1; t.text="z"; t.clear();
     t.push_back(Point<int>(0.8*cm2pt, 1.0*cm2pt));
     F.push_back(t);
-  
-  
+
+
     t.type = 1;
     t.radius_x = t.radius_y = 0.3*cm2pt;
     t.center_x = t[0].x;
     t.center_y = t[0].y - 0.2*cm2pt;
     F.push_back(t);
-  
+
     fig::write(cout, F);
   } else {
     cerr << "writing map file\n";
