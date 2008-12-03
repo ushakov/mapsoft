@@ -40,6 +40,8 @@ main(int argc, char **argv){
 
     if (test_object(*i, "4 * 12 55 * * * * 4")){
       if (i->size()<1) continue;
+      zn::zn_key k=zn::get_key(*i);
+      if ((k.id==0)||(k.map=="")) { NW.push_back(*i); continue;}
       // создаем точку
       fig_object o = make_object("2 1 0 4 12 7  55 -1 -1 0.000 0 1 -1 0 0 1");
       o.push_back((*i)[0]);
@@ -50,7 +52,7 @@ main(int argc, char **argv){
       NW.push_back(o);
       i->depth=40;
       i->pen_color=0;
-      add_key(*i,  zn::zn_label_key(zn::get_key(o)));
+      add_key(*i,  zn::zn_label_key(k));
       cnt++;
     }
     // прочие объекты - без изменений
