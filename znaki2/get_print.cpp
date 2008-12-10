@@ -234,7 +234,7 @@ main(int argc, char **argv){
       NW.push_back(*i); 
       fig_object o = *i;
       o.pen_color = o.fill_color; o.depth--; o.thickness-=2; NW.push_back(o);
-      if (o.thickness>2) {o.pen_color = 0; o.depth--; o.thickness=1;  NW.push_back(o);}
+      if (o.thickness>3) {o.pen_color = 0; o.depth--; o.thickness=1;  NW.push_back(o);}
       continue;
     }
     // непроезжий грейдер
@@ -263,6 +263,18 @@ main(int argc, char **argv){
       while (!ld.is_end()){
         fig_object o = *i;
         o.set_points(ld.get_points(70));
+        ld.move_frw(40);
+        NW.push_back(o);
+      }
+      continue;
+    }
+    // река пунктирная, пересыхающий ручей
+    if (type == 0x100026){
+      i->type=2; i->sub_type=1; i->line_style=0;
+      LineDist<int> ld(*i);
+      while (!ld.is_end()){
+        fig_object o = *i;
+        o.set_points(ld.get_points(40));
         ld.move_frw(40);
         NW.push_back(o);
       }
