@@ -19,6 +19,12 @@ subdirs = Split ("""
 
 #SetOption('implicit_cache', 1)
 env = Environment ()
+
+if os.environ.has_key('GCCVER'):
+   ver = os.environ['GCCVER']
+   env.Replace (CC = ("gcc-%s" % ver))
+   env.Replace (CXX = ("g++-%s" % ver))
+
 env.Append (CCFLAGS=['-O2','-g'])
 env.Append (CPPPATH='#')
 env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
