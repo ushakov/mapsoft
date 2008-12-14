@@ -251,7 +251,11 @@ namespace xml {
 		get("lat",   ret.y);
 		get("alt",   ret.z);
 		get("depth", ret.depth);
-		get("start", ret.start);
+		if (exists("start")) {
+		    ret.start = true;
+		} else {
+		    ret.start = false;
+		}		    
 		get("time",  ret.t);
               const std::string used[] = {"lon", "lat", "alt", "depth", "start", "time", ""};
               warn_unused(used);
