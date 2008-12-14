@@ -19,6 +19,16 @@ public:
 	image=image_r::load(file);
     }
     
+    // Optimized get_image to return empty image outside of bounds.
+    virtual Image<int> get_image (Rect<int> src){
+	if (rect_intersect(image.range(), src).empty()) {
+	    return Image<int>(0,0);
+	}
+	Image<int> ret(src.w, src.h, 0);
+	draw(src.TLC(), ret);
+	return ret;
+    }
+
     virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
 	image_i::load(image, src_rect, dst_img, dst_rect);
     }

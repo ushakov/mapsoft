@@ -28,7 +28,10 @@ public:
 		if (!tile_cache[layer]->contains(tile_key)) {
 		    tile_cache[layer]->add(tile_key, layer->get_image(src_rect));
 		}
-		image.render(0,0,tile_cache[layer]->get(tile_key));
+		Image<int>& tile = tile_cache[layer]->get(tile_key);
+		if (tile.w != 0) {
+		    image.render(0,0,tile);
+		}
 	    }
 	}
 	return image;

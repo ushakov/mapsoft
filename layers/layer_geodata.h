@@ -52,6 +52,15 @@ public:
     }
     virtual void set_ref(){set_ref(convs::mymap(*world));}
 
+    // Optimized get_image to return empty image outside of bounds.
+    virtual Image<int> get_image (Rect<int> src){
+	if (rect_intersect(myrange, src).empty()) {
+	    return Image<int>(0,0);
+	}
+	Image<int> ret(src.w, src.h, 0);
+	draw(src.TLC(), ret);
+	return ret;
+    }
 
     virtual void draw(const Point<int> origin, Image<int> & image){
       Rect<int> src_rect = image.range() + origin;

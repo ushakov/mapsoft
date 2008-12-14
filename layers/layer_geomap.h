@@ -28,7 +28,7 @@ private:
   std::vector<int>    iscales;       // во сколько раз мы сжимаем карты при загрузке
   Rect<int> myrange;               // габариты карты
   Cache<int, Image<int> > image_cache;    // кэш изображений
-  Options O; // для всех карт должны быть одинаковы!
+//  Options O; // для всех карт должны быть одинаковы!
   g_map mymap;
   bool drawborder;
  
@@ -80,6 +80,16 @@ public:
 #endif
     }
     
+    // Optimized get_image to return empty image outside of bounds.
+    virtual Image<int> get_image (Rect<int> src){
+	if (rect_intersect(myrange, src).empty()) {
+	    return Image<int>(0,0);
+	}
+	Image<int> ret(src.w, src.h, 0);
+	draw(src.TLC(), ret);
+	return ret;
+    }
+
     virtual void draw(const Point<int> origin, Image<int> & image){
       Rect<int> src_rect = image.range() + origin;
 

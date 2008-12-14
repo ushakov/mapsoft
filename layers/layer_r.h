@@ -43,6 +43,16 @@ public:
         file_rect = Rect<int>(Point<int>(0,0), image_r::size(_file)); 
     }
     
+    // Optimized get_image to return empty image outside of bounds.
+    virtual Image<int> get_image (Rect<int> src){
+	if (rect_intersect(file_rect, src).empty()) {
+	    return Image<int>(0,0);
+	}
+	Image<int> ret(src.w, src.h, 0);
+	draw(src.TLC(), ret);
+	return ret;
+    }
+
     virtual void draw (Rect<int> src_rect, Image<int> & img, Rect<int> dst_rect){
         // Подрежем прямоугольники:
         clip_rects_for_image_loader(file_rect, src_rect, img.range(), dst_rect);
