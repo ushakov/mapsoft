@@ -7,8 +7,10 @@
 #include "m_color.h"
 
 std::ostream & operator<< (std::ostream & s, const Color & t){
-  s << "#" << std::setbase(16) << std::setw(8) 
-    << std::setfill('0') << t.value << std::setbase(10);
+  s << "#" << std::setbase(16)
+    << std::setw(2) << std::setfill('0') << (255 - ((t.value & 0xff000000) >> 24))
+    << std::setw(6) << std::setfill('0') << (t.value & 0xffffff)
+    << std::setbase(10);
   return s;
 }
 
@@ -16,6 +18,9 @@ Color::Color(const std::string & str){
   using namespace boost::spirit;
   if (!parse(str.c_str(), ch_p('#') >> hex_p[assign_a(value)]).full)
     std::cerr << "Color: can't find hexadecimal value in " << str << "\n";
+  int alpha = (value & 0xff000000) >> 24;
+  value = value & 0xffffff;
+  value |= (255 - alpha) << 24;
 }
 
 std::istream & operator>> (std::istream & s, Color & t){
