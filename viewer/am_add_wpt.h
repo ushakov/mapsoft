@@ -29,13 +29,17 @@ public:
     virtual void handle_click(Point<int> p) {
 	std::cout << "ADDWPT: " << p << std::endl;
 
+	LayerGeoData * layer;
+	current_layer = NULL;
 	for (int i=0; i<state->data_layers.size(); i++){
-          current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
-          if (!state->workplane->get_layer_active(current_layer)) continue;
-	  break;
+          layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+          if (state->workplane->get_layer_active(layer)) {
+	      current_layer = layer;
+	      break;
+	  }
         }
-        if (current_layer==0) return; // надо бы добавлять новый, но для этого нужен доступ
-                                      // к layer_list и т.п.
+        if (current_layer == 0) return; // надо бы добавлять новый, но для этого нужен доступ
+	                                // к layer_list и т.п.
 
         g_map map = current_layer->get_ref();
 
