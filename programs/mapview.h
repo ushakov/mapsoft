@@ -11,6 +11,7 @@
 #include <layers/layer_geomap.h>
 #include <layers/layer_geodata.h>
 #include <viewer/layerlist.h>
+#include <viewer/generic_dialog.h>
 
 #include <viewer/action_manager.h>
 #include <utils/log.h>
@@ -130,11 +131,14 @@ public:
 
 	// connect events from layer list
 	layer_list.store->signal_row_changed().connect (sigc::mem_fun (this, &Mapview::layer_edited));
+	layer_list.signal_row_activated().connect (sigc::mem_fun (this, &Mapview::configure_layer));
 
 	// connect events from viewer
 	viewer->signal_motion_notify_event().connect (sigc::mem_fun (this, &Mapview::pointer_moved));
 	viewer->signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::mouse_button_pressed));
 	viewer->signal_button_release_event().connect (sigc::mem_fun (this, &Mapview::mouse_button_released));
+
+	gend = GenericDialog::get_instance();
 
 	show_all();
     }
@@ -163,6 +167,36 @@ public:
 	}
     }
 
+    void configure_layer (const Gtk::TreeModel::Path& path,
+			  Gtk::TreeViewColumn* column) {
+	Gtk::TreeModel::iterator iter = layer_list.store->get_iter(path);
+	Gtk::TreeModel::Row row = *iter;
+	bool need_refresh = false;
+
+	Layer * layer = row[layer_list.columns.layer];
+	std::cout << "LAYER_CONFIG REQ: " << row[layer_list.columns.text] << " (" << layer << ")\n";
+	if (!layer) return;
+	Options opt = layer->get_config();
+	if (opt.size() == 0) return;
+	layer_to_configure = layer;
+
+	current_connection = gend->signal_result().connect(sigc::mem_fun(this, &Mapview::layer_config_result));
+	Glib::ustring name = row[layer_list.columns.text];
+	gend->activate(name, opt);
+    }
+
+    void layer_config_result (int r) {
+	if (r == 0) { // OK
+	    assert(layer_to_configure);
+	    layer_to_configure->set_config(gend->get_options());
+	    std::cout << "LAYER_CONFIG: " << layer_to_configure << "\n";
+	    state.workplane->refresh_layer(layer_to_configure);
+	} else {
+	    // do nothing
+	}
+	layer_to_configure = NULL;
+        current_connection.disconnect();
+    }
 
 //     void clear_data(Viewer * v) {
 // 	g_print ("Clear all data");
@@ -365,6 +399,10 @@ private:
     Gtk::RadioAction::Group mode_group;
 
     struct timeval click_started;
+
+    GenericDialog * gend;
+    sigc::connection current_connection;
+    Layer * layer_to_configure;
 };
 
 
