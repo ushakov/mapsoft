@@ -70,6 +70,7 @@ public:
 #ifdef DEBUG_LAYER_GEODATA
       std::cerr  << "LayerGeoData: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
+      if (rect_intersect(myrange, rect_pump(src_rect,110)).empty()) return;
       boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&image));
 
       for (std::vector<g_track>::const_iterator it = world->trks.begin();
