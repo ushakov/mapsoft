@@ -16,6 +16,7 @@
 
 #include "../lib2d/point_utils.h"
 
+#define DEBUG_LAYER_GEODATA
 
 /// Растровый слой для показа точек и треков
 
@@ -31,14 +32,16 @@ public:
     LayerGeoData (geo_data * _world) : 
       world(_world), mymap(convs::mymap(*world)), 
       cnv(convs::mymap(*world), Datum("wgs84"), Proj("lonlat")),
-      myrange(cnv.bb_bck(world->range_geodata()))
+      myrange(rect_pump(cnv.bb_bck(world->range_geodata()), 110))
     { 
 #ifdef DEBUG_LAYER_GEODATA
       std::cerr  << "LayerGeoData: set_ref range: " << myrange << "\n";
 #endif
     }
 
-    void refresh(){myrange=cnv.bb_bck(world->range_geodata());}
+    void refresh(){
+	myrange = rect_pump(cnv.bb_bck(world->range_geodata()), 110);
+    }
 
     // получить/установить привязку layer'a
     virtual g_map get_ref() const {return mymap;}
@@ -67,7 +70,6 @@ public:
 #ifdef DEBUG_LAYER_GEODATA
       std::cerr  << "LayerGeoData: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
-      if (rect_intersect(myrange, rect_pump(src_rect,110)).empty()) return;
       boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&image));
 
       for (std::vector<g_track>::const_iterator it = world->trks.begin();
