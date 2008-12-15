@@ -276,6 +276,7 @@ int remove_keys(int argc, char** argv){
     }
 
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
+      if (i->type==6) copy_comment(i, F.end());
       if (zconverter.is_map_depth(*i) && 
           testfilter(filter, arg, zn::get_key(*i)))
              {zn::clear_key(*i); obj_cnt++;}
@@ -459,6 +460,7 @@ int keys(int argc, char** argv){
     // remove duplicated keys (for all maps)
     int maxid=0;
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
+      if (i->type==6) copy_comment(i, F.end());
       if (!zconverter.is_map_depth(*i)) continue;
       zn::zn_key key = zn::get_key(*i);
       if ((key.map == "") || (key.id == 0)) continue;
