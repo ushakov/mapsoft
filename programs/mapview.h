@@ -209,6 +209,7 @@ public:
 	    layer_to_configure->set_config(gend->get_options());
 	    std::cout << "LAYER_CONFIG: " << layer_to_configure << "\n";
 	    state.workplane->refresh_layer(layer_to_configure);
+	    refresh();
 	} else {
 	    // do nothing
 	}

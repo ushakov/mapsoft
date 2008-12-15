@@ -26,7 +26,10 @@ private:
     convs::map2pt cnv; 
     g_map mymap;
     Rect<int> myrange;
-    int track_width;
+    int track_width_override;
+    Color track_color_override;
+    Color wpt_color_override;
+    Color wpt_bgcolor_override;
     int dot_width;
 
 public:
@@ -39,7 +42,10 @@ public:
 #ifdef DEBUG_LAYER_GEODATA
       std::cerr  << "LayerGeoData: set_ref range: " << myrange << "\n";
 #endif
-      track_width = 0;
+      track_width_override = 0;
+      track_color_override.value = 0;
+      wpt_color_override.value = 0;
+      wpt_bgcolor_override.value = 0;
       dot_width = 8;
     }
 
@@ -61,15 +67,22 @@ public:
 
     virtual Options get_config() {
 	Options opt;
-	opt.put("Track line width", track_width);
+	opt.put("Track line width override", track_width_override);
+	opt.put("Track color override", track_color_override);
+	opt.put("Waypoint color override", wpt_color_override);
+	opt.put("Waypoint background color override", wpt_bgcolor_override);
 	opt.put("Waypoint dot size", dot_width);
 	return opt;
     }
 
     /// Gets layer configuration from Options
     /// Default implementation does nothing
-    virtual void set_config(Options opt) {
-	opt.get("Track line width", track_width);
+    virtual void set_config(const Options& opt) {
+	std::cout << "LayerGeoData: set_config" << opt << "\n";
+	opt.get("Track line width override", track_width_override);
+	opt.get("Track color override", track_color_override);
+	opt.get("Waypoint color override", wpt_color_override);
+	opt.get("Waypoint background color override", wpt_bgcolor_override);
 	opt.get("Waypoint dot size", dot_width);
     }
 
@@ -96,9 +109,15 @@ public:
                                          it!= world->trks.end(); it++){
 	bool start=true;
 	Point<int> pi, pio;
+
 	int w = it->width;
-	if (track_width != 0) {
-	    w = track_width;
+	if (track_width_override != 0) {
+	    w = track_width_override;
+	}
+
+	Color color = it->color;
+	if ((track_color_override.value & 0xff000000) != 0) {
+	    color = track_color_override;
 	}
         for (std::vector<g_trackpoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
@@ -110,14 +129,14 @@ public:
 	  line_bb = rect_pump(line_bb, 2*w);
 	  if (!rect_intersect(line_bb, image.range()).empty()) {
 	      if (!start){
-	        if (!pt->start) ctx->DrawLine(pio, pi, w, it->color.value);
-	        ctx->DrawCircle(pio, w, 2, it->color.value, false);
+	        if (!pt->start) ctx->DrawLine(pio, pi, w, color.value);
+	        ctx->DrawCircle(pio, w, 2, color.value, false);
 	      }
 	      else start=false;
 	  }
 	  pio=pi;
         }
-        ctx->DrawCircle(pio, w, 2, it->color.value, false);
+        ctx->DrawCircle(pio, w, 2, color.value, false);
       }
 
       Rect<int> rect_pumped = rect_pump(image.range(), 6);
@@ -129,21 +148,28 @@ public:
                                             pt!= it->end(); pt++){
           g_point p(pt->x,pt->y); cnv.bck(p);
 	  pi = Point<int>(p)-origin;
+
+	  Color color = pt->color;
+	  if ((wpt_color_override.value & 0xff000000) != 0) {
+	      color = wpt_color_override;
+	  }
+	  Color bgcolor = pt->bgcolor;
+	  if ((wpt_bgcolor_override.value & 0xff000000) != 0) {
+	      bgcolor = wpt_bgcolor_override;
+	  }
 	
           if (point_in_rect(pi, rect_pumped)){
-//	      ctx->DrawFilledRect(Rect<int>(-3,-3,6,6) + pi, pt->bgcolor.value);
-//	      ctx->DrawRect(Rect<int>(-3,-3,6,6) + pi, 1, pt->color.value);
-	      ctx->DrawCircle(pi, dot_width, 1, pt->color.value, true, pt->bgcolor.value);
+	      ctx->DrawCircle(pi, dot_width, 1, color.value, true, bgcolor.value);
 	  }
 	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name.c_str());
 	  Rect<int> padded = rect_pump(textbb, 2);
 	  Point<int> shift = Point<int>(2,-10);
 	  Point<int> shifted = pi + shift;
 	  if (point_in_rect(pi, rect_pump (image.range(), padded+shift))) {
-	      ctx->DrawLine(pi, (padded + shifted).TLC(), 1, pt->color.value);
-	      ctx->DrawFilledRect(padded + shifted, pt->bgcolor.value);
-	      ctx->DrawRect(padded + shifted, 1, pt->color.value);
-	      ctx->DrawText(shifted.x, shifted.y, pt->color.value, pt->name.c_str());
+	      ctx->DrawLine(pi, (padded + shifted).TLC(), 1, color.value);
+	      ctx->DrawFilledRect(padded + shifted, bgcolor.value);
+	      ctx->DrawRect(padded + shifted, 1, color.value);
+	      ctx->DrawText(shifted.x, shifted.y, color.value, pt->name.c_str());
 	  }
           pio=pi;
         }

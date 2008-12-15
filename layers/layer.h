@@ -34,7 +34,7 @@ public:
 
     /// Gets layer configuration from Options
     /// Default implementation does nothing
-    virtual void set_config(Options opt) {  }
+    virtual void set_config(const Options& opt) {  }
 
     virtual Layer & operator/= (double k) = 0;
     virtual Layer & operator*= (double k) = 0;
