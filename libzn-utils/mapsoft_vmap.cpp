@@ -318,6 +318,13 @@ int remove_keys(int argc, char** argv){
 // - если у объекта поменялось название - поменять подпись
 // - если исчез объект, к которому привязана подпись - удалить подпись
 
+// 15/12/2008 -- убираем sid@source
+// - рассматриваем все подписи
+// - если к объекту есть подписи - оставить их
+// - если нет - создать
+// - если у объекта поменялось название - поменять подпись
+// - если исчез объект, к которому привязана подпись - удалить подпись
+
 int labels(int argc, char** argv){
   if (argc != 2){
     cerr << "Update labels in fig.\n"
@@ -376,11 +383,20 @@ int labels(int argc, char** argv){
 
     zn::zn_key key = zn::get_key(*i);
     // подписи должны привязываться к sid@source, если sid!=0
-    if (key.sid!=0){ key.id=key.sid; key.map=key.source;}
+    if (key.sid!=0){ 
+      key.id=key.sid; key.map=key.source;
+      std::cerr << "Warning: key.sid!=0\n";
+    }
     if (key.id ==0) continue;
 
     if (done[key.map].count(key.id)!=0){
-      cerr << "ERR: duplicated key " << key.id << "@" << key.map << ".\n"; return 1;
+      // Если найден второй объект с таким же ключом
+      // (такие объекты получаются при копировании и разрезании объектов)
+      // TODO: создать новый ключ для второго объекта
+      // удалить все подписи привязанные к старому ключу
+      // (т.к. непонятно, к чему они были привязаны)
+      cerr << "ERR: duplicated key " << key.id << "@" << key.map << ".\n"; 
+      return 1;
     }
     done[key.map].insert(key.id);
 
@@ -407,7 +423,7 @@ int labels(int argc, char** argv){
 
       if (text !="") NEW.push_back(l->second);
     }
-    
+
   }
   F.insert(F.end(), NEW.begin(), NEW.end());
 
@@ -426,23 +442,27 @@ int labels(int argc, char** argv){
 // - для объектов с чужим ключом - создается новый ключ, старая карта и номер сдвигается в source, старое время сохраняется
 //   при этом, если у объекта уже был sourceid@source -- оставляем именно его
 // - для объектов без ключа - создается новый ключ, source устанавливается из параметра source
+
+// 12/15/2008:
+// - для объектов со своим ключом - если надо, меняется тип объекта в зависимости от внешнего вида (только в fig)
+// - для объектов без ключа - создается новый ключ, source устанавливается из параметра source
+
 int keys(int argc, char** argv){
 
   if (argc != 4){
     cerr << "Update keys.\n"
-         << "  usage: mapsoft_vmap keys <conf> <map name> <source> <fig|mp>\n";
+         << "  usage: mapsoft_vmap keys <conf> <map name> <editor> <fig|mp>\n";
     return 1;
   }
 
   string cfile    = argv[0];
   string map_name = argv[1];
-  string source   = argv[2];
+  string editor   = argv[2];
   string file     = argv[3];
 
-  cerr << "updating keys in " << file <<": ";  
+  cerr << "updating keys in " << file <<": ";
 
   int obj_n_cnt=0;
-  int obj_i_cnt=0;
   int obj_o_cnt=0;
 
   zn::zn_conv zconverter(cfile);
@@ -474,46 +494,28 @@ int keys(int argc, char** argv){
 
       if ((key.map == map_name) && (key.id > maxid)) maxid=key.id;
     }
- 
+
     // second pass
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
+
+      if (i->type==6) copy_comment(i, F.end());
       if (!zconverter.is_map_depth(*i)) continue;
       zn::zn_key key = zn::get_key(*i);
-      key.type   = zconverter.get_type(*i); // тип объекта - по внешнему виду
+
+      key.type = zconverter.get_type(*i); // тип объекта - по внешнему виду
       if (key.type==0) continue;
 
-      // our key
-      if ((key.map == map_name) && (key.id !=0)){
+      if (key.id !=0){ // old key
         obj_o_cnt++;
-        zn::add_key(*i, key);  // add key
-        continue;
       }
-
-      // foreign key
-      if ((key.map != map_name) && (key.id !=0)){
-        maxid++; obj_i_cnt++;
-
-        // if key wihout sid@source -- shift (id,map) -> (sid,source)
-        // else keep old sid@source
-        if (key.sid==0){
-          maxid++; obj_i_cnt++;
-          key.sid    = key.id;
-          key.source = key.map;
-        }
-
+      else {  // new key
+        maxid++; obj_n_cnt++;
+        key.time.set_current();
         key.id     = maxid;
         key.map    = map_name;
-        zn::add_key(*i, key);  // add key
-        continue;
+        key.source = editor;
+        key.sid    = 0;
       }
-
-      // new key
-      maxid++; obj_n_cnt++;
-      key.time.set_current();
-      key.id     = maxid;
-      key.map    = map_name;
-      key.source = source;
-      key.sid    = 0;
       zn::add_key(*i, key);  // add key
     }
 
@@ -543,34 +545,23 @@ int keys(int argc, char** argv){
       if ((key.map == map_name) && (key.id > maxid)) maxid=key.id;
     }
 
- 
     // второй проход
     for (mp::mp_world::iterator i=M.begin(); i!=M.end(); i++){
       zn::zn_key key = zn::get_key(*i);
-      key.type   = zconverter.get_type(*i); // тип объекта - по типу mp
+      key.type = zconverter.get_type(*i); // тип объекта - по типу mp
 
-      if ((key.map == map_name) && (key.id !=0)){ // свой ключ
+      if (key.id !=0){ // old key
         obj_o_cnt++;
-        zn::add_key(*i, key);  // добавим ключ
-        continue;
       }
-      if ((key.map != map_name) && (key.id !=0)){ // чужой ключ
-        maxid++; obj_i_cnt++;
-        key.sid    = key.id; // (id,map) -> (sid,source)
-        key.source = key.map;
+      else { // new key
+        maxid++; obj_n_cnt++;
+        key.time.set_current();
         key.id     = maxid;
         key.map    = map_name;
-        zn::add_key(*i, key);  // добавим ключ
-        continue;
+        key.source = editor;
+        key.sid    = 0;
       }
-      // новый ключ
-      maxid++; obj_n_cnt++;
-      key.time.set_current();
-      key.id     = maxid;
-      key.map    = map_name;
-      key.source = source;
-      key.sid    = 0;
-      zn::add_key(*i, key);  // добавим ключ
+      zn::add_key(*i, key);  // add key
     }
 
     ofstream out(file.c_str());
@@ -579,8 +570,7 @@ int keys(int argc, char** argv){
   else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
 
   cerr << obj_n_cnt << " new, " 
-            << obj_i_cnt << " imports, " 
-            << obj_o_cnt << " old\n";
+       << obj_o_cnt << " old\n";
   return 0;
 }
 

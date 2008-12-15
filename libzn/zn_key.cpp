@@ -16,7 +16,10 @@ std::ostream & operator<< (std::ostream & s, const zn_key & t){
     << t.time << " "
     << t.id << "@" << t.map << " ";
   if (t.source != ""){
-    if (t.sid!=0) s << t.sid << "@";
+    if (t.sid!=0){
+      std::cerr << "Warning: sid!=0\n";
+      s << t.sid << "@";
+    }
     s << t.source;
   }
   return s;
@@ -50,7 +53,15 @@ std::istream & operator>> (std::istream & s, zn_key & t){
     std::cerr << "zn_key: can't find valid key in " << str << "\n";
     newkey = zn_key();
   }
+
+  // backward compat. Now we don't use sid@source at all
+  if (newkey.sid!=0){
+    newkey.id=newkey.sid; newkey.sid=0;
+    newkey.map=newkey.source; newkey.source="unknown";
+  }
+
   t = newkey;
+
   return s;
 }
 
