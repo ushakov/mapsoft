@@ -26,6 +26,8 @@ private:
     convs::map2pt cnv; 
     g_map mymap;
     Rect<int> myrange;
+    int track_width;
+    int dot_width;
 
 public:
 
@@ -37,6 +39,8 @@ public:
 #ifdef DEBUG_LAYER_GEODATA
       std::cerr  << "LayerGeoData: set_ref range: " << myrange << "\n";
 #endif
+      track_width = 0;
+      dot_width = 8;
     }
 
     void refresh(){
@@ -55,6 +59,21 @@ public:
     }
     virtual void set_ref(){set_ref(convs::mymap(*world));}
 
+    virtual Options get_config() {
+	Options opt;
+	opt.put("Track line width", track_width);
+	opt.put("Waypoint dot size", dot_width);
+	return opt;
+    }
+
+    /// Gets layer configuration from Options
+    /// Default implementation does nothing
+    virtual void set_config(Options opt) {
+	opt.get("Track line width", track_width);
+	opt.get("Waypoint dot size", dot_width);
+    }
+
+    
     // Optimized get_image to return empty image outside of bounds.
     virtual Image<int> get_image (Rect<int> src){
 	if (rect_intersect(myrange, src).empty()) {
@@ -78,6 +97,9 @@ public:
 	bool start=true;
 	Point<int> pi, pio;
 	int w = it->width;
+	if (track_width != 0) {
+	    w = track_width;
+	}
         for (std::vector<g_trackpoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
           g_point p(pt->x,pt->y); cnv.bck(p);
@@ -111,7 +133,7 @@ public:
           if (point_in_rect(pi, rect_pumped)){
 //	      ctx->DrawFilledRect(Rect<int>(-3,-3,6,6) + pi, pt->bgcolor.value);
 //	      ctx->DrawRect(Rect<int>(-3,-3,6,6) + pi, 1, pt->color.value);
-	      ctx->DrawCircle(pi, 8, 1, pt->color.value, true, pt->bgcolor.value);
+	      ctx->DrawCircle(pi, dot_width, 1, pt->color.value, true, pt->bgcolor.value);
 	  }
 	  Rect<int> textbb = ImageDrawContext::GetTextMetrics(pt->name.c_str());
 	  Rect<int> padded = rect_pump(textbb, 2);

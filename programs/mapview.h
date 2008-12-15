@@ -130,8 +130,9 @@ public:
 	signal_key_press_event().connect (sigc::mem_fun (this, &Mapview::on_keypress));
 
 	// connect events from layer list
+// 	layer_list.add_events (Gdk::BUTTON_PRESS_MASK);
 	layer_list.store->signal_row_changed().connect (sigc::mem_fun (this, &Mapview::layer_edited));
-	layer_list.signal_row_activated().connect (sigc::mem_fun (this, &Mapview::configure_layer));
+	layer_list.signal_button_press_event().connect_notify (sigc::mem_fun (this, &Mapview::configure_layer));
 
 	// connect events from viewer
 	viewer->signal_motion_notify_event().connect (sigc::mem_fun (this, &Mapview::pointer_moved));
@@ -167,14 +168,31 @@ public:
 	}
     }
 
-    void configure_layer (const Gtk::TreeModel::Path& path,
-			  Gtk::TreeViewColumn* column) {
+    void configure_layer (GdkEventButton* event) {
+	LOG() << "Event: button=" << event->button;
+	if (event->button != 3 || event->type != GDK_BUTTON_PRESS) {
+	    return;
+	}
+
+	if (event->window != layer_list.get_bin_window()->gobj()) {
+	    return;
+	}
+
+	Gtk::TreeModel::Path path;
+	Gtk::TreeViewColumn *col = NULL;
+	int cx, cy;
+	if (!layer_list.get_path_at_pos(event->x, event->y,
+				       path, col, cx, cy)) {
+	    return;
+	}
+	LOG() << "Path=" << path.to_string();
+
 	Gtk::TreeModel::iterator iter = layer_list.store->get_iter(path);
 	Gtk::TreeModel::Row row = *iter;
 	bool need_refresh = false;
 
 	Layer * layer = row[layer_list.columns.layer];
-	std::cout << "LAYER_CONFIG REQ: " << row[layer_list.columns.text] << " (" << layer << ")\n";
+	LOG() << "LAYER_CONFIG REQ: " << row[layer_list.columns.text] << " (" << layer << ")\n";
 	if (!layer) return;
 	Options opt = layer->get_config();
 	if (opt.size() == 0) return;
