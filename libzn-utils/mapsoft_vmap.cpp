@@ -817,7 +817,7 @@ int show_maps(int argc, char** argv){
       if (!zconverter.is_map_depth(*i)) continue;
       zn::zn_key key = zn::get_key(*i);
       if (key.map == "") continue;
-      if (cnt.count(key.map)==0) cnt[key.map]=0;
+      if (cnt.count(key.map)==0) cnt[key.map]=1;
       else cnt[key.map]++;
     }
   }
