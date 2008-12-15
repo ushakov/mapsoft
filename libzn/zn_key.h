@@ -12,13 +12,14 @@
 
 namespace zn{
 
+typedef unsigned long long  id_type;
 // ключ объекта
 struct zn_key{
   int  type;           // тип в mp-файле + line_mask или area_mask
 
   Time time;          // время последнего изменения
-  
-  int id;             // уникальный номер на карте
+
+  id_type id;         // уникальный номер на карте
   std::string map;    // идентификатор карты
   int sid;            // уникальный номер в источнике
   std::string source; // идентификатор источника
@@ -44,7 +45,10 @@ std::ostream & operator<< (std::ostream & s, const zn_label_key & t);
 std::istream & operator>> (std::istream & s, zn_label_key & t);
 
 
-  // Простые операции с ключом 
+  // Простые операции с ключом
+
+// make new key with unique id
+zn_key make_key(const std::string & map, const std::string & editor);
 
 // Извлечь ключ из комментария (2-я строчка) к fig-объекту
 zn_key get_key(const fig::fig_object & fig);
