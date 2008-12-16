@@ -2,7 +2,8 @@
 #define LAYER_H
 
 #include <boost/operators.hpp>
-#include "../lib2d/image.h"
+#include <lib2d/image.h>
+#include <utils/options.h>
 
 /// Растровый слой -- абстрактный класс.
 /// Знает, как отдать некоторую растровую картинку в прямоугольных
@@ -14,7 +15,6 @@ class Layer:
   public boost::additive<Layer, Point<double> >
  {
 public:
-//    virtual void draw (Rect<int> src, Image<int> & dst_img, Rect<int> dst) = 0;
     virtual void draw(const Point<int> origin, Image<int> & image) = 0;
 
     virtual Image<int> get_image (Rect<int> src){
@@ -25,6 +25,16 @@ public:
 
     virtual Rect<int> range () = 0;
     virtual void refresh() = 0;
+
+    /// Gets current layer configuration as Options
+    /// Default implementation returns empty Options
+    virtual Options get_config() {
+	return Options();
+    }
+
+    /// Gets layer configuration from Options
+    /// Default implementation does nothing
+    virtual void set_config(const Options& opt) {  }
 
     virtual Layer & operator/= (double k) = 0;
     virtual Layer & operator*= (double k) = 0;

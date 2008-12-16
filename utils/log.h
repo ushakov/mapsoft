@@ -14,8 +14,8 @@ public:
 	: output(output_), exit_after(exit_after_)
     { }
 
-    Formatter (Formatter const & other)
-	: exit_after (other.exit_after)
+    Formatter (const Formatter & other)
+	: output (other.output), exit_after (other.exit_after)
     {
 	s << other.s.str();
     }
@@ -69,11 +69,11 @@ public:
 	levels[module] = level;
     }
     
-    Formatter log (std::string module, int level, std::string prefix, bool exit = false) {
+    Formatter log (std::string module, int level, bool exit = false) {
 	if ((levels.count(module) > 0 &&
 	     levels[module] >= level) ||
 	    level <= default_level || exit) {
-	    return Formatter (true, exit) << prefix << " ";
+	    return Formatter (true, exit);
 	} else {
 	    return Formatter (false, false);
 	}
@@ -86,7 +86,7 @@ public:
 #define x_str(s) _x_str(s)
 
 #define DO_LOG(module, level, prefix, exit) \
-        Logger::get_instance()->log(module, level, prefix, exit)
+    Logger::get_instance()->log(module, level, exit) << prefix << " "
 
 #define VLOG(level) DO_LOG(__FILE__, level, __FILE__ ":" x_str(__LINE__), false)
 #define LOG() VLOG(0)
