@@ -32,9 +32,9 @@ std::istream & operator>> (std::istream & s, zn_key & t);
 
 // ключ привязанного объекта
 struct zn_label_key{
-  int id;             // номер объекта, к которому привязываваемся
+  id_type id;         // номер объекта, к которому привязываваемся
   std::string map;    // идентификатор карты
-  zn_label_key(const int i=0, const std::string & s=""): id(i), map(s) {}
+  zn_label_key(const id_type i=0, const std::string & s=""): id(i), map(s) {}
   zn_label_key(const zn_key & k): id(k.id), map(k.map) {}
   zn_label_key operator= (const zn_key & k){id=k.id; map=k.map;}
   bool operator== (const zn_label_key & k){return (id==k.id)&&(map==k.map);}
