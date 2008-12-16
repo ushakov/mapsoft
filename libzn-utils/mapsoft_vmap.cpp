@@ -73,7 +73,7 @@ int copy(int argc, char** argv){
   string ofile = argv[2];
   string filter = argv[3];
   string arg;
-  if ((filter != "all") && 
+  if ((filter != "all") &&
       (filter != "map") && (filter != "nmap") &&
       (filter != "src") && (filter != "nsrc")){
     cerr << "ERR: unknown filter!\n";
@@ -87,7 +87,7 @@ int copy(int argc, char** argv){
     arg=argv[4];
   }
 
-  cerr << "copying from " << ifile << " to " << ofile << ": ";  
+  cerr << "copying from " << ifile << " to " << ofile << ": ";
 
   fig::fig_world IF, OF;
   mp::mp_world   IM, OM;
@@ -173,7 +173,7 @@ int remove(int argc, char** argv){
   string file   = argv[1];
   string filter = argv[2];
   string arg;
-  if ((filter != "all") && 
+  if ((filter != "all") &&
       (filter != "map") && (filter != "nmap") &&
       (filter != "src") && (filter != "nsrc")){
     cerr << "ERR: unknown filter!\n";
@@ -187,7 +187,7 @@ int remove(int argc, char** argv){
     arg=argv[3];
   }
 
-  cerr << "removing map objects from " << file <<": ";  
+  cerr << "removing map objects from " << file <<": ";
 
   zn::zn_conv zconverter(cfile);
 
@@ -199,10 +199,10 @@ int remove(int argc, char** argv){
       cerr << "ERR: bad fig file\n"; return 1;
     }
 
-    fig::fig_world::iterator i=F.begin(); 
+    fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
       if (zconverter.is_map_depth(*i) &&
-          ((filter=="all") || testfilter(filter, arg, zn::get_key(*i)))) 
+          ((filter=="all") || testfilter(filter, arg, zn::get_key(*i))))
              {i=F.erase(i); obj_cnt++;}
       else i++;
     }
@@ -217,9 +217,9 @@ int remove(int argc, char** argv){
       cerr << "ERR: bad mp file\n"; return 1;
     }
 
-    mp::mp_world::iterator i=M.begin(); 
+    mp::mp_world::iterator i=M.begin();
     while (i!=M.end()){
-      if ((filter=="all") || testfilter(filter, arg, zn::get_key(*i))) 
+      if ((filter=="all") || testfilter(filter, arg, zn::get_key(*i)))
         {i=M.erase(i); obj_cnt++;}
       else i++;
     }
@@ -249,7 +249,7 @@ int remove_keys(int argc, char** argv){
   string file   = argv[1];
   string filter = argv[2];
   string arg;
-  if ((filter != "all") && 
+  if ((filter != "all") &&
       (filter != "map") && (filter != "nmap") &&
       (filter != "src") && (filter != "nsrc")){
     cerr << "ERR: unknown filter!\n";
@@ -263,7 +263,7 @@ int remove_keys(int argc, char** argv){
     arg=argv[3];
   }
 
-  cerr << "removing keys from " << file <<": ";  
+  cerr << "removing keys from " << file <<": ";
 
   zn::zn_conv zconverter(cfile);
 
@@ -277,7 +277,7 @@ int remove_keys(int argc, char** argv){
 
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
       if (i->type==6) copy_comment(i, F.end());
-      if (zconverter.is_map_depth(*i) && 
+      if (zconverter.is_map_depth(*i) &&
           testfilter(filter, arg, zn::get_key(*i)))
              {zn::clear_key(*i); obj_cnt++;}
     }
@@ -458,7 +458,7 @@ int update_fig(int argc, char** argv){
   // sort fig before creating compounds
   F.sort();
 
-  // Third pass. Create pics
+  // Fourth pass. Create pics
   NEW.clear();
   int p_count=0;
 
@@ -587,7 +587,7 @@ int crop(int argc, char** argv){
     file     = argv[2];
   }
 
-  cerr << "cropping " << file <<": ";  
+  cerr << "cropping " << file <<": ";
 
   int obj_n_cnt=0;
   int obj_c_cnt=0;
@@ -624,7 +624,7 @@ int crop(int argc, char** argv){
     if (!mp::read(file.c_str(), M)) {
       cerr << "ERR: bad mp file\n"; return 1;
     }
-    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(), 
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
                      Datum(datum), Proj(proj), Options());
 
     mp::mp_world::iterator i=M.begin();
@@ -640,8 +640,8 @@ int crop(int argc, char** argv){
   }
   else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
 
-  cerr << obj_n_cnt << " non-modified, " 
-       << obj_c_cnt << " cropped, " 
+  cerr << obj_n_cnt << " non-modified, "
+       << obj_c_cnt << " cropped, "
        << obj_d_cnt << " deleted\n";
   return 0;
 }
@@ -660,12 +660,12 @@ int remove_grids(int argc, char** argv){
   string cfile  = argv[0];
   string file   = argv[1];
 
-  cerr << "removing non-map objects from " << file <<": ";  
+  cerr << "removing non-map objects from " << file <<": ";
 
   zn::zn_conv zconverter(cfile);
 
   int obj_cnt=0;
-  
+
   if (!testext(file, ".fig")){ cerr << "ERR: file is not a .fig\n"; return 1;}
 
   fig::fig_world F;
@@ -673,7 +673,7 @@ int remove_grids(int argc, char** argv){
     cerr << "ERR: bad fig file\n"; return 1;
   }
 
-  fig::fig_world::iterator i=F.begin(); 
+  fig::fig_world::iterator i=F.begin();
   while (i!=F.end()){
     if (!zconverter.is_map_depth(*i) &&
         (zn::get_label_key(*i).map=="") &&
@@ -703,12 +703,12 @@ int remove_labels(int argc, char** argv){
   string cfile  = argv[0];
   string file   = argv[1];
 
-  cerr << "removing labels objects from " << file <<": ";  
+  cerr << "removing labels objects from " << file <<": ";
 
   zn::zn_conv zconverter(cfile);
 
   int obj_cnt=0;
-  
+
   if (!testext(file, ".fig")){ cerr << "ERR: file is not a .fig\n"; return 1;}
 
   fig::fig_world F;
@@ -716,7 +716,7 @@ int remove_labels(int argc, char** argv){
     cerr << "ERR: bad fig file\n"; return 1;
   }
 
-  fig::fig_world::iterator i=F.begin(); 
+  fig::fig_world::iterator i=F.begin();
   while (i!=F.end()){
     if (zn::get_label_key(*i).map!="")
       {i=F.erase(i); obj_cnt++;}
@@ -745,12 +745,12 @@ int copy_labels(int argc, char** argv){
   string ifile   = argv[1];
   string ofile   = argv[2];
 
-  cerr << "copying labels from " << ifile <<" to " << ofile << ": ";  
+  cerr << "copying labels from " << ifile <<" to " << ofile << ": ";
 
   zn::zn_conv zconverter(cfile);
 
   int obj_cnt=0;
-  
+
   if (!testext(ifile, ".fig")){ cerr << "ERR: " << ifile << " is not a .fig\n"; return 1;}
   if (!testext(ofile, ".fig")){ cerr << "ERR: " << ofile << " is not a .fig\n"; return 1;}
 
@@ -843,35 +843,99 @@ int show_maps(int argc, char** argv){
   return 0;
 }
 
+/*****************************************************/
+/// Create new keys for objects and their labels
+/// which are came from other map.
+int switch_map(int argc, char** argv){
+  if (argc != 3){
+    cerr << "Make all objects and their labels to be in one map (fig).\n"
+         << "  usage: mapsoft_vmap one_map <conf> <map name> <fig>\n";
+    return 1;
+  }
+  string cfile    = argv[0];
+  string map_name = argv[1];
+  string file     = argv[2];
+
+  cerr << "renaming object maps to " << map_name <<": ";
+
+  zn::zn_conv zconverter(cfile);
+
+  fig::fig_world F;
+  if (!fig::read(file.c_str(), F)) {
+    cerr << "ERR: bad fig file\n"; return 1;
+  }
+
+  map<string, map<zn::id_type, zn::id_type> > cnv;
+  int o_cnt=0;
+  int l_cnt=0;
+
+  // First pass. Rename map in object keys
+  fig::fig_world::iterator i=F.begin();
+  for (i=F.begin(); i!=F.end(); i++){
+    if (!zconverter.is_map_depth(*i)) continue;
+    zn::zn_key k = zn::get_key(*i);
+    if (k.id==0) continue;
+    if (k.map==map_name) continue;
+    // id is not unique, so create new id
+    zn::id_type newid=zn::make_id();
+    cnv[k.map].insert(pair<zn::id_type, zn::id_type>(k.id, newid));
+    // change key
+    k.map=map_name;
+    k.id=newid;
+    zn::add_key(*i, k);
+    o_cnt++;
+  }
+  // Second pass. Rename map in label keys
+  for (i=F.begin(); i!=F.end(); i++){
+    zn::zn_label_key k = zn::get_label_key(*i);
+    if (k.id==0) continue;
+    if (k.map==map_name) continue;
+    map<zn::id_type, zn::id_type>::const_iterator p=cnv[k.map].find(k.id);
+    if (p==cnv[k.map].end()){
+      cerr << "Warning: label without object: " << k << "\n";
+      continue;
+    }
+    k.map=map_name;
+    k.id=p->second;
+    zn::add_key(*i, k);
+    l_cnt++;
+  }
+
+  ofstream out(file.c_str());
+  fig::write(out, F);
+  cerr << o_cnt << " objects, " << l_cnt << " labels\n";
+}
 
 /*****************************************************/
 int main(int argc, char** argv){
   if (argc < 2){
     cerr << "usage: mapsoft_vmap <command> <args>\n"
          << "commands: \n"
-         << "  - copy   -- copy map objects from (fig|mp) to (fig|mp)\n"
-         << "  - remove -- remove map objects from (fig|mp) map\n"
          << "  - crop          -- crop map objects in (fig|mp)\n"
+         << "  - copy          -- copy map objects from (fig|mp) to (fig|mp)\n"
+         << "  - copy_labels   -- copy all labels from (fig) to (fig)\n"
+         << "  - remove        -- remove map objects from (fig|mp) map\n"
          << "  - remove_grids  -- remove all but reference, lables, and map objects from fig\n"
          << "  - remove_labels -- remove lables from fig\n"
          << "  - remove_keys   -- remove keys from objects\n"
-         << "  - copy_labels   -- copy all labels from (fig) to (fig)\n"
-         << "  - show_maps     -- show map_names of objects in (fig|mp)\n"
          << "  - update_fig    -- update fig (new function to replace keys+labels+pics)\n"
          << "  - update_mp     -- update mp  (new function to replace keys+labels+pics)\n"
+         << "  - show_maps     -- show map names in (fig|mp)\n"
+         << "  - switch_map    -- make all objects and their labels to be in one map\n"
 ;
     exit(0);
   }
-  if (strcmp(argv[1], "copy")==0)           exit(copy(argc-2, argv+2));
-  if (strcmp(argv[1], "remove")==0)         exit(remove(argc-2, argv+2));
   if (strcmp(argv[1], "crop")==0)           exit(crop(argc-2, argv+2));
+  if (strcmp(argv[1], "copy")==0)           exit(copy(argc-2, argv+2));
+  if (strcmp(argv[1], "copy_labels")==0)    exit(copy_labels(argc-2, argv+2));
+  if (strcmp(argv[1], "remove")==0)         exit(remove(argc-2, argv+2));
   if (strcmp(argv[1], "remove_grids")==0)   exit(remove_grids(argc-2, argv+2));
   if (strcmp(argv[1], "remove_labels")==0)  exit(remove_labels(argc-2, argv+2));
   if (strcmp(argv[1], "remove_keys")==0)    exit(remove_keys(argc-2, argv+2));
-  if (strcmp(argv[1], "copy_labels")==0)    exit(copy_labels(argc-2, argv+2));
-  if (strcmp(argv[1], "show_maps")==0)      exit(show_maps(argc-2, argv+2));
   if (strcmp(argv[1], "update_fig")==0)     exit(update_fig(argc-2, argv+2));
   if (strcmp(argv[1], "update_mp")==0)      exit(update_mp(argc-2, argv+2));
+  if (strcmp(argv[1], "show_maps")==0)      exit(show_maps(argc-2, argv+2));
+  if (strcmp(argv[1], "switch_map")==0)     exit(switch_map(argc-2, argv+2));
 
   cerr << "unknown command: " << argv[1] << "\n";
   exit(1);

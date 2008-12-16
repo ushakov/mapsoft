@@ -97,14 +97,19 @@ std::istream & operator>> (std::istream & s, zn_label_key & t){
 
 unsigned short key_counter=0;
 
+// make unique id
+id_type make_id(void){
+  return ((id_type)time(NULL) << 32) +     // creation time
+         ((id_type)(++key_counter) << 16) +  // counter
+         (rand() % 0xFFFF);        // random
+}
+
 // make new key with unique id
 zn_key make_key(const std::string & map, const std::string & editor){
   zn_key k;
   k.time.set_current();
-  k.id   = ((id_type)k.time.value << 32) +     // creation time
-           ((id_type)(++key_counter) << 16) +  // counter
-           (rand() % 0xFFFF);        // random
-  k.map  = map;
+  k.id     = make_id();
+  k.map    = map;
   k.source = editor;
   return k;
 }

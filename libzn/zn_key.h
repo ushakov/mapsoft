@@ -47,6 +47,9 @@ std::istream & operator>> (std::istream & s, zn_label_key & t);
 
   // Простые операции с ключом
 
+// make unique id
+id_type make_id(void);
+
 // make new key with unique id
 zn_key make_key(const std::string & map, const std::string & editor);
 
