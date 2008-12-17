@@ -6,5 +6,6 @@ le.Library("viewer", \
     Split ("""
 	generic_dialog.cpp
 	action_manager.cpp
+	viewer.cpp
     """))
 
