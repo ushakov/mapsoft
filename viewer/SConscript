@@ -7,5 +7,6 @@ le.Library("viewer", \
 	generic_dialog.cpp
 	action_manager.cpp
 	viewer.cpp
+	workplane.cpp
     """))
 
