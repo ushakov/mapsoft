@@ -38,7 +38,7 @@ public:
         update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
 
         workplane->signal_refresh.connect(sigc::mem_fun(*this, &Viewer::refresh));
-        rubber->signal_refresh.connect(sigc::mem_fun(*this, &Viewer::rubber_render));
+        rubber->signal_refresh.connect(sigc::mem_fun(*this, &Viewer::rubber_redraw));
 
 
         // сделаем отдельный thread из функции cache_updater
@@ -50,6 +50,8 @@ public:
  		    Gdk::SCROLL_MASK | 
  		    Gdk::POINTER_MOTION_MASK | 
  		    Gdk::POINTER_MOTION_HINT_MASK );
+
+
 
     }
 
@@ -67,12 +69,12 @@ public:
 
     void set_window_origin (Point<int> new_origin) {
 	Point<int> shift = window_origin - new_origin;
-	rubber_take_off();
+//	rubber_take_off();
 	window_origin -= shift;
 	change_viewport();
-
 	get_window()->scroll(shift.x, shift.y);
         //  rubber render произойдет при дорисовке краев!
+//	rubber_render();
     }
 
     void set_window_origin(int x, int y){
@@ -407,44 +409,47 @@ private:
     }
 
     virtual bool on_motion_notify_event(GdkEventMotion * event){
-        rubber_render();
+        if (!(event->state & Gdk::BUTTON1_MASK)) { 
+          rubber_take_off(false); 
+          rubber_render(false); 
+        }
         return false;
     }
 
-    void rubber_xor_line (std::pair<Point<int>, Point<int> > line) {
-        get_window()->draw_line(rubber_gc, line.first.x, line.first.y, line.second.x, line.second.y);
+    void rubber_take_off(bool all=true) {
+        std::vector<DrawnPair> dummy;
+        // erase old lines from drawn vector
+        for (int i = 0; i < rubber->drawn.size(); ++i){
+          Point<int> p1=rubber->drawn[i].p1 - window_origin;
+          Point<int> p2=rubber->drawn[i].p2 - window_origin;
+          if (!all && !rubber->drawn[i].active) {
+             dummy.push_back(DrawnPair(rubber->drawn[i]));
+          } else {
+            get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
+          }
+        }
+        // update drawn vector
+        rubber->drawn.swap(dummy);
     }
 
-    void rubber_take_off_line(int i) {
-        if (rubber->drawn[i].first.x != 0 ||
-            rubber->drawn[i].first.y != 0 ||
-            rubber->drawn[i].second.x != 0 ||
-            rubber->drawn[i].second.y != 0) {
-            rubber_xor_line (rubber->drawn[i]);
-            rubber->drawn[i] = std::make_pair(Point<int>(0,0), Point<int>(0,0));
-        }
-    }
-    void rubber_render_line(int i, Point<int> pointer, Point<int> origin) {
-        rubber_take_off_line(i);
-        std::pair<Point<int>, Point<int> > new_position;
-        new_position.first = rubber->lines[i].first.get(pointer, origin);
-        new_position.second = rubber->lines[i].second.get(pointer, origin);
-        rubber_xor_line(new_position);
-        rubber->drawn[i] = new_position;
-    }
-    void rubber_render() {
+    void rubber_render(bool all=true) {
         Point<int> pointer;
-        Gdk::ModifierType dummy2;
-        get_window()->get_pointer(pointer.x, pointer.y, dummy2);
+        Gdk::ModifierType dummy1;
+        get_window()->get_pointer(pointer.x, pointer.y, dummy1);
 
+        // draw new lines, push then into drawn vector
         for (int i = 0; i < rubber->lines.size(); ++i) {
-            rubber_render_line(i, pointer, window_origin);
+          bool active = rubber->lines[i].first.active || rubber->lines[i].second.active;
+          if (!all && !active) continue;
+          Point<int> p1=rubber->lines[i].first.get(pointer, window_origin);
+          Point<int> p2=rubber->lines[i].second.get(pointer, window_origin);
+          get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
+          rubber->drawn.push_back(DrawnPair(p1+window_origin, p2+window_origin, active));
         }
     }
-    void rubber_take_off() {
-        for (int i = 0; i < rubber->drawn.size(); ++i) {
-            rubber_take_off_line(i);
-        }
+    void rubber_redraw() {
+       rubber_take_off();
+       rubber_render();
     }
 
 

@@ -39,17 +39,17 @@ public:
 		std::cout << "MOVEWPT: found at " << current_layer << std::endl;
 		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
                 Point<int> dp(2,2);
-                state->rubber->add_line(RubberPoint(p+Point<int>(-2,-2),1), RubberPoint(p+Point<int>( 2,-2),1));
-                state->rubber->add_line(RubberPoint(p+Point<int>( 2,-2),1), RubberPoint(p+Point<int>( 2, 2),1));
-                state->rubber->add_line(RubberPoint(p+Point<int>( 2, 2),1), RubberPoint(p+Point<int>(-2, 2),1));
-                state->rubber->add_line(RubberPoint(p+Point<int>(-2, 2),1), RubberPoint(p+Point<int>(-2,-2),1));
+                state->rubber->add_line(RubberPoint(p+Point<int>(-2,-2),false), RubberPoint(p+Point<int>( 2,-2),false));
+                state->rubber->add_line(RubberPoint(p+Point<int>( 2,-2),false), RubberPoint(p+Point<int>( 2, 2),false));
+                state->rubber->add_line(RubberPoint(p+Point<int>( 2, 2),false), RubberPoint(p+Point<int>(-2, 2),false));
+                state->rubber->add_line(RubberPoint(p+Point<int>(-2, 2),false), RubberPoint(p+Point<int>(-2,-2),false));
 
-                state->rubber->add_line(RubberPoint(Point<int>(-2,-2),0), RubberPoint(Point<int>( 2,-2),0));
-                state->rubber->add_line(RubberPoint(Point<int>( 2,-2),0), RubberPoint(Point<int>( 2, 2),0));
-                state->rubber->add_line(RubberPoint(Point<int>( 2, 2),0), RubberPoint(Point<int>(-2, 2),0));
-                state->rubber->add_line(RubberPoint(Point<int>(-2, 2),0), RubberPoint(Point<int>(-2,-2),0));
+                state->rubber->add_line(RubberPoint(Point<int>(-2,-2),true), RubberPoint(Point<int>( 2,-2),true));
+                state->rubber->add_line(RubberPoint(Point<int>( 2,-2),true), RubberPoint(Point<int>( 2, 2),true));
+                state->rubber->add_line(RubberPoint(Point<int>( 2, 2),true), RubberPoint(Point<int>(-2, 2),true));
+                state->rubber->add_line(RubberPoint(Point<int>(-2, 2),true), RubberPoint(Point<int>(-2,-2),true));
 
-                state->rubber->add_line(RubberPoint(p,1), RubberPoint(Point<int>(0,0),0));
+                state->rubber->add_line(RubberPoint(p,false), RubberPoint(Point<int>(0,0),true));
                 mystate=1;
 		break;
             }

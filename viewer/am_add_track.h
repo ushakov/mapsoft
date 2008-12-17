@@ -59,9 +59,9 @@ public:
 	  g_point p1 = new_track[i];
 	  g_point p2 = new_track[i+1];
           cnv.bck(p1); cnv.bck(p2);
-  	  state->rubber->add_line(RubberPoint(Point<int>(p1),1), RubberPoint(Point<int>(p2),1));
+  	  state->rubber->add_line(RubberPoint(Point<int>(p1),false), RubberPoint(Point<int>(p2),false));
         }
-  	state->rubber->add_line(RubberPoint(p,1), RubberPoint(Point<int>(0,0),0));
+  	state->rubber->add_line(RubberPoint(p,false), RubberPoint(Point<int>(0,0),true));
 
     }
 

@@ -45,16 +45,16 @@ public:
 		if ((d.second > 0)&&(!current_layer->get_world()->trks[d.first][d.second].start)){
   		  g_point p1 = current_layer->get_world()->trks[d.first][d.second-1];
 		  cnv.bck(p1);
-                  state->rubber->add_line(RubberPoint(Point<int>(p1),1), RubberPoint(Point<int>(0,0),0));
+                  state->rubber->add_line(RubberPoint(Point<int>(p1),false), RubberPoint(Point<int>(0,0),true));
 		}
 		if ((d.second < current_layer->get_world()->trks[d.first].size()-1)&&
 		    (!current_layer->get_world()->trks[d.first][d.second+1].start)){
   		  g_point p1 = current_layer->get_world()->trks[d.first][d.second+1];
 		  cnv.bck(p1);
-                  state->rubber->add_line(RubberPoint(Point<int>(p1),1), RubberPoint(Point<int>(0,0),0));
+                  state->rubber->add_line(RubberPoint(Point<int>(p1),false), RubberPoint(Point<int>(0,0),true));
 		}
 		if (state->rubber->size()==0)
-                  state->rubber->add_line(RubberPoint(p,1), RubberPoint(Point<int>(0,0),0));
+                  state->rubber->add_line(RubberPoint(p,false), RubberPoint(Point<int>(0,0),true));
                 mystate=1;
 		break;
             }
