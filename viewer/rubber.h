@@ -33,8 +33,8 @@ public:
 
     Rubber(){}
 
-    void add_line (RubberPoint a, RubberPoint b) {
-	lines.push_back(std::make_pair(a, b));
+    void add_line (Point<int> p1, bool a1, Point<int> p2, bool a2) {
+	lines.push_back(std::make_pair(RubberPoint(p1,a1),RubberPoint(p2,a2)));
         refresh();
     }
     void clear() {
