@@ -6,6 +6,8 @@
 #include <viewer/generic_dialog.h>
 #include <programs/mapview.h>
 
+#include <sstream>
+
 class EditTrack : public ActionMode {
 public:
     EditTrack (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
@@ -39,6 +41,12 @@ public:
 		current_track = &(current_layer->get_world()->trks[d.first]);
 		Options opt = current_track->to_options();
 
+		std::ostringstream st;
+		st << "Editing track... "
+		   << current_track->size() << " points, "
+                   << current_track->length()/1000 << " km";
+		state->statusbar->push(st.str(),0);
+
 	        current_connection = gend->signal_result().connect(sigc::mem_fun(this, &EditTrack::on_result));
 		gend->activate(get_name(), opt);
 		break;
@@ -63,6 +71,7 @@ private:
 	    } else {
 		// do nothing
 	    }
+	    state->statusbar->push("",0);
 	    current_track = 0;
             current_connection.disconnect();
 	}

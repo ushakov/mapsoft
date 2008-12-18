@@ -6,6 +6,8 @@
 #include <viewer/generic_dialog.h>
 #include <programs/mapview.h>
 
+#include <sstream>
+
 class AddTrack : public ActionMode {
 public:
     AddTrack (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
@@ -54,6 +56,11 @@ public:
 	cnv.frw(pt);
 
 	new_track.push_back(pt);
+	std::ostringstream st;
+	st << "Creating new track... "
+           << new_track.size() << " points, "
+           << new_track.length()/1000 << " km";
+	state->statusbar->push(st.str(),0);
         viewer->rubber.clear();
 	for (int i = 0; i<new_track.size()-1; i++){
 	  g_point p1 = new_track[i];
@@ -69,7 +76,7 @@ private:
     MapviewState  * state;
     Viewer        * viewer;
     GenericDialog * gend;
-    LayerGeoData * current_layer;
+    LayerGeoData  * current_layer;
 
     g_track  new_track;
 
@@ -82,6 +89,7 @@ private:
 	  current_layer->get_world()->trks.push_back(new_track);
           viewer->workplane.refresh_layer(current_layer);
 	}
+	state->statusbar->push("",0);
 	new_track.clear();
 	viewer->rubber.clear();
         current_connection.disconnect();
