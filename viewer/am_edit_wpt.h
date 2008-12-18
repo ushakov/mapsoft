@@ -8,7 +8,7 @@
 
 class EditWaypoint : public ActionMode {
 public:
-    EditWaypoint (MapviewState * state_) : state(state_) {
+    EditWaypoint (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
       	gend = GenericDialog::get_instance();
 	current_wpt = 0;
     }
@@ -31,7 +31,7 @@ public:
 	std::cout << "EDITWPT: " << p << std::endl;
 	for (int i = 0; i < state->data_layers.size(); ++i) {
 	    current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
-            if (!state->workplane->get_layer_active(current_layer)) continue;
+            if (!viewer->workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_waypoint(p);
 	    if (d.first >= 0) {
@@ -48,6 +48,7 @@ public:
 
 private:
     MapviewState * state;
+    Viewer        * viewer;
     GenericDialog * gend;
     g_waypoint * current_wpt;
     LayerGeoData * current_layer;
@@ -57,7 +58,7 @@ private:
 	if (current_wpt) {
 	    if (r == 0) { // OK
 		current_wpt->parse_from_options(gend->get_options());
-                state->workplane->refresh_layer(current_layer);
+                viewer->workplane.refresh_layer(current_layer);
  		std::cout << "EDITWPT: " << current_wpt->name << std::endl;
 	    } else {
 		// do nothing

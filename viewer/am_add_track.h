@@ -8,7 +8,7 @@
 
 class AddTrack : public ActionMode {
 public:
-    AddTrack (MapviewState * state_) : state(state_) {   
+    AddTrack (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
 	gend = GenericDialog::get_instance();
     }
 
@@ -22,7 +22,7 @@ public:
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() {
-	state->rubber->clear();
+	viewer->rubber.clear();
 	new_track = g_track();
 	gend->deactivate();
     }
@@ -35,7 +35,7 @@ public:
           // найдем layer, в который можно запихать трек
 	  for (int i=0; i<state->data_layers.size(); i++){
             current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
-            if (!state->workplane->get_layer_active(current_layer)) continue;
+            if (!viewer->workplane.get_layer_active(current_layer)) continue;
 	    break;
           }
           if (current_layer==0) return; // надо бы добавлять новый, но для этого нужен доступ
@@ -54,19 +54,20 @@ public:
 	cnv.frw(pt);
 
 	new_track.push_back(pt);
-        state->rubber->clear();
+        viewer->rubber.clear();
 	for (int i = 0; i<new_track.size()-1; i++){
 	  g_point p1 = new_track[i];
 	  g_point p2 = new_track[i+1];
           cnv.bck(p1); cnv.bck(p2);
-	  state->rubber->add_line(p1,false, p2,false);
+	  viewer->rubber.add_line(p1,false, p2,false);
         }
-	state->rubber->add_line(p,false, Point<int>(0,0),true);
+	viewer->rubber.add_line(p,false, Point<int>(0,0),true);
 
     }
 
 private:
-    MapviewState * state;
+    MapviewState  * state;
+    Viewer        * viewer;
     GenericDialog * gend;
     LayerGeoData * current_layer;
 
@@ -79,10 +80,10 @@ private:
           assert (current_layer);
           new_track.parse_from_options(gend->get_options());
 	  current_layer->get_world()->trks.push_back(new_track);
-          state->workplane->refresh_layer(current_layer);
+          viewer->workplane.refresh_layer(current_layer);
 	}
 	new_track.clear();
-	state->rubber->clear();
+	viewer->rubber.clear();
         current_connection.disconnect();
     }
 };

@@ -18,9 +18,6 @@
 
 class MapviewState {
 public:
-    boost::shared_ptr<Workplane> workplane;
-    boost::shared_ptr<Rubber>    rubber;
-	
     std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
     std::vector<boost::shared_ptr<LayerGeoData> > data_layers;
     std::vector<boost::shared_ptr<geo_data> > data;
@@ -37,10 +34,7 @@ public:
 	signal_delete_event().connect (sigc::mem_fun (this, &Mapview::on_delete));
 	set_default_size(640,480);
 
-	state.workplane.reset(new Workplane(256));
-	state.rubber.reset(new Rubber);
-	viewer.reset(new Viewer(state.workplane, state.rubber));
-	action_manager.reset (new ActionManager (&state));
+	action_manager.reset (new ActionManager (&state, &viewer));
 
 	//load file selector
 	file_sel_load.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::load_file_sel));
@@ -52,8 +46,8 @@ public:
  	file_sel_save.get_ok_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
  	file_sel_save.get_cancel_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
 
-        viewer->signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::on_button_press));
-        viewer->signal_button_release_event().connect (sigc::mem_fun (this, &Mapview::on_button_release));
+        viewer.signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::on_button_press));
+        viewer.signal_button_release_event().connect (sigc::mem_fun (this, &Mapview::on_button_release));
         signal_key_press_event().connect (sigc::mem_fun (this, &Mapview::on_key_press));
 	
 	/***************************************/
@@ -120,7 +114,7 @@ public:
 	vbox->pack_start(*menubar, false, true, 0);
 	
 	Gtk::HPaned * paned = manage(new Gtk::HPaned);
-	paned->pack1(*viewer, Gtk::EXPAND | Gtk::FILL);
+	paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
 	
 	Gtk::ScrolledWindow * scrw = manage(new Gtk::ScrolledWindow);
 	scrw->add(layer_list);
@@ -151,14 +145,14 @@ public:
 	Layer * layer = row[layer_list.columns.layer];
 	if (!layer) return;
 	int new_depth = row[layer_list.columns.depth];
-	if (state.workplane->get_layer_depth (layer) != new_depth) {
-	    state.workplane->set_layer_depth (layer, new_depth);
+	if (viewer.workplane.get_layer_depth (layer) != new_depth) {
+	    viewer.workplane.set_layer_depth (layer, new_depth);
 	    need_refresh = true;
 	}
 
 	int new_active = row[layer_list.columns.checked];
-	if (new_active != state.workplane->get_layer_active (layer)) {
-	    state.workplane->set_layer_active (layer, new_active);
+	if (new_active != viewer.workplane.get_layer_active (layer)) {
+	    viewer.workplane.set_layer_active (layer, new_active);
 	    need_refresh = true;
 	}
 
@@ -207,7 +201,7 @@ public:
 	    assert(layer_to_configure);
 	    layer_to_configure->set_config(gend->get_options());
 	    std::cout << "LAYER_CONFIG: " << layer_to_configure << "\n";
-	    state.workplane->refresh_layer(layer_to_configure);
+	    viewer.workplane.refresh_layer(layer_to_configure);
 	    refresh();
 	} else {
 	    // do nothing
@@ -251,7 +245,7 @@ public:
 	    map_layer->set_ref(reference);
 	    state.map_layers.push_back(map_layer);
 	    add_layer(map_layer.get(), 100, "Maps: " + selected_filename);
-	    viewer->set_window_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
+	    viewer.set_window_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
 	}
 	
 	if (world->wpts.size() > 0 || world->trks.size() > 0) {
@@ -261,7 +255,7 @@ public:
 	    layer_gd->set_ref(reference);
 	    state.data_layers.push_back(layer_gd);
 	    add_layer(layer_gd.get(), 0, "Data: " + selected_filename);
-	    viewer->set_window_origin(layer_gd->range().TLC());
+	    viewer.set_window_origin(layer_gd->range().TLC());
 	}
 	refresh();
 	status_bar->pop();
@@ -293,35 +287,33 @@ public:
     }
 
     void add_layer (Layer * layer, int depth, Glib::ustring name) {
-       state.workplane->add_layer(layer, depth);
+       viewer.workplane.add_layer(layer, depth);
        layer_list.add_layer(layer, depth, name);
     }
 
     void refresh () {
-       viewer->refresh();
+       viewer.refresh();
     }
 
     virtual ~Mapview() {
-	state.workplane.reset();
-	viewer.reset();
 	delete status_bar;
     }
 
     bool on_key_press(GdkEventKey * event) {
-        VLOG(0) << "key_press: " << event->keyval << "";
+        VLOG(2) << "key_press: " << event->keyval << "";
         switch (event->keyval) {
         case 43:
         case 61:
         case 65451: // + =
         {
-          viewer->zoom_in(2);
+          viewer.zoom_in(2);
           return true;
         }
         case 45:
         case 95:
         case 65453: // _ -
         {
-          viewer->zoom_out(2);
+          viewer.zoom_out(2);
           return true;
         }
         case 'r':
@@ -353,7 +345,7 @@ public:
         if (d > 250) return true;
 
         Point<int> p(int(event->x), int(event->y));
-        p += viewer->get_window_origin();
+        p += viewer.get_window_origin();
         VLOG(2) << "click at: " << p.x << "," << p.y << " " << event->button;
         action_manager->click(p);
         return true;
@@ -364,8 +356,8 @@ public:
 
 
 private:
-    boost::shared_ptr<Viewer> viewer;
-    MapviewState state;
+    Viewer        viewer;
+    MapviewState  state;
 
     LayerList layer_list;
     Gtk::FileSelection file_sel_load;

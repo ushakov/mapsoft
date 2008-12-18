@@ -7,7 +7,7 @@
 
 class DeleteTrackpoint : public ActionMode {
 public:
-    DeleteTrackpoint (MapviewState * state_) : state(state_) { }
+    DeleteTrackpoint (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -26,7 +26,7 @@ public:
 
         for (int i = 0; i < state->data_layers.size(); ++i) {
             LayerGeoData * current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
-	    if (!state->workplane->get_layer_active(current_layer)) continue;
+	    if (!viewer->workplane.get_layer_active(current_layer)) continue;
             assert (current_layer);
             std::pair<int, int> point_addr = current_layer->find_trackpoint(p);
             if (point_addr.first >= 0) {
@@ -36,7 +36,7 @@ public:
                   current_layer->get_world()->trks[point_addr.first].begin()+point_addr.second);
 		if (start && (point_addr.second < current_layer->get_world()->trks[point_addr.first].size()))
                   current_layer->get_world()->trks[point_addr.first][point_addr.second].start = start;
-                state->workplane->refresh_layer(current_layer);
+                viewer->workplane.refresh_layer(current_layer);
                 break;
             }
         }
@@ -44,6 +44,7 @@ public:
 
 private:
     MapviewState * state;
+    Viewer        * viewer;
 };
 
 #endif /* AM_DELETE_TPT_H */

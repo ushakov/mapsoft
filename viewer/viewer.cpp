@@ -6,10 +6,7 @@
 
 
 
-Viewer::Viewer (boost::shared_ptr<Workplane> _workplane,
-                boost::shared_ptr<Rubber>    _rubber)
-        : workplane (_workplane),
-          rubber    (_rubber){
+Viewer::Viewer (int tile_size): workplane (tile_size){
 
     we_need_cache_updater=true;
 
@@ -19,8 +16,8 @@ Viewer::Viewer (boost::shared_ptr<Workplane> _workplane,
 
     update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
 
-    workplane->signal_refresh.connect(sigc::mem_fun(*this, &Viewer::refresh));
-    rubber->signal_refresh.connect(sigc::mem_fun(*this, &Viewer::rubber_redraw));
+    workplane.signal_refresh.connect(sigc::mem_fun(*this, &Viewer::refresh));
+    rubber.signal_refresh.connect(sigc::mem_fun(*this, &Viewer::rubber_redraw));
 
     // сделаем отдельный thread из функции cache_updater
     // joinable = true, чтобы подождать его завершения в деструкторе...
@@ -71,7 +68,7 @@ void Viewer::refresh(){
   // extra и т.п. должно быть таким же, как в change_viewport
   Rect<int> tiles = tiles_on_rect(
     Rect<int>(window_origin.x, window_origin.y,
-    get_width(), get_height()), workplane->get_tile_size());
+    get_width(), get_height()), workplane.get_tile_size());
 
   const int extra = std::max(tiles.w, tiles.h);
 
@@ -115,7 +112,7 @@ void Viewer::cache_updater(){
          tiles_todo.erase(key);
          mutex->unlock();
 
-         Image<int> tile = workplane->get_image(key);
+         Image<int> tile = workplane.get_image(key);
 
          mutex->lock();
          // чтобы при перемасштабировании и обнулении кэша в него не попала старая картинка 8|
@@ -136,7 +133,7 @@ void Viewer::cache_updater(){
          tiles_todo2.erase(key);
          mutex->unlock();
 
-         Image<int> tile = workplane->get_image(key);
+         Image<int> tile = workplane.get_image(key);
 
          mutex->lock();
          tile_cache.erase(key);
@@ -172,7 +169,7 @@ void Viewer::update_tile(){
 
 void Viewer::draw_tile(const Point<int> & tile_key){
 
-  int tile_size = workplane->get_tile_size();
+  int tile_size = workplane.get_tile_size();
   Rect<int> screen(window_origin.x,
                    window_origin.y,
                    get_width(), get_height());
@@ -215,7 +212,7 @@ void Viewer::fill (int sx, int sy, int w, int h){ // in window coordinates, shou
     // какие плитки видны на экране:
     Rect<int> tiles = tiles_on_rect(
       Rect<int>(window_origin.x + sx, window_origin.y + sy, w, h), 
-      workplane->get_tile_size());
+      workplane.get_tile_size());
 
 #ifdef DEBUG_VIEWER
     std::cerr << "fill: " << sx << "," << sy << " " << w << "x" << h << std::endl;
@@ -237,7 +234,7 @@ void Viewer::change_viewport () {
   // tiles -- прямоугольник плиток, необходимый для отрисовки экрана
   Rect<int> tiles = tiles_on_rect(
     Rect<int>(window_origin.x, window_origin.y,
-    get_width(), get_height()), workplane->get_tile_size());
+    get_width(), get_height()), workplane.get_tile_size());
 
   // Плитки, которые были запрошены, но не сделаны, и уже уехали
   // с экрана -- нам неинтересны. Пропалываем tiles_todo
@@ -308,17 +305,17 @@ void Viewer::on_realize() {
 void Viewer::rubber_take_off(bool all) {
     std::vector<DrawnPair> dummy;
     // erase old lines from drawn vector
-    for (int i = 0; i < rubber->drawn.size(); ++i){
-      Point<int> p1=rubber->drawn[i].p1 - window_origin;
-      Point<int> p2=rubber->drawn[i].p2 - window_origin;
-      if (!all && !rubber->drawn[i].active) {
-         dummy.push_back(DrawnPair(rubber->drawn[i]));
+    for (int i = 0; i < rubber.drawn.size(); ++i){
+      Point<int> p1=rubber.drawn[i].p1 - window_origin;
+      Point<int> p2=rubber.drawn[i].p2 - window_origin;
+      if (!all && !rubber.drawn[i].active) {
+         dummy.push_back(DrawnPair(rubber.drawn[i]));
       } else {
         get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
       }
     }
     // update drawn vector
-    rubber->drawn.swap(dummy);
+    rubber.drawn.swap(dummy);
 }
 
 void Viewer::rubber_render(bool all) {
@@ -327,13 +324,13 @@ void Viewer::rubber_render(bool all) {
     get_window()->get_pointer(pointer.x, pointer.y, dummy1);
 
     // draw new lines, push then into drawn vector
-    for (int i = 0; i < rubber->lines.size(); ++i) {
-      bool active = rubber->lines[i].first.active || rubber->lines[i].second.active;
+    for (int i = 0; i < rubber.lines.size(); ++i) {
+      bool active = rubber.lines[i].first.active || rubber.lines[i].second.active;
       if (!all && !active) continue;
-      Point<int> p1=rubber->lines[i].first.get(pointer, window_origin);
-      Point<int> p2=rubber->lines[i].second.get(pointer, window_origin);
+      Point<int> p1=rubber.lines[i].first.get(pointer, window_origin);
+      Point<int> p2=rubber.lines[i].second.get(pointer, window_origin);
       get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
-      rubber->drawn.push_back(DrawnPair(p1+window_origin, p2+window_origin, active));
+      rubber.drawn.push_back(DrawnPair(p1+window_origin, p2+window_origin, active));
     }
 }
 void Viewer::rubber_redraw() {
@@ -346,13 +343,13 @@ void Viewer::rubber_redraw() {
 void Viewer::zoom_out(int i){
    Point<int> wcenter = get_window_origin() + get_window_size()/2;
    set_window_origin(wcenter/i - get_window_size()/2);
-   (*workplane)/=i;
+   workplane/=i;
 }
 
 void Viewer::zoom_in(int i){
    Point<int> wcenter = get_window_origin() + get_window_size()/2;
    set_window_origin(wcenter*i - get_window_size()/2);
-   (*workplane)*=i;
+   workplane*=i;
 }
 
 bool Viewer::on_expose_event (GdkEventExpose * event){

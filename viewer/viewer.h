@@ -3,7 +3,6 @@
 
 #include <gtkmm.h>
 #include <sigc++/sigc++.h>
-#include <boost/shared_ptr.hpp>
 
 #include <queue>
 
@@ -18,9 +17,7 @@ class Viewer : public Gtk::DrawingArea {
 
 public:
 
-    Viewer (boost::shared_ptr<Workplane> _workplane,
-            boost::shared_ptr<Rubber>    _rubber);
-
+    Viewer (int tile_size=256);
     virtual ~Viewer ();
 
     void set_window_origin (Point<int> new_origin);
@@ -32,10 +29,10 @@ public:
     void zoom_out(int i);
     void zoom_in(int i);
 
-private:
+    Workplane workplane;
+    Rubber    rubber;
 
-    boost::shared_ptr<Workplane> workplane;
-    boost::shared_ptr<Rubber>    rubber;
+private:
 
     Point<int> window_origin;
     Point<int> drag_pos;
@@ -101,7 +98,6 @@ private:
     void rubber_take_off(bool all=true);
     void rubber_render(bool all=true);
     void rubber_redraw();
-
 
     virtual bool on_expose_event (GdkEventExpose * event);
     virtual bool on_button_press_event (GdkEventButton * event);

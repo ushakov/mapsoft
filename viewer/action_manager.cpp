@@ -12,20 +12,20 @@
 #include <viewer/am_add_track.h>
 #include <viewer/am_mark_trk.h>
 
-ActionManager::ActionManager (MapviewState * state_)
-    : state(state_)
+ActionManager::ActionManager (MapviewState * state_, Viewer * viewer_)
+    : state(state_), viewer(viewer_)
 {
     current_mode = 0;
     modes.push_back(boost::shared_ptr<ActionMode>(new ActionModeNone));
-    modes.push_back(boost::shared_ptr<ActionMode>(new AddWaypoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new EditWaypoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MoveWaypoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new DeleteWaypoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrackpoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MoveTrackpoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new DeleteTrackpoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrack(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new AddTrack(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MarkTrack(state)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new AddWaypoint(state, viewer)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new EditWaypoint(state, viewer)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new MoveWaypoint(state, viewer)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new DeleteWaypoint(state, viewer)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrackpoint(state, viewer)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new MoveTrackpoint(state, viewer)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new DeleteTrackpoint(state, viewer)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrack(state, viewer)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new AddTrack(state, viewer)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new MarkTrack(state, viewer)));
 }
 
