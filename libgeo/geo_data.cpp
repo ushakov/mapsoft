@@ -207,6 +207,21 @@ g_rect g_track::range() const{
     return g_rect(minx,miny, maxx-minx, maxy-miny);
 }
 
+double g_track::length() const{
+  double ret=0;
+  for (int i=0; i<size()-1; i++){
+    g_point p1=(*this)[i] * M_PI/180.0;
+    g_point p2=(*this)[i+1] * M_PI/180.0;
+    double cos_l=cos(p2.x-p1.x);
+    double cos_f1=cos(p1.y);
+    double sin_f1=sin(p1.y);
+    double cos_f2=cos(p2.y);
+    double sin_f2=sin(p2.y);
+    double dd=acos(sin_f1*sin_f2 + cos_f1*cos_f2*cos_l);
+    ret+=dd;
+  }
+  return ret*6380000.0;
+}
 
 g_map & g_map::operator/= (double k){
     std::vector<g_refpoint>::iterator i;

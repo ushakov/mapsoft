@@ -104,6 +104,8 @@ struct g_track : std::vector<g_trackpoint>{
 
     /// get range in lon-lat coords
     g_rect range() const;
+    /// get length in m
+    double length() const;
 };
 
 /// map
