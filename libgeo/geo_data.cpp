@@ -153,8 +153,8 @@ Options g_waypoint_list::to_options () const {
 
 /// set waypoint_list values from Options object
 void g_waypoint_list::parse_from_options (Options const & opt){
-    g_waypoint_list lst;
-    swap(lst);
+//    g_waypoint_list lst;
+//    swap(lst);
     opt.get("symbset", symbset);
 }
 
@@ -181,8 +181,8 @@ Options g_track::to_options () const {
 }
 
 void g_track::parse_from_options (Options const & opt){
-    g_track lst;
-    swap(lst);
+//    g_track lst;
+//    swap(lst);
     opt.get("width", width);
     opt.get("displ", displ);
     opt.get("color", color);
