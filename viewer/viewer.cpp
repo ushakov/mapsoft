@@ -1,5 +1,6 @@
 #include "viewer.h"
 #include <utils/image_gdk.h>
+#include <utils/log.h>
 
 /**************************************/
 
@@ -25,7 +26,8 @@ Viewer::Viewer (boost::shared_ptr<Workplane> _workplane,
     // joinable = true, чтобы подождать его завершения в деструкторе...
     cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer::cache_updater), true);
 
-    add_events (Gdk::BUTTON_PRESS_MASK |
+    add_events (
+	    Gdk::BUTTON_PRESS_MASK |
 	    Gdk::BUTTON_RELEASE_MASK |
 	    Gdk::SCROLL_MASK |
 	    Gdk::POINTER_MOTION_MASK |
@@ -292,14 +294,6 @@ void Viewer::change_viewport () {
   }
 }
 
-bool Viewer::on_expose_event (GdkEventExpose * event){
-#ifdef DEBUG_VIEWER
-    std::cerr << "expose: " << event->area.x << "," << event->area.y << " " << event->area.width << "x" << event->area.height << std::endl;
-#endif
-    fill (event->area.x, event->area.y, event->area.width, event->area.height);
-    return true;
-}
-
 // working with rubber.
 
 void Viewer::on_realize() {
@@ -309,13 +303,6 @@ void Viewer::on_realize() {
     rubber_gc->set_function(Gdk::XOR);
 }
 
-bool Viewer::on_motion_notify_event(GdkEventMotion * event){
-    if (!(event->state & Gdk::BUTTON1_MASK)) {
-      rubber_take_off(false);
-      rubber_render(false);
-    }
-    return false;
-}
 
 
 void Viewer::rubber_take_off(bool all) {
@@ -353,3 +340,51 @@ void Viewer::rubber_redraw() {
    rubber_take_off(true);
    rubber_render(true);
 }
+
+
+
+void Viewer::zoom_out(int i){
+   Point<int> wcenter = get_window_origin() + get_window_size()/2;
+   set_window_origin(wcenter/i - get_window_size()/2);
+   (*workplane)/=i;
+}
+
+void Viewer::zoom_in(int i){
+   Point<int> wcenter = get_window_origin() + get_window_size()/2;
+   set_window_origin(wcenter*i - get_window_size()/2);
+   (*workplane)*=i;
+}
+
+bool Viewer::on_expose_event (GdkEventExpose * event){
+    VLOG(2) << "expose: " << event->area.x << "," << event->area.y << " "
+            << event->area.width << "x" << event->area.height;
+    fill (event->area.x, event->area.y, event->area.width, event->area.height);
+    return true;
+}
+
+bool Viewer::on_button_press_event (GdkEventButton * event) {
+    VLOG(0) << "butt_press: " << event->button;
+    if (event->button == 1) {
+        drag_pos = Point<int> ((int)event->x, (int)event->y);
+    }
+    return false;
+}
+
+bool Viewer::on_motion_notify_event (GdkEventMotion * event) {
+    Point<int> pos ((int) event->x, (int) event->y);
+    VLOG(2) << "motion: " << pos << (event->is_hint? " hint ":"");
+
+    if (!(event->state & Gdk::BUTTON1_MASK)){
+      rubber_take_off(false);
+      rubber_render(false);
+    }
+    else if (event->is_hint){
+      set_window_origin(get_window_origin() - pos + drag_pos);
+      drag_pos = pos;
+
+      // ask for more events
+      get_pointer(pos.x, pos.y);
+    }
+    return false;
+}
+

@@ -51,6 +51,10 @@ public:
  	file_sel_save.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::save_file_sel));
  	file_sel_save.get_ok_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
  	file_sel_save.get_cancel_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
+
+        viewer->signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::on_button_press));
+        viewer->signal_button_release_event().connect (sigc::mem_fun (this, &Mapview::on_button_release));
+        signal_key_press_event().connect (sigc::mem_fun (this, &Mapview::on_key_press));
 	
 	/***************************************/
 	//start building menus
@@ -127,17 +131,12 @@ public:
 	vbox->pack_start(*paned, true, true, drawing_padding);
 	vbox->pack_start(*status_bar, false, true, 0);
 	add (*vbox);
-	signal_key_press_event().connect (sigc::mem_fun (this, &Mapview::on_keypress));
 
 	// connect events from layer list
 // 	layer_list.add_events (Gdk::BUTTON_PRESS_MASK);
 	layer_list.store->signal_row_changed().connect (sigc::mem_fun (this, &Mapview::layer_edited));
 	layer_list.signal_button_press_event().connect_notify (sigc::mem_fun (this, &Mapview::configure_layer));
 
-	// connect events from viewer
-	viewer->signal_motion_notify_event().connect (sigc::mem_fun (this, &Mapview::pointer_moved));
-	viewer->signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::mouse_button_pressed));
-	viewer->signal_button_release_event().connect (sigc::mem_fun (this, &Mapview::mouse_button_released));
 
 	gend = GenericDialog::get_instance();
 
@@ -264,9 +263,6 @@ public:
 	    add_layer(layer_gd.get(), 0, "Data: " + selected_filename);
 	    viewer->set_window_origin(layer_gd->range().TLC());
 	}
-
-
-
 	refresh();
 	status_bar->pop();
     }
@@ -296,98 +292,13 @@ public:
 	return true;
     }
 
-    void zoom_out(int i){
-       Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
-       Point<int> origin = wcenter/i - viewer->get_window_size()/2;
-       viewer->set_window_origin(origin);
-       (*state.workplane)/=i;
-    }
-
-    void zoom_in(int i){
-       Point<int> wcenter = viewer->get_window_origin() + viewer->get_window_size()/2;
-       Point<int> origin = wcenter*i - viewer->get_window_size()/2;
-       viewer->set_window_origin(origin);
-       (*state.workplane)*=i;
-    }
-
-
-    gboolean on_keypress(GdkEventKey * event) {
-
-	switch (event->keyval) {
-	case 43:
-	case 65451: // +
-	{
-	    zoom_in(2);
-	    return true;
-	}
-	case 45:
-	case 65453: // -
-	{
-	    zoom_out(2);
-	    return true;
-	}
-	case 'r':
-	case 'R': // refresh
-	{
-	    viewer->refresh();
-	    return true;
-	}
-	}
-	return false;
-    }
-
     void add_layer (Layer * layer, int depth, Glib::ustring name) {
-	state.workplane->add_layer(layer, depth);
-	layer_list.add_layer(layer, depth, name);
+       state.workplane->add_layer(layer, depth);
+       layer_list.add_layer(layer, depth, name);
     }
 
     void refresh () {
-	viewer->refresh();
-    }
-
-    virtual bool
-    mouse_button_pressed (GdkEventButton * event) {
-	VLOG(2) << "press: " << event->x << "," << event->y << " " << event->button;
-	if (event->button == 1) {
-	    drag_pos = Point<int> ((int)event->x, (int)event->y);
-	    gettimeofday (&click_started, NULL);
-	    return true;
-	}
-    }
-
-    virtual bool
-    mouse_button_released (GdkEventButton * event) {
-	VLOG(2) << "release: " << event->x << "," << event->y << " " << event->button;
-	if (event->button == 1) {
-	    struct timeval click_ended;
-	    gettimeofday (&click_ended, NULL);
-	    int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 + (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
-	    if (d < 250) {
-		Point<int> p(int(event->x), int(event->y));
-		p += viewer->get_window_origin();
-		VLOG(2) << "click at: " << p.x << "," << p.y << " " << event->button;
-		action_manager->click(p);
-		return true;
-	    }
-	}
-    }
-
-    virtual bool
-    pointer_moved (GdkEventMotion * event) {
-	Point<int> pos ((int) event->x, (int) event->y);
-	VLOG(2) << "motion: " << pos << (event->is_hint? " hint ":"");
-
-	if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) return false;
-
-	Point<int> shift = pos - drag_pos;
-	Point<int> window_origin = viewer->get_window_origin();
-	window_origin -= shift;
-	viewer->set_window_origin(window_origin);
-	drag_pos = pos;
-
-	// ask for more events
-	get_pointer(pos.x, pos.y);
-	return true;
+       viewer->refresh();
     }
 
     virtual ~Mapview() {
@@ -395,6 +306,62 @@ public:
 	viewer.reset();
 	delete status_bar;
     }
+
+    bool on_key_press(GdkEventKey * event) {
+        VLOG(0) << "key_press: " << event->keyval << "";
+        switch (event->keyval) {
+        case 43:
+        case 61:
+        case 65451: // + =
+        {
+          viewer->zoom_in(2);
+          return true;
+        }
+        case 45:
+        case 95:
+        case 65453: // _ -
+        {
+          viewer->zoom_out(2);
+          return true;
+        }
+        case 'r':
+        case 'R': // refresh
+        {
+          refresh();
+          return true;
+        }
+        }
+        return false;
+    }
+
+
+    bool on_button_press (GdkEventButton * event) {
+      if (event->button == 1) {
+        gettimeofday (&click_started, NULL);
+        return true;
+      }
+      return false;
+    }
+
+    bool on_button_release (GdkEventButton * event) {
+      if (event->button == 1) {
+
+        struct timeval click_ended;
+        gettimeofday (&click_ended, NULL);
+        int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 +
+                (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
+        if (d > 250) return true;
+
+        Point<int> p(int(event->x), int(event->y));
+        p += viewer->get_window_origin();
+        VLOG(2) << "click at: " << p.x << "," << p.y << " " << event->button;
+        action_manager->click(p);
+        return true;
+      }
+      return false;
+    }
+
+
 
 private:
     boost::shared_ptr<Viewer> viewer;
@@ -411,8 +378,6 @@ private:
 
     g_map reference;
     bool have_reference;
-
-    Point<int> drag_pos;
 
     boost::shared_ptr<ActionManager> action_manager;
     Gtk::RadioAction::Group mode_group;

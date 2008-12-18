@@ -29,6 +29,8 @@ public:
     Point<int> get_window_size () const;
 
     void refresh();
+    void zoom_out(int i);
+    void zoom_in(int i);
 
 private:
 
@@ -36,6 +38,7 @@ private:
     boost::shared_ptr<Rubber>    rubber;
 
     Point<int> window_origin;
+    Point<int> drag_pos;
     Rect<int>  visible_tiles;
 
     std::map<Point<int>, Image<int> > tile_cache;
@@ -92,16 +95,17 @@ private:
 
     void change_viewport ();
 
-    virtual bool on_expose_event (GdkEventExpose * event);
 
     virtual void on_realize();
-
-    virtual bool on_motion_notify_event(GdkEventMotion * event);
 
     void rubber_take_off(bool all=true);
     void rubber_render(bool all=true);
     void rubber_redraw();
 
+
+    virtual bool on_expose_event (GdkEventExpose * event);
+    virtual bool on_button_press_event (GdkEventButton * event);
+    virtual bool on_motion_notify_event (GdkEventMotion * event);
 
 /**************************************/
 };
