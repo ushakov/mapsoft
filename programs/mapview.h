@@ -18,6 +18,7 @@
 
 class MapviewState {
 public:
+    Gtk::Statusbar statusbar;
     std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
     std::vector<boost::shared_ptr<LayerGeoData> > data_layers;
     std::vector<boost::shared_ptr<geo_data> > data;
@@ -104,9 +105,7 @@ public:
 	ui_manager->add_ui_from_string(ui);
 	menubar = ui_manager->get_widget("/MenuBar");
 	
-	//status_bar
-	status_bar = new Gtk::Statusbar;
-	status_bar->push("Welcome to mapsoft viewer!",0);
+	state.statusbar.push("Welcome to mapsoft viewer!",0);
 	
 	guint drawing_padding = 5;
 	
@@ -123,7 +122,7 @@ public:
 	paned->pack2(*scrw, Gtk::FILL);
 
 	vbox->pack_start(*paned, true, true, drawing_padding);
-	vbox->pack_start(*status_bar, false, true, 0);
+	vbox->pack_start(state.statusbar, false, true, 0);
 	add (*vbox);
 
 	// connect events from layer list
@@ -210,13 +209,6 @@ public:
         current_connection.disconnect();
     }
 
-//     void clear_data(Viewer * v) {
-// 	g_print ("Clear all data");
-// 	status_bar->push("Clear all data", 0);
-// 	world.clear();
-// 	v->clear_cache();
-//     }
-
     void on_mode_change (int m) {
 	action_manager->set_mode(m);
     }
@@ -229,7 +221,7 @@ public:
 
     void load_file(std::string selected_filename) {
 	g_print ("Loading: %s\n", selected_filename.c_str());
-	status_bar->push("Loading...", 0);
+	state.statusbar.push("Loading...", 0);
 	boost::shared_ptr<geo_data> world (new geo_data);
 
 	state.data.push_back(world);
@@ -258,14 +250,14 @@ public:
 	    viewer.set_window_origin(layer_gd->range().TLC());
 	}
 	refresh();
-	status_bar->pop();
+	state.statusbar.pop();
     }
 
      void save_file_sel() {
  	std::string selected_filename;
  	selected_filename = file_sel_save.get_filename();
  	g_print ("Saving file: %s\n", selected_filename.c_str());
- 	status_bar->push("Saving...", 0);
+ 	state.statusbar.push("Saving...", 0);
 
         geo_data world;
 
@@ -296,7 +288,6 @@ public:
     }
 
     virtual ~Mapview() {
-	delete status_bar;
     }
 
     bool on_key_press(GdkEventKey * event) {
