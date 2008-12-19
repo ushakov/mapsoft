@@ -1,0 +1,18 @@
+Import('env')
+
+mapsoft_libs = Split ("viewer geo loaders jeeps fig mp utils 2d")
+other_libs   = Split ("usb tiff jpeg png gd")
+
+env_gtk = env.Clone()
+env_gtk.Prepend(LIBS=[mapsoft_libs,other_libs])
+env_gtk.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
+
+env_gtk.Program('test_layers.cpp')
+
+
+env_sig = env.Clone()
+env_sig.Prepend(LIBS=[mapsoft_libs,other_libs])
+env_sig.ParseConfig('pkg-config --cflags --libs sigc++-2.0')
+
+
+env_sig.Program('test_layers1.cpp')

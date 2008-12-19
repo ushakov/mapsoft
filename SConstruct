@@ -15,6 +15,7 @@ subdirs = Split ("""
 		mapview
 		libzn
 		libzn-utils
+		v1
 		""")
 
 #SetOption('implicit_cache', 1)
