@@ -5,12 +5,14 @@
 #include <vector>
 #include <set>
 #include <cassert>
+#include <iostream>
 
 /** Кэш объектов типа V, упорядоченных по ключу типа K.
   директивы компилятору:
   DEBUG_CACHE      -- выдавать на stderr добавления/удаления элементов
   DEBUG_CACHE_GET  -- выдавать обращения к кэшу
 */
+
 template <typename K, typename V>
 class Cache {
 public:
@@ -125,6 +127,9 @@ public:
     get (K const & key)
     {
 	int ind = index[key];
+#ifdef DEBUG_CACHE_GET
+	std::cout << "cache get: " << key << " ind: " << ind << std::endl;
+#endif
 	use (ind);
 	return storage[ind].second;
 
