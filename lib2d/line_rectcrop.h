@@ -68,6 +68,7 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
         }
         p=line.erase(p);
         skip=true;
+        res=true;
         continue;
       }
 
@@ -84,6 +85,7 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
         }
         p=line.erase(p);
         skip=true;
+        res=true;
         continue;
       }
 
@@ -100,6 +102,7 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
         }
         p=line.erase(p);
         skip=true;
+        res=true;
         continue;
       }
 
@@ -116,10 +119,9 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
         }
         p=line.erase(p);
         skip=true;
+        res=true;
         continue;
       }
-
-      if (skip) res=true;
       skip=false;
       p++;
     }
