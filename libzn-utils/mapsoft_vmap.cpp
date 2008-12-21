@@ -495,7 +495,7 @@ int update_fig(int argc, char** argv){
 /// (new function to replace keys+labels+pics)
 int update_mp(int argc, char** argv){
 
-  if (argc != 3){
+  if (argc != 4){
     cerr << "Update mp.\n"
          << "  usage: mapsoft_vmap update_mp <conf> <map name> <editor> <mp>\n";
     return 1;
