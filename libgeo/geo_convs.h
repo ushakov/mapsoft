@@ -20,7 +20,7 @@ namespace convs{
 // удобно разбить преобразование на части:
 struct pt2ll{ // преобразование к широте-долготе и обратно
   pt2ll(const Datum & D = Datum("wgs84"), const Proj & P = Proj("lonlat"), const Options & Po = Options());
-  void frw(g_point & p) const;
+  void frw(g_point & p); // может поменять lon0!
   void bck(g_point & p); // может поменять lon0!
 
   private:

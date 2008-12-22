@@ -60,7 +60,7 @@ pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
 //}
 
 
-void pt2ll::frw(g_point & p) const{
+void pt2ll::frw(g_point & p){
   double x,y;
   // сперва преобразуем к широте-долготе
   double l0=lon0;
@@ -75,6 +75,13 @@ void pt2ll::frw(g_point & p) const{
        }
        if (l0>1e90) l0=0;
 //         std::cerr << "pt2ll::frw: setting lon0 to " << l0 << "\n";
+
+    // если lon0 не указали явно - определим его автоматически:
+    // причем (это важно) - только один раз, по первой точке!
+       if (lon0>1e90){
+         lon0 = l0;
+         std::cerr << "pt2ll::frw: setting lon0 to " << lon0 << " from the first point\n";
+       }
 
        GPS_Math_TMerc_EN_To_LatLon(p.x, p.y, &y, &x, lat0, l0, E0, N0, k, a, a*(1-f));
        p.x = x; p.y = y;
@@ -129,7 +136,7 @@ void pt2ll::bck(g_point & p){
     // причем (это важно) - только один раз, по первой точке!
     if (lon0>1e90){
       lon0 = floor( p.x/6.0 ) * 6 + 3;
-//      std::cerr << "pt2ll::bck: setting lon0 to " << lon0 << " (lon = " << p.x << ")\n";
+      std::cerr << "pt2ll::bck: setting lon0 to " << lon0 << " from the first point\n";
     }
     GPS_Math_TMerc_LatLon_To_EN(p.y, p.x, &x, &y, lat0, lon0, E0, N0, k, a, a*(1-f));
     // Добавим к координате префикс - как на советских картах:
