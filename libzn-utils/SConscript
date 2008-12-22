@@ -1,10 +1,14 @@
 Import ('env')
-env_geo = env.Clone()
 
 mapsoft_libs = Split ("zn geo_io geo loaders jeeps fig mp utils 2d")
 other_libs   = Split ("usb tiff jpeg png gd syck")
 
-env_geo.Prepend(LIBS=[mapsoft_libs,other_libs])
+env1 = env.Clone()
+env1.Prepend(LIBS=[mapsoft_libs,other_libs])
+env1.Program(['mapsoft_vmap.cpp', '../yaml/yaml.cpp'])
+env1.Program(['zn_mkfiglib.cpp', '../yaml/yaml.cpp'])
 
-env_geo.Program(['mapsoft_vmap.cpp', '../yaml/yaml.cpp'])
-env_geo.Program(['zn_mkfiglib.cpp', '../yaml/yaml.cpp'])
+
+env2 = env.Clone()
+env2.Prepend(LIBS=['mp', 'utils', '2d'])
+env2.Program(["mp_bboxes.cpp"])
