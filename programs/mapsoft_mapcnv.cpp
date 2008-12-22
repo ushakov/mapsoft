@@ -95,7 +95,7 @@ main(int argc, char **argv){
     g_point pg=*p;
     g_point pr=*p;
     c.frw(pg);
-    pr.y=(geom.y+geom.w)-(pr.y-geom.y);
+    pr.y=(geom.y+geom.h)-(pr.y-geom.y);
     ref.push_back(g_refpoint(pg, pr));
     ref.border.push_back(pr);
     cerr << "ref: " << pg << " " << pr << "\n";
