@@ -587,7 +587,7 @@ int crop(int argc, char** argv){
     file     = argv[2];
   }
 
-  cerr << "cropping " << file <<": ";
+  cerr << "cropping " << file <<" to " << cutter << ": ";
 
   int obj_n_cnt=0;
   int obj_c_cnt=0;
@@ -626,6 +626,12 @@ int crop(int argc, char** argv){
     }
     convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
                      Datum(datum), Proj(proj), Options());
+
+    // Run cnv on point from cutter
+    // to avoid automatic setting of lon0 from the first point of mp-file
+    // (it can be in wrong zone!)
+    Point<double> tmp=cutter.TLC();
+    cnv.bck(tmp);
 
     mp::mp_world::iterator i=M.begin();
     while (i!=M.end()){
