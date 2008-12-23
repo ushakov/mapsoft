@@ -314,6 +314,43 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) {
   return ret;
 }
 
+Rect<double> pt2pt::bb_frw(const Rect<double> & R, double acc){
+  g_line v1;
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
+  v1.push_back(g_point(R.TRC().x, R.TRC().y));
+  v1.push_back(g_point(R.BRC().x, R.BRC().y));
+  v1.push_back(g_point(R.BLC().x, R.BLC().y));
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
+  g_line v2 = line_frw(v1,acc);
+  double minx = v2[0].x, maxx = v2[0].x;
+  double miny = v2[0].y, maxy = v2[0].y;
+  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
+    if (i->x < minx) minx = i->x;
+    if (i->x > maxx) maxx = i->x;
+    if (i->y < miny) miny = i->y;
+    if (i->y > maxy) maxy = i->y;
+  }
+  return Rect<double>(minx, miny, maxx-minx, maxy-miny);
+}
+
+Rect<double> pt2pt::bb_bck(const Rect<double> & R, double acc){
+  g_line v1;
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
+  v1.push_back(g_point(R.TRC().x, R.TRC().y));
+  v1.push_back(g_point(R.BRC().x, R.BRC().y));
+  v1.push_back(g_point(R.BLC().x, R.BLC().y));
+  v1.push_back(g_point(R.TLC().x, R.TLC().y));
+  g_line v2 = line_bck(v1,acc);
+  double minx = v2[0].x, maxx = v2[0].x;
+  double miny = v2[0].y, maxy = v2[0].y;
+  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
+    if (i->x < minx) minx = i->x;
+    if (i->x > maxx) maxx = i->x;
+    if (i->y < miny) miny = i->y;
+    if (i->y > maxy) maxy = i->y;
+  }
+  return Rect<double>(minx, miny, maxx-minx, maxy-miny);
+}
 
 
 /*******************************************************************/

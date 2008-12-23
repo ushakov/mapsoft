@@ -62,6 +62,10 @@ struct pt2pt{
   // точность acc - в координатах исходной проекции
   g_line line_frw(const g_line & l, double acc, int max=100);
   g_line line_bck(const g_line & l, double acc, int max=100);
+  // преобразование прямоугольника (в произвольную фигуру) и нахождение 
+  // минимального прямоугольника, в котором она лежит
+  Rect<double> bb_frw(const Rect<double> & R, double acc);
+  Rect<double> bb_bck(const Rect<double> & R, double acc);
 
   private:
     pt2ll pc1, pc2;
