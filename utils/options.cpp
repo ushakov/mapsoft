@@ -7,6 +7,8 @@
 
 #include "options.h"
 
+#include <ios>
+
 
 using namespace boost::spirit;
 
@@ -70,9 +72,11 @@ std::istream & operator>> (std::istream & s, Options & o){
     !('#' >> (anychar_p - eol_p)) >>
     (eol_p | end_p)[erase_a(o, aname)][insert_at_a(o, aname, aval)];
 
-  parse_info<> res = parse(str.c_str(), *option);
+  parse_info<> res = parse(str.c_str(), (*option)||(*space_p));
+  s.clear();
   if (!res.full){
-    std::cerr << "Can't parse options string " << str << " at pos " << res.length << "\n";
+    std::cerr << "Can't parse options string \"" << str << "\" at pos " << res.length << "\n";
+    s.setstate(std::ios::failbit);
   }
   return s;
 }
