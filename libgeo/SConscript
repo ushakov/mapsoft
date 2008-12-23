@@ -1,8 +1,11 @@
 Import ('env')
-le = env.Clone()
-le.Library('geo', \
+e = env.Clone()
+e.Library('geo', \
     Split ("""
 	geo_convs.cpp
 	geo_data.cpp
 	geo_types.cpp
      """))
+
+convs_libs=Split("geo loaders jeeps utils 2d png jpeg tiff")
+e.Program("convs_pt2pt.cpp",  LIBS=[convs_libs])
