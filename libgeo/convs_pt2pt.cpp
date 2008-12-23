@@ -6,13 +6,23 @@ using namespace std;
 using namespace convs;
 
 void usage(){
-  cerr << "usage: convs_pt2pt  <d1> <p1> <o1>  <d2> <p2> <o2>\n"
+  cerr << "\n"
+       << "Commandline interface to convs::pt2pt conversions.\n"
+       << "usage: convs_pt2pt  <d1> <p1> <o1>  <d2> <p2> <o2>\n"
        << "d1,p1,o1, d2,p2,o2 -- datums, projections, projection options\n"
-       << "  for source and destination coordinates.\n"
-       << "example:\n"
-       << "# convs_pt2pt pulkovo tmerc \"lon0=39\" wgs84 lonlat \"\"\n"
-       << "frw 760000,640000\n"
-       << "bck 54.123,33.234\n"
+       << "                      for source and destination coordinates.\n"
+       << "Commands:\n"
+       << "frw <point>\n"
+       << "bck <point>\n"
+       << "safe_frw <point>\n"
+       << "safe_bck <point>\n"
+       << "line_frw <line> <acc>\n"
+       << "line_bck <line> <acc>\n"
+       << "bb_frw <rect> <acc>\n"
+       << "bb_bck <rect> <acc>\n"
+       << "\n"
+       << "<acc> is an accuracy of line conversions in source projection coordinetes\n"
+       << "\n"
   ;
   exit(1);
 }
@@ -27,12 +37,12 @@ int main(int argc, char** argv){
     boost::lexical_cast<Proj>(argv[5]),
     boost::lexical_cast<Options>(argv[6])
   );
-  string s;
-  double acc;
-  g_point p;
-  g_line l;
-  g_rect r;
   while (!cin.eof()){
+    string s;
+    double acc;
+    g_point p;
+    g_line l;
+    g_rect r;
     cin >> s;
     if (s == "frw"){
       cin >> p;
