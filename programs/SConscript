@@ -43,3 +43,7 @@ env_gtk.Program('mapsoft_mapview.cpp')
 
 #env_gtk.Program('mapsoft_googleview', 'mapsoft_googleview.cpp')
 #env_gtk.Program('mapsoft_ksview', 'mapsoft_ksview.cpp')
+
+env.Alias('install', '/usr/bin/')
+env.Install('/usr/bin/', ['mapsoft_mapview', 'mapsoft_convert'])
+

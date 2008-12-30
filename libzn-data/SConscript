@@ -1,0 +1,4 @@
+Import ('env')
+
+env.Alias('install', '/usr/share/mapsoft/')
+env.Install('/usr/share/mapsoft/', ['pics', 'mmb.cnf', 'hr.cnf'])

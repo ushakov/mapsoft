@@ -15,6 +15,7 @@ subdirs = Split ("""
 		mapview
 		libzn
 		libzn-utils
+		libzn-data
 		v1
 		""")
 
