@@ -14,14 +14,14 @@ void read_conf_usage(){
 
    abbriviations:
 
-   -o file	-O out=<file>    // file for output
-   -c file	-O local_conf=<file>  // local config (default "/etc/mapsoft.conf")
-   -C file	-O global_conf=<file> // global config (default "~/.mapsoft")
-   -s <tow>	-O skip=<tow>         // 
+   -o file	--out=<file>    // file for output
+   -c file	--local_conf=<file>  // local config (default "/etc/mapsoft.conf")
+   -C file	--global_conf=<file> // global config (default "~/.mapsoft")
+   -s <tow>	--skip=<tow>         // 
       // skip maps [m], tracks [t], waypoints [w], 
       // or old (not "active log") tracks [o]
 
-   -h		-O showhelp
+   -h		--showhelp
 
 You can use "--" argument to protect non-option arguments
 from being treated as options:
@@ -44,13 +44,6 @@ bool read_conf(int argc, char **argv, Options & opts){
   for (int i=1; i<argc; i++){
 
     if (!skip){
-      if (strcmp(argv[i], "-O")==0){
-        if (i>=argc-1) return false;
-        i+=1;
-        istringstream istr(argv[i]);
-        istr >> cmdline_opts;
-        continue;
-      }
 
       if (strcmp(argv[i], "-h")==0){
         cmdline_opts["help"] = "";
