@@ -16,8 +16,8 @@ void read_conf_usage(){
 
    -o file	-O out_file=<file>    // file for output
    -a file	-O app_file=<file>    // file for appending
-   -c file	-O local_conf=<file>  // local config (default "/etc/mpsf.conf")
-   -C file	-O global_conf=<file> // global config (default "~/.mpsf")
+   -c file	-O local_conf=<file>  // local config (default "/etc/mapsoft.conf")
+   -C file	-O global_conf=<file> // global config (default "~/.mapsoft")
    -s <tow>	-O skip=<tow>         // 
       // skip maps [m], tracks [t], waypoints [w], 
       // or old (not "active log") tracks [o]
@@ -143,7 +143,7 @@ bool read_conf(int argc, char **argv, Options & opts){
   // use default value:
 
   if (!cmdline_opts.exists("global_conf")) 
-    cmdline_opts["global_conf"]="/etc/mpsf.conf";
+    cmdline_opts["global_conf"]="/etc/mapsoft.conf";
 
   cmdline_opts.get("global_conf", global_conf);
 
@@ -162,7 +162,7 @@ bool read_conf(int argc, char **argv, Options & opts){
 
   if (!cmdline_opts.exists("local_conf")){
     if (opts.exists("local_conf")) cmdline_opts["local_conf"] = opts["local_conf"];
-    else cmdline_opts["local_conf"]="~/.mpsf";
+    else cmdline_opts["local_conf"]="~/.mapsoft";
   }
 
   cmdline_opts.get("local_conf",  local_conf);
