@@ -12,11 +12,9 @@ subdirs = Split ("""
 		programs
 		utils
 		viewer
-		mapview
 		libzn
 		libzn-utils
 		libzn-data
-		v1
 		""")
 
 #SetOption('implicit_cache', 1)
