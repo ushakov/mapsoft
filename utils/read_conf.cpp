@@ -21,7 +21,7 @@ void read_conf_usage(){
       // skip maps [m], tracks [t], waypoints [w], 
       // or old (not "active log") tracks [o]
 
-   -h		--showhelp
+   -h		--help
 
 You can use "--" argument to protect non-option arguments
 from being treated as options:
