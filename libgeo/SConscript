@@ -1,6 +1,5 @@
 Import ('env')
-e = env.Clone()
-e.Library('geo', \
+env.Library('geo', \
     Split ("""
 	geo_convs.cpp
 	geo_data.cpp
@@ -8,7 +7,7 @@ e.Library('geo', \
      """))
 
 convs_libs=Split("geo loaders jeeps utils 2d png jpeg tiff")
-e.Program("convs_pt2pt.cpp",  LIBS=[convs_libs])
+env.Program("convs_pt2pt.cpp",  LIBS=[convs_libs])
 
 env.Alias('install', '/usr/bin/')
 env.Install('/usr/bin/', 'convs_pt2pt')

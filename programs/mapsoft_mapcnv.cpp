@@ -56,13 +56,13 @@ main(int argc, char **argv){
   if (opts.exists("help")) usage(argv[0]);
 
   string outfile="";
-  opts.get("out_file", outfile);
+  opts.get("out", outfile);
   string figfile="";
-  opts.get("fig_file", figfile);
+  opts.get("fig", figfile);
   string htmfile="";
-  opts.get("htm_file", htmfile);
+  opts.get("htm", htmfile);
   string mapfile="";
-  opts.get("map_file", mapfile);
+  opts.get("map", mapfile);
 
   Options infiles; opts.get("args", infiles);
 

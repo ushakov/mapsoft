@@ -1,6 +1,5 @@
 Import ('env')
-le = env.Clone()
-le.Library('geo_io', \
+env.Library('geo_io', \
     Split ("""
     filters.cpp
     io.cpp

@@ -14,8 +14,8 @@ void read_conf_usage(){
 
    abbriviations:
 
-   -o file	-O out_file=<file>    // file for output
-   -a file	-O app_file=<file>    // file for appending
+   -o file	-O out=<file>    // file for output
+   -a file	-O app=<file>    // file for appending
    -c file	-O local_conf=<file>  // local config (default "/etc/mapsoft.conf")
    -C file	-O global_conf=<file> // global config (default "~/.mapsoft")
    -s <tow>	-O skip=<tow>         // 
@@ -61,14 +61,14 @@ bool read_conf(int argc, char **argv, Options & opts){
       if (strcmp(argv[i], "-o")==0){
         if (i>=argc-1) return false;
         i+=1;
-        cmdline_opts["out_file"] = argv[i];
+        cmdline_opts["out"] = argv[i];
         continue;
       }
 
       if (strcmp(argv[i], "-a")==0){
         if (i>=argc-1) return false;
         i+=1;
-        cmdline_opts["app_file"] = argv[i];
+        cmdline_opts["app"] = argv[i];
         continue;
       }
 

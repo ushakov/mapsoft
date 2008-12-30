@@ -1,6 +1,5 @@
 Import ('env')
-le = env.Clone()
-le.Library('zn', \
+env.Library('zn', \
     Split ("""
         zn.cpp
         zn_key.cpp

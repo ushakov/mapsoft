@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   if (opts.exists("help")) usage(argv[0]);
 
   string figfile="";
-  opts.get("app_file", figfile);
+  opts.get("app", figfile);
   if (figfile == "") usage(argv[0]);
 
 

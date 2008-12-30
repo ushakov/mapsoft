@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
   if (opts.exists("help")) usage(argv[0]);
 
   string outfile="";
-  opts.get("out_file", outfile);
+  opts.get("out", outfile);
   if (outfile == "") usage(argv[0]);
 
   Options infiles; opts.get("args", infiles);
