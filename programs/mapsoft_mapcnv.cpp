@@ -109,12 +109,12 @@ main(int argc, char **argv){
   if (scale==0) scale=1e-5;
 
   // если нам надо читать какие-то карты:
-  if (opts.exists("args")){
+  if (opts.exists("cmdline_args")){
 
     geo_data world;
 
     //чтение файлов из командной строки:
-    StrVec infiles; opts.get("args", infiles);
+    StrVec infiles; opts.get("cmdline_args", infiles);
     for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
       io::in(*i, world, opts);
 

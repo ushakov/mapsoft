@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 
   g_map ref = fig::get_ref(F);
 
-  StrVec infiles; opts.get("args", infiles);
+  StrVec infiles; opts.get("cmdline_args", infiles);
   for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
     io::in(*i, world, opts);
 

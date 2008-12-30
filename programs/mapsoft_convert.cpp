@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
   opts.get("out", outfile);
   if (outfile == "") usage(argv[0]);
 
-  StrVec infiles; opts.get("args", infiles);
+  StrVec infiles; opts.get("cmdline_args", infiles);
 
 // чтение файлов
 

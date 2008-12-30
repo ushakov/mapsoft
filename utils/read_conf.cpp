@@ -118,7 +118,7 @@ bool read_conf(int argc, char **argv, Options & opts){
     args.push_back(argv[i]);
   }
 
-  if (args.size()!=0) cmdline_opts.put("args", args);
+  if (args.size()!=0) cmdline_opts.put("cmdline_args", args);
 
   /***** reading global config file *****/
 
