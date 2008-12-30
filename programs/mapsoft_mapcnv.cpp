@@ -64,8 +64,6 @@ main(int argc, char **argv){
   string mapfile="";
   opts.get("map", mapfile);
 
-  Options infiles; opts.get("args", infiles);
-
   Rect<double> geom;
   opts.get("geom", geom);
   if (geom.empty()){
@@ -116,9 +114,9 @@ main(int argc, char **argv){
     geo_data world;
 
     //чтение файлов из командной строки:
-    Options infiles; opts.get("args", infiles);
-    for(Options::const_iterator i=infiles.begin(); i!=infiles.end(); i++) 
-      io::in(i->first, world, opts);
+    StrVec infiles; opts.get("args", infiles);
+    for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
+      io::in(*i, world, opts);
 
     bool draw_borders=false;
     opts.get("draw_borders", draw_borders);

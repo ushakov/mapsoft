@@ -66,14 +66,13 @@ int main(int argc, char *argv[]) {
   opts.get("out", outfile);
   if (outfile == "") usage(argv[0]);
 
-  Options infiles; opts.get("args", infiles);
+  StrVec infiles; opts.get("args", infiles);
 
 // чтение файлов
 
   geo_data world;
-  Options::const_iterator i;
-
-  for(i=infiles.begin(); i!=infiles.end(); i++) io::in(i->first, world, opts);
+  for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
+    io::in(*i, world, opts);
 
 // all these things -> io::filters ?
   io::skip(world, opts);

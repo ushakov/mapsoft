@@ -49,8 +49,9 @@ int main(int argc, char *argv[]) {
 
   g_map ref = fig::get_ref(F);
 
-  Options infiles; opts.get("args", infiles);
-  for(Options::const_iterator i=infiles.begin(); i!=infiles.end(); i++) io::in(i->first, world, opts);
+  StrVec infiles; opts.get("args", infiles);
+  for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
+    io::in(*i, world, opts);
 
 /*  for(i=filters.begin(); i!=filters.end(); i++){
     if (*i == "map_nom_brd") filters::map_nom_brd(world);

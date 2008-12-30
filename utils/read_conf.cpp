@@ -39,7 +39,7 @@ bool read_conf(int argc, char **argv, Options & opts){
   /***** parse command line options to cmdline_opts *****/
 
   bool skip = false;
-  Options args;
+  StrVec args;
 
   for (int i=1; i<argc; i++){
 
@@ -115,7 +115,7 @@ bool read_conf(int argc, char **argv, Options & opts){
       }
 
     }
-    args[argv[i]]="";
+    args.push_back(argv[i]);
   }
 
   if (args.size()!=0) cmdline_opts.put("args", args);
