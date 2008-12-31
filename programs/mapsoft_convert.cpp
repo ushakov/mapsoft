@@ -35,13 +35,22 @@ void usage(const char *fname){
        << "      (Each track in single .plt file, each waypoint set in\n"
        << "       single .wpt file, each map reference in one .map file)\n"
        << "  .zip -- zipped OziExplorer format\n"
-       << "  .kml -- ???\n"
+       << "  .kml           -- ???\n"
        << "  .bmp,.png,.jpg -- ???\n"
        << "  .fig           -- ???\n"
        << "  .htm,.html     -- ???\n"
-   << "If output file is \"usb:\" data will be sent to Garmin GPS\n"
+       << "If output file is \"usb:\" data will be sent to Garmin GPS\n"
        << "device via libusb. If output file is a character device\n"
        << "data will be sent to Garmin GPS via serial port.\n"
+       << "\n";
+
+  cerr << "Input files. Following formats supported:\n"
+       << "  -- mapsoft XML-like format\n"
+       << "  -- old garmin-utils format (for tracks and waypoints)\n"
+       << "  -- OziExplorer format (for tracks, waypoints, map references)\n"
+       << "  -- geofig format\n"
+       << "  -- Garmin GPS device via libusb or serial port\n"
+       << "     (use \"usb:\" or serial device name as a input file name\n"
        << "\n";
 
   cerr << "Skipping data. If --skip parameter string contains letter:\n"
