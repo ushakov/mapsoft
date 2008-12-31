@@ -1,4 +1,5 @@
 #include "strvec.h"
+#include <ios>
 
 std::ostream & operator<< (std::ostream & s, const StrVec & v){
   for (StrVec::const_iterator i=v.begin(); i!=v.end(); i++){
@@ -14,17 +15,30 @@ std::ostream & operator<< (std::ostream & s, const StrVec & v){
 std::istream & operator>> (std::istream & s, StrVec & v){
   v.clear();
   std::string str;
-  bool append=false;
-  while (!s.eof()){
-    getline(s, str);
-    if ((v.size()>0) &&
-        (v.rbegin()->size()>0) &&
-        (*(v.rbegin()->rbegin()) == '\\')){
-      *(v.rbegin()->rbegin()) = '\n';
-      *(v.rbegin()) += str;
+  bool qchar=false;
+  char c;
+  while (!(s>>c).eof()){
+    if (qchar){
+      if ((c!='\\') && (c!='\n')) {
+        std::cerr << "StrVec operator>> warning:\n"
+                  <<"   unknown escape sequence \\" << c << "\n";
+      }
+      str.push_back(c);
+      qchar = false;
     }
-    else v.push_back(str);
+    else {
+      if (c == '\\') qchar = true;
+      else if (c == '\n') v.push_back(str);
+      else str.push_back(c);
+    }
   }
+  if (qchar) {
+    std::cerr << "StrVec operator>> warning:\n"
+              <<"   unqouted \\ at the end of input\n";
+  }
+
+  v.push_back(str);
+  s.clear();
   return s;
 }
 
