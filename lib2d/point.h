@@ -2,8 +2,8 @@
 #define POINT_H
 
 #include <boost/operators.hpp>
-//#include <boost/test/floating_point_comparison.hpp>
 #include <iostream>
+#include <ios>
 #include <cmath> // for rint
 
 template <typename T>
@@ -92,9 +92,13 @@ std::ostream & operator<< (std::ostream & s, const Point<T> & p){
 template <typename T>
 std::istream & operator>> (std::istream & s, Point<T> & p){
   char sep;
-  s >> std::ws >> p.x >> std::ws >> sep >> std::ws;
-  if (sep!=',') {s.unget(); return s;}
-  s >> p.y >> std::ws;
+  s >> std::ws >> p.x >> std::ws >> sep;
+  if (sep!=','){
+    s.setstate(std::ios::failbit);
+    return s;
+  }
+  s >> std::ws >> p.y >> std::ws;
+  s.setstate(std::ios::goodbit);
   return s;
 }
 

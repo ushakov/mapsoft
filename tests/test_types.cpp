@@ -44,6 +44,7 @@ std::cerr << " * Points\n";
   cast_test("1 ,2,", p, false);
   cast_test("1 2",   p, false);
   cast_test("1 2,3", p, false);
+  cast_test("1+",   p, false);
 
 std::cerr << " * Lines\n";
 
@@ -71,6 +72,7 @@ std::cerr << " * Rects\n";
   cast_test("12x23-100-120",   r2, true);
   cast_test("12x23+-100+-120", r2, true);
   cast_test("12x23+-100+-120,", r2, false);
+  cast_test("12x23?100", r1, false);
 
   cast_test(Point<double>(1.1,2.2), l1, true);
 

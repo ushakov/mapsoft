@@ -3,6 +3,7 @@
 
 #include <boost/operators.hpp>
 #include <iostream>
+#include <ios>
 #include <cmath>
 #include <list>
 #include <vector>
@@ -149,9 +150,13 @@ std::istream & operator>> (std::istream & s, Line<T> & l){
   l.push_back(p);
   while (!s.eof()){
     s >> std::ws >> sep >> std::ws >> p;
-    if (sep!=',') {s.unget(); return s;}
+    if (sep!=','){
+      s.setstate(std::ios::failbit);
+      return s;
+    }
     l.push_back(p);
   }
+  s.setstate(std::ios::goodbit);
   return s;
 }
 

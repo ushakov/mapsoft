@@ -2,7 +2,9 @@
 #define RECT_H
 
 #include <boost/operators.hpp>
+#include <ios>
 #include "point.h"
+
 
 template <typename T>
 class Rect :
@@ -105,16 +107,26 @@ std::istream & operator>> (std::istream & s, Rect<T> & r){
   char sep;
 
   s >> r.w >> sep >> r.h;
-  if (sep!='x') return s;
+  if (sep!='x') {
+    s.setstate(std::ios::failbit);
+    return s;
+  }
 
   s >> sep >> r.x;
   if (sep=='-') r.x=-r.x;
-  else if (sep!='+') return s;
+  else if (sep!='+'){
+    s.setstate(std::ios::failbit);
+    return s;
+  }
 
   s >> sep >> r.y;
   if (sep=='-') r.y=-r.y;
-  else if (sep!='+') return s;
+  else if (sep!='+'){
+    s.setstate(std::ios::failbit);
+    return s;
+  }
 
+  s.setstate(std::ios::goodbit);
   return s;
 }
 

@@ -4,6 +4,7 @@ std::ostream & operator<< (std::ostream & s, const StrVec & v){
   for (StrVec::const_iterator i=v.begin(); i!=v.end(); i++){
     for (std::string::const_iterator c=i->begin(); c!=i->end(); c++){
       if (*c=='\n') s << '\\';
+      if (*c=='\\') s << '\\';
       s << *c;
     }
     s << '\n';
@@ -26,3 +27,4 @@ std::istream & operator>> (std::istream & s, StrVec & v){
   }
   return s;
 }
+
