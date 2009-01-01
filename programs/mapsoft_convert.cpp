@@ -18,11 +18,11 @@ using namespace std;
 void usage(const char *fname){
 
   cerr << "\nConvert geodata to different formats\n"
-       << "Usage: "<< fname << " <in1> ... <inN> --option[=value] ... -o <out>\n\n";
+       << "Usage: "<< fname << " <in1> ... <inN> [--option[=value]] ... -o <out>\n\n";
 
   cerr << "Options:\n"
        << "  --help, -h                    Show this help message\n"
-       << "  --out=<file>, -o <file>       Specify output file\n"
+       << "  --out=<file>, -o <file>       Specify output file (required)\n"
        << "  --skip=<string>, -s <string>  Skip some types of data\n"
        << "  --rescale_maps <factor>       Rescale map references\n"
        << "\n";
@@ -32,10 +32,10 @@ void usage(const char *fname){
        << "  .xml -- mapsoft XML-like format (all data will be written to one file)\n"
        << "  .gu  -- old garmin-utils format (tracks and waypoints only)\n"
        << "  .wpt, .plt, .map, .oe  -- OziExplorer format.\n"
-       << "      (Each track in single .plt file, each waypoint set in\n"
-       << "       single .wpt file, each map reference in one .map file)\n"
+       << "      (Each track, waypoint set or map reference will be written in a\n"
+       << "       separate .plt, .wpt or .map file)\n"
        << "  .zip -- zipped OziExplorer format\n"
-       << "  .kml           -- ???\n"
+       << "  .kml           -- (broken?)\n"
        << "  .bmp,.png,.jpg -- ???\n"
        << "  .fig           -- ???\n"
        << "  .htm,.html     -- ???\n"
@@ -44,13 +44,13 @@ void usage(const char *fname){
        << "data will be sent to Garmin GPS via serial port.\n"
        << "\n";
 
-  cerr << "Input files. Following formats supported:\n"
+  cerr << "Input files. Following formats are supported:\n"
        << "  -- mapsoft XML-like format\n"
        << "  -- old garmin-utils format (for tracks and waypoints)\n"
        << "  -- OziExplorer format (for tracks, waypoints, map references)\n"
        << "  -- geofig format\n"
        << "  -- Garmin GPS device via libusb or serial port\n"
-       << "     (use \"usb:\" or serial device name as a input file name\n"
+       << "     (use \"usb:\" or serial device name as a input file name)\n"
        << "\n";
 
   cerr << "Skipping data. If --skip parameter string contains letter:\n"
@@ -58,7 +58,7 @@ void usage(const char *fname){
        << "  \"w\" -- skip waypoints\n"
        << "  \"t\" -- skip tracks\n"
        << "  \"a\" -- skip ACTIVE LOG track\n"
-       << "  \"o\" -- skip all but ACTIVE LOG tracks\n"
+       << "  \"o\" -- skip all tracks excluding ACTIVE LOG\n"
        << "\n";
 
   exit(0);
