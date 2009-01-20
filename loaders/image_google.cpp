@@ -86,7 +86,7 @@ int load(
 	  if (!f) return 1;
 	  int n = rand() % 4;
 	  std::ostringstream urls;
-	  urls << "http://khm" << n << ".google.com/kh?&v=31&hl=ru" 
+	  urls << "http://khm" << n << ".google.com/kh?&v=34&hl=ru" 
                << "&x=" << xt << "&y=" << yt << "&z=" << google_scale-1 << "&s=";
           urls.write("Galileo", (xt*3+yt)%8);
 	  std::string url = urls.str();
@@ -96,6 +96,11 @@ int load(
 	      fclose (f); return 1;
 	  }
 	  if (curl_easy_setopt (curl_handle, CURLOPT_WRITEDATA, f)) {
+	      std::cerr << curl_error;
+	      fclose (f); return 1;
+	  }
+	  const char *agent="curl";
+	  if (curl_easy_setopt (curl_handle, CURLOPT_USERAGENT, agent)) {
 	      std::cerr << curl_error;
 	      fclose (f); return 1;
 	  }
