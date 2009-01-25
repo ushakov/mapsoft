@@ -28,7 +28,7 @@ std::istream & operator>> (std::istream & s, StrVec & v){
     }
     else {
       if (c == '\\') qchar = true;
-      else if (c == '\n') v.push_back(str);
+      else if (c == '\n') { v.push_back(str); str.clear(); }
       else str.push_back(c);
     }
   }
@@ -37,7 +37,7 @@ std::istream & operator>> (std::istream & s, StrVec & v){
               <<"   unqouted \\ at the end of input\n";
   }
 
-  v.push_back(str);
+  if (str.size()!=0) v.push_back(str);
   s.clear();
   return s;
 }
