@@ -112,12 +112,12 @@ bool read_conf(int argc, char **argv, Options & opts){
 
       if (argv[i][0]=='-'){
         cerr << "Uknown option: " << argv[i] << "\n";
+        continue;
       }
 
     }
     args.push_back(argv[i]);
   }
-
   if (args.size()!=0) cmdline_opts.put("cmdline_args", args);
 
   /***** reading global config file *****/
