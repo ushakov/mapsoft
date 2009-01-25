@@ -26,7 +26,10 @@ namespace gps {
                 if (!init_gps(port)) return false;
 
 		int n;
-		if ((n = GPS_Command_Get_Waypoint (port, &wpt, NULL)) <= 0) {std::cerr << "can't get waypoints";return false;}
+		if ((n = GPS_Command_Get_Waypoint (port, &wpt, NULL)) <= 0) {
+                  std::cerr << "can't get waypoints\n"; 
+                  return false;
+                }
 
 		g_waypoint_list new_w;
 
@@ -54,7 +57,10 @@ namespace gps {
 		GPS_PTrack *trk;
                 if (!init_gps(port)) return false;
                 int n;
-		if((n = GPS_Command_Get_Track (port, &trk)) < 0) {std::cerr << "can't get track";return false;}
+		if((n = GPS_Command_Get_Track (port, &trk)) < 0) {
+                  std::cerr << "can't get track\n"; 
+                  return false;
+                }
 
 		g_track new_t;
 		bool begin=true;
@@ -163,8 +169,8 @@ namespace gps {
 
 
 	bool get_all (const char* port, geo_data & world, const Options &opt){
-	    if (!get_waypoints(port, world, opt) || 
-	        !get_track(port, world, opt)) {return false;}
+	    get_waypoints(port, world, opt);
+	    get_track(port, world, opt);
 	    if (opt.find("gps_off")!=opt.end()) GPS_Command_Off(port);
 	    return true;
 	}
