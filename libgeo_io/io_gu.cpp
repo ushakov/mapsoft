@@ -175,8 +175,6 @@ namespace gu {
 		f << "[tracks, " << num << " records]\n";
 		for (vector<g_trackpoint>::const_iterator p = tr.begin(); p != tr.end(); p++)
 		{
-			struct tm * ts = localtime(&p->t.value);
-			if (ts == NULL) { time_t t = time(NULL);  ts = localtime(&t);}
 			f << right << fixed << setprecision(6) << setfill(' ')
 			  << setw(10)<< p->y << " "
 			  << setw(11)<< p->x << " "

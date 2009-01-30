@@ -428,8 +428,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		  << trk.color.RGB().value << ',' 
 		  << cnv.from_utf(trk.comm)  << ',' 
 		  << trk.skip  << ',' 
-		  << trk.type  << ',' 
-		  << trk.fill  << ',' 
+		  << trk.type.val  << ',' 
+		  << trk.fill.val  << ',' 
 		  << trk.cfill.RGB().value << "\r\n" 
 		  << num << "\r\n";
 		for (vector<g_trackpoint>::const_iterator p = trk.begin(); 
@@ -469,12 +469,12 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << setw(11) << p->x << ','
 			  << setprecision(7) << setw(13)
 			  << (p->t.value+2209161600.0)/3600.0/24.0 << ','
-			  << p->symb       << ",1,"
-			  << p->map_displ  << ','
+			  << p->symb.val      << ",1,"
+			  << p->map_displ.val << ','
 			  << p->color.RGB().value   << ','
 			  << p->bgcolor.RGB().value << ','
 			  << cnv.from_utf(p->comm)  << ','
-			  << p->pt_dir     << ','
+			  << p->pt_dir.val << ','
 			  << p->displ      << ','
 			  << p->prox_dist  << ','
 			  << (p->z >= 1e20 ? -777: p->z/0.3048) << ','
