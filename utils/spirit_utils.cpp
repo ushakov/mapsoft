@@ -18,10 +18,10 @@ bool parse_file(const char * name, const char *file, const rule_t & rule){
       std::cerr << name << ": can't parse file " << file <<
         " at position " << res.length << "\n";
       int i,j;
-      for (i=0; (i>-20) && (it!=first); i--) if (it-- == first) break;
+      for (i=0; i>-20; i--) if (it == first) break; else it--;
       for (j=i; j<20; j++) {
         std::cerr << (*it == '\n' ? '\f':*it);
-        if (it++ == last) break;
+        if (it == last) break; else it++;
       }
       std::cerr << "\n";
       for (j=i; j<20; j++) std::cerr << (j==0? "^":" ");
