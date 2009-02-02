@@ -130,6 +130,7 @@ std::cerr << dx << " x " << dy << " tile_size\n";
       g_point tlc(range.x+i*dx, range.y+j*dy);
 
       Image<int> im = ml->get_image(Rect<int>(tlc, tlc+g_point(dx,dy)));
+      if (im.empty()) continue;
       std::ostringstream fname; fname << dir_name << "/" << source[0] << depth << "-" << i << "-" << j << ".jpg"; 
       image_r::save(im, fname.str().c_str(), Options());
 
