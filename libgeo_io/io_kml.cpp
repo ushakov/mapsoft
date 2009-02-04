@@ -41,7 +41,7 @@ namespace kml {
 		f << "      <name><![CDATA[" << wp->name << "]]></name>" << std::endl;
 		f << "      <description><![CDATA[" << wp->comm << "]]></description>" << std::endl;
 		f << "      <Point>" << std::endl;
-		f << "        <coordinates>" << wp->x << "," << wp->y << "</coordinates>" << std::endl;
+		f << "        <coordinates>" << wp->x << "," << wp->y << "," << wp->z << "</coordinates>" << std::endl;
 		f << "      </Point>" << std::endl;
 		f << "    </Placemark>" << std::endl;
 	    }
@@ -62,7 +62,7 @@ namespace kml {
 		    f << "        <tesselate>1</tesselate>" << std::endl;
 		    f << "        <coordinates>" << std::endl;
 		}	
-		f << "          " << tp->x << "," << tp->y << std::endl;
+		f << "          " << tp->x << "," << tp->y << "," << tp->z << std::endl;
 	    }
 	    f << "        </coordinates>" << std::endl;
 	    f << "      </LineString>" << std::endl;
