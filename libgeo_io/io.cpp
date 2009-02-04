@@ -138,10 +138,19 @@ namespace io {
 		}
 		
 		// Запись KML-файла
-		if (testext(outfile, ".kml")){
-		
-			cerr << "Writing to Google KML file " << outfile << "\n";
-			kml::write_file (outfile.c_str(), world, opt);
+		if (testext(outfile, ".kml") || testext(outfile, ".kmz")){
+			string base(outfile.begin(), outfile.begin()+outfile.rfind('.'));
+			string kml=base+".kml";
+			cerr << "Writing to Google KML file " << kml << "\n";
+			kml::write_file (kml.c_str(), world, opt);
+
+			if (testext (outfile, ".kmz")){
+				cerr << "Zipping "<< kml << "\n";
+				string zipcmd = "zip " + base + ".kmz " + kml;
+				string rmcmd =  "rm " + kml;
+				system (zipcmd.c_str());
+				system (rmcmd.c_str());
+			}
 			return;
 		}
 
