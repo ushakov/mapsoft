@@ -28,7 +28,7 @@ namespace kml {
 	std::ofstream f(filename);
 	if (!f.good()) return false;
 
-	f << "<?xml version=\"1.0\" encoding=\"koi8-r\"?>" << std::endl;
+	f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
 	f << "<kml xmlns=\"http://earth.google.com/kml/2.1\">" << std::endl;
 	f << "  <Document>" << std::endl;
 
