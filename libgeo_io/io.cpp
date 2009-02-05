@@ -155,9 +155,10 @@ namespace io {
 		}
 
 		// Запись растровой картинки
-		if ((testext(outfile, ".bmp")) ||
-			(testext(outfile, ".png")) ||
-			(testext(outfile, ".jpg")) ){
+		if ((testext(outfile, ".tiff")) ||
+		    (testext(outfile, ".tif")) ||
+		    (testext(outfile, ".jpeg")) ||
+		    (testext(outfile, ".jpg")) ){
 		
 			cerr << "Writing image " << outfile << "\n";
 			img::write_file(outfile.c_str(), world, opt);

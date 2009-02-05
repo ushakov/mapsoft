@@ -37,13 +37,32 @@ void usage(const char *fname){
        << "  .zip -- zipped OziExplorer files\n"
        << "  .kml -- Google KML format (tracks and waypoint only, lat,lon,alt,name data only)\n"
        << "  .kmz -- zipped kml\n"
-       << "  .bmp,.png,.jpg -- ???\n"
+       << "  .tif, .tiff, .jpg, .jpeg -- raster image (map, fig, or html wrap can be made)\n"
        << "  .fig           -- ???\n"
        << "  .htm,.html     -- ???\n"
        << "If output file is \"usb:\" data will be sent to Garmin GPS\n"
        << "device via libusb. If output file is a character device\n"
        << "data will be sent to Garmin GPS via serial port.\n"
        << "\n";
+
+/* " Options for image output
+"  -s <string>\n" <<
+"  --skip=<string>\n" <<
+"  -O skip=<string>\n" <<
+"                    -- Skipping data\n" <<
+"  -g <rect>\n"
+"  --geom=<rect>\n"
+"  -O geom=<rect>\n"
+"                    -- Geometry\n" <<
+"  -p <proj>\n"
+"  --proj=<proj>\n"
+"  -O proj=<proj>\n"
+"                    -- Projection (tmerc)\n" <<
+"  -d <datum>\n"
+"  --datum=<datum>\n"
+"  -O datum=<datum>\n"
+"                    -- Datum (pulkovo)\n" <<
+*/
 
   cerr << "Input files. Following formats are supported:\n"
        << "  -- mapsoft XML-like format\n"
