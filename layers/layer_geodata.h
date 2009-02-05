@@ -16,6 +16,8 @@
 
 #include "../lib2d/point_utils.h"
 
+#include <boost/shared_ptr.hpp>
+
 #define DEBUG_LAYER_GEODATA
 
 /// Растровый слой для показа точек и треков
