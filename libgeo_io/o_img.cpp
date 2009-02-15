@@ -3,7 +3,11 @@
 
 #include "../layers/layer_geomap.h"
 #include "../layers/layer_geodata.h"
+#include "../layers/layer_google.h"
+#include "../layers/layer_ks.h"
+
 #include "../libgeo/geo_convs.h"
+#include "../libgeo/geo_refs.h"
 #include "../libgeo_io/geofig.h"
 #include "../lib2d/line_utils.h"
 
@@ -40,7 +44,10 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     }
   }
 
-  // creating map reference with borders
+  int ks_zoom=-1; opt.get("ks",     ks_zoom);
+  int gg_zoom=-1; opt.get("google", gg_zoom);
+
+  // creating initial map reference with borders
   g_map ref; // unscaled ref
   g_line brd;
   brd.push_back(geom.BLC());
@@ -72,33 +79,73 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
       g_map orig_ref=convs::mymap(world);
       k=1.0/convs::map_mpp(orig_ref);
     }
+    else if (gg_zoom>0){
+      double mpp = 6380000.0 * 2*M_PI /256.0/(2 << (gg_zoom-1));
+      k=1.0/mpp;
+    }
+    else if (ks_zoom>0){
+      double width = 4 * 256*(1<<(ks_zoom-2));
+      double deg_per_pt = 180.0/width; // ~188
+      double mpp   = deg_per_pt * M_PI/180 * 6378137.0;
+      k=1.0/mpp;
+    }
     else {
       k=scale/2.54e-2*dpi;
     }
   }
 
   // rescale reference
-  geom *= k*factor;
   ref  *= k*factor;
+  geom *= k*factor;
   ref  -= geom.TLC();
+  geom -= geom.TLC();
 
-  cerr << "image size: " << geom.w << "x" << geom.h << "\n";
+  // is output image not too large
+  Point<int> max_image(5000,5000);
+  opt.get("max_image", max_image);
+  cerr << "Image size: " << geom.w << "x" << geom.h << "\n";
+  if ((geom.w>max_image.x) || (geom.h>max_image.y)){
+     cerr << "Error: image is too large ("
+          << geom.w << "x" << geom.h << ") pixels. "
+          << "You may change max_image option to pass this test.\n";
+    exit(1);
+  }
 
   Image<int> im(geom.w,geom.h,0x00FFFFFF);
 
+  if (gg_zoom>=0){
+    string dir=""; opt.get("google_dir", dir);
+    bool download=false; opt.get("download", download);
+    LayerGoogle l(dir, gg_zoom);
+    l.set_ref(ref);
+    l.set_downloading(download);
+    Image<int> tmp_im = l.get_image(geom);
+    if (!tmp_im.empty()) im.render(Point<int>(0,0), tmp_im);
+  }
+
+  if (ks_zoom>=0){
+    string dir=""; opt.get("ks_dir", dir);
+    bool download=false; opt.get("download", download);
+    LayerKS l(dir, ks_zoom);
+    l.set_ref(ref);
+    l.set_downloading(download);
+    Image<int> tmp_im = l.get_image(geom);
+    if (!tmp_im.empty()) im.render(Point<int>(0,0), tmp_im);
+  }
+
   if (!world.maps.empty()){
     bool draw_borders=false;  opt.get("draw_borders", draw_borders);
-    LayerGeoMap  ml(&world, draw_borders);
-    ml.set_ref(ref);
-    Image<int> tmp_im = ml.get_image(geom);
+    LayerGeoMap  l(&world, draw_borders);
+    l.set_ref(ref);
+    Image<int> tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(Point<int>(0,0), tmp_im);
   }
 
   if (!world.trks.empty() || !world.wpts.empty()){
     geo_data world1=world; // LayerGeoData can't get const world
-    LayerGeoData dl(&world1);
-    dl.set_ref(ref);
-    Image<int> tmp_im = dl.get_image(geom);
+    LayerGeoData l(&world1);
+    l.set_ref(ref);
+    Image<int> tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(Point<int>(0,0), tmp_im);
   }
 

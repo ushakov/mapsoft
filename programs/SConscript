@@ -11,8 +11,8 @@ env_gtk.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
 env_geo.Prepend(LIBS=[mapsoft_libs,other_libs])
 
 
-env_geo.Program('mapsoft_add2fig', 'mapsoft_add2fig.cpp')
-env_geo.Program('mapsoft_convert', 'mapsoft_convert.cpp')
+env_geo.Program('mapsoft_add2fig.cpp')
+env_geo.Program('mapsoft_convert.cpp', LIBS=[mapsoft_libs, other_libs, 'curl'])
 # le.Program('mapsoft_imgview', 'mapsoft_imgview.cpp')
 env_geo.Program('mapsoft_mapcnv', 'mapsoft_mapcnv.cpp')
 env_geo.Program('mapsoft_mapcnv1', 'mapsoft_mapcnv1.cpp')
