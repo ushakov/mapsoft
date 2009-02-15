@@ -1,4 +1,5 @@
 #include <string>
+#include <cstring>
 #include <fstream>
 #include "../libgeo_io/geofig.h"
 #include "../libmp/mp.h"

@@ -61,7 +61,7 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
     text+=shift;
     ret.push_back(text);
     
-    ostringstream mp_key;
+    std::ostringstream mp_key;
     mp_key << i->second.mp.Class << " 0x" << std::setbase(16) << i->second.mp.Type;
     text.text = mp_key.str();
     text.clear();
@@ -83,7 +83,7 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
 
 // текстовый список всех знаков
 std::string make_text(zn_conv & z){
-  ostringstream out;
+  std::ostringstream out;
   for (std::map<int, zn>::const_iterator i = z.znaki.begin(); i!=z.znaki.end(); i++){
     out << std::setbase(16) << i->first << "\t" << i->second.name << " // " << i->second.desc << "\n";
   }
