@@ -148,8 +148,8 @@ namespace io {
 				cerr << "Zipping "<< kml << "\n";
 				string zipcmd = "zip " + base + ".kmz " + kml;
 				string rmcmd =  "rm " + kml;
-				system (zipcmd.c_str());
-				system (rmcmd.c_str());
+				if (! system (zipcmd.c_str())) cerr << "Error: can't do zip\n";
+				if (! system (rmcmd.c_str()))  cerr << "Error: can't do rm\n";
 			}
 			return;
 		}
@@ -267,8 +267,8 @@ namespace io {
 				cerr << "Zipping "<< files << "\n";
 				string zipcmd = "zip " + base + ".zip " + files;
 				string rmcmd =  "rm " + files;
-				system (zipcmd.c_str());
-				system (rmcmd.c_str());
+				if (! system (zipcmd.c_str())) cerr << "Error: can't do zip\n";
+				if (! system (rmcmd.c_str()))  cerr << "Error: can't do rm\n";
 			}
 
 			return;
