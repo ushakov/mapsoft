@@ -4,6 +4,7 @@ env.Library('geo', \
 	geo_convs.cpp
 	geo_data.cpp
 	geo_types.cpp
+   geo_refs.cpp
      """))
 
 convs_libs=Split("geo loaders jeeps utils 2d png jpeg tiff")
