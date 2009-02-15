@@ -46,4 +46,5 @@ env_gtk.Program('mapsoft_mapview.cpp')
 
 env.Alias('install', '/usr/bin/')
 env.Install('/usr/bin/', ['mapsoft_mapview', 'mapsoft_convert'])
+env.Install('/usr/share/man/man1/', ['mapsoft_convert.1'])
 
