@@ -150,6 +150,7 @@ garmin_usb_start(struct usb_device *dev)
 	 */
 #if !defined (__APPLE__)
 	udev = usb_open(dev);
+	if (!udev) { fatal("usb_open failed\n"); }
 	usb_reset(udev);
 	usb_close(udev);
 #endif /* APPLE */
