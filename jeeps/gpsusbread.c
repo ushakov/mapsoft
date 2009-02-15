@@ -24,6 +24,7 @@
 #include "garminusb.h"
 #include "gpsusbint.h"
 
+// Returns 0 on error
 int32 GPS_Packet_Read_usb(int32 fd, GPS_PPacket *packet)
 {
 	int32  n;
@@ -35,6 +36,9 @@ int32 GPS_Packet_Read_usb(int32 fd, GPS_PPacket *packet)
 	garmin_usb_packet pkt;
 	memset(&pkt, 0, sizeof(pkt));
 	n = gusb_cmd_get(&pkt, sizeof(pkt));
+
+   // Negative values indicate read error
+   if (n<0) return 0;
 
 	if (1 && gps_show_bytes) {
 		GPS_Diag("\nRx Data:[%d]",n);
