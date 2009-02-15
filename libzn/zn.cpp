@@ -1,3 +1,8 @@
+// now we use libyaml
+#include <yaml.h>
+
+#include <string>
+
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -14,101 +19,176 @@
 
 namespace zn{
 
-// в этом диапазоне глубин должны лежать 
-// только картографические объекты!
+using namespace std;
+
+// Depth region in wich all crtographic objects live.
+// Its boundaries are minimal and maximum depth of objects in config file
 bool zn_conv::is_map_depth(const fig::fig_object & o){
   return ((o.type!=6) && (o.type!=-6) && (o.depth>=min_depth) && (o.depth<=max_depth));
 }
 
-// Заполняет массив знаков 
-bool zn_conv::load_znaki(YAML::Node &root) {
-   using namespace YAML;
-   if (root.type != ARRAY) return false;
+// States for our YAML parser
+typedef enum {
+  N,
+  KEY,
+  VAL
+} reading_state_t;
 
-   min_depth=999;
-   max_depth=0;
-   znaki.clear();
-   NodeList::iterator it = root.value_array.begin();
-   for (it;it!=root.value_array.end();it++) {
-      Node child = *it;
-      if (child.type != HASH)
-        return false;
+// zn_conv constructor. Read config file,
+// build structure with fig and mp objects
+zn_conv::zn_conv(const string & conf_file){
 
-      zn z;
+  yaml_parser_t parser;
+  yaml_event_t event;
 
-      const char *v = child.hash_str_value("name");
-      if (v==NULL) return false;
-      z.name = v;
+  vector<int> history;
+  bool first;
 
-      v = child.hash_str_value("mp");
-      if (v==NULL) return false;
-      z.mp = mp::make_object(v);
+  string key, val;
+  zn z;
 
-      v = child.hash_str_value("fig");
-      if (v==NULL) return false;
-      z.fig = fig::make_object(v);
-      if (min_depth>z.fig.depth) min_depth=z.fig.depth;
-      if (max_depth<z.fig.depth) max_depth=z.fig.depth;
+  reading_state_t state=N;
 
-      v = child.hash_str_value("desc");
-      if (v!=NULL) z.desc = v;
-
-      v = child.hash_str_value("txt");
-      if (v==NULL) z.istxt=false;
-      else {
-        z.istxt=true;
-        z.txt = fig::make_object(v);
-        if (z.txt.type!=4){ 
-          std::cerr << "reading conf.file: not a text in txt object in "<< z.name <<"\n";
-          return false;
-        }
-      }
-
-      v = child.hash_str_value("pic");
-      if (v!=NULL) z.pic = v;
-
-      if (z.pic!=""){
-        struct stat st_buf;
-        std::string g_pd="/usr/share/mapsoft/pics/";
-        std::string l_pd="./pics/";
-        if (stat((g_pd+z.pic).c_str(), &st_buf) == 0)
-          z.pic=g_pd+z.pic;
-        else if (stat((l_pd+z.pic).c_str(), &st_buf) == 0)
-          z.pic=l_pd+z.pic;
-        else {
-          std::cerr << "Can't find zn picture " << z.pic
-                    << " in " << g_pd << " or " << l_pd << "\n";
-	  exit(1);
-        }
-      }
-
-      znaki.insert(std::pair<int, zn>(get_type(z.mp), z));   
-   }
-   return true;
-}
-
-
-
-//конструктор zn_conv
-zn_conv::zn_conv(const std::string & conf_file){
+  min_depth=999;
+  max_depth=0;
+  znaki.clear();
 
   // читаем конф.файл.
   FILE *file = fopen(conf_file.c_str(), "r");
-  if (file == NULL) {
-      cout << "Проблемы с чтением файла " << conf_file << endl;
-      exit(0);
+
+  if (!file) {
+    cerr << "Error while reading " << conf_file << ": "
+         << "can't read YAML file " << conf_file << endl;
+    exit(1);
   }
-  YAML::Node &root = YAML::parse(file);
-  if (!YAML::error.empty()) {
-      cout << "Проблемы с разбором файла " << conf_file << ":" << endl;
-      cout << YAML::error;
-      cout << endl;
-      exit(0);
-   }
-   if (!load_znaki(root)) {
-      cout << "Файл " << conf_file << " содержит неподходящую структуру данных" << endl;
-      exit(0);
-   }
+
+  if (!yaml_parser_initialize(&parser)){
+    cerr << "Error while reading " << conf_file << ": "
+         << "can't initialize YAML parser\n";
+    exit(1);
+  }
+
+  yaml_parser_set_input_file(&parser, file);
+
+  do {
+
+    if (!yaml_parser_parse(&parser, &event)) {
+      cerr << "Error while reading " << conf_file << ": "
+           << parser.problem << " at line "
+           << parser.problem_mark.line+1 << " \n";
+      exit(1);
+    }
+
+    if ((event.type == YAML_STREAM_START_EVENT) ||
+        (event.type == YAML_DOCUMENT_START_EVENT) ||
+        (event.type == YAML_SEQUENCE_START_EVENT) ||
+        (event.type == YAML_MAPPING_START_EVENT) ){
+      history.push_back(event.type);
+      first=true;
+    }
+
+    if ((event.type == YAML_STREAM_END_EVENT) ||
+        (event.type == YAML_DOCUMENT_END_EVENT) ||
+        (event.type == YAML_SEQUENCE_END_EVENT) ||
+        (event.type == YAML_MAPPING_END_EVENT) ){
+      if ((history.size()<=0) || (history[history.size()-1] != event.type-1)) {
+        cerr << "Error while reading " << conf_file << ": "
+             << "unmatched stop event at line " << event.start_mark.line+1 << " \n";
+        exit(1);
+      }
+      history.pop_back();
+    }
+
+    if (event.type != YAML_SCALAR_EVENT) state=N;
+
+    if (event.type == YAML_MAPPING_START_EVENT){
+      z=zn();
+      state=KEY;
+    }
+
+    if (event.type == YAML_MAPPING_END_EVENT){
+      znaki.insert(pair<int, zn>(get_type(z.mp), z));
+      state=N;
+    }
+
+
+    if ( (event.type == YAML_SCALAR_EVENT) && (state==KEY)){
+      state=VAL;
+      key.clear();
+      key.insert(0, (const char *)event.data.scalar.value, event.data.scalar.length);
+      continue;
+    }
+
+    if ( (event.type == YAML_SCALAR_EVENT) && (state==VAL)){
+      state=KEY;
+      val.clear();
+      val.insert(0, (const char *)event.data.scalar.value, event.data.scalar.length);
+
+      if (key=="name"){
+        z.name = val; 
+        continue;
+      }
+
+      if (key=="mp"){
+        z.mp = mp::make_object(val);
+        continue;
+      }
+
+      if (key=="fig"){
+        z.fig = fig::make_object(val);
+        if (min_depth>z.fig.depth) min_depth=z.fig.depth;
+        if (max_depth<z.fig.depth) max_depth=z.fig.depth;
+        continue;
+      }
+
+      if (key=="desc"){
+        z.desc = val;
+        continue;
+      }
+
+      if (key=="txt"){
+        z.istxt=true;
+        z.txt = fig::make_object(val);
+        if (z.txt.type!=4){
+          cerr << "Error while reading " << conf_file << ": "
+               << "bad txt object in "<< z.name <<"\n";
+          exit(1);
+        }
+        continue;
+      }
+
+      if (key=="pic"){
+        z.pic = val;
+        if (z.pic!=""){
+          struct stat st_buf;
+          string g_pd="/usr/share/mapsoft/pics/";
+          string l_pd="./pics/";
+          if (stat((g_pd+z.pic).c_str(), &st_buf) == 0)
+            z.pic=g_pd+z.pic;
+          else if (stat((l_pd+z.pic).c_str(), &st_buf) == 0)
+            z.pic=l_pd+z.pic;
+          else {
+            cerr << "Error while reading " << conf_file << ": "
+                 << "can't find zn picture " << z.pic
+                 << " in " << g_pd << " or " << l_pd << "\n";
+            exit(1);
+          }
+        }
+        continue;
+      }
+
+      cerr << "Warning while reading " << conf_file << ": "
+           << "unknown field" << key << "\n";
+      continue;
+    }
+
+    yaml_event_delete(&event);
+
+  } while (history.size()>0);
+
+  yaml_parser_delete(&parser);
+  assert(!fclose(file));
+
   default_fig = fig::make_object("2 1 2 2 4 7 10 -1 -1 6.000 0 2 -1 0 0 0");
   default_mp = mp::make_object("POLYLINE 0x0 0 1");
 }
@@ -127,7 +207,7 @@ int zn_conv::get_type (const fig::fig_object & o) const {
   if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return 0; // объект неинтересного вида
 
 
-  for (std::map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
+  for (map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
 
     int c1 = o.pen_color;
     int c2 = i->second.fig.pen_color;
@@ -197,7 +277,7 @@ fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, i
   if (znaki.find(type) != znaki.end()) ret = znaki.find(type)->second.fig;
   else {
     if (unknown_types.count(type) == 0){
-      std::cerr << "mp2fig: unknown type: 0x" << std::setbase(16) << type << std::setbase(10) << "\n";
+      cerr << "mp2fig: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
       unknown_types.insert(type);
     }
   }
@@ -232,7 +312,7 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, 
   if (znaki.find(type) != znaki.end()) mp = znaki.find(type)->second.mp;
   else {
     if (unknown_types.count(type) == 0){
-      std::cerr << "fig2mp: unknown type: 0x" << std::setbase(16) << type << std::setbase(10) << "\n";
+      cerr << "fig2mp: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
       unknown_types.insert(type);
     }
   }
@@ -272,7 +352,7 @@ void zn_conv::fig_update(fig::fig_object & fig, int type){
   if (znaki.find(type) != znaki.end()) tmp = znaki.find(type)->second.fig;
   else {
     if (unknown_types.count(type) == 0){
-      std::cerr << "fig_update: unknown type: 0x" << std::setbase(16) << type << std::setbase(10) << "\n";
+      cerr << "fig_update: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
       unknown_types.insert(type);
     }
   }
@@ -298,7 +378,7 @@ void zn_conv::fig_update(fig::fig_object & fig, int type){
 // Если тип 0 - ничего не менять
 void zn_conv::label_update(fig::fig_object & fig, int type) const{
 
-  std::map<int, zn>::const_iterator z = znaki.find(type);
+  map<int, zn>::const_iterator z = znaki.find(type);
   if (z != znaki.end()){
     fig.pen_color = z->second.txt.pen_color;
     fig.font      = z->second.txt.font;
@@ -308,17 +388,17 @@ void zn_conv::label_update(fig::fig_object & fig, int type) const{
 }
 
 // Создать картинку к объекту в соответствии с типом.
-std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type){
+list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type){
 
-  std::list<fig::fig_object> ret;
+  list<fig::fig_object> ret;
   if (fig.size()==0) return ret;
   ret.push_back(fig);
 
   if (type ==0) type = get_type(fig);
-  std::map<int, zn>::const_iterator z = znaki.find(type);
+  map<int, zn>::const_iterator z = znaki.find(type);
   if (z == znaki.end()){
     if (unknown_types.count(type) == 0){
-      std::cerr << "make_pic: unknown type: 0x" << std::setbase(16) << type << std::setbase(10) << "\n";
+      cerr << "make_pic: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
       unknown_types.insert(type);
     }
     return ret;
@@ -349,9 +429,9 @@ std::list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int ty
 }
 
 // Создать подписи к объекту.
-std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type){
+list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type){
 
-  std::list<fig::fig_object> ret;
+  list<fig::fig_object> ret;
   if (fig.size() == 0) return ret;                   // странный объект
 
   if (type ==0) type = get_type(fig);
@@ -359,7 +439,7 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int
   map<int, zn>::const_iterator z = znaki.find(type);
   if (z==znaki.end()){
     if (unknown_types.count(type) == 0){
-      std::cerr << "make_labels: unknown type: 0x" << std::setbase(16) << type << std::setbase(10) << "\n";
+      cerr << "make_labels: unknown type: 0x" << std::setbase(16) << type << setbase(10) << "\n";
       unknown_types.insert(type);
     }
     return ret;
@@ -372,7 +452,7 @@ std::list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int
   fig::fig_object txt = z->second.txt;
 
   if (is_map_depth(txt)){
-    std::cerr << "Error: label depth " << txt.depth << " is in map object depth range!";
+    cerr << "Error: label depth " << txt.depth << " is in map object depth range!";
     return ret;
   }
 

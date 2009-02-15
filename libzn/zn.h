@@ -8,7 +8,6 @@
 #include "../libgeo/geo_convs.h"
 #include "../libgeo_io/geofig.h"
 #include "../libmp/mp.h"
-#include "../yaml/yaml.h"
 
 #include "../utils/m_time.h"
 
@@ -28,6 +27,7 @@ struct zn{
   fig::fig_object txt;     // заготовка fig-объекта подписи
   std::string pic;         // картинка для точечного объекта (м.б. пустой)
   bool istxt;              // делать ли подпись?
+  zn(){istxt=false;}
 };
 
 
@@ -45,9 +45,6 @@ class zn_conv{
 
   // Конструктор - чтение конфигурационного файла
   zn_conv(const std::string & conf_file);
-
-  // вспомогательная процедура для конструктора
-  bool load_znaki(YAML::Node &root);
 
     // Операции с mp- и fig-объектами, для которых 
     // требуется конф.файл
