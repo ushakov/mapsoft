@@ -137,8 +137,9 @@ int32 GPS_Write_Packet(int32 fd, GPS_PPacket packet)
     size_t ret;
     const char *m1, *m2;
 
-    if (gps_is_usb) 
-	    return GPS_Write_Packet_usb(fd, packet);
+    if (gps_is_usb)
+	    return GPS_Write_Packet_usb(fd, packet);  // fd is not used!
+
 
     GPS_Diag("Tx Data:");
     Diag(&packet->dle, 3);    

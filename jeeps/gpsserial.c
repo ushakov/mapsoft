@@ -87,7 +87,7 @@ int32 GPS_Serial_On(const char *port, int32 *fd)
 	DCB tio;
 	COMMTIMEOUTS timeout;
 
-	if (gps_is_usb) {
+	if (gps_is_usb) { // Note: fd is not set for usb devices!
 	    switch (gusb_open(port)) {
 		    case 0: return 0;
 		    case 1: return 1;
@@ -480,6 +480,7 @@ int32 GPS_Serial_Chars_Ready(int32 fd)
     else
 	return 0;
 #endif
+    if (gps_is_usb) return 0;
 
     FD_ZERO(&rec);
     FD_SET(fd,&rec);
