@@ -1,9 +1,8 @@
-CPPFLAGS = -O1 -I../../utils
-LDFLAGS = -ljpeg 
+CPPFLAGS = -O1 -I../../loaders -I../../lib2d
+LDFLAGS = -L../../lib2d -L../../loaders
+LDLIBS = -lloaders -l2d -ltiff -ljpeg ../libbm.o
 
 all: bm_test
-
-bm_test: bm_test.cpp ../libbm.o
 
 clean:
 	rm bm_test
