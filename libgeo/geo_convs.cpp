@@ -3,6 +3,7 @@
 #include <sstream>
 
 #include "../lib2d/point_utils.h"
+#include "../lib2d/line_utils.h"
 
 #include "../loaders/image_r.h" // определение размеров картинки (image_r::size)
 #include "../jeeps/gpsdatum.h"
@@ -315,41 +316,12 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) {
 }
 
 Rect<double> pt2pt::bb_frw(const Rect<double> & R, double acc){
-  g_line v1;
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  v1.push_back(g_point(R.TRC().x, R.TRC().y));
-  v1.push_back(g_point(R.BRC().x, R.BRC().y));
-  v1.push_back(g_point(R.BLC().x, R.BLC().y));
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  g_line v2 = line_frw(v1,acc);
-  double minx = v2[0].x, maxx = v2[0].x;
-  double miny = v2[0].y, maxy = v2[0].y;
-  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
-    if (i->x < minx) minx = i->x;
-    if (i->x > maxx) maxx = i->x;
-    if (i->y < miny) miny = i->y;
-    if (i->y > maxy) maxy = i->y;
-  }
-  return Rect<double>(minx, miny, maxx-minx, maxy-miny);
+  g_line l = line_frw(rect2line(R),acc);
+  return l.range();
 }
-
 Rect<double> pt2pt::bb_bck(const Rect<double> & R, double acc){
-  g_line v1;
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  v1.push_back(g_point(R.TRC().x, R.TRC().y));
-  v1.push_back(g_point(R.BRC().x, R.BRC().y));
-  v1.push_back(g_point(R.BLC().x, R.BLC().y));
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  g_line v2 = line_bck(v1,acc);
-  double minx = v2[0].x, maxx = v2[0].x;
-  double miny = v2[0].y, maxy = v2[0].y;
-  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
-    if (i->x < minx) minx = i->x;
-    if (i->x > maxx) maxx = i->x;
-    if (i->y < miny) miny = i->y;
-    if (i->y > maxy) maxy = i->y;
-  }
-  return Rect<double>(minx, miny, maxx-minx, maxy-miny);
+  g_line l = line_bck(rect2line(R),acc);
+  return l.range();
 }
 
 
@@ -837,87 +809,41 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
 }
 
 Rect<int> map2map::bb_frw(const Rect<int> & R){
-  g_line v1;
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  v1.push_back(g_point(R.TRC().x, R.TRC().y));
-  v1.push_back(g_point(R.BRC().x, R.BRC().y));
-  v1.push_back(g_point(R.BLC().x, R.BLC().y));
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  g_line v2 = line_frw(v1);
-  double minx = v2[0].x, maxx = v2[0].x;
-  double miny = v2[0].y, maxy = v2[0].y;
-  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
-    if (i->x < minx) minx = i->x;
-    if (i->x > maxx) maxx = i->x;
-    if (i->y < miny) miny = i->y;
-    if (i->y > maxy) maxy = i->y;
-  }
-  minx = floor(minx); miny = floor(miny);
-  maxx = ceil(maxx);  maxy = ceil(maxy);
-  return Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny));
+  g_line vl = line_frw(rect2line(R));
+  Rect<double> r = l.range();
+  return Rect<int>(
+    int(floor(r.TLC().x)),
+    int(floor(r.TLC().y)),
+    int(ceil(t.BRC().x)),
+    int(ceil(t.BRC().y))
+  );
 }
 
 Rect<int> map2map::bb_bck(const Rect<int> & R){
-  g_line v1;
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  v1.push_back(g_point(R.TRC().x, R.TRC().y));
-  v1.push_back(g_point(R.BRC().x, R.BRC().y));
-  v1.push_back(g_point(R.BLC().x, R.BLC().y));
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  g_line v2 = line_bck(v1);
-  double minx = v2[0].x, maxx = v2[0].x;
-  double miny = v2[0].y, maxy = v2[0].y;
-  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
-    if (i->x < minx) minx = i->x;
-    if (i->x > maxx) maxx = i->x;
-    if (i->y < miny) miny = i->y;
-    if (i->y > maxy) maxy = i->y;
-  }
-  minx = floor(minx); miny = floor(miny);
-  maxx = ceil(maxx);  maxy = ceil(maxy);
-  return Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny));
+  g_line v2 = line_bck(rect2line(R));
+  Rect<double> r = l.range();
+  return Rect<int>(
+    int(floor(r.TLC().x)),
+    int(floor(r.TLC().y)),
+    int(ceil(t.BRC().x)),
+    int(ceil(t.BRC().y))
+  );
 }
 
 Rect<double> map2pt::bb_frw(const Rect<int> & R){
-  g_line v1;
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  v1.push_back(g_point(R.TRC().x, R.TRC().y));
-  v1.push_back(g_point(R.BRC().x, R.BRC().y));
-  v1.push_back(g_point(R.BLC().x, R.BLC().y));
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  g_line v2 = line_frw(v1);
-  double minx = v2[0].x, maxx = v2[0].x;
-  double miny = v2[0].y, maxy = v2[0].y;
-  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
-    if (i->x < minx) minx = i->x;
-    if (i->x > maxx) maxx = i->x;
-    if (i->y < miny) miny = i->y;
-    if (i->y > maxy) maxy = i->y;
-  }
-  minx = floor(minx); miny = floor(miny);
-  maxx = ceil(maxx);  maxy = ceil(maxy);
-  return Rect<double>(minx, miny, maxx-minx, maxy-miny);
+  g_line v2 = line_frw(rect2line(R));
+  return v2.range();
 }
 
 Rect<int> map2pt::bb_bck(const Rect<double> & R){
-  g_line v1;
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  v1.push_back(g_point(R.TRC().x, R.TRC().y));
-  v1.push_back(g_point(R.BRC().x, R.BRC().y));
-  v1.push_back(g_point(R.BLC().x, R.BLC().y));
-  v1.push_back(g_point(R.TLC().x, R.TLC().y));
-  g_line v2 = line_bck(v1);
-  double minx = v2[0].x, maxx = v2[0].x;
-  double miny = v2[0].y, maxy = v2[0].y;
-  for (g_line::const_iterator i = v2.begin(); i!=v2.end(); i++){
-    if (i->x < minx) minx = i->x;
-    if (i->x > maxx) maxx = i->x;
-    if (i->y < miny) miny = i->y;
-    if (i->y > maxy) maxy = i->y;
-  }
-  minx = floor(minx); miny = floor(miny);
-  maxx = ceil(maxx);  maxy = ceil(maxy);
-  return Rect<int>(int(minx), int(miny), int(maxx-minx), int(maxy-miny));
+  g_line v2 = line_bck(rect2line(R));
+  Rect<double> r = l.range();
+  return Rect<int>(
+    int(floor(r.TLC().x)),
+    int(floor(r.TLC().y)),
+    int(ceil(t.BRC().x)),
+    int(ceil(t.BRC().y))
+  );
 }
 
 
