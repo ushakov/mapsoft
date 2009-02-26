@@ -68,7 +68,6 @@ main(int argc, char** argv){
   Rect<double> r = Rect<double>(p01, p02);
 
   g_line border_ll = rect2line(r);
-  border_ll.push_back(p01);
 
 
   convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), O, Datum("wgs84"), Proj("lonlat"), Options());
