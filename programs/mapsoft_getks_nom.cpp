@@ -47,7 +47,6 @@ main(int argc, char **argv){
 
     // граница карты в СК wgs84
     g_line border_ll = rect2line(r);
-    border_ll.push_back(p01);
 
     // углы в координытах lonlat -> углы в координатах карты
     convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), O, Datum("pulkovo"), Proj("lonlat"), Options());

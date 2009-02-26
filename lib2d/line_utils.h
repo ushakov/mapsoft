@@ -12,6 +12,7 @@ Line<T> rect2line(const Rect<T> & r){
   ret.push_back(r.TRC());
   ret.push_back(r.BRC());
   ret.push_back(r.BLC());
+  ret.push_back(r.TLC());
   return  ret;
 }
 
