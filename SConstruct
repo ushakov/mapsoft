@@ -45,8 +45,10 @@ env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
 #	env.Append (CCFLAGS='-pg')
 #	env.Append (LINKFLAGS='-pg')
 #
-if ARGUMENTS.get('googleprofile', 0):
+if ARGUMENTS.get('gprofile', 0):
 	env.Append (LINKFLAGS='-lprofiler')
+if ARGUMENTS.get('gheapcheck', 0):
+	env.Append (LINKFLAGS='-ltcmalloc')
 
 
 Export('env')
