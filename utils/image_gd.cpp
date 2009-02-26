@@ -97,7 +97,6 @@ ImageDrawContext * ImageDrawContext::Create (Image<int> * image_) {
 }
 
 Rect<int> ImageDrawContext::GetTextMetrics (const char * text) {
-    ImageDrawContext *ctx = new ImageDrawContext ();
     int brect[8];
     char *fnt = strdup(IMAGE_DRAW_FONT);
     char *txt = strdup(text);

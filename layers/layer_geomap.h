@@ -137,6 +137,7 @@ public:
           }
        }
        ctx->StampAndClear();
+       delete ctx;
     }
 
 
