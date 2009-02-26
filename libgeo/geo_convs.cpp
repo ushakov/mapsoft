@@ -809,40 +809,40 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
 }
 
 Rect<int> map2map::bb_frw(const Rect<int> & R){
-  g_line vl = line_frw(rect2line(R));
+  g_line l = line_frw(rect2line(R));
   Rect<double> r = l.range();
   return Rect<int>(
     int(floor(r.TLC().x)),
     int(floor(r.TLC().y)),
-    int(ceil(t.BRC().x)),
-    int(ceil(t.BRC().y))
+    int(ceil(r.BRC().x)),
+    int(ceil(r.BRC().y))
   );
 }
 
 Rect<int> map2map::bb_bck(const Rect<int> & R){
-  g_line v2 = line_bck(rect2line(R));
+  g_line l = line_bck(rect2line(R));
   Rect<double> r = l.range();
   return Rect<int>(
     int(floor(r.TLC().x)),
     int(floor(r.TLC().y)),
-    int(ceil(t.BRC().x)),
-    int(ceil(t.BRC().y))
+    int(ceil(r.BRC().x)),
+    int(ceil(r.BRC().y))
   );
 }
 
 Rect<double> map2pt::bb_frw(const Rect<int> & R){
-  g_line v2 = line_frw(rect2line(R));
-  return v2.range();
+  g_line l = line_frw(rect2line(R));
+  return l.range();
 }
 
 Rect<int> map2pt::bb_bck(const Rect<double> & R){
-  g_line v2 = line_bck(rect2line(R));
+  g_line l = line_bck(rect2line(R));
   Rect<double> r = l.range();
   return Rect<int>(
     int(floor(r.TLC().x)),
     int(floor(r.TLC().y)),
-    int(ceil(t.BRC().x)),
-    int(ceil(t.BRC().y))
+    int(ceil(r.BRC().x)),
+    int(ceil(r.BRC().y))
   );
 }
 
