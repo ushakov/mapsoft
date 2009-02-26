@@ -13,6 +13,7 @@
 #include "io_kml.h"
 #include "io_oe.h"
 #include "o_img.h"
+#include "o_tiles.h"
 
 
 /** Reading data from file into geo_data object. */

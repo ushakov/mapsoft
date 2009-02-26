@@ -165,6 +165,13 @@ namespace io {
 			return;
 		}
 
+		// Запись плиток
+		if (testext(outfile, ".tiles")) {
+			cerr << "Writing tiles to " << outfile << "\n";
+			tiles::write_file(outfile.c_str(), world, opt);
+			return;
+		}
+
 		// Запись файла Garmin-Utils
 		if (testext(outfile, ".gu")){
 			cerr << "Writing to Garmin-utils file " << outfile << "\n";

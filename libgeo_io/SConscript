@@ -9,5 +9,6 @@ env.Library('geo_io', \
     io_oe.cpp
     io_xml.cpp
     o_img.cpp
+    o_tiles.cpp
     geofig.cpp
      """))
