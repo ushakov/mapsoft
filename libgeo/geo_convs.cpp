@@ -812,8 +812,8 @@ Rect<int> map2map::bb_frw(const Rect<int> & R){
   g_line l = line_frw(rect2line(R));
   Rect<double> r = l.range();
   return Rect<int>(
-    Point<int>(floor(r.TLC().x), floor(r.TLC().y)),
-    Point<int>(ceil(r.BRC().x), ceil(r.BRC().y))
+    Point<int>(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
+    Point<int>(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
   );
 }
 
@@ -821,8 +821,8 @@ Rect<int> map2map::bb_bck(const Rect<int> & R){
   g_line l = line_bck(rect2line(R));
   Rect<double> r = l.range();
   return Rect<int>(
-    Point<int>(floor(r.TLC().x), floor(r.TLC().y)),
-    Point<int>(ceil(r.BRC().x), ceil(r.BRC().y))
+    Point<int>(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
+    Point<int>(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
   );
 }
 
@@ -835,8 +835,8 @@ Rect<int> map2pt::bb_bck(const Rect<double> & R){
   g_line l = line_bck(rect2line(R));
   Rect<double> r = l.range();
   return Rect<int>(
-    Point<int>(floor(r.TLC().x), floor(r.TLC().y)),
-    Point<int>(ceil(r.BRC().x), ceil(r.BRC().y))
+    Point<int>(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
+    Point<int>(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
   );
 }
 
