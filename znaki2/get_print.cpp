@@ -135,7 +135,7 @@ main(int argc, char **argv){
 
     // второй прогон.
 
-    zconverter.fig_update(*i, type);
+//    zconverter.fig_update(*i, type);
     // преобразуем некоторые объекты в x-spline
     if (
          (type == 0x100001) || // автомагистраль
@@ -253,6 +253,21 @@ main(int argc, char **argv){
         fig_object o = *i;
         o.set_points(ld.get_points(80));
         ld.move_frw(20);
+        NW.push_back(o);
+      }
+      continue;
+    }
+    // теряющаяся грунтовка
+    if (type == 0x100050){
+      i->pen_color=0; i->type=2; i->sub_type=1;
+      LineDist<int> ld(*i);
+      while (!ld.is_end()){
+        fig_object o = *i;
+        o.set_points(ld.get_points(25));
+        ld.move_frw(10);
+        NW.push_back(o);
+        o.set_points(ld.get_points(25));
+        ld.move_frw(40);
         NW.push_back(o);
       }
       continue;
@@ -558,7 +573,7 @@ main(int argc, char **argv){
       continue;
    }
 
-   // точки для нас.пунктов и урочищь
+   // точки для нас.пунктов и урочищ
    if ((type == 0x700) || (type == 0x800) || (type == 0x900) || (type == 0x2800)){
      continue;
    }
