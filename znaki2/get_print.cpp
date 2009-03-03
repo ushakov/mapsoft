@@ -263,11 +263,11 @@ main(int argc, char **argv){
       LineDist<int> ld(*i);
       while (!ld.is_end()){
         fig_object o = *i;
-        o.set_points(ld.get_points(25));
-        ld.move_frw(10);
+        o.set_points(ld.get_points(18));
+        ld.move_frw(18);
         NW.push_back(o);
-        o.set_points(ld.get_points(25));
-        ld.move_frw(40);
+        o.set_points(ld.get_points(18));
+        ld.move_frw(46);
         NW.push_back(o);
       }
       continue;
