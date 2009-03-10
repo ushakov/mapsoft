@@ -17,7 +17,7 @@
 using namespace std;
 
 void usage(const char *fname){
-  cerr << "Usage: "<< fname << " <in1> ... <inN> -O option1[=value1] ... -a <figfile>\n";
+  cerr << "Usage: "<< fname << " <in1> ... <inN> -o <figfile>\n";
 // не все так просто, надо будет написать подробнее...
   exit(0);
 }
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   if (opts.exists("help")) usage(argv[0]);
 
   string figfile="";
-  opts.get("app", figfile);
+  opts.get("out", figfile);
   if (figfile == "") usage(argv[0]);
 
 
