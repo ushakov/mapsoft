@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include <image_jpeg.h>
+#include <image_r.h>
 
 #include "libbm.h"
 
@@ -18,7 +18,7 @@ main(int argc, char **argv){
 
   for (i=0; i<4; i++){
     scanf("%s %d %d %d %d %d %d %d %d\n", &N[i],
-    &X1[i], &Y1[i], &X2[i], &Y2[i], &X3[i], &Y3[i], &X4[i], &Y4[i]);
+    &X1[i], &Y1[i], &X2[i], &Y2[i], &X4[i], &Y4[i], &X3[i], &Y3[i]);
     printf("%s -- %d %d %d %d %d %d %d %d\n", N[i], 
     X1[i], Y1[i], X2[i], Y2[i], X3[i], Y3[i], X4[i], Y4[i]);
   }
@@ -26,7 +26,7 @@ main(int argc, char **argv){
   bm_map M(2,2);
 
   for (i=0; i<4; i++){
-    M.add(image_jpeg::load(N[i]), i%2+1, i/2+1,
+    M.add(image_r::load(N[i]), i%2+1, i/2+1,
       X1[i], Y1[i], X2[i], Y2[i], X3[i], Y3[i], X4[i], Y4[i]);
     if (i%2==0) M.vert(1, i/2+1, X2[i],Y2[i], X4[i],Y4[i]);
   }
