@@ -947,7 +947,10 @@ g_map mymap(const geo_data & world){ // естественная привязка геоданных
     // масштаб -- соответствующий минимальному масштабу карт, если они есть,
     // или 1/3600 градуса на точку, если карт нет
     double mpp=1e99;
-    for (int i=0;i<world.maps.size();i++){ if (mpp>map_mpp(world.maps[i])) mpp=map_mpp(world.maps[i]);}
+    for (int i=0;i<world.maps.size();i++){ 
+      double tmp=map_mpp(world.maps[i], world.maps[i].map_proj);
+      if (mpp>tmp) mpp=tmp;
+    }
     if ((mpp>1e90)||(mpp<1e-90)) mpp=1/3600.0;
 
 
@@ -967,10 +970,10 @@ g_map mymap(const geo_data & world){ // естественная привязка геоданных
     return ret;
 }
 
-double map_mpp(const g_map &map){ // масштаб, метров или градусов (в зав.от проекции) в точке
+double map_mpp(const g_map &map, Proj P){
   if (map.size()<3) return 0;
   double l1=0, l2=0;
-  convs::pt2pt c(Datum("wgs84"), map.map_proj, Options(), Datum("wgs84"), Proj("lonlat"), Options());
+  convs::pt2pt c(Datum("wgs84"), P, Options(), Datum("wgs84"), Proj("lonlat"), Options());
   for (int i=1; i<map.size();i++){
     g_point p1(map[i-1].x,map[i-1].y);
     g_point p2(map[i].x,  map[i].y);

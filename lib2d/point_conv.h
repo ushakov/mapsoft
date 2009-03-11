@@ -3,9 +3,11 @@
 
 #include <boost/operators.hpp>
 
-// interface for point conversions
 
-struct PointConv
+namespace convs{
+
+// common interface for point conversions
+struct interface
   : public boost::additive<Point<double> >,
     public boost::multiplicative<PointConv, double>,
 {
@@ -98,13 +100,14 @@ struct PointConv
     g_line l = line_bck(rect2line(R),acc, max);
     return l.range();
   }
- 
 };
 
-namespace convs{
-struct simple: public PointConv
+// simple conversion: shift and scale
+struct simple: public interface {
+
   Point<double> shift;
   double scale;
+
   simple & operator-= (Point<double> const & s) {shift-=s;}
   simple & operator+= (Point<double> const & s) {shift+=s;}
   simple & operator*= (double k) {scale*=k;}
@@ -132,16 +135,15 @@ struct simple: public PointConv
 
   // convert a rectagle and return bounding box of resulting figure
   virtual Rect<double> bb_frw(const Rect<double> & R, double acc=1, int max=100){
-    g_line l = line_frw(rect2line(R), acc, max);
-    return l.range();
+    if (scale>0) return Rect<double>(R.TLC()*scale+shift,R.BRC()*scale+shift);
+    else         return Rect<double>(R.BRC()*scale+shift,R.TLC()*scale+shift);
   }
   virtual Rect<double> bb_bck(const Rect<double> & R, double acc=1, int max=100){
-    g_line l = line_bck(rect2line(R),acc, max);
-    return l.range();
+    if (scale>0) return Rect<double>((R.TLC()-shift)*scale,(R.BRC()-shift)*scale);
+    else         return Rect<double>((R.BRC()-shift)*scale,(R.TLC()-shift)*scale);
   }
-
-
 };
+
 }//namespace
 
 #endif /* POINT_CONV_H */

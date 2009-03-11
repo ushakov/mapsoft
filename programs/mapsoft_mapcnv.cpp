@@ -123,7 +123,8 @@ main(int argc, char **argv){
     LayerGeoMap ml(&world, draw_borders);
     g_map orig_ref=ml.get_ref();
 
-    if (k==0) k=1.0/convs::map_mpp(ml.get_ref());
+    g_map map=ml.get_ref();
+    if (k==0) k=1.0/convs::map_mpp(map, map.map_proj);
     if (k==0) k=scale/2.54e-2*dpi;
 
     if (outfile != ""){

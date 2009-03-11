@@ -77,7 +77,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   if (k==0){
     if (!world.maps.empty()){
       g_map orig_ref=convs::mymap(world);
-      k=1.0/convs::map_mpp(orig_ref);
+      k=1.0/convs::map_mpp(orig_ref, ref.map_proj);
     }
     else if (gg_zoom>0){
       double mpp = 6380000.0 * 2*M_PI /256.0/(2 << (gg_zoom-1));

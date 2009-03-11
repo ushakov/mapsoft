@@ -121,7 +121,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     }
     else {
       g_map orig_ref=convs::mymap(world);
-      k=1.0/convs::map_mpp(orig_ref);
+      k=1.0/convs::map_mpp(orig_ref, ref.map_proj);
     }
   }
 

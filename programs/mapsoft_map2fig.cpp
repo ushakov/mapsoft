@@ -75,7 +75,9 @@ main(int argc, char **argv){
 
     // rescale > 1, если точки fig меньше точки растра
     double rescale;
-    if (source == "map") rescale = convs::map_mpp(map_ref)/convs::map_mpp(fig_ref);
+    if (source == "map"){
+      rescale = convs::map_mpp(map_ref, map_ref.map_proj)/convs::map_mpp(fig_ref, fig_ref.map_proj);
+    }
     else { // с google map_mpp не работает (т.к. во всех точках все разное)
       // например, горизонтальный масштаб
       Rect<double> range = fig_ref.border.range();
