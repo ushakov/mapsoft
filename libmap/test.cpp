@@ -1,7 +1,7 @@
 #include "vmap.h"
 
 main(){
-  map::object o;
+  map::rmap o;
   std::cin >> o;
   std::cout << o;
 }

@@ -16,7 +16,7 @@
 
 namespace map {
 
-typedef unsigned long long id_t;
+typedef std::string id_t;
 
 /*
   Single object:
@@ -35,14 +35,13 @@ struct object{
   Input/output.
   * key-value pairs are stored in "\<key> <value>" lines
   * comments are stored in "#<comment>" lines
-  * data is stored using lone line per point in " <x> <y>" format
+  * data is stored using one line per point in " <x> <y>" format
   * data segments are separated by empty lines
   * number of spaces between <key> and <value>, between <x> and <y>
     and before <x> does not matter (but must be >0).
 */
 
 std::istream & operator>> (std::istream & s, object & o){
-  s.unsetf(std::ios::skipws);
   Line<double> seg;
   while (!s.eof()){
     std::string line, key, val;
@@ -60,6 +59,7 @@ std::istream & operator>> (std::istream & s, object & o){
       case '\\': // key value pair
         s1 >> key >> std::ws;
         getline(s1, val);
+        if (!s1) goto def;
         o.opts[key]=val;
         break;
       case '#':
@@ -67,7 +67,7 @@ std::istream & operator>> (std::istream & s, object & o){
         break;
       case ' ':
         double x,y;
-        s1 >> x >> y;
+        s1 >> x >> y >> std::ws;
         if (!s1 || !s1.eof()) goto def;
         seg.push_back(Point<double>(x,y));
         break;
@@ -95,6 +95,86 @@ std::istream & operator<< (std::ostream & s, const object & o){
   }
 }
 
+/*
+  label position structure
+  * shift in mm
+  * angle in degrees
+*/
+
+struct label_pos{
+  Point<double> shift;
+  double angle;
+};
+
+/*
+  information about raster representation
+*/
+struct rmap{
+  Options opts;
+  std::vector<std::string> comm;
+  std::multimap<id_t, label_pos> positions;
+};
+
+/*
+  Input/output.
+  * key-value pairs are stored in "\<key> <value>" lines
+  * comments are stored in "#<comment>" lines
+  * label positions are stored in "+<id> <x> <y> <angle>" format
+  * data segments are separated by empty lines
+  * number of spaces between <key> and <value>, between <x> and <y>
+    and before <x> does not matter (but must be >0).
+*/
+
+std::istream & operator>> (std::istream & s, rmap & o){
+  while (!s.eof()){
+    std::string line, key, val;
+    std::string id;
+    label_pos pos;
+    int mode=s.get();
+
+    if (mode=='\n') continue;
+
+    if (!getline(s, line)) break;
+     std::istringstream s1(line);
+
+    switch (mode){
+      case '\\': // key value pair
+        s1 >> key >> std::ws;
+        getline(s1, val);
+        if (!s1) goto def;
+        o.opts[key]=val;
+        break;
+      case '#':
+        o.comm.push_back(line);
+        break;
+      case '+':
+        s1 >> id >> pos.shift.x >> pos.shift.y >> pos.angle >> std::ws;
+        if (!s1 || !s1.eof()) goto def;
+        o.positions.insert(std::pair<id_t, label_pos>(id, pos));
+        break;
+      case EOF:
+        break;
+      default:
+        def:
+        std::cerr << "map::object: Skipping bad line: " << (char)mode << line << "\n";
+        continue;
+    }
+  }
+  return s;
+}
+
+std::istream & operator<< (std::ostream & s, const rmap & o){
+  for (Options::const_iterator i=o.opts.begin(); i!=o.opts.end(); i++)
+    s << '\\' << i->first << ' ' << i->second << '\n';
+  for (std::vector<std::string>::const_iterator i=o.comm.begin(); i!=o.comm.end(); i++)
+    s << '#' << *i << '\n';
+
+  for (std::multimap<id_t, label_pos>::const_iterator i=o.positions.begin();
+                                                      i!=o.positions.end(); i++)
+    s << '+' << i->first << ' '
+      << i->second.shift.x << ' ' << i->second.shift.y << ' '
+      << i->second.angle <<'\n';
+}
 
 /*
   The whole map:
