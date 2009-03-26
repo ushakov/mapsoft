@@ -15,13 +15,12 @@ namespace mp {
         std::string          Class;
         int                  Type;
         std::string          Label;
-        int 		     DirIndicator;
         std::vector<std::string> Comment;
 	int                  BL,EL; // begin/end level
         Options              Opts;  // other options
 
-	mp_object(){
-	  Class="POI"; Type=-1; BL=0; EL=0; DirIndicator=0;
+        mp_object(){
+          Class="POI"; Type=-1; BL=0; EL=0;
         }
 
         bool operator== (const mp_object & o) const{
@@ -29,8 +28,7 @@ namespace mp {
           for (int i = 0; i<size(); i++) if ((*this)[i]!=o[i]) return false;
           return (
             (Class==o.Class) && (Type==o.Type) && (Label==o.Label) &&
-            (BL==o.BL) && (EL==o.EL) && (Comment==o.Comment) &&
-            (DirIndicator==o.DirIndicator) && (Opts==o.Opts) );
+            (BL==o.BL) && (EL==o.EL) && (Comment==o.Comment) && (Opts==o.Opts) );
         }
         mp_object & operator= (const Line<double> v){
           clear();

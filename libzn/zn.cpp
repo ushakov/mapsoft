@@ -298,8 +298,10 @@ fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, i
     ret.close();
   }
   // стрелки
-  if      (mp.DirIndicator==1){ret.forward_arrow=1;}
-  else if (mp.DirIndicator==2){ret.backward_arrow=1;}
+  int dir = mp.Opts.get("DirIndicator",0);
+  if      (dir==1){ret.forward_arrow=1; ret.backward_arrow=0;}
+  else if (dir==2){ret.backward_arrow=1; ret.forward_arrow=0;}
+  else    {ret.backward_arrow=0; ret.forward_arrow=0;}
   return ret;
 }
 
@@ -336,9 +338,8 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, 
 
   // если есть стрелка вперед -- установить DirIndicator=1
   // если есть стрелка назад -- установить  DirIndicator=2
-  // если 0 или 2 стрелки - DirIndicator=0
-  if ((fig.forward_arrow==1)&&(fig.backward_arrow==0)) mp.DirIndicator=1;
-  if ((fig.forward_arrow==0)&&(fig.backward_arrow==1)) mp.DirIndicator=2;
+  if ((fig.forward_arrow==1)&&(fig.backward_arrow==0)) mp.Opts["DirIndicator"]="1";
+  if ((fig.forward_arrow==0)&&(fig.backward_arrow==1)) mp.Opts["DirIndicator"]="2";
 
   return mp;
 }

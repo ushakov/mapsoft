@@ -529,8 +529,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << " grid,   ,           ,           ,N\r\n";
 		}
 		if (m.map_proj == Proj("tmerc")){
-		  double lon0=1e90;
-                  opt.get("lon0", lon0);
+		  double lon0 = opt.get("lon0", 1e90);
                   if (lon0==1e90){
                     lon0=0;
                     for (int i=0; i<m.size(); i++) lon0+=m[i].x;

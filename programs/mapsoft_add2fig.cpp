@@ -29,8 +29,7 @@ int main(int argc, char *argv[]) {
   if (!read_conf(argc, argv, opts)) usage(argv[0]);
   if (opts.exists("help")) usage(argv[0]);
 
-  string figfile="";
-  opts.get("out", figfile);
+  string figfile = opts.get("out", string());
   if (figfile == "") usage(argv[0]);
 
 
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]) {
 
   g_map ref = fig::get_ref(F);
 
-  StrVec infiles; opts.get("cmdline_args", infiles);
+  StrVec infiles = opts.get("cmdline_args", StrVec());
   for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
     io::in(*i, world, opts);
 

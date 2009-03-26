@@ -16,10 +16,6 @@ namespace mp {
 using namespace std;
 using namespace boost::spirit;
 
-// encoding получается добавлением "CP"
-string default_codepage = "1251";
-
-
 // FIG does not support polygons with multiple segments while
 // MP, OCAD, PS does. This class converts multiple segments into one.
 
@@ -124,7 +120,6 @@ bool read(const char* filename, mp_world & world, const Options & opts){
         ( "EndLevel=" >> uint_p[assign_a(o.EL)]   >> eol_p) |
         ( "Endlevel=" >> uint_p[assign_a(o.EL)]   >> eol_p) |
         ( "Levels="   >> uint_p[assign_a(o.EL)]   >> eol_p) |
-        ( "DirIndicator=" >> uint_p[assign_a(o.DirIndicator)]   >> eol_p) |
 
         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)][clear_a(line)] >> "=" >>
            (eol_p |
@@ -144,14 +139,11 @@ bool read(const char* filename, mp_world & world, const Options & opts){
     if (!parse_file("mp::read", filename, main_rule)) return false;
 
     // converting some fields to UTF8
-    string codepage(default_codepage);
-cerr << "mp::read: Using codepage: " << codepage << "\n";
-    ret.Opts.get("CodePage", codepage); // override by file setting
-cerr << "mp::read: Using codepage: " << codepage << "\n";
-    opts.get("mp_in_codepage", codepage);  // override by user setting
-cerr << "mp::read: Using codepage: " << codepage << "\n";
-    IConv cnv("CP" + codepage, "");
-cerr << "mp::read: Using codepage: " << codepage << "\n";
+    string codepage="1251";
+    codepage=ret.Opts.get("CodePage", codepage);   // override by file setting
+    codepage=opts.get("mp_in_codepage", codepage); // override by user setting
+    IConv cnv("CP" + codepage);
+    cerr << "mp::read: Using codepage: " << codepage << "\n";
 
     for (mp_world::iterator i = ret.begin(); i != ret.end(); i++){
       i->Label = cnv.to_utf(i->Label);
@@ -205,10 +197,11 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
   // converting some fields from UTF8 to default codepage
   // setting CodePage to default_codepage;
 
-  string codepage(default_codepage);
-  opts.get("mp_out_codepage", codepage);
-  IConv cnv("CP"+codepage);
-cerr << "mp::write: Using codepage: " << codepage << "\n";
+  string codepage="1251";
+  codepage=world.Opts.get("CodePage", codepage);     // override by file setting
+  codepage=opts.get("mp_out_codepage", codepage); // override by user setting
+  IConv cnv("CP" + codepage);
+  cerr << "mp::write: Using codepage: " << codepage << "\n";
 
   for (vector<string>::const_iterator c = world.Comment.begin();
        c!=world.Comment.end(); c++) out << ";" << cnv.from_utf(*c) << "\n";
@@ -232,7 +225,6 @@ cerr << "mp::write: Using codepage: " << codepage << "\n";
         << "\r\nType=0x"     << setbase(16) << i->Type << setbase(10);
     if (i->Label != "") out << "\r\nLabel=" << cnv.from_utf(i->Label);
     if (i->EL != 0)     out << "\r\nLevels=" << i->EL;
-    if (i->DirIndicator != 0) out << "\r\nDirIndicator=" << i->DirIndicator;
 
     for (Options::const_iterator o=i->Opts.begin(); o!=i->Opts.end(); o++){
       out << "\r\n" << o->first << "=" << cnv.from_utf(o->second);

@@ -41,10 +41,10 @@ main(){
   O.put("d", d0);
   O.put("b", b0);
 
-  O.get("s", s1);
-  O.get("i", i1);
-  O.get("d", d1);
-  O.get("b", b1);
+  s1=O.get("s", s1);
+  i1=O.get("i", i1);
+  d1=O.get("d", d1);
+  b1=O.get("b", b1);
 
   if (s1!= s0) {
     std::cout << "put/get test for string failed: "<< s0 << " != " << s1 << "\n"; err++;}
@@ -58,7 +58,7 @@ main(){
   // перезапись ключа
   i0=10;
   O.put("i", i0);
-  O.get("i", i1);
+  i1=O.get("i", i1);
   if (i1!= i0) {
     std::cout << "overwriting test for int failed: "<< i0 << " != " << i1 << "\n"; err++;}
 
@@ -67,12 +67,12 @@ main(){
     std::cout << "exists test failed\n"; err++;}
 
   // при чтении несуществующего ключа сохраняется значение по умолчанию
-  O.get("unex", s1);
+  s1=O.get("unex", s1);
   if (s1!=s0){
     std::cout << "getting unexisting key breaks value: "<< s0 << " != " << s1 << "\n"; err++;}
 
   // в случае ошибки при разборе, значение переменной не меняется
-  O.get("s", i1);
+  i1=O.get("s", i1);
   if (i1!=i0){
     std::cout << "broken value after bad_lexical_cast in get: "<< i0 << " != " << i1 << "\n"; err++;}
 
@@ -86,7 +86,7 @@ main(){
   myclass m0, m1;
   m0.value="test";
   O.put("my1", m0);
-  O.get("my1", m1);
+  m1=O.get("my1", m1);
   if (m0.value != m1.value) {
     std::cout << "myclass1 test failed\n"; err++;}
 

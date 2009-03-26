@@ -45,15 +45,16 @@ void WriteInt(FILE* f, int n) {
 bool write_file (const char* filename, const geo_data & world, const Options & opt){
   if (world.maps.empty()) return false;
   if (world.range_map().empty()) return false;
-  
-  // Note! geom is in lat/lng coordinates!
-  Rect<double> geom; opt.get("geom", geom);
-  Proj  proj("google");    opt.get("proj", proj);
-  Datum datum("wgs84"); opt.get("datum", datum);
 
-  double scale=0, rscale=0, dpi=0, factor=1;
-  opt.get("scale",  scale);
-  opt.get("rscale", rscale);
+  // Note! geom is in lat/lng coordinates!
+  Rect<double> geom = opt.get("geom", Rect<double>());
+  Proj  proj(opt.get("proj",string("google")));
+  Datum datum(opt.get("datum",string("wgs84")));
+
+  double scale  = opt.get("scale",  0.0);
+  double rscale = opt.get("rscale", 0.0);
+  double dpi    = opt.get("dpi",    0.0);
+  double factor = opt.get("factor", 1.0);
   if (rscale!=0) scale=1.0/rscale;
 
   // Conversion to target coordiates
@@ -66,9 +67,9 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
 
   cerr << "geom = " << geom << endl;
 
-  int ks_zoom=-1; opt.get("ks",     ks_zoom);
-  int gg_zoom=-1; opt.get("google", gg_zoom);
-  g_point tiles_orig(-180.0, 85.051128779806589);  opt.get("tiles_orig", tiles_orig);
+  int ks_zoom = opt.get("ks",     -1);
+  int gg_zoom = opt.get("google", -1);
+  g_point tiles_orig = opt.get("tiles_orig", g_point(-180.0, 85.051128779806589));
 
   geom = c.bb_frw(geom, geom.w/1000.0); // geom is now in projection units
   cerr << "unscaled projection geom = " << geom << endl;
@@ -131,7 +132,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   ref  *= k;  // ref maps to the pixel plane in dest projection
   geom *= k;  // geom is now in pixel coordinates in dest projection
 
-  bool draw_borders=false;  opt.get("draw_borders", draw_borders);
+  bool draw_borders = opt.get("draw_borders", false);
   LayerGeoMap layer(&world, draw_borders);
 
   Rect<int> tile;

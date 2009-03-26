@@ -41,22 +41,22 @@ Options g_waypoint::to_options () const{
 void g_waypoint::parse_from_options (Options const & opt){
     g_waypoint p;
     swap(p);
-    opt.get("lon", x);
-    opt.get("lat", y);
-    opt.get("height", z);
-    opt.get("prox_dist", prox_dist);
-    opt.get("t", t);
-    opt.get("symb", symb);
-    opt.get("displ", displ);
-    opt.get("color", color);
-    opt.get("bgcolor", bgcolor);
-    opt.get("map_displ", map_displ);
-    opt.get("pt_dir", pt_dir);
-    opt.get("font_size", font_size);
-    opt.get("font_style", font_style);
-    opt.get("size", size);
-    opt.get("name", name);
-    opt.get("comm", comm);
+    x = opt.get("lon", x);
+    y = opt.get("lat", y);
+    z = opt.get("height", z);
+    prox_dist = opt.get("prox_dist", prox_dist);
+    t = opt.get("t", t);
+    symb = opt.get("symb", symb);
+    displ = opt.get("displ", displ);
+    color = opt.get("color", color);
+    bgcolor = opt.get("bgcolor", bgcolor);
+    map_displ = opt.get("map_displ", map_displ);
+    pt_dir = opt.get("pt_dir", pt_dir);
+    font_size = opt.get("font_size", font_size);
+    font_style = opt.get("font_style", font_style);
+    size = opt.get("size", size);
+    name = opt.get("name", name);
+    comm = opt.get("comm", comm);
 }
 
 g_trackpoint::g_trackpoint(){
@@ -82,12 +82,12 @@ Options g_trackpoint::to_options() const{
 void g_trackpoint::parse_from_options(Options const & opt){
     g_trackpoint p;
     swap(p);
-    opt.get("lon", x);
-    opt.get("lat", y);
-    opt.get("height", z);
-    opt.get("depth", depth);
-    opt.get("start", start);
-    opt.get("t", t);
+    x = opt.get("lon", x);
+    y = opt.get("lat", y);
+    z = opt.get("height", z);
+    depth = opt.get("depth", depth);
+    start = opt.get("start", start);
+    t = opt.get("t", t);
 }
 
 g_refpoint::g_refpoint(double _x, double _y, double _xr, double _yr){
@@ -116,10 +116,10 @@ Options g_refpoint::to_options () const{
 void g_refpoint::parse_from_options (Options const & opt){
     g_refpoint p;
     swap(p);
-    opt.get("lon", x);
-    opt.get("lat", y);
-    opt.get("xr", xr);
-    opt.get("yr", yr);
+    x  = opt.get("lon", x);
+    y  = opt.get("lat", y);
+    xr = opt.get("xr", xr);
+    yr = opt.get("yr", yr);
 }
 
 /*********************************/
@@ -155,7 +155,7 @@ Options g_waypoint_list::to_options () const {
 void g_waypoint_list::parse_from_options (Options const & opt){
 //    g_waypoint_list lst;
 //    swap(lst);
-    opt.get("symbset", symbset);
+    symbset = opt.get("symbset", symbset);
 }
 
 g_track::g_track(){
@@ -183,14 +183,14 @@ Options g_track::to_options () const {
 void g_track::parse_from_options (Options const & opt){
 //    g_track lst;
 //    swap(lst);
-    opt.get("width", width);
-    opt.get("displ", displ);
-    opt.get("color", color);
-    opt.get("skip",  skip);
-    opt.get("type",  type);
-    opt.get("fill",  fill);
-    opt.get("cfill", cfill);
-    opt.get("comm",  comm);
+    width = opt.get("width", width);
+    displ = opt.get("displ", displ);
+    color = opt.get("color", color);
+    skip  = opt.get("skip",  skip);
+    type  = opt.get("type",  type);
+    fill  = opt.get("fill",  fill);
+    cfill = opt.get("cfill", cfill);
+    comm  = opt.get("comm",  comm);
 }
 
 /// get range in lon-lat coords

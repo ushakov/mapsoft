@@ -31,18 +31,15 @@ namespace fig{
 using namespace std;
 bool write(std::ostream & out, const geo_data & world, const Options & opt){
 
-  int tsize = 2000;    opt.get("tsize", tsize);
-  int msize = 100000;  opt.get("msize", msize);
-  int dpi   = 150;     opt.get("dpi",   dpi);
-  double scale = 1e-5; opt.get("scale", scale);
-  string cache = "./"; opt.get("cache", cache);
-  double marg = 100;   opt.get("marg", marg);
+  int tsize    = opt.get("tsize", 2000);
+  int msize    = opt.get("msize", 100000);
+  int dpi      = opt.get("dpi",   150);
+  double scale = opt.get("scale", 1e-5);
+  string cache = opt.get("cache", "./");
+  double marg  = opt.get("marg", 100.0);
 
-  string datum_str("pulkovo"); opt.get("datum", datum_str);
-  string proj_str("tmerc");    opt.get("proj", proj_str);
-
-  Datum datum(datum_str);
-  Proj  proj(proj_str);
+  Datum datum(opt.get("datum", "pulkovo"));
+  Proj  proj(opt.get("proj", "tmerc"));
 
   // найдем габариты данных в нужных нам координатах, 
   // посмотрим, не надо ли обрезать данные,

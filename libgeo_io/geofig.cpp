@@ -54,10 +54,8 @@ using namespace boost::spirit;
         if (max.x<(*i)[0].x) max.x = (*i)[0].x;
         if (max.y<(*i)[0].y) max.y = (*i)[0].y;
 
-	string pdatum="wgs84"; O.get("datum", pdatum);
-	string pproj="lonlat"; O.get("proj", pproj);
-
-        convs::pt2pt c(Datum(pdatum.c_str()), Proj(pproj.c_str()), O,
+        convs::pt2pt c(Datum(O.get("datum", string("wgs84"))), 
+                       Proj(O.get("proj", string("lonlat"))), O,
                        Datum("wgs84"), Proj("lonlat"), O);
         c.frw(ref);
 	ret.push_back(ref);
@@ -97,16 +95,17 @@ using namespace boost::spirit;
 
   // Добавить привязку в fig_world
   void set_ref(fig_world & w, const g_map & m, const Options & O){
-    // Если хочется, можно записать точки привязки в нужной проекции
-    string pdatum="wgs84"; O.get("datum", pdatum);
-    string pproj="lonlat"; O.get("proj", pproj);
 
     double lon0 = m.range().x + m.range().w/2;
     lon0 = floor( lon0/6.0 ) * 6 + 3;
-    O.get("lon0", lon0);
+    lon0 = O.get("lon0", lon0);
     Enum::output_fmt=Enum::xml_fmt;
 
-    convs::pt2pt cnv(Datum(pdatum.c_str()), Proj(pproj.c_str()), O,
+    // Если хочется, можно записать точки привязки в нужной проекции
+    string pproj=O.get("proj", string("lonlat"));
+    string pdatum=O.get("datum", string("wgs84"));
+
+    convs::pt2pt cnv(Datum(pdatum), Proj(pproj), O,
                      Datum("wgs84"), Proj("lonlat"), O);
 
     for (int n=0; n<m.size(); n++){

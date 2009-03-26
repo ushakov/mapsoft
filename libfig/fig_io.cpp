@@ -11,7 +11,7 @@
 
 namespace fig {
 
-const char *default_enc = "KOI8-R";
+std::string default_enc("KOI8-R");
 
 using namespace std;
 using namespace boost::spirit;
@@ -181,8 +181,7 @@ bool read(const char* filename, fig_world & world, const Options & opts){
   }
 
   //преобразование комментариев и текстов в UTF-8
-  string enc(default_enc);
-  opts.get("fig_enc", enc);
+  string enc = opts.get("fig_in_enc", default_enc);
   IConv cnv(enc);
 
   for (fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
@@ -220,8 +219,7 @@ bool read(const char* filename, fig_world & world, const Options & opts){
 /***********************************************************/
 bool write(ostream & out, const fig_world & world, const Options & opts){
 
-  string enc(default_enc);
-  opts.get("fig_enc", enc);
+  string enc = opts.get("fig_out_enc", default_enc);
   IConv cnv(enc);
 
   int n;

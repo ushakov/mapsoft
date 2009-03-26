@@ -57,30 +57,24 @@ main(int argc, char **argv){
 
   string outfile="";
   opts.get("out", outfile);
-  string figfile="";
-  opts.get("fig", figfile);
-  string htmfile="";
-  opts.get("htm", htmfile);
-  string mapfile="";
-  opts.get("map", mapfile);
+  string figfile = opts.get("fig", string());
+  string htmfile = opts.get("htm", string());
+  string mapfile = opts.get("map", string());
 
-  Rect<double> geom;
-  opts.get("geom", geom);
+  Rect<double> geom = opts.get("geom", Rect<double>());
   if (geom.empty()){
     cerr << "Empty geometry! Use -g option.\n";
     exit(1);
   }
 
-  Proj  proj("tmerc");    opts.get("proj", proj);
-  Datum datum("pulkovo"); opts.get("datum", datum);
+  Proj  proj(opts.get("proj", string("tmerc")));
+  Datum datum(opts.get("datum", string("pulkovo")));
 
-  double scale=0, rscale=0, dpi=0, factor=1;
-  opts.get("scale",  scale);
-  opts.get("rscale", rscale);
-  opts.get("factor", factor);
-  opts.get("dpi",    dpi);
+  double scale  = opts.get("scale",  0.0);
+  double rscale = opts.get("rscale", 0.0);
+  double dpi    = opts.get("dpi",    0.0);
+  double factor = opts.get("factor", 1.0);
   if (rscale!=0) scale=1.0/rscale;
-
 
   g_map ref; // unscaled ref
   convs::pt2pt c(datum, proj, opts, Datum("wgs84"), Proj("lonlat"), Options());
@@ -114,12 +108,11 @@ main(int argc, char **argv){
     geo_data world;
 
     //чтение файлов из командной строки:
-    StrVec infiles; opts.get("cmdline_args", infiles);
+    StrVec infiles = opts.get("cmdline_args", StrVec());
     for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
       io::in(*i, world, opts);
 
-    bool draw_borders=false;
-    opts.get("draw_borders", draw_borders);
+    bool draw_borders = opts.get("draw_borders", false);
     LayerGeoMap ml(&world, draw_borders);
     g_map orig_ref=ml.get_ref();
 

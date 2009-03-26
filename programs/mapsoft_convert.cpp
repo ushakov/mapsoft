@@ -91,11 +91,10 @@ int main(int argc, char *argv[]) {
   if (!read_conf(argc, argv, opts)) usage(argv[0]);
   if (opts.exists("help")) usage(argv[0]);
 
-  string outfile="";
-  opts.get("out", outfile);
+  string outfile = opts.get("out", string());
   if (outfile == "") usage(argv[0]);
 
-  StrVec infiles; opts.get("cmdline_args", infiles);
+  StrVec infiles = opts.get("cmdline_args", StrVec());
 
 // чтение файлов
 
@@ -106,8 +105,7 @@ int main(int argc, char *argv[]) {
 // all these things -> io::filters ?
   io::skip(world, opts);
 
-  double rescale_maps=1;
-  opts.get("rescale_maps", rescale_maps);
+  double rescale_maps = opts.get("rescale_maps", 1);
   if (rescale_maps !=1){
     for (vector<g_map>::iterator m=world.maps.begin(); m!=world.maps.end(); m++){
       *m*=rescale_maps;

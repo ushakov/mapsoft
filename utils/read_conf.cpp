@@ -122,35 +122,20 @@ bool read_conf(int argc, char **argv, Options & opts){
 
   /***** reading global config file *****/
 
-  string global_conf;
-
-  // if global_conf was not set via command line option
-  // use default value:
-
-  if (!cmdline_opts.exists("global_conf")) 
-    cmdline_opts["global_conf"]="/etc/mapsoft.conf";
-
-  cmdline_opts.get("global_conf", global_conf);
+  string global_conf = "/etc/mapsoft.conf";
+  global_conf = cmdline_opts.get("global_conf", global_conf);
 
   if (global_conf != ""){
     ifstream gstr(global_conf.c_str());
-    if (gstr.good()) gstr >> opts; 
+    if (gstr.good()) gstr >> opts;
     else cerr << "Can't read global_conf file: " << global_conf << "\n";
   }
 
   /***** reading local config file *****/
 
-  string local_conf;
-
-  // if local_conf was not set via command line option
-  // try value from global config, then use default value:
-
-  if (!cmdline_opts.exists("local_conf")){
-    if (opts.exists("local_conf")) cmdline_opts["local_conf"] = opts["local_conf"];
-    else cmdline_opts["local_conf"]="~/.mapsoft";
-  }
-
-  cmdline_opts.get("local_conf",  local_conf);
+  string local_conf = "~/.mapsoft";
+  local_conf = opts.get("local_conf", local_conf);          // try value from global_conf
+  local_conf = cmdline_opts.get("local_conf", local_conf);  // owerwrite by cmdline parameters
 
   if (local_conf != ""){
     ifstream lstr(local_conf.c_str());

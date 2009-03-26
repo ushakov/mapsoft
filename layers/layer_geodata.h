@@ -81,11 +81,11 @@ public:
     /// Default implementation does nothing
     virtual void set_config(const Options& opt) {
 	std::cout << "LayerGeoData: set_config" << opt << "\n";
-	opt.get("Track line width override", track_width_override);
-	opt.get("Track color override", track_color_override);
-	opt.get("Waypoint color override", wpt_color_override);
-	opt.get("Waypoint background color override", wpt_bgcolor_override);
-	opt.get("Waypoint dot size", dot_width);
+	track_width_override = opt.get("Track line width override", track_width_override);
+	track_color_override = opt.get("Track color override", track_color_override);
+	wpt_color_override = opt.get("Waypoint color override", wpt_color_override);
+	wpt_bgcolor_override = opt.get("Waypoint background color override", wpt_bgcolor_override);
+	dot_width = opt.get("Waypoint dot size", dot_width);
     }
 
     

@@ -19,17 +19,15 @@ namespace img{
 
 bool write_file (const char* filename, const geo_data & world, const Options & opt){
 
-  Rect<double> geom;      opt.get("geom", geom);
-  Proj  proj("tmerc");    opt.get("proj", proj);
-  Datum datum("pulkovo"); opt.get("datum", datum);
+  Rect<double> geom = opt.get("geom", Rect<double>());
+  Proj  proj(opt.get("proj", string("tmerc")));
+  Datum datum(opt.get("datum", string("pulkovo")));
 
-  double scale=0, rscale=0, dpi=0, factor=1;
-  opt.get("scale",  scale);
-  opt.get("rscale", rscale);
-  opt.get("dpi",    dpi);
-  opt.get("factor", factor);
+  double scale  = opt.get("scale",  0.0);
+  double rscale = opt.get("rscale", 0.0);
+  double dpi    = opt.get("dpi",    0.0);
+  double factor = opt.get("factor", 1.0);
   if (rscale!=0) scale=1.0/rscale;
-
 
   // Conversion to target coordiates
   convs::pt2pt c(Datum("wgs84"), Proj("lonlat"), Options(), datum, proj, opt);
@@ -44,8 +42,8 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     }
   }
 
-  int ks_zoom=-1; opt.get("ks",     ks_zoom);
-  int gg_zoom=-1; opt.get("google", gg_zoom);
+  int ks_zoom = opt.get("ks",     -1);
+  int gg_zoom = opt.get("google", -1);
 
   // creating initial map reference with borders
   g_map ref; // unscaled ref
@@ -101,8 +99,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   geom -= geom.TLC();
 
   // is output image not too large
-  Point<int> max_image(5000,5000);
-  opt.get("max_image", max_image);
+  Point<int> max_image = opt.get("max_image", Point<int>(5000,5000));
   cerr << "Image size: " << geom.w << "x" << geom.h << "\n";
   if ((geom.w>max_image.x) || (geom.h>max_image.y)){
      cerr << "Error: image is too large ("
@@ -114,8 +111,8 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   Image<int> im(geom.w,geom.h,0x00FFFFFF);
 
   if (gg_zoom>=0){
-    string dir=""; opt.get("google_dir", dir);
-    bool download=false; opt.get("download", download);
+    string dir    = opt.get("google_dir", string());
+    bool download = opt.get("download", false);
     LayerGoogle l(dir, gg_zoom);
     l.set_ref(ref);
     l.set_downloading(download);
@@ -124,8 +121,8 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   }
 
   if (ks_zoom>=0){
-    string dir=""; opt.get("ks_dir", dir);
-    bool download=false; opt.get("download", download);
+    string dir    = opt.get("ks_dir", string());
+    bool download = opt.get("download", false);
     LayerKS l(dir, ks_zoom);
     l.set_ref(ref);
     l.set_downloading(download);
@@ -134,7 +131,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   }
 
   if (!world.maps.empty()){
-    bool draw_borders=false;  opt.get("draw_borders", draw_borders);
+    bool draw_borders = opt.get("draw_borders", false);
     LayerGeoMap  l(&world, draw_borders);
     l.set_ref(ref);
     Image<int> tmp_im = l.get_image(geom);
@@ -152,7 +149,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   image_r::save(im, filename, opt);
 
   // writing html map if needed
-  string htmfile=""; opt.get("htm", htmfile);
+  string htmfile = opt.get("htm", string());
   if (htmfile != ""){
     ofstream f(htmfile.c_str());
     f << "<html><body>\n"
@@ -177,7 +174,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   }
 
   // writing fig if needed
-  string figfile=""; opt.get("fig", figfile);
+  string figfile = opt.get("fig", string());
   if (figfile != ""){
     fig::fig_world W;
     g_map fig_ref= ref * 2.54 / dpi * fig::cm2fig;
@@ -199,7 +196,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   }
 
   // writing map if needed
-  string mapfile=""; opt.get("map", mapfile);
+  string mapfile = opt.get("map", string());
   if (mapfile != ""){
     ofstream f(mapfile.c_str());
     oe::write_map_file(f, ref, Options());

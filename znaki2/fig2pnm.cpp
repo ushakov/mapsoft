@@ -187,6 +187,9 @@ main(int argc, char **argv){
   cnts.push_back(cnt_data(0x00ffff, 0xAAFFAA, 0x5066FF, 0));
   cnts.push_back(cnt_data(0x00ffff, 0xFFFFFF, 0x5066FF, 0));
   cnts.push_back(cnt_data(0x00ffff, 0xc06000, 0x5066FF, 0));
+  cnts.push_back(cnt_data(0x00ffff, 0xAAFFAA, 0x85CEFF, 0));
+  cnts.push_back(cnt_data(0x00ffff, 0xFFFFFF, 0x85CEFF, 0));
+  cnts.push_back(cnt_data(0x00ffff, 0xc06000, 0x85CEFF, 0));
 //  cnts.push_back(cnt_data(0x00ffff, 30453904, 0x5066FF, 0));
   cnts.push_back(cnt_data(0xAAFFAA, 0xFFFFFF, 0x009000, 7));
 

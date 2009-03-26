@@ -74,14 +74,13 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
         !strncmp(file + (l-4), ".JPG", 4)||
         !strncmp(file + (l-5), ".jpeg", 5)||
         !strncmp(file + (l-5), ".JPEG", 5)){
-      int jpeg_quality=75; opts.get("jpeg_quality", jpeg_quality);
-      return image_jpeg::save(im, src_rect, file, jpeg_quality);
+      return image_jpeg::save(im, src_rect, file, opts.get("jpeg_quality",75));
     }
     if (!strncmp(file + (l-4), ".tif", 4)||
         !strncmp(file + (l-4), ".TIF", 4)||
         !strncmp(file + (l-5), ".tiff", 5)||
         !strncmp(file + (l-5), ".TIFF", 5)){
-      return image_tiff::save(im, src_rect, file, opts.find("tiff_usealpha")!=opts.end());
+      return image_tiff::save(im, src_rect, file, opts.exists("tiff_usealpha"));
     }
     if (!strncmp(file + (l-4), ".png", 4)||
         !strncmp(file + (l-4), ".PNG", 4)){

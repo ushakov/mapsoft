@@ -18,9 +18,8 @@
 
 struct Options : std::map<std::string,std::string>{
 
-    /** Запись в Options значения val для ключа key. При неудаче с
-    преобразованием val в std::string ничего не записывается, в Log
-    уходит ругательство... */
+    /// Set option value for a given key
+    /// On error old value remains
     template<typename T>
     void put (const std::string & key, T val) {
         std::string str_val;
@@ -32,22 +31,22 @@ struct Options : std::map<std::string,std::string>{
 	}
     }
 
-    /** Чтение из Options значения ключа key в переменную val. Если
-    такого ключа нет - val  не перезаписывается. Если происходит
-    неудача с преобразованием строки  в тип val, val не
-    перезаписывается, в Log уходит ругательство... */
+    /// Returns value for given key
+    /// If option does not exists or cast fails then default value returns
     template<typename T>
-    void get (const std::string & key, T & val) const {
+    T get (const std::string & key, const T & def) const {
       std::map<std::string, std::string>::const_iterator it = find(key);
       if (it != end()) {
         try {
-          val = boost::lexical_cast<T>(it->second);
+          return boost::lexical_cast<T>(it->second);
         }
         catch (boost::bad_lexical_cast & e) {
-	  std::cerr << e.what() << " (key: \"" << key + "\" value: \"" + it->second + "\")\n";
+          std::cerr << e.what() << " (key: \"" << key + "\" value: \"" + it->second + "\")\n";
         }
       }
+      return def;
     }
+
 
     /** Поиск неизвестных (не перечисленных в known :)) ключей... 
     тупая, но полезная функция */
