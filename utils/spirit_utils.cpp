@@ -4,27 +4,31 @@
 /** function for parsing file and reporting errors */
 bool parse_file(const char * name, const char *file, const rule_t & rule){
 
-    iterator_t first(file);
-    if (!first) { 
-	std::cerr << name << ": can't find file " << file << '\n'; 
-	return false;
+    fit_t first(file);
+    if (!first) {
+      std::cerr << name << ": can't find file " << file << '\n'; 
+      return false;
     }
-    iterator_t last = first.make_end();
+    fit_t last = first.make_end();
+    if (first==last) {
+      std::cerr << name << ": empty file " << file << '\n'; 
+      return false;
+    }
 
-    info_t res = parse(first, last, rule);
+    info_t res = boost::spirit::parse(pit_t(first, last, file), pit_t(), rule);
 
     if (!res.full){
-      iterator_t it = it;
-      std::cerr << name << ": can't parse file " << file <<
-        " at position " << res.length << "\n";
+      pit_t it=res.stop;
+      boost::spirit::file_position fpos=it.get_position();
+
+      std::cerr << name << ": can't parse file: " << fpos.file <<
+        " at line: " << fpos.line <<
+        " column: " << fpos.column << "\n";
       int i,j;
-      for (i=0; i>-20; i--) if (it == first) break; else it--;
-      for (j=i; j<20; j++) {
-        std::cerr << (*it == '\n' ? '\f':*it);
-        if (it == last) break; else it++;
+      for (int i=0; i<40; i++) {
+        std::cerr << (*it == '\n' ? ' ': *it);
+        it++;
       }
-      std::cerr << "\n";
-      for (j=i; j<20; j++) std::cerr << (j==0? "^":" ");
       std::cerr << "\n";
       return false;
     }
