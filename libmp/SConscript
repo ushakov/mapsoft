@@ -6,3 +6,6 @@ env.Library('mp', \
         mp_mask.cpp
         mp_data.cpp
      """))
+
+libs=Split("mp utils 2d")
+env.Program("mp_test.cpp",  LIBS=[libs])
