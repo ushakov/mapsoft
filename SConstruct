@@ -4,6 +4,7 @@ subdirs = Split ("""
 		lib2d
 		libfig
 		libmp
+		libmap
 		libgeo
 		libgeo_io
 		jeeps

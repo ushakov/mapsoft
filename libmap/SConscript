@@ -1,0 +1,11 @@
+Import('env')
+
+#env.Library('mp', \
+#    Split ("""
+#        mp_io.cpp
+#        mp_mask.cpp
+#        mp_data.cpp
+#     """))
+
+libs=Split("utils 2d")
+env.Program("test.cpp",  LIBS=[libs])
