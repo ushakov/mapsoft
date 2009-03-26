@@ -47,6 +47,12 @@ std::istream & operator>> (std::istream & s, object & o){
   while (!s.eof()){
     std::string line, key, val;
     int mode=s.get();
+
+    if (mode=='\n'){
+      if (seg.size()>0) { o.data.push_back(seg); seg.clear();}
+      continue;
+    }
+
     if (!getline(s, line)) break;
      std::istringstream s1(line);
 
@@ -64,9 +70,6 @@ std::istream & operator>> (std::istream & s, object & o){
         s1 >> x >> y;
         if (!s1 || !s1.eof()) goto def;
         seg.push_back(Point<double>(x,y));
-        break;
-      case '\n':
-        if (seg.size()>0) { o.data.push_back(seg); seg.clear();}
         break;
       case EOF:
         break;
