@@ -1,0 +1,9 @@
+Import('env')
+
+env.Library('vmap', \
+    Split ("""
+        vmap.cpp
+    """))
+
+libs=Split("vmap utils 2d")
+env.Program("test.cpp",  LIBS=[libs])
