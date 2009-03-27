@@ -10,4 +10,5 @@ env.Library('vmap', \
     """))
 
 libs=Split("vmap fig mp zn utils 2d yaml")
-env.Program("test.cpp",  LIBS=[libs])
+env.Program("test_mp2dir.cpp",  LIBS=[libs])
+env.Program("test_dir2mp.cpp",  LIBS=[libs])
