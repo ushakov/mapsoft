@@ -1,7 +1,7 @@
 #include "vmap.h"
 
 main(){
-  map::rmap o;
-  std::cin >> o;
-  std::cout << o;
+  map::world w;
+  map::read_dir("./m1", w);
+  map::write_dir("./m2", w);
 }
