@@ -12,6 +12,7 @@
 #include "zn.h"
 
 #include "../lib2d/point_utils.h"
+#include "../lib2d/line_utils.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/core.hpp>
@@ -270,11 +271,14 @@ int zn_conv::get_type (const fig::fig_object & o) const {
 
 // Преобразовать mp-объект в fig-объект
 // Если тип 0, то он определяется функцией get_type по объекту
-fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
+list<fig::fig_object> zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
+
   if (type ==0) type = get_type(mp);
 
-  fig::fig_object ret = default_fig;
-  if (znaki.find(type) != znaki.end()) ret = znaki.find(type)->second.fig;
+  list<fig::fig_object> ret;
+  fig::fig_object ret_o = default_fig;
+
+  if (znaki.find(type) != znaki.end()) ret_o = znaki.find(type)->second.fig;
   else {
     if (unknown_types.count(type) == 0){
       cerr << "mp2fig: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
@@ -282,26 +286,38 @@ fig::fig_object zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, i
     }
   }
 
-  if (ret.type == 4){
-    ret.text = mp.Label;
-    ret.comment.push_back("");
+  if (ret_o.type == 4){
+    ret_o.text = mp.Label;
+    ret_o.comment.push_back("");
   } else {
-    ret.comment.push_back(mp.Label);
+    ret_o.comment.push_back(mp.Label);
   }
-  ret.comment.insert(ret.comment.end(), mp.Comment.begin(), mp.Comment.end());
+  ret_o.comment.insert(ret_o.comment.end(), mp.Comment.begin(), mp.Comment.end());
 
-  g_line pts = cnv.line_bck(mp);
-  for (int i=0; i<pts.size(); i++) ret.push_back(pts[i]);
-  // замкнутая линия
-  if ((mp.Class == "POLYLINE") && (ret.size()>1) && (ret[0]==ret[ret.size()-1])){
-    ret.resize(ret.size()-1);
-    ret.close();
+  // convert points
+  if (mp.Class == "POLYGON"){
+    ret_o.set_points(cnv.line_bck(join_polygons(mp)));
+    ret.push_back(ret_o);
   }
-  // стрелки
-  int dir = mp.Opts.get("DirIndicator",0);
-  if      (dir==1){ret.forward_arrow=1; ret.backward_arrow=0;}
-  else if (dir==2){ret.backward_arrow=1; ret.forward_arrow=0;}
-  else    {ret.backward_arrow=0; ret.forward_arrow=0;}
+  else {
+    for (MultiLine<double>::const_iterator i=mp.begin(); i!=mp.end(); i++){
+      ret_o.clear();
+//      g_line pts = cnv.line_bck(*i);
+//      for (int i=0; i<pts.size(); i++) ret_o.push_back(pts[i]);
+      ret_o.set_points(cnv.line_bck(*i));
+      // замкнутая линия
+      if ((mp.Class == "POLYLINE") && (ret_o.size()>1) && (ret_o[0]==ret_o[ret_o.size()-1])){
+        ret_o.resize(ret_o.size()-1);
+        ret_o.close();
+      }
+      // стрелки
+      int dir = mp.Opts.get("DirIndicator",0);
+      if      (dir==1){ret_o.forward_arrow=1; ret_o.backward_arrow=0;}
+      else if (dir==2){ret_o.backward_arrow=1; ret_o.forward_arrow=0;}
+      else    {ret_o.backward_arrow=0; ret_o.forward_arrow=0;}
+      ret.push_back(ret_o);
+    }
+  }
   return ret;
 }
 
@@ -330,11 +346,13 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, 
   }
 
   g_line pts = cnv.line_frw(fig);
-  for (int i=0; i<pts.size(); i++) mp.push_back(pts[i]);
 
   // если у нас замкнутая линия - добавим в mp еще одну точку:
-  if ((mp.Class == "POLYLINE") && (fig.is_closed()) && (fig.size()>0) && (fig[0]!=fig[fig.size()-1]))
-    mp.push_back(mp[0]);
+  if ((mp.Class == "POLYLINE") &&
+      (fig.is_closed()) &&
+      (fig.size()>0) &&
+      (fig[0]!=fig[fig.size()-1]))  pts.push_back(pts[0]);
+  mp.push_back(pts);
 
   // если есть стрелка вперед -- установить DirIndicator=1
   // если есть стрелка назад -- установить  DirIndicator=2

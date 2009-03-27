@@ -81,7 +81,7 @@ main(int argc, char** argv){
     cerr << "Рисование горизонталей по данным srtm\n";
 
     cerr << "находим кусочки горизонталей: ";
-    map<short, list<g_line > > hors;
+    map<short, MultiLine<double> > hors;
     int count = 0; 
     for (int lat=lat2; lat>lat1; lat--){
       for (int lon=lon1; lon<lon2; lon++){
@@ -137,15 +137,15 @@ main(int argc, char** argv){
     count = 0; 
     cerr << "  сливаем кусочки горизонталей в линии: ";
     fig::fig_object o = fig::make_object("2 1 0 1 30453904 7 90 -1 -1 0.000 1 1 0 0 0 0");
-    for(map<short, list<g_line> >::iterator im = hors.begin(); im!=hors.end(); im++){
+    for(map<short, MultiLine<double> >::iterator im = hors.begin(); im!=hors.end(); im++){
       std::cerr << im->first << " ";
       merge(im->second, 1e-4);
       generalize(im->second, acc/6380000/2/M_PI*180.0);
       split(im->second, 200);
-      list<g_line> tmp;
+      MultiLine<double> tmp;
       crop_lines(im->second, tmp, border_ll, true);
 
-      for(list<g_line>::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
+      for(MultiLine<double>::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
         if (iv->size()<3) continue;
         o.clear();
         if (im->first%step2==0) o.thickness = 2;
@@ -231,7 +231,7 @@ main(int argc, char** argv){
     // поиск дырок
     cerr << "ищем дырки srtm: ";
     set<Point<int> > aset;
-    list<Line<double> > aline;
+    MultiLine<double> aline;
     for (int lat=lat2; lat>lat1; lat--){
       for (int lon=lon1; lon<lon2-1; lon++){
         Point<int> p(lon,lat);
@@ -243,7 +243,7 @@ main(int argc, char** argv){
     cerr << aset.size() << " точек\n";
     cerr << " преобразуем множество точек в многоугольники: ";
     aline = pset2line(aset);
-    for(list<g_line>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+    for(MultiLine<double>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
       if (iv->size()<3) continue;
       g_line l = fig_cnv.line_bck((*iv)/1200.0);
       fig::fig_object o = fig::make_object("2 3 0 0 0 4 110 -1 20 0.000 0 0 -1 0 0 0");
@@ -280,7 +280,7 @@ main(int argc, char** argv){
 
   cerr << " преобразуем множество точек в многоугольники: ";
   aline = pset2line(aset);
-  for(list<g_line>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+  for(MultiLine<double>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
     g_line l = (*iv)/1200.0;
     mp::mp_object mpo;
@@ -299,10 +299,10 @@ main(int argc, char** argv){
 
   // обрезание mp-файла - унести в какую-нибудь библиотеку!
   for(mp::mp_world::iterator i = MP.begin(); i!=MP.end(); i++){
-    list<g_line> lines; lines.push_back(*i);
+    MultiLine<double> lines; lines.push_back(*i);
     crop_lines(lines, brdll);
     i->clear();
-    for (list<g_line>::iterator j = lines.begin(); j != lines.end(); j++){
+    for (MultiLine<double>::iterator j = lines.begin(); j != lines.end(); j++){
       mp::mp_object o = *i;
       o.insert(o.begin(), j->begin(), j->end());
       MP.insert(i, o);

@@ -58,8 +58,8 @@ Point<int> my_crn (int k){
 }
 
 
-std::list<Line<double> > pset2line (const std::set<Point<int> >& pset){
-  std::list<Line<double> > ret, ret1;
+MultiLine<double> pset2line (const std::set<Point<int> >& pset){
+  MultiLine<double> ret, ret1;
   //добавляем все обходы точек
   for (std::set<Point<int> >::const_iterator i = pset.begin(); i!=pset.end(); i++){
     for (int k = 0; k<4; k++){
@@ -72,7 +72,7 @@ std::list<Line<double> > pset2line (const std::set<Point<int> >& pset){
       // поэтому посмотрим здесь:
       // upd. это не сильно все убыстрило...
       bool ispair=false;
-      for (std::list<Line<double> >::iterator i = ret.begin(); i!=ret.end(); i++){
+      for (MultiLine<double>::iterator i = ret.begin(); i!=ret.end(); i++){
         if (i->isinv(side)){
            ispair = true;
            ret.erase(i);

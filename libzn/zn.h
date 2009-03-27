@@ -57,8 +57,8 @@ class zn_conv{
 
       // в следующих функциях, если указан тип 0, то он определяется по объекту
 
-  // Преобразовать mp-объект в fig-объект
-  fig::fig_object mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type=0);
+  // Преобразовать mp-объект в fig-объекты
+  std::list<fig::fig_object> mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type=0);
 
   // преобразовать fig-объект в mp-объект
   mp::mp_object fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type=0);

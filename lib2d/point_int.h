@@ -21,7 +21,7 @@ std::set<Point<int> > border(const std::set<Point<int> >& pset);
 int add_pb(const Point<int>& p, std::set<Point<int> >& pset, std::set<Point<int> >& bord);
 
 /// преобразовать множество точек в линию границы
-std::list<Line<double> > pset2line (const std::set<Point<int> >& pset);
+MultiLine<double> pset2line (const std::set<Point<int> >& pset);
 
 
 #endif /* POINT_INT_H */

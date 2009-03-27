@@ -22,12 +22,12 @@ using namespace fig;
 // В pt запихать эту ближайшую точку, в vec - едиичный вектор направления линии,
 // вернуть расстояние. 
 // Поиск происходит на расстоянии не более maxdist (xfig units)
-double nearest_line(const list<Line<int> > & lines, Point<double> & vec, Point<double> & pt, double maxdist=100){
+double nearest_line(const MultiLine<int> & lines, Point<double> & vec, Point<double> & pt, double maxdist=100){
 
   Point<double> minp(pt),minvec(1,0);
   double minl=maxdist;
 
-  for (list<Line<int> >::const_iterator i  = lines.begin(); i != lines.end(); i++){
+  for (MultiLine<int>::const_iterator i  = lines.begin(); i != lines.end(); i++){
     for (int j=1; j<i->size(); j++){
       Point<double> p1((*i)[j-1]);
       Point<double> p2((*i)[j]);
@@ -80,7 +80,7 @@ main(int argc, char **argv){
   // по  отдельным спискам все линейные объекты, к которым мы хотим привязывать точки:
   // ж/д, реки и хребты. Во втором уже делаем собственно преобразование объектов...
 
-  list<Line<int> > list_zd, list_r, list_h;
+  MultiLine<int> list_zd, list_r, list_h;
 
 
   for (int pass =0 ; pass<2; pass++){
@@ -549,7 +549,7 @@ main(int argc, char **argv){
         if (pmax.x < (*i)[j].x) pmax.x = (*i)[j].x;
         if (pmax.y < (*i)[j].y) pmax.y = (*i)[j].y;
       }
-      list<Line<double> > ls, ls1;
+      MultiLine<double> ls, ls1;
       int n=0;
       for (int y = pmin.y; y< pmax.y; y+=step){
         Line<double> l; 
@@ -566,7 +566,7 @@ main(int argc, char **argv){
       crop_lines(ls, ls1, c, true);
       fig_object o = make_object("2 1 0 1 22046463 7 87 -1 -1 0.000 0 1 0 0 0 0");
       if (type == 0x200051) {o.line_style=1; o.style_val=5;}
-      for (list<Line<double> >::iterator l = ls.begin(); l!=ls.end(); l++){
+      for (MultiLine<double>::iterator l = ls.begin(); l!=ls.end(); l++){
         o.set_points(*l);
         NW.push_back(o);
       }

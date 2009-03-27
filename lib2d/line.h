@@ -12,7 +12,7 @@
 
 /** Ломаная линия (std::vector<Point<T> >). */
 
-template <typename T> 
+template <typename T>
 struct Line
   : public boost::additive<Line<T> >,
     public boost::additive<Line<T>, Point<T> >,
@@ -44,8 +44,8 @@ struct Line
 
   double length () const {
     double ret=0;
-    for(typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) 
-      ret+=sqrt(i->x*i->x + i->y*i->y);
+    for (int i=0; i<this->size()-1; i++)
+      ret+=pdist((*this)[i], (*this)[i+1]);
     return ret;
   }
 
@@ -159,6 +159,73 @@ std::istream & operator>> (std::istream & s, Line<T> & l){
   s.setstate(std::ios::goodbit);
   return s;
 }
+
+// Line with multiple segments (std::list<Line<T> >)
+
+template <typename T>
+struct MultiLine
+  : public boost::additive<MultiLine<T> >,
+    public boost::additive<MultiLine<T>, Point<T> >,
+    public boost::multiplicative<MultiLine<T>,T>,
+    std::list<Line<T> >
+{
+
+  MultiLine<T> & operator/= (T k) {
+    for (typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)/=k;
+    return *this;
+  }
+
+  MultiLine<T> & operator*= (T k) {
+    for (typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)*=k;
+    return *this;
+  }
+
+  MultiLine<T> & operator+= (Point<T> p) {
+    for (typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)+=p;
+    return *this;
+  }
+
+  MultiLine<T> & operator-= (Point<T> p) {
+    for (typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)-=p;
+    return *this;
+  }
+
+  double length () const {
+    double ret=0;
+    for(typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++)
+      ret+=length(*i);
+    return ret;
+  }
+
+  Rect<T> range() const{
+    if (this->size()<1) return Rect<T>(0,0,0,0);
+    typename MultiLine<T>::const_iterator i=this->begin();
+    Rect<T> ret=i->range();
+    while ((i++) != this->end())  ret = rect_bounding_box(ret, i->range());
+    return ret;
+  }
+
+  Point<T> center() const{
+    Rect<T> r=range();
+    return (r.TLC() + r.BRC())/2;
+  }
+
+  operator MultiLine<double>() const{
+    MultiLine<double> ret;
+    for (typename MultiLine<T>::const_iterator i=this->begin(); i!=this->end(); i++)
+      ret.push_back(Line<double>(*i));
+    return ret;
+  }
+
+  operator MultiLine<int>() const{
+    MultiLine<int> ret;
+    for (typename MultiLine<T>::const_iterator i=this->begin(); i!=this->end(); i++)
+      ret.push_back(Line<int>(*i));
+    return ret;
+  }
+
+};
+
 
 
 #endif /* LINE_H */

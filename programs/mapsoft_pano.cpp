@@ -128,59 +128,60 @@ int main(int argc, char *argv[]) {
 
   fig::fig_object o2 = fig::make_object("2 1 0 5 0 7 50 -1 -1 0.000 0 1 7 0 0 1");
   fig::fig_object o3 = fig::make_object("4 0 0 52 -1 18 20 1.5708 4");
-  
+
 
   mp::mp_world W;
   for (int i=5; i<argc; i++) mp::read(argv[i], W);
 
   for (mp::mp_world::const_iterator i=W.begin(); i!=W.end(); i++){
-    if (i->Class!="POI") continue;
-    if ((i->Type!=0xd00) && (i->Type!=0xf00) && (i->Type!=0x1100) && // вершина
-        (i->Type!=0x6406) && ((i->Type < 0x6620) || (i->Type > 0x6626))) // перевал
-        continue;
-    int c=(i->Type>0x6000)?12:8;
-    g_point pw = fast_cnv(lon0, (*i)[0] * (M_PI/180.0));
+    for (mp::mp_object::const_iterator l=i->begin(); l!=i->end(); l++){
+      if (i->Class!="POI") continue;
+      if ((i->Type!=0xd00) && (i->Type!=0xf00) && (i->Type!=0x1100) && // вершина
+          (i->Type!=0x6406) && ((i->Type < 0x6620) || (i->Type > 0x6626))) // перевал
+          continue;
+      int c=(i->Type>0x6000)?12:8;
+      g_point pw = fast_cnv(lon0, (*l)[0] * (M_PI/180.0));
 
-    double r = sqrt(pow(pw.x-p0.x,2)+pow(pw.y-p0.y,2));
-    if ((r > max_r)||(r<min_r)) continue;
+      double r = sqrt(pow(pw.x-p0.x,2)+pow(pw.y-p0.y,2));
+      if ((r > max_r)||(r<min_r)) continue;
 
-    double a = atan2(pw.y-p0.y, pw.x-p0.x);
-    if ((a > max_a)||(a<min_a)) continue;
+      double a = atan2(pw.y-p0.y, pw.x-p0.x);
+      if ((a > max_a)||(a<min_a)) continue;
 
-    double z = (double)s.geth((*i)[0]);
-    if (z > srtm_min_interp) z-=srtm_zer_interp;
-    if (z < srtm_min) continue;
+      double z = (double)s.geth((*l)[0]);
+      if (z > srtm_min_interp) z-=srtm_zer_interp;
+      if (z < srtm_min) continue;
 
-    double b = atan2(z-z0, r);
-    if ((b > max_b)||(b<min_b)) continue;
+      double b = atan2(z-z0, r);
+      if ((b > max_b)||(b<min_b)) continue;
 
-    int px = (max_a-a)*rad2pt;
-    int py = (max_b-b)*rad2pt;
+      int px = (max_a-a)*rad2pt;
+      int py = (max_b-b)*rad2pt;
 
-    // blue channel!
-    int col = r2col(r+1000)>>16;
-    if ((data.get(px,py)>>16) < col) continue;
+      // blue channel!
+      int col = r2col(r+1000)>>16;
+      if ((data.get(px,py)>>16) < col) continue;
 
-    Point<int> fig_pt(int((max_a-a)/(max_a-min_a)*width*kk), int((max_b-b)/(max_b-min_b)*height*kk));    
-    o2.clear();
-    o3.clear();
+      Point<int> fig_pt(int((max_a-a)/(max_a-min_a)*width*kk), int((max_b-b)/(max_b-min_b)*height*kk));    
+      o2.clear();
+      o3.clear();
 
-    o2.pen_color=c;
-    o3.pen_color=c;
-   
-    o2.push_back(fig_pt);
-    o3.push_back(fig_pt + Point<int>(50,-100));
+      o2.pen_color=c;
+      o3.pen_color=c;
 
-    ostringstream label_stream;
-    label_stream 
-         << i->Label << " "
-         << fixed << setprecision(2) << r/1000.0 << " "
-         << fixed << setprecision(0) << z;
+      o2.push_back(fig_pt);
+      o3.push_back(fig_pt + Point<int>(50,-100));
 
-    o3.text=label_stream.str();
-    F.push_back(o2);
-    F.push_back(o3);
-    
+      ostringstream label_stream;
+      label_stream 
+           << i->Label << " "
+           << fixed << setprecision(2) << r/1000.0 << " "
+           << fixed << setprecision(0) << z;
+
+      o3.text=label_stream.str();
+      F.push_back(o2);
+      F.push_back(o3);
+    }
   }
 
 /*

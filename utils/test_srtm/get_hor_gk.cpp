@@ -101,7 +101,7 @@ main(int argc, char** argv){
 
   // нарисуем горизонтали!
   cerr << "находим кусочки горизонталей: ";
-  map<short, list<Line<double> > > hors;
+  map<short, MultiLine<double> > hors;
   int count = 0; 
   for (int lat=lat2; lat>lat1; lat--){
     for (int lon=lon1; lon<lon2; lon++){
@@ -155,13 +155,13 @@ main(int argc, char** argv){
 
   count = 0; 
   cerr << "  сливаем кусочки горизонталей в линии: ";
-  for(map<short, list<Line<double> > >::iterator im = hors.begin(); im!=hors.end(); im++){
+  for(map<short, MultiLine<double> >::iterator im = hors.begin(); im!=hors.end(); im++){
     std::cerr << im->first << " ";
     merge(im->second, 1e-4);
     generalize(im->second, acc/6380000/2/M_PI*180.0);
     split(im->second, 100);
     
-    for(list<Line<double> >::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
+    for(MultiLine<double>::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
       if (iv->size()<3) continue;
       mp::mp_object O;
       O.Class = "POLYLINE";
@@ -240,7 +240,7 @@ main(int argc, char** argv){
   cerr << count << " шт\n";
 
   std::set<Point<int> > aset;
-  std::list<Line<double> > aline;
+  MultiLine<double> aline;
 
 
 /*
@@ -265,7 +265,7 @@ main(int argc, char** argv){
 
   cerr << " преобразуем множество точек в многоугольники: ";
   aline = pset2line(aset);
-  for(list<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+  for(MultiLine<double>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
     Line<double> l = (*iv)/1200.0;
     mp::mp_object mpo;
@@ -292,7 +292,7 @@ main(int argc, char** argv){
 
   cerr << " преобразуем множество точек в многоугольники: ";
   aline = pset2line(aset);
-  for(list<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+  for(MultiLine<double>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
     Line<double> l = (*iv)/1200.0;
     mp::mp_object mpo;
@@ -309,10 +309,10 @@ main(int argc, char** argv){
 
   // обрезание mp-файла - унести в какую-нибудь библиотеку!
   for(mp::mp_world::iterator i = MP.begin(); i!=MP.end(); i++){
-    list<Line<double> > lines; lines.push_back(*i);
+    MultiLine<double> lines; lines.push_back(*i);
     crop_lines(lines, brdll);
     i->clear();
-    for (list<Line<double> >::iterator j = lines.begin(); j != lines.end(); j++){
+    for (MultiLine<double>::iterator j = lines.begin(); j != lines.end(); j++){
       mp::mp_object o = *i;
       o.insert(o.begin(), j->begin(), j->end());
       MP.insert(i, o);

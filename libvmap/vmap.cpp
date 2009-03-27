@@ -57,7 +57,7 @@ istream & operator<< (ostream & s, const object & o){
     s << '\\' << i->first << ' ' << i->second << '\n';
   for (vector<string>::const_iterator i=o.comm.begin(); i!=o.comm.end(); i++)
     s << '#' << *i << '\n';
-  for (list<Line<double> >::const_iterator l=o.data.begin(); l!=o.data.end(); l++){
+  for (MultiLine<double>::const_iterator l=o.data.begin(); l!=o.data.end(); l++){
     for (Line<double>::const_iterator i=l->begin(); i!=l->end(); i++)
       s << ' ' << i->x << ' ' << i->y << '\n';
     s << '\n';

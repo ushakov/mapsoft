@@ -50,7 +50,7 @@ main(int argc, char** argv){
 
   // нарисуем горизонтали!
   cerr << "находим кусочки горизонталей: ";
-  map<short, list<Line<double> > > hors;
+  map<short, MultyLine<double> > hors;
   int count = 0; 
   for (int lat=lat2; lat>lat1; lat--){
     for (int lon=lon1; lon<lon2-1; lon++){
@@ -104,13 +104,13 @@ main(int argc, char** argv){
 
   count = 0; 
   cerr << "  сливаем кусочки горизонталей в линии: ";
-  for(map<short, list<Line<double> > >::iterator im = hors.begin(); im!=hors.end(); im++){
+  for(map<short, MultiLine<double> >::iterator im = hors.begin(); im!=hors.end(); im++){
     std::cerr << im->first << " ";
     merge(im->second, 1e-4);
     generalize(im->second, 1e-4); // точность генерализации 1e-4 - примерно 1/8 от 3 секунд
     split(im->second, 100);
     
-    for(list<Line<double> >::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
+    for(MultiLine<double>::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
       if (iv->size()<3) continue;
       mp::mp_object O;
       O.Class = "POLYLINE";
@@ -189,7 +189,7 @@ main(int argc, char** argv){
   cerr << count << " шт\n";
 
   std::set<Point<int> > aset;
-  std::list<Line<double> > aline;
+  MultiLine<double> aline;
 
 
 /*
@@ -214,7 +214,7 @@ main(int argc, char** argv){
 
   cerr << " преобразуем множество точек в многоугольники: ";
   aline = pset2line(aset);
-  for(list<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+  for(MultiLine<double>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
     Line<double> l = (*iv)/1200.0;
     mp::mp_object O;
@@ -241,7 +241,7 @@ main(int argc, char** argv){
 
   cerr << " преобразуем множество точек в многоугольники: ";
   aline = pset2line(aset);
-  for(list<Line<double> >::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+  for(MultiLine<double>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
     Line<double> l = (*iv)/1200.0;
     mp::mp_object O;

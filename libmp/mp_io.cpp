@@ -16,66 +16,6 @@ namespace mp {
 using namespace std;
 using namespace boost::spirit;
 
-// FIG does not support polygons with multiple segments while
-// MP, OCAD, PS does. This class converts multiple segments into one.
-
-struct polygon_joiner : list<Line<double> >{
-
-  std::string Class;
-
-  operator Line<double> () const {
-    Line<double> ret;
-    if (size()==0) return ret;
-
-    list<Line<double> >::const_iterator l = begin();
-    ret = *l; l++;
-    while (l!=end()){
-
-      // for any object class excludind POLYGON we are just join all lines
-      if (Class != "POLYGON"){
-        ret.insert(ret.end(), l->begin(), l->end());
-        l++;
-        continue;
-      }
-
-      // Найдем место кратчайшего разреза между ret и очередным куском.
-      // Честно пока делать лень, поэтому найдем минимальное расстояние 
-      // между вершинами...
-
-      double dist = 1e99;
-
-      Line<double>::iterator  i1,q1 ;
-      Line<double>::const_iterator  i2,q2;
-        // i1,i2 -- пара вершин
-        // q1,q2 -- искомое
-
-      for (i1=ret.begin(); i1!=ret.end(); i1++){
-        for (i2=l->begin(); i2!=l->end(); i2++){
-
-          double d = pdist(*i1, *i2);
-          if (d < dist){
-            dist = d;
-            q1=i1; q2=i2;
-          }
-        }
-      }
-
-      // вставим кусок в разрез
-      Line<double> tmp;
-      tmp.push_back(*q1);
-      tmp.insert(tmp.end(), q2, l->end());
-      tmp.insert(tmp.end(), l->begin(), q2);
-      tmp.push_back(*q2);
-      ret.insert(q1, tmp.begin(), tmp.end());
-
-      l++;
-    }
-    return ret;
-  }
- 
-};
-
-
 bool read(const char* filename, mp_world & world, const Options & opts){
 
   mp_world ret;
@@ -84,7 +24,6 @@ bool read(const char* filename, mp_world & world, const Options & opts){
   Point<double> pt;
 
   Line<double>   line;
-  polygon_joiner joiner;
   string         comm, key, val;
 
   rule_t key_ch = anychar_p - eol_p - '=';
@@ -112,7 +51,7 @@ bool read(const char* filename, mp_world & world, const Options & opts){
        ((str_p("POI") | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] |
         (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] |
         (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")]
-       ) [clear_a(joiner)][assign_a(joiner.Class, o.Class)] >>
+       ) >>
       ch_p(']') >> eol_p >>
 
       *(( "Type=0x"   >> hex_p[assign_a(o.Type)]  >> eol_p) |
@@ -123,14 +62,15 @@ bool read(const char* filename, mp_world & world, const Options & opts){
 
         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)][clear_a(line)] >> "=" >>
            (eol_p |
-           (pt_r[push_back_a(line, pt)] >> *(',' >> pt_r[push_back_a(line, pt)]) >> eol_p) [push_back_a(joiner,line)]
+           (pt_r[push_back_a(line, pt)] >>
+             *(',' >> pt_r[push_back_a(line, pt)]) >> eol_p) [push_back_a(o,line)]
            )
         ) |
 
         ( option[erase_a(ret.Opts, key)][insert_at_a(o.Opts, key, val)] )
 
         ) >>
-      "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p[assign_a(o,joiner)][push_back_a(ret,o)];
+      "[END" >> *(ch-ch_p(']')) >> ch_p(']') >> eol_p[push_back_a(ret,o)];
 
     rule_t main_rule = header >>
         *object >> *space_p >> *(+comment >> *space_p);
@@ -165,21 +105,31 @@ bool read(const char* filename, mp_world & world, const Options & opts){
     // removing bad objects
     mp_world::iterator i = ret.begin();
     while (i!= ret.end()){
+
+      mp_object::iterator l = i->begin();
+      while (l!= i->end()){
+
+        if (l->size()==0){
+          std::cerr << "MP:read warning: deleting empty object segment\n";
+          l = i->erase(l);
+          continue;
+        }
+        if ((i->Class!="POI") && (l->size()==1)){
+          std::cerr << "MP:read warning: deleting line segment with 1 point\n";
+          l = i->erase(l);
+          continue;
+        }
+        if ((i->Class=="POI") && (l->size()>1)){
+          std::cerr << "MP:read warning: cropping POI segment with > 1 points\n";
+          l->resize(1);
+        }
+        l++;
+      }
       if (i->size()==0){
-        std::cerr << "MP:read warning: deleting object with 0 points\n";
+        std::cerr << "MP:read warning: deleting empty object\n";
         i = ret.erase(i);
-        continue;
       }
-      if ((i->Class!="POI") && (i->size()==1)){
-        std::cerr << "MP:read warning: deleting line with 1 point\n";
-        i = ret.erase(i);
-        continue;
-      }
-      if ((i->Class=="POI") && (i->size()>1)){
-        std::cerr << "MP:read warning: cropping POI with > 1 points\n";
-        i->resize(1);
-      }
-      i++;
+      else i++;
     }
 
     // merging world with ret
@@ -230,11 +180,14 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
       out << "\r\n" << o->first << "=" << cnv.from_utf(o->second);
     }
 
-    out << "\r\nData" << i->BL << "="; 
-    for (int j=0; j<i->size(); j++){
-      out << ((j!=0)?",":"") << "(" 
-          << (*i)[j].y << "," << (*i)[j].x << ")";
+    for (MultiLine<double>::const_iterator l=i->begin(); l!=i->end(); l++){
+      out << "\r\nData" << i->BL << "="; 
+      for (int j=0; j<l->size(); j++){
+        out << ((j!=0)?",":"") << "(" 
+            << (*l)[j].y << "," << (*l)[j].x << ")";
+      }
     }
+
     out << "\r\n[END]\r\n";
   }
   return true;

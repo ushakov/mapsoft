@@ -27,7 +27,7 @@ typedef std::string id_t;
 */
 struct object{
   Options                  opts;
-  std::list<Line<double> > data;
+  MultiLine<double>        data;
   std::vector<std::string> comm;
 };
 
@@ -107,6 +107,9 @@ std::istream & operator<< (std::ostream & s, const world & o);
 
 bool write_dir(const std::string & dir, const world & w);
 bool read_dir(const std::string & dir, world & w);
+
+//bool read_mp(const std::string & dir, const legend & l, world & w){
+//}
 
 
 } // namespace

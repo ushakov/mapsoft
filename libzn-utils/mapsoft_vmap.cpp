@@ -133,7 +133,8 @@ int copy(int argc, char** argv){
     for (mp::mp_world::const_iterator i=IM.begin(); i!=IM.end(); i++){
       if ((filter=="all") || testfilter(filter, arg, zn::get_key(*i))){
         obj_cnt++;
-        OF.push_back(zconverter.mp2fig(*i, cnv));
+        list<fig::fig_object> tmp=zconverter.mp2fig(*i, cnv);
+        OF.insert(OF.end(), tmp.begin(), tmp.end());
       }
     }
     ofstream out(ofile.c_str());
@@ -636,11 +637,15 @@ int crop(int argc, char** argv){
 
     mp::mp_world::iterator i=M.begin();
     while (i!=M.end()){
-      Line<double> l = cnv.line_frw(*i, 1e-7);
-      bool closed= (i->Class == "POLYGON");
-      if (rect_crop(cutter, l, closed)) obj_c_cnt++; else obj_n_cnt++;
-      i->set_points(cnv.line_bck(l, 1e-7));
-      if (i->size()==0) {i=M.erase(i); obj_d_cnt++; obj_c_cnt--;} else i++;
+      mp::mp_object::iterator l=i->begin();
+      while (l!=i->end()){
+        Line<double> line = cnv.line_frw(*l, 1e-7);
+        bool closed= (i->Class == "POLYGON");
+        if (rect_crop(cutter, line, closed)) obj_c_cnt++; else obj_n_cnt++;
+        *l=cnv.line_bck(line, 1e-7);
+        if (l->size()==0) {l=i->erase(l); obj_d_cnt++; obj_c_cnt--;} else l++;
+      }
+      if (i->size()==0) {i=M.erase(i);} else i++;
     }
     ofstream out(file.c_str());
     mp::write(out, M);

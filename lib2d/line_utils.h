@@ -18,10 +18,10 @@ Line<T> rect2line(const Rect<T> & r){
 
 // повернуть линии на угол a вокруг точки p0.
 template<typename T>
-void lrotate(std::list<Line<T> > & lines, const T a, const Point<T> & p0 = Point<T>(0,0)){
+void lrotate(MultiLine<T> & lines, const T a, const Point<T> & p0 = Point<T>(0,0)){
   double c = cos(a);
   double s = sin(a);
-  for (typename std::list<Line<T> >::iterator l = lines.begin(); l!=lines.end(); l++){
+  for (typename MultiLine<T>::iterator l = lines.begin(); l!=lines.end(); l++){
     for (typename Line<T>::iterator p = l->begin(); p!=l->end(); p++){
       double x = p->x-p0.x, y = p->y-p0.y;
       p->x = (T)(x*c - y*s + p0.x);
@@ -32,11 +32,11 @@ void lrotate(std::list<Line<T> > & lines, const T a, const Point<T> & p0 = Point
 
 // склеивание линий, если их концы ближе e
 template<typename T>
-void merge (std::list<Line<T> > & lines, T e){
+void merge (MultiLine<T> & lines, T e){
 
   //убираем вообще двойные линии
-  for (typename std::list<Line<T> >::iterator i1 = lines.begin(); i1!=lines.end(); i1++){
-    for (typename std::list<Line<T> >::iterator i2 = i1; i2!=lines.end(); i2++){
+  for (typename MultiLine<T>::iterator i1 = lines.begin(); i1!=lines.end(); i1++){
+    for (typename MultiLine<T>::iterator i2 = i1; i2!=lines.end(); i2++){
       if (i1==i2) continue;
       if ((*i1==*i2) || (i1->isinv(*i2))){
         lines.erase(i2);
@@ -45,8 +45,8 @@ void merge (std::list<Line<T> > & lines, T e){
       }
     }
   }
-  for (typename std::list<Line<T> >::iterator i1 = lines.begin(); i1!=lines.end(); i1++){
-    for (typename std::list<Line<T> >::iterator i2 = i1; i2!=lines.end(); i2++){
+  for (typename MultiLine<T>::iterator i1 = lines.begin(); i1!=lines.end(); i1++){
+    for (typename MultiLine<T>::iterator i2 = i1; i2!=lines.end(); i2++){
       if (i1==i2) continue;
       Line<T> tmp;
       if      (pdist(*(i1->begin()),*(i2->begin()))<e)   {tmp.insert(tmp.end(), i1->rbegin(), i1->rend()); tmp.insert(tmp.end(), i2->begin()+1, i2->end());}
@@ -63,10 +63,10 @@ void merge (std::list<Line<T> > & lines, T e){
 
 // разбиение линии на несколько, каждая не более points точек
 template<typename T>
-void split (std::list<Line<T> > & lines, int points){
+void split (MultiLine<T> & lines, int points){
 
   if (points < 2) return;
-  for (typename std::list<Line<T> >::iterator i = lines.begin(); i!=lines.end(); i++){
+  for (typename MultiLine<T>::iterator i = lines.begin(); i!=lines.end(); i++){
     while (i->size() > points){
       // points последних точек
       Line<T> newline;
@@ -80,8 +80,8 @@ void split (std::list<Line<T> > & lines, int points){
 // Убрать из линии некоторые точки, так, чтобы линия
 // не сместилась от исходного положения более чем на e
 template<typename T>
-void generalize (std::list<Line<T> > & lines, double e){
-  for (typename std::list<Line<T> >::iterator l = lines.begin(); l!=lines.end(); l++){
+void generalize (MultiLine<T> & lines, double e){
+  for (typename MultiLine<T>::iterator l = lines.begin(); l!=lines.end(); l++){
 
     // какие точки мы хотим исключить:
     std::vector<bool> skip(l->size(),false);
@@ -127,6 +127,53 @@ void generalize (std::list<Line<T> > & lines, double e){
     }
   }
 
+}
+
+// FIG does not support polygons with multiple segments while
+// MP, OCAD, PS does. This function converts multiple segments into one.
+
+template<typename T>
+Line<T> join_polygons(const MultiLine<T> & L){
+
+  Line<T> ret;
+
+  typename MultiLine<T>::const_iterator l = L.begin();
+  ret = *l; l++;
+  while (l!=L.end()){
+
+    // Найдем место кратчайшего разреза между ret и очередным куском.
+    // Честно пока делать лень, поэтому найдем минимальное расстояние 
+    // между вершинами...
+
+    double dist = 1e99;
+
+    typename Line<T>::iterator  i1,q1 ;
+    typename Line<T>::const_iterator  i2,q2;
+      // i1,i2 -- пара вершин
+      // q1,q2 -- искомое
+
+    for (i1=ret.begin(); i1!=ret.end(); i1++){
+      for (i2=l->begin(); i2!=l->end(); i2++){
+
+        double d = pdist(*i1, *i2);
+        if (d < dist){
+          dist = d;
+          q1=i1; q2=i2;
+        }
+      }
+    }
+
+    // вставим кусок в разрез
+    Line<T> tmp;
+    tmp.push_back(*q1);
+    tmp.insert(tmp.end(), q2, l->end());
+    tmp.insert(tmp.end(), l->begin(), q2);
+    tmp.push_back(*q2);
+    ret.insert(q1, tmp.begin(), tmp.end());
+
+    l++;
+  }
+  return ret;
 }
 
 #endif

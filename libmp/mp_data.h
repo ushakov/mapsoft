@@ -11,12 +11,12 @@
 
 namespace mp {
 
-    struct mp_object : Line<double>{
+    struct mp_object : MultiLine<double>{
         std::string          Class;
         int                  Type;
         std::string          Label;
         std::vector<std::string> Comment;
-	int                  BL,EL; // begin/end level
+        int                  BL,EL; // begin/end level
         Options              Opts;  // other options
 
         mp_object(){
@@ -25,19 +25,21 @@ namespace mp {
 
         bool operator== (const mp_object & o) const{
           if (size()!=o.size()) return false;
-          for (int i = 0; i<size(); i++) if ((*this)[i]!=o[i]) return false;
+          MultiLine<double>::const_iterator i,j;
+          for (i = begin(), j=o.begin(); (i!=end()) && (j!=o.end()) ; i++, j++)
+            if (*i!=*j) return false;
           return (
             (Class==o.Class) && (Type==o.Type) && (Label==o.Label) &&
             (BL==o.BL) && (EL==o.EL) && (Comment==o.Comment) && (Opts==o.Opts) );
         }
-        mp_object & operator= (const Line<double> v){
+        mp_object & operator= (const Line<double> & v){
           clear();
-          for (Line<double>::const_iterator i=v.begin(); i!=v.end(); i++)
-            push_back(*i);
+          push_back(v);
           return *this;
         }
         // set points from line
-        void set_points(const Line<double> & v);
+//        void set_points(const Line<double> & v);
+
     };
 
     struct mp_world:std::list<mp_object>{

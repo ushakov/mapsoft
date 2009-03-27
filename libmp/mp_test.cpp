@@ -11,7 +11,7 @@ main(int argc, char* argv[]){
 
   for (int i=1; i<argc; i++){
     std::cerr << "Reading " << argv[i] << "\n";
-    mp::read(argv[i], W);
+    if (!mp::read(argv[i], W)) exit(1);
   }
 
   mp::write(std::cout, W);
