@@ -70,7 +70,6 @@ bool read_mp(const std::string & file, const legend & leg, world & w){
     }
 
     vmap::object mapobj;
-    mapobj.opts=o->Opts;
     mapobj.comm=mo.Comment;
 
     string type=leg.get_type(*o);
