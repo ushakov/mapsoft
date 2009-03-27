@@ -31,7 +31,7 @@ pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
 	  lon0 = Po.get("lon0", 1e99);
           lat0 = Po.get("lat0", 0.0);
           N0   = Po.get("N0",   0.0);
-          E0   = Po.get("E0",   0.0);
+          E0   = Po.get("E0",   500000.0);
           k    = Po.get("k",    1.0);
 	  return;
 	case 2: // UTM
@@ -86,6 +86,7 @@ void pt2ll::frw(g_point & p){
 
        GPS_Math_TMerc_EN_To_LatLon(p.x, p.y, &y, &x, lat0, l0, E0, N0, k, a, a*(1-f));
        p.x = x; p.y = y;
+
        break;
     case 2: //UTM
        GPS_Math_UTM_EN_To_WGS84(&y, &x, p.x, p.y, zone, zc);
