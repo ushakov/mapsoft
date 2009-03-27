@@ -2,8 +2,12 @@ Import('env')
 
 env.Library('vmap', \
     Split ("""
-        vmap.cpp
+        vmap_id.cpp
+        vmap_io.cpp
+        vmap_io_dir.cpp
+        vmap_io_mp.cpp
+        legend.cpp
     """))
 
-libs=Split("vmap utils 2d")
+libs=Split("vmap fig mp zn utils 2d yaml")
 env.Program("test.cpp",  LIBS=[libs])

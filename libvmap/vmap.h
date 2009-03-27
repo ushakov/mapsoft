@@ -10,7 +10,7 @@
 #include "../lib2d/line.h"
 #include "../utils/options.h"
 
-//#include "legend.h"
+#include "legend.h"
 
 // Classes for vector map common representation
 
@@ -99,6 +99,9 @@ struct world{
 std::istream & operator>> (std::istream & s, world & o);
 std::istream & operator<< (std::ostream & s, const world & o);
 
+// make unique id
+id_t make_id(void);
+
 // i/o for dir format
 // Directory structure:
 // /dir/info
@@ -108,8 +111,8 @@ std::istream & operator<< (std::ostream & s, const world & o);
 bool write_dir(const std::string & dir, const world & w);
 bool read_dir(const std::string & dir, world & w);
 
-//bool read_mp(const std::string & dir, const legend & l, world & w){
-//}
+bool write_mp(const std::string & file, const legend & leg, const world & w);
+bool read_mp(const std::string & file, const legend & leg, world & w);
 
 
 } // namespace

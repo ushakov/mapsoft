@@ -87,6 +87,14 @@ struct Line
     } while(1);
   }
 
+  // invert line
+  Line<T> inv(void) const{
+    Line<T> ret;
+    for (typename Line<T>::const_reverse_iterator i=this->rbegin();
+                              i!=this->rend(); i++) ret.push_back(*i);
+    return ret;
+  }
+
   // проверить, не переходит ли линия в линию l сдвигом на некоторый вектор
   // (вектор записывается в shift)
   bool isshifted(const Line<T> & l, Point<T> & shift) const{
