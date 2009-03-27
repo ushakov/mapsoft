@@ -33,7 +33,7 @@ legend::legend(const string & conf_file){
 
   vector<int> history;
   bool first;
-  int  type;
+  string type;
 
   string key, val;
   leg_el le;
@@ -99,7 +99,7 @@ legend::legend(const string & conf_file){
     }
 
     if (event.type == YAML_MAPPING_END_EVENT){
-      insert(pair<int, leg_el>(type, le));
+      insert(pair<std::string, leg_el>(type, le));
       state=N;
     }
 
@@ -117,7 +117,7 @@ legend::legend(const string & conf_file){
       val.insert(0, (const char *)event.data.scalar.value, event.data.scalar.length);
 
       if (key=="type"){
-        type = boost::lexical_cast<int>(val);
+        type = val;
         continue;
       }
 
@@ -189,20 +189,20 @@ legend::legend(const string & conf_file){
 }
 
 // определить тип mp-объекта (почти тривиальная функция :))
-int legend::get_type(const mp::mp_object & o) const{
-  for (map<int, leg_el>::const_iterator i = begin(); i!=end(); i++){
+string legend::get_type(const mp::mp_object & o) const{
+  for (map<string, leg_el>::const_iterator i = begin(); i!=end(); i++){
     if ((o.Type==i->second.mp.Type) &&
         (o.Class==i->second.mp.Class)) return i->first;
   }
-  return 0;
+  return "";
 }
 
 // определить тип fig-объекта по внешнему виду.
-int legend::get_type (const fig::fig_object & o) const {
-  if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return 0; // объект неинтересного вида
+string legend::get_type (const fig::fig_object & o) const {
+  if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return ""; // объект неинтересного вида
 
 
-  for (map<int, leg_el>::const_iterator i = begin(); i!=end(); i++){
+  for (map<string, leg_el>::const_iterator i = begin(); i!=end(); i++){
 
     int c1 = o.pen_color;
     int c2 = i->second.fig.pen_color;
@@ -260,7 +260,7 @@ int legend::get_type (const fig::fig_object & o) const {
         return i->first;
     }
   }
-  return 0;
+  return "";
 }
 
 

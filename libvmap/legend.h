@@ -19,14 +19,14 @@ struct leg_el{
   leg_el(){istxt=false;}
 };
 
-struct legend: std::map<int, leg_el>{
+struct legend: std::map<std::string, leg_el>{
   int min_fig_depth, max_fig_depth;
   // Constructor. Read all information from yaml-file
   legend(const std::string & conf_file);
 
   // Find types for different formats
-  int get_type (const fig::fig_object & o) const;
-  int get_type (const mp::mp_object & o) const;
+  std::string get_type (const fig::fig_object & o) const;
+  std::string get_type (const mp::mp_object & o) const;
 
 };
 

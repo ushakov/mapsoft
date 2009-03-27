@@ -40,8 +40,8 @@ bool read_mp(const std::string & file, const legend & leg, world & w){
     mapobj.opts=o->Opts;
     mapobj.comm=mo.Comment;
 
-    int type=leg.get_type(*o);
-    if (type!=0) mapobj.opts.put("type", type);
+    string type=leg.get_type(*o);
+    if (type!="") mapobj.opts.put("type", type);
     else std::cerr << "map::read_mp: Unknown type for MP " 
                    << o->Class << " " << hex << o->Type << "\n";
 
