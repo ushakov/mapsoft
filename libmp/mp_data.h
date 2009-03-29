@@ -57,7 +57,7 @@ namespace mp {
           Opts["TreSize"]         = "511";
           Opts["TreMargin"]       = "0.0";
           Opts["RgnLimit"]        = "127";
-          Opts["Transparent"]     = "Y";
+          Opts["Transparent"]     = "N";
           Opts["POIIndex"]        = "N";
           Opts["PolygonEvaluate"] = "Y";
           Opts["MG"]              = "Y";
