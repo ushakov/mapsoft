@@ -38,11 +38,15 @@ bool read(const char* filename, fig_world & world, const Options & opts){
 
   int color_num=0;
 
+  std::string key,val;
+  Options tmp_opts;
 
   rule_t ch = anychar_p - eol_p;
 
-  rule_t comm = eps_p[clear_a(comment)] >>
-          *(str_p("# ") >> (*ch)[push_back_a(comment)] >> eol_p);
+  rule_t comm = eps_p[clear_a(comment)][clear_a(tmp_opts)] >>
+           *( (str_p("# \\") >> (*(ch-'='))[assign_a(key)] >> '=' >>
+               (*ch)[assign_a(val)][insert_at_a(tmp_opts,key,val)] >> eol_p) |
+              (str_p("# ") >> (*ch)[push_back_a(comment)] >> eol_p) );
 
   rule_t header = str_p("#FIG 3.2") >> *ch >> eol_p >>
 	(*ch)[assign_a(ret.orientation)] >> eol_p >>       // orientation ("Landscape" or "Portrait")
@@ -52,7 +56,7 @@ bool read(const char* filename, fig_world & world, const Options & opts){
 	ureal_p[assign_a(ret.magnification)] >> eol_p >>   // magnification (export and print magnification, %)
 	(*ch)[assign_a(ret.multiple_page)] >> eol_p >>     // multiple-page ("Single" or "Multiple" pages)
 	int_p[assign_a(ret.transparent_color)] >> eol_p >> // transparent color
-	comm[assign_a(ret.comment, comment)] >>            // comments
+	comm[assign_a(ret.comment, comment)][assign_a(ret.opts, tmp_opts)] >>  // comments and options
 	uint_p[assign_a(ret.resolution)] >> +space_p >>    // resolution
                 uint_p[assign_a(ret.coord_system)] >> eol_p;       // coord_system
 
@@ -161,13 +165,14 @@ bool read(const char* filename, fig_world & world, const Options & opts){
   /*******************************************/
 
   rule_t main_rule = header >>
-       *( eps_p[assign_a(o,o0)] >> comm[assign_a(o.comment, comment)] >>
+       *( eps_p[assign_a(o,o0)] >>
+          comm[assign_a(o.comment, comment)][assign_a(o.opts,tmp_opts)] >>
         ( c0_color | (c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc |
         c6_compound_start | c6_compound_end) [push_back_a(ret,o)]) );
 
   if (!parse_file("fig::read", filename, main_rule)) return false;
 
-  // преобразование символов из восьмиричного вида \??? 
+  // convert \??? chars
   for (fig::fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
     string t;
     for (int n=0;n<i->text.size();n++){
@@ -180,7 +185,7 @@ bool read(const char* filename, fig_world & world, const Options & opts){
     i->text=t;
   }
 
-  //преобразование комментариев и текстов в UTF-8
+  //convert comments, options and text to UTF-8
   string enc = opts.get("fig_in_enc", default_enc);
   IConv cnv(enc);
 
@@ -190,13 +195,22 @@ bool read(const char* filename, fig_world & world, const Options & opts){
           c = i->comment.begin(); c != i->comment.end(); c++){
       *c = cnv.to_utf(*c);
     }
+    tmp_opts.clear();
+    for (Options::iterator o=i->opts.begin();o!=i->opts.end();o++)
+      tmp_opts.put(cnv.from_utf(o->first), cnv.from_utf(o->second));
+    i->opts.swap(tmp_opts);
   }
   for (vector<string>::iterator
       c = ret.comment.begin(); c != ret.comment.end(); c++){
     *c = cnv.to_utf(*c);
   }
+  tmp_opts.clear();
+  for (Options::iterator o=ret.opts.begin();o!=ret.opts.end();o++)
+    tmp_opts.put(cnv.from_utf(o->first), cnv.from_utf(o->second));
+  ret.opts.swap(tmp_opts);
 
-  // преобразование цветов
+
+  // convert colors
   for (fig::fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
     if (i->pen_color > 31){
       if (ret.colors.find(i->pen_color)!=ret.colors.end()) i->pen_color = 0x1000000+ret.colors[i->pen_color];
@@ -208,10 +222,12 @@ bool read(const char* filename, fig_world & world, const Options & opts){
     }
   }
 
-  // merging world and ret
+  // merge world and ret
   fig::fig_world tmp=world;
   world=ret;
   world.insert(world.begin(), tmp.begin(), tmp.end());
+  for (Options::iterator o=tmp.opts.begin();o!=tmp.opts.end();o++)
+    world.opts.put(o->first, o->second);
 
   return true;
 }
@@ -234,11 +250,18 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
       << setprecision(3) 
       << world.multiple_page << "\n"
       << world.transparent_color << "\n";
-  for (n=0;n<world.comment.size();n++){
+
+  for (0;n<world.comment.size();n++){
     if (n>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
     string s = cnv.from_utf(world.comment[n]);
     if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
     out << "# " << s << "\n";
+  }
+  for (Options::const_iterator o=world.opts.begin();o!=world.opts.end();o++){
+    if (n++>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
+      string s = cnv.from_utf(o->first) + "=" + cnv.from_utf(o->second);
+    if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
+    out << "# \\" << s << "\n";
   }
 
   out << world.resolution << " " 
@@ -295,11 +318,18 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
   for (fig_world::const_iterator
        i  = world.begin(); 
        i != world.end(); i++){
+
     for (n=0;n<i->comment.size();n++){
       if (n>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
       string s = cnv.from_utf(i->comment[n]);
       if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
       out << "# " << s << "\n";
+    }
+    for (Options::const_iterator o=i->opts.begin();o!=i->opts.end();o++){
+      if (n++>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
+      string s = cnv.from_utf(o->first) + "=" + cnv.from_utf(o->second);
+      if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
+      out << "# \\" << s << "\n";
     }
 
     int nn = i->size();

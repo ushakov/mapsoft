@@ -7,3 +7,6 @@ env.Library('fig', \
         fig_utils.cpp
         fig_data.cpp
      """))
+
+libs=Split("fig utils 2d")
+env.Program("fig_test.cpp",  LIBS=[libs])

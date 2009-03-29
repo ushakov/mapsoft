@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "../lib2d/line.h"
+#include "../utils/options.h"
 
 /// связанное с fig-файлами
 namespace fig {
@@ -148,6 +149,7 @@ namespace fig {
         std::string  text;
         std::vector<std::string> comment;
 	std::vector<float>  f;
+	Options opts;
 
 	fig_object(){
 	    type=0; sub_type=0; line_style=0; thickness=1; pen_color=0; fill_color=7; depth=50;
@@ -299,6 +301,7 @@ namespace fig {
 	int coord_system;
 
         std::vector<std::string> comment;
+	Options opts;
 	fig_colors colors;
 
         fig_world(){
