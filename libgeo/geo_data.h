@@ -118,6 +118,9 @@ struct g_map : std::vector<g_refpoint>,
     Proj   map_proj;
     g_line border;
 
+    Options to_options () const;
+    void parse_from_options (Options const & opt);
+
     g_map & operator/= (double k);
     g_map & operator*= (double k);
     g_map & operator-= (g_point k);

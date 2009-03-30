@@ -38,14 +38,16 @@ bool read(const char* filename, fig_world & world, const Options & opts){
 
   int color_num=0;
 
-  std::string key,val;
+  std::string key;
   Options tmp_opts;
 
   rule_t ch = anychar_p - eol_p;
 
   rule_t comm = eps_p[clear_a(comment)][clear_a(tmp_opts)] >>
            *( (str_p("# \\") >> (*(ch-'='))[assign_a(key)] >> '=' >>
-               (*ch)[assign_a(val)][insert_at_a(tmp_opts,key,val)] >> eol_p) |
+                (*ch)[insert_at_a(tmp_opts,key)] >> eol_p) |
+              (str_p("# \\") >> (*(ch-'='))[assign_a(key)] >>
+                eol_p)[insert_at_a(tmp_opts,key,"1")] |
               (str_p("# ") >> (*ch)[push_back_a(comment)] >> eol_p) );
 
   rule_t header = str_p("#FIG 3.2") >> *ch >> eol_p >>

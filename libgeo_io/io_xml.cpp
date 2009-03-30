@@ -44,7 +44,7 @@ namespace xml {
 
 		string aname, aval;
 
-		rule_t attr_name = (+(alnum_p | '-' | '_'))[assign_a(aname)][assign_a(aval, "")];
+		rule_t attr_name = (+(alnum_p | '-' | '_'))[assign_a(aname)][assign_a(aval, "1")];
 
 		rule_t escaped_symb  = (ch_p('\\') >> ch_p('"')) | (ch_p('\\') >> ch_p('\\')) ;
 
@@ -221,100 +221,35 @@ namespace xml {
 // Для всех типов точек - один map<string,string>, но разные преобразования
 // Это все вынесено в отдельный h-файл, поскольку используется и при чтении точек из fig
 	xml_point::operator g_waypoint () const {
-		g_waypoint ret; // здесь уже возникли значения по умолчанию
-		ret.name=get("name", ret.name);
-		ret.comm=get("comm", ret.comm);
-		ret.x=get("lon",  ret.x);
-		ret.y=get("lat",  ret.y);
-		ret.z=get("alt",  ret.z);
-		ret.prox_dist=get("prox_dist",  ret.prox_dist);
-                ret.symb=get("symb",       ret.symb);
-		ret.displ=get("displ",      ret.displ);
-		ret.color=get("color",      ret.color);
-		ret.bgcolor=get("bgcolor",    ret.bgcolor);
-                ret.map_displ=get("map_displ",  ret.map_displ);
-                ret.pt_dir=get("pt_dir",     ret.pt_dir);
-		ret.font_size=get("font_size",  ret.font_size);
-		ret.font_style=get("font_style", ret.font_style);
-		ret.size=get("size",       ret.size);
-		ret.t=get("time", ret.t);
-		const std::string used[] = {
-                "name", "comm", "lon", "lat", "alt", "prox_dist", "symb", 
-                "displ", "color", "bgcolor", "map_displ", "pt_dir", "font_size",
-                "font_style", "size", "time", ""};
-		warn_unused(used);
-		return ret;
+          g_waypoint ret; ret.parse_from_options(*this);
+	  return ret;
 	}
 	xml_point::operator g_trackpoint () const{
-		g_trackpoint ret;
-		ret.x=get("lon",   ret.x);
-		ret.y=get("lat",   ret.y);
-		ret.z=get("alt",   ret.z);
-		ret.depth=get("depth", ret.depth);
-		if (exists("start")) {
-		    ret.start = true;
-		} else {
-		    ret.start = false;
-		}		    
-		ret.t=get("time",  ret.t);
-              const std::string used[] = {"lon", "lat", "alt", "depth", "start", "time", ""};
-              warn_unused(used);
-		return ret;
+          g_trackpoint ret; ret.parse_from_options(*this);
+	  return ret;
 	}
 	xml_point::operator g_refpoint () const{
-		g_refpoint ret;
-		ret.x=get("x",  ret.x);
-		ret.y=get("y",  ret.y);
-		ret.xr=get("xr", ret.xr);
-		ret.yr=get("yr", ret.yr);
-              const std::string used[] = {"x", "y", "xr", "yr", ""};
-              warn_unused(used);
-		return ret;
+          g_refpoint ret; ret.parse_from_options(*this);
+	  return ret;
 	}
 
 	xml_point_list::operator g_waypoint_list () const {
-		g_waypoint_list ret;
-		ret.symbset=get("symbset", ret.symbset);
-		const std::string used[] = {"symbset","points",""}; //points - только записывается, не читается.
-                warn_unused(used);
-		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
-			ret.push_back(*i);
-		return ret;
+	  g_waypoint_list ret; ret.parse_from_options(*this);
+	  for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
+	    ret.push_back(*i);
+	  return ret;
 	}
 	xml_point_list::operator g_track () const {
-		g_track ret;
-		ret.comm=get("comm",  ret.comm);
-		ret.width=get("width", ret.width);
-		ret.color=get("color", ret.color);
-		ret.skip=get("skip",  ret.skip);
-		ret.displ=get("displ", ret.displ);
-                ret.type=get("type",  ret.type);
-                ret.fill=get("fill",  ret.fill);
-		ret.cfill=get("cfill", ret.cfill);
-                const std::string used[] = {"comm", "width", "color", "skip", "displ", "type", "fill", "cfill", "points", ""};
-                warn_unused(used);
-		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
-			ret.push_back(*i);
-		return ret;
+	  g_track ret; ret.parse_from_options(*this);
+	  for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
+	    ret.push_back(*i);
+	  return ret;
 	}
 	xml_point_list::operator g_map () const {
-		g_map ret;
-		string str;
-		ret.comm=get("comm",  ret.comm);
-		ret.file=get("file",  ret.file);
-
-		std::string prefix=get("prefix", string());
-               // если не абсолютный путь - добавим prefix
-                if ((ret.file.size()<1)||(ret.file[0]!='/'))
-                    ret.file=prefix+ret.file;
-
-                ret.map_proj = Proj(get("map_proj", string()));
-		ret.border=get("border", ret.border);
-                const std::string used[] = {"comm", "file", "map_proj", "border", "points", "prefix", ""};
-                warn_unused(used);
-		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
-			ret.push_back(*i);
-		return ret;
-	}
+          g_map ret; ret.parse_from_options(*this);
+          for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
+            ret.push_back(*i);
+          return ret;
+        }
 
 }

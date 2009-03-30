@@ -1,16 +1,16 @@
 #include "geo_data.h"
 
 g_waypoint::g_waypoint (){
-    x          = 0.0; 
-    y          = 0.0; 
-    z          = 1e24; 
+    x          = 0.0;
+    y          = 0.0;
+    z          = 1e24;
     prox_dist  = 0.0;
     t          = Time(0);
-    displ      = 0; 
+    displ      = 0;
     color      = Color(0xFF000000); 
     bgcolor    = Color(0xFFFFFFFF); 
     font_size  = 6;
-    font_style = 0; 
+    font_style = 0;
     size       = 17;
     name       = "";
     comm       = "";
@@ -22,7 +22,7 @@ Options g_waypoint::to_options () const{
     opt.put("lat", y);
     opt.put("alt", z);
     opt.put("prox_dist", prox_dist);
-    opt.put("t", t);
+    opt.put("time", t);
     opt.put("symb", symb);
     opt.put("displ", displ);
     opt.put("color", color);
@@ -34,18 +34,19 @@ Options g_waypoint::to_options () const{
     opt.put("size", size);
     opt.put("name", name);
     opt.put("comm", comm);
-
     return opt;
 }
 
 void g_waypoint::parse_from_options (Options const & opt){
     g_waypoint p;
     swap(p);
+    x = opt.get("x", x);
     x = opt.get("lon", x);
+    x = opt.get("y", x);
     y = opt.get("lat", y);
     z = opt.get("alt", z);
     prox_dist = opt.get("prox_dist", prox_dist);
-    t = opt.get("t", t);
+    t = opt.get("time", t);
     symb = opt.get("symb", symb);
     displ = opt.get("displ", displ);
     color = opt.get("color", color);
@@ -57,6 +58,11 @@ void g_waypoint::parse_from_options (Options const & opt){
     size = opt.get("size", size);
     name = opt.get("name", name);
     comm = opt.get("comm", comm);
+    const std::string used[] = {
+      "name", "comm", "lon", "lat", "alt", "prox_dist", "symb",
+      "displ", "color", "bgcolor", "map_displ", "pt_dir", "font_size",
+      "font_style", "size", "time", "x", "y", ""};
+    opt.warn_unused(used);
 }
 
 g_trackpoint::g_trackpoint(){
@@ -75,19 +81,25 @@ Options g_trackpoint::to_options() const{
     opt.put("alt", z);
     opt.put("depth", depth);
     opt.put("start", start);
-    opt.put("t", t);
+    opt.put("time", t);
     return opt;
 }
 
 void g_trackpoint::parse_from_options(Options const & opt){
     g_trackpoint p;
     swap(p);
+    x = opt.get("x", x);
     x = opt.get("lon", x);
+    y = opt.get("y", y);
     y = opt.get("lat", y);
     z = opt.get("alt", z);
     depth = opt.get("depth", depth);
     start = opt.get("start", start);
-    t = opt.get("t", t);
+    t = opt.get("time", t);
+    const std::string used[] = {
+      "lon", "lat", "alt", "depth", "start", "time", "x", "y", ""
+    };
+    opt.warn_unused(used);
 }
 
 g_refpoint::g_refpoint(double _x, double _y, double _xr, double _yr){
@@ -116,10 +128,16 @@ Options g_refpoint::to_options () const{
 void g_refpoint::parse_from_options (Options const & opt){
     g_refpoint p;
     swap(p);
+    x  = opt.get("x",   x);
     x  = opt.get("lon", x);
+    y  = opt.get("y",   y);
     y  = opt.get("lat", y);
     xr = opt.get("xr", xr);
     yr = opt.get("yr", yr);
+    const std::string used[] = {
+      "lon", "lat", "xr", "yr", "x", "y", ""
+    };
+    opt.warn_unused(used);
 }
 
 /*********************************/
@@ -148,14 +166,16 @@ g_rect g_waypoint_list::range() const{
 Options g_waypoint_list::to_options () const {
     Options opt;
     opt.put("symbset", symbset);
+    opt.put("points",  size());
     return opt;
 }
 
 /// set waypoint_list values from Options object
 void g_waypoint_list::parse_from_options (Options const & opt){
-//    g_waypoint_list lst;
-//    swap(lst);
     symbset = opt.get("symbset", symbset);
+    const std::string used[] = {
+      "symbset","points",""};
+    opt.warn_unused(used);
 }
 
 g_track::g_track(){
@@ -177,12 +197,11 @@ Options g_track::to_options () const {
     opt.put("fill",  fill);
     opt.put("cfill", cfill);
     opt.put("comm",  comm);
+    opt.put("points",  size());
     return opt;
 }
 
 void g_track::parse_from_options (Options const & opt){
-//    g_track lst;
-//    swap(lst);
     width = opt.get("width", width);
     displ = opt.get("displ", displ);
     color = opt.get("color", color);
@@ -191,6 +210,10 @@ void g_track::parse_from_options (Options const & opt){
     fill  = opt.get("fill",  fill);
     cfill = opt.get("cfill", cfill);
     comm  = opt.get("comm",  comm);
+    const std::string used[] = {
+        "comm", "width", "color", "skip", "displ",
+        "type", "fill", "cfill", "points", ""};
+    opt.warn_unused(used);
 }
 
 /// get range in lon-lat coords
@@ -221,6 +244,33 @@ double g_track::length() const{
     ret+=dd;
   }
   return ret*6380000.0;
+}
+
+Options g_map::to_options () const {
+    Options opt;
+    opt.put("comm",     comm);
+    opt.put("file",     file);
+    opt.put("map_proj", map_proj);
+    opt.put("border",   border);
+    opt.put("points",   size());
+    return opt;
+}
+
+void g_map::parse_from_options (Options const & opt){
+    comm     = opt.get("comm",     comm);
+    file     = opt.get("file",     file);
+    map_proj = opt.get("map_proj", map_proj);
+    border   = opt.get("border",   border);
+
+    // Add value of the "prefix" option to image path
+    // (non-absolute paths only)
+    std::string prefix=opt.get("prefix", std::string());
+    if ((file.size()<1)||(file[0]!='/'))
+        file=prefix+file;
+
+    const std::string used[] = {
+      "comm", "file", "map_proj", "border", "points", "prefix", ""};
+    opt.warn_unused(used);
 }
 
 g_map & g_map::operator/= (double k){
