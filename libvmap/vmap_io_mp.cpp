@@ -23,7 +23,7 @@ bool write_mp(const std::string & file, const legend & leg, const world & w){
 
   for (map<id_t, object>::const_iterator o=w.objects.begin(); o!=w.objects.end(); o++){
 
-    mp::mp_object mpobj;
+    mp::mp_object mpobj=leg.default_mp;
     string type=o->second.opts.get("type", string());
 
     legend::const_iterator t=leg.find(type);
@@ -54,12 +54,11 @@ bool read_mp(const std::string & file, const legend & leg, world & w){
 
   // TODO: rmap section!
 
-  for (mp::mp_world::const_iterator o=MP.begin(); o!=MP.end(); o++){
+  for (mp::mp_world::iterator o=MP.begin(); o!=MP.end(); o++){
 
     // BC!! old-style keys
-    mp::mp_object mo=*o; // copy for make clear_key
-    zn::zn_key k=zn::get_key(mo);
-    zn::clear_key(mo);
+    zn::zn_key k=zn::get_key(*o);
+    zn::clear_key(*o);
     id_t id=boost::lexical_cast<id_t>(k.id) + "@" + k.map;  // BC!!
     id=o->Opts.get("ID", id);
     if ((id=="")||(id=="0")) id=make_id();
@@ -70,7 +69,7 @@ bool read_mp(const std::string & file, const legend & leg, world & w){
     }
 
     vmap::object mapobj;
-    mapobj.comm=mo.Comment;
+    mapobj.comm=o->Comment;
 
     string type=leg.get_type(*o);
     if (type!="") mapobj.opts.put("type", type);

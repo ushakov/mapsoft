@@ -1,14 +1,14 @@
 #include "vmap.h"
 
 main(int argc, char* argv[]){
-  if (argc<4) {
-    std::cerr << "Usage: test_dir2mp <conf> <in_dir1> ... <out_mp>\n";
+  if (argc<3) {
+    std::cerr << "Usage: test_dir2dir <in_dir1> ... <out_dir>\n";
     exit(1);
   }
 
   vmap::world w;
 
-  for (int i=2; i<argc-1; i++){
+  for (int i=1; i<argc-1; i++){
     std::cerr << "Reading " << argv[i] << "\n";
     if (!vmap::read_dir(argv[i], w)){
       std::cerr << "Read error.\n";
@@ -16,5 +16,5 @@ main(int argc, char* argv[]){
     }
   }
 
-  vmap::write_mp(argv[argc-1], vmap::legend(argv[1]), w);
+  vmap::write_dir(argv[argc-1], w);
 }

@@ -2,7 +2,7 @@
 
 main(int argc, char* argv[]){
   if (argc<4) {
-    std::cerr << "Usage: test_dir2mp <conf> <in_dir1> ... <out_mp>\n";
+    std::cerr << "Usage: test_dir2fig <conf> <in_dir1> ... <out_fig>\n";
     exit(1);
   }
 
@@ -16,5 +16,5 @@ main(int argc, char* argv[]){
     }
   }
 
-  vmap::write_mp(argv[argc-1], vmap::legend(argv[1]), w);
+  vmap::write_fig(argv[argc-1], vmap::legend(argv[1]), w);
 }

@@ -21,8 +21,15 @@ struct leg_el{
 
 struct legend: std::map<std::string, leg_el>{
   int min_fig_depth, max_fig_depth;
+  fig::fig_object default_fig;
+  mp::mp_object default_mp;
+
   // Constructor. Read all information from yaml-file
   legend(const std::string & conf_file);
+
+  // Region of FIG depths in wich all cartographic objects live.
+  // Its boundaries are minimal and maximum depth of objects in config file
+  bool is_map_depth(const fig::fig_object & o) const;
 
   // Find types for different formats
   std::string get_type (const fig::fig_object & o) const;

@@ -114,6 +114,9 @@ bool read_dir(const std::string & dir, world & w);
 bool write_mp(const std::string & file, const legend & leg, const world & w);
 bool read_mp(const std::string & file, const legend & leg, world & w);
 
+bool write_fig(const std::string & file, const legend & leg, const world & w);
+bool read_fig(const std::string & file, const legend & leg, world & w);
+
 
 } // namespace
 #endif

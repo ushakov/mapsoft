@@ -6,9 +6,16 @@ env.Library('vmap', \
         vmap_io.cpp
         vmap_io_dir.cpp
         vmap_io_mp.cpp
+        vmap_io_fig.cpp
         legend.cpp
     """))
 
-libs=Split("vmap fig mp zn utils 2d yaml")
+libs=Split("vmap mp fig zn utils 2d yaml")
+
+libs_geo=Split("vmap geo_io geo fig mp zn loaders utils 2d yaml jeeps png jpeg tiff")
+
+env.Program("test_dir2dir.cpp",  LIBS=[libs])
 env.Program("test_mp2dir.cpp",  LIBS=[libs])
 env.Program("test_dir2mp.cpp",  LIBS=[libs])
+env.Program("test_fig2dir.cpp",  LIBS=[libs_geo])
+env.Program("test_dir2fig.cpp",  LIBS=[libs_geo])

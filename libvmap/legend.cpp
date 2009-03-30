@@ -40,6 +40,9 @@ legend::legend(const string & conf_file){
 
   reading_state_t state=N;
 
+  default_fig = fig::make_object("2 1 2 2 4 7 10 -1 -1 6.000 0 2 -1 0 0 0");
+  default_mp = mp::make_object("POLYLINE 0x0 0 1");
+
   min_fig_depth=999;
   max_fig_depth=0;
 
@@ -188,7 +191,15 @@ legend::legend(const string & conf_file){
 
 }
 
-// определить тип mp-объекта (почти тривиальная функция :))
+// Region of FIG depths in wich all cartographic objects live.
+// Its boundaries are minimal and maximum depth of objects in config file
+bool legend::is_map_depth(const fig::fig_object & o) const{
+  return ((o.type!=6) && (o.type!=-6) && 
+          (o.depth>=min_fig_depth) && (o.depth<=max_fig_depth));
+}
+
+
+// find type for mp object
 string legend::get_type(const mp::mp_object & o) const{
   for (map<string, leg_el>::const_iterator i = begin(); i!=end(); i++){
     if ((o.Type==i->second.mp.Type) &&
@@ -197,7 +208,7 @@ string legend::get_type(const mp::mp_object & o) const{
   return "";
 }
 
-// определить тип fig-объекта по внешнему виду.
+// find type for fig object
 string legend::get_type (const fig::fig_object & o) const {
   if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return ""; // объект неинтересного вида
 
