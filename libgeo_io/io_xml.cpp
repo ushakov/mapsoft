@@ -222,22 +222,22 @@ namespace xml {
 // Это все вынесено в отдельный h-файл, поскольку используется и при чтении точек из fig
 	xml_point::operator g_waypoint () const {
 		g_waypoint ret; // здесь уже возникли значения по умолчанию
-		get("name", ret.name);
-		get("comm", ret.comm);
-		get("lon",  ret.x);
-		get("lat",  ret.y);
-		get("alt",  ret.z);
-		get("prox_dist",  ret.prox_dist);
-                get("symb",       ret.symb);
-		get("displ",      ret.displ);
-		get("color",      ret.color);
-		get("bgcolor",    ret.bgcolor);
-                get("map_displ",  ret.map_displ);
-                get("pt_dir",     ret.pt_dir);
-		get("font_size",  ret.font_size);
-		get("font_style", ret.font_style);
-		get("size",       ret.size);
-		get("time", ret.t);
+		ret.name=get("name", ret.name);
+		ret.comm=get("comm", ret.comm);
+		ret.x=get("lon",  ret.x);
+		ret.y=get("lat",  ret.y);
+		ret.z=get("alt",  ret.z);
+		ret.prox_dist=get("prox_dist",  ret.prox_dist);
+                ret.symb=get("symb",       ret.symb);
+		ret.displ=get("displ",      ret.displ);
+		ret.color=get("color",      ret.color);
+		ret.bgcolor=get("bgcolor",    ret.bgcolor);
+                ret.map_displ=get("map_displ",  ret.map_displ);
+                ret.pt_dir=get("pt_dir",     ret.pt_dir);
+		ret.font_size=get("font_size",  ret.font_size);
+		ret.font_style=get("font_style", ret.font_style);
+		ret.size=get("size",       ret.size);
+		ret.t=get("time", ret.t);
 		const std::string used[] = {
                 "name", "comm", "lon", "lat", "alt", "prox_dist", "symb", 
                 "displ", "color", "bgcolor", "map_displ", "pt_dir", "font_size",
@@ -247,26 +247,26 @@ namespace xml {
 	}
 	xml_point::operator g_trackpoint () const{
 		g_trackpoint ret;
-		get("lon",   ret.x);
-		get("lat",   ret.y);
-		get("alt",   ret.z);
-		get("depth", ret.depth);
+		ret.x=get("lon",   ret.x);
+		ret.y=get("lat",   ret.y);
+		ret.z=get("alt",   ret.z);
+		ret.depth=get("depth", ret.depth);
 		if (exists("start")) {
 		    ret.start = true;
 		} else {
 		    ret.start = false;
 		}		    
-		get("time",  ret.t);
+		ret.t=get("time",  ret.t);
               const std::string used[] = {"lon", "lat", "alt", "depth", "start", "time", ""};
               warn_unused(used);
 		return ret;
 	}
 	xml_point::operator g_refpoint () const{
 		g_refpoint ret;
-		get("x",  ret.x);
-		get("y",  ret.y);
-		get("xr", ret.xr);
-		get("yr", ret.yr);
+		ret.x=get("x",  ret.x);
+		ret.y=get("y",  ret.y);
+		ret.xr=get("xr", ret.xr);
+		ret.yr=get("yr", ret.yr);
               const std::string used[] = {"x", "y", "xr", "yr", ""};
               warn_unused(used);
 		return ret;
@@ -274,7 +274,7 @@ namespace xml {
 
 	xml_point_list::operator g_waypoint_list () const {
 		g_waypoint_list ret;
-		get("symbset", ret.symbset);
+		ret.symbset=get("symbset", ret.symbset);
 		const std::string used[] = {"symbset","points",""}; //points - только записывается, не читается.
                 warn_unused(used);
 		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
@@ -283,14 +283,14 @@ namespace xml {
 	}
 	xml_point_list::operator g_track () const {
 		g_track ret;
-		get("comm",  ret.comm);
-		get("width", ret.width);
-		get("color", ret.color);
-		get("skip",  ret.skip);
-		get("displ", ret.displ);
-                get("type",  ret.type);
-                get("fill",  ret.fill);
-		get("cfill", ret.cfill);
+		ret.comm=get("comm",  ret.comm);
+		ret.width=get("width", ret.width);
+		ret.color=get("color", ret.color);
+		ret.skip=get("skip",  ret.skip);
+		ret.displ=get("displ", ret.displ);
+                ret.type=get("type",  ret.type);
+                ret.fill=get("fill",  ret.fill);
+		ret.cfill=get("cfill", ret.cfill);
                 const std::string used[] = {"comm", "width", "color", "skip", "displ", "type", "fill", "cfill", "points", ""};
                 warn_unused(used);
 		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
@@ -300,16 +300,16 @@ namespace xml {
 	xml_point_list::operator g_map () const {
 		g_map ret;
 		string str;
-		get("comm",  ret.comm);
-		get("file",  ret.file);
+		ret.comm=get("comm",  ret.comm);
+		ret.file=get("file",  ret.file);
 
-		std::string prefix; get("prefix", prefix);
+		std::string prefix=get("prefix", string());
                // если не абсолютный путь - добавим prefix
                 if ((ret.file.size()<1)||(ret.file[0]!='/'))
                     ret.file=prefix+ret.file;
 
-                str=""; get("map_proj", str); ret.map_proj = Proj(str);
-		get("border", ret.border);
+                ret.map_proj = Proj(get("map_proj", string()));
+		ret.border=get("border", ret.border);
                 const std::string used[] = {"comm", "file", "map_proj", "border", "points", "prefix", ""};
                 warn_unused(used);
 		for (std::vector<xml_point>::const_iterator i=points.begin(); i!=points.end();i++)
