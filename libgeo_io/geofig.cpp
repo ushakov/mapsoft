@@ -8,14 +8,12 @@
 #include <iomanip>
 #include "geofig.h"
 #include "../libgeo/geo_convs.h"
-#include "io_xml.h"
 #include "../utils/options.h"
 #include "../loaders/image_r.h"
 
 namespace fig {
 
 using namespace std;
-using namespace xml;
 using namespace boost::spirit;
 
   // Извлечь привязку из fig-картинки
@@ -26,9 +24,13 @@ using namespace boost::spirit;
     // В комментарии к файлу может быть указано, в какой он проекции
     // default - tmerc
     string proj  = "tmerc";
+
+    // old-style options -- to be removed
     for (int n=0; n<w.comment.size(); n++){
-      parse(w.comment[n].c_str(), str_p("proj:")  >> space_p >> (*anychar_p)[assign_a(proj)]); 
+      parse(w.comment[n].c_str(), str_p("proj:")  >> space_p >> (*anychar_p)[assign_a(proj)]);
     }
+
+    w.opts.get("proj", proj); // new-stile option
     ret.map_proj=Proj(proj);
 
     g_point min(1e99,1e99), max(-1e99,-1e99);
@@ -41,13 +43,16 @@ using namespace boost::spirit;
 	  >> +space_p >> real_p[assign_a(x)]
 	  >> +space_p >> real_p[assign_a(y)]).full)){
 
-        Options O; 
+        Options O=i->opts;
         string key;
+
+        // old-style options -- to be removed
         for (int n=1; n<i->comment.size(); n++){
           parse(i->comment[n].c_str(), (*(anychar_p-':'-space_p))[assign_a(key)] >> 
             *space_p >> ch_p(':') >> *space_p >> 
             (*(anychar_p-':'-space_p))[insert_at_a(O, key)]);
         }
+
  	g_refpoint ref(x,y,(*i)[0].x,(*i)[0].y);
         if (min.x>(*i)[0].x) min.x = (*i)[0].x;
         if (min.y>(*i)[0].y) min.y = (*i)[0].y;
@@ -117,24 +122,15 @@ using namespace boost::spirit;
       Enum::output_fmt=Enum::xml_fmt;
       comm << "REF " << fixed << p.x << " " << p.y;
       o.comment.push_back(comm.str()); comm.str("");
-      if (Datum(pdatum) != Datum("wgs84"))
-         comm << "datum: " << Datum(pdatum);
-      o.comment.push_back(comm.str()); comm.str("");
-      if (Proj(pproj) != Proj("lonlat"))
-         comm << "proj: " << Proj(pproj);
-      o.comment.push_back(comm.str()); comm.str("");
-      if ((Proj(pproj) == Proj("tmerc")) && (lon0!=0))
-         comm << "lon0: " << lon0;
-      o.comment.push_back(comm.str()); comm.str("");
+
+      if (Datum(pdatum) != Datum("wgs84")) o.opts.put("datum", pdatum);
+      if (Proj(pproj) != Proj("lonlat"))   o.opts.put("proj", pproj);
+      if ((Proj(pproj) == Proj("tmerc")) && (lon0!=0)) o.opts.put("lon0", lon0);
       w.push_back(o);
     }
     // добавим в заголовок fig-файла информацию о проекции.
     // по умолчанию - tmerc
-    if (m.map_proj != Proj("tmerc")){
-      ostringstream comm;
-      comm << "proj: " << m.map_proj;
-      w.comment.push_back(comm.str());
-    }
+    if (m.map_proj != Proj("tmerc")) w.opts.put("proj", m.map_proj);
   }
 
 
@@ -150,10 +146,15 @@ using namespace boost::spirit;
     for (i=w.begin();i!=w.end();i++){
       if ((i->type!=2)&&(i->type!=3)) continue;
       if (i->size()<1) continue;
-      xml_point p;
+
+      Options p=i->opts;
+
       if ((i->comment.size()>0)&&(parse(i->comment[0].c_str(), str_p("WPT")
           >> +space_p >> (*anychar_p)[insert_at_a(p,"name")]).full)){
+
         string key;
+
+        // old-style options -- to be removed
         for (int n=1; n<i->comment.size(); n++){
           // Удалил ограничение не позволявшее использовать ' ' и ':' в
           // комментариях. Тим
@@ -161,14 +162,16 @@ using namespace boost::spirit;
             *space_p >> ch_p(':') >> *space_p >>
             (*(anychar_p))[insert_at_a(p, key)]);
         }
-        g_waypoint wp(p);
+
+        g_waypoint wp;
+        wp.parse_from_options(p);
         wp.x = (*i)[0].x;
         wp.y = (*i)[0].y;
         cnv.frw(wp);
         pl.push_back(wp);
       }
     }
-        d.wpts.push_back(pl);
+    d.wpts.push_back(pl);
   }
 
   void get_trks(const fig_world & w, const g_map & m, geo_data & d){
@@ -178,16 +181,23 @@ using namespace boost::spirit;
     for (i=w.begin();i!=w.end();i++){
       if ((i->type!=2)&&(i->type!=3)) continue;
       if (i->size()<1) continue;
-      xml_point_list pl;
+
+
+      Options p=i->opts;
+
       if ((i->comment.size()>0)&&(parse(i->comment[0].c_str(), str_p("TRK")
-          >> !(+space_p >> (*anychar_p)[insert_at_a(pl,"comm")])).full)){
+          >> !(+space_p >> (*anychar_p)[insert_at_a(p,"comm")])).full)){
         string key;
+
+        // old-style options -- to be removed
         for (int n=1; n<i->comment.size(); n++){
           parse(i->comment[n].c_str(), (*(anychar_p-':'-space_p))[assign_a(key)] >>
             *space_p >> ch_p(':') >> *space_p >>
-            (*(anychar_p-':'-space_p))[insert_at_a(pl, key)]);
+            (*(anychar_p-':'-space_p))[insert_at_a(p, key)]);
         }
-        g_track tr(pl);
+
+        g_track tr;
+        tr.parse_from_options(p);
         for (int n = 0; n<i->size();n++){
           g_trackpoint p;
           p.x=(*i)[n].x;
@@ -284,24 +294,14 @@ using namespace boost::spirit;
       for (w=wl->begin();w!=wl->end();w++){
 
         g_point p(w->x, w->y);
-        g_waypoint def;
         cnv.bck(p);
-  
-	fig::fig_object f = fig::make_object("2 1 0 2 0 7 6 0 -1 1 1 1 -1 0 0 *"); 
-                                             ADDCOMM("# WPT " << w->name);
-        if (w->z   < 1e20)                   ADDCOMM("# alt:        " << fixed << setprecision(1) << w->z);
-        if (w->t != def.t)                   ADDCOMM("# time:       " << w->t);
-        if (w->comm != def.comm)             ADDCOMM("# comm:       " << w->comm);
-        if (w->prox_dist != def.prox_dist)   ADDCOMM("# prox_dist:  " << fixed << setprecision(1) << w->prox_dist);
-        if (w->symb != def.symb)             ADDCOMM("# symb:       " << w->symb);
-        if (w->displ != def.displ)           ADDCOMM("# displ:      " << w->displ);
-        if (w->color != def.color)           ADDCOMM("# color:      #" << setbase(16) << setw(6) << setfill('0') << w->color);
-        if (w->bgcolor != def.bgcolor)       ADDCOMM("# bgcolor:    #" << setbase(16) << setw(6) << setfill('0') << w->bgcolor);
-        if (w->map_displ != def.map_displ)   ADDCOMM("# map_displ:  " << w->map_displ);
-        if (w->pt_dir != def.pt_dir)         ADDCOMM("# pt_dir:     " << w->pt_dir);
-        if (w->font_size != def.font_size)   ADDCOMM("# font_size:  " << w->font_size);
-        if (w->font_style != def.font_style) ADDCOMM("# font_style: " << w->font_style);
-        if (w->size != def.size)             ADDCOMM("# size:       "  << w->size);
+
+	fig::fig_object f = fig::make_object("2 1 0 2 0 7 6 0 -1 1 1 1 -1 0 0 *");
+        ADDCOMM("WPT " << w->name);
+        f.opts=to_options_skipdef(*w);
+        f.opts.erase("name");
+        f.opts.erase("lon");
+        f.opts.erase("lat");
 	f.push_back(Point<int>(int(p.x), int(p.y)));
 	F.push_back(f);
 
@@ -330,16 +330,11 @@ using namespace boost::spirit;
           pts.push_back(Point<int>(int(p.x),int(p.y)));
           t++;
         } while ((t!=tl->end())&&(!t->start));
-  
-	fig::fig_object f = fig::make_object("2 1 0 1 1 7 7 0 -1 1 1 1 -1 0 0 *"); 
-                                    ADDCOMM("# TRK " << tl->comm);
-        if (tl->width != def.width) ADDCOMM("# width: "  << tl->width);
-        if (tl->displ != def.displ) ADDCOMM("# displ: "  << tl->displ);
-        if (tl->color != def.color) ADDCOMM("# color: #" << setbase(16) << setw(6) << setfill('0') << tl->color << setbase(10));
-        if (tl->skip  != def.skip)  ADDCOMM("# skip:  "  << tl->skip);
-        if (tl->type  != def.type)  ADDCOMM("# type:  "  << tl->type);
-        if (tl->fill  != def.fill)  ADDCOMM("# fill:  "  << tl->fill);
-        if (tl->cfill != def.cfill) ADDCOMM("# cfill: #" << setbase(16) << setw(6) << setfill('0') << tl->cfill << setbase(10));
+
+        fig::fig_object f = fig::make_object("2 1 0 1 1 7 7 0 -1 1 1 1 -1 0 0 *"); 
+        ADDCOMM("TRK " << tl->comm);
+        f.opts=to_options_skipdef(*tl);
+        f.opts.erase("comm");
 
         for (vector<Point<int> >::const_iterator p1=pts.begin(); p1!=pts.end(); p1++) f.push_back(*p1);
 	F.push_back(f);
