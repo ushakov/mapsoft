@@ -20,7 +20,7 @@ Options g_waypoint::to_options () const{
     Options opt;
     opt.put("lon", x);
     opt.put("lat", y);
-    opt.put("height", z);
+    opt.put("alt", z);
     opt.put("prox_dist", prox_dist);
     opt.put("t", t);
     opt.put("symb", symb);
@@ -43,7 +43,7 @@ void g_waypoint::parse_from_options (Options const & opt){
     swap(p);
     x = opt.get("lon", x);
     y = opt.get("lat", y);
-    z = opt.get("height", z);
+    z = opt.get("alt", z);
     prox_dist = opt.get("prox_dist", prox_dist);
     t = opt.get("t", t);
     symb = opt.get("symb", symb);
@@ -72,7 +72,7 @@ Options g_trackpoint::to_options() const{
     Options opt;
     opt.put("lon", x);
     opt.put("lat", y);
-    opt.put("height", z);
+    opt.put("alt", z);
     opt.put("depth", depth);
     opt.put("start", start);
     opt.put("t", t);
@@ -84,7 +84,7 @@ void g_trackpoint::parse_from_options(Options const & opt){
     swap(p);
     x = opt.get("lon", x);
     y = opt.get("lat", y);
-    z = opt.get("height", z);
+    z = opt.get("alt", z);
     depth = opt.get("depth", depth);
     start = opt.get("start", start);
     t = opt.get("t", t);
