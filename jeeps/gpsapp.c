@@ -3687,7 +3687,7 @@ int32 GPS_A301_Get(const char *port, GPS_PTrack **trk, pcb_fn cb)
 	    return PROTOCOL_ERROR;
 	}
 	/* Cheat and don't _really_ pass the trkpt back */
-	cb(n, NULL);
+	if (cb) cb(n, NULL);
     }
 
     if(!GPS_Packet_Read(fd, &rec))
@@ -6081,7 +6081,7 @@ int32 GPS_A906_Get(const char *port, GPS_PLap **lap, pcb_fn cb)
 	}
 
 	/* Cheat and don't _really_ pass the trkpt back */
-	cb(n, NULL);
+	if (cb) cb(n, NULL);
     }
 
     if(!GPS_Packet_Read(fd, &recpkt))
