@@ -18,6 +18,7 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111 USA
 
  */
+#if defined (__WIN32__) || defined (__CYGWIN__)
 
 #include <stdio.h> 
 #include <ctype.h> 
@@ -82,7 +83,7 @@ gusb_win_get(garmin_usb_packet *ibuf, size_t sz)
 	if(!DeviceIoControl(usb_handle, IOCTL_GARMIN_USB_INTERRUPT_IN, NULL, 0,
 			buf, GARMIN_USB_INTERRUPT_DATA_SIZE, &rxed, NULL)) {
 		GPS_Serial_Error("Ioctl");
-		fatal("ioctl\n");
+		fprintf(stderr, "ioctl\n");
 	}
 		buf += rxed;
 		sz  -= rxed;
@@ -119,7 +120,7 @@ gusb_win_send(const garmin_usb_packet *opkt, size_t sz)
 	WriteFile(usb_handle, obuf, sz, &rsz, NULL);
 
 	if (rsz != sz) {
-		fatal ("Error sending %d bytes.   Successfully sent %ld\n", sz, rsz);
+		fprintf(stderr, "Error sending %d bytes.   Successfully sent %ld\n", sz, rsz);
 	}
 
 	return rsz;
@@ -157,7 +158,7 @@ HANDLE * garmin_usb_start(HDEVINFO* hdevinfo, SP_DEVICE_INTERFACE_DATA *infodata
 			pdd->DevicePath);
 
 	if (usb_handle != INVALID_HANDLE_VALUE) {
-		fatal("garmin_usb_start called while device already started.\n");
+		fprintf(stderr,"garmin_usb_start called while device already started.\n");
 	}
 
 	usb_handle = CreateFile(pdd->DevicePath, GENERIC_READ|GENERIC_WRITE, 
@@ -175,7 +176,7 @@ HANDLE * garmin_usb_start(HDEVINFO* hdevinfo, SP_DEVICE_INTERFACE_DATA *infodata
 	if(!DeviceIoControl(usb_handle, IOCTL_GARMIN_USB_BULK_OUT_PACKET_SIZE, 
 	    NULL, 0, &usb_tx_packet_size, GARMIN_USB_INTERRUPT_DATA_SIZE, 
 	    &size, NULL)) {
-                fatal("Couldn't get USB packet size.\n");
+                fprintf(stderr,"Couldn't get USB packet size.\n");
         }
 	win_llops.max_tx_size = usb_tx_packet_size;
 
@@ -293,3 +294,4 @@ gusb_init(const char *pname, gpsdevh **dh)
 	exit (0);
 }
 
+#endif

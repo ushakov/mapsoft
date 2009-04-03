@@ -25,12 +25,12 @@
 ********************************************************************/
 #include "gps.h"
 #include "gpsserial.h"
-#include "../gbser.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 #include <time.h>
 
 #if 0
@@ -208,7 +208,7 @@ int32 GPS_Serial_Write(gpsdevh *dh, const void *obuf, int size)
 	}
 	WriteFile (wsd->comport, obuf, size, &len, NULL);
 	if (len != (DWORD) size) {
-		fatal ("Write error.   Wrote %d of %d bytes.\n", (int)len, size);
+		fprintf (stderr, "Write error.   Wrote %d of %d bytes.\n", (int)len, size);
 	}
 	return len;
 }

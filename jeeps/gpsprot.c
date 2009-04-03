@@ -27,6 +27,47 @@
 
 #define GPS_TAGUNK  20
 
+int32 gps_device_command;
+int32 gps_waypt_transfer;
+int32 gps_category_transfer;
+int32 gps_route_transfer;
+int32 gps_trk_transfer;
+int32 gps_prx_waypt_transfer;
+int32 gps_almanac_transfer;
+int32 gps_date_time_transfer;
+int32 gps_position_transfer;
+int32 gps_pvt_transfer;
+int32 gps_lap_transfer;
+int32 gps_run_transfer;
+int32 gps_workout_transfer;
+int32 gps_user_profile_transfer;
+int32 gps_workout_limits_transfer;
+int32 gps_course_transfer;
+int32 gps_course_limits_transfer;
+int32 gps_rte_type;
+int32 gps_waypt_type;
+int32 gps_category_type;
+int32 gps_rte_hdr_type;
+int32 gps_rte_link_type;
+int32 gps_trk_type;
+int32 gps_trk_hdr_type;
+int32 gps_prx_waypt_type;
+int32 gps_almanac_type;
+int32 gps_date_time_type;
+int32 gps_position_type;
+int32 gps_pvt_type;
+int32 gps_lap_type;
+int32 gps_run_type;
+int32 gps_workout_type;
+int32 gps_workout_occurrence_type;
+int32 gps_user_profile_type;
+int32 gps_workout_limits_type;
+int32 gps_course_type;
+int32 gps_course_lap_type;
+int32 gps_course_point_type;
+int32 gps_course_limits_type;
+int32 gps_link_type;
+
 /* Storage for any unknown tags */
 static int32 gps_tag_unknown[GPS_TAGUNK];
 static int32 gps_tag_data_unknown[GPS_TAGUNK];

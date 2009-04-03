@@ -143,12 +143,14 @@ void GPS_Math_TMerc_EN_To_LatLon(double E, double N, double *phi,
 				 double E0, double N0, double F0,
 				 double a, double b);
 
+/*
 void GPS_Math_Swiss_LatLon_To_EN(double phi, double lambda, double *E,
 				 double *N,double phi0,double lambda0,
 				 double E0, double N0, double a, double b);
 void GPS_Math_Swiss_EN_To_LatLon(double E, double N, double *phi,
 				 double *lambda, double phi0, double lambda0,
 				 double E0, double N0, double a, double b);
+*/
 
 #endif
 

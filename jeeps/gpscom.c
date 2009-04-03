@@ -94,7 +94,7 @@ int32 GPS_Command_Get_Waypoint(const char *port, GPS_PWay **way, pcb_fn cb)
     if (gps_category_transfer) {
 	ret = GPS_A101_Get(port);
 	if (!ret) {
-fatal("blah");
+fprintf(stderr, "blah");
 	   return PROTOCOL_ERROR;
 	}
 	

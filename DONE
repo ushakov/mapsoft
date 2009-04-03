@@ -9,6 +9,10 @@ TODO:
 
 ====================================
 
+slazav 3.4.2009
+ * обновил libjeeps из gpsbabel
+   TODO: почистить utils.c/utils.h в libjeeps.
+
 slazav 26-30.03.2009
 
  * spirit_utils: правильная обработка ошибок.

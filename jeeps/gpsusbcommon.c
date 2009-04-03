@@ -37,7 +37,7 @@ enum {
 static gusb_llops_t *gusb_llops;
 
 /* Decide when to truncate packets for debug output */
-#define DEBUG_THRESH  ((global_opts.debug_level < 5) && (i > 10))
+#define DEBUG_THRESH  (i > 10)
 
 /* Called from OS layer to register its low-level entry points. */
 void
@@ -94,7 +94,7 @@ top:
 		rv = gusb_llops->llop_get_bulk(ibuf, sz);
 		break;
 	default:
-		fatal("Unknown receiver state %d\n", receive_state);
+		fprintf(stderr, "Unknown receiver state %d\n", receive_state);
 	}
 
 	if (gps_show_bytes) {
@@ -228,7 +228,7 @@ gusb_id_unit(struct garmin_unit_info *gu)
 		 */
 		if (le_read16(iresp.gusb_pkt.pkt_id) == 0xfd) return;
 	}
-	fatal("Unable to sync with Garmin USB device in %d attempts.", i);
+	fprintf(stderr, "Unable to sync with Garmin USB device in %d attempts.", i);
 } 
 
 void
@@ -264,5 +264,5 @@ gusb_syncup(void)
 			return;
 		}
 	}
-	fatal("Unable to establish USB syncup\n");
+	fprintf(stderr, "Unable to establish USB syncup\n");
 }

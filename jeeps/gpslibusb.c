@@ -22,7 +22,6 @@
 
 #include <stdio.h>
 #include <ctype.h>
-#include "config.h"
 #if HAVE_LIBUSB
 #include <usb.h>
 #include "gps.h"
@@ -99,8 +98,7 @@ gusb_libusb_send(const garmin_usb_packet *opkt, size_t sz)
 	if (r != (int) sz) {
 		fprintf(stderr, "Bad cmdsend r %d sz %ld\n", r, (unsigned long) sz);
 		if (r < 0) {
-			fatal("usb_bulk_write failed. '%s'\n", 
-				usb_strerror());
+			fprintf(stderr, "usb_bulk_write failed. '%s'\n", usb_strerror());
 		}
 	}
 
@@ -224,7 +222,7 @@ gusb_reset_toggles(void)
 				break;
 		}
 		if (t-- <= 0) {
-			fatal("Could not start session in a reasonable number of tries.\n");
+			fprintf(stderr, "Could not start session in a reasonable number of tries.\n");
 		}
 	}
 
@@ -250,7 +248,7 @@ gusb_reset_toggles(void)
 
 		if (le_read16(iresp.gusb_pkt.pkt_id) == 0xfd) return rv;
 		if (t-- <= 0) {
-			fatal("Could not start session in a reasonable number of tries.\n");
+			fprintf(stderr, "Could not start session in a reasonable number of tries.\n");
 		}
 	}
 	return 0;
@@ -265,7 +263,7 @@ garmin_usb_start(struct usb_device *dev, libusb_unit_data *lud)
 	udev = usb_open(dev);
 	atexit(gusb_atexit_teardown);
 
-	if (!udev) { fatal("usb_open failed: %s\n", usb_strerror()); }
+	if (!udev) { fprintf(stderr, "usb_open failed: %s\n", usb_strerror()); }
 	/*
 	 * Hrmph.  No iManufacturer or iProduct headers....
 	 */
@@ -279,16 +277,16 @@ garmin_usb_start(struct usb_device *dev, libusb_unit_data *lud)
 		 * kernel driver that bonds with the hardware.  
 		 */
 		usb_get_driver_np(udev, 0, drvnm, sizeof(drvnm)-1);
-		fatal("usb_set_configuration failed, probably because kernel driver '%s'\n is blocking our access to the USB device.\n"	
+		fprintf(stderr, "usb_set_configuration failed, probably because kernel driver '%s'\n is blocking our access to the USB device.\n"	
 		"For more information see http://www.gpsbabel.org/os/Linux_Hotplug.html\n", drvnm);
 #else
 
-		fatal("usb_set_configuration failed: %s\n", usb_strerror());
+		fprintf(stderr, "usb_set_configuration failed: %s\n", usb_strerror());
 #endif
 	}
 #endif
 	if (usb_claim_interface(udev, 0) < 0) {
-		fatal("Claim interfaced failed: %s\n", usb_strerror());
+		fprintf(stderr, "Claim interfaced failed: %s\n", usb_strerror());
 	}
 
 	libusb_llops.max_tx_size = dev->descriptor.bMaxPacketSize0;
@@ -305,7 +303,7 @@ garmin_usb_start(struct usb_device *dev, libusb_unit_data *lud)
 	 * no joy, so just call fatal and move on.
 	 */
 	if (!dev->config) {
-		fatal("Found USB device with no configuration.\n");
+		fprintf(stderr, "Found USB device with no configuration.\n");
 	}
 
 	for (i = 0; i < dev->config->interface->altsetting->bNumEndpoints; i++) {
@@ -344,7 +342,7 @@ garmin_usb_start(struct usb_device *dev, libusb_unit_data *lud)
 		return;
 	}
 
-	fatal("Could not identify endpoints on USB device.\n"
+	fprintf(stderr, "Could not identify endpoints on USB device.\n"
 		"Found endpoints Intr In 0x%x Bulk Out 0x%x Bulk In %0xx\n", 
 		gusb_intr_in_ep, gusb_bulk_out_ep, gusb_bulk_in_ep);
 }
@@ -406,7 +404,7 @@ int garmin_usb_scan(libusb_unit_data *lud, int req_unit_number)
 		gdx = gdx_find_file(dlist);
 		if (gdx) return 1;
 		/* Plan C. */
-		fatal("Found no Garmin USB devices.\n");
+		fprintf(stderr, "Found no Garmin USB devices.\n");
 	} else { 
 		return 1;
         }

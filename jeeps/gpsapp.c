@@ -103,7 +103,9 @@ static void   GPS_D501_Send(UC *data, GPS_PAlmanac alm);
 static void   GPS_D550_Send(UC *data, GPS_PAlmanac alm);
 static void   GPS_D551_Send(UC *data, GPS_PAlmanac alm);
 
-
+time_t gps_save_time;
+double gps_save_lat;
+double gps_save_lon;
 int32	gps_save_id;
 int	gps_is_usb;
 double	gps_save_version;
@@ -304,7 +306,7 @@ static int32 GPS_A000(const char *port)
 		i = 0;
 	    }
 	}
-	fatal("Failed to find a product inquiry response.\n");
+	fprintf(stderr, "Failed to find a product inquiry response.\n");
     }
 
 carry_on:
