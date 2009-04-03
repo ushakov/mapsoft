@@ -27,17 +27,14 @@ void copy_fig_comment(const fig::fig_world::iterator & i, const fig::fig_world::
   }
 }
 
-
-
 bool write_fig(const std::string & file, const legend & leg, const world & w){
   fig::fig_world FIG;
 
-  // TODO: options
-//  FIG.ID   = w.opts.get("ID", 0);
-//  FIG.Name = w.opts.get("Name", string());
+  if (w.opts.exists("ID"))   FIG.opts.put("ID", w.opts.get("ID", 0));
+  if (w.opts.exists("Name")) FIG.opts.put("Name", w.opts.get("Name", string()));
   FIG.comment=w.comm;
 
-  // TODO: rmap section! -> labels
+  // TODO: rmap section -> labels
 
   // TODO: geo-ref, cnv object.
 /*
@@ -88,15 +85,11 @@ bool read_fig(const std::string & file, const legend & leg, world & w){
   if (FIG.opts.exists("ID"))   w.opts.put("ID", FIG.opts["ID"]);
   if (FIG.opts.exists("Name")) w.opts.put("Name", FIG.opts["Name"]);
 
-  // TODO: labels -> rmap section!
-
   g_map ref = fig::get_ref(FIG);
   if (ref.size()<3){
     cerr << "ERR: not a GEO-fig\n"; return false;
   }
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
-
-
 
   for (fig::fig_world::iterator o=FIG.begin(); o!=FIG.end(); o++){
     // move comment from compound to the first object in it
@@ -106,7 +99,8 @@ bool read_fig(const std::string & file, const legend & leg, world & w){
     // BC!! old-style keys
     zn::zn_key k=zn::get_key(*o);
     zn::clear_key(*o);
-    id_t id=boost::lexical_cast<id_t>(k.id) + "@" + k.map;  // BC!!
+    id_t id=boost::lexical_cast<id_t>(k.id);  // BC!!
+    if (k.map!="") id+="@" + k.map;
     id=o->opts.get("ID", id);
     if ((id=="")||(id=="0")) id=make_id();
 
@@ -133,6 +127,33 @@ bool read_fig(const std::string & file, const legend & leg, world & w){
     w.objects[id]=mapobj;
 
   }
+
+  rmap rm;
+  // TODO: rmap options: proj, datum, scale, geom, ...
+
+  // read labels
+  for (fig::fig_world::iterator o=FIG.begin(); o!=FIG.end(); o++){
+
+    // BC!! old-style keys
+    zn::zn_label_key k=zn::get_label_key(*o);
+    id_t id=boost::lexical_cast<id_t>(k.id);  // BC!!
+    if (k.map!="") id+="@" + k.map;
+    id=o->opts.get("LabelID", id);
+    if ((id=="")||(id=="0")) continue;
+    zn::clear_key(*o);
+
+    if (o->size()<1) continue;
+    vmap::label_pos pos;
+
+    // TODO: relative shift?
+    pos.shift=(*o)[0]; pos.angle=o->angle;
+
+    rm.positions.insert(std::pair<id_t, label_pos>(id, pos));
+  }
+
+  // TODO update labels
+
+  w.rmaps.insert(std::pair<id_t, rmap>("default", rm));
   return true;
 }
 

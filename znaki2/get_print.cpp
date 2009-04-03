@@ -530,7 +530,7 @@ main(int argc, char **argv){
     }
 
    if (type == 0x200014){ // редколесье 
-     i->pen_color=0x1ACFFAC;
+     i->pen_color=0x170db70;
      NW.push_back(*i); continue;
    }
 
