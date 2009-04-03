@@ -4,6 +4,7 @@
 ** @author Copyright (C) 1999 Alan Bleasby
 ** @version 1.0 
 ** @modified Dec 28 1999 Alan Bleasby. First version
+** @modified Copyright (C) 2005, 2006 Robert Lipe
 ** @@
 ** 
 ** This library is free software; you can redistribute it and/or
@@ -35,15 +36,13 @@
 int32 GPS_Command_Off(const char *port)
 {
     static UC data[2];
-    int32 fd;
+    gpsdevh *fd;
     GPS_PPacket tra;
     GPS_PPacket rec;
 
     GPS_Util_Little();
 
-    gps_is_usb = (0 == strncmp(port, "usb:", 4));
-
-    if(!GPS_Serial_On(port, &fd))
+    if(!GPS_Device_On(port, &fd))
 	return gps_errno;
 
     if(!(tra = GPS_Packet_New()) || !(rec = GPS_Packet_New()))
@@ -57,7 +56,7 @@ int32 GPS_Command_Off(const char *port)
     if(!GPS_Write_Packet(fd,tra))
 	return gps_errno;
 
-    if(!GPS_Serial_Chars_Ready(fd))
+    if(!GPS_Device_Chars_Ready(fd))
     {
 	if(!GPS_Get_Ack(fd, &tra, &rec))
 	    return gps_errno;
@@ -67,7 +66,7 @@ int32 GPS_Command_Off(const char *port)
     GPS_Packet_Del(&tra);
     GPS_Packet_Del(&rec);
 
-    if(!GPS_Serial_Off(port, fd))
+    if(!GPS_Device_Off(fd))
 	return gps_errno;
 
     return 1;
@@ -84,9 +83,22 @@ int32 GPS_Command_Off(const char *port)
 ** @return [int32] number of waypoint entries
 ************************************************************************/
 
-int32 GPS_Command_Get_Waypoint(const char *port, GPS_PWay **way, int (*cb)(int, struct GPS_SWay **))
+int32 GPS_Command_Get_Waypoint(const char *port, GPS_PWay **way, pcb_fn cb)
 {
     int32 ret=0;
+
+    /* 
+     * It's a bit tacky to do this up front without ticking the
+     * progress meter, but this come in pretty quickly...
+     */
+    if (gps_category_transfer) {
+	ret = GPS_A101_Get(port);
+	if (!ret) {
+fatal("blah");
+	   return PROTOCOL_ERROR;
+	}
+	
+    }
 
     switch(gps_waypt_transfer)
     {
@@ -207,7 +219,7 @@ int32 GPS_Command_Send_Route(const char *port, GPS_PWay *way, int32 n)
 ** @return [int32] number of track entries
 ************************************************************************/
 
-int32 GPS_Command_Get_Track(const char *port, GPS_PTrack **trk)
+int32 GPS_Command_Get_Track(const char *port, GPS_PTrack **trk, pcb_fn cb)
 {
     int32 ret=0;
 
@@ -217,14 +229,14 @@ int32 GPS_Command_Get_Track(const char *port, GPS_PTrack **trk)
     switch(gps_trk_transfer)
     {
     case pA300:
-	ret = GPS_A300_Get(port,trk);
+	ret = GPS_A300_Get(port,trk,cb);
 	break;
     case pA301:
     case pA302:
-	ret = GPS_A301_Get(port,trk);
+	ret = GPS_A301_Get(port,trk,cb);
 	break;
     default:
-	GPS_Error("Get_Track: Unknown track protocol\n");
+	GPS_Error("Get_Track: Unknown track protocol %d\n", gps_trk_transfer);
 	return PROTOCOL_ERROR;
     }
 
@@ -349,6 +361,9 @@ int32 GPS_Command_Get_Almanac(const char *port, GPS_PAlmanac **alm)
 {
     int32 ret=0;
 
+    if(gps_almanac_transfer == -1)
+	return GPS_UNSUPPORTED;
+
     switch(gps_almanac_transfer)
     {
     case pA500:
@@ -378,6 +393,9 @@ int32 GPS_Command_Get_Almanac(const char *port, GPS_PAlmanac **alm)
 int32 GPS_Command_Send_Almanac(const char *port, GPS_PAlmanac *alm, int32 n)
 {
     int32 ret=0;
+
+	if(gps_almanac_transfer == -1)
+		return GPS_UNSUPPORTED;
 
     switch(gps_almanac_transfer)
     {
@@ -412,6 +430,12 @@ time_t GPS_Command_Get_Time(const char *port)
     case pA600:
 	ret = GPS_A600_Get(port);
 	break;
+    /* 
+     * If the unit doesn't support it (i.e. a C320 in charging mode), 
+     * but don't treat as error; return as zero.
+     */
+    case -1:
+	return 0;
     default:
 	GPS_Error("Get_Time: Unknown date/time protocol");
 	return PROTOCOL_ERROR;
@@ -472,6 +496,13 @@ int32 GPS_Command_Get_Position(const char *port, double *lat, double *lon)
     case pA700:
 	ret = GPS_A700_Get(port,lat,lon);
 	break;
+    /* 
+     * If the unit doesn't support it (i.e. a C320 in charging mode), 
+     *  zero lat/lon, but don't treat as error. 
+     */
+    case -1:
+	*lat = *lon = 0.0;
+	break;
     default:
 	GPS_Error("Get_Position: Unknown position protocol");
 	return PROTOCOL_ERROR;
@@ -521,7 +552,7 @@ int32 GPS_Command_Send_Position(const char *port, double lat, double lon)
 ** @return [int32] success if supported and GPS starts sending
 ************************************************************************/
 
-int32 GPS_Command_Pvt_On(const char *port, int32 *fd)
+int32 GPS_Command_Pvt_On(const char *port, gpsdevh **fd)
 {
     int32 ret=0;
 
@@ -556,7 +587,7 @@ int32 GPS_Command_Pvt_On(const char *port, int32 *fd)
 ** @return [int32] success
 ************************************************************************/
 
-int32 GPS_Command_Pvt_Off(const char *port, int32 *fd)
+int32 GPS_Command_Pvt_Off(const char *port, gpsdevh **fd)
 {
     int32 ret=0;
 
@@ -589,7 +620,7 @@ int32 GPS_Command_Pvt_Off(const char *port, int32 *fd)
 ** @return [int32] success
 ************************************************************************/
 
-int32 GPS_Command_Pvt_Get(int32 *fd, GPS_PPvt_Data *pvt)
+int32 GPS_Command_Pvt_Get(gpsdevh **fd, GPS_PPvt_Data *pvt)
 {
     int32 ret=0;
 
@@ -610,3 +641,50 @@ int32 GPS_Command_Pvt_Get(int32 *fd, GPS_PPvt_Data *pvt)
 
     return ret;
 }    
+
+/* @func GPS_Command_Get_Lap ***************************************
+**
+** Get lap from GPS
+**
+** @param [r] port [const char *] serial port
+** @param [w] way [GPS_PLap **] pointer to lap array
+**
+** @return [int32] number of lap entries
+************************************************************************/
+
+int32 GPS_Command_Get_Lap(const char *port, GPS_PLap **lap, pcb_fn cb)
+{
+    int32 ret=0;
+
+    if(gps_lap_transfer == -1)
+	return GPS_UNSUPPORTED;
+
+    switch(gps_lap_transfer)
+    {
+	case pA906:
+	    ret = GPS_A906_Get(port,lap, cb);
+	    break;
+	default:
+	    GPS_Error("Get_Lap: Unknown lap protocol");
+	    return PROTOCOL_ERROR;
+    }
+
+    return ret;
+}    
+ /*Stubs for unimplemented stuff*/
+int32  GPS_Command_Get_Workout(const char *port, void **lap, int (*cb)(int, struct GPS_SWay **)){
+  return 0;
+}  
+int32  GPS_Command_Get_Fitness_User_Profile(const char *port, void **lap, int (*cb)(int, struct GPS_SWay **)){
+  return 0;
+}  
+int32  GPS_Command_Get_Workout_Limits(const char *port, void **lap, int (*cb)(int, struct GPS_SWay **)){
+  return 0;
+}  
+int32  GPS_Command_Get_Course(const char *port, void **lap, int (*cb)(int, struct GPS_SWay **)){
+  return 0;
+}  
+int32  GPS_Command_Get_Course_Limits(const char *port, void **lap, int (*cb)(int, struct GPS_SWay **)){
+  return 0;
+}  
+

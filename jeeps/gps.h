@@ -6,14 +6,7 @@ extern "C"
 #ifndef gps_h
 #define gps_h
 
-//#include <stdlib.h>
-//#include <math.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdarg.h>
-//#include <stddef.h>
-
-#include "gbtypes.h"
+#include "../defs.h"
 #include "gpsport.h"
 #include <time.h>
 
@@ -40,6 +33,7 @@ extern int32 gps_warning;
 extern int32 gps_error;
 extern int32 gps_user;
 extern int32 gps_show_bytes;
+extern char gps_categories[16][17];
 
 
 typedef struct GPS_SPacket
@@ -93,11 +87,16 @@ typedef struct GPS_STrack
     time_t   Time;		/* Unix time */
     float    alt;		/* Altitude */
     float    dpth;		/* Depth    */
-    int32    heartrate;		/* Heatrate as in Garmin 301 */
-    int32    tnew;		/* New track? */
-    int32    ishdr;		/* Track header? */
+    float    temperature;	/* Temperature.  Degrees Celsius. */
+    int      temperature_populated; /* True if above is valid. */
+    unsigned char  heartrate;		/* Heartrate as in Garmin 301 */
+    unsigned char  cadence;		/* Crank cadence as in Edge 305 */
+    unsigned int   tnew:1;	/* New track? */
+    unsigned int   ishdr:1;	/* Track header? */
+    unsigned int   no_latlon:1;	/* True if no valid lat/lon found. */
     int32    dspl;		/* Display on map? */
     int32    colour;		/* Colour */
+    float    distance; /* distance traveled in meters.*/
     char     trk_ident[256];	/* Track identifier */
 }
 GPS_OTrack, *GPS_PTrack;
@@ -137,6 +136,7 @@ typedef struct GPS_SWay
     int32  colour;
     char   cc[2];
     UC     wpt_class;
+    UC     alt_is_unknown;
     float  alt;
     char   city[24];
     char   state[2];
@@ -158,14 +158,44 @@ typedef struct GPS_SWay
     char   rte_link_subclass[18];
     char   rte_link_ident[256];
 
-    char     Time_populated;	/* 1 if true */
-    time_t   Time;		/* Unix time */
+    char     time_populated;	/* 1 if true */
+    time_t   time;		/* Unix time */
+    char     temperature_populated;
+    float    temperature;		/* Degrees celsius. */
+    uint16   category;
+     
 } GPS_OWay, *GPS_PWay;
 
+/*
+ * Forerunner/Edge Lap data.
+ */
+typedef struct GPS_SLap {
+	uint32 index; /* unique index in device or -1 */
+	time_t	start_time;
+	uint32	total_time;	/* Hundredths of a second */
+	float	total_distance;	/* In meters */
+	double	begin_lat; 
+	double	begin_lon; 
+	double	end_lat;
+	double	end_lon;
+	int16	calories;
+	uint32 track_index; /* ref to track or -1 */
+	float max_speed; /* In meters per second */
+	unsigned char avg_heart_rate; /* In beats-per-minute, 0 if invalid */
+	unsigned char max_heart_rate; /* In beats-per-minute, 0 if invalid */
+	unsigned char intensity; /* Same as D1001 */
+	unsigned char avg_cadence; /* In revolutions-per-minute, 0xFF if invalid */
+	unsigned char trigger_method; 
+	/*Some D1015 unknown */
+	/*    unsigned char unk1015_1;
+	int16 unk1015_2;
+	int16 unk1015_3;
+	*/
+} GPS_OLap, *GPS_PLap;
 
+typedef int (*pcb_fn) (int, struct GPS_SWay **);
 
-
-#include "gpsserial.h"
+#include "gpsdevice.h"
 #include "gpssend.h"
 #include "gpsread.h"
 #include "gpsutil.h"
@@ -174,17 +204,14 @@ typedef struct GPS_SWay
 #include "gpscom.h"
 #include "gpsfmt.h"
 #include "gpsmath.h"
-#include "gpsnmea.h"
 #include "gpsmem.h"
 #include "gpsrqst.h"
 #include "gpsinput.h"
 #include "gpsproj.h"
-#include "gpsnmeafmt.h"
-#include "gpsnmeaget.h"
 
-extern time_t gps_save_time;
-extern double gps_save_lat;
-extern double gps_save_lon;
+time_t gps_save_time;
+double gps_save_lat;
+double gps_save_lon;
 extern int32  gps_save_id;
 extern double gps_save_version;
 extern char   gps_save_string[GPS_ARB_LEN];

@@ -9,10 +9,7 @@
 
 typedef unsigned char UC;
 typedef gbuint16      US;
-
-#ifndef _TIFF_DATA_TYPEDEFS_
 typedef gbuint16      uint16;
 typedef gbint16       int16;
 typedef gbuint32      uint32;
 typedef gbint32       int32;
-#endif
