@@ -1,7 +1,7 @@
 /*
     Stubs to keep build happy when USB just isn't available to us.
 
-    Copyright (C) 2004 Robert Lipe, robertlipe@usa.net
+    Copyright (C) 2004, 2006 Robert Lipe, robertlipe@usa.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,38 +19,16 @@
 
  */
 
-#if NO_USB
 
-#include "garminusb.h"
-
-const char no_usb[] = "USB suport is not available in this build.\n";
-int
-gusb_cmd_send(const garmin_usb_packet *obuf, size_t sz)
-{
-	fatal(no_usb);
-}
+#if !HAVE_LIBUSB 
+#include <stdio.h>
+const char no_usb[] = "USB support is not available in this build.\n";
 
 int
-gusb_cmd_get(garmin_usb_packet *ibuf, size_t sz)
+gusb_init(const char *portname)
 {
-	fatal(no_usb);
-}
-
-int
-gusb_open(const char *portname)
-{
-	fatal(no_usb);
-}
-
-int
-gusb_init()
-{
-	fatal(no_usb);
-}
-
-int 
-gusb_close(const char *portname)
-{
+	fprintf(stderr,no_usb);
 	return 0;
 }
-#endif /* defined(NO_USB) */
+
+#endif /* defined(HAVE_LIBUSB) */

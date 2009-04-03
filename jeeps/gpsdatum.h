@@ -7,7 +7,6 @@ extern "C"
 #define gpsdatum_h
 
 
-
 typedef struct GPS_SEllipse
 {
     char   *name;
@@ -28,11 +27,16 @@ typedef struct GPS_SDatum
 
 extern GPS_ODatum GPS_Datum[];
 
+typedef struct GPS_SDatum_Alias
+{
+    char *alias;
+    const int datum;
+} GPS_ODatum_Alias, *GPS_PDatum_Alias;
+
+extern GPS_ODatum_Alias GPS_DatumAlias[];
 
 /* UK Ordnance Survey Nation Grid Map Codes */
 extern char *UKNG[];
-
-
 
 #endif
 

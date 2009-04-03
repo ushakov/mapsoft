@@ -4,6 +4,7 @@
 ** @author Copyright (C) 1999 Alan Bleasby
 ** @version 1.0 
 ** @modified Dec 28 1999 Alan Bleasby. First version
+** @modified Copyright (C) 2006 Robert Lipe
 ** @@
 ** 
 ** This library is free software; you can redistribute it and/or
@@ -26,38 +27,58 @@
 
 #define GPS_TAGUNK  20
 
+int32 gps_device_command;
+int32 gps_waypt_transfer;
+int32 gps_category_transfer;
+int32 gps_route_transfer;
+int32 gps_trk_transfer;
+int32 gps_prx_waypt_transfer;
+int32 gps_almanac_transfer;
+int32 gps_date_time_transfer;
+int32 gps_position_transfer;
+int32 gps_pvt_transfer;
+int32 gps_lap_transfer;
+int32 gps_run_transfer;
+int32 gps_workout_transfer;
+int32 gps_user_profile_transfer;
+int32 gps_workout_limits_transfer;
+int32 gps_course_transfer;
+int32 gps_course_limits_transfer;
+int32 gps_rte_type;
+int32 gps_waypt_type;
+int32 gps_category_type;
+int32 gps_rte_hdr_type;
+int32 gps_rte_link_type;
+int32 gps_trk_type;
+int32 gps_trk_hdr_type;
+int32 gps_prx_waypt_type;
+int32 gps_almanac_type;
+int32 gps_date_time_type;
+int32 gps_position_type;
+int32 gps_pvt_type;
+int32 gps_lap_type;
+int32 gps_run_type;
+int32 gps_workout_type;
+int32 gps_workout_occurrence_type;
+int32 gps_user_profile_type;
+int32 gps_workout_limits_type;
+int32 gps_course_type;
+int32 gps_course_lap_type;
+int32 gps_course_point_type;
+int32 gps_course_limits_type;
+int32 gps_link_type;
+
 /* Storage for any unknown tags */
 static int32 gps_tag_unknown[GPS_TAGUNK];
 static int32 gps_tag_data_unknown[GPS_TAGUNK];
 static int32 gps_n_tag_unknown = 0;
 
-int32 gps_waypt_transfer;     // from gpsprot.h -- slazav
-int32 gps_route_transfer;     // from gpsprot.h -- slazav
-int32 gps_trk_transfer;       // from gpsprot.h -- slazav
-int32 gps_prx_waypt_transfer; // from gpsprot.h -- slazav
-int32 gps_almanac_transfer;   // from gpsprot.h -- slazav
-int32 gps_date_time_transfer; // from gpsprot.h -- slazav
-int32 gps_position_transfer;  // from gpsprot.h -- slazav
-int32 gps_pvt_transfer;       // from gpsprot.h -- slazav
-int32 gps_rte_type;           // from gpsprot.h -- slazav
-int32 gps_waypt_type;         // from gpsprot.h -- slazav
-int32 gps_rte_hdr_type;       // from gpsprot.h -- slazav
-int32 gps_rte_link_type;      // from gpsprot.h -- slazav
-int32 gps_trk_type;           // from gpsprot.h -- slazav
-int32 gps_trk_hdr_type;       // from gpsprot.h -- slazav
-int32 gps_prx_waypt_type;     // from gpsprot.h -- slazav
-int32 gps_almanac_type;       // from gpsprot.h -- slazav
-int32 gps_date_time_type;     // from gpsprot.h -- slazav
-int32 gps_position_type;      // from gpsprot.h -- slazav
-int32 gps_pvt_type;           // from gpsprot.h -- slazav
-int32 gps_link_type;          // from gpsprot.h -- slazav
-int32 gps_device_command;     // from gpsprot.h -- slazav
 
 
 struct COMMANDDATA COMMAND_ID[2]=
 {
     {
-	0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x31,0x32
+	0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x31,0x32,92,117,121,450,451,452,453,454,561,562,563,564,564
     }
     ,
     {
@@ -68,17 +89,24 @@ struct COMMANDDATA COMMAND_ID[2]=
 struct LINKDATA LINK_ID[3]=
 {
     {
-	0x06,0,0,0,0,0,0x15,0,0,0,0,0,0,0,0,0,0xfd,0xfe,0xff
+	0xfd,0xfe,0xff,248,
+	0x06,0,0,0,0,0,0x15,0,0,0,0,
+	0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     }
     ,
     {
-	0x06,0x0a,0x0c,0x0e,0x11,0x13,0x15,0x1b,0x1d,0x1e,
-	0x1f,0x22,0x23,0x33,0x62,0x63,0xfd,0xfe,0xff
+	0xfd,0xfe,0xff,248,
+	0x06,0x0a,0x0c,0x0e,0x11,0x13,0x15,0x1b,0x1d,0x1e,0x1f,
+	0x22,0x23,0x33,0x62,0x63,
+	134,149,152,990,991,992,993,994,1061,1062,1063,1064,1065,1066,222
     }
     ,
     {
+	0xfd,0xfe,0xff,248,
 	0x06,0x0b,0x0c,0x14,0x18,0,0x15,0x23,0x25,0x27,0x04,
-	0,0x2b,0,0,0,0xfd,0xfe,0xff
+	0,0x2b,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
     }
 };
 

@@ -1,7 +1,7 @@
 /*
-    Abstract fixed size data types.
+    Serial operations.
 
-    Copyright (C) 2005 Robert Lipe, robertlipe@usa.net
+    Copyright (C) 2006 Robert Lipe, robertlipe@usa.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,30 +19,19 @@
 
  */
 
-/*
- *  If this is a problem and any interesting system doesn't have the C99-ism
- *  of <stdint.h> we'll come up with something more clever that'll likely
- *  include a gross collection of  __STDC_VERSION >= 199901L  || __GNUC__
- */
+#include "gpsdevice.h"
+#include "gpsserial.h"
+#include "gpsread.h"
 
-#if defined(_MSC_VER)
-
-typedef unsigned long gbuint32;
-typedef unsigned short gbuint16;
-typedef long gbint32;
-typedef short gbint16;
-
-#else
-
-# if defined (__FreeBSD__)
-#  include <inttypes.h>
-# else
-#  include <stdint.h>
-# endif
-
-typedef uint32_t	gbuint32;
-typedef uint16_t	gbuint16;
-typedef  int32_t 	 gbint32;
-typedef  int16_t	 gbint16;
-
-#endif // defined(_MSC_VER)
+gps_device_ops  gps_serial_ops = {
+	GPS_Serial_On,
+	GPS_Serial_Off,
+	GPS_Serial_Chars_Ready,
+	GPS_Serial_Wait,
+	GPS_Serial_Flush,
+	GPS_Serial_Send_Ack,
+	GPS_Serial_Get_Ack,
+	GPS_Serial_Packet_Read,
+	GPS_Serial_Make_Packet,
+	GPS_Serial_Write_Packet,
+};

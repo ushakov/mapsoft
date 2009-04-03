@@ -422,11 +422,11 @@ int32 GPS_Input_Get_Waypoint(GPS_PWay **way, FILE *inf)
 	    if(ret<0) return gps_errno;
 	    break;
 	case 109:
-	    ret = GPS_Input_Get_D109(&((*way)[i]),inf,109);
+	    ret = GPS_Input_Get_D109(&((*way)[i]),inf, 109);
 	    if(ret<0) return gps_errno;
 	    break;
 	case 110:
-	    ret = GPS_Input_Get_D109(&((*way)[i]),inf,110);
+	    ret = GPS_Input_Get_D109(&((*way)[i]),inf, 110);
 	    if(ret<0) return gps_errno;
 	    break;
 	case 150:
@@ -554,7 +554,7 @@ int32 GPS_Input_Get_Proximity(GPS_PWay **way, FILE *inf)
 	    if(ret<0) return gps_errno;
 	    break;
 	case 109:
-	    ret = GPS_Input_Get_D109(&((*way)[i]),inf,109);
+	    ret = GPS_Input_Get_D109(&((*way)[i]),inf, 109);
 	    if(ret<0) return gps_errno;
 	    break;
 	case 110:

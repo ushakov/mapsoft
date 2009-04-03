@@ -28,7 +28,6 @@
 #include "gpsdatum.h"
 
 
-
 static int32 GPS_Math_LatLon_To_UTM_Param(double lat, double lon, int32 *zone,
 					  char *zc, double *Mc, double *E0,
 					  double *N0, double *F0);
@@ -158,7 +157,8 @@ void GPS_Math_Deg_To_DegMinSec(double v, int32 *d, int32 *m, double *s)
     
     *d = (int32)v;
     t  = (v -(double)*d) * (double)60.0;
-    *s = (t-(double)*m) * (double)60.0;
+    *m = (v-(double)*d) * (double)60.0;
+    *s = (t - (int32)t) * (double)60.0;
 
     if(*s>(double)59.999)
     {
@@ -250,7 +250,7 @@ double GPS_Math_Feet_To_Metres(double v)
 
 int32 GPS_Math_Deg_To_Semi(double v)
 {
-    return ((1U<<31) / 180) * v;
+    return ( (double)(1U<<31) / (double)180) * v;
 }
 
 
@@ -266,7 +266,7 @@ int32 GPS_Math_Deg_To_Semi(double v)
 
 double GPS_Math_Semi_To_Deg(int32 v)
 {
-    return (double) (((double)v/(double)(1U<<31)) * (double)180);
+    return (double) (((double)v / (double)(1U<<31)) * (double)180);
 }
 
 
@@ -504,11 +504,6 @@ void GPS_Math_XYZ_To_WGS84LatLonH(double *phi, double *lambda, double *H,
 }
 
 
-
-
-
-
-    
 /* @func  GPS_Math_LatLon_To_EN **********************************
 **
 ** Convert latitude and longitude to eastings and northings
@@ -674,6 +669,68 @@ void GPS_Math_Airy1830LatLonToNGEN(double phi, double lambda, double *E,
 }
 
 
+/* @func int32 GPS_Math_WGS84_To_Swiss_EN ******************************
+**
+** Convert WGS84 latitude and longitude to 
+** Swiss CH-1903 National Grid Eastings and Northings
+** ( Oblique Mercator Projection )
+**
+** @param [r] phi [double] WGS84 latitude     (deg)
+** @param [r] lambda [double] WGS84 longitude (deg)
+** @param [w] E [double *] Swiss-NG easting (metres)
+** @param [w] N [double *] Swiss-NG northing (metres)
+**
+** @return [void]
+************************************************************************/
+
+int32 GPS_Math_WGS84_To_Swiss_EN(double lat, double lon, double *E,
+				   double *N)
+{
+	const double phi0 = 46.95240556;
+	const double lambda0 = 7.43958333;
+	const double E0 = 600000.0;
+	const double N0 = 200000.0;
+	double phi, lambda, alt, a, b;
+
+	if (lat < 44.89022757) return 0;
+	if (lon < -0.16386312) return 0;
+		
+	a = GPS_Ellipse[4].a;
+	b = a - (a / GPS_Ellipse[4].invf);
+	
+	GPS_Math_WGS84_To_Known_Datum_M(lat, lon, 0, &phi, &lambda, &alt, 123);
+	GPS_Math_Swiss_LatLon_To_EN(phi, lambda, E, N, phi0, lambda0, E0, N0, a, b);
+		
+	return 1;
+}
+
+
+/* @GPS_Math_Swiss_EN_To_WGS84 *****************************************
+**
+** Convert WGS84 latitude and longitude to 
+** Swiss CH-1903 National Grid Eastings and Northings
+**
+** @param [r] E [double] Swiss-NG easting (metres)
+** @param [r] N [double] Swiss-NG northing (metres)
+** @param [w] lat [double *] WGS84 latitude     (deg)
+** @param [w] lon [double *] WGS84 longitude (deg)
+**
+** @return [void]
+************************************************************************/
+void GPS_Math_Swiss_EN_To_WGS84(double E, double N, double *lat, double *lon)
+{
+	const double phi0 = 46.95240556;
+	const double lambda0 = 7.43958333;
+	const double E0 = 600000.0;
+	const double N0 = 200000.0;
+	double phi, lambda, alt, a, b;
+
+	a = GPS_Ellipse[4].a;
+	b = a - (a / GPS_Ellipse[4].invf);
+	
+	GPS_Math_Swiss_EN_To_LatLon(E, N, &phi, &lambda, phi0, lambda0, E0, N0, a, b);
+	GPS_Math_Known_Datum_To_WGS84_M(phi, lambda, 0, lat, lon, &alt, 123);
+}
 
 
 /* @func  GPS_Math_EN_To_LatLon **************************************
@@ -1431,7 +1488,7 @@ int32 GPS_Math_UKOSMap_To_WGS84_M(char *map, double mE, double mN,
 
     GPS_Math_NGENToAiry1830LatLon(E,N,&alat,&alon);
 
-    GPS_Math_Known_Datum_To_WGS84_M(alat,alon,0,lat,lon,&ht,78);
+    GPS_Math_Known_Datum_To_WGS84_M(alat,alon,0,lat,lon,&ht,86);
 
     return 1;
 }
@@ -1500,7 +1557,7 @@ int32 GPS_Math_UKOSMap_To_WGS84_C(char *map, double mE, double mN,
 
     GPS_Math_NGENToAiry1830LatLon(E,N,&alat,&alon);
 
-    GPS_Math_Known_Datum_To_WGS84_C(alat,alon,0,lat,lon,&ht,78);
+    GPS_Math_Known_Datum_To_WGS84_C(alat,alon,0,lat,lon,&ht,86);
 
     return 1;
 }
@@ -1746,25 +1803,7 @@ static int32 GPS_Math_UTM_Param_To_Mc(int32 zone, char zc, double *Mc,
 int32 GPS_Math_UTM_EN_To_NAD83(double *lat, double *lon, double E,
 			       double N, int32 zone, char zc)
 {
-    double phi0;
-    double lambda0;
-    double N0;
-    double E0;
-    double F0;
-    double a;
-    double b;
-
-    if(!GPS_Math_UTM_Param_To_Mc(zone,zc,&lambda0,&E0,&N0,&F0))
-	return 0;
-
-    phi0 = (double)0.0;
-
-    a = (double) GPS_Ellipse[21].a;
-    b = a - (a/GPS_Ellipse[21].invf);
-
-    GPS_Math_EN_To_LatLon(E,N,lat,lon,N0,E0,phi0,lambda0,F0,a,b);
-
-    return 1;
+    return GPS_Math_UTM_EN_To_Known_Datum(lat, lon, E, N, zone, zc, 77);
 }
 
 
@@ -1785,15 +1824,341 @@ int32 GPS_Math_UTM_EN_To_NAD83(double *lat, double *lon, double E,
 int32 GPS_Math_UTM_EN_To_WGS84(double *lat, double *lon, double E,
 			       double N, int32 zone, char zc)
 {
-    double phi;
-    double lambda;
-    double H;
+	double lambda0;
+	double N0;
+	double E0;
+	double F0;
 
-    if(!GPS_Math_UTM_EN_To_NAD83(&phi,&lambda,E,N,zone,zc))
+	if (!GPS_Math_UTM_Param_To_Mc(zone,zc,&lambda0,&E0,&N0,&F0)) return 0;
+
+	GPS_Math_UTM_EN_to_LatLon(GPS_Datum[118].ellipse, N, E, lat, lon, lambda0, E0, N0);
+	return 1;
+}
+
+
+/* @func GPS_Math_Known_Datum_To_UTM_EN *********************************
+**
+** Transform known datum lat/lon to UTM zone, easting and northing
+**
+** @param [r] lat  [double] WGS84 latitude (deg)
+** @param [r] lon  [double] WGS84 longitude (deg)
+** @param [w] E    [double *] easting (metres)
+** @param [w] N    [double *] northing (metres)
+** @param [w] zone [int32 *]  zone number
+** @param [w] zc   [char *] zone character
+** @param [r] n    [int32] datum number from GPS_Datum structure
+**
+** @return [int32] success
+************************************************************************/
+int32 GPS_Math_Known_Datum_To_UTM_EN(double lat, double lon, double *E,
+			       double *N, int32 *zone, char *zc, const int n)
+{
+    double phi0;
+    double lambda0;
+    double N0;
+    double E0;
+    double F0;
+    double a;
+    double b;
+    int32  idx;
+
+    if(!GPS_Math_LatLon_To_UTM_Param(lat,lon,zone,zc,&lambda0,&E0,
+				     &N0,&F0))
 	return 0;
 
+    phi0 = (double)0.0;
     
-    GPS_Math_Known_Datum_To_WGS84_M(phi,lambda,0,lat,lon,&H,77);
+    idx  = GPS_Datum[n].ellipse;
+    a = (double) GPS_Ellipse[idx].a;
+    b = a - (a/GPS_Ellipse[idx].invf);
+
+    GPS_Math_LatLon_To_EN(E,N,lat,lon,N0,E0,phi0,lambda0,F0,a,b);
 
     return 1;
 }
+
+/* @func GPS_Math_UTM_EN_To_Known_Datum *********************************
+**
+** Transform UTM zone, easting and northing to known datum lat/lon
+**
+** @param [w] lat  [double *] WGS84 latitude (deg)
+** @param [r] lon  [double *] WGS84 longitude (deg)
+** @param [w] E    [double]   easting (metres)
+** @param [w] N    [double]   northing (metres)
+** @param [w] zone [int32]      zone number
+** @param [w] zc   [char]     zone character
+** @param [r] n    [int32] datum number from GPS_Datum structure
+**
+** @return [int32] success
+************************************************************************/
+int32 GPS_Math_UTM_EN_To_Known_Datum(double *lat, double *lon, double E,
+			       double N, int32 zone, char zc, const int n)
+{
+	double lambda0;
+	double N0;
+	double E0;
+	double F0;
+
+	if (!GPS_Math_UTM_Param_To_Mc(zone,zc,&lambda0,&E0,&N0,&F0)) return 0;
+
+	GPS_Math_UTM_EN_to_LatLon(GPS_Datum[n].ellipse, N, E, lat, lon, lambda0, E0, N0);
+	return 1;
+}
+
+/* !!! copied from unused gpsproj.c !!! */
+
+/* @func GPS_Math_Swiss_LatLon_To_EN ***********************************
+**
+** Convert latitude and longitude to Swiss grid easting and northing
+**
+** @param [r] phi [double] latitude (deg)
+** @param [r] lambda [double] longitude (deg)
+** @param [w] E [double *] easting (metre)
+** @param [w] N [double *] northing (metre)
+** @param [r] phi0 [double] latitude origin (deg)     [normally 46.95240556]
+** @param [r] lambda0 [double] longitude origin (deg) [normally  7.43958333]
+** @param [r] E0 [double] false easting (metre)       [normally 600000.0]
+** @param [r] N0 [double] false northing (metre)      [normally 200000.0]
+** @param [r] a [double] semi-major axis              [normally 6377397.000]
+** @param [r] b [double] semi-minor axis              [normally 6356078.823]
+**
+** @return [void]
+***************************************************************************/
+void GPS_Math_Swiss_LatLon_To_EN(double phi, double lambda, double *E,
+				 double *N,double phi0,double lambda0,
+				 double E0, double N0, double a, double b)
+
+{
+    double a2;
+    double b2;
+    double esq;
+    double e;
+    double c;
+    double ephi0p;
+    double phip;
+    double sphip;
+    double phid;
+    double slambda2;
+    double lambda1;
+    double lambda2;
+    double K;
+    double po4;
+    double w;
+    double R;
+    
+    lambda0 = GPS_Math_Deg_To_Rad(lambda0);
+    phi0    = GPS_Math_Deg_To_Rad(phi0);
+    lambda  = GPS_Math_Deg_To_Rad(lambda);
+    phi     = GPS_Math_Deg_To_Rad(phi);
+
+    po4=GPS_PI/(double)4.0;
+    
+    a2 = a*a;
+    b2 = b*b;
+    esq = (a2-b2)/a2;
+    e   = pow(esq,(double)0.5);
+
+    c = sqrt(1+((esq*pow(cos(phi0),(double)4.))/((double)1.-esq)));
+
+    ephi0p = asin(sin(phi0)/c);
+
+    K = log(tan(po4+ephi0p/(double)2.)) - c*(log(tan(po4+phi0/(double)2.)) -
+	 e/(double)2. * log(((double)1.+e*sin(phi0)) /
+	 ((double)1.-e*sin(phi0))));
+    lambda1 = c*(lambda-lambda0);
+    w = c*(log(tan(po4+phi/(double)2.)) - e/(double)2. *
+	   log(((double)1.+e*sin(phi)) / ((double)1.-e*sin(phi)))) + K;
+    
+
+    phip = (double)2. * (atan(exp(w)) - po4);
+	
+    sphip = cos(ephi0p) * sin(phip) - sin(ephi0p) * cos(phip) * cos(lambda1);
+    phid  = asin(sphip);
+	
+    slambda2 = cos(phip)*sin(lambda1) / cos(phid);
+    lambda2  = asin(slambda2);
+
+    R = a*sqrt((double)1.-esq) / ((double)1.-esq*sin(phi0) * sin(phi0));
+
+    *N = R*log(tan(po4 + phid/(double)2.)) + N0;
+    *E = R*lambda2 + E0;
+    return;
+}
+
+/* !!! copied from unused gpsproj.c !!! */
+
+/* @func GPS_Math_Swiss_EN_To_LatLon ************************************
+**
+** Convert Swiss Grid easting and northing to latitude and longitude
+**
+** @param [r] E [double] easting (metre)
+** @param [r] N [double] northing (metre)
+** @param [w] phi [double *] latitude (deg)
+** @param [w] lambda [double *] longitude (deg)
+** @param [r] phi0 [double] latitude origin (deg)     [normally 46.95240556]
+** @param [r] lambda0 [double] longitude origin (deg) [normally  7.43958333]
+** @param [r] E0 [double] false easting (metre)       [normally 600000.0]
+** @param [r] N0 [double] false northing (metre)      [normally 200000.0]
+** @param [r] a [double] semi-major axis              [normally 6377397.000]
+** @param [r] b [double] semi-minor axis              [normally 6356078.823]
+**
+** @return [void]
+*************************************************************************/
+
+void GPS_Math_Swiss_EN_To_LatLon(double E, double N, double *phi,
+				 double *lambda, double phi0, double lambda0,
+				 double E0, double N0, double a, double b)
+{
+    double a2;
+    double b2;
+    double esq;
+    double e;
+    double R;
+    double c;
+    double po4;
+    double phid;
+    double phi1;
+    double lambdad;
+    double lambda1;
+    double slambda1;
+    double ephi0p;
+    double sphip;
+    double tol;
+    double cr;
+    double C;
+    double K;
+    
+    lambda0 = GPS_Math_Deg_To_Rad(lambda0);
+    phi0    = GPS_Math_Deg_To_Rad(phi0);
+
+    po4=GPS_PI/(double)4.0;
+    tol=(double)0.00001;
+    
+    a2 = a*a;
+    b2 = b*b;
+    esq = (a2-b2)/a2;
+    e   = pow(esq,(double)0.5);
+
+    R = a*sqrt((double)1.-esq) / ((double)1.-esq*sin(phi0) * sin(phi0));
+
+    phid = (double)2.*(atan(exp((N - N0)/R)) - po4);
+    lambdad = (E - E0)/R;
+
+    c = sqrt((double)1.+((esq * pow(cos(phi0), (double)4.)) /
+			 ((double)1.-esq))); 
+    ephi0p = asin(sin(phi0) / c);
+
+    sphip = cos(ephi0p)*sin(phid) + sin(ephi0p)*cos(phid)*cos(lambdad);
+    phi1 = asin(sphip);
+
+    slambda1 = cos(phid)*sin(lambdad)/cos(phi1);
+    lambda1  = asin(slambda1);
+
+    *lambda = GPS_Math_Rad_To_Deg((lambda1/c + lambda0));
+
+    K = log(tan(po4 + ephi0p/(double)2.)) -c*(log(tan(po4 + phi0/(double)2.)) 
+	- e/(double)2. * log(((double)1.+e*sin(phi0)) / 
+        ((double)1.-e*sin(phi0))));
+    C = (K - log(tan(po4 + phi1/(double)2.)))/c;
+
+    do
+    {
+	cr = (C + log(tan(po4 + phi1/(double)2.)) - e/(double)2. *
+	      log(((double)1.+e*sin(phi1)) / ((double)1.-e*sin(phi1)))) *
+		  ((((double)1.-esq*sin(phi1)*sin(phi1)) * cos(phi1)) /
+		   ((double)1.-esq));
+	phi1 -= cr;
+    }
+    while (fabs(cr) > tol);
+
+    *phi = GPS_Math_Rad_To_Deg(phi1);
+
+    return;
+}
+
+/********************************************************************/
+
+void GPS_Math_UTM_EN_to_LatLon(int ReferenceEllipsoid, 
+	const double UTMNorthing, const double UTMEasting,
+	double *Lat, double *Lon, 
+	const double lambda0, 
+	const double E0,
+	const double N0)
+{
+//converts UTM coords to lat/long.  Equations from USGS Bulletin 1532 
+//East Longitudes are positive, West longitudes are negative. 
+//North latitudes are positive, South latitudes are negative
+//Lat and Long are in decimal degrees. 
+//based on code witten by Chuck Gantz- chuck.gantz@globalstar.com
+//found at http://www.gpsy.com/gpsinfo/geotoutm/index.html
+
+	double k0 = 0.9996;
+	double a, b;
+	double eccSquared;
+	double eccPrimeSquared;
+	double e1;
+	double N1, T1, C1, R1, D, M;
+	double mu, phi1, phi1Rad;
+	double x, y;
+
+	a = GPS_Ellipse[ReferenceEllipsoid].a;
+	b = 1 / GPS_Ellipse[ReferenceEllipsoid].invf;
+	eccSquared = b * (2.0 - b);
+	e1 = (1-sqrt(1-eccSquared))/(1+sqrt(1-eccSquared));
+	
+	x = UTMEasting - E0; //remove false easting
+	y = UTMNorthing - N0; //remove false northing
+
+	eccPrimeSquared = (eccSquared)/(1-eccSquared);
+
+	M = y / k0;
+	mu = M/(a*(1-eccSquared/4-3*eccSquared*eccSquared/64-5*eccSquared*eccSquared*eccSquared/256));
+
+	phi1Rad = mu+ (3*e1/2-27*e1*e1*e1/32)*sin(2*mu) + 
+		(21*e1*e1/16-55*e1*e1*e1*e1/32)*sin(4*mu) + 
+		(151*e1*e1*e1/96)*sin(6*mu);
+	phi1 = GPS_Math_Rad_To_Deg(phi1Rad);
+
+	N1 = a/sqrt(1-eccSquared*sin(phi1Rad)*sin(phi1Rad));
+	T1 = tan(phi1Rad)*tan(phi1Rad);
+	C1 = eccPrimeSquared*cos(phi1Rad)*cos(phi1Rad);
+	R1 = a*(1-eccSquared)/pow(1-eccSquared*sin(phi1Rad)*sin(phi1Rad), 1.5);
+	D = x/(N1*k0);
+
+	*Lat = phi1Rad - (N1*tan(phi1Rad)/R1)*(D*D/2-(5+3*T1+10*C1-4*C1*C1-9*eccPrimeSquared)*D*D*D*D/24
+		+(61+90*T1+298*C1+45*T1*T1-252*eccPrimeSquared-3*C1*C1)*D*D*D*D*D*D/720);
+	*Lat = GPS_Math_Rad_To_Deg(*Lat);
+
+	*Lon = (D-(1+2*T1+C1)*D*D*D/6+(5-2*C1+28*T1-3*C1*C1+8*eccPrimeSquared+24*T1*T1)*D*D*D*D*D/120)/cos(phi1Rad);
+	*Lon = lambda0 + GPS_Math_Rad_To_Deg(*Lon);
+}
+
+/********************************************************************/
+
+int32 GPS_Lookup_Datum_Index(const char *n)
+{
+	GPS_PDatum dp;
+	GPS_PDatum_Alias al;
+
+	for (al = GPS_DatumAlias; al->alias; al++) {
+		if (case_ignore_strcmp(al->alias, n) == 0) {
+			return al->datum;
+		}
+	}
+
+	for (dp = GPS_Datum; dp->name; dp++) {
+		if (0 == case_ignore_strcmp(dp->name, n)) {
+			return dp - GPS_Datum;
+		}
+	}
+
+	return -1;
+}
+
+char *
+GPS_Math_Get_Datum_Name(const int datum_index)
+{
+	return GPS_Datum[datum_index].name;
+}
+
+

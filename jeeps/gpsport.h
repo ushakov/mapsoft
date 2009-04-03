@@ -3,16 +3,30 @@
  *                  and '16' type must be 16 bits
  */
 
-/* Since GPSBabel already has an integer size abstraction layer and
- * defs.h includes gbtypes.h before this file, just use that.
- */
+#if defined(_MSC_VER)
 
-typedef unsigned char UC;
-typedef gbuint16      US;
+typedef unsigned long  uint32;
+typedef unsigned short uint16;
+typedef long  int32;
+typedef short int16;
 
-#ifndef _TIFF_DATA_TYPEDEFS_
-typedef gbuint16      uint16;
-typedef gbint16       int16;
-typedef gbuint32      uint32;
-typedef gbint32       int32;
-#endif
+#else
+
+# if defined (__FreeBSD__)
+#  include <inttypes.h>
+# else
+#  include <stdint.h>
+# endif
+
+typedef uint32_t uint32;
+typedef uint16_t uint16;
+typedef  int32_t int32;
+typedef  int16_t int16;
+
+#endif /* defined(_MSC_VER) */
+
+typedef unsigned char uint8;
+typedef signed char    int8;
+
+typedef uint8         UC;
+typedef uint16        US;

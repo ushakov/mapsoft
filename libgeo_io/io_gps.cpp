@@ -44,8 +44,8 @@ namespace gps {
 			new_w_pt.symb.val  = wpt[i]->smbl;
 			new_w_pt.displ     = wpt[i]->dspl;
 			new_w_pt.color     = Color(0xFF, wpt[i]->colour);
-			if (wpt[i]->Time_populated) new_w_pt.t
-                                           = Time(wpt[i]->Time);
+			if (wpt[i]->time_populated) new_w_pt.t
+                                           = Time(wpt[i]->time);
 			new_w.push_back(new_w_pt);
 		}
 		world.wpts.push_back(new_w);
@@ -57,7 +57,7 @@ namespace gps {
 		GPS_PTrack *trk;
                 if (!init_gps(port)) return false;
                 int n;
-		if((n = GPS_Command_Get_Track (port, &trk)) < 0) {
+		if((n = GPS_Command_Get_Track (port, &trk, 0)) < 0) {
                   std::cerr << "can't get track\n"; 
                   return false;
                 }
@@ -115,7 +115,7 @@ namespace gps {
 			wpts[n]->dspl = i->displ;
 			wpts[n]->colour = i->color.RGB().value;
 			wpts[n]->alt  = i->z;
-			wpts[n]->Time = i->t.value;
+			wpts[n]->time = i->t.value;
 			n++;
 		}
 		GPS_Command_Send_Waypoint(port, wpts, n, NULL);

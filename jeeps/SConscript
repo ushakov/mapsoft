@@ -4,6 +4,9 @@ env.Library('jeeps',\
 	gpsapp.c
 	gpscom.c
 	gpsdatum.c
+	gpsdevice.c
+	gpsdevice_ser.c
+	gpsdevice_usb.c
 	gpsfmt.c
 	gpsinput.c
 	gpslibusb.c
@@ -15,10 +18,11 @@ env.Library('jeeps',\
 	gpsrqst.c
 	gpssend.c
 	gpsserial.c
+	gpsusbcommon.c
 	gpsusbread.c
 	gpsusbsend.c
 	gpsusbstub.c
 	gpsusbwin.c
 	gpsutil.c
-	util.c
+	utils.c
     """))

@@ -1,7 +1,7 @@
 /*
     Decompose an incoming USB packet to make it look like a serial one.
 
-    Copyright (C) 2004 Robert Lipe, robertlipe@usa.net
+    Copyright (C) 2004, 2006, 2006 Robert Lipe, robertlipe@usa.net
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,38 +19,49 @@
 
  */
 #include <ctype.h>
-#include <string.h>
 #include "gps.h"
 #include "garminusb.h"
 #include "gpsusbint.h"
 
-// Returns 0 on error
-int32 GPS_Packet_Read_usb(int32 fd, GPS_PPacket *packet)
+/*
+ * Return values are:
+ * Negative on error.
+ * 1 if read success - even if empty packet.
+ */
+int32 GPS_Packet_Read_usb(gpsdevh *dh, GPS_PPacket *packet, int eat_bulk)
 {
 	int32  n;
-	int32  i;
 	int32 payload_size;
-	const char *m1;
-	const char *m2;
 
 	garmin_usb_packet pkt;
+
 	memset(&pkt, 0, sizeof(pkt));
+do_over:
 	n = gusb_cmd_get(&pkt, sizeof(pkt));
 
-   // Negative values indicate read error
-   if (n<0) return 0;
-
-	if (1 && gps_show_bytes) {
-		GPS_Diag("\nRx Data:[%d]",n);
-		for (i = 0; i < n; i++)
-		    GPS_Diag("%02x ", pkt.dbuf[i]);
-		for (i = 0; i < n; i++)
-		    GPS_Diag("%c", isalnum(pkt.dbuf[i]) ? pkt.dbuf[i] : '.');
-		m1 = Get_Pkt_Type(pkt.gusb_pkt.pkt_id[0], pkt.gusb_pkt.databuf[0], &m2);
-		GPS_Diag("(%-8s%s)\n", m1, m2 ? m2 : "");
-
+	if ( n < 0 ) {
+		/*
+		 * We (probably) used to have a GPS and it went away 
+	 	 * while we were speaking with it.  Perhaps batteries 
+		 * died or it was unplugged or something.
+		 */
+		gps_errno = PROTOCOL_ERROR;
+		return n;
 	}
 
+	/*
+	 * This is a horrible hack for 276/296.   This family sometimes 
+	 * switches between bulk and interrupt on EVERY packet.   Rather 
+	 * than bother all the callers with that bit of unpleasantness, 
+	 * silently consume zero byte "switch back to intr"  packets here.
+	 *
+	 * The one caller that doesn't want this hidden is device discovery
+	 * in the A000 handler.
+	 */
+	if ((n == 0) && eat_bulk)  {
+		goto do_over;
+	}
+	
 	/* 
 	 * Populate members of serial packet from USB packet.   The
 	 * copy here seems wasteful, but teaching all the callers about
@@ -62,5 +73,6 @@ int32 GPS_Packet_Read_usb(int32 fd, GPS_PPacket *packet)
 	payload_size = le_read32(&pkt.gusb_pkt.datasz);
 	(*packet)->n = (UC) payload_size;
 	memcpy((*packet)->data, &pkt.gusb_pkt.databuf, payload_size);
-	return payload_size;
+	
+	return 1;
 }
