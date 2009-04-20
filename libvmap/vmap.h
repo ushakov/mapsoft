@@ -46,12 +46,11 @@ std::istream & operator<< (std::ostream & s, const object & o);
 
 /*
   label position structure
-  * shift in mm
+  * coordinates
   * angle in degrees
 */
 
-struct label_pos{
-  Point<double> shift;
+struct label_pos : Point<double>{
   double angle;
 };
 

@@ -89,7 +89,7 @@ istream & operator>> (istream & s, rmap & o){
         o.comm.push_back(line);
         break;
       case '+':
-        s1 >> id >> pos.shift.x >> pos.shift.y >> pos.angle >> ws;
+        s1 >> id >> pos.x >> pos.y >> pos.angle >> ws;
         if (!s1 || !s1.eof()) goto def;
         o.positions.insert(pair<id_t, label_pos>(id, pos));
         break;
@@ -112,7 +112,7 @@ istream & operator<< (ostream & s, const rmap & o){
   for (multimap<id_t, label_pos>::const_iterator i=o.positions.begin();
                                                       i!=o.positions.end(); i++)
     s << '+' << i->first << ' '
-      << i->second.shift.x << ' ' << i->second.shift.y << ' '
+      << i->second.x << ' ' << i->second.y << ' '
       << i->second.angle <<'\n';
 }
 

@@ -101,6 +101,8 @@ bool read_fig(const std::string & file, const legend & leg, world & w){
     zn::clear_key(*o);
     id_t id=boost::lexical_cast<id_t>(k.id);  // BC!!
     if (k.map!="") id+="@" + k.map;
+
+    // new-style ID
     id=o->opts.get("ID", id);
     if ((id=="")||(id=="0")) id=make_id();
 
@@ -129,7 +131,7 @@ bool read_fig(const std::string & file, const legend & leg, world & w){
   }
 
   rmap rm;
-  // TODO: rmap options: proj, datum, scale, geom, ...
+  // TODO: rmap options: name, proj, datum, scale, geom, ...
 
   // read labels
   for (fig::fig_world::iterator o=FIG.begin(); o!=FIG.end(); o++){
@@ -138,20 +140,22 @@ bool read_fig(const std::string & file, const legend & leg, world & w){
     zn::zn_label_key k=zn::get_label_key(*o);
     id_t id=boost::lexical_cast<id_t>(k.id);  // BC!!
     if (k.map!="") id+="@" + k.map;
+    zn::clear_key(*o);
+
+    // new-style ID
     id=o->opts.get("LabelID", id);
     if ((id=="")||(id=="0")) continue;
-    zn::clear_key(*o);
 
     if (o->size()<1) continue;
     vmap::label_pos pos;
 
-    // TODO: relative shift?
-    pos.shift=(*o)[0]; pos.angle=o->angle;
+    pos.x=(*o)[0].x;
+    pos.y=(*o)[0].y;
+    cnv.frw_safe(pos);
+    pos.angle=o->angle;
 
     rm.positions.insert(std::pair<id_t, label_pos>(id, pos));
   }
-
-  // TODO update labels
 
   w.rmaps.insert(std::pair<id_t, rmap>("default", rm));
   return true;

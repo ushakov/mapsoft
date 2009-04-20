@@ -60,6 +60,8 @@ bool read_mp(const std::string & file, const legend & leg, world & w){
     zn::zn_key k=zn::get_key(*o);
     zn::clear_key(*o);
     id_t id=boost::lexical_cast<id_t>(k.id) + "@" + k.map;  // BC!!
+
+    // new-style ID
     id=o->Opts.get("ID", id);
     if ((id=="")||(id=="0")) id=make_id();
 
