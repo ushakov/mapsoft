@@ -27,12 +27,17 @@ void copy_fig_comment(const fig::fig_world::iterator & i, const fig::fig_world::
   }
 }
 
-bool write_fig(const std::string & file, const legend & leg, const world & w){
+bool write_fig(const std::string & file, const world & w){
   fig::fig_world FIG;
 
   if (w.opts.exists("ID"))   FIG.opts.put("ID", w.opts.get("ID", 0));
   if (w.opts.exists("Name")) FIG.opts.put("Name", w.opts.get("Name", string()));
   FIG.comment=w.comm;
+
+  string style=w.opts.get("Style", string("mmb"));
+  FIG.opts.put("style", style);
+
+  legend leg(style);
 
   // TODO: rmap section -> labels
 
@@ -76,14 +81,19 @@ bool write_fig(const std::string & file, const legend & leg, const world & w){
 }
 
 
-bool read_fig(const std::string & file, const legend & leg, world & w){
+bool read_fig(const std::string & file, world & w){
   fig::fig_world FIG;
   if (!fig::read(file.c_str(), FIG)) return false;
 
   w.comm=FIG.comment;
 
-  if (FIG.opts.exists("ID"))   w.opts.put("ID", FIG.opts["ID"]);
-  if (FIG.opts.exists("Name")) w.opts.put("Name", FIG.opts["Name"]);
+  if (FIG.opts.exists("id"))    w.opts.put("ID", FIG.opts["id"]);
+  if (FIG.opts.exists("name"))  w.opts.put("Name", FIG.opts["name"]);
+
+  string style=FIG.opts.get("style", string("mmb"));
+  w.opts.put("Style", style);
+
+  legend leg(style);
 
   g_map ref = fig::get_ref(FIG);
   if (ref.size()<3){
@@ -131,7 +141,7 @@ bool read_fig(const std::string & file, const legend & leg, world & w){
   }
 
   rmap rm;
-  // TODO: rmap options: name, proj, datum, scale, geom, ...
+  if (FIG.opts.exists("proj"))  rm.opts.put("Proj", FIG.opts["proj"]);
 
   // read labels
   for (fig::fig_world::iterator o=FIG.begin(); o!=FIG.end(); o++){
@@ -152,7 +162,7 @@ bool read_fig(const std::string & file, const legend & leg, world & w){
     pos.x=(*o)[0].x;
     pos.y=(*o)[0].y;
     cnv.frw_safe(pos);
-    pos.angle=o->angle;
+    pos.angle=o->angle*180/M_PI;
 
     rm.positions.insert(std::pair<id_t, label_pos>(id, pos));
   }

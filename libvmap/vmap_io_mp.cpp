@@ -13,11 +13,17 @@
 using namespace std;
 namespace vmap {
 
-bool write_mp(const std::string & file, const legend & leg, const world & w){
+bool write_mp(const std::string & file, const world & w){
   mp::mp_world MP;
   MP.ID   = w.opts.get("ID", 0);
   MP.Name = w.opts.get("Name", string());
   MP.Comment=w.comm;
+
+  string style=w.opts.get("Style", string("mmb"));
+  MP.Opts.put("Style", style);
+
+  legend leg(style);
+
 
   // TODO: rmap section!
 
@@ -45,12 +51,17 @@ bool write_mp(const std::string & file, const legend & leg, const world & w){
   return mp::write(of, MP);
 }
 
-bool read_mp(const std::string & file, const legend & leg, world & w){
+bool read_mp(const std::string & file, world & w){
   mp::mp_world MP;
   if (!mp::read(file.c_str(), MP)) return false;
   w.comm=MP.Comment;
   w.opts.put("ID", MP.ID);
   w.opts.put("Name", MP.Name);
+
+  string style=MP.Opts.get("Style", string("mmb"));
+  w.opts.put("Style", style);
+
+  legend leg(style);
 
   // TODO: rmap section!
 
