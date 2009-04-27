@@ -658,6 +658,72 @@ int crop(int argc, char** argv){
   return 0;
 }
 
+/*****************************************************/
+/// Получить диапазон картографических объектов (fig|mp)
+int range(int argc, char** argv){
+
+  if (argc != 4){
+    cerr << "Get range.\n"
+         << "  usage: mapsoft_vmap range <conf> <proj> <datum> <fig|mp>\n";
+    return 1;
+  }
+
+  string cfile    = argv[0];
+  string proj;
+  string datum;
+  string file;
+
+  Rect<double> ret;
+  proj     = argv[1];
+  datum    = argv[2];
+  file     = argv[3];
+
+  zn::zn_conv zconverter(cfile);
+
+  if (testext(file, ".fig")){
+    fig::fig_world F;
+    if (!fig::read(file.c_str(), F)) {
+      cerr << "ERR: bad fig file\n"; return 1;
+    }
+    g_map ref = fig::get_ref(F);
+    if (ref.size()<3){
+      cerr << "ERR: not a GEO-fig\n"; return 1;
+    }
+
+    fig::fig_world::iterator i=F.begin();
+    while (i!=F.end()){
+      if (!zconverter.is_map_depth(*i)) { i++; continue;}
+      ret=rect_bounding_box(ret, Rect<double>(i->range()));
+      i++;
+    }
+    convs::map2pt cnv(ref, Datum(datum), Proj(proj));
+    std::cout << cnv.bb_frw(ret);
+  }
+
+  else if (testext(file, ".mp")){
+    mp::mp_world M;
+    if (!mp::read(file.c_str(), M)) {
+      cerr << "ERR: bad mp file\n"; return 1;
+    }
+
+    mp::mp_world::iterator i=M.begin();
+    while (i!=M.end()){
+      mp::mp_object::iterator l=i->begin();
+      while (l!=i->end()){
+        ret=rect_bounding_box(ret, l->range());
+        l++;
+      }
+      i++;
+    }
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
+                     Datum(datum), Proj(proj), Options());
+    std::cout << cnv.bb_frw(ret, 1e-6);
+  }
+  else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
+
+  return 0;
+}
+
 
 /*****************************************************/
 /// Удалить сетку и т.п.оформление (fig). Остаются: привязка, подписи, объекты
@@ -924,6 +990,7 @@ int main(int argc, char** argv){
     cerr << "usage: mapsoft_vmap <command> <args>\n"
          << "commands: \n"
          << "  - crop          -- crop map objects in (fig|mp)\n"
+         << "  - range         -- get range of map objects in (fig|mp)\n"
          << "  - copy          -- copy map objects from (fig|mp) to (fig|mp)\n"
          << "  - copy_labels   -- copy all labels from (fig) to (fig)\n"
          << "  - remove        -- remove map objects from (fig|mp) map\n"
@@ -938,6 +1005,7 @@ int main(int argc, char** argv){
     exit(0);
   }
   if (strcmp(argv[1], "crop")==0)           exit(crop(argc-2, argv+2));
+  if (strcmp(argv[1], "range")==0)          exit(range(argc-2, argv+2));
   if (strcmp(argv[1], "copy")==0)           exit(copy(argc-2, argv+2));
   if (strcmp(argv[1], "copy_labels")==0)    exit(copy_labels(argc-2, argv+2));
   if (strcmp(argv[1], "remove")==0)         exit(remove(argc-2, argv+2));
