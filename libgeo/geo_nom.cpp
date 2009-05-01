@@ -119,6 +119,11 @@ Rect<double> nom_range(const string & key){
 
 // по координатам в СК pulkovo-42 возвращает название листа
 string nom_name(const Point<double> & p, int sc){
+    if ((p.x <-180) || (p.x>180) || (p.y<0) || (p.y>90)){
+      cerr << "nom_name: point coordinates out or range: " << p << "\n";
+      exit(1);
+    }
+
     char A = 'a' + (int)floor(p.y/4);
     int  B = 31 +  (int)floor(p.x/6);
 
@@ -132,7 +137,7 @@ string nom_name(const Point<double> & p, int sc){
       case  200000: n=6;  w=2; break;
       case  100000: n=12; w=3; break;
       case   50000: n=12; w=3; break;
-      default: cerr << "wrong scale: " << sc << "\n"; exit(1);
+      default: cerr << "nom_name: wrong scale: " << sc << "\n"; exit(1);
     }
 
     int row=(int)floor((p.y/4.0-floor(p.y/4))*n);
