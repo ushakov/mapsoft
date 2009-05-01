@@ -2,6 +2,7 @@
 // в проекции Гаусса-Крюгера, СК Пулково-42.
 
 #include "../libgeo/geo_convs.h"
+#include "../libgeo/geo_nom.h"
 #include "../libgeo_io/geofig.h"
 #include "../libgeo_io/io.h"
 
@@ -42,7 +43,7 @@ main(int argc, char** argv){
 
 
 // определим диапазон карты в координатах lonlat
-  Rect<double> r0 = filters::nom_range(map_name);
+  Rect<double> r0 = convs::nom_range(map_name);
 
 // определим осевой меридиан
   double lon0 = (r0.TLC().x + r0.TRC().x)/2;

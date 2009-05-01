@@ -7,8 +7,8 @@ using namespace convs;
 
 void usage(){
   cerr << "\n"
-       << "Commandline interface to convs::pt2pt conversions.\n"
-       << "usage: convs_pt2pt  <d1> <p1> <o1>  <d2> <p2> <o2>\n"
+       << "Command line interface to convs::pt2pt conversions.\n"
+       << "usage: echo <commands> | convs_pt2pt  <d1> <p1> <o1>  <d2> <p2> <o2>\n"
        << "d1,p1,o1, d2,p2,o2 -- datums, projections, projection options\n"
        << "                      for source and destination coordinates.\n"
        << "Commands:\n"
@@ -21,7 +21,7 @@ void usage(){
        << "bb_frw <rect> <acc>\n"
        << "bb_bck <rect> <acc>\n"
        << "\n"
-       << "<acc> is an accuracy of line conversions in source projection coordinetes\n"
+       << "<acc> is an accuracy of line conversions in source projection coordinates\n"
        << "\n"
   ;
   exit(1);

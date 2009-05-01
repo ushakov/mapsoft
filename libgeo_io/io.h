@@ -39,9 +39,6 @@ namespace io {
 }
 
 namespace filters {
-  // границы номенклатурного листа в wgs84
-  Rect<double> nom_range(const std::string & key);
-
   // добавить границу в соответствии с названием номенклатурного листа
   void map_nom_brd(geo_data & world);
 }

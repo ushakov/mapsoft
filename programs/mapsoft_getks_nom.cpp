@@ -6,6 +6,7 @@
 #include "../layers/layer_ks.h"
 #include "../libgeo_io/io.h"
 #include "../libgeo/geo_convs.h"
+#include "../libgeo/geo_nom.h"
 
 #include "../libgeo_io/geofig.h"
 #include "../lib2d/line_utils.h"
@@ -30,7 +31,7 @@ main(int argc, char **argv){
     double m_per_pt   = deg_per_pt * M_PI/180 * 6378137.0;
 
     // определим диапазон карты в координатах lonlat (в СК Пулково!)
-    Rect<double> r0 = filters::nom_range(map_name);
+    Rect<double> r0 = convs::nom_range(map_name);
 
     // определим осевой меридиан
     double lon0 = (r0.TLC().x + r0.TRC().x)/2;

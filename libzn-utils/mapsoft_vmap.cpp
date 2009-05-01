@@ -9,6 +9,7 @@
 
 #include "../lib2d/line_rectcrop.h"
 #include "../libgeo_io/io.h"
+#include "../libgeo/geo_nom.h"
 
 using namespace std;
 
@@ -585,7 +586,7 @@ int crop(int argc, char** argv){
   } else {
     proj     = "lonlat";
     datum    = "pulkovo";
-    cutter=filters::nom_range(argv[1]);
+    cutter=convs::nom_range(argv[1]);
     file     = argv[2];
   }
 
