@@ -140,14 +140,14 @@ string nom_name(const Point<double> & p, int sc){
       default: cerr << "nom_name: wrong scale: " << sc << "\n"; exit(1);
     }
 
-    int row=(int)floor((p.y/4.0-floor(p.y/4))*n);
+    int row=n-1-(int)floor((p.y/4.0-floor(p.y/4))*n);
     int col=(int)floor((p.x/6.0-floor(p.x/6))*n);
 
     int C = row*n + col+1;
 
     int D=0;
     if (sc>=50000){
-      int row1=(int)floor((p.y/4.0*n-floor(p.y/4*n))*2);
+      int row1=1-(int)floor((p.y/4.0*n-floor(p.y/4*n))*2);
       int col1=(int)floor((p.x/6.0*n-floor(p.x/6*n))*2);
       D=row1*2+col1+1;
     }
