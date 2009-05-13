@@ -1,9 +1,10 @@
-
-#include <iostream>
-
 #include <gtkmm.h>
 #include "gplane.h"
 #include "../utils/image_gdk.h"
+
+
+// define this to reduce information transfer from workplane during scrolling
+#define MANUAL_SCROLL
 
 class SimpleViewer : public Gtk::DrawingArea {
   public:
@@ -11,6 +12,7 @@ class SimpleViewer : public Gtk::DrawingArea {
     SimpleViewer(GPlane * pl) :
       plane(pl),
       origin(Point<GCoord>(GCoord_cnt,GCoord_cnt)) {
+      set_name("MapsoftViewer");
       add_events ( 
             Gdk::BUTTON_PRESS_MASK |
             Gdk::BUTTON_RELEASE_MASK |
@@ -21,44 +23,54 @@ class SimpleViewer : public Gtk::DrawingArea {
     }
 
   void set_origin (const Point<GCoord> & new_origin) {
-    Point<GCoord> shift = origin - new_origin;
-    origin -= shift;
-    get_window()->scroll(shift.x, 0);
-    get_window()->scroll(0, shift.y);
+    Point<int> shift(origin.x>new_origin.x? origin.x-new_origin.x:-(new_origin.x-origin.x),
+                     origin.y>new_origin.y? origin.y-new_origin.y:-(new_origin.y-origin.y));
+    origin = new_origin;
+
+    get_window()->scroll(shift.x, shift.y);
+#ifdef MANUAL_SCROLL
+    get_window()->get_update_area();
+
+    if (shift.x >=0){
+      draw(Rect<GCoord>(0,0,shift.x,get_height()));
+      if (shift.y >=0) draw(Rect<GCoord>(shift.x,0,get_width()-shift.x, shift.y));
+      else             draw(Rect<GCoord>(shift.x,get_height()+shift.y, get_width()-shift.x, -shift.y));
+
+    }
+    else{
+      draw(Rect<GCoord>(get_width() + shift.x, 0, -shift.x, get_height() ));
+      if (shift.y >=0) draw(Rect<GCoord>(0,0,get_width()-shift.x, shift.y));
+      else             draw(Rect<GCoord>(0,get_height()+shift.y, get_width()-shift.x, -shift.y));
+    }
+#endif
   }
 
   Point<GCoord> get_origin (void) {
     return origin;
   }
 
-
-  virtual bool on_expose_event (GdkEventExpose * event){
-    Rect<GCoord> r(origin.x + event->area.x, origin.y + event->area.y,
-                    event->area.width, event->area.height);
-
-    Image<int> img = plane->draw(r);
+  void draw (const Rect<GCoord> & r){
+    if (r.empty()) return;
+    Image<int> img = plane->draw(r + origin);
     Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
     Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
     Glib::RefPtr<Gdk::Window> widget = get_window();
-
     widget->draw_pixbuf(gc, pixbuf,
-          0,0,
-          event->area.x, event->area.y,
-          event->area.width, event->area.height,
+          0,0,  r.x, r.y,  r.w, r.h,
           Gdk::RGB_DITHER_NORMAL, 0, 0);
+  }
 
+
+  virtual bool on_expose_event (GdkEventExpose * event){
+    Rect<GCoord> r(event->area.x, event->area.y,
+                    event->area.width, event->area.height);
+    draw(r);
     return true;
   }
 
   virtual bool on_button_press_event (GdkEventButton * event) {
     if (event->button == 1)
       drag_pos = Point<GCoord> ((GCoord)event->x, (GCoord)event->y);
-
-    if (event->button == 2){
-      get_window()->scroll(100, 0);
-      get_window()->scroll(0, 100);
-    }
-
     return false;
   }
 
@@ -69,8 +81,6 @@ class SimpleViewer : public Gtk::DrawingArea {
         (event->is_hint)){
       set_origin(origin - Point<GCoord>(x,y) + drag_pos);
       drag_pos = Point<GCoord>(x,y);
-      // ask for more events
-      //  get_pointer(x, y); // ???
     }
     return false;
   }
@@ -81,19 +91,3 @@ class SimpleViewer : public Gtk::DrawingArea {
     Point<GCoord> drag_pos;
 };
 
-
-
-int main(int argc, char **argv){
-
-    Gtk::Main     kit (argc, argv);
-    Gtk::Window   win;
-    GPlane_test1  pl;
-
-    SimpleViewer viewer(&pl);
-
-    win.add(viewer);
-    win.set_default_size(640,480);
-    win.show_all();
-
-    kit.run(win);
-}

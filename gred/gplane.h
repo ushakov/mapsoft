@@ -14,21 +14,36 @@ class GPlane{
   virtual Image<int> draw(const Rect<GCoord> &range) = 0;
 };
 
+
 class GPlane_test1: public GPlane{
   Image<int> draw(const Rect<GCoord> &range){
     std::cerr << "GPlane_test1: " << range << "\n";
 
     Image<int> ret(range.w, range.h, 0xFFFFFFFF);
-    for (int i=0; i<range.w; i++){
-      ret.set(i,0,         0xFF00FF00);
-      ret.set(i,range.h-1, 0xFF0000FF);
-      ret.set(i,(i*range.h)/range.w,0xFF00FF00);
-      ret.set(i,((range.w-i-1)*range.h)/range.w,0xFF0000FF);
-    }
+
     for (int j=0; j<range.h; j++){
-      ret.set(0, j, 0xFF00FF00);
-      ret.set(range.w-1, j, 0xFF0000FF);
+      for (int i=0; i<range.w; i++){
+        ret.set(i,j, 
+          (0xFF << 24) + ((i*256)/range.w << 16) + ((j*256)/range.h << 8));
+      }
     }
+    return ret;
+  }
+};
+
+class GPlane_test2: public GPlane{
+  Image<int> draw(const Rect<GCoord> &range){
+    std::cerr << "GPlane_test1: " << range << "\n";
+
+    Image<int> ret(range.w, range.h, 0xFFFFFFFF);
+
+    for (int j=0; j<range.h; j++){
+      for (int i=0; i<range.w; i++){
+        ret.set(i,j,
+          (0xFF << 24) + ((i*256)/range.w << 8) + (j*256)/range.h);
+      }
+    }
+    usleep(100000);
     return ret;
   }
 };
