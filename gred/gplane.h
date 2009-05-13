@@ -9,14 +9,20 @@ const GCoord GCoord_min=0;
 const GCoord GCoord_max=UINT_MAX;
 const GCoord GCoord_cnt=UINT_MAX/2;
 
+Point<int> get_shift(const Point<GCoord> & p1, const Point<GCoord> & p2){ 
+  return Point<int>(p1.x>p2.x? p1.x-p2.x:-(p2.x-p1.x), 
+                    p1.y>p2.y? p1.y-p2.y:-(p2.y-p1.y)); 
+} 
+
+
 class GPlane{
   public:
-  virtual Image<int> draw(const Rect<GCoord> &range) = 0;
+  virtual Image<int> draw(const Rect<GCoord> &range) const = 0;
 };
 
 
 class GPlane_test1: public GPlane{
-  Image<int> draw(const Rect<GCoord> &range){
+  Image<int> draw(const Rect<GCoord> &range) const {
     std::cerr << "GPlane_test1: " << range << "\n";
 
     Image<int> ret(range.w, range.h, 0xFFFFFFFF);
@@ -32,7 +38,7 @@ class GPlane_test1: public GPlane{
 };
 
 class GPlane_test2: public GPlane{
-  Image<int> draw(const Rect<GCoord> &range){
+  Image<int> draw(const Rect<GCoord> &range) const {
     std::cerr << "GPlane_test1: " << range << "\n";
 
     Image<int> ret(range.w, range.h, 0xFFFFFFFF);
@@ -43,7 +49,7 @@ class GPlane_test2: public GPlane{
           (0xFF << 24) + ((i*256)/range.w << 8) + (j*256)/range.h);
       }
     }
-    usleep(100000);
+    usleep(range.w*range.h*10);
     return ret;
   }
 };
