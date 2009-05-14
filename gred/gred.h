@@ -1,19 +1,19 @@
 // Universal graphical editor
 
-/*  We want to draw objects of different types on a large raster
+/*  We want to draw objects on a large raster
     plane (GPlane). We want to create viewer, allowing us to view
     part of this plane, to rescale and drag it, to pass some events
     (mouse clicks) to editor functions, specific for each type of objects.
 
     Type GCoord is used for coordinates on this plane. They are
     restricted by values GCoord::min, GCoord::max; GCoord must be an
-    unsigned int type.
+    unsigned type.
 */
 
-struct GCoord: unsigned int{
-  static min = 0;
-  static max = UINT_MAX;
-}
+typedef GCoord_t unsigned int;
+const GCoord_min=0;
+const GCoord_max=UINT_MAX;
+
 
 /*  GPlane has some hints for talling objects how to draw on it.
     It is g_map for geo-referenced objects and scale for others.
@@ -22,15 +22,22 @@ struct GCoord: unsigned int{
 */
 
 struct GPlane{
+  unsigned int nom;
+  unsigned int denom;
   double scale;
   g_map  ref;
+
+  GPlane & operator/= (double k);
+  GPlane & operator*= (double k);
+  GPlane & operator-= (Point<GCoord_t> k);
+  GPlane & operator+= (Point<GCoord_t> k);
 };
 
-/*  We want to redraw parts of GPlane efficiently: not to iterate though all
+/*  We want to redraw parts of our plane efficiently: not to iterate though all
     existing objects and through all points of large objects.
 
-    We split GPlane into tiles. Each tile (GTile) knows about objects on it,
-    and each object caches information how to draw something on different tiles
+    We split plane into tiles. Each tile (GTile) knows about objects on it,
+    and each object caches information how to draw itself on each tile
     (it can be raster picture, set of points with reference to GC etc.).
 
 */
