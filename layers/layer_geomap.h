@@ -45,6 +45,7 @@ public:
     g_map get_ref() const {return mymap;}
     void set_ref(const g_map & map){mymap=map; make_m2ms();}
     void set_ref(){set_ref(convs::mymap(*world));}
+    const geo_data * get_world() { return world; }
 
     void refresh(){image_cache.clear();}
 

@@ -11,6 +11,7 @@
 #include <viewer/am_edit_track.h>
 #include <viewer/am_add_track.h>
 #include <viewer/am_mark_trk.h>
+#include <viewer/am_make_tiles.h>
 
 ActionManager::ActionManager (MapviewState * state_, Viewer * viewer_)
     : state(state_), viewer(viewer_)
@@ -27,5 +28,6 @@ ActionManager::ActionManager (MapviewState * state_, Viewer * viewer_)
     modes.push_back(boost::shared_ptr<ActionMode>(new EditTrack(state, viewer)));
     modes.push_back(boost::shared_ptr<ActionMode>(new AddTrack(state, viewer)));
     modes.push_back(boost::shared_ptr<ActionMode>(new MarkTrack(state, viewer)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new MakeTiles(state, viewer)));
 }
 
