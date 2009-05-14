@@ -1,9 +1,9 @@
 #ifndef IMAGE_GDK_H
 #define IMAGE_GDK_H
 
-// интерфейс между image и gdk-pixbuf
+// п╦п╫я┌п╣я─я└п╣п╧я│ п╪п╣п╤п╢я┐ image п╦ gdk-pixbuf
 
-// При таком преобразовании данные не копируются!
+// п÷я─п╦ я┌п╟п╨п╬п╪ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╦ п╢п╟п╫п╫я▀п╣ п╫п╣ п╨п╬п©п╦я─я┐я▌я┌я│я▐!
 
 #include "../lib2d/image.h"
 #include <gdkmm/pixbuf.h>

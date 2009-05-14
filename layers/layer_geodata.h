@@ -20,11 +20,11 @@
 
 #define DEBUG_LAYER_GEODATA
 
-/// Растровый слой для показа точек и треков
+/// п═п╟я│я┌я─п╬п╡я▀п╧ я│п╩п╬п╧ п╢п╩я▐ п©п╬п╨п╟п╥п╟ я┌п╬я┤п╣п╨ п╦ я┌я─п╣п╨п╬п╡
 
 class LayerGeoData : public LayerGeo {
 private:
-    geo_data * world; // указатель на геоданные
+    geo_data * world; // я┐п╨п╟п╥п╟я┌п╣п╩я▄ п╫п╟ пЁп╣п╬п╢п╟п╫п╫я▀п╣
     convs::map2pt cnv; 
     g_map mymap;
     Rect<int> myrange;
@@ -55,7 +55,7 @@ public:
 	myrange = rect_pump(cnv.bb_bck(world->range_geodata()), 110);
     }
 
-    // получить/установить привязку layer'a
+    // п©п╬п╩я┐я┤п╦я┌я▄/я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ п©я─п╦п╡я▐п╥п╨я┐ layer'a
     virtual g_map get_ref() const {return mymap;}
     virtual void set_ref(const g_map & map){
       mymap=map; cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"));
@@ -214,9 +214,9 @@ public:
 	return std::make_pair(-1,-1);
     }
 
-    // поиск трека. Находится сегмент, в которые тыкают, возвращается 
-    // первая точка сегмента (0..size-2).
-    // если тыкают в первую точку - возвращается -2, если в последнюю -- -3.
+    // п©п╬п╦я│п╨ я┌я─п╣п╨п╟. п²п╟я┘п╬п╢п╦я┌я│я▐ я│п╣пЁп╪п╣п╫я┌, п╡ п╨п╬я┌п╬я─я▀п╣ я┌я▀п╨п╟я▌я┌, п╡п╬п╥п╡я─п╟я┴п╟п╣я┌я│я▐ 
+    // п©п╣я─п╡п╟я▐ я┌п╬я┤п╨п╟ я│п╣пЁп╪п╣п╫я┌п╟ (0..size-2).
+    // п╣я│п╩п╦ я┌я▀п╨п╟я▌я┌ п╡ п©п╣я─п╡я┐я▌ я┌п╬я┤п╨я┐ - п╡п╬п╥п╡я─п╟я┴п╟п╣я┌я│я▐ -2, п╣я│п╩п╦ п╡ п©п╬я│п╩п╣п╢п╫я▌я▌ -- -3.
     std::pair<int, int> find_track (Point<int> pt, int radius = 3) {
 	Rect<int> target_rect (pt,pt);
 	target_rect = rect_pump(target_rect, radius);

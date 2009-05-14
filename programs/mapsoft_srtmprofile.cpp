@@ -18,7 +18,7 @@
 #include "../libgeo/geo_data.h"
 #include "../libgeo/geo_convs.h"
 
-// Перенесение данных srtm в привязанный fig-файл.
+// п÷п╣я─п╣п╫п╣я│п╣п╫п╦п╣ п╢п╟п╫п╫я▀я┘ srtm п╡ п©я─п╦п╡я▐п╥п╟п╫п╫я▀п╧ fig-я└п╟п╧п╩.
 
 using namespace std;
 
@@ -27,12 +27,12 @@ void usage(const char *fname){
     exit(0);
 }
 
-//координаты угла единичного квадрата по его номеру
+//п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ я┐пЁп╩п╟ п╣п╢п╦п╫п╦я┤п╫п╬пЁп╬ п╨п╡п╟п╢я─п╟я┌п╟ п©п╬ п╣пЁп╬ п╫п╬п╪п╣я─я┐
 Point<int> crn (int k){
   k%=4;
   return Point<int>(k/2, (k%3>0)?1:0);
 }
-//направление следующей за углом стороны (единичный вектор)
+//п╫п╟п©я─п╟п╡п╩п╣п╫п╦п╣ я│п╩п╣п╢я┐я▌я┴п╣п╧ п╥п╟ я┐пЁп╩п╬п╪ я│я┌п╬я─п╬п╫я▀ (п╣п╢п╦п╫п╦я┤п╫я▀п╧ п╡п╣п╨я┌п╬я─)
 Point<int> dir (int k){
   return crn(k+1)-crn(k);
 }
@@ -46,7 +46,7 @@ main(int argc, char** argv){
   string outfile = "";
   string srtm_dir = "";
 
-// разбор командной строки
+// я─п╟п╥п╠п╬я─ п╨п╬п╪п╟п╫п╢п╫п╬п╧ я│я┌я─п╬п╨п╦
   srtm_dir = argv[1];
   for (int i=2; i<argc; i++){ 
 
@@ -92,7 +92,7 @@ main(int argc, char** argv){
     for(p=(*t).begin(); p!=(*t).end(); p++) {
       n++;
       g_trackpoint tp = *p;
-      pc.bck(tp); // координаты -- в tmerc
+      pc.bck(tp); // п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ -- п╡ tmerc
 
       if (p != (*t).begin()) {
          double delta_len = hypot(tp.x - pp.x, tp.y - pp.y);

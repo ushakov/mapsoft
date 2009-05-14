@@ -65,7 +65,7 @@ std::string IConv::convert_string(iconv_t cd, const std::string & str) const{
       size_t res = iconv(cd, &ibuf_ptr, &icnt, &obuf_ptr, &ocnt);
 
       if (( res == -1) && (errno != E2BIG ) && (icnt>0) && (ocnt>0)){
-        // непонятные буквы
+        // п╫п╣п©п╬п╫я▐я┌п╫я▀п╣ п╠я┐п╨п╡я▀
         icnt--; ocnt--;  *obuf_ptr=*ibuf_ptr; ibuf_ptr++; obuf_ptr++;
       }
       obuf[OSIZE-ocnt] = 0;

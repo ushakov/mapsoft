@@ -63,23 +63,23 @@ void GPS_D1011b_Get(GPS_PLap *Lap,UC *data); /*D906 D1001 D1015*/
 
 /* Unhandled documented protocols, as of:
   Garmin Device Interface Specification, May 19, 2006, Drawing Number: 001-00063-00 Rev. C
-A650 – FlightBook Transfer Protocol
-A1000 – Run Transfer Protocol
+A650 âˆš FlightBook Transfer Protocol
+A1000 âˆš Run Transfer Protocol
 	Capability A1000: D1009
 		D1000 D1010
-A1002 – Workout Transfer Protocol
+A1002 âˆš Workout Transfer Protocol
 	Capability A1002: D1008
 		D1002
 	Capability A1003: D1003
-A1004 – Fitness User Profile Transfer Protocol
+A1004 âˆš Fitness User Profile Transfer Protocol
 	Capability A1004: D1004
-A1005 – Workout Limits Transfer Protocol
+A1005 âˆš Workout Limits Transfer Protocol
 	Capability A1005: D1005
-A1006 – Course Transfer Protocol
+A1006 âˆš Course Transfer Protocol
 	Capability A1006: D1006
 	Capability A1007: D1007
 	Capability A1008: D1012
-A1009 – Course Limits Transfer Protocol
+A1009 âˆš Course Limits Transfer Protocol
 	Capability A1009: D1013
 */
 /* Unimplemted and Undocumented, as listed from the following device/sw:

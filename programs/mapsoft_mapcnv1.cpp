@@ -30,7 +30,7 @@ main(int argc, char **argv){
 
     geo_data world;
     LayerGeoMap     ml(&world, false);
-    //чтение файлов из командной строки:
+    //я┤я┌п╣п╫п╦п╣ я└п╟п╧п╩п╬п╡ п╦п╥ п╨п╬п╪п╟п╫п╢п╫п╬п╧ я│я┌я─п╬п╨п╦:
     for(int i=8;i<argc;i++){
       io::in(std::string(argv[i]), world, Options());
     }

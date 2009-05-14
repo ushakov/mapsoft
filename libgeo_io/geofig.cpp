@@ -16,12 +16,12 @@ namespace fig {
 using namespace std;
 using namespace boost::spirit;
 
-  // Извлечь привязку из fig-картинки
+  // п≤п╥п╡п╩п╣я┤я▄ п©я─п╦п╡я▐п╥п╨я┐ п╦п╥ fig-п╨п╟я─я┌п╦п╫п╨п╦
   g_map get_ref(const fig_world & w){
     g_map ret;
-    fig::fig_object brd; // граница
+    fig::fig_object brd; // пЁя─п╟п╫п╦я├п╟
 
-    // В комментарии к файлу может быть указано, в какой он проекции
+    // п▓ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╨ я└п╟п╧п╩я┐ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ я┐п╨п╟п╥п╟п╫п╬, п╡ п╨п╟п╨п╬п╧ п╬п╫ п©я─п╬п╣п╨я├п╦п╦
     // default - tmerc
     string proj  = "tmerc";
 
@@ -70,7 +70,7 @@ using namespace boost::spirit;
           (i->comment[0].compare(0,3,"BRD")==0)) brd = *i; 
 
     }
-    // границы - по точкам привязки или по объекту BRD
+    // пЁя─п╟п╫п╦я├я▀ - п©п╬ я┌п╬я┤п╨п╟п╪ п©я─п╦п╡я▐п╥п╨п╦ п╦п╩п╦ п©п╬ п╬п╠я┼п╣п╨я┌я┐ BRD
     if (brd.size() < 3) {
       ret.border.push_back(min);
       ret.border.push_back(g_point(min.x,max.y));
@@ -82,7 +82,7 @@ using namespace boost::spirit;
     return ret;
   }
 
-  // Убрать информацию о привязке из fig-файла
+  // пёп╠я─п╟я┌я▄ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п╬ п©я─п╦п╡я▐п╥п╨п╣ п╦п╥ fig-я└п╟п╧п╩п╟
   void rem_ref(fig_world & w){
     vector<string>::iterator i = w.comment.begin();
     while (i!=w.comment.end()){
@@ -98,7 +98,7 @@ using namespace boost::spirit;
     }
   }
 
-  // Добавить привязку в fig_world
+  // п■п╬п╠п╟п╡п╦я┌я▄ п©я─п╦п╡я▐п╥п╨я┐ п╡ fig_world
   void set_ref(fig_world & w, const g_map & m, const Options & O){
 
     double lon0 = m.range().x + m.range().w/2;
@@ -106,7 +106,7 @@ using namespace boost::spirit;
     lon0 = O.get("lon0", lon0);
     Enum::output_fmt=Enum::xml_fmt;
 
-    // Если хочется, можно записать точки привязки в нужной проекции
+    // п∙я│п╩п╦ я┘п╬я┤п╣я┌я│я▐, п╪п╬п╤п╫п╬ п╥п╟п©п╦я│п╟я┌я▄ я┌п╬я┤п╨п╦ п©я─п╦п╡я▐п╥п╨п╦ п╡ п╫я┐п╤п╫п╬п╧ п©я─п╬п╣п╨я├п╦п╦
     string pproj=O.get("proj", string("lonlat"));
     string pdatum=O.get("datum", string("wgs84"));
 
@@ -128,15 +128,15 @@ using namespace boost::spirit;
       if ((Proj(pproj) == Proj("tmerc")) && (lon0!=0)) o.opts.put("lon0", lon0);
       w.push_back(o);
     }
-    // добавим в заголовок fig-файла информацию о проекции.
-    // по умолчанию - tmerc
+    // п╢п╬п╠п╟п╡п╦п╪ п╡ п╥п╟пЁп╬п╩п╬п╡п╬п╨ fig-я└п╟п╧п╩п╟ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п╬ п©я─п╬п╣п╨я├п╦п╦.
+    // п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ - tmerc
     if (m.map_proj != Proj("tmerc")) w.opts.put("proj", m.map_proj);
   }
 
 
-  // Извлечь треки и точки и поместить их в geo_data
+  // п≤п╥п╡п╩п╣я┤я▄ я┌я─п╣п╨п╦ п╦ я┌п╬я┤п╨п╦ п╦ п©п╬п╪п╣я│я┌п╦я┌я▄ п╦я┘ п╡ geo_data
   void get_wpts(const fig_world & w, const g_map & m, geo_data & d){
-    // сделаем привязку
+    // я│п╢п╣п╩п╟п╣п╪ п©я─п╦п╡я▐п╥п╨я┐
     convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"));
 
     fig_world::const_iterator i;
@@ -156,8 +156,8 @@ using namespace boost::spirit;
 
         // old-style options -- to be removed
         for (int n=1; n<i->comment.size(); n++){
-          // Удалил ограничение не позволявшее использовать ' ' и ':' в
-          // комментариях. Тим
+          // пёп╢п╟п╩п╦п╩ п╬пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╫п╣ п©п╬п╥п╡п╬п╩я▐п╡я┬п╣п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ ' ' п╦ ':' п╡
+          // п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐я┘. п╒п╦п╪
           parse(i->comment[n].c_str(), (*(anychar_p-':'-space_p))[assign_a(key)] >>
             *space_p >> ch_p(':') >> *space_p >>
             (*(anychar_p))[insert_at_a(p, key)]);
@@ -210,7 +210,7 @@ using namespace boost::spirit;
     }
   }
 
-  // Извлечь привязку растровых картинок
+  // п≤п╥п╡п╩п╣я┤я▄ п©я─п╦п╡я▐п╥п╨я┐ я─п╟я│я┌я─п╬п╡я▀я┘ п╨п╟я─я┌п╦п╫п╬п╨
   void get_maps(const fig_world & w, const g_map & m, geo_data & d){
     convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"));
     fig_world::const_iterator i;
@@ -220,8 +220,8 @@ using namespace boost::spirit;
       string comm;
       if ((i->comment.size()>0)&&(parse(i->comment[0].c_str(), str_p("MAP")
           >> !(+space_p >> (*anychar_p)[assign_a(comm)])).full)){
-        // откопируем m и заменим координаты xfig на координаты в растровом файле.
-        // 4 точки fig-объекта соответствуют углам картинки (0,0) (W,0) (W,H) (0,H*)
+        // п╬я┌п╨п╬п©п╦я─я┐п╣п╪ m п╦ п╥п╟п╪п╣п╫п╦п╪ п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ xfig п╫п╟ п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ п╡ я─п╟я│я┌я─п╬п╡п╬п╪ я└п╟п╧п╩п╣.
+        // 4 я┌п╬я┤п╨п╦ fig-п╬п╠я┼п╣п╨я┌п╟ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┌ я┐пЁп╩п╟п╪ п╨п╟я─я┌п╦п╫п╨п╦ (0,0) (W,0) (W,H) (0,H*)
         g_map map(m);
         map.comm = comm;
         map.file = i->image_file;
@@ -247,15 +247,15 @@ using namespace boost::spirit;
           map[n].xr = a1*xr+b1*yr+c1;
           map[n].yr = a2*xr+b2*yr+c2;
         }
-        // граница: если есть ломаная с комментарием "BRD <имя карты>" - 
-        // сделаем границу из нее. Иначе - из размеров растрового файла.
+        // пЁя─п╟п╫п╦я├п╟: п╣я│п╩п╦ п╣я│я┌я▄ п╩п╬п╪п╟п╫п╟я▐ я│ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╪ "BRD <п╦п╪я▐ п╨п╟я─я┌я▀>" - 
+        // я│п╢п╣п╩п╟п╣п╪ пЁя─п╟п╫п╦я├я┐ п╦п╥ п╫п╣п╣. п≤п╫п╟я┤п╣ - п╦п╥ я─п╟п╥п╪п╣я─п╬п╡ я─п╟я│я┌я─п╬п╡п╬пЁп╬ я└п╟п╧п╩п╟.
         map.border.clear();
         fig_world::const_iterator j;
         for (j=w.begin();j!=w.end();j++){
           if (j->type!=2) continue;
           int nn = j->size();
           if (nn<3) continue;
-          // если последняя точка совпадает с первой
+          // п╣я│п╩п╦ п©п╬я│п╩п╣п╢п╫я▐я▐ я┌п╬я┤п╨п╟ я│п╬п╡п©п╟п╢п╟п╣я┌ я│ п©п╣я─п╡п╬п╧
           if ((*j)[0]==(*j)[nn-1]) {nn--; if (nn<3) continue;}
           string brd_comm;
           if ((j->comment.size()>0)&&(parse(j->comment[0].c_str(), str_p("BRD")
@@ -280,7 +280,7 @@ using namespace boost::spirit;
     }
   }
 
-  // Добавить точки и треки в fig_world в соотв. с привязкой
+  // п■п╬п╠п╟п╡п╦я┌я▄ я┌п╬я┤п╨п╦ п╦ я┌я─п╣п╨п╦ п╡ fig_world п╡ я│п╬п╬я┌п╡. я│ п©я─п╦п╡я▐п╥п╨п╬п╧
 
 #define ADDCOMM(x) {ostringstream s; s << x; f.comment.push_back(s.str());}
 

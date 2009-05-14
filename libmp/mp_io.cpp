@@ -74,7 +74,7 @@ bool read(const char* filename, mp_world & world, const Options & opts){
 
     rule_t main_rule = header >>
         *object >> *space_p >> *(+comment >> *space_p);
-    // комментарии после объектов - теряются!
+    // п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п©п╬я│п╩п╣ п╬п╠я┼п╣п╨я┌п╬п╡ - я┌п╣я─я▐я▌я┌я│я▐!
 
     if (!parse_file("mp::read", filename, main_rule)) return false;
 

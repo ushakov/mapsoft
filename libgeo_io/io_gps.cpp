@@ -14,7 +14,7 @@ namespace gps {
 // function for reading objects from gps into the world object
 
         bool init_gps(const char* port){
-		// почему-то только такая процедура позволяет подключить usb-gps с первого раза
+		// п©п╬я┤п╣п╪я┐-я┌п╬ я┌п╬п╩я▄п╨п╬ я┌п╟п╨п╟я▐ п©я─п╬я├п╣п╢я┐я─п╟ п©п╬п╥п╡п╬п╩я▐п╣я┌ п©п╬п╢п╨п╩я▌я┤п╦я┌я▄ usb-gps я│ п©п╣я─п╡п╬пЁп╬ я─п╟п╥п╟
                 GPS_Init(port);
 		sleep(1);
 		if (GPS_Init(port) < 0) return false;

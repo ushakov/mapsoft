@@ -1,14 +1,14 @@
 #ifndef IMAGE_R_H
 #define IMAGE_R_H
 
-// загрузка/сохранение произольного растрового изображения
+// п╥п╟пЁя─я┐п╥п╨п╟/я│п╬я┘я─п╟п╫п╣п╫п╦п╣ п©я─п╬п╦п╥п╬п╩я▄п╫п╬пЁп╬ я─п╟я│я┌я─п╬п╡п╬пЁп╬ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐
 // (jpeg, tiff, png)
 
 #include "../lib2d/image.h"
 #include "../utils/options.h"
 
-// из-за фигни с setjmp.h надо, чтобы image_png.h был раньше
-// чем image_jpeg.h
+// п╦п╥-п╥п╟ я└п╦пЁп╫п╦ я│ setjmp.h п╫п╟п╢п╬, я┤я┌п╬п╠я▀ image_png.h п╠я▀п╩ я─п╟п╫я▄я┬п╣
+// я┤п╣п╪ image_jpeg.h
 #include "image_png.h"
 #include "image_jpeg.h"
 #include "image_tiff.h"

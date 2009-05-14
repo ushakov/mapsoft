@@ -103,13 +103,13 @@ int load(const char *file, Rect<int> src_rect,
     png_get_IHDR(png_ptr, info_ptr, &width, &height,
        &bit_depth, &color_type, &interlace_type ,NULL,NULL);
 
-    // подрежем прямоугольники
+    // п©п╬п╢я─п╣п╤п╣п╪ п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨п╦
     clip_rects_for_image_loader(
       Rect<int>(0,0,width,height), src_rect,
       Rect<int>(0,0,image.w,image.h), dst_rect);
     if (src_rect.empty() || dst_rect.empty()) return 1;
 
-    // зададим преобразования
+    // п╥п╟п╢п╟п╢п╦п╪ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦я▐
     if (color_type == PNG_COLOR_TYPE_PALETTE)
         png_set_palette_to_rgb(png_ptr);
 
@@ -129,16 +129,16 @@ int load(const char *file, Rect<int> src_rect,
     if (interlace_type ==PNG_INTERLACE_NONE){
       int src_y = 0;
       for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
-        // откуда мы хотим взять строчку
+        // п╬я┌п╨я┐п╢п╟ п╪я▀ я┘п╬я┌п╦п╪ п╡п╥я▐я┌я▄ я│я┌я─п╬я┤п╨я┐
         int src_y1 = src_rect.y + ((dst_y-dst_rect.y)*src_rect.h)/dst_rect.h;
-        // при таком делении может выйти  src_y1 = src_rect.BRC.y, что плохо!
+        // п©я─п╦ я┌п╟п╨п╬п╪ п╢п╣п╩п╣п╫п╦п╦ п╪п╬п╤п╣я┌ п╡я▀п╧я┌п╦  src_y1 = src_rect.BRC.y, я┤я┌п╬ п©п╩п╬я┘п╬!
         if (src_y1 == src_rect.BRC().y) src_y1--;
-        // пропустим нужное число строк:
+        // п©я─п╬п©я┐я│я┌п╦п╪ п╫я┐п╤п╫п╬п╣ я┤п╦я│п╩п╬ я│я┌я─п╬п╨:
         while (src_y<=src_y1){
           png_read_row(png_ptr, row_buf, NULL);
           src_y++;
         }
-        // теперь мы находимся на нужной строке
+        // я┌п╣п©п╣я─я▄ п╪я▀ п╫п╟я┘п╬п╢п╦п╪я│я▐ п╫п╟ п╫я┐п╤п╫п╬п╧ я│я┌я─п╬п╨п╣
         for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
           int src_x = src_rect.x + ((dst_x-dst_rect.x)*src_rect.w)/dst_rect.w;
           if (src_x == src_rect.BRC().x) src_x--;
@@ -159,10 +159,10 @@ int load(const char *file, Rect<int> src_rect,
       fclose(infile);
       return 2;
 
-      // Очень заманчиво сделать честную поддержку interlaced картинок!
-      // 1й проход - масштаб 1/8 
-      // 1-3й проход - масштаб 1/4
-      // 1-5й проход - масштаб 1/2
+      // п·я┤п╣п╫я▄ п╥п╟п╪п╟п╫я┤п╦п╡п╬ я│п╢п╣п╩п╟я┌я▄ я┤п╣я│я┌п╫я┐я▌ п©п╬п╢п╢п╣я─п╤п╨я┐ interlaced п╨п╟я─я┌п╦п╫п╬п╨!
+      // 1п╧ п©я─п╬я┘п╬п╢ - п╪п╟я│я┬я┌п╟п╠ 1/8 
+      // 1-3п╧ п©я─п╬я┘п╬п╢ - п╪п╟я│я┬я┌п╟п╠ 1/4
+      // 1-5п╧ п©я─п╬я┘п╬п╢ - п╪п╟я│я┬я┌п╟п╠ 1/2
 
       // PNG_INTERLACE_ADAM7:
       // Xooooooo ooooXooo oooooooo ooXoooXo oooooooo oXoXoXoX oooooooo
@@ -175,8 +175,8 @@ int load(const char *file, Rect<int> src_rect,
       // oooooooo oooooooo oooooooo oooooooo oooooooo oooooooo XXXXXXXX
 
       // TODO
-      // посмотрим, можно ли загружать сразу уменьшенную картинку
-      // (поддерживается уменьшение в 1,2,4,8 раз)
+      // п©п╬я│п╪п╬я┌я─п╦п╪, п╪п╬п╤п╫п╬ п╩п╦ п╥п╟пЁя─я┐п╤п╟я┌я▄ я│я─п╟п╥я┐ я┐п╪п╣п╫я▄я┬п╣п╫п╫я┐я▌ п╨п╟я─я┌п╦п╫п╨я┐
+      // (п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌я│я▐ я┐п╪п╣п╫я▄я┬п╣п╫п╦п╣ п╡ 1,2,4,8 я─п╟п╥)
       int xscale = src_rect.w  / dst_rect.w;
       int yscale = src_rect.h / dst_rect.h;
       int scale = std::min(xscale, yscale);
@@ -188,7 +188,7 @@ int load(const char *file, Rect<int> src_rect,
 
     }
 
-    // других типов PNG_INTERLACE вообще-то не должно быть...
+    // п╢я─я┐пЁп╦я┘ я┌п╦п©п╬п╡ PNG_INTERLACE п╡п╬п╬п╠я┴п╣-я┌п╬ п╫п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄...
     png_free(png_ptr, row_buf);
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
     fclose(infile);
@@ -252,7 +252,7 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
     fclose(outfile);
 }
 
-// load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
+// load the whole image -- п╫п╣ п╥п╟п╡п╦я│п╦я┌ п╬я┌ я└п╬я─п╪п╟я┌п╟, п╡п╣я─п╬я▐я┌п╫п╬, п╫п╟п╢п╬ п©п╣я─п╣п╫п╣я│я┌п╦ п╡ image_io.h
 Image<int> load(const char *file, const int scale){
   Point<int> s = size(file);
   Image<int> ret(s.x/scale,s.y/scale);

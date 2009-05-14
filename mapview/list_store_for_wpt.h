@@ -1,12 +1,12 @@
 #ifndef LIST_STORE_FOR_WPT_H
 #define LIST_STORE_FOR_WPT_H
 
-// преобразование набора точек в GTK::ListStore и обратно
+// п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ п╫п╟п╠п╬я─п╟ я┌п╬я┤п╣п╨ п╡ GTK::ListStore п╦ п╬п╠я─п╟я┌п╫п╬
 
 #include <gtkmm.h>
 #include "../libgeo/geo_data.h"
 
-//класс, описывающий поля точки в Gtk::TreeModel
+//п╨п╩п╟я│я│, п╬п©п╦я│я▀п╡п╟я▌я┴п╦п╧ п©п╬п╩я▐ я┌п╬я┤п╨п╦ п╡ Gtk::TreeModel
 class WPT_ListColumns : public Gtk::TreeModelColumnRecord {
   public:
     Gtk::TreeModelColumn<Glib::ustring> name;
@@ -46,7 +46,7 @@ class WPT_ListColumns : public Gtk::TreeModelColumnRecord {
     }
 };
 
-// процедуры преобразования Gtk::ListStore <-> g_waypoint_list
+// п©я─п╬я├п╣п╢я┐я─я▀ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦я▐ Gtk::ListStore <-> g_waypoint_list
 Glib::RefPtr<Gtk::ListStore> gtk_liststore_from_wpts(const g_waypoint_list & w){
   WPT_ListColumns columns;
   Glib::RefPtr<Gtk::ListStore>  store   = Gtk::ListStore::create(columns);
@@ -98,7 +98,7 @@ g_waypoint_list gtk_liststore_to_wpts(const Glib::RefPtr<Gtk::ListStore> & ls){
   return ret;
 }
 
-// класс TreeView для показа и редактирования waypoints
+// п╨п╩п╟я│я│ TreeView п╢п╩я▐ п©п╬п╨п╟п╥п╟ п╦ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ waypoints
 class WPT_List : public Gtk::TreeView{
   Glib::RefPtr<Gtk::ListStore> store;
   WPT_ListColumns columns;

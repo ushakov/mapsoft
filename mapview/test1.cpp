@@ -7,7 +7,7 @@ class Mapview : public Gtk::Window{
   WPT_List list;
 
   Gtk::Statusbar                  statusbar;
-  Glib::RefPtr<Gtk::ActionGroup>  actiongroup;  // набор actions для разных ме
+  Glib::RefPtr<Gtk::ActionGroup>  actiongroup;  // п╫п╟п╠п╬я─ actions п╢п╩я▐ я─п╟п╥п╫я▀я┘ п╪п╣
   Glib::RefPtr<Gtk::UIManager>    uimanager;    // menu manager
 
   public:
@@ -15,7 +15,7 @@ class Mapview : public Gtk::Window{
     actiongroup = Gtk::ActionGroup::create();
     uimanager   = Gtk::UIManager::create();
     uimanager->insert_action_group(actiongroup);
-    add_accel_group(uimanager->get_accel_group()); // чтоб во всем окне кнопки р
+    add_accel_group(uimanager->get_accel_group()); // я┤я┌п╬п╠ п╡п╬ п╡я│п╣п╪ п╬п╨п╫п╣ п╨п╫п╬п©п╨п╦ я─
 
     // creating actions
     actiongroup->add( Gtk::Action::create("mapview_quit", Gtk::Stock::QUIT),

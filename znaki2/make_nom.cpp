@@ -1,5 +1,5 @@
-// Изготовление закотоввки для номенклатурной карты
-// в проекции Гаусса-Крюгера, СК Пулково-42.
+// п≤п╥пЁп╬я┌п╬п╡п╩п╣п╫п╦п╣ п╥п╟п╨п╬я┌п╬п╡п╡п╨п╦ п╢п╩я▐ п╫п╬п╪п╣п╫п╨п╩п╟я┌я┐я─п╫п╬п╧ п╨п╟я─я┌я▀
+// п╡ п©я─п╬п╣п╨я├п╦п╦ п⌠п╟я┐я│я│п╟-п я─я▌пЁп╣я─п╟, п║п  п÷я┐п╩п╨п╬п╡п╬-42.
 
 #include "../libgeo/geo_convs.h"
 #include "../libgeo_io/geofig.h"
@@ -8,7 +8,7 @@
 #include "../lib2d/line_utils.h"
 #include "../lib2d/line_polycrop.h"
 
-#include "../loaders/image_r.h" // определение размеров картинки (image_r::size)
+#include "../loaders/image_r.h" // п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ я─п╟п╥п╪п╣я─п╬п╡ п╨п╟я─я┌п╦п╫п╨п╦ (image_r::size)
 
 
 #include <boost/lexical_cast.hpp>
@@ -41,18 +41,18 @@ main(int argc, char** argv){
   int dpi;
 
 
-// определим диапазон карты в координатах lonlat
+// п╬п©я─п╣п╢п╣п╩п╦п╪ п╢п╦п╟п©п╟п╥п╬п╫ п╨п╟я─я┌я▀ п╡ п╨п╬п╬я─п╢п╦п╫п╟я┌п╟я┘ lonlat
   Rect<double> r0 = filters::nom_range(map_name);
 
-// определим осевой меридиан
+// п╬п©я─п╣п╢п╣п╩п╦п╪ п╬я│п╣п╡п╬п╧ п╪п╣я─п╦п╢п╦п╟п╫
   double lon0 = (r0.TLC().x + r0.TRC().x)/2;
-  if (r0.w > 11.9) lon0 = floor( lon0/3 ) * 3; // сдвоенные десятки
+  if (r0.w > 11.9) lon0 = floor( lon0/3 ) * 3; // я│п╢п╡п╬п╣п╫п╫я▀п╣ п╢п╣я│я▐я┌п╨п╦
   else lon0 = floor( lon0/6.0 ) * 6 + 3;
 
   Options O;
   O["lon0"] = boost::lexical_cast<string>(lon0);
 
-//масштаб карты
+//п╪п╟я│я┬я┌п╟п╠ п╨п╟я─я┌я▀
   double scale;
   if      (r0.h < 0.33) scale = 1/50000.0;
   else if (r0.h < 0.66) scale = 1/100000.0;
@@ -60,7 +60,7 @@ main(int argc, char** argv){
   else if (r0.h < 3.99) scale = 1/500000.0;
   else scale = 1/1000000.0;
 
-  // Наш прямоугольник в СК Пулково!
+  // п²п╟я┬ п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨ п╡ п║п  п÷я┐п╩п╨п╬п╡п╬!
 
   convs::pt2pt c0(Datum("pulkovo"), Proj("lonlat"), Options(),Datum("wgs84"),Proj("lonlat"), Options());
   g_point p01(r0.TLC()), p02(r0.BRC());
@@ -199,7 +199,7 @@ main(int argc, char** argv){
 
       Point<double> p(ref[i]);
       Point<int> pr(ref[i].xr, ref[i].yr);
-      c0.bck(p); // в Пулково
+      c0.bck(p); // п╡ п÷я┐п╩п╨п╬п╡п╬
 
       s.str(""); t.clear(); t.sub_type = 2-(((i+1)/2)%2) *2; t.font_size = 8;
       int deg = int(floor(p.y+1/120.0));

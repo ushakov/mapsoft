@@ -54,7 +54,7 @@ zn_conv::zn_conv(const string & conf_file){
   max_depth=0;
   znaki.clear();
 
-  // читаем конф.файл.
+  // я┤п╦я┌п╟п╣п╪ п╨п╬п╫я└.я└п╟п╧п╩.
   FILE *file = fopen(conf_file.c_str(), "r");
 
   if (!file) {
@@ -196,70 +196,70 @@ zn_conv::zn_conv(const string & conf_file){
 
 
 
-// определить тип mp-объекта (почти тривиальная функция :))
+// п╬п©я─п╣п╢п╣п╩п╦я┌я▄ я┌п╦п© mp-п╬п╠я┼п╣п╨я┌п╟ (п©п╬я┤я┌п╦ я┌я─п╦п╡п╦п╟п╩я▄п╫п╟я▐ я└я┐п╫п╨я├п╦я▐ :))
 int zn_conv::get_type(const mp::mp_object & o) const{
   return o.Type
      + ((o.Class == "POLYLINE")?line_mask:0)
      + ((o.Class == "POLYGON")?area_mask:0);
 }
 
-// определить тип fig-объекта по внешнему виду.
+// п╬п©я─п╣п╢п╣п╩п╦я┌я▄ я┌п╦п© fig-п╬п╠я┼п╣п╨я┌п╟ п©п╬ п╡п╫п╣я┬п╫п╣п╪я┐ п╡п╦п╢я┐.
 int zn_conv::get_type (const fig::fig_object & o) const {
-  if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return 0; // объект неинтересного вида
+  if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return 0; // п╬п╠я┼п╣п╨я┌ п╫п╣п╦п╫я┌п╣я─п╣я│п╫п╬пЁп╬ п╡п╦п╢п╟
 
 
   for (map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
 
     int c1 = o.pen_color;
     int c2 = i->second.fig.pen_color;
-    // цвет -1 совпадает с цветом 0!
+    // я├п╡п╣я┌ -1 я│п╬п╡п©п╟п╢п╟п╣я┌ я│ я├п╡п╣я┌п╬п╪ 0!
     if (c1 == -1) c1 = 0;
     if (c2 == -1) c2 = 0;
 
     if (((o.type==2) || (o.type==3)) && (o.size()>1)){
-      // должны совпасть глубина и толщина
+      // п╢п╬п╩п╤п╫я▀ я│п╬п╡п©п╟я│я┌я▄ пЁп╩я┐п╠п╦п╫п╟ п╦ я┌п╬п╩я┴п╦п╫п╟
       if ((o.depth     != i->second.fig.depth) ||
           (o.thickness != i->second.fig.thickness)) continue;
-      // для линий толщины не 0 - еще и цвет и тип линии
+      // п╢п╩я▐ п╩п╦п╫п╦п╧ я┌п╬п╩я┴п╦п╫я▀ п╫п╣ 0 - п╣я┴п╣ п╦ я├п╡п╣я┌ п╦ я┌п╦п© п╩п╦п╫п╦п╦
       if ((o.thickness  != 0 ) &&
           ((c1 != c2) ||
            (o.line_style != i->second.fig.line_style))) continue;
 
-      // заливки
+      // п╥п╟п╩п╦п╡п╨п╦
       int af1 = o.area_fill;
       int af2 = i->second.fig.area_fill;
       int fc1 = o.fill_color;
       int fc2 = i->second.fig.fill_color;
-      // цвет -1 совпадает с цветом 0!
+      // я├п╡п╣я┌ -1 я│п╬п╡п©п╟п╢п╟п╣я┌ я│ я├п╡п╣я┌п╬п╪ 0!
       if (fc1 == -1) fc1 = 0;
       if (fc2 == -1) fc2 = 0;
-      // белая заливка бывает двух видов
+      // п╠п╣п╩п╟я▐ п╥п╟п╩п╦п╡п╨п╟ п╠я▀п╡п╟п╣я┌ п╢п╡я┐я┘ п╡п╦п╢п╬п╡
       if ((fc1!=7)&&(af1==40)) {fc1=7; af1=20;}
       if ((fc2!=7)&&(af2==40)) {fc2=7; af2=20;}
 
-      // тип заливки должен совпасть
+      // я┌п╦п© п╥п╟п╩п╦п╡п╨п╦ п╢п╬п╩п╤п╣п╫ я│п╬п╡п©п╟я│я┌я▄
       if (af1 != af2) continue;
-      // если заливка непрозрачна, то и цвет заливки должен совпасть
+      // п╣я│п╩п╦ п╥п╟п╩п╦п╡п╨п╟ п╫п╣п©я─п╬п╥я─п╟я┤п╫п╟, я┌п╬ п╦ я├п╡п╣я┌ п╥п╟п╩п╦п╡п╨п╦ п╢п╬п╩п╤п╣п╫ я│п╬п╡п©п╟я│я┌я▄
       if ((af1!=-1) && (fc1 != fc2)) continue;
 
-    // если заливка - штриховка, то и pen_color должен совпасть 
-      // (даже для линий толщины 0)
+    // п╣я│п╩п╦ п╥п╟п╩п╦п╡п╨п╟ - я┬я┌я─п╦я┘п╬п╡п╨п╟, я┌п╬ п╦ pen_color п╢п╬п╩п╤п╣п╫ я│п╬п╡п©п╟я│я┌я▄ 
+      // (п╢п╟п╤п╣ п╢п╩я▐ п╩п╦п╫п╦п╧ я┌п╬п╩я┴п╦п╫я▀ 0)
       if ((af1>41) && (c1 != c2)) continue;
     
-      // проведя все тесты, мы считаем, что наш объект соответствует
-      // объекту из znaki!
+      // п©я─п╬п╡п╣п╢я▐ п╡я│п╣ я┌п╣я│я┌я▀, п╪я▀ я│я┤п╦я┌п╟п╣п╪, я┤я┌п╬ п╫п╟я┬ п╬п╠я┼п╣п╨я┌ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐п╣я┌
+      // п╬п╠я┼п╣п╨я┌я┐ п╦п╥ znaki!
       return i->first;
     }
-    else if (((o.type==2) || (o.type==3)) && (o.size()==1)){ // точки
-      // должны совпасть глубина, толщина, цвет, и закругление
+    else if (((o.type==2) || (o.type==3)) && (o.size()==1)){ // я┌п╬я┤п╨п╦
+      // п╢п╬п╩п╤п╫я▀ я│п╬п╡п©п╟я│я┌я▄ пЁп╩я┐п╠п╦п╫п╟, я┌п╬п╩я┴п╦п╫п╟, я├п╡п╣я┌, п╦ п╥п╟п╨я─я┐пЁп╩п╣п╫п╦п╣
       if ((o.depth     == i->second.fig.depth) &&
           (o.thickness == i->second.fig.thickness) &&
           (c1          == c2) &&
           (o.cap_style%2 == i->second.fig.cap_style%2))
         return i->first;
     }
-    else if (o.type==4){ //текст
-      // должны совпасть глубина, цвет, и шрифт
+    else if (o.type==4){ //я┌п╣п╨я│я┌
+      // п╢п╬п╩п╤п╫я▀ я│п╬п╡п©п╟я│я┌я▄ пЁп╩я┐п╠п╦п╫п╟, я├п╡п╣я┌, п╦ я┬я─п╦я└я┌
       if ((o.depth     == i->second.fig.depth) &&
           (c1          == c2) &&
           (o.font      == i->second.fig.font))
@@ -269,8 +269,8 @@ int zn_conv::get_type (const fig::fig_object & o) const {
   return 0;
 }
 
-// Преобразовать mp-объект в fig-объект
-// Если тип 0, то он определяется функцией get_type по объекту
+// п÷я─п╣п╬п╠я─п╟п╥п╬п╡п╟я┌я▄ mp-п╬п╠я┼п╣п╨я┌ п╡ fig-п╬п╠я┼п╣п╨я┌
+// п∙я│п╩п╦ я┌п╦п© 0, я┌п╬ п╬п╫ п╬п©я─п╣п╢п╣п╩я▐п╣я┌я│я▐ я└я┐п╫п╨я├п╦п╣п╧ get_type п©п╬ п╬п╠я┼п╣п╨я┌я┐
 list<fig::fig_object> zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
 
   if (type ==0) type = get_type(mp);
@@ -305,12 +305,12 @@ list<fig::fig_object> zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & 
 //      g_line pts = cnv.line_bck(*i);
 //      for (int i=0; i<pts.size(); i++) ret_o.push_back(pts[i]);
       ret_o.set_points(cnv.line_bck(*i));
-      // замкнутая линия
+      // п╥п╟п╪п╨п╫я┐я┌п╟я▐ п╩п╦п╫п╦я▐
       if ((mp.Class == "POLYLINE") && (ret_o.size()>1) && (ret_o[0]==ret_o[ret_o.size()-1])){
         ret_o.resize(ret_o.size()-1);
         ret_o.close();
       }
-      // стрелки
+      // я│я┌я─п╣п╩п╨п╦
       int dir = mp.Opts.get("DirIndicator",0);
       if      (dir==1){ret_o.forward_arrow=1; ret_o.backward_arrow=0;}
       else if (dir==2){ret_o.backward_arrow=1; ret_o.forward_arrow=0;}
@@ -321,8 +321,8 @@ list<fig::fig_object> zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & 
   return ret;
 }
 
-// преобразовать fig-объект в mp-объект
-// Если тип 0, то он определяется функцией get_type по объекту
+// п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟я┌я▄ fig-п╬п╠я┼п╣п╨я┌ п╡ mp-п╬п╠я┼п╣п╨я┌
+// п∙я│п╩п╦ я┌п╦п© 0, я┌п╬ п╬п╫ п╬п©я─п╣п╢п╣п╩я▐п╣я┌я│я▐ я└я┐п╫п╨я├п╦п╣п╧ get_type п©п╬ п╬п╠я┼п╣п╨я┌я┐
 mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type){
   if (type ==0) type = get_type(fig);
 
@@ -347,23 +347,23 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, 
 
   g_line pts = cnv.line_frw(fig);
 
-  // если у нас замкнутая линия - добавим в mp еще одну точку:
+  // п╣я│п╩п╦ я┐ п╫п╟я│ п╥п╟п╪п╨п╫я┐я┌п╟я▐ п╩п╦п╫п╦я▐ - п╢п╬п╠п╟п╡п╦п╪ п╡ mp п╣я┴п╣ п╬п╢п╫я┐ я┌п╬я┤п╨я┐:
   if ((mp.Class == "POLYLINE") &&
       (fig.is_closed()) &&
       (fig.size()>0) &&
       (fig[0]!=fig[fig.size()-1]))  pts.push_back(pts[0]);
   mp.push_back(pts);
 
-  // если есть стрелка вперед -- установить DirIndicator=1
-  // если есть стрелка назад -- установить  DirIndicator=2
+  // п╣я│п╩п╦ п╣я│я┌я▄ я│я┌я─п╣п╩п╨п╟ п╡п©п╣я─п╣п╢ -- я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ DirIndicator=1
+  // п╣я│п╩п╦ п╣я│я┌я▄ я│я┌я─п╣п╩п╨п╟ п╫п╟п╥п╟п╢ -- я┐я│я┌п╟п╫п╬п╡п╦я┌я▄  DirIndicator=2
   if ((fig.forward_arrow==1)&&(fig.backward_arrow==0)) mp.Opts["DirIndicator"]="1";
   if ((fig.forward_arrow==0)&&(fig.backward_arrow==1)) mp.Opts["DirIndicator"]="2";
 
   return mp;
 }
 
-// Поменять параметры в соответствии с типом.
-// Если тип 0, то он определяется функцией get_type по объекту
+// п÷п╬п╪п╣п╫я▐я┌я▄ п©п╟я─п╟п╪п╣я┌я─я▀ п╡ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╦п╦ я│ я┌п╦п©п╬п╪.
+// п∙я│п╩п╦ я┌п╦п© 0, я┌п╬ п╬п╫ п╬п©я─п╣п╢п╣п╩я▐п╣я┌я│я▐ я└я┐п╫п╨я├п╦п╣п╧ get_type п©п╬ п╬п╠я┼п╣п╨я┌я┐
 void zn_conv::fig_update(fig::fig_object & fig, int type){
   if (type ==0) type = get_type(fig);
 
@@ -376,7 +376,7 @@ void zn_conv::fig_update(fig::fig_object & fig, int type){
     }
   }
 
-  // копируем разные параметры:
+  // п╨п╬п©п╦я─я┐п╣п╪ я─п╟п╥п╫я▀п╣ п©п╟я─п╟п╪п╣я┌я─я▀:
   fig.line_style = tmp.line_style;
   fig.thickness  = tmp.thickness;
   fig.pen_color  = tmp.pen_color;
@@ -392,9 +392,9 @@ void zn_conv::fig_update(fig::fig_object & fig, int type){
   fig.font_flags = tmp.font_flags;
 }
 
-// Поменять параметры подписи в соответствии с типом
-// (шрифт, размер, цвет)
-// Если тип 0 - ничего не менять
+// п÷п╬п╪п╣п╫я▐я┌я▄ п©п╟я─п╟п╪п╣я┌я─я▀ п©п╬п╢п©п╦я│п╦ п╡ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╦п╦ я│ я┌п╦п©п╬п╪
+// (я┬я─п╦я└я┌, я─п╟п╥п╪п╣я─, я├п╡п╣я┌)
+// п∙я│п╩п╦ я┌п╦п© 0 - п╫п╦я┤п╣пЁп╬ п╫п╣ п╪п╣п╫я▐я┌я▄
 void zn_conv::label_update(fig::fig_object & fig, int type) const{
 
   map<int, zn>::const_iterator z = znaki.find(type);
@@ -406,7 +406,7 @@ void zn_conv::label_update(fig::fig_object & fig, int type) const{
   }
 }
 
-// Создать картинку к объекту в соответствии с типом.
+// п║п╬п╥п╢п╟я┌я▄ п╨п╟я─я┌п╦п╫п╨я┐ п╨ п╬п╠я┼п╣п╨я┌я┐ п╡ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╦п╦ я│ я┌п╦п©п╬п╪.
 list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type){
 
   list<fig::fig_object> ret;
@@ -423,10 +423,10 @@ list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type){
     return ret;
   }
 
-  if (z->second.pic=="") return ret; // нет картинки
+  if (z->second.pic=="") return ret; // п╫п╣я┌ п╨п╟я─я┌п╦п╫п╨п╦
 
   fig::fig_world PIC;
-  if (!fig::read(z->second.pic.c_str(), PIC)) return ret; // нет картинки
+  if (!fig::read(z->second.pic.c_str(), PIC)) return ret; // п╫п╣я┌ п╨п╟я─я┌п╦п╫п╨п╦
 
   for (fig::fig_world::iterator i = PIC.begin(); i!=PIC.end(); i++){
     (*i) += fig[0];
@@ -440,18 +440,18 @@ list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type){
   }
   fig::fig_make_comp(ret);
 
-  // скопируем комментарии из первого объекта в составной объект.
+  // я│п╨п╬п©п╦я─я┐п╣п╪ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╦п╥ п©п╣я─п╡п╬пЁп╬ п╬п╠я┼п╣п╨я┌п╟ п╡ я│п╬я│я┌п╟п╡п╫п╬п╧ п╬п╠я┼п╣п╨я┌.
   if (ret.size()>1)
     ret.begin()->comment.insert(ret.begin()->comment.begin(), fig.comment.begin(), fig.comment.end());
 
   return ret;
 }
 
-// Создать подписи к объекту.
+// п║п╬п╥п╢п╟я┌я▄ п©п╬п╢п©п╦я│п╦ п╨ п╬п╠я┼п╣п╨я┌я┐.
 list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type){
 
   list<fig::fig_object> ret;
-  if (fig.size() == 0) return ret;                   // странный объект
+  if (fig.size() == 0) return ret;                   // я│я┌я─п╟п╫п╫я▀п╧ п╬п╠я┼п╣п╨я┌
 
   if (type ==0) type = get_type(fig);
 
@@ -464,10 +464,10 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
     return ret;
   }
 
-  if (!z->second.istxt) return ret;            // подпись не нужна
+  if (!z->second.istxt) return ret;            // п©п╬п╢п©п╦я│я▄ п╫п╣ п╫я┐п╤п╫п╟
   if ((fig.comment.size()==0)||
-      (fig.comment[0].size()==0)) return ret;     // нечего писать!
-  // заготовка для подписи
+      (fig.comment[0].size()==0)) return ret;     // п╫п╣я┤п╣пЁп╬ п©п╦я│п╟я┌я▄!
+  // п╥п╟пЁп╬я┌п╬п╡п╨п╟ п╢п╩я▐ п©п╬п╢п©п╦я│п╦
   fig::fig_object txt = z->second.txt;
 
   if (is_map_depth(txt)){
@@ -477,7 +477,7 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
 
   int txt_dist = 7 * (fig.thickness+2); // fig units
 
-  // определим координаты и наклон подписи
+  // п╬п©я─п╣п╢п╣п╩п╦п╪ п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ п╦ п╫п╟п╨п╩п╬п╫ п©п╬п╢п©п╦я│п╦
   Point<int> p = fig[0];
   if      (txt.sub_type == 0 ) p += Point<int>(1,-1)*txt_dist;
   else if (txt.sub_type == 1 ) p += Point<int>(0,-2)*txt_dist;
@@ -485,8 +485,8 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
 
   if (fig.size()>=2){
 
-    if ((type >= line_mask) && (type < area_mask) && (txt.sub_type == 1)){ // линия с центрированным текстом
-      // ставится в середину линии
+    if ((type >= line_mask) && (type < area_mask) && (txt.sub_type == 1)){ // п╩п╦п╫п╦я▐ я│ я├п╣п╫я┌я─п╦я─п╬п╡п╟п╫п╫я▀п╪ я┌п╣п╨я│я┌п╬п╪
+      // я│я┌п╟п╡п╦я┌я│я▐ п╡ я│п╣я─п╣п╢п╦п╫я┐ п╩п╦п╫п╦п╦
       p = (fig[fig.size()/2-1] + fig[fig.size()/2]) / 2;
       Point<int> p1 = fig[fig.size()/2-1] - fig[fig.size()/2];
 
@@ -499,9 +499,9 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
       p-= Point<int>(int(-v.y*txt_dist), int(v.x*txt_dist));
 
     }
-    else { // другие случаи 
+    else { // п╢я─я┐пЁп╦п╣ я│п╩я┐я┤п╟п╦ 
       if (txt.sub_type == 0 ) { // left just.text
-        // ищем точку с максимальным x-y
+        // п╦я┴п╣п╪ я┌п╬я┤п╨я┐ я│ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫я▀п╪ x-y
         p = fig[0];
         int max = p.x-p.y;
         for (int i = 0; i<fig.size(); i++){
@@ -512,7 +512,7 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
         }
         p+=Point<int>(1,-1)*txt_dist;
       } else if (txt.sub_type == 2 ) { // right just.text
-        // ищем точку с минимальным x+y
+        // п╦я┴п╣п╪ я┌п╬я┤п╨я┐ я│ п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╪ x+y
         p = fig[0];
         int min = p.x+p.y;
         for (int i = 0; i<fig.size(); i++){
@@ -523,7 +523,7 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
         }
         p+=Point<int>(-1,-1)*txt_dist;
       } else if (txt.sub_type == 1 ) { // centered text
-        // ищем середину объекта
+        // п╦я┴п╣п╪ я│п╣я─п╣п╢п╦п╫я┐ п╬п╠я┼п╣п╨я┌п╟
         Point<int> pmin = fig[0];
         Point<int> pmax = fig[0];
         for (int i = 0; i<fig.size(); i++){

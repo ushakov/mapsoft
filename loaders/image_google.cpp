@@ -5,7 +5,7 @@ namespace google{
 static CURL * curl_handle = 0;
 static char curl_error[CURL_ERROR_SIZE];
 
-// пересчет координат кусочка в его адрес
+// п©п╣я─п╣я│я┤п╣я┌ п╨п╬п╬я─п╢п╦п╫п╟я┌ п╨я┐я│п╬я┤п╨п╟ п╡ п╣пЁп╬ п╟п╢я─п╣я│
 std::string tile2addr(int google_scale, int xt, int yt){
 
   std::string addr="t";
@@ -27,7 +27,7 @@ std::string tile2file(int google_scale, int xt, int yt){
   return addr.str();
 }
 
-// Загрузка картинки
+// п≈п╟пЁя─я┐п╥п╨п╟ п╨п╟я─я┌п╦п╫п╨п╦
 int load(
     const std::string & dir, 
     int google_scale,	
@@ -43,7 +43,7 @@ int load(
 
   Rect<int> src_points = Rect<int>(0,0,src_width,src_width);
 
-  // подрежем прямоугольники
+  // п©п╬п╢я─п╣п╤п╣п╪ п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨п╦
   clip_rects_for_image_loader(
       src_points, src_rect,
       Rect<int>(0,0,image.w,image.h), dst_rect);

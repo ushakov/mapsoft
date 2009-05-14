@@ -1,11 +1,11 @@
 #ifndef MAPVIEW_PARTS_H
 #define MAPVIEW_PARTS_H
 
-// Класс, создающий все управляемые компоненты вьюера и
-// связывающий их в одно окно
+// п п╩п╟я│я│, я│п╬п╥п╢п╟я▌я┴п╦п╧ п╡я│п╣ я┐п©я─п╟п╡п╩я▐п╣п╪я▀п╣ п╨п╬п╪п©п╬п╫п╣п╫я┌я▀ п╡я▄я▌п╣я─п╟ п╦
+// я│п╡я▐п╥я▀п╡п╟я▌я┴п╦п╧ п╦я┘ п╡ п╬п╢п╫п╬ п╬п╨п╫п╬
 //
-// ссылка на этот класс дается всем ActionManager'ам,
-// чтоб они творили со всеми компонентами разное.
+// я│я│я▀п╩п╨п╟ п╫п╟ я█я┌п╬я┌ п╨п╩п╟я│я│ п╢п╟п╣я┌я│я▐ п╡я│п╣п╪ ActionManager'п╟п╪,
+// я┤я┌п╬п╠ п╬п╫п╦ я┌п╡п╬я─п╦п╩п╦ я│п╬ п╡я│п╣п╪п╦ п╨п╬п╪п©п╬п╫п╣п╫я┌п╟п╪п╦ я─п╟п╥п╫п╬п╣.
 
 #include <gtkmm.h>
 #include <boost/shared_ptr.hpp>
@@ -20,16 +20,16 @@
 
 class Mapview : public Gtk::Window{
   public:
-    boost::shared_ptr<MapviewData> mapview_data; // структура со всеми геоданными и workplane'ом
-    boost::shared_ptr<Rubber>      rubber;       // "резина" - xor-линии, цепляющиеся к мышке
-    boost::shared_ptr<Viewer>      viewer;       // интерфейсный gtk-widget, показывающий workplane и rubber
-    boost::shared_ptr<FileList>    file_list;    // интерфейсный gtk-widget, показывающий файлы из mapview_data
-    boost::shared_ptr<WPTSList>    wpts_list;    // интерфейсный gtk-widget, показывающий точки текущего файла из mapview_data
-    boost::shared_ptr<TRKSList>    trks_list;    // интерфейсный gtk-widget, показывающий треки текущего файла из mapview_data
-    boost::shared_ptr<MAPSList>    maps_list;    // интерфейсный gtk-widget, показывающий карты текущего файла из mapview_data
+    boost::shared_ptr<MapviewData> mapview_data; // я│я┌я─я┐п╨я┌я┐я─п╟ я│п╬ п╡я│п╣п╪п╦ пЁп╣п╬п╢п╟п╫п╫я▀п╪п╦ п╦ workplane'п╬п╪
+    boost::shared_ptr<Rubber>      rubber;       // "я─п╣п╥п╦п╫п╟" - xor-п╩п╦п╫п╦п╦, я├п╣п©п╩я▐я▌я┴п╦п╣я│я▐ п╨ п╪я▀я┬п╨п╣
+    boost::shared_ptr<Viewer>      viewer;       // п╦п╫я┌п╣я─я└п╣п╧я│п╫я▀п╧ gtk-widget, п©п╬п╨п╟п╥я▀п╡п╟я▌я┴п╦п╧ workplane п╦ rubber
+    boost::shared_ptr<FileList>    file_list;    // п╦п╫я┌п╣я─я└п╣п╧я│п╫я▀п╧ gtk-widget, п©п╬п╨п╟п╥я▀п╡п╟я▌я┴п╦п╧ я└п╟п╧п╩я▀ п╦п╥ mapview_data
+    boost::shared_ptr<WPTSList>    wpts_list;    // п╦п╫я┌п╣я─я└п╣п╧я│п╫я▀п╧ gtk-widget, п©п╬п╨п╟п╥я▀п╡п╟я▌я┴п╦п╧ я┌п╬я┤п╨п╦ я┌п╣п╨я┐я┴п╣пЁп╬ я└п╟п╧п╩п╟ п╦п╥ mapview_data
+    boost::shared_ptr<TRKSList>    trks_list;    // п╦п╫я┌п╣я─я└п╣п╧я│п╫я▀п╧ gtk-widget, п©п╬п╨п╟п╥я▀п╡п╟я▌я┴п╦п╧ я┌я─п╣п╨п╦ я┌п╣п╨я┐я┴п╣пЁп╬ я└п╟п╧п╩п╟ п╦п╥ mapview_data
+    boost::shared_ptr<MAPSList>    maps_list;    // п╦п╫я┌п╣я─я└п╣п╧я│п╫я▀п╧ gtk-widget, п©п╬п╨п╟п╥я▀п╡п╟я▌я┴п╦п╧ п╨п╟я─я┌я▀ я┌п╣п╨я┐я┴п╣пЁп╬ я└п╟п╧п╩п╟ п╦п╥ mapview_data
 
     Gtk::Statusbar                  statusbar;    
-    Glib::RefPtr<Gtk::ActionGroup>  actiongroup;  // набор actions для разных меню...
+    Glib::RefPtr<Gtk::ActionGroup>  actiongroup;  // п╫п╟п╠п╬я─ actions п╢п╩я▐ я─п╟п╥п╫я▀я┘ п╪п╣п╫я▌...
     Glib::RefPtr<Gtk::UIManager>    uimanager;    // menu manager
 
   Mapview(){
@@ -37,7 +37,7 @@ class Mapview : public Gtk::Window{
     actiongroup = Gtk::ActionGroup::create();
     uimanager   = Gtk::UIManager::create();
     uimanager->insert_action_group(actiongroup);
-    add_accel_group(uimanager->get_accel_group()); // чтоб во всем окне кнопки работали!
+    add_accel_group(uimanager->get_accel_group()); // я┤я┌п╬п╠ п╡п╬ п╡я│п╣п╪ п╬п╨п╫п╣ п╨п╫п╬п©п╨п╦ я─п╟п╠п╬я┌п╟п╩п╦!
 
     // creating actions
     actiongroup->add( Gtk::Action::create("mapview_quit", Gtk::Stock::QUIT),
@@ -51,7 +51,7 @@ class Mapview : public Gtk::Window{
       "</ui>"
     );
 
-    // создадим все остальные компоненты
+    // я│п╬п╥п╢п╟п╢п╦п╪ п╡я│п╣ п╬я│я┌п╟п╩я▄п╫я▀п╣ п╨п╬п╪п©п╬п╫п╣п╫я┌я▀
     mapview_data.reset(new MapviewData());
     rubber.reset(new Rubber());
     viewer.reset(new Viewer(mapview_data->workplane, rubber));
@@ -63,10 +63,10 @@ class Mapview : public Gtk::Window{
 
     uimanager->ensure_update();
 
-    // запакуем все GTK-компоненты в окно
+    // п╥п╟п©п╟п╨я┐п╣п╪ п╡я│п╣ GTK-п╨п╬п╪п©п╬п╫п╣п╫я┌я▀ п╡ п╬п╨п╫п╬
     guint drawing_padding = 5;
 
-    // Все списки - в ScrolledWindow
+    // п▓я│п╣ я│п©п╦я│п╨п╦ - п╡ ScrolledWindow
     Gtk::ScrolledWindow * file_list_scrw = manage(new Gtk::ScrolledWindow);
     file_list_scrw->add(*file_list);
     file_list_scrw->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
@@ -87,7 +87,7 @@ class Mapview : public Gtk::Window{
     maps_list_scrw->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     maps_list_scrw->set_size_request(200,-1);
 
-    // Списки точек, треков, карт - в Notebook wtm_tabs
+    // п║п©п╦я│п╨п╦ я┌п╬я┤п╣п╨, я┌я─п╣п╨п╬п╡, п╨п╟я─я┌ - п╡ Notebook wtm_tabs
     Gtk::Notebook * wtm_tabs = manage(new Gtk::Notebook);
     wtm_tabs->append_page(*wpts_list_scrw, "waypoints", false);
     wtm_tabs->append_page(*trks_list_scrw, "tracks", false);

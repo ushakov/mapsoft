@@ -6,7 +6,7 @@
 Workplane::Workplane (int _tile_size): tile_size(_tile_size) { }
 
 Image<int>  Workplane::get_image(Point<int> tile_key){
-	Image<int> image(tile_size,tile_size, 0xff000000); // черная картинка-основа
+	Image<int> image(tile_size,tile_size, 0xff000000); // я┤п╣я─п╫п╟я▐ п╨п╟я─я┌п╦п╫п╨п╟-п╬я│п╫п╬п╡п╟
 	Rect<int> src_rect = image.range() + tile_key*tile_size;
 
 //	std::cerr << "WP: drawing " << src_rect << "\n";

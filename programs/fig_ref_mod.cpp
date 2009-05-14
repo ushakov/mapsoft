@@ -3,12 +3,12 @@
 #include "../libgeo_io/geofig.h"
 #include "../libgeo/geo_convs.h"
 
-// Модификация привязки fig-файла.
-// Меняются только координаты в точках привязки!
+// п°п╬п╢п╦я└п╦п╨п╟я├п╦я▐ п©я─п╦п╡я▐п╥п╨п╦ fig-я└п╟п╧п╩п╟.
+// п°п╣п╫я▐я▌я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ п╡ я┌п╬я┤п╨п╟я┘ п©я─п╦п╡я▐п╥п╨п╦!
 
-// fig_ref_mod -r 10 in_file out_file  -- повернуть вокруг центра на 10 градусов
-// fig_ref_mod -x -5 in_file out_file  -- сместить по x на -5 m
-// fig_ref_mod -y 10 in_file out_file  -- сместить по y на 10 m
+// fig_ref_mod -r 10 in_file out_file  -- п©п╬п╡п╣я─п╫я┐я┌я▄ п╡п╬п╨я─я┐пЁ я├п╣п╫я┌я─п╟ п╫п╟ 10 пЁя─п╟п╢я┐я│п╬п╡
+// fig_ref_mod -x -5 in_file out_file  -- я│п╪п╣я│я┌п╦я┌я▄ п©п╬ x п╫п╟ -5 m
+// fig_ref_mod -y 10 in_file out_file  -- я│п╪п╣я│я┌п╦я┌я▄ п©п╬ y п╫п╟ 10 m
 
 void usage(char *name){
       std::cerr << "usage: \n" << 

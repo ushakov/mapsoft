@@ -18,7 +18,7 @@ using namespace std;
 
 void usage(const char *fname){
   cerr << "Usage: "<< fname << " <in1> ... <inN> -o <figfile>\n";
-// не все так просто, надо будет написать подробнее...
+// п╫п╣ п╡я│п╣ я┌п╟п╨ п©я─п╬я│я┌п╬, п╫п╟п╢п╬ п╠я┐п╢п╣я┌ п╫п╟п©п╦я│п╟я┌я▄ п©п╬п╢я─п╬п╠п╫п╣п╣...
   exit(0);
 }
 
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 
   list<string> filters;
 
-// чтение файлов
+// я┤я┌п╣п╫п╦п╣ я└п╟п╧п╩п╬п╡
 
   geo_data world;
   fig::fig_world F;

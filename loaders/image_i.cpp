@@ -6,15 +6,15 @@ namespace image_i{
 int load(Image<int> & src_img, Rect<int> src_rect, 
          Image<int> & dst_img, Rect<int> dst_rect){
 
-    // подрежем прямоугольники
+    // п©п╬п╢я─п╣п╤п╣п╪ п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨п╦
     clip_rects_for_image_loader(
       src_img.range(), src_rect, dst_img.range(), dst_rect);
     if (src_rect.empty() || dst_rect.empty()) return 1;
     
     for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
-      // откуда мы хотим взять строчку
+      // п╬я┌п╨я┐п╢п╟ п╪я▀ я┘п╬я┌п╦п╪ п╡п╥я▐я┌я▄ я│я┌я─п╬я┤п╨я┐
       int src_y = src_rect.y + ((dst_y-dst_rect.y)*src_rect.h)/dst_rect.h;
-      // при таком делении может выйти  src_y1 = src_rect.BRC.y, что плохо!
+      // п©я─п╦ я┌п╟п╨п╬п╪ п╢п╣п╩п╣п╫п╦п╦ п╪п╬п╤п╣я┌ п╡я▀п╧я┌п╦  src_y1 = src_rect.BRC.y, я┤я┌п╬ п©п╩п╬я┘п╬!
       if (src_y == src_rect.BRC().y) src_y--;
 
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){

@@ -17,7 +17,7 @@
 //#include "../libgeo_io/io.h"
 
 
-/// Растровый слой для показа снимков google.
+/// п═п╟я│я┌я─п╬п╡я▀п╧ я│п╩п╬п╧ п╢п╩я▐ п©п╬п╨п╟п╥п╟ я│п╫п╦п╪п╨п╬п╡ google.
 
 class LayerGoogle : public LayerGeo {
 private:
@@ -33,7 +33,7 @@ public:
     LayerGoogle (const std::string & dir_, const int scale_) : 
       dir(dir_), scale(scale_), mymap0(ref_google(scale)), mymap(ref_google(scale)), cnv(mymap0,mymap), do_download(false){}
 
-    // получить/установить привязку layer'a
+    // п©п╬п╩я┐я┤п╦я┌я▄/я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ п©я─п╦п╡я▐п╥п╨я┐ layer'a
     g_map get_ref() const {return mymap;}
 
     void set_ref(const g_map & map){mymap=map; cnv = convs::map2map(mymap0,mymap,false);}
@@ -52,13 +52,13 @@ public:
         std::cerr  << "LayerGoogle: loading " << src_rect << std::endl;
 #endif
 
-        // в каком масштабе мы будем загружать картинку
+        // п╡ п╨п╟п╨п╬п╪ п╪п╟я│я┬я┌п╟п╠п╣ п╪я▀ п╠я┐п╢п╣п╪ п╥п╟пЁя─я┐п╤п╟я┌я▄ п╨п╟я─я┌п╦п╫п╨я┐
         double sc_x = src_rect.w/dst_rect.w;
         double sc_y = src_rect.h/dst_rect.h;
         int sc = int(sc_x<sc_y? sc_x:sc_y);
         if (sc <=0) sc = 1;
 
-        // мы загружаем часть картинки - поэтому сбивается привязка
+        // п╪я▀ п╥п╟пЁя─я┐п╤п╟п╣п╪ я┤п╟я│я┌я▄ п╨п╟я─я┌п╦п╫п╨п╦ - п©п╬я█я┌п╬п╪я┐ я│п╠п╦п╡п╟п╣я┌я│я▐ п©я─п╦п╡я▐п╥п╨п╟
         g_map new_map(mymap0);
         new_map-=src_rect.TLC();
         convs::map2map new_cnv(new_map, mymap, true);

@@ -19,8 +19,8 @@ Viewer::Viewer (int tile_size): workplane (tile_size){
     workplane.signal_refresh.connect(sigc::mem_fun(*this, &Viewer::refresh));
     rubber.signal_refresh.connect(sigc::mem_fun(*this, &Viewer::rubber_redraw));
 
-    // сделаем отдельный thread из функции cache_updater
-    // joinable = true, чтобы подождать его завершения в деструкторе...
+    // я│п╢п╣п╩п╟п╣п╪ п╬я┌п╢п╣п╩я▄п╫я▀п╧ thread п╦п╥ я└я┐п╫п╨я├п╦п╦ cache_updater
+    // joinable = true, я┤я┌п╬п╠я▀ п©п╬п╢п╬п╤п╢п╟я┌я▄ п╣пЁп╬ п╥п╟п╡п╣я─я┬п╣п╫п╦я▐ п╡ п╢п╣я│я┌я─я┐п╨я┌п╬я─п╣...
     cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer::cache_updater), true);
 
     add_events (
@@ -36,7 +36,7 @@ Viewer::~Viewer (){
     we_need_cache_updater = false;
     cache_updater_cond->signal();
     mutex->unlock();
-    // подождем, пока cache_updater_thread завершится
+    // п©п╬п╢п╬п╤п╢п╣п╪, п©п╬п╨п╟ cache_updater_thread п╥п╟п╡п╣я─я┬п╦я┌я│я▐
     cache_updater_thread->join();
     delete(mutex);
     delete(cache_updater_cond);
@@ -65,7 +65,7 @@ Point<int> Viewer::get_window_size() const{
 void Viewer::refresh(){
   std::cerr << "Viewer::refresh()\n";
 
-  // extra и т.п. должно быть таким же, как в change_viewport
+  // extra п╦ я┌.п©. п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ я┌п╟п╨п╦п╪ п╤п╣, п╨п╟п╨ п╡ change_viewport
   Rect<int> tiles = tiles_on_rect(
     Rect<int>(window_origin.x, window_origin.y,
     get_width(), get_height()), workplane.get_tile_size());
@@ -107,7 +107,7 @@ void Viewer::cache_updater(){
       }
 
       if (!tiles_todo.empty()){
-         // сделаем плитку, которую просили
+         // я│п╢п╣п╩п╟п╣п╪ п©п╩п╦я┌п╨я┐, п╨п╬я┌п╬я─я┐я▌ п©я─п╬я│п╦п╩п╦
          Point<int> key = *tiles_todo.begin();
          tiles_todo.erase(key);
          mutex->unlock();
@@ -115,7 +115,7 @@ void Viewer::cache_updater(){
          Image<int> tile = workplane.get_image(key);
 
          mutex->lock();
-         // чтобы при перемасштабировании и обнулении кэша в него не попала старая картинка 8|
+         // я┤я┌п╬п╠я▀ п©я─п╦ п©п╣я─п╣п╪п╟я│я┬я┌п╟п╠п╦я─п╬п╡п╟п╫п╦п╦ п╦ п╬п╠п╫я┐п╩п╣п╫п╦п╦ п╨я█я┬п╟ п╡ п╫п╣пЁп╬ п╫п╣ п©п╬п©п╟п╩п╟ я│я┌п╟я─п╟я▐ п╨п╟я─я┌п╦п╫п╨п╟ 8|
          if (tile_cache.count(key)!=0){
             tile_cache.erase(key);
             tile_cache.insert(std::pair<Point<int>,Image<int> >(key, tile));
@@ -128,7 +128,7 @@ void Viewer::cache_updater(){
       }
 
       if (!tiles_todo2.empty()) {
-         // сделаем плитку второй очереди
+         // я│п╢п╣п╩п╟п╣п╪ п©п╩п╦я┌п╨я┐ п╡я┌п╬я─п╬п╧ п╬я┤п╣я─п╣п╢п╦
          Point<int> key = *tiles_todo2.begin();
          tiles_todo2.erase(key);
          mutex->unlock();
@@ -140,9 +140,9 @@ void Viewer::cache_updater(){
          tile_cache.insert(std::make_pair(key, tile));
          mutex->unlock();
 
-         // и ничего не скажем...
-         // upd. скажем! Иначе refresh не работает!
-         // upd. дело не в этом
+         // п╦ п╫п╦я┤п╣пЁп╬ п╫п╣ я│п╨п╟п╤п╣п╪...
+         // upd. я│п╨п╟п╤п╣п╪! п≤п╫п╟я┤п╣ refresh п╫п╣ я─п╟п╠п╬я┌п╟п╣я┌!
+         // upd. п╢п╣п╩п╬ п╫п╣ п╡ я█я┌п╬п╪
          tile_done_queue.push(key);
          update_tile_signal.emit();
          continue;
@@ -182,8 +182,8 @@ void Viewer::draw_tile(const Point<int> & tile_key){
   if (tile_in_screen.empty()) return;
 
   if (tile_cache.count(tile_key)==0){
-    // Если такой плитки еще нет - добавим временную картинку
-    // и поместим запрос на изготовление нормальной картинки в очередь
+    // п∙я│п╩п╦ я┌п╟п╨п╬п╧ п©п╩п╦я┌п╨п╦ п╣я┴п╣ п╫п╣я┌ - п╢п╬п╠п╟п╡п╦п╪ п╡я─п╣п╪п╣п╫п╫я┐я▌ п╨п╟я─я┌п╦п╫п╨я┐
+    // п╦ п©п╬п╪п╣я│я┌п╦п╪ п╥п╟п©я─п╬я│ п╫п╟ п╦п╥пЁп╬я┌п╬п╡п╩п╣п╫п╦п╣ п╫п╬я─п╪п╟п╩я▄п╫п╬п╧ п╨п╟я─я┌п╦п╫п╨п╦ п╡ п╬я┤п╣я─п╣п╢я▄
     mutex->lock();
     Image<int> temp_tile(tile_size,tile_size, 0xFF000000);
     tile_cache.insert(std::pair<Point<int>,Image<int> >(tile_key, temp_tile));
@@ -206,10 +206,10 @@ void Viewer::draw_tile(const Point<int> & tile_key){
 
 /**************************************/
 
-// перерисовка области экрана, очистка кэша и заданий
+// п©п╣я─п╣я─п╦я│п╬п╡п╨п╟ п╬п╠п╩п╟я│я┌п╦ я█п╨я─п╟п╫п╟, п╬я┤п╦я│я┌п╨п╟ п╨я█я┬п╟ п╦ п╥п╟п╢п╟п╫п╦п╧
 void Viewer::fill (int sx, int sy, int w, int h){ // in window coordinates, should be inside the window
 
-    // какие плитки видны на экране:
+    // п╨п╟п╨п╦п╣ п©п╩п╦я┌п╨п╦ п╡п╦п╢п╫я▀ п╫п╟ я█п╨я─п╟п╫п╣:
     Rect<int> tiles = tiles_on_rect(
       Rect<int>(window_origin.x + sx, window_origin.y + sy, w, h), 
       workplane.get_tile_size());
@@ -220,7 +220,7 @@ void Viewer::fill (int sx, int sy, int w, int h){ // in window coordinates, shou
     std::cerr << "tiles: " << tiles << std::endl;
 #endif
 
-    // Нарисуем плитки, поместим запросы первой очереди.
+    // п²п╟я─п╦я│я┐п╣п╪ п©п╩п╦я┌п╨п╦, п©п╬п╪п╣я│я┌п╦п╪ п╥п╟п©я─п╬я│я▀ п©п╣я─п╡п╬п╧ п╬я┤п╣я─п╣п╢п╦.
     rubber_take_off(true);
     for (int tj = tiles.y; tj<tiles.y+tiles.h; tj++){
       for (int ti = tiles.x; ti<tiles.x+tiles.w; ti++){
@@ -231,13 +231,13 @@ void Viewer::fill (int sx, int sy, int w, int h){ // in window coordinates, shou
   }
 
 void Viewer::change_viewport () {
-  // tiles -- прямоугольник плиток, необходимый для отрисовки экрана
+  // tiles -- п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨ п©п╩п╦я┌п╬п╨, п╫п╣п╬п╠я┘п╬п╢п╦п╪я▀п╧ п╢п╩я▐ п╬я┌я─п╦я│п╬п╡п╨п╦ я█п╨я─п╟п╫п╟
   Rect<int> tiles = tiles_on_rect(
     Rect<int>(window_origin.x, window_origin.y,
     get_width(), get_height()), workplane.get_tile_size());
 
-  // Плитки, которые были запрошены, но не сделаны, и уже уехали
-  // с экрана -- нам неинтересны. Пропалываем tiles_todo
+  // п÷п╩п╦я┌п╨п╦, п╨п╬я┌п╬я─я▀п╣ п╠я▀п╩п╦ п╥п╟п©я─п╬я┬п╣п╫я▀, п╫п╬ п╫п╣ я│п╢п╣п╩п╟п╫я▀, п╦ я┐п╤п╣ я┐п╣я┘п╟п╩п╦
+  // я│ я█п╨я─п╟п╫п╟ -- п╫п╟п╪ п╫п╣п╦п╫я┌п╣я─п╣я│п╫я▀. п÷я─п╬п©п╟п╩я▀п╡п╟п╣п╪ tiles_todo
   mutex->lock();
   std::set<Point<int> >::const_iterator it = tiles_todo.begin(), it1;
   while (it != tiles_todo.end()){
@@ -250,11 +250,11 @@ void Viewer::change_viewport () {
   }
   mutex->unlock();
 
-  // Пропалываем tile_cache
-  // Здесь у нас такая политика:
-  // если на экране w x h плиток, то мы хотим хранить (w+2extra) x (h+2extra) плиток и
-  // постепенно их заполнять.
-  // а все более далекие плитки будем убирать из кэша
+  // п÷я─п╬п©п╟п╩я▀п╡п╟п╣п╪ tile_cache
+  // п≈п╢п╣я│я▄ я┐ п╫п╟я│ я┌п╟п╨п╟я▐ п©п╬п╩п╦я┌п╦п╨п╟:
+  // п╣я│п╩п╦ п╫п╟ я█п╨я─п╟п╫п╣ w x h п©п╩п╦я┌п╬п╨, я┌п╬ п╪я▀ я┘п╬я┌п╦п╪ я┘я─п╟п╫п╦я┌я▄ (w+2extra) x (h+2extra) п©п╩п╦я┌п╬п╨ п╦
+  // п©п╬я│я┌п╣п©п╣п╫п╫п╬ п╦я┘ п╥п╟п©п╬п╩п╫я▐я┌я▄.
+  // п╟ п╡я│п╣ п╠п╬п╩п╣п╣ п╢п╟п╩п╣п╨п╦п╣ п©п╩п╦я┌п╨п╦ п╠я┐п╢п╣п╪ я┐п╠п╦я─п╟я┌я▄ п╦п╥ п╨я█я┬п╟
 
   const int extra = std::max(tiles.w, tiles.h);
 
@@ -273,7 +273,7 @@ void Viewer::change_viewport () {
     map_it=map_it1;
   }
 
-  // делаем запросы на окрестные плитки:
+  // п╢п╣п╩п╟п╣п╪ п╥п╟п©я─п╬я│я▀ п╫п╟ п╬п╨я─п╣я│я┌п╫я▀п╣ п©п╩п╦я┌п╨п╦:
   mutex->lock();
   tiles_todo2.clear();
   mutex->unlock();

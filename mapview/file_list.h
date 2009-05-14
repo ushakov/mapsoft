@@ -1,7 +1,7 @@
 #ifndef FILE_LIST_H
 #define FILE_LIST_H
 
-// Gtk::Widget, показывающий список файлов из MapviewData
+// Gtk::Widget, п©п╬п╨п╟п╥я▀п╡п╟я▌я┴п╦п╧ я│п©п╦я│п╬п╨ я└п╟п╧п╩п╬п╡ п╦п╥ MapviewData
 
 #include <gtkmm.h>
 
@@ -17,7 +17,7 @@ class FileListColumns : public Gtk::TreeModelColumnRecord {
 
 
 class FileList : public Gtk::TreeView{
-  // ссылка на данные
+  // я│я│я▀п╩п╨п╟ п╫п╟ п╢п╟п╫п╫я▀п╣
   boost::shared_ptr<MapviewData> mapview_data;
  
   Glib::RefPtr<Gtk::ListStore> store;
@@ -27,7 +27,7 @@ class FileList : public Gtk::TreeView{
 
   FileList(boost::shared_ptr<MapviewData> mapview_data_):
     mapview_data(mapview_data_){
-    // подцепим сигнал, чтоб обновляться, когда меняются данные...
+    // п©п╬п╢я├п╣п©п╦п╪ я│п╦пЁп╫п╟п╩, я┤я┌п╬п╠ п╬п╠п╫п╬п╡п╩я▐я┌я▄я│я▐, п╨п╬пЁп╢п╟ п╪п╣п╫я▐я▌я┌я│я▐ п╢п╟п╫п╫я▀п╣...
     mapview_data->signal_refresh_files.connect(sigc::mem_fun(*this, &FileList::refresh));
 
     store = Gtk::ListStore::create(columns);
@@ -41,13 +41,13 @@ class FileList : public Gtk::TreeView{
     refresh();
   }
 
-  // обновить данные
-  // проблема: хочется позволять менять активный файл и через mapview_data, 
-  // и через интерфейс. Надо не зациклить сигналы.
-  // get_selection()->select() вызывает такой же сигнал, как и gui
-  // при этом все игналы должны испускаться:
-  //  refresh от mapview_data должен быть пойман WPTList и К
-  //  select от file_list должен быть пойман am и направлен в mapview_data, 
+  // п╬п╠п╫п╬п╡п╦я┌я▄ п╢п╟п╫п╫я▀п╣
+  // п©я─п╬п╠п╩п╣п╪п╟: я┘п╬я┤п╣я┌я│я▐ п©п╬п╥п╡п╬п╩я▐я┌я▄ п╪п╣п╫я▐я┌я▄ п╟п╨я┌п╦п╡п╫я▀п╧ я└п╟п╧п╩ п╦ я┤п╣я─п╣п╥ mapview_data, 
+  // п╦ я┤п╣я─п╣п╥ п╦п╫я┌п╣я─я└п╣п╧я│. п²п╟п╢п╬ п╫п╣ п╥п╟я├п╦п╨п╩п╦я┌я▄ я│п╦пЁп╫п╟п╩я▀.
+  // get_selection()->select() п╡я▀п╥я▀п╡п╟п╣я┌ я┌п╟п╨п╬п╧ п╤п╣ я│п╦пЁп╫п╟п╩, п╨п╟п╨ п╦ gui
+  // п©я─п╦ я█я┌п╬п╪ п╡я│п╣ п╦пЁп╫п╟п╩я▀ п╢п╬п╩п╤п╫я▀ п╦я│п©я┐я│п╨п╟я┌я▄я│я▐:
+  //  refresh п╬я┌ mapview_data п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п©п╬п╧п╪п╟п╫ WPTList п╦ п 
+  //  select п╬я┌ file_list п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п©п╬п╧п╪п╟п╫ am п╦ п╫п╟п©я─п╟п╡п╩п╣п╫ п╡ mapview_data, 
 
   void refresh(){
     store->clear();

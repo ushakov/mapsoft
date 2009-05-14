@@ -9,7 +9,7 @@
 << and >> operators for vector<string>
 '\n' is protected by '\\'
 */
-// Не знаю почему, но при typedef-е lexical_cast не находит операторов
+// п²п╣ п╥п╫п╟я▌ п©п╬я┤п╣п╪я┐, п╫п╬ п©я─п╦ typedef-п╣ lexical_cast п╫п╣ п╫п╟я┘п╬п╢п╦я┌ п╬п©п╣я─п╟я┌п╬я─п╬п╡
 struct StrVec : std::vector<std::string> {};
 
 std::ostream & operator<< (std::ostream & s, const StrVec & v);

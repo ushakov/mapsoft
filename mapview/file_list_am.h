@@ -1,8 +1,8 @@
 #ifndef FILE_LIST_AM_H
 #define FILE_LIST_AM_H
 
-// ActionManager для FileList
-// загрузка/сохранение/удаление файлов
+// ActionManager п╢п╩я▐ FileList
+// п╥п╟пЁя─я┐п╥п╨п╟/я│п╬я┘я─п╟п╫п╣п╫п╦п╣/я┐п╢п╟п╩п╣п╫п╦п╣ я└п╟п╧п╩п╬п╡
 
 #include "mapview.h"
 

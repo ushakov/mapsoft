@@ -38,8 +38,8 @@ public:
 	      break;
 	  }
         }
-        if (current_layer == 0) return; // ÎÁÄÏ ÂÙ ÄÏÂÁ×ÌÑÔØ ÎÏ×ÙÊ, ÎÏ ÄÌÑ ÜÔÏÇÏ ÎÕÖÅÎ ÄÏÓÔÕĞ
-	                                // Ë layer_list É Ô.Ğ.
+        if (current_layer == 0) return; // Ğ½Ğ°Ğ´Ğ¾ Ğ±Ñ‹ Ğ´Ğ¾Ğ±Ğ°Ğ²Ğ»ÑÑ‚ÑŒ Ğ½Ğ¾Ğ²Ñ‹Ğ¹, Ğ½Ğ¾ Ğ´Ğ»Ñ ÑÑ‚Ğ¾Ğ³Ğ¾ Ğ½ÑƒĞ¶ĞµĞ½ Ğ´Ğ¾ÑÑ‚ÑƒĞ¿
+	                                // Ğº layer_list Ğ¸ Ñ‚.Ğ¿.
 
         g_map map = current_layer->get_ref();
 

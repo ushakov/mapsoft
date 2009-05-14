@@ -40,7 +40,7 @@ void Options::warn_unused (const std::string * used) const{
 }
 
 
-/** Операторы вывода-вывода для Options */
+/** п·п©п╣я─п╟я┌п╬я─я▀ п╡я▀п╡п╬п╢п╟-п╡я▀п╡п╬п╢п╟ п╢п╩я▐ Options */
 
 std::ostream & operator<< (std::ostream & s, const Options & o){
   for (Options::const_iterator i=o.begin(); i!=o.end(); i++){

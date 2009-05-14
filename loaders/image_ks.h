@@ -19,7 +19,7 @@ namespace ks{
 const int ks_scale_min = 3;
 const int ks_scale_max = 17;
 
-// Загрузка картинки
+// п≈п╟пЁя─я┐п╥п╨п╟ п╨п╟я─я┌п╦п╫п╨п╦
 int load(
     const std::string & dir, 
     int ks_scale,	

@@ -10,7 +10,7 @@
 #include "../lib2d/line.h"
 #include "../utils/options.h"
 
-/// связанное с fig-файлами
+/// я│п╡я▐п╥п╟п╫п╫п╬п╣ я│ fig-я└п╟п╧п╩п╟п╪п╦
 namespace fig {
 
     // FIG units, 1.05/1200in 
@@ -165,7 +165,7 @@ namespace fig {
             height=0; length=0;
 	}
 	bool operator== (const fig_object & o) const{
-          // полное совпадение объектов
+          // п©п╬п╩п╫п╬п╣ я│п╬п╡п©п╟п╢п╣п╫п╦п╣ п╬п╠я┼п╣п╨я┌п╬п╡
           return (
            (type == o.type) && (sub_type == o.sub_type) &&
            (line_style == o.line_style) && (thickness == o.thickness) &&
@@ -239,7 +239,7 @@ namespace fig {
           return Line<int>::operator<(o);
         }
 
-        /// сместить на (x,y)
+        /// я│п╪п╣я│я┌п╦я┌я▄ п╫п╟ (x,y)
 	fig_object & operator += (const Point<int> & p) {
           for (iterator i=begin(); i!=end(); i++) *i += p;
           center_x+=p.x;
@@ -274,11 +274,11 @@ namespace fig {
           return;
         }
 
-        // сделать из линии
+        // я│п╢п╣п╩п╟я┌я▄ п╦п╥ п╩п╦п╫п╦п╦
         void set_points(const Line<double> & v);
         void set_points(const Line<int> & v);
 
-	/// преобразовать в линию 
+	/// п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟я┌я▄ п╡ п╩п╦п╫п╦я▌ 
         template <typename T>
         operator Line<T> () const {
           Line<T> ret;
@@ -316,7 +316,7 @@ namespace fig {
           coord_system=2;
         }
 
-	// сместить на (x,y)
+	// я│п╪п╣я│я┌п╦я┌я▄ п╫п╟ (x,y)
         fig_world & operator +=(const Point<int> & p) {
           for (iterator i=begin(); i!=end(); i++) *i += p; 
           return *this;

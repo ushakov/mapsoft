@@ -21,13 +21,13 @@ const int google_scale_max = 18;
 
 const char lett[4] = {'q','r','t','s'};
 
-// пересчет координат кусочка в его адрес
-// убрать это отсюда потом!
+// п©п╣я─п╣я│я┤п╣я┌ п╨п╬п╬я─п╢п╦п╫п╟я┌ п╨я┐я│п╬я┤п╨п╟ п╡ п╣пЁп╬ п╟п╢я─п╣я│
+// я┐п╠я─п╟я┌я▄ я█я┌п╬ п╬я┌я│я▌п╢п╟ п©п╬я┌п╬п╪!
 std::string tile2addr(int google_scale, int xt, int yt);
 
 std::string tile2file(int google_scale, int xt, int yt);
 
-// Загрузка картинки
+// п≈п╟пЁя─я┐п╥п╨п╟ п╨п╟я─я┌п╦п╫п╨п╦
 int load(
     const std::string & dir, 
     int google_scale,	

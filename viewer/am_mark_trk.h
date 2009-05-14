@@ -67,7 +67,7 @@ public:
 		double next = 1000;
 		for (int i = b; i != e; i += s) {
 		    g_trackpoint tp = (*track)[i];
-		    pc.bck(tp); // координаты -- в tmerc
+		    pc.bck(tp); // п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ -- п╡ tmerc
 		    
 		    if (i != b) {
 			double this_len = hypot(tp.x - pp.x, tp.y - pp.y);

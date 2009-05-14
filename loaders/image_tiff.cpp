@@ -29,7 +29,7 @@ int load(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst
     TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &tiff_w);
     TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &tiff_h);
 
-    // подрежем прямоугольники
+    // п©п╬п╢я─п╣п╤п╣п╪ п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨п╦
     clip_rects_for_image_loader(
       Rect<int>(0,0,tiff_w,tiff_h), src_rect,
       Rect<int>(0,0,image.w,image.h), dst_rect);
@@ -40,8 +40,8 @@ int load(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst
 
     char *cbuf = (char *)_TIFFmalloc(scan);
 
-    // Мы можем устроить произвольный доступ к строчкам,
-    // если tiff без сжатия или если каждая строчка запакована отдельно.
+    // п°я▀ п╪п╬п╤п╣п╪ я┐я│я┌я─п╬п╦я┌я▄ п©я─п╬п╦п╥п╡п╬п╩я▄п╫я▀п╧ п╢п╬я│я┌я┐п© п╨ я│я┌я─п╬я┤п╨п╟п╪,
+    // п╣я│п╩п╦ tiff п╠п╣п╥ я│п╤п╟я┌п╦я▐ п╦п╩п╦ п╣я│п╩п╦ п╨п╟п╤п╢п╟я▐ я│я┌я─п╬я┤п╨п╟ п╥п╟п©п╟п╨п╬п╡п╟п╫п╟ п╬я┌п╢п╣п╩я▄п╫п╬.
     bool can_skip_lines = false;
 
     int compression_type, rows_per_strip;
@@ -56,11 +56,11 @@ int load(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst
 
     int src_y = 0;
     for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
-      // откуда мы хотим взять строчку
+      // п╬я┌п╨я┐п╢п╟ п╪я▀ я┘п╬я┌п╦п╪ п╡п╥я▐я┌я▄ я│я┌я─п╬я┤п╨я┐
       int src_y1 = src_rect.y + ((dst_y-dst_rect.y)*src_rect.h)/dst_rect.h;
-      // при таком делении может выйти  src_y1 = src_rect.BRC.y, что плохо!
+      // п©я─п╦ я┌п╟п╨п╬п╪ п╢п╣п╩п╣п╫п╦п╦ п╪п╬п╤п╣я┌ п╡я▀п╧я┌п╦  src_y1 = src_rect.BRC.y, я┤я┌п╬ п©п╩п╬я┘п╬!
       if (src_y1 == src_rect.BRC().y) src_y1--;
-      // пропустим нужное число строк:
+      // п©я─п╬п©я┐я│я┌п╦п╪ п╫я┐п╤п╫п╬п╣ я┤п╦я│п╩п╬ я│я┌я─п╬п╨:
       if (!can_skip_lines){
         while (src_y<src_y1){
 	  TIFFReadScanline(tif, cbuf, src_y);
@@ -70,7 +70,7 @@ int load(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst
       TIFFReadScanline(tif, cbuf, src_y);
       src_y++;
 
-      // теперь мы находимся на нужной строке
+      // я┌п╣п©п╣я─я▄ п╪я▀ п╫п╟я┘п╬п╢п╦п╪я│я▐ п╫п╟ п╫я┐п╤п╫п╬п╧ я│я┌я─п╬п╨п╣
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
         int src_x = src_rect.x + ((dst_x-dst_rect.x)*src_rect.w)/dst_rect.w;
         if (src_x == src_rect.BRC().x) src_x--;

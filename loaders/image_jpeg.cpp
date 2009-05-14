@@ -41,7 +41,7 @@ Point<int> size(const char *file){
 int load(const char *file, Rect<int> src_rect, 
          Image<int> & image, Rect<int> dst_rect){
 
-    // откроем файл, получим размеры:
+    // п╬я┌п╨я─п╬п╣п╪ я└п╟п╧п╩, п©п╬п╩я┐я┤п╦п╪ я─п╟п╥п╪п╣я─я▀:
     struct jpeg_decompress_struct cinfo;
     struct my_error_mgr jerr;
     cinfo.err = jpeg_std_error(&jerr.pub);
@@ -65,17 +65,17 @@ int load(const char *file, Rect<int> src_rect,
 
     int jpeg_w = cinfo.image_width;
     int jpeg_h = cinfo.image_height;
-    // ч/б и RGB -- все загружается как RGB
+    // я┤/п╠ п╦ RGB -- п╡я│п╣ п╥п╟пЁя─я┐п╤п╟п╣я┌я│я▐ п╨п╟п╨ RGB
     cinfo.out_color_space = JCS_RGB;
 
-    // подрежем прямоугольники
+    // п©п╬п╢я─п╣п╤п╣п╪ п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨п╦
     clip_rects_for_image_loader(
       Rect<int>(0,0,jpeg_w,jpeg_h), src_rect,
       Rect<int>(0,0,image.w,image.h), dst_rect);
     if (src_rect.empty() || dst_rect.empty()) return 1;
     
-    // посмотрим, можно ли загружать сразу уменьшенный jpeg
-    // (поддерживается уменьшение в 1,2,4,8 раз)
+    // п©п╬я│п╪п╬я┌я─п╦п╪, п╪п╬п╤п╫п╬ п╩п╦ п╥п╟пЁя─я┐п╤п╟я┌я▄ я│я─п╟п╥я┐ я┐п╪п╣п╫я▄я┬п╣п╫п╫я▀п╧ jpeg
+    // (п©п╬п╢п╢п╣я─п╤п╦п╡п╟п╣я┌я│я▐ я┐п╪п╣п╫я▄я┬п╣п╫п╦п╣ п╡ 1,2,4,8 я─п╟п╥)
     int xscale = src_rect.w  / dst_rect.w;
     int yscale = src_rect.h / dst_rect.h;
     int scale = std::min(xscale, yscale);
@@ -99,16 +99,16 @@ int load(const char *file, Rect<int> src_rect,
 
     int src_y = 0;
     for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
-      // откуда мы хотим взять строчку
+      // п╬я┌п╨я┐п╢п╟ п╪я▀ я┘п╬я┌п╦п╪ п╡п╥я▐я┌я▄ я│я┌я─п╬я┤п╨я┐
       int src_y1 = src_rect.y + ((dst_y-dst_rect.y)*src_rect.h)/dst_rect.h;
-      // при таком делении может выйти  src_y1 = src_rect.BRC.y, что плохо!
+      // п©я─п╦ я┌п╟п╨п╬п╪ п╢п╣п╩п╣п╫п╦п╦ п╪п╬п╤п╣я┌ п╡я▀п╧я┌п╦  src_y1 = src_rect.BRC.y, я┤я┌п╬ п©п╩п╬я┘п╬!
       if (src_y1 >= src_rect.BRC().y) src_y1=src_rect.BRC().y-1;
-      // пропустим нужное число строк:
+      // п©я─п╬п©я┐я│я┌п╦п╪ п╫я┐п╤п╫п╬п╣ я┤п╦я│п╩п╬ я│я┌я─п╬п╨:
       while (src_y<=src_y1){ 
 	jpeg_read_scanlines(&cinfo, (JSAMPLE**)&buf1, 1);
 	src_y++;
       }
-      // теперь мы находимся на нужной строке
+      // я┌п╣п©п╣я─я▄ п╪я▀ п╫п╟я┘п╬п╢п╦п╪я│я▐ п╫п╟ п╫я┐п╤п╫п╬п╧ я│я┌я─п╬п╨п╣
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
         int src_x = src_rect.x + ((dst_x-dst_rect.x)*src_rect.w)/dst_rect.w;
         if (src_x >= src_rect.BRC().x) src_x=src_rect.BRC().x-1;
@@ -178,7 +178,7 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
     fclose(outfile);
 }
 
-// load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
+// load the whole image -- п╫п╣ п╥п╟п╡п╦я│п╦я┌ п╬я┌ я└п╬я─п╪п╟я┌п╟, п╡п╣я─п╬я▐я┌п╫п╬, п╫п╟п╢п╬ п©п╣я─п╣п╫п╣я│я┌п╦ п╡ image_io.h
 Image<int> load(const char *file, const int scale){
   Point<int> s = size(file);
   Image<int> ret(s.x/scale,s.y/scale);

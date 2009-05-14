@@ -2,7 +2,7 @@
 #include "../libfig/fig_utils.h"
 #include "../libfig/fig_io.h"
 
-// Сортировка fig-файла (для удобства хранения в git, просмотра diff'a и т.п.)
+// п║п╬я─я┌п╦я─п╬п╡п╨п╟ fig-я└п╟п╧п╩п╟ (п╢п╩я▐ я┐п╢п╬п╠я│я┌п╡п╟ я┘я─п╟п╫п╣п╫п╦я▐ п╡ git, п©я─п╬я│п╪п╬я┌я─п╟ diff'a п╦ я┌.п©.)
 
 main(int argc, char **argv){
   if (argc<2) {

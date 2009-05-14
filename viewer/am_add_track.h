@@ -33,15 +33,15 @@ public:
     virtual void handle_click(Point<int> p) {
 	std::cout << "ADDTRACK: " << p << std::endl;
 
-	if (new_track.size() == 0){ // первое тыканье
-          // найдем layer, в который можно запихать трек
+	if (new_track.size() == 0){ // п©п╣я─п╡п╬п╣ я┌я▀п╨п╟п╫я▄п╣
+          // п╫п╟п╧п╢п╣п╪ layer, п╡ п╨п╬я┌п╬я─я▀п╧ п╪п╬п╤п╫п╬ п╥п╟п©п╦я┘п╟я┌я▄ я┌я─п╣п╨
 	  for (int i=0; i<state->data_layers.size(); i++){
             current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
             if (!viewer->workplane.get_layer_active(current_layer)) continue;
 	    break;
           }
-          if (current_layer==0) return; // надо бы добавлять новый, но для этого нужен доступ
-                                        // к layer_list и т.п.
+          if (current_layer==0) return; // п╫п╟п╢п╬ п╠я▀ п╢п╬п╠п╟п╡п╩я▐я┌я▄ п╫п╬п╡я▀п╧, п╫п╬ п╢п╩я▐ я█я┌п╬пЁп╬ п╫я┐п╤п╣п╫ п╢п╬я│я┌я┐п©
+                                        // п╨ layer_list п╦ я┌.п©.
 
  	  Options opt = new_track.to_options();
   	  current_connection = gend->signal_result().connect(sigc::mem_fun(this, &AddTrack::on_result));

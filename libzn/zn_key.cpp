@@ -116,7 +116,7 @@ zn_key make_key(const std::string & map, const std::string & editor){
   return k;
 }
 
-// Извлечь ключ из комментария (2-я строчка) к fig-объекту
+// п≤п╥п╡п╩п╣я┤я▄ п╨п╩я▌я┤ п╦п╥ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐ (2-я▐ я│я┌я─п╬я┤п╨п╟) п╨ fig-п╬п╠я┼п╣п╨я┌я┐
 zn_key get_key(const fig::fig_object & fig){
   zn_key k;
   if (fig.comment.size() < 2) return k;
@@ -125,7 +125,7 @@ zn_key get_key(const fig::fig_object & fig){
   return k;
 }
 
-// Извлечь ключ подписи из комментария (2-я строчка) к fig-объекту
+// п≤п╥п╡п╩п╣я┤я▄ п╨п╩я▌я┤ п©п╬п╢п©п╦я│п╦ п╦п╥ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐ (2-я▐ я│я┌я─п╬я┤п╨п╟) п╨ fig-п╬п╠я┼п╣п╨я┌я┐
 zn_label_key get_label_key(const fig::fig_object & fig){
   zn_label_key k;
   if (fig.comment.size() < 2) return k;
@@ -134,7 +134,7 @@ zn_label_key get_label_key(const fig::fig_object & fig){
   return k;
 }
 
-// Извлечь ключ из комментария (1-я строчка) к mp-объекту
+// п≤п╥п╡п╩п╣я┤я▄ п╨п╩я▌я┤ п╦п╥ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐ (1-я▐ я│я┌я─п╬я┤п╨п╟) п╨ mp-п╬п╠я┼п╣п╨я┌я┐
 zn_key get_key(const mp::mp_object & mp){
   zn_key k;
   if (mp.Comment.size() < 1) return k;
@@ -143,13 +143,13 @@ zn_key get_key(const mp::mp_object & mp){
   return k;
 }
 
-// поместить ключ в комментарий к fig-объекту
+// п©п╬п╪п╣я│я┌п╦я┌я▄ п╨п╩я▌я┤ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╨ fig-п╬п╠я┼п╣п╨я┌я┐
 void add_key(fig::fig_object & fig, const zn_key & key){
   if (fig.comment.size()<2) fig.comment.resize(2);
   fig.comment[1] = boost::lexical_cast<std::string>(key);
 }
 
-// поместить ключ подписи в комментарий к fig-объекту
+// п©п╬п╪п╣я│я┌п╦я┌я▄ п╨п╩я▌я┤ п©п╬п╢п©п╦я│п╦ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╨ fig-п╬п╠я┼п╣п╨я┌я┐
 void add_key(fig::fig_object & fig, const zn_label_key & key){
   if (fig.comment.size()<2) fig.comment.resize(2);
   fig.comment[1] = boost::lexical_cast<std::string>(key);
@@ -159,13 +159,13 @@ void add_key(std::list<fig::fig_object> & l, const zn_label_key & key){
     add_key(*i, key);
 }
 
-// поместить ключ в комментарий к mp-объекту
+// п©п╬п╪п╣я│я┌п╦я┌я▄ п╨п╩я▌я┤ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╨ mp-п╬п╠я┼п╣п╨я┌я┐
 void add_key(mp::mp_object & mp, const zn_key & key){
   if (mp.Comment.size()<1) mp.Comment.resize(1);
   mp.Comment[0] = boost::lexical_cast<std::string>(key);
 }
 
-// удалить любой ключ (да и всю вторую стоку комментария)
+// я┐п╢п╟п╩п╦я┌я▄ п╩я▌п╠п╬п╧ п╨п╩я▌я┤ (п╢п╟ п╦ п╡я│я▌ п╡я┌п╬я─я┐я▌ я│я┌п╬п╨я┐ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐)
 void clear_key(fig::fig_object & fig){
   if (fig.comment.size()>1) fig.comment[1]="";
 }

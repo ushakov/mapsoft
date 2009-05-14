@@ -13,16 +13,16 @@
 namespace zn{
 
 typedef unsigned long long  id_type;
-// ключ объекта
+// п╨п╩я▌я┤ п╬п╠я┼п╣п╨я┌п╟
 struct zn_key{
-  int  type;           // тип в mp-файле + line_mask или area_mask
+  int  type;           // я┌п╦п© п╡ mp-я└п╟п╧п╩п╣ + line_mask п╦п╩п╦ area_mask
 
-  Time time;          // время последнего изменения
+  Time time;          // п╡я─п╣п╪я▐ п©п╬я│п╩п╣п╢п╫п╣пЁп╬ п╦п╥п╪п╣п╫п╣п╫п╦я▐
 
-  id_type id;         // уникальный номер на карте
-  std::string map;    // идентификатор карты
-  int sid;            // уникальный номер в источнике
-  std::string source; // идентификатор источника
+  id_type id;         // я┐п╫п╦п╨п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п╫п╟ п╨п╟я─я┌п╣
+  std::string map;    // п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─ п╨п╟я─я┌я▀
+  int sid;            // я┐п╫п╦п╨п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п╡ п╦я│я┌п╬я┤п╫п╦п╨п╣
+  std::string source; // п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─ п╦я│я┌п╬я┤п╫п╦п╨п╟
  
   zn_key(): type(0), id(0), sid(0) {}
 };
@@ -30,10 +30,10 @@ struct zn_key{
 std::ostream & operator<< (std::ostream & s, const zn_key & t);
 std::istream & operator>> (std::istream & s, zn_key & t);
 
-// ключ привязанного объекта
+// п╨п╩я▌я┤ п©я─п╦п╡я▐п╥п╟п╫п╫п╬пЁп╬ п╬п╠я┼п╣п╨я┌п╟
 struct zn_label_key{
-  id_type id;         // номер объекта, к которому привязываваемся
-  std::string map;    // идентификатор карты
+  id_type id;         // п╫п╬п╪п╣я─ п╬п╠я┼п╣п╨я┌п╟, п╨ п╨п╬я┌п╬я─п╬п╪я┐ п©я─п╦п╡я▐п╥я▀п╡п╟п╡п╟п╣п╪я│я▐
+  std::string map;    // п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─ п╨п╟я─я┌я▀
   zn_label_key(const id_type i=0, const std::string & s=""): id(i), map(s) {}
   zn_label_key(const zn_key & k): id(k.id), map(k.map) {}
   zn_label_key operator= (const zn_key & k){id=k.id; map=k.map;}
@@ -45,7 +45,7 @@ std::ostream & operator<< (std::ostream & s, const zn_label_key & t);
 std::istream & operator>> (std::istream & s, zn_label_key & t);
 
 
-  // Простые операции с ключом
+  // п÷я─п╬я│я┌я▀п╣ п╬п©п╣я─п╟я├п╦п╦ я│ п╨п╩я▌я┤п╬п╪
 
 // make unique id
 id_type make_id(void);
@@ -53,26 +53,26 @@ id_type make_id(void);
 // make new key with unique id
 zn_key make_key(const std::string & map, const std::string & editor);
 
-// Извлечь ключ из комментария (2-я строчка) к fig-объекту
+// п≤п╥п╡п╩п╣я┤я▄ п╨п╩я▌я┤ п╦п╥ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐ (2-я▐ я│я┌я─п╬я┤п╨п╟) п╨ fig-п╬п╠я┼п╣п╨я┌я┐
 zn_key get_key(const fig::fig_object & fig);
 
-// Извлечь ключ подписи из комментария (2-я строчка) к fig-объекту
+// п≤п╥п╡п╩п╣я┤я▄ п╨п╩я▌я┤ п©п╬п╢п©п╦я│п╦ п╦п╥ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐ (2-я▐ я│я┌я─п╬я┤п╨п╟) п╨ fig-п╬п╠я┼п╣п╨я┌я┐
 zn_label_key get_label_key(const fig::fig_object & fig);
 
-// Извлечь ключ из комментария (1-я строчка) к mp-объекту
+// п≤п╥п╡п╩п╣я┤я▄ п╨п╩я▌я┤ п╦п╥ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐ (1-я▐ я│я┌я─п╬я┤п╨п╟) п╨ mp-п╬п╠я┼п╣п╨я┌я┐
 zn_key get_key(const mp::mp_object & mp);
 
-// поместить ключ в комментарий к fig-объекту
+// п©п╬п╪п╣я│я┌п╦я┌я▄ п╨п╩я▌я┤ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╨ fig-п╬п╠я┼п╣п╨я┌я┐
 void add_key(fig::fig_object & fig, const zn_key & key);
 
-// поместить ключ подписи в комментарий к fig-объекту
+// п©п╬п╪п╣я│я┌п╦я┌я▄ п╨п╩я▌я┤ п©п╬п╢п©п╦я│п╦ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╨ fig-п╬п╠я┼п╣п╨я┌я┐
 void add_key(fig::fig_object & fig, const zn_label_key & key);
 void add_key(std::list<fig::fig_object> & l, const zn_label_key & key);
 
-// поместить ключ в комментарий к mp-объекту
+// п©п╬п╪п╣я│я┌п╦я┌я▄ п╨п╩я▌я┤ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╨ mp-п╬п╠я┼п╣п╨я┌я┐
 void add_key(mp::mp_object & mp, const zn_key & key);
 
-// удалить любой ключ (да и всю вторую стоку комментария)
+// я┐п╢п╟п╩п╦я┌я▄ п╩я▌п╠п╬п╧ п╨п╩я▌я┤ (п╢п╟ п╦ п╡я│я▌ п╡я┌п╬я─я┐я▌ я│я┌п╬п╨я┐ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦я▐)
 void clear_key(fig::fig_object & fig);
 void clear_key(mp::mp_object & mp);
 

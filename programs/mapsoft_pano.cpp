@@ -14,7 +14,7 @@
 #include "../libmp/mp.h"
 #include "../libfig/fig.h"
 
-// панорама по srtm с геоданными. 
+// п©п╟п╫п╬я─п╟п╪п╟ п©п╬ srtm я│ пЁп╣п╬п╢п╟п╫п╫я▀п╪п╦. 
 
 using namespace std;
 
@@ -23,7 +23,7 @@ const char* srtm_dir = "/d/MAPS/SRTMv2/";
 const int max_r = 60000; // m
 const int min_r = 100;    // m
 
-const double min_b = -M_PI/4.0; // панорама от min_b до max_b по вертикали
+const double min_b = -M_PI/4.0; // п©п╟п╫п╬я─п╟п╪п╟ п╬я┌ min_b п╢п╬ max_b п©п╬ п╡п╣я─я┌п╦п╨п╟п╩п╦
 const double max_b =  M_PI/4.0; //
 const double min_a = -M_PI;   //
 const double max_a =  M_PI;   //
@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
 
   list<string> infiles;
 
-// разбор командной строки
+// я─п╟п╥п╠п╬я─ п╨п╬п╪п╟п╫п╢п╫п╬п╧ я│я┌я─п╬п╨п╦
   if (argc < 5) usage(argv[0]);
   int width   = atoi(argv[1]);
   double lat0 = atof(argv[2])*M_PI/180.0;
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 
   Image<int> data(width, height);
 
-  // примерный шаг srtm
+  // п©я─п╦п╪п╣я─п╫я▀п╧ я┬п╟пЁ srtm
   int dr = int(1/1200.0 * Re *M_PI/90.0 *cos(lat0));
 
   g_point p0 = fast_cnv(lon0, g_point(lon0, lat0));
@@ -136,8 +136,8 @@ int main(int argc, char *argv[]) {
   for (mp::mp_world::const_iterator i=W.begin(); i!=W.end(); i++){
     for (mp::mp_object::const_iterator l=i->begin(); l!=i->end(); l++){
       if (i->Class!="POI") continue;
-      if ((i->Type!=0xd00) && (i->Type!=0xf00) && (i->Type!=0x1100) && // вершина
-          (i->Type!=0x6406) && ((i->Type < 0x6620) || (i->Type > 0x6626))) // перевал
+      if ((i->Type!=0xd00) && (i->Type!=0xf00) && (i->Type!=0x1100) && // п╡п╣я─я┬п╦п╫п╟
+          (i->Type!=0x6406) && ((i->Type < 0x6620) || (i->Type > 0x6626))) // п©п╣я─п╣п╡п╟п╩
           continue;
       int c=(i->Type>0x6000)?12:8;
       g_point pw = fast_cnv(lon0, (*l)[0] * (M_PI/180.0));

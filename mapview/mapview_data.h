@@ -1,13 +1,13 @@
 #ifndef MAPVIEW_DATA_H
 #define MAPVIEW_DATA_H
 
-// класс со всеми геоданными и workplane'ом
+// п╨п╩п╟я│я│ я│п╬ п╡я│п╣п╪п╦ пЁп╣п╬п╢п╟п╫п╫я▀п╪п╦ п╦ workplane'п╬п╪
 
-// данные упорядочены так:
-// есть файлы, в которых находятся треки, наборы точек, карты. Файл - один объект deodata
-// один файл - активен
-// для каждого файла есть три layer'a: для показа всех треков, всех наборов точек и всех карт
-// рисуются сперва все карты, потом все треки, потом все точки, в порядке файлов и объектов в них
+// п╢п╟п╫п╫я▀п╣ я┐п©п╬я─я▐п╢п╬я┤п╣п╫я▀ я┌п╟п╨:
+// п╣я│я┌я▄ я└п╟п╧п╩я▀, п╡ п╨п╬я┌п╬я─я▀я┘ п╫п╟я┘п╬п╢я▐я┌я│я▐ я┌я─п╣п╨п╦, п╫п╟п╠п╬я─я▀ я┌п╬я┤п╣п╨, п╨п╟я─я┌я▀. п╓п╟п╧п╩ - п╬п╢п╦п╫ п╬п╠я┼п╣п╨я┌ deodata
+// п╬п╢п╦п╫ я└п╟п╧п╩ - п╟п╨я┌п╦п╡п╣п╫
+// п╢п╩я▐ п╨п╟п╤п╢п╬пЁп╬ я└п╟п╧п╩п╟ п╣я│я┌я▄ я┌я─п╦ layer'a: п╢п╩я▐ п©п╬п╨п╟п╥п╟ п╡я│п╣я┘ я┌я─п╣п╨п╬п╡, п╡я│п╣я┘ п╫п╟п╠п╬я─п╬п╡ я┌п╬я┤п╣п╨ п╦ п╡я│п╣я┘ п╨п╟я─я┌
+// я─п╦я│я┐я▌я┌я│я▐ я│п©п╣я─п╡п╟ п╡я│п╣ п╨п╟я─я┌я▀, п©п╬я┌п╬п╪ п╡я│п╣ я┌я─п╣п╨п╦, п©п╬я┌п╬п╪ п╡я│п╣ я┌п╬я┤п╨п╦, п╡ п©п╬я─я▐п╢п╨п╣ я└п╟п╧п╩п╬п╡ п╦ п╬п╠я┼п╣п╨я┌п╬п╡ п╡ п╫п╦я┘
 
 #include <boost/shared_ptr.hpp>
 #include <sigc++/sigc++.h>
@@ -19,29 +19,29 @@
 #include "../layers/layer.h"
 #include "workplane.h"
 
-// вообще-то хочется сюда другие layer'ы сделать...
+// п╡п╬п╬п╠я┴п╣-я┌п╬ я┘п╬я┤п╣я┌я│я▐ я│я▌п╢п╟ п╢я─я┐пЁп╦п╣ layer'я▀ я│п╢п╣п╩п╟я┌я▄...
 #include "../layers/layer_geodata.h"
 #include "../layers/layer_geomap.h"
 
-// файл данных
+// я└п╟п╧п╩ п╢п╟п╫п╫я▀я┘
 struct MapviewDataFile : public geo_data{
   std::string name;
   int         id;
-  std::vector<int> wpts_v, trks_v, maps_v; // Видимость всех элементов
+  std::vector<int> wpts_v, trks_v, maps_v; // п▓п╦п╢п╦п╪п╬я│я┌я▄ п╡я│п╣я┘ я█п╩п╣п╪п╣п╫я┌п╬п╡
   std::vector<boost::shared_ptr<Layer> > wpts_l, trks_l, maps_l;
 };
 
 class MapviewData : public std::list<MapviewDataFile>{
   public:
-    // workplane с данными
+    // workplane я│ п╢п╟п╫п╫я▀п╪п╦
     boost::shared_ptr<Workplane> workplane;
 
-    // активный файл
+    // п╟п╨я┌п╦п╡п╫я▀п╧ я└п╟п╧п╩
     std::list<MapviewDataFile>::iterator active_file;
 
-    // сигналы, что данные изменились
-    sigc::signal<void> signal_refresh_files; // для file_list
-    sigc::signal<void> signal_refresh_data;  // для wpts_list, trks_list, maps_list, viewer
+    // я│п╦пЁп╫п╟п╩я▀, я┤я┌п╬ п╢п╟п╫п╫я▀п╣ п╦п╥п╪п╣п╫п╦п╩п╦я│я▄
+    sigc::signal<void> signal_refresh_files; // п╢п╩я▐ file_list
+    sigc::signal<void> signal_refresh_data;  // п╢п╩я▐ wpts_list, trks_list, maps_list, viewer
 
     MapviewData(){
       workplane.reset(new Workplane());
@@ -68,7 +68,7 @@ class MapviewData : public std::list<MapviewDataFile>{
       file.wpts_l.resize(file.wpts.size());
       file.trks_l.resize(file.trks.size());
       file.maps_l.resize(file.maps.size());
-// надо завести layer's для точек, треков и карт...
+// п╫п╟п╢п╬ п╥п╟п╡п╣я│я┌п╦ layer's п╢п╩я▐ я┌п╬я┤п╣п╨, я┌я─п╣п╨п╬п╡ п╦ п╨п╟я─я┌...
 //      for (int i=0; i<file.wpts.size(); i++) wpts_l = new LayerGeoWPT(file);
       boost::shared_ptr<Layer> ML, DL;
       ML.reset(new LayerGeoMap(&file));

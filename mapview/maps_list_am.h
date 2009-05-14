@@ -1,7 +1,7 @@
 #ifndef MAPS_LIST_AM_H
 #define MAPS_LIST_AM_H
 
-// ActionManager для DataList
+// ActionManager п╢п╩я▐ DataList
 
 #include "mapview.h"
 

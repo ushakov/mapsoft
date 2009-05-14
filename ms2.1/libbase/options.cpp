@@ -32,7 +32,7 @@ std::ostream & operator<< (std::ostream & s, const Options & o){
 }
 
 
-/** ïÐÅÒÁÔÏÒÙ ×Ù×ÏÄÁ-×Ù×ÏÄÁ ÄÌÑ Options */
+/** ÐžÐ¿ÐµÑ€Ð°Ñ‚Ð¾Ñ€Ñ‹ Ð²Ñ‹Ð²Ð¾Ð´Ð°-Ð²Ñ‹Ð²Ð¾Ð´Ð° Ð´Ð»Ñ Options */
 std::ostream & operator<< (std::ostream & s, const Options & o);
 std::ostream & operator>> (std::istream & s, Options & o);
 

@@ -10,8 +10,8 @@ namespace filters{
 using namespace std;
 
 
-// вспомогательная функция, которая по названию листа возвращает диапазон геодезических
-// координат в СК pulkovo-42
+// п╡я│п©п╬п╪п╬пЁп╟я┌п╣п╩я▄п╫п╟я▐ я└я┐п╫п╨я├п╦я▐, п╨п╬я┌п╬я─п╟я▐ п©п╬ п╫п╟п╥п╡п╟п╫п╦я▌ п╩п╦я│я┌п╟ п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ п╢п╦п╟п©п╟п╥п╬п╫ пЁп╣п╬п╢п╣п╥п╦я┤п╣я│п╨п╦я┘
+// п╨п╬п╬я─п╢п╦п╫п╟я┌ п╡ п║п  pulkovo-42
 
 Rect<double> nom_range(const std::string & key){
     using namespace boost::spirit;
@@ -25,7 +25,7 @@ Rect<double> nom_range(const std::string & key){
     int m=1;
     std::string key1 = key+" ";
 
-    // поймем номер листа
+    // п©п╬п╧п╪п╣п╪ п╫п╬п╪п╣я─ п╩п╦я│я┌п╟
 
     rule<> ndigit_p = anychar_p-digit_p;
     rule<> dash_p = ch_p('-')||'_';
@@ -57,7 +57,7 @@ Rect<double> nom_range(const std::string & key){
     }
 
 /*
-    // поймем номер листа
+    // п©п╬п╧п╪п╣п╪ п╫п╬п╪п╣я─ п╩п╦я│я┌п╟
     if (!parse(key1.c_str(), 
       alpha_p[assign_a(a)] >> !(ch_p('-')||'_') >> 
       uint_p[assign_a(b)] >> 

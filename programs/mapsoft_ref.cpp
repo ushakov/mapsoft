@@ -1,6 +1,6 @@
-// привязка fig-файла по геоданным
+// п©я─п╦п╡я▐п╥п╨п╟ fig-я└п╟п╧п╩п╟ п©п╬ пЁп╣п╬п╢п╟п╫п╫я▀п╪
 // ./mapsoft_ref <data> -f <fig-file>
-// привязка строится по соответствию треков и точек в fig-файле и в данных
+// п©я─п╦п╡я▐п╥п╨п╟ я│я┌я─п╬п╦я┌я│я▐ п©п╬ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╦я▌ я┌я─п╣п╨п╬п╡ п╦ я┌п╬я┤п╣п╨ п╡ fig-я└п╟п╧п╩п╣ п╦ п╡ п╢п╟п╫п╫я▀я┘
 
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/assign_actor.hpp>
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   list<string> infiles;
   string outfile = "";
 
-// разбор командной строки
+// я─п╟п╥п╠п╬я─ п╨п╬п╪п╟п╫п╢п╫п╬п╧ я│я┌я─п╬п╨п╦
   for (int i=1; i<argc; i++){ 
 
     if ((strcmp(argv[i], "-h")==0)||
@@ -45,19 +45,19 @@ int main(int argc, char *argv[]) {
   }
   if (outfile == "") usage(argv[0]);
 
-  // чтение геоданных
+  // я┤я┌п╣п╫п╦п╣ пЁп╣п╬п╢п╟п╫п╫я▀я┘
 
   geo_data d;
   list<string>::const_iterator i;
   for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, d, Options());
 
-  // читаем fig
+  // я┤п╦я┌п╟п╣п╪ fig
   fig::fig_world F;
   if (!fig::read(outfile.c_str(), F)) {
     exit(1);
   }
 
-  // теперь все точки и треки заменяем на точки привязки!
+  // я┌п╣п©п╣я─я▄ п╡я│п╣ я┌п╬я┤п╨п╦ п╦ я┌я─п╣п╨п╦ п╥п╟п╪п╣п╫я▐п╣п╪ п╫п╟ я┌п╬я┤п╨п╦ п©я─п╦п╡я▐п╥п╨п╦!
   using namespace boost::spirit;
   for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
     string name;

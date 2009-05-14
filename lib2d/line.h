@@ -10,7 +10,7 @@
 #include "point.h"
 #include "rect.h"
 
-/** Ломаная линия (std::vector<Point<T> >). */
+/** п⌡п╬п╪п╟п╫п╟я▐ п╩п╦п╫п╦я▐ (std::vector<Point<T> >). */
 
 template <typename T>
 struct Line
@@ -49,8 +49,8 @@ struct Line
     return ret;
   }
 
-  // линия меньше, если первая отличающаяся точка меньше,
-  // или не существует
+  // п╩п╦п╫п╦я▐ п╪п╣п╫я▄я┬п╣, п╣я│п╩п╦ п©п╣я─п╡п╟я▐ п╬я┌п╩п╦я┤п╟я▌я┴п╟я▐я│я▐ я┌п╬я┤п╨п╟ п╪п╣п╫я▄я┬п╣,
+  // п╦п╩п╦ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌
   bool operator< (const Line<T> & p) const {
     typename Line<T>::const_iterator i1=this->begin(), i2=p.begin();
     do {
@@ -75,7 +75,7 @@ struct Line
     } while(1);
   }
 
-  // такая же проверка, как ==, но для линий идущих навстречу...
+  // я┌п╟п╨п╟я▐ п╤п╣ п©я─п╬п╡п╣я─п╨п╟, п╨п╟п╨ ==, п╫п╬ п╢п╩я▐ п╩п╦п╫п╦п╧ п╦п╢я┐я┴п╦я┘ п╫п╟п╡я│я┌я─п╣я┤я┐...
   bool isinv(const Line<T> & p) const {
     if (this->size()!=p.size()) return false;
     typename Line<T>::const_iterator i1=this->begin();
@@ -95,8 +95,8 @@ struct Line
     return ret;
   }
 
-  // проверить, не переходит ли линия в линию l сдвигом на некоторый вектор
-  // (вектор записывается в shift)
+  // п©я─п╬п╡п╣я─п╦я┌я▄, п╫п╣ п©п╣я─п╣я┘п╬п╢п╦я┌ п╩п╦ п╩п╦п╫п╦я▐ п╡ п╩п╦п╫п╦я▌ l я│п╢п╡п╦пЁп╬п╪ п╫п╟ п╫п╣п╨п╬я┌п╬я─я▀п╧ п╡п╣п╨я┌п╬я─
+  // (п╡п╣п╨я┌п╬я─ п╥п╟п©п╦я│я▀п╡п╟п╣я┌я│я▐ п╡ shift)
   bool isshifted(const Line<T> & l, Point<T> & shift) const{
     shift = Point<T>(0,0);
     if (this->size()!=l.size()) return false;

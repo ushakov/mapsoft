@@ -3,7 +3,7 @@
 namespace image_r{
 
 Point<int> size(const char *file){
-    // Поглядим на расширение:
+    // п÷п╬пЁп╩я▐п╢п╦п╪ п╫п╟ я─п╟я│я┬п╦я─п╣п╫п╦п╣:
     int l = strlen(file);
     if ((l>=4 && (!strncmp(file + (l-4), ".jpg", 4)||
                   !strncmp(file + (l-4), ".JPG", 4)))||
@@ -30,7 +30,7 @@ Point<int> size(const char *file){
 int load(const char *file, Rect<int> src_rect, 
          Image<int> & image, Rect<int> dst_rect){
 
-    // Поглядим на расширение:
+    // п÷п╬пЁп╩я▐п╢п╦п╪ п╫п╟ я─п╟я│я┬п╦я─п╣п╫п╦п╣:
     int l = strlen(file);
     if (!strncmp(file + (l-4), ".jpg", 4)||
         !strncmp(file + (l-4), ".JPG", 4)||
@@ -68,7 +68,7 @@ Image<int> load(const char *file, const int scale){
 int save(const Image<int> & im, const Rect<int> & src_rect,
          const char *file, const Options & opts){
 
-    // Поглядим на расширение:
+    // п÷п╬пЁп╩я▐п╢п╦п╪ п╫п╟ я─п╟я│я┬п╦я─п╣п╫п╦п╣:
     int l = strlen(file);
     if (!strncmp(file + (l-4), ".jpg", 4)||
         !strncmp(file + (l-4), ".JPG", 4)||

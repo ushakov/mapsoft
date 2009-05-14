@@ -52,8 +52,8 @@ namespace io {
 
 		ifstream in(name.c_str());
 		char c;
-		// определяем формат файла. Очень просто - берем
-		// первый не-пробел и смотрим
+		// п╬п©я─п╣п╢п╣п╩я▐п╣п╪ я└п╬я─п╪п╟я┌ я└п╟п╧п╩п╟. п·я┤п╣п╫я▄ п©я─п╬я│я┌п╬ - п╠п╣я─п╣п╪
+		// п©п╣я─п╡я▀п╧ п╫п╣-п©я─п╬п╠п╣п╩ п╦ я│п╪п╬я┌я─п╦п╪
 		do {in >> c;} while ((c==' ')||(c=='\t')||
 							 (c=='\r')||(c=='\n'));
 		switch (c){
@@ -103,7 +103,7 @@ namespace io {
 	}
 
 
-// запись в файл
+// п╥п╟п©п╦я│я▄ п╡ я└п╟п╧п╩
 
 	void out(const string & outfile, geo_data const & world, const Options & opt){
 
@@ -123,13 +123,13 @@ namespace io {
 			}
 		}
 
-// Исследование расширения
-//  file.gu file.xml -- вывод в соответствующий файл
-//  file.oe file.wpt file.plt file.map -- вывод в Ozi-файлы 
-//    file1.wpt, file2.wpt, file1.plt, file2.plt и т.д.
+// п≤я│я│п╩п╣п╢п╬п╡п╟п╫п╦п╣ я─п╟я│я┬п╦я─п╣п╫п╦я▐
+//  file.gu file.xml -- п╡я▀п╡п╬п╢ п╡ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┴п╦п╧ я└п╟п╧п╩
+//  file.oe file.wpt file.plt file.map -- п╡я▀п╡п╬п╢ п╡ Ozi-я└п╟п╧п╩я▀ 
+//    file1.wpt, file2.wpt, file1.plt, file2.plt п╦ я┌.п╢.
 
   
-		// Запись XML-файла
+		// п≈п╟п©п╦я│я▄ XML-я└п╟п╧п╩п╟
 		if (testext(outfile, ".xml")){
 		
 			cerr << "Writing to XML file " << outfile << "\n";
@@ -137,7 +137,7 @@ namespace io {
 			return;
 		}
 		
-		// Запись KML-файла
+		// п≈п╟п©п╦я│я▄ KML-я└п╟п╧п╩п╟
 		if (testext(outfile, ".kml") || testext(outfile, ".kmz")){
 			string base(outfile.begin(), outfile.begin()+outfile.rfind('.'));
 			string kml=base+".kml";
@@ -154,7 +154,7 @@ namespace io {
 			return;
 		}
 
-		// Запись растровой картинки
+		// п≈п╟п©п╦я│я▄ я─п╟я│я┌я─п╬п╡п╬п╧ п╨п╟я─я┌п╦п╫п╨п╦
 		if ((testext(outfile, ".tiff")) ||
 		    (testext(outfile, ".tif")) ||
 		    (testext(outfile, ".jpeg")) ||
@@ -165,27 +165,27 @@ namespace io {
 			return;
 		}
 
-		// Запись плиток
+		// п≈п╟п©п╦я│я▄ п©п╩п╦я┌п╬п╨
 		if (testext(outfile, ".tiles")) {
 			cerr << "Writing tiles to " << outfile << "\n";
 			tiles::write_file(outfile.c_str(), world, opt);
 			return;
 		}
 
-		// Запись файла Garmin-Utils
+		// п≈п╟п©п╦я│я▄ я└п╟п╧п╩п╟ Garmin-Utils
 		if (testext(outfile, ".gu")){
 			cerr << "Writing to Garmin-utils file " << outfile << "\n";
 			gu::write_file (outfile.c_str(), world, opt);
 			return;
 		}
-//		// Запись файла FIG
+//		// п≈п╟п©п╦я│я▄ я└п╟п╧п╩п╟ FIG
 //		if (testext(outfile, ".fig")){
 //			cerr << "Writing to FIG file " << outfile << "\n";
 //			std::ofstream f(outfile.c_str());
 //			fig::write (f, world, opt);
 //			return;
 //		}
-		// Запись файла HTML
+		// п≈п╟п©п╦я│я▄ я└п╟п╧п╩п╟ HTML
 //		if (testext(outfile, ".html") || testext(outfile, ".htm")){
 //			cerr << "Writing to HTML file " << outfile << "\n";
 //			std::ofstream f(outfile.c_str());
@@ -193,7 +193,7 @@ namespace io {
 //			return;
 //		}
 
-		// Запись файла OziExplorer
+		// п≈п╟п©п╦я│я▄ я└п╟п╧п╩п╟ OziExplorer
 		if ((testext(outfile, ".wpt"))||
 			(testext(outfile, ".plt"))||
 			(testext(outfile, ".map"))||
@@ -202,7 +202,7 @@ namespace io {
 			string base(outfile.begin(), outfile.begin()+outfile.rfind('.'));
 			cerr << "Writing to OziExplorer files: \n";
 			string files;
-			// подсчитаем, сколько треков и сколько точек нам надо записать
+			// п©п╬п╢я│я┤п╦я┌п╟п╣п╪, я│п╨п╬п╩я▄п╨п╬ я┌я─п╣п╨п╬п╡ п╦ я│п╨п╬п╩я▄п╨п╬ я┌п╬я┤п╣п╨ п╫п╟п╪ п╫п╟п╢п╬ п╥п╟п©п╦я│п╟я┌я▄
 			int wn = world.wpts.size();
 			int tn = world.trks.size();
 			int mn = world.maps.size();

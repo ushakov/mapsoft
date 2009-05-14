@@ -8,9 +8,9 @@ namespace mp {
 using namespace std;
 using namespace boost::spirit;
 
-// ðÏÓÔÒÏÉÔØ mp-ÏÂßÅËÔ ÎÁ ÏÓÎÏ×Å obj, ÐÏÄÓÔÁ×É× ×ÓÅ ÎÅ-Ú×ÅÚÄÏÞËÉ ÉÚ ÍÁÓËÉ
+// ÐŸÐ¾ÑÑ‚Ñ€Ð¾Ð¸Ñ‚ÑŒ mp-Ð¾Ð±ÑŠÐµÐºÑ‚ Ð½Ð° Ð¾ÑÐ½Ð¾Ð²Ðµ obj, Ð¿Ð¾Ð´ÑÑ‚Ð°Ð²Ð¸Ð² Ð²ÑÐµ Ð½Ðµ-Ð·Ð²ÐµÐ·Ð´Ð¾Ñ‡ÐºÐ¸ Ð¸Ð· Ð¼Ð°ÑÐºÐ¸
 mp_object make_object(const mp_object & obj, const std::string & mask){
-  mp_object o=obj; // ËÏÐÉÑ
+  mp_object o=obj; // ÐºÐ¾Ð¿Ð¸Ñ
   if (!parse(mask.c_str(),
     *blank_p >> ((str_p("POI") | "POLYLINE" | "POLYGON")[assign_a(o.Class)] | "*") >>
     +blank_p >> (("0x" >> hex_p[assign_a(o.Type)]) | "*") >>
@@ -19,11 +19,11 @@ mp_object make_object(const mp_object & obj, const std::string & mask){
       cerr << "Can't parse mp mask: " << mask << "\n";
   return o;
 }
-// ðÏÓÔÒÏÉÔØ mp-ÏÂßÅËÔ ÎÁ ÏÓÎÏ×Å ÏÂßÅËÔÁ ÐÏ ÕÍÏÌÞÁÎÉÀ
+// ÐŸÐ¾ÑÑ‚Ñ€Ð¾Ð¸Ñ‚ÑŒ mp-Ð¾Ð±ÑŠÐµÐºÑ‚ Ð½Ð° Ð¾ÑÐ½Ð¾Ð²Ðµ Ð¾Ð±ÑŠÐµÐºÑ‚Ð° Ð¿Ð¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ
 mp_object make_object(const std::string & mask){
   return make_object(mp_object(), mask);
 }
-// ðÒÏ×ÅÒÉÔØ, ÓÏÏÔ×ÅÔÓÔ×ÕÅÔ ÌÉ ÏÂßÅËÔ ÍÁÓËÅ
+// ÐŸÑ€Ð¾Ð²ÐµÑ€Ð¸Ñ‚ÑŒ, ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÐµÑ‚ Ð»Ð¸ Ð¾Ð±ÑŠÐµÐºÑ‚ Ð¼Ð°ÑÐºÐµ
 bool test_object(const mp_object & o, const std::string & mask){
   return make_object(o, mask)==o;
 }

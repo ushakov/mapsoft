@@ -143,7 +143,7 @@ main(int argc, char **argv)
     win.signal_delete_event().connect (sigc::bind (sigc::ptr_fun (&on_delete), &win));
     win.set_default_size(640,480);
 
-    //чтение файлов из командной строки:
+    //я┤я┌п╣п╫п╦п╣ я└п╟п╧п╩п╬п╡ п╦п╥ п╨п╬п╪п╟п╫п╢п╫п╬п╧ я│я┌я─п╬п╨п╦:
     for(int i=1;i<argc;i++){
       io::in(std::string(argv[i]), world, Options());
     }

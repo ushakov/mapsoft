@@ -11,7 +11,7 @@
 #include <gdkmm/pixbuf.h>
 #include <gdkmm/wrap_init.h>
 
-// преобразование image в gdk-pixbuf
+// п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ image п╡ gdk-pixbuf
 
 int main(){
 try{

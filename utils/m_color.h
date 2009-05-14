@@ -16,7 +16,7 @@ struct Color:
 
     Color(int alpha, int v){value=v + ((alpha &0xFF) << 24);}
     Color RGB() const {return Color(value & 0xFFFFFF);} 
-    // чтоб, например в io_oe писать << color.RBG() 
+    // я┤я┌п╬п╠, п╫п╟п©я─п╦п╪п╣я─ п╡ io_oe п©п╦я│п╟я┌я▄ << color.RBG() 
 
   bool operator<  (const Color & t) const { return value < t.value; }
   bool operator== (const Color & t) const { return value == t.value; }

@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
   Options opts;
   list<string> infiles;
 
-// разбор командной строки
+// я─п╟п╥п╠п╬я─ п╨п╬п╪п╟п╫п╢п╫п╬п╧ я│я┌я─п╬п╨п╦
   for (int i=1; i<argc; i++){ 
 
     if ((strcmp(argv[i], "-h")==0)||
@@ -41,13 +41,13 @@ int main(int argc, char *argv[]) {
     infiles.push_back(argv[i]);
   }
 
-// чтение файлов
+// я┤я┌п╣п╫п╦п╣ я└п╟п╧п╩п╬п╡
 
   geo_data world;
   list<string>::const_iterator i;
   for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, world, opts);
 
-// Распечатка комментариев точек
+// п═п╟я│п©п╣я┤п╟я┌п╨п╟ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ я┌п╬я┤п╣п╨
 //  vector<g_waypoint_list>::const_iterator t;
 //  for(t=world.wpts.begin(); t!=world.wpts.end(); t++) {
 //    vector<g_waypoint>::const_iterator p;
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     vector<g_trackpoint>::const_iterator p;
     for(p=(*t).begin(); p!=(*t).end(); p++) {
       g_trackpoint tp = *p;
-      pc.bck(tp); // координаты -- в tmerc
+      pc.bck(tp); // п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ -- п╡ tmerc
 
       if (p != (*t).begin()) {
          double delta_len = hypot(tp.x - pp.x, tp.y - pp.y);

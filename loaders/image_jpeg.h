@@ -31,7 +31,7 @@ int load(const char *file, Rect<int> src_rect,
 int save(const Image<int> & im, const Rect<int> & src_rect, 
          const char *file, int quality=75);
 
-// load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
+// load the whole image -- п╫п╣ п╥п╟п╡п╦я│п╦я┌ п╬я┌ я└п╬я─п╪п╟я┌п╟, п╡п╣я─п╬я▐я┌п╫п╬, п╫п╟п╢п╬ п©п╣я─п╣п╫п╣я│я┌п╦ п╡ image_io.h
 Image<int> load(const char *file, const int scale=1);
 
 // save the whole image

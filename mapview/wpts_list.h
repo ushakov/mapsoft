@@ -2,7 +2,7 @@
 #define WPTS_LIST_H
 
 #include "../utils/m_time.h"
-// Gtk::Widget, показывающий waypoints активного файла из MapviewData
+// Gtk::Widget, п©п╬п╨п╟п╥я▀п╡п╟я▌я┴п╦п╧ waypoints п╟п╨я┌п╦п╡п╫п╬пЁп╬ я└п╟п╧п╩п╟ п╦п╥ MapviewData
 
 class WPTSListColumns : public Gtk::TreeModelColumnRecord {
   public:
@@ -13,7 +13,7 @@ class WPTSListColumns : public Gtk::TreeModelColumnRecord {
 
 
 class WPTSList : public Gtk::TreeView{
-  // ссылка на данные
+  // я│я│я▀п╩п╨п╟ п╫п╟ п╢п╟п╫п╫я▀п╣
   boost::shared_ptr<MapviewData> mapview_data;
 
   Glib::RefPtr<Gtk::ListStore> store;
@@ -22,7 +22,7 @@ class WPTSList : public Gtk::TreeView{
   public:
   WPTSList(boost::shared_ptr<MapviewData> mapview_data_):
     mapview_data(mapview_data_){
-    // подцепим сигнал
+    // п©п╬п╢я├п╣п©п╦п╪ я│п╦пЁп╫п╟п╩
     mapview_data->signal_refresh_data.connect(sigc::mem_fun(*this, &WPTSList::refresh));
     store = Gtk::ListStore::create(columns);
     set_model(store);
@@ -34,7 +34,7 @@ class WPTSList : public Gtk::TreeView{
     add_events(Gdk::BUTTON_PRESS_MASK);
     refresh();
   }
-  // обновить данные
+  // п╬п╠п╫п╬п╡п╦я┌я▄ п╢п╟п╫п╫я▀п╣
   void refresh(){
     store->clear();
     if (mapview_data->active_file == mapview_data->end()) return;

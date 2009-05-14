@@ -42,8 +42,8 @@ struct gs_bbx{
 
     puts("1 1 scale\n");
 //    puts("/Helvetica-Bold findfont 12 scalefont setfont\n");
-//    puts("0 0 moveto (Привет!) show showpage\n");
-//    while (read(out_pipe[0], &c, 1)!=1); // ждем
+//    puts("0 0 moveto (п÷я─п╦п╡п╣я┌!) show showpage\n");
+//    while (read(out_pipe[0], &c, 1)!=1); // п╤п╢п╣п╪
 //    while (read(out_pipe[0], &c, 1)==1);
   }
 
@@ -57,7 +57,7 @@ struct gs_bbx{
 
   Rect<double> get() const {
     char c; std::string s;
-    while (read(out_pipe[0], &c, 1)!=1); // ждем
+    while (read(out_pipe[0], &c, 1)!=1); // п╤п╢п╣п╪
     do { s.push_back(c); } while (read(out_pipe[0], &c, 1)==1);
     using namespace boost::spirit;
     Rect<double> ret;
@@ -84,7 +84,7 @@ struct gs_bbx{
     puts(s.str().c_str());
   }
 
-  // в координатах postscript'a
+  // п╡ п╨п╬п╬я─п╢п╦п╫п╟я┌п╟я┘ postscript'a
   Rect<double> txt2bbx(const char * text) const{
     puts("500 500 moveto (");
     for (int i = 0; i< strlen(text); i++){
@@ -95,7 +95,7 @@ struct gs_bbx{
     return (get()-Point<double>(500,500));
   }
 
-  // в координатах fig'a
+  // п╡ п╨п╬п╬я─п╢п╦п╫п╟я┌п╟я┘ fig'a
   Rect<int> txt2bbx_fig(const char * text) const{
     Rect<double> r = txt2bbx(text) * 1200/72*1.05;
     return Rect<int>(int(r.x), int(-r.y-r.h), int(r.w), int(r.h));
@@ -108,7 +108,7 @@ struct gs_bbx{
     return get();
   }
 
-  // в координатах fig'a
+  // п╡ п╨п╬п╬я─п╢п╦п╫п╟я┌п╟я┘ fig'a
   Rect<int> file2bbx_fig(const char * file) const{
     Rect<double> r = file2bbx(file) * 1200/72*1.05;
     return Rect<int>(int(r.x), int(-r.y-r.h), int(r.w), int(r.h));

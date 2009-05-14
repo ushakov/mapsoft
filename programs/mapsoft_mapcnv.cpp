@@ -42,7 +42,7 @@ cerr <<
 "    \"o\" - skip all but ACTIVE LOG tracks\n" <<
 "\n";
 
-// не все так просто, надо будет написать подробнее...
+// п╫п╣ п╡я│п╣ я┌п╟п╨ п©я─п╬я│я┌п╬, п╫п╟п╢п╬ п╠я┐п╢п╣я┌ п╫п╟п©п╦я│п╟я┌я▄ п©п╬п╢я─п╬п╠п╫п╣п╣...
   exit(0);
 }
 
@@ -102,12 +102,12 @@ main(int argc, char **argv){
   if (dpi==0) dpi=200;
   if (scale==0) scale=1e-5;
 
-  // если нам надо читать какие-то карты:
+  // п╣я│п╩п╦ п╫п╟п╪ п╫п╟п╢п╬ я┤п╦я┌п╟я┌я▄ п╨п╟п╨п╦п╣-я┌п╬ п╨п╟я─я┌я▀:
   if (opts.exists("cmdline_args")){
 
     geo_data world;
 
-    //чтение файлов из командной строки:
+    //я┤я┌п╣п╫п╦п╣ я└п╟п╧п╩п╬п╡ п╦п╥ п╨п╬п╪п╟п╫п╢п╫п╬п╧ я│я┌я─п╬п╨п╦:
     StrVec infiles = opts.get("cmdline_args", StrVec());
     for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
       io::in(*i, world, opts);

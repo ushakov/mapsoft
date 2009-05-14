@@ -5,7 +5,7 @@ namespace ks{
 static CURL * curl_handle = 0;
 static char curl_error[CURL_ERROR_SIZE];
 
-// Загрузка картинки
+// п≈п╟пЁя─я┐п╥п╨п╟ п╨п╟я─я┌п╦п╫п╨п╦
 int load(
     const std::string & dir, 
     int ks_scale,	
@@ -21,7 +21,7 @@ int load(
 
   Rect<int> src_points = Rect<int>(0,0,src_width,src_width);
 
-//  // подрежем прямоугольники
+//  // п©п╬п╢я─п╣п╤п╣п╪ п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨п╦
 //  clip_rects_for_image_loader(
 //      src_points, src_rect,
 //      Rect<int>(0,0,image.w,image.h), dst_rect);

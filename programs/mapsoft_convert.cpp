@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 
   StrVec infiles = opts.get("cmdline_args", StrVec());
 
-// чтение файлов
+// я┤я┌п╣п╫п╦п╣ я└п╟п╧п╩п╬п╡
 
   geo_data world;
   for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)

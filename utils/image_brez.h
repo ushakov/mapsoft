@@ -1,14 +1,14 @@
 #ifndef IMAGE_BREZ_H
 #define IMAGE_BREZ_H
 
-// рисование линий и кругов!
-// сюда б еще многоугольники...
+// я─п╦я│п╬п╡п╟п╫п╦п╣ п╩п╦п╫п╦п╧ п╦ п╨я─я┐пЁп╬п╡!
+// я│я▌п╢п╟ п╠ п╣я┴п╣ п╪п╫п╬пЁп╬я┐пЁп╬п╩я▄п╫п╦п╨п╦...
 
 #include <lib2d/image.h>
 
 namespace image_brez{
 
-// Линия толщины w, алгоритм Брезенхема
+// п⌡п╦п╫п╦я▐ я┌п╬п╩я┴п╦п╫я▀ w, п╟п╩пЁп╬я─п╦я┌п╪ п▒я─п╣п╥п╣п╫я┘п╣п╪п╟
     template <typename T>
     void line(Image<T> & im, 
 	      const int x1, const int y1, 
@@ -71,7 +71,7 @@ namespace image_brez{
     }
 
 
-// Окружность
+// п·п╨я─я┐п╤п╫п╬я│я┌я▄
     template <typename T>
     void circ(Image<T> & im, 
 	     const int xc, const int yc, 

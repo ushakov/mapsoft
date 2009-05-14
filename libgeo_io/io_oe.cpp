@@ -71,7 +71,7 @@ using namespace boost::spirit;
 			else ret.z      = alt*0.3048;
 			ret.prox_dist   = prox_dist;
                         return ret;
-                } // здесь еще нет преобразования СК!
+                } // п╥п╢п╣я│я▄ п╣я┴п╣ п╫п╣я┌ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦я▐ п║п !
         };
 
         struct oe_trackpoint{
@@ -92,7 +92,7 @@ using namespace boost::spirit;
 			if (alt == -777) ret.z=1e24;
 			else ret.z   = alt*0.3048;
                         return ret;
-                } // здесь еще нет преобразования СК!
+                } // п╥п╢п╣я│я▄ п╣я┴п╣ п╫п╣я┌ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦я▐ п║п !
         };
 
 
@@ -108,7 +108,7 @@ using namespace boost::spirit;
                         vector<oe_waypoint>::const_iterator i,
                                 b=points.begin(), e=points.end();
                         for (i=b; i!=e; i++){
-                                g_waypoint p = *i; // суровое преобразование типа
+                                g_waypoint p = *i; // я│я┐я─п╬п╡п╬п╣ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ я┌п╦п©п╟
 				cnv.frw(p);
                     		ret.push_back(p);
 			}
@@ -142,7 +142,7 @@ using namespace boost::spirit;
                         vector<oe_trackpoint>::const_iterator i,
                                 b=points.begin(), e=points.end();
                         for (i=b; i!=e; i++){
-				g_trackpoint p = *i; // суровое преобразование типа
+				g_trackpoint p = *i; // я│я┐я─п╬п╡п╬п╣ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ я┌п╦п©п╟
                                 cnv.frw(p);
                     		ret.push_back(p);
 			}
@@ -189,7 +189,7 @@ using namespace boost::spirit;
 		operator g_map () const {
 			g_map ret;
 			ret.comm=comm;
-			// если не абсолютный путь - добавим prefix
+			// п╣я│п╩п╦ п╫п╣ п╟п╠я│п╬п╩я▌я┌п╫я▀п╧ п©я┐я┌я▄ - п╢п╬п╠п╟п╡п╦п╪ prefix
 			if ((file.size()<1)||(file[0]!='/'))
 			    ret.file=prefix+file;
 			else ret.file=file;
@@ -209,9 +209,9 @@ using namespace boost::spirit;
                                 p.y = i->lat_d + i->lat_m/60.0;  if (i->lat_h<0) p.y=-p.y;
                                 if ((p.y==0) && (p.x==0)){
                             	    if ((i->grid_x==0) && (i->grid_y==0)) continue;
-					// преобразования
-					// кажется, пока проще будет обойти mapsoft_geo.h
-					// ну или надо хранить все параметры в виде текста...
+					// п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦я▐
+					// п╨п╟п╤п╣я┌я│я▐, п©п╬п╨п╟ п©я─п╬я┴п╣ п╠я┐п╢п╣я┌ п╬п╠п╬п╧я┌п╦ mapsoft_geo.h
+					// п╫я┐ п╦п╩п╦ п╫п╟п╢п╬ я┘я─п╟п╫п╦я┌я▄ п╡я│п╣ п©п╟я─п╟п╪п╣я┌я─я▀ п╡ п╡п╦п╢п╣ я┌п╣п╨я│я┌п╟...
                                         GPS_Math_EN_To_LatLon(i->grid_x, i->grid_y, &p.y, &p.x,
                                         proj_N0, proj_E0, proj_lat0, proj_lon0, proj_k, a, a*(1-f));
                                 }
@@ -238,8 +238,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   oe_map           m;
   geo_data ret;
 
-  // prefix -- директория, в которой лежит map-файл, на случай, 
-  // если в нем относительные названия граф.файлов
+  // prefix -- п╢п╦я─п╣п╨я┌п╬я─п╦я▐, п╡ п╨п╬я┌п╬я─п╬п╧ п╩п╣п╤п╦я┌ map-я└п╟п╧п╩, п╫п╟ я│п╩я┐я┤п╟п╧, 
+  // п╣я│п╩п╦ п╡ п╫п╣п╪ п╬я┌п╫п╬я│п╦я┌п╣п╩я▄п╫я▀п╣ п╫п╟п╥п╡п╟п╫п╦я▐ пЁя─п╟я└.я└п╟п╧п╩п╬п╡
   char *sl = rindex(filename, '/');
   if (sl!=NULL){
     int pos = sl-filename;
@@ -387,7 +387,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
   if (!parse_file("oe::read", filename, main_rule)) return false;
 
-  //преобразование комментариев и названий точек в UTF-8
+  //п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п╦ п╫п╟п╥п╡п╟п╫п╦п╧ я┌п╬я┤п╣п╨ п╡ UTF-8
   IConv cnv(default_charset);
   for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
     for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
@@ -395,11 +395,11 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
       p->comm = cnv.to_utf(p->comm);
     }
   }
-  //преобразование комментариев к трекам в UTF-8
+  //п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п╨ я┌я─п╣п╨п╟п╪ п╡ UTF-8
   for (vector<g_track>::iterator l=ret.trks.begin(); l!=ret.trks.end(); l++){
     l->comm = cnv.to_utf(l->comm);
   }
-  //преобразование комментариев к картам в UTF-8
+  //п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п╨ п╨п╟я─я┌п╟п╪ п╡ UTF-8
   for (vector<g_map>::iterator l=ret.maps.begin(); l!=ret.maps.end(); l++){
     l->comm = cnv.to_utf(l->comm);
   }
@@ -570,7 +570,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
                                   << setw(11) << it->x << "\r\n"; 
 			}
 
-			// TODO -- заполнить честно!
+			// TODO -- п╥п╟п©п╬п╩п╫п╦я┌я▄ я┤п╣я│я┌п╫п╬!
 			double m_per_pix=0;
 
 			f << "MM1B," << m_per_pix << "\r\n";

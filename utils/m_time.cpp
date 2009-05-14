@@ -69,8 +69,8 @@ Time::Time(const std::string & str){
     value = mktime(&ts);
   }
 
-  // ругаемся, если строчка непуста.
-  // возвращаем 0.
+  // я─я┐пЁп╟п╣п╪я│я▐, п╣я│п╩п╦ я│я┌я─п╬я┤п╨п╟ п╫п╣п©я┐я│я┌п╟.
+  // п╡п╬п╥п╡я─п╟я┴п╟п╣п╪ 0.
   else {
     if (!str.empty()) std::cerr << "Time: can't find valid date and time in " << str << "\n";
     value = 0;

@@ -17,15 +17,15 @@
 //#include "../libgeo_io/io.h"
 
 
-/// Слой для показа снимков kosmosnimki.ru.
+/// п║п╩п╬п╧ п╢п╩я▐ п©п╬п╨п╟п╥п╟ я│п╫п╦п╪п╨п╬п╡ kosmosnimki.ru.
 
 class LayerKS : public LayerGeo {
 private:
   std::string dir;
   int scale;
-  g_map mymap;  // текущая привязка layer'a
-  g_map mymap0; // родная привязка снимков
-  convs::map2map cnv; // преобразование mymap0 -> mymap
+  g_map mymap;  // я┌п╣п╨я┐я┴п╟я▐ п©я─п╦п╡я▐п╥п╨п╟ layer'a
+  g_map mymap0; // я─п╬п╢п╫п╟я▐ п©я─п╦п╡я▐п╥п╨п╟ я│п╫п╦п╪п╨п╬п╡
+  convs::map2map cnv; // п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ mymap0 -> mymap
   bool do_download;
 
 public:
@@ -34,7 +34,7 @@ public:
       dir(dir_), scale(scale_), mymap0(ref_ks(scale)), mymap(ref_ks(scale)), cnv(mymap0,mymap), do_download(false){}
 
 
-    // получить/установить привязку layer'a
+    // п©п╬п╩я┐я┤п╦я┌я▄/я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ п©я─п╦п╡я▐п╥п╨я┐ layer'a
     g_map get_ref() const {return mymap;}
 
     void set_ref(const g_map & map){mymap=map; cnv = convs::map2map(mymap0,mymap,false);}
@@ -53,12 +53,12 @@ public:
         std::cerr  << "LayerKS: loading " << src_rect << std::endl;
 #endif
 	
-        // мы загружаем часть картинки - поэтому сбивается привязка
+        // п╪я▀ п╥п╟пЁя─я┐п╤п╟п╣п╪ я┤п╟я│я┌я▄ п╨п╟я─я┌п╦п╫п╨п╦ - п©п╬я█я┌п╬п╪я┐ я│п╠п╦п╡п╟п╣я┌я│я▐ п©я─п╦п╡я▐п╥п╨п╟
         g_map new_map(mymap0);
         new_map-=src_rect.TLC();
         convs::map2map new_cnv(new_map, mymap, true);
 
-        // в каком масштабе мы будем загружать картинку
+        // п╡ п╨п╟п╨п╬п╪ п╪п╟я│я┬я┌п╟п╠п╣ п╪я▀ п╠я┐п╢п╣п╪ п╥п╟пЁя─я┐п╤п╟я┌я▄ п╨п╟я─я┌п╦п╫п╨я┐
 	double sc_x = src_rect.w/dst_rect.w;
 	double sc_y = src_rect.h/dst_rect.h;
 	int sc = int(sc_x<sc_y? sc_x:sc_y);

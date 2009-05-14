@@ -241,7 +241,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
   IConv cnv(enc);
 
   int n;
-  // запись заголовка
+  // п╥п╟п©п╦я│я▄ п╥п╟пЁп╬п╩п╬п╡п╨п╟
   out << "#FIG 3.2\n" 
       << world.orientation << "\n"
       << world.justification << "\n"
@@ -272,7 +272,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
   std::map<int,int> color_tr;
   fig::fig_colors colors = world.colors;
 
-  // поиск новых цветов
+  // п©п╬п╦я│п╨ п╫п╬п╡я▀я┘ я├п╡п╣я┌п╬п╡
   for (fig::fig_world::const_iterator i=world.begin(); i!=world.end(); i++){
 
     if (i->pen_color >= 0x1000000){
@@ -306,7 +306,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
   }
 
 
-  // запись цветов
+  // п╥п╟п©п╦я│я▄ я├п╡п╣я┌п╬п╡
   for (fig_colors::const_iterator 
        i  = colors.begin(); 
        i != colors.end(); i++){
@@ -316,7 +316,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
           << i->second << setbase(10) << "\n";
   }
 
-  // запись разных объектов
+  // п╥п╟п©п╦я│я▄ я─п╟п╥п╫я▀я┘ п╬п╠я┼п╣п╨я┌п╬п╡
   for (fig_world::const_iterator
        i  = world.begin(); 
        i != world.end(); i++){
@@ -370,7 +370,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
         break;
     case 2: // Polyline
 
-      // в замкнутых многоугольниках последняя точка должна совпадать с первой
+      // п╡ п╥п╟п╪п╨п╫я┐я┌я▀я┘ п╪п╫п╬пЁп╬я┐пЁп╬п╩я▄п╫п╦п╨п╟я┘ п©п╬я│п╩п╣п╢п╫я▐я▐ я┌п╬я┤п╨п╟ п╢п╬п╩п╤п╫п╟ я│п╬п╡п©п╟п╢п╟я┌я▄ я│ п©п╣я─п╡п╬п╧
       if ((i->sub_type > 1) && (nn>0) && ((*i)[nn-1]!=(*i)[0])){
         nn1=nn+1;
       }
@@ -460,7 +460,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
         out << "\n";
         break;
     case 4: // Text
-      // сделать пересчет размеров (height length)!
+      // я│п╢п╣п╩п╟я┌я▄ п©п╣я─п╣я│я┤п╣я┌ я─п╟п╥п╪п╣я─п╬п╡ (height length)!
       if (nn<1){
         cerr << "fig::write (text): can't get x and y values\n";
         break;
@@ -522,7 +522,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
         out << "\n";
       break;
     case 6: // Compound begin
-      // сделать пересчет размеров!
+      // я│п╢п╣п╩п╟я┌я▄ п©п╣я─п╣я│я┤п╣я┌ я─п╟п╥п╪п╣я─п╬п╡!
       int x1,y1,x2,y2;
       if (nn<2){
         cerr << "fig::write (compound): can't get x and y values\n";

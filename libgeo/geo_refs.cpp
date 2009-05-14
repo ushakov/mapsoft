@@ -1,4 +1,4 @@
-// Привязки специальных карт и снимков
+// п÷я─п╦п╡я▐п╥п╨п╦ я│п©п╣я├п╦п╟п╩я▄п╫я▀я┘ п╨п╟я─я┌ п╦ я│п╫п╦п╪п╨п╬п╡
 
 #include "geo_refs.h"
 #include "geo_convs.h"
@@ -37,8 +37,8 @@ g_map ref_ks_old(int scale){
    if (scale<ks::ks_scale_min) scale=ks::ks_scale_min;
    if (scale>ks::ks_scale_max) scale=ks::ks_scale_max;
  
-   // Datum тут должен быть wgs, 
-   // в Proj(ks) параметры эллипсоида записаны жестко
+   // Datum я┌я┐я┌ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ wgs, 
+   // п╡ Proj(ks) п©п╟я─п╟п╪п╣я┌я─я▀ я█п╩п╩п╦п©я│п╬п╦п╢п╟ п╥п╟п©п╦я│п╟п╫я▀ п╤п╣я│я┌п╨п╬
    convs::pt2pt c1(Datum("wgs84"), Proj("ks"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
 
    g_point p(5 * (1<<14) * 256, 5 * (1<<14) * 256);
@@ -75,7 +75,7 @@ g_map ref_ks(int scale){
    ret.push_back(g_refpoint(180,0,width,width));
    ret.push_back(g_refpoint(0,0,0,width));
 
-   // ручная поправка :(((
+   // я─я┐я┤п╫п╟я▐ п©п╬п©я─п╟п╡п╨п╟ :(((
    ret += g_point(6.0/(1<<(14-scale)),0);
 
    ret.border.push_back(g_point(0,0));

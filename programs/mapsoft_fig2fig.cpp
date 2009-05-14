@@ -3,8 +3,8 @@
 #include "../lib2d/line_polycrop.h"
 #include <fstream>
 
-// Перенесение данных из одного fig-файла в другой с обрезкой 
-// Обрезка пока неаккуратная!!!
+// п÷п╣я─п╣п╫п╣я│п╣п╫п╦п╣ п╢п╟п╫п╫я▀я┘ п╦п╥ п╬п╢п╫п╬пЁп╬ fig-я└п╟п╧п╩п╟ п╡ п╢я─я┐пЁп╬п╧ я│ п╬п╠я─п╣п╥п╨п╬п╧ 
+// п·п╠я─п╣п╥п╨п╟ п©п╬п╨п╟ п╫п╣п╟п╨п╨я┐я─п╟я┌п╫п╟я▐!!!
 
 using namespace std;
 
@@ -20,7 +20,7 @@ main(int argc, char** argv){
   std::string out_fig = argv[1];
   std::string in_fig  = argv[2];
 
-  // читаем fig
+  // я┤п╦я┌п╟п╣п╪ fig
   fig::fig_world F1;
   if (!fig::read(out_fig.c_str(), F1)) {
     std::cerr << "File is not modified.\n";

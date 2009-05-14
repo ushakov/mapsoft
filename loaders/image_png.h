@@ -3,8 +3,8 @@
 
 #include "../lib2d/image.h"
 
-// lippng загружает setjmp.h,
-// а потом его же может загружать image_jpeg...
+// lippng п╥п╟пЁя─я┐п╤п╟п╣я┌ setjmp.h,
+// п╟ п©п╬я┌п╬п╪ п╣пЁп╬ п╤п╣ п╪п╬п╤п╣я┌ п╥п╟пЁя─я┐п╤п╟я┌я▄ image_jpeg...
 #define SETJMP
 #include <png.h>
 
@@ -23,7 +23,7 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
          const char *file);
 
 
-// load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
+// load the whole image -- п╫п╣ п╥п╟п╡п╦я│п╦я┌ п╬я┌ я└п╬я─п╪п╟я┌п╟, п╡п╣я─п╬я▐я┌п╫п╬, п╫п╟п╢п╬ п©п╣я─п╣п╫п╣я│я┌п╦ п╡ image_io.h
 Image<int> load(const char *file, const int scale=1);
 
 

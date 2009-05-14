@@ -13,13 +13,13 @@ int main(int argc, char **argv){
     boost::shared_ptr<Mapview>  mapview;
     mapview.reset(new Mapview());
 
-    boost::shared_ptr<ViewerAM>    viewer_am;    // ActionManager для viewer'а
-    boost::shared_ptr<FileListAM>  file_list_am; // ActionManager для file_list'а
-    boost::shared_ptr<WPTSListAM>  wpts_list_am; // ActionManager для wpts_list'а
-    boost::shared_ptr<TRKSListAM>  trks_list_am; // ActionManager для trks_list'а
-    boost::shared_ptr<MAPSListAM>  maps_list_am; // ActionManager для maps_list'а
+    boost::shared_ptr<ViewerAM>    viewer_am;    // ActionManager п╢п╩я▐ viewer'п╟
+    boost::shared_ptr<FileListAM>  file_list_am; // ActionManager п╢п╩я▐ file_list'п╟
+    boost::shared_ptr<WPTSListAM>  wpts_list_am; // ActionManager п╢п╩я▐ wpts_list'п╟
+    boost::shared_ptr<TRKSListAM>  trks_list_am; // ActionManager п╢п╩я▐ trks_list'п╟
+    boost::shared_ptr<MAPSListAM>  maps_list_am; // ActionManager п╢п╩я▐ maps_list'п╟
 
-    // от порядка зависит порядок пунктов в меню!
+    // п╬я┌ п©п╬я─я▐п╢п╨п╟ п╥п╟п╡п╦я│п╦я┌ п©п╬я─я▐п╢п╬п╨ п©я┐п╫п╨я┌п╬п╡ п╡ п╪п╣п╫я▌!
     file_list_am.reset(new FileListAM(mapview->file_list, mapview));
     viewer_am.reset(new ViewerAM(mapview->viewer, mapview));
     wpts_list_am.reset(new WPTSListAM(mapview->wpts_list, mapview));

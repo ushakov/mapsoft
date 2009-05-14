@@ -6,7 +6,7 @@
 #include "../lib2d/point.h"
 #include "../utils/log.h"
 
-// ActionManager для DataList
+// ActionManager п╢п╩я▐ DataList
 
 
 class Mapview;

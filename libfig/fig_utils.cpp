@@ -11,7 +11,7 @@ double nearest_pt(Point<double> & vec, Point<double> & pt,
   const std::list<fig_object> & objects, const std::string & mask, double maxdist){
 
   Point<double> minp(pt),minvec(1,0);
-  double minl=maxdist; // далеко объекты не уносим!!!
+  double minl=maxdist; // п╢п╟п╩п╣п╨п╬ п╬п╠я┼п╣п╨я┌я▀ п╫п╣ я┐п╫п╬я│п╦п╪!!!
 
   for (fig_world::const_iterator i  = objects.begin(); i != objects.end(); i++){
     if (!test_object(*i, mask)) continue;
@@ -32,7 +32,7 @@ double nearest_pt(Point<double> & vec, Point<double> & pt,
 
       double prl = ((pt.x-p1.x)*vec.x+(pt.y-p1.y)*vec.y); 
 
-      if ((prl>=0)&&(prl<=ll)) { // проекция попала на отрезок
+      if ((prl>=0)&&(prl<=ll)) { // п©я─п╬п╣п╨я├п╦я▐ п©п╬п©п╟п╩п╟ п╫п╟ п╬я┌я─п╣п╥п╬п╨
         Point<double> p = p1 + vec * ((pt.x-p1.x)*vec.x+(pt.y-p1.y)*vec.y);
         double lc=sqrt((pt.x-p.x)*(pt.x-p.x)+(pt.y-p.y)*(pt.y-p.y));
         if (lc<minl) {
@@ -46,7 +46,7 @@ double nearest_pt(Point<double> & vec, Point<double> & pt,
   return minl;
 }
 
-// размер fig-объектов
+// я─п╟п╥п╪п╣я─ fig-п╬п╠я┼п╣п╨я┌п╬п╡
 Rect<int> range(std::list<fig_object> & objects){
   if ((objects.size()<1) || (objects.begin()->size()<1)) return Rect<int>(0,0,0,0);
   int minx=(*objects.begin())[0].x;
@@ -79,7 +79,7 @@ Rect<int> range(std::list<fig_object> & objects){
 }
 
 
-// заключить fig-объекты в составной объект.
+// п╥п╟п╨п╩я▌я┤п╦я┌я▄ fig-п╬п╠я┼п╣п╨я┌я▀ п╡ я│п╬я│я┌п╟п╡п╫п╬п╧ п╬п╠я┼п╣п╨я┌.
 void fig_make_comp(std::list<fig_object> & objects){
   if ((objects.size()<1) || (objects.begin()->size()<1)) return;
   Rect<int> r = range(objects);
@@ -93,7 +93,7 @@ void fig_make_comp(std::list<fig_object> & objects){
   objects.insert(objects.end(), o);
 }
 
-// повернуть на угол a вокруг точки p0
+// п©п╬п╡п╣я─п╫я┐я┌я▄ п╫п╟ я┐пЁп╬п╩ a п╡п╬п╨я─я┐пЁ я┌п╬я┤п╨п╦ p0
 void fig_rotate(std::list<fig_object> & objects, const double a, const Point<int> & p0){
   double c = cos(a);
   double s = sin(a);
@@ -115,14 +115,14 @@ void fig_rotate(std::list<fig_object> & objects, const double a, const Point<int
   }
 }
 
-// преобразовать ломаную в сплайн
+// п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟я┌я▄ п╩п╬п╪п╟п╫я┐я▌ п╡ я│п©п╩п╟п╧п╫
 void any2xspl(fig_object & o, const double x, const double y){
   if (o.size()<3) return;
   if (o.is_polyline()){
     if      (o.sub_type==1) o.sub_type = 4;
     else if (o.sub_type==3) {
-      //в замкнутой ломаной последняя точка совпадает с первой
-      //в замкнутом сплайне - нет!
+      //п╡ п╥п╟п╪п╨п╫я┐я┌п╬п╧ п╩п╬п╪п╟п╫п╬п╧ п©п╬я│п╩п╣п╢п╫я▐я▐ я┌п╬я┤п╨п╟ я│п╬п╡п©п╟п╢п╟п╣я┌ я│ п©п╣я─п╡п╬п╧
+      //п╡ п╥п╟п╪п╨п╫я┐я┌п╬п╪ я│п©п╩п╟п╧п╫п╣ - п╫п╣я┌!
       if (o[0]==o[o.size()-1]) o.resize(o.size()-1);
       o.sub_type = 5;
     }
@@ -131,12 +131,12 @@ void any2xspl(fig_object & o, const double x, const double y){
   else if (o.is_spline()) o.sub_type = o.sub_type%2+4;
   else return;
 
-  // добавим точки в соответствии с параметром y
-  // Если звено ломаной длиннее, чем 3y, добавим две точки на
-  // расстоянии y от края.
+  // п╢п╬п╠п╟п╡п╦п╪ я┌п╬я┤п╨п╦ п╡ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╦п╦ я│ п©п╟я─п╟п╪п╣я┌я─п╬п╪ y
+  // п∙я│п╩п╦ п╥п╡п╣п╫п╬ п╩п╬п╪п╟п╫п╬п╧ п╢п╩п╦п╫п╫п╣п╣, я┤п╣п╪ 3y, п╢п╬п╠п╟п╡п╦п╪ п╢п╡п╣ я┌п╬я┤п╨п╦ п╫п╟
+  // я─п╟я│я│я┌п╬я▐п╫п╦п╦ y п╬я┌ п╨я─п╟я▐.
   if (y>0){
     fig_object::iterator i=o.begin(), j=i;
-    j++; // у нас >3 точек, т.ч. все хорошо
+    j++; // я┐ п╫п╟я│ >3 я┌п╬я┤п╣п╨, я┌.я┤. п╡я│п╣ я┘п╬я─п╬я┬п╬
     do{
       double l = pdist(*i,*j);
       if (l > 3*y){
@@ -158,7 +158,7 @@ void any2xspl(fig_object & o, const double x, const double y){
   return;
 }
 
-/// обрезка fig-файла по прямоугольнику
+/// п╬п╠я─п╣п╥п╨п╟ fig-я└п╟п╧п╩п╟ п©п╬ п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨я┐
 void rect_crop(const Rect<int> & cutter, std::list<fig_object> & objects){
   std::list<fig_object>::iterator o = objects.begin();
   while (o!=objects.end()){
@@ -170,8 +170,8 @@ void rect_crop(const Rect<int> & cutter, std::list<fig_object> & objects){
   }
 }
 
-/// Обрезка fig-объекта по прямоугольнику. Объект после обрезки.
-/// может не содержать точек, т.е. быть плохим с т.з. fig-а!
+/// п·п╠я─п╣п╥п╨п╟ fig-п╬п╠я┼п╣п╨я┌п╟ п©п╬ п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨я┐. п·п╠я┼п╣п╨я┌ п©п╬я│п╩п╣ п╬п╠я─п╣п╥п╨п╦.
+/// п╪п╬п╤п╣я┌ п╫п╣ я│п╬п╢п╣я─п╤п╟я┌я▄ я┌п╬я┤п╣п╨, я┌.п╣. п╠я▀я┌я▄ п©п╩п╬я┘п╦п╪ я│ я┌.п╥. fig-п╟!
 void rect_crop(const Rect<int> & cutter, fig_object & o){
   Line<int> l = o;
   ::rect_crop(cutter, l, o.is_closed() || (o.area_fill != -1));

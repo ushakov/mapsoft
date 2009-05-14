@@ -4,7 +4,7 @@
 #include "line.h"
 #include "point_utils.h"
 
-//преобразовать прямоугольник в линию из 4 точек
+//п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟я┌я▄ п©я─я▐п╪п╬я┐пЁп╬п╩я▄п╫п╦п╨ п╡ п╩п╦п╫п╦я▌ п╦п╥ 4 я┌п╬я┤п╣п╨
 template<typename T>
 Line<T> rect2line(const Rect<T> & r){
   Line<T> ret;
@@ -16,7 +16,7 @@ Line<T> rect2line(const Rect<T> & r){
   return  ret;
 }
 
-// повернуть линии на угол a вокруг точки p0.
+// п©п╬п╡п╣я─п╫я┐я┌я▄ п╩п╦п╫п╦п╦ п╫п╟ я┐пЁп╬п╩ a п╡п╬п╨я─я┐пЁ я┌п╬я┤п╨п╦ p0.
 template<typename T>
 void lrotate(MultiLine<T> & lines, const T a, const Point<T> & p0 = Point<T>(0,0)){
   double c = cos(a);
@@ -30,11 +30,11 @@ void lrotate(MultiLine<T> & lines, const T a, const Point<T> & p0 = Point<T>(0,0
   }
 }
 
-// склеивание линий, если их концы ближе e
+// я│п╨п╩п╣п╦п╡п╟п╫п╦п╣ п╩п╦п╫п╦п╧, п╣я│п╩п╦ п╦я┘ п╨п╬п╫я├я▀ п╠п╩п╦п╤п╣ e
 template<typename T>
 void merge (MultiLine<T> & lines, T e){
 
-  //убираем вообще двойные линии
+  //я┐п╠п╦я─п╟п╣п╪ п╡п╬п╬п╠я┴п╣ п╢п╡п╬п╧п╫я▀п╣ п╩п╦п╫п╦п╦
   for (typename MultiLine<T>::iterator i1 = lines.begin(); i1!=lines.end(); i1++){
     for (typename MultiLine<T>::iterator i2 = i1; i2!=lines.end(); i2++){
       if (i1==i2) continue;
@@ -61,14 +61,14 @@ void merge (MultiLine<T> & lines, T e){
   }
 }
 
-// разбиение линии на несколько, каждая не более points точек
+// я─п╟п╥п╠п╦п╣п╫п╦п╣ п╩п╦п╫п╦п╦ п╫п╟ п╫п╣я│п╨п╬п╩я▄п╨п╬, п╨п╟п╤п╢п╟я▐ п╫п╣ п╠п╬п╩п╣п╣ points я┌п╬я┤п╣п╨
 template<typename T>
 void split (MultiLine<T> & lines, int points){
 
   if (points < 2) return;
   for (typename MultiLine<T>::iterator i = lines.begin(); i!=lines.end(); i++){
     while (i->size() > points){
-      // points последних точек
+      // points п©п╬я│п╩п╣п╢п╫п╦я┘ я┌п╬я┤п╣п╨
       Line<T> newline;
       newline.insert(newline.begin(), i->rbegin(), i->rbegin()+points);
       lines.push_back(newline);
@@ -77,25 +77,25 @@ void split (MultiLine<T> & lines, int points){
   }
 }
 
-// Убрать из линии некоторые точки, так, чтобы линия
-// не сместилась от исходного положения более чем на e
+// пёп╠я─п╟я┌я▄ п╦п╥ п╩п╦п╫п╦п╦ п╫п╣п╨п╬я┌п╬я─я▀п╣ я┌п╬я┤п╨п╦, я┌п╟п╨, я┤я┌п╬п╠я▀ п╩п╦п╫п╦я▐
+// п╫п╣ я│п╪п╣я│я┌п╦п╩п╟я│я▄ п╬я┌ п╦я│я┘п╬п╢п╫п╬пЁп╬ п©п╬п╩п╬п╤п╣п╫п╦я▐ п╠п╬п╩п╣п╣ я┤п╣п╪ п╫п╟ e
 template<typename T>
 void generalize (MultiLine<T> & lines, double e){
   for (typename MultiLine<T>::iterator l = lines.begin(); l!=lines.end(); l++){
 
-    // какие точки мы хотим исключить:
+    // п╨п╟п╨п╦п╣ я┌п╬я┤п╨п╦ п╪я▀ я┘п╬я┌п╦п╪ п╦я│п╨п╩я▌я┤п╦я┌я▄:
     std::vector<bool> skip(l->size(),false);
 
     while (l->size()>2){
-      // для каждой точки найдем расстояние от нее до 
-      // прямой, соединяющей две соседние (не пропущенные) точки.
-      // найдем минимум этой величины
-      double min = 1e99; //важно, что >e 
+      // п╢п╩я▐ п╨п╟п╤п╢п╬п╧ я┌п╬я┤п╨п╦ п╫п╟п╧п╢п╣п╪ я─п╟я│я│я┌п╬я▐п╫п╦п╣ п╬я┌ п╫п╣п╣ п╢п╬ 
+      // п©я─я▐п╪п╬п╧, я│п╬п╣п╢п╦п╫я▐я▌я┴п╣п╧ п╢п╡п╣ я│п╬я│п╣п╢п╫п╦п╣ (п╫п╣ п©я─п╬п©я┐я┴п╣п╫п╫я▀п╣) я┌п╬я┤п╨п╦.
+      // п╫п╟п╧п╢п╣п╪ п╪п╦п╫п╦п╪я┐п╪ я█я┌п╬п╧ п╡п╣п╩п╦я┤п╦п╫я▀
+      double min = 1e99; //п╡п╟п╤п╫п╬, я┤я┌п╬ >e 
       int mini;
       for (int i=1; i<l->size()-1; i++){
         if (skip[i]) continue;
         int ip, in;
-        // помним, что skip[0] и skip[l->size()-1] всегда false
+        // п©п╬п╪п╫п╦п╪, я┤я┌п╬ skip[0] п╦ skip[l->size()-1] п╡я│п╣пЁп╢п╟ false
         for (ip=i-1; ip>=0; ip--)          if (!skip[ip]) break;
         for (in=i+1; in<l->size()-1; in++) if (!skip[in]) break;
         Point<T> p1 = (*l)[ip];
@@ -108,20 +108,20 @@ void generalize (MultiLine<T> & lines, double e){
         if      (prj<=0)  dp = pdist(p2,p1);
         else if (prj>=ll) dp = pdist(p2,p3);
         else              dp = pdist(p2-p1-v*prj);
-        // в начале у нас обязатеьно i==1
+        // п╡ п╫п╟я┤п╟п╩п╣ я┐ п╫п╟я│ п╬п╠я▐п╥п╟я┌п╣я▄п╫п╬ i==1
         if ((i==1) || (min>dp)) {min = dp; mini=i;}
       }
-      // если этот минимум меньше e - выкинем точку
+      // п╣я│п╩п╦ я█я┌п╬я┌ п╪п╦п╫п╦п╪я┐п╪ п╪п╣п╫я▄я┬п╣ e - п╡я▀п╨п╦п╫п╣п╪ я┌п╬я┤п╨я┐
       if (min<e) skip[mini]=true;
       else break;
     }
 
-    // сделаем новую линию
+    // я│п╢п╣п╩п╟п╣п╪ п╫п╬п╡я┐я▌ п╩п╦п╫п╦я▌
     Line<T> newl;
     for (int i = 0; i<l->size(); i++) if (!skip[i]) newl.push_back((*l)[i]);
     l->swap(newl);
 
-    // если осталась линия из двух близких точек - сотрем ее.
+    // п╣я│п╩п╦ п╬я│я┌п╟п╩п╟я│я▄ п╩п╦п╫п╦я▐ п╦п╥ п╢п╡я┐я┘ п╠п╩п╦п╥п╨п╦я┘ я┌п╬я┤п╣п╨ - я│п╬я┌я─п╣п╪ п╣п╣.
     if ((l->size() == 2) && (pdist((*l)[0],(*l)[1]) < e)){
       l=lines.erase(l); l--;
     }
@@ -141,16 +141,16 @@ Line<T> join_polygons(const MultiLine<T> & L){
   ret = *l; l++;
   while (l!=L.end()){
 
-    // Найдем место кратчайшего разреза между ret и очередным куском.
-    // Честно пока делать лень, поэтому найдем минимальное расстояние 
-    // между вершинами...
+    // п²п╟п╧п╢п╣п╪ п╪п╣я│я┌п╬ п╨я─п╟я┌я┤п╟п╧я┬п╣пЁп╬ я─п╟п╥я─п╣п╥п╟ п╪п╣п╤п╢я┐ ret п╦ п╬я┤п╣я─п╣п╢п╫я▀п╪ п╨я┐я│п╨п╬п╪.
+    // п╖п╣я│я┌п╫п╬ п©п╬п╨п╟ п╢п╣п╩п╟я┌я▄ п╩п╣п╫я▄, п©п╬я█я┌п╬п╪я┐ п╫п╟п╧п╢п╣п╪ п╪п╦п╫п╦п╪п╟п╩я▄п╫п╬п╣ я─п╟я│я│я┌п╬я▐п╫п╦п╣ 
+    // п╪п╣п╤п╢я┐ п╡п╣я─я┬п╦п╫п╟п╪п╦...
 
     double dist = 1e99;
 
     typename Line<T>::iterator  i1,q1 ;
     typename Line<T>::const_iterator  i2,q2;
-      // i1,i2 -- пара вершин
-      // q1,q2 -- искомое
+      // i1,i2 -- п©п╟я─п╟ п╡п╣я─я┬п╦п╫
+      // q1,q2 -- п╦я│п╨п╬п╪п╬п╣
 
     for (i1=ret.begin(); i1!=ret.end(); i1++){
       for (i2=l->begin(); i2!=l->end(); i2++){
@@ -163,7 +163,7 @@ Line<T> join_polygons(const MultiLine<T> & L){
       }
     }
 
-    // вставим кусок в разрез
+    // п╡я│я┌п╟п╡п╦п╪ п╨я┐я│п╬п╨ п╡ я─п╟п╥я─п╣п╥
     Line<T> tmp;
     tmp.push_back(*q1);
     tmp.insert(tmp.end(), q2, l->end());

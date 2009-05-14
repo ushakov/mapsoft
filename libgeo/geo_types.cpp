@@ -1,4 +1,4 @@
-// типы данных, используемые в геоданных
+// я┌п╦п©я▀ п╢п╟п╫п╫я▀я┘, п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╣ п╡ пЁп╣п╬п╢п╟п╫п╫я▀я┘
 
 #include "geo_types.h"
 #include <sstream>
@@ -96,10 +96,10 @@ void Proj::create_table(){
   names["tmerc"]               = 1 | Enum::xml_fmt;
   names["Transverse Mercator"] = 1 | Enum::oe_fmt;
   names["utm"]                 = 1 | Enum::xml_fmt;
-  names["UTM"]                 = 2 | Enum::oe_fmt;  // проверить, что в OE оно так называется!
+  names["UTM"]                 = 2 | Enum::oe_fmt;  // п©я─п╬п╡п╣я─п╦я┌я▄, я┤я┌п╬ п╡ OE п╬п╫п╬ я┌п╟п╨ п╫п╟п╥я▀п╡п╟п╣я┌я│я▐!
   names["merc"]                = 3 | Enum::xml_fmt;
-  names["Mercator"]            = 3 | Enum::oe_fmt;  // проверить, что в OE оно так называется!
-  names["google"]              = 4 | Enum::xml_fmt; // в Ozi что-то такое должно быть...
+  names["Mercator"]            = 3 | Enum::oe_fmt;  // п©я─п╬п╡п╣я─п╦я┌я▄, я┤я┌п╬ п╡ OE п╬п╫п╬ я┌п╟п╨ п╫п╟п╥я▀п╡п╟п╣я┌я│я▐!
+  names["google"]              = 4 | Enum::xml_fmt; // п╡ Ozi я┤я┌п╬-я┌п╬ я┌п╟п╨п╬п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄...
   names["ks"]                  = 5 | Enum::xml_fmt;
 }
 

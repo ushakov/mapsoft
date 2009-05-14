@@ -18,14 +18,14 @@
 
 namespace fig{
 
-// функция для записи fig
-// - в директории cache лежат плитки карт tsize x tsize (м),
-//   соответствующих масштабу scale c разрешением dpi,
-//   в СК datum, в проекции proj, с соответствующими параметрами
-// - если плитки нет - создаем ее из наших map-файлов
-// - создаем fig, использую эти плитки
-// - если данные больше msize x msize (м) -- отрезаем левый нижний угол
-// - параметр marg -- поле вокруг данных, которое надо оставлять (м)
+// я└я┐п╫п╨я├п╦я▐ п╢п╩я▐ п╥п╟п©п╦я│п╦ fig
+// - п╡ п╢п╦я─п╣п╨я┌п╬я─п╦п╦ cache п╩п╣п╤п╟я┌ п©п╩п╦я┌п╨п╦ п╨п╟я─я┌ tsize x tsize (п╪),
+//   я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┴п╦я┘ п╪п╟я│я┬я┌п╟п╠я┐ scale c я─п╟п╥я─п╣я┬п╣п╫п╦п╣п╪ dpi,
+//   п╡ п║п  datum, п╡ п©я─п╬п╣п╨я├п╦п╦ proj, я│ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┴п╦п╪п╦ п©п╟я─п╟п╪п╣я┌я─п╟п╪п╦
+// - п╣я│п╩п╦ п©п╩п╦я┌п╨п╦ п╫п╣я┌ - я│п╬п╥п╢п╟п╣п╪ п╣п╣ п╦п╥ п╫п╟я┬п╦я┘ map-я└п╟п╧п╩п╬п╡
+// - я│п╬п╥п╢п╟п╣п╪ fig, п╦я│п©п╬п╩я▄п╥я┐я▌ я█я┌п╦ п©п╩п╦я┌п╨п╦
+// - п╣я│п╩п╦ п╢п╟п╫п╫я▀п╣ п╠п╬п╩я▄я┬п╣ msize x msize (п╪) -- п╬я┌я─п╣п╥п╟п╣п╪ п╩п╣п╡я▀п╧ п╫п╦п╤п╫п╦п╧ я┐пЁп╬п╩
+// - п©п╟я─п╟п╪п╣я┌я─ marg -- п©п╬п╩п╣ п╡п╬п╨я─я┐пЁ п╢п╟п╫п╫я▀я┘, п╨п╬я┌п╬я─п╬п╣ п╫п╟п╢п╬ п╬я│я┌п╟п╡п╩я▐я┌я▄ (п╪)
 
 /***********************************************************/
 using namespace std;
@@ -41,9 +41,9 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   Datum datum(opt.get("datum", "pulkovo"));
   Proj  proj(opt.get("proj", "tmerc"));
 
-  // найдем габариты данных в нужных нам координатах, 
-  // посмотрим, не надо ли обрезать данные,
-  // определим, какие плитки нам нужны:
+  // п╫п╟п╧п╢п╣п╪ пЁп╟п╠п╟я─п╦я┌я▀ п╢п╟п╫п╫я▀я┘ п╡ п╫я┐п╤п╫я▀я┘ п╫п╟п╪ п╨п╬п╬я─п╢п╦п╫п╟я┌п╟я┘, 
+  // п©п╬я│п╪п╬я┌я─п╦п╪, п╫п╣ п╫п╟п╢п╬ п╩п╦ п╬п╠я─п╣п╥п╟я┌я▄ п╢п╟п╫п╫я▀п╣,
+  // п╬п©я─п╣п╢п╣п╩п╦п╪, п╨п╟п╨п╦п╣ п©п╩п╦я┌п╨п╦ п╫п╟п╪ п╫я┐п╤п╫я▀:
   convs::pt2pt cnv(datum,proj,opt, Datum("wgs84"), Proj("lonlat"), Options());
 
   double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
@@ -99,7 +99,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   std::cerr << "o_fig: xt = " << int(minx) << " - " << int(maxx) << 
                      " yt = " << int(miny) << " - " << int(maxy) << "\n";
 
-  // сделаем привязку нашей карты (в координатах растрового изображения!)
+  // я│п╢п╣п╩п╟п╣п╪ п©я─п╦п╡я▐п╥п╨я┐ п╫п╟я┬п╣п╧ п╨п╟я─я┌я▀ (п╡ п╨п╬п╬я─п╢п╦п╫п╟я┌п╟я┘ я─п╟я│я┌я─п╬п╡п╬пЁп╬ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦я▐!)
   g_map ref;
 
   g_point rp1(minx, miny), rp2(minx, maxy), rp3(maxx, miny), rp4(maxx, maxy);
@@ -117,8 +117,8 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   ref.border.push_back(g_point(0,0));
   ref.map_proj=proj;
 
-  // если даны какие-то карты - пополним кэш
-  // (если карт нет - считаем, что кэш сделан до нас и менять его не надо):
+  // п╣я│п╩п╦ п╢п╟п╫я▀ п╨п╟п╨п╦п╣-я┌п╬ п╨п╟я─я┌я▀ - п©п╬п©п╬п╩п╫п╦п╪ п╨я█я┬
+  // (п╣я│п╩п╦ п╨п╟я─я┌ п╫п╣я┌ - я│я┤п╦я┌п╟п╣п╪, я┤я┌п╬ п╨я█я┬ я│п╢п╣п╩п╟п╫ п╢п╬ п╫п╟я│ п╦ п╪п╣п╫я▐я┌я▄ п╣пЁп╬ п╫п╣ п╫п╟п╢п╬):
   if (!world.maps.empty()){
 
     LayerGeoMap ml(&world);
@@ -135,7 +135,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
       stat(dir.str().c_str(), &st);
       mkdir(dir.str().c_str(), 0755);
       stat((dir.str()+file.str()).c_str(), &st);
-      if (S_ISREG(st.st_mode)) continue; //файл существует
+      if (S_ISREG(st.st_mode)) continue; //я└п╟п╧п╩ я│я┐я┴п╣я│я┌п╡я┐п╣я┌
 
       int S = int(tsize*k);
       Image<int> im(S,S);
@@ -145,13 +145,13 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
     }
   }
   
-  // выводим файл 
+  // п╡я▀п╡п╬п╢п╦п╪ я└п╟п╧п╩ 
   out << "#FIG 3.2\nPortrait\nCenter\nMetric\nA4\n100.0\nSingle\n-2\n1200 2\n";
   double cm2fig = 449.943757;
   double kf = scale*100*cm2fig;
   int Sf = int(kf*tsize);
 
-  // картинки
+  // п╨п╟я─я┌п╦п╫п╨п╦
   for (int y = tminy; y<tmaxy; y++){
   for (int x = tminx; x<tmaxx; x++){
     ostringstream file, dir;
@@ -160,7 +160,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
     file << x << ".jpg";
     struct stat st;
     stat((dir.str()+file.str()).c_str(), &st);
-    if (!S_ISREG(st.st_mode)) continue; //файл не существует
+    if (!S_ISREG(st.st_mode)) continue; //я└п╟п╧п╩ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌
 
     int x1 = Sf*(x-tminx);
     int y1 = Sf*(tmaxy-y-1);
@@ -177,7 +177,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   }
   }
 
-  // подписи сетки
+  // п©п╬п╢п©п╦я│п╦ я│п╣я┌п╨п╦
   int dd=50;
   for (int y = tminy; y<=tmaxy; y++){
     out << "4 2 0 400 -1 18 10 0.0000 4 0 0 "
@@ -192,7 +192,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
         << (x-tminx)*Sf+dd << " " << (tmaxy-tminy)*Sf+dd << " " << int(x*tsize) << "\\001\n";
   }
 
-  // привязка
+  // п©я─п╦п╡я▐п╥п╨п╟
   int ref_color=4, ref_depth=1, ref_width=3;
   for (vector<g_refpoint>::const_iterator i = ref.begin(); i!=ref.end(); i++){
     out << "# REF " << i->x << " " << i->y << "\n"
@@ -202,7 +202,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
 
 
 
-  // точки
+  // я┌п╬я┤п╨п╦
   for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
     int wpt_color=0, wpt_depth=59, wpt_width=2;
     int wpt_txt_color=22, wpt_txt_depth=58, wpt_txt_font=18, wpt_txt_size=8;
@@ -244,7 +244,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
     }
   }
 
-  // треки
+  // я┌я─п╣п╨п╦
   for (tl=world.trks.begin();tl!=world.trks.end();tl++){
     int trk_color=1, trk_depth=60, trk_width=1;
 

@@ -1,7 +1,7 @@
 #ifndef GEO_TYPES_H
 #define GEO_TYPES_H
 
-// типы данных, используемые в геоданных
+// я┌п╦п©я▀ п╢п╟п╫п╫я▀я┘, п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╣ п╡ пЁп╣п╬п╢п╟п╫п╫я▀я┘
 
 #include <boost/operators.hpp>
 #include <iostream>

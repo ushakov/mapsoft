@@ -18,17 +18,17 @@
 #include "../lib2d/point_utils.h"
 
 
-/// Растровый слой для показа привязанных карт.
+/// п═п╟я│я┌я─п╬п╡я▀п╧ я│п╩п╬п╧ п╢п╩я▐ п©п╬п╨п╟п╥п╟ п©я─п╦п╡я▐п╥п╟п╫п╫я▀я┘ п╨п╟я─я┌.
 
 class LayerGeoMap : public LayerGeo {
 private:
-  const geo_data *world;                   // привязки карт
-  std::vector<convs::map2map> m2ms;  // преобразования из каждой карты в mymap
-  std::vector<double> scales;        // во сколько раз мы сжимаем карты при загрузке
-  std::vector<int>    iscales;       // во сколько раз мы сжимаем карты при загрузке
-  Rect<int> myrange;               // габариты карты
-  Cache<int, Image<int> > image_cache;    // кэш изображений
-//  Options O; // для всех карт должны быть одинаковы!
+  const geo_data *world;                   // п©я─п╦п╡я▐п╥п╨п╦ п╨п╟я─я┌
+  std::vector<convs::map2map> m2ms;  // п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦я▐ п╦п╥ п╨п╟п╤п╢п╬п╧ п╨п╟я─я┌я▀ п╡ mymap
+  std::vector<double> scales;        // п╡п╬ я│п╨п╬п╩я▄п╨п╬ я─п╟п╥ п╪я▀ я│п╤п╦п╪п╟п╣п╪ п╨п╟я─я┌я▀ п©я─п╦ п╥п╟пЁя─я┐п╥п╨п╣
+  std::vector<int>    iscales;       // п╡п╬ я│п╨п╬п╩я▄п╨п╬ я─п╟п╥ п╪я▀ я│п╤п╦п╪п╟п╣п╪ п╨п╟я─я┌я▀ п©я─п╦ п╥п╟пЁя─я┐п╥п╨п╣
+  Rect<int> myrange;               // пЁп╟п╠п╟я─п╦я┌я▀ п╨п╟я─я┌я▀
+  Cache<int, Image<int> > image_cache;    // п╨я█я┬ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦п╧
+//  Options O; // п╢п╩я▐ п╡я│п╣я┘ п╨п╟я─я┌ п╢п╬п╩п╤п╫я▀ п╠я▀я┌я▄ п╬п╢п╦п╫п╟п╨п╬п╡я▀!
   g_map mymap;
   bool drawborder;
  
@@ -41,14 +41,14 @@ public:
       drawborder(_drawborder)
     {make_m2ms();}
 
-    // получить/установить привязку layer'a
+    // п©п╬п╩я┐я┤п╦я┌я▄/я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ п©я─п╦п╡я▐п╥п╨я┐ layer'a
     g_map get_ref() const {return mymap;}
     void set_ref(const g_map & map){mymap=map; make_m2ms();}
     void set_ref(){set_ref(convs::mymap(*world));}
 
     void refresh(){image_cache.clear();}
 
-    // построение преобразований, вычисление габаритов карты
+    // п©п╬я│я┌я─п╬п╣п╫п╦п╣ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╧, п╡я▀я┤п╦я│п╩п╣п╫п╦п╣ пЁп╟п╠п╟я─п╦я┌п╬п╡ п╨п╟я─я┌я▀
     void make_m2ms(){
       if ((world == NULL)||(world->maps.size()==0)) return;
 
@@ -66,14 +66,14 @@ public:
         double sc_x = 1000/pdist(p1,p2);
         double sc_y = 1000/pdist(p1,p3);
 
-        scales.push_back(sc_x<sc_y ? sc_x:sc_y); // каков масштаб карты в соотв.с проекцией
+        scales.push_back(sc_x<sc_y ? sc_x:sc_y); // п╨п╟п╨п╬п╡ п╪п╟я│я┬я┌п╟п╠ п╨п╟я─я┌я▀ п╡ я│п╬п╬я┌п╡.я│ п©я─п╬п╣п╨я├п╦п╣п╧
 
 	if (start && (c.border_dst.size()!=0)){  myrange=Rect<int>(c.border_dst[0], c.border_dst[0]); start=false;};
         for (int j=0; j<c.border_dst.size(); j++) {
 	    myrange = rect_pump(myrange, Point<int>(c.border_dst[j]));
 	}
       }
-      // старые данные нам тоже интересны (мы можем использовать уже загруженные картинки)
+      // я│я┌п╟я─я▀п╣ п╢п╟п╫п╫я▀п╣ п╫п╟п╪ я┌п╬п╤п╣ п╦п╫я┌п╣я─п╣я│п╫я▀ (п╪я▀ п╪п╬п╤п╣п╪ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я┐п╤п╣ п╥п╟пЁя─я┐п╤п╣п╫п╫я▀п╣ п╨п╟я─я┌п╦п╫п╨п╦)
       if (iscales.size() != world->maps.size()) iscales.resize(world->maps.size(),1);
 #ifdef DEBUG_LAYER_GEOMAP
       std::cerr << "LayerMap: Setting map conversions. Range: " << myrange << "\n";
@@ -145,7 +145,7 @@ public:
 	return myrange;
     }
 
-    // полезная функция, чтобы смотреть, как выглядят границы исходных карт на новой карте
+    // п©п╬п╩п╣п╥п╫п╟я▐ я└я┐п╫п╨я├п╦я▐, я┤я┌п╬п╠я▀ я│п╪п╬я┌я─п╣я┌я▄, п╨п╟п╨ п╡я▀пЁп╩я▐п╢я▐я┌ пЁя─п╟п╫п╦я├я▀ п╦я│я┘п╬п╢п╫я▀я┘ п╨п╟я─я┌ п╫п╟ п╫п╬п╡п╬п╧ п╨п╟я─я┌п╣
     void dump_maps(const char *file){
       std::ofstream f(file);
       f<< "#FIG 3.2\n"

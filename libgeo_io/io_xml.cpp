@@ -31,8 +31,8 @@ namespace xml {
 		xml_point_list pt_list;
                 geo_data ret;
 
-		// prefix -- директория, в которой лежит map-файл, на случай,
-		// если в нем относительные названия граф.файлов
+		// prefix -- п╢п╦я─п╣п╨я┌п╬я─п╦я▐, п╡ п╨п╬я┌п╬я─п╬п╧ п╩п╣п╤п╦я┌ map-я└п╟п╧п╩, п╫п╟ я│п╩я┐я┤п╟п╧,
+		// п╣я│п╩п╦ п╡ п╫п╣п╪ п╬я┌п╫п╬я│п╦я┌п╣п╩я▄п╫я▀п╣ п╫п╟п╥п╡п╟п╫п╦я▐ пЁя─п╟я└.я└п╟п╧п╩п╬п╡
 		std::string prefix("");
 
 		char *sl = rindex(filename, '/');
@@ -76,7 +76,7 @@ namespace xml {
 
 		if (!parse_file("fig::read", filename, main_rule)) return false;
 
-		//преобразование комментариев и названий точек в UTF-8
+		//п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п╦ п╫п╟п╥п╡п╟п╫п╦п╧ я┌п╬я┤п╣п╨ п╡ UTF-8
 		IConv cnv(default_charset);
 		for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
 		  for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
@@ -84,11 +84,11 @@ namespace xml {
 		    p->comm = cnv.to_utf(p->comm);
 		  }
 		}
-		//преобразование комментариев к трекам в UTF-8
+		//п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п╨ я┌я─п╣п╨п╟п╪ п╡ UTF-8
 		for (vector<g_track>::iterator l=ret.trks.begin(); l!=ret.trks.end(); l++){
 		  l->comm = cnv.to_utf(l->comm);
 		}
-		//преобразование комментариев к картам в UTF-8
+		//п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╣п╡ п╨ п╨п╟я─я┌п╟п╪ п╡ UTF-8
 		for (vector<g_map>::iterator l=ret.maps.begin(); l!=ret.maps.end(); l++){
 		  l->comm = cnv.to_utf(l->comm);
 		}
@@ -218,8 +218,8 @@ namespace xml {
 
 /********************************************/
 
-// Для всех типов точек - один map<string,string>, но разные преобразования
-// Это все вынесено в отдельный h-файл, поскольку используется и при чтении точек из fig
+// п■п╩я▐ п╡я│п╣я┘ я┌п╦п©п╬п╡ я┌п╬я┤п╣п╨ - п╬п╢п╦п╫ map<string,string>, п╫п╬ я─п╟п╥п╫я▀п╣ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦я▐
+// п╜я┌п╬ п╡я│п╣ п╡я▀п╫п╣я│п╣п╫п╬ п╡ п╬я┌п╢п╣п╩я▄п╫я▀п╧ h-я└п╟п╧п╩, п©п╬я│п╨п╬п╩я▄п╨я┐ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╦ п©я─п╦ я┤я┌п╣п╫п╦п╦ я┌п╬я┤п╣п╨ п╦п╥ fig
 	xml_point::operator g_waypoint () const {
           g_waypoint ret; ret.parse_from_options(*this);
 	  return ret;

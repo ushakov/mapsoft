@@ -19,12 +19,12 @@ namespace mask {
 }
 
 /****************************************************************/
-// создать новый объект на базе obj, подставив все не-звездочки
+// я│п╬п╥п╢п╟я┌я▄ п╫п╬п╡я▀п╧ п╬п╠я┼п╣п╨я┌ п╫п╟ п╠п╟п╥п╣ obj, п©п╬п╢я│я┌п╟п╡п╦п╡ п╡я│п╣ п╫п╣-п╥п╡п╣п╥п╢п╬я┤п╨п╦
 fig_object make_object(const fig_object & obj, const std::string & mask){
 
   fig_object o = obj;
 
-  mask::f_arr=0; mask::b_arr=0; // на случай *
+  mask::f_arr=0; mask::b_arr=0; // п╫п╟ я│п╩я┐я┤п╟п╧ *
   rule<> ch = anychar_p - eol_p;
 
   rule<> r_sub_type       = +blank_p >> (ch_p('*') | uint_p[assign_a(o.sub_type)]);

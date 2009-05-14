@@ -8,7 +8,7 @@
 
 namespace zn{
 
-// сделать пример объекта
+// я│п╢п╣п╩п╟я┌я▄ п©я─п╦п╪п╣я─ п╬п╠я┼п╣п╨я┌п╟
 fig::fig_object make_sample(const std::map<int, zn>::const_iterator &i, int grid, int dg){
   fig::fig_object o = i->second.fig;
   if (i->first >= area_mask){
@@ -30,7 +30,7 @@ fig::fig_object make_sample(const std::map<int, zn>::const_iterator &i, int grid
 }
 
 
-// список всех знаков в формате fig
+// я│п©п╦я│п╬п╨ п╡я│п╣я┘ п╥п╫п╟п╨п╬п╡ п╡ я└п╬я─п╪п╟я┌п╣ fig
 fig::fig_world make_legend(zn_conv & z, int grid, int dg){
   int count=0;
   fig::fig_world ret;
@@ -81,7 +81,7 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
   return ret;
 }
 
-// текстовый список всех знаков
+// я┌п╣п╨я│я┌п╬п╡я▀п╧ я│п©п╦я│п╬п╨ п╡я│п╣я┘ п╥п╫п╟п╨п╬п╡
 std::string make_text(zn_conv & z){
   std::ostringstream out;
   for (std::map<int, zn>::const_iterator i = z.znaki.begin(); i!=z.znaki.end(); i++){

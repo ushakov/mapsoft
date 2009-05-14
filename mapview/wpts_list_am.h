@@ -1,7 +1,7 @@
 #ifndef WPTS_LIST_AM_H
 #define WPTS_LIST_AM_H
 
-// ActionManager для DataList
+// ActionManager п╢п╩я▐ DataList
 
 #include "mapview.h"
 

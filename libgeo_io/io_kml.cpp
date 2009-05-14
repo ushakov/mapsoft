@@ -22,8 +22,8 @@
 namespace kml {
     using namespace boost::spirit;
     
-    // Записывает в KML-файл треки и точки
-    // Не записывает карты! (хм, а может, надо?)
+    // п≈п╟п©п╦я│я▀п╡п╟п╣я┌ п╡ KML-я└п╟п╧п╩ я┌я─п╣п╨п╦ п╦ я┌п╬я┤п╨п╦
+    // п²п╣ п╥п╟п©п╦я│я▀п╡п╟п╣я┌ п╨п╟я─я┌я▀! (я┘п╪, п╟ п╪п╬п╤п╣я┌, п╫п╟п╢п╬?)
     bool write_file (const char* filename, const geo_data & world, const Options & opt){
 	std::ofstream f(filename);
 	if (!f.good()) return false;
@@ -109,7 +109,7 @@ namespace kml {
 
 	operator g_waypoint_list () const {
 	    g_waypoint_list ret;
-	    const std::string used[] = {"points",""}; //points - только записывается, не читается.
+	    const std::string used[] = {"points",""}; //points - я┌п╬п╩я▄п╨п╬ п╥п╟п©п╦я│я▀п╡п╟п╣я┌я│я▐, п╫п╣ я┤п╦я┌п╟п╣я┌я│я▐.
 	    warn_unused(used);
 	    for (std::vector<kml_point>::const_iterator i=points.begin(); i!=points.end();i++)
 		ret.push_back(*i);

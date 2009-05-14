@@ -22,7 +22,7 @@ int main (int argc, char **argv) {
     for (int i = 0; i < world.trks.size(); ++i) {
 	for (int p = 0; p < world.trks[i].size(); ++p) {
 	    g_trackpoint & tp = world.trks[i][p];
-	    pc.bck(tp); // координаты -- в tmerc
+	    pc.bck(tp); // п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ -- п╡ tmerc
 
 	    if (k != 0) {
 		// update values:
