@@ -98,7 +98,7 @@ class GPlaneTestGridSlow: public GPlane{
         }
       }
     }
-    usleep(100000);
+    usleep(150000);
     return ret;
   }
 };
