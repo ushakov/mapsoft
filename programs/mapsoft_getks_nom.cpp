@@ -14,7 +14,7 @@
 #include "../utils/image_gd.h"
 #include <boost/lexical_cast.hpp>
 
-/** Изготовление номенклатурного листа с космоснимком */
+/** п≤п╥пЁп╬я┌п╬п╡п╩п╣п╫п╦п╣ п╫п╬п╪п╣п╫п╨п╩п╟я┌я┐я─п╫п╬пЁп╬ п╩п╦я│я┌п╟ я│ п╨п╬я│п╪п╬я│п╫п╦п╪п╨п╬п╪ */
 int
 main(int argc, char **argv){
     if (argc<3) {
@@ -25,31 +25,31 @@ main(int argc, char **argv){
     std::string map_name  = argv[2];
 
 
-    // разрешение снимка:
+    // я─п╟п╥я─п╣я┬п╣п╫п╦п╣ я│п╫п╦п╪п╨п╟:
     double width = 4 * 256*(1<<(zoom-2));
     double deg_per_pt = 180.0/width; // ~188
     double m_per_pt   = deg_per_pt * M_PI/180 * 6378137.0;
 
-    // определим диапазон карты в координатах lonlat (в СК Пулково!)
+    // п╬п©я─п╣п╢п╣п╩п╦п╪ п╢п╦п╟п©п╟п╥п╬п╫ п╨п╟я─я┌я▀ п╡ п╨п╬п╬я─п╢п╦п╫п╟я┌п╟я┘ lonlat (п╡ п║п  п÷я┐п╩п╨п╬п╡п╬!)
     Rect<double> r0 = convs::nom_range(map_name);
 
-    // определим осевой меридиан
+    // п╬п©я─п╣п╢п╣п╩п╦п╪ п╬я│п╣п╡п╬п╧ п╪п╣я─п╦п╢п╦п╟п╫
     double lon0 = (r0.TLC().x + r0.TRC().x)/2;
-    if (r0.w > 11.9) lon0 = floor( lon0/3 ) * 3; // сдвоенные десятки
+    if (r0.w > 11.9) lon0 = floor( lon0/3 ) * 3; // я│п╢п╡п╬п╣п╫п╫я▀п╣ п╢п╣я│я▐я┌п╨п╦
     else lon0 = floor( lon0/6.0 ) * 6 + 3;
     Options O;
     O.put("lon0", lon0);
 
-    // определим диапазон карты в координатах lonlat (в СК wgs84)
+    // п╬п©я─п╣п╢п╣п╩п╦п╪ п╢п╦п╟п©п╟п╥п╬п╫ п╨п╟я─я┌я▀ п╡ п╨п╬п╬я─п╢п╦п╫п╟я┌п╟я┘ lonlat (п╡ п║п  wgs84)
     convs::pt2pt c0(Datum("pulkovo"), Proj("lonlat"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
     g_point p01(r0.TLC()), p02(r0.BRC());
     c0.frw(p01); c0.frw(p02);
     Rect<double> r = Rect<double>(p01, p02);
 
-    // граница карты в СК wgs84
+    // пЁя─п╟п╫п╦я├п╟ п╨п╟я─я┌я▀ п╡ п║п  wgs84
     g_line border_ll = rect2line(r);
 
-    // углы в координытах lonlat -> углы в координатах карты
+    // я┐пЁп╩я▀ п╡ п╨п╬п╬я─п╢п╦п╫я▀я┌п╟я┘ lonlat -> я┐пЁп╩я▀ п╡ п╨п╬п╬я─п╢п╦п╫п╟я┌п╟я┘ п╨п╟я─я┌я▀
     convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), O, Datum("pulkovo"), Proj("lonlat"), Options());
     g_point p1(r0.TLC()), p2(r0.TRC()), p3(r0.BRC()), p4(r0.BLC());
     cnv.bck(p1); cnv.bck(p2); cnv.bck(p3); cnv.bck(p4);
@@ -67,7 +67,7 @@ main(int argc, char **argv){
     p3-=f_min; p3.y = f_max.y-f_min.y-p3.y;
     p4-=f_min; p4.y = f_max.y-f_min.y-p4.y;
 
-    // построим привязку
+    // п©п╬я│я┌я─п╬п╦п╪ п©я─п╦п╡я▐п╥п╨я┐
     std::string basename= map_name + "_ks" + boost::lexical_cast<std::string>(zoom);
     g_map ref;
     ref.map_proj=Proj("tmerc");
