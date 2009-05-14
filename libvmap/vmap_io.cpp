@@ -112,8 +112,8 @@ istream & operator<< (ostream & s, const rmap & o){
   for (multimap<id_t, label_pos>::const_iterator i=o.positions.begin();
                                                       i!=o.positions.end(); i++)
     s << '+' << i->first << ' '
-      << i->second.x << ' ' << i->second.y << ' '
-      << i->second.angle <<'\n';
+      << setprecision(6) << fixed << i->second.x << ' ' << i->second.y << ' '
+      << setw(5) << setprecision(1) << fixed << i->second.angle <<'\n';
 }
 
 // WORLD

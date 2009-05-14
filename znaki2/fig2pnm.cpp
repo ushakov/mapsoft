@@ -36,8 +36,8 @@ struct fig2dev_reader{
 
     const char  *name = "fig2dev";
 
-    char *args[9] = {"fig2dev", "-Lppm", "-j", "-F", a1, a2, a3, a4, NULL};
-    int p=4;
+    char *args[8] = {"fig2dev", "-Lppm", "-j", a1, a2, a3, a4, NULL};
+    int p=3;
     if (strlen(m)!=0){args[p++] = a1;}
     if (strlen(depth_range)!=0){args[p++] = a2;}
     if (strlen(bg)!=0){args[p++] = a3;}

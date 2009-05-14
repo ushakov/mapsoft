@@ -26,7 +26,7 @@ typedef enum {
 
 // zn_conv constructor. Read config file,
 // build structure with fig and mp objects
-legend::legend(const string & conf_file){
+legend::legend(const string & style){
 
   yaml_parser_t parser;
   yaml_event_t event;
@@ -47,8 +47,22 @@ legend::legend(const string & conf_file){
   max_fig_depth=0;
 
   clear();
+  string conf_file;
 
-  // читаем конф.файл.
+  // looking for a style
+  string gf="/usr/share/mapsoft/"+style+".sty";
+  string lf="./"+style+".sty";
+  struct stat st_buf;
+  if (stat(gf.c_str(), &st_buf) == 0)
+    conf_file=gf;
+  else if (stat(lf.c_str(), &st_buf) == 0)
+    conf_file=lf;
+  else {
+     cerr << "Can't find style " << style << " in "
+          << gf << " or " << lf << "\n";
+     exit(1);
+  }
+
   FILE *file = fopen(conf_file.c_str(), "r");
 
   if (!file) {
@@ -160,7 +174,6 @@ legend::legend(const string & conf_file){
       if (key=="pic"){
         le.pic = val;
         if (le.pic!=""){
-          struct stat st_buf;
           string g_pd="/usr/share/mapsoft/pics/";
           string l_pd="./pics/";
           if (stat((g_pd+le.pic).c_str(), &st_buf) == 0)

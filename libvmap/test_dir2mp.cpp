@@ -16,5 +16,5 @@ main(int argc, char* argv[]){
     }
   }
 
-  vmap::write_mp(argv[argc-1], vmap::legend(argv[1]), w);
+  vmap::write_mp(argv[argc-1], w);
 }

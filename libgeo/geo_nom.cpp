@@ -1,21 +1,18 @@
-#include "io.h"
-#include "../libgeo/geo_convs.h"
-#include "../libgeo/geo_nom.h"
+#include "geo_nom.h"
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/assign_actor.hpp>
 
 
-namespace filters{
+namespace convs{
 
 using namespace std;
 
-<<<<<<< HEAD:libgeo_io/filters.cpp
-
-// п╡я│п©п╬п╪п╬пЁп╟я┌п╣п╩я▄п╫п╟я▐ я└я┐п╫п╨я├п╦я▐, п╨п╬я┌п╬я─п╟я▐ п©п╬ п╫п╟п╥п╡п╟п╫п╦я▌ п╩п╦я│я┌п╟ п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ п╢п╦п╟п©п╟п╥п╬п╫ пЁп╣п╬п╢п╣п╥п╦я┤п╣я│п╨п╦я┘
-// п╨п╬п╬я─п╢п╦п╫п╟я┌ п╡ п║п  pulkovo-42
-
-Rect<double> nom_range(const std::string & key){
+// по названию листа возвращает диапазон геодезических координат в СК pulkovo-42
+Rect<double> nom_range(const string & key){
     using namespace boost::spirit;
 
     string a  = " ";
@@ -25,9 +22,9 @@ Rect<double> nom_range(const std::string & key){
     string c1 = "";
     string d = "";
     int m=1;
-    std::string key1 = key+" ";
+    string key1 = key+" ";
 
-    // п©п╬п╧п╪п╣п╪ п╫п╬п╪п╣я─ п╩п╦я│я┌п╟
+    // поймем номер листа
 
     rule<> ndigit_p = anychar_p-digit_p;
     rule<> dash_p = ch_p('-')||'_';
@@ -54,35 +51,17 @@ Rect<double> nom_range(const std::string & key){
 
 
     if (!parse(key1.c_str(), (map_p_s || map_a_o) >> *anychar_p).full) {
-      std::cerr << "map_nom_brd: can't parse " << key << "\n";
+      cerr << "map_nom_brd: can't parse " << key << "\n";
       return Rect<double>(0,0,0,0);
     }
-
-/*
-    // п©п╬п╧п╪п╣п╪ п╫п╬п╪п╣я─ п╩п╦я│я┌п╟
-    if (!parse(key1.c_str(), 
-      alpha_p[assign_a(a)] >> !(ch_p('-')||'_') >> 
-      uint_p[assign_a(b)] >> 
-        !( (ch_p('-')||'_') >>
-        ((digit_p >> space_p)[assign_a(c5)] ||
-         (digit_p >> digit_p >> space_p)[assign_a(c2)] ||
-         (digit_p >> digit_p >> digit_p >> space_p)[assign_a(c1)] ||
-         ((digit_p >> digit_p >> digit_p)[assign_a(c1)] >>
-          !( (ch_p('-')||'_') >> (digit_p)[assign_a(d)] ) >> space_p)
-        )) >> *anychar_p).full) {
-      std::cerr << "map_nom_brd: can't parse " << key << "\n";
-      return Rect<double>(0,0,0,0);
-    }
-*/
-
 
     char ac='a';
     if (a.size()>0) ac=a[0];
-    
+
     if      ((ac>='A')&&(ac <= 'T')) ac-='A';
     else if ((ac>='a')&&(ac <= 't')) ac-='a';
     else {
-      std::cerr << "map_nom_brd: can't parse " << key << " (" << ac << ")\n";
+      cerr << "map_nom_brd: can't parse " << key << " (" << ac << ")\n";
       return Rect<double>(0,0,0,0);
     }
 
@@ -91,7 +70,7 @@ Rect<double> nom_range(const std::string & key){
     lat1 = ac*4; lat2=lat1+4;
 
     if ((b<1)||(b>=60)) {
-      std::cerr << "map_nom_brd: can't parse " << key << " (" << b << ")\n";
+      cerr << "map_nom_brd: can't parse " << key << " (" << b << ")\n";
       return Rect<double>(0,0,0,0);
     }
 
@@ -110,58 +89,96 @@ Rect<double> nom_range(const std::string & key){
       row = 23 - ((c1i-1)/12)*2 - (di-1)/2;
       lon1 += col*6.0/24; lon2=lon1+6.0/24;
       lat1 += row*4.0/24; lat2=lat1+4.0/24;
-      std::cerr << "1:50 000, col: " << col << ", row: "<< row << '\n';
+//      cerr << "1:50 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c1i != 0){  // 1:100 000
       col = (c1i-1)%12;
       row = 11 - (c1i-1)/12;
       lon1 += col*6.0/12; lon2=lon1+6.0/12;
       lat1 += row*4.0/12; lat2=lat1+4.0/12;
-      std::cerr << "1:100 000, col: " << col << ", row: "<< row << '\n';
+//      cerr << "1:100 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c2i != 0){  // 1:200 000
       col = (c2i-1)%6;
       row = 5 - (c2i-1)/6;
       lon1 += col*6.0/6; lon2=lon1+6.0/6;
       lat1 += row*4.0/6; lat2=lat1+4.0/6;
-      std::cerr << "1:200 000, col: " << col << ", row: "<< row << '\n';
+//      cerr << "1:200 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c5i != 0){  // 1:500 000
       col = (c5i-1)%2;
       row = 1 - (c5i-1)/2;
       lon1 += col*6.0/2; lon2=lon1+6.0/2;
       lat1 += row*4.0/2; lat2=lat1+4.0/2;
-      std::cerr << "1:500 000, col: " << col << ", row: "<< row << '\n';
+//      cerr << "1:500 000, col: " << col << ", row: "<< row << '\n';
     }
     if (m==2) lon2+=lon2-lon1;
 
-    return Rect<double>(g_point(lon1,lat1), g_point(lon2,lat2));
+    return Rect<double>(Point<double>(lon1,lat1), Point<double>(lon2,lat2));
 }
 
-=======
->>>>>>> b95c3bbe992dceeefddb83ef5bf0890619c80c52:libgeo_io/filters.cpp
-void map_nom_brd(geo_data & world){
-  vector<g_map>::iterator i;
-  for (i = world.maps.begin(); i!=world.maps.end(); i++){
+// по координатам в СК pulkovo-42 возвращает название листа
+string nom_name(const Point<double> & p, int sc){
+    if ((p.x <-180) || (p.x>180) || (p.y<0) || (p.y>90)){
+      cerr << "nom_name: point coordinates out or range: " << p << "\n";
+      exit(1);
+    }
 
-    Rect<double> r = convs::nom_range(i->comm);
-    if (r.empty()) return;
-    double lon1 = r.x;
-    double lat1 = r.y;
-    double lon2 = lon1 + r.w;
-    double lat2 = lat1 + r.h;
+    char A = 'a' + (int)floor(p.y/4);
+    int  B = 31 +  (int)floor(p.x/6);
 
-    convs::map2pt conv(*i, Datum("pulk42"), Proj("lonlat"));
+    bool dbl = A>'o';
 
-    g_line brd;
-    brd.push_back(g_point(lon1,lat2));
-    brd.push_back(g_point(lon2,lat2));
-    brd.push_back(g_point(lon2,lat1));
-    brd.push_back(g_point(lon1,lat1));
-    brd.push_back(g_point(lon1,lat2));
-    i->border = conv.line_bck(brd);
-  }
+    int n, w;
+
+    switch (sc){
+      case 1000000: n=1;  w=0; break;
+      case  500000: n=2;  w=1; break;
+      case  200000: n=6;  w=2; break;
+      case  100000: n=12; w=3; break;
+      case   50000: n=12; w=3; break;
+      default: cerr << "nom_name: wrong scale: " << sc << "\n"; exit(1);
+    }
+
+    int row=n-1-(int)floor((p.y/4.0-floor(p.y/4))*n);
+    int col=(int)floor((p.x/6.0-floor(p.x/6))*n);
+
+    int C = row*n + col+1;
+
+    int D=0;
+    if (sc>=50000){
+      int row1=1-(int)floor((p.y/4.0*n-floor(p.y/4*n))*2);
+      int col1=(int)floor((p.x/6.0*n-floor(p.x/6*n))*2);
+      D=row1*2+col1+1;
+    }
+
+    ostringstream out;
+
+    if (dbl){
+      if (sc==1000000){
+        B=((B-1)/2)*2+1;
+        out << A << B << '-' << B+1;
+      }
+      else if (sc>50000){
+        C=((C-1)/2)*2+1;
+        out << A << B << '-'
+            << setw(w) << setfill('0') << C << '-'
+            << setw(w) << setfill('0') << C+1;
+      }
+      else {
+        D=((D-1)/2)*2+1;
+        out << A << B << '-' 
+            << setw(w) << setfill('0')<< C 
+            << '-' << D << '-' << D+1;
+      }
+    }
+    else {
+      out << A << B;
+      if (w!=0) out << '-' << setw(w) << setfill('0') << C;
+      if (sc<=50000) out << '-' << D;
+    }
+
+    return out.str();
 }
-
 
 }//namespace

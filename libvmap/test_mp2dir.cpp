@@ -10,7 +10,7 @@ main(int argc, char* argv[]){
 
   for (int i=2; i<argc-1; i++){
     std::cerr << "Reading " << argv[i] << "\n";
-    if (!vmap::read_mp(argv[i], vmap::legend(argv[1]), w)){
+    if (!vmap::read_mp(argv[i], w)){
       std::cerr << "Read error.\n";
       exit(1);
     }

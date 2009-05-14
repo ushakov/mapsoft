@@ -1,11 +1,12 @@
 #include <iomanip>
-#include "../libgeo_io/io.h"
+//#include "../libgeo_io/io.h"
 #include "../libgeo/geo_convs.h"
+#include "../libgeo/geo_nom.h"
 
 int main(int argc, char **argv){
   if (argc<=1) std::cout << "lat: 0 0 lon: 0 0";
   else { 
-    Rect<double> brd = filters::nom_range(argv[1]);
+    Rect<double> brd = convs::nom_range(argv[1]);
     Point<double> p1 = brd.TLC(), p2 = brd.TRC(), p3 = brd.BRC(), p4 = brd.BLC();
     convs::pt2pt c(Datum("pulkovo"), Proj("lonlat"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
     c.frw(p1); c.frw(p2);     c.frw(p3); c.frw(p4);

@@ -25,7 +25,7 @@ struct legend: std::map<std::string, leg_el>{
   mp::mp_object default_mp;
 
   // Constructor. Read all information from yaml-file
-  legend(const std::string & conf_file);
+  legend(const std::string & style);
 
   // Region of FIG depths in wich all cartographic objects live.
   // Its boundaries are minimal and maximum depth of objects in config file

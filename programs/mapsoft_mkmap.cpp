@@ -13,6 +13,7 @@
 
 #include "../libgeo_io/io.h"
 #include "../libgeo/geo_convs.h"
+#include "../libgeo/geo_nom.h"
 
 
 using namespace std;
@@ -81,7 +82,7 @@ main(int argc, char **argv){
       continue;
     }
     std::cout << key << " " << ext << " " << comm << "\n";
-    Rect<double> r = filters::nom_range(key);
+    Rect<double> r = convs::nom_range(key);
     if (r.empty()) {
       std::cerr << "bad key: " << key << "\n";
       continue;
