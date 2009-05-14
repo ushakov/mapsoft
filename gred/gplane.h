@@ -1,6 +1,8 @@
 #ifndef GPLANE_H
 #define GPLANE_H
 
+#include <limits.h>
+
 #include "../lib2d/rect.h"
 #include "../lib2d/image.h"
 
@@ -21,7 +23,7 @@ class GPlane{
 };
 
 
-class GPlane_test1: public GPlane{
+class GPlaneTestTile: public GPlane{
   Image<int> draw(const Rect<GCoord> &range) const {
     std::cerr << "GPlane_test1: " << range << "\n";
 
@@ -37,19 +39,66 @@ class GPlane_test1: public GPlane{
   }
 };
 
-class GPlane_test2: public GPlane{
+class GPlaneTestTileSlow: public GPlane{
   Image<int> draw(const Rect<GCoord> &range) const {
-    std::cerr << "GPlane_test1: " << range << "\n";
-
     Image<int> ret(range.w, range.h, 0xFFFFFFFF);
 
     for (int j=0; j<range.h; j++){
       for (int i=0; i<range.w; i++){
         ret.set(i,j,
-          (0xFF << 24) + ((i*256)/range.w << 8) + (j*256)/range.h);
+          (0xFF << 24) + (255-(i*256)/range.w << 8) + (j*256)/range.h);
       }
     }
     usleep(range.w*range.h*10);
+    return ret;
+  }
+};
+
+class GPlaneSolidFill: public GPlane{
+  int color;
+  public:
+  GPlaneSolidFill(int c=0xFF000000): color(c) {}
+
+  Image<int> draw(const Rect<GCoord> &range) const {
+    return Image<int>(range.w, range.h, color);
+  }
+};
+
+class GPlaneTestGrid: public GPlane{
+  Image<int> draw(const Rect<GCoord> &range) const {
+    Image<int> ret(range.w, range.h,0xFF000000);
+    for (int j=0; j<range.h; j++){
+      for (int i=0; i<range.w; i++){
+        int x=range.x+i, y=range.y+j;
+        for (int n=256; n>1; n/=2){
+          if ((x%n==0) || (y%n==0)){
+            n--;
+            ret.set(i,j, (0xFF<<24) + (n<<16) + (n<<8) + n);
+            break;
+          }
+        }
+      }
+    }
+    return ret;
+  }
+};
+
+class GPlaneTestGridSlow: public GPlane{
+  Image<int> draw(const Rect<GCoord> &range) const {
+    Image<int> ret(range.w, range.h, 0xFF000000);
+    for (int j=0; j<range.h; j++){
+      for (int i=0; i<range.w; i++){
+        int x=range.x+i, y=range.y+j;
+        for (int n=256; n>1; n/=2){
+          if ((x%n==0) || (y%n==0)){
+            n--;
+            ret.set(i,j, (0xFF<<24) + (n<<16) + (n<<8) + n);
+            break;
+          }
+        }
+      }
+    }
+    usleep(100000);
     return ret;
   }
 };

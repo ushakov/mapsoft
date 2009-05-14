@@ -13,7 +13,7 @@ class SimpleViewer : public Gtk::DrawingArea {
       plane(pl),
       origin(Point<GCoord>(GCoord_cnt,GCoord_cnt)) {
       set_name("MapsoftViewer");
-      add_events ( 
+      add_events (
             Gdk::BUTTON_PRESS_MASK |
             Gdk::BUTTON_RELEASE_MASK |
             Gdk::SCROLL_MASK |
@@ -31,11 +31,14 @@ class SimpleViewer : public Gtk::DrawingArea {
 #ifdef MANUAL_SCROLL
     get_window()->get_update_area();
 
-    if (shift.x >=0){
+    if ((shift.x > get_width())  || (shift.x < -get_width()) ||
+        (shift.y > get_height()) || (shift.y < -get_height())){
+      draw(Rect<GCoord>(0,0,get_width(),get_height()));
+    }
+    else if (shift.x >=0){
       draw(Rect<GCoord>(0,0,shift.x,get_height()));
       if (shift.y >=0) draw(Rect<GCoord>(shift.x,0,get_width()-shift.x, shift.y));
       else             draw(Rect<GCoord>(shift.x,get_height()+shift.y, get_width()-shift.x, -shift.y));
-
     }
     else{
       draw(Rect<GCoord>(get_width() + shift.x, 0, -shift.x, get_height() ));
@@ -49,17 +52,19 @@ class SimpleViewer : public Gtk::DrawingArea {
     return origin;
   }
 
-  void draw (const Rect<GCoord> & r){
+  virtual void draw(const Rect<GCoord> & r){
     if (r.empty()) return;
-    Image<int> img = plane->draw(r + origin);
+    draw_image(plane->draw(r + origin), r.TLC());
+  }
+
+  virtual void draw_image (const Image<int> & img, const Point<int> & p){
     Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
     Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
     Glib::RefPtr<Gdk::Window> widget = get_window();
     widget->draw_pixbuf(gc, pixbuf,
-          0,0,  r.x, r.y,  r.w, r.h,
+          0,0,  p.x, p.y,  img.w, img.h,
           Gdk::RGB_DITHER_NORMAL, 0, 0);
   }
-
 
   virtual bool on_expose_event (GdkEventExpose * event){
     Rect<GCoord> r(event->area.x, event->area.y,
@@ -85,9 +90,8 @@ class SimpleViewer : public Gtk::DrawingArea {
     return false;
   }
 
-  private:
-    GPlane * plane;
-    Point<GCoord> origin;
-    Point<GCoord> drag_pos;
+  GPlane * plane;
+  Point<GCoord> origin;
+  Point<GCoord> drag_pos;
 };
 
