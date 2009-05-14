@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Пример: get-map n37 050k 027-1
+# п÷я─п╦п╪п╣я─: get-map n37 050k 027-1
 
 if [[ $# < 3 ]]
 then
-   echo "Пример: $0 n37 050k 027-1"
+   echo "п÷я─п╦п╪п╣я─: $0 n37 050k 027-1"
    exit
 fi
 
@@ -19,40 +19,40 @@ gifmapstor=`cat $CONFDIR/gifmapstor`
 mapmapstor=`cat $CONFDIR/mapmapstor`
 basefilename=$scale--$lon-$page
 
-printf "Скачиваю $basefilename.gif ... "
+printf "п║п╨п╟я┤п╦п╡п╟я▌ $basefilename.gif ... "
 if wget -q -O$basefilename.gif --load-cookies=$CONFDIR/cookies --post-data="m=$lon/$scale/$basefilename.gif&code=$gifcode" http://m$gifmapstor.mapstor.com/p_getfile.php?m=$lon%2F$scale%2F$basefilename.gif
 then
-   echo "готово"
+   echo "пЁп╬я┌п╬п╡п╬"
 else
-   echo "ошибка"
+   echo "п╬я┬п╦п╠п╨п╟"
    exit
 fi
 
-printf "Скачиваю $basefilename.map ... "
+printf "п║п╨п╟я┤п╦п╡п╟я▌ $basefilename.map ... "
 if wget -q -O$basefilename.map --load-cookies=$CONFDIR/cookies --post-data="m=$lon/$scale/$basefilename.map&code=$mapcode" http://m$mapmapstor.mapstor.com/p_getfileref.php?m=$lon%2F$scale%2F$basefilename.map
 then
-   echo "готово"
+   echo "пЁп╬я┌п╬п╡п╬"
 else
-   echo "ошибка"
+   echo "п╬я┬п╦п╠п╨п╟"
    exit
 fi
 
-printf "Преобразую $basefilename.gif в $basefilename.png ... "
+printf "п÷я─п╣п╬п╠я─п╟п╥я┐я▌ $basefilename.gif п╡ $basefilename.png ... "
 if convert $basefilename.gif $basefilename.png
 then
-   echo "готово"
+   echo "пЁп╬я┌п╬п╡п╬"
    rm $basefilename.gif
 else
-   echo "ошибка"
+   echo "п╬я┬п╦п╠п╨п╟"
    exit
 fi
 
-printf "Правлю $basefilename.map ... "
+printf "п÷я─п╟п╡п╩я▌ $basefilename.map ... "
 if sed -i "s/$basefilename.gif/$basefilename.png/g" $basefilename.map
 then
-   echo "готово"
+   echo "пЁп╬я┌п╬п╡п╬"
 else
-   echo "ошибка"
+   echo "п╬я┬п╦п╠п╨п╟"
    exit
 fi
 

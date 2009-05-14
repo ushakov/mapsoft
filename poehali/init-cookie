@@ -12,15 +12,15 @@ rm -f $CONFDIR/cookie $CONFDIR/gifcode $CONFDIR/code.png $CONFDIR/gifmapstor
 
 mapmapstor=`cat $CONFDIR/mapmapstor`
 
-# äÌÑ ÂÅÚÚ×ÕÞÎÏÇÏ ÕÂÉÊÓÔ×Á display
+# Ð”Ð»Ñ Ð±ÐµÐ·Ð·Ð²ÑƒÑ‡Ð½Ð¾Ð³Ð¾ ÑƒÐ±Ð¸Ð¹ÑÑ‚Ð²Ð° display
 set +m
 
-# ðÉÛÕ cookies É gifmapstor ÄÌÑ ËÁÒÔ
+# ÐŸÐ¸ÑˆÑƒ cookies Ð¸ gifmapstor Ð´Ð»Ñ ÐºÐ°Ñ€Ñ‚
 wget http://mapstor.com/mapstorfile.php?file=050k--n37-027-2.gif -O/dev/null --save-cookies=$CONFDIR/cookies --keep-session-cookies 2>&1 | grep 'm.\+\.mapstor\.com' | sed -n '1 s/.*m\(.\+\)\.mapstor\.com.*/\1/p' > $CONFDIR/gifmapstor
-# ðÉÛÕ cookies ÄÌÑ ÐÒÉ×ÑÚÏË
+# ÐŸÐ¸ÑˆÑƒ cookies Ð´Ð»Ñ Ð¿Ñ€Ð¸Ð²ÑÐ·Ð¾Ðº
 wget http://m$mapmapstor.mapstor.com/p_getfileref.php?m=n37%2F050k%2F050k--n37-027-2.map -O/dev/null --load-cookies=$CONFDIR/cookies --save-cookies=$CONFDIR/cookies --keep-session-cookies > /dev/null 2>&1
 
-# óËÁÞÉ×ÁÀ ËÁÒÔÉÎËÕ Ó ËÏÄÏÍ ÄÌÑ ËÁÒÔ É ÓÐÒÁÛÉ×ÁÀ, ÞÔÏ ÎÁÒÉÓÏ×ÁÎÏ
+# Ð¡ÐºÐ°Ñ‡Ð¸Ð²Ð°ÑŽ ÐºÐ°Ñ€Ñ‚Ð¸Ð½ÐºÑƒ Ñ ÐºÐ¾Ð´Ð¾Ð¼ Ð´Ð»Ñ ÐºÐ°Ñ€Ñ‚ Ð¸ ÑÐ¿Ñ€Ð°ÑˆÐ¸Ð²Ð°ÑŽ, Ñ‡Ñ‚Ð¾ Ð½Ð°Ñ€Ð¸ÑÐ¾Ð²Ð°Ð½Ð¾
 gifmapstor=`cat $CONFDIR/gifmapstor`
 wget --load-cookies=$CONFDIR/cookies -O $CONFDIR/code.png http://m$gifmapstor.mapstor.com/p_getfile.php?mode=showpic >/dev/null 2>&1 
 
@@ -28,12 +28,12 @@ if [ -n "$POECODE" -a -x "$POECODE" -a -n "$GOCR" -a -x "$GOCR" ]
 then
    $POECODE $CONFDIR/code.png $CONFDIR/code-clean.png > /dev/null
    $GOCR -C 0123456789 $CONFDIR/code-clean.png > $CONFDIR/gifcode
-   printf "ëÏÄ ÄÌÑ ËÁÒÔ: "
+   printf "ÐšÐ¾Ð´ Ð´Ð»Ñ ÐºÐ°Ñ€Ñ‚: "
    cat $CONFDIR/gifcode
    rm $CONFDIR/code.png $CONFDIR/code-clean.png
 else
    display $CONFDIR/code.png &
-   printf "÷×ÅÄÉÔÅ ËÏÄ ÄÌÑ ËÁÒÔ: "
+   printf "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ ÐºÐ¾Ð´ Ð´Ð»Ñ ÐºÐ°Ñ€Ñ‚: "
    read code
    echo $code > $CONFDIR/gifcode
    kill %- 2>/dev/null
@@ -41,19 +41,19 @@ else
    rm $CONFDIR/code.png
 fi
 
-# óËÁÞÉ×ÁÀ ËÁÒÔÉÎËÕ Ó ËÏÄÏÍ ÄÌÑ ÐÒÉ×ÑÚÏË É ÓÐÒÁÛÉ×ÁÀ, ÞÔÏ ÎÁÒÉÓÏ×ÁÎÏ
+# Ð¡ÐºÐ°Ñ‡Ð¸Ð²Ð°ÑŽ ÐºÐ°Ñ€Ñ‚Ð¸Ð½ÐºÑƒ Ñ ÐºÐ¾Ð´Ð¾Ð¼ Ð´Ð»Ñ Ð¿Ñ€Ð¸Ð²ÑÐ·Ð¾Ðº Ð¸ ÑÐ¿Ñ€Ð°ÑˆÐ¸Ð²Ð°ÑŽ, Ñ‡Ñ‚Ð¾ Ð½Ð°Ñ€Ð¸ÑÐ¾Ð²Ð°Ð½Ð¾
 wget --load-cookies=$CONFDIR/cookies -O $CONFDIR/code.png http://m$mapmapstor.mapstor.com/p_getfileref.php?mode=showpic >/dev/null 2>&1 
 
 if [ -n "$POECODE" -a -x "$POECODE" -a -n "$GOCR" -a -x "$GOCR" ]
 then
    $POECODE $CONFDIR/code.png $CONFDIR/code-clean.png > /dev/null
    $GOCR -C 0123456789 $CONFDIR/code-clean.png > $CONFDIR/mapcode
-   printf "ëÏÄ ÄÌÑ ÐÒÉ×ÑÚÏË: "
+   printf "ÐšÐ¾Ð´ Ð´Ð»Ñ Ð¿Ñ€Ð¸Ð²ÑÐ·Ð¾Ðº: "
    cat $CONFDIR/mapcode
    rm $CONFDIR/code.png $CONFDIR/code-clean.png
 else
    display $CONFDIR/code.png &
-   printf "÷×ÅÄÉÔÅ ËÏÄ ÄÌÑ ÐÒÉ×ÑÚÏË: "
+   printf "Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ ÐºÐ¾Ð´ Ð´Ð»Ñ Ð¿Ñ€Ð¸Ð²ÑÐ·Ð¾Ðº: "
    read code
    echo $code > $CONFDIR/mapcode
    kill %- 2>/dev/null

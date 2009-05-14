@@ -50,7 +50,7 @@ main(int argc, char** argv){
 
   // нарисуем горизонтали!
   cerr << "находим кусочки горизонталей: ";
-  map<short, MultyLine<double> > hors;
+  map<short, MultiLine<double> > hors;
   int count = 0; 
   for (int lat=lat2; lat>lat1; lat--){
     for (int lon=lon1; lon<lon2-1; lon++){
