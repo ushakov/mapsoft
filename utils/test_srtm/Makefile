@@ -1,4 +1,4 @@
-# старый способ
+# я│я┌п╟я─я▀п╧ я│п©п╬я│п╬п╠
 #test.fig: test.mp
 #	../../vector/mp2fig ../../vector/cnv test.mp test.fig
 

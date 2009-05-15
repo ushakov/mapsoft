@@ -18,7 +18,7 @@ znaki2/tx2pt.cpp
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sun Jul 27 17:05:16 2008 +0400
 
-    znaki2: еще одно исправление с урочищами. Выкинул старые знаки из cnf
+    znaki2: п╣я┴п╣ п╬п╢п╫п╬ п╦я│п©я─п╟п╡п╩п╣п╫п╦п╣ я│ я┐я─п╬я┤п╦я┴п╟п╪п╦. п▓я▀п╨п╦п╫я┐п╩ я│я┌п╟я─я▀п╣ п╥п╫п╟п╨п╦ п╦п╥ cnf
 
 znaki2/hr.cnf
 znaki2/mmb.cnf
@@ -28,7 +28,7 @@ znaki2/tx2pt.cpp
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sun Jul 27 16:52:07 2008 +0400
 
-    znaki2: исправил программу для преобразования урочищь из текстового объекта в точечный
+    znaki2: п╦я│п©я─п╟п╡п╦п╩ п©я─п╬пЁя─п╟п╪п╪я┐ п╢п╩я▐ п©я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦я▐ я┐я─п╬я┤п╦я┴я▄ п╦п╥ я┌п╣п╨я│я┌п╬п╡п╬пЁп╬ п╬п╠я┼п╣п╨я┌п╟ п╡ я┌п╬я┤п╣я┤п╫я▀п╧
 
 znaki2/hr.cnf
 znaki2/mmb.cnf
@@ -38,7 +38,7 @@ znaki2/tx2pt.cpp
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sun Jul 27 14:47:41 2008 +0400
 
-    znaki2: исправил картинки для шахт и развалин
+    znaki2: п╦я│п©я─п╟п╡п╦п╩ п╨п╟я─я┌п╦п╫п╨п╦ п╢п╩я▐ я┬п╟я┘я┌ п╦ я─п╟п╥п╡п╟п╩п╦п╫
 
 znaki2/pics/razv.fig
 znaki2/pics/shaht.fig
@@ -47,7 +47,7 @@ znaki2/pics/shaht.fig
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sun Jul 27 14:45:08 2008 +0400
 
-    znaki2: добавил потерявшиеся картинки для шахт и развалин
+    znaki2: п╢п╬п╠п╟п╡п╦п╩ п©п╬я┌п╣я─я▐п╡я┬п╦п╣я│я▐ п╨п╟я─я┌п╦п╫п╨п╦ п╢п╩я▐ я┬п╟я┘я┌ п╦ я─п╟п╥п╡п╟п╩п╦п╫
 
 znaki2/pics/razv.fig
 znaki2/pics/shaht.fig
@@ -108,7 +108,7 @@ znaki2/mmb.cnf
 Author: Vladislav Zavjalov <slazav@narod.ru>
 Date:   Sat Jul 26 18:53:16 2008 +0400
 
-    znaki2: добавил точечный объект для урочища
+    znaki2: п╢п╬п╠п╟п╡п╦п╩ я┌п╬я┤п╣я┤п╫я▀п╧ п╬п╠я┼п╣п╨я┌ п╢п╩я▐ я┐я─п╬я┤п╦я┴п╟
 
 znaki2/hr.cnf
 znaki2/mmb.cnf
