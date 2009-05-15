@@ -32,7 +32,7 @@
 #include "gpsapp.h"
 #include "garminusb.h"
 #include "gpsusbcommon.h"
-#include "../garmin_device_xml.h"
+/* #include "../garmin_device_xml.h" */
 
 /* Constants from Garmin doc. */
 
