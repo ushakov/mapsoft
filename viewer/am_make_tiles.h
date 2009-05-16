@@ -83,7 +83,7 @@ private:
 
     void on_result(int r) {
 	Options opt = gend->get_options();
-	std::string filename; opt.get("dirname", filename);
+	std::string filename = opt.get("dirname", "tiles");
 	filename += ".tiles";
 	tiles::write_file(filename.c_str(), *current_layer->get_world(), opt);
     }
