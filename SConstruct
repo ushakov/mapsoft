@@ -27,7 +27,7 @@ if os.environ.has_key('GCCVER'):
    env.Replace (CXX = ("g++-%s" % ver))
 
 env.Append (CCFLAGS=['-O2','-g'])
-env.Append (CPPPATH='#')
+# env.Append (CPPPATH='#')
 env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
 
 #env.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')

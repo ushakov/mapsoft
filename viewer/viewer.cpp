@@ -1,6 +1,6 @@
 #include "viewer.h"
-#include <utils/image_gdk.h>
-#include <utils/log.h>
+#include "../utils/image_gdk.h"
+#include "../utils/log.h"
 
 /**************************************/
 

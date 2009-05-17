@@ -6,8 +6,7 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 
-#include <utils/options.h>
-
+#include "../utils/options.h"
 
 // Manager of a Gtk::Dialog showing and allowing to edit the supplied Options' content
 // Can register callbacks on ok/cancel events. Only one dialog can be active at a time.

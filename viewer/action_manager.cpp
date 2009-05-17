@@ -1,17 +1,17 @@
-#include <viewer/action_manager.h>
+#include "action_manager.h"
 
-#include <viewer/action_mode.h>
-#include <viewer/am_edit_wpt.h>
-#include <viewer/am_add_wpt.h>
-#include <viewer/am_move_wpt.h>
-#include <viewer/am_delete_wpt.h>
-#include <viewer/am_delete_tpt.h>
-#include <viewer/am_edit_tpt.h>
-#include <viewer/am_move_tpt.h>
-#include <viewer/am_edit_track.h>
-#include <viewer/am_add_track.h>
-#include <viewer/am_mark_trk.h>
-#include <viewer/am_make_tiles.h>
+#include "action_mode.h"
+#include "am_edit_wpt.h"
+#include "am_add_wpt.h"
+#include "am_move_wpt.h"
+#include "am_delete_wpt.h"
+#include "am_delete_tpt.h"
+#include "am_edit_tpt.h"
+#include "am_move_tpt.h"
+#include "am_edit_track.h"
+#include "am_add_track.h"
+#include "am_mark_trk.h"
+#include "am_make_tiles.h"
 
 ActionManager::ActionManager (MapviewState * state_, Viewer * viewer_)
     : state(state_), viewer(viewer_)

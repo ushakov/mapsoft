@@ -4,9 +4,9 @@
 #include <sigc++/sigc++.h>
 #include <boost/shared_ptr.hpp>
 
-#include <lib2d/image.h>
-#include <utils/cache.h>
-#include "layers/layer.h"
+#include "../lib2d/image.h"
+#include "../utils/cache.h"
+#include "../layers/layer.h"
 
 
 class Workplane {

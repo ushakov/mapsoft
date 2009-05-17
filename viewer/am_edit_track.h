@@ -1,12 +1,12 @@
 #ifndef AM_EDIT_TRACK_H
 #define AM_EDIT_TRACK_H
 
-#include <viewer/action_mode.h>
-#include <viewer/action_manager.h>
-#include <viewer/generic_dialog.h>
-#include <programs/mapview.h>
-
 #include <sstream>
+
+#include "action_mode.h"
+#include "action_manager.h"
+#include "generic_dialog.h"
+#include "../programs/mapview.h"
 
 class EditTrack : public ActionMode {
 public:

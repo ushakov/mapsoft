@@ -1,10 +1,10 @@
 #ifndef AM_EDIT_TPT_H
 #define AM_EDIT_TPT_H
 
-#include <viewer/action_mode.h>
-#include <viewer/action_manager.h>
-#include <viewer/generic_dialog.h>
-#include <programs/mapview.h>
+#include "action_mode.h"
+#include "action_manager.h"
+#include "generic_dialog.h"
+#include "../programs/mapview.h"
 
 class EditTrackpoint : public ActionMode {
 public:
