@@ -6,8 +6,8 @@
 
 #include <queue>
 
-#include <lib2d/image.h>
-#include <utils/cache.h>
+#include "../lib2d/image.h"
+#include "../utils/cache.h"
 
 #include "rubber.h"
 #include "workplane.h"

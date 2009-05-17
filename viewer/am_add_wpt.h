@@ -1,10 +1,10 @@
 #ifndef AM_ADD_WPT_H
 #define AM_ADD_WPT_H
 
-#include <viewer/action_mode.h>
-#include <viewer/action_manager.h>
-#include <viewer/generic_dialog.h>
-#include <programs/mapview.h>
+#include "action_mode.h"
+#include "action_manager.h"
+#include "generic_dialog.h"
+#include "../programs/mapview.h"
 
 class AddWaypoint : public ActionMode {
 public:

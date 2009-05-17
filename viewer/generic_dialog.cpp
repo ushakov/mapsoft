@@ -1,7 +1,7 @@
 #include <string>
 #include <sigc++/sigc++.h>
-#include <viewer/generic_dialog.h>
-#include <utils/options.h>
+#include "../viewer/generic_dialog.h"
+#include "../utils/options.h"
 
 GenericDialog * GenericDialog::instance = 0;
 

@@ -2,12 +2,12 @@
 #define AM_MARK_TRK_H
 
 #include <boost/lexical_cast.hpp>
-#include <viewer/action_mode.h>
-#include <viewer/action_manager.h>
-#include <programs/mapview.h>
-
 #include <sstream>
 #include <iomanip>
+
+#include "action_mode.h"
+#include "action_manager.h"
+#include "../programs/mapview.h"
 
 class MarkTrack : public ActionMode {
 public:

@@ -1,12 +1,12 @@
 #ifndef AM_MAKE_TILES_H
 #define AM_MAKE_TILES_H
 
-#include <viewer/action_mode.h>
-#include <viewer/action_manager.h>
-#include <viewer/generic_dialog.h>
-#include <programs/mapview.h>
-
 #include <sstream>
+
+#include "action_mode.h"
+#include "action_manager.h"
+#include "generic_dialog.h"
+#include "../programs/mapview.h"
 
 class MakeTiles : public ActionMode {
 public:
