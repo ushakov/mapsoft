@@ -9,6 +9,11 @@ TODO:
 
 ====================================
 
+ushakov 15.05.2009
+ * Перевёл все файлы в utf8
+ * Привёл #include в единый вид (#include "../layers/layer.h")
+ * Написал скрипт, строящий дерево зависимостей директорий
+
 slazav 3.4.2009
  * обновил libjeeps из gpsbabel
    TODO: почистить utils.c/utils.h в libjeeps.
