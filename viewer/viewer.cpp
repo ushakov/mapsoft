@@ -1,3 +1,5 @@
+#include <gdk/gdk.h>
+
 #include "viewer.h"
 #include "../utils/image_gdk.h"
 #include "../utils/log.h"
@@ -355,7 +357,16 @@ void Viewer::zoom_in(int i){
 bool Viewer::on_expose_event (GdkEventExpose * event){
     VLOG(2) << "expose: " << event->area.x << "," << event->area.y << " "
             << event->area.width << "x" << event->area.height;
-    fill (event->area.x, event->area.y, event->area.width, event->area.height);
+
+    GdkRectangle *rects;
+    int nrects;
+    gdk_region_get_rectangles(event->region, &rects, &nrects);
+    for (int i = 0; i < nrects; ++i) {
+      fill(rects[i].x, rects[i].y,
+	   rects[i].width, rects[i].height);
+    }
+    g_free(rects);
+
     return true;
 }
 
