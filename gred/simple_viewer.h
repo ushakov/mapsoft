@@ -1,10 +1,8 @@
 #include <gtkmm.h>
+#include <gdk/gdk.h>
+
 #include "gplane.h"
 #include "../utils/image_gdk.h"
-
-
-// define this to reduce information transfer from workplane during scrolling
-#define MANUAL_SCROLL
 
 class SimpleViewer : public Gtk::DrawingArea {
   public:
@@ -28,24 +26,6 @@ class SimpleViewer : public Gtk::DrawingArea {
     origin = new_origin;
 
     get_window()->scroll(shift.x, shift.y);
-#ifdef MANUAL_SCROLL
-    get_window()->get_update_area();
-
-    if ((shift.x > get_width())  || (shift.x < -get_width()) ||
-        (shift.y > get_height()) || (shift.y < -get_height())){
-      draw(Rect<GCoord>(0,0,get_width(),get_height()));
-    }
-    else if (shift.x >=0){
-      draw(Rect<GCoord>(0,0,shift.x,get_height()));
-      if (shift.y >=0) draw(Rect<GCoord>(shift.x,0,get_width()-shift.x, shift.y));
-      else             draw(Rect<GCoord>(shift.x,get_height()+shift.y, get_width()-shift.x, -shift.y));
-    }
-    else{
-      draw(Rect<GCoord>(get_width() + shift.x, 0, -shift.x, get_height() ));
-      if (shift.y >=0) draw(Rect<GCoord>(0,0,get_width()-shift.x, shift.y));
-      else             draw(Rect<GCoord>(0,get_height()+shift.y, get_width()-shift.x, -shift.y));
-    }
-#endif
   }
 
   Point<GCoord> get_origin (void) {
@@ -67,9 +47,15 @@ class SimpleViewer : public Gtk::DrawingArea {
   }
 
   virtual bool on_expose_event (GdkEventExpose * event){
-    Rect<GCoord> r(event->area.x, event->area.y,
-                    event->area.width, event->area.height);
-    draw(r);
+    GdkRectangle *rects;
+    int nrects;
+    gdk_region_get_rectangles(event->region, &rects, &nrects);
+    for (int i = 0; i < nrects; ++i) {
+      Rect<GCoord> r(rects[i].x, rects[i].y,
+		     rects[i].width, rects[i].height);
+      draw(r);
+    }
+    g_free(rects);
     return true;
   }
 
