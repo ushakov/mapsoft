@@ -16,8 +16,6 @@ fi
 
 $TX2PT "$CONF" "$MAP".fig "$MAP".fig
 
-$VMAP keys   "$CONF" "$MAP" "$EDITOR" "$MAP".fig
-$VMAP labels "$CONF" "$MAP".fig
-$VMAP pics   "$CONF" "$MAP".fig
+$VMAP update_fig  "$CONF" "$MAP" "$EDITOR" "$MAP".fig
 $VMAP remove "$CONF" "$MAP".mp all
 $VMAP copy   "$CONF" "$MAP".fig "$MAP".mp all

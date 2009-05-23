@@ -13,8 +13,7 @@ if [ -z "$MAP" -o -z "$CONF" -o -z "$EDITOR" ]; then
   exit 1
 fi
 
-$VMAP keys   "$CONF" "$MAP" "$EDITOR" "$MAP".mp
-$VMAP remove "$CONF" "$MAP".fig all
-$VMAP copy   "$CONF" "$MAP".mp "$MAP".fig all
-$VMAP labels "$CONF" "$MAP".fig
-$VMAP pics   "$CONF" "$MAP".fig
+$VMAP update_mp   "$CONF" "$MAP" "$EDITOR" "$MAP".mp
+$VMAP remove      "$CONF" "$MAP".fig all
+$VMAP copy        "$CONF" "$MAP".mp "$MAP".fig all
+$VMAP update_fig  "$CONF" "$MAP".fig
