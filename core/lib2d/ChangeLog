@@ -1,0 +1,50 @@
+######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Fri Oct 10 11:20:27 2008 +0400
+
+    lib2d: fix lib2d/io2d.h
+
+lib2d/io2d.h
+lib2d/test_io2d.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Fri Oct 10 11:10:42 2008 +0400
+
+    lib2d: lib2d: io2d.h for lexical_casts of objects. Test for casts. Make Rect to be < and = comparable
+
+lib2d/io2d.h
+lib2d/line.h
+lib2d/point.h
+lib2d/point_cross_test.cpp
+lib2d/rect.h
+lib2d/test_io2d.cpp
+
+######
+Author: Vladislav Zavjalov <slazav@altlinux.org>
+Date:   Thu Oct 9 02:34:30 2008 +0400
+
+    lib2d: fix SEGV error in Line<t>::operator<
+
+lib2d/line.h
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Thu Oct 9 00:17:11 2008 +0400
+
+    lib2d: fix Line<T>::operator< to use const iterator
+
+lib2d/line.h
+
+######
+Author: Vladislav Zavjalov <slazav@narod.ru>
+Date:   Fri Sep 26 11:07:34 2008 +0400
+
+    lib2d: point_cross.h: fix and test find_cross(), add find_dist()
+
+lib2d/point.h
+lib2d/point_cross.h
+
+- modify line_rectcrop() to return bool value: was line really cropped.
+  (need testing!)
+- add this ChangeLog file

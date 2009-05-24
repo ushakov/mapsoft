@@ -1,0 +1,12 @@
+Import('env')
+
+env.Library('fig', \
+    Split ("""
+        fig_io.cpp
+        fig_mask.cpp
+        fig_utils.cpp
+        fig_data.cpp
+     """))
+
+libs=Split("fig utils 2d")
+env.Program("fig_test.cpp",  LIBS=[libs])
