@@ -20,5 +20,5 @@ main(int argc, char** argv){
   string conf_file = argv[1];
 
   zn::zn_conv zconverter(conf_file);
-  cout << zconverter.make_text();
+  cout << zn::make_text(zconverter);
 }

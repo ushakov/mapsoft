@@ -11,7 +11,6 @@
 
 #include "../loaders/image_r.h" // определение размеров картинки (image_r::size)
 
-programs/mapsoft_getks_nom.cpp
 #include <boost/lexical_cast.hpp>
 
 #include <fstream>
