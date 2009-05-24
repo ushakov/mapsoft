@@ -1,7 +1,7 @@
 #include "vmap.h"
 
 main(int argc, char* argv[]){
-  if (argc<4) {
+  if (argc<3) {
     std::cerr << "Usage: test_mp2dir <in_file1> ... <out_dir>\n";
     exit(1);
   }
