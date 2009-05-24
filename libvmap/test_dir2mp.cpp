@@ -1,3 +1,4 @@
+#include <fstream>
 #include "vmap.h"
 
 main(int argc, char* argv[]){
@@ -10,11 +11,16 @@ main(int argc, char* argv[]){
 
   for (int i=1; i<argc-1; i++){
     std::cerr << "Reading " << argv[i] << "\n";
-    if (!vmap::read_dir(argv[i], w)){
+    if (!vmap::read(argv[i], w)){
       std::cerr << "Read error.\n";
       exit(1);
     }
   }
 
-  vmap::write_mp(argv[argc-1], w);
+  std::ofstream of(argv[argc-1]);
+  if (!of){
+    std::cerr << "can't open file" << argv[argc-1] << "\n";
+    return false;
+  }
+  mp::write(of, vmap::vmap2mp(w));
 }

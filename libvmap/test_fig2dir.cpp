@@ -6,15 +6,15 @@ main(int argc, char* argv[]){
     exit(1);
   }
 
-  vmap::world w;
+  fig::fig_world FIG;
 
   for (int i=1; i<argc-1; i++){
     std::cerr << "Reading " << argv[i] << "\n";
-    if (!vmap::read_fig(argv[i], w)){
+    if (!fig::read(argv[i], FIG)){
       std::cerr << "Read error.\n";
       exit(1);
     }
   }
 
-  vmap::write_dir(argv[argc-1], w);
+  vmap::write(argv[argc-1], vmap::fig2vmap(FIG));
 }

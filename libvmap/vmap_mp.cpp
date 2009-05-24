@@ -1,10 +1,5 @@
 #include <sstream>
-#include <fstream>
-#include <sys/stat.h>
-#include <dirent.h>
-
 #include "vmap.h"
-#include "../libmp/mp.h"
 
 #include "../libzn/zn_key.h" // for backward compat. read old-style keys
 #include <boost/lexical_cast.hpp>
@@ -13,7 +8,7 @@
 using namespace std;
 namespace vmap {
 
-bool write_mp(const std::string & file, const world & w){
+mp::mp_world  vmap2mp(const world & w){
   mp::mp_world MP;
   MP.ID   = w.opts.get("ID", 0);
   MP.Name = w.opts.get("Name", string());
@@ -23,7 +18,6 @@ bool write_mp(const std::string & file, const world & w){
   MP.Opts.put("Style", style);
 
   legend leg(style);
-
 
   // TODO: rmap section!
 
@@ -43,17 +37,11 @@ bool write_mp(const std::string & file, const world & w){
 
     MP.push_back(mpobj);
   }
-  ofstream of(file.c_str());
-  if (!of){
-    std::cerr << "map::write_mp: can't open file" << file << "\n";
-    return false;
-  }
-  return mp::write(of, MP);
+  return MP;
 }
 
-bool read_mp(const std::string & file, world & w){
-  mp::mp_world MP;
-  if (!mp::read(file.c_str(), MP)) return false;
+world mp2vmap(const mp::mp_world & MP){
+  world w;
   w.comm=MP.Comment;
   w.opts.put("ID", MP.ID);
   w.opts.put("Name", MP.Name);
@@ -65,11 +53,12 @@ bool read_mp(const std::string & file, world & w){
 
   // TODO: rmap section!
 
-  for (mp::mp_world::iterator o=MP.begin(); o!=MP.end(); o++){
+  for (mp::mp_world::const_iterator o=MP.begin(); o!=MP.end(); o++){
 
     // BC!! old-style keys
-    zn::zn_key k=zn::get_key(*o);
-    zn::clear_key(*o);
+    mp::mp_object tmp=*o;
+    zn::zn_key k=zn::get_key(tmp);
+    zn::clear_key(tmp);
     id_t id=boost::lexical_cast<id_t>(k.id) + "@" + k.map;  // BC!!
 
     // new-style ID
@@ -82,7 +71,7 @@ bool read_mp(const std::string & file, world & w){
     }
 
     vmap::object mapobj;
-    mapobj.comm=o->Comment;
+    mapobj.comm=tmp.Comment;
 
     string type=leg.get_type(*o);
     if (type!="") mapobj.opts.put("type", type);
@@ -98,7 +87,7 @@ bool read_mp(const std::string & file, world & w){
 
     w.objects[id]=mapobj;
   }
-  return true;
+  return w;
 }
 
 } // namespace

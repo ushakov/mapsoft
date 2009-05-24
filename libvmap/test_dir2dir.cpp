@@ -10,11 +10,11 @@ main(int argc, char* argv[]){
 
   for (int i=1; i<argc-1; i++){
     std::cerr << "Reading " << argv[i] << "\n";
-    if (!vmap::read_dir(argv[i], w)){
+    if (!vmap::read(argv[i], w)){
       std::cerr << "Read error.\n";
       exit(1);
     }
   }
 
-  vmap::write_dir(argv[argc-1], w);
+  vmap::write(argv[argc-1], w);
 }

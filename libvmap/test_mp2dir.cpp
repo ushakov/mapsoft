@@ -6,15 +6,15 @@ main(int argc, char* argv[]){
     exit(1);
   }
 
-  vmap::world w;
+  mp::mp_world MP;
 
   for (int i=1; i<argc-1; i++){
     std::cerr << "Reading " << argv[i] << "\n";
-    if (!vmap::read_mp(argv[i], w)){
+    if (!mp::read(argv[i], MP)){
       std::cerr << "Read error.\n";
       exit(1);
     }
   }
 
-  vmap::write_dir(argv[argc-1], w);
+  vmap::write(argv[argc-1], vmap::mp2vmap(MP));
 }

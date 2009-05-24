@@ -7,8 +7,12 @@
 #include <map>
 #include <iostream>
 
+#include "../libgeo/geo_convs.h"
 #include "../lib2d/line.h"
 #include "../utils/options.h"
+
+#include "../libgeo_io/geofig.h"
+#include "../libmp/mp.h"
 
 #include "legend.h"
 
@@ -107,15 +111,14 @@ id_t make_id(void);
 // /dir/objects/<id>
 // /dir/rmaps/<id>
 
-bool write_dir(const std::string & dir, const world & w);
-bool read_dir(const std::string & dir, world & w);
+bool write(const std::string & dir, const world & w);
+bool read(const std::string & dir, world & w);
 
-bool write_mp(const std::string & file, const world & w);
-bool read_mp(const std::string & file, world & w);
+mp::mp_world  vmap2mp(const world & w);
+world         mp2vmap(const mp::mp_world & MP);
 
-bool write_fig(const std::string & file, const world & w);
-bool read_fig(const std::string & file, world & w);
-
+fig::fig_world  vmap2fig(const world & w);
+world           fig2vmap(const fig::fig_world & FIG);
 
 } // namespace
 #endif

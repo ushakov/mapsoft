@@ -1,8 +1,6 @@
 #include <sstream>
-#include <fstream>
 
 #include "vmap.h"
-#include "../libgeo_io/geofig.h"
 
 #include "../libzn/zn_key.h" // for backward compat. read old-style keys
 #include <boost/lexical_cast.hpp>
@@ -27,7 +25,7 @@ void copy_fig_comment(const fig::fig_world::iterator & i, const fig::fig_world::
   }
 }
 
-bool write_fig(const std::string & file, const world & w){
+fig::fig_world  vmap2fig(const world & w){
   fig::fig_world FIG;
 
   if (w.opts.exists("ID"))   FIG.opts.put("ID", w.opts.get("ID", 0));
@@ -72,38 +70,32 @@ bool write_fig(const std::string & file, const world & w){
 
   }
 */
-  ofstream of(file.c_str());
-  if (!of){
-    std::cerr << "map::write_fig: can't open file" << file << "\n";
-    return false;
-  }
-  return fig::write(of, FIG);
+  return FIG;
 }
 
+world fig2vmap(const fig::fig_world & FIG){
 
-bool read_fig(const std::string & file, world & w){
-  fig::fig_world FIG;
-  if (!fig::read(file.c_str(), FIG)) return false;
+  world w;
+  fig::fig_world FIG1=FIG; // we need to copy all the data to fix comments
+  w.comm=FIG1.comment;
 
-  w.comm=FIG.comment;
+  if (FIG1.opts.exists("id"))    w.opts.put("ID", FIG1.opts.get("id",string()));
+  if (FIG1.opts.exists("name"))  w.opts.put("Name", FIG1.opts.get("name",string()));
 
-  if (FIG.opts.exists("id"))    w.opts.put("ID", FIG.opts["id"]);
-  if (FIG.opts.exists("name"))  w.opts.put("Name", FIG.opts["name"]);
-
-  string style=FIG.opts.get("style", string("mmb"));
+  string style=FIG1.opts.get("style", string("mmb"));
   w.opts.put("Style", style);
 
   legend leg(style);
 
-  g_map ref = fig::get_ref(FIG);
+  g_map ref = fig::get_ref(FIG1);
   if (ref.size()<3){
-    cerr << "ERR: not a GEO-fig\n"; return false;
+    cerr << "ERR: not a GEO-fig\n"; return world();
   }
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
 
-  for (fig::fig_world::iterator o=FIG.begin(); o!=FIG.end(); o++){
+  for (fig::fig_world::iterator o=FIG1.begin(); o!=FIG1.end(); o++){
     // move comment from compound to the first object in it
-    copy_fig_comment(o, FIG.end());
+    copy_fig_comment(o, FIG1.end());
     if (!leg.is_map_depth(*o)) continue;
 
     // BC!! old-style keys
@@ -141,10 +133,10 @@ bool read_fig(const std::string & file, world & w){
   }
 
   rmap rm;
-  if (FIG.opts.exists("proj"))  rm.opts.put("Proj", FIG.opts["proj"]);
+  if (FIG1.opts.exists("proj"))  rm.opts.put("Proj", FIG1.opts["proj"]);
 
   // read labels
-  for (fig::fig_world::iterator o=FIG.begin(); o!=FIG.end(); o++){
+  for (fig::fig_world::iterator o=FIG1.begin(); o!=FIG1.end(); o++){
 
     // BC!! old-style keys
     zn::zn_label_key k=zn::get_label_key(*o);
@@ -168,7 +160,7 @@ bool read_fig(const std::string & file, world & w){
   }
 
   w.rmaps.insert(std::pair<id_t, rmap>("default", rm));
-  return true;
+  return w;
 }
 
 } // namespace
