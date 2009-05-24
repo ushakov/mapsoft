@@ -1,17 +1,17 @@
 import os
 
 subdirs = Split ("""
-		lib2d
-		libfig
+		core/lib2d
+		core/libfig
+		core/libgeo
+		core/libgeo_io
+		core/jeeps
+		core/layers
+		core/loaders
+		core/utils
 		libmp
 		libvmap
-		libgeo
-		libgeo_io
-		jeeps
-		layers
-		loaders
 		programs
-		utils
 		viewer
 		libzn
 		libzn-utils
