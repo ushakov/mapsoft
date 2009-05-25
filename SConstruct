@@ -9,7 +9,7 @@ subdirs = Split ("""
 		core/layers
 		core/loaders
 		core/utils
-		libmp
+		core/libmp
 		libvmap
 		programs
 		viewer

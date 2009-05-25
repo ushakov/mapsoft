@@ -5,11 +5,11 @@
 #include <list>
 #include <map>
 #include <set>
-#include "../libgeo/geo_convs.h"
-#include "../libgeo_io/geofig.h"
-#include "../libmp/mp.h"
+#include "../core/libgeo/geo_convs.h"
+#include "../core/libgeo_io/geofig.h"
+#include "../core/libmp/mp.h"
 
-#include "../utils/m_time.h"
+#include "../core/utils/m_time.h"
 
 // операции с конф.файлом и типами объектов
 // хочется, чтоб этот класс ничего не знал про ключи, а работал только с типами...

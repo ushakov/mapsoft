@@ -3,8 +3,8 @@
 
 #include <string>
 #include <map>
-#include "../libmp/mp_data.h"
-#include "../libfig/fig_data.h"
+#include "../core/libmp/mp_data.h"
+#include "../core/libfig/fig_data.h"
 
 namespace vmap{
 

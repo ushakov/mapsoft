@@ -8,9 +8,9 @@
 
 #include "legend.h"
 
-#include "../lib2d/point_utils.h"
-#include "../libfig/fig_mask.h"
-#include "../libmp/mp_mask.h"
+#include "../core/lib2d/point_utils.h"
+#include "../core/libfig/fig_mask.h"
+#include "../core/libmp/mp_mask.h"
 
 #include <boost/lexical_cast.hpp>
 
