@@ -4,9 +4,8 @@ env.Library('vmap', \
     Split ("""
         vmap_id.cpp
         vmap_io.cpp
-        vmap_io_dir.cpp
-        vmap_io_mp.cpp
-        vmap_io_fig.cpp
+	vmap_fig.cpp
+	vmap_mp.cpp
         legend.cpp
     """))
 

@@ -8,14 +8,14 @@
 #include <cmath>
 #include <cstring>
 
-#include "../lib2d/line.h"
+#include "../core/lib2d/line.h"
 
-#include "../lib2d/line_utils.h"
-#include "../lib2d/line_polycrop.h"
+#include "../core/lib2d/line_utils.h"
+#include "../core/lib2d/line_polycrop.h"
 
-#include "../libgeo_io/io.h"
-#include "../libgeo/geo_data.h"
-#include "../libgeo/geo_convs.h"
+#include "../core/libgeo_io/io.h"
+#include "../core/libgeo/geo_data.h"
+#include "../core/libgeo/geo_convs.h"
 
 using namespace std;
 

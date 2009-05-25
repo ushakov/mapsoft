@@ -4,7 +4,7 @@
 #include "../core/utils/m_time.h"
 #include <cmath>
 #include <cstring>
-#include "../core/libzn/zn.h"
+#include "../libzn/zn.h"
 #include "line_dist.h"
 #include "../core/lib2d/line_polycrop.h"
 

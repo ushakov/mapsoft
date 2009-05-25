@@ -1,11 +1,11 @@
 #define DEBUG_LAYER_KS
 
-#include "../loaders/image_r.h"
-#include "../layers/layer_ks.h"
-#include "../libgeo_io/io.h"
-#include "../libgeo/geo_convs.h"
+#include "../core/loaders/image_r.h"
+#include "../core/layers/layer_ks.h"
+#include "../core/libgeo_io/io.h"
+#include "../core/libgeo/geo_convs.h"
 
-#include "../libgeo_io/geofig.h"
+#include "../core/libgeo_io/geofig.h"
 
 int zoom;
 std::string lon0;

@@ -4,10 +4,10 @@
 
 #include "../viewer/viewer.h"
 #include "../viewer/workplane.h"
-#include "../layers/layer_ks.h"
-#include "../layers/layer_geodata.h"
+#include "../core/layers/layer_ks.h"
+#include "../core/layers/layer_geodata.h"
 
-#include "../libgeo_io/io.h"
+#include "../core/libgeo_io/io.h"
 
 int sc = 3;
 geo_data world;

@@ -10,9 +10,9 @@
 #include <sys/stat.h>
 #include <math.h>
 
-#include "../libgeo_io/io.h"
-#include "../libgeo_io/geofig.h"
-#include "../utils/read_conf.h"
+#include "../core/libgeo_io/io.h"
+#include "../core/libgeo_io/geofig.h"
+#include "../core/utils/read_conf.h"
 
 using namespace std;
 

@@ -2,16 +2,16 @@
 
 #include <fstream>
 
-#include "../loaders/image_r.h"
-#include "../layers/layer_ks.h"
-#include "../libgeo_io/io.h"
-#include "../libgeo/geo_convs.h"
-#include "../libgeo/geo_nom.h"
+#include "../core/loaders/image_r.h"
+#include "../core/layers/layer_ks.h"
+#include "../core/libgeo_io/io.h"
+#include "../core/libgeo/geo_convs.h"
+#include "../core/libgeo/geo_nom.h"
 
-#include "../libgeo_io/geofig.h"
-#include "../lib2d/line_utils.h"
+#include "../core/libgeo_io/geofig.h"
+#include "../core/lib2d/line_utils.h"
 
-#include "../utils/image_gd.h"
+#include "../core/utils/image_gd.h"
 #include <boost/lexical_cast.hpp>
 
 /** Изготовление номенклатурного листа с космоснимком */
