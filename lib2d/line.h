@@ -168,14 +168,14 @@ std::istream & operator>> (std::istream & s, Line<T> & l){
   return s;
 }
 
-// Line with multiple segments (std::list<Line<T> >)
+// Line with multiple segments (std::vector<Line<T> >)
 
 template <typename T>
 struct MultiLine
   : public boost::additive<MultiLine<T> >,
     public boost::additive<MultiLine<T>, Point<T> >,
     public boost::multiplicative<MultiLine<T>,T>,
-    std::list<Line<T> >
+    std::vector<Line<T> >
 {
 
   MultiLine<T> & operator/= (T k) {

@@ -190,7 +190,6 @@ struct Image{
 	} else if (a == 0) {
 	    // do nothing
 	} else {
-	    static int qqqq = 0;
 	    int r = (((color >> 16) & 0xff) * a + ((data[y*w+x] >> 16) & 0xff) * (255-a)) / 255;
 	    int g = (((color >> 8) & 0xff) * a + ((data[y*w+x] >> 8) & 0xff) * (255-a)) / 255;
 	    int b = ((color & 0xff) * a + (data[y*w+x] & 0xff) * (255-a)) / 255;
