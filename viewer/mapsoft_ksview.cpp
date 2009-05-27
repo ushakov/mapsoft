@@ -2,11 +2,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../viewer/viewer.h"
-#include "../viewer/workplane.h"
+#include "viewer.h"
+#include "workplane.h"
 #include "../core/layers/layer_ks.h"
 #include "../core/layers/layer_geodata.h"
-
 #include "../core/libgeo_io/io.h"
 
 int sc = 3;

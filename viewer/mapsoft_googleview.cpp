@@ -6,11 +6,10 @@
 //#define DEBUG_VIEWER
 //#define DEBUG_GOOGLE
 
-#include "../viewer/viewer.h"
-#include "../viewer/workplane.h"
+#include "viewer.h"
+#include "workplane.h"
 #include "../core/layers/layer_google.h"
 #include "../core/layers/layer_geodata.h"
-
 #include "../core/libgeo_io/io.h"
 
 int sc = 1;

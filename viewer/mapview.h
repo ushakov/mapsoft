@@ -5,15 +5,14 @@
 #include <boost/shared_ptr.hpp>
 #include <gtkmm.h>
 
+#include "workplane.h"
+#include "viewer.h"
+#include "layerlist.h"
+#include "generic_dialog.h"
+#include "action_manager.h"
 #include "../core/libgeo_io/io.h"
-#include "../viewer/workplane.h"
-#include "../viewer/viewer.h"
 #include "../core/layers/layer_geomap.h"
 #include "../core/layers/layer_geodata.h"
-#include "../viewer/layerlist.h"
-#include "../viewer/generic_dialog.h"
-
-#include "../viewer/action_manager.h"
 #include "../core/utils/log.h"
 
 class MapviewState {
