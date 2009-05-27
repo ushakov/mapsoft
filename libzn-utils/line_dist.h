@@ -6,8 +6,8 @@
 // сделано для рисования условных обозначений - всяких сложных пунктиров,
 // газопроводов, лэп...
 
-#include "../lib2d/line.h"
-#include "../lib2d/point_utils.h"
+#include "../core/lib2d/line.h"
+#include "../core/lib2d/point_utils.h"
 #include <vector>
 
 template <typename T>

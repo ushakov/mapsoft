@@ -5,14 +5,14 @@
 #include <list>
 #include <vector>
 
-#include "../utils/srtm3.h"
-#include "../jeeps/gpsmath.h"
+#include "../core/utils/srtm3.h"
+#include "../core/jeeps/gpsmath.h"
 
-#include "../libgeo_io/io.h"
-#include "../libgeo/geo_convs.h"
-#include "../loaders/image_r.h"
-#include "../libmp/mp.h"
-#include "../libfig/fig.h"
+#include "../core/libgeo_io/io.h"
+#include "../core/libgeo/geo_convs.h"
+#include "../core/loaders/image_r.h"
+#include "../core/libmp/mp.h"
+#include "../core/libfig/fig.h"
 
 // панорама по srtm с геоданными. 
 

@@ -1,8 +1,8 @@
 #include <gdk/gdk.h>
 
 #include "viewer.h"
-#include "../utils/image_gdk.h"
-#include "../utils/log.h"
+#include "../core/utils/image_gdk.h"
+#include "../core/utils/log.h"
 
 /**************************************/
 

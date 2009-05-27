@@ -10,8 +10,8 @@
 #include <sys/stat.h>
 #include <math.h>
 
-#include "../libgeo_io/io.h"
-#include "../libgeo/geo_convs.h"
+#include "../core/libgeo_io/io.h"
+#include "../core/libgeo/geo_convs.h"
 
 using namespace std;
 

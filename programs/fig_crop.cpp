@@ -1,6 +1,6 @@
 #include <fstream>
-#include "../libfig/fig_utils.h"
-#include "../libfig/fig_io.h"
+#include "../core/libfig/fig_utils.h"
+#include "../core/libfig/fig_io.h"
 
 // Обрезка fig-файла по объекту-прямоугольнику с комментарием CUTTER
 // (из нескольких - по последнему)

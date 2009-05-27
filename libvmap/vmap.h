@@ -7,12 +7,12 @@
 #include <map>
 #include <iostream>
 
-#include "../libgeo/geo_convs.h"
-#include "../lib2d/line.h"
-#include "../utils/options.h"
+#include "../core/libgeo/geo_convs.h"
+#include "../core/lib2d/line.h"
+#include "../core/utils/options.h"
 
-#include "../libgeo_io/geofig.h"
-#include "../libmp/mp.h"
+#include "../core/libgeo_io/geofig.h"
+#include "../core/libmp/mp.h"
 
 #include "legend.h"
 

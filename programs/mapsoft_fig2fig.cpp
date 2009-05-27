@@ -1,6 +1,6 @@
-#include "../libgeo_io/geofig.h"
-#include "../libgeo/geo_convs.h"
-#include "../lib2d/line_polycrop.h"
+#include "../core/libgeo_io/geofig.h"
+#include "../core/libgeo/geo_convs.h"
+#include "../core/lib2d/line_polycrop.h"
 #include <fstream>
 
 // Перенесение данных из одного fig-файла в другой с обрезкой 
