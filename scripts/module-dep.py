@@ -43,9 +43,40 @@ def GetUniqLinks(top):
         (s, d) = key.split()
         yield s, d, count
 
-clean = re.compile("-")
+def AddToClusters(clusters, node, p):
+    if len(p) == 0:
+        if "." not in clusters:
+            clusters["."] = []
+        clusters["."].append(node)
+        return
+    if p[0] not in clusters:
+        clusters[p[0]] = {}
+    AddToClusters(clusters[p[0]], node, p[1:])
 
+def GatherClusters(all_nodes):
+    clusters = {}
+    for n in all_nodes:
+        p = n.split("/")
+        AddToClusters(clusters, n, p)
+    return clusters
+
+def PrintClusters(clusters, prefix=""):
+    for cname, cluster in clusters.iteritems():
+        if cname == ".":
+            for n in cluster:
+                print '"%s";' % n
+        else:
+            print 'subgraph "cluster_%s_%s" {' % (prefix, cname)
+            PrintClusters(cluster, "%s_%s" % (prefix, cname))
+            print "}"
+
+all_nodes = {}
 print "digraph G {"
 for (s, d, c) in GetUniqLinks("."):
-    print "  \"%s\" -> \"%s\" [label=\"%s\"]" % (s, d, c) 
+    if s != d: print "  \"%s\" -> \"%s\" [label=\"%s\"]" % (s, d, c)
+    all_nodes[s] = 1
+    all_nodes[d] = 1
+
+clusters = GatherClusters(all_nodes)
+PrintClusters(clusters)
 print "}"
