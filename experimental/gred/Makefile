@@ -1,4 +1,4 @@
-LDFLAGS= -L../core/lib2d
+LDFLAGS= -L../../core/lib2d
 LDLIBS= -l2d `pkg-config --libs gtkmm-2.4,gthread-2.0`
 
 

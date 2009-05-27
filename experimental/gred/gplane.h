@@ -3,8 +3,8 @@
 
 #include <limits.h>
 
-#include "../core/lib2d/rect.h"
-#include "../core/lib2d/image.h"
+#include "../../core/lib2d/rect.h"
+#include "../../core/lib2d/image.h"
 
 typedef unsigned int GCoord;
 const GCoord GCoord_min=0;

@@ -1,5 +1,5 @@
 #include "ocad.h"
-#include "../libfig/fig.h"
+#include "../../core/libfig/fig.h"
 
 #include <stdio.h>
 #include <stdlib.h>
