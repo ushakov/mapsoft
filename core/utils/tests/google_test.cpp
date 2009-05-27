@@ -3,8 +3,8 @@
 //#define DEBUG_IMAGE
 
 #include <iostream>
-#include <image.h>
-#include <image_google.h>
+#include "../../../core/lib2d/image.h"
+#include "../../../core/loaders/image_google.h"
 
 int main(){
   std::string dir="/e2/M/GOOGLE/";
