@@ -1,7 +1,7 @@
 // Изготовление новой карты в проекции Гаусса-Крюгера, СК Пулково-42.
 
-#include "../core/libgeo_io/geofig.h"
-#include "../core/libgeo/geo_convs.h"
+#include "../../core/libgeo_io/geofig.h"
+#include "../../core/libgeo/geo_convs.h"
 
 #include <fstream>
 #include <sys/stat.h>

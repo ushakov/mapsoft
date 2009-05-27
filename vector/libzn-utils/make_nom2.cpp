@@ -1,15 +1,15 @@
 // Изготовление закотовки для номенклатурной карты
 // в проекции Гаусса-Крюгера, СК Пулково-42.
 
-#include "../core/libgeo/geo_convs.h"
-#include "../core/libgeo/geo_nom.h"
-#include "../core/libgeo_io/geofig.h"
-#include "../core/libgeo_io/io.h"
+#include "../../core/libgeo/geo_convs.h"
+#include "../../core/libgeo/geo_nom.h"
+#include "../../core/libgeo_io/geofig.h"
+#include "../../core/libgeo_io/io.h"
 
-#include "../core/lib2d/line_utils.h"
-#include "../core/lib2d/line_polycrop.h"
+#include "../../core/lib2d/line_utils.h"
+#include "../../core/lib2d/line_polycrop.h"
 
-#include "../core/loaders/image_r.h" // определение размеров картинки (image_r::size)
+#include "../../core/loaders/image_r.h" // определение размеров картинки (image_r::size)
 
 
 #include <boost/lexical_cast.hpp>

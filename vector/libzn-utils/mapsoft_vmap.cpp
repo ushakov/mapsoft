@@ -1,15 +1,15 @@
 #include <string>
 #include <cstring>
 #include <fstream>
-#include "../core/libgeo_io/geofig.h"
-#include "../core/libmp/mp.h"
+#include "../../core/libgeo_io/geofig.h"
+#include "../../core/libmp/mp.h"
 
 #include "../libzn/zn.h"
 #include "../libzn/zn_key.h"
 
-#include "../core/lib2d/line_rectcrop.h"
-#include "../core/libgeo_io/io.h"
-#include "../core/libgeo/geo_nom.h"
+#include "../../core/lib2d/line_rectcrop.h"
+#include "../../core/libgeo_io/io.h"
+#include "../../core/libgeo/geo_nom.h"
 
 using namespace std;
 

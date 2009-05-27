@@ -11,8 +11,8 @@
 
 #include "zn.h"
 
-#include "../core/lib2d/point_utils.h"
-#include "../core/lib2d/line_utils.h"
+#include "../../core/lib2d/point_utils.h"
+#include "../../core/lib2d/line_utils.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/core.hpp>

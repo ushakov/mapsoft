@@ -1,7 +1,7 @@
 #ifndef VMAP_PARTS_H
 #define VMAP_PARTS_H
 
-#include "../core/libgeo/geo_convs.h"
+#include "../../core/libgeo/geo_convs.h"
 #include "vmap.h"
 
 namespace vmap {

@@ -4,7 +4,7 @@
 #include <string>
 #include <list>
 #include <map>
-#include "../core/libfig/fig.h"
+#include "../../core/libfig/fig.h"
 
 #include "zn.h"
 
