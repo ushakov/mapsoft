@@ -66,13 +66,30 @@ def PrintClusters(clusters, prefix=""):
             for n in cluster:
                 print '"%s";' % n
         else:
-            print 'subgraph "cluster_%s_%s" {' % (prefix, cname)
-            PrintClusters(cluster, "%s_%s" % (prefix, cname))
-            print "}"
+            # figure out if we need a cluster for this
+            if "." in cluster:
+                clen = len(cluster) - 1  + len(cluster["."])
+            else:
+                clen = len(cluster)
+            if clen > 1:
+                print 'subgraph "cluster_%s_%s" {' % (prefix, cname)
+                PrintClusters(cluster, "%s_%s" % (prefix, cname))
+                print "}"
+            else:
+                PrintClusters(cluster, "%s_%s" % (prefix, cname))
+
+def OmitNode(s):
+    if re.search("experimental", s):
+        return True
+    if re.search("test", s):
+        return True
+    return False
 
 all_nodes = {}
 print "digraph G {"
 for (s, d, c) in GetUniqLinks("."):
+    if OmitNode(s) or OmitNode(d):
+        continue
     if s != d: print "  \"%s\" -> \"%s\" [label=\"%s\"]" % (s, d, c)
     all_nodes[s] = 1
     all_nodes[d] = 1
