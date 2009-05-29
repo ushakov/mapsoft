@@ -11,7 +11,7 @@
 #include "../core/libgeo_io/geofig.h"
 #include "../core/lib2d/line_utils.h"
 
-#include "../core/utils/image_gd.h"
+#include "../core/lib2d/image_gd.h"
 #include <boost/lexical_cast.hpp>
 
 /** Изготовление номенклатурного листа с космоснимком */

@@ -4,7 +4,6 @@
 #include "../core/layers/layer_ks.h"
 #include "../core/libgeo_io/io.h"
 #include "../core/libgeo/geo_convs.h"
-
 #include "../core/libgeo_io/geofig.h"
 
 int zoom;

@@ -2,7 +2,7 @@
 #include <gdk/gdk.h>
 
 #include "gplane.h"
-#include "../../core/utils/image_gdk.h"
+#include "../../core/lib2d/image_gdk.h"
 
 class SimpleViewer : public Gtk::DrawingArea {
   public:
