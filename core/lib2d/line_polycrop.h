@@ -31,11 +31,11 @@ bool test_pt (const Point<double> & pt, const T & poly){
 
 // обрезать все линии, входящие/не входящие в многоугольник cutter и добавить их в lines1
 template<typename T>
-void crop_lines(std::list<T> & lines,
-                std::list<T> & lines1,
+void crop_lines(std::vector<T> & lines,
+                std::vector<T> & lines1,
                 const T & cutter, bool cutouter){
   for (int j = 0; j<cutter.size(); j++){
-    for (typename std::list<T>::iterator l = lines.begin(); l!=lines.end(); l++){
+    for (typename std::vector<T>::iterator l = lines.begin(); l!=lines.end(); l++){
       for (int i = 0; i<l->size()-1; i++){
         Point<double> pt;
         try { pt = find_cross((*l)[i], (*l)[i+1], cutter[j], cutter[(j+1)%cutter.size()]); }
@@ -54,7 +54,7 @@ void crop_lines(std::list<T> & lines,
     }
   }
   // теперь переместим те линии, которые не попадают в нужный район
-  typename std::list<T>::iterator l=lines.begin();
+  typename std::vector<T>::iterator l=lines.begin();
   while (l!=lines.end()){
     if (l->size()==0) {l=lines.erase(l); continue;}
     // посчитаем число точек внутри - число точек вне.
