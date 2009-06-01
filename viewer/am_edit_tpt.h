@@ -4,7 +4,7 @@
 #include "action_mode.h"
 #include "action_manager.h"
 #include "generic_dialog.h"
-#include "../programs/mapview.h"
+#include "mapview.h"
 
 class EditTrackpoint : public ActionMode {
 public:

@@ -10,12 +10,12 @@ subdirs = Split ("""
 		core/loaders
 		core/utils
 		core/libmp
-		libvmap
 		programs
 		viewer
-		libzn
-		libzn-utils
-		libzn-data
+		vector/libvmap
+		vector/libzn
+		vector/libzn-utils
+		vector/libzn-data
 		""")
 
 #SetOption('implicit_cache', 1)
