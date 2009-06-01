@@ -1,7 +1,7 @@
 #include <gdk/gdk.h>
 
 #include "viewer.h"
-#include "../core/lib2d/image_gdk.h"
+#include "../core/utils/image_gdk.h"
 #include "../core/utils/log.h"
 
 /**************************************/

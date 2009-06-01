@@ -10,7 +10,10 @@
 
 #include "layer_geo.h"
 #include "../libgeo/geo_convs.h"
-#include "../lib2d/image_gd.h"
+//#include "../libgeo_io/io.h"
+//#include "../utils/image_brez.h"
+#include "../utils/image_gd.h"
+
 #include "../lib2d/point_utils.h"
 
 #include <boost/shared_ptr.hpp>

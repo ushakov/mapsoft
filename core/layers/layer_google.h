@@ -12,7 +12,7 @@
 #include "../utils/cache.h"
 #include "../loaders/image_google.h"
 #include "../loaders/image_i.h"
-#include "../lib2d/image_gd.h"
+#include "../utils/image_gd.h"
 
 //#include "../libgeo_io/io.h"
 

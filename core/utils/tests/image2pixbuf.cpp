@@ -6,7 +6,7 @@
 #include "../../../core/lib2d/image.h"
 #include "../../../core/loaders/image_jpeg.h"
 #include "../../../core/loaders/image_tiff.h"
-#include "../../../core/lib2d/image_gdk.h"
+#include "../../../core/utils/image_gdk.h"
 
 #include <gdkmm/pixbuf.h>
 #include <gdkmm/wrap_init.h>
