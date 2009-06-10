@@ -1,6 +1,6 @@
-#include "../libgeo_io/geofig.h"
-#include "../libgeo/geo_convs.h"
-#include "../lib2d/line_polycrop.h"
+#include "../core/libgeo_io/geofig.h"
+#include "../core/libgeo/geo_convs.h"
+#include "../core/lib2d/line_polycrop.h"
 #include <fstream>
 
 // Перенесение данных из одного fig-файла в другой с обрезкой 
@@ -57,7 +57,7 @@ main(int argc, char** argv){
     } else {
       o.set_points(cnv.line_frw(*i));
     }
-    list<fig::fig_object> l1,l2; 
+    vector<fig::fig_object> l1,l2; 
     l1.push_back(o);
     crop_lines(l1, l2, brd, true);
     F1.insert(F1.end(), l1.begin(), l1.end());

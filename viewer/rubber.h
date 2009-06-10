@@ -2,7 +2,7 @@
 #define RUBBER_H
 
 #include <gtkmm.h>
-#include "../lib2d/point.h"
+#include "../core/lib2d/point.h"
 
 
 class RubberPoint {

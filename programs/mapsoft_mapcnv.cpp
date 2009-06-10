@@ -2,13 +2,13 @@
 
 #include <fstream>
 
-#include "../layers/layer_geomap.h"
-#include "../libgeo_io/io.h"
-#include "../libgeo/geo_convs.h"
-#include "../libgeo_io/geofig.h"
+#include "../core/layers/layer_geomap.h"
+#include "../core/libgeo_io/io.h"
+#include "../core/libgeo/geo_convs.h"
+#include "../core/libgeo_io/geofig.h"
 
-#include "../utils/read_conf.h"
-#include "../lib2d/line_utils.h"
+#include "../core/utils/read_conf.h"
+#include "../core/lib2d/line_utils.h"
 
 using namespace std;
 

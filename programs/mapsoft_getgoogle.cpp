@@ -1,11 +1,11 @@
 #define DEBUG_LAYER_GOOGLE
 
-#include "../loaders/image_r.h"
-#include "../layers/layer_google.h"
-#include "../libgeo_io/io.h"
-#include "../libgeo/geo_convs.h"
+#include "../core/loaders/image_r.h"
+#include "../core/layers/layer_google.h"
+#include "../core/libgeo_io/io.h"
+#include "../core/libgeo/geo_convs.h"
 
-#include "../libgeo_io/geofig.h"
+#include "../core/libgeo_io/geofig.h"
 
 int zoom;
 double scale;

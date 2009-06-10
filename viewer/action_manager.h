@@ -5,8 +5,8 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-#include "../viewer/action_mode.h"
-#include "../viewer/viewer.h"
+#include "action_mode.h"
+#include "viewer.h"
 
 class MapviewState;
 
