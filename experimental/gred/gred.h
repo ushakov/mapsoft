@@ -1,79 +1,108 @@
 // Universal graphical editor
 
-/*  We want to draw objects on a large raster
-    plane (GPlane). We want to create viewer, allowing us to view
-    part of this plane, to rescale and drag it, to pass some events
-    (mouse clicks) to editor functions, specific for each type of objects.
+#include "../../core/lib2d/line.h"
 
-    Type GCoord is used for coordinates on this plane. They are
-    restricted by values GCoord::min, GCoord::max; GCoord must be an
-    unsigned type.
+/*  Objects are drawn on a plane in abstract coordinates GCoord,
+    restricted by GCoord_min and GCoord_max, and addressed by
+    SuperCells. Viewer renders this plane on the screen in some scale.
+
+    This abstract has geographic reference which the objects can use
+    if they need.
+
+    Objects are encouraged to cache information using the supercell
+    division.
 */
 
-typedef GCoord_t unsigned int;
-const GCoord_min=0;
-const GCoord_max=UINT_MAX;
+#include "gcoord.h"
 
-
-/*  GPlane has some hints for talling objects how to draw on it.
-    It is g_map for geo-referenced objects and scale for others.
-    When you are change scale in viewer both parameters changes.
-    Objects can use these parameters as they want.
-*/
-
-struct GPlane{
-  unsigned int nom;
-  unsigned int denom;
-  double scale;
-  g_map  ref;
-
-  GPlane & operator/= (double k);
-  GPlane & operator*= (double k);
-  GPlane & operator-= (Point<GCoord_t> k);
-  GPlane & operator+= (Point<GCoord_t> k);
+struct GAbstractPlane {
+  g_map ref;
+  int nominator;
+  int denominator;
 };
 
-/*  We want to redraw parts of our plane efficiently: not to iterate though all
-    existing objects and through all points of large objects.
+class GObject {
+ public:
+  /** Render this object to an image.
 
-    We split plane into tiles. Each tile (GTile) knows about objects on it,
-    and each object caches information how to draw itself on each tile
-    (it can be raster picture, set of points with reference to GC etc.).
+      Renders part of this object within the cell addressed by cell to
+      an image img. The rendering is done according to scale and ref
+      of GPlane plane. The top-left corner of the cell goes to (0,0)
+      in img, if img has wrong size, cropping/black parts happen.
+  */
+  virtual void draw(Image<int>* img, SuperCell cell, const GPlane& plane) { }
 
-*/
+  /** Notify the object that the GPlane's ref has changed.
 
-struct GSplitting : std::map<GTileID, GTile>{
-  virtual Image<GCoord> draw(Rect<GCoord>) = 0;
+      Please note that the scale may change freely, and we do not need to
+      notify objects!
+  */
+  virtual void ref_changed(const GPlane& plane) { }
 };
 
-struct GTile{
-  Rect<GCoord> range;
-  std::set<GObject *> objects;
-  Image<GCoord> redraw();
+// Convenience class
+<typename Base>
+class GTileCache : Cache<SuperCell, std::set<Base> > {
+public:
+  typedef std::set<Base> CacheElement;
+  typedef Cache<SuperCell, CacheElement> CacheType;
+
+  GTileCache(int n): CacheType(n) { }
+  GTileCache(GTileCache const& other) : CacheType(other) { }
+
+  std::pair<CacheElement::iterator, CacheElement::iterator> iterate(SuperCell c) {
+    CacheElement el = this->get(c);
+    return std::make_pair(el.begin(), el.end());
+  }
+
+  void add_at(SuperCell c, Base const& item) {
+    if (!contains(c)) {
+      CacheElement el;
+      el.insert(item);
+      put(c, el);
+    } else {
+      CacheElement& el = get(c);
+      el.insert(item);
+    }
+  }
+
+  void remove_at(SuperCell c, Base const& item) {
+    if (!contains(c)) {
+      // nothing to do
+      return;
+    }
+    CacheElement& el = get(c);
+    el.erase(item);
+  }
 };
 
-/*  Each object knows what to draw on given tile at given GPlane.
-    It is strongly recomended to cache information needed for
-    drawing.
-*/
+/**  Reference GObject implementation: line.
 
-struct GObject{
-  virtual int render(
-    Image<GCoord> & img,
-    const GPlane & plane,
-    const Point<GCoord> & origin) = 0;
+     This is a MultiLine<double> that renders to abstract coordinates in
+     1-to-1 fashion, then renders to the screen using only scale. It caches
+     its contents in each SuperCell requested.
+
+     This object ignores the geo-reference and thus does not implement
+     ref_changed method.
+*/
+class GLine : public GObject {
+private:
+  MultiLine<double> data;
+  typedef GTileCache<int> TileCache;
+  TileCache cache;
+public:
+  GLine(MultiLine<double> data) : cache(100) {
+    this->data = data;
+  }
+
+  virtual void draw(Image<int>* img, SuperCell cell, const GPlane& plane) {
+    if (!cache.has_key(cell)) {
+      Rect<GCoord> r = cell.range();
+      for (int line = 0; line < data.size(); ++line) {
+	int last = -1;
+	Line<double>
+	for (int i = 0; i < 
+      }
+    }
+  }
 };
-
-/*  On object change:
-     - GSplitting: find tiles which cover object
-     - Update references in tiles
-     - ? (Recache object for all these tiles)
-     - Rearrange tiles if needed (need weight of each object in tile!)
-
-    On redrawing region:
-     - GSplitting: find tiles which cover region
-     - for each tile redraw each object
-
-    On change workplane scale:
-     - For each object: clear cache
-*/
