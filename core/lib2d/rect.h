@@ -93,6 +93,14 @@ public:
                      int(rint(this->w)), int(rint(this->h)));
   }
 
+  bool contains(const Point<T>& p) {
+    if (p.x < x) return false;
+    if (p.x >= x + w) return false;
+    if (p.y < y) return false;
+    if (p.y >= y + h) return false;
+    return true;
+  }
+
 };
 
 template <typename T>
