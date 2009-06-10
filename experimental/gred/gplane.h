@@ -6,8 +6,7 @@
 #include "../../core/lib2d/rect.h"
 #include "../../core/lib2d/image.h"
 
-const extern int GCoordMin;
-const extern int GCoordMax;
+#include "gcoord.h"
 
 class GPlane{
   public:
