@@ -62,7 +62,7 @@ public:
     }
 
     int size(){
-      return free_list.size();
+      return storage.size();
     }
 
     /** Добавление элемента*/
@@ -126,13 +126,13 @@ public:
     V &
     get (K const & key)
     {
+        assert(contains(key));
 	int ind = index[key];
 #ifdef DEBUG_CACHE_GET
 	std::cout << "cache get: " << key << " ind: " << ind << std::endl;
 #endif
 	use (ind);
 	return storage[ind].second;
-
     }
 
     int
