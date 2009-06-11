@@ -20,12 +20,9 @@ class SimpleViewer : public Gtk::DrawingArea {
 
     }
 
-  void set_origin (const Point<GCoord> & new_origin) {
-    Point<int> shift(origin.x>new_origin.x? origin.x-new_origin.x:-(new_origin.x-origin.x),
-                     origin.y>new_origin.y? origin.y-new_origin.y:-(new_origin.y-origin.y));
+  virtual void set_origin (const Point<GCoord> & new_origin) {
+    get_window()->scroll(origin.x-new_origin.x, origin.y-new_origin.y);
     origin = new_origin;
-
-    get_window()->scroll(shift.x, shift.y);
   }
 
   Point<GCoord> get_origin (void) {
@@ -61,14 +58,13 @@ class SimpleViewer : public Gtk::DrawingArea {
 
   virtual bool on_button_press_event (GdkEventButton * event) {
     if (event->button == 1)
-      on_drag=true;
       drag_pos = Point<GCoord> ((GCoord)event->x, (GCoord)event->y);
     return false;
   }
 
   virtual bool on_button_release_event (GdkEventButton * event) {
     if (event->button == 1)
-      on_drag=false;
+      get_window()->process_updates(false);
     return false;
   }
 
@@ -86,6 +82,5 @@ class SimpleViewer : public Gtk::DrawingArea {
   GPlane * plane;
   Point<GCoord> origin;
   Point<GCoord> drag_pos;
-  bool on_drag;
 };
 

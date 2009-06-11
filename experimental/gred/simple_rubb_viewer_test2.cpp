@@ -16,10 +16,16 @@ int main(int argc, char **argv){
     viewer.rubber.push_back(RubberSegment(Point<int>(15,5), 0, Point<int>(5,5),0));
 
     viewer.rubber.push_back(RubberSegment(Point<int>(10,10), 0, Point<int>(0,0),3));
+
     viewer.rubber.push_back(RubberSegment(Point<int>(0,10), 1, Point<int>(0,0),3));
     viewer.rubber.push_back(RubberSegment(Point<int>(10,0), 2, Point<int>(0,0),3));
-    viewer.rubber.push_back(RubberSegment(Point<int>(0,10), 0, Point<int>(0,10),1));
-    viewer.rubber.push_back(RubberSegment(Point<int>(10,0), 0, Point<int>(10,0),2));
+    viewer.rubber.push_back(RubberSegment(Point<int>(10,10), 0, Point<int>(0,10),1));
+    viewer.rubber.push_back(RubberSegment(Point<int>(10,10), 0, Point<int>(10,0),2));
+
+    viewer.rubber.push_back(RubberSegment(Point<int>(-5,-5), 3, Point<int>(-5,5),3));
+    viewer.rubber.push_back(RubberSegment(Point<int>(-5,5), 3, Point<int>(5,5),3));
+    viewer.rubber.push_back(RubberSegment(Point<int>(5,5), 3, Point<int>(5,-5),3));
+    viewer.rubber.push_back(RubberSegment(Point<int>(5,-5), 3, Point<int>(-5,-5),3));
 
     win.add(viewer);
     win.set_default_size(640,480);
