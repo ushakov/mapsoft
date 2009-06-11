@@ -27,9 +27,9 @@ class SimpleRubbViewer : public SimpleViewer {
   }
 
   virtual bool on_motion_notify_event (GdkEventMotion * event) {
-    rubber_clear();
+    if (!on_drag) rubber_clear();
     SimpleViewer::on_motion_notify_event(event);
-    rubber_draw();
+    if (!on_drag) rubber_draw();
     return false;
   }
 

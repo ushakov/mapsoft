@@ -61,7 +61,14 @@ class SimpleViewer : public Gtk::DrawingArea {
 
   virtual bool on_button_press_event (GdkEventButton * event) {
     if (event->button == 1)
+      on_drag=true;
       drag_pos = Point<GCoord> ((GCoord)event->x, (GCoord)event->y);
+    return false;
+  }
+
+  virtual bool on_button_release_event (GdkEventButton * event) {
+    if (event->button == 1)
+      on_drag=false;
     return false;
   }
 
@@ -79,5 +86,6 @@ class SimpleViewer : public Gtk::DrawingArea {
   GPlane * plane;
   Point<GCoord> origin;
   Point<GCoord> drag_pos;
+  bool on_drag;
 };
 
