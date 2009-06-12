@@ -13,4 +13,4 @@ simple_viewer_test2: simple_viewer.h gplane.h
 mthread_viewer_test1: mthread_viewer.h gplane.h
 mthread_viewer_test2: mthread_viewer.h gplane.h
 
-simple_rubb_viewer_test2: simple_rubb_viewer.h gplane.h
+simple_rubb_viewer_test2:
