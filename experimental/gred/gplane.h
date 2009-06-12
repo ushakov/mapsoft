@@ -6,16 +6,15 @@
 #include "../../core/lib2d/rect.h"
 #include "../../core/lib2d/image.h"
 
-typedef unsigned int GCoord;
-const GCoord GCoord_min=0;
-const GCoord GCoord_max=UINT_MAX;
-const GCoord GCoord_cnt=UINT_MAX/2;
+typedef int GCoord;
+const GCoord GCoord_min=INT_MIN;
+const GCoord GCoord_max=INT_MAX;
+const GCoord GCoord_cnt=0;
 
 Point<int> get_shift(const Point<GCoord> & p1, const Point<GCoord> & p2){ 
   return Point<int>(p1.x>p2.x? p1.x-p2.x:-(p2.x-p1.x), 
                     p1.y>p2.y? p1.y-p2.y:-(p2.y-p1.y)); 
-} 
-
+}
 
 class GPlane{
   public:
