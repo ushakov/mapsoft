@@ -1,5 +1,6 @@
 #include <fstream>
 #include <string>
+#include <sstream>
 #include <cerrno>
 
 #include <sys/stat.h>
@@ -19,6 +20,18 @@
 using namespace std;
 
 namespace tiles {
+
+Rect<int> tile_covering(const Rect<double> & r, int tsize){
+  // диапазон плиток, накрывающих данный прямоугольник
+  int tile_x1 = floor(r.x / tsize);
+  int tile_y1 = floor(r.y / tsize);
+  int tile_x2 = ceil((r.x + r.w) / tsize);
+  int tile_y2 = ceil((r.y + r.h) / tsize);
+  return Rect<int>(tile_x1, tile_y1,
+		   tile_x2 - tile_x1,
+		   tile_y2 - tile_y1);
+}
+
 
 void MakeFileNames(const char* filename, string* index_file, string* data_file, string* tmp_file) {
   string fname(filename);
@@ -71,9 +84,6 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   int gg_zoom = opt.get("google", -1);
   g_point tiles_orig = opt.get("tiles_orig", g_point(-180.0, 85.051128779806589));
 
-  geom = c.bb_frw(geom, geom.w/1000.0); // geom is now in projection units
-  cerr << "unscaled projection geom = " << geom << endl;
-
   // tiles_orig_dest is the origin in the destination coordinates
   // we want x axis to go west-east, and y axis to go north-south
   g_point tiles_orig_dest = tiles_orig;
@@ -94,10 +104,15 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     pr.y = tiles_orig_dest.y - pr.y;
     ref.push_back(g_refpoint(pg, pr));
     ref.border.push_back(pr);
+    cerr << "ref: geo " << pg << " -> raster " << pr << endl;
+    cerr << "brd:  " << pr << endl;
   }
   ref.map_proj=boost::lexical_cast<string>(proj);
   ref.file=filename;
   // convert geom to dest projection
+  geom = c.bb_frw(geom, geom.w/1000.0); // geom is now in projection units
+  cerr << "unscaled projection geom = " << geom << endl;
+
   geom.x = geom.x - tiles_orig_dest.x;
   geom.y = tiles_orig_dest.y - (geom.y + geom.h);
 
@@ -166,7 +181,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     zoom_geom /= scale;
     
     // tiles is in tile coordinates in dest projection
-    Rect<int> tiles = tiles_on_rect(zoom_geom, 256);
+    Rect<int> tiles = tile_covering(zoom_geom, 256);
     cout << "tiles@" << z << " = " << tiles << endl;
     cout << "geom=" << zoom_geom << endl;
 
@@ -178,31 +193,37 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
 	tile.y = y * 256;
 	Image<int> tile_image = layer.get_image(tile);
 	if (!tile_image.empty()) {
+	  // make filename
+	  std::stringstream ss;
+	  ss << "tile_"
+	     << setfill('0') << setw(2) << z << "_"
+	     << setw(6) << x << "_"
+	     << setw(6) << y << ".jpg";
 	  // save image
-	  image_r::save(tile_image, tmp_file.c_str(), opt);
+	  image_r::save(tile_image, ss.str().c_str(), opt);
 	  // get file size
 	  struct stat st;
 	  stat(tmp_file.c_str(), &st);
 	  size_t len = st.st_size;
-
+	  
 	  // write index
-	  WriteInt(index, z);
-	  WriteInt(index, y);
-	  WriteInt(index, x);
-	  WriteInt(index, offset);
-	  WriteInt(index, len);
-
+	  // 	WriteInt(index, z);
+	  // 	WriteInt(index, y);
+	  // 	WriteInt(index, x);
+	  // 	WriteInt(index, offset);
+	  // 	WriteInt(index, len);
+	  
 	  // append to data file
-	  int r = system(cat_cmd.c_str());
-	  if (r != 0) {
-	    cerr << "cat returned " << r << " errno=" << errno << endl;
-	    exit(1);
-	  }
-	  offset += len;
-	  num_tiles ++;
-
-	  stat(data_file.c_str(), &st);
-	  cerr << "file size - offset = " << (int)st.st_size - offset << endl;
+	  // 	int r = system(cat_cmd.c_str());
+	  // 	if (r != 0) {
+	  // 	  cerr << "cat returned " << r << " errno=" << errno << endl;
+	  // 	  exit(1);
+	  // 	}
+	  // 	offset += len;
+	  // 	num_tiles ++;
+	  
+	  // 	stat(data_file.c_str(), &st);
+	  // 	cerr << "file size - offset = " << (int)st.st_size - offset << endl;
 	}
 	if (num_tiles % 100 == 0) {
 	  cerr << "tiles done: " << num_tiles << " now at " << x << "," << y << endl;
