@@ -1,3 +1,17 @@
 %module lib2d
-%include "point.i"
-%include "rect.i"
+
+%include "std_string.i"
+%{
+#include <sstream>
+%}
+
+%{
+#include "point.h"
+%}
+%include "point.h"
+
+%{
+#include "rect.h"
+%}
+%include "rect.h"
+
