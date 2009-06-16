@@ -4,3 +4,12 @@ env.Library('2d', \
         point_int.cpp
         rect.cpp
      """))
+
+import distutils.sysconfig
+
+swig = env.Clone()
+swig.Append(CPPPATH = [distutils.sysconfig.get_python_inc()])
+swig.Replace(SWIGFLAGS = ['-c++', '-python'])
+swig.Replace(SHLIBPREFIX = "")
+swig.Append(LIBS = ['2d'])
+swig.SharedLibrary("_lib2d.so", ["lib2d.i"])
