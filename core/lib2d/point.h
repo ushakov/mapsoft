@@ -86,20 +86,8 @@ struct Point
     Point<T> operator- (Point<T> const & t) { return *$self - t; }
     Point<T> operator/ (T k) { return *$self / k; }
     Point<T> operator* (T k) { return *$self * k; }
-    int __cmp__ (Point<T> other) {
-      if (*$self < other) {
-	return -1;
-      } else if (*$self > other) {
-	return 1;
-      }
-      return 0;
-    }
-    
-    std::string __repr__() {
-      std::ostringstream s;
-      s << *$self;
-      return s.str();
-    }
+    swig_cmp(Point<T>);
+    swig_str();
   }
 #endif  // SWIG    
 };
@@ -122,10 +110,5 @@ std::istream & operator>> (std::istream & s, Point<T> & p){
   s.setstate(std::ios::goodbit);
   return s;
 }
-
-#ifdef SWIG
-%template(point_i) Point<int>;
-%template(point_d) Point<double>;
-#endif
 
 #endif /* POINT_H */

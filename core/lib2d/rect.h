@@ -100,19 +100,8 @@ public:
     Rect<T> operator* (T k) { return *$self * k; }
     Rect<T> operator+ (Point<T> k) { return *$self + k; }
     Rect<T> operator- (Point<T> k) { return *$self - k; }
-    int __cmp__ (Rect<T> other) {
-      if (*$self < other) {
-	return -1;
-      } else if (*$self > other) {
-	return 1;
-      }
-      return 0;
-    }
-    std::string __repr__() {
-      std::ostringstream s;
-      s << *$self;
-      return s.str();
-    }
+    swig_cmp(Rect<T>);
+    swig_str();
   }
 #endif  // SWIG
 
@@ -241,11 +230,5 @@ void transform_rect(const Rect<int> & src, const Rect<int> & dst, Rect<int> & r)
 void clip_rects_for_image_loader(
     const Rect<int> & src_img, Rect<int> & src,
     const Rect<int> & dst_img, Rect<int> & dst);
-
-#ifdef SWIG
-%template(rect_i) Rect<int>;
-%template(rect_d) Rect<double>;
-#endif  // SWIG
-
 
 #endif /* RECT_H */
