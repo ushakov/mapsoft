@@ -14,6 +14,18 @@
 #include "io.h"
 #include "geofig.h"
 
+
+/** Reading data from file into geo_data object. */
+void geo_read(const std::string & file, geo_data & world, const Options & opts=Options()) {
+  io::in (file, world, opts);
+}
+
+/** Writing geo_data object to file. */
+void geo_write(const std::string & file, const geo_data & world, const Options & opts=Options()) {
+  io::out(file, world, opts);
+}
+
+
 namespace io {
 	
 	using namespace std;
@@ -312,4 +324,6 @@ namespace io {
   }
 
 
-}
+}  // namespace io
+
+

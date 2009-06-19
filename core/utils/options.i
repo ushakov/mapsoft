@@ -17,11 +17,12 @@
   Py_DECREF(items);
 }
 
-%typemap(in) const Options& {
+%typemap(in) const Options& (Options t) {
   if(!PyMapping_Check($input)) {
     PyErr_SetString(PyExc_ValueError,"Expected a mapping");
     return NULL;
   }
+  $1 = &t;
   PyObject *items = PyDict_Items($input);
   for (int i = 0; i < PyList_Size(items); ++i) {
     PyObject *it = PyList_GetItem(items, i);
@@ -34,6 +35,14 @@
     Py_DECREF(strval);
   }
   Py_DECREF(items);
+}
+
+%typemap(typecheck) Options {
+  $1 = PyMapping_Check($input) ? 1 : 0;
+}
+
+%typemap(typecheck) const Options& {
+  $1 = PyMapping_Check($input) ? 1 : 0;
 }
 
 %typemap(out) Options {
