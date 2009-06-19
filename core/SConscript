@@ -1,0 +1,10 @@
+import distutils.sysconfig
+
+Import ('env')
+
+swig = env.Clone()
+swig.Append(CPPPATH = [distutils.sysconfig.get_python_inc()])
+swig.Replace(SWIGFLAGS = ['-c++', '-python'])
+swig.Replace(SHLIBPREFIX = "")
+swig.Append(LIBS = Split("geo geo_io 2d utils jeeps loaders tiff jpeg png"))
+swig.SharedLibrary("_core.so", ["swig.i"])

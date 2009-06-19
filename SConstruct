@@ -1,6 +1,7 @@
 import os
 
 subdirs = Split ("""
+	  	core
 		core/lib2d
 		core/libfig
 		core/libgeo
