@@ -1,6 +1,14 @@
 #include "image_jpeg.h"
 
-namespace image_jpeg {
+#include <jpeglib.h>
+#include <setjmp.h>
+
+namespace image_jpeg{
+
+struct my_error_mgr {
+  struct jpeg_error_mgr pub;
+  jmp_buf setjmp_buffer;
+};
 
 void my_error_exit (j_common_ptr cinfo) {
   my_error_mgr * myerr = (my_error_mgr *) cinfo->err;

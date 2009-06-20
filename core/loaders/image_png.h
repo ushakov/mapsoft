@@ -3,11 +3,6 @@
 
 #include "../lib2d/image.h"
 
-// lippng загружает setjmp.h,
-// а потом его же может загружать image_jpeg...
-#define SETJMP
-#include <png.h>
-
 namespace image_png{
 
 // getting file dimensions

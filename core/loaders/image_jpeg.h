@@ -3,22 +3,7 @@
 
 #include "../lib2d/image.h"
 
-#include <jpeglib.h>
-
-#ifndef SETJMP
-#define SETJMP
-#include <setjmp.h>
-#endif
-
-namespace image_jpeg{
-
-struct my_error_mgr {
-  struct jpeg_error_mgr pub;
-  jmp_buf setjmp_buffer;
-};
-
-void my_error_exit (j_common_ptr cinfo);
-
+namespace image_jpeg {
 
 // getting file dimensions
 Point<int> size(const char *file);
