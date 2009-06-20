@@ -20,7 +20,11 @@
 
 /// Растровый слой для показа привязанных карт.
 
-class LayerGeoMap : public LayerGeo {
+class LayerGeoMap 
+#ifndef SWIG
+  : public LayerGeo 
+#endif  // SWIG
+{
 private:
   const geo_data *world;                   // привязки карт
   std::vector<convs::map2map> m2ms;  // преобразования из каждой карты в mymap
