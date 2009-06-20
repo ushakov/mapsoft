@@ -1,4 +1,5 @@
 #include "image_png.h"
+#include <png.h>
 
 namespace image_png{
 
