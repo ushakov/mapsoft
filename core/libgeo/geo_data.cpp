@@ -1,4 +1,6 @@
 #include "geo_data.h"
+#include "../../core/loaders/image_r.h"
+#include "geo_convs.h"
 
 g_waypoint::g_waypoint (){
     x          = 0.0;
@@ -313,22 +315,43 @@ g_map & g_map::operator+= (g_point k){
   return *this;
 }
 
+// Try to ensure the map has a border. If there is none, as the map
+// file. If there is no map file (this->file == ""), alas, the border
+// will be empty.
+void g_map::ensure_border() {
+  if (border.size() != 0) return;
+  if (file == "") return;
+  Point<int> size = image_r::size(file.c_str());
+  border.push_back(Point<int>(0,0));
+  border.push_back(Point<int>(0,size.y));
+  border.push_back(Point<int>(size.x,size.y));
+  border.push_back(Point<int>(size.x,0));
+}
 
 /// get range in lon-lat coords
-/// диапазон карт определяется по точкам привязки, а не по
-/// границам, поскольку здесь не очень хочется требовать наличия границ
-/// и лазать в графический файлы карт за этими границами
-g_rect g_map::range() const{
+/// диапазон карт определяется по точкам привязки, и по границам, если
+/// они есть
+g_rect g_map::range() const {
   double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
   g_map::const_iterator i;
-  for (i=begin();i!=end();i++){
+  for (i = begin(); i != end(); ++i){
     if (i->x > maxx) maxx = i->x;
     if (i->y > maxy) maxy = i->y;
     if (i->x < minx) minx = i->x;
     if (i->y < miny) miny = i->y;
   }
-  if ((minx>maxx)||(miny>maxy)) return g_rect(0,0,0,0);
-  return g_rect(minx,miny, maxx-minx, maxy-miny);
+  g_line::const_iterator j;
+  convs::map2pt conv(*this, Datum("WGS84"), Proj("lonlat"));
+  for (j = border.begin(); j != border.end(); ++j){
+    g_point p(*j); conv.frw(p);
+    std::cerr << "computing border: " << p << std::endl;
+    if (p.x > maxx) maxx = p.x;
+    if (p.y > maxy) maxy = p.y;
+    if (p.x < minx) minx = p.x;
+    if (p.y < miny) miny = p.y;
+  }
+  if ((minx > maxx) || (miny > maxy)) return g_rect(0, 0, 0, 0);
+  return g_rect(minx, miny, maxx-minx, maxy-miny);
 }
 
 /// clear all data
@@ -337,15 +360,30 @@ void geo_data::clear(){
 }
 
 /// get range of all maps in lon-lat coords
-/// диапазон карт определяется по точкам привязки, а не по
-/// границам, поскольку здесь не очень хочется требовать наличия границ
-/// и лазать в графический файлы карт за этими границами
-g_rect geo_data::range_map() const{
+/// диапазон карт определяется по точкам привязки, и по границам, если
+/// они есть
+g_rect geo_data::range_map() const {
   g_rect ret(0,0,0,0);
   if (maps.size()>0) ret=maps[0].range();
   else return ret;
   for (std::vector<g_map>::const_iterator i = maps.begin();
     i!=maps.end();i++) ret = rect_bounding_box(ret, i->range());
+  return ret;
+}
+
+/// get range of all maps in lon-lat coords
+/// то же самое, но сначала делается попытка узнать границы из
+/// графического файла, если их нет
+g_rect geo_data::range_map_correct() {
+  g_rect ret(0,0,0,0);
+  if (maps.size()>0) ret=maps[0].range();
+  else return ret;
+  for (std::vector<g_map>::iterator i = maps.begin();
+       i != maps.end();
+       ++i) {
+    i->ensure_border();
+    ret = rect_bounding_box(ret, i->range());
+  }
   return ret;
 }
 

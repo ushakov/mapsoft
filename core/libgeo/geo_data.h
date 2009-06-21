@@ -128,6 +128,10 @@ struct g_map : std::vector<g_refpoint>,
 
     /// get range in lon-lat coords
     g_rect range() const;
+    
+    // ensure the border is ok (uses file access and coordinate
+    // conversion)
+    void ensure_border();
 };
 
 /*********************************/
@@ -143,8 +147,11 @@ struct geo_data {
   /// clear all data
   void clear();
 
-  /// get range of all maps in lon-lat coords
+  /// get range of all maps in lon-lat coords, fast
   g_rect range_map() const;
+  /// get range of all maps in lon-lat coords, correct (try to compute
+  /// borders)
+  g_rect range_map_correct();
   /// get range of all tracks and waypoints in lon-lat coords
   g_rect range_geodata() const;
   /// get range of all data in lon-lat coords

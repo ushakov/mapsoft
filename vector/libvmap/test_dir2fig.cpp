@@ -2,7 +2,7 @@
 #include "vmap.h"
 
 main(int argc, char* argv[]){
-  if (argc<4) {
+  if (argc<3) {
     std::cerr << "Usage: test_dir2fig <in_dir1> ... <out_fig>\n";
     exit(1);
   }

@@ -55,7 +55,8 @@ void WriteInt(FILE* f, int n) {
   }
 }
 
-bool write_file (const char* filename, const geo_data & world, const Options & opt){
+bool write_file (const char* filename, const geo_data & world_input, const Options & opt){
+  geo_data world(world_input);
   if (world.maps.empty()) return false;
   if (world.range_map().empty()) return false;
 
@@ -75,7 +76,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
 
   // setting default geometry from maps
   if (geom.empty()){
-    geom=world.range_map();
+    geom=world.range_map_correct();
   }
 
   cerr << "geom = " << geom << endl;
