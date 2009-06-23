@@ -13,7 +13,7 @@ all: simple_viewer_test1\
 
 simple_viewer_test1:  gplane.o simple_viewer.o
 simple_viewer_test2:  gplane.o simple_viewer.o
-mthread_viewer_test1: gplane.o simple_viewer.o
-mthread_viewer_test2: gplane.o simple_viewer.o
+mthread_viewer_test1: gplane.o simple_viewer.o mthread_viewer.o
+mthread_viewer_test2: gplane.o simple_viewer.o mthread_viewer.o
 simple_rubb_viewer_test1: gplane.o simple_viewer.o
 simple_rubb_viewer_test2: gplane.o simple_viewer.o
