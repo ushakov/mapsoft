@@ -66,6 +66,12 @@ struct g_refpoint : g_point {
     void parse_from_options (Options const & opt);
 };
 
+#ifdef SWIG
+%template(vector_g_waypoint) std::vector<g_waypoint>;
+%template(vector_g_trackpoint) std::vector<g_trackpoint>;
+%template(vector_g_refpoint) std::vector<g_refpoint>;
+#endif  // SWIG
+
 /*********************************/
 // lists 
 /*********************************/
@@ -109,9 +115,11 @@ struct g_track : std::vector<g_trackpoint>{
 };
 
 /// map
-struct g_map : std::vector<g_refpoint>,
-  public boost::multiplicative<g_map,double>,
+struct g_map : std::vector<g_refpoint>
+#ifndef SWIG
+  , public boost::multiplicative<g_map,double>,
   public boost::additive<g_map, g_point>
+#endif  // SWIG
 {
     std::string comm;
     std::string file;
@@ -132,6 +140,15 @@ struct g_map : std::vector<g_refpoint>,
     // ensure the border is ok (uses file access and coordinate
     // conversion)
     void ensure_border();
+
+#ifdef SWIG
+    %extend {
+      g_map operator/(double p) { return *$self / p; }
+      g_map operator*(double p) { return *$self * p; }
+      g_map operator-(const g_point& p) { return *$self - p; }
+      g_map operator+(const g_point& p) { return *$self + p; }
+    }
+#endif  // SWIG
 };
 
 /*********************************/
@@ -170,6 +187,12 @@ Options to_options_skipdef (const T & x){
     }
     return opt;
 }
+
+#ifdef SWIG
+%template(vector_g_waypoint_list)  std::vector<g_waypoint_list>;
+%template(vector_g_track)  std::vector<g_track>;
+%template(vector_g_map)  std::vector<g_map>;
+#endif  // SWIG
 
 
 #endif

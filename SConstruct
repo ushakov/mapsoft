@@ -1,6 +1,7 @@
 import os
 
 subdirs = Split ("""
+	  	core
 		core/lib2d
 		core/libfig
 		core/libgeo
@@ -26,7 +27,7 @@ if os.environ.has_key('GCCVER'):
    env.Replace (CC = ("gcc-%s" % ver))
    env.Replace (CXX = ("g++-%s" % ver))
 
-env.Append (CCFLAGS=['-O2','-g'])
+env.Append (CCFLAGS=['-O2','-g','-fPIC'])
 # env.Append (CPPPATH='#')
 env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
 

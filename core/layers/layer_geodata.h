@@ -22,7 +22,11 @@
 
 /// Растровый слой для показа точек и треков
 
-class LayerGeoData : public LayerGeo {
+class LayerGeoData
+#ifndef SWIG
+  : public LayerGeo
+#endif  // SWIG
+{
 private:
     geo_data * world; // указатель на геоданные
     convs::map2pt cnv; 

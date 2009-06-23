@@ -10,9 +10,12 @@
 
 typedef std::map<std::string, int> geo_types_table;
 
-struct Enum :
-    public boost::less_than_comparable<Enum>,
-    public boost::equality_comparable<Enum> {
+struct Enum 
+#ifndef SWIG
+  : public boost::less_than_comparable<Enum>,
+    public boost::equality_comparable<Enum> 
+#endif  // SWIG
+{
   static const int fmt_mask;
   static const int xml_fmt;
   static const int oe_fmt;
@@ -26,16 +29,29 @@ struct Enum :
 
   virtual geo_types_table & get_table() const = 0;
   virtual void create_table() = 0;
+#ifdef SWIG
+  %extend {
+    swig_cmp(Enum);
+    swig_str();
+  }
+#endif  // SWIG
 };
 
+#ifndef SWIG
 std::ostream & operator<< (std::ostream & s, const Enum & e);
 std::istream & operator>> (std::istream & s, Enum & e);
+#endif  // SWIG
 
 struct Datum : Enum{
   static geo_types_table names;
   Datum(const std::string & str = "");
   geo_types_table & get_table() const { return names;}
   void create_table();
+#ifdef SWIG
+  %extend {
+    swig_str();
+  }
+#endif  // SWIG
 };
 
 struct Proj : Enum {
@@ -43,6 +59,11 @@ struct Proj : Enum {
   Proj(const std::string & str = "");
   geo_types_table & get_table() const { return names;}
   void create_table();
+#ifdef SWIG
+  %extend {
+    swig_str();
+  }
+#endif  // SWIG
 };
 
 struct wptMapDispl : Enum {
@@ -50,6 +71,11 @@ struct wptMapDispl : Enum {
   wptMapDispl(const std::string & str = "");
   geo_types_table & get_table() const { return names;}
   void create_table();
+#ifdef SWIG
+  %extend {
+    swig_str();
+  }
+#endif  // SWIG
 };
 
 struct wptPtDir : Enum {
@@ -57,6 +83,11 @@ struct wptPtDir : Enum {
   wptPtDir(const std::string & str = "");
   geo_types_table & get_table() const { return names;}
   void create_table();
+#ifdef SWIG
+  %extend {
+    swig_str();
+  }
+#endif  // SWIG
 };
 
 struct trkType : Enum {
@@ -64,6 +95,11 @@ struct trkType : Enum {
   trkType(const std::string & str = "");
   geo_types_table & get_table() const { return names;}
   void create_table();
+#ifdef SWIG
+  %extend {
+    swig_str();
+  }
+#endif  // SWIG
 };
 
 struct trkFill : Enum {
@@ -71,6 +107,11 @@ struct trkFill : Enum {
   trkFill(const std::string & str = "");
   geo_types_table & get_table() const { return names;}
   void create_table();
+#ifdef SWIG
+  %extend {
+    swig_str();
+  }
+#endif  // SWIG
 };
 
 struct wptSymb : Enum {
@@ -78,6 +119,11 @@ struct wptSymb : Enum {
   wptSymb(const std::string & str = "");
   geo_types_table & get_table() const { return names;}
   void create_table();
+#ifdef SWIG
+  %extend {
+    swig_str();
+  }
+#endif  // SWIG
 };
 
 #endif

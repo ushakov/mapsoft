@@ -8,18 +8,20 @@
 #include <list>
 #include <vector>
 #include "point.h"
+#include "point_utils.h"
 #include "rect.h"
 
 /** Ломаная линия (std::vector<Point<T> >). */
 
 template <typename T>
-struct Line
-  : public boost::additive<Line<T> >,
+struct Line : std::vector<Point<T> >
+#ifndef SWIG
+    , public boost::additive<Line<T> >,
     public boost::additive<Line<T>, Point<T> >,
     public boost::multiplicative<Line<T>,T>,
     public boost::less_than_comparable<Line<T> >,
-    public boost::equality_comparable<Line<T> >,
-    std::vector<Point<T> >
+    public boost::equality_comparable<Line<T> >
+#endif
 {
 
   Line<T> & operator/= (T k) {
@@ -49,6 +51,7 @@ struct Line
     return ret;
   }
 
+#ifndef SWIG
   // линия меньше, если первая отличающаяся точка меньше,
   // или не существует
   bool operator< (const Line<T> & p) const {
@@ -74,6 +77,7 @@ struct Line
       i1++; i2++;
     } while(1);
   }
+#endif
 
   // такая же проверка, как ==, но для линий идущих навстречу...
   bool isinv(const Line<T> & p) const {
@@ -128,6 +132,7 @@ struct Line
     return (r.TLC() + r.BRC())/2;
   }
 
+#ifndef SWIG
   operator Line<double>() const{
     Line<double> ret;
     for (typename Line<T>::const_iterator i=this->begin(); i!=this->end(); i++)
@@ -141,6 +146,17 @@ struct Line
       ret.push_back(Point<int>(*i));
     return ret;
   }
+#endif  // SWIG
+#ifdef SWIG
+  %extend {
+    Line<T> operator+ (Point<T> &p) { return *$self + p; }
+    Line<T> operator- (Point<T> &p) { return *$self - p; }
+    Line<T> operator* (T p) { return *$self * p; }
+    Line<T> operator/ (T p) { return *$self / p; }
+    swig_cmp(Line<T>);
+    swig_str();
+  }
+#endif  // SWIG
 };
 
 template <typename T>
@@ -171,11 +187,12 @@ std::istream & operator>> (std::istream & s, Line<T> & l){
 // Line with multiple segments (std::vector<Line<T> >)
 
 template <typename T>
-struct MultiLine
-  : public boost::additive<MultiLine<T> >,
+struct MultiLine : std::vector<Line<T> >
+#ifndef SWIG
+    , public boost::additive<MultiLine<T> >,
     public boost::additive<MultiLine<T>, Point<T> >,
-    public boost::multiplicative<MultiLine<T>,T>,
-    std::vector<Line<T> >
+    public boost::multiplicative<MultiLine<T>,T>
+#endif  //SWIG
 {
 
   MultiLine<T> & operator/= (T k) {
@@ -200,8 +217,8 @@ struct MultiLine
 
   double length () const {
     double ret=0;
-    for(typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++)
-      ret+=length(*i);
+    for(typename MultiLine<T>::const_iterator i=this->begin(); i!=this->end(); i++)
+      ret+=i->length();
     return ret;
   }
 
@@ -218,6 +235,7 @@ struct MultiLine
     return (r.TLC() + r.BRC())/2;
   }
 
+#ifndef SWIG
   operator MultiLine<double>() const{
     MultiLine<double> ret;
     for (typename MultiLine<T>::const_iterator i=this->begin(); i!=this->end(); i++)
@@ -231,7 +249,15 @@ struct MultiLine
       ret.push_back(Line<int>(*i));
     return ret;
   }
-
+#else  //SWIG
+  %extend {
+    MultiLine<T> operator+ (Point<T> &p) { return *$self + p; }
+    MultiLine<T> operator- (Point<T> &p) { return *$self - p; }
+    MultiLine<T> operator* (T p) { return *$self * p; }
+    MultiLine<T> operator/ (T p) { return *$self / p; }
+    swig_cmp(MultiLine<T>);
+  }
+#endif  //SWIG  
 };
 
 

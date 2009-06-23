@@ -231,6 +231,11 @@ struct Image{
     int w,h;
 
     int *refcounter;
+#ifdef SWIG
+  %extend {
+    swig_str();
+  }
+#endif  // SWIG
 };
 
 template <typename T>

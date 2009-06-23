@@ -8,10 +8,12 @@
 
 template <typename T>
 struct Point
-  : public boost::additive<Point<T> >,
+#ifndef SWIG
+    : public boost::additive<Point<T> >,
     public boost::multiplicative<Point<T>,T>,
     public boost::less_than_comparable<Point<T> >,
     public boost::equality_comparable<Point<T> >
+#endif
 {
   T x, y;
 
@@ -59,6 +61,7 @@ struct Point
 	return abs(x) + abs(y);
   }
 
+#ifndef SWIG
   bool operator< (const Point<T> & p) const
   {
 	return (x<p.x) || ((x==p.x)&&(y<p.y));
@@ -76,11 +79,17 @@ struct Point
   operator Point<int>() const{
     return Point<int>(int(rint(this->x)), int(rint(this->y)));
   }
-
-//  bool equals (Point<T> const & other) const {
-//      static boost::test_tools::close_at_tolerance<T> cls (1e-9);
-//      return cls(x, other.x) && cls(y, other.y);
-//  }
+#else  // SWIG
+  // replace boost added standalone operators
+  %extend {
+    Point<T> operator+ (Point<T> const & t) { return *$self + t; }
+    Point<T> operator- (Point<T> const & t) { return *$self - t; }
+    Point<T> operator/ (T k) { return *$self / k; }
+    Point<T> operator* (T k) { return *$self * k; }
+    swig_cmp(Point<T>);
+    swig_str();
+  }
+#endif  // SWIG    
 };
 
 template <typename T>
