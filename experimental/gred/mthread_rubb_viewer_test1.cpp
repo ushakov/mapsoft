@@ -1,32 +1,33 @@
 #include <iostream>
-#include "mthread_rubb_viewer.h"
+#include "gplane.h"
+#include "mthread_viewer.h"
+#include "rubber_viewer.h"
 
 
 int main(int argc, char **argv){
 
     Gtk::Main     kit (argc, argv);
     Gtk::Window   win;
-    GPlaneTestTile      pl1;
-    GPlaneTestTileSlow  pl2;
+    GPlaneTestGridSlow  p1;
 
-    MThreadRubbViewer viewer(&pl1, &pl2);
+    RubberViewer<MThreadViewer> viewer(&p1);
 
-    viewer.rubber.push_back(RubberSegment(Point<int>(5,5), 0, Point<int>(5,15),0));
-    viewer.rubber.push_back(RubberSegment(Point<int>(5,15), 0, Point<int>(15,15),0));
-    viewer.rubber.push_back(RubberSegment(Point<int>(15,15), 0, Point<int>(15,5),0));
-    viewer.rubber.push_back(RubberSegment(Point<int>(15,5), 0, Point<int>(5,5),0));
+    viewer.rubber_add( 5, 5,  0,   5,15, 0);
+    viewer.rubber_add( 5,15,  0,  15,15, 0);
+    viewer.rubber_add(15,15,  0,  15, 5, 0);
+    viewer.rubber_add(15, 5,  0,   5, 5, 0);
 
-    viewer.rubber.push_back(RubberSegment(Point<int>(10,10), 0, Point<int>(0,0),3));
+    viewer.rubber_add(10,10,  0,   0, 0, 3);
 
-    viewer.rubber.push_back(RubberSegment(Point<int>(0,10), 1, Point<int>(0,0),3));
-    viewer.rubber.push_back(RubberSegment(Point<int>(10,0), 2, Point<int>(0,0),3));
-    viewer.rubber.push_back(RubberSegment(Point<int>(10,10), 0, Point<int>(0,10),1));
-    viewer.rubber.push_back(RubberSegment(Point<int>(10,10), 0, Point<int>(10,0),2));
+    viewer.rubber_add( 0,10,  1,   0, 0, 3);
+    viewer.rubber_add(10, 0,  2,   0, 0, 3);
+    viewer.rubber_add(10,10,  0,   0,10, 1);
+    viewer.rubber_add(10,10,  0,  10, 0, 2);
 
-    viewer.rubber.push_back(RubberSegment(Point<int>(-5,-5), 3, Point<int>(-5,5),3));
-    viewer.rubber.push_back(RubberSegment(Point<int>(-5,5), 3, Point<int>(5,5),3));
-    viewer.rubber.push_back(RubberSegment(Point<int>(5,5), 3, Point<int>(5,-5),3));
-    viewer.rubber.push_back(RubberSegment(Point<int>(5,-5), 3, Point<int>(-5,-5),3));
+    viewer.rubber_add(-5,-5,  3,  -5, 5, 3);
+    viewer.rubber_add(-5, 5,  3,   5, 5, 3);
+    viewer.rubber_add( 5, 5,  3,   5,-5, 3);
+    viewer.rubber_add( 5,-5,  3,  -5,-5, 3);
 
     win.add(viewer);
     win.set_default_size(640,480);

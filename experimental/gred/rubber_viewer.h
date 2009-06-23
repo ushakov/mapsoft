@@ -42,10 +42,10 @@ class RubberViewer : public ViewerT {
 
   virtual bool on_motion_notify_event (GdkEventMotion * event) {
     if (!ViewerT::on_drag) rubber_clear();
-    int x=(int)event->x, y=(int)event->y;
     if (ViewerT::on_drag && event->is_hint){
+      int x=(int)event->x, y=(int)event->y;
       mouse_pos=Point<int>(x,y);
-      ViewerT::set_origin(ViewerT::origin - Point<int>(x,y) + ViewerT::drag_pos);
+      ViewerT::set_origin(ViewerT::get_origin() - Point<int>(x,y) + ViewerT::drag_pos);
       ViewerT::drag_pos = Point<int>(x,y);
     }
     if (!ViewerT::on_drag){
@@ -66,8 +66,8 @@ class RubberViewer : public ViewerT {
 
   void rubber_draw(){
     for (std::list<RubberSegment>::const_iterator i = rubber.begin(); i != rubber.end(); i++){
-      Point<int> p1=i->get1(mouse_pos, ViewerT::origin);
-      Point<int> p2=i->get2(mouse_pos, ViewerT::origin);
+      Point<int> p1=i->get1(mouse_pos, ViewerT::get_origin());
+      Point<int> p2=i->get2(mouse_pos, ViewerT::get_origin());
       ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
       drawn.push_back(RubberSegment(p1,0,p2,0));
     }

@@ -25,6 +25,14 @@ Point<int> SimpleViewer::get_origin (void) const {
   return origin;
 }
 
+void SimpleViewer::set_plane (GPlane * pl){
+  plane=pl;
+}
+
+GPlane * SimpleViewer::get_plane (void) const{
+  return plane;
+}
+
 void SimpleViewer::draw(const Rect<int> & r){
   if (r.empty()) return;
   draw_image(plane->draw(r + origin), r.TLC());
@@ -53,7 +61,7 @@ bool SimpleViewer::on_expose_event (GdkEventExpose * event){
 
 bool SimpleViewer::on_button_press_event (GdkEventButton * event) {
   if (event->button == 1){
-    drag_pos = Point<int>(event->x, event->y);
+    drag_pos = Point<int>((int)event->x, (int)event->y);
     on_drag=true;
   }
   return false;

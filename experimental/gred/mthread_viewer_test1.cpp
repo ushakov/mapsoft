@@ -9,7 +9,8 @@ int main(int argc, char **argv){
     GPlaneTestTile      pl1;
     GPlaneTestTileSlow  pl2;
 
-    MThreadViewer viewer(&pl1, &pl2);
+    MThreadViewer viewer(&pl2);
+    viewer.set_fast_plane(&pl1);
 
     win.add(viewer);
     win.set_default_size(640,480);
