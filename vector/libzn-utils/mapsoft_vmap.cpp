@@ -577,11 +577,11 @@ int crop(int argc, char** argv){
   string proj;
   string datum;
   string file;
-  Rect<double> cutter;
+  dRect cutter;
   if (argc==5){
     proj     = argv[1];
     datum    = argv[2];
-    cutter=boost::lexical_cast<Rect<double> >(argv[3]);
+    cutter=boost::lexical_cast<dRect>(argv[3]);
     file     = argv[4];
   } else {
     proj     = "lonlat";
@@ -612,7 +612,7 @@ int crop(int argc, char** argv){
     fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
       if (!zconverter.is_map_depth(*i)) { i++; continue;}
-      Line<double> l = cnv.line_frw(*i);
+      dLine l = cnv.line_frw(*i);
       bool closed= i->is_closed() || (i->area_fill != -1);
       if (rect_crop(cutter, l, closed)) obj_c_cnt++; else obj_n_cnt++;
       i->set_points(cnv.line_bck(l));
@@ -633,14 +633,14 @@ int crop(int argc, char** argv){
     // Run cnv on point from cutter
     // to avoid automatic setting of lon0 from the first point of mp-file
     // (it can be in wrong zone!)
-    Point<double> tmp=cutter.TLC();
+    dPoint tmp=cutter.TLC();
     cnv.bck(tmp);
 
     mp::mp_world::iterator i=M.begin();
     while (i!=M.end()){
       mp::mp_object::iterator l=i->begin();
       while (l!=i->end()){
-        Line<double> line = cnv.line_frw(*l, 1e-7);
+        dLine line = cnv.line_frw(*l, 1e-7);
         bool closed= (i->Class == "POLYGON");
         if (rect_crop(cutter, line, closed)) obj_c_cnt++; else obj_n_cnt++;
         *l=cnv.line_bck(line, 1e-7);
@@ -674,7 +674,7 @@ int range(int argc, char** argv){
   string datum;
   string file;
 
-  Rect<double> ret;
+  dRect ret;
   proj     = argv[1];
   datum    = argv[2];
   file     = argv[3];
@@ -694,7 +694,7 @@ int range(int argc, char** argv){
     fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
       if (!zconverter.is_map_depth(*i)) { i++; continue;}
-      ret=rect_bounding_box(ret, Rect<double>(i->range()));
+      ret=rect_bounding_box(ret, dRect(i->range()));
       i++;
     }
     convs::map2pt cnv(ref, Datum(datum), Proj(proj));

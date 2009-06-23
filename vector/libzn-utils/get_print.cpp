@@ -22,19 +22,19 @@ using namespace fig;
 // В pt запихать эту ближайшую точку, в vec - едиичный вектор направления линии,
 // вернуть расстояние. 
 // Поиск происходит на расстоянии не более maxdist (xfig units)
-double nearest_line(const MultiLine<int> & lines, Point<double> & vec, Point<double> & pt, double maxdist=100){
+double nearest_line(const iMultiLine & lines, dPoint & vec, Point<double> & pt, double maxdist=100){
 
-  Point<double> minp(pt),minvec(1,0);
+  dPoint minp(pt),minvec(1,0);
   double minl=maxdist;
 
-  for (MultiLine<int>::const_iterator i  = lines.begin(); i != lines.end(); i++){
+  for (iMultiLine::const_iterator i  = lines.begin(); i != lines.end(); i++){
     for (int j=1; j<i->size(); j++){
-      Point<double> p1((*i)[j-1]);
-      Point<double> p2((*i)[j]);
+      dPoint p1((*i)[j-1]);
+      dPoint p2((*i)[j]);
 
       double  ll = pdist(p1,p2);
       if (ll==0) continue;
-      Point<double> vec = (p2-p1)/ll;
+      dPoint vec = (p2-p1)/ll;
 
       double ls = pdist(pt,p1);
       double le = pdist(pt,p2);
@@ -45,7 +45,7 @@ double nearest_line(const MultiLine<int> & lines, Point<double> & vec, Point<dou
       double prl = pscal(pt-p1, vec);
 
       if ((prl>=0)&&(prl<=ll)) { // проекция попала на отрезок
-        Point<double> pc = p1 + vec * prl;
+        dPoint pc = p1 + vec * prl;
         double lc=pdist(pt,pc);
         if (lc<minl) { minl=lc; minp=pc; minvec=vec; }
       }
@@ -80,7 +80,7 @@ main(int argc, char **argv){
   // по  отдельным спискам все линейные объекты, к которым мы хотим привязывать точки:
   // ж/д, реки и хребты. Во втором уже делаем собственно преобразование объектов...
 
-  MultiLine<int> list_zd, list_r, list_h;
+  iMultiLine list_zd, list_r, list_h;
 
 
   for (int pass =0 ; pass<2; pass++){
@@ -180,10 +180,10 @@ main(int argc, char **argv){
     }
     // платформа
     if (type == 0x5905){
-      Point<double> t, p((*i)[0]);
+      dPoint t, p((*i)[0]);
       nearest_line(list_zd, t, p);
 
-      Point<double> n(-t.y,t.x);
+      dPoint n(-t.y,t.x);
       fig_object o = make_object(*i, "2 3 0 1 0 7 * * 20 * 0 0 0 0 0 *");
       o.clear();
       t *= 80, n *= 35; // длина и ширина
@@ -201,7 +201,7 @@ main(int argc, char **argv){
         (type == 0x6624)||
         (type == 0x6625)||
         (type == 0x6626)){
-      Point<double> t, p((*i)[0]);
+      dPoint t, p((*i)[0]);
       nearest_line(list_h, t, p);
       (*i)[0]=p;
       list<fig_object> l1 = zconverter.make_pic(*i, type);
@@ -212,10 +212,10 @@ main(int argc, char **argv){
     // порог и водопад
     if ((type == 0x650E) || (type == 0x6508)){
 
-      Point<double> t1, p1((*i)[0]);
+      dPoint t1, p1((*i)[0]);
       nearest_line(list_r, t1, p1);
 
-      Point<double> n(-t1.y,t1.x);
+      dPoint n(-t1.y,t1.x);
       fig_object o = make_object("2 1 0 2 1 0 57 -1 0 0 0 1 0 0 0 *");
       double w = 30; // длина штриха
       if (type == 0x6508) o.thickness=3;
@@ -306,9 +306,9 @@ main(int argc, char **argv){
     // мост
     if ((type == 0x100008) || (type == 0x100009) || (type == 0x10000E)){ 
         i->resize(2);
-        Point<double> p1=(*i)[0], p2=(*i)[1];
+        dPoint p1=(*i)[0], p2=(*i)[1];
         double ll = pdist(p1,p2);
-        Point<double> vt = (p1-p2)/ll, vn(-vt.y, vt.x);
+        dPoint vt = (p1-p2)/ll, vn(-vt.y, vt.x);
 
         double w = 24.0;  // ширина моста
         double l = 20.0;  // длина "стрелок"
@@ -342,9 +342,9 @@ main(int argc, char **argv){
     if (type == 0x10001B){ 
 
         i->resize(2);
-        Point<double> p1=(*i)[0], p2=(*i)[1];
+        dPoint p1=(*i)[0], p2=(*i)[1];
         double ll = pdist(p1,p2);
-        Point<double> vt = (p1-p2)/ll, vn(-vt.y, vt.x);
+        dPoint vt = (p1-p2)/ll, vn(-vt.y, vt.x);
 
         double l = 30.0;                    // длина "стрелок"
 
@@ -383,7 +383,7 @@ main(int argc, char **argv){
       ld.move_frw(step/2);
       int n=1;
       while (ld.dist() < ld.length()){
-        Point<double> v, p=ld.pt();
+        dPoint v, p=ld.pt();
         if (n%2 == 0){ o.forward_arrow = 0; o.backward_arrow = 0; v=ld.norm();}
         if (n%4 == 1){ o.forward_arrow = 1; o.backward_arrow = 0; v=ld.tang();}
         if (n%4 == 3){ o.forward_arrow = 0; o.backward_arrow = 1; v=ld.tang();}
@@ -409,7 +409,7 @@ main(int argc, char **argv){
       else step = ld.length()/floor(ld.length()/step);
       ld.move_frw(step/2);
       while (ld.dist() < ld.length()){
-        Point<double> p=ld.pt();
+        dPoint p=ld.pt();
         o.clear();
         o.center_x = p.x;
         o.center_y = p.y;
@@ -433,7 +433,7 @@ main(int argc, char **argv){
 
       ld.move_frw(step/2);
       for (int n=0; n<i->comment[0].size(); n++){
-        Point<double> p=ld.pt(), t=ld.tang();
+        dPoint p=ld.pt(), t=ld.tang();
         o.text=i->comment[0][n];
         o.angle = -atan2(t.y, t.x);
         o.clear(); o.push_back(p);
@@ -463,7 +463,7 @@ main(int argc, char **argv){
       ld.move_frw((step-w)/2);
       int n=0;
       while (ld.dist() < ld.length()){
-        Point<double> p=ld.pt(), vt=ld.tang(), vn=ld.norm();
+        dPoint p=ld.pt(), vt=ld.tang(), vn=ld.norm();
         o.clear();
         o.push_back(p);
         o.push_back(p+k*w*(vn-vt));
@@ -495,7 +495,7 @@ main(int argc, char **argv){
       ld.move_frw(step/2);
 
       while (ld.dist() < ld.length()){
-        Point<double> p=ld.pt(), vn=ld.norm();
+        dPoint p=ld.pt(), vn=ld.norm();
         o.clear();
         o.push_back(p);
         o.push_back(p+k*w*vn);
@@ -515,16 +515,16 @@ main(int argc, char **argv){
       int w1=23, w2=45; // размер крестика
 
       // ищем середину объекта
-      Point<int> p=i->center();
+      iPoint p=i->center();
       p.y-=(w2-w1)/2;
 
       fig_object o = make_object("2 1 0 1 0 * 57 * * * * 0 * * * *");
-      o.push_back(p+Point<int>(-w1,0));
-      o.push_back(p+Point<int>(+w1,0));
+      o.push_back(p+iPoint(-w1,0));
+      o.push_back(p+iPoint(+w1,0));
       NW.push_back(o);
       o.clear();
-      o.push_back(p+Point<int>(0,-w1));
-      o.push_back(p+Point<int>(0,+w2));
+      o.push_back(p+iPoint(0,-w1));
+      o.push_back(p+iPoint(0,+w2));
       NW.push_back(o);
       NW.push_back(*i); continue;
     }
@@ -539,9 +539,9 @@ main(int argc, char **argv){
       int step = 40; // расстояние между штрихами
 
       // ищем габариты объекта
-      Point<int> pmin = (*i)[0];
-      Point<int> pmax = (*i)[0];
-      Line<double> c;
+      iPoint pmin = (*i)[0];
+      iPoint pmax = (*i)[0];
+      dLine c;
       for (int j = 0; j<i->size(); j++){
         c.push_back((*i)[j]);
         if (pmin.x > (*i)[j].x) pmin.x = (*i)[j].x;
@@ -549,16 +549,16 @@ main(int argc, char **argv){
         if (pmax.x < (*i)[j].x) pmax.x = (*i)[j].x;
         if (pmax.y < (*i)[j].y) pmax.y = (*i)[j].y;
       }
-      MultiLine<double> ls, ls1;
+      dMultiLine ls, ls1;
       int n=0;
       for (int y = pmin.y; y< pmax.y; y+=step){
-        Line<double> l; 
+        dLine l; 
         if (n%2==0){
-          l.push_back(Point<int>(pmin.x, y));
-          l.push_back(Point<int>(pmax.x, y));
+          l.push_back(iPoint(pmin.x, y));
+          l.push_back(iPoint(pmax.x, y));
         } else {
-          l.push_back(Point<int>(pmax.x, y));
-          l.push_back(Point<int>(pmin.x, y));
+          l.push_back(iPoint(pmax.x, y));
+          l.push_back(iPoint(pmin.x, y));
         }
         ls.push_back(l);
         n++;
@@ -566,7 +566,7 @@ main(int argc, char **argv){
       crop_lines(ls, ls1, c, true);
       fig_object o = make_object("2 1 0 1 22046463 7 87 -1 -1 0.000 0 1 0 0 0 0");
       if (type == 0x200051) {o.line_style=1; o.style_val=5;}
-      for (MultiLine<double>::iterator l = ls.begin(); l!=ls.end(); l++){
+      for (dMultiLine::iterator l = ls.begin(); l!=ls.end(); l++){
         o.set_points(*l);
         NW.push_back(o);
       }

@@ -25,12 +25,12 @@ void usage(const char *fname){
 }
 
 //координаты угла единичного квадрата по его номеру
-Point<int> crn (int k){
+iPoint crn (int k){
   k%=4;
-  return Point<int>(k/2, (k%3>0)?1:0);
+  return iPoint(k/2, (k%3>0)?1:0);
 }
 //направление следующей за углом стороны (единичный вектор)
-Point<int> dir (int k){
+iPoint dir (int k){
   return crn(k+1)-crn(k);
 }
 

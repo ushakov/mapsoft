@@ -20,10 +20,10 @@ public:
     Viewer (int tile_size=256);
     virtual ~Viewer ();
 
-    void set_window_origin (Point<int> new_origin);
+    void set_window_origin (iPoint new_origin);
     void set_window_origin(int x, int y);
-    Point<int> get_window_origin () const;
-    Point<int> get_window_size () const;
+    iPoint get_window_origin () const;
+    iPoint get_window_size () const;
 
     void refresh();
     void zoom_out(int i);
@@ -34,14 +34,14 @@ public:
 
 private:
 
-    Point<int> window_origin;
-    Point<int> drag_pos;
-    Rect<int>  visible_tiles;
+    iPoint window_origin;
+    iPoint drag_pos;
+    iRect  visible_tiles;
 
-    std::map<Point<int>, Image<int> > tile_cache;
-    std::set<Point<int> >             tiles_todo;
-    std::set<Point<int> >             tiles_todo2;
-    std::queue<Point<int> >           tile_done_queue;
+    std::map<iPoint, iImage> tile_cache;
+    std::set<iPoint>             tiles_todo;
+    std::set<iPoint>             tiles_todo2;
+    std::queue<iPoint>           tile_done_queue;
 
     // плитки, полученные из workplane, лежат в tile_cache.
     // если мы хотим нарисовать какую-то плитку,
@@ -83,7 +83,7 @@ private:
     // функция вызывается по сигналу от cache_updater'а
     void update_tile();
 
-    void draw_tile(const Point<int> & tile_key);
+    void draw_tile(const iPoint & tile_key);
 
 /**************************************/
 

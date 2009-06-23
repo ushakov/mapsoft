@@ -23,15 +23,15 @@ const int ks_scale_max = 17;
 int load(
     const std::string & dir, 
     int ks_scale,	
-    Rect<int> src_rect, 
-    Image<int> & image, 
-    Rect<int> dst_rect,
+    iRect src_rect, 
+    iImage & image, 
+    iRect dst_rect,
     bool do_download = false);
 
-Image<int> load(
+iImage load(
     const std::string & dir,
     int ks_scale,
-    const Rect<int> & src_rect,
+    const iRect & src_rect,
     int scale=1,
     bool do_download = false);
 

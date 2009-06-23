@@ -7,7 +7,7 @@
 // (кстати, исходя из этого сделана и проверка на вхождение точки в прямоугольник)
 // В этом случае, при делении на целое число надо пользоваться
 // такой функцией:
-Rect<int> rect_intdiv(const Rect<int> & r, int i){
+iRect rect_intdiv(const Rect<int> & r, int i){
 
       if (i==1) return r;
 
@@ -21,10 +21,10 @@ Rect<int> rect_intdiv(const Rect<int> & r, int i){
       x2 = x2<0 ? x2/i - 1  : x2/i; 
       y2 = y2<0 ? y2/i - 1  : y2/i; 
 
-      return Rect<int>(x1,y1,x2-x1+1,y2-y1+1);
+      return iRect(x1,y1,x2-x1+1,y2-y1+1);
 }*/
 
-Rect<int> tiles_on_rect(const Rect<int> & r, int tsize){
+iRect tiles_on_rect(const Rect<int> & r, int tsize){
 // диапазон плиток, накрывающих данный прямоугольник
   int x1 = (r.x>=0) ? (r.x/tsize):((r.x+1)/tsize - 1);
   int y1 = (r.y>=0) ? (r.y/tsize):((r.y+1)/tsize - 1);
@@ -32,10 +32,10 @@ Rect<int> tiles_on_rect(const Rect<int> & r, int tsize){
   int y2 = (r.y+r.h-1>=0) ? ((r.y+r.h-1)/tsize):((r.y+r.h)/tsize - 1);
   int w = (r.w==0) ? 0:(x2-x1+1);
   int h = (r.h==0) ? 0:(y2-y1+1);
-  return Rect<int>(x1,y1,w,h);
+  return iRect(x1,y1,w,h);
 }
 
-Rect<int> tiles_in_rect(const Rect<int> & r, int tsize){
+iRect tiles_in_rect(const Rect<int> & r, int tsize){
 // диапазон плиток, лежащих внутри данного прямоугольника
   int x1 = (r.x>0) ? ((r.x-1)/tsize + 1):(r.x/tsize);
   int y1 = (r.y>0) ? ((r.y-1)/tsize + 1):(r.y/tsize);
@@ -43,15 +43,15 @@ Rect<int> tiles_in_rect(const Rect<int> & r, int tsize){
   int y2 = (r.y+r.h>=0) ? ((r.y+r.h)/tsize-1):((r.y+r.h+2)/tsize - 2);
   int w = x2-x1+1;
   int h = y2-y1+1;
-  return Rect<int>(x1,y1,w,h);
+  return iRect(x1,y1,w,h);
 }
 
 // два прямоугольника задают преобразование.
 // функция соответствующим образом сдвигает и растягивает третий прямоугольник
 void transform_rect(
-    const Rect<int> & src,
-    const Rect<int> & dst,
-          Rect<int> & r){
+    const iRect & src,
+    const iRect & dst,
+          iRect & r){
     // Здесь нам нужен long long, иначе в google'е на
     // больших масштабах происходит переполнение
     // ...а может, уже и не нужно...
@@ -72,28 +72,28 @@ void transform_rect(
 // Функция, нужная для загрузчика картинок.
 // Правильное подрезание краев, выходящих за пределы картинки
 void clip_rects_for_image_loader(
-    const Rect<int> & src_img,
-          Rect<int> & src,
-    const Rect<int> & dst_img,
-          Rect<int> & dst){
+    const iRect & src_img,
+          iRect & src,
+    const iRect & dst_img,
+          iRect & dst){
 
    if (src.empty() || dst.empty()) return;
 
 // очевидное преобразование, которое, однако, приводит к умножениям 
 // на большие числа и переполнениям...
 /*
-   Rect<int> src_img_tr = src_img; transform_rect(src,dst,src_img_tr);
-   Rect<int> dst_img_tr = dst_img; transform_rect(dst,src,dst_img_tr);
+   iRect src_img_tr = src_img; transform_rect(src,dst,src_img_tr);
+   iRect dst_img_tr = dst_img; transform_rect(dst,src,dst_img_tr);
    clip_rect_to_rect(src, src_img);
    clip_rect_to_rect(src, dst_img_tr);
    clip_rect_to_rect(dst, dst_img);
    clip_rect_to_rect(dst, src_img_tr);
 */
 // а мы сделаем так вот странно:
-   Rect<int> src_img_tr = src_img; 
+   iRect src_img_tr = src_img; 
    clip_rect_to_rect(src_img_tr, src);
    transform_rect(src,dst,src_img_tr);
-   Rect<int> dst_img_tr = dst_img;
+   iRect dst_img_tr = dst_img;
    clip_rect_to_rect(dst_img_tr, dst);
    transform_rect(dst,src,dst_img_tr);
    clip_rect_to_rect(src, src_img);

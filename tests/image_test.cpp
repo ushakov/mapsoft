@@ -13,7 +13,7 @@ main(){
     std::cerr << i1.get(50,50) << "\n";
     std::cerr << i2.get(50,50) << "\n";
 
-//  Image<RGB> i = image_tiff::load("im4.tif", Rect<int>(0,0,20,20), 2);
+//  Image<RGB> i = image_tiff::load("im4.tif", iRect(0,0,20,20), 2);
 //  std::cerr << i;
 }
 

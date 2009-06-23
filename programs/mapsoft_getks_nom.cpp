@@ -31,7 +31,7 @@ main(int argc, char **argv){
     double m_per_pt   = deg_per_pt * M_PI/180 * 6378137.0;
 
     // определим диапазон карты в координатах lonlat (в СК Пулково!)
-    Rect<double> r0 = convs::nom_range(map_name);
+    dRect r0 = convs::nom_range(map_name);
 
     // определим осевой меридиан
     double lon0 = (r0.TLC().x + r0.TRC().x)/2;
@@ -44,7 +44,7 @@ main(int argc, char **argv){
     convs::pt2pt c0(Datum("pulkovo"), Proj("lonlat"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
     g_point p01(r0.TLC()), p02(r0.BRC());
     c0.frw(p01); c0.frw(p02);
-    Rect<double> r = Rect<double>(p01, p02);
+    dRect r = Rect<double>(p01, p02);
 
     // граница карты в СК wgs84
     g_line border_ll = rect2line(r);
@@ -85,7 +85,7 @@ main(int argc, char **argv){
 
     int w=int(f_max.x-f_min.x);
     int h=int(f_max.y-f_min.y);
-    Image<int> im = ml.get_image (Rect<int>(0,0,w,h));
+    iImage im = ml.get_image (iRect(0,0,w,h));
 
     ImageDrawContext * ctx(ImageDrawContext::Create(&im));
     for (g_line::iterator i = ref.border.begin(), j=i+1; j!=ref.border.end(); i++,j++)

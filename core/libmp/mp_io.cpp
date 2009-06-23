@@ -21,9 +21,9 @@ bool read(const char* filename, mp_world & world, const Options & opts){
   mp_world ret;
   mp_object o, o0;
   int l=0;
-  Point<double> pt;
+  dPoint pt;
 
-  Line<double>   line;
+  dLine   line;
   string         comm, key, val;
 
   rule_t key_ch = anychar_p - eol_p - '=';
@@ -180,7 +180,7 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
       out << "\r\n" << o->first << "=" << cnv.from_utf(o->second);
     }
 
-    for (MultiLine<double>::const_iterator l=i->begin(); l!=i->end(); l++){
+    for (dMultiLine::const_iterator l=i->begin(); l!=i->end(); l++){
       out << "\r\nData" << i->BL << "="; 
       for (int j=0; j<l->size(); j++){
         out << ((j!=0)?",":"") << "(" 

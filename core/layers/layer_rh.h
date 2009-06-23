@@ -12,7 +12,7 @@
 class LayerRH : public Layer {
 
 private:
-  Image<int> image;
+  iImage image;
 
 public:
     LayerRH (const char *file):image(0,0){
@@ -20,20 +20,20 @@ public:
     }
     
     // Optimized get_image to return empty image outside of bounds.
-    virtual Image<int> get_image (Rect<int> src){
+    virtual iImage get_image (iRect src){
 	if (rect_intersect(image.range(), src).empty()) {
-	    return Image<int>(0,0);
+	    return iImage(0,0);
 	}
-	Image<int> ret(src.w, src.h, 0);
+	iImage ret(src.w, src.h, 0);
 	draw(src.TLC(), ret);
 	return ret;
     }
 
-    virtual void draw (Rect<int> src_rect, Image<int> & dst_img, Rect<int> dst_rect){
+    virtual void draw (iRect src_rect, iImage & dst_img, Rect<int> dst_rect){
 	image_i::load(image, src_rect, dst_img, dst_rect);
     }
 
-    virtual Rect<int> range (){
+    virtual iRect range (){
 	return image.range();
     }
 };

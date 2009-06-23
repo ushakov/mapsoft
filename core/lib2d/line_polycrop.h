@@ -10,12 +10,12 @@
 
 // лежит ли точка в многоугольнике poly
 template<typename T>
-bool test_pt (const Point<double> & pt, const T & poly){
+bool test_pt (const dPoint & pt, const T & poly){
   double a = 0;
   typename T::const_iterator p1,p2;
   for (int i = 0; i<poly.size(); i++){
-    Point<double> v1 = Point<double>(poly[i]) - pt;
-    Point<double> v2 = Point<double>(poly[(i+1)%poly.size()]) - pt;
+    dPoint v1 = Point<double>(poly[i]) - pt;
+    dPoint v2 = Point<double>(poly[(i+1)%poly.size()]) - pt;
     double dd = pdist(v1)*pdist(v2);
     if (dd==0) return true;
 
@@ -37,7 +37,7 @@ void crop_lines(std::vector<T> & lines,
   for (int j = 0; j<cutter.size(); j++){
     for (typename std::vector<T>::iterator l = lines.begin(); l!=lines.end(); l++){
       for (int i = 0; i<l->size()-1; i++){
-        Point<double> pt;
+        dPoint pt;
         try { pt = find_cross((*l)[i], (*l)[i+1], cutter[j], cutter[(j+1)%cutter.size()]); }
         catch (int n) {continue;}
         // разбиваем линию на две, уже обработанный кусок помещаем перед l
@@ -60,7 +60,7 @@ void crop_lines(std::vector<T> & lines,
     // посчитаем число точек внутри - число точек вне.
     int sum=0;
     for (int i = 1; i<l->size(); i++){
-      sum+= (cutouter xor test_pt(Point<double>((*l)[i]+(*l)[i-1])/2.0, cutter))? -1:1;
+      sum+= (cutouter xor test_pt(dPoint((*l)[i]+(*l)[i-1])/2.0, cutter))? -1:1;
     }
     if (sum<0) {lines1.push_back(*l);  l=lines.erase(l); continue;}
     l++;

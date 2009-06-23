@@ -334,7 +334,7 @@ public:
                 (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
         if (d > 250) return true;
 
-        Point<int> p(int(event->x), int(event->y));
+        iPoint p(int(event->x), int(event->y));
         p += viewer.get_window_origin();
         VLOG(2) << "click at: " << p.x << "," << p.y << " " << event->button;
         action_manager->click(p);

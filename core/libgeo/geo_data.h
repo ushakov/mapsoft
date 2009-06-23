@@ -17,9 +17,9 @@
 // points:
 
 // abstract point
-typedef Point<double> g_point;
-typedef Line<double>  g_line;
-typedef Rect<double>  g_rect;
+typedef dPoint g_point;
+typedef dLine  g_line;
+typedef dRect  g_rect;
 
 /// single waypoint
 struct g_waypoint : g_point {

@@ -21,13 +21,13 @@ using namespace std;
 
 namespace tiles {
 
-Rect<int> tile_covering(const Rect<double> & r, int tsize){
+iRect tile_covering(const dRect & r, int tsize){
   // диапазон плиток, накрывающих данный прямоугольник
   int tile_x1 = floor(r.x / tsize);
   int tile_y1 = floor(r.y / tsize);
   int tile_x2 = ceil((r.x + r.w) / tsize);
   int tile_y2 = ceil((r.y + r.h) / tsize);
-  return Rect<int>(tile_x1, tile_y1,
+  return iRect(tile_x1, tile_y1,
 		   tile_x2 - tile_x1,
 		   tile_y2 - tile_y1);
 }
@@ -61,7 +61,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
   if (world.range_map().empty()) return false;
 
   // Note! geom is in lat/lng coordinates!
-  Rect<double> geom = opt.get("geom", Rect<double>());
+  dRect geom = opt.get("geom", Rect<double>());
   Proj  proj(opt.get("proj",string("google")));
   Datum datum(opt.get("datum",string("wgs84")));
 
@@ -151,7 +151,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
   bool draw_borders = opt.get("draw_borders", false);
   LayerGeoMap layer(&world, draw_borders);
 
-  Rect<int> tile;
+  iRect tile;
   tile.w = 256;
   tile.h = 256;
 
@@ -177,12 +177,12 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
     // prepare ref
     double scale = pow(2.0, gg_zoom - z);
     g_map zoom_ref = ref;
-    Rect<double> zoom_geom = geom;
+    dRect zoom_geom = geom;
     zoom_ref /= scale;
     zoom_geom /= scale;
     
     // tiles is in tile coordinates in dest projection
-    Rect<int> tiles = tile_covering(zoom_geom, 256);
+    iRect tiles = tile_covering(zoom_geom, 256);
     cout << "tiles@" << z << " = " << tiles << endl;
     cout << "geom=" << zoom_geom << endl;
 
@@ -192,7 +192,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
       for(int y = tiles.y; y < tiles.y + tiles.h; ++y) {
 	tile.x = x * 256;
 	tile.y = y * 256;
-	Image<int> tile_image = layer.get_image(tile);
+	iImage tile_image = layer.get_image(tile);
 	if (!tile_image.empty()) {
 	  // make filename
 	  std::stringstream ss;

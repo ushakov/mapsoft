@@ -8,24 +8,24 @@ namespace convs{
 
 // common interface for point conversions
 struct interface
-  : public boost::additive<Point<double> >,
+  : public boost::additive<dPoint>,
     public boost::multiplicative<PointConv, double>,
 {
   // shifts and rescales
-  virtual PointConv & operator-= (Point<double> const & s) = 0;
-  virtual PointConv & operator+= (Point<double> const & s) = 0;
+  virtual PointConv & operator-= (dPoint const & s) = 0;
+  virtual PointConv & operator+= (dPoint const & s) = 0;
   virtual PointConv & operator/= (double k) = 0;
   virtual PointConv & operator*= (double k) = 0;
 
-  virtual void frw(Point<double> & p) = 0;
-  virtual void bck(Point<double> & p) = 0;
-  virtual void frw_safe(Point<double> & p) = 0;
-  virtual void bck_safe(Point<double> & p) = 0;
+  virtual void frw(dPoint & p) = 0;
+  virtual void bck(dPoint & p) = 0;
+  virtual void frw_safe(dPoint & p) = 0;
+  virtual void bck_safe(dPoint & p) = 0;
 
   // Convert a line. Each segment can be divided to provide
   // accuracy <acc> in source units. <max> is a maximum number
   // of divisions.
-  virtual Line<double> line_frw(const Line<double> & l, double acc=1, int max=100){
+  virtual dLine line_frw(const Line<double> & l, double acc=1, int max=100){
     g_line ret;
     if (l.size()==0) return ret;
     g_point P1 = l[0], P1a =P1;
@@ -61,7 +61,7 @@ struct interface
     return ret;
   }
 
-  virtual Line<double> line_bck(const Line<double> & l, double acc=1, int max=100){
+  virtual dLine line_bck(const Line<double> & l, double acc=1, int max=100){
     g_line ret;
     if (l.size()==0) return ret;
     g_point P1 = l[0], P1a =P1; bck_safe(P1a); ret.push_back(P1a);
@@ -92,11 +92,11 @@ struct interface
   }
 
   // convert a rectagle and return bounding box of resulting figure
-  virtual Rect<double> bb_frw(const Rect<double> & R, double acc=1, int max=100){
+  virtual dRect bb_frw(const Rect<double> & R, double acc=1, int max=100){
     g_line l = line_frw(rect2line(R), acc, max);
     return l.range();
   }
-  virtual Rect<double> bb_bck(const Rect<double> & R, double acc=1, int max=100){
+  virtual dRect bb_bck(const Rect<double> & R, double acc=1, int max=100){
     g_line l = line_bck(rect2line(R),acc, max);
     return l.range();
   }
@@ -105,42 +105,42 @@ struct interface
 // simple conversion: shift and scale
 struct simple: public interface {
 
-  Point<double> shift;
+  dPoint shift;
   double scale;
 
-  simple & operator-= (Point<double> const & s) {shift-=s;}
-  simple & operator+= (Point<double> const & s) {shift+=s;}
+  simple & operator-= (dPoint const & s) {shift-=s;}
+  simple & operator+= (dPoint const & s) {shift+=s;}
   simple & operator*= (double k) {scale*=k;}
   simple & operator/= (double k) {scale/=k;}
 
-  void frw(Point<double> & p){p=p*scale+shift;}
-  void bck(Point<double> & p){p=(p-shift)/scale;}
+  void frw(dPoint & p){p=p*scale+shift;}
+  void bck(dPoint & p){p=(p-shift)/scale;}
 
-  void frw_safe(Point<double> & p){p=p*scale+shift;}
-  void bck_safe(Point<double> & p){p=(p-shift)/scale;}
+  void frw_safe(dPoint & p){p=p*scale+shift;}
+  void bck_safe(dPoint & p){p=(p-shift)/scale;}
 
-  virtual Line<double> line_frw(const Line<double> & l, double acc=1, int max=100){
+  virtual dLine line_frw(const Line<double> & l, double acc=1, int max=100){
     g_line ret;
-    for (Line<double>::const_iterator i=l.begin(); i!=l.end(); i++)
+    for (dLine::const_iterator i=l.begin(); i!=l.end(); i++)
       l.push_back((*i)*scale+shift);
     return ret;
   }
 
-  virtual Line<double> line_bck(const Line<double> & l, double acc=1, int max=100){
+  virtual dLine line_bck(const Line<double> & l, double acc=1, int max=100){
     g_line ret;
-    for (Line<double>::const_iterator i=l.begin(); i!=l.end(); i++)
+    for (dLine::const_iterator i=l.begin(); i!=l.end(); i++)
       l.push_back(((*i)-shift)/scale);
     return ret;
   }
 
   // convert a rectagle and return bounding box of resulting figure
-  virtual Rect<double> bb_frw(const Rect<double> & R, double acc=1, int max=100){
-    if (scale>0) return Rect<double>(R.TLC()*scale+shift,R.BRC()*scale+shift);
-    else         return Rect<double>(R.BRC()*scale+shift,R.TLC()*scale+shift);
+  virtual dRect bb_frw(const Rect<double> & R, double acc=1, int max=100){
+    if (scale>0) return dRect(R.TLC()*scale+shift,R.BRC()*scale+shift);
+    else         return dRect(R.BRC()*scale+shift,R.TLC()*scale+shift);
   }
-  virtual Rect<double> bb_bck(const Rect<double> & R, double acc=1, int max=100){
-    if (scale>0) return Rect<double>((R.TLC()-shift)*scale,(R.BRC()-shift)*scale);
-    else         return Rect<double>((R.BRC()-shift)*scale,(R.TLC()-shift)*scale);
+  virtual dRect bb_bck(const Rect<double> & R, double acc=1, int max=100){
+    if (scale>0) return dRect((R.TLC()-shift)*scale,(R.BRC()-shift)*scale);
+    else         return dRect((R.BRC()-shift)*scale,(R.TLC()-shift)*scale);
   }
 };
 

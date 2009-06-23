@@ -108,10 +108,10 @@ namespace fig {
 
 
     /// fig object
-    struct fig_object : Line<int>,
+    struct fig_object : iLine,
       public boost::equality_comparable<fig_object>,
       public boost::less_than_comparable<fig_object>,
-      public boost::additive<fig_object, Point<int> >
+      public boost::additive<fig_object, iPoint>
     {
         int     type;
         int     sub_type;
@@ -187,7 +187,7 @@ namespace fig {
 	   (farrow_width == o.farrow_width) && (barrow_width == o.barrow_width) &&
 	   (farrow_height == o.farrow_height) && (barrow_height == o.barrow_height) &&
            (image_file == o.image_file) && (image_orient == o.image_orient) &&
-           (text == o.text) && (comment == o.comment) && (f == o.f) && Line<int>::operator==(o));
+           (text == o.text) && (comment == o.comment) && (f == o.f) && iLine::operator==(o));
         }
 
 	bool operator< (const fig_object & o) const{
@@ -236,11 +236,11 @@ namespace fig {
           if (text != o.text) return (text < o.text);
           if (comment != o.comment) return (comment < o.comment);
           if (f != o.f) return (f < o.f);
-          return Line<int>::operator<(o);
+          return iLine::operator<(o);
         }
 
         /// сместить на (x,y)
-	fig_object & operator += (const Point<int> & p) {
+	fig_object & operator += (const iPoint & p) {
           for (iterator i=begin(); i!=end(); i++) *i += p;
           center_x+=p.x;
           center_y+=p.y;
@@ -275,8 +275,8 @@ namespace fig {
         }
 
         // сделать из линии
-        void set_points(const Line<double> & v);
-        void set_points(const Line<int> & v);
+        void set_points(const dLine & v);
+        void set_points(const iLine & v);
 
 	/// преобразовать в линию 
         template <typename T>
@@ -317,7 +317,7 @@ namespace fig {
         }
 
 	// сместить на (x,y)
-        fig_world & operator +=(const Point<int> & p) {
+        fig_world & operator +=(const iPoint & p) {
           for (iterator i=begin(); i!=end(); i++) *i += p; 
           return *this;
         }

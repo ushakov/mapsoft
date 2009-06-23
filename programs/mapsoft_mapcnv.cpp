@@ -61,7 +61,7 @@ main(int argc, char **argv){
   string htmfile = opts.get("htm", string());
   string mapfile = opts.get("map", string());
 
-  Rect<double> geom = opts.get("geom", Rect<double>());
+  dRect geom = opts.get("geom", Rect<double>());
   if (geom.empty()){
     cerr << "Empty geometry! Use -g option.\n";
     exit(1);
@@ -121,9 +121,9 @@ main(int argc, char **argv){
     if (k==0) k=scale/2.54e-2*dpi;
 
     if (outfile != ""){
-      cerr << "writing image: " << Rect<int>(geom*k*factor) << "\n";
+      cerr << "writing image: " << iRect(geom*k*factor) << "\n";
       ml.set_ref(ref*k*factor);
-      Image<int> im = ml.get_image(Rect<int>(geom*k*factor));
+      iImage im = ml.get_image(iRect(geom*k*factor));
       image_r::save(im, outfile.c_str(), opts);
     }
     // ml.dump_maps("out1.fig");
@@ -144,7 +144,7 @@ main(int argc, char **argv){
           <<       "href=\""   << i->file << "\" "
           <<       "alt=\""    << i->comm << "\" "
           <<       "title=\""  << i->comm << "\" "
-          <<       "coords=\"" << Line<int>(brd) << "\">\n";
+          <<       "coords=\"" << iLine(brd) << "\">\n";
       }
       f << "</map>\n"
         << "</body></html>";
@@ -164,9 +164,9 @@ main(int argc, char **argv){
       fig::fig_object o = fig::make_object("2 5 0 1 0 -1 500 -1 -1 0.000 0 0 -1 0 0 *");
 
       for (g_map::iterator i=fig_ref.begin(); i!=fig_ref.end(); i++){
-        o.push_back(Point<int>(int(i->xr), int(i->yr)));
+        o.push_back(iPoint(int(i->xr), int(i->yr)));
       }
-      o.push_back(Point<int>(int(fig_ref[0].xr), int(fig_ref[0].yr)));
+      o.push_back(iPoint(int(fig_ref[0].xr), int(fig_ref[0].yr)));
 
       o.image_file = outfile;
       o.comment.push_back("MAP " + outfile);

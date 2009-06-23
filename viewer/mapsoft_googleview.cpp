@@ -83,7 +83,7 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
         gl = LayerGoogle(google_dir,sc);
 	gl.set_downloading (google_downloading);
         dl.set_ref(gl.get_ref());
-	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
+	iPoint orig = v->get_window_origin() + v->get_window_size()/2;
 	std::cerr << "google scale: " << sc << " scale: " 
                   << v->scale_nom() << ":" 
                   << v->scale_denom() <<  std::endl;
@@ -103,7 +103,7 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	std::cerr << "google scale: " << sc << " scale: " 
                   << v->scale_nom() << ":" 
                   << v->scale_denom() <<  std::endl;
-	Point<int> orig = v->get_window_origin() + v->get_window_size()/2;
+	iPoint orig = v->get_window_origin() + v->get_window_size()/2;
         w->refresh_layer(&gl);
 	v->set_window_origin(orig/2 - v->get_window_size()/2);
         v->clear_cache();

@@ -71,7 +71,7 @@ struct cnt_data{
   // контур цвета с3 между цветами с1 и с2
   int c1,c2,c3;
   int dots; //расстояние между точками в пунктире
-  std::set<Point<int> > pts;
+  std::set<iPoint> pts;
   cnt_data(const int _c1, const int _c2, const int _c3, const int _dots = 0):
     c1(_c1), c2(_c2), c3(_c3), dots(_dots){}
 };
@@ -164,7 +164,7 @@ main(int argc, char **argv){
     std::cerr << "  get ref\n";
     g_map ref = fig::get_ref(F);
     std::cerr << "  calc range\n";
-    Rect<int> r = fig::range(F);
+    iRect r = fig::range(F);
     std::cerr << r << "\n";
     std::cerr << ref.size() << "\n";
     if ((ref.size()>2) && (!r.empty())){
@@ -266,7 +266,7 @@ main(int argc, char **argv){
             }
 
 
-            std::set<Point<int> >::iterator pt = cnt->pts.begin();
+            std::set<iPoint>::iterator pt = cnt->pts.begin();
 
             while (pt!=cnt->pts.end()){
               if ((cnt->dots > 0) && (DIST2(pt->x - j, pt->y - i - d0a) < cnt->dots*cnt->dots)) {make_pt = false; break;}
@@ -275,7 +275,7 @@ main(int argc, char **argv){
             }
 
             if (make_pt){
-              cnt->pts.insert(Point<int>(j,i+d0a));
+              cnt->pts.insert(iPoint(j,i+d0a));
               for (int y = d0a-r; y<=d0a+r; y++){
                 if (map.data[y]==NULL) continue;
                 for (int x = j-r; x<=j+r; x++){

@@ -12,7 +12,7 @@ namespace vmap {
 
 // OBJECT
 istream & operator>> (istream & s, object & o){
-  Line<double> seg;
+  dLine seg;
   char mode;
   while (s.get(mode)){
     string line, key, val;
@@ -41,7 +41,7 @@ istream & operator>> (istream & s, object & o){
         double x,y;
         s1 >> x >> y >> ws;
         if (!s1 || !s1.eof()) goto def;
-        seg.push_back(Point<double>(x,y));
+        seg.push_back(dPoint(x,y));
         break;
       default:
         def:
@@ -59,8 +59,8 @@ istream & operator<< (ostream & s, const object & o){
     if (i->size()>0) s << '#' << *i << '\n';
   for (Options::const_iterator i=o.opts.begin(); i!=o.opts.end(); i++)
     s << '\\' << i->first << ' ' << i->second << '\n';
-  for (MultiLine<double>::const_iterator l=o.data.begin(); l!=o.data.end(); l++){
-    for (Line<double>::const_iterator i=l->begin(); i!=l->end(); i++)
+  for (dMultiLine::const_iterator l=o.data.begin(); l!=o.data.end(); l++){
+    for (dLine::const_iterator i=l->begin(); i!=l->end(); i++)
       s << ' ' << setprecision(6) << fixed << i->x << ' ' << i->y << '\n';
     s << '\n';
   }

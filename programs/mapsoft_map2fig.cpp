@@ -80,7 +80,7 @@ main(int argc, char **argv){
     }
     else { // с google map_mpp не работает (т.к. во всех точках все разное)
       // например, горизонтальный масштаб
-      Rect<double> range = fig_ref.border.range();
+      dRect range = fig_ref.border.range();
       g_point p1(range.TLC()), p2(range.TRC());
       convs::map2map c(map_ref, fig_ref);
       double l1=0,l2=0;
@@ -100,7 +100,7 @@ main(int argc, char **argv){
     ml->set_ref(fig_ref);
 
     // диапазон картинки в координатах растра
-    Rect<double> range = fig_ref.border.range();
+    dRect range = fig_ref.border.range();
 
     // создадим директорию для картинок
     std::string dir_name = fig_name + ".img";
@@ -131,7 +131,7 @@ std::cerr << dx << " x " << dy << " tile_size\n";
     for (int i = 0; i<nx; i++){
       g_point tlc(range.x+i*dx, range.y+j*dy);
 
-      Image<int> im = ml->get_image(Rect<int>(tlc, tlc+g_point(dx,dy)));
+      iImage im = ml->get_image(iRect(tlc, tlc+g_point(dx,dy)));
       if (im.empty()) continue;
       std::ostringstream fname; fname << dir_name << "/" << source[0] << depth << "-" << i << "-" << j << ".jpg"; 
       image_r::save(im, fname.str().c_str(), Options());

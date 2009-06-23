@@ -12,18 +12,18 @@
 
 class Layer:
   public boost::multiplicative<Layer,double>,
-  public boost::additive<Layer, Point<double> >
+  public boost::additive<Layer, dPoint>
  {
 public:
-    virtual void draw(const Point<int> origin, Image<int> & image) = 0;
+    virtual void draw(const iPoint origin, iImage & image) = 0;
 
-    virtual Image<int> get_image (Rect<int> src){
-	Image<int> ret(src.w, src.h, 0);
+    virtual iImage get_image (iRect src){
+	iImage ret(src.w, src.h, 0);
 	draw(src.TLC(), ret);
 	return ret;
     }
 
-    virtual Rect<int> range () = 0;
+    virtual iRect range () = 0;
     virtual void refresh() = 0;
 
     /// Gets current layer configuration as Options
@@ -38,8 +38,8 @@ public:
 
     virtual Layer & operator/= (double k) = 0;
     virtual Layer & operator*= (double k) = 0;
-    virtual Layer & operator-= (Point<double> k) = 0;
-    virtual Layer & operator+= (Point<double> k) = 0;
+    virtual Layer & operator-= (dPoint k) = 0;
+    virtual Layer & operator+= (dPoint k) = 0;
 
     Layer() {}
     Layer (Layer const & other) { }

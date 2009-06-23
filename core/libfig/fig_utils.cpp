@@ -7,10 +7,10 @@ using namespace std;
 
 /****************************************************************/
 
-double nearest_pt(Point<double> & vec, Point<double> & pt,  
+double nearest_pt(dPoint & vec, Point<double> & pt,  
   const std::list<fig_object> & objects, const std::string & mask, double maxdist){
 
-  Point<double> minp(pt),minvec(1,0);
+  dPoint minp(pt),minvec(1,0);
   double minl=maxdist; // далеко объекты не уносим!!!
 
   for (fig_world::const_iterator i  = objects.begin(); i != objects.end(); i++){
@@ -19,10 +19,10 @@ double nearest_pt(Point<double> & vec, Point<double> & pt,
     int np = i->size();
 
     for (int j=1; j<np; j++){
-      Point<double> p1((*i)[j-1].x, (*i)[j-1].y);
-      Point<double> p2((*i)[j].x, (*i)[j].y);
+      dPoint p1((*i)[j-1].x, (*i)[j-1].y);
+      dPoint p2((*i)[j].x, (*i)[j].y);
       double  ll = sqrt((p2.x-p1.x)*(p2.x-p1.x)+(p2.y-p1.y)*(p2.y-p1.y));
-      Point<double> vec((p2.x-p1.x)/ll, (p2.y-p1.y)/ll);
+      dPoint vec((p2.x-p1.x)/ll, (p2.y-p1.y)/ll);
 
       double ls = sqrt((pt.x-p1.x)*(pt.x-p1.x)+(pt.y-p1.y)*(pt.y-p1.y)); 
       double le = sqrt((pt.x-p2.x)*(pt.x-p2.x)+(pt.y-p2.y)*(pt.y-p2.y)); 
@@ -33,7 +33,7 @@ double nearest_pt(Point<double> & vec, Point<double> & pt,
       double prl = ((pt.x-p1.x)*vec.x+(pt.y-p1.y)*vec.y); 
 
       if ((prl>=0)&&(prl<=ll)) { // проекция попала на отрезок
-        Point<double> p = p1 + vec * ((pt.x-p1.x)*vec.x+(pt.y-p1.y)*vec.y);
+        dPoint p = p1 + vec * ((pt.x-p1.x)*vec.x+(pt.y-p1.y)*vec.y);
         double lc=sqrt((pt.x-p.x)*(pt.x-p.x)+(pt.y-p.y)*(pt.y-p.y));
         if (lc<minl) {
           minl=lc; minp=p; minvec=vec;
@@ -47,8 +47,8 @@ double nearest_pt(Point<double> & vec, Point<double> & pt,
 }
 
 // размер fig-объектов
-Rect<int> range(std::list<fig_object> & objects){
-  if ((objects.size()<1) || (objects.begin()->size()<1)) return Rect<int>(0,0,0,0);
+iRect range(std::list<fig_object> & objects){
+  if ((objects.size()<1) || (objects.begin()->size()<1)) return iRect(0,0,0,0);
   int minx=(*objects.begin())[0].x;
   int maxx=(*objects.begin())[0].x;
   int miny=(*objects.begin())[0].y;
@@ -75,14 +75,14 @@ Rect<int> range(std::list<fig_object> & objects){
       }
     }
   }
-  return Rect<int>(Point<int>(minx,miny), Point<int>(maxx,maxy));
+  return iRect(iPoint(minx,miny), iPoint(maxx,maxy));
 }
 
 
 // заключить fig-объекты в составной объект.
 void fig_make_comp(std::list<fig_object> & objects){
   if ((objects.size()<1) || (objects.begin()->size()<1)) return;
-  Rect<int> r = range(objects);
+  iRect r = range(objects);
 
   fig_object o;
   o.type=6;
@@ -94,7 +94,7 @@ void fig_make_comp(std::list<fig_object> & objects){
 }
 
 // повернуть на угол a вокруг точки p0
-void fig_rotate(std::list<fig_object> & objects, const double a, const Point<int> & p0){
+void fig_rotate(std::list<fig_object> & objects, const double a, const iPoint & p0){
   double c = cos(a);
   double s = sin(a);
   for (std::list<fig_object>::iterator l = objects.begin(); l!=objects.end(); l++){
@@ -140,9 +140,9 @@ void any2xspl(fig_object & o, const double x, const double y){
     do{
       double l = pdist(*i,*j);
       if (l > 3*y){
-        Point<double> p = pnorm(*j-*i) * y;
-        j=o.insert(j, *i + Point<int>(p) ); j++;
-        j=o.insert(j, *j - Point<int>(p) ); j++;
+        dPoint p = pnorm(*j-*i) * y;
+        j=o.insert(j, *i + iPoint(p) ); j++;
+        j=o.insert(j, *j - iPoint(p) ); j++;
       }
       i=j; j++;
     } while (j!=o.end()); 
@@ -159,10 +159,10 @@ void any2xspl(fig_object & o, const double x, const double y){
 }
 
 /// обрезка fig-файла по прямоугольнику
-void rect_crop(const Rect<int> & cutter, std::list<fig_object> & objects){
+void rect_crop(const iRect & cutter, std::list<fig_object> & objects){
   std::list<fig_object>::iterator o = objects.begin();
   while (o!=objects.end()){
-    Line<int> l = *o;
+    iLine l = *o;
     ::rect_crop(cutter, l, o->is_closed() || (o->area_fill != -1));
     o->set_points(l);
     if (o->size() == 0) o=objects.erase(o);
@@ -172,8 +172,8 @@ void rect_crop(const Rect<int> & cutter, std::list<fig_object> & objects){
 
 /// Обрезка fig-объекта по прямоугольнику. Объект после обрезки.
 /// может не содержать точек, т.е. быть плохим с т.з. fig-а!
-void rect_crop(const Rect<int> & cutter, fig_object & o){
-  Line<int> l = o;
+void rect_crop(const iRect & cutter, fig_object & o){
+  iLine l = o;
   ::rect_crop(cutter, l, o.is_closed() || (o.area_fill != -1));
   o.set_points(l);
 }

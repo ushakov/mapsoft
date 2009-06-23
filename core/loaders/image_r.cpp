@@ -2,7 +2,7 @@
 
 namespace image_r{
 
-Point<int> size(const char *file){
+iPoint size(const char *file){
     // Поглядим на расширение:
     int l = strlen(file);
     if ((l>=4 && (!strncmp(file + (l-4), ".jpg", 4)||
@@ -23,12 +23,12 @@ Point<int> size(const char *file){
     }
     std::cerr << "Can't determine file format by extension in " << file << "\n"
               << "supported formats: jpeg, tiff, png\n";
-    return Point<int>(0,0);
+    return iPoint(0,0);
 }
 
 // loading from Rect in file to Rect in image
-int load(const char *file, Rect<int> src_rect, 
-         Image<int> & image, Rect<int> dst_rect){
+int load(const char *file, iRect src_rect, 
+         iImage & image, iRect dst_rect){
 
     // Поглядим на расширение:
     int l = strlen(file);
@@ -52,11 +52,11 @@ int load(const char *file, Rect<int> src_rect,
 }
 
 // load the whole image 
-Image<int> load(const char *file, const int scale){
-  Point<int> s = size(file);
-  Image<int> ret(s.x/scale,s.y/scale);
+iImage load(const char *file, const int scale){
+  iPoint s = size(file);
+  iImage ret(s.x/scale,s.y/scale);
   if (s.x*s.y==0) return ret;
-  load(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
+  load(file, iRect(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
   return ret;
 }
 
@@ -65,7 +65,7 @@ Image<int> load(const char *file, const int scale){
 //   jpeg_quality  0..100, default 75
 //   tiff_usealpha 0..1,   default 0
 
-int save(const Image<int> & im, const Rect<int> & src_rect,
+int save(const iImage & im, const iRect & src_rect,
          const char *file, const Options & opts){
 
     // Поглядим на расширение:
@@ -91,7 +91,7 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
 }
 
 // save the whole image
-int save(const Image<int> & im, const char * file, const Options & opts){
+int save(const iImage & im, const char * file, const Options & opts){
     return save(im, im.range(), file, opts);
 }
 

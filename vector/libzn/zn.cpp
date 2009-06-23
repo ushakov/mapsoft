@@ -300,7 +300,7 @@ list<fig::fig_object> zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & 
     ret.push_back(ret_o);
   }
   else {
-    for (MultiLine<double>::const_iterator i=mp.begin(); i!=mp.end(); i++){
+    for (dMultiLine::const_iterator i=mp.begin(); i!=mp.end(); i++){
       ret_o.clear();
 //      g_line pts = cnv.line_bck(*i);
 //      for (int i=0; i<pts.size(); i++) ret_o.push_back(pts[i]);
@@ -478,25 +478,25 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
   int txt_dist = 7 * (fig.thickness+2); // fig units
 
   // определим координаты и наклон подписи
-  Point<int> p = fig[0];
-  if      (txt.sub_type == 0 ) p += Point<int>(1,-1)*txt_dist;
-  else if (txt.sub_type == 1 ) p += Point<int>(0,-2)*txt_dist;
-  else if (txt.sub_type == 2 ) p += Point<int>(-1,-1)*txt_dist;
+  iPoint p = fig[0];
+  if      (txt.sub_type == 0 ) p += iPoint(1,-1)*txt_dist;
+  else if (txt.sub_type == 1 ) p += iPoint(0,-2)*txt_dist;
+  else if (txt.sub_type == 2 ) p += iPoint(-1,-1)*txt_dist;
 
   if (fig.size()>=2){
 
     if ((type >= line_mask) && (type < area_mask) && (txt.sub_type == 1)){ // линия с центрированным текстом
       // ставится в середину линии
       p = (fig[fig.size()/2-1] + fig[fig.size()/2]) / 2;
-      Point<int> p1 = fig[fig.size()/2-1] - fig[fig.size()/2];
+      iPoint p1 = fig[fig.size()/2-1] - fig[fig.size()/2];
 
       if ((p1.x == 0) && (p1.y == 0)) p1.x = 1;
 
-      Point<double> v = pnorm(p1);
+      dPoint v = pnorm(p1);
       if (v.x<0) v=-1.0*v;
       txt.angle = atan2(-v.y, v.x);
 
-      p-= Point<int>(int(-v.y*txt_dist), int(v.x*txt_dist));
+      p-= iPoint(int(-v.y*txt_dist), int(v.x*txt_dist));
 
     }
     else { // другие случаи 
@@ -510,7 +510,7 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
             p = fig[i];
           }
         }
-        p+=Point<int>(1,-1)*txt_dist;
+        p+=iPoint(1,-1)*txt_dist;
       } else if (txt.sub_type == 2 ) { // right just.text
         // ищем точку с минимальным x+y
         p = fig[0];
@@ -521,11 +521,11 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
             p = fig[i];
           }
         }
-        p+=Point<int>(-1,-1)*txt_dist;
+        p+=iPoint(-1,-1)*txt_dist;
       } else if (txt.sub_type == 1 ) { // centered text
         // ищем середину объекта
-        Point<int> pmin = fig[0];
-        Point<int> pmax = fig[0];
+        iPoint pmin = fig[0];
+        iPoint pmax = fig[0];
         for (int i = 0; i<fig.size(); i++){
           if (pmin.x > fig[i].x) pmin.x = fig[i].x;
           if (pmin.y > fig[i].y) pmin.y = fig[i].y;

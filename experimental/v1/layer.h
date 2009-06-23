@@ -20,16 +20,16 @@
 
 class Layer:
   public boost::multiplicative<Layer,double>,
-  public boost::additive<Layer, Point<double> >
+  public boost::additive<Layer, dPoint>
  {
 private:
-    Point<double> shift;
+    dPoint shift;
     double scale;
 
 public:
 
-    virtual Image<int> get_image (Rect<int> src) = 0;
-    virtual Rect<int> range() = 0;
+    virtual iImage get_image (iRect src) = 0;
+    virtual iRect range() = 0;
     virtual void refresh() = 0;
 
     /// Gets current layer configuration as Options
@@ -41,16 +41,16 @@ public:
 
     virtual Layer & operator/= (double k) {scale/=k; set_ref(get_ref()/k);}
     virtual Layer & operator*= (double k) {scale*=k; set_ref(get_ref()*k);}
-    virtual Layer & operator-= (Point<double> k) {shift-=k; set_ref(get_ref()-k);}
-    virtual Layer & operator+= (Point<double> k) {shift+=k; set_ref(get_ref()+k);}
+    virtual Layer & operator-= (dPoint k) {shift-=k; set_ref(get_ref()-k);}
+    virtual Layer & operator+= (dPoint k) {shift+=k; set_ref(get_ref()+k);}
 
-    virtual void rescale(){scale=1; shift=Point<int>(0,0); set_ref();}
+    virtual void rescale(){scale=1; shift=iPoint(0,0); set_ref();}
 
 
     virtual void set_scale(double s){scale=s;}
-    virtual void set_shift(Point<double> s){shift=s;}
+    virtual void set_shift(dPoint s){shift=s;}
     virtual double get_scale() const {return scale;}
-    virtual Point<double> get_shift() const {return shift;}
+    virtual dPoint get_shift() const {return shift;}
 
     // Get current geo reference (empty by default)
     virtual g_map get_ref() const { return g_map();}

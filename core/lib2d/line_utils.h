@@ -102,7 +102,7 @@ void generalize (MultiLine<T> & lines, double e){
         Point<T> p2 = (*l)[i];
         Point<T> p3 = (*l)[in];
         double ll = pdist(p3-p1);
-        Point<double> v = (p3-p1)/ll;
+        dPoint v = (p3-p1)/ll;
         double prj = pscal(v, p2-p1);
         double dp;
         if      (prj<=0)  dp = pdist(p2,p1);

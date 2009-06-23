@@ -7,13 +7,13 @@ class LayerWait : public Layer {
 public:
     LayerWait (){ }
     
-    virtual void draw (Rect<int> src, Image<int> & img, Rect<int> dst){    
+    virtual void draw (iRect src, iImage & img, Rect<int> dst){    
 
 	sleep(1);
     }
 
-    virtual Rect<int> range (){
-	return Rect<int> (0,0,0,0);
+    virtual iRect range (){
+	return iRect (0,0,0,0);
     }
 
 };

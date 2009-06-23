@@ -31,15 +31,15 @@ std::string tile2file(int google_scale, int xt, int yt);
 int load(
     const std::string & dir, 
     int google_scale,	
-    Rect<int> src_rect, 
-    Image<int> & image, 
-    Rect<int> dst_rect,
+    iRect src_rect, 
+    iImage & image, 
+    iRect dst_rect,
     bool do_download = false);
 
-Image<int> load(
+iImage load(
     const std::string & dir,
     int google_scale,
-    const Rect<int> & src_rect,
+    const iRect & src_rect,
     int scale=1,
     bool do_download = false);
 

@@ -45,11 +45,11 @@ class srtm3 {
   unsigned interp_mode;
 
   // Ключ - широта в градусах, долгота в градусах
-  Cache<Point<int>, Image<short> > srtm_cache;
+  Cache<iPoint, Image<short> > srtm_cache;
 
   // загрузить в кэш нужный файл 
   // (проверку, что он уже есть, здесь не производим)
-  bool load(Point<int> key){
+  bool load(iPoint key){
     char NS='N';
     char EW='E';
     if (key.y<0) {NS='S'; key.y=-key.y;}
@@ -71,7 +71,7 @@ class srtm3 {
     for (int y=0; y < srtm_width; y++){
       for (int x=0; x < srtm_width; x++){
         if (in.get(c1) && in.get(c2))
-          im.set(Point<int>(x,srtm_width-1-y), (short)(unsigned char)c2 + ((short)(unsigned char)c1 <<8) );
+          im.set(iPoint(x,srtm_width-1-y), (short)(unsigned char)c2 + ((short)(unsigned char)c1 <<8) );
         else {
           std::cerr << "error while reading from file " << file.str() << '\n';
           srtm_cache.add(key, Image<short>(0,0));
@@ -84,9 +84,9 @@ class srtm3 {
   }
 
   // Узнать высоту точки без интерполяции дыр
-  short geth_(const Point<int> & p){
-    Point<int> key = p/(srtm_width-1);
-    Point<int> crd = p - key*(srtm_width-1);
+  short geth_(const iPoint & p){
+    iPoint key = p/(srtm_width-1);
+    iPoint crd = p - key*(srtm_width-1);
  
     // в исправленных srtm-данных последняя строчка 
     // (которая стала 0-й) иногда содержит нули.
@@ -104,9 +104,9 @@ class srtm3 {
   }
 
   // поменять высоту точки (только в кэше!)
-  short seth_(const Point<int> & p, short h){
-    Point<int> key = p/(srtm_width-1);
-    Point<int> crd = p - key*(srtm_width-1);
+  short seth_(const iPoint & p, short h){
+    iPoint key = p/(srtm_width-1);
+    iPoint crd = p - key*(srtm_width-1);
     crd.y = (srtm_width-1)-crd.y;
 
     if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
@@ -123,27 +123,27 @@ class srtm3 {
       ) : srtm_cache(cache_size), srtm_dir(_srtm_dir), interp_mode(mode){};
 
   // вернуть высоту точки
-  short geth(const Point<int> & p){
+  short geth(const iPoint & p){
     //сюда надо написать мого чего про интерполяцию!!!
     return geth_(p);
   } 
 
   // вернуть высоту точки (вещественные координаты, 
   // простая интерполяция по четырем соседним точкам)
-  short geth(const Point<double> & p){
+  short geth(const dPoint & p){
     int y1 = floor(p.y*1200);
     int y2 = ceil(p.y*1200);
     int x1 = floor(p.x*1200);
     int x2 = ceil(p.x*1200);
 
-    short h1=geth(Point<int>(x1,y1));
-    short h2=geth(Point<int>(x1,y2));
+    short h1=geth(iPoint(x1,y1));
+    short h2=geth(iPoint(x1,y2));
 
     if ((h1<srtm_min)||(h2<srtm_min)) return srtm_undef;
     short h12 = (int)( h1+ (h2-h1)*(p.y*1200-y1)/double(y2-y1) );
 
-    short h3=geth(Point<int>(x2,y1));
-    short h4=geth(Point<int>(x2,y2));
+    short h3=geth(iPoint(x2,y1));
+    short h4=geth(iPoint(x2,y2));
     if ((h3<srtm_min)||(h4<srtm_min)) return srtm_undef;
     short h34 = (int)( h3 + (h4-h3)*(p.y*1200-y1)/double(y2-y1) );
 
@@ -151,19 +151,19 @@ class srtm3 {
   }
 
   // найти множество соседних точек одной высоты (не более max точек)
-  std::set<Point<int> > plane(const Point<int>& p, int max=1000){
-    std::set<Point<int> > ret;
-    std::queue<Point<int> > q;
+  std::set<iPoint> plane(const iPoint& p, int max=1000){
+    std::set<iPoint> ret;
+    std::queue<iPoint> q;
     short h = geth_(p);
 
     q.push(p);
     ret.insert(p);
 
     while (!q.empty()){
-      Point<int> p1 = q.front();
+      iPoint p1 = q.front();
       q.pop();
       for (int i=0; i<8; i++){
-        Point<int> p2 = adjacent(p1, i);
+        iPoint p2 = adjacent(p1, i);
         if ((geth_(p2) == h)&&(ret.insert(p2).second)) q.push(p2);
       }
       if ((max!=0)&&(ret.size()>max)) break;

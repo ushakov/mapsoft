@@ -11,6 +11,7 @@
 #include "point_utils.h"
 #include "rect.h"
 
+
 /** Ломаная линия (std::vector<Point<T> >). */
 
 template <typename T>
@@ -136,14 +137,14 @@ struct Line : std::vector<Point<T> >
   operator Line<double>() const{
     Line<double> ret;
     for (typename Line<T>::const_iterator i=this->begin(); i!=this->end(); i++)
-      ret.push_back(Point<double>(*i));
+      ret.push_back(dPoint(*i));
     return ret;
   }
 
   operator Line<int>() const{
     Line<int> ret;
     for (typename Line<T>::const_iterator i=this->begin(); i!=this->end(); i++)
-      ret.push_back(Point<int>(*i));
+      ret.push_back(iPoint(*i));
     return ret;
   }
 #endif  // SWIG
@@ -158,6 +159,9 @@ struct Line : std::vector<Point<T> >
   }
 #endif  // SWIG
 };
+
+typedef Line<double> dLine;
+typedef Line<int>    iLine;
 
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Line<T> & l){
@@ -239,14 +243,14 @@ struct MultiLine : std::vector<Line<T> >
   operator MultiLine<double>() const{
     MultiLine<double> ret;
     for (typename MultiLine<T>::const_iterator i=this->begin(); i!=this->end(); i++)
-      ret.push_back(Line<double>(*i));
+      ret.push_back(dLine(*i));
     return ret;
   }
 
   operator MultiLine<int>() const{
     MultiLine<int> ret;
     for (typename MultiLine<T>::const_iterator i=this->begin(); i!=this->end(); i++)
-      ret.push_back(Line<int>(*i));
+      ret.push_back(iLine(*i));
     return ret;
   }
 #else  //SWIG
@@ -260,6 +264,7 @@ struct MultiLine : std::vector<Line<T> >
 #endif  //SWIG  
 };
 
-
+typedef MultiLine<double> dMultiLine;
+typedef MultiLine<int>    iMultiLine;
 
 #endif /* LINE_H */

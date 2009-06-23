@@ -16,7 +16,7 @@
 int main(){
 try{
 
-  Image<int> image = image_jpeg::load("/d2/1km-kar/1-Prjazha_Svjatozero.jpg"); 
+  iImage image = image_jpeg::load("/d2/1km-kar/1-Prjazha_Svjatozero.jpg"); 
 
  // Glib::init();
  // Gdk::wrap_init();

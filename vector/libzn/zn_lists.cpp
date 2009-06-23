@@ -12,18 +12,18 @@ namespace zn{
 fig::fig_object make_sample(const std::map<int, zn>::const_iterator &i, int grid, int dg){
   fig::fig_object o = i->second.fig;
   if (i->first >= area_mask){
-    o.push_back(Point<int>(dg,      -dg));
-    o.push_back(Point<int>(grid*5-dg,  0));
-    o.push_back(Point<int>(grid*5,  grid));
-    o.push_back(Point<int>(0,       grid));
+    o.push_back(iPoint(dg,      -dg));
+    o.push_back(iPoint(grid*5-dg,  0));
+    o.push_back(iPoint(grid*5,  grid));
+    o.push_back(iPoint(0,       grid));
   }
   else if (i->first >= line_mask){
-    o.push_back(Point<int>(0,       grid-dg));
-    o.push_back(Point<int>(grid*4+dg,  grid));
-    o.push_back(Point<int>(grid*5,  0));
+    o.push_back(iPoint(0,       grid-dg));
+    o.push_back(iPoint(grid*4+dg,  grid));
+    o.push_back(iPoint(grid*5,  0));
   }
   else{
-    o.push_back(Point<int>(grid*2,  grid));
+    o.push_back(iPoint(grid*2,  grid));
   }
   if (o.type==4) o.text="10";
   return o;
@@ -38,7 +38,7 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
   for (std::map<int, zn>::const_iterator i = z.znaki.begin(); i!=z.znaki.end(); i++){
     fig::fig_object o = make_sample(i, grid, dg);
 
-    Point<int> shift(0, count*2*grid);
+    iPoint shift(0, count*2*grid);
     o+=shift;
     o.comment.push_back("text");
 
@@ -57,7 +57,7 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
 
     fig::fig_object text = fig::make_object("4 0 0 40 -1 18 8 0.0000 4");
     text.text = i->second.name;
-    text.push_back(Point<int>(grid*8, grid));
+    text.push_back(iPoint(grid*8, grid));
     text+=shift;
     ret.push_back(text);
     
@@ -65,7 +65,7 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
     mp_key << i->second.mp.Class << " 0x" << std::setbase(16) << i->second.mp.Type;
     text.text = mp_key.str();
     text.clear();
-    text.push_back(Point<int>(-1*grid, grid));
+    text.push_back(iPoint(-1*grid, grid));
     text+=shift;
     text.sub_type = 2;
     ret.push_back(text);
@@ -73,10 +73,10 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
     count++;
   }
   fig::fig_object o = fig::make_object("2 2 0 0 30 30 250 -1 20 0.000 0 1 7 0 0 0");
-  o.push_back(Point<int>(-15*grid,-grid));
-  o.push_back(Point<int>(+40*grid,-grid));
-  o.push_back(Point<int>(+40*grid,(2*count+1)*grid));
-  o.push_back(Point<int>(-15*grid,(2*count+1)*grid));
+  o.push_back(iPoint(-15*grid,-grid));
+  o.push_back(iPoint(+40*grid,-grid));
+  o.push_back(iPoint(+40*grid,(2*count+1)*grid));
+  o.push_back(iPoint(-15*grid,(2*count+1)*grid));
   ret.push_back(o);
   return ret;
 }

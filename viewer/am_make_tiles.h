@@ -29,7 +29,7 @@ public:
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(Point<int> p) {
+    virtual void handle_click(iPoint p) {
 	std::cout << "MAKETILES: " << p << " points: " << have_points << std::endl;
 	if (have_points == 0) {
 	    g_point geo = p;
@@ -38,14 +38,14 @@ public:
 	    have_points = 1;
 	    // make rubber
 	    viewer->rubber.clear();
-	    viewer->rubber.add_line(p, false, Point<int>(0,0), true);
+	    viewer->rubber.add_line(p, false, iPoint(0,0), true);
 	} else if (have_points == 1) {
 	    g_point geo = p;
 	    if (!get_geo_point(geo)) return;
 	    two = geo;
 	    have_points = 2;
 	    Options opt;
-	    Rect<double> bb(one, two);
+	    dRect bb(one, two);
 	    opt.put("geom", bb);
 	    opt.put("google", 17);
 	    opt.put("dirname", "tiles");

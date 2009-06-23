@@ -26,7 +26,7 @@ public:
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(Point<int> p) {
+    virtual void handle_click(iPoint p) {
 
         if (mystate==0){ // select point
           std::cout << " MOVETPT: " << p << std::endl;
@@ -45,16 +45,16 @@ public:
 		if ((d.second > 0)&&(!current_layer->get_world()->trks[d.first][d.second].start)){
   		  g_point p1 = current_layer->get_world()->trks[d.first][d.second-1];
 		  cnv.bck(p1);
-                  viewer->rubber.add_line(p1,false, Point<int>(0,0),true);
+                  viewer->rubber.add_line(p1,false, iPoint(0,0),true);
 		}
 		if ((d.second < current_layer->get_world()->trks[d.first].size()-1)&&
 		    (!current_layer->get_world()->trks[d.first][d.second+1].start)){
   		  g_point p1 = current_layer->get_world()->trks[d.first][d.second+1];
 		  cnv.bck(p1);
-                  viewer->rubber.add_line(p1,false, Point<int>(0,0),true);
+                  viewer->rubber.add_line(p1,false, iPoint(0,0),true);
 		}
 		if (viewer->rubber.size()==0)
-                  viewer->rubber.add_line(p,false, Point<int>(0,0),true);
+                  viewer->rubber.add_line(p,false, iPoint(0,0),true);
                 mystate=1;
 		break;
             }

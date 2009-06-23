@@ -8,21 +8,21 @@
 class RubberPoint {
 public:
     bool active;
-    Point<int> p;
+    iPoint p;
 
-    RubberPoint(Point<int> p_, int active_): active(active_), p(p_) { }
+    RubberPoint(iPoint p_, int active_): active(active_), p(p_) { }
 
-    Point<int> get(Point<int> pointer, Point<int> offset) {
+    iPoint get(Point<int> pointer, Point<int> offset) {
       return active? (p+pointer) : (p-offset);
     }
 };
 
 class DrawnPair {
 public:
-  Point<int> p1,p2;
+  iPoint p1,p2;
   bool active;
 
-  DrawnPair(Point<int> p1_, Point<int> p2_, bool active_):
+  DrawnPair(iPoint p1_, Point<int> p2_, bool active_):
     p1(p1_), p2(p2_), active(active_) {};
 };
 
@@ -33,7 +33,7 @@ public:
 
     Rubber(){}
 
-    void add_line (Point<int> p1, bool a1, Point<int> p2, bool a2) {
+    void add_line (iPoint p1, bool a1, Point<int> p2, bool a2) {
 	lines.push_back(std::make_pair(RubberPoint(p1,a1),RubberPoint(p2,a2)));
         refresh();
     }

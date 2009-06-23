@@ -8,13 +8,13 @@ namespace convs{
 // Find region for a given soviet map nomenclature name.
 // Coordinates are in Pulkovo-1942 datum
 // (p.x is longitude, p.y is latitude)
-Rect<double> nom_range(const std::string & name);
+dRect nom_range(const std::string & name);
 
 // Find soviet map nomenclature name for a given point
 // rscale is 1000000 for 1:1000000 etc.
 // Coordinates must be in Pulkovo-1942 datum
 // (p.x is longitude, p.y is latitude)
-std::string nom_name(const Point<double> & p, int rscale);
+std::string nom_name(const dPoint & p, int rscale);
 
 }//namespace
 

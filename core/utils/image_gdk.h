@@ -8,7 +8,7 @@
 #include "../lib2d/image.h"
 #include <gdkmm/pixbuf.h>
 
-inline Glib::RefPtr<Gdk::Pixbuf> make_pixbuf_from_image (const Image<int> & image){
+inline Glib::RefPtr<Gdk::Pixbuf> make_pixbuf_from_image (const iImage & image){
         return Gdk::Pixbuf::create_from_data (
           (guint8 *)(image.data),
           Gdk::COLORSPACE_RGB,

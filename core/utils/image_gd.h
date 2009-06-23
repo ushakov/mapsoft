@@ -24,7 +24,7 @@ class ImageDrawContext {
 public:
 
     gdImagePtr gd_image;
-    Image<int> *image;
+    iImage *image;
 
     ImageDrawContext();
 
@@ -34,16 +34,16 @@ public:
     int convertFromGD(unsigned int gd_color);
     int convertToGD(unsigned int color);
 
-    static ImageDrawContext * Create (Image<int> * image_);
+    static ImageDrawContext * Create (iImage * image_);
 
     void DrawText (int x, int y, int color, const char *text);
-    void DrawRect (Rect<int> rect, int width, unsigned int color);
-    void DrawFilledRect (Rect<int> rect, unsigned int color);
-    void DrawLine (Point<int> a, Point<int> b, int width, unsigned int color);
-    void DrawCircle (Point<int> center, int radius, int width, int fgc,
+    void DrawRect (iRect rect, int width, unsigned int color);
+    void DrawFilledRect (iRect rect, unsigned int color);
+    void DrawLine (iPoint a, iPoint b, int width, unsigned int color);
+    void DrawCircle (iPoint center, int radius, int width, int fgc,
 		     bool fill = false, int bgc = 0xffffffff);
 
-    static Rect<int> GetTextMetrics (const char * text);
+    static iRect GetTextMetrics (const char * text);
 
     void Clear();
     void StampAndClear();

@@ -21,7 +21,7 @@ int main(int argc, char** argv){
 
   if ((argc == 3) && (strcmp(argv[1], "-n") == 0)){
     while (!cin.eof()){
-      Point<double> p;
+      dPoint p;
       cin >> p;
       cout << nom_name(p, atoi(argv[2])) << "\n";
     }

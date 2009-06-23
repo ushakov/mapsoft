@@ -32,7 +32,7 @@ public:
 	modes[current_mode]->abort();
     }
     
-    void click (Point<int> p) {
+    void click (iPoint p) {
 	modes[current_mode]->handle_click(p);
     }
 

@@ -30,8 +30,8 @@ private:
   std::vector<convs::map2map> m2ms;  // преобразования из каждой карты в mymap
   std::vector<double> scales;        // во сколько раз мы сжимаем карты при загрузке
   std::vector<int>    iscales;       // во сколько раз мы сжимаем карты при загрузке
-  Rect<int> myrange;               // габариты карты
-  Cache<int, Image<int> > image_cache;    // кэш изображений
+  iRect myrange;               // габариты карты
+  Cache<int, iImage> image_cache;    // кэш изображений
 //  Options O; // для всех карт должны быть одинаковы!
   g_map mymap;
   bool drawborder;
@@ -73,9 +73,9 @@ public:
 
         scales.push_back(sc_x<sc_y ? sc_x:sc_y); // каков масштаб карты в соотв.с проекцией
 
-	if (start && (c.border_dst.size()!=0)){  myrange=Rect<int>(c.border_dst[0], c.border_dst[0]); start=false;};
+	if (start && (c.border_dst.size()!=0)){  myrange=iRect(c.border_dst[0], c.border_dst[0]); start=false;};
         for (int j=0; j<c.border_dst.size(); j++) {
-	    myrange = rect_pump(myrange, Point<int>(c.border_dst[j]));
+	    myrange = rect_pump(myrange, iPoint(c.border_dst[j]));
 	}
       }
       // старые данные нам тоже интересны (мы можем использовать уже загруженные картинки)
@@ -86,17 +86,17 @@ public:
     }
     
     // Optimized get_image to return empty image outside of bounds.
-    virtual Image<int> get_image (Rect<int> src){
+    virtual iImage get_image (iRect src){
 	if (rect_intersect(myrange, src).empty()) {
-	    return Image<int>(0,0);
+	    return iImage(0,0);
 	}
-	Image<int> ret(src.w, src.h, 0);
+	iImage ret(src.w, src.h, 0);
 	draw(src.TLC(), ret);
 	return ret;
     }
 
-    virtual void draw(const Point<int> origin, Image<int> & image){
-      Rect<int> src_rect = image.range() + origin;
+    virtual void draw(const iPoint origin, iImage & image){
+      iRect src_rect = image.range() + origin;
 
 #ifdef DEBUG_LAYER_GEOMAP
         std::cerr  << "LayerMap: draw " << src_rect << " my: " << myrange << std::endl;
@@ -127,17 +127,17 @@ public:
       std::cerr  << "LayerMap: Using Image " << file
 		 << " at scale " << scale << " (loaded at scale " << iscales[i] <<", scales[i]: " << scales[i] << ")\n";
 #endif
-            Image<int> im = image_cache.get(i);
+            iImage im = image_cache.get(i);
             m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
           }
 
           if (drawborder)
           for (int j=0; j<m2ms[i].border_dst.size(); j++){
-            Point<double> p1(m2ms[i].border_dst[j]);
-            Point<double> p2((j==m2ms[i].border_dst.size()-1) ? m2ms[i].border_dst[0] : m2ms[i].border_dst[j+1]);
+            dPoint p1(m2ms[i].border_dst[j]);
+            dPoint p2((j==m2ms[i].border_dst.size()-1) ? m2ms[i].border_dst[0] : m2ms[i].border_dst[j+1]);
 
-            Point<int> p1i(p1); p1i-=src_rect.TLC();
-            Point<int> p2i(p2); p2i-=src_rect.TLC();
+            iPoint p1i(p1); p1i-=src_rect.TLC();
+            iPoint p2i(p2); p2i-=src_rect.TLC();
             ctx->DrawLine(p1i,p2i, 1, COLOR_RED);
           }
        }
@@ -146,7 +146,7 @@ public:
     }
 
 
-    virtual Rect<int> range (){
+    virtual iRect range (){
 	return myrange;
     }
 

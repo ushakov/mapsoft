@@ -19,7 +19,7 @@ namespace img{
 
 bool write_file (const char* filename, const geo_data & world, const Options & opt){
 
-  Rect<double> geom = opt.get("geom", Rect<double>());
+  dRect geom = opt.get("geom", Rect<double>());
   Proj  proj(opt.get("proj", string("tmerc")));
   Datum datum(opt.get("datum", string("pulkovo")));
 
@@ -99,7 +99,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
   geom -= geom.TLC();
 
   // is output image not too large
-  Point<int> max_image = opt.get("max_image", Point<int>(5000,5000));
+  iPoint max_image = opt.get("max_image", Point<int>(5000,5000));
   cerr << "Image size: " << geom.w << "x" << geom.h << "\n";
   if ((geom.w>max_image.x) || (geom.h>max_image.y)){
      cerr << "Error: image is too large ("
@@ -108,7 +108,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     exit(1);
   }
 
-  Image<int> im(geom.w,geom.h,0x00FFFFFF);
+  iImage im(geom.w,geom.h,0x00FFFFFF);
 
   if (gg_zoom>=0){
     string dir    = opt.get("google_dir", string());
@@ -116,8 +116,8 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     LayerGoogle l(dir, gg_zoom);
     l.set_ref(ref);
     l.set_downloading(download);
-    Image<int> tmp_im = l.get_image(geom);
-    if (!tmp_im.empty()) im.render(Point<int>(0,0), tmp_im);
+    iImage tmp_im = l.get_image(geom);
+    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
 
   if (ks_zoom>=0){
@@ -126,24 +126,24 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     LayerKS l(dir, ks_zoom);
     l.set_ref(ref);
     l.set_downloading(download);
-    Image<int> tmp_im = l.get_image(geom);
-    if (!tmp_im.empty()) im.render(Point<int>(0,0), tmp_im);
+    iImage tmp_im = l.get_image(geom);
+    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
 
   if (!world.maps.empty()){
     bool draw_borders = opt.get("draw_borders", false);
     LayerGeoMap  l(&world, draw_borders);
     l.set_ref(ref);
-    Image<int> tmp_im = l.get_image(geom);
-    if (!tmp_im.empty()) im.render(Point<int>(0,0), tmp_im);
+    iImage tmp_im = l.get_image(geom);
+    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
 
   if (!world.trks.empty() || !world.wpts.empty()){
     geo_data world1=world; // LayerGeoData can't get const world
     LayerGeoData l(&world1);
     l.set_ref(ref);
-    Image<int> tmp_im = l.get_image(geom);
-    if (!tmp_im.empty()) im.render(Point<int>(0,0), tmp_im);
+    iImage tmp_im = l.get_image(geom);
+    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
 
   image_r::save(im, filename, opt);
@@ -166,7 +166,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
         <<       "href=\""   << i->file << "\" "
         <<       "alt=\""    << i->comm << "\" "
         <<       "title=\""  << i->comm << "\" "
-        <<       "coords=\"" << Line<int>(brd) << "\">\n";
+        <<       "coords=\"" << iLine(brd) << "\">\n";
     }
     f << "</map>\n"
       << "</body></html>";
@@ -183,9 +183,9 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     fig::fig_object o = fig::make_object("2 5 0 1 0 -1 500 -1 -1 0.000 0 0 -1 0 0 *");
 
     for (g_map::iterator i=fig_ref.begin(); i!=fig_ref.end(); i++){
-      o.push_back(Point<int>(int(i->xr), int(i->yr)));
+      o.push_back(iPoint(int(i->xr), int(i->yr)));
     }
-    o.push_back(Point<int>(int(fig_ref[0].xr), int(fig_ref[0].yr)));
+    o.push_back(iPoint(int(fig_ref[0].xr), int(fig_ref[0].yr)));
 
     o.image_file = filename;
     o.comment.push_back(string("MAP ") + filename);

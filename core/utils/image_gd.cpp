@@ -39,21 +39,21 @@ void ImageDrawContext::DrawText (int x, int y, int color, const char *text) {
     }
 }
 
-void ImageDrawContext::DrawRect (Rect<int> rect, int width, unsigned int color) {
+void ImageDrawContext::DrawRect (iRect rect, int width, unsigned int color) {
     gdImageSetThickness(gd_image, width);
     gdImageRectangle(gd_image, rect.x, rect.y, rect.BRC().x, rect.BRC().y, convertToGD(color));
 }
 
-void ImageDrawContext::DrawFilledRect (Rect<int> rect, unsigned int color) {
+void ImageDrawContext::DrawFilledRect (iRect rect, unsigned int color) {
     gdImageFilledRectangle(gd_image, rect.x, rect.y, rect.BRC().x, rect.BRC().y, convertToGD(color));
 }
 
-void ImageDrawContext::DrawLine (Point<int> a, Point<int> b, int width, unsigned int color) {
+void ImageDrawContext::DrawLine (iPoint a, iPoint b, int width, unsigned int color) {
     gdImageSetThickness(gd_image, width);
     gdImageLine(gd_image, a.x, a.y, b.x, b.y, convertToGD(color));
 }
 
-void ImageDrawContext::DrawCircle (Point<int> center, int radius, int width,
+void ImageDrawContext::DrawCircle (iPoint center, int radius, int width,
                                   int fgc, bool fill, int bgc) {
     if (fill) {
         gdImageFilledArc(gd_image, center.x, center.y, radius, radius,
@@ -86,7 +86,7 @@ ImageDrawContext::~ImageDrawContext() {
     gdImageDestroy(gd_image);
 }
 
-ImageDrawContext * ImageDrawContext::Create (Image<int> * image_) {
+ImageDrawContext * ImageDrawContext::Create (iImage * image_) {
     ImageDrawContext *ctx = new ImageDrawContext ();
     ctx->image = image_;
     ctx->gd_image = gdImageCreateTrueColor (image_->w, image_->h);
@@ -96,13 +96,13 @@ ImageDrawContext * ImageDrawContext::Create (Image<int> * image_) {
     return ctx;
 }
 
-Rect<int> ImageDrawContext::GetTextMetrics (const char * text) {
+iRect ImageDrawContext::GetTextMetrics (const char * text) {
     int brect[8];
     char *fnt = strdup(IMAGE_DRAW_FONT);
     char *txt = strdup(text);
     gdImageStringFT(0, brect, 0, fnt, IMAGE_DRAW_FONT_SIZE, 0, 0, 0, txt);
     delete(fnt); delete(txt);
-    return Rect<int> (brect[6], brect[7], brect[2] - brect[6], brect[3] - brect[7]);
+    return iRect (brect[6], brect[7], brect[2] - brect[6], brect[3] - brect[7]);
 }
 
 

@@ -4,13 +4,18 @@ LDLIBS= -l2d `pkg-config --libs gtkmm-2.4,gthread-2.0`
 
 CPPFLAGS=`pkg-config --cflags gtkmm-2.4`
 
-all: simple_viewer_test1\
+TARGETS=simple_viewer_test1\
      simple_viewer_test2\
      mthread_viewer_test1\
      mthread_viewer_test2\
      simple_rubb_viewer_test1\
      simple_rubb_viewer_test2\
      mthread_rubb_viewer_test1
+
+all: $(TARGETS)
+clean:
+	rm -f -- $(TARGETS)
+	rm -f -- *.o
 
 simple_viewer_test1:  gplane.o simple_viewer.o
 simple_viewer_test2:  gplane.o simple_viewer.o

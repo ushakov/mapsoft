@@ -9,18 +9,18 @@ const int REF_YMOUSE=2;
 class RubberSegment{
 public:
     int        r1, r2;
-    Point<int> p1, p2;
+    iPoint p1, p2;
 
     RubberSegment(
-      const Point<int> & p1_, const int r1_,
-      const Point<int> & p2_, const int r2_): p1(p1_), r1(r1_), p2(p2_), r2(r2_){ }
+      const iPoint & p1_, const int r1_,
+      const iPoint & p2_, const int r2_): p1(p1_), r1(r1_), p2(p2_), r2(r2_){ }
 
-    Point<int> get1(Point<int> pointer, Point<int> offset) const {
-      return Point<int> ((r1 & REF_XMOUSE)? (p1.x+pointer.x) : (p1.x-offset.x),
+    iPoint get1(Point<int> pointer, Point<int> offset) const {
+      return iPoint ((r1 & REF_XMOUSE)? (p1.x+pointer.x) : (p1.x-offset.x),
                             (r1 & REF_YMOUSE)? (p1.y+pointer.y) : (p1.y-offset.y));
     }
-    Point<int> get2(Point<int> pointer, Point<int> offset) const {
-      return Point<int> ((r2 & REF_XMOUSE)? (p2.x+pointer.x) : (p2.x-offset.x),
+    iPoint get2(Point<int> pointer, Point<int> offset) const {
+      return iPoint ((r2 & REF_XMOUSE)? (p2.x+pointer.x) : (p2.x-offset.x),
                             (r2 & REF_YMOUSE)? (p2.y+pointer.y) : (p2.y-offset.y));
     }
 };
@@ -44,9 +44,9 @@ class RubberViewer : public ViewerT {
     if (!ViewerT::on_drag) rubber_clear();
     if (ViewerT::on_drag && event->is_hint){
       int x=(int)event->x, y=(int)event->y;
-      mouse_pos=Point<int>(x,y);
-      ViewerT::set_origin(ViewerT::get_origin() - Point<int>(x,y) + ViewerT::drag_pos);
-      ViewerT::drag_pos = Point<int>(x,y);
+      mouse_pos=iPoint(x,y);
+      ViewerT::set_origin(ViewerT::get_origin() - iPoint(x,y) + ViewerT::drag_pos);
+      ViewerT::drag_pos = iPoint(x,y);
     }
     if (!ViewerT::on_drag){
       ViewerT::get_pointer(mouse_pos.x, mouse_pos.y);
@@ -66,8 +66,8 @@ class RubberViewer : public ViewerT {
 
   void rubber_draw(){
     for (std::list<RubberSegment>::const_iterator i = rubber.begin(); i != rubber.end(); i++){
-      Point<int> p1=i->get1(mouse_pos, ViewerT::get_origin());
-      Point<int> p2=i->get2(mouse_pos, ViewerT::get_origin());
+      iPoint p1=i->get1(mouse_pos, ViewerT::get_origin());
+      iPoint p2=i->get2(mouse_pos, ViewerT::get_origin());
       ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
       drawn.push_back(RubberSegment(p1,0,p2,0));
     }
@@ -75,8 +75,8 @@ class RubberViewer : public ViewerT {
 
   void rubber_clear(){
     for (std::list<RubberSegment>::const_iterator i = drawn.begin(); i != drawn.end(); i++){
-      Point<int> p1=i->p1;
-      Point<int> p2=i->p2;
+      iPoint p1=i->p1;
+      iPoint p2=i->p2;
       ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
     }
     drawn.clear();
@@ -84,14 +84,14 @@ class RubberViewer : public ViewerT {
 
   void rubber_add(const int x1, const int y1, const int r1,
                   const int x2, const int y2, const int r2){
-    rubber.push_back(RubberSegment(Point<int>(x1,y1), r1, Point<int>(x2,y2),r2));
+    rubber.push_back(RubberSegment(iPoint(x1,y1), r1, Point<int>(x2,y2),r2));
   }
-  void rubber_add(const Point<int> & p1, const int r1,
-                  const Point<int> & p2, const int r2){
+  void rubber_add(const iPoint & p1, const int r1,
+                  const iPoint & p2, const int r2){
     rubber.push_back(RubberSegment(p1, r1, p2, r2));
   }
 
-  Point<int> mouse_pos;
+  iPoint mouse_pos;
 
 };
 

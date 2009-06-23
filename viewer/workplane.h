@@ -17,7 +17,7 @@ public:
 
     Workplane (int _tile_size=256);
 
-    Image<int>  get_image(Point<int> tile_key);
+    iImage  get_image(iPoint tile_key);
 
     std::multimap<int, Layer *>::iterator find_layer (Layer * layer);
 
@@ -37,8 +37,8 @@ public:
 
     Workplane & operator/= (double k);
     Workplane & operator*= (double k);
-    Workplane & operator-= (Point<double> k);
-    Workplane & operator+= (Point<double> k);
+    Workplane & operator-= (dPoint k);
+    Workplane & operator+= (dPoint k);
 
     void set_tile_size(int s);
     int get_tile_size();
@@ -50,7 +50,7 @@ private:
     std::map <Layer *, bool> layers_active;
     int tile_size;
 
-    typedef Cache<Point<int>,Image<int> > LayerCache;
+    typedef Cache<iPoint,iImage> LayerCache;
     std::map<Layer *, boost::shared_ptr<LayerCache> > tile_cache;
 };
 

@@ -30,12 +30,12 @@ void usage(){
 }
 
 //координаты угла единичного квадрата по его номеру
-Point<int> crn (int k){
+iPoint crn (int k){
   k%=4;
-  return Point<int>(k/2, (k%3>0)?1:0);
+  return iPoint(k/2, (k%3>0)?1:0);
 }
 //направление следующей за углом стороны (единичный вектор)
-Point<int> dir (int k){
+iPoint dir (int k){
   return crn(k+1)-crn(k);
 }
 
@@ -60,7 +60,7 @@ main(int argc, char** argv){
   convs::map2pt fig_cnv(fig_ref, Datum("wgs84"), Proj("lonlat"));
 
   // диапазон картинки в lonlat
-  Rect<double> range = fig_ref.range();
+  dRect range = fig_ref.range();
   int lon1  = int(floor(1200*range.TLC().x));
   int lon2  = int( ceil(1200*range.BRC().x));
   int lat1  = int(floor(1200*range.TLC().y));
@@ -81,20 +81,20 @@ main(int argc, char** argv){
     cerr << "Рисование горизонталей по данным srtm\n";
 
     cerr << "находим кусочки горизонталей: ";
-    map<short, MultiLine<double> > hors;
+    map<short, dMultiLine> hors;
     int count = 0; 
     for (int lat=lat2; lat>lat1; lat--){
       for (int lon=lon1; lon<lon2; lon++){
   
-        Point<int> p(lon,lat);
+        iPoint p(lon,lat);
         // пересечения четырех сторон клетки с горизонталями:
         // при подсчетах мы опустим все данные на полметра,
         // чтоб не разбирать кучу случаев с попаданием горизонталей в узлы сетки
         multimap<short, double> pts;
   
         for (int k=0; k<4; k++){
-          Point<int> p1 = p+crn(k);
-          Point<int> p2 = p+crn(k+1);
+          iPoint p1 = p+crn(k);
+          iPoint p2 = p+crn(k+1);
           short h1 = s.geth(p1);
           short h2 = s.geth(p2);
           if ((h1<srtm_min) || (h2<srtm_min)) continue;
@@ -137,15 +137,15 @@ main(int argc, char** argv){
     count = 0; 
     cerr << "  сливаем кусочки горизонталей в линии: ";
     fig::fig_object o = fig::make_object("2 1 0 1 30453904 7 90 -1 -1 0.000 1 1 0 0 0 0");
-    for(map<short, MultiLine<double> >::iterator im = hors.begin(); im!=hors.end(); im++){
+    for(map<short, dMultiLine>::iterator im = hors.begin(); im!=hors.end(); im++){
       std::cerr << im->first << " ";
       merge(im->second, 1e-4);
       generalize(im->second, acc/6380000/2/M_PI*180.0);
       split(im->second, 200);
-      MultiLine<double> tmp;
+      dMultiLine tmp;
       crop_lines(im->second, tmp, border_ll, true);
 
-      for(MultiLine<double>::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
+      for(dMultiLine::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
         if (iv->size()<3) continue;
         o.clear();
         if (im->first%step2==0) o.thickness = 2;
@@ -179,23 +179,23 @@ main(int argc, char** argv){
     int count = 0;
     std::cerr << "ищем вершины: ";
     
-    set<Point<int> > done;
+    set<iPoint> done;
     for (int lat=lat2; lat>lat1; lat--){
       for (int lon=lon1; lon<lon2-1; lon++){
   
-        Point<int> p(lon,lat);
+        iPoint p(lon,lat);
         if (done.find(p)!=done.end()) continue;
         short h = s.geth(p);
         if (h<srtm_min) continue;
   
-        set<Point<int> > pts; pts.insert(p);
-        set<Point<int> > brd = border(pts);
+        set<iPoint> pts; pts.insert(p);
+        set<iPoint> brd = border(pts);
         // ищем максимум границы
   
         do{
           short max = srtm_undef;
-          Point<int> maxpt;
-          for (set<Point<int> >::const_iterator i = brd.begin(); i!=brd.end(); i++){
+          iPoint maxpt;
+          for (set<iPoint>::const_iterator i = brd.begin(); i!=brd.end(); i++){
             short h1 = s.geth(*i);
             // исходная точка слишком близка к краю данных
             if ((h1<srtm_min) && (pdist(*i,p)<1.5)) {max = h1; break;}
@@ -230,11 +230,11 @@ main(int argc, char** argv){
   else if (cmd == "holes"){
     // поиск дырок
     cerr << "ищем дырки srtm: ";
-    set<Point<int> > aset;
-    MultiLine<double> aline;
+    set<iPoint> aset;
+    dMultiLine aline;
     for (int lat=lat2; lat>lat1; lat--){
       for (int lon=lon1; lon<lon2-1; lon++){
-        Point<int> p(lon,lat);
+        iPoint p(lon,lat);
         short h = s.geth(p);
         g_point p1 = g_point(p)/1200.0;
         if ((h==srtm_undef)&&test_pt(p1, border_ll)) aset.insert(p);
@@ -243,7 +243,7 @@ main(int argc, char** argv){
     cerr << aset.size() << " точек\n";
     cerr << " преобразуем множество точек в многоугольники: ";
     aline = pset2line(aset);
-    for(MultiLine<double>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+    for(dMultiLine::iterator iv = aline.begin(); iv!=aline.end(); iv++){
       if (iv->size()<3) continue;
       g_line l = fig_cnv.line_bck((*iv)/1200.0);
       fig::fig_object o = fig::make_object("2 3 0 0 0 4 110 -1 20 0.000 0 0 -1 0 0 0");
@@ -266,10 +266,10 @@ main(int argc, char** argv){
 
   for (int lat=lat2; lat>lat1; lat--){
     for (int lon=lon1; lon<lon2-1; lon++){
-      Point<int> p(lon,lat);
+      iPoint p(lon,lat);
       short h = s.geth(p);
-      short hx = s.geth(p+Point<int>(1,0));
-      short hy = s.geth(p+Point<int>(0,1));
+      short hx = s.geth(p+iPoint(1,0));
+      short hy = s.geth(p+iPoint(0,1));
       if ((h<srtm_min) || (hx<srtm_min) || (hy<srtm_min)) continue;
       g_point gr(double(hx-h)/londeg, double(hy-h)/latdeg);
       double a = atan(pdist(gr))*180/M_PI;
@@ -280,7 +280,7 @@ main(int argc, char** argv){
 
   cerr << " преобразуем множество точек в многоугольники: ";
   aline = pset2line(aset);
-  for(MultiLine<double>::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+  for(dMultiLine::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
     g_line l = (*iv)/1200.0;
     mp::mp_object mpo;
@@ -299,10 +299,10 @@ main(int argc, char** argv){
 
   // обрезание mp-файла - унести в какую-нибудь библиотеку!
   for(mp::mp_world::iterator i = MP.begin(); i!=MP.end(); i++){
-    MultiLine<double> lines; lines.push_back(*i);
+    dMultiLine lines; lines.push_back(*i);
     crop_lines(lines, brdll);
     i->clear();
-    for (MultiLine<double>::iterator j = lines.begin(); j != lines.end(); j++){
+    for (dMultiLine::iterator j = lines.begin(); j != lines.end(); j++){
       mp::mp_object o = *i;
       o.insert(o.begin(), j->begin(), j->end());
       MP.insert(i, o);

@@ -33,7 +33,7 @@ bool read(const char* filename, fig_world & world, const Options & opts){
   fig_world ret;
 
   fig_object o, o0;
-  Point<int> p;
+  iPoint p;
   std::vector<std::string> comment;
 
   int color_num=0;

@@ -321,11 +321,11 @@ g_map & g_map::operator+= (g_point k){
 void g_map::ensure_border() {
   if (border.size() != 0) return;
   if (file == "") return;
-  Point<int> size = image_r::size(file.c_str());
-  border.push_back(Point<int>(0,0));
-  border.push_back(Point<int>(0,size.y));
-  border.push_back(Point<int>(size.x,size.y));
-  border.push_back(Point<int>(size.x,0));
+  iPoint size = image_r::size(file.c_str());
+  border.push_back(iPoint(0,0));
+  border.push_back(iPoint(0,size.y));
+  border.push_back(iPoint(size.x,size.y));
+  border.push_back(iPoint(size.x,0));
 }
 
 /// get range in lon-lat coords

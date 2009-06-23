@@ -5,8 +5,8 @@
 int main(int argc, char **argv){
   if (argc<=1) std::cout << "lat: 0 0 lon: 0 0";
   else { 
-    Rect<double> brd = convs::nom_range(argv[1]);
-    Point<double> p1 = brd.TLC(), p2 = brd.TRC(), p3 = brd.BRC(), p4 = brd.BLC();
+    dRect brd = convs::nom_range(argv[1]);
+    dPoint p1 = brd.TLC(), p2 = brd.TRC(), p3 = brd.BRC(), p4 = brd.BLC();
     convs::pt2pt c(Datum("pulkovo"), Proj("lonlat"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
     c.frw(p1); c.frw(p2);     c.frw(p3); c.frw(p4);
     std::cout << std::fixed 

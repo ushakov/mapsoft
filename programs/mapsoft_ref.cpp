@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
             o.clear();
             o.comment.clear();
             o.comment.push_back(st.str());
-            o.push_back(Point<int>((*i)[n].x,(*i)[n].y));
+            o.push_back(iPoint((*i)[n].x,(*i)[n].y));
             F.push_back(o);
           }
         }

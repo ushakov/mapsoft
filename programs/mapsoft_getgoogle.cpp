@@ -55,7 +55,7 @@ main(int argc, char **argv){
 
     int w=int((X2-X1)/m_per_pt);
     int h=int((Y2-Y1)/m_per_pt);
-    Image<int> im = ml.get_image (Rect<int>(0,0,w,h));
+    iImage im = ml.get_image (iRect(0,0,w,h));
     image_r::save(im, "out_g.jpg", O);
 
 }

@@ -26,7 +26,7 @@ public:
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(Point<int> p) {
+    virtual void handle_click(iPoint p) {
 	std::cout << "ADDWPT: " << p << std::endl;
 
 	LayerGeoData * layer;

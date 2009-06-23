@@ -47,7 +47,7 @@ bm_map::~bm_map(){
 #define XCP4d(i,j) (MAP(i,j).x0 + MAP(i,j).sx * MAP(i,j).x4 + MAP(i,j).kx * MAP(i,j).y4)
 #define YCP4d(i,j) (MAP(i,j).y0 + MAP(i,j).sy * MAP(i,j).y4 + MAP(i,j).ky * MAP(i,j).x4)
 
-int bm_map::add(Image<int> image, int i, int j,
+int bm_map::add(iImage image, int i, int j,
        int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4){
 
 
@@ -362,7 +362,7 @@ int bm_map::add(Image<int> image, int i, int j,
 }
 
 /*********************************************************************/
-Image<int> bm_map::make(){
+iImage bm_map::make(){
 
   int i,j, x,y;
   int maxval, format;
@@ -427,7 +427,7 @@ Image<int> bm_map::make(){
   int w=int(ceil(xmax-xmin)+1);
   int h=int(ceil(ymax-ymin)+1);
 
-  Image<int> ret(w,h);
+  iImage ret(w,h);
 
   for (j=1; j <= ny; j++ ){
     for (i=1; i <= nx; i++){

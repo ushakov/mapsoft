@@ -138,8 +138,8 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
       if (S_ISREG(st.st_mode)) continue; //файл существует
 
       int S = int(tsize*k);
-      Image<int> im(S,S);
-      ml.draw (Point<int>(S*(x-tminx),S*(tmaxy-y-1)), im);
+      iImage im(S,S);
+      ml.draw (iPoint(S*(x-tminx),S*(tmaxy-y-1)), im);
       image_r::save(im, (dir.str()+file.str()).c_str(), Options());
     }
     }
@@ -250,12 +250,12 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
 
     t=tl->begin();
     do {
-      vector<Point<int> > pts;
+      vector<iPoint> pts;
       g_track def_t;
       do{
         g_point p(t->x, t->y);
         cnv.bck(p);
-	pts.push_back(Point<int>(int((p.x-minx)*kf),int((maxy-p.y)*kf)));
+	pts.push_back(iPoint(int((p.x-minx)*kf),int((maxy-p.y)*kf)));
         t++;
       } while ((t!=tl->end())&&(!t->start));
 
@@ -270,7 +270,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   
       out << "2 1 0 " << trk_width << " " << trk_color << " 7 " << trk_depth 
           << " 0 -1 1 0 0 -1 0 0 " << pts.size() << "\n";
-      for (vector<Point<int> >::const_iterator p1=pts.begin(); p1!=pts.end(); p1++)
+      for (vector<iPoint>::const_iterator p1=pts.begin(); p1!=pts.end(); p1++)
         out << "\t" << p1->x << " " << p1->y << "\n";
     } while (t!=tl->end());
   }

@@ -5,7 +5,7 @@
 
 SimpleViewer::SimpleViewer(GPlane * pl) :
     plane(pl),
-    origin(Point<int>(0,0)),
+    origin(iPoint(0,0)),
     on_drag(false) {
   set_name("MapsoftViewer");
   add_events (
@@ -16,12 +16,12 @@ SimpleViewer::SimpleViewer(GPlane * pl) :
     Gdk::POINTER_MOTION_HINT_MASK );
 }
 
-void SimpleViewer::set_origin (const Point<int> & new_origin) {
+void SimpleViewer::set_origin (const iPoint & new_origin) {
   get_window()->scroll(origin.x-new_origin.x, origin.y-new_origin.y);
   origin = new_origin;
 }
 
-Point<int> SimpleViewer::get_origin (void) const {
+iPoint SimpleViewer::get_origin (void) const {
   return origin;
 }
 
@@ -33,12 +33,12 @@ GPlane * SimpleViewer::get_plane (void) const{
   return plane;
 }
 
-void SimpleViewer::draw(const Rect<int> & r){
+void SimpleViewer::draw(const iRect & r){
   if (r.empty()) return;
   draw_image(plane->draw(r + origin), r.TLC());
 }
 
-void SimpleViewer::draw_image (const Image<int> & img, const Point<int> & p){
+void SimpleViewer::draw_image (const iImage & img, const iPoint & p){
   Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
   Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
   Glib::RefPtr<Gdk::Window> widget = get_window();
@@ -52,7 +52,7 @@ bool SimpleViewer::on_expose_event (GdkEventExpose * event){
   int nrects;
   gdk_region_get_rectangles(event->region, &rects, &nrects);
   for (int i = 0; i < nrects; ++i) {
-    Rect<int> r(rects[i].x, rects[i].y, rects[i].width, rects[i].height);
+    iRect r(rects[i].x, rects[i].y, rects[i].width, rects[i].height);
     draw(r);
   }
   g_free(rects);
@@ -61,7 +61,7 @@ bool SimpleViewer::on_expose_event (GdkEventExpose * event){
 
 bool SimpleViewer::on_button_press_event (GdkEventButton * event) {
   if (event->button == 1){
-    drag_pos = Point<int>((int)event->x, (int)event->y);
+    drag_pos = iPoint((int)event->x, (int)event->y);
     on_drag=true;
   }
   return false;
@@ -80,8 +80,8 @@ bool SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
 
   if ((event->state & Gdk::BUTTON1_MASK) &&
       (event->is_hint)){
-    set_origin(origin - Point<int>(x,y) + drag_pos);
-    drag_pos = Point<int>(x,y);
+    set_origin(origin - iPoint(x,y) + drag_pos);
+    drag_pos = iPoint(x,y);
   }
   return false;
 }

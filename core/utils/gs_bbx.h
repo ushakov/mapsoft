@@ -55,12 +55,12 @@ struct gs_bbx{
     write(in_pipe[1], str, strlen(str));
   }
 
-  Rect<double> get() const {
+  dRect get() const {
     char c; std::string s;
     while (read(out_pipe[0], &c, 1)!=1); // ждем
     do { s.push_back(c); } while (read(out_pipe[0], &c, 1)==1);
     using namespace boost::spirit;
-    Rect<double> ret;
+    dRect ret;
     if ( !parse(s.c_str(), 
         str_p("%%BoundingBox:") >> +space_p >> 
         int_p >> +space_p >> int_p >> +space_p >> 
@@ -85,23 +85,23 @@ struct gs_bbx{
   }
 
   // в координатах postscript'a
-  Rect<double> txt2bbx(const char * text) const{
+  dRect txt2bbx(const char * text) const{
     puts("500 500 moveto (");
     for (int i = 0; i< strlen(text); i++){
       if ((text[i]==')')||(text[i]=='\\')) putc('\\');
       putc(text[i]);
     }
     puts(") show showpage\n");
-    return (get()-Point<double>(500,500));
+    return (get()-dPoint(500,500));
   }
 
   // в координатах fig'a
-  Rect<int> txt2bbx_fig(const char * text) const{
-    Rect<double> r = txt2bbx(text) * 1200/72*1.05;
-    return Rect<int>(int(r.x), int(-r.y-r.h), int(r.w), int(r.h));
+  iRect txt2bbx_fig(const char * text) const{
+    dRect r = txt2bbx(text) * 1200/72*1.05;
+    return iRect(int(r.x), int(-r.y-r.h), int(r.w), int(r.h));
   }
 
-  Rect<double> file2bbx(const char *file) const{
+  dRect file2bbx(const char *file) const{
     puts("(");
     puts(file);
     puts(") (r) open run");
@@ -109,9 +109,9 @@ struct gs_bbx{
   }
 
   // в координатах fig'a
-  Rect<int> file2bbx_fig(const char * file) const{
-    Rect<double> r = file2bbx(file) * 1200/72*1.05;
-    return Rect<int>(int(r.x), int(-r.y-r.h), int(r.w), int(r.h));
+  iRect file2bbx_fig(const char * file) const{
+    dRect r = file2bbx(file) * 1200/72*1.05;
+    return iRect(int(r.x), int(-r.y-r.h), int(r.w), int(r.h));
   }
  
   ~gs_bbx(){

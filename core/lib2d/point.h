@@ -6,6 +6,7 @@
 #include <ios>
 #include <cmath> // for rint
 
+
 template <typename T>
 struct Point
 #ifndef SWIG
@@ -110,5 +111,9 @@ std::istream & operator>> (std::istream & s, Point<T> & p){
   s.setstate(std::ios::goodbit);
   return s;
 }
+
+typedef Point<double> dPoint;
+typedef Point<int>    iPoint;
+
 
 #endif /* POINT_H */

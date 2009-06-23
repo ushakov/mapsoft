@@ -34,7 +34,7 @@ int main(){
 
 std::cerr << " * Points\n";
 
-  Point<double> p(1,2);
+  dPoint p(1,2);
   cast_test("1,2",   p, true);
   cast_test("1, 2",   p, true);
   cast_test("1 ,2",   p, true);
@@ -48,10 +48,10 @@ std::cerr << " * Points\n";
 
 std::cerr << " * Lines\n";
 
-  Line<double> l1,l2;
-  l1.push_back(Point<double>(1.1,2.2));
-  l2.push_back(Point<double>(1.1,2.2));
-  l2.push_back(Point<double>(3.1,4.2));
+  dLine l1,l2;
+  l1.push_back(dPoint(1.1,2.2));
+  l2.push_back(dPoint(1.1,2.2));
+  l2.push_back(dPoint(3.1,4.2));
 
   cast_test("1.1,2.2",   l1, true);
   cast_test("1.1,2.2,3.1,4.2",  l2, true);
@@ -66,15 +66,15 @@ std::cerr << " * Lines\n";
 
 std::cerr << " * Rects\n";
 
-  Rect<double> r1(100,110,    12,23);
-  Rect<double> r2(-100, -120, 12,23);
+  dRect r1(100,110,    12,23);
+  dRect r2(-100, -120, 12,23);
   cast_test("12x23+100+110",   r1, true);
   cast_test("12x23-100-120",   r2, true);
   cast_test("12x23+-100+-120", r2, true);
   cast_test("12x23+-100+-120,", r2, false);
   cast_test("12x23?100", r1, false);
 
-  cast_test(Point<double>(1.1,2.2), l1, true);
+  cast_test(dPoint(1.1,2.2), l1, true);
 
 std::cerr << " * Datum\n";
 

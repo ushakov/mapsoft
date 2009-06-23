@@ -30,7 +30,7 @@ public:
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(Point<int> p) {
+    virtual void handle_click(iPoint p) {
 	std::cout << "ADDTRACK: " << p << std::endl;
 
 	if (new_track.size() == 0){ // первое тыканье
@@ -68,7 +68,7 @@ public:
           cnv.bck(p1); cnv.bck(p2);
 	  viewer->rubber.add_line(p1,false, p2,false);
         }
-	viewer->rubber.add_line(p,false, Point<int>(0,0),true);
+	viewer->rubber.add_line(p,false, iPoint(0,0),true);
 
     }
 

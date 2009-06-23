@@ -7,10 +7,10 @@
 
 int main(){
 
-  Image<int> a = image_tiff::load("tst1.tif");
+  iImage a = image_tiff::load("tst1.tif");
   std::cerr << a.range() << "\n";
 
-//  image_tiff::save(a, Rect<int>(-100,-100,200,200),"tst2.tif");
+//  image_tiff::save(a, iRect(-100,-100,200,200),"tst2.tif");
   image_tiff::save(a,"tst2.tif");
 
 }

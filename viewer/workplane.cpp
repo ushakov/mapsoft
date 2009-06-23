@@ -5,9 +5,9 @@
 
 Workplane::Workplane (int _tile_size): tile_size(_tile_size) { }
 
-Image<int>  Workplane::get_image(Point<int> tile_key){
-	Image<int> image(tile_size,tile_size, 0xff000000); // черная картинка-основа
-	Rect<int> src_rect = image.range() + tile_key*tile_size;
+iImage  Workplane::get_image(iPoint tile_key){
+	iImage image(tile_size,tile_size, 0xff000000); // черная картинка-основа
+	iRect src_rect = image.range() + tile_key*tile_size;
 
 //	std::cerr << "WP: drawing " << src_rect << "\n";
 	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin(); itl != layers.rend();  ++itl){
@@ -16,7 +16,7 @@ Image<int>  Workplane::get_image(Point<int> tile_key){
 		if (!tile_cache[layer]->contains(tile_key)) {
 		    tile_cache[layer]->add(tile_key, layer->get_image(src_rect));
 		}
-		Image<int>& tile = tile_cache[layer]->get(tile_key);
+		iImage& tile = tile_cache[layer]->get(tile_key);
 		if (tile.w != 0) {
 		    image.render(0,0,tile);
 		}
@@ -120,14 +120,14 @@ Workplane & Workplane::operator*= (double k){
 	    tile_cache[itl->second]->clear();
 	}
 }
-Workplane & Workplane::operator-= (Point<double> k){ 
+Workplane & Workplane::operator-= (dPoint k){ 
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
             (*itl->second)-=k;
 	    tile_cache[itl->second]->clear();
 	}
 }
-Workplane & Workplane::operator+= (Point<double> k){ 
+Workplane & Workplane::operator+= (dPoint k){ 
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
             (*itl->second)+=k;

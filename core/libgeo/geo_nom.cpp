@@ -12,7 +12,7 @@ namespace convs{
 using namespace std;
 
 // по названию листа возвращает диапазон геодезических координат в СК pulkovo-42
-Rect<double> nom_range(const string & key){
+dRect nom_range(const string & key){
     using namespace boost::spirit;
 
     string a  = " ";
@@ -52,7 +52,7 @@ Rect<double> nom_range(const string & key){
 
     if (!parse(key1.c_str(), (map_p_s || map_a_o) >> *anychar_p).full) {
       cerr << "map_nom_brd: can't parse " << key << "\n";
-      return Rect<double>(0,0,0,0);
+      return dRect(0,0,0,0);
     }
 
     char ac='a';
@@ -62,7 +62,7 @@ Rect<double> nom_range(const string & key){
     else if ((ac>='a')&&(ac <= 't')) ac-='a';
     else {
       cerr << "map_nom_brd: can't parse " << key << " (" << ac << ")\n";
-      return Rect<double>(0,0,0,0);
+      return dRect(0,0,0,0);
     }
 
     double lat1,lat2,lon1,lon2;
@@ -71,7 +71,7 @@ Rect<double> nom_range(const string & key){
 
     if ((b<1)||(b>=60)) {
       cerr << "map_nom_brd: can't parse " << key << " (" << b << ")\n";
-      return Rect<double>(0,0,0,0);
+      return dRect(0,0,0,0);
     }
 
     lon1 = b*6 - 186; lon2=lon1+6;
@@ -114,11 +114,11 @@ Rect<double> nom_range(const string & key){
     }
     if (m==2) lon2+=lon2-lon1;
 
-    return Rect<double>(Point<double>(lon1,lat1), Point<double>(lon2,lat2));
+    return dRect(dPoint(lon1,lat1), Point<double>(lon2,lat2));
 }
 
 // по координатам в СК pulkovo-42 возвращает название листа
-string nom_name(const Point<double> & p, int sc){
+string nom_name(const dPoint & p, int sc){
     if ((p.x <-180) || (p.x>180) || (p.y<0) || (p.y>90)){
       cerr << "nom_name: point coordinates out or range: " << p << "\n";
       exit(1);

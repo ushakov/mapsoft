@@ -18,7 +18,7 @@ main(int argc, char **argv){
 
   fig::fig_world::iterator o = W.begin();
 
-  Rect<int> cutter;
+  iRect cutter;
 
   fig::fig_world W1;
 
@@ -28,7 +28,7 @@ main(int argc, char **argv){
         (o->type == 2) &&
         ((o->sub_type == 2) || (o->sub_type == 5)) &&
         (o->size() > 3)){
-      cutter = Rect<int>((*o)[0], (*o)[2]);
+      cutter = iRect((*o)[0], (*o)[2]);
       W1.push_back(*o);
       o=W.erase(o);
       o++;

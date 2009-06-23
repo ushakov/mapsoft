@@ -23,7 +23,7 @@ main(int argc, char **argv){
   for (fig_world::iterator i=W1.begin(); i!=W1.end(); i++){
     if (i->type!=4) continue;
     G.set_font(int(i->font_size), fontnames[i->font].c_str());
-    Rect<int> r = G.txt2bbx_fig(i->text.c_str());
+    iRect r = G.txt2bbx_fig(i->text.c_str());
 
     fig_object o = make_object("2 2 0 0 4 4 1 -1 20 0.000 0 1 7 0 0 5");
     o.clear();

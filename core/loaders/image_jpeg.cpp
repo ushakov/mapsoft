@@ -17,7 +17,7 @@ void my_error_exit (j_common_ptr cinfo) {
 }
 
 // getting file dimensions
-Point<int> size(const char *file){
+iPoint size(const char *file){
     struct jpeg_decompress_struct cinfo;
     struct my_error_mgr jerr;
     cinfo.err = jpeg_std_error(&jerr.pub);
@@ -28,26 +28,26 @@ Point<int> size(const char *file){
 
     if ((infile = fopen(file, "rb")) == NULL) {
         std::cerr << "Can't open " << file << "\n";
-        return Point<int>(0,0);
+        return iPoint(0,0);
     }
 
     if (setjmp(jerr.setjmp_buffer)) {
       jpeg_destroy_decompress(&cinfo);
       fclose(infile);
-      return Point<int>(0,0);
+      return iPoint(0,0);
     }
 
     jpeg_stdio_src(&cinfo, infile);
     jpeg_read_header(&cinfo, TRUE);
-    Point<int> p(cinfo.image_width, cinfo.image_height);
+    iPoint p(cinfo.image_width, cinfo.image_height);
     jpeg_destroy_decompress(&cinfo);
     fclose(infile);
     return p;
 }
 
 // loading from Rect in jpeg-file to Rect in image
-int load(const char *file, Rect<int> src_rect, 
-         Image<int> & image, Rect<int> dst_rect){
+int load(const char *file, iRect src_rect, 
+         iImage & image, iRect dst_rect){
 
     // откроем файл, получим размеры:
     struct jpeg_decompress_struct cinfo;
@@ -78,8 +78,8 @@ int load(const char *file, Rect<int> src_rect,
 
     // подрежем прямоугольники
     clip_rects_for_image_loader(
-      Rect<int>(0,0,jpeg_w,jpeg_h), src_rect,
-      Rect<int>(0,0,image.w,image.h), dst_rect);
+      iRect(0,0,jpeg_w,jpeg_h), src_rect,
+      iRect(0,0,image.w,image.h), dst_rect);
     if (src_rect.empty() || dst_rect.empty()) return 1;
     
     // посмотрим, можно ли загружать сразу уменьшенный jpeg
@@ -134,7 +134,7 @@ int load(const char *file, Rect<int> src_rect,
 
 
 // save part of image
-int save(const Image<int> & im, const Rect<int> & src_rect, 
+int save(const iImage & im, const iRect & src_rect, 
          const char *file, int quality){
 
     if ((quality<0)||(quality>100)){
@@ -187,16 +187,16 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
 }
 
 // load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
-Image<int> load(const char *file, const int scale){
-  Point<int> s = size(file);
-  Image<int> ret(s.x/scale,s.y/scale);
+iImage load(const char *file, const int scale){
+  iPoint s = size(file);
+  iImage ret(s.x/scale,s.y/scale);
   if (s.x*s.y==0) return ret;
-  load(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
+  load(file, iRect(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
   return ret;
 }
 
 // save the whole image
-int save(const Image<int> & im, const char * file, int quality){
+int save(const iImage & im, const char * file, int quality){
   return save(im, im.range(), file, quality);
 }
 

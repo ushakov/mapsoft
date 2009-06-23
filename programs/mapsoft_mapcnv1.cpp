@@ -57,7 +57,7 @@ main(int argc, char **argv){
 
     int w=int((X2-X1)*k);
     int h=int((Y2-Y1)*k);
-    Image<int> im = ml.get_image (Rect<int>(0,0,w,h));
+    iImage im = ml.get_image (iRect(0,0,w,h));
     image_r::save(im, "out.jpg", O);
     ref.file = "out.jpg";
     std::ofstream f("out.map");

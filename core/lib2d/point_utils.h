@@ -17,9 +17,9 @@ double pdist(const Point<T> & p1, const Point<T> & p2){
   return pdist(p1-p2);
 }
 template <typename T>
-Point<double> pnorm(const Point<T> & p){
+dPoint pnorm(const Point<T> & p){
   double l = pdist(p);
-  return Point<double>(double(p.x)/l, double(p.y/l));
+  return dPoint(double(p.x)/l, double(p.y/l));
 }
 
 #endif /* POINT_UTILS_H */

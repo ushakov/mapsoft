@@ -31,7 +31,7 @@ typedef std::string id_t;
 */
 struct object{
   Options                  opts;
-  MultiLine<double>        data;
+  dMultiLine        data;
   std::vector<std::string> comm;
 };
 
@@ -54,7 +54,7 @@ std::istream & operator<< (std::ostream & s, const object & o);
   * angle in degrees
 */
 
-struct label_pos : Point<double>{
+struct label_pos : dPoint{
   double angle;
 };
 

@@ -10,9 +10,9 @@ class MThreadViewer : public SimpleViewer {
     MThreadViewer(GPlane * pl);
     ~MThreadViewer();
 
-    void updater(const Rect<int> & r);
+    void updater(const iRect & r);
     void on_done_signal();
-    void draw(const Rect<int> & r);
+    void draw(const iRect & r);
 
     void set_fast_plane();
     void set_fast_plane(GPlane * pl);
@@ -24,7 +24,7 @@ class MThreadViewer : public SimpleViewer {
     GPlane *slow_plane;
     GPlaneSolidFill default_fast_plane;
 
-    std::map<Point<int>,Image<int> > done_cache;
+    std::map<iPoint,iImage> done_cache;
     Glib::Dispatcher          done_signal;
     Glib::Mutex              *mutex;
 };

@@ -11,7 +11,7 @@ const extern int GCoordMax;
 
 class GPlane{
   public:
-  virtual Image<int> draw(const Rect<int> &range) const = 0;
+  virtual iImage draw(const iRect &range) const = 0;
 };
 
 
@@ -19,26 +19,26 @@ class GPlane{
 // here are some simple planes for test purposes
 
 class GPlaneTestTile: public GPlane{
-  Image<int> draw(const Rect<int> &range) const;
+  iImage draw(const iRect &range) const;
 };
 
 class GPlaneTestTileSlow: public GPlane{
-  Image<int> draw(const Rect<int> &range) const;
+  iImage draw(const iRect &range) const;
 };
 
 class GPlaneSolidFill: public GPlane{
   int color;
   public:
   GPlaneSolidFill(int c=0xFF000000): color(c) {}
-  Image<int> draw(const Rect<int> &range) const;
+  iImage draw(const iRect &range) const;
 };
 
 class GPlaneTestGrid: public GPlane{
-  Image<int> draw(const Rect<int> &range) const;
+  iImage draw(const iRect &range) const;
 };
 
 class GPlaneTestGridSlow: public GPlane{
-  Image<int> draw(const Rect<int> &range) const;
+  iImage draw(const iRect &range) const;
 };
 
 #endif

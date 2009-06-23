@@ -43,9 +43,9 @@ public:
 
     virtual void refresh(){}
 
-    virtual void draw (Point<int> origin, Image<int> & image){
-        Rect<int> dst_rect = image.range() + origin;
-        Rect<int> src_rect = cnv.bb_bck(dst_rect);
+    virtual void draw (iPoint origin, iImage & image){
+        iRect dst_rect = image.range() + origin;
+        iRect src_rect = cnv.bb_bck(dst_rect);
 
 
 #ifdef DEBUG_LAYER_KS
@@ -64,13 +64,13 @@ public:
 	int sc = int(sc_x<sc_y? sc_x:sc_y);
 	if (sc <=0) sc = 1;
         
-	Image<int> im0 = ks::load(dir, scale, src_rect, sc, do_download);
+	iImage im0 = ks::load(dir, scale, src_rect, sc, do_download);
         new_cnv.image_frw(im0, sc, dst_rect, image, image.range());
     }
 
 
-    virtual Rect<int> range (){
-	return Rect<int>(0,0,256*(1<<(scale-1)), 256*(1<<(scale-1)));
+    virtual iRect range (){
+	return iRect(0,0,256*(1<<(scale-1)), 256*(1<<(scale-1)));
     }
 
     void set_downloading (bool downloading)

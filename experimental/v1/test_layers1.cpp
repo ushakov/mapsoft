@@ -8,7 +8,7 @@ int main(int argc, char **argv){
   Workplane workplane;
   workplane.add_layer(&lcg, 1);
 
-  workplane.get_image(Point<int>(-25,0));
-  workplane.get_image(Point<int>(-25,1));
+  workplane.get_image(iPoint(-25,0));
+  workplane.get_image(iPoint(-25,1));
 }
 

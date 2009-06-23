@@ -4,12 +4,12 @@
 namespace image_png{
 
 // getting file dimensions
-Point<int> size(const char *file){
+iPoint size(const char *file){
 
     FILE * infile;
     if ((infile = fopen(file, "rb")) == NULL) {
         std::cerr << "Can't open " << file << "\n";
-        return Point<int>(0,0);
+        return iPoint(0,0);
     }
 
     png_byte sign[8];
@@ -18,7 +18,7 @@ Point<int> size(const char *file){
         (png_sig_cmp(sign, 0, sign_size)!=0)){
         std::cerr << "Not a PNG file: " << file << "\n";
         fclose(infile);
-        return Point<int>(0,0);
+        return iPoint(0,0);
     }
 
     png_structp png_ptr = png_create_read_struct
@@ -26,7 +26,7 @@ Point<int> size(const char *file){
     if (!png_ptr){
         std::cerr << "Can't make png_read_struct\n";
         fclose(infile);
-        return Point<int>(0,0);
+        return iPoint(0,0);
     }
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
@@ -36,14 +36,14 @@ Point<int> size(const char *file){
         png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
         std::cerr << "Can't make png_info_struct\n";
         fclose(infile);
-        return Point<int>(0,0);
+        return iPoint(0,0);
     }
 
     if (setjmp(png_jmpbuf(png_ptr))){
         png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
         std::cerr << "Can't read PNG file\n";
         fclose(infile);
-        return Point<int>(0,0);
+        return iPoint(0,0);
     }
 
     png_init_io(png_ptr, infile);
@@ -55,12 +55,12 @@ Point<int> size(const char *file){
 
     png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
     fclose(infile);
-    return Point<int>(width, height);
+    return iPoint(width, height);
 }
 
 // loading from Rect in file to Rect in image
-int load(const char *file, Rect<int> src_rect, 
-         Image<int> & image, Rect<int> dst_rect){
+int load(const char *file, iRect src_rect, 
+         iImage & image, iRect dst_rect){
 
     FILE * infile;
     if ((infile = fopen(file, "rb")) == NULL)
@@ -106,8 +106,8 @@ int load(const char *file, Rect<int> src_rect,
 
     // подрежем прямоугольники
     clip_rects_for_image_loader(
-      Rect<int>(0,0,width,height), src_rect,
-      Rect<int>(0,0,image.w,image.h), dst_rect);
+      iRect(0,0,width,height), src_rect,
+      iRect(0,0,image.w,image.h), dst_rect);
     if (src_rect.empty() || dst_rect.empty()) return 1;
 
     // зададим преобразования
@@ -197,7 +197,7 @@ int load(const char *file, Rect<int> src_rect,
 }
 
 // save part of image
-int save(const Image<int> & im, const Rect<int> & src_rect, 
+int save(const iImage & im, const iRect & src_rect, 
          const char *file){
 
     FILE *outfile = fopen(file, "wb");
@@ -254,15 +254,15 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
 }
 
 // load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
-Image<int> load(const char *file, const int scale){
-  Point<int> s = size(file);
-  Image<int> ret(s.x/scale,s.y/scale);
+iImage load(const char *file, const int scale){
+  iPoint s = size(file);
+  iImage ret(s.x/scale,s.y/scale);
   if (s.x*s.y==0) return ret;
-  load(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
+  load(file, iRect(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
   return ret;
 }
 
-int save(const Image<int> & im, const char * file){
+int save(const iImage & im, const char * file){
   return save(im, im.range(), file);
 }
 } // namespace

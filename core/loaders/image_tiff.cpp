@@ -3,23 +3,23 @@
 namespace image_tiff{
 
 // getting file dimensions
-Point<int> size(const char *file){
+iPoint size(const char *file){
     TIFF* tif = TIFFOpen(file, "rb");
 
     if (!tif){
 //      std::cerr << "Can't read TIFF file!\n";
-      return Point<int>(0,0);
+      return iPoint(0,0);
     }
 
     uint32 w=0, h=0;
     TIFFGetField(tif, TIFFTAG_IMAGEWIDTH, &w);
     TIFFGetField(tif, TIFFTAG_IMAGELENGTH, &h);
     TIFFClose(tif);
-    return Point<int>(w,h);
+    return iPoint(w,h);
 }
 
 // loading from Rect in jpeg-file to Rect in image
-int load(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst_rect){
+int load(const char *file, iRect src_rect, iImage & image, Rect<int> dst_rect){
 
     TIFF* tif = TIFFOpen(file, "rb");
     if (!tif) return 2;
@@ -31,8 +31,8 @@ int load(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst
 
     // подрежем прямоугольники
     clip_rects_for_image_loader(
-      Rect<int>(0,0,tiff_w,tiff_h), src_rect,
-      Rect<int>(0,0,image.w,image.h), dst_rect);
+      iRect(0,0,tiff_w,tiff_h), src_rect,
+      iRect(0,0,image.w,image.h), dst_rect);
     if (src_rect.empty() || dst_rect.empty()) return 1;
 
     int scan = TIFFScanlineSize(tif);
@@ -92,7 +92,7 @@ int load(const char *file, Rect<int> src_rect, Image<int> & image, Rect<int> dst
 
 
 // save part of image
-int save(const Image<int> & im, const Rect<int> & src_rect,
+int save(const iImage & im, const iRect & src_rect,
          const char *file, bool usealpha){
 
     TIFF* tif = TIFFOpen(file, "wb");
@@ -149,16 +149,16 @@ int save(const Image<int> & im, const Rect<int> & src_rect,
     return 0;
 }
 
-Image<int> load(const char *file, const int scale){
-  Point<int> s = size(file);
-  Image<int> ret(s.x/scale,s.y/scale);
+iImage load(const char *file, const int scale){
+  iPoint s = size(file);
+  iImage ret(s.x/scale,s.y/scale);
   if (s.x*s.y==0) return ret;
-  load(file, Rect<int>(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
+  load(file, iRect(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
   return ret;
 }
 
 // save the whole image
-int save(const Image<int> & im, const char * file, bool usealpha){
+int save(const iImage & im, const char * file, bool usealpha){
   return save(im, im.range(), file, usealpha);
 }
 

@@ -14,7 +14,7 @@ class Mapview;
 class ViewerAM{
   private:
 
-  Point<int> drag_pos;
+  iPoint drag_pos;
   struct timeval click_started;
 
   boost::shared_ptr<Viewer>  viewer;
@@ -57,12 +57,12 @@ class ViewerAM{
   }
 
   bool pointer_moved (GdkEventMotion * event) {
-    Point<int> pos ((int) event->x, (int) event->y);
+    iPoint pos ((int) event->x, (int) event->y);
     VLOG(2) << "motion: " << pos << (event->is_hint? " hint ":"");
     mapview->statusbar.push(boost::lexical_cast<std::string>(pos));
     if (!(event->state & Gdk::BUTTON1_MASK) || !event->is_hint) return false;
-    Point<int> shift = pos - drag_pos;
-    Point<int> window_origin = viewer->get_window_origin();
+    iPoint shift = pos - drag_pos;
+    iPoint window_origin = viewer->get_window_origin();
     window_origin -= shift;
     viewer->set_window_origin(window_origin);
     drag_pos = pos;
@@ -74,7 +74,7 @@ class ViewerAM{
   bool mouse_button_pressed(GdkEventButton* event){
     VLOG(2) << "press: " << event->x << "," << event->y << " " << event->button;
     if (event->button == 1){ // scroll or click
-      drag_pos = Point<int> ((int)event->x, (int)event->y);
+      drag_pos = iPoint ((int)event->x, (int)event->y);
       gettimeofday (&click_started, NULL);
       return true;
     }
@@ -93,7 +93,7 @@ class ViewerAM{
       int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 + 
               (click_ended.tv_usec - click_started.tv_usec) / 1000; //ms
       if (d > 250) return false;
-      Point<int> p(int(event->x), int(event->y));
+      iPoint p(int(event->x), int(event->y));
       p += viewer->get_window_origin();
       VLOG(2) << "click at: " << p.x << "," << p.y << " " << event->button;
 //      action_manager->click(p);

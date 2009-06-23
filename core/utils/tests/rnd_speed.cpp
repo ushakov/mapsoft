@@ -14,23 +14,23 @@ int main(){
 
   std::string dir="/e2/M/GOOGLE/";
   int zoom=5; // размер всего мира 4096х4096
-  Rect<int> src(0,0,4096,4096); 
+  iRect src(0,0,4096,4096); 
 
 
   // вариант 1 === 2.8s ===
   // создаем картинку c картой мира
-//  Image<int> image = google::load(dir, zoom, src); 
+//  iImage image = google::load(dir, zoom, src); 
 
 
   // вариант 2 === 6.6s ===
   // то же, но используя случайный доступ:
 
   google::points pts(dir, zoom, 20);
-  Image<int> image(4096,4096);
+  iImage image(4096,4096);
 
   for (int j=0;j<4096;j++){
     for (int i=0;i<4096;i++){
-      int c = pts.get(Point<int>(i,j));
+      int c = pts.get(iPoint(i,j));
       image.set(i,j,c);
     }
   }

@@ -40,7 +40,7 @@ main(int argc, char **argv){
     if ((type == 0x200001) || (type == 0x20000E)){
       if ((i->comment.size() == 0)||(i->comment[0]=="")) {NW.push_back(*i); continue;}
       // ищем середину объекта
-      Point<int> p=i->center();
+      iPoint p=i->center();
       // создаем точку
       fig_object o = make_object("2 1 0 3 18 7 50 -1 -1 0.000 1 1 7 0 0 1");
       o.push_back(p);

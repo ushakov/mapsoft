@@ -13,8 +13,8 @@ int main(int argc, char **argv){
   Viewer viewer;
   viewer.workplane.add_layer(&lcg, 1);
 
-  viewer.workplane.get_image(Point<int>(-25,0));
-  viewer.workplane.get_image(Point<int>(-25,1));
+  viewer.workplane.get_image(iPoint(-25,0));
+  viewer.workplane.get_image(iPoint(-25,1));
 
   win.add(viewer);
   win.show_all();

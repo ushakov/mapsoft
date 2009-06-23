@@ -82,7 +82,7 @@ main(int argc, char **argv){
       continue;
     }
     std::cout << key << " " << ext << " " << comm << "\n";
-    Rect<double> r = convs::nom_range(key);
+    dRect r = convs::nom_range(key);
     if (r.empty()) {
       std::cerr << "bad key: " << key << "\n";
       continue;

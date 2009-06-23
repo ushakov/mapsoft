@@ -4,9 +4,9 @@
 const int GCoordMin=INT_MIN/2;
 const int GCoordMax=INT_MAX/2;
 
-Image<int> GPlaneTestTile::draw(const Rect<int> &range) const {
+iImage GPlaneTestTile::draw(const iRect &range) const {
 
-  Image<int> ret(range.w, range.h, 0xFFFFFFFF);
+  iImage ret(range.w, range.h, 0xFFFFFFFF);
   for (int j=0; j<range.h; j++){
     for (int i=0; i<range.w; i++){
       ret.set(i,j, (0xFF << 24) + ((i*256)/range.w << 16) + ((j*256)/range.h << 8));
@@ -15,8 +15,8 @@ Image<int> GPlaneTestTile::draw(const Rect<int> &range) const {
   return ret;
 }
 
-Image<int> GPlaneTestTileSlow::draw(const Rect<int> &range) const {
-  Image<int> ret(range.w, range.h, 0xFFFFFFFF);
+iImage GPlaneTestTileSlow::draw(const iRect &range) const {
+  iImage ret(range.w, range.h, 0xFFFFFFFF);
 
   for (int j=0; j<range.h; j++){
     for (int i=0; i<range.w; i++){
@@ -28,12 +28,12 @@ Image<int> GPlaneTestTileSlow::draw(const Rect<int> &range) const {
   return ret;
 }
 
-Image<int> GPlaneSolidFill::draw(const Rect<int> &range) const {
-  return Image<int>(range.w, range.h, color);
+iImage GPlaneSolidFill::draw(const iRect &range) const {
+  return iImage(range.w, range.h, color);
 }
 
-Image<int> GPlaneTestGrid::draw(const Rect<int> &range) const {
-  Image<int> ret(range.w, range.h,0xFF000000);
+iImage GPlaneTestGrid::draw(const iRect &range) const {
+  iImage ret(range.w, range.h,0xFF000000);
   for (int j=0; j<range.h; j++){
     for (int i=0; i<range.w; i++){
       int x=range.x+i, y=range.y+j;
@@ -49,8 +49,8 @@ Image<int> GPlaneTestGrid::draw(const Rect<int> &range) const {
   return ret;
 }
 
-Image<int> GPlaneTestGridSlow::draw(const Rect<int> &range) const {
-  Image<int> ret(range.w, range.h, 0xFF000000);
+iImage GPlaneTestGridSlow::draw(const iRect &range) const {
+  iImage ret(range.w, range.h, 0xFF000000);
   for (int j=0; j<range.h; j++){
     for (int i=0; i<range.w; i++){
       int x=range.x+i, y=range.y+j;

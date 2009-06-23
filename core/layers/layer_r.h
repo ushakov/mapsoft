@@ -33,27 +33,27 @@ class LayerR : public Layer {
 
 private:
   std::string        file;
-  Rect<int>          file_rect;
-  Image<int>         buf;
-  Rect<int>          buf_rect;  //  положение буфера на (немасштабированной) картинке
+  iRect          file_rect;
+  iImage         buf;
+  iRect          buf_rect;  //  положение буфера на (немасштабированной) картинке
   int                buf_scale; //  текущий масштаб буфера
 
 public:
     LayerR (const char *_file) : file(_file), buf(layer_r_bufw, layer_r_bufh), buf_rect(0,0,0,0), buf_scale(0) { 
-        file_rect = Rect<int>(Point<int>(0,0), image_r::size(_file)); 
+        file_rect = iRect(iPoint(0,0), image_r::size(_file)); 
     }
     
     // Optimized get_image to return empty image outside of bounds.
-    virtual Image<int> get_image (Rect<int> src){
+    virtual iImage get_image (iRect src){
 	if (rect_intersect(file_rect, src).empty()) {
-	    return Image<int>(0,0);
+	    return iImage(0,0);
 	}
-	Image<int> ret(src.w, src.h, 0);
+	iImage ret(src.w, src.h, 0);
 	draw(src.TLC(), ret);
 	return ret;
     }
 
-    virtual void draw (Rect<int> src_rect, Image<int> & img, Rect<int> dst_rect){
+    virtual void draw (iRect src_rect, iImage & img, Rect<int> dst_rect){
         // Подрежем прямоугольники:
         clip_rects_for_image_loader(file_rect, src_rect, img.range(), dst_rect);
         if (src_rect.empty() || dst_rect.empty()) return;
@@ -85,7 +85,7 @@ public:
           if (y0+h0>file_rect.h) y0=file_rect.h-h0;
           if (x0<0) x0=0;
           if (y0<0) y0=0;
-          buf_rect = Rect<int>(x0,y0,w0,h0);
+          buf_rect = iRect(x0,y0,w0,h0);
           buf_scale = scale;
 #ifdef DEBUG_LAYER_R
       std::cerr << "layer_r loading to buf. Scale: " << buf_scale << ", rect: " << buf_rect << "\n";
@@ -96,12 +96,12 @@ public:
         // получим нужную картинку из буфера:
         // какая его часть нам нужна:
 
-        Rect<int> src = (src_rect - buf_rect.TLC())/buf_scale;
+        iRect src = (src_rect - buf_rect.TLC())/buf_scale;
         image_i::load(buf, src, img, dst_rect);
         
     }
 
-    virtual Rect<int> range (){
+    virtual iRect range (){
 	return file_rect;
     }
 };

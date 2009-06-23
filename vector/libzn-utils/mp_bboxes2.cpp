@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <set>
 
-double area(const Rect<double> &r){return r.w*r.h;}
+double area(const dRect &r){return r.w*r.h;}
 
 /*****************************************************/
 int main(int argc, char** argv){
@@ -32,26 +32,26 @@ int main(int argc, char** argv){
     }
   }
 
-  std::set<Rect<double> > rects;
+  std::set<dRect> rects;
   for (mp::mp_world::iterator i=M.begin(); i!=M.end(); i++)
     rects.insert(rect_pump(i->range(),padd));
 
   int oldsize;
   do {
     oldsize=rects.size();
-    std::set<Rect<double> >::iterator i,j,im=rects.end(),jm=rects.end();
+    std::set<dRect>::iterator i,j,im=rects.end(),jm=rects.end();
     double min=1e99;
     for (i=rects.begin(); i!=rects.end(); i++){
       for (j=i; j!=rects.end(); j++){
         if (i==j) continue;
-        Rect<double> r=rect_bounding_box(*i,*j);
+        dRect r=rect_bounding_box(*i,*j);
         if ((r.w>maxs)||(r.h>maxs)) continue;
         double a=area(rect_intersect(*i,*j));
         if (a<min) {a=min; im=i; jm=j;}
       }
     }
     if ((im!=rects.end()) && (jm!=rects.end())){
-      Rect<double> r=rect_bounding_box(*im,*jm);
+      dRect r=rect_bounding_box(*im,*jm);
       rects.erase(im);
       rects.erase(jm);
       rects.insert(r);
@@ -60,7 +60,7 @@ int main(int argc, char** argv){
   } while (oldsize!=rects.size());
 
   double a=0;
-  std::set<Rect<double> >::const_iterator i;
+  std::set<dRect>::const_iterator i;
   for (i=rects.begin(); i!=rects.end(); i++){
 
     std::cout << std::fixed << std::setw(4)

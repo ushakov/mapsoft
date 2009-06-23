@@ -9,13 +9,13 @@ class SimpleViewer : public Gtk::DrawingArea {
 
     SimpleViewer(GPlane * pl);
 
-    virtual void set_origin (const Point<int> & new_origin);
-    Point<int>   get_origin (void) const;
+    virtual void set_origin (const iPoint & new_origin);
+    iPoint   get_origin (void) const;
     virtual void set_plane (GPlane * pl);
     GPlane *     get_plane (void) const;
 
-    virtual void draw(const Rect<int> & r);
-    virtual void draw_image (const Image<int> & img, const Point<int> & p);
+    virtual void draw(const iRect & r);
+    virtual void draw_image (const iImage & img, const iPoint & p);
 
     virtual bool on_expose_event (GdkEventExpose * event);
     virtual bool on_button_press_event (GdkEventButton * event);
@@ -23,12 +23,12 @@ class SimpleViewer : public Gtk::DrawingArea {
     virtual bool on_motion_notify_event (GdkEventMotion * event);
 
     bool on_drag;
-    Point<int> drag_pos;
+    iPoint drag_pos;
 
   private:
 
     GPlane * plane;
-    Point<int> origin;
+    iPoint origin;
 };
 
 #endif

@@ -13,7 +13,7 @@
 template <typename T>
 class LineDist{
 
-  Line<double>   line; // копия линии
+  dLine   line; // копия линии
 
   std::vector<double> ls; // длина ломаной до точки [i]
   double  current_l; // 
@@ -28,8 +28,8 @@ class LineDist{
       double l=0;
       ls.push_back(0);
       for (int j=1; j<_line.size(); j++){
-        Point<double> p1 (_line[j-1]);
-        Point<double> p2 (_line[j]);
+        dPoint p1 (_line[j-1]);
+        dPoint p2 (_line[j]);
         if (p1 == p2) continue;
         l+=pdist(p1,p2); 
         ls.push_back(l);
@@ -44,20 +44,20 @@ class LineDist{
   double dist() const {return current_l;}
 
   // текущая точка 
-  Point<double> pt() const{
+  dPoint pt() const{
     if (is_end()) return line[current_n];
     else return (line[current_n] + (line[current_n+1]-line[current_n]) *  
                  (current_l-ls[current_n])/(ls[current_n+1]-ls[current_n]) );
   }
   // единичный касаельный вектор 
-  Point<double> tang() const{
-    if (is_end()) return Point<double>(1,0);
+  dPoint tang() const{
+    if (is_end()) return dPoint(1,0);
     return pnorm(line[current_n+1]-line[current_n]);
   }
   // единичный перпендикулярный вектор 
-  Point<double> norm() const{
-    Point<double> ret = tang();
-    return Point<double>(-ret.y, ret.x);
+  dPoint norm() const{
+    dPoint ret = tang();
+    return dPoint(-ret.y, ret.x);
   }
 
   // вырезать из ломеной кусок от текущей точки, длиной dl>0

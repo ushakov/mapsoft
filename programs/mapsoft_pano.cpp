@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
   srtm3 s(srtm_dir, 10, interp_mode_off);
 
-  Image<int> data(width, height);
+  iImage data(width, height);
 
   // примерный шаг srtm
   int dr = int(1/1200.0 * Re *M_PI/90.0 *cos(lat0));
@@ -119,11 +119,11 @@ int main(int argc, char *argv[]) {
 
   fig::fig_object o1 = fig::make_object("2 5 0 1 17 -1 500 -1 -1 0.000 0 0 -1 0 0 5");
   o1.image_file="out_pano.jpg";
-  o1.push_back(Point<int>(0,0));
-  o1.push_back(Point<int>(int(width*kk), 0));
-  o1.push_back(Point<int>(int(width*kk), int(height*kk)));
-  o1.push_back(Point<int>(0, int(height*kk)));
-  o1.push_back(Point<int>(0,0));
+  o1.push_back(iPoint(0,0));
+  o1.push_back(iPoint(int(width*kk), 0));
+  o1.push_back(iPoint(int(width*kk), int(height*kk)));
+  o1.push_back(iPoint(0, int(height*kk)));
+  o1.push_back(iPoint(0,0));
   F.push_back(o1);
 
   fig::fig_object o2 = fig::make_object("2 1 0 5 0 7 50 -1 -1 0.000 0 1 7 0 0 1");
@@ -162,7 +162,7 @@ int main(int argc, char *argv[]) {
       int col = r2col(r+1000)>>16;
       if ((data.get(px,py)>>16) < col) continue;
 
-      Point<int> fig_pt(int((max_a-a)/(max_a-min_a)*width*kk), int((max_b-b)/(max_b-min_b)*height*kk));    
+      iPoint fig_pt(int((max_a-a)/(max_a-min_a)*width*kk), int((max_b-b)/(max_b-min_b)*height*kk));    
       o2.clear();
       o3.clear();
 
@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
       o3.pen_color=c;
 
       o2.push_back(fig_pt);
-      o3.push_back(fig_pt + Point<int>(50,-100));
+      o3.push_back(fig_pt + iPoint(50,-100));
 
       ostringstream label_stream;
       label_stream 

@@ -26,7 +26,7 @@ public:
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(Point<int> p) {
+    virtual void handle_click(iPoint p) {
 
         if (mystate==0){ // select point
           std::cout << " MOVEWPT: " << p << std::endl;
@@ -38,18 +38,18 @@ public:
 	    if (d.first >= 0) {
 		std::cout << "MOVEWPT: found at " << current_layer << std::endl;
 		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
-                Point<int> dp(2,2);
-                viewer->rubber.add_line(p+Point<int>(-2,-2),false, p+Point<int>( 2,-2),false);
-                viewer->rubber.add_line(p+Point<int>( 2,-2),false, p+Point<int>( 2, 2),false);
-                viewer->rubber.add_line(p+Point<int>( 2, 2),false, p+Point<int>(-2, 2),false);
-                viewer->rubber.add_line(p+Point<int>(-2, 2),false, p+Point<int>(-2,-2),false);
+                iPoint dp(2,2);
+                viewer->rubber.add_line(p+iPoint(-2,-2),false, p+Point<int>( 2,-2),false);
+                viewer->rubber.add_line(p+iPoint( 2,-2),false, p+Point<int>( 2, 2),false);
+                viewer->rubber.add_line(p+iPoint( 2, 2),false, p+Point<int>(-2, 2),false);
+                viewer->rubber.add_line(p+iPoint(-2, 2),false, p+Point<int>(-2,-2),false);
 
-                viewer->rubber.add_line(Point<int>(-2,-2),true, Point<int>( 2,-2),true);
-                viewer->rubber.add_line(Point<int>( 2,-2),true, Point<int>( 2, 2),true);
-                viewer->rubber.add_line(Point<int>( 2, 2),true, Point<int>(-2, 2),true);
-                viewer->rubber.add_line(Point<int>(-2, 2),true, Point<int>(-2,-2),true);
+                viewer->rubber.add_line(iPoint(-2,-2),true, Point<int>( 2,-2),true);
+                viewer->rubber.add_line(iPoint( 2,-2),true, Point<int>( 2, 2),true);
+                viewer->rubber.add_line(iPoint( 2, 2),true, Point<int>(-2, 2),true);
+                viewer->rubber.add_line(iPoint(-2, 2),true, Point<int>(-2,-2),true);
 
-                viewer->rubber.add_line(p,false, Point<int>(0,0),true);
+                viewer->rubber.add_line(p,false, iPoint(0,0),true);
                 mystate=1;
 		break;
             }

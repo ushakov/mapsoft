@@ -115,7 +115,7 @@ using namespace boost::spirit;
 
     for (int n=0; n<m.size(); n++){
       fig::fig_object o = fig::make_object("2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 *");
-      o.push_back(Point<int>( int(m[n].xr), int(m[n].yr) ));
+      o.push_back(iPoint( int(m[n].xr), int(m[n].yr) ));
       g_point p(m[n]);
       cnv.bck(p);
       ostringstream comm;
@@ -225,7 +225,7 @@ using namespace boost::spirit;
         g_map map(m);
         map.comm = comm;
         map.file = i->image_file;
-        Point<int> WH = image_r::size(i->image_file.c_str());
+        iPoint WH = image_r::size(i->image_file.c_str());
         double x1 = (*i)[0].x;
         double y1 = (*i)[0].y;
         double x2 = (*i)[1].x;
@@ -302,11 +302,11 @@ using namespace boost::spirit;
         f.opts.erase("name");
         f.opts.erase("lon");
         f.opts.erase("lat");
-	f.push_back(Point<int>(int(p.x), int(p.y)));
+	f.push_back(iPoint(int(p.x), int(p.y)));
 	F.push_back(f);
 
 	fig::fig_object ft = fig::make_object("4 0 8 5 -1 18 6 0.0000 4");
-	ft.push_back(Point<int>(int(p.x)+30, int(p.y)+30));
+	ft.push_back(iPoint(int(p.x)+30, int(p.y)+30));
 	ft.text = w->name;
 	F.push_back(ft);
       }
@@ -323,11 +323,11 @@ using namespace boost::spirit;
     for (tl=world.trks.begin();tl!=world.trks.end();tl++){
       t=tl->begin();
       do {
-        vector<Point<int> > pts;
+        vector<iPoint> pts;
         do{
           g_point p(t->x, t->y);
           cnv.bck(p);
-          pts.push_back(Point<int>(int(p.x),int(p.y)));
+          pts.push_back(iPoint(int(p.x),int(p.y)));
           t++;
         } while ((t!=tl->end())&&(!t->start));
 
@@ -336,7 +336,7 @@ using namespace boost::spirit;
         f.opts=to_options_skipdef(*tl);
         f.opts.erase("comm");
 
-        for (vector<Point<int> >::const_iterator p1=pts.begin(); p1!=pts.end(); p1++) f.push_back(*p1);
+        for (vector<iPoint>::const_iterator p1=pts.begin(); p1!=pts.end(); p1++) f.push_back(*p1);
 	F.push_back(f);
 
       } while (t!=tl->end());

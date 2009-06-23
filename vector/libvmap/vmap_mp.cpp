@@ -32,7 +32,7 @@ mp::mp_world  vmap2mp(const world & w){
     mpobj.Opts.put("ID", o->first);
     mpobj.Comment=o->second.comm;
 
-    for (MultiLine<double>::const_iterator s=o->second.data.begin(); s!=o->second.data.end(); s++)
+    for (dMultiLine::const_iterator s=o->second.data.begin(); s!=o->second.data.end(); s++)
       mpobj.push_back(*s);
 
     MP.push_back(mpobj);

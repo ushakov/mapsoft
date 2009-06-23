@@ -42,7 +42,7 @@ main(int argc, char** argv){
 
 
 // определим диапазон карты в координатах lonlat
-  Rect<double> r0 = convs::nom_range(map_name);
+  dRect r0 = convs::nom_range(map_name);
 
 // определим осевой меридиан
   double lon0 = (r0.TLC().x + r0.TRC().x)/2;
@@ -65,7 +65,7 @@ main(int argc, char** argv){
   convs::pt2pt c0(Datum("pulkovo"), Proj("lonlat"), Options(),Datum("wgs84"),Proj("lonlat"), Options());
   g_point p01(r0.TLC()), p02(r0.BRC());
   c0.frw(p01); c0.frw(p02);
-  Rect<double> r = Rect<double>(p01, p02);
+  dRect r = Rect<double>(p01, p02);
 
   g_line border_ll = rect2line(r);
 
@@ -128,11 +128,11 @@ main(int argc, char** argv){
 
     fig::fig_object brd_o = fig::make_object("2 3 0 1 0 7 31 -1 -1 0.000 0 0 -1 0 0 5");
 
-    brd_o.push_back(Point<int>(0,0));
-    brd_o.push_back(Point<int>(f_max.x-f_min.x,0));
-    brd_o.push_back(Point<int>(f_max.x-f_min.x,f_max.y-f_min.y));
-    brd_o.push_back(Point<int>(0, f_max.y-f_min.y));
-    brd_o.push_back(Point<int>(0,0));
+    brd_o.push_back(iPoint(0,0));
+    brd_o.push_back(iPoint(f_max.x-f_min.x,0));
+    brd_o.push_back(iPoint(f_max.x-f_min.x,f_max.y-f_min.y));
+    brd_o.push_back(iPoint(0, f_max.y-f_min.y));
+    brd_o.push_back(iPoint(0,0));
 
     F.push_back(brd_o);
 
@@ -158,18 +158,18 @@ main(int argc, char** argv){
              i < int(floor(f_max.x*fig::fig2cm/step)); i++){
       int x = i*cm2pt*step - f_min.x;
       o.clear();
-      o.push_back(Point<int>(x, 0));
-      o.push_back(Point<int>(x, f_max.y-f_min.y));
+      o.push_back(iPoint(x, 0));
+      o.push_back(iPoint(x, f_max.y-f_min.y));
       vector<fig::fig_object> l1, l2; l1.push_back(o);
       crop_lines(l1, l2, brd_o, true);
       F.insert(F.end(), l1.begin(), l1.end());
       if (l1.size()>0){
         t.clear();
         t.text = boost::lexical_cast<std::string>(int(floor(2*i/scale/100000.0+0.5)));
-        t.push_back(l1.front()[0] + Point<int>(0, -0.3*cm2pt));
+        t.push_back(l1.front()[0] + iPoint(0, -0.3*cm2pt));
         F.push_back(t);
         t.clear();
-        t.push_back(l1.back()[l1.back().size()-1] + Point<int>(0, 0.7*cm2pt));
+        t.push_back(l1.back()[l1.back().size()-1] + iPoint(0, 0.7*cm2pt));
         F.push_back(t);
       }
     }
@@ -178,18 +178,18 @@ main(int argc, char** argv){
              i < int(floor(f_max.y*fig::fig2cm/step)); i++){
       int y = f_max.y - i*cm2pt*step;
       o.clear();
-      o.push_back(Point<int>(0, y));
-      o.push_back(Point<int>(f_max.x-f_min.x, y));
+      o.push_back(iPoint(0, y));
+      o.push_back(iPoint(f_max.x-f_min.x, y));
       vector<fig::fig_object> l1, l2; l1.push_back(o);
       crop_lines(l1, l2, brd_o, true);
       F.insert(F.end(), l1.begin(), l1.end());
       if (l1.size()>0){
         t.clear(); t.sub_type = 2;
         t.text = boost::lexical_cast<std::string>(int(floor(2*i/scale/100000.0 + 0.5)));
-        t.push_back(l1.front()[0] + Point<int>(-0.2*cm2pt, 0.2*cm2pt));
+        t.push_back(l1.front()[0] + iPoint(-0.2*cm2pt, 0.2*cm2pt));
         F.push_back(t);
         t.clear(); t.sub_type = 0;
-        t.push_back(l1.back()[l1.back().size()-1] + Point<int>(0.2*cm2pt, 0.2*cm2pt));
+        t.push_back(l1.back()[l1.back().size()-1] + iPoint(0.2*cm2pt, 0.2*cm2pt));
         F.push_back(t);
       }
     }
@@ -197,8 +197,8 @@ main(int argc, char** argv){
     ostringstream s;
     for (int i = 0; i<4; i++){
 
-      Point<double> p(ref[i]);
-      Point<int> pr(ref[i].xr, ref[i].yr);
+      dPoint p(ref[i]);
+      iPoint pr(ref[i].xr, ref[i].yr);
       c0.bck(p); // в Пулково
 
       s.str(""); t.clear(); t.sub_type = 2-(((i+1)/2)%2) *2; t.font_size = 8;
@@ -207,7 +207,7 @@ main(int argc, char** argv){
       s << deg << "*"
         << setw(2) << setfill('0') << min;
       t.text = s.str();
-      t.push_back(pr-Point<int>((t.sub_type-1) * 0.1*cm2pt, -(i/2)*0.2*cm2pt));
+      t.push_back(pr-iPoint((t.sub_type-1) * 0.1*cm2pt, -(i/2)*0.2*cm2pt));
       F.push_back(t);
 
       s.str(""); t.clear(); t.sub_type = 1;
@@ -216,7 +216,7 @@ main(int argc, char** argv){
       s << deg << "*"
         << setw(2) << setfill('0') << min;
       t.text = s.str();
-      t.push_back(pr+Point<int>(0, (1.7-(i/2)*2)* 0.2*cm2pt));
+      t.push_back(pr+iPoint(0, (1.7-(i/2)*2)* 0.2*cm2pt));
       F.push_back(t);
     }
 
@@ -227,7 +227,7 @@ main(int argc, char** argv){
     t.text  = "0000-00-00";
     t.comment.clear(); t.comment.push_back("CURRENT DATE");
     t.clear();
-    t.push_back(Point<int>(0.5*cm2pt, 6.0*cm2pt));
+    t.push_back(iPoint(0.5*cm2pt, 6.0*cm2pt));
     F.push_back(t);
     t.comment.clear();
 
@@ -236,11 +236,11 @@ main(int argc, char** argv){
     t.angle = 0;
     t.text  = map_name;
     t.clear();
-    t.push_back(Point<int>(1.8*cm2pt, 1.0*cm2pt));
+    t.push_back(iPoint(1.8*cm2pt, 1.0*cm2pt));
     F.push_back(t);
 
     t.sub_type = 1; t.text="z"; t.clear();
-    t.push_back(Point<int>(0.8*cm2pt, 1.0*cm2pt));
+    t.push_back(iPoint(0.8*cm2pt, 1.0*cm2pt));
     F.push_back(t);
 
 
@@ -253,7 +253,7 @@ main(int argc, char** argv){
     fig::write(cout, F);
   } else {
     cerr << "writing map file\n";
-    Point<double> wh = image_r::size(map_name.c_str());
+    dPoint wh = image_r::size(map_name.c_str());
     ref -= (f_max-f_min-wh)/2.0;
 
     oe::write_map_file(cout, ref, Options());

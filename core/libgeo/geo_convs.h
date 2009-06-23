@@ -64,8 +64,8 @@ struct pt2pt{
   g_line line_bck(const g_line & l, double acc, int max=100);
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
-  Rect<double> bb_frw(const Rect<double> & R, double acc);
-  Rect<double> bb_bck(const Rect<double> & R, double acc);
+  dRect bb_frw(const Rect<double> & R, double acc);
+  dRect bb_bck(const Rect<double> & R, double acc);
 
   private:
     pt2ll pc1, pc2;
@@ -90,8 +90,8 @@ struct map2pt{
   g_line line_bck(const g_line & l, int max=100);
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
-  Rect<double> bb_frw(const Rect<int> & R);
-  Rect<int> bb_bck(const Rect<double> & R);
+  dRect bb_frw(const iRect & R);
+  iRect bb_bck(const dRect & R);
   private:
     pt2ll pc1, pc2;
     ll2wgs dc;
@@ -118,7 +118,7 @@ struct border_tester{
   // расстояние до ближайшей границы справа
   int nearest_border (const int x, const int y) const;
   // "задевает" ли карта данный район
-  bool test_range(Rect<int> range) const;
+  bool test_range(iRect range) const;
 };
 
 
@@ -136,19 +136,19 @@ struct map2map{
   g_line line_bck(const g_line & l, int max=100);
   // src_scale -- во сколько раз была уменьшена растровая картинка при загрузке
   // cnv_rect - прямоугольник в плоскости _преобразованной картинки_!!!
-  int image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
-                Image<int> & dst_img, Rect<int> dst_rect);
-  int image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect, 
-                Image<int> & dst_img, Rect<int> dst_rect);
+  int image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
+                iImage & dst_img, iRect dst_rect);
+  int image_bck(iImage & src_img, int src_scale, iRect cnv_rect, 
+                iImage & dst_img, iRect dst_rect);
 
   // новая версия
-  //void image_frw(Image<int> & src_img, int src_scale, Point<int> origin, Image<int> & image);
-  //void image_bck(Image<int> & src_img, int src_scale, Point<int> origin, Image<int> & image);
+  //void image_frw(iImage & src_img, int src_scale, iPoint origin, Image<int> & image);
+  //void image_bck(iImage & src_img, int src_scale, iPoint origin, Image<int> & image);
 
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
-  Rect<int> bb_frw(const Rect<int> & R);
-  Rect<int> bb_bck(const Rect<int> & R);
+  iRect bb_frw(const Rect<int> & R);
+  iRect bb_bck(const Rect<int> & R);
 
     bool test_brd;
     map2pt c1,c2;

@@ -286,7 +286,7 @@ int main(int argc, char **argv){
         read(fd, &y, sizeof(y));
         x = x&0x7FFFFF + (x&0x800000)<<8;
         y = y&0x7FFFFF + (y&0x800000)<<8;
-        Point<int> p;
+        iPoint p;
         p.x=int(double(x)/100000*fig::cm2fig);
         p.y=-int(double(y)/100000*fig::cm2fig);
         O.push_back(p);

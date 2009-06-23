@@ -60,7 +60,7 @@ fig::fig_world  vmap2fig(const world & w){
       FIG.push_back(mpobj);
     }
     else{
-      for (MultiLine<double>::const_iterator s=o->second.data.begin(); 
+      for (dMultiLine::const_iterator s=o->second.data.begin(); 
                                              s!=o->second.data.end(); s++){
         figobj.clear();
         figobj.set_points(cnv.line_bck(*i));

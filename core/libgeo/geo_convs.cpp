@@ -316,11 +316,11 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) {
   return ret;
 }
 
-Rect<double> pt2pt::bb_frw(const Rect<double> & R, double acc){
+dRect pt2pt::bb_frw(const Rect<double> & R, double acc){
   g_line l = line_frw(rect2line(R),acc);
   return l.range();
 }
-Rect<double> pt2pt::bb_bck(const Rect<double> & R, double acc){
+dRect pt2pt::bb_bck(const Rect<double> & R, double acc){
   g_line l = line_bck(rect2line(R),acc);
   return l.range();
 }
@@ -380,7 +380,7 @@ border(sM.border){
     border.clear();
   }
   if (border.size()==0) {
-    Point<int> wh = image_r::size(sM.file.c_str());
+    iPoint wh = image_r::size(sM.file.c_str());
     border.push_back(g_point(0, 0));
     border.push_back(g_point(wh.x, 0));
     border.push_back(g_point(wh.x, wh.y));
@@ -744,8 +744,8 @@ g_line map2map::line_bck(const g_line & l, int max) {
 
 // ****************
 
-int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
-                       Image<int> & dst_img, Rect<int> dst_rect){
+int map2map::image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
+                       iImage & dst_img, iRect dst_rect){
 
     if (cnv_rect.empty() || dst_rect.empty()) return 1;
     // во сколько раз придется растягивать картинку
@@ -778,8 +778,8 @@ int map2map::image_frw(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
     return 0;
 }
 
-int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect, 
-                       Image<int> & dst_img, Rect<int> dst_rect){
+int map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect, 
+                       iImage & dst_img, iRect dst_rect){
     if (cnv_rect.empty() || dst_rect.empty()) return 1;
     // во сколько раз придется растягивать картинку
     int xscale = int(floor(dst_rect.w/cnv_rect.w));
@@ -809,35 +809,35 @@ int map2map::image_bck(Image<int> & src_img, int src_scale, Rect<int> cnv_rect,
     return 0;
 }
 
-Rect<int> map2map::bb_frw(const Rect<int> & R){
+iRect map2map::bb_frw(const Rect<int> & R){
   g_line l = line_frw(rect2line(R));
-  Rect<double> r = l.range();
-  return Rect<int>(
-    Point<int>(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
-    Point<int>(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
+  dRect r = l.range();
+  return iRect(
+    iPoint(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
+    iPoint(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
   );
 }
 
-Rect<int> map2map::bb_bck(const Rect<int> & R){
+iRect map2map::bb_bck(const Rect<int> & R){
   g_line l = line_bck(rect2line(R));
-  Rect<double> r = l.range();
-  return Rect<int>(
-    Point<int>(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
-    Point<int>(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
+  dRect r = l.range();
+  return iRect(
+    iPoint(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
+    iPoint(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
   );
 }
 
-Rect<double> map2pt::bb_frw(const Rect<int> & R){
+dRect map2pt::bb_frw(const iRect & R){
   g_line l = line_frw(rect2line(R));
   return l.range();
 }
 
-Rect<int> map2pt::bb_bck(const Rect<double> & R){
+iRect map2pt::bb_bck(const dRect & R){
   g_line l = line_bck(rect2line(R));
-  Rect<double> r = l.range();
-  return Rect<int>(
-    Point<int>(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
-    Point<int>(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
+  dRect r = l.range();
+  return iRect(
+    iPoint(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
+    iPoint(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
   );
 }
 
@@ -905,11 +905,11 @@ Rect<int> map2pt::bb_bck(const Rect<double> & R){
   }
 
   // проверка, "задевает" ли карта данный район
-  bool border_tester::test_range(Rect<int> range) const{
+  bool border_tester::test_range(iRect range) const{
     int lx = 0; int ly=0;
     int rx = 0; int ry=0;
-    Point<int> p1 = range.TLC();
-    Point<int> p2 = range.BRC();
+    iPoint p1 = range.TLC();
+    iPoint p2 = range.BRC();
     g_line::const_iterator p;
 //    std::cerr << "brd::tst: " << p1 << " " << p2 << "\n";
     for (p = border.begin(); p !=border.end(); p++){
@@ -936,8 +936,8 @@ g_map mymap(const geo_data & world){ // естественная привязк�
 
     g_map ret;
     if (world.maps.size()>0) ret.map_proj=world.maps[0].map_proj;
-    Rect<double> rd=world.range_geodata();
-    Rect<double> rm=world.range_map();
+    dRect rd=world.range_geodata();
+    dRect rm=world.range_map();
     double lon0 = rm.x+rm.w/2;
     if (!rd.empty()) lon0=rd.x+rd.w/2;
     lon0 = floor( lon0/6.0 ) * 6 + 3;

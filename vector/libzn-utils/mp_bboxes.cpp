@@ -28,14 +28,14 @@ int main(int argc, char** argv){
 
   while (M.size()!=0){
     bool new_range=true;
-    Rect<double> r0;
+    dRect r0;
     int objects=0;
     int oldsize;
     do {
       oldsize = M.size();
       mp::mp_world::iterator i=M.begin();
       while (i!=M.end()){
-        Rect<double> r1=rect_pump(i->range(),1e-6);
+        dRect r1=rect_pump(i->range(),1e-6);
         if (new_range) {
           r0=r1;
           new_range=false;

@@ -10,7 +10,7 @@
 // если прямые параллельны - возникает исключение.
 
 template <typename T>
-Point<double> find_cross_ab(const Point<T> & p1, const Point<T> & p2,
+dPoint find_cross_ab(const Point<T> & p1, const Point<T> & p2,
                     const Point<T> & p3, const Point<T> & p4){
   Point<T> p12 = p2-p1;
   Point<T> p34 = p4-p3;
@@ -21,7 +21,7 @@ Point<double> find_cross_ab(const Point<T> & p1, const Point<T> & p2,
   T kb =  p13.x*p12.y - p13.y*p12.x;
 
   if (k==0) throw 0; // параллельные линии(?)
-  return Point<double>(ka/(double)k, kb/(double)k);
+  return dPoint(ka/(double)k, kb/(double)k);
 }
 
 // Пересечение двух отрезков
@@ -36,10 +36,10 @@ Point<double> find_cross_ab(const Point<T> & p1, const Point<T> & p2,
 template <typename T>
 Point<T> find_cross(const Point<T> & p1, const Point<T> & p2,
                     const Point<T> & p3, const Point<T> & p4){
-  Point<double> ab = find_cross_ab(p1,p2,p3,p4);
+  dPoint ab = find_cross_ab(p1,p2,p3,p4);
   if ((ab.x<0)||(ab.x>=1)) throw 0; // пересечение - за пределами отрезка
   if ((ab.y<0)||(ab.y>=1)) throw 0; // пересечение - за пределами отрезка
-  return Point<T>(Point<double>(p1)+ab.x*Point<double>(p2-p1));
+  return Point<T>(dPoint(p1)+ab.x*Point<double>(p2-p1));
 }
 
 // Кратчайшее расстояние между точкой и отрезком
@@ -50,17 +50,17 @@ double find_dist(const Point<T> & p,
   double  ll = pdist(p1,p2);
   if (ll==0) return pdist(p,p1); // отрезок нулевой длины
 
-  Point<double> vec = Point<double>(p2-p1)/ll;
+  dPoint vec = Point<double>(p2-p1)/ll;
 
   double l1 = pdist(p,p1);
   double l2 = pdist(p,p2);
   double ret = l1<l2 ? l1:l2;
 
-  double prl = pscal(Point<double>(p-p1), vec);
+  double prl = pscal(dPoint(p-p1), vec);
 
   if ((prl>=0)&&(prl<=ll)){ // проекция попала на отрезок
-    Point<double> pc = Point<double>(p1) + vec * prl;
-    double lc=pdist(Point<double>(p),pc);
+    dPoint pc = Point<double>(p1) + vec * prl;
+    double lc=pdist(dPoint(p),pc);
     ret= ret<lc ? ret:lc;
   }
   return ret;

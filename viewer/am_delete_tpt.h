@@ -21,7 +21,7 @@ public:
     virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(Point<int> p) {
+    virtual void handle_click(iPoint p) {
 	std::cout << "DELETETPT: " << p << std::endl;
 
         for (int i = 0; i < state->data_layers.size(); ++i) {

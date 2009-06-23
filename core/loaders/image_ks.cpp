@@ -9,9 +9,9 @@ static char curl_error[CURL_ERROR_SIZE];
 int load(
     const std::string & dir, 
     int ks_scale,	
-    Rect<int> src_rect, 
-    Image<int> & image, 
-    Rect<int> dst_rect,
+    iRect src_rect, 
+    iImage & image, 
+    iRect dst_rect,
     bool do_download)
 {
   if (ks_scale<ks_scale_min) ks_scale=ks_scale_min;
@@ -19,17 +19,17 @@ int load(
  
   int src_width = 256* (1 << (ks_scale-1));
 
-  Rect<int> src_points = Rect<int>(0,0,src_width,src_width);
+  iRect src_points = Rect<int>(0,0,src_width,src_width);
 
 //  // подрежем прямоугольники
 //  clip_rects_for_image_loader(
 //      src_points, src_rect,
-//      Rect<int>(0,0,image.w,image.h), dst_rect);
+//      iRect(0,0,image.w,image.h), dst_rect);
 
   if (src_rect.empty() || dst_rect.empty()) return 1;
 
 
-  Rect<int> src_tiles  = tiles_on_rect(src_rect,256);
+  iRect src_tiles  = tiles_on_rect(src_rect,256);
 
   for (int yt = src_tiles.TLC().y; yt<src_tiles.BRC().y; yt++){
     for (int xt = src_tiles.TLC().x; xt<src_tiles.BRC().x; xt++){
@@ -46,8 +46,8 @@ int load(
       int dy2 = ((256*yt + sy2 - src_rect.y) * dst_rect.h)/src_rect.h + dst_rect.y;
 
 
-      Rect<int> src(sx1,sy1,sx2-sx1,sy2-sy1);
-      Rect<int> dst(dx1,dy1,dx2-dx1,dy2-dy1);
+      iRect src(sx1,sy1,sx2-sx1,sy2-sy1);
+      iRect dst(dx1,dy1,dx2-dx1,dy2-dy1);
 #ifdef DEBUG_KS
       std::cerr << "ks: loading " << addr << " " << src << " --> " << dst << "\n";
 #endif
@@ -114,11 +114,11 @@ int load(
   return 0;
 }
 
-Image<int> load(const std::string & dir, int ks_scale, const Rect<int> & src_rect, int scale, bool do_download){
+iImage load(const std::string & dir, int ks_scale, const iRect & src_rect, int scale, bool do_download){
   int w = src_rect.w/scale;
   int h = src_rect.h/scale;
-  Rect<int> dst_rect(0,0,w,h);
-  Image<int> ret(w,h,0xFF000000);
+  iRect dst_rect(0,0,w,h);
+  iImage ret(w,h,0xFF000000);
   load(dir, ks_scale, src_rect, ret, dst_rect, do_download);
   return ret;
 }

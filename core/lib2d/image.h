@@ -21,7 +21,8 @@
 // Размер картинки: image.w,  image.h
 
 // Получить размеры картинки:
-//   Rect<int> r = image.range();
+//   iRect r = image.range();
+
 
 template <typename T>
 struct Image{
@@ -140,8 +141,8 @@ struct Image{
 
     inline T get(int x, int y) const {return data[y*w+x];}
     inline void set(int x, int y, T c){data[y*w+x]=c;}
-    inline T get(const Point<int> & p) const {return data[p.y*w+p.x];}
-    inline void set(const Point<int> & p, T c){data[p.y*w+p.x]=c;}
+    inline T get(const iPoint & p) const {return data[p.y*w+p.x];}
+    inline void set(const iPoint & p, T c){data[p.y*w+p.x]=c;}
 
     inline T safe_get(int x, int y) const{
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return 0;
@@ -151,20 +152,20 @@ struct Image{
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
 	set(x,y,c);
     }
-    inline T safe_get(const Point<int> & p) const{
+    inline T safe_get(const iPoint & p) const{
 	return safe_get(p.x, p.y);
     }
-    inline void safe_set(const Point<int> & p, T c){
+    inline void safe_set(const iPoint & p, T c){
 	safe_set(p.x, p.y, c);
     }
 
     inline void set_na(int x, int y, T c) {
 	data[y*w+x] = (c | 0xff000000);
     }
-    inline void set_na(const Point<int> & p, T c){ set_na(p.x, p.y, c); }
+    inline void set_na(const iPoint & p, T c){ set_na(p.x, p.y, c); }
     
     inline T get_na(int x, int y, T c) const { return data[y*w+x]|0xFF000000;}
-    inline T get_na(const Point<int> & p, T c) const {return data[p.y*w+p.x]|0xFF000000;}
+    inline T get_na(const iPoint & p, T c) const {return data[p.y*w+p.x]|0xFF000000;}
 
     inline T safe_get_na(int x, int y) const{
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return 0;
@@ -174,10 +175,10 @@ struct Image{
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
 	set_na(x,y,c);
     }
-    inline T safe_get_na(const Point<int> & p) const{
+    inline T safe_get_na(const iPoint & p) const{
 	return safe_get_na(p.x, p.y);
     }
-    inline void safe_set_na(const Point<int> & p, T c){
+    inline void safe_set_na(const iPoint & p, T c){
 	safe_set_na(p.x, p.y, c);
     }
 
@@ -199,18 +200,18 @@ struct Image{
 		b;
 	}
     }
-    inline void set_a(const Point<int> & p, T c){ set_a(p.x, p.y, c); }
+    inline void set_a(const iPoint & p, T c){ set_a(p.x, p.y, c); }
 
     inline void safe_set_a(int x, int y, T c){
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
 	set_a(x,y,c);
     }
-    inline void safe_set_a(const Point<int> & p, T c){
+    inline void safe_set_a(const iPoint & p, T c){
 	safe_set_a(p.x, p.y, c);
     }
 
-    inline void render (Point<int> offset, Image<T> const & other) {
-	Rect<int> r = rect_intersect(range(), other.range()+offset);
+    inline void render (iPoint offset, Image<T> const & other) {
+	iRect r = rect_intersect(range(), other.range()+offset);
 	for (int y = 0; y < r.h; ++y) {
 	    for (int x = 0; x < r.w; ++x) {
 		set_a(x+offset.x, y+offset.y, other.get(x,y));
@@ -218,13 +219,13 @@ struct Image{
 	}
     }
     inline void render (int x, int y, Image<T> const & other) {
-	render(Point<int>(x,y), other);
+	render(iPoint(x,y), other);
     }
 
 
 
-    Rect<int> range() const{
-      return Rect<int>(0,0,w,h);
+    iRect range() const{
+      return iRect(0,0,w,h);
     }
 
     T *data;
@@ -237,6 +238,9 @@ struct Image{
   }
 #endif  // SWIG
 };
+
+typedef Image<double> dImage;
+typedef Image<int>    iImage;
 
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Image<T> & i)

@@ -11,7 +11,7 @@
 
 namespace mp {
 
-    struct mp_object : MultiLine<double>{
+    struct mp_object : dMultiLine{
         std::string          Class;
         int                  Type;
         std::string          Label;
@@ -25,20 +25,20 @@ namespace mp {
 
         bool operator== (const mp_object & o) const{
           if (size()!=o.size()) return false;
-          MultiLine<double>::const_iterator i,j;
+          dMultiLine::const_iterator i,j;
           for (i = begin(), j=o.begin(); (i!=end()) && (j!=o.end()) ; i++, j++)
             if (*i!=*j) return false;
           return (
             (Class==o.Class) && (Type==o.Type) && (Label==o.Label) &&
             (BL==o.BL) && (EL==o.EL) && (Comment==o.Comment) && (Opts==o.Opts) );
         }
-        mp_object & operator= (const Line<double> & v){
+        mp_object & operator= (const dLine & v){
           clear();
           push_back(v);
           return *this;
         }
         // set points from line
-//        void set_points(const Line<double> & v);
+//        void set_points(const dLine & v);
 
     };
 

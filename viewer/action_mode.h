@@ -16,7 +16,7 @@ public:
     virtual void abort() = 0;
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(Point<int> p) = 0;
+    virtual void handle_click(iPoint p) = 0;
 };
 
 
@@ -36,7 +36,7 @@ public:
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(Point<int> p) {
+    virtual void handle_click(iPoint p) {
     }
 };
 

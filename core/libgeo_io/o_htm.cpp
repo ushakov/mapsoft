@@ -138,8 +138,8 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
       stat((dir.str()+file.str()).c_str(), &st);
       if (S_ISREG(st.st_mode)) continue; //файл существует
 
-      Image<int> im(S,S);
-      ml.draw (Point<int>(S*(x-tminx),S*(tmaxy-y-1)), im);
+      iImage im(S,S);
+      ml.draw (iPoint(S*(x-tminx),S*(tmaxy-y-1)), im);
       image_r::save(im, (dir.str()+file.str()).c_str(), Options());
     }
     }

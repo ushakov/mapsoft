@@ -8,7 +8,7 @@
 int main(){
   int zoom=3;
 
-  Image<int> i = ks::load( "/d/MAPS/KS/", zoom, Rect<int>(-256,0,6*256,6*256), 1, true);
+  iImage i = ks::load( "/d/MAPS/KS/", zoom, iRect(-256,0,6*256,6*256), 1, true);
   image_jpeg::save(i, "ks_test.jpg", 75);
 }
 
