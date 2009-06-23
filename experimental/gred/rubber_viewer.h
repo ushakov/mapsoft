@@ -41,15 +41,14 @@ class RubberViewer : public ViewerT {
   }
 
   virtual bool on_motion_notify_event (GdkEventMotion * event) {
-    bool butt=event->state & Gdk::BUTTON1_MASK;
-    if (!butt) rubber_clear();
+    if (!ViewerT::on_drag) rubber_clear();
     int x=(int)event->x, y=(int)event->y;
-    if (butt && event->is_hint){
+    if (ViewerT::on_drag && event->is_hint){
       mouse_pos=Point<int>(x,y);
       ViewerT::set_origin(ViewerT::origin - Point<int>(x,y) + ViewerT::drag_pos);
       ViewerT::drag_pos = Point<int>(x,y);
     }
-    if (!butt){
+    if (!ViewerT::on_drag){
       ViewerT::get_pointer(mouse_pos.x, mouse_pos.y);
       rubber_draw();
     }

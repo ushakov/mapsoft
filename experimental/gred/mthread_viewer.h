@@ -26,8 +26,8 @@ class MThreadViewer : public SimpleViewer {
       delete(mutex);
     }
 
-  void updater(const Rect<GCoord> & r){
-    std::pair<Point<GCoord>, Image<int> > p(r.TLC(), slow_plane->draw(r));
+  void updater(const Rect<int> & r){
+    std::pair<Point<int>, Image<int> > p(r.TLC(), slow_plane->draw(r));
 
     mutex->lock();
     done_cache.insert(p);
@@ -38,16 +38,16 @@ class MThreadViewer : public SimpleViewer {
 
   void on_done_signal(){
     mutex->lock();
-    for (std::map<Point<GCoord>,Image<int> >::const_iterator
+    for (std::map<Point<int>,Image<int> >::const_iterator
          i=done_cache.begin(); i!=done_cache.end(); i++){
 
-      draw_image(i->second, get_shift(i->first, origin));
+      draw_image(i->second, i->first-origin);
     }
     done_cache.clear();
     mutex->unlock();
   }
 
-  void draw(const Rect<GCoord> & r){
+  void draw(const Rect<int> & r){
     if (r.empty()) return;
     draw_image(plane->draw(r + origin), r.TLC());
 
@@ -61,7 +61,7 @@ class MThreadViewer : public SimpleViewer {
   private:
     GPlane *slow_plane;
 
-    std::map<Point<GCoord>,Image<int> > done_cache;
+    std::map<Point<int>,Image<int> > done_cache;
     Glib::Dispatcher          done_signal;
     Glib::Mutex              *mutex;
 };
