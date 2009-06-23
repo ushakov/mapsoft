@@ -5,11 +5,6 @@
 
 #include "simple_viewer.h"
 
-
-// define this to reduce information transfer from workplane during scrolling
-#define MANUAL_SCROLL
-
-
 class MThreadViewer : public SimpleViewer {
   public:
 
