@@ -7,9 +7,11 @@
 #include <string>
 #include <boost/operators.hpp>
 
-struct Time:
-    public boost::equality_comparable<Time>,
+struct Time
+#ifndef SWIG
+    : public boost::equality_comparable<Time>,
     public boost::less_than_comparable<Time>
+#endif  // SWIG
 {
     time_t value;
 
@@ -22,8 +24,16 @@ struct Time:
     std::string time_str();
     std::string date_str();
 
+#ifndef SWIG
   bool operator<  (const Time & t) const { return value < t.value; }
   bool operator== (const Time & t) const { return value == t.value; }
+#endif  // SWIG
+
+#ifdef SWIG
+  %extend {
+    swig_cmp(Time);
+  }
+#endif
 };
 
 std::ostream & operator<< (std::ostream & s, const Time & t);

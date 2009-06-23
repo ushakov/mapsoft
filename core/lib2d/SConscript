@@ -4,3 +4,4 @@ env.Library('2d', \
         point_int.cpp
         rect.cpp
      """))
+

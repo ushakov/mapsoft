@@ -142,8 +142,8 @@ struct map2map{
                 Image<int> & dst_img, Rect<int> dst_rect);
 
   // новая версия
-  void image_frw(Image<int> & src_img, int src_scale, Point<int> origin, Image<int> & image);
-  void image_bck(Image<int> & src_img, int src_scale, Point<int> origin, Image<int> & image);
+  //void image_frw(Image<int> & src_img, int src_scale, Point<int> origin, Image<int> & image);
+  //void image_bck(Image<int> & src_img, int src_scale, Point<int> origin, Image<int> & image);
 
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
