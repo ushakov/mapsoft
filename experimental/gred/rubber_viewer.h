@@ -33,25 +33,36 @@ class RubberViewer : public ViewerT {
 
   RubberViewer(GPlane * pl) : ViewerT(pl){}
 
+
+/*
   virtual bool on_expose_event (GdkEventExpose * event){
-    rubber_clear();
+    a=false;
+//    rubber_clear();
     ViewerT::on_expose_event(event);
-    rubber_draw();
+//    rubber_draw();
+    a=true;
     return false;
+  }
+*/
+
+
+  virtual void draw_image (const iImage & img, const iPoint & p){
+    rubber_clear();
+    ViewerT::draw_image(img, p);
+    rubber_draw();
   }
 
   virtual bool on_motion_notify_event (GdkEventMotion * event) {
+    mouse_pos=iPoint((int)event->x,(int)event->y);
     if (!ViewerT::on_drag) rubber_clear();
     if (ViewerT::on_drag && event->is_hint){
-      int x=(int)event->x, y=(int)event->y;
-      mouse_pos=iPoint(x,y);
-      ViewerT::set_origin(ViewerT::get_origin() - iPoint(x,y) + ViewerT::drag_pos);
-      ViewerT::drag_pos = iPoint(x,y);
-    }
-    if (!ViewerT::on_drag){
-      ViewerT::get_pointer(mouse_pos.x, mouse_pos.y);
+      rubber_clear();
+      ViewerT::set_origin(ViewerT::get_origin() - mouse_pos + ViewerT::drag_pos);
+      ViewerT::drag_pos = mouse_pos;
       rubber_draw();
+      return true;
     }
+    if (!ViewerT::on_drag) rubber_draw();
     return false;
   }
 
