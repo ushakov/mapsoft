@@ -16,17 +16,15 @@ class MThreadViewer : public SimpleViewer {
 
     void set_fast_plane();
     void set_fast_plane(GPlane * pl);
-    void set_slow_plane(GPlane * pl);
     GPlane * get_fast_plane() const;
-    GPlane * get_slow_plane() const;
 
   private:
-    GPlane *slow_plane;
+    GPlane *fast_plane;
     GPlaneSolidFill default_fast_plane;
 
     std::map<iPoint,iImage> done_cache;
-    Glib::Dispatcher          done_signal;
-    Glib::Mutex              *mutex;
+    Glib::Dispatcher        done_signal;
+    Glib::Mutex            *mutex;
 };
 
 #endif
