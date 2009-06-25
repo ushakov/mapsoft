@@ -9,7 +9,7 @@ class SimpleViewer : public Gtk::DrawingArea {
 
     SimpleViewer(GPlane * pl);
 
-    virtual void set_origin (const iPoint & new_origin);
+    virtual void set_origin (iPoint new_origin);
     iPoint       get_origin (void) const;
     virtual void set_plane (GPlane * pl);
     GPlane *     get_plane (void) const;

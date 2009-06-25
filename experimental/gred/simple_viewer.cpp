@@ -16,7 +16,13 @@ SimpleViewer::SimpleViewer(GPlane * pl) :
     Gdk::POINTER_MOTION_HINT_MASK );
 }
 
-void SimpleViewer::set_origin (const iPoint & new_origin) {
+void SimpleViewer::set_origin (iPoint new_origin) {
+  
+  if (new_origin.x + get_width()  > GCoordMax) new_origin.x=GCoordMax - get_width();
+  if (new_origin.y + get_height() > GCoordMax) new_origin.y=GCoordMax - get_height();
+  if (new_origin.x < GCoordMin) new_origin.x=GCoordMin;
+  if (new_origin.y < GCoordMin) new_origin.y=GCoordMin;
+
   get_window()->scroll(origin.x-new_origin.x, origin.y-new_origin.y);
   origin = new_origin;
 }
