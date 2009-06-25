@@ -46,16 +46,14 @@ class RubberViewer : public ViewerT {
   }
 
   virtual bool on_motion_notify_event (GdkEventMotion * event) {
+    if (!event->is_hint) return false;
     mouse_pos=iPoint((int)event->x,(int)event->y);
-    if (!ViewerT::on_drag) rubber_erase();
-    if (ViewerT::on_drag && event->is_hint){
-      rubber_erase();
+    rubber_erase();
+    if (ViewerT::on_drag){
       ViewerT::set_origin(ViewerT::get_origin() - mouse_pos + ViewerT::drag_pos);
       ViewerT::drag_pos = mouse_pos;
-      rubber_draw();
-      return true;
     }
-    if (!ViewerT::on_drag) rubber_draw();
+    rubber_draw();
     return false;
   }
 
