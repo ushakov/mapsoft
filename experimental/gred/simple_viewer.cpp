@@ -76,12 +76,11 @@ bool SimpleViewer::on_button_release_event (GdkEventButton * event) {
 }
 
 bool SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
-  int x=(int)event->x, y=(int)event->y;
-
-  if ((event->state & Gdk::BUTTON1_MASK) &&
-      (event->is_hint)){
-    set_origin(origin - iPoint(x,y) + drag_pos);
-    drag_pos = iPoint(x,y);
+  if (!event->is_hint) return false;
+  if (on_drag){
+    iPoint p((int)event->x, (int)event->y);
+    set_origin(origin - p + drag_pos);
+    drag_pos = p;
   }
   return false;
 }
