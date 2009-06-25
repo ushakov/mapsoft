@@ -48,6 +48,13 @@ class RubberViewer : public ViewerT {
     rubber_draw();
   }
 
+  virtual void draw_image (const iImage & img, const iRect & part, const iPoint & p){
+    rubber_erase();
+    ViewerT::draw_image(img, part, p);
+    rubber_draw();
+  }
+
+
   virtual bool on_motion_notify_event (GdkEventMotion * event) {
     if (!event->is_hint) return false;
     mouse_pos=iPoint((int)event->x,(int)event->y);

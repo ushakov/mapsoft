@@ -89,12 +89,9 @@ void DThreadViewer::updater(){
 
 
 void DThreadViewer::on_done_signal(){
-std::cerr << "SIZE " << tiles_cache.size() << "\n";
   while (!tiles_done.empty()){
     iPoint key=tiles_done.front();
     draw(tile_to_rect(key)-get_origin());
-
-std::cerr << "Draw " << key << "\n";
 
     updater_mutex->lock();
     tiles_done.pop();
