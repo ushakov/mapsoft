@@ -4,6 +4,7 @@
 #include "simple_viewer.h"
 #include <map>
 #include <set>
+#include <queue>
 
 // double-threaded viewer with square tiles
 
@@ -28,9 +29,9 @@ class DThreadViewer : public SimpleViewer {
     GPlane *fast_plane;
     GPlaneSolidFill default_fast_plane;
 
-    std::map<iPoint,iImage> tiles_done;
+    std::map<iPoint,iImage> tiles_cache;
     std::set<iPoint>        tiles_todo;
-    iPoint                  last_tile;
+    std::queue<iPoint>      tiles_done;
 
     Glib::Thread           *updater_thread;
     Glib::Mutex            *updater_mutex;

@@ -50,18 +50,16 @@ void DThreadViewer::updater(){
   do {
 
     // generate tiles
-    while (!tiles_todo.empty()){
+    if (!tiles_todo.empty()){
+
+      iPoint key = *tiles_todo.begin();
+      iImage tile = get_plane()->draw(tile_to_rect(key));
 
       updater_mutex->lock();
-      last_tile = *tiles_todo.begin();
-      tiles_todo.erase(last_tile);
-      updater_mutex->unlock();
-
-      iImage tile = get_plane()->draw(tile_to_rect(last_tile));
-
-      updater_mutex->lock();
-      if (tiles_done.count(last_tile)>0) tiles_done.erase(last_tile);
-      tiles_done.insert(std::pair<iPoint,iImage>(last_tile, tile));
+      if (tiles_cache.count(key)>0) tiles_cache.erase(key);
+      tiles_cache.insert(std::pair<iPoint,iImage>(key, tile));
+      tiles_done.push(key);
+      tiles_todo.erase(key);
       updater_mutex->unlock();
 
       done_signal.emit();
@@ -71,19 +69,19 @@ void DThreadViewer::updater(){
     iRect tiles_to_keep = rect_pump( tiles_on_rect(
         iRect(get_origin().x, get_origin().y,  get_width(), get_height()), TILE_SIZE), TILE_MARG);
 
-    std::map<iPoint,iImage>::iterator it=tiles_done.begin(), it1;
-    while (it!=tiles_done.end()) {
+    std::map<iPoint,iImage>::iterator it=tiles_cache.begin(), it1;
+    while (it!=tiles_cache.end()) {
       if (point_in_rect(it->first, tiles_to_keep)) it++;
       else {
         it1=it; it1++;
         updater_mutex->lock();
-        tiles_done.erase(it);
+        tiles_cache.erase(it);
         updater_mutex->unlock();
         it=it1;
       }
     }
 
-    updater_cond->wait(*updater_mutex);
+    if (tiles_todo.empty()) updater_cond->wait(*updater_mutex);
     updater_mutex->unlock();
   }
   while (updater_needed);
@@ -91,8 +89,17 @@ void DThreadViewer::updater(){
 
 
 void DThreadViewer::on_done_signal(){
-    draw(tile_to_rect(last_tile)-get_origin());
-std::cerr << "SIZE " << tiles_done.size() << "\n";
+std::cerr << "SIZE " << tiles_cache.size() << "\n";
+  while (!tiles_done.empty()){
+    iPoint key=tiles_done.front();
+    draw(tile_to_rect(key)-get_origin());
+
+std::cerr << "Draw " << key << "\n";
+
+    updater_mutex->lock();
+    tiles_done.pop();
+    updater_mutex->unlock();
+  }
 }
 
 
@@ -108,15 +115,17 @@ void DThreadViewer::draw(const iRect & r){
       clip_rect_to_rect(rect,r + get_origin());
       if (rect.empty()) continue;
 
-      if (tiles_done.count(key)==0){ // if there is no tile in cache
+      if (tiles_cache.count(key)==0){ // if there is no tile in cache
         draw_image(fast_plane->draw(rect), rect.TLC()-get_origin());
-        updater_mutex->lock();
-        tiles_todo.insert(key);
-        updater_cond->signal();
-        updater_mutex->unlock();
+        if (tiles_todo.count(key)==0){
+          updater_mutex->lock();
+          tiles_todo.insert(key);
+          updater_cond->signal();
+          updater_mutex->unlock();
+        }
       }
       else {
-        draw_image(tiles_done.find(key)->second,
+        draw_image(tiles_cache.find(key)->second,
           rect - key*TILE_SIZE, rect.TLC()-get_origin());
       }
     }
