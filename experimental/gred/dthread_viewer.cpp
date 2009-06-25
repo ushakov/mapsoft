@@ -1,6 +1,6 @@
 #include "dthread_viewer.h"
 
-const int TILE_SIZE=256;
+const int TILE_SIZE=32;
 const int TILE_MARG=2;
 
 DThreadViewer::DThreadViewer(GPlane * pl) :
@@ -65,9 +65,24 @@ void DThreadViewer::updater(){
       done_signal.emit();
     }
 
+    // cleanup queue
+    iRect tiles_to_keep = tiles_on_rect(
+        iRect(get_origin().x, get_origin().y,  get_width(), get_height()), TILE_SIZE);
+
+    std::set<iPoint>::iterator qit=tiles_todo.begin(), qit1;
+    while (qit!=tiles_todo.end()) {
+      if (point_in_rect(*qit, tiles_to_keep)) qit++;
+      else {
+        qit1=qit; qit1++;
+        updater_mutex->lock();
+        tiles_todo.erase(qit);
+        updater_mutex->unlock();
+        qit=qit1;
+      }
+    }
+
     // cleanup cache
-    iRect tiles_to_keep = rect_pump( tiles_on_rect(
-        iRect(get_origin().x, get_origin().y,  get_width(), get_height()), TILE_SIZE), TILE_MARG);
+    tiles_to_keep = rect_pump(tiles_to_keep, TILE_MARG);
 
     std::map<iPoint,iImage>::iterator it=tiles_cache.begin(), it1;
     while (it!=tiles_cache.end()) {
@@ -80,6 +95,7 @@ void DThreadViewer::updater(){
         it=it1;
       }
     }
+
 
     if (tiles_todo.empty()) updater_cond->wait(*updater_mutex);
     updater_mutex->unlock();
