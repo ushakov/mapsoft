@@ -8,6 +8,8 @@ TARGETS=simple_viewer_test1\
      simple_viewer_test2\
      mthread_viewer_test1\
      mthread_viewer_test2\
+     dthread_viewer_test1\
+     dthread_viewer_test2\
      simple_rubb_viewer_test1\
      simple_rubb_viewer_test2\
      mthread_rubb_viewer_test1
@@ -21,6 +23,8 @@ simple_viewer_test1:  gplane.o simple_viewer.o
 simple_viewer_test2:  gplane.o simple_viewer.o
 mthread_viewer_test1: gplane.o simple_viewer.o mthread_viewer.o
 mthread_viewer_test2: gplane.o simple_viewer.o mthread_viewer.o
+dthread_viewer_test1: gplane.o simple_viewer.o dthread_viewer.o
+dthread_viewer_test2: gplane.o simple_viewer.o dthread_viewer.o
 simple_rubb_viewer_test1: gplane.o simple_viewer.o
 simple_rubb_viewer_test2: gplane.o simple_viewer.o
 mthread_rubb_viewer_test1: gplane.o simple_viewer.o mthread_viewer.o

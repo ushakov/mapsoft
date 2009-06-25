@@ -1,3 +1,6 @@
+#ifndef RUBBER_VIEWER_H 
+#define RUBBER_VIEWER_H 
+
 #include <gtkmm.h>
 #include <gdk/gdk.h>
 
@@ -106,3 +109,4 @@ class RubberViewer : public ViewerT {
 
 };
 
+#endif

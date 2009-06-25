@@ -16,6 +16,7 @@ class SimpleViewer : public Gtk::DrawingArea {
 
     virtual void draw(const iRect & r);
     virtual void draw_image (const iImage & img, const iPoint & p);
+    virtual void draw_image (const iImage & img, const iRect & part, const iPoint & p);
 
     virtual bool on_expose_event (GdkEventExpose * event);
     virtual bool on_button_press_event (GdkEventButton * event);
