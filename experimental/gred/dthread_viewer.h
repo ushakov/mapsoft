@@ -22,9 +22,6 @@ class DThreadViewer : public SimpleViewer {
     void set_fast_plane(GPlane * pl);
     GPlane * get_fast_plane() const;
 
-//    void set_origin (const iPoint & new_origin);
-    void draw_tile(const iPoint & key);
-
   private:
     GPlane *fast_plane;
     GPlaneSolidFill default_fast_plane;

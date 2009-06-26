@@ -1,6 +1,6 @@
 #include "dthread_viewer.h"
 
-const int TILE_SIZE=32;
+const int TILE_SIZE=512;
 const int TILE_MARG=2;
 
 DThreadViewer::DThreadViewer(GPlane * pl) :
