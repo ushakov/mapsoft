@@ -31,3 +31,7 @@ simple_rubb_viewer_test2: gplane.o simple_viewer.o
 mthread_rubb_viewer_test1: gplane.o simple_viewer.o mthread_viewer.o
 dthread_rubb_viewer_test1: gplane.o simple_viewer.o dthread_viewer.o
 
+gplane.o: gplane.h
+dthread_viewer.o: dthread_viewer.h
+mthread_viewer.o: mthread_viewer.h
+simple_viewer.o: simple_viewer.h
