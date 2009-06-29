@@ -5,6 +5,7 @@
 #include <gdk/gdk.h>
 
 #include <list>
+#include "gplane.h"
 
 const int REF_XMOUSE=1;
 const int REF_YMOUSE=2;

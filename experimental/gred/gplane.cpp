@@ -7,7 +7,7 @@ const int GCoordMax=INT_MAX/2;
 const int GCoordMin=-500;
 //const int GCoordMax=500;
 
-iImage GPlaneTestTile::draw(const iRect &range) const {
+iImage GPlaneTestTile::draw(const iRect &range){
 
   iImage ret(range.w, range.h, 0xFFFFFFFF);
   for (int j=0; j<range.h; j++){
@@ -18,7 +18,7 @@ iImage GPlaneTestTile::draw(const iRect &range) const {
   return ret;
 }
 
-iImage GPlaneTestTileSlow::draw(const iRect &range) const {
+iImage GPlaneTestTileSlow::draw(const iRect &range){
   iImage ret(range.w, range.h, 0xFFFFFFFF);
 
   for (int j=0; j<range.h; j++){
@@ -31,11 +31,11 @@ iImage GPlaneTestTileSlow::draw(const iRect &range) const {
   return ret;
 }
 
-iImage GPlaneSolidFill::draw(const iRect &range) const {
+iImage GPlaneSolidFill::draw(const iRect &range){
   return iImage(range.w, range.h, color);
 }
 
-iImage GPlaneTestGrid::draw(const iRect &range) const {
+iImage GPlaneTestGrid::draw(const iRect &range){
   iImage ret(range.w, range.h,0xFF000000);
   for (int j=0; j<range.h; j++){
     for (int i=0; i<range.w; i++){
@@ -52,7 +52,7 @@ iImage GPlaneTestGrid::draw(const iRect &range) const {
   return ret;
 }
 
-iImage GPlaneTestGridSlow::draw(const iRect &range) const {
+iImage GPlaneTestGridSlow::draw(const iRect &range){
   iImage ret(range.w, range.h, 0xFF000000);
   for (int j=0; j<range.h; j++){
     for (int i=0; i<range.w; i++){
