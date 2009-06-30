@@ -50,20 +50,23 @@ void DThreadViewer::updater(){
   do {
 
     // generate tiles
+    updater_mutex->lock();
     if (!tiles_todo.empty()){
 
       iPoint key = *tiles_todo.begin();
-      iImage tile = get_plane()->draw(tile_to_rect(key));
 
+      updater_mutex->unlock();
+      iImage tile = get_plane()->draw(tile_to_rect(key));
       updater_mutex->lock();
+
       if (tiles_cache.count(key)>0) tiles_cache.erase(key);
       tiles_cache.insert(std::pair<iPoint,iImage>(key, tile));
       tiles_done.push(key);
       tiles_todo.erase(key);
-      updater_mutex->unlock();
 
       done_signal.emit();
     }
+    updater_mutex->unlock();
 
     // cleanup queue
     iRect tiles_to_keep = tiles_on_rect(
