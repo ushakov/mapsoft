@@ -59,12 +59,12 @@ class RubberViewer : public ViewerT {
   virtual bool on_motion_notify_event (GdkEventMotion * event) {
     if (!event->is_hint) return false;
     mouse_pos=iPoint((int)event->x,(int)event->y);
-    rubber_erase();
+    rubber_erase(false);
     if (ViewerT::on_drag){
       ViewerT::set_origin(ViewerT::get_origin() - mouse_pos + ViewerT::drag_pos);
       ViewerT::drag_pos = mouse_pos;
     }
-    rubber_draw();
+    rubber_draw(false);
     return false;
   }
 
@@ -77,24 +77,27 @@ class RubberViewer : public ViewerT {
     rubber_gc->set_function(Gdk::XOR);
   }
 
-  void rubber_draw(){
+  void rubber_draw(const bool all=true){
     if (!rubber_gc) return;
     for (std::list<RubberSegment>::const_iterator i = rubber.begin(); i != rubber.end(); i++){
+      if (!all && (i->r1==0) && (i->r2==0)) continue;
       iPoint p1=i->get1(mouse_pos, ViewerT::get_origin());
       iPoint p2=i->get2(mouse_pos, ViewerT::get_origin());
       ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
-      drawn.push_back(RubberSegment(p1,0,p2,0));
+      drawn.push_back(RubberSegment(p1,i->r1,p2,i->r2));
     }
   }
 
-  void rubber_erase(){
+  void rubber_erase(const bool all=true){
     if (!rubber_gc) return;
-    for (std::list<RubberSegment>::const_iterator i = drawn.begin(); i != drawn.end(); i++){
+    std::list<RubberSegment>::iterator i = drawn.begin();
+    while (i != drawn.end()){
+      if (!all && (i->r1==0) && (i->r2==0)) {i++; continue;}
       iPoint p1=i->p1;
       iPoint p2=i->p2;
       ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
+      i=drawn.erase(i);
     }
-    drawn.clear();
   }
 
   void rubber_add(const iPoint & p1, const int r1,
