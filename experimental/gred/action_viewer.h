@@ -1,6 +1,8 @@
 #ifndef ACTION_VIEWER_H
 #define ACTION_VIEWER_H
 
+#include <gtkmm.h>
+#include <sys/time.h> 
 #include <vector>
 #include <string>
 
@@ -39,33 +41,59 @@ public:
 template <typename ViewerT>
 class ActionViewer : public ViewerT {
 public:
-  ActionViewer(GPlane * pl) : ViewerT(pl){}
+  ActionViewer(GPlane * pl) : ViewerT(pl){
+    current=-1;
+    ViewerT::signal_button_press_event().connect (sigc::mem_fun (this, &ActionViewer::on_button_press));
+    ViewerT::signal_button_release_event().connect (sigc::mem_fun (this, &ActionViewer::on_button_release));
+  }
 
-  void add_action(Action * a){
+  void action_add(Action * a){
     actions.push_back(a);
   }
 
-  void select_action (int a) {
-    actions[current]->reset();
+  void action_select (int a) {
+    if (current>=0) actions[current]->reset();
     current = a;
-    actions[current]->init();
+    if (current>=0) actions[current]->init();
   }
 
-  void clear() {
+  void action_clear() {
     actions.clear();
   }
 
-  void reset(){
-    actions[current]->reset();
+  void action_reset(){
+    if (current>=0) actions[current]->reset();
   }
 
-  void click (iPoint p) {
-    actions[current]->click(p);
+  bool on_button_press (GdkEventButton * event) {
+    if (event->button == 1) {
+      gettimeofday (&click_started, NULL);
+      return true;
+    }
+    return false;
+  }
+
+  bool on_button_release (GdkEventButton * event) {
+    if (event->button == 1) {
+
+      struct timeval click_ended;
+      gettimeofday (&click_ended, NULL);
+      int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 +
+              (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
+      if (d > 250) return true;
+
+      iPoint p(int(event->x), int(event->y));
+      p += ViewerT::get_origin();
+      if (current>=0) actions[current]->click(p);
+      return true;
+    }
+    return false;
   }
 
 private:
   std::vector<Action *> actions;
   int current;
+  struct timeval click_started;
 };
 
 #endif
