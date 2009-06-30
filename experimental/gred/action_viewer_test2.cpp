@@ -4,7 +4,7 @@
 #include "dthread_viewer.h"
 #include "rubber_viewer.h"
 
-typedef ActionViewer<RubberViewer<DThreadViewer> > ViewerT;
+typedef RubberViewer<ActionViewer<DThreadViewer> > ViewerT;
 
 class ActionTest : public Action{
   public:
