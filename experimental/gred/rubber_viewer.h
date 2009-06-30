@@ -114,6 +114,34 @@ class RubberViewer : public ViewerT {
     rubber.clear();
   }
 
+  void rubber_add_src_sq(const iPoint & p, int size){
+      iPoint p1(size,size), p2(size,-size);
+      rubber_add( p-p1, 0, p-p2, 0);
+      rubber_add( p-p2, 0, p+p1, 0);
+      rubber_add( p+p1, 0, p+p2, 0);
+      rubber_add( p+p2, 0, p-p1, 0);
+  }
+
+  void rubber_add_dst_sq(int size){
+      iPoint p1(-size,-size), p2(-size,size);
+      iPoint p3( size, size), p4(size,-size);
+      rubber_add( p1, 3, p2, 3);
+      rubber_add( p2, 3, p3, 3);
+      rubber_add( p3, 3, p4, 3);
+      rubber_add( p4, 3, p1, 3);
+  }
+
+  void rubber_add_diag(const iPoint & p){
+      rubber_add(p, 0, iPoint(0,0), 3);
+  }
+
+  void rubber_add_rect(const iPoint & p){
+      rubber_add(iPoint(0,p.y), 1,   iPoint(0,0), 3);
+      rubber_add(iPoint(p.x,0), 2,   iPoint(0,0), 3);
+      rubber_add(iPoint(0,p.y), 1,   p, 0);
+      rubber_add(iPoint(p.x,0), 2,   p, 0);
+  }
+
 
 };
 

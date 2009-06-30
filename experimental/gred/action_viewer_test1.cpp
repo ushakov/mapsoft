@@ -21,23 +21,10 @@ class ActionTest : public Action{
   virtual void click(iPoint p) {
     std::cerr << "ActionTest: click\n";
     if (clear){
-      iPoint p0(0,0), p1(5,5), p2(5,-5);
-      viewer->rubber_add( p-p1,  0,   p-p2, 0);
-      viewer->rubber_add( p-p2,  0,   p+p1, 0);
-      viewer->rubber_add( p+p1,  0,   p+p2, 0);
-      viewer->rubber_add( p+p2,  0,   p-p1, 0);
-
-      viewer->rubber_add( p,  0,   p0, 3);
-
-      viewer->rubber_add( iPoint(0,p.y),  1,   p0, 3);
-      viewer->rubber_add( iPoint(p.x,0),  2,   p0, 3);
-      viewer->rubber_add( p,  0,   iPoint(0,p.y), 1);
-      viewer->rubber_add( p,  0,   iPoint(p.x,0), 2);
-
-      viewer->rubber_add(p0-p1,  3,  p0-p2, 3);
-      viewer->rubber_add(p0-p2,  3,     p1, 3);
-      viewer->rubber_add(p1,     3,     p2, 3);
-      viewer->rubber_add(p2,     3,  p0-p1, 3);
+      viewer->rubber_add_src_sq(p, 3);
+      viewer->rubber_add_dst_sq(3);
+      viewer->rubber_add_rect(p);
+      viewer->rubber_add_diag(p);
     } else {
       viewer->rubber_clear();
     }

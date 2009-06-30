@@ -12,22 +12,11 @@ int main(int argc, char **argv){
 
     RubberViewer<SimpleViewer> viewer(&p1);
 
-    viewer.rubber_add( 5, 5,  0,   5,15, 0);
-    viewer.rubber_add( 5,15,  0,  15,15, 0);
-    viewer.rubber_add(15,15,  0,  15, 5, 0);
-    viewer.rubber_add(15, 5,  0,   5, 5, 0);
-
-    viewer.rubber_add(10,10,  0,   0, 0, 3);
-
-    viewer.rubber_add( 0,10,  1,   0, 0, 3);
-    viewer.rubber_add(10, 0,  2,   0, 0, 3);
-    viewer.rubber_add(10,10,  0,   0,10, 1);
-    viewer.rubber_add(10,10,  0,  10, 0, 2);
-
-    viewer.rubber_add(-5,-5,  3,  -5, 5, 3);
-    viewer.rubber_add(-5, 5,  3,   5, 5, 3);
-    viewer.rubber_add( 5, 5,  3,   5,-5, 3);
-    viewer.rubber_add( 5,-5,  3,  -5,-5, 3);
+    iPoint p(20,20);
+    viewer.rubber_add_src_sq(p, 3);
+    viewer.rubber_add_dst_sq(3);
+    viewer.rubber_add_rect(p);
+    viewer.rubber_add_diag(p);
 
     win.add(viewer);
     win.set_default_size(640,480);
