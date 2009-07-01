@@ -13,14 +13,15 @@ class ActionTest1 : public Action{
 
   std::string get_name() { return "Test1"; }
 
-  virtual void init() {
+  void init() {
     clear=true;
   }
-  virtual void reset() {
+
+  void reset() {
     viewer->rubber_clear();
     clear=true;
   }
-  virtual void click(iPoint p) {
+  void click(const iPoint & p, const Gdk::ModifierType & state){
     if (clear){
       viewer->rubber_add_src_sq(p, 3);
       viewer->rubber_add_dst_sq(3);
@@ -41,27 +42,32 @@ class ActionTest2 : public Action{
 
   std::string get_name() { return "Test2"; }
 
-  virtual void init() {
-    viewer->rubber_clear();
-    data.clear();
-  }
-  virtual void reset() {
-    viewer->rubber_clear();
-    data.clear();
-  }
-  virtual void click(iPoint p) {
-    int x,y;
-    Gdk::ModifierType state;
-    viewer->rubber_clear();
+  void init() { }
 
-    viewer->get_window()->get_pointer(x,y,state);
-    if (state&Gdk::CONTROL_MASK){
-      if (data.size()>0) data.resize(data.size()-1);
+  void reset() {
+    viewer->rubber_clear();
+    data.clear();
+  }
+
+  void click(const iPoint & p, const Gdk::ModifierType & state){
+
+    viewer->rubber_clear();
+    if (state&Gdk::BUTTON1_MASK){
+      if (state&Gdk::CONTROL_MASK){
+        if (data.size()>0) data.resize(data.size()-1);
+      }
+      else data.push_back(p);
+      if (data.size()>0) viewer->rubber_add_diag(data[data.size()-1]);
+      for (int i=0; i+1<data.size(); i++){
+        viewer->rubber_add(data[i], 0, data[i+1], 0);
+      }
     }
-    else data.push_back(p);
-    if (data.size()>0) viewer->rubber_add_diag(data[data.size()-1]);
-    for (int i=0; i+1<data.size(); i++){
-      viewer->rubber_add(data[i], 0, data[i+1], 0);
+    else if (state&Gdk::BUTTON2_MASK){
+      std::cerr << data << "\n";
+      data.clear();
+    }
+    else if (state&Gdk::BUTTON3_MASK){
+      data.clear();
     }
   }
   ViewerT * viewer;

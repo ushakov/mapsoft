@@ -11,26 +11,33 @@ class ActionTest : public Action{
   ActionTest(ViewerT * v) : viewer(v) { }
 
   std::string get_name() { return "Test1"; }
-  virtual void init() {
+  void init() {
     clear=true;
   }
-  virtual void reset() {
+  void reset() {
     viewer->rubber_clear();
     clear=true;
   }
-  virtual void click(iPoint p) {
+  void click(const iPoint & p, const Gdk::ModifierType & state){
+    if (!(state&Gdk::BUTTON1_MASK)){
+      reset();
+      return;
+    }
     if (clear){
       viewer->rubber_add_src_sq(p, 3);
       viewer->rubber_add_dst_sq(3);
       viewer->rubber_add_rect(p);
       viewer->rubber_add_diag(p);
+      p0=p;
     } else {
+      std::cout << iRect(p0,p) << "\n";
       viewer->rubber_clear();
     }
     clear=!clear;
   }
   ViewerT * viewer;
   bool clear;
+  iPoint p0;
 };
 
 int main(int argc, char **argv){

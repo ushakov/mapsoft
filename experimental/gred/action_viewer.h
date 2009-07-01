@@ -19,7 +19,7 @@ public:
   virtual void reset() = 0;
 
   // Sends user click. Coordinates are in workplane's system.
-  virtual void click(iPoint p) = 0;
+  virtual void click(const iPoint & p, const Gdk::ModifierType & state) = 0;
 };
 
 template <typename ViewerT>
@@ -50,34 +50,29 @@ public:
   }
 
   bool on_button_press (GdkEventButton * event) {
-    if (event->button == 1) {
-      gettimeofday (&click_started, NULL);
-      return true;
-    }
-    return false;
+    gettimeofday (&click_started, NULL);
+    ViewerT::get_window()->get_pointer(p.x,p.y,state);
+    p += ViewerT::get_origin();
+    return true;
   }
 
   bool on_button_release (GdkEventButton * event) {
-    if (event->button == 1) {
+    struct timeval click_ended;
+    gettimeofday (&click_ended, NULL);
+    int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 +
+            (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
+    if (d > 250) return true;
 
-      struct timeval click_ended;
-      gettimeofday (&click_ended, NULL);
-      int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 +
-              (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
-      if (d > 250) return true;
-
-      iPoint p(int(event->x), int(event->y));
-      p += ViewerT::get_origin();
-      if (current>=0) actions[current]->click(p);
-      return true;
-    }
-    return false;
+    if (current>=0) actions[current]->click(p, state);
+    return true;
   }
 
 private:
   std::vector<Action *> actions;
   int current;
   struct timeval click_started;
+  Gdk::ModifierType state;
+  iPoint p;
 };
 
 #endif
