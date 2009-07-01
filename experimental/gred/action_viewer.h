@@ -22,22 +22,6 @@ public:
   virtual void click(iPoint p) = 0;
 };
 
-class ActionNone : public Action {
-public:
-  // Returns name of the mode as string.
-  virtual std::string get_name() { return "None"; }
-
-  // Activates this mode.
-  virtual void init() { }
-
-  // Abandons any action in progress and deactivates mode.
-  virtual void reset() { }
-
-  // Sends user click. Coordinates are in workplane's discrete system.
-  virtual void click(iPoint p) { }
-};
-
-
 template <typename ViewerT>
 class ActionViewer : public ViewerT {
 public:
