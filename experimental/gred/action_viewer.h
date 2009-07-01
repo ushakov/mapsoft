@@ -25,11 +25,7 @@ public:
 template <typename ViewerT>
 class ActionViewer : public ViewerT {
 public:
-  ActionViewer(GPlane * pl) : ViewerT(pl){
-    current=-1;
-    ViewerT::signal_button_press_event().connect (sigc::mem_fun (this, &ActionViewer::on_button_press));
-    ViewerT::signal_button_release_event().connect (sigc::mem_fun (this, &ActionViewer::on_button_release));
-  }
+  ActionViewer(GPlane * pl) : ViewerT(pl), current(-1){}
 
   void action_add(Action * a){
     actions.push_back(a);
@@ -49,22 +45,20 @@ public:
     if (current>=0) actions[current]->reset();
   }
 
-  bool on_button_press (GdkEventButton * event) {
+  bool on_button_press_event (GdkEventButton * event) {
     gettimeofday (&click_started, NULL);
     ViewerT::get_window()->get_pointer(p.x,p.y,state);
     p += ViewerT::get_origin();
-    return true;
+    return ViewerT::on_button_press_event(event);
   }
 
-  bool on_button_release (GdkEventButton * event) {
+  bool on_button_release_event (GdkEventButton * event) {
     struct timeval click_ended;
     gettimeofday (&click_ended, NULL);
     int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 +
             (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
-    if (d > 250) return true;
-
-    if (current>=0) actions[current]->click(p, state);
-    return true;
+    if ((d < 250) && (current>=0)) actions[current]->click(p, state);
+    return ViewerT::on_button_release_event(event);
   }
 
 private:
