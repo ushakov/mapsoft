@@ -55,11 +55,12 @@ class ActionTest2 : public Action{
     viewer->rubber_clear();
 
     viewer->get_window()->get_pointer(x,y,state);
-    if (state && Gdk::CONTROL_MASK) data.resize(data.size()-1);
+    if (state&Gdk::CONTROL_MASK){
+      if (data.size()>0) data.resize(data.size()-1);
+    }
     else data.push_back(p);
-
-    viewer->rubber_add_diag(data[data.size()-1]);
-    for (int i=0; i<data.size()-1; i++){
+    if (data.size()>0) viewer->rubber_add_diag(data[data.size()-1]);
+    for (int i=0; i+1<data.size(); i++){
       viewer->rubber_add(data[i], 0, data[i+1], 0);
     }
   }
