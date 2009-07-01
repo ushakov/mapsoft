@@ -75,7 +75,7 @@ bool SimpleViewer::on_expose_event (GdkEventExpose * event){
 }
 
 bool SimpleViewer::on_button_press_event (GdkEventButton * event) {
-  if (event->button == 1){
+  if ((event->button == 1) || (event->button == 2)){
     drag_pos = iPoint((int)event->x, (int)event->y);
     on_drag=true;
   }
@@ -83,8 +83,7 @@ bool SimpleViewer::on_button_press_event (GdkEventButton * event) {
 }
 
 bool SimpleViewer::on_button_release_event (GdkEventButton * event) {
-  if (event->button == 1){
-    get_window()->process_updates(false);
+  if ((event->button == 1) || (event->button == 2)){
     on_drag=false;
   }
   return false;
