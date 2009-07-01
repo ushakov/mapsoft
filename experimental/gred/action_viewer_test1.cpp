@@ -42,7 +42,13 @@ class ActionTest2 : public Action{
 
   std::string get_name() { return "Test2"; }
 
-  void init() { }
+  void init() {
+    std::cout << "Test action for drawing polylines.\n"
+              << " * left button: add points\n"
+              << " * control + left button: remove last point\n"
+              << " * middle button: finish line, print it to stdout\n"
+              << " * right button:  abort action\n";
+  }
 
   void reset() {
     viewer->rubber_clear();
@@ -63,7 +69,8 @@ class ActionTest2 : public Action{
       }
     }
     else if (state&Gdk::BUTTON2_MASK){
-      std::cerr << data << "\n";
+      data.push_back(p);
+      std::cout << data << "\n";
       data.clear();
     }
     else if (state&Gdk::BUTTON3_MASK){
