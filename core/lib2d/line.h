@@ -230,7 +230,7 @@ struct MultiLine : std::vector<Line<T> >
     if (this->size()<1) return Rect<T>(0,0,0,0);
     typename MultiLine<T>::const_iterator i=this->begin();
     Rect<T> ret=i->range();
-    while ((i++) != this->end())  ret = rect_bounding_box(ret, i->range());
+    while ((++i) != this->end())  ret = rect_bounding_box(ret, i->range());
     return ret;
   }
 
