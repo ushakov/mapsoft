@@ -44,7 +44,7 @@ void g_waypoint::parse_from_options (Options const & opt){
     swap(p);
     x = opt.get("x", x);
     x = opt.get("lon", x);
-    x = opt.get("y", x);
+    y = opt.get("y", y);
     y = opt.get("lat", y);
     z = opt.get("alt", z);
     prox_dist = opt.get("prox_dist", prox_dist);
