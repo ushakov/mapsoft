@@ -143,7 +143,7 @@ namespace xml {
 		g_waypoint def_pt;
 		g_waypoint_list def_w;
 		f << "<waypoints points=" << wp.size();
-		if (wp.symbset != def_w.symbset) f << "symbset=" << wp.symbset;
+		if (wp.symbset != def_w.symbset) f << " symbset=" << wp.symbset;
 		f << ">\n";
 		vector<g_waypoint>::const_iterator p, b=wp.begin(), e=wp.end();
 		for (p = b; p!=e; p++){
