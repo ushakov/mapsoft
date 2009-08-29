@@ -161,9 +161,7 @@ main(int argc, char **argv){
     }
 
     // привязка fig-файла
-    std::cerr << "  get ref\n";
     g_map ref = fig::get_ref(F);
-    std::cerr << "  calc range\n";
     iRect r = fig::range(F);
     std::cerr << r << "\n";
     std::cerr << ref.size() << "\n";
