@@ -44,7 +44,7 @@ void crop_lines(std::vector<T> & lines,
         T l1(*l); l1.clear(); // мы хотим работать не только с линиями, но и с потомками!
         for (int k=0; k<=i; k++) l1.push_back((*l)[k]);
         l1.push_back(pt);
-        lines.insert(l, l1);
+        l=lines.insert(l, l1); l++;
         // из *l стираем все точки до i-1-й
         l->erase(l->begin(), l->begin()+i);
         *(l->begin()) = pt;
