@@ -36,7 +36,6 @@ void GenericDialog::on_response (int response) {
     for (std::map<std::string, Gtk::Entry *>::const_iterator i=entries.begin(); i!=entries.end();i++){
       options[i->first]  = i->second->get_text();
     }
-    entries.clear();
     m_signal_result.emit(response);
     deactivate();
 }
@@ -48,6 +47,7 @@ bool GenericDialog::on_delete (GdkEventAny * e) {
 
 
 void GenericDialog::deactivate () {
+    entries.clear();
     if (dialog) {
 	dialog->hide();
 	dialog.reset();
