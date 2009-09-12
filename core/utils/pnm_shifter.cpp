@@ -7,14 +7,14 @@ pnm_shifter::pnm_shifter(const int _fd, const int _data_width){
 
   fd = _fd;
   std::string s = gets();
-  if (s!="P6") {w=0; h=0; return;}
+  if (s!="P6") {std::cerr << "Error: not a RGB pnm\n"; w=0; h=0; return;}
   do {s=gets(); } while ((s.size()>0) && (s[0]=='#'));
   std::string::size_type i = s.find(' ');
   w = atoi(s.substr(0,   i).c_str());
   h = atoi(s.substr(i+1, s.size()-(i+1)).c_str());
 
   s=gets();
-  if (s!="255") {w=0; h=0; return;}
+  if (s!="255") {std::cerr << "Error: not a RGB pnm\n"; w=0; h=0; return;}
   pos=-1;
   data_width = _data_width;
   data.resize(data_width, NULL);
@@ -41,7 +41,7 @@ void pnm_shifter::data_shift(){
       n-=m;
     }
     if (m==0){
-      std::cerr << "read error!\n";
+      std::cerr << "Error: read error!\n";
       exit(0);
     }
   }
