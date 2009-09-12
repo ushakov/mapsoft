@@ -1,5 +1,4 @@
 #include <cstdio>
-//#include <unistd.h>
 #include <cstring>
 
 #include <boost/lexical_cast.hpp>
@@ -10,60 +9,67 @@
 #include "../../core/libgeo_io/io.h"
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <set>
 
-#define LGND_DEPTHS "-D+1:34"
-#define GRID_DEPTHS "-D+35:39"
-#define TEXT_DEPTHS "-D+40"
-#define BASE_DEPTHS "-D+41:999"
+#define LGND_DEPTHS "1:34"
+#define GRID_DEPTHS "35:39"
+#define TEXT_DEPTHS "40"
+#define BASE_DEPTHS "41:999"
+#define REF_DEPTH   "999"
 
 #define SCALE 3.75
+#define DARK_THR 170
+#define BGCOLOR "#FDFDFD"
 
-struct fig2dev_reader{
-  int fig2dev_fd;
+/****************************************************************/
+// Execute fig2dev for a selected object depths.
+// Return fd for reading data.
+int open_fig2dev(const char *depth_range, const char *infile){
+  int   out_pipe[2];
+  pid_t pid;
 
-  fig2dev_reader(const char *depth_range, const char *bg, const char *infile){
-    int   out_pipe[2];
-    pid_t pid;
+  const int par_size=128;
+  char par_L[]="-Lppm";
+  char par_j[]="-j";
+  char par_m[par_size];  snprintf(par_m, par_size, "-m%f",  SCALE);
+  char par_D[par_size];  snprintf(par_D, par_size, "-D+%s", depth_range);
+  char par_g[par_size];  snprintf(par_g, par_size, "-g%s",  BGCOLOR);
+  char par_i[par_size];  snprintf(par_i, par_size, "%s",    infile);
 
-    const char  *m = ("-m" + boost::lexical_cast<std::string>(SCALE)).c_str();
-    char a1[strlen(m)+1];             strcpy(a1, m);
-    char a2[strlen(depth_range)+1];   strcpy(a2, depth_range);
-    char a3[strlen(bg)+1];            strcpy(a3, bg);
-    char a4[strlen(infile)+1];        strcpy(a4, infile);
+  const char  *name = "fig2dev";
+
+  char *args[8] = {(char*)name, par_L, par_j, par_m, par_D, par_g, par_i, NULL};
 
 
-    const char  *name = "fig2dev";
+  if (pipe(out_pipe)!=0){ std::cerr << "Error: can't open pipe\n"; exit(-1); }
 
-    char *args[8] = {"fig2dev", "-Lppm", "-j", a1, a2, a3, a4, NULL};
-    int p=3;
-    if (strlen(m)!=0){args[p++] = a1;}
-    if (strlen(depth_range)!=0){args[p++] = a2;}
-    if (strlen(bg)!=0){args[p++] = a3;}
-    if (strlen(infile)!=0){args[p++] = a4;}
-    args[p]=NULL;
-
-    if (pipe(out_pipe)!=0){ std::cerr << "can't open pipe\n"; exit(-1); }
-
-    pid = fork();
-    if      (pid==-1) { std::cerr << "can't do fork\n"; exit(-1); }
-    else if (pid==0)  {
-      dup2(out_pipe[1], STDOUT_FILENO);
-      close(STDERR_FILENO);
-      close(out_pipe[0]);
-      execvp(name, args);
-    }
-    close(out_pipe[1]);
-    fig2dev_fd = out_pipe[0];
+  pid = fork();
+  if      (pid==-1) { std::cerr << "Error: can't do fork\n"; exit(-1); }
+  else if (pid==0)  {
+    dup2( out_pipe[1], STDOUT_FILENO);
+    close(out_pipe[0]);
+    execvp(name, args);
   }
-  ~fig2dev_reader(){close(fig2dev_fd);}
+  close(out_pipe[1]);
+
+  std::cerr << "Executing: ";
+  for (int i=0; args[i]!=NULL; i++) std::cerr << args[i] << " ";
+  std::cerr << " > &" << out_pipe[0] << "\n";
+
+  return out_pipe[0];
+}
+
+struct fig2dev_shifter: public pnm_shifter{
+  fig2dev_shifter(const char *depth_range, const char *infile, int _data_width):
+    pnm_shifter(open_fig2dev(depth_range, infile), _data_width){}
+  ~fig2dev_shifter(){ char c; close(fd); }
 };
 
-struct fig2dev_shifter: fig2dev_reader, public pnm_shifter{
-  fig2dev_shifter(const char *depth_range, const char *bg, const char *infile, int _data_width): 
-    fig2dev_reader(depth_range, bg, infile), pnm_shifter(fig2dev_fd, _data_width){}
-};
+/****************************************************************/
+
+
 
 
 
@@ -75,7 +81,6 @@ struct cnt_data{
   cnt_data(const int _c1, const int _c2, const int _c3, const int _dots = 0):
     c1(_c1), c2(_c2), c3(_c3), dots(_dots){}
 };
-
 
 void usage(){
     std::cerr << "usage: fig2pnm <options> <file.fig> > out.pnm\n"
@@ -102,16 +107,16 @@ bool is_color(const unsigned char *c){
           (*(c+2) < 0xFC) || (*(c+2) > 0xFE));
 }
 
-bool is_dark(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char thr){
-  return (r/3 + g/3 + b/3 < thr);
+bool is_dark(const unsigned char r, const unsigned char g, const unsigned char b){
+  return (r/3 + g/3 + b/3 < DARK_THR);
 }
 
-bool is_dark(const unsigned char *c, const unsigned char thr){
-  return ((*c)/3 + (*(c+1))/3 + (*(c+2))/3 < thr);
+bool is_dark(const unsigned char *c){
+  return is_dark(*c, *(c+1), *(c+2));
 }
 
-bool is_dark(int c, const unsigned char thr){
-  return ((c>>16)&0xFF)/3 + ((c>>8)&0xFF)/3 + (c&0xFF)/3 < thr;
+bool is_dark(const unsigned int c){
+  return is_dark((c>>16)&0xFF, (c>>8)&0xFF, c&0xFF);
 }
 
 #define COL(x,y)  ((map.data[y][3*(x)] << 16) + (map.data[y][3*(x)+1] << 8) + map.data[y][3*(x)+2])
@@ -120,6 +125,69 @@ bool is_dark(int c, const unsigned char thr){
 
 #define DIST2(x,y) ((x)*(x) + (y)*(y))
 
+
+int create_map(std::string figfile, std::string mapfile){
+  std::cerr << "* Creating map for fig: " << figfile <<"\n";
+  fig::fig_world F;
+
+  if (!fig::read(figfile.c_str(), F)) {
+    std::cerr << "Error: Bad fig file " << figfile << "\n";
+    return 1;
+  }
+
+  g_map ref = fig::get_ref(F);
+  if (ref.size()<3){
+    std::cerr << "Error: Bad reference in fig file " << figfile << "\n";
+    return 1;
+  }
+
+  // we need strange FIG-file with only one reference point in
+  // depth REF_DEPTH
+  int REF_DEPTHi=atoi(REF_DEPTH);
+  for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++)
+    if (i->depth == REF_DEPTHi) i->depth--;
+  fig::fig_object r=fig::make_object("2 1 0 1 0 0 * -1 -1 0.000 0 0 -1 0 0 1");
+  r.depth=REF_DEPTHi;
+  r.push_back(iPoint(ref[0].xr, ref[0].yr));
+
+  F.push_back(r);
+  std::ofstream fs("tmpfig.fig");
+  fig::write(fs, F);
+  fs.close();
+
+  fig2dev_shifter ref_map(REF_DEPTH, "tmpfig.fig", 2);
+
+  std::cerr << "* " << ref_map.w << "x" << ref_map.h << "\n";
+
+  int xmin=ref_map.w, xmax=0, ymin=ref_map.h,ymax=0;
+  for (int y=0; y<ref_map.h; y++){
+    if (ref_map.data[0]!=NULL){
+      for (int x=0; x<ref_map.w; x++){
+        if (is_dark(ref_map.data[0]+3*x)){
+          if (xmin>x) xmin=x;
+          if (xmax<x) xmax=x;
+          if (ymin>y) ymin=y;
+          if (ymax<y) ymax=y;
+        }
+      }
+    }
+    ref_map.data_shift();
+  }
+  if ((xmin>xmax) || (ymin>ymax)){
+    std::cerr << "Error: Can't find ref point\n";
+    return 1;
+  }
+
+  double sc=fig::fig2cm / 2.54 * 80 * SCALE;
+  dPoint nw((xmax+xmin)/2, (ymax+ymin)/2);
+  dPoint sh= nw/sc - (dPoint)r[0];
+
+  ref += sh;
+  ref *= sc;
+  geo_data w;
+  w.maps.push_back(ref);
+  io::out(mapfile, w, Options());
+}
 
 
 main(int argc, char **argv){
@@ -148,34 +216,7 @@ main(int argc, char **argv){
   }
   if (infile == "") usage();
 
-
-
-  // построение привязки
-  if (mapfile!=""){
-
-    // читаем fig
-    std::cerr << "  reading fig: " << infile <<"\n";
-    fig::fig_world F;
-    if (!fig::read(infile.c_str(), F)) {
-      std::cerr << "Bad fig file " << infile << "\n"; return 1;
-    }
-
-    // привязка fig-файла
-    g_map ref = fig::get_ref(F);
-    iRect r = fig::range(F);
-    std::cerr << r << "\n";
-    std::cerr << ref.size() << "\n";
-    if ((ref.size()>2) && (!r.empty())){
-      std::cerr << "  making MAP-file\n";
-      ref += r.TLC();
-      ref *= fig::fig2cm / 2.54 * 80 * SCALE;
-      geo_data w;
-      w.maps.push_back(ref);
-      io::out(mapfile, w, Options());
-    } else {
-      std::cerr << "  can't find geo-reference in fig-file!\n";
-    }
-  }
+  if (mapfile!="") create_map(infile, mapfile);
 
 
   // правила для построения контуров
@@ -205,15 +246,13 @@ main(int argc, char **argv){
   int dw = 3 + 2*r+1 + 2*(r1+r2)+1; // ширина загружаемых данных
   int d0 = 3 + 2*r+1 + r1+r2;       // средняя линия данных
 
-  int thr = 170;  // порог темных линий (r/3+g/3+b/3)
-
   int a = 128;    // прозрачность сетки
 
 
-  fig2dev_shifter lgnd(LGND_DEPTHS, "-g#FDFDFD", infile.c_str(), dw);
-  fig2dev_shifter grid(GRID_DEPTHS, "-g#FDFDFD", infile.c_str(), dw);
-  fig2dev_shifter text(TEXT_DEPTHS, "-g#FDFDFD", infile.c_str(), dw);
-  fig2dev_shifter  map(BASE_DEPTHS, "",          infile.c_str(), dw);
+  fig2dev_shifter lgnd(LGND_DEPTHS, infile.c_str(), dw);
+  fig2dev_shifter grid(GRID_DEPTHS, infile.c_str(), dw);
+  fig2dev_shifter text(TEXT_DEPTHS, infile.c_str(), dw);
+  fig2dev_shifter  map(BASE_DEPTHS, infile.c_str(), dw);
 
   if ((lgnd.w!=grid.w)||(lgnd.w!=text.w)||(lgnd.w!=map.w)||
       (lgnd.h!=grid.h)||(lgnd.h!=text.h)||(lgnd.h!=map.h)){
@@ -225,8 +264,6 @@ main(int argc, char **argv){
   std::cout << "P6\n" << map.w << " " << map.h << "\n255\n";
 
   for (int i = 0; i<map.h+dw; i++){
-
-//std::cerr << i << " ";
 
     if ((map.data[1]!=NULL) && thinrem){
       for (int j = 1; j < map.w-1; j++){
@@ -259,7 +296,7 @@ main(int argc, char **argv){
               if (c2==cnt->c1) continue;
               if (c2==cnt->c3) continue;
               if ((cnt->c2 ==-1) || 
-                  ((cnt->c2==-2) && (!is_dark(c2,thr)))||
+                  ((cnt->c2==-2) && (!is_dark(c2)))||
                   (cnt->c2 == c2)) {make_pt = true; break;}
             }
 
@@ -303,7 +340,7 @@ main(int argc, char **argv){
               grid.data[y][3*x+1] = 0xFD;
               grid.data[y][3*x+2] = 0xFD;
 
-              if (!is_dark(map.data[y]+3*x, thr)) continue;
+              if (!is_dark(map.data[y]+3*x)) continue;
               // надо закрасить темную точку
               // найдем цвет ближайшей к ней светлой точки
               int dd = 2*r2*r2+1;
@@ -312,7 +349,7 @@ main(int argc, char **argv){
                 if (map.data[yy]==NULL) continue;
                 for (int xx = x-r2; xx<=x+r2; xx++){
                   if ((xx<0)||(xx>=map.w)) continue;
-                  if (is_dark(map.data[yy]+3*xx, thr)) continue;
+                  if (is_dark(map.data[yy]+3*xx)) continue;
                   if (abs(y-yy)*abs(y-yy) + abs(x-xx)*abs(x-xx) < dd){
                     dd = abs(y-yy)*abs(y-yy) + abs(x-xx)*abs(x-xx);
                     yym=yy; xxm=xx;
