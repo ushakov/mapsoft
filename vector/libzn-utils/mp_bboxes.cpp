@@ -18,11 +18,10 @@ int main(int argc, char** argv){
   mp::mp_world M;
   for (int i=2; i<argc; i++){
     if (!mp::read(argv[i], M)) {
-      std::cerr << "ERR: bad mp file" << argv[i] << "\n";
+      std::cerr << "ERR: bad mp file: " << argv[i] << "\n";
       return 1;
     }
   }
-
   double area=0;
   double count=0;
 
