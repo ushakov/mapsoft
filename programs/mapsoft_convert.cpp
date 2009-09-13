@@ -25,6 +25,7 @@ void usage(const char *fname){
        << "  --out=<file>, -o <file>       Specify output file (required)\n"
        << "  --skip=<string>, -s <string>  Skip some types of data\n"
        << "  --rescale_maps <factor>       Rescale map references\n"
+       << "  --shift_maps <x>,<y>          Shift map references\n"
        << "\n";
 
   cerr << "Output file. You must provide name for output file (-o, --out option).\n"
@@ -105,7 +106,14 @@ int main(int argc, char *argv[]) {
 // all these things -> io::filters ?
   io::skip(world, opts);
 
-  double rescale_maps = opts.get("rescale_maps", 1);
+  dPoint shift_maps = opts.get("shift_maps", dPoint(0,0));
+  if (shift_maps !=1){
+    for (vector<g_map>::iterator m=world.maps.begin(); m!=world.maps.end(); m++){
+      *m+=shift_maps;
+    }
+  }
+
+  double rescale_maps = opts.get("rescale_maps", 1.0);
   if (rescale_maps !=1){
     for (vector<g_map>::iterator m=world.maps.begin(); m!=world.maps.end(); m++){
       *m*=rescale_maps;
