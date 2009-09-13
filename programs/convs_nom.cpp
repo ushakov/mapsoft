@@ -1,4 +1,4 @@
-#include "geo_nom.h"
+#include "../core/libgeo/geo_nom.h"
 #include <iostream>
 #include <cstring>
 

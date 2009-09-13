@@ -35,6 +35,9 @@ env_geo.Program('mapsoft_srtmprofile.cpp')
 
 env_geo.Program('mapsoft_pano.cpp')
 
+env_geo.Program("convs_pt2pt.cpp")
+env_geo.Program("convs_map2pt.cpp")
+env_geo.Program("convs_nom.cpp")
 
 env.Program('fig_crop.cpp', LIBS=['fig', 'utils'])
 env.Program('fig_sort.cpp', LIBS=['fig', 'utils'])
@@ -44,3 +47,6 @@ env.Alias('install', ['/usr/bin/', '/usr/share/man/man1/'])
 env.Install('/usr/bin/', ['mapsoft_mapview', 'mapsoft_convert'])
 env.Install('/usr/share/man/man1/', ['mapsoft_convert.1'])
 
+env.Install('/usr/bin/', 'convs_pt2pt')
+env.Install('/usr/bin/', 'convs_map2pt')
+env.Install('/usr/bin/', 'convs_nom')

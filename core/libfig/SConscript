@@ -9,4 +9,7 @@ env.Library('fig', \
      """))
 
 libs=Split("fig utils 2d")
-env.Program("fig_test.cpp",  LIBS=[libs])
+env.Program("catfig.cpp",  LIBS=[libs])
+
+env.Install('/usr/bin/', ['catfig'])
+

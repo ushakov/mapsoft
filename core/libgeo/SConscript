@@ -7,12 +7,3 @@ env.Library('geo', \
         geo_refs.cpp
 	geo_nom.cpp
      """))
-
-convs_libs=Split("geo loaders jeeps utils 2d png jpeg tiff")
-env.Program("convs_pt2pt.cpp",  LIBS=[convs_libs])
-
-env.Program("convs_nom", ["convs_nom.cpp", "geo_nom.o"], LIBS=["2d"])
-
-env.Alias('install', '/usr/bin/')
-env.Install('/usr/bin/', 'convs_pt2pt')
-env.Install('/usr/bin/', 'convs_nom')
