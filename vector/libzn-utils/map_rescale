@@ -1,6 +1,7 @@
 #!/bin/sh -efu
 
 . shell-args
+. shell-quote
 
 show_help(){
 cat <<EOF
@@ -72,25 +73,26 @@ done
 
 map="$1"
 [ -r "$map" ] || fatal "Can't read map file: $map"
+wdir="${map%/*}/"
 
 old_img="$(sed -n '3p' "$map" | tr -d '\r\n')"
 img="${img-$old_img}" # use old_img only if img undefined
+[ -z ${img%%/*} ] || img="$wdir/$img"
+[ -n "$img" ] || fatal "Can't find image name from map file. Use -f option"
+[ -s "$img" ] || fatal "Can't find image file: $img"
 
 old_name="$(sed -n '2p' "$map" | tr -d '\r\n')"
 name="${name-$old_name}"
 
-[ -n "$img" ] || fatal "Can't find image name from map file. Use -f option"
-[ -s "$img" ] || fatal "Can't find image file: $img"
-
 if [ -n "$outname" ]; then
-  outmap="$outname.map"
-  if   [ -z "${img##*.png}" ]; then outimg="$outname.png"
-  elif [ -z "${img##*.jpg}" ]; then outimg="$outname.jpg"
+  outmap="$wdir$outname.map"
+  if   [ -z "${img##*.png}" ]; then outimg="$wdir$outname.png"
+  elif [ -z "${img##*.jpg}" ]; then outimg="$wdir$outname.jpg"
   else fatal "Unsupported image format for $img"
   fi
 else
-  outmap="_$map"
-  outimg="_$img"
+  outmap="${wdir}_$map"
+  outimg="${wdir}_$img"
 fi
 
 
@@ -101,7 +103,7 @@ fi
 cmap="/usr/share/mapsoft/$style.cmap.pnm"
 [ -s "$cmap" ] || fatal "Can't find cmap for style $style: $cmap"
 
-geom_regexp="\([0-9]\+\)x\([0-9]\+\)+\([0-9]\+\)+\([0-9]\+\)\(k\?\)"
+geom_regexp="[[:space:]]*\([0-9]\+\)x\([0-9]\+\)+\([0-9]\+\)+\([0-9]\+\)\(k\?\)[[:space:]]*"
 TMP="$(printf "$geom" |
   sed -n "s/^$geom_regexp\$/W=\1; H=\2; X=\3; Y=\4; K=\5;/p")"
 
@@ -190,5 +192,7 @@ echo "Executing: $cmd"
 eval $cmd
 
 # setting new name and file
-sed -i "3s/^.*\$/$outimg\r/" "$outmap"
-sed -i "2s/^.*\$/$name\r/"   "$outmap"
+quote_sed_regexp_variable outimg_q "$outimg"
+quote_sed_regexp_variable name_q   "$name"
+sed -i "3s/^.*\$/$outimg_q\r/" "$outmap"
+sed -i "2s/^.*\$/$name_q\r/"   "$outmap"
