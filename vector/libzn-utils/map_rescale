@@ -1,0 +1,194 @@
+#!/bin/sh -efu
+
+. shell-args
+
+show_help(){
+cat <<EOF
+map_rescale - modify map-files (rename, crop, scale)
+
+Usage: $PROG <map-file>
+
+Options:
+  -q, --quiet                       try to be more quiet;
+  -v, --verbose                     print a message for each action;
+  -V, --version                     print program version and exit;
+  -h, --help                        show this text and exit.
+
+  -g <geom>                         crop to <geom>
+  -r <factor>                       rescale by factor
+  -n <name>                         set name
+  -f <file>                         use image filename (default: from map-file)
+  -s <style>                        use colormap style (default: mmb)
+  -l <lon0>                         set lon0           (default: from geometry)
+  -o <name>                         use basename for output (default _<in name>)
+
+<geom> can be written in m (1000x1000+7500000+6200000)
+or km (1x1+7500+6200k)
+
+EOF
+exit
+}
+
+print_version(){
+  echo $PROG version
+  exit
+}
+
+
+TEMP="$(getopt -n $PROG -o g:r:n:f:s:l:o:$getopt_common_opts\
+                        -l $getopt_common_longopts -- "$@")" ||
+    show_usage
+eval set -- "$TEMP"
+
+geom=
+lon0=
+outname=
+while :; do
+  case "$1" in
+  --) shift; break
+  ;;
+  -g) geom="$2"; shift;
+  ;;
+  -r) scale="$2"; shift;
+  ;;
+  -n) name="$2"; shift;
+  ;;
+  -f) img="$2"; shift;
+  ;;
+  -s) style="$2"; shift;
+  ;;
+  -l) lon0="$2"; shift;
+  ;;
+  -o) outname="$2"; shift
+  ;;
+  *) parse_common_option "$1"
+  ;;
+  esac
+  shift
+done
+
+[ "$#" -ge 1 ] || show_usage "Insufficient arguments."
+[ "$#" -le 1 ] || show_usage "Too many arguments."
+
+map="$1"
+[ -r "$map" ] || fatal "Can't read map file: $map"
+
+old_img="$(sed -n '3p' "$map" | tr -d '\r\n')"
+img="${img-$old_img}" # use old_img only if img undefined
+
+old_name="$(sed -n '2p' "$map" | tr -d '\r\n')"
+name="${name-$old_name}"
+
+[ -n "$img" ] || fatal "Can't find image name from map file. Use -f option"
+[ -s "$img" ] || fatal "Can't find image file: $img"
+
+if [ -n "$outname" ]; then
+  outmap="$outname.map"
+  if   [ -z "${img##*.png}" ]; then outimg="$outname.png"
+  elif [ -z "${img##*.jpg}" ]; then outimg="$outname.jpg"
+  else fatal "Unsupported image format for $img"
+  fi
+else
+  outmap="_$map"
+  outimg="_$img"
+fi
+
+
+
+[ -n "${scale:-}" ] || scale=1
+
+[ -n "${style:-}" ] || style=mmb
+cmap="/usr/share/mapsoft/$style.cmap.pnm"
+[ -s "$cmap" ] || fatal "Can't find cmap for style $style: $cmap"
+
+geom_regexp="\([0-9]\+\)x\([0-9]\+\)+\([0-9]\+\)+\([0-9]\+\)\(k\?\)"
+TMP="$(printf "$geom" |
+  sed -n "s/^$geom_regexp\$/W=\1; H=\2; X=\3; Y=\4; K=\5;/p")"
+
+W=;H=;X=;Y=;K=;
+[ -z "$geom" -o -n "$TMP" ] || fatal "Bad geometry: $geom"
+[ -z "$TMP" ] || eval $TMP
+[ "$W" = 0 -o -z "$K" ] || W="${W}000"
+[ "$H" = 0 -o -z "$K" ] || H="${H}000"
+[ "$X" = 0 -o -z "$K" ] || X="${X}000"
+[ "$Y" = 0 -o -z "$K" ] || Y="${Y}000"
+
+zone="$(printf "$X" | head -c -6)"
+[ -z "$zone" -o -n "$lon0" ] || lon0="$((6*$zone-3))"
+
+[ -z "$geom" -o -n "$lon0" ] ||
+  fatal "Geometry is set but lon0 can't be found. Use -l option."
+
+dW=;dH=;dX=;dY=;dK=;
+if [ -n "$geom" ]; then
+  dst_geom="$(echo "bb_bck ${W}x${H}+${X}+${Y}" |
+    convs_map2pt "$map" pulkovo tmerc "lon0=$lon0")"
+  TMP="$(printf "$dst_geom" |
+    sed -n "s/^$geom_regexp\$/dW=\1; dH=\2; dX=\3; dY=\4; dK=\5;/p")"
+
+  [ -z "$dst_geom" -o -n "$TMP" ] || fatal "Bad geometry: $dst_geom"
+  [ -z "$TMP" ] || eval $TMP
+  [ "$dW" = 0 -o -z "$dK" ] || dW="${dW}000"
+  [ "$dH" = 0 -o -z "$dK" ] || dH="${dH}000"
+  [ "$dX" = 0 -o -z "$dK" ] || dX="${dX}000"
+  [ "$dY" = 0 -o -z "$dK" ] || dY="${dY}000"
+fi
+
+echo "map:        $map -> $outmap"
+echo "image:      $img -> $outimg"
+echo "name:       $old_name -> $name"
+echo "scale:      $scale"
+echo "cmap style: $style"
+echo "lon0:       $lon0"
+echo "map_geom:   ${W}x${H}+$X+$Y"
+echo "img_geom:   ${dW}x${dH}+$dX+$dY"
+
+
+# cropping and rescaling image
+
+cmd=
+if   [ -z "${img##*.png}" ]; then cmd="pngtopnm $img"
+elif [ -z "${img##*.jpg}" ]; then cmd="djpeg $img"
+else fatal "Unsupported image format for $img"
+fi
+
+if [ -n "$dW" -a -n "$dH" -a -n "$dX" -a -n "$dY" ]; then
+  cmd="$cmd | pnmcut $dX $dY $dW $dH"
+fi
+
+if [ "$scale" != "1" ]; then
+  cmd="$cmd | pnmscale $scale"
+fi
+
+if [ -z "${img##*.png}" -a -n "$(dc -e "[1 p]sa $scale 1 >a")" ]; then
+  cmd="$cmd | pnmremap -mapfile=$cmap"
+fi
+
+if   [ -z "${img##*.png}" ]; then cmd="$cmd | pnmtopng > $outimg"
+elif [ -z "${img##*.jpg}" ]; then cmd="$cmd | cjpeg > $outimg"
+else fatal "Unsupported image format for $img"
+fi
+
+echo "Executing: $cmd"
+eval $cmd
+
+# cropping and rescaling map
+
+cmd="mapsoft_convert"
+
+if [ -n "$dX" -a -n "$dY" ]; then
+  cmd="$cmd --shift_maps=-$dX,-$dY"
+fi
+
+if [ "$scale" != "1" ]; then
+  cmd="$cmd --rescale_maps=$scale"
+fi
+
+cmd="$cmd $map -o $outmap"
+
+echo "Executing: $cmd"
+eval $cmd
+
+# setting new name and file
+sed -i "3s/^.*\$/$outimg\r/" "$outmap"
+sed -i "2s/^.*\$/$name\r/"   "$outmap"
