@@ -184,6 +184,7 @@ int create_map(std::string figfile, std::string mapfile){
 
   ref += sh;
   ref *= sc;
+  ref.comm = F.opts.get("name",std::string());
   geo_data w;
   w.maps.push_back(ref);
   io::out(mapfile, w, Options());
