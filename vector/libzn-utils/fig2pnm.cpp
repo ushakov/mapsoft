@@ -163,6 +163,7 @@ int create_map(std::string figfile, std::string mapfile){
   fs.close();
 
   fig2dev_shifter ref_map(REF_DEPTH, tmp, 2);
+  unlink(tmp);
 
   std::cerr << "* " << ref_map.w << "x" << ref_map.h << "\n";
 
