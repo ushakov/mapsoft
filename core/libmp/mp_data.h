@@ -61,6 +61,7 @@ namespace mp {
           Opts["POIIndex"]        = "N";
           Opts["PolygonEvaluate"] = "Y";
           Opts["MG"]              = "Y";
+          Opts["Levels"] = "4";
           Opts["Level0"] = "22";
           Opts["Level1"] = "21";
           Opts["Level2"] = "19";
