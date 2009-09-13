@@ -1,0 +1,215 @@
+#!/bin/sh -eu
+
+
+. shell-config
+. shell-error
+. shell-quote
+
+dpi_def=100
+dpi_preview=25
+dpi_list="200,100,50,25"
+
+print_help(){
+cat <<EOF
+map_install - install map
+
+Using: ${0##*/} <name>
+
+Uses ./settings file for <style>, <geom>, <basedir>, <rscale> settings...
+Uses name.fig and name.mp (if exists).
+Install files into <basedir>/<name>:
+ * <name>.fig.zip
+ * <name>.mp.zip
+ * <name>.img
+ * <name>.{$dpi_list}.map
+ * <name>.{$dpi_list}.png
+Install symlinks into <basedir>:
+ * <name>.png -> <name>/<name>.$dpi_def.png
+ * <name>.map -> <name>/<name>.$dpi_def.map
+EOF
+}
+
+
+[ "$#" = 1 ] || {
+  print_help
+  exit 0
+}
+
+name="$1"
+mp="${name}.mp"
+fig="${name}.fig"
+img="${name}.img"
+
+[ -s "$fig" ] ||
+  fatal "Error: can't find $fig."
+
+vmap="mapsoft_vmap"
+cgm="cgpsmapper-static"
+
+settings="./settings"
+sep="[[:space:]]*=[[:space:]]*"
+
+########## conf
+style="$(shell_config_get "$settings" "style:$name" "$sep")"
+[ -n "$style" ] ||
+  style="$(shell_config_get "$settings" "style" "$sep")"
+[ -n "$style" ] ||
+  style="mmb"
+conf="/usr/share/mapsoft/$style.cnf"
+[ -f "$conf" ] ||
+  fatal "Error: can't find $conf"
+
+########## rscale
+rscale="$(shell_config_get "$settings" "rscale:$name" "$sep")"
+[ -n "$rscale" ] ||
+  rscale="$(shell_config_get "$settings" "rscale" "$sep")"
+[ -n "$rscale" ] ||
+  rscale="50000"
+
+########## geom
+geom="$(shell_config_get "$settings" "geom:$name" "$sep")"
+[ -n "$geom" ] ||
+  geom="$(shell_config_get "$settings" "geom" "$sep")"
+
+########## comm
+comm="$(shell_config_get "$settings" "comm:$name" "$sep")"
+[ -n "$comm" ] ||
+  comm="$(shell_config_get "$settings" "comm" "$sep")"
+if [ -z "$comm" -a -s "$mp" ]; then
+  comm="$(sed -n 's/^Name=\([^\r]*\)\r\?$/\1/p' "$mp")"
+fi
+[ -n "$comm" ] ||
+  comm="$name"
+
+########## basedir
+basedir="$(shell_config_get "$settings" "basedir:$name" "$sep")"
+[ -n "$basedir" ] ||
+  basedir="$(shell_config_get "$settings" "basedir" "$sep")"
+[ -n "$basedir" ] ||
+  basedir="."
+
+########## auth
+auth="$(shell_config_get "$settings" "auth:$name" "$sep")"
+[ -n "$auth" ] ||
+  auth="$(shell_config_get "$settings" "auth" "$sep")"
+if [ -z "$auth" -a -s "$mp" ]; then
+  auth="$(sed -n 's/^Copyright=\([^\r]*\)\r\?$/\1/p' "$mp")"
+fi
+[ -n "$auth" ] ||
+  auth="$name"
+
+################################
+
+cat << EOF
+$0:
+* name:    $name
+* style:   $style
+* geom:    $geom
+* scale:   1:$rscale
+* basedir: $basedir
+
+EOF
+
+################################
+
+datadir="$basedir/$name"
+[ -d "$datadir" ] || mkdir "$datadir" ||
+  fatal "Error: can't create $datadir"
+
+####### make name.mp
+if [ -s "$mp" ]; then
+  cp "$mp" "$datadir/$mp"
+fi
+
+"$vmap" remove "$conf" "$datadir/$mp" all
+"$vmap" copy "$conf" "$fig" "$datadir/$mp" all
+
+id="$(sed -n 's/^ID=\([^\r]*\)\r\?$/\1/p' "$datadir/$mp")"
+if [ -z "$id" ]; then
+  # create uniq ID for mp
+  id="0x$(date "+%s aaa" | md5sum | cut -b 1,2,3,4,5,6,7,8)"
+  id="$(($id))" # convert to decimal
+  quote_sed_regexp_variable id_q "$id"
+  sed -i "s/^ID=/ID=$id_q\r/" "$datadir/$mp"
+fi
+
+oldcomm="$(sed -n 's/^Name=\([^\r]*\)\r\?$/\1/p' "$datadir/$mp")"
+if [ "$oldcomm" != "$comm" ]; then
+  quote_sed_regexp_variable comm_q "$comm"
+  sed -i "s/^Name=/Name=$comm_q\r/" "$datadir/$mp"
+fi
+oldauth="$(sed -n 's/^Copyrght=\([^\r]*\)\r\?$/\1/p' "$datadir/$mp")"
+if [ "$oldauth" != "$auth" ]; then
+  quote_sed_regexp_variable auth_q "$auth"
+  sed -i "s/^Copyright=/Copyright=$auth_q\r/" "$datadir/$mp"
+fi
+
+####### make name.img
+"$cgm" -o "$datadir/$img" "$datadir/$mp"
+
+####### make 300dpi name.png + name.map
+
+get_print "$conf" "$fig" "$datadir/$fig"
+fig2pnm --map "$datadir/$name.map" "$datadir/$fig" |
+  pnmtopng > "$datadir/$name.png"
+rm -f "$TMPDIR/gs_*"
+####### make resized and cropped images
+
+IFS=','
+for dpi in $dpi_list; do
+  scale="$(echo "$dpi/300" | bc -l)"
+  map_rescale\
+    ${geom:+-g $geom}\
+    -r "$scale"\
+    -n "$comm"\
+    -f "$name.png"\
+    -s "$style"\
+    -o "$name.$dpi"\
+    "$datadir/$name.map"
+done
+IFS=' '
+
+zip -j "$datadir/$fig.zip" "$fig"
+zip -j "$datadir/$mp.zip" "$datadir/$mp"
+rm -f -- "$datadir/$fig" "$datadir/$mp"
+rm -f -- "$datadir/$name.png" "$datadir/$name.map"
+ln -s -f -- "$name/$name.$dpi_def.png" "$basedir/$name.png"
+ln -s -f -- "$name/$name.$dpi_def.map" "$basedir/$name.map"
+
+cat > "$datadir/index.htm" <<EOF
+<html>
+<head>
+<title>slazav maps: $comm</title>
+</head>
+<body>
+<h3>$comm</h3>
+<p><a href="$name.$dpi_def.png">
+   <img border=0 src="$name.$dpi_preview.png"/></a>
+<p>Raster maps:
+<ul>
+EOF
+
+IFS=','
+for dpi in $dpi_list; do
+  cat >> "$datadir/index.htm" <<EOF
+  <li>${dpi}dpi:
+    <a href="$name.$dpi.png">[PNG]</a>
+    <a href="$name.$dpi.map">[MAP]</a>
+    &nbsp;&nbsp;
+EOF
+done
+IFS=' '
+
+cat >> "$datadir/index.htm" <<EOF
+</ul>
+<p>Vector map for Garmin GPS:
+  <a href="$name.img">[IMG]</a>
+<p>Sources:
+  <a href="$name.fig.zip">[FIG]</a>
+  <a href="$name.mp.zip">[MP]</a>
+${geom:+<p>Region: $geom}
+${auth:+<p>Author: $auth}
+<p>Last update: $(date "+%X %d-%m-%Y")
+</body>
+</html>
+EOF
