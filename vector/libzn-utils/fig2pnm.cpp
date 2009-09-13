@@ -151,11 +151,18 @@ int create_map(std::string figfile, std::string mapfile){
   r.push_back(iPoint(ref[0].xr, ref[0].yr));
 
   F.push_back(r);
-  std::ofstream fs("tmpfig.fig");
+  char templ[]="fig2pnm-XXXXXX";
+  char * tmp = mktemp(templ);
+  if (tmp == NULL){
+    std::cerr << "Error: Can't create tmp file\n";
+    return 1;
+  }
+
+  std::ofstream fs(tmp);
   fig::write(fs, F);
   fs.close();
 
-  fig2dev_shifter ref_map(REF_DEPTH, "tmpfig.fig", 2);
+  fig2dev_shifter ref_map(REF_DEPTH, tmp, 2);
 
   std::cerr << "* " << ref_map.w << "x" << ref_map.h << "\n";
 
