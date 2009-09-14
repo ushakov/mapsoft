@@ -119,29 +119,29 @@ datadir="$basedir/$name"
 ####### make name.mp
 if [ -s "$mp" ]; then
   cp "$mp" "$datadir/$mp"
+  "$vmap" remove "$conf" "$datadir/$mp" all
 fi
 
-"$vmap" remove "$conf" "$datadir/$mp" all
 "$vmap" copy "$conf" "$fig" "$datadir/$mp" all
 
 id="$(sed -n 's/^ID=\([^\r]*\)\r\?$/\1/p' "$datadir/$mp")"
-if [ -z "$id" ]; then
+if [ -z "$id" -o "$id" = 0 ]; then
   # create uniq ID for mp
   id="0x$(date "+%s aaa" | md5sum | cut -b 1,2,3,4,5,6,7,8)"
   id="$(($id))" # convert to decimal
   quote_sed_regexp_variable id_q "$id"
-  sed -i "s/^ID=/ID=$id_q\r/" "$datadir/$mp"
+  sed -i "s/^ID=.*\$/ID=$id_q\r/" "$datadir/$mp"
 fi
 
 oldcomm="$(sed -n 's/^Name=\([^\r]*\)\r\?$/\1/p' "$datadir/$mp")"
 if [ "$oldcomm" != "$comm" ]; then
   quote_sed_regexp_variable comm_q "$comm"
-  sed -i "s/^Name=/Name=$comm_q\r/" "$datadir/$mp"
+  sed -i "s/^Name=.*\$/Name=$comm_q\r/" "$datadir/$mp"
 fi
 oldauth="$(sed -n 's/^Copyrght=\([^\r]*\)\r\?$/\1/p' "$datadir/$mp")"
 if [ "$oldauth" != "$auth" ]; then
   quote_sed_regexp_variable auth_q "$auth"
-  sed -i "s/^Copyright=/Copyright=$auth_q\r/" "$datadir/$mp"
+  sed -i "s/^Copyright=.*\$/Copyright=$auth_q\r/" "$datadir/$mp"
 fi
 
 ####### make name.img
