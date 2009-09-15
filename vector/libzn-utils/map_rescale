@@ -192,7 +192,7 @@ echo "Executing: $cmd"
 eval $cmd
 
 # setting new name and file
-quote_sed_regexp_variable outimg_q "$outimg"
+quote_sed_regexp_variable outimg_q "${outimg##*/}"
 quote_sed_regexp_variable name_q   "$name"
 sed -i "3s/^.*\$/$outimg_q\r/" "$outmap"
 sed -i "2s/^.*\$/$name_q\r/"   "$outmap"
