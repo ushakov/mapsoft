@@ -9,6 +9,9 @@ dpi_def=100
 dpi_preview=25
 dpi_list="200,100,50,25"
 
+nopng="${nopng:-}"
+noimg="${noimg:-}"
+
 print_help(){
 cat <<EOF
 map_install - install map
@@ -145,36 +148,43 @@ if [ "$oldauth" != "$auth" ]; then
 fi
 
 ####### make name.img
-"$cgm" -o "$datadir/$img" "$datadir/$mp"
+if [ -z "$noimg" ]; then
+  "$cgm" -o "$datadir/$img" "$datadir/$mp"
+fi
 
 ####### make 300dpi name.png + name.map
 
-get_print "$conf" "$fig" "$datadir/$fig"
-fig2pnm --map "$datadir/$name.map" "$datadir/$fig" |
-  pnmtopng > "$datadir/$name.png"
-rm -f "$TMPDIR/gs_*"
+
+if [ -z "$nopng" ]; then
+  get_print "$conf" "$fig" "$datadir/$fig"
+  fig2pnm --map "$datadir/$name.map" "$datadir/$fig" |
+    pnmtopng > "$datadir/$name.png"
+  rm -f "$TMPDIR/gs_*"
 ####### make resized and cropped images
 
-IFS=','
-for dpi in $dpi_list; do
-  scale="$(echo "$dpi/300" | bc -l)"
-  map_rescale\
-    ${geom:+-g $geom}\
-    -r "$scale"\
-    -n "$comm"\
-    -f "$name.png"\
-    -s "$style"\
-    -o "$name.$dpi"\
-    "$datadir/$name.map"
-done
-IFS=' '
+  IFS=','
+  for dpi in $dpi_list; do
+    scale="$(echo "$dpi/300" | bc -l)"
+    map_rescale\
+      ${geom:+-g $geom}\
+      -r "$scale"\
+      -n "$comm"\
+      -f "$name.png"\
+      -s "$style"\
+      -o "$name.$dpi"\
+      "$datadir/$name.map"
+  done
+  IFS=' '
+fi
 
 zip -j "$datadir/$fig.zip" "$fig"
 zip -j "$datadir/$mp.zip" "$datadir/$mp"
 rm -f -- "$datadir/$fig" "$datadir/$mp"
-rm -f -- "$datadir/$name.png" "$datadir/$name.map"
-ln -s -f -- "$name/$name.$dpi_def.png" "$basedir/$name.png"
-ln -s -f -- "$name/$name.$dpi_def.map" "$basedir/$name.map"
+if [ -z "$nopng" ]; then
+  rm -f -- "$datadir/$name.png" "$datadir/$name.map"
+  ln -s -f -- "$name/$name.$dpi_def.png" "$basedir/$name.png"
+  ln -s -f -- "$name/$name.$dpi_def.map" "$basedir/$name.map"
+fi
 
 cat > "$datadir/index.htm" <<EOF
 <html>
