@@ -183,7 +183,6 @@ rm -f -- "$datadir/$fig" "$datadir/$mp"
 if [ -z "$nopng" ]; then
   rm -f -- "$datadir/$name.png" "$datadir/$name.map"
   ln -s -f -- "$name/$name.$dpi_def.png" "$basedir/$name.png"
-  ln -s -f -- "$name/$name.$dpi_def.map" "$basedir/$name.map"
 fi
 
 cat > "$datadir/index.htm" <<EOF
