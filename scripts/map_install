@@ -7,7 +7,7 @@
 
 dpi_def=100
 dpi_preview=25
-dpi_list="200,100,50,25"
+dpi_list="200,100,25"
 
 nopng="${nopng:-}"
 noimg="${noimg:-}"
