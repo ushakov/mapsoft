@@ -72,11 +72,14 @@ class MapviewData : public std::list<MapviewDataFile>{
 //      for (int i=0; i<file.wpts.size(); i++) wpts_l = new LayerGeoWPT(file);
       boost::shared_ptr<Layer> ML, DL;
       ML.reset(new LayerGeoMap(&file));
-      DL.reset(new LayerGeoData(&file));
-      file.wpts_l.push_back(DL);
+      TL.reset(new LayerTRK(&file));
+      WL.reset(new LayerWPT(&file));
+      file.wpts_l.push_back(WL);
+      file.trks_l.push_back(TL);
       file.maps_l.push_back(ML);
-      workplane->add_layer(DL, 100);
-      workplane->add_layer(ML, 200);
+      workplane->add_layer(WL, 100);
+      workplane->add_layer(TL, 200);
+      workplane->add_layer(ML, 300);
       push_back(file);
       signal_refresh_files.emit();
       signal_refresh_data.emit();

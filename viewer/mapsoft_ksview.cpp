@@ -15,8 +15,9 @@ geo_data world;
 const std::string ks_dir = "/d/MAPS/KS";
 //const std::string data_file  = "./track.plt";
 
-LayerKS      gl(ks_dir,sc);
-LayerGeoData dl(&world);
+LayerKS  gl(ks_dir,sc);
+LayerTRK tl(&world);
+LayerWPT wl(&world);
 
 
 Gtk::Statusbar  * status_bar = NULL;
@@ -27,7 +28,8 @@ void clear_data(Viewer * v) {
    g_print ("Clear all data");
    status_bar->push("Clear all data", 0);
    world.clear();
-   dl.set_ref(gl.get_ref());
+   wl.set_ref(gl.get_ref());
+   tl.set_ref(gl.get_ref());
    v->clear_cache();
 }
 
@@ -51,7 +53,8 @@ void load_file(Gtk::FileSelection * file_selector, Viewer * v) {
    g_print ("Loading: %s\n", selected_filename.c_str());
    status_bar->push("Loading...", 0);
    io::in(selected_filename, world, Options());
-   dl.set_ref(gl.get_ref());
+   wl.set_ref(gl.get_ref());
+   tl.set_ref(gl.get_ref());
    v->clear_cache();
 }
 
@@ -78,7 +81,8 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	sc++;
         gl = LayerKS(ks_dir,sc);
 	gl.set_downloading (downloading);
-        dl.set_ref(gl.get_ref());
+        wl.set_ref(gl.get_ref());
+        tl.set_ref(gl.get_ref());
 	iPoint orig = v->get_window_origin() + v->get_window_size()/2;
 	std::cerr << "ks scale: " << sc << " scale: " 
                   << v->scale_nom() << ":" 
@@ -95,7 +99,8 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	sc--;
 	gl = LayerKS(ks_dir,sc);
 	gl.set_downloading (downloading);
-        dl.set_ref(gl.get_ref());
+        wl.set_ref(gl.get_ref());
+        tl.set_ref(gl.get_ref());
 	std::cerr << "ks scale: " << sc << " scale: " 
                   << v->scale_nom() << ":" 
                   << v->scale_denom() <<  std::endl;
@@ -142,13 +147,15 @@ main(int argc, char **argv)
     for(int i=1;i<argc;i++){
       io::in(std::string(argv[i]), world, Options());
     }
-    dl.set_ref(gl.get_ref());
+    wl.set_ref(gl.get_ref());
+    tl.set_ref(gl.get_ref());
 
     //viewer/workplane/layers
     boost::shared_ptr<Workplane> w(new Workplain (256,0));
 
-    w->add_layer(&gl,200);
-    w->add_layer(&dl,50);
+    w->add_layer(&gl,300);
+    w->add_layer(&tl,200);
+    w->add_layer(&wl,100);
     Viewer viewer(w);
 
     //load file selector

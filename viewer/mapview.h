@@ -12,14 +12,16 @@
 #include "action_manager.h"
 #include "../core/libgeo_io/io.h"
 #include "../core/layers/layer_geomap.h"
-#include "../core/layers/layer_geodata.h"
+#include "../core/layers/layer_trk.h"
+#include "../core/layers/layer_wpt.h"
 #include "../core/utils/log.h"
 
 class MapviewState {
 public:
     Gtk::Statusbar statusbar;
     std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
-    std::vector<boost::shared_ptr<LayerGeoData> > data_layers;
+    std::vector<boost::shared_ptr<LayerTRK> > trk_layers;
+    std::vector<boost::shared_ptr<LayerWPT> > wpt_layers;
     std::vector<boost::shared_ptr<geo_data> > data;
 };
 
@@ -235,18 +237,24 @@ public:
 	    boost::shared_ptr<LayerGeoMap> map_layer(new LayerGeoMap(world.get()));
 	    map_layer->set_ref(reference);
 	    state.map_layers.push_back(map_layer);
-	    add_layer(map_layer.get(), 100, "Maps: " + selected_filename);
+	    add_layer(map_layer.get(), 300, "map: " + selected_filename);
 	    viewer.set_window_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
 	}
-	
-	if (world->wpts.size() > 0 || world->trks.size() > 0) {
-	    // we are loading geodata: if we already have reference, use it
-
-	    boost::shared_ptr<LayerGeoData> layer_gd(new LayerGeoData(world.get()));
-	    layer_gd->set_ref(reference);
-	    state.data_layers.push_back(layer_gd);
-	    add_layer(layer_gd.get(), 0, "Data: " + selected_filename);
-	    viewer.set_window_origin(layer_gd->range().TLC());
+	if (world->trks.size() > 0) {
+	    // we are loading tracks: if we already have reference, use it
+	    boost::shared_ptr<LayerTRK> trk_layer(new LayerTRK(world.get()));
+	    trk_layer->set_ref(reference);
+	    state.trk_layers.push_back(trk_layer);
+	    add_layer(trk_layer.get(), 200, "trk: " + selected_filename);
+	    viewer.set_window_origin(trk_layer->range().TLC());
+	}
+	if (world->wpts.size() > 0) {
+	    // we are loading waypoints: if we already have reference, use it
+	    boost::shared_ptr<LayerWPT> wpt_layer(new LayerWPT(world.get()));
+	    wpt_layer->set_ref(reference);
+	    state.wpt_layers.push_back(wpt_layer);
+	    add_layer(wpt_layer.get(), 100, "wpt: " + selected_filename);
+	    viewer.set_window_origin(wpt_layer->range().TLC());
 	}
 	refresh();
 	state.statusbar.pop();

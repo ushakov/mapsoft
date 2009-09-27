@@ -29,10 +29,10 @@ public:
     virtual void handle_click(iPoint p) {
 	std::cout << "ADDWPT: " << p << std::endl;
 
-	LayerGeoData * layer;
+	LayerWPT * layer;
 	current_layer = NULL;
-	for (int i=0; i<state->data_layers.size(); i++){
-          layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+	for (int i=0; i<state->wpt_layers.size(); i++){
+          layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
           if (viewer->workplane.get_layer_active(layer)) {
 	      current_layer = layer;
 	      break;
@@ -54,10 +54,10 @@ public:
     }
 
 private:
-    MapviewState * state;
+    MapviewState  * state;
     Viewer        * viewer;
     GenericDialog * gend;
-    LayerGeoData * current_layer;
+    LayerWPT      * current_layer;
 
     sigc::connection current_connection;
 

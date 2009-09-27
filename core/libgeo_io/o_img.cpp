@@ -2,7 +2,8 @@
 #include <string>
 
 #include "../layers/layer_geomap.h"
-#include "../layers/layer_geodata.h"
+#include "../layers/layer_trk.h"
+#include "../layers/layer_wpt.h"
 #include "../layers/layer_google.h"
 #include "../layers/layer_ks.h"
 
@@ -138,9 +139,17 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
 
-  if (!world.trks.empty() || !world.wpts.empty()){
-    geo_data world1=world; // LayerGeoData can't get const world
-    LayerGeoData l(&world1);
+  if (!world.trks.empty()){
+    geo_data world1=world; // LayerTRK can't get const world
+    LayerTRK l(&world1);
+    l.set_ref(ref);
+    iImage tmp_im = l.get_image(geom);
+    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
+  }
+
+  if (!world.wpts.empty()){
+    geo_data world1=world; // LayerWPT can't get const world
+    LayerWPT l(&world1);
     l.set_ref(ref);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);

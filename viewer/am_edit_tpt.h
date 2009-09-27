@@ -29,8 +29,8 @@ public:
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p) {
 	std::cout << "EDITTPT: " << p << std::endl;
-	for (int i = 0; i < state->data_layers.size(); ++i) {
-	    current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+	for (int i = 0; i < state->trk_layers.size(); ++i) {
+	    current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
             if (!viewer->workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_trackpoint(p);
@@ -47,11 +47,11 @@ public:
     }
 
 private:
-    MapviewState * state;
+    MapviewState  * state;
     Viewer        * viewer;
     GenericDialog * gend;
-    g_trackpoint * current_tpt;
-    LayerGeoData * current_layer;
+    g_trackpoint  * current_tpt;
+    LayerTRK      * current_layer;
     sigc::connection current_connection;
 
     void on_result(int r) {

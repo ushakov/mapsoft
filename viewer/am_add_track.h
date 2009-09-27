@@ -35,8 +35,8 @@ public:
 
 	if (new_track.size() == 0){ // первое тыканье
           // найдем layer, в который можно запихать трек
-	  for (int i=0; i<state->data_layers.size(); i++){
-            current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+	  for (int i=0; i<state->trk_layers.size(); i++){
+            current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
             if (!viewer->workplane.get_layer_active(current_layer)) continue;
 	    break;
           }
@@ -76,7 +76,7 @@ private:
     MapviewState  * state;
     Viewer        * viewer;
     GenericDialog * gend;
-    LayerGeoData  * current_layer;
+    LayerTRK      * current_layer;
 
     g_track  new_track;
 

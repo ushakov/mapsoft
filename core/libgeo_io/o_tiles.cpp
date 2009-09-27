@@ -6,7 +6,8 @@
 #include <sys/stat.h>
 
 #include "../layers/layer_geomap.h"
-#include "../layers/layer_geodata.h"
+//#include "../layers/layer_wpt.h"
+//#include "../layers/layer_trk.h"
 #include "../layers/layer_google.h"
 #include "../layers/layer_ks.h"
 

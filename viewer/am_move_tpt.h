@@ -30,8 +30,8 @@ public:
 
         if (mystate==0){ // select point
           std::cout << " MOVETPT: " << p << std::endl;
-	  for (int i = 0; i < state->data_layers.size(); ++i) {
-            current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+	  for (int i = 0; i < state->trk_layers.size(); ++i) {
+            current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
 	    
             if (!viewer->workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
@@ -77,9 +77,9 @@ public:
 
 private:
     MapviewState * state;
-    Viewer        * viewer;
+    Viewer       * viewer;
     g_trackpoint * current_tpt;
-    LayerGeoData * current_layer;
+    LayerTRK     * current_layer;
     int mystate; // 0 - select point, 1 - move point
 };
 

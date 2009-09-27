@@ -24,8 +24,8 @@ public:
     virtual void handle_click(iPoint p) {
 	std::cout << "DELETETPT: " << p << std::endl;
 
-        for (int i = 0; i < state->data_layers.size(); ++i) {
-            LayerGeoData * current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+        for (int i = 0; i < state->trk_layers.size(); ++i) {
+            LayerTRK * current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
 	    if (!viewer->workplane.get_layer_active(current_layer)) continue;
             assert (current_layer);
             std::pair<int, int> point_addr = current_layer->find_trackpoint(p);

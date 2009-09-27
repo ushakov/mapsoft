@@ -30,8 +30,8 @@ public:
 
         if (mystate==0){ // select point
           std::cout << " MOVEWPT: " << p << std::endl;
-	  for (int i = 0; i < state->data_layers.size(); ++i) {
-            current_layer = dynamic_cast<LayerGeoData *> (state->data_layers[i].get());
+	  for (int i = 0; i < state->wpt_layers.size(); ++i) {
+            current_layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
             if (!viewer->workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_waypoint(p);
@@ -72,9 +72,9 @@ public:
 
 private:
     MapviewState * state;
-    Viewer        * viewer;
-    g_waypoint * current_wpt;
-    LayerGeoData * current_layer;
+    Viewer       * viewer;
+    g_waypoint   * current_wpt;
+    LayerWPT     * current_layer;
     int mystate; // 0 - select point, 1 - move point
 };
 
