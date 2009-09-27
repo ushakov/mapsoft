@@ -1,7 +1,7 @@
 #!/bin/bash
 
-VMAP="/home/sla/MS3/libzn-utils/mapsoft_vmap"
-TX2PT="/home/sla/MS3/znaki2/tx2pt"
+VMAP="/home/sla/MS3/vector/libzn-utils/mapsoft_vmap"
+TX2PT="/home/sla/MS3/vector/libzn-utils/tx2pt"
 
 MAP="$1"
 EDITOR="slazav"
