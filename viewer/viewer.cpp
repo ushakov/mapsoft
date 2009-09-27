@@ -372,7 +372,7 @@ bool Viewer::on_expose_event (GdkEventExpose * event){
 
 bool Viewer::on_button_press_event (GdkEventButton * event) {
     VLOG(0) << "butt_press: " << event->button;
-    if (event->button == 1) {
+    if (event->button == 2) {
         drag_pos = iPoint ((int)event->x, (int)event->y);
     }
     return false;
@@ -382,7 +382,7 @@ bool Viewer::on_motion_notify_event (GdkEventMotion * event) {
     iPoint pos ((int) event->x, (int) event->y);
     VLOG(2) << "motion: " << pos << (event->is_hint? " hint ":"");
 
-    if (!(event->state & Gdk::BUTTON1_MASK)){
+    if (!(event->state & Gdk::BUTTON2_MASK)){
       rubber_take_off(false);
       rubber_render(false);
     }

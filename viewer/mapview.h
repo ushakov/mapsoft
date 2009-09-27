@@ -46,7 +46,7 @@ public:
  	file_sel_save.get_ok_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
  	file_sel_save.get_cancel_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
 
-        viewer.signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::on_button_press));
+//        viewer.signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::on_button_press));
         viewer.signal_button_release_event().connect (sigc::mem_fun (this, &Mapview::on_button_release));
         signal_key_press_event().connect (sigc::mem_fun (this, &Mapview::on_key_press));
 	
@@ -317,22 +317,22 @@ public:
     }
 
 
-    bool on_button_press (GdkEventButton * event) {
-      if (event->button == 1) {
-        gettimeofday (&click_started, NULL);
-        return true;
-      }
-      return false;
-    }
+//    bool on_button_press (GdkEventButton * event) {
+//      if (event->button == 1) {
+//        gettimeofday (&click_started, NULL);
+//        return true;
+//      }
+//      return false;
+//    }
 
     bool on_button_release (GdkEventButton * event) {
       if (event->button == 1) {
 
-        struct timeval click_ended;
-        gettimeofday (&click_ended, NULL);
-        int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 +
-                (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
-        if (d > 250) return true;
+//        struct timeval click_ended;
+//        gettimeofday (&click_ended, NULL);
+//        int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 +
+//                (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
+//        if (d > 250) return true;
 
         iPoint p(int(event->x), int(event->y));
         p += viewer.get_window_origin();
