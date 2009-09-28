@@ -341,15 +341,42 @@ int mdiag(int N, double *a){
   return 0;
 }
 
+// autodetect map projection options (lon0) if needed
+Options map_popts(const g_map & M, Options O){
+  switch (M.map_proj.val){
+  case 0: break; //lonlat
+  case 1:        //tmerc
+    if (O.count("lon0")==0){
+      O.put("lon0", lon2lon0(M.center().x));
+    }
+    break;
+  case 2:        //UTM
+    std::cerr << "utm map is not supported. fixme!\n";
+    break;
+  case 3:        // merc
+    break;
+  case 4:        // google
+    break;
+  case 5:        // ks
+    break;
+  default:
+    std::cerr << "unknown map proj: " << M.map_proj << "\n";
+    break;
+  }
+  return O;
+}
 
 /*******************************************************************/
 // преобразование из точки карты в геодезическую точку
 // здесь же - выяснение всяких параметров карты (размер изображения, масштам метров/точку)
 // сюда же - преобразование линий!
 
-map2pt::map2pt(const g_map & sM, 
+// Проекция карты берется из sM. Но системы координат и параметров проекции
+// (вроде lon0) там нет. Они берутся из dD и dPo.
+
+map2pt::map2pt(const g_map & sM,
                const Datum & dD, const Proj & dP, const Options & dPo):
-pc1(dD, sM.map_proj, dPo), pc2(dD, dP, dPo), dc(dD), 
+pc1(dD, sM.map_proj, map_popts(sM, dPo)), pc2(dD, dP, dPo), dc(dD), 
 border(sM.border){
 
   // идеи про преобразование карт - прежние:
@@ -360,7 +387,7 @@ border(sM.border){
   // Граница должна или быть пустой или содержать больше двух точек.
   // если она пустая - можно попробовать определить ее по граф.файлу
   if ((border.size()>0)&&(border.size()<3)){
-    cerr << "One or two points in border of map "
+    cerr << "map2pt: one or two points in border of map "
          << sM.comm << " (" << sM.file << ")\n";
     border.clear();
   }
@@ -928,11 +955,10 @@ g_map mymap(const geo_data & world){ // естественная привязк�
     dRect rm=world.range_map();
     double lon0 = rm.x+rm.w/2;
     if (!rd.empty()) lon0=rd.x+rd.w/2;
-    lon0 = floor( lon0/6.0 ) * 6 + 3;
-    std::ostringstream slon0; slon0 << lon0;
+    lon0 = lon2lon0(lon0);
     Options O;
-    O["lon0"] = slon0.str();
-    O["E0"] = "500000";
+    O.put("lon0", lon0);
+    O.put("E0", 500000.0);
     // масштаб -- соответствующий минимальному масштабу карт, если они есть,
     // или 1/3600 градуса на точку, если карт нет
     double mpp=1e99;
