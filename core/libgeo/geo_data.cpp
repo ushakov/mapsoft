@@ -344,7 +344,6 @@ g_rect g_map::range() const {
   convs::map2pt conv(*this, Datum("WGS84"), Proj("lonlat"));
   for (j = border.begin(); j != border.end(); ++j){
     g_point p(*j); conv.frw(p);
-    std::cerr << "computing border: " << p << std::endl;
     if (p.x > maxx) maxx = p.x;
     if (p.y > maxy) maxy = p.y;
     if (p.x < minx) minx = p.x;

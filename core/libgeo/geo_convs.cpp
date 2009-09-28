@@ -27,12 +27,16 @@ pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
 	case 0: // lonlat
 	  return;
 	case 1: // tmerc
-	  
+          if (Po.count("lon0")==0){
+            std::cerr << "pt2ll: Error: lon0 is undefined!\n";
+            exit(1);
+          }
 	  lon0 = Po.get("lon0", 1e99);
           lat0 = Po.get("lat0", 0.0);
           N0   = Po.get("N0",   0.0);
           E0   = Po.get("E0",   500000.0);
           k    = Po.get("k",    1.0);
+          std::cerr << "pt2ll: setting lon0 to " << lon0 << "\n";
 	  return;
 	case 2: // UTM
           // Я не знаю, какие здесь нужны параметры... Разберемся потом.
@@ -61,32 +65,19 @@ pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
 //}
 
 
-void pt2ll::frw(g_point & p){
+void pt2ll::frw(g_point & p) const{
   double x,y;
   // сперва преобразуем к широте-долготе
   double l0=lon0;
   switch (proj.val){
     case 0: break;
     case 1: // tmerc 
-       // Мы можем использовать префикс в координате X, как на советских картах.
-       // и это должно иметь приоритет перед явной установкой lon0!
-       if (p.x>999999){
+       if (p.x>999999){ // zone prefix in p.x overrides lon0
          l0=((int)(p.x/1e6)-1)*6+3;
          p.x -= floor(p.x/1e6)*1e6;
        }
-       if (l0>1e90) l0=0;
-//         std::cerr << "pt2ll::frw: setting lon0 to " << l0 << "\n";
-
-    // если lon0 не указали явно - определим его автоматически:
-    // причем (это важно) - только один раз, по первой точке!
-       if (lon0>1e90){
-         lon0 = l0;
-         std::cerr << "pt2ll::frw: setting lon0 to " << lon0 << " from the first point\n";
-       }
-
        GPS_Math_TMerc_EN_To_LatLon(p.x, p.y, &y, &x, lat0, l0, E0, N0, k, a, a*(1-f));
        p.x = x; p.y = y;
-
        break;
     case 2: //UTM
        GPS_Math_UTM_EN_To_WGS84(&y, &x, p.x, p.y, zone, zc);
@@ -127,19 +118,13 @@ void pt2ll::frw(g_point & p){
   }
 }
 
-void pt2ll::bck(g_point & p){
+void pt2ll::bck(g_point & p) const{
   double x,y;
 
   // преобразуем в нужную нам проекцию
   switch (proj.val){
   case 0: return;
   case 1: //tmerc
-    // если lon0 не указали явно - определим его автоматически:
-    // причем (это важно) - только один раз, по первой точке!
-    if (lon0>1e90){
-      lon0 = floor( p.x/6.0 ) * 6 + 3;
-      std::cerr << "pt2ll::bck: setting lon0 to " << lon0 << " from the first point\n";
-    }
     GPS_Math_TMerc_LatLon_To_EN(p.y, p.x, &x, &y, lat0, lon0, E0, N0, k, a, a*(1-f));
     // Добавим к координате префикс - как на советских картах:
     x += 1e6 * (floor((lon0-3)/6)+1);
@@ -209,7 +194,7 @@ triv1((sP==dP) && (sPo==dPo) && (sD==dD)), triv2(sD==dD){}
 
 pt2pt::pt2pt(): triv1(true), triv2(true){}
 
-void pt2pt::frw(g_point & p){
+void pt2pt::frw(g_point & p) const{
     if (triv1) return;
     pc1.frw(p);
     if (!triv2){
@@ -218,7 +203,7 @@ void pt2pt::frw(g_point & p){
     }
     pc2.bck(p);
 }
-void pt2pt::bck(g_point & p){
+void pt2pt::bck(g_point & p) const{
     if (triv1) return;
     pc2.frw(p);
     if (!triv2){
@@ -228,7 +213,7 @@ void pt2pt::bck(g_point & p){
     pc1.bck(p);
 }
 
-void pt2pt::frw_safe(g_point & p){
+void pt2pt::frw_safe(g_point & p) const{
     if (triv1) return;
     frw(p);
     g_point p1=p;
@@ -236,7 +221,7 @@ void pt2pt::frw_safe(g_point & p){
     frw(p);
     p-=(p-p1)*1.5;
 }
-void pt2pt::bck_safe(g_point & p){
+void pt2pt::bck_safe(g_point & p) const{
     if (triv1) return;
     bck(p);
     g_point p1=p;
@@ -250,7 +235,7 @@ void pt2pt::bck_safe(g_point & p){
 // код одинаков с map2pt::line_frw/line_bck
 // но как их объединить - пока не придумал...
 
-g_line pt2pt::line_frw(const g_line & l, double acc, int max) {
+g_line pt2pt::line_frw(const g_line & l, double acc, int max) const {
 
   g_line ret;
   // добавим первую точку
@@ -284,7 +269,7 @@ g_line pt2pt::line_frw(const g_line & l, double acc, int max) {
 }
 
 
-g_line pt2pt::line_bck(const g_line & l, double acc, int max) {
+g_line pt2pt::line_bck(const g_line & l, double acc, int max) const{
 
   g_line ret;
   // добавим первую точку
@@ -316,11 +301,11 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) {
   return ret;
 }
 
-dRect pt2pt::bb_frw(const Rect<double> & R, double acc){
+dRect pt2pt::bb_frw(const Rect<double> & R, double acc) const{
   g_line l = line_frw(rect2line(R),acc);
   return l.range();
 }
-dRect pt2pt::bb_bck(const Rect<double> & R, double acc){
+dRect pt2pt::bb_bck(const Rect<double> & R, double acc) const{
   g_line l = line_bck(rect2line(R),acc);
   return l.range();
 }
@@ -520,7 +505,7 @@ border(sM.border){
 //}
 
 
-void map2pt::frw(g_point & p){
+void map2pt::frw(g_point & p) const{
   // линейное преобразование в проекцию карты, заданную pc1
   g_point p1(k_map2geo[0]*p.x + k_map2geo[1]*p.y + k_map2geo[2],
              k_map2geo[3]*p.x + k_map2geo[4]*p.y + k_map2geo[5]);
@@ -537,7 +522,7 @@ void map2pt::frw(g_point & p){
   return;
 }
 
-void map2pt::bck(g_point & p){
+void map2pt::bck(g_point & p) const{
   if (pc1.proj != pc2.proj){
     pc2.frw(p); // преобразование к lon-lat
     pc1.bck(p); // к проекции карты
@@ -550,14 +535,14 @@ void map2pt::bck(g_point & p){
   return;
 }
 
-void map2pt::frw_safe(g_point & p){
+void map2pt::frw_safe(g_point & p) const{
     frw(p);
     g_point p1=p;
     bck(p);
     frw(p);
     p-=(p-p1)*1.5;
 }
-void map2pt::bck_safe(g_point & p){
+void map2pt::bck_safe(g_point & p) const{
     bck(p);
     g_point p1=p;
     frw(p);
@@ -566,7 +551,7 @@ void map2pt::bck_safe(g_point & p){
 }
 
 
-g_line map2pt::line_frw(const g_line & l, int max) {
+g_line map2pt::line_frw(const g_line & l, int max) const {
 
   g_line ret;
   // добавим первую точку
@@ -601,7 +586,7 @@ g_line map2pt::line_frw(const g_line & l, int max) {
 }
 
 
-g_line map2pt::line_bck(const g_line & l, int max) {
+g_line map2pt::line_bck(const g_line & l, int max)  const{
 
   g_line ret;
   // добавим первую точку
@@ -672,11 +657,11 @@ map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
   }
 }
 
-void map2map::frw(g_point & p) {c1.frw(p); c2.bck(p);}
-void map2map::bck(g_point & p) {c2.frw(p); c1.bck(p);}
+void map2map::frw(g_point & p) const {c1.frw(p); c2.bck(p);}
+void map2map::bck(g_point & p) const {c2.frw(p); c1.bck(p);}
 
 
-g_line map2map::line_frw(const g_line & l, int max) {
+g_line map2map::line_frw(const g_line & l, int max) const {
 
   g_line ret;
   // добавим первую точку
@@ -709,7 +694,7 @@ g_line map2map::line_frw(const g_line & l, int max) {
 }
 
 
-g_line map2map::line_bck(const g_line & l, int max) {
+g_line map2map::line_bck(const g_line & l, int max) const {
 
   g_line ret;
   // добавим первую точку
@@ -745,7 +730,7 @@ g_line map2map::line_bck(const g_line & l, int max) {
 // ****************
 
 int map2map::image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
-                       iImage & dst_img, iRect dst_rect){
+                       iImage & dst_img, iRect dst_rect) const{
 
     if (cnv_rect.empty() || dst_rect.empty()) return 1;
     // во сколько раз придется растягивать картинку
@@ -779,7 +764,7 @@ int map2map::image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
 }
 
 int map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect, 
-                       iImage & dst_img, iRect dst_rect){
+                       iImage & dst_img, iRect dst_rect) const{
     if (cnv_rect.empty() || dst_rect.empty()) return 1;
     // во сколько раз придется растягивать картинку
     int xscale = int(floor(dst_rect.w/cnv_rect.w));
@@ -809,7 +794,7 @@ int map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect,
     return 0;
 }
 
-iRect map2map::bb_frw(const Rect<int> & R){
+iRect map2map::bb_frw(const Rect<int> & R) const{
   g_line l = line_frw(rect2line(R));
   dRect r = l.range();
   return iRect(
@@ -818,7 +803,7 @@ iRect map2map::bb_frw(const Rect<int> & R){
   );
 }
 
-iRect map2map::bb_bck(const Rect<int> & R){
+iRect map2map::bb_bck(const Rect<int> & R) const{
   g_line l = line_bck(rect2line(R));
   dRect r = l.range();
   return iRect(
@@ -827,12 +812,12 @@ iRect map2map::bb_bck(const Rect<int> & R){
   );
 }
 
-dRect map2pt::bb_frw(const iRect & R){
+dRect map2pt::bb_frw(const iRect & R) const{
   g_line l = line_frw(rect2line(R));
   return l.range();
 }
 
-iRect map2pt::bb_bck(const dRect & R){
+iRect map2pt::bb_bck(const dRect & R) const{
   g_line l = line_bck(rect2line(R));
   dRect r = l.range();
   return iRect(
@@ -928,6 +913,9 @@ iRect map2pt::bb_bck(const dRect & R){
              (ry == s));
   }
 
+double lon2lon0(double lon){
+  return floor( lon/6.0 ) * 6 + 3;
+}
 
 g_map mymap(const geo_data & world){ // естественная привязка геоданных
     // тип проекции -- по первой карте, или lonlat, если карт нет
