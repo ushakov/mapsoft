@@ -17,6 +17,8 @@ typedef unsigned int rubbfl_t;
 #define RUBBFL_MOUSE_P2  0xC
 #define RUBBFL_MOUSE     0xF
 
+#define RUBBFL_ELL       0x10
+
 class RubberSegment{
 public:
     rubbfl_t flags;
@@ -86,10 +88,19 @@ class RubberViewer : public ViewerT {
     // if all is false - draw only lines connected with mouse
     if (!rubber_gc) return;
     for (std::list<RubberSegment>::const_iterator i = rubber.begin(); i != rubber.end(); i++){
-      if (!all && ((i->flags & RUBBFL_MOUSE) == 0)) continue;
+      if (!all && !(i->flags & RUBBFL_MOUSE)) continue;
       iPoint p1=i->get1(mouse_pos, ViewerT::get_origin());
       iPoint p2=i->get2(mouse_pos, ViewerT::get_origin());
-      ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
+      if (i->flags & RUBBFL_ELL){
+        int w=abs(p2.x-p1.x);
+        int h=abs(p2.y-p1.y);
+        int x=p1.x < p2.x  ? p1.x:p2.x;
+        int y=p1.y < p2.y  ? p1.y:p2.y;
+        ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, w, h, 0, 360*64);
+      }
+      else{
+        ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
+      }
       drawn.push_back(RubberSegment(p1,p2,i->flags));
     }
   }
@@ -98,10 +109,19 @@ class RubberViewer : public ViewerT {
     if (!rubber_gc) return;
     std::list<RubberSegment>::iterator i = drawn.begin();
     while (i != drawn.end()){
-      if (!all && ((i->flags & RUBBFL_MOUSE) == 0)) {i++; continue;}
+      if (!all && !(i->flags & RUBBFL_MOUSE)) {i++; continue;}
       iPoint p1=i->p1;
       iPoint p2=i->p2;
-      ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
+      if (i->flags & RUBBFL_ELL){
+        int w=abs(p2.x-p1.x);
+        int h=abs(p2.y-p1.y);
+        int x=p1.x < p2.x  ? p1.x:p2.x;
+        int y=p1.y < p2.y  ? p1.y:p2.y;
+        ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, w, h, 0, 360*64);
+      }
+      else{
+        ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
+      }
       i=drawn.erase(i);
     }
   }
@@ -150,6 +170,9 @@ class RubberViewer : public ViewerT {
       rubber_add(iPoint(p.x,0), p, RUBBFL_MOUSE_P1Y);
   }
 
+  void rubber_add_ellipse(const iPoint & p){
+      rubber_add(p, iPoint(0,0), RUBBFL_MOUSE_P2 | RUBBFL_ELL);
+  }
 
 };
 
