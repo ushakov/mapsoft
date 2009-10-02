@@ -1,6 +1,5 @@
 #include "geo_convs.h"
 #include <cmath>
-#include <sstream>
 
 #include "../lib2d/point_utils.h"
 #include "../lib2d/line_utils.h"
@@ -342,12 +341,14 @@ int mdiag(int N, double *a){
 }
 
 // autodetect map projection options (lon0) if needed
-Options map_popts(const g_map & M, Options O){
+Options map_popts(const g_map & M, Options O = Options()){
   switch (M.map_proj.val){
   case 0: break; //lonlat
   case 1:        //tmerc
     if (O.count("lon0")==0){
       O.put("lon0", lon2lon0(M.center().x));
+      O.put("E0",   500000.0);
+      O.put("N0",   0.0);
     }
     break;
   case 2:        //UTM
@@ -654,27 +655,12 @@ g_line map2pt::line_bck(const g_line & l, int max)  const{
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
 map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
-    c1(sM, Datum("wgs84"), Proj("lonlat")), c2(dM, Datum("wgs84"), Proj("lonlat")),
+    c1(sM, Datum("wgs84"), sM.map_proj, map_popts(sM)),
+    c2(dM, Datum("wgs84"), sM.map_proj, map_popts(sM)),
     tst_frw(c1.border),
     tst_bck(c1.border),
     test_brd(test_brd_)
 {
-
-  // чтобы в преобразованиях pc1 и pc2 установился правильный осевой меридиан,
-  // если его не установили явно, надо прогнать через них какую-то точку на карте.
-  g_point p1(0,0);
-  for (int i=0; i<dM.size(); i++){
-    p1+=g_point(dM[i]);
-  }
-  p1/=dM.size();
-  Options O;
-  double lon0 = floor( p1.x/6.0 ) * 6 + 3;
-  std::ostringstream slon0; slon0 << lon0;
-  O["lon0"] = slon0.str();
-  O["E0"] = "500000";
-
-  c1 = map2pt(sM, Datum("wgs84"), sM.map_proj, O),
-  c2 = map2pt(dM, Datum("wgs84"), sM.map_proj, O),
 
   border_src = c1.border;
   tst_bck = border_tester(border_src);
@@ -950,15 +936,18 @@ g_map mymap(const geo_data & world){ // естественная привязк�
     // а если их нет - к середине диапазона карт
 
     g_map ret;
-    if (world.maps.size()>0) ret.map_proj=world.maps[0].map_proj;
+    Options O;
+    if (world.maps.size()>0){
+      ret.map_proj=world.maps[0].map_proj;
+      O=map_popts(world.maps[0]);
+    } else ret.map_proj=Proj("lonlat");
+
     dRect rd=world.range_geodata();
     dRect rm=world.range_map();
     double lon0 = rm.x+rm.w/2;
     if (!rd.empty()) lon0=rd.x+rd.w/2;
-    lon0 = lon2lon0(lon0);
-    Options O;
-    O.put("lon0", lon0);
-    O.put("E0", 500000.0);
+    O.put("lon0", lon0); // todo - use map_popts here
+
     // масштаб -- соответствующий минимальному масштабу карт, если они есть,
     // или 1/3600 градуса на точку, если карт нет
     double mpp=1e99;
@@ -988,7 +977,8 @@ g_map mymap(const geo_data & world){ // естественная привязк�
 double map_mpp(const g_map &map, Proj P){
   if (map.size()<3) return 0;
   double l1=0, l2=0;
-  convs::pt2pt c(Datum("wgs84"), P, Options(), Datum("wgs84"), Proj("lonlat"), Options());
+  g_map map1=map; map1.map_proj=P;
+  convs::pt2pt c(Datum("wgs84"), P, map_popts(map1), Datum("wgs84"), Proj("lonlat"), Options());
   for (int i=1; i<map.size();i++){
     g_point p1(map[i-1].x,map[i-1].y);
     g_point p2(map[i].x,  map[i].y);
