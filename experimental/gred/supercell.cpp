@@ -1,6 +1,6 @@
 #include "supercell.h"
 
-const uint64_t SuperCell::ROOT = (1ULL << 63);
+const uint64_t SuperCell::ROOT = (1ULL << 62);
 
 SuperCell SuperCell::from_point(Point<GCoord> p, int level) {
   uint64_t one = ROOT;
@@ -30,15 +30,15 @@ SuperCell SuperCell::from_point(Point<GCoord> p, int level) {
 
 SuperCell SuperCell::LCA(SuperCell a, SuperCell b) {
   uint64_t mask = ROOT | (ROOT >> 1);
-  while ((a.id & mask) == (b.id & mask)) {
+  while ((a.id_ & mask) == (b.id_ & mask)) {
     mask >>= 2;
   }
   // mask is 11000...
-  // we need to clean a.id at those positions and add 10000...
+  // we need to clean a.id_ at those positions and add 10000...
   mask = (mask - 1) ^ mask;  // 01111...
   uint64_t one = mask + 1;  // 10000...
   mask <<= 1; mask += 1;  // 11111...
-  uint64_t new_id = a.id & (~mask);
+  uint64_t new_id = a.id_ & (~mask);
   new_id |= one;
   return SuperCell(new_id);
 }

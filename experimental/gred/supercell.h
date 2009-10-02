@@ -1,15 +1,17 @@
 #ifndef SUPERCELL_H
 #define SUPERCELL_H
 
+#include <inttypes.h>
 #include "../../core/lib2d/rect.h"
 #include "gcoord.h"
 
-/* id encoding: (uint64_t) meaningful part is from the highest bit to
- * the last 1: xxxxxxxxxx1000000...
+/* id encoding: (uint64_t), meaningful part is from the second-highest
+ * bit (31st) to the last 1: 0xxxxxxxxxx1000000... Unencoded ids are
+ * called addresses, encoded ids are called ids.
  *
- * This leaves us with 63 bits of which we use only 62 (2*31).  At
- * highest level (0) the whole plane is one cell. It has empty address
- * (id 100...00).
+ * This leaves us with 62 bits (2**31).  At highest level (0) the
+ * whole plane is one cell. It has empty address (id 0100...00). This
+ * also make valid cell ids a contiguous region in uint64_t space.
  * 
  * Each of the cells of level N is a subdivision of some cell of level
  * N-1.  If the cell's address is X then the four its children have
@@ -17,6 +19,9 @@
  *
  * 00 10
  * 01 11
+ *
+ * This way, the cell X's id in right in the middle of the range of
+ * all ids that are descendants of cell X.
  */  
 #include <boost/operators.hpp>
 
@@ -25,23 +30,23 @@ class SuperCell :
   public boost::equality_comparable<SuperCell>
 {
  private:
-  uint64_t id;
+  uint64_t id_;
  public:
   static const uint64_t ROOT;
 
   SuperCell() {
-    id = ROOT;
+    id_ = ROOT;
   }
 
   explicit SuperCell(const uint64_t& id) {
-    this->id = id;
+    this->id_ = id;
   }
 
   SuperCell parent() {
-    if (id == ROOT) return SuperCell(ROOT);
-    uint64_t mask = (id - 1) ^ id;  // xxx1000 -> 0001111
-    mask = (mask << 2) + 3;  // all tail and two lower bits of address masked
-    uint64_t new_id = id & (~mask);  // parent address, not encoded
+    if (id_ == ROOT) return SuperCell(ROOT);
+    uint64_t mask = (id_ - 1) ^ id_;  // xxx1000 -> 0001111
+    mask = (mask << 2) + 3;  // all tail and two lower bits of id masked
+    uint64_t new_id = id_ & (~mask);  // parent address, not encoded
     new_id |= (mask >> 1) + 1;
     return SuperCell(new_id);
   }
@@ -49,12 +54,12 @@ class SuperCell :
   // fills in arr, returns number of children written (which is 4 if this cell
   // is at non-last level, and 0 if it's on the last).
   int subdivide(SuperCell* arr) {
-    if (id & 0x3 != 0) {
+    if (id_ & 0x1 != 0) {
       // already at last level -- nothing can be done
       return 0;
     }
-    uint64_t mask = (id - 1) ^ id;  // xxx1000 -> 0001111
-    uint64_t addr = id & (~mask);  // clean address
+    uint64_t mask = (id_ - 1) ^ id_;  // xxx1000 -> 0001111
+    uint64_t addr = id_ & (~mask);  // clean address
     mask >>= 2;  // mask for children
     uint64_t one = mask + 1;  // a 1 at lower position of the new address
     addr |= (one >> 1);  // address template (aka child 00)
@@ -67,32 +72,32 @@ class SuperCell :
   }
 
   int level() {
-    uint64_t mask = (id - 1) ^ id;  // xxx1000 -> 0001111
+    uint64_t mask = (id_ - 1) ^ id_;  // xxx1000 -> 0001111
     int antilevel = 0;
     while (mask != 0) {
       antilevel++;
       mask >>= 2;
     }
-    return 32 - antilevel;
+    return 31 - antilevel;
   }
 
-  uint64_t get_id() {
-    return id;
+  uint64_t id() {
+    return id_;
   }
 
   Rect<GCoord> range() {
     GCoord tlx = GCoord_min;
     GCoord tly = GCoord_min;
     GCoord size = GCoord_max - GCoord_min;
-    uint64_t mask = (id - 1) ^ id;
+    uint64_t mask = (id_ - 1) ^ id_;
     uint64_t curbit = ROOT;
     while (curbit > mask) {
       size /= 2;
-      if (id & curbit) {
+      if (id_ & curbit) {
 	tlx += size;
       }
       curbit >>= 1;
-      if (id & curbit) {
+      if (id_ & curbit) {
 	tly += size;
       }
       curbit >>= 1;
@@ -100,15 +105,21 @@ class SuperCell :
     return Rect<GCoord>(tlx, tly, size, size);
   }
 
+  void cell_range(SuperCell* low, SuperCell* high) {
+    uint64_t mask = (id_ - 1) ^ id_;   // xxx1000... -> 0001111
+    low->id_ = id_ & (~mask) + 1;      // xxx000...1
+    high->id_ = id_ | mask + 1;        // xxx111...1 + 1, first not in range     
+  }
+
   static SuperCell from_point(Point<GCoord> p, int level);
   static SuperCell LCA(SuperCell a, SuperCell b);
 
   bool operator== (SuperCell b) {
-    return id == b.id;
+    return id_ == b.id_;
   }
 
   bool operator< (const SuperCell& b) {
-    return id < b.id;
+    return id_ < b.id_;
   }
 };
 
