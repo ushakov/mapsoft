@@ -3,15 +3,15 @@
 #include "supercell.h"
 
 TEST(SuperCell, Parent) {
-  EXPECT_EQ(0xe00, SuperCell(0xf80).parent().get_id());
-  EXPECT_EQ(0xe00<<1, SuperCell(0xf80<<1).parent().get_id());
-  EXPECT_EQ(0x8000000000000000ULL, SuperCell(0x8000000000000000ULL).parent().get_id());
-  EXPECT_EQ(0x8000000000000000ULL, SuperCell(0xe000000000000000ULL).parent().get_id());
+  EXPECT_EQ(0xe00, SuperCell(0xf80).parent().id());
+  EXPECT_EQ(0xe00<<1, SuperCell(0xf80<<1).parent().id());
+  EXPECT_EQ(0x8000000000000000ULL, SuperCell(0x8000000000000000ULL).parent().id());
+  EXPECT_EQ(0x8000000000000000ULL, SuperCell(0xe000000000000000ULL).parent().id());
 }
 
 bool InArray(uint64_t id, SuperCell* arr, int size) {
   for (int i = 0; i < size; ++i) {
-    if (id == arr[i].get_id()) {
+    if (id == arr[i].id()) {
       return true;
     }
   }
@@ -28,11 +28,11 @@ TEST(SuperCell, Subdivide) {
 }
 
 TEST(SuperCell, Range) {
-  ASSERT_EQ(Rect<GCoord>(0,0,1,1), SuperCell(0x2).range());
+  ASSERT_EQ(Rect<GCoord>(GCoord_min,GCoord_min,1,1), SuperCell(0x4).range());
   Rect<GCoord> full(GCoord_min, GCoord_min, GCoord_max-GCoord_min, GCoord_max-GCoord_min);
   ASSERT_EQ(full, SuperCell(SuperCell::ROOT).range());
   Rect<GCoord> rect_a, rect_b;
-  SuperCell cell(0x2345600);
+  SuperCell cell(0x2345300);
   rect_a = cell.range();
   rect_b = cell.parent().range();
   EXPECT_TRUE(rect_b.contains(rect_a.TLC()));
@@ -51,18 +51,18 @@ TEST(SuperCell, FromPoint) {
 
   p = Point<GCoord>(GCoord_cnt, GCoord_cnt);
   ASSERT_TRUE(SuperCell::from_point(p, 20).range().contains(p));
-  ASSERT_EQ(0xc080000000000000ULL, SuperCell::from_point(p, 4).get_id());
+  ASSERT_EQ(0x6040000000000000ULL, SuperCell::from_point(p, 4).id());
 
   p = Point<GCoord>(1045, 44556);
-  ASSERT_EQ(SuperCell::ROOT, SuperCell::from_point(p, 0).get_id());
+  ASSERT_EQ(SuperCell::ROOT, SuperCell::from_point(p, 0).id());
 }
 
 TEST(SuperCell, LCA) {
   ASSERT_EQ(
-	    0x455678000ULL, 
+	    0x455674000ULL, 
 	    SuperCell::LCA(
-			   SuperCell(0x45567abc0ULL),
-			   SuperCell(0x45567fed0ULL)).get_id());
+			   SuperCell(0x455675b60ULL),
+			   SuperCell(0x455677e60ULL)).id());
 }
 
 int main(int argc, char **argv) {
