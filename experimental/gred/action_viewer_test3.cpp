@@ -23,7 +23,7 @@ class ActionTestCirc : public Action{
   }
   void click(const iPoint & p, const Gdk::ModifierType & state){
     if (clear){
-      viewer->rubber_add_ellipse(p);
+      viewer->rubber_add_circc(p);
     } else {
       viewer->rubber_clear();
     }

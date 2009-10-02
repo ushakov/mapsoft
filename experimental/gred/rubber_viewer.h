@@ -6,6 +6,7 @@
 
 #include <list>
 #include "gplane.h"
+#include "../../core/lib2d/point_utils.h"
 
 typedef unsigned int rubbfl_t;
 #define RUBBFL_PLANE     0
@@ -17,7 +18,12 @@ typedef unsigned int rubbfl_t;
 #define RUBBFL_MOUSE_P2  0xC
 #define RUBBFL_MOUSE     0xF
 
-#define RUBBFL_ELL       0x10
+#define RUBBFL_TYPEMASK 0xF0
+#define RUBBFL_LINE  0x00
+#define RUBBFL_ELL   0x10
+#define RUBBFL_ELLC  0x20
+#define RUBBFL_CIRC  0x30
+#define RUBBFL_CIRCC 0x40
 
 class RubberSegment{
 public:
@@ -84,6 +90,43 @@ class RubberViewer : public ViewerT {
     rubber_gc->set_function(Gdk::XOR);
   }
 
+  void rubber_draw_segment(const RubberSegment &s){
+    int r,w,h,x,y;
+    switch (s.flags & RUBBFL_TYPEMASK){
+       case RUBBFL_LINE:
+         ViewerT::get_window()->draw_line(rubber_gc, s.p1.x, s.p1.y, s.p2.x, s.p2.y);
+         break;
+       case RUBBFL_ELL:
+         w=abs(s.p2.x-s.p1.x);
+         h=abs(s.p2.y-s.p1.y);
+         x=s.p1.x < s.p2.x  ? s.p1.x:s.p2.x;
+         y=s.p1.y < s.p2.y  ? s.p1.y:s.p2.y;
+         ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, w, h, 0, 360*64);
+         break;
+       case RUBBFL_ELLC:
+         w=2*abs(s.p2.x-s.p1.x);
+         h=2*abs(s.p2.y-s.p1.y);
+         x=s.p1.x-w;
+         y=s.p1.y-h;
+         ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, w, h, 0, 360*64);
+         break;
+       case RUBBFL_CIRC:
+         w=pdist(s.p2, s.p1);
+         x=(s.p1.x + s.p2.x - w)/2;
+         y=(s.p1.y + s.p2.y - w)/2;
+         ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, w, w, 0, 360*64);
+         break;
+       case RUBBFL_CIRCC:
+         r=pdist(s.p2, s.p1);
+         x=s.p1.x - r;
+         y=s.p1.y - r;
+         ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, 2*r, 2*r, 0, 360*64);
+         break;
+       default:
+         std::cerr << "rubber_viewer: bad flags: " << s.flags << "\n";
+    }
+  }
+
   void rubber_draw(const bool all=true){
     // if all is false - draw only lines connected with mouse
     if (!rubber_gc) return;
@@ -91,17 +134,9 @@ class RubberViewer : public ViewerT {
       if (!all && !(i->flags & RUBBFL_MOUSE)) continue;
       iPoint p1=i->get1(mouse_pos, ViewerT::get_origin());
       iPoint p2=i->get2(mouse_pos, ViewerT::get_origin());
-      if (i->flags & RUBBFL_ELL){
-        int w=abs(p2.x-p1.x);
-        int h=abs(p2.y-p1.y);
-        int x=p1.x < p2.x  ? p1.x:p2.x;
-        int y=p1.y < p2.y  ? p1.y:p2.y;
-        ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, w, h, 0, 360*64);
-      }
-      else{
-        ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
-      }
-      drawn.push_back(RubberSegment(p1,p2,i->flags));
+      RubberSegment s(p1,p2,i->flags);
+      rubber_draw_segment(s);
+      drawn.push_back(s);
     }
   }
 
@@ -110,18 +145,7 @@ class RubberViewer : public ViewerT {
     std::list<RubberSegment>::iterator i = drawn.begin();
     while (i != drawn.end()){
       if (!all && !(i->flags & RUBBFL_MOUSE)) {i++; continue;}
-      iPoint p1=i->p1;
-      iPoint p2=i->p2;
-      if (i->flags & RUBBFL_ELL){
-        int w=abs(p2.x-p1.x);
-        int h=abs(p2.y-p1.y);
-        int x=p1.x < p2.x  ? p1.x:p2.x;
-        int y=p1.y < p2.y  ? p1.y:p2.y;
-        ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, w, h, 0, 360*64);
-      }
-      else{
-        ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
-      }
+      rubber_draw_segment(*i);
       i=drawn.erase(i);
     }
   }
@@ -170,8 +194,17 @@ class RubberViewer : public ViewerT {
       rubber_add(iPoint(p.x,0), p, RUBBFL_MOUSE_P1Y);
   }
 
-  void rubber_add_ellipse(const iPoint & p){
+  void rubber_add_ell(const iPoint & p){
       rubber_add(p, iPoint(0,0), RUBBFL_MOUSE_P2 | RUBBFL_ELL);
+  }
+  void rubber_add_ellc(const iPoint & p){
+      rubber_add(p, iPoint(0,0), RUBBFL_MOUSE_P2 | RUBBFL_ELLC);
+  }
+  void rubber_add_circ(const iPoint & p){
+      rubber_add(p, iPoint(0,0), RUBBFL_MOUSE_P2 | RUBBFL_CIRC);
+  }
+  void rubber_add_circc(const iPoint & p){
+      rubber_add(p, iPoint(0,0), RUBBFL_MOUSE_P2 | RUBBFL_CIRCC);
   }
 
 };
