@@ -7,25 +7,31 @@
 #include <list>
 #include "gplane.h"
 
-const int REF_XMOUSE=1;
-const int REF_YMOUSE=2;
+typedef unsigned int rubbfl_t;
+#define RUBBFL_PLANE     0
+#define RUBBFL_MOUSE_P1X 1
+#define RUBBFL_MOUSE_P1Y 2
+#define RUBBFL_MOUSE_P1  3
+#define RUBBFL_MOUSE_P2X 4
+#define RUBBFL_MOUSE_P2Y 8
+#define RUBBFL_MOUSE_P2  0xC
+#define RUBBFL_MOUSE     0xF
 
 class RubberSegment{
 public:
-    int        r1, r2;
+    rubbfl_t flags;
     iPoint p1, p2;
 
-    RubberSegment(
-      const iPoint & p1_, const int r1_,
-      const iPoint & p2_, const int r2_): p1(p1_), r1(r1_), p2(p2_), r2(r2_){ }
+    RubberSegment(const iPoint & p1_, const iPoint & p2_, const rubbfl_t flags_):
+      p1(p1_), p2(p2_), flags(flags_){ }
 
     iPoint get1(Point<int> pointer, Point<int> offset) const {
-      return iPoint ((r1 & REF_XMOUSE)? (p1.x+pointer.x) : (p1.x-offset.x),
-                            (r1 & REF_YMOUSE)? (p1.y+pointer.y) : (p1.y-offset.y));
+      return iPoint ((flags & RUBBFL_MOUSE_P1X)? (p1.x+pointer.x) : (p1.x-offset.x),
+                     (flags & RUBBFL_MOUSE_P1Y)? (p1.y+pointer.y) : (p1.y-offset.y));
     }
     iPoint get2(Point<int> pointer, Point<int> offset) const {
-      return iPoint ((r2 & REF_XMOUSE)? (p2.x+pointer.x) : (p2.x-offset.x),
-                            (r2 & REF_YMOUSE)? (p2.y+pointer.y) : (p2.y-offset.y));
+      return iPoint ((flags & RUBBFL_MOUSE_P2X)? (p2.x+pointer.x) : (p2.x-offset.x),
+                     (flags & RUBBFL_MOUSE_P2Y)? (p2.y+pointer.y) : (p2.y-offset.y));
     }
 };
 
@@ -55,7 +61,6 @@ class RubberViewer : public ViewerT {
     rubber_draw();
   }
 
-
   virtual bool on_motion_notify_event (GdkEventMotion * event) {
     if (!event->is_hint) return false;
     mouse_pos=iPoint((int)event->x,(int)event->y);
@@ -78,13 +83,14 @@ class RubberViewer : public ViewerT {
   }
 
   void rubber_draw(const bool all=true){
+    // if all is false - draw only lines connected with mouse
     if (!rubber_gc) return;
     for (std::list<RubberSegment>::const_iterator i = rubber.begin(); i != rubber.end(); i++){
-      if (!all && (i->r1==0) && (i->r2==0)) continue;
+      if (!all && ((i->flags & RUBBFL_MOUSE) == 0)) continue;
       iPoint p1=i->get1(mouse_pos, ViewerT::get_origin());
       iPoint p2=i->get2(mouse_pos, ViewerT::get_origin());
       ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
-      drawn.push_back(RubberSegment(p1,i->r1,p2,i->r2));
+      drawn.push_back(RubberSegment(p1,p2,i->flags));
     }
   }
 
@@ -92,7 +98,7 @@ class RubberViewer : public ViewerT {
     if (!rubber_gc) return;
     std::list<RubberSegment>::iterator i = drawn.begin();
     while (i != drawn.end()){
-      if (!all && (i->r1==0) && (i->r2==0)) {i++; continue;}
+      if (!all && ((i->flags & RUBBFL_MOUSE) == 0)) {i++; continue;}
       iPoint p1=i->p1;
       iPoint p2=i->p2;
       ViewerT::get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
@@ -100,16 +106,15 @@ class RubberViewer : public ViewerT {
     }
   }
 
-  void rubber_add(const iPoint & p1, const int r1,
-                  const iPoint & p2, const int r2){
+  void rubber_add(const iPoint & p1, const iPoint & p2, const rubbfl_t flags){
     rubber_erase();
-    rubber.push_back(RubberSegment(p1, r1, p2, r2));
+    rubber.push_back(RubberSegment(p1, p2, flags));
     rubber_draw();
   }
 
-  void rubber_add(const int x1, const int y1, const int r1,
-                  const int x2, const int y2, const int r2){
-    rubber_add(iPoint(x1,y1), r1, Point<int>(x2,y2),r2);
+  void rubber_add(const int x1, const int y1,
+                  const int x2, const int y2, const rubbfl_t flags){
+    rubber_add(iPoint(x1,y1), Point<int>(x2,y2), flags);
   }
 
   void rubber_clear(){
@@ -119,30 +124,30 @@ class RubberViewer : public ViewerT {
 
   void rubber_add_src_sq(const iPoint & p, int size){
       iPoint p1(size,size), p2(size,-size);
-      rubber_add( p-p1, 0, p-p2, 0);
-      rubber_add( p-p2, 0, p+p1, 0);
-      rubber_add( p+p1, 0, p+p2, 0);
-      rubber_add( p+p2, 0, p-p1, 0);
+      rubber_add( p-p1, p-p2, RUBBFL_PLANE);
+      rubber_add( p-p2, p+p1, RUBBFL_PLANE);
+      rubber_add( p+p1, p+p2, RUBBFL_PLANE);
+      rubber_add( p+p2, p-p1, RUBBFL_PLANE);
   }
 
   void rubber_add_dst_sq(int size){
       iPoint p1(-size,-size), p2(-size,size);
       iPoint p3( size, size), p4(size,-size);
-      rubber_add( p1, 3, p2, 3);
-      rubber_add( p2, 3, p3, 3);
-      rubber_add( p3, 3, p4, 3);
-      rubber_add( p4, 3, p1, 3);
+      rubber_add( p1, p2, RUBBFL_MOUSE);
+      rubber_add( p2, p3, RUBBFL_MOUSE);
+      rubber_add( p3, p4, RUBBFL_MOUSE);
+      rubber_add( p4, p1, RUBBFL_MOUSE);
   }
 
   void rubber_add_diag(const iPoint & p){
-      rubber_add(p, 0, iPoint(0,0), 3);
+      rubber_add(p, iPoint(0,0), RUBBFL_MOUSE_P2);
   }
 
   void rubber_add_rect(const iPoint & p){
-      rubber_add(iPoint(0,p.y), 1,   iPoint(0,0), 3);
-      rubber_add(iPoint(p.x,0), 2,   iPoint(0,0), 3);
-      rubber_add(iPoint(0,p.y), 1,   p, 0);
-      rubber_add(iPoint(p.x,0), 2,   p, 0);
+      rubber_add(iPoint(0,p.y), iPoint(0,0), RUBBFL_MOUSE_P1X | RUBBFL_MOUSE_P2);
+      rubber_add(iPoint(p.x,0), iPoint(0,0), RUBBFL_MOUSE_P1Y | RUBBFL_MOUSE_P2);
+      rubber_add(iPoint(0,p.y), p, RUBBFL_MOUSE_P1X);
+      rubber_add(iPoint(p.x,0), p, RUBBFL_MOUSE_P1Y);
   }
 
 

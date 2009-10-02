@@ -65,7 +65,7 @@ class ActionTest2 : public Action{
       else data.push_back(p);
       if (data.size()>0) viewer->rubber_add_diag(data[data.size()-1]);
       for (int i=0; i+1<data.size(); i++){
-        viewer->rubber_add(data[i], 0, data[i+1], 0);
+        viewer->rubber_add(data[i], data[i+1], RUBBFL_PLANE);
       }
     }
     else if (state&Gdk::BUTTON2_MASK){
