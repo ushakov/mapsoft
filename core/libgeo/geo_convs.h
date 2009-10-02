@@ -20,8 +20,8 @@ namespace convs{
 // удобно разбить преобразование на части:
 struct pt2ll{ // преобразование к широте-долготе и обратно
   pt2ll(const Datum & D = Datum("wgs84"), const Proj & P = Proj("lonlat"), const Options & Po = Options());
-  void frw(g_point & p); // может поменять lon0!
-  void bck(g_point & p); // может поменять lon0!
+  void frw(g_point & p) const;
+  void bck(g_point & p) const;
 
   private:
     double lat0,lon0,E0,N0,k;
@@ -54,18 +54,18 @@ struct pt2pt{
 
   pt2pt();
 
-  void frw(g_point & p);
-  void bck(g_point & p);
-  void frw_safe(g_point & p);
-  void bck_safe(g_point & p);
+  void frw(g_point & p) const;
+  void bck(g_point & p) const;
+  void frw_safe(g_point & p) const;
+  void bck_safe(g_point & p) const;
   // преобразования линий
   // точность acc - в координатах исходной проекции
-  g_line line_frw(const g_line & l, double acc, int max=100);
-  g_line line_bck(const g_line & l, double acc, int max=100);
+  g_line line_frw(const g_line & l, double acc, int max=100) const;
+  g_line line_bck(const g_line & l, double acc, int max=100) const;
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
-  dRect bb_frw(const Rect<double> & R, double acc);
-  dRect bb_bck(const Rect<double> & R, double acc);
+  dRect bb_frw(const Rect<double> & R, double acc) const;
+  dRect bb_bck(const Rect<double> & R, double acc) const;
 
   private:
     pt2ll pc1, pc2;
@@ -82,16 +82,16 @@ struct map2pt{
 //  map2pt(const g_map & sM,
 //         const char * dD, const char * dP, const Options & dPo = Options());
 
-  void frw(g_point & p);
-  void bck(g_point & p);
-  void frw_safe(g_point & p);
-  void bck_safe(g_point & p);
-  g_line line_frw(const g_line & l, int max=100);
-  g_line line_bck(const g_line & l, int max=100);
+  void frw(g_point & p) const;
+  void bck(g_point & p) const;
+  void frw_safe(g_point & p) const;
+  void bck_safe(g_point & p) const;
+  g_line line_frw(const g_line & l, int max=100) const;
+  g_line line_bck(const g_line & l, int max=100) const;
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
-  dRect bb_frw(const iRect & R);
-  iRect bb_bck(const dRect & R);
+  dRect bb_frw(const iRect & R) const;
+  iRect bb_bck(const dRect & R) const;
   private:
     pt2ll pc1, pc2;
     ll2wgs dc;
@@ -129,17 +129,17 @@ struct border_tester{
 
 struct map2map{
   map2map(const g_map & sM, const g_map & dM, bool test_brd_ = true);
-  void frw(g_point & p);
-  void bck(g_point & p);
+  void frw(g_point & p) const;
+  void bck(g_point & p) const;
 
-  g_line line_frw(const g_line & l, int max=100);
-  g_line line_bck(const g_line & l, int max=100);
+  g_line line_frw(const g_line & l, int max=100) const;
+  g_line line_bck(const g_line & l, int max=100) const;
   // src_scale -- во сколько раз была уменьшена растровая картинка при загрузке
   // cnv_rect - прямоугольник в плоскости _преобразованной картинки_!!!
   int image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
-                iImage & dst_img, iRect dst_rect);
+                iImage & dst_img, iRect dst_rect) const;
   int image_bck(iImage & src_img, int src_scale, iRect cnv_rect, 
-                iImage & dst_img, iRect dst_rect);
+                iImage & dst_img, iRect dst_rect) const;
 
   // новая версия
   //void image_frw(iImage & src_img, int src_scale, iPoint origin, Image<int> & image);
@@ -147,8 +147,8 @@ struct map2map{
 
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
-  iRect bb_frw(const Rect<int> & R);
-  iRect bb_bck(const Rect<int> & R);
+  iRect bb_frw(const Rect<int> & R) const;
+  iRect bb_bck(const Rect<int> & R) const;
 
     bool test_brd;
     map2pt c1,c2;
@@ -166,6 +166,9 @@ g_map mymap(const geo_data & world); // естественная привязк�
 
 // масштаб карты, единиц проекции P в точке
 double map_mpp(const g_map &map, Proj P);
+
+// find central meridian for a given longitude
+double lon2lon0(double lon);
 
 }//namespace
 #endif

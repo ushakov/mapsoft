@@ -134,9 +134,11 @@ struct g_map : std::vector<g_refpoint>
     g_map & operator-= (g_point k);
     g_map & operator+= (g_point k);
 
-    /// get range in lon-lat coords
+    /// get range of map (lon-lat) using refpoints and borders
     g_rect range() const;
-    
+    /// get central point of map (lon-lat) using reference points
+    g_point center() const;
+
     // ensure the border is ok (uses file access and coordinate
     // conversion)
     void ensure_border();

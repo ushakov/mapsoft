@@ -344,7 +344,6 @@ g_rect g_map::range() const {
   convs::map2pt conv(*this, Datum("WGS84"), Proj("lonlat"));
   for (j = border.begin(); j != border.end(); ++j){
     g_point p(*j); conv.frw(p);
-    std::cerr << "computing border: " << p << std::endl;
     if (p.x > maxx) maxx = p.x;
     if (p.y > maxy) maxy = p.y;
     if (p.x < minx) minx = p.x;
@@ -353,6 +352,22 @@ g_rect g_map::range() const {
   if ((minx > maxx) || (miny > maxy)) return g_rect(0, 0, 0, 0);
   return g_rect(minx, miny, maxx-minx, maxy-miny);
 }
+
+/// get central point of map (lon-lat) using reference points
+g_point g_map::center() const {
+  double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
+  g_map::const_iterator i;
+  for (i = begin(); i != end(); ++i){
+    if (i->x > maxx) maxx = i->x;
+    if (i->y > maxy) maxy = i->y;
+    if (i->x < minx) minx = i->x;
+    if (i->y < miny) miny = i->y;
+  }
+  if ((minx > maxx) || (miny > maxy)) return g_point(0, 0);
+  return g_point((maxx+minx)/2, (maxy+miny)/2);
+}
+
+
 
 /// clear all data
 void geo_data::clear(){ 
