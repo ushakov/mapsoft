@@ -54,7 +54,8 @@ $(RUBBER_OBJECTS): rubber_viewer.h
 $(ACTION_OBJECTS): action_viewer.h
 
 
-gplane.o: gplane.h
-dthread_viewer.o: dthread_viewer.h
-mthread_viewer.o: mthread_viewer.h
-simple_viewer.o: simple_viewer.h
+gplane.cpp: gplane.h
+dthread_viewer.cpp: dthread_viewer.h
+mthread_viewer.cpp: mthread_viewer.h
+simple_viewer.cpp: simple_viewer.h
+action_viewer.h: action.h
