@@ -1,6 +1,6 @@
 #include "dthread_viewer.h"
 
-const int TILE_SIZE=512;
+const int TILE_SIZE=256;
 const int TILE_MARG=2;
 
 DThreadViewer::DThreadViewer(GPlane * pl) :
@@ -40,7 +40,14 @@ GPlane * DThreadViewer::get_fast_plane() const {
   return fast_plane;
 }
 
-
+void DThreadViewer::redraw (void){
+  updater_mutex->lock();
+  tiles_cache.clear();
+  tiles_todo.clear();
+  updater_mutex->unlock();
+  epoch++;
+  draw(iRect(0, 0, get_width(), get_height()));
+}
 
 iRect tile_to_rect(iPoint key){
   return iRect(key, key + iPoint(1,1))*TILE_SIZE;
@@ -55,16 +62,17 @@ void DThreadViewer::updater(){
 
       iPoint key = *tiles_todo.begin();
 
+      int e=epoch;
       updater_mutex->unlock();
       iImage tile = get_plane()->draw(tile_to_rect(key));
       updater_mutex->lock();
-
-      if (tiles_cache.count(key)>0) tiles_cache.erase(key);
-      tiles_cache.insert(std::pair<iPoint,iImage>(key, tile));
-      tiles_done.push(key);
-      tiles_todo.erase(key);
-
-      done_signal.emit();
+      if (e==epoch){
+        if (tiles_cache.count(key)>0) tiles_cache.erase(key);
+        tiles_cache.insert(std::pair<iPoint,iImage>(key, tile));
+        tiles_done.push(key);
+        tiles_todo.erase(key);
+        done_signal.emit();
+      }
     }
     updater_mutex->unlock();
 
@@ -98,7 +106,6 @@ void DThreadViewer::updater(){
         it=it1;
       }
     }
-
 
     if (tiles_todo.empty()) updater_cond->wait(*updater_mutex);
     updater_mutex->unlock();

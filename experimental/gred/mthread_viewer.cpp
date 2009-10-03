@@ -27,12 +27,14 @@ GPlane * MThreadViewer::get_fast_plane() const {
 }
 
 void MThreadViewer::updater(const iRect & r){
+  int e=epoch;
   std::pair<iPoint, iImage> p(r.TLC(), SimpleViewer::get_plane()->draw(r));
-
-  mutex->lock();
-  done_cache.insert(p);
-  mutex->unlock();
-  done_signal.emit();
+  if (e==epoch){
+    mutex->lock();
+    done_cache.insert(p);
+    mutex->unlock();
+    done_signal.emit();
+  }
 }
 
 void MThreadViewer::on_done_signal(){
@@ -50,10 +52,9 @@ void MThreadViewer::draw(const iRect & r){
   if (r.empty()) return;
   draw_image(fast_plane->draw(r + get_origin()), r.TLC());
 
-  Glib::Thread * tile_updater_thread =
-    Glib::Thread::create(
-      sigc::bind<1>(sigc::mem_fun(*this, &MThreadViewer::updater),
-        r + get_origin()),
-      false);
+  Glib::Thread::create(
+    sigc::bind<1>(sigc::mem_fun(*this, &MThreadViewer::updater),
+      r + get_origin()),
+    false);
 }
 

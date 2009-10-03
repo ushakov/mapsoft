@@ -6,9 +6,10 @@
 SimpleViewer::SimpleViewer(GPlane * pl) :
     plane(pl),
     origin(iPoint(0,0)),
-    on_drag(false) {
+    on_drag(false),
+    epoch(0) {
   set_name("MapsoftViewer");
-  add_events (
+  set_events (
     Gdk::BUTTON_PRESS_MASK |
     Gdk::BUTTON_RELEASE_MASK |
     Gdk::SCROLL_MASK |
@@ -17,7 +18,7 @@ SimpleViewer::SimpleViewer(GPlane * pl) :
 }
 
 void SimpleViewer::set_origin (iPoint new_origin) {
-  
+
   if (new_origin.x + get_width()  > GCoordMax) new_origin.x=GCoordMax - get_width();
   if (new_origin.y + get_height() > GCoordMax) new_origin.y=GCoordMax - get_height();
   if (new_origin.x < GCoordMin) new_origin.x=GCoordMin;
@@ -37,6 +38,11 @@ void SimpleViewer::set_plane (GPlane * pl){
 
 GPlane * SimpleViewer::get_plane (void) const{
   return plane;
+}
+
+void SimpleViewer::redraw (void){
+  epoch++;
+  draw(iRect(0, 0, get_width(), get_height()));
 }
 
 void SimpleViewer::draw(const iRect & r){
@@ -79,6 +85,9 @@ bool SimpleViewer::on_button_press_event (GdkEventButton * event) {
     drag_pos = iPoint((int)event->x, (int)event->y);
     on_drag=true;
   }
+  else if (event->button == 3) {
+    redraw();
+  }
   return false;
 }
 
@@ -98,5 +107,3 @@ bool SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
   }
   return false;
 }
-
-

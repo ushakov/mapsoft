@@ -18,6 +18,8 @@ class DThreadViewer : public SimpleViewer {
     void on_done_signal();
     void draw(const iRect & r);
 
+    void redraw (void);
+
     void set_fast_plane();
     void set_fast_plane(GPlane * pl);
     GPlane * get_fast_plane() const;
