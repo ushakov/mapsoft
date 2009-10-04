@@ -655,8 +655,8 @@ g_line map2pt::line_bck(const g_line & l, int max)  const{
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
 map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
-    c1(sM, Datum("wgs84"), sM.map_proj, map_popts(sM)),
-    c2(dM, Datum("wgs84"), sM.map_proj, map_popts(sM)),
+    c1(sM, Datum("wgs84"), dM.map_proj, map_popts(dM)),
+    c2(dM, Datum("wgs84"), dM.map_proj, map_popts(dM)),
     tst_frw(c1.border),
     tst_bck(c1.border),
     test_brd(test_brd_)
