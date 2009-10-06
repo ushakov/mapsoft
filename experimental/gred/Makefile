@@ -16,12 +16,15 @@ TARGETS=\
   dthread_rubb_viewer_test1\
   action_viewer_test1\
   action_viewer_test2\
-  action_viewer_test3
+  action_viewer_test3\
+  viewer_test
 
 TARGETS_MTHREAD=\
   mthread_viewer_test1\
   mthread_viewer_test2\
-  mthread_rubb_viewer_test1
+  mthread_rubb_viewer_test1\
+  viewer_test
+
 
 TARGETS_DTHREAD=\
   dthread_viewer_test1\
@@ -30,7 +33,8 @@ TARGETS_DTHREAD=\
   dthread_rubb_viewer_test2\
   action_viewer_test1\
   action_viewer_test2\
-  action_viewer_test3
+  action_viewer_test3\
+  viewer_test
 
 RUBBER_OBJECTS=\
   simple_rubb_viewer_test1.o\
@@ -39,12 +43,14 @@ RUBBER_OBJECTS=\
   dthread_rubb_viewer_test1.o\
   action_viewer_test1.o\
   action_viewer_test2.o\
-  action_viewer_test3.o
+  action_viewer_test3.o\
+  viewer_test.o
 
 ACTION_OBJECTS=\
   action_viewer_test1.o\
   action_viewer_test2.o\
-  action_viewer_test3.o
+  action_viewer_test3.o\
+  viewer_test.o
 
 all: $(TARGETS)
 clean:
