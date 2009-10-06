@@ -4,7 +4,7 @@ MThreadViewer::MThreadViewer(GPlane * pl) :
     SimpleViewer(pl),
     fast_plane(&default_fast_plane){
 
-  Glib::thread_init();
+  if (!Glib::thread_supported()) Glib::thread_init();
   done_signal.connect(sigc::mem_fun(*this, &MThreadViewer::on_done_signal));
 
   mutex = new(Glib::Mutex);

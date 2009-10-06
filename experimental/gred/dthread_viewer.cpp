@@ -8,7 +8,7 @@ DThreadViewer::DThreadViewer(GPlane * pl) :
     fast_plane(&default_fast_plane),
     updater_needed(true) {
 
-  Glib::thread_init();
+  if (!Glib::thread_supported()) Glib::thread_init();
   done_signal.connect(sigc::mem_fun(*this, &DThreadViewer::on_done_signal));
 
   updater_mutex = new(Glib::Mutex);
