@@ -111,6 +111,11 @@ class SuperCell :
     high->id_ = id_ | mask + 1;        // xxx111...1 + 1, first not in range     
   }
 
+  // Make x,y coordinates of the cell in the grid for current level,
+  // and the cell from such coordinates.
+  Point<int> to_coord();
+  static SuperCell from_coord(Point<int> addr, int level);
+
   static SuperCell from_point(Point<GCoord> p, int level);
   static SuperCell LCA(SuperCell a, SuperCell b);
 

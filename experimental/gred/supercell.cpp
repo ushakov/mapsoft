@@ -42,3 +42,42 @@ SuperCell SuperCell::LCA(SuperCell a, SuperCell b) {
   new_id |= one;
   return SuperCell(new_id);
 }
+
+Point<int> SuperCell::to_coord() {
+  uint64_t srcbit = ROOT;
+  uint64_t mask = (id_ - 1) ^ id_; // xxx1000 -> 0001111
+  Point<int> p(0,0);
+  while (srcbit > mask) {
+    p.x <<= 1;
+    if (id_ & srcbit) {
+      p.x |= 1;
+    }
+    srcbit >>= 1;
+    p.y <<= 1;
+    if (id_ & srcbit) {
+      p.y |= 1;
+    }
+    srcbit >>= 1;
+  }
+  return p;
+}
+
+SuperCell SuperCell::from_coord(Point<int> addr, int level) {
+  uint64_t srcbit = 1 << (level-1);
+  uint64_t dstbit = ROOT;
+  uint64_t id = 0;
+  while (level > 0) {
+    if (addr.x & srcbit) {
+      id |= dstbit;
+    }
+    dstbit >>= 1;
+    if (addr.y & srcbit) {
+      id |= dstbit;
+    }
+    dstbit >>= 1;
+    srcbit >>= 1;
+    level --;
+  }
+  id |= dstbit;
+  return SuperCell(id);
+}

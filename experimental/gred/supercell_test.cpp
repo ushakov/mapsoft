@@ -1,3 +1,4 @@
+#include <sstream>
 #include <gtest/gtest.h>
 
 #include "supercell.h"
@@ -58,11 +59,43 @@ TEST(SuperCell, FromPoint) {
 }
 
 TEST(SuperCell, LCA) {
-  ASSERT_EQ(
+  EXPECT_EQ(
 	    0x455674000ULL, 
 	    SuperCell::LCA(
 			   SuperCell(0x455675b60ULL),
 			   SuperCell(0x455677e60ULL)).id());
+}
+
+std::string hex_repr(uint64_t t) {
+  std::ostringstream s;
+  s << std::hex << t;
+  return s.str();
+}
+
+TEST(SuperCell, FromCoord) {
+  Point<int> p(1, 1);
+  SuperCell cell = SuperCell::from_coord(p, 1);
+  EXPECT_EQ("7000000000000000", hex_repr(cell.id()));
+  p = Point<int>(2, 3);
+  cell = SuperCell::from_coord(p, 2);
+  EXPECT_EQ("6c00000000000000", hex_repr(cell.id()));
+}
+
+TEST(SuperCell, ToCoord) {
+  SuperCell cell(0x7000000000000000ULL);
+  EXPECT_EQ(Point<int>(1,1), cell.to_coord());
+  cell = SuperCell(0x6c00000000000000ULL);
+  EXPECT_EQ(Point<int>(2,3), cell.to_coord());
+}
+
+TEST(SuperCell, ToFromCoord) {
+  for (uint64_t i = 3453566ULL; i < 34535660000ULL; i += 3453566000ULL) {
+    SuperCell cell(i);
+    Point<int> p = cell.to_coord();
+    SuperCell parent = cell.parent();
+    EXPECT_EQ(p.x / 2, parent.to_coord().x);
+    EXPECT_EQ(p.y / 2, parent.to_coord().y);
+  }
 }
 
 int main(int argc, char **argv) {
