@@ -1,12 +1,6 @@
 #include <limits.h>
 #include "gplane.h"
 
-//const int GCoordMin=INT_MIN/2;
-const int GCoordMax=INT_MAX/2;
-
-const int GCoordMin=-500;
-//const int GCoordMax=500;
-
 iImage GPlaneTestTile::draw(const iRect &range){
 
   iImage ret(range.w, range.h, 0xFFFFFFFF);

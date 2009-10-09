@@ -19,10 +19,10 @@ SimpleViewer::SimpleViewer(GPlane * pl) :
 
 void SimpleViewer::set_origin (iPoint new_origin) {
 
-  if (new_origin.x + get_width()  > GCoordMax) new_origin.x=GCoordMax - get_width();
-  if (new_origin.y + get_height() > GCoordMax) new_origin.y=GCoordMax - get_height();
-  if (new_origin.x < GCoordMin) new_origin.x=GCoordMin;
-  if (new_origin.y < GCoordMin) new_origin.y=GCoordMin;
+  if (new_origin.x + get_width()  > GCoord_max) new_origin.x = GCoord_max - get_width();
+  if (new_origin.y + get_height() > GCoord_max) new_origin.y = GCoord_max - get_height();
+  if (new_origin.x < GCoord_min) new_origin.x = GCoord_min;
+  if (new_origin.y < GCoord_min) new_origin.y = GCoord_min;
 
   get_window()->scroll(origin.x-new_origin.x, origin.y-new_origin.y);
   origin = new_origin;
