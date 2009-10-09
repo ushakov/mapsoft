@@ -35,22 +35,22 @@ TEST(SuperCell, Range) {
   SuperCell cell(0x2345300);
   rect_a = cell.range();
   rect_b = cell.parent().range();
-  EXPECT_TRUE(rect_b.contains(rect_a.TLC()));
-  EXPECT_TRUE(rect_b.contains(rect_a.BRC() - Point<GCoord>(1,1)));
+  EXPECT_TRUE(point_in_rect(rect_a.TLC(), rect_b));
+  EXPECT_TRUE(point_in_rect(rect_a.BRC() - Point<GCoord>(1,1), rect_b));
 }
 
 TEST(SuperCell, FromPoint) {
   Point<GCoord> p(345,345);
-  ASSERT_TRUE(SuperCell::from_point(p, 20).range().contains(p));
+  ASSERT_TRUE(point_in_rect(p, SuperCell::from_point(p, 20).range()));
 
   p = Point<GCoord>(0, 0);
-  ASSERT_TRUE(SuperCell::from_point(p, 10).range().contains(p));
+  ASSERT_TRUE(point_in_rect(p, SuperCell::from_point(p, 10).range()));
 
   p = Point<GCoord>(256, 256);
-  ASSERT_TRUE(SuperCell::from_point(p, 23).range().contains(p));
+  ASSERT_TRUE(point_in_rect(p, SuperCell::from_point(p, 23).range()));
 
   p = Point<GCoord>(GCoord_cnt, GCoord_cnt);
-  ASSERT_TRUE(SuperCell::from_point(p, 20).range().contains(p));
+  ASSERT_TRUE(point_in_rect(p, SuperCell::from_point(p, 20).range()));
   ASSERT_EQ(0x6040000000000000ULL, SuperCell::from_point(p, 4).id());
 
   p = Point<GCoord>(1045, 44556);

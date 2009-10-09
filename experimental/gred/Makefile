@@ -1,5 +1,5 @@
-LDFLAGS= -L../../core/lib2d
-LDLIBS= -l2d -lgtest `pkg-config --libs gtkmm-2.4,gthread-2.0`
+LDFLAGS= -L../../core/lib2d -L../../core/utils
+LDLIBS= -l2d -lutils -lgtest `pkg-config --libs gtkmm-2.4,gthread-2.0`
 
 CPPFLAGS=`pkg-config --cflags gtkmm-2.4`
 
