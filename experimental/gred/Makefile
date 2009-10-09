@@ -78,3 +78,4 @@ mthread_viewer_test2: mthread_viewer.h gplane.h
 tests: supercell_test
 
 supercell_test: supercell_test.cpp supercell.cpp
+covering_test: covering_test.cpp covering.cpp supercell.cpp
