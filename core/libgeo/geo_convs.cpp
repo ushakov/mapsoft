@@ -946,7 +946,7 @@ g_map mymap(const geo_data & world){ // естественная привязк�
     dRect rm=world.range_map();
     double lon0 = rm.x+rm.w/2;
     if (!rd.empty()) lon0=rd.x+rd.w/2;
-    O.put("lon0", lon0); // todo - use map_popts here
+    O.put("lon0", lon2lon0(lon0)); // todo - use map_popts here?
 
     // масштаб -- соответствующий минимальному масштабу карт, если они есть,
     // или 1/3600 градуса на точку, если карт нет
