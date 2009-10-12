@@ -33,6 +33,7 @@ class SuperCell :
   uint64_t id_;
  public:
   static const uint64_t ROOT;
+  static const int last_level;
 
   SuperCell() {
     id_ = ROOT;
@@ -78,7 +79,7 @@ class SuperCell :
       antilevel++;
       mask >>= 2;
     }
-    return 31 - antilevel;
+    return last_level - antilevel + 1;
   }
 
   uint64_t id() {

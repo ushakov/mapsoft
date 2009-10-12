@@ -42,20 +42,27 @@ TEST(SuperCell, Range) {
 
 TEST(SuperCell, FromPoint) {
   Point<GCoord> p(345,345);
-  ASSERT_TRUE(point_in_rect(p, SuperCell::from_point(p, 20).range()));
+  SuperCell cell;
 
+  cell = SuperCell::from_point(p, 20);
+  EXPECT_TRUE(point_in_rect(p, cell.range()));
+  EXPECT_EQ(20, cell.level());
+ 
   p = Point<GCoord>(0, 0);
-  ASSERT_TRUE(point_in_rect(p, SuperCell::from_point(p, 10).range()));
+  EXPECT_TRUE(point_in_rect(p, SuperCell::from_point(p, 10).range()));
 
   p = Point<GCoord>(256, 256);
-  ASSERT_TRUE(point_in_rect(p, SuperCell::from_point(p, 23).range()));
+  EXPECT_TRUE(point_in_rect(p, SuperCell::from_point(p, 23).range()));
 
   p = Point<GCoord>(GCoord_cnt, GCoord_cnt);
-  ASSERT_TRUE(point_in_rect(p, SuperCell::from_point(p, 20).range()));
-  ASSERT_EQ(0x6040000000000000ULL, SuperCell::from_point(p, 4).id());
+  EXPECT_TRUE(point_in_rect(p, SuperCell::from_point(p, 20).range()));
+  EXPECT_EQ(0x6040000000000000ULL, SuperCell::from_point(p, 4).id());
 
   p = Point<GCoord>(1045, 44556);
-  ASSERT_EQ(SuperCell::ROOT, SuperCell::from_point(p, 0).id());
+  EXPECT_EQ(SuperCell::ROOT, SuperCell::from_point(p, 0).id());
+  EXPECT_EQ(0, SuperCell(SuperCell::ROOT).level());
+
+  EXPECT_EQ(SuperCell::last_level, SuperCell(0x1).level());
 }
 
 TEST(SuperCell, LCA) {

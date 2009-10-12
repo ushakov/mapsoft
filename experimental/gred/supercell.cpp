@@ -1,6 +1,7 @@
 #include "supercell.h"
 
 const uint64_t SuperCell::ROOT = (1ULL << 62);
+const int SuperCell::last_level = 31;
 
 SuperCell SuperCell::from_point(Point<GCoord> p, int level) {
   uint64_t one = ROOT;
