@@ -6,11 +6,13 @@ Covering::Covering() {
 Covering Covering::from_rect(Rect<GCoord> rect) {
   GCoord size = GCoord_max - GCoord_min;
   int level = 0;
-  while (size > rect.w || size > rect.h) {
+  while (size >= rect.w && size >= rect.h) {
     size /= 2;
     level++;
   }
-  // now size <= rect, but size*2 > rect.
+  size *= 2;
+  level--;
+  // now size >= rect, but size/2 < rect.
   SuperCell tlc = SuperCell::from_point(rect.TLC(), level);
   SuperCell brc = SuperCell::from_point(rect.BRC() - Point<GCoord>(1,1), level);
   Point<int> tlc_addr = tlc.to_coord();
