@@ -1,5 +1,5 @@
-#ifndef GPLANE_H
-#define GPLANE_H
+#ifndef GOBJ_H
+#define GOBJ_H
 
 #include <limits.h>
 
@@ -9,35 +9,36 @@
 const extern int GCoordMin;
 const extern int GCoordMax;
 
-class GPlane{
+class GObj{
   public:
   virtual iImage draw(const iRect &range) = 0;
+  virtual iRect range(void);
 };
 
 
 
-// here are some simple planes for test purposes
+// here are some simple objects for test purposes
 
-class GPlaneTestTile: public GPlane{
+class GObjTestTile: public GObj{
   iImage draw(const iRect &range);
 };
 
-class GPlaneTestTileSlow: public GPlane{
+class GObjTestTileSlow: public GObj{
   iImage draw(const iRect &range);
 };
 
-class GPlaneSolidFill: public GPlane{
+class GObjSolidFill: public GObj{
   int color;
   public:
-  GPlaneSolidFill(int c=0xFF000000): color(c) {}
+  GObjSolidFill(int c=0xFF000000): color(c) {}
   iImage draw(const iRect &range);
 };
 
-class GPlaneTestGrid: public GPlane{
+class GObjTestGrid: public GObj{
   iImage draw(const iRect &range);
 };
 
-class GPlaneTestGridSlow: public GPlane{
+class GObjTestGridSlow: public GObj{
   iImage draw(const iRect &range);
 };
 

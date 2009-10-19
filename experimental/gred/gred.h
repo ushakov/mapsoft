@@ -1,7 +1,7 @@
 // Universal graphical editor
 
 /*  We want to draw objects on a large raster
-    plane (GPlane). We want to create viewer, allowing us to view
+    plane (GObj). We want to create viewer, allowing us to view
     part of this plane, to rescale and drag it, to pass some events
     (mouse clicks) to editor functions, specific for each type of objects.
 
@@ -15,22 +15,22 @@ const GCoord_min=0;
 const GCoord_max=UINT_MAX;
 
 
-/*  GPlane has some hints for talling objects how to draw on it.
+/*  GObj has some hints for talling objects how to draw on it.
     It is g_map for geo-referenced objects and scale for others.
     When you are change scale in viewer both parameters changes.
     Objects can use these parameters as they want.
 */
 
-struct GPlane{
+struct GObj{
   unsigned int nom;
   unsigned int denom;
   double scale;
   g_map  ref;
 
-  GPlane & operator/= (double k);
-  GPlane & operator*= (double k);
-  GPlane & operator-= (Point<GCoord_t> k);
-  GPlane & operator+= (Point<GCoord_t> k);
+  GObj & operator/= (double k);
+  GObj & operator*= (double k);
+  GObj & operator-= (Point<GCoord_t> k);
+  GObj & operator+= (Point<GCoord_t> k);
 };
 
 /*  We want to redraw parts of our plane efficiently: not to iterate though all
@@ -52,7 +52,7 @@ struct GTile{
   Image<GCoord> redraw();
 };
 
-/*  Each object knows what to draw on given tile at given GPlane.
+/*  Each object knows what to draw on given tile at given GObj.
     It is strongly recomended to cache information needed for
     drawing.
 */
@@ -60,7 +60,7 @@ struct GTile{
 struct GObject{
   virtual int render(
     Image<GCoord> & img,
-    const GPlane & plane,
+    const GObj & plane,
     const Point<GCoord> & origin) = 0;
 };
 

@@ -10,7 +10,7 @@
 template <typename ViewerT>
 class ActionViewer : public ViewerT {
 public:
-  ActionViewer(GPlane * pl) : ViewerT(pl), current(-1){}
+  ActionViewer(GObj * pl) : ViewerT(pl), current(-1){}
 
   void action_add(Action * a){
     actions.push_back(a);

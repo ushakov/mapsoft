@@ -1,5 +1,5 @@
 #include <iostream>
-#include "gplane.h"
+#include "gobj.h"
 #include "action_viewer.h"
 #include "dthread_viewer.h"
 #include "rubber_viewer.h"
@@ -44,7 +44,7 @@ int main(int argc, char **argv){
 
     Gtk::Main     kit (argc, argv);
     Gtk::Window   win;
-    GPlaneTestGridSlow p1;
+    GObjTestGridSlow p1;
 
     ViewerT viewer(&p1);
     ActionTest A1(&viewer);

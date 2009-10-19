@@ -6,11 +6,11 @@ int main(int argc, char **argv){
 
     Gtk::Main     kit (argc, argv);
     Gtk::Window   win;
-    GPlaneTestTile      pl1;
-    GPlaneTestTileSlow  pl2;
+    GObjTestTile      pl1;
+    GObjTestTileSlow  pl2;
 
     DThreadViewer viewer(&pl2);
-    viewer.set_fast_plane(&pl1);
+    viewer.set_fast_obj(&pl1);
 
     win.add(viewer);
     win.set_default_size(640,480);

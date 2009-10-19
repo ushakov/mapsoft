@@ -1,5 +1,5 @@
 #include <iostream>
-#include "gplane.h"
+#include "gobj.h"
 #include "simple_viewer.h"
 #include "rubber_viewer.h"
 
@@ -8,7 +8,7 @@ int main(int argc, char **argv){
 
     Gtk::Main     kit (argc, argv);
     Gtk::Window   win;
-    GPlaneTestGrid  p1;
+    GObjTestGrid  p1;
 
     RubberViewer<SimpleViewer> viewer(&p1);
 

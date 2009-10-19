@@ -3,8 +3,8 @@
 #include <gdk/gdk.h>
 #include "../../core/utils/image_gdk.h"
 
-SimpleViewer::SimpleViewer(GPlane * pl) :
-    plane(pl),
+SimpleViewer::SimpleViewer(GObj * o) :
+    obj(o),
     origin(iPoint(0,0)),
     on_drag(false),
     epoch(0) {
@@ -32,12 +32,12 @@ iPoint SimpleViewer::get_origin (void) const {
   return origin;
 }
 
-void SimpleViewer::set_plane (GPlane * pl){
-  plane=pl;
+void SimpleViewer::set_obj (GObj * o){
+  obj=o;
 }
 
-GPlane * SimpleViewer::get_plane (void) const{
-  return plane;
+GObj * SimpleViewer::get_obj (void) const{
+  return obj;
 }
 
 void SimpleViewer::redraw (void){
@@ -47,7 +47,7 @@ void SimpleViewer::redraw (void){
 
 void SimpleViewer::draw(const iRect & r){
   if (r.empty()) return;
-  draw_image(plane->draw(r + origin), r.TLC());
+  draw_image(obj->draw(r + origin), r.TLC());
 }
 
 void SimpleViewer::draw_image (const iImage & img, const iPoint & p){

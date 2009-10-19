@@ -6,8 +6,8 @@
 class TestWin : public Gtk::Window{
   public:
 
-  GPlaneTestTile      pl1;
-  GPlaneTestTileSlow  pl2;
+  GObjTestTile      o1;
+  GObjTestTileSlow  o2;
 
   SimpleViewer *v;
   SimpleViewer *v1;
@@ -15,11 +15,11 @@ class TestWin : public Gtk::Window{
   DThreadViewer *v3;
 
   TestWin(){
-    v1 = new SimpleViewer(&pl1);
-    v2 = new MThreadViewer(&pl2);
-    v3 = new DThreadViewer(&pl2);
-    v2->set_fast_plane(&pl1);
-    v3->set_fast_plane(&pl1);
+    v1 = new SimpleViewer(&o1);
+    v2 = new MThreadViewer(&o2);
+    v3 = new DThreadViewer(&o2);
+    v2->set_fast_obj(&o1);
+    v3->set_fast_obj(&o1);
     signal_key_press_event().connect (sigc::mem_fun (this, &TestWin::on_key_press));
     v=(SimpleViewer *)v2;
 

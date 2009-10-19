@@ -6,7 +6,7 @@ int main(int argc, char **argv){
 
     Gtk::Main     kit (argc, argv);
     Gtk::Window   win;
-    GPlaneTestGrid  pl;
+    GObjTestGrid  pl;
 
     SimpleViewer viewer(&pl);
 
