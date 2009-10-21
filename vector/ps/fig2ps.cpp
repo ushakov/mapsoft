@@ -7,7 +7,6 @@
 #include <cmath>
 #include <cstring>
 #include "../libzn/zn.h"
-#include "line_dist.h"
 #include "../../core/lib2d/line_polycrop.h"
 
 using namespace std;
