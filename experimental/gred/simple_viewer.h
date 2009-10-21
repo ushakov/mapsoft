@@ -2,17 +2,17 @@
 #define SIMPLE_VIEWER
 
 #include <gtkmm.h>
-#include "gplane.h"
+#include "gobj.h"
 
 class SimpleViewer : public Gtk::DrawingArea {
   public:
 
-    SimpleViewer(GPlane * pl);
+    SimpleViewer(GObj * pl);
 
     virtual void set_origin (iPoint new_origin);
     iPoint       get_origin (void) const;
-    virtual void set_plane (GPlane * pl);
-    GPlane *     get_plane (void) const;
+    virtual void set_obj (GObj * o);
+    GObj *       get_obj (void) const;
 
     virtual void draw(const iRect & r);
     virtual void draw_image (const iImage & img, const iPoint & p);
@@ -31,7 +31,7 @@ class SimpleViewer : public Gtk::DrawingArea {
 
   private:
 
-    GPlane * plane;
+    GObj * obj;
     iPoint origin;
 };
 

@@ -57,7 +57,7 @@ clean:
 	rm -f -- $(TARGETS)
 	rm -f -- *.o
 
-$(TARGETS): gplane.o simple_viewer.o
+$(TARGETS): gobj.o simple_viewer.o
 $(TARGETS_MTHREAD): mthread_viewer.o
 $(TARGETS_DTHREAD): dthread_viewer.o
 $(RUBBER_OBJECTS): rubber_viewer.h

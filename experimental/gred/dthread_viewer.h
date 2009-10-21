@@ -11,7 +11,7 @@
 class DThreadViewer : public SimpleViewer {
   public:
 
-    DThreadViewer(GPlane * pl);
+    DThreadViewer(GObj * pl);
     ~DThreadViewer();
 
     void updater();
@@ -20,13 +20,13 @@ class DThreadViewer : public SimpleViewer {
 
     void redraw (void);
 
-    void set_fast_plane();
-    void set_fast_plane(GPlane * pl);
-    GPlane * get_fast_plane() const;
+    void set_fast_obj();
+    void set_fast_obj(GObj * o);
+    GObj * get_fast_obj() const;
 
   private:
-    GPlane *fast_plane;
-    GPlaneSolidFill default_fast_plane;
+    GObj *fast_obj;
+    GObjSolidFill default_fast_obj;
 
     std::map<iPoint,iImage> tiles_cache;
     std::set<iPoint>        tiles_todo;

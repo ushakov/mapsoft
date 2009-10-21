@@ -1,8 +1,8 @@
 #include "mthread_viewer.h"
 
-MThreadViewer::MThreadViewer(GPlane * pl) :
+MThreadViewer::MThreadViewer(GObj * pl) :
     SimpleViewer(pl),
-    fast_plane(&default_fast_plane){
+    fast_obj(&default_fast_obj){
 
   if (!Glib::thread_supported()) Glib::thread_init();
   done_signal.connect(sigc::mem_fun(*this, &MThreadViewer::on_done_signal));
@@ -14,21 +14,21 @@ MThreadViewer::~MThreadViewer(){
   delete(mutex);
 }
 
-void MThreadViewer::set_fast_plane(){
-  fast_plane = &default_fast_plane;
+void MThreadViewer::set_fast_obj(){
+  fast_obj = &default_fast_obj;
 }
 
-void MThreadViewer::set_fast_plane(GPlane * pl){
-  fast_plane=pl;
+void MThreadViewer::set_fast_obj(GObj * o){
+  fast_obj=o;
 }
 
-GPlane * MThreadViewer::get_fast_plane() const {
-  return fast_plane;
+GObj * MThreadViewer::get_fast_obj() const {
+  return fast_obj;
 }
 
 void MThreadViewer::updater(const iRect & r){
   int e=epoch;
-  std::pair<iPoint, iImage> p(r.TLC(), SimpleViewer::get_plane()->draw(r));
+  std::pair<iPoint, iImage> p(r.TLC(), SimpleViewer::get_obj()->draw(r));
   if (e==epoch){
     mutex->lock();
     done_cache.insert(p);
@@ -50,7 +50,7 @@ void MThreadViewer::on_done_signal(){
 
 void MThreadViewer::draw(const iRect & r){
   if (r.empty()) return;
-  draw_image(fast_plane->draw(r + get_origin()), r.TLC());
+  draw_image(fast_obj->draw(r + get_origin()), r.TLC());
 
   Glib::Thread::create(
     sigc::bind<1>(sigc::mem_fun(*this, &MThreadViewer::updater),

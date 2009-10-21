@@ -5,7 +5,7 @@
 #include <gdk/gdk.h>
 
 #include <list>
-#include "gplane.h"
+#include "gobj.h"
 #include "../../core/lib2d/point_utils.h"
 
 typedef unsigned int rubbfl_t;
@@ -50,7 +50,7 @@ class RubberViewer : public ViewerT {
   iPoint mouse_pos;
 
   public:
-  RubberViewer(GPlane * pl) : ViewerT(pl){}
+  RubberViewer(GObj * pl) : ViewerT(pl){}
 
   // There are three places in which we need to redraw rubber lines:
   // * draw_image function

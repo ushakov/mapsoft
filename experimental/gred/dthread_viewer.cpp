@@ -3,9 +3,9 @@
 const int TILE_SIZE=256;
 const int TILE_MARG=2;
 
-DThreadViewer::DThreadViewer(GPlane * pl) :
+DThreadViewer::DThreadViewer(GObj * pl) :
     SimpleViewer(pl),
-    fast_plane(&default_fast_plane),
+    fast_obj(&default_fast_obj),
     updater_needed(true) {
 
   if (!Glib::thread_supported()) Glib::thread_init();
@@ -28,16 +28,16 @@ DThreadViewer::~DThreadViewer(){
     delete(updater_cond);
 }
 
-void DThreadViewer::set_fast_plane(){
-  fast_plane = &default_fast_plane;
+void DThreadViewer::set_fast_obj(){
+  fast_obj = &default_fast_obj;
 }
 
-void DThreadViewer::set_fast_plane(GPlane * pl){
-  fast_plane=pl;
+void DThreadViewer::set_fast_obj(GObj * o){
+  fast_obj=o;
 }
 
-GPlane * DThreadViewer::get_fast_plane() const {
-  return fast_plane;
+GObj * DThreadViewer::get_fast_obj() const {
+  return fast_obj;
 }
 
 void DThreadViewer::redraw (void){
@@ -64,7 +64,7 @@ void DThreadViewer::updater(){
 
       int e=epoch;
       updater_mutex->unlock();
-      iImage tile = get_plane()->draw(tile_to_rect(key));
+      iImage tile = get_obj()->draw(tile_to_rect(key));
       updater_mutex->lock();
       if (e==epoch){
         if (tiles_cache.count(key)>0) tiles_cache.erase(key);
@@ -139,7 +139,7 @@ void DThreadViewer::draw(const iRect & r){
       if (rect.empty()) continue;
 
       if (tiles_cache.count(key)==0){ // if there is no tile in cache
-        draw_image(fast_plane->draw(rect), rect.TLC()-get_origin());
+        draw_image(fast_obj->draw(rect), rect.TLC()-get_origin());
         if (tiles_todo.count(key)==0){
           updater_mutex->lock();
           tiles_todo.insert(key);

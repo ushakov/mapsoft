@@ -21,6 +21,8 @@ env1.Program('make_nom.cpp')
 env1.Program('np2pt.cpp')
 env1.Program('tx2pt.cpp')
 
+env1.Program('get_ps.cpp')
+
 env2 = env.Clone()
 env2.Prepend(LIBS=['mp', 'utils', '2d'])
 

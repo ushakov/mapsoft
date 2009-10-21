@@ -289,7 +289,7 @@ main(int argc, char **argv){
     }
 
 
-    if ((map.data[d0a]!=NULL) && cntrs){
+    if ((map.data[d0a]!=NULL) && (map.data[d0a-1]!=NULL) && (map.data[d0a+1]!=NULL) && cntrs){
       for (int j = 0; j < map.w; j++){
 
         for (std::vector<cnt_data>::iterator cnt=cnts.begin(); cnt!=cnts.end(); cnt++){

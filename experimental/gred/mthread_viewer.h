@@ -7,20 +7,20 @@
 class MThreadViewer : public SimpleViewer {
   public:
 
-    MThreadViewer(GPlane * pl);
+    MThreadViewer(GObj * o);
     ~MThreadViewer();
 
     void updater(const iRect & r);
     void on_done_signal();
     void draw(const iRect & r);
 
-    void set_fast_plane();
-    void set_fast_plane(GPlane * pl);
-    GPlane * get_fast_plane() const;
+    void set_fast_obj();
+    void set_fast_obj(GObj * o);
+    GObj * get_fast_obj() const;
 
   private:
-    GPlane *fast_plane;
-    GPlaneSolidFill default_fast_plane;
+    GObj *fast_obj;
+    GObjSolidFill default_fast_obj;
 
     std::map<iPoint,iImage> done_cache;
     Glib::Dispatcher        done_signal;
