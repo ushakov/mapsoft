@@ -39,6 +39,7 @@ main(int argc, char **argv){
 
   omap_t objects;
 
+  // insert objects into multimap<type,object>
   for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
 
     if ((i->type == 4) && (i->comment.size()>0) && (i->comment[0] == "CURRENT DATE")){
@@ -46,9 +47,7 @@ main(int argc, char **argv){
       i->text = t.date_str();
     }
 
-    if (i->type == 6){ // составной объект
-      // копируем комментарий в следующий объект (до последней непустой строчки!).
-      // остальное нам не нужно
+    if (i->type == 6){ // shift comments into compounds
       fig::fig_world::iterator j = i; j++;
       if (j!=W.end()){
         if (j->comment.size()< i->comment.size()) j->comment.resize(i->comment.size());
@@ -70,41 +69,51 @@ main(int argc, char **argv){
     objects.insert(op_t(type,i));
   }
 
-  vector<int> crd, cmd;
-  cmd.push_back(11);
-  crd.push_back(0);
-  crd.push_back(0);
-  crd.push_back(500);
-  crd.push_back(500);
-  cmd.push_back(0);
-  for (omap_t::const_iterator i=objects.find(0x10000C);
-                              i->first==0x10000C; i++){
-    if (i->second->size() < 1) continue;
-    cmd.push_back(1);
-    if (i->second->size() > 1){
-      cmd.push_back(i->second->size()-1+32);
+  int scale=20;
+  iRect rng=W.range()/scale;
+
+  // print definitions of postscript upaths for all types
+  for (omap_t::const_iterator t=objects.begin();
+                  t!=objects.end(); t=objects.upper_bound(t->first)){
+    // for each key in multimap
+
+    if (! (t->first & zn::line_mask)) continue;
+
+    vector<int> crd, cmd;
+    cmd.push_back(11);
+    crd.push_back(rng.x);
+    crd.push_back(rng.y);
+    crd.push_back(rng.x+rng.w);
+    crd.push_back(rng.y+rng.h);
+    cmd.push_back(0);
+    for (omap_t::const_iterator i=objects.lower_bound(t->first);
+                               i!=objects.upper_bound(t->first); i++){
+      if (i->second->size() < 1) continue;
+      cmd.push_back(1);
+      int s=i->second->size();
+      if ( s > 256-32){
+        cmd.push_back(255);
+        cmd.push_back(3);
+      }
+      cmd.push_back(s-1+32);
       cmd.push_back(3);
+      for (fig_object::const_iterator j=i->second->begin();
+                                      j!=i->second->end(); j++){
+        crd.push_back(j->x/scale);
+        crd.push_back(j->y/scale);
+      }
     }
-    for (fig_object::const_iterator j=i->second->begin();
-                                    j!=i->second->end(); j++){
-      crd.push_back(j->x/25);
-      crd.push_back(j->y/25);
-    }
+    cmd.push_back(10);
+
+    cout << "/POLYLINE_0x" << setbase(16) << (t->first & 0xFFFFF)
+         << " {\n{" << setbase(10);
+    for (vector<int>::const_iterator i=crd.begin(); i!=crd.end(); i++)
+      cout << *i << " ";
+    cout << "}\n<" << setbase(16);
+    for (vector<int>::const_iterator i=cmd.begin(); i!=cmd.end(); i++)
+      cout << setw(2) << setfill('0') << *i << " ";
+    cout << setbase(10) << ">\n} cvlit def\n";
   }
-  cmd.push_back(10);
-
-  cout << "/HR {\n{";
-  for (vector<int>::const_iterator i=crd.begin(); i!=crd.end(); i++)
-    cout << *i << " ";
-  cout << "}\n<" << setbase(16);
-  for (vector<int>::const_iterator i=cmd.begin(); i!=cmd.end(); i++)
-    cout << setw(2) << setfill('0') << *i << " ";
-  cout << ">\n} cvlit def\n";
-
-  cout << "HR ustroke\n";
-
-//0x100026
-
 }
 
 

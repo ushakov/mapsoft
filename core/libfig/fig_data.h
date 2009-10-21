@@ -143,7 +143,7 @@ namespace fig {
         float   farrow_thickness, barrow_thickness;
 	float   farrow_width, barrow_width;
 	float   farrow_height, barrow_height;
-    
+
 	std::string  image_file;
 	int     image_orient;
         std::string  text;
@@ -320,6 +320,15 @@ namespace fig {
         fig_world & operator +=(const iPoint & p) {
           for (iterator i=begin(); i!=end(); i++) *i += p; 
           return *this;
+        }
+
+        iRect range(){
+          if (this->size()<1) return iRect(0,0,0,0);
+          fig_world::const_iterator i=this->begin();
+          iRect ret=i->range();
+          while ((++i) != this->end())
+            ret = rect_bounding_box(ret, i->range());
+          return ret;
         }
 
     };
