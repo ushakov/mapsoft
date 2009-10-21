@@ -16,9 +16,6 @@ typedef multimap<int, fig_world::iterator> omap_t;
 typedef pair<int, fig_world::iterator> op_t;
 
 
-
-
-
 main(int argc, char **argv){
 
   if (argc!=3){
@@ -68,51 +65,94 @@ main(int argc, char **argv){
     objects.insert(op_t(type,i));
   }
 
-  int scale=20;
-  iRect rng=W.range()/scale;
+  iRect rng=W.range();
+
+
+#define GS_SETBBOX    0
+#define GS_MOVETO     1
+#define GS_RMOVETO    2
+#define GS_LINETO     3
+#define GS_RLINETO    4
+#define GS_CURVETO    5
+#define GS_RCURVETO   6
+#define GS_ARC        7
+#define GS_ARCN       8
+#define GS_ARCT       9
+#define GS_CLOSEPATH 10
+#define GS_UCACHE    11
+
 
   // print definitions of postscript upaths for all types
   for (omap_t::const_iterator t=objects.begin();
                   t!=objects.end(); t=objects.upper_bound(t->first)){
     // for each key in multimap
 
-    if (! (t->first & zn::line_mask)) continue;
+    char type='p';
+    if (t->first & zn::line_mask) type='l';
+    if (t->first & zn::area_mask) type='a';
+
+    if (type=='p') continue;
 
     vector<int> crd, cmd;
-    cmd.push_back(11);
-    crd.push_back(rng.x);
-    crd.push_back(rng.y);
-    crd.push_back(rng.x+rng.w);
-    crd.push_back(rng.y+rng.h);
-    cmd.push_back(0);
+    cmd.push_back(GS_UCACHE);
+    crd.push_back(0);
+    crd.push_back(0);
+    crd.push_back(rng.w);
+    crd.push_back(rng.h);
+    cmd.push_back(GS_SETBBOX);
     for (omap_t::const_iterator i=objects.lower_bound(t->first);
                                i!=objects.upper_bound(t->first); i++){
       if (i->second->size() < 1) continue;
-      cmd.push_back(1);
-      int s=i->second->size();
-      if ( s > 256-32){
+      cmd.push_back(GS_MOVETO);
+      int s=i->second->size()-1;
+      while ( s > 255-32){
         cmd.push_back(255);
-        cmd.push_back(3);
+        cmd.push_back(GS_LINETO);
+        s-=255-32;
       }
-      cmd.push_back(s-1+32);
-      cmd.push_back(3);
+      cmd.push_back(s+32);
+      cmd.push_back(GS_LINETO);
       for (fig_object::const_iterator j=i->second->begin();
                                       j!=i->second->end(); j++){
-        crd.push_back(j->x/scale);
-        crd.push_back(j->y/scale);
+        crd.push_back(j->x - rng.x);
+        crd.push_back(j->y - rng.y);
       }
+      if (type=='a') cmd.push_back(GS_CLOSEPATH);
     }
-    cmd.push_back(10);
 
-    cout << "/POLYLINE_0x" << setbase(16) << (t->first & 0xFFFFF)
-         << " {\n{" << setbase(10);
-    for (vector<int>::const_iterator i=crd.begin(); i!=crd.end(); i++)
-      cout << *i << " ";
-    cout << "}\n<" << setbase(16);
-    for (vector<int>::const_iterator i=cmd.begin(); i!=cmd.end(); i++)
-      cout << setw(2) << setfill('0') << *i << " ";
-    cout << setbase(10) << ">\n} cvlit def\n";
+    switch (type){
+      case 'l': cout << "/POLYLINE"; break;
+      case 'a': cout << "/POLYGON"; break;
+      case 'p': cout << "/POI"; break;
+    }
+    cout << "_0x" << hex << (t->first & 0xFFFFF)
+         << " {\n<9520" << setw(4) << setfill('0') << crd.size();
+    int c=9;
+    for (vector<int>::const_iterator i=crd.begin(); i!=crd.end(); i++){
+      if (c>70){
+        cout << "\n";
+        c=0;
+      }
+      else {
+        cout << " ";
+        c++;
+      }
+      cout << setw(4) << setfill('0') << *i;
+      c+=4;
+    }
+    cout << ">\n<";
+    c=1;
+    for (vector<int>::const_iterator i=cmd.begin(); i!=cmd.end(); i++){
+      if (c>70){
+        cout << "\n";
+        c=0;
+      }
+      cout << setw(2) << setfill('0') << *i;
+      c+=2;
+    }
+    cout << dec << ">\n} cvlit def\n\n";
   }
+
 }
 
 
