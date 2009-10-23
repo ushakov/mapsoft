@@ -13,35 +13,67 @@
 /CntDash {[30 30] 0 setdash} def
 /ProsDash {[80 60] 0 setdash} def
 /HorDash {[120 80] 0 setdash} def
-/NoDash  {[120 80] 0 setdash} def
+/NoDash  {[] 0 setdash} def
+
+<<
+ /PatternType 1
+ /PaintType 2
+ /TilingType 2
+ /BBox [0 0 200 100]
+ /XStep 200
+ /YStep 100
+ /PaintProc
+ {
+  newpath
+  1 setlinewidth
+  0 0 200 100 moveto lineto stroke
+  newpath
+  200 0 0 100 moveto lineto stroke
+ }
+>>
+matrix makepattern /HatchPatt exch def
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 gsave % леса
   GreenColor  POLYGON_0x16 ufill  % лес
   WhiteColor  POLYGON_0x52 ufill  % поле
+              POLYGON_0x14 ufill  % редколесье
+%             POLYGON_0x4F ufill  % свежая вырубка
+  GreenColor  POLYGON_0x50 ufill  % старая вырубка
 
-  %BrownColor  POLYGON_0x4F ufill % свежая вырубка --TODO
-  %BrownColor  POLYGON_0x50 ufill % старая вырубка --TODO
-  %BrownColor  POLYGON_0x14 ufill % редколесье     --TODO
+
+%GreenColor  POLYGON_0x4F ufill % свежая вырубка --TODO
+%   0 0.5747 0 HatchPatt setpattern
+%  POLYGON_0x50 ufill % старая вырубка --TODO
+
+  gsave
+    0.6667 1 0.6667 HatchPatt setpattern
+    POLYGON_0x14 ufill % редколесье     --TODO
+  grestore
 
   %GreenColor  POLYGON_0x15 ufill % остров леса
 
   CntDash DGreenColor 20 setlinewidth
 %  POLYGON_0x15 ustroke
-  POLYGON_0x16 ustroke
+%  POLYGON_0x16 ustroke
   POLYGON_0x52 ustroke
   POLYLINE_0x23 ustroke % контур леса
 grestore
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 gsave % горизонтали
   BrownColor  10 setlinewidth  POLYLINE_0x21 ustroke
   BrownColor  15 setlinewidth  POLYLINE_0x22 ustroke
   HorDash BrownColor  10 setlinewidth  POLYLINE_0x20 ustroke
 grestore
 
+ProsDash BlackColor 10 setlinewidth POLYLINE_0x16 ustroke NoDash % просека
+
 BlackColor  80 setlinewidth  POLYLINE_0x2 ustroke
             60 setlinewidth  POLYLINE_0x4 ustroke
 WhiteColor  20 setlinewidth  POLYLINE_0x4 ustroke
 PinkColor   40 setlinewidth  POLYLINE_0x2 ustroke
 
+showpage

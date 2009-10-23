@@ -153,6 +153,8 @@ main(int argc, char **argv){
     cout << dec << ">\n} cvlit def\n\n";
   }
 
+  cout << dec << "(./common.ps) run\n\n";
+
 }
 
 
