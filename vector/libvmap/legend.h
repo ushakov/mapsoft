@@ -9,12 +9,12 @@
 namespace vmap{
 
 struct leg_el{
-  std::string name, desc;  // название, подробное описание
-  mp::mp_object mp;        // заготовка mp-объекта
-  fig::fig_object fig;     // заготовка fig-объекта
-  fig::fig_object txt;     // заготовка fig-объекта подписи
-  std::string pic;         // картинка для точечного объекта (м.б. пустой)
-  bool istxt;              // делать ли подпись?
+  std::string name, desc;
+  mp::mp_object mp;        // mp template
+  fig::fig_object fig;     // fig template
+  fig::fig_object txt;     // fig template for a label
+  std::string pic;         // path to picture (may be empty)
+  bool istxt;              // make label or not
 
   leg_el(){istxt=false;}
 };
@@ -27,8 +27,8 @@ struct legend: std::map<std::string, leg_el>{
   // Constructor. Read all information from yaml-file
   legend(const std::string & style);
 
-  // Region of FIG depths in wich all cartographic objects live.
-  // Its boundaries are minimal and maximum depth of objects in config file
+  // Is object have a depth between min and max depth
+  // of cartographic objects
   bool is_map_depth(const fig::fig_object & o) const;
 
   // Find types for different formats

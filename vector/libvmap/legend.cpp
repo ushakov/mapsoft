@@ -224,32 +224,35 @@ string legend::get_type(const mp::mp_object & o) const{
 
 // find type for fig object
 string legend::get_type (const fig::fig_object & o) const {
-  if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return ""; // объект неинтересного вида
+
+  // we are interested in lines only
+  if ((o.type!=2) && (o.type!=3)) return "";
 
 
   for (map<string, leg_el>::const_iterator i = begin(); i!=end(); i++){
 
     int c1 = o.pen_color;
     int c2 = i->second.fig.pen_color;
-    // цвет -1 совпадает с цветом 0!
+
+    // there is no difference between -1 and 0 colors
     if (c1 == -1) c1 = 0;
     if (c2 == -1) c2 = 0;
 
-    if (((o.type==2) || (o.type==3)) && (o.size()>1)){
-      // должны совпасть глубина и толщина
+    if (o.size()>1){ // lines
+      // compare depth and thickness
       if ((o.depth     != i->second.fig.depth) ||
           (o.thickness != i->second.fig.thickness)) continue;
-      // для линий толщины не 0 - еще и цвет и тип линии
+      // if thickness != 0 then compare color and line type
       if ((o.thickness  != 0 ) &&
           ((c1 != c2) ||
            (o.line_style != i->second.fig.line_style))) continue;
 
-      // заливки
+      // fillings
       int af1 = o.area_fill;
       int af2 = i->second.fig.area_fill;
       int fc1 = o.fill_color;
       int fc2 = i->second.fig.fill_color;
-      // цвет -1 совпадает с цветом 0!
+      // there is no difference between -1 and 0 colors
       if (fc1 == -1) fc1 = 0;
       if (fc2 == -1) fc2 = 0;
       // белая заливка бывает двух видов
@@ -258,10 +261,11 @@ string legend::get_type (const fig::fig_object & o) const {
 
       // тип заливки должен совпасть
       if (af1 != af2) continue;
+
       // если заливка непрозрачна, то и цвет заливки должен совпасть
       if ((af1!=-1) && (fc1 != fc2)) continue;
 
-    // если заливка - штриховка, то и pen_color должен совпасть 
+      // если заливка - штриховка, то и pen_color должен совпасть 
       // (даже для линий толщины 0)
       if ((af1>41) && (c1 != c2)) continue;
 
@@ -269,7 +273,7 @@ string legend::get_type (const fig::fig_object & o) const {
       // объекту из znaki!
       return i->first;
     }
-    else if (((o.type==2) || (o.type==3)) && (o.size()==1)){ // точки
+    else if (o.size()==1){ // points
       // должны совпасть глубина, толщина, цвет, и закругление
       if ((o.depth     == i->second.fig.depth) &&
           (o.thickness == i->second.fig.thickness) &&
@@ -277,18 +281,9 @@ string legend::get_type (const fig::fig_object & o) const {
           (o.cap_style%2 == i->second.fig.cap_style%2))
         return i->first;
     }
-    else if (o.type==4){ //текст
-      // должны совпасть глубина, цвет, и шрифт
-      if ((o.depth     == i->second.fig.depth) &&
-          (c1          == c2) &&
-          (o.font      == i->second.fig.font))
-        return i->first;
-    }
   }
   return "";
 }
-
-
 
 } // namespace
 
