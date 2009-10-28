@@ -13,8 +13,10 @@ namespace fig {
   g_map get_ref(const fig_world & w);
   /// remove geo reference from fig_world object
   void rem_ref(fig_world & w);
-  /// add geo reference from fig_world object
+  /// add geo reference to fig_world object
   void set_ref(fig_world & w, const g_map & m, const Options & o);
+  /// add geo reference to fig_world object using geom, rscale options
+  void set_ref(fig_world & w, const Options & o);
 
   /// get waypoints from w and put them to d
   void get_wpts(const fig_world & w, const g_map & m, geo_data & d);

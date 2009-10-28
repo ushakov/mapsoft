@@ -343,4 +343,13 @@ using namespace boost::spirit;
     }
   }
 
+  void set_ref(fig_world & w, const Options & o){
+    g_map ref;
+    g_line brd;
+    opt.set("dpi",    2.54);
+    opt.set("factor", fig::cm2fig);
+    ref.create_from_options(o);
+    fig::set_ref(W, ref, o);
+  }
+
 }
