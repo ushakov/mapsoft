@@ -370,11 +370,11 @@ g_point g_map::center() const {
 /// create g_map with borders from 
 /// (using geom, scale/rscale, dpi, factor, proj, datum options)
 void g_map::create_from_options(const Options & opt){
-  parse_from_options(o);
+  parse_from_options(opt);
 
   dRect geom = opt.get("geom", Rect<double>());
-  Proj  proj(opt.get("proj", string("tmerc")));
-  Datum datum(opt.get("datum", string("pulkovo")));
+  Proj  proj(opt.get("proj", std::string("tmerc")));
+  Datum datum(opt.get("datum", std::string("pulkovo")));
 
   double scale  = opt.get("scale",  1e-5);
   double rscale = opt.get("rscale", 0.0);
@@ -384,7 +384,7 @@ void g_map::create_from_options(const Options & opt){
   double k = scale/2.54e-2*dpi*factor;
 
   if (geom.empty()){
-    cerr << "geo_data::g_map::create_from_options: "
+    std::cerr << "geo_data::g_map::create_from_options: "
          << "Error: empty geometry, use --geom option\n";
     exit(1);
   }
@@ -401,7 +401,7 @@ void g_map::create_from_options(const Options & opt){
     g_point pg=*p;
     g_point pr=*p;
     c.bck(pg);
-    pr-=geom.TLC;
+    pr-=geom.TLC();
     pr.y=geom.h-pr.y;
     pr*=k;
     push_back(g_refpoint(pg, pr));
