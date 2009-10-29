@@ -5,6 +5,7 @@
 #include <boost/spirit/actor/clear_actor.hpp>
 
 #include <iomanip>
+#include <fstream>
 
 #include "fig_io.h"
 #include "../utils/iconv_utils.h"
@@ -546,6 +547,19 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
       cerr << "fig::write: bad object type!\n";
       break;
     }
+  }
+  return true;
+}
+
+bool write(const string & file, const fig_world & world, const Options & opts){
+  ofstream out(file.c_str());
+  if (!out) {
+    cerr << "Error: can't open fig file \"" << file << "\"\n";
+    return false;
+  }
+  if (!write(out, world, opts)) {
+    cerr << "Error: can't write to fig file \"" << file << "\"\n";
+    return false;
   }
   return true;
 }
