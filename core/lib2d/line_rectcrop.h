@@ -202,5 +202,37 @@ bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line, bool closed){
   return res;
 }
 
+// fast and inaccurate test to find lines touching rectangle.
+template <typename T>
+bool rect_crop_test(const Rect<T> & cutter, const Line<T> & line, bool closed){
+
+  T xl=cutter.x;
+  T xh=cutter.x+cutter.w;
+  T yl=cutter.y;
+  T yh=cutter.y+cutter.h;
+
+  if (line.size()<3) closed=false;
+  Line<T> e; // for stable end iterator
+
+  bool res=false;
+
+  typename Line<T>::const_iterator p=line.begin();
+  while (p!=line.end()){
+
+    if (point_in_rect(*p, cutter)) return true;
+
+    typename Line<T>::const_iterator np = p; np++;// next point
+    if ((np==line.end()) && closed) np=line.begin();
+
+    if (np==line.end()) break;
+    if (!((p->x > xh) && (np->x > xh)) &&
+        !((p->x < xl) && (np->x < xl)) &&
+        !((p->y > yh) && (np->y > yh)) &&
+        !((p->y < yl) && (np->y < yl))) return true;
+    p++;
+  }
+  return false;
+}
+
 #endif
 
