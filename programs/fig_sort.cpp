@@ -1,4 +1,3 @@
-#include <fstream>
 #include "../core/libfig/fig_utils.h"
 #include "../core/libfig/fig_io.h"
 
@@ -24,6 +23,5 @@ main(int argc, char **argv){
 
   W.sort();
 
-  std::ofstream f(argv[1]);
-  fig::write(f, W);
+  fig::write(argv[1], W);
 }

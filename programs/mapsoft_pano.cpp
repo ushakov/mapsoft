@@ -231,8 +231,7 @@ int main(int argc, char *argv[]) {
     fig << "-6\n";
   }
 */
-  
-  ofstream fig("out_pano.fig");
-  fig::write(fig, F);
+
+  fig::write("out_pano.fig", F);
   image_r::save(data,"out_pano.jpg",Options());
 }

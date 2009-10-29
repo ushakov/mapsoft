@@ -8,7 +8,6 @@
 
 #include <cstring>
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <iomanip>
 
@@ -93,7 +92,6 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  ofstream out(outfile.c_str());
-  fig::write(out, F);
+  exit(!fig::write(outfile, F));
 }
 

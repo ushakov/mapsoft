@@ -1,7 +1,6 @@
 // Получение fig-библиотеки со всеми знаками
 
 #include <string>
-#include <fstream>
 #include <sstream>
 #include <iomanip>
 #include "../libzn/zn_lists.h"
@@ -26,7 +25,6 @@ main(int argc, char** argv){
     F.insert(F.end(), l.begin(), l.end());
     ostringstream name;
     name << out_dir << "/0x" << setw(6) << setfill('0') << setbase(16) << i->first << setbase(10) << ".fig";
-    ofstream out(name.str().c_str());
-    fig::write(out, F);
+    fig::write(name.str(), F);
   }
 }

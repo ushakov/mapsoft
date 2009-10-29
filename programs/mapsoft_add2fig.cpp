@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <iomanip>
 
@@ -61,10 +60,6 @@ int main(int argc, char *argv[]) {
   put_wpts(F, ref, world);
   put_trks(F, ref, world);
 
-  ofstream out(figfile.c_str());
-  if (!fig::write(out, F)) {
-    std::cerr << "Error while writing file.\n";
-    exit(1);
-  }
+  exit (!fig::write(figfile, F));
 }
 

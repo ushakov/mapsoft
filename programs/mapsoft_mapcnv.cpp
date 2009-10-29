@@ -173,8 +173,7 @@ main(int argc, char **argv){
       W.push_back(o);
     }
 
-    ofstream f(figfile.c_str());
-    fig::write(f, W);
+    fig::write(figfile, W);
   }
   if (mapfile != ""){
     ofstream f(mapfile.c_str());

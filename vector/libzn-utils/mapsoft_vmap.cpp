@@ -1,6 +1,5 @@
 #include <string>
 #include <cstring>
-#include <fstream>
 #include "../../core/libgeo_io/geofig.h"
 #include "../../core/libmp/mp.h"
 
@@ -138,8 +137,7 @@ int copy(int argc, char** argv){
         OF.insert(OF.end(), tmp.begin(), tmp.end());
       }
     }
-    ofstream out(ofile.c_str());
-    fig::write(out, OF);
+    fig::write(ofile, OF);
   }
   else if (testext(ofile, ".mp")){
     mp::read(ofile.c_str(), OM);
@@ -150,8 +148,7 @@ int copy(int argc, char** argv){
         OM.push_back(*i);
       }
     }
-    ofstream out(ofile.c_str());
-    mp::write(out, OM);
+    mp::write(ofile, OM);
   }
   else { cerr << "ERR: output file is not .fig or .mp\n"; return 1; }
 
@@ -209,9 +206,7 @@ int remove(int argc, char** argv){
              {i=F.erase(i); obj_cnt++;}
       else i++;
     }
-
-    ofstream out(file.c_str());
-    fig::write(out, F);
+    fig::write(file, F);
   }
 
   else if (testext(file, ".mp")){
@@ -226,9 +221,7 @@ int remove(int argc, char** argv){
         {i=M.erase(i); obj_cnt++;}
       else i++;
     }
-
-    ofstream out(file.c_str());
-    mp::write(out, M);
+    mp::write(file, M);
   }
   else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
 
@@ -284,9 +277,7 @@ int remove_keys(int argc, char** argv){
           testfilter(filter, arg, zn::get_key(*i)))
              {zn::clear_key(*i); obj_cnt++;}
     }
-
-    ofstream out(file.c_str());
-    fig::write(out, F);
+    fig::write(file, F);
   }
 
   else if (testext(file, ".mp")){
@@ -299,9 +290,7 @@ int remove_keys(int argc, char** argv){
       if (testfilter(filter, arg, zn::get_key(*i)))
          {zn::clear_key(*i); obj_cnt++;}
     }
-
-    ofstream out(file.c_str());
-    mp::write(out, M);
+    mp::write(file, M);
   }
   else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
 
@@ -488,8 +477,7 @@ int update_fig(int argc, char** argv){
   cerr << " * Pics:        "
        << l_o_count << " pics added\n";
 
-  ofstream out(file.c_str());
-  fig::write(out, F);
+  fig::write(file, F);
   return 0;
 }
 
@@ -554,8 +542,7 @@ int update_mp(int argc, char** argv){
        << obj_n_cnt << " new, "
        << obj_o_cnt << " old\n";
 
-  ofstream out(file.c_str());
-  mp::write(out, M);
+  mp::write(file, M);
   return 0;
 }
 
@@ -618,8 +605,7 @@ int crop(int argc, char** argv){
       i->set_points(cnv.line_bck(l));
       if (i->size()==0) {i=F.erase(i); obj_d_cnt++; obj_c_cnt--;} else i++;
     }
-    ofstream out(file.c_str());
-    fig::write(out, F);
+    fig::write(file, F);
   }
 
   else if (testext(file, ".mp")){
@@ -648,8 +634,7 @@ int crop(int argc, char** argv){
       }
       if (i->size()==0) {i=M.erase(i);} else i++;
     }
-    ofstream out(file.c_str());
-    mp::write(out, M);
+    mp::write(file, M);
   }
   else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
 
@@ -760,9 +745,7 @@ int remove_grids(int argc, char** argv){
            {i=F.erase(i); obj_cnt++;}
     else i++;
   }
-
-  ofstream out(file.c_str());
-  fig::write(out, F);
+  fig::write(file, F);
 
   cerr << obj_cnt << " fig objects removed\n";
 
@@ -801,9 +784,7 @@ int remove_labels(int argc, char** argv){
       {i=F.erase(i); obj_cnt++;}
     else i++;
   }
-
-  ofstream out(file.c_str());
-  fig::write(out, F);
+  fig::write(file, F);
 
   cerr << obj_cnt << " labels removed\n";
 
@@ -859,9 +840,7 @@ int copy_labels(int argc, char** argv){
     j.set_points(cnv.line_frw(*i));
     OF.push_back(j);
   }
-
-  ofstream out(ofile.c_str());
-  fig::write(out, OF);
+  fig::write(ofile, OF);
 
   cerr << obj_cnt << " labels copied\n";
 
@@ -979,9 +958,7 @@ int switch_map(int argc, char** argv){
     zn::add_key(*i, k);
     l_cnt++;
   }
-
-  ofstream out(file.c_str());
-  fig::write(out, F);
+  fig::write(file, F);
   cerr << o_cnt << " objects, " << l_cnt << " labels\n";
 }
 

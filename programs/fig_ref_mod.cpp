@@ -1,4 +1,3 @@
-#include <fstream>
 #include <cstring>
 #include "../core/libgeo_io/geofig.h"
 #include "../core/libgeo/geo_convs.h"
@@ -71,6 +70,5 @@ main(int argc, char **argv){
   }
 
   fig::set_ref(W, map, Options());
-  std::ofstream f(argv[3]);
-  fig::write(f, W);
+  exit(!fig::write(argv[3], W));
 }

@@ -3,7 +3,6 @@
 #include "../../core/libgeo_io/geofig.h"
 #include "../../core/libgeo/geo_convs.h"
 
-#include <fstream>
 #include <sys/stat.h>
 
 using namespace std;
@@ -55,17 +54,11 @@ main(int argc, char** argv){
   fig::fig_world F;
   set_ref(F, ref, O);
 
-  
   struct stat buf;
   if (stat(file.c_str(), &buf)==0) {
     cerr << "file " << file << " exists!\n";
     exit(0);
   }
-  ofstream ff(file.c_str());
-  if (!ff) {
-    cerr << "can't write to file " << file << "!\n";
-    exit(0);
-  }
 
-  fig::write(ff, F);
+  fig::write(file, F);
 }

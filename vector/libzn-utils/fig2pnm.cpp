@@ -9,7 +9,6 @@
 #include "../../core/libgeo_io/io.h"
 
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <set>
 
@@ -158,9 +157,7 @@ int create_map(std::string figfile, std::string mapfile){
     return 1;
   }
 
-  std::ofstream fs(tmp);
-  fig::write(fs, F);
-  fs.close();
+  fig::write(tmp, F);
 
   fig2dev_shifter ref_map(REF_DEPTH, tmp, 2);
   unlink(tmp);

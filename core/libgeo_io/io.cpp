@@ -193,8 +193,7 @@ namespace io {
 //		// Запись файла FIG
 //		if (testext(outfile, ".fig")){
 //			cerr << "Writing to FIG file " << outfile << "\n";
-//			std::ofstream f(outfile.c_str());
-//			fig::write (f, world, opt);
+//			fig::write (outfile, world, opt);
 //			return;
 //		}
 		// Запись файла HTML
@@ -223,7 +222,7 @@ namespace io {
 			if (wn > 1) ww = (int) floor (log (1.0 * wn) / log (10.0)) + 1;
 			if (tn > 1) tw = (int) floor (log (1.0 * tn) / log (10.0)) + 1;
 			if (mn > 1) mw = (int) floor (log (1.0 * mn) / log (10.0)) + 1;
-    
+
 			for (size_t n = 0; n != world.wpts.size(); ++n)
 			{
 				ostringstream oef;
@@ -261,15 +260,15 @@ namespace io {
 					files += " " + oef.str();
 				}
 			}
-		
+
 			for (size_t n = 0; n != world.maps.size(); ++n)
 			{
 				ostringstream oef;
 				if (mw > 0)
 					oef << base << setw(mw) << setfill('0') << n+1 << ".map";
-				else 
+				else
 					oef << base << ".map";
-			
+
 				ofstream f(oef.str().c_str());
 				if (!oe::write_map_file (f, world.maps[n], opt))
 				{
@@ -281,7 +280,7 @@ namespace io {
 					files += " " + oef.str();
 				}
 			}
-    
+
 			if (testext (outfile, ".zip")){
 				cerr << "Zipping "<< files << "\n";
 				string zipcmd = "zip " + base + ".zip " + files;

@@ -1,4 +1,3 @@
-#include <fstream>
 #include "vmap.h"
 
 main(int argc, char* argv[]){
@@ -17,10 +16,5 @@ main(int argc, char* argv[]){
     }
   }
 
-  std::ofstream of(argv[argc-1]);
-  if (!of){
-    std::cerr << "can't open file" << argv[argc-1] << "\n";
-    return false;
-  }
-  mp::write(of, vmap::vmap2mp(w));
+  mp::write(argv[argc-1], vmap::vmap2mp(w));
 }

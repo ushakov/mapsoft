@@ -137,7 +137,7 @@ std::cerr << dx << " x " << dy << " tile_size\n";
       image_r::save(im, fname.str().c_str(), Options());
 
       fig::fig_object o = fig::make_object("2 5 0 1 0 -1 "+depth+" -1 -1 0.000 0 0 -1 0 0 *");
-      
+
       o.push_back(tlc*rescale);
       o.push_back((tlc+g_point(dx,0))*rescale);
       o.push_back((tlc+g_point(dx,dy))*rescale);
@@ -148,7 +148,6 @@ std::cerr << dx << " x " << dy << " tile_size\n";
       F.push_back(o);
     }
     }
-    std::ofstream f(fig_name.c_str());
-    fig::write(f, F);
+    fig::write(fig_name, F);
     delete(ml);
 }

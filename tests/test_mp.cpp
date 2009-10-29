@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <libmp/mp.h>
 
 using namespace std;
@@ -15,6 +14,5 @@ int main(int argc, char** argv){
       cerr << "ERR: bad mp file\n"; exit(1);
     }
 
-    ofstream out(argv[2]);
-    mp::write(out, M);
+    mp::write(argv[2], M);
 }

@@ -1,4 +1,3 @@
-#include <fstream>
 #include "../core/libfig/fig_utils.h"
 #include "../core/libfig/fig_io.h"
 
@@ -42,6 +41,5 @@ main(int argc, char **argv){
 
   fig::rect_crop(cutter, W);
   W.insert(W.end(), W1.begin(), W1.end());
-  std::ofstream f(argv[1]);
-  fig::write(f, W);
+  exit(!fig::write(argv[1], W));
 }

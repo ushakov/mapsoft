@@ -254,9 +254,7 @@ main(int argc, char** argv){
   }
   else usage();
 
-  std::ofstream f(fig_name.c_str());
-  fig::write(f, F);
-
+  fig::write(fig_name, F);
 
 /*
   // поиск крутых склонов

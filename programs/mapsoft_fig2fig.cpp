@@ -1,7 +1,6 @@
 #include "../core/libgeo_io/geofig.h"
 #include "../core/libgeo/geo_convs.h"
 #include "../core/lib2d/line_polycrop.h"
-#include <fstream>
 
 // Перенесение данных из одного fig-файла в другой с обрезкой 
 // Обрезка пока неаккуратная!!!
@@ -67,6 +66,5 @@ main(int argc, char** argv){
 //  fig::fig_world FT;
 //  crop_lines(F1, FT, brd, true);
 
-  std::ofstream f(out_fig.c_str());
-  fig::write(f, F1);
+  exit(!fig::write(out_fig, F1));
 }

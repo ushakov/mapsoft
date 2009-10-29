@@ -200,8 +200,7 @@ bool write_file (const char* filename, const geo_data & world, const Options & o
     o.comment.push_back(string("MAP ") + filename);
     W.push_back(o);
 
-    ofstream f(figfile.c_str());
-    fig::write(f, W);
+    fig::write(figfile, W);
   }
 
   // writing map if needed

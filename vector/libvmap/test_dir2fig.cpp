@@ -17,10 +17,5 @@ main(int argc, char* argv[]){
     }
   }
 
-  std::ofstream of(argv[argc-1]);
-  if (!of){
-    std::cerr << "map::write_fig: can't open file" << argv[argc-1] << "\n";
-    return false;
-  }
-  fig::write(of, vmap::vmap2fig(w));
+  fig::write(argv[argc-1], vmap::vmap2fig(w));
 }
