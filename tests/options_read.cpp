@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "../utils/options.h"
+#include <utils/options.h>
 
 using namespace std;
 

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#include "../utils/options.h"
+#include <utils/options.h>
 
 //unit-test for Options object
 using namespace std;
@@ -96,7 +96,7 @@ main(){
   // для собственного типа с определенными операторами << и >>
   myclass m0, m1;
   m0.value="test";
-  m0=O.put("my1", m0);
+  O.put("my1", m0);
   m1=O.get("my1", m1);
   if (m0.value != m1.value) {
     std::cout << "myclass1 test failed\n"; err++;}

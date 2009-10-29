@@ -1,7 +1,7 @@
 //#include "pointset.h"
 #include <iostream>
-#include "../lib2d/image.h"
-#include "../utils/color.h"
+#include <lib2d/image.h>
+#include <utils/color.h>
 
 
 main(){

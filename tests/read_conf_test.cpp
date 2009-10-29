@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../utils/read_conf.h"
+#include <utils/read_conf.h>
 
 using namespace std;
 

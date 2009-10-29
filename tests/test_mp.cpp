@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "../libmp/mp.h"
+#include <libmp/mp.h>
 
 using namespace std;
 

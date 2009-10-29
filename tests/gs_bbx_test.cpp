@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "../libfig/fig.h"
-#include "../utils/gs_bbx.h"
+#include <libfig/fig.h>
+#include <utils/gs_bbx.h>
 #include <cmath>
 
 using namespace std;
@@ -37,6 +37,5 @@ main(int argc, char **argv){
     o.push_back(r.TLC());
     W1.push_back(o);
   }
-  ofstream out(argv[1]);
-  fig::write(out, W1);
+  fig::write(argv[1], W1);
 }
