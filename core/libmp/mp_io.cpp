@@ -5,6 +5,7 @@
 #include <boost/spirit/actor/erase_actor.hpp>
 
 #include <iomanip>
+#include <fstream>
 
 #include "mp_io.h"
 #include "../utils/spirit_utils.h"
@@ -140,8 +141,6 @@ bool read(const char* filename, mp_world & world, const Options & opts){
     return true;
 }
 
-
-
 bool write(std::ostream & out, const mp_world & world, const Options & opts){
 
   // converting some fields from UTF8 to default codepage
@@ -192,5 +191,19 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
   }
   return true;
 }
+
+bool write(const string & file, const mp_world & world, const Options & opts){
+  ofstream out(file.c_str());
+  if (!out) {
+    cerr << "Error: can't open mp file \"" << file << "\"\n";
+    return false;
+  }
+  if (!write(out, world, opts)) {
+    cerr << "Error: can't write to mp file \"" << file << "\"\n";
+    return false;
+  }
+  return true;
+}
+
 
 } //namespace

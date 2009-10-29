@@ -25,6 +25,7 @@ namespace mp {
 
   /// Write <world> into mp-file <filename>
   bool write(std::ostream & out, const mp_world & world, const Options & opts = Options());
+  bool write(const std::string & file, const mp_world & world, const Options & opts = Options());
 
 }
 #endif
