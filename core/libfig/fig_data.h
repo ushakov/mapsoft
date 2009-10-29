@@ -331,6 +331,9 @@ namespace fig {
           return ret;
         }
 
+        /// remove empty compounds
+	void remove_empty_comp();
+
     };
 
 }
