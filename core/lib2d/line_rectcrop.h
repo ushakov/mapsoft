@@ -129,5 +129,78 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
   return res;
 }
 
+
+template <typename T>
+bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line, bool closed){
+
+  T xl=cutter.x;
+  T xh=cutter.x+cutter.w;
+  T yl=cutter.y;
+  T yh=cutter.y+cutter.h;
+
+  if (line.size()<3) closed=false;
+  Line<T> e; // for stable end iterator
+
+  bool res=false;
+
+  // for eny Rect side
+  for (int i=0; i<4; i++){
+
+    typename Line<T>::iterator p=line.begin();
+    while (p!=line.end()){
+      // prev and next points
+      typename Line<T>::iterator pp = p, np = p;
+
+      if (p==line.begin()){
+        pp = line.end();
+        if (closed) pp--;
+      }
+      else pp--;
+
+      np++;
+      if ((np==line.end()) && closed) np=line.begin();
+
+      // stable iterators
+      if (pp==line.end()) pp=e.end();
+      if (np==line.end()) np=e.end();
+
+      if ((i==0) && (p->x > xh)){
+        if (((pp==e.end()) || (pp->x > xh)) &&
+            ((np==e.end()) || (np->x > xh))){
+          p=line.erase(p);
+          res=true;
+          continue;
+        }
+      }
+      if ((i==1) && (p->x < xl)){
+        if (((pp==e.end()) || (pp->x < xl)) &&
+            ((np==e.end()) || (np->x < xl))){
+          p=line.erase(p);
+          res=true;
+          continue;
+        }
+      }
+      if ((i==2) && (p->y > yh)){
+        if (((pp==e.end()) || (pp->y > yh)) &&
+            ((np==e.end()) || (np->y > yh))){
+          p=line.erase(p);
+          res=true;
+          continue;
+        }
+      }
+      if ((i==3) && (p->y < yl)){
+        if (((pp==e.end()) || (pp->y < yl)) &&
+            ((np==e.end()) || (np->y < yl))){
+          p=line.erase(p);
+          res=true;
+          continue;
+        }
+      }
+      p++;
+    }
+  }
+  return res;
+}
+
 #endif
 
