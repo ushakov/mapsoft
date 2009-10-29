@@ -370,7 +370,9 @@ g_point g_map::center() const {
 /// create g_map with borders from 
 /// (using geom, scale/rscale, dpi, factor, proj, datum options)
 void g_map::create_from_options(const Options & opt){
-  parse_from_options(opt);
+  comm     = opt.get("comm",     comm);
+  file     = opt.get("file",     file);
+  map_proj = opt.get("map_proj", map_proj);
 
   dRect geom = opt.get("geom", Rect<double>());
   Proj  proj(opt.get("proj", std::string("tmerc")));
