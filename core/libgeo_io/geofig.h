@@ -16,6 +16,7 @@ namespace fig {
   /// add geo reference to fig_world object
   void set_ref(fig_world & w, const g_map & m, const Options & o);
   /// add geo reference to fig_world object using geom, rscale options
+  g_map ref_from_options(Options o);
   void set_ref(fig_world & w, Options o);
 
   /// get waypoints from w and put them to d

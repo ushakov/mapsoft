@@ -343,13 +343,15 @@ using namespace boost::spirit;
     }
   }
 
-  void set_ref(fig_world & w, Options o){
+  g_map ref_from_options(Options o){
     g_map ref;
-    g_line brd;
-    o.put("dpi",    2.54);
-    o.put("factor", fig::cm2fig);
+    o.put("dpi",    2.54*fig::cm2fig);
     ref.create_from_options(o);
-    fig::set_ref(w, ref, o);
+    return ref;
+  }
+
+  void set_ref(fig_world & w, Options o){
+    fig::set_ref(w, ref_from_options(o), o);
   }
 
 }
