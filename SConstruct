@@ -18,6 +18,8 @@ subdirs = Split ("""
 		vector/libzn-utils
 		vector/libzn-data
 		vector/ps
+		vector/vmap2
+
 		""")
 
 #SetOption('implicit_cache', 1)

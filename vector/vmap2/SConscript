@@ -1,0 +1,18 @@
+Import('env')
+
+env.Library('vmap2', \
+    Split ("""
+	legend.cpp
+        vmap.cpp
+        vmap_io.cpp
+        vmap_id.cpp
+        vmap_fig.cpp
+     """))
+
+libs1=Split("vmap2 utils 2d")
+libs2=Split("vmap2 fig mp zn geo_io geo loaders jeeps utils 2d yaml tiff png jpeg")
+
+env.Program("vmap_putfig.cpp",  LIBS=[libs2])
+env.Program("vmap_getfig.cpp",  LIBS=[libs2])
+
+
