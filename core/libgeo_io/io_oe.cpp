@@ -101,8 +101,8 @@ using namespace boost::spirit;
                 string datum;
                 vector<oe_waypoint> points;
                 operator g_waypoint_list () const{
-			Datum D(datum);
-			convs::ll2wgs cnv(D);
+			convs::pt2pt cnv(Datum(datum), Proj("lonlat"), Options(),
+                                         Datum("wgs84"), Proj("lonlat"), Options());
                         g_waypoint_list ret;
                         ret.symbset = symbset;
                         vector<oe_waypoint>::const_iterator i,
@@ -130,8 +130,8 @@ using namespace boost::spirit;
                 }
                 operator g_track () const{
                         g_track ret;
-                        Datum D(datum);
-                        convs::ll2wgs cnv(D);
+			convs::pt2pt cnv(Datum(datum), Proj("lonlat"), Options(),
+                                         Datum("wgs84"), Proj("lonlat"), Options());
                         ret.width = width;
                         ret.color = Color(0xFF, color);
                         ret.skip  = skip;
@@ -180,11 +180,11 @@ using namespace boost::spirit;
 
 	        oe_map ()
 		    : mag_var_h(0), mag_var_d(0), mag_var_m(0),
-		      proj_lat0(0), proj_lon0(0), proj_k(0),
+		      proj_lat0(0), proj_lon0(0), proj_k(1),
 		      proj_E0(0), proj_N0(0),
 		      proj_lat1(0), proj_lat2(0), proj_hgt(0)
 	        { }
-	    
+
                 // map features etc are not supported. 
 		operator g_map () const {
 			g_map ret;
@@ -194,11 +194,22 @@ using namespace boost::spirit;
 			    ret.file=prefix+file;
 			else ret.file=file;
 			ret.map_proj=Proj(map_proj);
-                        Datum D(datum);
-                        convs::ll2wgs cnv(D);
 
-                        double a = GPS_Ellipse[GPS_Datum[D.val].ellipse].a;
-                        double f = 1/GPS_Ellipse[GPS_Datum[D.val].ellipse].invf;
+                        Options opts;
+                        opts.put("lat0", proj_lat0);
+                        opts.put("lat1", proj_lat1);
+                        opts.put("lat2", proj_lat2);
+                        opts.put("hgt",  proj_hgt);
+                        opts.put("lon0", proj_lon0);
+                        opts.put("k",    proj_k);
+                        opts.put("E0",   proj_E0);
+                        opts.put("N0",   proj_N0);
+
+			convs::pt2pt cnv1(Datum(datum), Proj("lonlat"), Options(),
+                                          Datum("wgs84"), Proj("lonlat"), Options());
+
+			convs::pt2pt cnv2(Datum(datum), Proj(map_proj), opts,
+                                          Datum("wgs84"), Proj("lonlat"), Options());
 
                         vector<oe_mappoint>::const_iterator i,
                                 b=points.begin(), e=points.end();
@@ -207,15 +218,17 @@ using namespace boost::spirit;
                                 p.xr = i->x; p.yr = i->y;
                                 p.x = i->lon_d + i->lon_m/60.0;  if (i->lon_h<0) p.x=-p.x;
                                 p.y = i->lat_d + i->lat_m/60.0;  if (i->lat_h<0) p.y=-p.y;
-                                if ((p.y==0) && (p.x==0)){
-                            	    if ((i->grid_x==0) && (i->grid_y==0)) continue;
-					// преобразования
-					// кажется, пока проще будет обойти mapsoft_geo.h
-					// ну или надо хранить все параметры в виде текста...
-                                        GPS_Math_EN_To_LatLon(i->grid_x, i->grid_y, &p.y, &p.x,
-                                        proj_N0, proj_E0, proj_lat0, proj_lon0, proj_k, a, a*(1-f));
+                                if ((p.y!=0) || (p.x!=0)){
+                                  cnv1.frw(p);
                                 }
-                                cnv.frw(p);
+                                else if ((i->grid_x!=0) || (i->grid_y!=0)){
+                                  p.x=i->grid_x;
+                                  p.y=i->grid_y;
+                                  cnv2.frw(p);
+                                }
+                                else {
+                                  continue;
+                                }
                     		ret.push_back(p);
 			}
                         ret.border=border;
@@ -340,7 +353,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
        (str_p("MM1A") >> /* why is it here? -- scs >> uint_p  >> */
        *(scs >> uint_p[assign_a(bpt.x)] >> scs >> uint_p[assign_a(bpt.y)]
           [push_back_a(m.border,bpt)] ) >> eol_p); 
-	  
+
 
   rule_t map_rule = 
     str_p("OziExplorer Map Data File Version ") >>
@@ -458,7 +471,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		  << "WGS 84\r\n"
 		  << "Reserved 2\r\n"
 		  << wpt.symbset << "\r\n";
-  
+
 		for (vector<g_waypoint>::const_iterator p = wpt.begin(); 
 			 p!= wpt.end(); p++){
 
