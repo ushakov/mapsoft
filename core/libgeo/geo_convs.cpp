@@ -1,232 +1,124 @@
 #include "geo_convs.h"
 #include <cmath>
+#include <cstring>
+#include <sstream>
+#include <cassert>
 
 #include "../lib2d/point_utils.h"
 #include "../lib2d/line_utils.h"
 
 #include "../loaders/image_r.h" // определение размеров картинки (image_r::size)
-#include "../jeeps/gpsdatum.h"
-#include "../jeeps/gpsproj.h"
-#include "../jeeps/gpsmath.h"
 
 namespace convs{
 using namespace std;
 
+// create PROJ4 projection object from our D, P and options
+projPJ mkproj(const Datum & D, const Proj & P, const Options & o){
+
+    int old_enum_fmt=Enum::output_fmt;
+    Enum::output_fmt = Enum::proj_fmt;
+
+    ostringstream projpar;
+    projpar << " +proj=" << P << " +ellps=" << D;
+
+    Enum::output_fmt = old_enum_fmt;
+
+    switch (P.val){
+
+	case 0: // lonlat
+          break;
+
+	case 1: // tmerc
+          if (o.count("lon0")==0){
+            std::cerr << "mkproj: can't create proj: \""
+                      << projpar.str() << "\" without lon0\n";
+            exit(1);
+          }
+          projpar << " +lon_0=" << o.get("lon0", 0.0);
+          projpar << " +lat_0=" << o.get("lat0", 0.0);
+          projpar << " +k="     << o.get("k",    1.0);
+          projpar << " +x_0="   << o.get("E0",   500000.0);
+          projpar << " +y_0="   << o.get("N0",   0.0);
+          break;
+
+        case 3: // merc
+          projpar << " +lon_0="  << o.get("lon0", 0.0);
+          projpar << " +lat_ts=" << o.get("lat0", 0.0);
+          projpar << " +x_0="    << o.get("E0",   0.0);
+          projpar << " +y_0="    << o.get("N0",   0.0);
+          break;
+
+        default:
+          std::cerr << "unknown proj: " << P.val << "\n";
+          exit(1);
+    }
+
+//    std::cerr << "mkproj: creating projection: \"" << projpar.str() << "\"\n";
+
+    projPJ ret=pj_init_plus(projpar.str().c_str());
+    if (!ret){
+        std::cerr << "mkproj: Error: can't create proj: \"" << projpar.str() << "\"\n";
+        exit(1);
+    }
+    return ret;
+}
+
+void pjconv(const projPJ P1, const projPJ P2, dPoint & p){
+
+  double z=0;
+  if (pj_is_latlong(P1)) p*=M_PI/180.0;
+  pj_transform(P1, P2, 1, 1, &p.x, &p.y, &z);
+  if (pj_is_latlong(P2)) p*=180.0/M_PI;
+}
+
 // преобразование геодезических координат
 // точки преобразуются по ссылке, чтобы можно было не копируя
 // преобразовывать координаты в сложных штуках типа g_waypoint
-
-pt2ll::pt2ll(const Datum & D, const Proj & P, const Options & Po){
-    datum = D;
-    proj = P;
-    a = GPS_Ellipse[GPS_Datum[D.val].ellipse].a;
-    f = 1/GPS_Ellipse[GPS_Datum[D.val].ellipse].invf;
-    // разбираем параметры
-    switch (proj.val){
-	case 0: // lonlat
-	  return;
-	case 1: // tmerc
-          if (Po.count("lon0")==0){
-            std::cerr << "pt2ll: Error: lon0 is undefined!\n";
-            exit(1);
-          }
-	  lon0 = Po.get("lon0", 1e99);
-          lat0 = Po.get("lat0", 0.0);
-          N0   = Po.get("N0",   0.0);
-          E0   = Po.get("E0",   500000.0);
-          k    = Po.get("k",    1.0);
-          std::cerr << "pt2ll: setting lon0 to " << lon0 << "\n";
-	  return;
-	case 2: // UTM
-          // Я не знаю, какие здесь нужны параметры... Разберемся потом.
-          zone = Po.get("zone", 0);
-          zc   = Po.get("zc",  'C');
-	  return;
-        case 3: // merc
-          // Я не знаю, какие здесь нужны параметры... Разберемся потом.
-          lon0 = Po.get("lon0",0.0);
-          lat0 = Po.get("lat0",0.0);
-          N0   = Po.get("N0",0.0);
-          E0   = Po.get("E0",0.0);
-	  return;
-        case 4: // google
-	  return;
-        case 5: // ks
-	  return;
-        default:
-          std::cerr << "unknown proj: " << P.val << "\n";
-          return;
-    }
+pt2pt::pt2pt(const Datum & sD, const Proj & sP, const Options & sPo,
+             const Datum & dD, const Proj & dP, const Options & dPo){
+  pr_src = mkproj(sD, sP, sPo);
+  pr_dst = mkproj(dD, dP, dPo);
+  refcounter   = new int;
+  *refcounter  = 1;
 }
-//pt2ll::pt2ll(const char * d, const char * p, const Options & Po){
-//  pt2ll tmp(Datum(d), Proj(p), Po);
-//  *this=tmp;
-//}
 
-
-void pt2ll::frw(g_point & p) const{
-  double x,y;
-  // сперва преобразуем к широте-долготе
-  double l0=lon0;
-  switch (proj.val){
-    case 0: break;
-    case 1: // tmerc 
-       if (p.x>999999){ // zone prefix in p.x overrides lon0
-         l0=((int)(p.x/1e6)-1)*6+3;
-         p.x -= floor(p.x/1e6)*1e6;
-       }
-       GPS_Math_TMerc_EN_To_LatLon(p.x, p.y, &y, &x, lat0, l0, E0, N0, k, a, a*(1-f));
-       p.x = x; p.y = y;
-       break;
-    case 2: //UTM
-       GPS_Math_UTM_EN_To_WGS84(&y, &x, p.x, p.y, zone, zc);
-       p.x = x; p.y = y;
-       break;
-    case 3: // merc
-       GPS_Math_Mercator_EN_To_LatLon(p.x, p.y, &y, &x, lat0, l0, E0, N0, a, a*(1-f));
-       p.x = x; p.y = y;
-       break;
-    case 4: // google
-       p.y = 360/M_PI*atan(exp(p.y*M_PI/180)) - 90;
-       break;
-    case 5: // ks
-      { 
-      double r_a = 6378137.000;
-      double r_b = 6356752.3142;
-      double r_ba = r_b/r_a;
-      double r_e = sqrt(1.0-r_ba*r_ba);
-      double ts = exp(-p.y/r_a);
-
-      double phi = M_PI/2.0 - 2.0*atan(ts);
-      int i = 15;
-      double dphi = 0.1;
-
-      while ((abs(dphi)>1e-7)&&(--i>0)){
-        double con = r_e * sin(phi);
-        dphi = M_PI/2.0 - 2.0 * atan(ts * pow((1.0 - con)/(1.0 + con), r_e/2)) - phi;
-        phi += dphi;
-      } 
-      p.y = 180.0 * phi/M_PI; 
-      p.x *= 180.0/r_a/M_PI;
-      }
-      break;
-
-    default:
-       std::cerr << "unknown proj: " << proj.val << "\n";
-       break;
+///
+pt2pt::pt2pt(const pt2pt & other){
+  copy(other);
+}
+pt2pt & pt2pt::operator=(const pt2pt & other){
+  if (this != &other){
+    destroy();
+    copy(other);
+  }
+  return *this;
+}
+pt2pt::~pt2pt(){
+  destroy();
+}
+void pt2pt::copy(const pt2pt & other){
+   refcounter = other.refcounter;
+   pr_src = other.pr_src;
+   pr_dst = other.pr_dst;
+   (*refcounter)++;
+   assert(*refcounter >0);
+}
+void pt2pt::destroy(void){
+  (*refcounter)--;
+  if (*refcounter<=0){
+    delete refcounter;
+    pj_free(pr_src);
+    pj_free(pr_dst);
   }
 }
-
-void pt2ll::bck(g_point & p) const{
-  double x,y;
-
-  // преобразуем в нужную нам проекцию
-  switch (proj.val){
-  case 0: return;
-  case 1: //tmerc
-    GPS_Math_TMerc_LatLon_To_EN(p.y, p.x, &x, &y, lat0, lon0, E0, N0, k, a, a*(1-f));
-    // Добавим к координате префикс - как на советских картах:
-    x += 1e6 * (floor((lon0-3)/6)+1);
-    p.x = x; p.y = y;
-    return;
-  case 2: //UTM
-    std::cerr << "conversion latlon -> utm is not supported. fixme!\n";
-    return;
-  case 3: // merc
-    GPS_Math_Mercator_LatLon_To_EN(p.y, p.x, &x, &y, lat0, lon0, E0, N0, a, a*(1-f));
-    return;
-  case 4: // google
-    p.y = 180/M_PI * log(tan(M_PI/4*(1+p.y/90.0)));
-    return;
-  case 5: // ks
-    {
-    double r_a = 6378137.000;
-    double r_b = 6356752.3142;
-    double r_ba = r_b/r_a;
-    double r_e = sqrt(1.0-r_ba*r_ba);
-
-    if (p.y > 89.5) p.y = 89.5;
-    if (p.y < -89.5) p.y = -89.5;
-
-    double con = r_e * sin(p.y*M_PI/180.0);
-    con = pow(((1.0-con)/(1.0+con)), r_e/2);
-    double ts = tan(M_PI/4 * (1 - p.y/90.0))/con;
-    p.y = 0 - r_a * log(ts);
-    p.x *= r_a * M_PI/180.0;
-    }
-    break;
-  default:
-    std::cerr << "unknown proj: " << proj.val << "\n";
-    return;
-  }
-}
-
-ll2wgs::ll2wgs(const Datum & D): datum(D){}
-//ll2wgs::ll2wgs(const char * d):datum(Datum(d)){}
-
-void ll2wgs::frw(g_point & p) const{
-  if (datum.val!=0){
-    double x,y,h;
-    GPS_Math_Known_Datum_To_WGS84_M(p.y, p.x, 0, &y, &x, &h, datum.val);
-    p.x=x; p.y=y;
-  }
-}
-void ll2wgs::bck(g_point & p) const{
-  if (datum.val!=0){
-    double x,y,h;
-    GPS_Math_WGS84_To_Known_Datum_M(p.y, p.x, 0, &y, &x, &h, datum.val);
-    p.x=x; p.y=y;
-  }
-}
-
-
-pt2pt::pt2pt(const Datum & sD, const Proj & sP, const Options & sPo, 
-             const Datum & dD, const Proj & dP, const Options & dPo):
-pc1(sD,sP,sPo), pc2(dD,dP,dPo), dc1(sD), dc2(dD),
-triv1((sP==dP) && (sPo==dPo) && (sD==dD)), triv2(sD==dD){}
-
-
-//pt2pt::pt2pt(const char * sD, const char * sP, const Options & sPo,
-//        const char * dD, const char * dP, const Options & dPo){
-//  pt2pt(Datum(sD), Proj(sP), sPo, Datum(dD), Proj(dP), dPo);
-//}
-
-pt2pt::pt2pt(): triv1(true), triv2(true){}
+///
 
 void pt2pt::frw(g_point & p) const{
-    if (triv1) return;
-    pc1.frw(p);
-    if (!triv2){
-      dc1.frw(p);
-      dc2.bck(p);
-    }
-    pc2.bck(p);
-}
-void pt2pt::bck(g_point & p) const{
-    if (triv1) return;
-    pc2.frw(p);
-    if (!triv2){
-      dc2.frw(p);
-      dc1.bck(p);
-    }
-    pc1.bck(p);
+  pjconv(pr_src, pr_dst, p);
 }
 
-void pt2pt::frw_safe(g_point & p) const{
-    if (triv1) return;
-    frw(p);
-    g_point p1=p;
-    bck(p);
-    frw(p);
-    p-=(p-p1)*1.5;
-}
-void pt2pt::bck_safe(g_point & p) const{
-    if (triv1) return;
-    bck(p);
-    g_point p1=p;
-    frw(p);
-    bck(p);
-    p-=(p-p1)*1.5;
+void pt2pt::bck(g_point & p) const{
+  pjconv(pr_dst, pr_src, p);
 }
 
 // преобразования линий
@@ -239,7 +131,7 @@ g_line pt2pt::line_frw(const g_line & l, double acc, int max) const {
   g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; frw_safe(P1a); ret.push_back(P1a);
+  g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
   g_point P2, P2a;
 
   for (int i=1; i<l.size(); i++){
@@ -247,12 +139,12 @@ g_line pt2pt::line_frw(const g_line & l, double acc, int max) const {
     P2 = l[i];
     int m=max;
     do {
-      P1a = P1; frw_safe(P1a);
-      P2a = P2; frw_safe(P2a);
+      P1a = P1; frw(P1a);
+      P2a = P2; frw(P2a);
       g_point C1 = (P1+P2)/2.; // середина отрезка
       g_point C2 = C1 + acc*pnorm(g_point(P1.y-P2.y, -P1.x+P2.x)); // отступим на acc в сторону от середины.
-      g_point C1a = C1; frw_safe(C1a);
-      g_point C2a = C2; frw_safe(C2a);
+      g_point C1a = C1; frw(C1a);
+      g_point C2a = C2; frw(C2a);
       if (pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)){
         ret.push_back(P2a);
         P1 = P2;
@@ -273,7 +165,7 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) const{
   g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; bck_safe(P1a); ret.push_back(P1a);
+  g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
   g_point P2, P2a;
 
   for (int i=1; i<l.size(); i++){
@@ -281,10 +173,10 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) const{
     P2 = l[i];
     int m=max;
     do {
-      P1a = P1; bck_safe(P1a);
-      P2a = P2; bck_safe(P2a);
+      P1a = P1; bck(P1a);
+      P2a = P2; bck(P2a);
       g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C1a = C1; bck_safe(C1a);
+      g_point C1a = C1; bck(C1a);
 
       if (pdist(C1a, (P1a+P2a)/2.) < acc){
         ret.push_back(P2a);
@@ -311,11 +203,8 @@ dRect pt2pt::bb_bck(const Rect<double> & R, double acc) const{
 
 
 /*******************************************************************/
-/* Приведение матрицы к диагональному виду */
-// здесь все неаккуратно написано: фукция подходит для любого N, 
-// а макрос A7 предполагает N==6!
-// кстати, A7 используется и дальше!
-#define A7(x,y) a[(x)+(y)*7]
+/* Приведение матрицы (N+1)xN к диагональному виду */
+#define AN(x,y) a[(x)+(y)*(N+1)]
 
 int mdiag(int N, double *a){
   int i,j,k,l;
@@ -323,19 +212,19 @@ int mdiag(int N, double *a){
 
   for (k=0; k<N; ++k){  /* идем по строчкам сверху вниз */
     /* циклически переставляем строчки от k до N-1, чтобы на месте (k,k) встал не ноль */
-    for (i=k; i<N; ++i){ if (A7(k,k)!=0) break;
+    for (i=k; i<N; ++i){ if (AN(k,k)!=0) break;
       for (j=0;j<N+1;++j){ /* по всем столбцам */
-        tmp=A7(j,k);        /* сохраним верхнее */
-        for (l=k; l<N-1; ++l) A7(j,l)=A7(j,l+1); /* сдвинем */
-        A7(j,N-1)=tmp; /* бывлее верхнее -- вниз */
+        tmp=AN(j,k);        /* сохраним верхнее */
+        for (l=k; l<N-1; ++l) AN(j,l)=AN(j,l+1); /* сдвинем */
+        AN(j,N-1)=tmp; /* бывшее верхнее -- вниз */
       }
     }
     /* если так сделать нельзя, уравнения зависимы */
-    if (A7(k,k)==0) return 1;
+    if (AN(k,k)==0) return 1;
     /* делим строчку на A(k,k) (от N до k, т.к. в начале -- нули)*/
-    for (j=N; j>=k; --j) A7(j,k)=A7(j,k)/A7(k,k);
+    for (j=N; j>=k; --j) AN(j,k)=AN(j,k)/AN(k,k);
     /* вычитаем из всех остальных строчек эту, помноженную на A(k,*) */
-    for (i=0; i<N; ++i) if (i!=k) for (j=N; j>=k; --j) A7(j,i)-=A7(k,i)*A7(j,k);
+    for (i=0; i<N; ++i) if (i!=k) for (j=N; j>=k; --j) AN(j,i)-=AN(k,i)*AN(j,k);
   }
   return 0;
 }
@@ -372,16 +261,40 @@ Options map_popts(const g_map & M, Options O = Options()){
 // здесь же - выяснение всяких параметров карты (размер изображения, масштам метров/точку)
 // сюда же - преобразование линий!
 
-// Проекция карты берется из sM. Но системы координат и параметров проекции
-// (вроде lon0) там нет. Они берутся из dD и dPo.
+// Считается, что преобразование СК и замена осевого меридиана - линейны в пределах карты.
+// Проекция карты берется из sM. Системы координат и параметры проекции
+// (вроде lon0) берутся из dD и dPo.
+//
+// Практичекое следствие: если мы хотим работать с к-л определенным осевым
+// меридианом - мы должны запихать его в dPo! (даже, если мы преобразуем из 
+// карты с lon0 в lonlat!)
+// преобразовать из карты с одним ос.м. в проекцию с другим - нельзя 
+// (у нас же все линейно :)), надо использовать два последовательных преобразования...
 
 map2pt::map2pt(const g_map & sM,
-               const Datum & dD, const Proj & dP, const Options & dPo):
-pc1(dD, sM.map_proj, map_popts(sM, dPo)), pc2(dD, dP, dPo), dc(dD), 
-border(sM.border){
+               const Datum & dD, const Proj & dP, const Options & dPo){
 
-  // идеи про преобразование карт - прежние:
-  // считается, что преобразование СК замена осевого меридиана - линейны в пределах карты.
+// у нас точки привязки в lon-lat wgs84, карта нарисована в некоторой другой проекции
+// а получить мы хотим третью проекцию.
+// При этом в какой СК нарисована карта и какие параметры проекции
+// используются - нам не важно - это станет частью лин.преобразования!
+
+    // projection for reference points
+    pr_ref = mkproj(Datum("WGS84"), Proj("lonlat"), Options()); // for ref points
+
+    // destination projection
+    pr_dst = mkproj(dD, dP, dPo);
+
+    // "map" projection
+    if (sM.map_proj == dP)
+      pr_map = pr_dst;
+    else
+      pr_map = mkproj(dD, sM.map_proj, map_popts(sM, dPo));
+
+    refcounter   = new int;
+    *refcounter  = 1;
+
+    border = sM.border;
 
   // Разберемся с границей. Она нужна нам для всяких рисований и т.п. 
   // Но модифицировать карту мы не хотим - так что работаем со своей копией.
@@ -402,28 +315,8 @@ border(sM.border){
 
   // А теперь следите за руками...
 
-  // у нас точки привязки в lon-lat wgs84,
-  // карта нарисована в некоторой другой проекции
-  // а получить мы хотим третью проекцию.
-
-  // при этом какая в какой СК нарисована карта и какие параметры проекции
-  // используются - нам не важно - это станет частью лин.преобразования!
-
-  // поэтому строятся три преобразования:
-  // pt2ll  pc1(dD, sM.map_proj, dPo) -- из проекции карты в lon-lat (!!!)
-  // pt2ll  pc2(dD, dP, dPo) -- из нужной нам проекции в lon-lat
-  // ll2wgs dc(dD)
-
-  // преобразуем (c подменой параметров) точки привязки в те координаты, 
+  // преобразуем (c подменой параметров) точки привязки в те координаты,
   // в которых карта линейна и найдем соответствующее линейное преобразование.
-
-
-  // правктичекое следствие: если мы хотим работать с к-л определенным осевым
-  // меридианом - мы должны запихать его в dPo! (даже, если мы преобразуем из 
-  // карты с lon0 в lonlat!)
-  // преобразовать из карты с одним ос.м. в проекцию с другим - нельзя 
-  // (у нас же все линейно :)), надо использовать два последовательных преобразования...
-
 
   // копия точек привязки
   vector<g_refpoint> points = sM;
@@ -447,30 +340,17 @@ border(sM.border){
   // 0   0   0  Sxy Syy Sy = SYy
   // 0   0   0  Sx  Sy  S  = SY
 
+#define A7(x,y) a[(x)+(y)*7]
   double a[6*7];
-  for (int i=0; i<7*6; i++) a[i]=0;
-
-  // попробуем повысить точность. 
-  // мы не хотим работать с большими координатами (6000000м),
-  // поэтому перед исчислением коэффициентов вычтем некоторое значение, а потом добавим его :)
-
-/*  double lon0=0, lat0=0;*/
+  memset(a, 0, sizeof(a));
 
   for (unsigned i = 0; i < points.size(); i++){
 
-    dc.bck(points[i]); // в нашу СК
-    pc1.bck(points[i]); // в проекцию карты
-
     double x = points[i].xr;
     double y = points[i].yr;
-    double lon = points[i].x;
-    double lat = points[i].y;
+    dPoint lp = points[i];
 
-/*    if ((lon0==0) && (lat0==0)){
-	lon0=lon; lat0=lat;
-    }
-    lon-=lon0; lat-=lat0;*/
-
+    pjconv(pr_ref, pr_map, lp);
 
     A7(0,0)+=x*x; A7(3,3)+=x*x;
     A7(1,0)+=x*y; A7(4,3)+=x*y;
@@ -482,8 +362,8 @@ border(sM.border){
     A7(1,2)+=y; A7(4,5)+=y;
     A7(2,2)+=1; A7(5,5)+=1;
 
-    A7(6,0)+=lon*x; A7(6,1)+=lon*y; A7(6,2)+=lon;
-    A7(6,3)+=lat*x; A7(6,4)+=lat*y; A7(6,5)+=lat;
+    A7(6,0)+=lp.x*x; A7(6,1)+=lp.x*y; A7(6,2)+=lp.x;
+    A7(6,3)+=lp.y*x; A7(6,4)+=lp.y*y; A7(6,5)+=lp.y;
   }
 
   if (mdiag (6, a) != 0) {
@@ -495,13 +375,9 @@ border(sM.border){
     exit(0);
   }
 
-
   for (int i=0; i<6; i++){
     k_map2geo[i] = A7(6,i);
   }
-
-/*  k_map2geo[2]+=lon0;
-  k_map2geo[5]+=lat0;*/
 
   // Make the inverse transformation
   double D = k_map2geo[0] * k_map2geo[4] - k_map2geo[1] * k_map2geo[3];
@@ -526,65 +402,71 @@ border(sM.border){
   border_geo = line_frw(border);
 }
 
-//map2pt::map2pt(const g_map & sM,
-//         const char * dD, const char * dP, const Options & dPo){
-//  map2pt tmp(sM, Datum(dD), Proj(dP), dPo);
-//  *this=tmp;
-//}
+
+///
+map2pt::map2pt(const map2pt & other){
+  copy(other);
+}
+map2pt & map2pt::operator=(const map2pt & other){
+  if (this != &other){
+    destroy();
+    copy(other);
+  }
+  return *this;
+}
+map2pt::~map2pt(){
+  destroy();
+}
+void map2pt::copy(const map2pt & other){
+   refcounter = other.refcounter;
+   pr_ref = other.pr_ref;
+   pr_map= other.pr_map;
+   pr_dst = other.pr_dst;
+   memcpy(k_map2geo, other.k_map2geo, sizeof(k_map2geo));
+   memcpy(k_geo2map, other.k_geo2map, sizeof(k_geo2map));
+   border=other.border;
+   border_geo=other.border_geo;
+   (*refcounter)++;
+   assert(*refcounter >0);
+}
+void map2pt::destroy(void){
+  (*refcounter)--;
+  if (*refcounter<=0){
+    delete refcounter;
+    pj_free(pr_ref);
+    if (pr_map != pr_dst) pj_free(pr_map);
+    pj_free(pr_dst);
+  }
+}
+///
 
 
 void map2pt::frw(g_point & p) const{
-  // линейное преобразование в проекцию карты, заданную pc1
-  g_point p1(k_map2geo[0]*p.x + k_map2geo[1]*p.y + k_map2geo[2],
-             k_map2geo[3]*p.x + k_map2geo[4]*p.y + k_map2geo[5]);
-
-  // если карта в той же проекции, что нам нужна - то это все (!)
-  if (pc1.proj != pc2.proj){
-    pc1.frw(p1); // преобразование к lon-lat
-    pc2.bck(p1); // к нужной проекции
-  }
-
-  p.x=p1.x;
-  p.y=p1.y;
-
+  // do linear transformation
+  double x = k_map2geo[0]*p.x + k_map2geo[1]*p.y + k_map2geo[2];
+  double y = k_map2geo[3]*p.x + k_map2geo[4]*p.y + k_map2geo[5];
+  p.x=x;
+  p.y=y;
+  if (pr_map!=pr_dst) pjconv(pr_map, pr_dst, p);
   return;
 }
 
 void map2pt::bck(g_point & p) const{
-  if (pc1.proj != pc2.proj){
-    pc2.frw(p); // преобразование к lon-lat
-    pc1.bck(p); // к проекции карты
-  }
-  g_point p1(k_geo2map[0]*p.x + k_geo2map[1]*p.y + k_geo2map[2],
-             k_geo2map[3]*p.x + k_geo2map[4]*p.y + k_geo2map[5]);
-  p.x=p1.x;
-  p.y=p1.y;
-
+  if (pr_map!=pr_dst) pjconv(pr_dst, pr_map, p);
+  // do linear transformation
+  double x = k_geo2map[0]*p.x + k_geo2map[1]*p.y + k_geo2map[2];
+  double y = k_geo2map[3]*p.x + k_geo2map[4]*p.y + k_geo2map[5];
+  p.x=x;
+  p.y=y;
   return;
-}
-
-void map2pt::frw_safe(g_point & p) const{
-    frw(p);
-    g_point p1=p;
-    bck(p);
-    frw(p);
-    p-=(p-p1)*1.5;
-}
-void map2pt::bck_safe(g_point & p) const{
-    bck(p);
-    g_point p1=p;
-    frw(p);
-    bck(p);
-    p-=(p-p1)*1.5;
 }
 
 
 g_line map2pt::line_frw(const g_line & l, int max) const {
-
   g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; frw_safe(P1a); ret.push_back(P1a);
+  g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
   g_point P2, P2a;
 
   for (int i=1; i<l.size(); i++){
@@ -592,12 +474,12 @@ g_line map2pt::line_frw(const g_line & l, int max) const {
     P2 = l[i];
     int m = max;
     do {
-      P1a = P1; frw_safe(P1a);
-      P2a = P2; frw_safe(P2a);
+      P1a = P1; frw(P1a);
+      P2a = P2; frw(P2a);
       g_point C1 = (P1+P2)/2.; // середина отрезка
       g_point C2 = C1 + 0.5*g_point(P1.y-P2.y, -P1.x+P2.x)/pdist(P1,P2); // отступим на 0.5 в сторону от середины.
-      g_point C1a = C1; frw_safe(C1a);
-      g_point C2a = C2; frw_safe(C2a);
+      g_point C1a = C1; frw(C1a);
+      g_point C2a = C2; frw(C2a);
       if (pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)){
         ret.push_back(P2a);
         P1 = P2;
@@ -619,7 +501,7 @@ g_line map2pt::line_bck(const g_line & l, int max)  const{
   g_line ret;
   // добавим первую точку
   if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; bck_safe(P1a); ret.push_back(P1a);
+  g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
   g_point P2, P2a;
 
   for (int i=1; i<l.size(); i++){
@@ -627,10 +509,10 @@ g_line map2pt::line_bck(const g_line & l, int max)  const{
     P2 = l[i];
     int m=max;
     do {
-      P1a = P1; bck_safe(P1a);
-      P2a = P2; bck_safe(P2a);
+      P1a = P1; bck(P1a);
+      P2a = P2; bck(P2a);
       g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C1a = C1; bck_safe(C1a);
+      g_point C1a = C1; bck(C1a);
 
       if (pdist(C1a, (P1a+P2a)/2.) < 0.5){
         ret.push_back(P2a);

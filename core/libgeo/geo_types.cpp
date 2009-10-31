@@ -8,6 +8,7 @@
 const int Enum::fmt_mask = 0xFFFF;
 const int Enum::xml_fmt  = 1<<16;
 const int Enum::oe_fmt   = 1<<17;
+const int Enum::proj_fmt = 1<<18;
 
 int Enum::output_fmt = Enum::xml_fmt;
 
@@ -69,7 +70,7 @@ void Datum::create_table(){
   names[""]       = 118;
   names["wgs84"]  = 118 | Enum::xml_fmt;
   names["wgs 84"] = 118;
-  names["WGS84"]  = 118;
+  names["WGS84"]  = 118 | Enum::proj_fmt;
   names["WGS 84"] = 118 | Enum::oe_fmt;
 
   names["Pulkovo 1942"]     = 92 | Enum::oe_fmt;
@@ -78,6 +79,7 @@ void Datum::create_table(){
   names["pulk"]             = 92;
   names["pulkovo"]          = 92 | Enum::xml_fmt;
   names["pulk42"]           = 92;
+  names["krass"]            = 92 | Enum::proj_fmt;
 }
 
 /***********************************************************/
@@ -92,8 +94,9 @@ Proj::Proj(const std::string & str){
 void Proj::create_table(){
   names[""]                    = 0;
   names["lonlat"]              = 0 | Enum::xml_fmt;
+  names["latlong"]             = 0 | Enum::proj_fmt;
   names["Latitude/Longitude"]  = 0 | Enum::oe_fmt;
-  names["tmerc"]               = 1 | Enum::xml_fmt;
+  names["tmerc"]               = 1 | Enum::xml_fmt | Enum::proj_fmt;
   names["Transverse Mercator"] = 1 | Enum::oe_fmt;
   names["utm"]                 = 1 | Enum::xml_fmt;
   names["UTM"]                 = 2 | Enum::oe_fmt;  // проверить, что в OE оно так называется!

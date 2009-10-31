@@ -19,6 +19,7 @@ struct Enum
   static const int fmt_mask;
   static const int xml_fmt;
   static const int oe_fmt;
+  static const int proj_fmt;
   static int output_fmt;
 
   int val;

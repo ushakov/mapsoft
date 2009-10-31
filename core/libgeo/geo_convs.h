@@ -7,71 +7,47 @@
 #include "geo_data.h"
 #include "../utils/options.h"
 #include "../lib2d/image.h"
-
-// все сделано в виде объектов, чтобы в начале спокойно обработать все параметры 
-// преобразования (прочитать текстовые параметры и т.п.), а потом быстро преобразовывать...
+#include <proj_api.h>
 
 namespace convs{
+
+// create PROJ4 projection object from our D, P and options
+projPJ mkproj(const Datum & D, const Proj & P, const Options & o);
 
 // преобразование геодезических координат
 // точки преобразуются по ссылке, чтобы можно было не копируя
 // преобразовывать координаты в сложных штуках типа g_waypoint
 
-// удобно разбить преобразование на части:
-struct pt2ll{ // преобразование к широте-долготе и обратно
-  pt2ll(const Datum & D = Datum("wgs84"), const Proj & P = Proj("lonlat"), const Options & Po = Options());
-  void frw(g_point & p) const;
-  void bck(g_point & p) const;
-
-  private:
-    double lat0,lon0,E0,N0,k;
-    int zone;
-    char zc;
-    double a,f;
-  public:
-    Datum datum;
-    Proj  proj;
-};
-
-struct ll2wgs{ // преобразование широты-долготы в wgs84 и обратно
-  ll2wgs(const Datum & D = Datum("wgs84"));
-  void frw(g_point & p) const;
-  void bck(g_point & p) const;
-
-  private:
-    Datum datum;
-};
-
-
-// а вот общее преобразование:
 struct pt2pt{
 
-  pt2pt(const Datum & sD, const Proj & sP, const Options & sPo, 
+  pt2pt(const Datum & sD, const Proj & sP, const Options & sPo,
         const Datum & dD, const Proj & dP, const Options & dPo);
 
-//  pt2pt(const char * sD, const char * sP, const Options & sPo, 
-//        const char * dD, const char * dP, const Options & dPo);
-
-  pt2pt();
+  pt2pt(const pt2pt & other);
+  pt2pt & operator=(const pt2pt & other);
+  ~pt2pt();
 
   void frw(g_point & p) const;
   void bck(g_point & p) const;
-  void frw_safe(g_point & p) const;
-  void bck_safe(g_point & p) const;
+
   // преобразования линий
   // точность acc - в координатах исходной проекции
   g_line line_frw(const g_line & l, double acc, int max=100) const;
   g_line line_bck(const g_line & l, double acc, int max=100) const;
+
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
   dRect bb_frw(const Rect<double> & R, double acc) const;
   dRect bb_bck(const Rect<double> & R, double acc) const;
 
   private:
-    pt2ll pc1, pc2;
-    ll2wgs dc1, dc2;
-    bool triv1, triv2;
+    projPJ pr_src, pr_dst;
+    void copy(const pt2pt & other);
+    void destroy(void);
+    int * refcounter;
 };
+
+
 
 // преобразование из точки карты в геодезическую точку
 // здесь же - выяснение всяких параметров карты (размер изображения, масштам метров/точку)
@@ -79,28 +55,34 @@ struct pt2pt{
 struct map2pt{
   map2pt(const g_map & sM,
          const Datum & dD, const Proj & dP, const Options & dPo = Options());
-//  map2pt(const g_map & sM,
-//         const char * dD, const char * dP, const Options & dPo = Options());
+
+  map2pt(const map2pt & other);
+  map2pt & operator=(const map2pt & other);
+  ~map2pt();
 
   void frw(g_point & p) const;
   void bck(g_point & p) const;
-  void frw_safe(g_point & p) const;
-  void bck_safe(g_point & p) const;
+
   g_line line_frw(const g_line & l, int max=100) const;
   g_line line_bck(const g_line & l, int max=100) const;
-  // преобразование прямоугольника (в произвольную фигуру) и нахождение 
-  // минимального прямоугольника, в котором она лежит
+
   dRect bb_frw(const iRect & R) const;
   iRect bb_bck(const dRect & R) const;
+
   private:
-    pt2ll pc1, pc2;
-    ll2wgs dc;
+    projPJ pr_ref, pr_map, pr_dst;
     double k_map2geo[6];
     double k_geo2map[6];
+    void copy(const map2pt & other);
+    void destroy(void);
+    int * refcounter;
+
   public:
     g_line border;
     g_line border_geo;
 };
+
+
 
 // Быстрая проверка границ
 struct border_tester{
@@ -134,6 +116,7 @@ struct map2map{
 
   g_line line_frw(const g_line & l, int max=100) const;
   g_line line_bck(const g_line & l, int max=100) const;
+
   // src_scale -- во сколько раз была уменьшена растровая картинка при загрузке
   // cnv_rect - прямоугольник в плоскости _преобразованной картинки_!!!
   int image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
@@ -141,9 +124,6 @@ struct map2map{
   int image_bck(iImage & src_img, int src_scale, iRect cnv_rect, 
                 iImage & dst_img, iRect dst_rect) const;
 
-  // новая версия
-  //void image_frw(iImage & src_img, int src_scale, iPoint origin, Image<int> & image);
-  //void image_bck(iImage & src_img, int src_scale, iPoint origin, Image<int> & image);
 
   // преобразование прямоугольника (в произвольную фигуру) и нахождение 
   // минимального прямоугольника, в котором она лежит
