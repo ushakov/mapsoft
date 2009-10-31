@@ -15,8 +15,6 @@ void usage(){
        << "Commands:\n"
        << "frw <point>\n"
        << "bck <point>\n"
-       << "safe_frw <point>\n"
-       << "safe_bck <point>\n"
        << "line_frw <line> <acc>\n"
        << "line_bck <line> <acc>\n"
        << "bb_frw <rect>\n"
@@ -60,18 +58,6 @@ int main(int argc, char** argv){
       continue;
     }
     if (s == "bck"){
-      cin >> p;
-      cnv.bck(p);
-      cout << fixed << p << "\n";
-      continue;
-    }
-    if (s == "frw_safe"){
-      cin >> p;
-      cnv.frw_safe(p);
-      cout << fixed << p << "\n";
-      continue;
-    }
-    if (s == "bck_safe"){
       cin >> p;
       cnv.bck(p);
       cout << fixed << p << "\n";

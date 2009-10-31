@@ -6,6 +6,8 @@
 #include "workplane.h"
 #include "../core/layers/layer_ks.h"
 #include "../core/layers/layer_geodata.h"
+#include "../core/layers/layer_wpt.h"
+#include "../core/layers/layer_trk.h"
 #include "../core/libgeo_io/io.h"
 
 int sc = 3;
@@ -30,7 +32,7 @@ void clear_data(Viewer * v) {
    world.clear();
    wl.set_ref(gl.get_ref());
    tl.set_ref(gl.get_ref());
-   v->clear_cache();
+   v->refresh();
 }
 
 void toggle_downloading (Gtk::CheckMenuItem * menu_item, LayerKS * g, Viewer * v) {
@@ -39,7 +41,7 @@ void toggle_downloading (Gtk::CheckMenuItem * menu_item, LayerKS * g, Viewer * v
 	std::cerr << "downloading set to on" << std::endl;
 	g->set_downloading(true);
 	downloading = true;
-	v->clear_cache();
+	v->refresh();
     } else {
 	std::cerr << "downloading set to off" << std::endl;
 	g->set_downloading(false);
@@ -55,7 +57,7 @@ void load_file(Gtk::FileSelection * file_selector, Viewer * v) {
    io::in(selected_filename, world, Options());
    wl.set_ref(gl.get_ref());
    tl.set_ref(gl.get_ref());
-   v->clear_cache();
+   v->refresh();
 }
 
 void save_file(Gtk::FileSelection * file_selector) {
@@ -84,12 +86,10 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
         wl.set_ref(gl.get_ref());
         tl.set_ref(gl.get_ref());
 	iPoint orig = v->get_window_origin() + v->get_window_size()/2;
-	std::cerr << "ks scale: " << sc << " scale: " 
-                  << v->scale_nom() << ":" 
-                  << v->scale_denom() <<  std::endl;
+	std::cerr << "ks scale: " << sc << "\n";
         w->refresh_layer(&gl);
 	v->set_window_origin(orig*2 - v->get_window_size()/2);
-        v->clear_cache();
+        v->refresh();
 	return true;
     }
     case 111:
@@ -101,33 +101,25 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	gl.set_downloading (downloading);
         wl.set_ref(gl.get_ref());
         tl.set_ref(gl.get_ref());
-	std::cerr << "ks scale: " << sc << " scale: " 
-                  << v->scale_nom() << ":" 
-                  << v->scale_denom() <<  std::endl;
+	std::cerr << "ks scale: " << sc << "\n";
 	iPoint orig = v->get_window_origin() + v->get_window_size()/2;
         w->refresh_layer(&gl);
 	v->set_window_origin(orig/2 - v->get_window_size()/2);
-        v->clear_cache();
+        v->refresh();
 	return true;
     }
-    case 43:                                                                           
-    case 65451: // +                                                                   
-    {                                                                                  
-      v->scale_inc();                                                                     
-	std::cerr << "ks scale: " << sc << " scale: " 
-                  << v->scale_nom() << ":" 
-                  << v->scale_denom() <<  std::endl;
-      return true;                                                                     
-    }                                                                                  
-    case 45:                                                                           
-    case 65453: // -                                                                   
-    {                                                                                  
-      v->scale_dec();                                                                     
-	std::cerr << "ks scale: " << sc << " scale: " 
-                  << v->scale_nom() << ":" 
-                  << v->scale_denom() <<  std::endl;
-      return true;                                                                     
-    }                                                                                  
+    case 43:
+    case 65451: // +
+    {
+      v->zoom_in(2);
+      return true;
+    }
+    case 45:
+    case 65453: // -
+    {
+      v->zoom_out(2);
+      return true;
+    }
     }
     return false;
 }
@@ -184,7 +176,7 @@ main(int argc, char **argv)
     Gtk::MenuItem menu_exit  ("_Exit",  true);
     Gtk::CheckMenuItem menu_ks ("_KS downloading",  true);
     menu_ks.set_active (downloading);
-    
+
 
     menu_exit.signal_activate().connect  (sigc::mem_fun (win, &Gtk::Widget::hide));
     menu_add.signal_activate().connect   (sigc::mem_fun (file_sel_load,  &Gtk::Widget::show));
@@ -207,7 +199,7 @@ main(int argc, char **argv)
     mmenu_help.set_right_justified ();
     mmenu_file.set_submenu(file_menu);
     mmenu_geod.set_submenu(geod_menu);
-    
+
     // main menu
     main_menu.append(mmenu_file);
     main_menu.append(mmenu_geod);

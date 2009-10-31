@@ -100,7 +100,8 @@ main(int argc, char **argv){
       std::cerr << "lon: " << p1.x << " - "<< p2.x << '\n';
       std::cerr << "lat: " << p1.y << " - "<< p2.y << '\n';
 
-    convs::ll2wgs dc(Datum("Pulkovo 1942"));
+    convs::pt2pt dc(Datum("Pulkovo 1942"), Proj("lonlat"), Options(),
+                    Datum("WGS84"), Proj("lonlat"), Options());
     dc.frw(p1);
     dc.frw(p2);
 

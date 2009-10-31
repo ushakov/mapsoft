@@ -18,7 +18,8 @@ int main (int argc, char **argv) {
 
     double window = 120;
 
-    convs::pt2ll pc(Datum("wgs84"), Proj("tmerc"));
+    convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), Options(),
+                    Datum("wgs84"), Proj("lonlat"), Options());
     for (int i = 0; i < world.trks.size(); ++i) {
 	for (int p = 0; p < world.trks[i].size(); ++p) {
 	    g_trackpoint & tp = world.trks[i][p];

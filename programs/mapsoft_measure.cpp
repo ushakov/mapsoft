@@ -58,7 +58,8 @@ int main(int argc, char *argv[]) {
 
   vector<g_track>::const_iterator t;
   for(t=world.trks.begin(); t!=world.trks.end(); t++) {
-    convs::pt2ll pc(Datum("wgs84"), Proj("tmerc"), Options());
+    convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), Options(),
+                    Datum("wgs84"), Proj("lonlat"), Options());
     double len = 0; 
     double active_len = 0;
     time_t active_time = 0;

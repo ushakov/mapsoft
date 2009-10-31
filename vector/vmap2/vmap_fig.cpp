@@ -148,7 +148,7 @@ Options read_fig(const string & fig_file, vmap & M){
     lp_t lp;
     lp.x=(*i)[0].x;
     lp.y=(*i)[0].y;
-    cnv.frw_safe(lp);
+    cnv.frw(lp);
     lp.angle=i->angle*180/M_PI;
     lp.align=i->sub_type;
     M.lpos[lpos_id].insert(pair<string,lp_t>(id,lp));
@@ -314,7 +314,7 @@ int get_fig(const string & fig_file, const vmap & M,
       for (lpos_t::const_iterator l  = lpos.lower_bound(id);
                                   l != lpos.upper_bound(id); l++){
         dPoint p=l->second;
-        cnv.bck_safe(p);
+        cnv.bck(p);
         if (toedit || point_in_rect(p, cutter)){
           figl.clear();
           figl.push_back(p);

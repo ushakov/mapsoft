@@ -82,9 +82,12 @@ main(int argc, char** argv){
 
   int n = 0;
   double len = 0; 
+
+  convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), Options(),
+                  Datum("wgs84"), Proj("latlon"), Options());
+
   vector<g_track>::const_iterator t;
   for(t=world.trks.begin(); t!=world.trks.end(); t++) {
-    convs::pt2ll pc(Datum("wgs84"), Proj("tmerc"), Options());
     double active_len = 0;
     time_t active_time = 0;
     g_trackpoint pp;
@@ -104,7 +107,7 @@ main(int argc, char** argv){
       }
 
       short h = s.geth(*p);
-      
+
       out << n << "|" << tp.t.date_str() << " " << tp.t.time_str() << "|";
       if (h>0) out << h;
       out << "|" << (*p).x << "|" << (*p).y << "|" << len << "|" << (*t).comm.c_str() << endl;

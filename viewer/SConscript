@@ -3,6 +3,7 @@ le = env.Clone()
 
 mapsoft_libs = Split ("geo_io geo loaders jeeps fig mp utils 2d")
 other_libs   = Split ("usb tiff jpeg png gd curl proj")
+
 le.Prepend(LIBS=[mapsoft_libs,other_libs])
 le.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
 
@@ -16,6 +17,6 @@ cpp_files = Split ("""
 le.Library("viewer", cpp_files)
 
 le.Program("mapsoft_mapview", ["mapsoft_mapview.cpp", cpp_files])
-#env_gtk.Program('mapsoft_googleview', 'mapsoft_googleview.cpp')
-#env_gtk.Program('mapsoft_ksview', 'mapsoft_ksview.cpp')
+#le.Program('mapsoft_googleview', ["mapsoft_googleview.cpp", cpp_files])
+#le.Program('mapsoft_ksview', ["mapsoft_ksview.cpp", cpp_files])
 
