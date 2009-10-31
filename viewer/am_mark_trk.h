@@ -61,7 +61,8 @@ public:
 		g_waypoint_list * wpt_list = &(current_layer->get_world()->wpts[0]);
 		add_wpt (wpt_list, (*track)[b], 0);
 
-		convs::pt2ll pc(Datum("wgs84"), Proj("tmerc"));
+		convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), Options(),
+                                Datum("wgs84"), Proj("lonlat"), Options());
 		double len = 0;	
 		g_trackpoint pp;
 		double next = 1000;
