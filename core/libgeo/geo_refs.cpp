@@ -15,10 +15,16 @@ g_map ref_google(int scale){
 
    double maxlat = 360/M_PI*atan(exp(M_PI)) - 90;
    double width = 256*(1<<(scale-1));
+
    ret.push_back(g_refpoint(-180,maxlat,  0,0));
    ret.push_back(g_refpoint( 180,maxlat,  width,0));
    ret.push_back(g_refpoint( 180,-maxlat, width,width));
    ret.push_back(g_refpoint(-180,-maxlat, 0,width));
+
+   convs::pt2pt c(Datum("wgs84"), Proj("lonlat"), Options(),
+                  Datum("sphere"), Proj("lonlat"), Options());
+
+   for (g_map::iterator i = ret.begin(); i!=ret.end(); i++) c.bck(*i);
 
    ret.border.push_back(g_point(0,0));
    ret.border.push_back(g_point(width,0));

@@ -82,7 +82,8 @@ struct map2pt{
     g_line border_geo;
 };
 
-
+// autodetect map projection options (lon0) if needed
+Options map_popts(const g_map & M, Options O = Options());
 
 // Быстрая проверка границ
 struct border_tester{

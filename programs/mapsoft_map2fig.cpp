@@ -83,6 +83,12 @@ main(int argc, char **argv){
       dRect range = fig_ref.border.range();
       g_point p1(range.TLC()), p2(range.TRC());
       convs::map2map c(map_ref, fig_ref);
+
+
+Options o; o["lon0"]="39";
+convs::map2pt c1(fig_ref, Datum("WGS84"), Proj("tmerc"), o);
+convs::map2pt c2(map_ref, Datum("WGS84"), Proj("tmerc"), o);
+
       double l1=0,l2=0;
       for (int i=1; i<fig_ref.size();i++){
         g_point p1(fig_ref[i-1].xr,fig_ref[i-1].yr);
@@ -90,6 +96,13 @@ main(int argc, char **argv){
         c.bck(p1); c.bck(p2);
         l1+=pdist(p1,p2);
         l2+=pdist(g_point(fig_ref[i].xr, fig_ref[i].yr), g_point(fig_ref[i-1].xr, fig_ref[i-1].yr));
+std::cerr << "fig->g: " << fig_ref[i].xr << " " << fig_ref[i].yr << " -> "
+                        << p2 << "\n";
+p2=dPoint(fig_ref[i].xr,  fig_ref[i].yr);
+c1.frw(p2);
+std::cerr << ": " << p2 << "\n";
+c2.bck(p2);
+std::cerr << ": " << p2 << "\n";
       }
       rescale = l2/l1;
     }

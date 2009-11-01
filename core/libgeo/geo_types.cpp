@@ -80,6 +80,7 @@ void Datum::create_table(){
   names["pulkovo"]          = 92 | Enum::xml_fmt;
   names["pulk42"]           = 92;
   names["krass"]            = 92 | Enum::proj_fmt;
+  names["sphere"]        = 10001 | Enum::proj_fmt | Enum::xml_fmt;
 }
 
 /***********************************************************/
@@ -100,7 +101,7 @@ void Proj::create_table(){
   names["Transverse Mercator"] = 1 | Enum::oe_fmt;
   names["utm"]                 = 1 | Enum::xml_fmt;
   names["UTM"]                 = 2 | Enum::oe_fmt;  // проверить, что в OE оно так называется!
-  names["merc"]                = 3 | Enum::xml_fmt;
+  names["merc"]                = 3 | Enum::xml_fmt | Enum::proj_fmt;
   names["Mercator"]            = 3 | Enum::oe_fmt;  // проверить, что в OE оно так называется!
   names["google"]              = 4 | Enum::xml_fmt; // в Ozi что-то такое должно быть...
   names["ks"]                  = 5 | Enum::xml_fmt;

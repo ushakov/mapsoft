@@ -19,7 +19,12 @@ projPJ mkproj(const Datum & D, const Proj & P, const Options & o){
     Enum::output_fmt = Enum::proj_fmt;
 
     ostringstream projpar;
-    projpar << " +proj=" << P << " +ellps=" << D;
+    if (P.val==4){
+      projpar << " +proj=merc" << " +ellps=" << D;
+    }
+    else {
+      projpar << " +proj=" << P << " +ellps=" << D;
+    }
 
     Enum::output_fmt = old_enum_fmt;
 
@@ -48,12 +53,15 @@ projPJ mkproj(const Datum & D, const Proj & P, const Options & o){
           projpar << " +y_0="    << o.get("N0",   0.0);
           break;
 
+	case 4: // google
+          break;
+
         default:
           std::cerr << "unknown proj: " << P.val << "\n";
           exit(1);
     }
 
-//    std::cerr << "mkproj: creating projection: \"" << projpar.str() << "\"\n";
+    std::cerr << "mkproj: creating projection: \"" << projpar.str() << "\"\n";
 
     projPJ ret=pj_init_plus(projpar.str().c_str());
     if (!ret){
@@ -230,7 +238,7 @@ int mdiag(int N, double *a){
 }
 
 // autodetect map projection options (lon0) if needed
-Options map_popts(const g_map & M, Options O = Options()){
+Options map_popts(const g_map & M, Options O){
   switch (M.map_proj.val){
   case 0: break; //lonlat
   case 1:        //tmerc
@@ -248,6 +256,8 @@ Options map_popts(const g_map & M, Options O = Options()){
   case 4:        // google
     break;
   case 5:        // ks
+    break;
+  case 6:        // cea
     break;
   default:
     std::cerr << "unknown map proj: " << M.map_proj << "\n";
@@ -279,6 +289,7 @@ map2pt::map2pt(const g_map & sM,
 // При этом в какой СК нарисована карта и какие параметры проекции
 // используются - нам не важно - это станет частью лин.преобразования!
 
+cerr<< "map2pt: creating projections:\n";
     // projection for reference points
     pr_ref = mkproj(Datum("WGS84"), Proj("lonlat"), Options()); // for ref points
 
@@ -289,7 +300,9 @@ map2pt::map2pt(const g_map & sM,
     if (sM.map_proj == dP)
       pr_map = pr_dst;
     else
-      pr_map = mkproj(dD, sM.map_proj, map_popts(sM, dPo));
+      pr_map = mkproj(dD, sM.map_proj, map_popts(sM));
+
+cerr<< "map2pt: ok\n";
 
     refcounter   = new int;
     *refcounter  = 1;
@@ -543,6 +556,13 @@ map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
     tst_bck(c1.border),
     test_brd(test_brd_)
 {
+
+  if (sM.map_proj.val == 4){
+cerr<< "map2map: creating projections:\n";
+    c1=map2pt(sM, Datum("sphere"), Proj("lonlat"), Options());
+    c2=map2pt(dM, Datum("wgs84"), Proj("lonlat"), Options());
+cerr<< "map2map: ok\n";
+  }
 
   border_src = c1.border;
   tst_bck = border_tester(border_src);
