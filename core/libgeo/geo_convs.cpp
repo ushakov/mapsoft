@@ -19,7 +19,7 @@ projPJ mkproj(const Datum & D, const Proj & P, const Options & o){
     Enum::output_fmt = Enum::proj_fmt;
 
     ostringstream projpar;
-    if (P.val==4){
+    if (P==Proj("google")){
       projpar << " +proj=merc" << " +ellps=" << D;
     }
     else {
@@ -557,11 +557,9 @@ map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
     test_brd(test_brd_)
 {
 
-  if (sM.map_proj.val == 4){
-cerr<< "map2map: creating projections:\n";
+  if (sM.map_proj == Proj("google")){
     c1=map2pt(sM, Datum("sphere"), Proj("lonlat"), Options());
     c2=map2pt(dM, Datum("wgs84"), Proj("lonlat"), Options());
-cerr<< "map2map: ok\n";
   }
 
   border_src = c1.border;
