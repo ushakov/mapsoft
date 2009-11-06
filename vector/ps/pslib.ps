@@ -10,6 +10,33 @@
 } def
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A1..An B1..Bn n -> ntest -> bool
+/ntest{
+  dup 2 mul 1 add
+  (ntest: Error: insufficient arguments:) exch check_stack_depth
+  dup 0 eq
+    {}
+    {
+      dup 2 add -1 roll 3 -1 roll eq
+        {(OK) = 1 sub ntest}
+        {(Error) =} ifelse
+    } ifelse
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% A1..AN B1..BN N cmp_func -> ncmp -> cmp_func(AN,BN)? A1..AN:B1..BN
+
+/nmin {
+  1 index 2 mul 2 add
+  (nmin: Error: insufficient arguments:) exch check_stack_depth
+  exch dup 2 add index 3 index % move values to cmp on top
+  4 -1 roll exec  % -> a1..aN b1..bN N res
+   {mark exch 1 add 1 roll cleartomark}  % -> a1..aN
+   {mark exch dup 2 mul 1 add exch neg roll cleartomark} % -> b1..bN
+   ifelse
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add vectors
 % [p1] [p1] -> v2add -> [p1+p2]
 
@@ -112,17 +139,129 @@
   8 2 roll 8 copy pop pop 14 6 roll % -> v p0 p1 v p0 p1 p2
   4 copy v2sub v2len 7 1 roll       % -> v p0 p1 v |p1-p2| p0 p1 p2
   v2proj                            % -> v p0 p1 v |p1-p2| l
-  dup 3 2 roll exch div             % -> v p0 p1 v l l/|p1-p2|
-  dup 0 lt {pop 0} {} ifelse        % -> v p0 p1 v l [0..1]
+  1 index div                       % -> v p0 p1 v |p1-p2| l/|p1-p2|
+  dup 0 lt {pop 0} {} ifelse        % -> v p0 p1 v |p1-p2| [0..1]
   dup 1 gt {pop 1} {} ifelse
   mul v2nmul v2add                  % -> v p0 p
   2 copy 6 2 roll v2dist            % -> v p d
 } def
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% {proc} -> pathforall_seg
+/pathforall_seg {
+  /myproc exch def
+  {
+    /y0 exch def /x0 exch def
+    /x1 x0 def /y1 y0 def
+  }
+  {
+    x1 y1 4 2 roll
+    /y1 exch def /x1 exch def
+    x1 y1
+    myproc
+  }
+  {
+    (pathforall_seg: Error: path contains curves; use flattenpath) =
+    quit
+  }
+  {
+    x1 y1 x0 y0
+    myproc
+  } pathforall
+} def
 
-0 12  1 2 3 6  v2pt2seg
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% move point to path
+% [p] d_max -> v2pt2path -> [v], [p], d
+
+/v2pt2path {
+  (v2pt2seg: Error: insufficient arguments:) 3 check_stack_depth
+  /x 3 index def
+  /y 2 index def
+  1 0  5 2 roll x y % -> [v=[0,1]] [p] d [p]
+  {
+    v2pt2seg  % -> [v_old] [p_old] d_old  [v_new] [p_new] d_new
+    5 {lt} nmin % -> [v_min] [p_min] d_min
+    x y
+  } pathforall_seg
+  pop pop
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% [arr] n -> get_point [arr] x y
+/get_point {
+  2 mul 1 index 1 index 1 add % -> [arr] 2n [arr] 2n+1
+  get 3 1 roll get exch
+} def
+
+% {image} x y a
+/draw_point {
+  gsave
+  3 1 roll
+  moveto currentpoint translate rotate
+  ustroke
+  grestore
+} def
+
+%{image} [points] angle
+/draw_points {
+  /img 4 -1 roll def
+  /pts 3 -1 roll def
+  0 1 pts length 2 div 1 sub
+  {
+    img pts 3 -1 roll
+    get_point 3 index
+    draw_point
+  } for
+  pop
+} def
+
+%{image} [points] <d_max>
+/draw_points_at_path {
+  /img 4 -1 roll def
+  /pts 3 -1 roll def
+  0 1 pts length 2 div 1 sub
+  {                    % -> d_max N
+    img pts 3 -1 roll  % -> d_max img pts N
+    get_point 3 index  % -> d_max img x y d_max
+    v2pt2path pop      % -> d_max img [v], [p]
+    4 2 roll atan 90 sub neg  % -> d_max img [p] angle
+    draw_point
+  } for
+  pop
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/myimage {
+  ucache
+  -10 -5 20 10 setbbox
+  -10 -5 moveto
+  -10 5 lineto 10 5 lineto 10 -5 lineto closepath
+} cvlit def
+
+/mypath {
+  ucache 0 0 400 400 setbbox
+  50 50 moveto 100 100 lineto 100 200 lineto 300 200 lineto closepath
+  60 60 lineto 70 20 lineto closepath
+} cvlit def
+
+/mypoints [ 234 152  103 132  142 35  122 210 54 35] def
+
+
+newpath
+mypath uappend
+flattenpath
+
+/DeviceRGB setcolorspace
+1 0 0 setcolor myimage mypoints 0 draw_points
+0 0 1 setcolor myimage mypoints 50 draw_points_at_path
+0 0 0 setcolor stroke
+
+showpage
 
 (---) =
 stack
 quit
+
