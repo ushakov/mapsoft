@@ -1,0 +1,128 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Check for sufficient stack length, print error message
+% and exit if the stack is not deep enough
+% V1 V2 ... VN    (error) N -> check_stack_depth ->V1 ... VN
+% V1 V2 ... VN-1  (error) N -> check_stack_depth -> error
+
+/check_stack_depth {
+  count 2 sub le {pop}
+  {= stack quit} ifelse
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% add vectors
+% [p1] [p1] -> v2add -> [p1+p2]
+
+/v2add {
+  (v2add: Error: insufficient arguments:) 4 check_stack_depth
+  exch 4 -1 roll % x1, y1, x2, y2 -> y1, y2, x2, x1
+  add 3 1 roll add
+} def
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% subtract vectors
+% [p1] [p2] -> v2sub -> [p1-p2]
+
+/v2sub {
+  (v2sub: Error: insufficient arguments:) 4 check_stack_depth
+  exch 4 -1 roll exch % x1, y1, x2, y2 -> y1, y2, x1, x2
+  sub 3 1 roll sub
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% vector length
+% [p] -> v2len -> sqrt(px**2+py**2)
+
+/v2len {
+  (v2len: Error: insufficient arguments:) 2 check_stack_depth
+  dup mul exch dup mul add sqrt
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% inverse vector
+% [p] -> v2inv -> [-p]
+
+/v2inv {
+  (v2inv: Error: insufficient arguments:) 2 check_stack_depth
+  exch neg exch neg
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% distance between points
+% [p1] [p2] -> v2dist -> sqrt((x1-x2)**2+(y1-y2)**2)
+
+/v2dist {
+  (v2dist: Error: insufficient arguments:) 4 check_stack_depth
+  v2sub v2len
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% normalize vector
+% [p] -> v2norm -> [p]/|p|
+
+/v2norm {
+  (v2norm: Error: insufficient arguments:) 2 check_stack_depth
+  2 copy v2len dup % -> x y l l
+  3 1 roll
+  div 3 1 roll
+  div exch
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% scalar multiplication
+% [p1] [p2] -> v2smul -> p1*p2
+
+/v2smul {
+  (v2smul: Error: insufficient arguments:) 4 check_stack_depth
+  exch 4 -1 roll % x1, y1, x2, y2 -> y1, y2, x2, x1
+  mul 3 1 roll mul add
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% multiplication by number
+% [p] n -> v2nmul -> [n*p]
+
+/v2nmul {
+  (v2nmul: Error: insufficient arguments:) 3 check_stack_depth
+  dup 3 1 roll mul 3 1 roll mul exch
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% p1-p0 projection to p1-p2 vector
+% [p0] [p1] [p2] -> v2proj -> l
+
+/v2proj {
+  (v2proj: Error: insufficient arguments:) 6 check_stack_depth
+  2 copy  8 2 roll  4 2 roll          % -> p2 p0 p2 p1
+  2 copy 2 copy  10 2 roll  6 2 roll  % -> p2 p1 p0 p1 p2 p1
+  v2sub 6 2 roll v2sub v2smul         % -> p2 p1 (p2-p1)(p0-p1)
+  5 1 roll v2sub v2len                % -> (p2-p1)(p0-p1) |p2-p1|
+  div
+} def
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% move point to segment
+% [p0] [p1] [p2] -> v2pt2seg -> [v], [p], d
+
+/v2pt2seg {
+  (v2pt2seg: Error: insufficient arguments:) 6 check_stack_depth
+  4 copy v2sub v2norm v2inv         % -> p0 p1 p2 v
+  8 2 roll 8 copy pop pop 14 6 roll % -> v p0 p1 v p0 p1 p2
+  4 copy v2sub v2len 7 1 roll       % -> v p0 p1 v |p1-p2| p0 p1 p2
+  v2proj                            % -> v p0 p1 v |p1-p2| l
+  dup 3 2 roll exch div             % -> v p0 p1 v l l/|p1-p2|
+  dup 0 lt {pop 0} {} ifelse        % -> v p0 p1 v l [0..1]
+  dup 1 gt {pop 1} {} ifelse
+  mul v2nmul v2add                  % -> v p0 p
+  2 copy 6 2 roll v2dist            % -> v p d
+} def
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+0 12  1 2 3 6  v2pt2seg
+
+(---) =
+stack
+quit
