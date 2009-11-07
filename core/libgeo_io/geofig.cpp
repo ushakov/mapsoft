@@ -51,6 +51,7 @@ using namespace boost::spirit;
           parse(i->comment[n].c_str(), (*(anychar_p-':'-space_p))[assign_a(key)] >> 
             *space_p >> ch_p(':') >> *space_p >> 
             (*(anychar_p-':'-space_p))[insert_at_a(O, key)]);
+          cerr << "Geofig: old-style option: " << key << ": " << O[key] << "\n";
         }
 
  	g_refpoint ref(x,y,(*i)[0].x,(*i)[0].y);
