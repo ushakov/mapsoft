@@ -1,6 +1,5 @@
 /DeviceRGB setcolorspace
-
-0.05 0.05 scale
+0.23622 0.23622 scale
 0 0 100 100 setbbox
 
 /PinkColor { 1 0.50 .50 setcolor } def
@@ -36,27 +35,28 @@ matrix makepattern /HatchPatt exch def
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 gsave % леса
+
   GreenColor  POLYGON_0x16 ufill  % лес
   WhiteColor  POLYGON_0x52 ufill  % поле
               POLYGON_0x14 ufill  % редколесье
-%             POLYGON_0x4F ufill  % свежая вырубка
+              POLYGON_0x4f ufill  % свежая вырубка
   GreenColor  POLYGON_0x50 ufill  % старая вырубка
 
 
-%GreenColor  POLYGON_0x4F ufill % свежая вырубка --TODO
-%   0 0.5747 0 HatchPatt setpattern
-%  POLYGON_0x50 ufill % старая вырубка --TODO
+GreenColor  POLYGON_0x4f ufill % свежая вырубка --TODO
+   0 0.5747 0 HatchPatt setpattern
+  POLYGON_0x50 ufill % старая вырубка --TODO
 
   gsave
     0.6667 1 0.6667 HatchPatt setpattern
     POLYGON_0x14 ufill % редколесье     --TODO
   grestore
 
-  %GreenColor  POLYGON_0x15 ufill % остров леса
+  GreenColor  POLYGON_0x15 ufill % остров леса
 
   CntDash DGreenColor 20 setlinewidth
-%  POLYGON_0x15 ustroke
-%  POLYGON_0x16 ustroke
+  POLYGON_0x15 ustroke
+  POLYGON_0x16 ustroke
   POLYGON_0x52 ustroke
   POLYLINE_0x23 ustroke % контур леса
 grestore
@@ -77,3 +77,4 @@ WhiteColor  20 setlinewidth  POLYLINE_0x4 ustroke
 PinkColor   40 setlinewidth  POLYLINE_0x2 ustroke
 
 showpage
+quit

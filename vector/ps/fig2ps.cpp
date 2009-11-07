@@ -65,6 +65,11 @@ main(int argc, char **argv){
     objects.insert(op_t(type,i));
   }
 
+  for (map<int,zn::zn>::const_iterator i=zconverter.znaki.begin();
+                                   i!=zconverter.znaki.end(); i++){
+    if (!objects.count(i->first)) objects.insert(op_t(i->first, W.end()));
+  }
+
   iRect rng=W.range();
 
 
@@ -91,7 +96,7 @@ main(int argc, char **argv){
     if (t->first & zn::line_mask) type='l';
     if (t->first & zn::area_mask) type='a';
 
-    if (type=='p') continue;
+//    if (type=='p') continue; // skip points
 
     vector<int> crd, cmd;
     cmd.push_back(GS_UCACHE);
@@ -102,7 +107,7 @@ main(int argc, char **argv){
     cmd.push_back(GS_SETBBOX);
     for (omap_t::const_iterator i=objects.lower_bound(t->first);
                                i!=objects.upper_bound(t->first); i++){
-      if (i->second->size() < 1) continue;
+      if ((i->second==W.end()) || (i->second->size() < 1)) continue;
       cmd.push_back(GS_MOVETO);
       int s=i->second->size()-1;
       while ( s > 255-32){
@@ -117,7 +122,7 @@ main(int argc, char **argv){
         crd.push_back(j->x - rng.x);
         crd.push_back(j->y - rng.y);
       }
-      if (type=='a') cmd.push_back(GS_CLOSEPATH);
+      if (type=='a') cmd.push_back(GS_CLOSEPATH); // close areas
     }
 
     switch (type){
@@ -127,7 +132,7 @@ main(int argc, char **argv){
     }
     cout << "_0x" << hex << (t->first & 0xFFFFF)
          << " {\n<9520" << setw(4) << setfill('0') << crd.size();
-    int c=9;
+    int c=9; // column in file
     for (vector<int>::const_iterator i=crd.begin(); i!=crd.end(); i++){
       if (c>70){
         cout << "\n";
