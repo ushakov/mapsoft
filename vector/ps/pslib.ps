@@ -200,8 +200,7 @@
   gsave
   3 1 roll
   moveto currentpoint translate rotate
-  ustroke
-  grestore
+  exec grestore
 } def
 
 %{image} [points] angle
@@ -210,7 +209,7 @@
   /pts 3 -1 roll def
   0 1 pts length 2 div 1 sub
   {
-    img pts 3 -1 roll
+    {img} pts 3 -1 roll
     get_point 3 index
     draw_point
   } for
@@ -223,7 +222,7 @@
   /pts 3 -1 roll def
   0 1 pts length 2 div 1 sub
   {                    % -> d_max N
-    img pts 3 -1 roll  % -> d_max img pts N
+    {img} pts 3 -1 roll  % -> d_max img pts N
     get_point 3 index  % -> d_max img x y d_max
     v2pt2path pop      % -> d_max img [v], [p]
     4 2 roll atan 90 sub neg  % -> d_max img [p] angle

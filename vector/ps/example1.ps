@@ -1,11 +1,18 @@
 (./pslib.ps) run
 
-/myimage {
+/myimage_path {
   ucache
   -10 -5 20 10 setbbox
   -10 -5 moveto
   -10 5 lineto 10 5 lineto 10 -5 lineto closepath
 } cvlit def
+
+/myimage {
+  gsave
+    1 1 1 setcolor myimage_path ufill
+    0 0 0 setcolor myimage_path ustroke
+  grestore
+} def
 
 /mypath {
   ucache 0 0 400 400 setbbox
@@ -16,14 +23,15 @@
 /mypoints [ 234 152  103 132  142 35  122 210 54 35] def
 
 
+
 newpath
+mypath ustroke
+
 mypath uappend
 flattenpath
-
 /DeviceRGB setcolorspace
-1 0.5 0.5 setcolor myimage mypoints 0 draw_points
-0 0 1 setcolor myimage mypoints 50 draw_points_at_path
-0 0 0 setcolor stroke
+1 0.5 0.5 setcolor {myimage_path ufill} mypoints 0 draw_points
+0 0 1 setcolor {myimage} mypoints 50 draw_points_at_path
 
 showpage
 quit
