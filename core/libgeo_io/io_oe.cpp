@@ -579,8 +579,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
                                 g_point p1=*it; cnv.frw(p1);
 				f << "MMPLL," << n << "," 
                                   << right << fixed << setprecision(6) << setfill(' ')
-                                  << setw(10) << p1.y << ','
-                                  << setw(11) << p1.x << "\r\n"; 
+                                  << setw(10) << p1.x << ','
+                                  << setw(11) << p1.y << "\r\n"; 
 			}
 
 			f << "MM1B," << convs::map_mpp(m, m.map_proj) << "\r\n";
