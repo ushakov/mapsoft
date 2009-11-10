@@ -30,7 +30,7 @@ using namespace boost::spirit;
       parse(w.comment[n].c_str(), str_p("proj:")  >> space_p >> (*anychar_p)[assign_a(proj)]);
     }
 
-    w.opts.get("proj", proj); // new-stile option
+    proj=w.opts.get("map_proj", proj); // new-stile option
     ret.map_proj=Proj(proj);
 
     g_point min(1e99,1e99), max(-1e99,-1e99);
@@ -87,7 +87,7 @@ using namespace boost::spirit;
   void rem_ref(fig_world & w){
     vector<string>::iterator i = w.comment.begin();
     while (i!=w.comment.end()){
-      if (i->find("proj",0)==0) i=w.comment.erase(i);
+      if (i->find("map_proj",0)==0) i=w.comment.erase(i);
       else i++;
     }
     fig_world::iterator obj = w.begin();
@@ -131,7 +131,7 @@ using namespace boost::spirit;
     }
     // добавим в заголовок fig-файла информацию о проекции.
     // по умолчанию - tmerc
-    if (m.map_proj != Proj("tmerc")) w.opts.put("proj", m.map_proj);
+    if (m.map_proj != Proj("tmerc")) w.opts.put("map_proj", m.map_proj);
   }
 
 

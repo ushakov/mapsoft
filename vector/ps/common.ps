@@ -1,4 +1,5 @@
 /DeviceRGB setcolorspace
+
 0.23622 0.23622 scale
 0 0 100 100 setbbox
 
@@ -43,17 +44,20 @@ gsave % леса
   GreenColor  POLYGON_0x50 ufill  % старая вырубка
 
 
-GreenColor  POLYGON_0x4f ufill % свежая вырубка --TODO
-   0 0.5747 0 HatchPatt setpattern
-  POLYGON_0x50 ufill % старая вырубка --TODO
-
   gsave
-    0.6667 1 0.6667 HatchPatt setpattern
-    POLYGON_0x14 ufill % редколесье     --TODO
+    0 0.5747 0 HatchPatt setpattern
+    POLYGON_0x4f ufill % свежая вырубка --TODO
+
+    0 0.5747 0 HatchPatt setpattern
+    POLYGON_0x50 ufill % старая вырубка --TODO
+
+    gsave
+      0.6667 1 0.6667 HatchPatt setpattern
+      POLYGON_0x14 ufill % редколесье     --TODO
+    grestore
   grestore
 
   GreenColor  POLYGON_0x15 ufill % остров леса
-
   CntDash DGreenColor 20 setlinewidth
   POLYGON_0x15 ustroke
   POLYGON_0x16 ustroke
