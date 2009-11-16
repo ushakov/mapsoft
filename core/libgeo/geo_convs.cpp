@@ -19,14 +19,15 @@ projPJ mkproj(const Datum & D, const Proj & P, const Options & o){
     Enum::output_fmt = Enum::proj_fmt;
 
     ostringstream projpar;
-    if (P==Proj("google")){
-      projpar << " +proj=merc" << " +ellps=" << D;
-    }
-    else {
-      projpar << " +proj=" << P << " +ellps=" << D;
-    }
+
+    if (P==Proj("google"))  projpar << " +proj=merc";
+    else  projpar << " +proj=" << P;
+
+    projpar << " +ellps=" << D;
 
     Enum::output_fmt = old_enum_fmt;
+
+    if (D==Datum("pulkovo")) projpar << " +towgs84=+28,-130,-95";
 
     switch (P.val){
 
