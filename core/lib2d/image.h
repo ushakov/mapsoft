@@ -2,6 +2,11 @@
 #define IMAGE_H
 
 #include "rect.h"
+#include <cassert>
+
+#ifdef DEBUG_IMAGE
+#include <iostream>
+#endif
 
 // Картинка -- двумерный массив элементов произвольного типа. 
 
@@ -27,10 +32,20 @@
 template <typename T>
 struct Image{
 
-    Image(int _w, int _h){
-      w=_w; 
-      h=_h; 
+  public:
+    int w,h;
+    T *data;
+
+  private:
+    int *refcounter;
+
+    // create image
+    void create(int _w, int _h){
+      w=_w; h=_h;
+      assert(w>=0);
+      assert(h>=0);
       data = new T[w*h];
+      assert(data);
       refcounter   = new int;
       *refcounter  = 1;
 #ifdef DEBUG_IMAGE
@@ -41,39 +56,22 @@ struct Image{
 #endif
     }
 
-    Image(int _w, int _h, const T & fill){
-      w=_w; 
-      h=_h; 
-      data = new T[w*h];
-      refcounter   = new int;
-      *refcounter  = 1;
+    // copy image
+    void copy(const Image & other){
+      w=other.w; h=other.h;
+      data = other.data;
+      refcounter = other.refcounter;
+      (*refcounter)++;
+      assert(*refcounter>0);
 #ifdef DEBUG_IMAGE
-      std::cerr << "[create data array]\n";
-      std::cerr << "Image create:" 
-                << " (" << w << "x" << h << ", "
-                << data << " - " << *refcounter << ") "
-                << "filled with " << fill << "\n";
-#endif
-      for (int i = 0; i<w*h;i++) data[i]=fill; 
-    }
-
-    Image(const Image & im){
-      w=im.w;   h=im.h; 
-      data  = im.data;
-      refcounter = im.refcounter;
-      (*refcounter)++; 
-      if (*refcounter<=0) {
-	std::cerr << "Image: refcounter overflow ("<< *refcounter << ")!\n"; 
-	exit(0);
-      }
-#ifdef DEBUG_IMAGE
-      std::cerr << "Image init from other:" 
+      std::cerr << "Copy image:"
                 << " (" << w << "x" << h << ", "
                 << data << " - " << *refcounter << ")\n";
 #endif
     }
 
-    ~Image(){
+    // destroy image
+    void destroy(void){
 #ifdef DEBUG_IMAGE
       std::cerr << "Image destructor:" 
                 << " (" << w << "x" << h << ", "
@@ -89,41 +87,33 @@ struct Image{
       }
     }
 
-    Image & operator= (const Image & im){
-      if (&im == this) return *this;
-
-#ifdef DEBUG_IMAGE
-      std::cerr << "Image assign. Old:" 
-                << " (" << w << "x" << h << ", "
-                << data << " - " << *refcounter << ")\n";
-#endif
-      (*refcounter)--; 
-      if (*refcounter<=0){
-	delete[] data; 
-	delete refcounter;
-#ifdef DEBUG_IMAGE
-        std::cerr << "[delete data array]\n";
-#endif
-      }
-
-
-      w=im.w;    h=im.h;
-      data   = im.data;
-      refcounter = im.refcounter;
-      (*refcounter)++; 
-      if (*refcounter<=0) {
-	std::cerr << "Image: refcounter overflow ("<< *refcounter << ")!\n"; 
-	exit(0);
-      }
-#ifdef DEBUG_IMAGE
-      std::cerr << "              New:" 
-                << " (" << w << "x" << h << ", "
-                << data << " - " << *refcounter << ")\n";
-#endif
+  public:
+    /// Create image with uninitialized data
+    Image(int _w, int _h){
+      create(_w, _h);
+    }
+    /// Create image with data set to fill value
+    Image(int _w, int _h, const T & fill){
+      create(_w, _h);
+      for (int i = 0; i<w*h;i++) data[i]=fill;
+    }
+    /// Copy constructor
+    Image(const Image & other){
+      copy(other);
+    }
+    /// Destuctor
+    ~Image(){
+      destroy();
+    }
+    /// Assign
+    Image & operator= (const Image & other){
+      if (&other == this) return *this;
+      destroy();
+      copy(other);
       return *this;
     }
-
-    Image copy() const{
+    /// Create copy of image data
+    Image dup() const{
       Image ret(w,h);
       for (int i=0;i<w*h;i++) ret.data[i]=data[i];
 #ifdef DEBUG_IMAGE
@@ -134,9 +124,15 @@ struct Image{
       return ret;
     }
 
+    /// Is image empty
     bool empty() const{
       return (w<=0)||(h<=0);
-    } 
+    }
+    /// Image range
+    iRect range() const{
+      return iRect(0,0,w,h);
+    }
+
 
 
     inline T get(int x, int y) const {return data[y*w+x];}
@@ -163,7 +159,6 @@ struct Image{
 	data[y*w+x] = (c | 0xff000000);
     }
     inline void set_na(const iPoint & p, T c){ set_na(p.x, p.y, c); }
-    
     inline T get_na(int x, int y, T c) const { return data[y*w+x]|0xFF000000;}
     inline T get_na(const iPoint & p, T c) const {return data[p.y*w+p.x]|0xFF000000;}
 
@@ -181,7 +176,6 @@ struct Image{
     inline void safe_set_na(const iPoint & p, T c){
 	safe_set_na(p.x, p.y, c);
     }
-
 
     inline void set_a(int x, int y, T c){
 	unsigned int color = c;
@@ -223,15 +217,6 @@ struct Image{
     }
 
 
-
-    iRect range() const{
-      return iRect(0,0,w,h);
-    }
-
-    T *data;
-    int w,h;
-
-    int *refcounter;
 #ifdef SWIG
   %extend {
     swig_str();
