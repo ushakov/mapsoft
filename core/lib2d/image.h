@@ -1,6 +1,7 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include "point.h"
 #include "rect.h"
 #include <cassert>
 
@@ -8,26 +9,10 @@
 #include <iostream>
 #endif
 
-// Картинка -- двумерный массив элементов произвольного типа. 
 
-// При присвоении и инициализации из другой картинки массив данных не копируется!
-// (устроен счетчик ссылок на массив, когда ссылок не остается - массив удаляется)
-
-// Копирование картинки и данных: image1 = image.copy()
-
-// Доступ к точкам картинки: image.get(x,y),  image.set(x,y,c)
-
-// также есть версии set_na, set_a
-// (не устанавливать байт прозрачности, или аккуратно применить прозрачность (не работает?))
-
-// В функциях доступа не проверяется выход за границы картинки!
-// Компилить с ключом -O1 (скорость возрастет раза в три)
-
-// Размер картинки: image.w,  image.h
-
-// Получить размеры картинки:
-//   iRect r = image.range();
-
+// Image<T> -- 2-d array of T elements.
+// - Image data is not duplicated at copying.
+// - Compile with -O1 option to increase speed
 
 template <typename T>
 struct Image{
@@ -92,10 +77,11 @@ struct Image{
     Image(int _w, int _h){
       create(_w, _h);
     }
-    /// Create image with data set to fill value
-    Image(int _w, int _h, const T & fill){
+    /// Create image with data set to value
+    Image(int _w, int _h, const T & value){
       create(_w, _h);
-      for (int i = 0; i<w*h;i++) data[i]=fill;
+      fill(value);
+      for (int i = 0; i<w*h;i++) data[i]=value;
     }
     /// Copy constructor
     Image(const Image & other){
@@ -124,6 +110,10 @@ struct Image{
       return ret;
     }
 
+    /// Fill image with some value
+    void fill(const T value){
+      for (int i = 0; i<w*h;i++) data[i]=value;
+    }
     /// Is image empty
     bool empty() const{
       return (w<=0)||(h<=0);
@@ -134,11 +124,20 @@ struct Image{
     }
 
 
+    /// get and set functions
+    inline T get(int x, int y) const {
+      return data[y*w+x];
+    }
+    inline void set(int x, int y, T c){
+      data[y*w+x]=c;
+    }
+    inline T get(const iPoint & p) const {
+      return data[p.y*w+p.x];
+    }
+    inline void set(const iPoint & p, T c){
+      data[p.y*w+p.x]=c;
+    }
 
-    inline T get(int x, int y) const {return data[y*w+x];}
-    inline void set(int x, int y, T c){data[y*w+x]=c;}
-    inline T get(const iPoint & p) const {return data[p.y*w+p.x];}
-    inline void set(const iPoint & p, T c){data[p.y*w+p.x]=c;}
 
     inline T safe_get(int x, int y) const{
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return 0;
@@ -155,12 +154,19 @@ struct Image{
 	safe_set(p.x, p.y, c);
     }
 
+
+    inline T get_na(int x, int y, T c) const {
+      return data[y*w+x] | 0xFF000000;
+    }
     inline void set_na(int x, int y, T c) {
 	data[y*w+x] = (c | 0xff000000);
     }
-    inline void set_na(const iPoint & p, T c){ set_na(p.x, p.y, c); }
-    inline T get_na(int x, int y, T c) const { return data[y*w+x]|0xFF000000;}
-    inline T get_na(const iPoint & p, T c) const {return data[p.y*w+p.x]|0xFF000000;}
+    inline T get_na(const iPoint & p, T c) const {
+      return data[p.y*w+p.x] | 0xFF000000;
+    }
+    inline void set_na(const iPoint & p, T c){
+      set_na(p.x, p.y, c);
+    }
 
     inline T safe_get_na(int x, int y) const{
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return 0;
@@ -185,16 +191,22 @@ struct Image{
 	} else if (a == 0) {
 	    // do nothing
 	} else {
-	    int r = (((color >> 16) & 0xff) * a + ((data[y*w+x] >> 16) & 0xff) * (255-a)) / 255;
-	    int g = (((color >> 8) & 0xff) * a + ((data[y*w+x] >> 8) & 0xff) * (255-a)) / 255;
-	    int b = ((color & 0xff) * a + (data[y*w+x] & 0xff) * (255-a)) / 255;
-	    data[y*w+x] = (data[y*w+x] & 0xff000000) +
-		(r << 16) +
-		(g << 8) +
-		b;
+	    int r = (((color >> 16) & 0xff) * a +
+                     ((data[y*w+x] >> 16) & 0xff) * (255-a)) / 255;
+	    int g = (((color >> 8) & 0xff) * a +
+                     ((data[y*w+x] >> 8) & 0xff) * (255-a)) / 255;
+	    int b = ((color & 0xff) * a +
+                     (data[y*w+x] & 0xff) * (255-a)) / 255;
+	    data[y*w+x] =
+              (data[y*w+x] & 0xff000000) +
+	      (r << 16) +
+	      (g << 8) +
+	      b;
 	}
     }
-    inline void set_a(const iPoint & p, T c){ set_a(p.x, p.y, c); }
+    inline void set_a(const iPoint & p, T c){
+      set_a(p.x, p.y, c);
+    }
 
     inline void safe_set_a(int x, int y, T c){
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
@@ -203,6 +215,7 @@ struct Image{
     inline void safe_set_a(const iPoint & p, T c){
 	safe_set_a(p.x, p.y, c);
     }
+
 
     inline void render (iPoint offset, Image<T> const & other) {
 	iRect r = rect_intersect(range(), other.range()+offset);
@@ -215,8 +228,6 @@ struct Image{
     inline void render (int x, int y, Image<T> const & other) {
 	render(iPoint(x,y), other);
     }
-
-
 #ifdef SWIG
   %extend {
     swig_str();
