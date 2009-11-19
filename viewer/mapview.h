@@ -63,7 +63,7 @@ public:
 	actions->add(Gtk::Action::create("Add", Gtk::Stock::ADD), sigc::mem_fun(file_sel_load, &Gtk::Widget::show));
 	actions->add(Gtk::Action::create("Clear", Gtk::Stock::CLEAR));
 	actions->add(Gtk::Action::create("Save", Gtk::Stock::SAVE), sigc::mem_fun(file_sel_save, &Gtk::Widget::show));
-	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT), sigc::mem_fun(this, &Gtk::Widget::hide));
+	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT), sigc::mem_fun(this, &Gtk::Widget::hide_all));
 
 	// make all modes!
 
@@ -281,7 +281,7 @@ public:
 
     gboolean on_delete(GdkEventAny * e) {
 	g_print ("Exiting...\n");
-	hide();
+	hide_all();
 	return true;
     }
 

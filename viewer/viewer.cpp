@@ -34,12 +34,7 @@ Viewer::Viewer (int tile_size): workplane (tile_size){
 }
 
 Viewer::~Viewer (){
-    mutex->lock();
-    we_need_cache_updater = false;
-    cache_updater_cond->signal();
-    mutex->unlock();
-    // подождем, пока cache_updater_thread завершится
-    cache_updater_thread->join();
+
     delete(mutex);
     delete(cache_updater_cond);
 }
@@ -103,10 +98,7 @@ void Viewer::cache_updater(){
 	     tiles_todo2.empty())
          cache_updater_cond->wait(*mutex);
 
-      if (!we_need_cache_updater) {
-         mutex->unlock();
-         break;
-      }
+      if (!we_need_cache_updater) break;
 
       if (!tiles_todo.empty()){
          // сделаем плитку, которую просили
@@ -152,12 +144,16 @@ void Viewer::cache_updater(){
 
       mutex->unlock();
    }
-   Glib::Thread::Exit();
+ 
+   mutex->unlock();
+   throw Glib::Thread::Exit();
 }
 
 /**************************************/
 
 void Viewer::update_tile(){
+    if (!we_need_cache_updater) return;
+
     iPoint p = tile_done_queue.front();
     tile_done_queue.pop();
 #ifdef DEBUG_VIEWER
@@ -303,6 +299,16 @@ void Viewer::on_realize() {
 }
 
 
+void Viewer::on_hide() {
+    mutex->lock();
+    we_need_cache_updater = false;
+    cache_updater_cond->signal();
+    mutex->unlock();
+    // подождем, пока cache_updater_thread завершится
+    std::cerr << "Waiting for cache_updater_thread...\n";
+    cache_updater_thread->join();
+    std::cerr << "OK\n";
+}
 
 void Viewer::rubber_take_off(bool all) {
     std::vector<DrawnPair> dummy;

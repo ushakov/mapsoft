@@ -92,8 +92,9 @@ private:
 
     void change_viewport ();
 
-
     virtual void on_realize();
+
+    virtual void on_hide();
 
     void rubber_take_off(bool all=true);
     void rubber_render(bool all=true);
