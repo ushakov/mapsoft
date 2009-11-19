@@ -1,135 +1,138 @@
 #include "image_jpeg.h"
 
+#include "../lib2d/image_source.h"
+
 #include <jpeglib.h>
-#include <setjmp.h>
 
 namespace image_jpeg{
 
-struct my_error_mgr {
-  struct jpeg_error_mgr pub;
-  jmp_buf setjmp_buffer;
-};
-
 void my_error_exit (j_common_ptr cinfo) {
-  my_error_mgr * myerr = (my_error_mgr *) cinfo->err;
   (*cinfo->err->output_message) (cinfo);
-  longjmp(myerr->setjmp_buffer, 1);
+  throw 2;
 }
 
 // getting file dimensions
 iPoint size(const char *file){
     struct jpeg_decompress_struct cinfo;
-    struct my_error_mgr jerr;
-    cinfo.err = jpeg_std_error(&jerr.pub);
-    jerr.pub.error_exit = my_error_exit;
-    jpeg_create_decompress(&cinfo);
+    struct jpeg_error_mgr jerr;
+    try {
+      cinfo.err = jpeg_std_error(&jerr);
+      jerr.error_exit = my_error_exit;
+      jpeg_create_decompress(&cinfo);
 
-    FILE * infile;
+      FILE * infile;
 
-    if ((infile = fopen(file, "rb")) == NULL) {
-        std::cerr << "Can't open " << file << "\n";
-        return iPoint(0,0);
-    }
+      if ((infile = fopen(file, "rb")) == NULL) {
+          std::cerr << "Can't open " << file << "\n";
+          throw 3;
+      }
 
-    if (setjmp(jerr.setjmp_buffer)) {
+      jpeg_stdio_src(&cinfo, infile);
+      jpeg_read_header(&cinfo, TRUE);
+      iPoint p(cinfo.image_width, cinfo.image_height);
       jpeg_destroy_decompress(&cinfo);
       fclose(infile);
-      return iPoint(0,0);
+      return p;
     }
-
-    jpeg_stdio_src(&cinfo, infile);
-    jpeg_read_header(&cinfo, TRUE);
-    iPoint p(cinfo.image_width, cinfo.image_height);
-    jpeg_destroy_decompress(&cinfo);
-    fclose(infile);
-    return p;
+    catch(int x){ return iPoint(0,0);}
 }
 
-// loading from Rect in jpeg-file to Rect in image
-int load(const char *file, iRect src_rect, 
-         iImage & image, iRect dst_rect){
 
-    // откроем файл, получим размеры:
-    struct jpeg_decompress_struct cinfo;
-    struct my_error_mgr jerr;
-    cinfo.err = jpeg_std_error(&jerr.pub);
-    jerr.pub.error_exit = my_error_exit;
+struct ImageSourceJPEG : iImageSource {
+
+  int row,col;
+  char *buf;
+  struct jpeg_decompress_struct cinfo;
+  struct jpeg_error_mgr jerr;
+  FILE * infile;
+
+  ImageSourceJPEG(const char *file, int denom): row(0) {
+    // open file, get image size
+    cinfo.err = jpeg_std_error(&jerr);
+    jerr.error_exit = my_error_exit;
     jpeg_create_decompress(&cinfo);
-
-    FILE * infile;
 
     if ((infile = fopen(file, "rb")) == NULL) {
         std::cerr << "can't open " << file << "\n";
-        return 3;
-    }
-    if (setjmp(jerr.setjmp_buffer)) {
-      jpeg_destroy_decompress(&cinfo);
-      fclose(infile);
-      return 2;
+        throw 3;
     }
 
     jpeg_stdio_src(&cinfo, infile);
     jpeg_read_header(&cinfo, TRUE);
 
-    int jpeg_w = cinfo.image_width;
-    int jpeg_h = cinfo.image_height;
-    // ч/б и RGB -- все загружается как RGB
+    // load always in RGB mode
     cinfo.out_color_space = JCS_RGB;
 
-    // подрежем прямоугольники
-    clip_rects_for_image_loader(
-      iRect(0,0,jpeg_w,jpeg_h), src_rect,
-      iRect(0,0,image.w,image.h), dst_rect);
-    if (src_rect.empty() || dst_rect.empty()) return 1;
-    
+    assert((denom==1) || (denom==2) || (denom==4) || (denom==8));
+    cinfo.scale_denom = denom;
+
+    jpeg_start_decompress(&cinfo);
+    buf  = new char[(cinfo.image_width+1) * 3];
+  }
+
+  ~ImageSourceJPEG(){
+    delete[] buf;
+    jpeg_abort_decompress(&cinfo);
+    jpeg_destroy_decompress(&cinfo);
+    fclose(infile);
+  }
+
+
+  iRect range() const{
+    return iRect(0,0,cinfo.image_width,cinfo.image_height);
+  }
+
+  int get_row() const{
+    return row;
+  }
+
+  bool skip(const int n){
+    for (int i=row; i<row+n; i++){
+      if (row>=cinfo.image_height) break;
+      jpeg_read_scanlines(&cinfo, (JSAMPLE**)&buf, 1);
+    }
+    row+=n;
+    return (row < cinfo.image_height) && (buf);
+  }
+
+  bool read_data(int x, int len){
+    col=x;
+    return skip(1); // go to the next line
+  };
+
+  int get_value(int x) const{
+    return buf[3*x] + (buf[3*x+1]<<8) + (buf[3*x+2]<<16) + (0xFF<<24);
+  }
+
+};
+
+
+// loading from Rect in jpeg-file to Rect in image
+int load(const char *file, iRect src_rect,
+         iImage & image, iRect dst_rect){
+
     // посмотрим, можно ли загружать сразу уменьшенный jpeg
     // (поддерживается уменьшение в 1,2,4,8 раз)
     int xscale = src_rect.w  / dst_rect.w;
     int yscale = src_rect.h / dst_rect.h;
     int scale = std::min(xscale, yscale);
 
-    if (scale <2) cinfo.scale_denom = 1;
-    else if (scale <4) cinfo.scale_denom = 2;
-    else if (scale <8) cinfo.scale_denom = 4;
-    else cinfo.scale_denom = 8;   
+    int denom=1;
+    if (scale <2) denom = 1;
+    else if (scale <4) denom = 2;
+    else if (scale <8) denom = 4;
+    else denom = 8;
+
+    src_rect /= denom;
 
 #ifdef DEBUG_JPEG
-      std::cerr << "jpeg: loading at scale 1/" << cinfo.scale_denom << "\n";
+      std::cerr << "jpeg: loading at scale 1/" << denom << "\n";
 #endif
 
-    src_rect /= cinfo.scale_denom;
-    jpeg_w /= cinfo.scale_denom;
-    jpeg_h /= cinfo.scale_denom;
-
-    jpeg_start_decompress(&cinfo);
-
-    char *buf1  = new char[(jpeg_w+1) * 3]; 
-
-    int src_y = 0;
-    for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
-      // откуда мы хотим взять строчку
-      int src_y1 = src_rect.y + ((dst_y-dst_rect.y)*src_rect.h)/dst_rect.h;
-      // при таком делении может выйти  src_y1 = src_rect.BRC.y, что плохо!
-      if (src_y1 >= src_rect.BRC().y) src_y1=src_rect.BRC().y-1;
-      // пропустим нужное число строк:
-      while (src_y<=src_y1){ 
-	jpeg_read_scanlines(&cinfo, (JSAMPLE**)&buf1, 1);
-	src_y++;
-      }
-      // теперь мы находимся на нужной строке
-      for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
-        int src_x = src_rect.x + ((dst_x-dst_rect.x)*src_rect.w)/dst_rect.w;
-        if (src_x >= src_rect.BRC().x) src_x=src_rect.BRC().x-1;
-	image.set(dst_x, dst_y, 
-	    buf1[3*src_x] + (buf1[3*src_x+1]<<8) + (buf1[3*src_x+2]<<16) + (0xFF<<24));
-      }
-    }
-
-    delete [] buf1;
-    jpeg_abort_decompress(&cinfo);
-    jpeg_destroy_decompress(&cinfo);
-    fclose(infile);
-    return 0;
+    try {
+      ImageSourceJPEG source(file, denom);
+      return source.render_to_image(image, src_rect, dst_rect)? 0:1;
+    } catch(int x) {return x;}
 }
 
 

@@ -6,7 +6,7 @@ namespace image_i{
 int load(iImage & src_img, const iRect & src_rect,
          iImage & dst_img, const iRect & dst_rect){
 
-    iImageSourceImage loader(src_img);
-    return loader.render_to_image(dst_img, src_rect, dst_rect)? 0:1;
+    iImageSourceImage source(src_img);
+    return source.render_to_image(dst_img, src_rect, dst_rect)? 0:1;
 }
 } // namespace

@@ -62,6 +62,7 @@ iPoint size(const char *file){
 int load(const char *file, iRect src_rect, 
          iImage & image, iRect dst_rect){
 
+
     FILE * infile;
     if ((infile = fopen(file, "rb")) == NULL)
         return 2;
@@ -104,12 +105,6 @@ int load(const char *file, iRect src_rect,
     png_get_IHDR(png_ptr, info_ptr, &width, &height,
        &bit_depth, &color_type, &interlace_type ,NULL,NULL);
 
-    // подрежем прямоугольники
-    clip_rects_for_image_loader(
-      iRect(0,0,width,height), src_rect,
-      iRect(0,0,image.w,image.h), dst_rect);
-    if (src_rect.empty() || dst_rect.empty()) return 1;
-
     // зададим преобразования
     if (color_type == PNG_COLOR_TYPE_PALETTE)
         png_set_palette_to_rgb(png_ptr);
@@ -123,10 +118,16 @@ int load(const char *file, iRect src_rect,
     png_set_add_alpha(png_ptr, 0xFF, PNG_FILLER_AFTER);
 
     png_read_update_info(png_ptr, info_ptr);
- 
+
     png_bytep row_buf = (png_bytep)png_malloc(png_ptr,
       png_get_rowbytes(png_ptr, info_ptr));
 
+
+    // подрежем прямоугольники
+    clip_rects_for_image_loader(
+      iRect(0,0,width,height), src_rect,
+      iRect(0,0,image.w,image.h), dst_rect);
+    if (src_rect.empty() || dst_rect.empty()) return 1;
     if (interlace_type ==PNG_INTERLACE_NONE){
       int src_y = 0;
       for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
