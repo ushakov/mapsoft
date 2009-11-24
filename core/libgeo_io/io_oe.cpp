@@ -253,7 +253,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
   // prefix -- директория, в которой лежит map-файл, на случай, 
   // если в нем относительные названия граф.файлов
-  char *sl = rindex(filename, '/');
+  char *sl = strrchr((char *)filename, '/');
   if (sl!=NULL){
     int pos = sl-filename;
     std::string fn1(filename);
