@@ -6,13 +6,9 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_RANLIB
 
-#libs = $(subst %, -l%,\
-#  geo_io geo loaders jeeps fig mp utils 2d)
-#libdirs = $(subst %, -L../core/%,\
-#  libgeo_io libgeo loaders jeeps libfig libmp utils lib2d)
-
-#AC_LIBOBJ([core/lib2d/lib2d.a])
-#AC_LIBOBJ([core/libgeo_io/libgeo_io.a])
+PKG_CHECK_MODULES(GTKMM, gtkmm-2.4 gthread-2.0)
+AC_SUBST(GTKMM_CFLAGS)
+AC_SUBST(GTKMM_LIBS)
 
 AC_CONFIG_FILES([
   Makefile
@@ -27,5 +23,6 @@ AC_CONFIG_FILES([
   core/libfig/Makefile
   core/libmp/Makefile
   programs/Makefile
+  viewer/Makefile
 ])
 AC_OUTPUT

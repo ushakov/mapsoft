@@ -1,1 +1,1 @@
-SUBDIRS = core programs
+SUBDIRS = core programs viewer
