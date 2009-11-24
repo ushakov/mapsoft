@@ -71,7 +71,7 @@ using namespace boost::spirit;
 			else ret.z      = alt*0.3048;
 			ret.prox_dist   = prox_dist;
                         return ret;
-                } // здесь еще нет преобразования СК!
+                } // no datum conversion yet
         };
 
         struct oe_trackpoint{
@@ -108,7 +108,7 @@ using namespace boost::spirit;
                         vector<oe_waypoint>::const_iterator i,
                                 b=points.begin(), e=points.end();
                         for (i=b; i!=e; i++){
-                                g_waypoint p = *i; // суровое преобразование типа
+                                g_waypoint p = *i; // type conversion!
 				cnv.frw(p);
                     		ret.push_back(p);
 			}
@@ -142,7 +142,7 @@ using namespace boost::spirit;
                         vector<oe_trackpoint>::const_iterator i,
                                 b=points.begin(), e=points.end();
                         for (i=b; i!=e; i++){
-				g_trackpoint p = *i; // суровое преобразование типа
+				g_trackpoint p = *i;  // type conversion!
                                 cnv.frw(p);
                     		ret.push_back(p);
 			}
@@ -174,7 +174,7 @@ using namespace boost::spirit;
 		string map_proj;
 		double proj_lat0, proj_lon0, proj_k;
 		double proj_E0, proj_N0;
-		double proj_lat1, proj_lat2, proj_hgt; // I don't know how to use this things
+		double proj_lat1, proj_lat2, proj_hgt; // I don't know how to use these things
                 vector<oe_mappoint> points;
                 g_line border;
 
@@ -185,11 +185,11 @@ using namespace boost::spirit;
 		      proj_lat1(0), proj_lat2(0), proj_hgt(0)
 	        { }
 
-                // map features etc are not supported. 
+                // map features etc are not supported.
 		operator g_map () const {
 			g_map ret;
 			ret.comm=comm;
-			// если не абсолютный путь - добавим prefix
+			// add prefix if path is not absolute
 			if ((file.size()<1)||(file[0]!='/'))
 			    ret.file=prefix+file;
 			else ret.file=file;
@@ -211,6 +211,7 @@ using namespace boost::spirit;
 			convs::pt2pt cnv2(Datum(datum), Proj(map_proj), opts,
                                           Datum("wgs84"), Proj("lonlat"), Options());
 
+                        // convert points
                         vector<oe_mappoint>::const_iterator i,
                                 b=points.begin(), e=points.end();
                         for (i=b; i!=e; i++){
@@ -237,9 +238,7 @@ using namespace boost::spirit;
         };
 
 
-
-// function for reading objects from Ozi file
-// into the world object
+// function for reading objects from Ozi file into the world object
 bool read_file(const char* filename, geo_data & world, const Options & opt){
 
   oe_waypoint    wpt, wpt0; // wawpoint
@@ -251,8 +250,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   oe_map           m;
   geo_data ret;
 
-  // prefix -- директория, в которой лежит map-файл, на случай, 
-  // если в нем относительные названия граф.файлов
+  // get file prefix to keep correct path for image files
   char *sl = rindex(filename, '/');
   if (sl!=NULL){
     int pos = sl-filename;
@@ -400,7 +398,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
   if (!parse_file("oe::read", filename, main_rule)) return false;
 
-  //преобразование комментариев и названий точек в UTF-8
+  // convert waypoint names and comments to UTF8
   IConv cnv(default_charset);
   for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
     for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
@@ -408,11 +406,11 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
       p->comm = cnv.to_utf(p->comm);
     }
   }
-  //преобразование комментариев к трекам в UTF-8
+  // convert track comments to UTF8
   for (vector<g_track>::iterator l=ret.trks.begin(); l!=ret.trks.end(); l++){
     l->comm = cnv.to_utf(l->comm);
   }
-  //преобразование комментариев к картам в UTF-8
+  // convert map comments to UTF8
   for (vector<g_map>::iterator l=ret.maps.begin(); l!=ret.maps.end(); l++){
     l->comm = cnv.to_utf(l->comm);
   }
