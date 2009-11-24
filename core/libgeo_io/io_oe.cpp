@@ -251,7 +251,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   geo_data ret;
 
   // get file prefix to keep correct path for image files
-  char *sl = rindex(filename, '/');
+  char *sl = strrchr((char *)filename, '/');
+
   if (sl!=NULL){
     int pos = sl-filename;
     std::string fn1(filename);

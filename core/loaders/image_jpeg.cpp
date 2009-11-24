@@ -3,6 +3,7 @@
 #include "../lib2d/image_source.h"
 
 #include <jpeglib.h>
+#include <stdio.h>
 
 namespace image_jpeg{
 

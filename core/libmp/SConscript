@@ -9,5 +9,6 @@ env.Library('mp', \
 
 libs=Split("mp utils 2d")
 env.Program("catmp.cpp",  LIBS=[libs])
-env.Install('/usr/bin/', ['catmp'])
+
+env.Install(env.bindir, ['catmp'])
 

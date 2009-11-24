@@ -35,7 +35,7 @@ namespace xml {
 		// если в нем относительные названия граф.файлов
 		std::string prefix("");
 
-		char *sl = rindex(filename, '/');
+		char *sl = strrchr((char *)filename, '/');
 		if (sl!=NULL){
 		    int pos = sl-filename;
 		    std::string fn1(filename);
