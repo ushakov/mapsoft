@@ -31,6 +31,7 @@ AddOption('--prefix',
           nargs=1, type='string',
           action='store',
           metavar='DIR',
+          default='',
           help='installation prefix')
 
 env.PREFIX = GetOption('prefix')

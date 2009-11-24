@@ -9,8 +9,6 @@ env1.Prepend(LIBS=[mapsoft_libs,other_libs])
 env1.Program('mapsoft_vmap.cpp')
 env1.Program('zn_mkfiglib.cpp')
 
-env1.Program('fig_test1.cpp')
-
 env1.Program('fig2pnm.cpp')
 
 env1.Program('get_legend.cpp')
