@@ -19,8 +19,6 @@ struct interface
 
   virtual void frw(dPoint & p) = 0;
   virtual void bck(dPoint & p) = 0;
-  virtual void frw_safe(dPoint & p) = 0;
-  virtual void bck_safe(dPoint & p) = 0;
 
   // Convert a line. Each segment can be divided to provide
   // accuracy <acc> in source units. <max> is a maximum number
