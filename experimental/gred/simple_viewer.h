@@ -2,7 +2,7 @@
 #define SIMPLE_VIEWER
 
 #include <gtkmm.h>
-#include "gobj.h"
+#include "iface/gobj.h"
 
 class SimpleViewer : public Gtk::DrawingArea {
   public:

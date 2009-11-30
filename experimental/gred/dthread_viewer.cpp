@@ -1,8 +1,5 @@
 #include "dthread_viewer.h"
 
-const int TILE_SIZE=256;
-const int TILE_MARG=2;
-
 DThreadViewer::DThreadViewer(GObj * pl) :
     SimpleViewer(pl),
     fast_obj(&default_fast_obj),
@@ -49,7 +46,7 @@ void DThreadViewer::redraw (void){
   draw(iRect(0, 0, get_width(), get_height()));
 }
 
-iRect tile_to_rect(iPoint key){
+iRect DThreadViewer::tile_to_rect(const iPoint & key) const{
   return iRect(key, key + iPoint(1,1))*TILE_SIZE;
 }
 

@@ -2,6 +2,7 @@
 #include "dthread_viewer.h"
 #include "mthread_viewer.h"
 #include "simple_viewer.h"
+#include "gobj.h"
 
 class TestWin : public Gtk::Window{
   public:

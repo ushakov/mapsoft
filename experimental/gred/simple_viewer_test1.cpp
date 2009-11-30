@@ -1,5 +1,6 @@
 #include <iostream>
 #include "simple_viewer.h"
+#include "gobj.h"
 
 
 int main(int argc, char **argv){

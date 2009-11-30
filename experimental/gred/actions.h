@@ -4,7 +4,7 @@
 #include <sys/time.h>
 #include <map>
 #include <string>
-#include "action.h"
+#include "iface/action.h"
 #include "simple_viewer.h"
 #include "../../core/lib2d/point.h"
 

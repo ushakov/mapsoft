@@ -2,6 +2,7 @@
 #define MTHREAD_VIEWER
 
 #include "simple_viewer.h"
+#include "gobj.h"
 #include <map>
 
 class MThreadViewer : public SimpleViewer {

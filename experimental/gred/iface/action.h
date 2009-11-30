@@ -1,5 +1,5 @@
-#ifndef ACTION_H
-#define ACTION_H
+#ifndef ACTION_IFACE_H
+#define ACTION_IFACE_H
 
 #include <gtkmm.h>
 #include <string>
@@ -20,7 +20,5 @@ public:
   // Sends user click. Coordinates are in workplane's system.
   virtual void click(const iPoint & p, const Gdk::ModifierType & state) = 0;
 };
+
 #endif
-
-
-
