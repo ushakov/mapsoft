@@ -9,20 +9,21 @@
 #include "../core/lib2d/image.h"
 #include "../core/utils/cache.h"
 
-#include "rubber.h"
+#include "../experimental/gred/rubber.h"
+#include "../experimental/gred/simple_viewer.h"
 #include "workplane.h"
 
 //
-class Viewer : public Gtk::DrawingArea {
+class Viewer : public SimpleViewer {
 
 public:
 
     Viewer (int tile_size=256);
     virtual ~Viewer ();
 
-    void set_window_origin (iPoint new_origin);
-    void set_window_origin(int x, int y);
-    iPoint get_window_origin () const;
+    void set_origin (iPoint new_origin);
+    void set_origin(int x, int y);
+    virtual iPoint get_origin (void) const;
     iPoint get_window_size () const;
 
     void refresh();
@@ -74,8 +75,6 @@ private:
     // cache_updater_thread крутится, пока we_need_cache_updater == true
     bool we_need_cache_updater;
 
-    Glib::RefPtr<Gdk::GC> rubber_gc;
-
 /**************************************/
 
     void cache_updater();
@@ -92,17 +91,17 @@ private:
 
     void change_viewport ();
 
-    virtual void on_realize();
-
     virtual void on_hide();
-
-    void rubber_take_off(bool all=true);
-    void rubber_render(bool all=true);
-    void rubber_redraw();
 
     virtual bool on_expose_event (GdkEventExpose * event);
     virtual bool on_button_press_event (GdkEventButton * event);
+    virtual bool on_button_release_event (GdkEventButton * event);
     virtual bool on_motion_notify_event (GdkEventMotion * event);
+
+    virtual bool is_on_drag();
+    bool on_drag;
+    sigc::signal<void> signal_before_draw;
+    sigc::signal<void> signal_after_draw;
 
 /**************************************/
 };

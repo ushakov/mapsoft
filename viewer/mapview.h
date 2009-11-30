@@ -281,7 +281,7 @@ public:
 	    map_layer->set_ref(reference);
 	    map_layers.push_back(map_layer);
 	    add_layer(map_layer.get(), 300, "map: " + selected_filename);
-	    viewer->set_window_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
+	    viewer->set_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
 	}
 	if (world->trks.size() > 0) {
 	    // we are loading tracks: if we already have reference, use it
@@ -289,7 +289,7 @@ public:
 	    trk_layer->set_ref(reference);
 	    trk_layers.push_back(trk_layer);
 	    add_layer(trk_layer.get(), 200, "trk: " + selected_filename);
-	    viewer->set_window_origin(trk_layer->range().TLC());
+	    viewer->set_origin(trk_layer->range().TLC());
 	}
 	if (world->wpts.size() > 0) {
 	    // we are loading waypoints: if we already have reference, use it
@@ -297,7 +297,7 @@ public:
 	    wpt_layer->set_ref(reference);
 	    wpt_layers.push_back(wpt_layer);
 	    add_layer(wpt_layer.get(), 100, "wpt: " + selected_filename);
-	    viewer->set_window_origin(wpt_layer->range().TLC());
+	    viewer->set_origin(wpt_layer->range().TLC());
 	}
 	refresh();
 	statusbar->pop();
@@ -381,7 +381,7 @@ public:
 //        if (d > 250) return true;
 
         iPoint p(int(event->x), int(event->y));
-        p += viewer->get_window_origin();
+        p += viewer->get_origin();
         VLOG(2) << "click at: " << p.x << "," << p.y << " " << event->button;
         action_manager->click(p);
         return true;

@@ -38,18 +38,9 @@ public:
 	    if (d.first >= 0) {
 		std::cout << "MOVEWPT: found at " << current_layer << std::endl;
 		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
-                iPoint dp(2,2);
-                state->viewer->rubber.add_line(p+iPoint(-2,-2),false, p+Point<int>( 2,-2),false);
-                state->viewer->rubber.add_line(p+iPoint( 2,-2),false, p+Point<int>( 2, 2),false);
-                state->viewer->rubber.add_line(p+iPoint( 2, 2),false, p+Point<int>(-2, 2),false);
-                state->viewer->rubber.add_line(p+iPoint(-2, 2),false, p+Point<int>(-2,-2),false);
-
-                state->viewer->rubber.add_line(iPoint(-2,-2),true, Point<int>( 2,-2),true);
-                state->viewer->rubber.add_line(iPoint( 2,-2),true, Point<int>( 2, 2),true);
-                state->viewer->rubber.add_line(iPoint( 2, 2),true, Point<int>(-2, 2),true);
-                state->viewer->rubber.add_line(iPoint(-2, 2),true, Point<int>(-2,-2),true);
-
-                state->viewer->rubber.add_line(p,false, iPoint(0,0),true);
+		state->viewer->rubber.add_src_sq(p, 2);
+		state->viewer->rubber.add_dst_sq(2);
+                state->viewer->rubber.add_diag(p);
                 mystate=1;
 		break;
             }

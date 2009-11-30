@@ -66,9 +66,9 @@ public:
 	  g_point p1 = new_track[i];
 	  g_point p2 = new_track[i+1];
           cnv.bck(p1); cnv.bck(p2);
-	  state->viewer->rubber.add_line(p1,false, p2,false);
+	  state->viewer->rubber.add(p1,p2, RUBBFL_PLANE);
         }
-	state->viewer->rubber.add_line(p,false, iPoint(0,0),true);
+	state->viewer->rubber.add_diag(p);
 
     }
 

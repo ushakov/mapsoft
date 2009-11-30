@@ -38,7 +38,7 @@ public:
 	    have_points = 1;
 	    // make rubber
 	    state->viewer->rubber.clear();
-	    state->viewer->rubber.add_line(p, false, iPoint(0,0), true);
+	    state->viewer->rubber.add_rect(p);
 	} else if (have_points == 1) {
 	    g_point geo = p;
 	    if (!get_geo_point(geo)) return;

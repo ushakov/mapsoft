@@ -88,10 +88,10 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
 	gl.set_downloading (google_downloading);
         tl.set_ref(gl.get_ref());
         wl.set_ref(gl.get_ref());
-	iPoint orig = v->get_window_origin() + v->get_window_size()/2;
+	iPoint orig = v->get_origin() + v->get_window_size()/2;
 	std::cerr << "google scale: " << sc << "\n";
         w->refresh_layer(&gl);
-	v->set_window_origin(orig*2 - v->get_window_size()/2);
+	v->set_origin(orig*2 - v->get_window_size()/2);
         v->refresh();
 	return true;
     }
@@ -105,10 +105,10 @@ gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
         tl.set_ref(gl.get_ref());
         wl.set_ref(gl.get_ref());
 	std::cerr << "google scale: " << sc << "\n";
-	iPoint orig = v->get_window_origin() + v->get_window_size()/2;
+	iPoint orig = v->get_origin() + v->get_window_size()/2;
         w->refresh_layer(&tl);
         w->refresh_layer(&wl);
-	v->set_window_origin(orig/2 - v->get_window_size()/2);
+	v->set_origin(orig/2 - v->get_window_size()/2);
         v->refresh();
 	return true;
     }

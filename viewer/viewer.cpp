@@ -8,7 +8,9 @@
 
 
 
-Viewer::Viewer (int tile_size): workplane (tile_size){
+Viewer::Viewer (int tile_size):
+    SimpleViewer((GObj *)NULL),
+       workplane (tile_size), rubber(this){
 
     we_need_cache_updater=true;
 
@@ -19,7 +21,6 @@ Viewer::Viewer (int tile_size): workplane (tile_size){
     update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
 
     workplane.signal_refresh.connect(sigc::mem_fun(*this, &Viewer::refresh));
-    rubber.signal_refresh.connect(sigc::mem_fun(*this, &Viewer::rubber_redraw));
 
     // сделаем отдельный thread из функции cache_updater
     // joinable = true, чтобы подождать его завершения в деструкторе...
@@ -41,16 +42,16 @@ Viewer::~Viewer (){
 
 /**************************************/
 
-void Viewer::set_window_origin (iPoint new_origin) {
+void Viewer::set_origin (iPoint new_origin) {
     iPoint shift = window_origin - new_origin;
     window_origin -= shift;
     change_viewport();
     get_window()->scroll(shift.x, shift.y);
 }
-void Viewer::set_window_origin(int x, int y){
-    set_window_origin(iPoint(x,y));
+void Viewer::set_origin(int x, int y){
+    set_origin(iPoint(x,y));
 }
-iPoint Viewer::get_window_origin () const{
+iPoint Viewer::get_origin (void) const{
     return window_origin;
 }
 iPoint Viewer::get_window_size() const{
@@ -217,15 +218,14 @@ void Viewer::fill (int sx, int sy, int w, int h){ // in window coordinates, shou
     std::cerr << "window_origin: " << window_origin << std::endl;
     std::cerr << "tiles: " << tiles << std::endl;
 #endif
-
+    signal_before_draw.emit();
     // Нарисуем плитки, поместим запросы первой очереди.
-    rubber_take_off(true);
     for (int tj = tiles.y; tj<tiles.y+tiles.h; tj++){
       for (int ti = tiles.x; ti<tiles.x+tiles.w; ti++){
         draw_tile(iPoint(ti,tj));
       }
     }
-    rubber_render(true);
+    signal_after_draw.emit();
   }
 
 void Viewer::change_viewport () {
@@ -289,15 +289,6 @@ void Viewer::change_viewport () {
   }
 }
 
-// working with rubber.
-
-void Viewer::on_realize() {
-    Gtk::DrawingArea::on_realize();
-    rubber_gc = Gdk::GC::create(get_window());
-    rubber_gc->set_rgb_fg_color(Gdk::Color("white"));
-    rubber_gc->set_function(Gdk::XOR);
-}
-
 
 void Viewer::on_hide() {
     mutex->lock();
@@ -310,53 +301,15 @@ void Viewer::on_hide() {
     std::cerr << "OK\n";
 }
 
-void Viewer::rubber_take_off(bool all) {
-    std::vector<DrawnPair> dummy;
-    // erase old lines from drawn vector
-    for (int i = 0; i < rubber.drawn.size(); ++i){
-      iPoint p1=rubber.drawn[i].p1 - window_origin;
-      iPoint p2=rubber.drawn[i].p2 - window_origin;
-      if (!all && !rubber.drawn[i].active) {
-         dummy.push_back(DrawnPair(rubber.drawn[i]));
-      } else {
-        get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
-      }
-    }
-    // update drawn vector
-    rubber.drawn.swap(dummy);
-}
-
-void Viewer::rubber_render(bool all) {
-    iPoint pointer;
-    Gdk::ModifierType dummy1;
-    get_window()->get_pointer(pointer.x, pointer.y, dummy1);
-
-    // draw new lines, push then into drawn vector
-    for (int i = 0; i < rubber.lines.size(); ++i) {
-      bool active = rubber.lines[i].first.active || rubber.lines[i].second.active;
-      if (!all && !active) continue;
-      iPoint p1=rubber.lines[i].first.get(pointer, window_origin);
-      iPoint p2=rubber.lines[i].second.get(pointer, window_origin);
-      get_window()->draw_line(rubber_gc, p1.x, p1.y, p2.x, p2.y);
-      rubber.drawn.push_back(DrawnPair(p1+window_origin, p2+window_origin, active));
-    }
-}
-void Viewer::rubber_redraw() {
-   rubber_take_off(true);
-   rubber_render(true);
-}
-
-
-
 void Viewer::zoom_out(int i){
-   iPoint wcenter = get_window_origin() + get_window_size()/2;
-   set_window_origin(wcenter/i - get_window_size()/2);
+   iPoint wcenter = get_origin() + get_window_size()/2;
+   set_origin(wcenter/i - get_window_size()/2);
    workplane/=i;
 }
 
 void Viewer::zoom_in(int i){
-   iPoint wcenter = get_window_origin() + get_window_size()/2;
-   set_window_origin(wcenter*i - get_window_size()/2);
+   iPoint wcenter = get_origin() + get_window_size()/2;
+   set_origin(wcenter*i - get_window_size()/2);
    workplane*=i;
 }
 
@@ -377,28 +330,32 @@ bool Viewer::on_expose_event (GdkEventExpose * event){
 }
 
 bool Viewer::on_button_press_event (GdkEventButton * event) {
-    VLOG(0) << "butt_press: " << event->button;
     if (event->button == 2) {
         drag_pos = iPoint ((int)event->x, (int)event->y);
+        on_drag=true;
     }
     return false;
 }
 
+bool Viewer::on_button_release_event (GdkEventButton * event) {
+  if (event->button == 2) on_drag=false;
+  return false;
+}
+
 bool Viewer::on_motion_notify_event (GdkEventMotion * event) {
-    iPoint pos ((int) event->x, (int) event->y);
-    VLOG(2) << "motion: " << pos << (event->is_hint? " hint ":"");
-
-    if (!(event->state & Gdk::BUTTON2_MASK)){
-      rubber_take_off(false);
-      rubber_render(false);
-    }
-    else if (event->is_hint){
-      set_window_origin(get_window_origin() - pos + drag_pos);
+    if (!event->is_hint) return false;
+    if (on_drag){
+      iPoint pos ((int) event->x, (int) event->y);
+      set_origin(get_origin() - pos + drag_pos);
       drag_pos = pos;
-
-      // ask for more events
-      get_pointer(pos.x, pos.y);
+      // ask for more events ???
+//      get_pointer(pos.x, pos.y);
     }
     return false;
+}
+
+bool
+Viewer::is_on_drag(){
+  return on_drag;
 }
 

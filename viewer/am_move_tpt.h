@@ -45,16 +45,16 @@ public:
 		if ((d.second > 0)&&(!current_layer->get_world()->trks[d.first][d.second].start)){
   		  g_point p1 = current_layer->get_world()->trks[d.first][d.second-1];
 		  cnv.bck(p1);
-                  state->viewer->rubber.add_line(p1,false, iPoint(0,0),true);
+                  state->viewer->rubber.add_diag(p1);
 		}
 		if ((d.second < current_layer->get_world()->trks[d.first].size()-1)&&
 		    (!current_layer->get_world()->trks[d.first][d.second+1].start)){
   		  g_point p1 = current_layer->get_world()->trks[d.first][d.second+1];
 		  cnv.bck(p1);
-                  state->viewer->rubber.add_line(p1,false, iPoint(0,0),true);
+                  state->viewer->rubber.add_diag(p1);
 		}
 		if (state->viewer->rubber.size()==0)
-                  state->viewer->rubber.add_line(p,false, iPoint(0,0),true);
+                  state->viewer->rubber.add_diag(p);
                 mystate=1;
 		break;
             }

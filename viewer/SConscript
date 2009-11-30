@@ -11,6 +11,8 @@ cpp_files = Split ("""
 	generic_dialog.cpp
 	action_manager.cpp
 	viewer.cpp
+	../experimental/gred/rubber.cpp
+	../experimental/gred/simple_viewer.cpp
 	workplane.cpp
         """)
 
