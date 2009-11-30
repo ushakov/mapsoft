@@ -17,17 +17,17 @@ class ActionTest : public Action{
   }
 
   void reset() {
-    rubber->rubber_clear();
+    rubber->clear();
     clear=true;
   }
   void click(const iPoint & p, const Gdk::ModifierType & state){
     if (clear){
-      rubber->rubber_add_src_sq(p, 3);
-      rubber->rubber_add_dst_sq(3);
-      rubber->rubber_add_rect(p);
-      rubber->rubber_add_diag(p);
+      rubber->add_src_sq(p, 3);
+      rubber->add_dst_sq(3);
+      rubber->add_rect(p);
+      rubber->add_diag(p);
     } else {
-      rubber->rubber_clear();
+      rubber->clear();
     }
     clear=!clear;
   }

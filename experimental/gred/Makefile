@@ -36,6 +36,16 @@ TARGETS_DTHREAD=\
   action_viewer_test3\
   viewer_test
 
+TARGETS_RUBBER=\
+  simple_rubb_viewer_test1\
+  simple_rubb_viewer_test2\
+  mthread_rubb_viewer_test1\
+  dthread_rubb_viewer_test1\
+  action_viewer_test1\
+  action_viewer_test2\
+  action_viewer_test3\
+  viewer_test
+
 RUBBER_OBJECTS=\
   simple_rubb_viewer_test1.o\
   simple_rubb_viewer_test2.o\
@@ -60,7 +70,8 @@ clean:
 $(TARGETS): gobj.o simple_viewer.o
 $(TARGETS_MTHREAD): mthread_viewer.o
 $(TARGETS_DTHREAD): dthread_viewer.o
-$(RUBBER_OBJECTS): rubber.h rubber.o
+$(TARGETS_RUBBER): rubber.o
+$(RUBBER_OBJECTS): rubber.h
 $(ACTION_OBJECTS): action_viewer.h
 
 

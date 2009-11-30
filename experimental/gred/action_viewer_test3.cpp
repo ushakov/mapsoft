@@ -18,14 +18,14 @@ class ActionTestCirc : public Action{
   }
 
   void reset() {
-    rubber->rubber_clear();
+    rubber->clear();
     clear=true;
   }
   void click(const iPoint & p, const Gdk::ModifierType & state){
     if (clear){
-      rubber->rubber_add_circc(p);
+      rubber->add_circc(p);
     } else {
-      rubber->rubber_clear();
+      rubber->clear();
     }
     clear=!clear;
   }

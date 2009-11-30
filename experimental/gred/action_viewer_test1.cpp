@@ -18,17 +18,17 @@ class ActionTest1 : public Action{
   }
 
   void reset() {
-    rubber->rubber_clear();
+    rubber->clear();
     clear=true;
   }
   void click(const iPoint & p, const Gdk::ModifierType & state){
     if (clear){
-      rubber->rubber_add_src_sq(p, 3);
-      rubber->rubber_add_dst_sq(3);
-      rubber->rubber_add_rect(p);
-      rubber->rubber_add_diag(p);
+      rubber->add_src_sq(p, 3);
+      rubber->add_dst_sq(3);
+      rubber->add_rect(p);
+      rubber->add_diag(p);
     } else {
-      rubber->rubber_clear();
+      rubber->clear();
     }
     clear=!clear;
   }
@@ -52,21 +52,21 @@ class ActionTest2 : public Action{
   }
 
   void reset() {
-    rubber->rubber_clear();
+    rubber->clear();
     data.clear();
   }
 
   void click(const iPoint & p, const Gdk::ModifierType & state){
 
-    rubber->rubber_clear();
+    rubber->clear();
     if (state&Gdk::BUTTON1_MASK){
       if (state&Gdk::CONTROL_MASK){
         if (data.size()>0) data.resize(data.size()-1);
       }
       else data.push_back(p);
-      if (data.size()>0) rubber->rubber_add_diag(data[data.size()-1]);
+      if (data.size()>0) rubber->add_diag(data[data.size()-1]);
       for (int i=0; i+1<data.size(); i++){
-        rubber->rubber_add(data[i], data[i+1], RUBBFL_PLANE);
+        rubber->add(data[i], data[i+1], RUBBFL_PLANE);
       }
     }
     else if (state&Gdk::BUTTON2_MASK){

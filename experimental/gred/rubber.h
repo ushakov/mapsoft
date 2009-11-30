@@ -21,6 +21,19 @@ typedef unsigned int rubbfl_t;
 #define RUBBFL_CIRC  0x30
 #define RUBBFL_CIRCC 0x40
 
+/// Class for the rubber segment -- two points with some flags
+/// flags bits (see definitions above):
+/// 0 - p1.x connected to mouse?
+/// 1 - p1.y connected to mouse?
+/// 2 - p2.x connected to mouse?
+/// 3 - p2.y connected to mouse?
+/// 4-7 - type of segment:
+///   0x00 -- line
+///   0x10 -- ellipse in a box with p1-p2 diagonal
+///   0x20 -- ellipse with the enter in p1
+///   0x30 -- circle with p1-p2 diameter
+///   0x40 -- circle with p1-p2 radius
+
 struct RubberSegment{
   rubbfl_t flags;
   iPoint p1, p2;
@@ -32,11 +45,12 @@ struct RubberSegment{
   RubberSegment absolute(Point<int> mouse, Point<int> origin) const;
 };
 
+/// Class for drawing rubber lines on a viewer
 class Rubber{
 private:
   std::list<RubberSegment> rubber, drawn;
   iPoint mouse_pos;
-  Glib::RefPtr<Gdk::GC> rubber_gc;
+  Glib::RefPtr<Gdk::GC> gc;
   SimpleViewer * viewer;
 
 public:
@@ -51,35 +65,35 @@ private:
   void init_gc();
 
   /// Function for drawing single rubber segment.
-  /// Used by both rubber_draw() and rubber_erase()
-  void rubber_draw_segment(const RubberSegment &s);
+  /// Used by both draw() and erase()
+  void draw_segment(const RubberSegment &s);
 
   /// functions for drawing and erasing rubber
-  void rubber_draw(const bool all=true);
-  void rubber_erase(const bool all=true);
+  void draw(const bool all=true);
+  void erase(const bool all=true);
 
 public:
 
   /// add segment to a rubber
-  void rubber_add(const RubberSegment & s);
-  void rubber_add(const iPoint & p1, const iPoint & p2,
-                  const rubbfl_t flags);
-  void rubber_add(const int x1, const int y1,
-                  const int x2, const int y2,
-                  const rubbfl_t flags);
+  void add(const RubberSegment & s);
+  void add(const iPoint & p1, const iPoint & p2,
+           const rubbfl_t flags);
+  void add(const int x1, const int y1,
+           const int x2, const int y2,
+           const rubbfl_t flags);
 
   /// cleanup rubber
-  void rubber_clear();
+  void clear();
 
   /// High-level functions for adding some types of segments
-  void rubber_add_src_sq(const iPoint & p, int size);
-  void rubber_add_dst_sq(int size);
-  void rubber_add_diag(const iPoint & p);
-  void rubber_add_rect(const iPoint & p);
-  void rubber_add_ell(const iPoint & p);
-  void rubber_add_ellc(const iPoint & p);
-  void rubber_add_circ(const iPoint & p);
-  void rubber_add_circc(const iPoint & p);
+  void add_src_sq(const iPoint & p, int size);
+  void add_dst_sq(int size);
+  void add_diag(const iPoint & p);
+  void add_rect(const iPoint & p);
+  void add_ell(const iPoint & p);
+  void add_ellc(const iPoint & p);
+  void add_circ(const iPoint & p);
+  void add_circc(const iPoint & p);
 };
 
 #endif
