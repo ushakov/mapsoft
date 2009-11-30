@@ -3,7 +3,7 @@
 #include "actions.h"
 #include "rubber.h"
 
-#include "action_test_circ.h"
+#include "action_test_line.h"
 
 int main(int argc, char **argv){
 
@@ -12,11 +12,20 @@ int main(int argc, char **argv){
     GObjTestGrid  p1(150000);
 
     DThreadViewer viewer(&p1);
-    Rubber  rubber(&viewer);
+    Rubber  rubber1(&viewer);
+    Rubber  rubber2(&viewer);
+
+    // add box to rubber1
+    iPoint p(20,20);
+    rubber1.add_src_sq(p, 3);
+    rubber1.add_dst_sq(3);
+    rubber1.add_rect(p);
+    rubber1.add_diag(p);
+
     Actions actions(&viewer);
-    ActionTestCirc A1(&rubber);
-    actions.add(&A1);
-    actions.select("TestCirc");
+    ActionTestLine A(&rubber2);
+    actions.add(&A);
+    actions.select("TestLine");
 
     win.add(viewer);
     win.set_default_size(640,480);

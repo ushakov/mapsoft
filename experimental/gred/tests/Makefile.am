@@ -23,7 +23,8 @@ bin_PROGRAMS =\
   action1\
   action2\
   action3\
-  all_viewers
+  all_viewers\
+  two_rubbers
 
 simple1_SOURCES = simple1.cpp
 simple2_SOURCES = simple2.cpp
@@ -39,3 +40,4 @@ action1_SOURCES = action1.cpp
 action2_SOURCES = action2.cpp
 action3_SOURCES = action3.cpp
 all_viewers_SOURCES = all_viewers.cpp
+two_rubbers_SOURCES = two_rubbers.cpp
