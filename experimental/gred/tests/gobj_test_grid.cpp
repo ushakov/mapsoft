@@ -18,7 +18,7 @@ GObjTestGrid::draw(const iRect &range){
       }
     }
   }
-  if (!delay) usleep(delay);
+  if (delay) usleep(delay);
   return ret;
 }
 
