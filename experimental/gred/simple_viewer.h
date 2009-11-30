@@ -29,6 +29,9 @@ class SimpleViewer : public Gtk::DrawingArea {
     iPoint drag_pos;
     int epoch;
 
+    sigc::signal<void> signal_before_draw;
+    sigc::signal<void> signal_after_draw;
+
   private:
 
     GObj * obj;

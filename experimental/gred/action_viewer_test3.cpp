@@ -5,11 +5,11 @@
 #include "dthread_viewer.h"
 #include "rubber_viewer.h"
 
-typedef ActionViewer<RubberViewer<DThreadViewer> > ViewerT;
+typedef ActionViewer<DThreadViewer> ViewerT;
 
 class ActionTestCirc : public Action{
   public:
-  ActionTestCirc(ViewerT * v) : viewer(v) { }
+  ActionTestCirc(ViewerT * v, Rubber * r) : viewer(v), rubber(r) { }
 
   std::string get_name() { return "TestCirc"; }
 
@@ -18,18 +18,19 @@ class ActionTestCirc : public Action{
   }
 
   void reset() {
-    viewer->rubber_clear();
+    rubber->rubber_clear();
     clear=true;
   }
   void click(const iPoint & p, const Gdk::ModifierType & state){
     if (clear){
-      viewer->rubber_add_circc(p);
+      rubber->rubber_add_circc(p);
     } else {
-      viewer->rubber_clear();
+      rubber->rubber_clear();
     }
     clear=!clear;
   }
   ViewerT * viewer;
+  Rubber * rubber;
   bool clear;
 };
 
@@ -40,7 +41,8 @@ int main(int argc, char **argv){
     GObjTestGridSlow p1;
 
     ViewerT viewer(&p1);
-    ActionTestCirc A1(&viewer);
+    Rubber rubber(&viewer);
+    ActionTestCirc A1(&viewer, &rubber);
     viewer.action_add(&A1);
     viewer.action_select(0);
 

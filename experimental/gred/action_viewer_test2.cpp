@@ -4,40 +4,36 @@
 #include "dthread_viewer.h"
 #include "rubber_viewer.h"
 
-typedef RubberViewer<ActionViewer<DThreadViewer> > ViewerT;
+typedef ActionViewer<DThreadViewer> ViewerT;
 
 class ActionTest : public Action{
   public:
-  ActionTest(ViewerT * v) : viewer(v) { }
+  ActionTest(ViewerT * v, Rubber * r) : viewer(v), rubber(r) { }
 
   std::string get_name() { return "Test1"; }
+
   void init() {
     clear=true;
   }
+
   void reset() {
-    viewer->rubber_clear();
+    rubber->rubber_clear();
     clear=true;
   }
   void click(const iPoint & p, const Gdk::ModifierType & state){
-    if (!(state&Gdk::BUTTON1_MASK)){
-      reset();
-      return;
-    }
     if (clear){
-      viewer->rubber_add_src_sq(p, 3);
-      viewer->rubber_add_dst_sq(3);
-      viewer->rubber_add_rect(p);
-      viewer->rubber_add_diag(p);
-      p0=p;
+      rubber->rubber_add_src_sq(p, 3);
+      rubber->rubber_add_dst_sq(3);
+      rubber->rubber_add_rect(p);
+      rubber->rubber_add_diag(p);
     } else {
-      std::cout << iRect(p0,p) << "\n";
-      viewer->rubber_clear();
+      rubber->rubber_clear();
     }
     clear=!clear;
   }
   ViewerT * viewer;
+  Rubber * rubber;
   bool clear;
-  iPoint p0;
 };
 
 int main(int argc, char **argv){
@@ -47,7 +43,8 @@ int main(int argc, char **argv){
     GObjTestGridSlow p1;
 
     ViewerT viewer(&p1);
-    ActionTest A1(&viewer);
+    Rubber rubber(&viewer);
+    ActionTest A1(&viewer, &rubber);
     viewer.action_add(&A1);
     viewer.action_select(0);
 

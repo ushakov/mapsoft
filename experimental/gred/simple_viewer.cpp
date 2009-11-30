@@ -54,18 +54,22 @@ void SimpleViewer::draw_image (const iImage & img, const iPoint & p){
   Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
   Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
   Glib::RefPtr<Gdk::Window> widget = get_window();
+  signal_before_draw.emit();
   widget->draw_pixbuf(gc, pixbuf,
           0,0,  p.x, p.y,  img.w, img.h,
           Gdk::RGB_DITHER_NORMAL, 0, 0);
+  signal_after_draw.emit();
 }
 
 void SimpleViewer::draw_image (const iImage & img, const iRect & part, const iPoint & p){
   Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
   Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
   Glib::RefPtr<Gdk::Window> widget = get_window();
+  signal_before_draw.emit();
   widget->draw_pixbuf(gc, pixbuf,
           part.x, part.y,  p.x, p.y,  part.w, part.h,
           Gdk::RGB_DITHER_NORMAL, 0, 0);
+  signal_after_draw.emit();
 }
 
 bool SimpleViewer::on_expose_event (GdkEventExpose * event){

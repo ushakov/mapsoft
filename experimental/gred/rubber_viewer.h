@@ -4,6 +4,8 @@
 #include <gtkmm.h>
 #include <gdk/gdk.h>
 
+#include <cassert>
+
 #include <list>
 #include "gobj.h"
 #include "../../core/lib2d/point_utils.h"
@@ -33,113 +35,123 @@ public:
     RubberSegment(const iPoint & p1_, const iPoint & p2_, const rubbfl_t flags_):
       p1(p1_), p2(p2_), flags(flags_){ }
 
-    iPoint get1(Point<int> pointer, Point<int> offset) const {
-      return iPoint ((flags & RUBBFL_MOUSE_P1X)? (p1.x+pointer.x) : (p1.x-offset.x),
-                     (flags & RUBBFL_MOUSE_P1Y)? (p1.y+pointer.y) : (p1.y-offset.y));
-    }
-    iPoint get2(Point<int> pointer, Point<int> offset) const {
-      return iPoint ((flags & RUBBFL_MOUSE_P2X)? (p2.x+pointer.x) : (p2.x-offset.x),
-                     (flags & RUBBFL_MOUSE_P2Y)? (p2.y+pointer.y) : (p2.y-offset.y));
+    /// convert segment coordinates to absolute values
+    RubberSegment absolute(Point<int> mouse, Point<int> origin) const{
+      return RubberSegment(
+        iPoint ((flags & RUBBFL_MOUSE_P1X)? (p1.x+mouse.x) : (p1.x-origin.x),
+                (flags & RUBBFL_MOUSE_P1Y)? (p1.y+mouse.y) : (p1.y-origin.y)),
+        iPoint ((flags & RUBBFL_MOUSE_P2X)? (p2.x+mouse.x) : (p2.x-origin.x),
+                (flags & RUBBFL_MOUSE_P2Y)? (p2.y+mouse.y) : (p2.y-origin.y)),
+        flags);
     }
 };
 
-template <typename ViewerT>
-class RubberViewer : public ViewerT {
-  private:
+class Rubber{
+private:
   std::list<RubberSegment> rubber, drawn;
   iPoint mouse_pos;
-
-  public:
-  RubberViewer(GObj * pl) : ViewerT(pl){}
-
-  // There are three places in which we need to redraw rubber lines:
-  // * draw_image function
-  // * mouse movements without plane movements
-  // * plane movements
-
-  virtual void draw_image (const iImage & img, const iPoint & p){
-    rubber_erase();
-    ViewerT::draw_image(img, p);
-    rubber_draw();
-  }
-
-  virtual void draw_image (const iImage & img, const iRect & part, const iPoint & p){
-    rubber_erase();
-    ViewerT::draw_image(img, part, p);
-    rubber_draw();
-  }
-
-  virtual bool on_motion_notify_event (GdkEventMotion * event) {
-    if (!event->is_hint) return false;
-    mouse_pos=iPoint((int)event->x,(int)event->y);
-    rubber_erase(false);
-    if (ViewerT::on_drag){
-      ViewerT::set_origin(ViewerT::get_origin() - mouse_pos + ViewerT::drag_pos);
-      ViewerT::drag_pos = mouse_pos;
-    }
-    rubber_draw(false);
-    return false;
-  }
-
   Glib::RefPtr<Gdk::GC> rubber_gc;
+  SimpleViewer * viewer;
 
-  void on_realize() {
-    ViewerT::on_realize();
-    rubber_gc = Gdk::GC::create(ViewerT::get_window());
+public:
+
+  Rubber(SimpleViewer * v): viewer(v){
+    assert(viewer != NULL);
+
+    /// We need to initialize our GC after viewer window will be set up.
+    /// Connect this stuff to Gtk::Widget::signal_realize signal...
+    viewer->signal_realize().connect_notify(
+      sigc::mem_fun (*this, &Rubber::init_gc));
+
+    /// Remove rubber before redraw, put it back after.
+    viewer->signal_before_draw.connect(
+      sigc::bind( sigc::mem_fun (*this, &Rubber::rubber_erase), true));
+    viewer->signal_after_draw.connect(
+      sigc::bind( sigc::mem_fun (*this, &Rubber::rubber_draw), true));
+
+    /// Remove rubber before mouse motion, put it back after.
+    viewer->signal_motion_notify_event().connect_notify(
+      sigc::mem_fun (*this, &Rubber::before_motion_notify), false);
+    viewer->signal_motion_notify_event().connect_notify(
+      sigc::mem_fun (*this, &Rubber::after_motion_notify), true);
+
+  }
+
+private:
+
+  /// On mouse motions we need to redraw only mouse-connected lines
+  /// (false argument to rubber_draw/erase)
+  /// But in multy-thread viewers a full rubber redraw can occure
+  /// after such a partial erase then viewer is in drag mode.
+  /// So let's radraw all if viewer->on_drag. May be it is better
+  /// to make some lock here instead...
+  void before_motion_notify (GdkEventMotion * event) {
+    if (!event->is_hint) return;
+    mouse_pos=iPoint((int)event->x,(int)event->y);
+    rubber_erase(viewer->on_drag);
+  }
+  void after_motion_notify (GdkEventMotion * event) {
+    if (!event->is_hint) return;
+    rubber_draw(viewer->on_drag);
+  }
+
+  /// This stuff must be done after viewer window is set up
+  void init_gc() {
+    rubber_gc = Gdk::GC::create(viewer->get_window());
     rubber_gc->set_rgb_fg_color(Gdk::Color("white"));
     rubber_gc->set_function(Gdk::XOR);
   }
+
+  /// Function for drawing single rubber segment.
+  /// Used by both rubber_draw() and rubber_erase()
 
   void rubber_draw_segment(const RubberSegment &s){
     int r,w,h,x,y;
     switch (s.flags & RUBBFL_TYPEMASK){
        case RUBBFL_LINE:
-         ViewerT::get_window()->draw_line(rubber_gc, s.p1.x, s.p1.y, s.p2.x, s.p2.y);
+         viewer->get_window()->draw_line(rubber_gc, s.p1.x, s.p1.y, s.p2.x, s.p2.y);
          break;
        case RUBBFL_ELL:
          w=abs(s.p2.x-s.p1.x);
          h=abs(s.p2.y-s.p1.y);
          x=s.p1.x < s.p2.x  ? s.p1.x:s.p2.x;
          y=s.p1.y < s.p2.y  ? s.p1.y:s.p2.y;
-         ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, w, h, 0, 360*64);
+         viewer->get_window()->draw_arc(rubber_gc, false, x, y, w, h, 0, 360*64);
          break;
        case RUBBFL_ELLC:
          w=2*abs(s.p2.x-s.p1.x);
          h=2*abs(s.p2.y-s.p1.y);
          x=s.p1.x-w;
          y=s.p1.y-h;
-         ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, w, h, 0, 360*64);
+         viewer->get_window()->draw_arc(rubber_gc, false, x, y, w, h, 0, 360*64);
          break;
        case RUBBFL_CIRC:
          w=pdist(s.p2, s.p1);
          x=(s.p1.x + s.p2.x - w)/2;
          y=(s.p1.y + s.p2.y - w)/2;
-         ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, w, w, 0, 360*64);
+         viewer->get_window()->draw_arc(rubber_gc, false, x, y, w, w, 0, 360*64);
          break;
        case RUBBFL_CIRCC:
          r=pdist(s.p2, s.p1);
          x=s.p1.x - r;
          y=s.p1.y - r;
-         ViewerT::get_window()->draw_arc(rubber_gc, false, x, y, 2*r, 2*r, 0, 360*64);
+         viewer->get_window()->draw_arc(rubber_gc, false, x, y, 2*r, 2*r, 0, 360*64);
          break;
        default:
          std::cerr << "rubber_viewer: bad flags: " << s.flags << "\n";
     }
   }
 
+  /// functions for drawing and erasing rubber
   void rubber_draw(const bool all=true){
-    // if all is false - draw only lines connected with mouse
     if (!rubber_gc) return;
     for (std::list<RubberSegment>::const_iterator i = rubber.begin(); i != rubber.end(); i++){
       if (!all && !(i->flags & RUBBFL_MOUSE)) continue;
-      iPoint p1=i->get1(mouse_pos, ViewerT::get_origin());
-      iPoint p2=i->get2(mouse_pos, ViewerT::get_origin());
-      RubberSegment s(p1,p2,i->flags);
+      RubberSegment s=i->absolute(mouse_pos, viewer->get_origin());
       rubber_draw_segment(s);
       drawn.push_back(s);
     }
   }
-
   void rubber_erase(const bool all=true){
     if (!rubber_gc) return;
     std::list<RubberSegment>::iterator i = drawn.begin();
@@ -150,21 +162,29 @@ class RubberViewer : public ViewerT {
     }
   }
 
-  void rubber_add(const iPoint & p1, const iPoint & p2, const rubbfl_t flags){
+public:
+
+  /// add segment to a rubber
+  void rubber_add(const RubberSegment & s){
     rubber_erase();
-    rubber.push_back(RubberSegment(p1, p2, flags));
+    rubber.push_back(s);
     rubber_draw();
   }
-
+  void rubber_add(const iPoint & p1, const iPoint & p2, const rubbfl_t flags){
+    rubber_add(RubberSegment(p1, p2, flags));
+  }
   void rubber_add(const int x1, const int y1,
                   const int x2, const int y2, const rubbfl_t flags){
-    rubber_add(iPoint(x1,y1), Point<int>(x2,y2), flags);
+    rubber_add(RubberSegment(iPoint(x1,y1), Point<int>(x2,y2), flags));
   }
 
+  /// cleanup rubber
   void rubber_clear(){
     rubber_erase();
     rubber.clear();
   }
+
+  /// High-level functions for adding some types of segments
 
   void rubber_add_src_sq(const iPoint & p, int size){
       iPoint p1(size,size), p2(size,-size);
