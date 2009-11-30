@@ -1,1 +1,1 @@
-SUBDIRS = core programs viewer
+SUBDIRS = core programs viewer experimental

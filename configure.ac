@@ -24,5 +24,7 @@ AC_CONFIG_FILES([
   core/libmp/Makefile
   programs/Makefile
   viewer/Makefile
+  experimental/Makefile
+  experimental/gred/Makefile
 ])
 AC_OUTPUT
