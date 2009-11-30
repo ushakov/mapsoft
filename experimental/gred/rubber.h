@@ -84,6 +84,7 @@ public:
 
   /// cleanup rubber
   void clear();
+  int size();
 
   /// High-level functions for adding some types of segments
   void add_src_sq(const iPoint & p, int size);

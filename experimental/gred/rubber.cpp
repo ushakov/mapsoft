@@ -156,6 +156,11 @@ Rubber::clear(){
   rubber.clear();
 }
 
+int
+Rubber::size(){
+  return rubber.size();
+}
+
 /// High-level functions for adding some types of segments
 
 void
