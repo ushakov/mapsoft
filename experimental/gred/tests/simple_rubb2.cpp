@@ -1,5 +1,5 @@
 #include <iostream>
-#include "gobj.h"
+#include "gobj_test_grid.h"
 #include "simple_viewer.h"
 #include "rubber.h"
 

@@ -1,12 +1,12 @@
 #include <iostream>
 #include "mthread_viewer.h"
-#include "gobj.h"
+#include "gobj_test_grid.h"
 
 int main(int argc, char **argv){
 
     Gtk::Main     kit (argc, argv);
     Gtk::Window   win;
-    GObjTestGridSlow   pl;
+    GObjTestGrid  pl(150000);
 
     MThreadViewer viewer(&pl);
 

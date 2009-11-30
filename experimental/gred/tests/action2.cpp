@@ -1,5 +1,5 @@
 #include <iostream>
-#include "gobj.h"
+#include "gobj_test_grid.h"
 #include "actions.h"
 #include "dthread_viewer.h"
 #include "rubber.h"
@@ -37,7 +37,7 @@ int main(int argc, char **argv){
 
     Gtk::Main     kit (argc, argv);
     Gtk::Window   win;
-    GObjTestGridSlow p1;
+    GObjTestGrid  p1(150000);
 
     DThreadViewer viewer(&p1);
     Rubber  rubber(&viewer);

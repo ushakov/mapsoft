@@ -1,6 +1,6 @@
 #include <iostream>
 #include "mthread_viewer.h"
-#include "gobj.h"
+#include "gobj_test_tile.h"
 
 int main(int argc, char **argv){
 

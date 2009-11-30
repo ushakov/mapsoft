@@ -1,7 +1,11 @@
 LDADD =\
  ../libgred.a\
  ../../../core/lib2d/lib2d.a\
+ gobj_test_tile.o\
+ gobj_test_grid.o\
  $(GTKMM_LIBS)
+
+noinst_OBJECTS = gobjs/test_tile.o gobjs/test_grid.o
 
 INCLUDES = $(GTKMM_CFLAGS) -I..
 
