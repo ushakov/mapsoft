@@ -3,7 +3,7 @@
 #include "gobj.h"
 #include "action_viewer.h"
 #include "dthread_viewer.h"
-#include "rubber_viewer.h"
+#include "rubber.h"
 
 typedef ActionViewer<DThreadViewer> ViewerT;
 

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "gobj.h"
 #include "dthread_viewer.h"
-#include "rubber_viewer.h"
+#include "rubber.h"
 
 
 int main(int argc, char **argv){

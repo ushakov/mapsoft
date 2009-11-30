@@ -60,7 +60,7 @@ clean:
 $(TARGETS): gobj.o simple_viewer.o
 $(TARGETS_MTHREAD): mthread_viewer.o
 $(TARGETS_DTHREAD): dthread_viewer.o
-$(RUBBER_OBJECTS): rubber_viewer.h
+$(RUBBER_OBJECTS): rubber.h rubber.o
 $(ACTION_OBJECTS): action_viewer.h
 
 
