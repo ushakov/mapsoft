@@ -1,37 +1,9 @@
-#include <iostream>
 #include "gobj_test_grid.h"
-#include "actions.h"
 #include "dthread_viewer.h"
 #include "rubber.h"
+#include "actions.h"
 
-class ActionTest : public Action{
-  public:
-  ActionTest(Rubber * r) : rubber(r) { }
-
-  std::string get_name() { return "Test1"; }
-
-  void init() {
-    clear=true;
-  }
-
-  void reset() {
-    rubber->clear();
-    clear=true;
-  }
-  void click(const iPoint & p, const Gdk::ModifierType & state){
-    if (clear){
-      rubber->add_src_sq(p, 3);
-      rubber->add_dst_sq(3);
-      rubber->add_rect(p);
-      rubber->add_diag(p);
-    } else {
-      rubber->clear();
-    }
-    clear=!clear;
-  }
-  Rubber * rubber;
-  bool clear;
-};
+#include "action_test_box.h"
 
 int main(int argc, char **argv){
 
@@ -42,9 +14,9 @@ int main(int argc, char **argv){
     DThreadViewer viewer(&p1);
     Rubber  rubber(&viewer);
     Actions actions(&viewer);
-    ActionTest A1(&rubber);
+    ActionTestBox A1(&rubber);
     actions.add(&A1);
-    actions.select("Test1");
+    actions.select("TestBox");
 
     win.add(viewer);
     win.set_default_size(640,480);

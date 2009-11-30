@@ -1,35 +1,7 @@
-#include <iostream>
-#include "../../core/lib2d/line.h"
 #include "gobj_test_grid.h"
-#include "actions.h"
 #include "dthread_viewer.h"
+#include "actions.h"
 #include "rubber.h"
-
-class ActionTestCirc : public Action{
-  public:
-  ActionTestCirc(Rubber * r) : rubber(r) { }
-
-  std::string get_name() { return "TestCirc"; }
-
-  void init() {
-    clear=true;
-  }
-
-  void reset() {
-    rubber->clear();
-    clear=true;
-  }
-  void click(const iPoint & p, const Gdk::ModifierType & state){
-    if (clear){
-      rubber->add_circc(p);
-    } else {
-      rubber->clear();
-    }
-    clear=!clear;
-  }
-  Rubber * rubber;
-  bool clear;
-};
 
 int main(int argc, char **argv){
 
