@@ -91,13 +91,13 @@ Rubber::draw_segment(const RubberSegment &s){
        viewer->get_window()->draw_arc(gc, false, x, y, w, h, 0, 360*64);
        break;
      case RUBBFL_CIRC:
-       w=pdist(s.p2, s.p1);
+       w=(int)pdist(s.p2, s.p1);
        x=(s.p1.x + s.p2.x - w)/2;
        y=(s.p1.y + s.p2.y - w)/2;
        viewer->get_window()->draw_arc(gc, false, x, y, w, w, 0, 360*64);
        break;
      case RUBBFL_CIRCC:
-       r=pdist(s.p2, s.p1);
+       r=(int)pdist(s.p2, s.p1);
        x=s.p1.x - r;
        y=s.p1.y - r;
        viewer->get_window()->draw_arc(gc, false, x, y, 2*r, 2*r, 0, 360*64);
