@@ -26,5 +26,6 @@ AC_CONFIG_FILES([
   viewer/Makefile
   experimental/Makefile
   experimental/gred/Makefile
+  experimental/gred/tests/Makefile
 ])
 AC_OUTPUT

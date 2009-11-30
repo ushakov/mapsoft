@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../core/lib2d/line.h"
+#include "../../../core/lib2d/line.h"
 #include "gobj.h"
 #include "actions.h"
 #include "dthread_viewer.h"
