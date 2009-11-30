@@ -5,11 +5,9 @@
 #include "dthread_viewer.h"
 #include "rubber.h"
 
-typedef ActionViewer<DThreadViewer> ViewerT;
-
 class ActionTest1 : public Action{
   public:
-  ActionTest1(ViewerT * v, Rubber * r) : viewer(v), rubber(r) { }
+  ActionTest1(Rubber * r) : rubber(r) { }
 
   std::string get_name() { return "Test1"; }
 
@@ -32,14 +30,13 @@ class ActionTest1 : public Action{
     }
     clear=!clear;
   }
-  ViewerT * viewer;
   Rubber * rubber;
   bool clear;
 };
 
 class ActionTest2 : public Action{
   public:
-  ActionTest2(ViewerT * v, Rubber * r) : viewer(v), rubber(r) { }
+  ActionTest2(Rubber * r) : rubber(r) { }
 
   std::string get_name() { return "Test2"; }
 
@@ -78,7 +75,6 @@ class ActionTest2 : public Action{
       data.clear();
     }
   }
-  ViewerT * viewer;
   Rubber * rubber;
   iLine data;
   bool clear;
@@ -90,14 +86,15 @@ int main(int argc, char **argv){
     Gtk::Window   win;
     GObjTestGridSlow p1;
 
-    ViewerT viewer(&p1);
-    Rubber rubber(&viewer);
+    DThreadViewer viewer(&p1);
+    Rubber  rubber(&viewer);
+    Actions actions(&viewer);
 
-    ActionTest1 A1(&viewer, &rubber);
-    ActionTest2 A2(&viewer, &rubber);
-    viewer.action_add(&A1);
-    viewer.action_add(&A2);
-    viewer.action_select(1);
+    ActionTest1 A1(&rubber);
+    ActionTest2 A2(&rubber);
+    actions.add(&A1);
+    actions.add(&A2);
+    actions.select("Test2");
 
     win.add(viewer);
     win.set_default_size(640,480);
