@@ -8,7 +8,7 @@
 
 class DeleteWaypoint : public ActionMode {
 public:
-    DeleteWaypoint (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
+    DeleteWaypoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
 	gend = GenericDialog::get_instance();
     }
 
@@ -46,7 +46,7 @@ public:
 
 private:
     std::pair<int, int> point_addr;
-    MapviewState  * state;
+    Mapview       * state;
     Viewer        * viewer;
     GenericDialog * gend;
     LayerWPT      * current_layer;

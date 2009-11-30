@@ -7,7 +7,7 @@
 
 class MoveTrackpoint : public ActionMode {
 public:
-    MoveTrackpoint (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+    MoveTrackpoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
 	current_tpt = 0;
         current_layer = 0;
         mystate = 0;
@@ -76,7 +76,7 @@ public:
     }
 
 private:
-    MapviewState * state;
+    Mapview      * state;
     Viewer       * viewer;
     g_trackpoint * current_tpt;
     LayerTRK     * current_layer;

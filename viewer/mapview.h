@@ -16,17 +16,15 @@
 #include "../core/layers/layer_wpt.h"
 #include "../core/utils/log.h"
 
-class MapviewState {
+class Mapview : public Gtk::Window {
 public:
+
     Gtk::Statusbar statusbar;
     std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
     std::vector<boost::shared_ptr<LayerTRK> > trk_layers;
     std::vector<boost::shared_ptr<LayerWPT> > wpt_layers;
     std::vector<boost::shared_ptr<geo_data> > data;
-};
 
-class Mapview : public Gtk::Window {
-public:
     Mapview () :
 	file_sel_load ("Load file:"),
 	file_sel_save ("Save as:"),
@@ -36,7 +34,7 @@ public:
 	signal_delete_event().connect (sigc::mem_fun (this, &Mapview::on_delete));
 	set_default_size(640,480);
 
-	action_manager.reset (new ActionManager (&state, &viewer));
+	action_manager.reset (new ActionManager (this, &viewer));
 
 	//load file selector
 	file_sel_load.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::load_file_sel));
@@ -106,7 +104,7 @@ public:
 	ui_manager->add_ui_from_string(ui);
 	menubar = ui_manager->get_widget("/MenuBar");
 	
-	state.statusbar.push("Welcome to mapsoft viewer!",0);
+	statusbar.push("Welcome to mapsoft viewer!",0);
 	
 	guint drawing_padding = 5;
 	
@@ -123,7 +121,7 @@ public:
 	paned->pack2(*scrw, Gtk::FILL);
 
 	vbox->pack_start(*paned, true, true, drawing_padding);
-	vbox->pack_start(state.statusbar, false, true, 0);
+	vbox->pack_start(statusbar, false, true, 0);
 	add (*vbox);
 
 	// connect events from layer list
@@ -222,10 +220,10 @@ public:
 
     void load_file(std::string selected_filename) {
 	g_print ("Loading: %s\n", selected_filename.c_str());
-	state.statusbar.push("Loading...", 0);
+	statusbar.push("Loading...", 0);
 	boost::shared_ptr<geo_data> world (new geo_data);
 
-	state.data.push_back(world);
+	data.push_back(world);
 
 	io::in(selected_filename, *(world.get()), Options());
 	LOG() << "Loaded " << selected_filename << " to world at " << world.get();
@@ -236,7 +234,7 @@ public:
 	    // we are loading maps: if we already have reference, use it
 	    boost::shared_ptr<LayerGeoMap> map_layer(new LayerGeoMap(world.get()));
 	    map_layer->set_ref(reference);
-	    state.map_layers.push_back(map_layer);
+	    map_layers.push_back(map_layer);
 	    add_layer(map_layer.get(), 300, "map: " + selected_filename);
 	    viewer.set_window_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
 	}
@@ -244,7 +242,7 @@ public:
 	    // we are loading tracks: if we already have reference, use it
 	    boost::shared_ptr<LayerTRK> trk_layer(new LayerTRK(world.get()));
 	    trk_layer->set_ref(reference);
-	    state.trk_layers.push_back(trk_layer);
+	    trk_layers.push_back(trk_layer);
 	    add_layer(trk_layer.get(), 200, "trk: " + selected_filename);
 	    viewer.set_window_origin(trk_layer->range().TLC());
 	}
@@ -252,28 +250,28 @@ public:
 	    // we are loading waypoints: if we already have reference, use it
 	    boost::shared_ptr<LayerWPT> wpt_layer(new LayerWPT(world.get()));
 	    wpt_layer->set_ref(reference);
-	    state.wpt_layers.push_back(wpt_layer);
+	    wpt_layers.push_back(wpt_layer);
 	    add_layer(wpt_layer.get(), 100, "wpt: " + selected_filename);
 	    viewer.set_window_origin(wpt_layer->range().TLC());
 	}
 	refresh();
-	state.statusbar.pop();
+	statusbar.pop();
     }
 
      void save_file_sel() {
  	std::string selected_filename;
  	selected_filename = file_sel_save.get_filename();
  	g_print ("Saving file: %s\n", selected_filename.c_str());
- 	state.statusbar.push("Saving...", 0);
+ 	statusbar.push("Saving...", 0);
 
         geo_data world;
 
-        if (state.data.size()<1) return;
+        if (data.size()<1) return;
 
-        for (int i=0; i<state.data.size(); i++){
-          world.wpts.insert( world.wpts.end(), state.data[i].get()->wpts.begin(), state.data[i].get()->wpts.end());
-          world.trks.insert( world.trks.end(), state.data[i].get()->trks.begin(), state.data[i].get()->trks.end());
-          world.maps.insert( world.maps.end(), state.data[i].get()->maps.begin(), state.data[i].get()->maps.end());
+        for (int i=0; i<data.size(); i++){
+          world.wpts.insert( world.wpts.end(), data[i].get()->wpts.begin(), data[i].get()->wpts.end());
+          world.trks.insert( world.trks.end(), data[i].get()->trks.begin(), data[i].get()->trks.end());
+          world.maps.insert( world.maps.end(), data[i].get()->maps.begin(), data[i].get()->maps.end());
         }
 
  	io::out(selected_filename, world, Options());
@@ -355,7 +353,6 @@ public:
 
 private:
     Viewer        viewer;
-    MapviewState  state;
 
     LayerList layer_list;
     Gtk::FileSelection file_sel_load;

@@ -7,7 +7,7 @@
 
 class MoveWaypoint : public ActionMode {
 public:
-    MoveWaypoint (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+    MoveWaypoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
 	current_wpt = 0;
         current_layer = 0;
         mystate = 0;
@@ -71,7 +71,7 @@ public:
     }
 
 private:
-    MapviewState * state;
+    Mapview      * state;
     Viewer       * viewer;
     g_waypoint   * current_wpt;
     LayerWPT     * current_layer;

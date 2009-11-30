@@ -10,7 +10,7 @@
 
 class MakeTiles : public ActionMode {
 public:
-    MakeTiles (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+    MakeTiles (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
       	gend = GenericDialog::get_instance();
 	have_points = 0;
     }
@@ -72,7 +72,7 @@ public:
     }
 
 private:
-    MapviewState  * state;
+    Mapview       * state;
     Viewer        * viewer;
     GenericDialog * gend;
     LayerGeoMap   * current_layer;

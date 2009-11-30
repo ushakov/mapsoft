@@ -7,7 +7,7 @@
 
 class DeleteTrackpoint : public ActionMode {
 public:
-    DeleteTrackpoint (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) { }
+    DeleteTrackpoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -43,8 +43,8 @@ public:
     }
 
 private:
-    MapviewState * state;
-    Viewer        * viewer;
+    Mapview * state;
+    Viewer  * viewer;
 };
 
 #endif /* AM_DELETE_TPT_H */

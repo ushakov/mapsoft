@@ -8,7 +8,7 @@
 
 class EditTrackpoint : public ActionMode {
 public:
-    EditTrackpoint (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+    EditTrackpoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
       	gend = GenericDialog::get_instance();
 	current_tpt = 0;
     }
@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    MapviewState  * state;
+    Mapview       * state;
     Viewer        * viewer;
     GenericDialog * gend;
     g_trackpoint  * current_tpt;

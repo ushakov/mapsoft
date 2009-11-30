@@ -13,7 +13,7 @@
 #include "am_mark_trk.h"
 #include "am_make_tiles.h"
 
-ActionManager::ActionManager (MapviewState * state_, Viewer * viewer_)
+ActionManager::ActionManager (Mapview * state_, Viewer * viewer_)
     : state(state_), viewer(viewer_)
 {
     current_mode = 0;

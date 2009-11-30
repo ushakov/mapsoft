@@ -11,7 +11,7 @@
 
 class MarkTrack : public ActionMode {
 public:
-     MarkTrack (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+     MarkTrack (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
     }
     
     // Returns name of the mode as string.
@@ -91,8 +91,8 @@ public:
     }
 
 private:
-    MapviewState * state;
-    Viewer        * viewer;
+    Mapview  * state;
+    Viewer   * viewer;
 };
 
 

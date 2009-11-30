@@ -8,7 +8,7 @@
 
 class AddWaypoint : public ActionMode {
 public:
-    AddWaypoint (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
+    AddWaypoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
 	gend = GenericDialog::get_instance();
     }
 
@@ -54,7 +54,7 @@ public:
     }
 
 private:
-    MapviewState  * state;
+    Mapview       * state;
     Viewer        * viewer;
     GenericDialog * gend;
     LayerWPT      * current_layer;

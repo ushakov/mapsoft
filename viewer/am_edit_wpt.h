@@ -8,7 +8,7 @@
 
 class EditWaypoint : public ActionMode {
 public:
-    EditWaypoint (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+    EditWaypoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
       	gend = GenericDialog::get_instance();
 	current_wpt = 0;
     }
@@ -47,7 +47,7 @@ public:
     }
 
 private:
-    MapviewState  * state;
+    Mapview       * state;
     Viewer        * viewer;
     GenericDialog * gend;
     g_waypoint    * current_wpt;

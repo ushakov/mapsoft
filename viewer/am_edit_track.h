@@ -10,7 +10,7 @@
 
 class EditTrack : public ActionMode {
 public:
-    EditTrack (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+    EditTrack (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
       	gend = GenericDialog::get_instance();
 	current_track = 0;
     }
@@ -55,7 +55,7 @@ public:
     }
 
 private:
-    MapviewState  * state;
+    Mapview       * state;
     Viewer        * viewer;
     GenericDialog * gend;
     g_track       * current_track;

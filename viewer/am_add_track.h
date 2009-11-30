@@ -10,7 +10,7 @@
 
 class AddTrack : public ActionMode {
 public:
-    AddTrack (MapviewState * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
+    AddTrack (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
 	gend = GenericDialog::get_instance();
     }
 
@@ -73,7 +73,7 @@ public:
     }
 
 private:
-    MapviewState  * state;
+    Mapview       * state;
     Viewer        * viewer;
     GenericDialog * gend;
     LayerTRK      * current_layer;
