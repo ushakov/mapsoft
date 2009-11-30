@@ -1,7 +1,7 @@
 #include <iostream>
 #include "../../core/lib2d/line.h"
 #include "gobj.h"
-#include "action_viewer.h"
+#include "actions.h"
 #include "dthread_viewer.h"
 #include "rubber.h"
 

@@ -1,6 +1,6 @@
 #include <iostream>
 #include "gobj.h"
-#include "action_viewer.h"
+#include "actions.h"
 #include "dthread_viewer.h"
 #include "rubber.h"
 
