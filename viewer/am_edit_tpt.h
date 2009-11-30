@@ -8,7 +8,7 @@
 
 class EditTrackpoint : public ActionMode {
 public:
-    EditTrackpoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+    EditTrackpoint (Mapview * state_) : state(state_) {
       	gend = GenericDialog::get_instance();
 	current_tpt = 0;
     }
@@ -31,7 +31,7 @@ public:
 	std::cout << "EDITTPT: " << p << std::endl;
 	for (int i = 0; i < state->trk_layers.size(); ++i) {
 	    current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-            if (!viewer->workplane.get_layer_active(current_layer)) continue;
+            if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_trackpoint(p);
 	    if (d.first >= 0) {
@@ -48,7 +48,6 @@ public:
 
 private:
     Mapview       * state;
-    Viewer        * viewer;
     GenericDialog * gend;
     g_trackpoint  * current_tpt;
     LayerTRK      * current_layer;
@@ -58,7 +57,7 @@ private:
 	if (current_tpt) {
 	    if (r == 0) { // OK
 		current_tpt->parse_from_options(gend->get_options());
-                viewer->workplane.refresh_layer(current_layer);
+                state->viewer->workplane.refresh_layer(current_layer);
  		std::cout << "EDITWPT: OK\n";
 	    } else {
 		// do nothing

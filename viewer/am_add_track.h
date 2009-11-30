@@ -10,7 +10,7 @@
 
 class AddTrack : public ActionMode {
 public:
-    AddTrack (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
+    AddTrack (Mapview * state_) : state(state_) {
 	gend = GenericDialog::get_instance();
     }
 
@@ -24,7 +24,7 @@ public:
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() {
-	viewer->rubber.clear();
+	state->viewer->rubber.clear();
 	new_track = g_track();
 	gend->deactivate();
     }
@@ -37,7 +37,7 @@ public:
           // найдем layer, в который можно запихать трек
 	  for (int i=0; i<state->trk_layers.size(); i++){
             current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-            if (!viewer->workplane.get_layer_active(current_layer)) continue;
+            if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
 	    break;
           }
           if (current_layer==0) return; // надо бы добавлять новый, но для этого нужен доступ
@@ -61,20 +61,19 @@ public:
            << new_track.size() << " points, "
            << new_track.length()/1000 << " km";
 	state->statusbar.push(st.str(),0);
-        viewer->rubber.clear();
+        state->viewer->rubber.clear();
 	for (int i = 0; i<new_track.size()-1; i++){
 	  g_point p1 = new_track[i];
 	  g_point p2 = new_track[i+1];
           cnv.bck(p1); cnv.bck(p2);
-	  viewer->rubber.add_line(p1,false, p2,false);
+	  state->viewer->rubber.add_line(p1,false, p2,false);
         }
-	viewer->rubber.add_line(p,false, iPoint(0,0),true);
+	state->viewer->rubber.add_line(p,false, iPoint(0,0),true);
 
     }
 
 private:
     Mapview       * state;
-    Viewer        * viewer;
     GenericDialog * gend;
     LayerTRK      * current_layer;
 
@@ -87,11 +86,11 @@ private:
           assert (current_layer);
           new_track.parse_from_options(gend->get_options());
 	  current_layer->get_world()->trks.push_back(new_track);
-          viewer->workplane.refresh_layer(current_layer);
+          state->viewer->workplane.refresh_layer(current_layer);
 	}
 	state->statusbar.push("",0);
 	new_track.clear();
-	viewer->rubber.clear();
+	state->viewer->rubber.clear();
         current_connection.disconnect();
     }
 };

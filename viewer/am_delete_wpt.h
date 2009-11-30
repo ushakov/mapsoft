@@ -8,7 +8,7 @@
 
 class DeleteWaypoint : public ActionMode {
 public:
-    DeleteWaypoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
+    DeleteWaypoint (Mapview * state_) : state(state_) {
 	gend = GenericDialog::get_instance();
     }
 
@@ -31,7 +31,7 @@ public:
 
         for (int i = 0; i < state->wpt_layers.size(); ++i) {
             current_layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
-	    if (!viewer->workplane.get_layer_active(current_layer)) continue;
+	    if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
             assert (current_layer);
             point_addr = current_layer->find_waypoint(p);
             if (point_addr.first >= 0) {
@@ -47,7 +47,6 @@ public:
 private:
     std::pair<int, int> point_addr;
     Mapview       * state;
-    Viewer        * viewer;
     GenericDialog * gend;
     LayerWPT      * current_layer;
     sigc::connection current_connection;
@@ -56,7 +55,7 @@ private:
 	if (r == 0) { // OK
           current_layer->get_world()->wpts[point_addr.first].erase(
             current_layer->get_world()->wpts[point_addr.first].begin()+point_addr.second);
-          viewer->workplane.refresh_layer(current_layer);
+          state->viewer->workplane.refresh_layer(current_layer);
 	} else {
 	  // do nothing
 	}

@@ -10,7 +10,7 @@
 
 class MakeTiles : public ActionMode {
 public:
-    MakeTiles (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+    MakeTiles (Mapview * state_) : state(state_) {
       	gend = GenericDialog::get_instance();
 	have_points = 0;
     }
@@ -37,8 +37,8 @@ public:
 	    one = geo;
 	    have_points = 1;
 	    // make rubber
-	    viewer->rubber.clear();
-	    viewer->rubber.add_line(p, false, iPoint(0,0), true);
+	    state->viewer->rubber.clear();
+	    state->viewer->rubber.add_line(p, false, iPoint(0,0), true);
 	} else if (have_points == 1) {
 	    g_point geo = p;
 	    if (!get_geo_point(geo)) return;
@@ -59,7 +59,7 @@ public:
 	current_layer = NULL;
 	for (int i = 0; i < state->map_layers.size(); i++){
 	    layer = state->map_layers[i].get();
-	    if (viewer->workplane.get_layer_active(layer)) {
+	    if (state->viewer->workplane.get_layer_active(layer)) {
 		current_layer = layer;
 		break;
 	    }
@@ -73,7 +73,6 @@ public:
 
 private:
     Mapview       * state;
-    Viewer        * viewer;
     GenericDialog * gend;
     LayerGeoMap   * current_layer;
     sigc::connection current_connection;

@@ -10,7 +10,7 @@
 
 class EditTrack : public ActionMode {
 public:
-    EditTrack (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+    EditTrack (Mapview * state_) : state(state_) {
       	gend = GenericDialog::get_instance();
 	current_track = 0;
     }
@@ -33,7 +33,7 @@ public:
 	std::cout << "EDITTRACK: " << p << std::endl;
 	for (int i = 0; i < state->trk_layers.size(); ++i) {
 	    current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-            if (!viewer->workplane.get_layer_active(current_layer)) continue;
+            if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_track(p);
 	    if (d.first >= 0) {
@@ -56,7 +56,6 @@ public:
 
 private:
     Mapview       * state;
-    Viewer        * viewer;
     GenericDialog * gend;
     g_track       * current_track;
     LayerTRK      * current_layer;
@@ -66,7 +65,7 @@ private:
 	if (current_track) {
 	    if (r == 0) { // OK
 		current_track->parse_from_options(gend->get_options());
-                viewer->workplane.refresh_layer(current_layer);
+                state->viewer->workplane.refresh_layer(current_layer);
  		std::cout << "EDITTRACK: " << current_track->comm << std::endl;
 	    } else {
 		// do nothing

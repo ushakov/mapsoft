@@ -7,7 +7,7 @@
 
 class MoveWaypoint : public ActionMode {
 public:
-    MoveWaypoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+    MoveWaypoint (Mapview * state_) : state(state_) {
 	current_wpt = 0;
         current_layer = 0;
         mystate = 0;
@@ -21,7 +21,7 @@ public:
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() { 
-        viewer->rubber.clear();
+        state->viewer->rubber.clear();
         mystate=0;
     }
 
@@ -32,24 +32,24 @@ public:
           std::cout << " MOVEWPT: " << p << std::endl;
 	  for (int i = 0; i < state->wpt_layers.size(); ++i) {
             current_layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
-            if (!viewer->workplane.get_layer_active(current_layer)) continue;
+            if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_waypoint(p);
 	    if (d.first >= 0) {
 		std::cout << "MOVEWPT: found at " << current_layer << std::endl;
 		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
                 iPoint dp(2,2);
-                viewer->rubber.add_line(p+iPoint(-2,-2),false, p+Point<int>( 2,-2),false);
-                viewer->rubber.add_line(p+iPoint( 2,-2),false, p+Point<int>( 2, 2),false);
-                viewer->rubber.add_line(p+iPoint( 2, 2),false, p+Point<int>(-2, 2),false);
-                viewer->rubber.add_line(p+iPoint(-2, 2),false, p+Point<int>(-2,-2),false);
+                state->viewer->rubber.add_line(p+iPoint(-2,-2),false, p+Point<int>( 2,-2),false);
+                state->viewer->rubber.add_line(p+iPoint( 2,-2),false, p+Point<int>( 2, 2),false);
+                state->viewer->rubber.add_line(p+iPoint( 2, 2),false, p+Point<int>(-2, 2),false);
+                state->viewer->rubber.add_line(p+iPoint(-2, 2),false, p+Point<int>(-2,-2),false);
 
-                viewer->rubber.add_line(iPoint(-2,-2),true, Point<int>( 2,-2),true);
-                viewer->rubber.add_line(iPoint( 2,-2),true, Point<int>( 2, 2),true);
-                viewer->rubber.add_line(iPoint( 2, 2),true, Point<int>(-2, 2),true);
-                viewer->rubber.add_line(iPoint(-2, 2),true, Point<int>(-2,-2),true);
+                state->viewer->rubber.add_line(iPoint(-2,-2),true, Point<int>( 2,-2),true);
+                state->viewer->rubber.add_line(iPoint( 2,-2),true, Point<int>( 2, 2),true);
+                state->viewer->rubber.add_line(iPoint( 2, 2),true, Point<int>(-2, 2),true);
+                state->viewer->rubber.add_line(iPoint(-2, 2),true, Point<int>(-2,-2),true);
 
-                viewer->rubber.add_line(p,false, iPoint(0,0),true);
+                state->viewer->rubber.add_line(p,false, iPoint(0,0),true);
                 mystate=1;
 		break;
             }
@@ -62,9 +62,9 @@ public:
           cnv.frw(pt);
           current_wpt->x = pt.x;
           current_wpt->y = pt.y;
-          viewer->workplane.refresh_layer(current_layer);
+          state->viewer->workplane.refresh_layer(current_layer);
 	  mystate=0;
-          viewer->rubber.clear();
+          state->viewer->rubber.clear();
           current_layer=0;
           current_wpt=0;
         }
@@ -72,7 +72,6 @@ public:
 
 private:
     Mapview      * state;
-    Viewer       * viewer;
     g_waypoint   * current_wpt;
     LayerWPT     * current_layer;
     int mystate; // 0 - select point, 1 - move point

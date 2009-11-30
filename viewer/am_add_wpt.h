@@ -8,7 +8,7 @@
 
 class AddWaypoint : public ActionMode {
 public:
-    AddWaypoint (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {   
+    AddWaypoint (Mapview * state_) : state(state_) {
 	gend = GenericDialog::get_instance();
     }
 
@@ -33,7 +33,7 @@ public:
 	current_layer = NULL;
 	for (int i=0; i<state->wpt_layers.size(); i++){
           layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
-          if (viewer->workplane.get_layer_active(layer)) {
+          if (state->viewer->workplane.get_layer_active(layer)) {
 	      current_layer = layer;
 	      break;
 	  }
@@ -55,7 +55,6 @@ public:
 
 private:
     Mapview       * state;
-    Viewer        * viewer;
     GenericDialog * gend;
     LayerWPT      * current_layer;
 
@@ -69,7 +68,7 @@ private:
           if (current_layer->get_world()->wpts.size()==0) 
 	    current_layer->get_world()->wpts.push_back(g_waypoint_list());
           current_layer->get_world()->wpts[0].push_back(wpt);
-          viewer->workplane.refresh_layer(current_layer);
+          state->viewer->workplane.refresh_layer(current_layer);
    	  std::cout << "ADDWPT: " << wpt.name << "\n";
 	} else {
 	  // do nothing

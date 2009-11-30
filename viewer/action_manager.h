@@ -6,13 +6,12 @@
 #include <boost/shared_ptr.hpp>
 
 #include "action_mode.h"
-#include "viewer.h"
 
 class Mapview;
 
 class ActionManager {
 public:
-    ActionManager(Mapview * state_, Viewer * viewer_);
+    ActionManager(Mapview * state_);
 
     std::vector<std::string> get_mode_list () {
 	std::vector<std::string> r;
@@ -38,7 +37,6 @@ public:
 
 private:
     Mapview      * state;
-    Viewer       * viewer;
     std::vector<boost::shared_ptr<ActionMode> > modes;
     int current_mode;
 };

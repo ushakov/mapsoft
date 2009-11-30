@@ -11,7 +11,7 @@
 
 class MarkTrack : public ActionMode {
 public:
-     MarkTrack (Mapview * state_, Viewer * viewer_) : state(state_), viewer(viewer_) {
+     MarkTrack (Mapview * state_) : state(state_) {
     }
     
     // Returns name of the mode as string.
@@ -84,7 +84,7 @@ public:
 		    pp = tp;
 		}
 		add_wpt(wpt_list, (*track)[e-s], len);
-		viewer->workplane.refresh_layer(current_layer);
+		state->viewer->workplane.refresh_layer(current_layer);
 		return;
 	    }
 	}
@@ -92,7 +92,6 @@ public:
 
 private:
     Mapview  * state;
-    Viewer   * viewer;
 };
 
 
