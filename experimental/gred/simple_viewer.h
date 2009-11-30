@@ -9,10 +9,10 @@ class SimpleViewer : public Gtk::DrawingArea {
 
     SimpleViewer(GObj * pl);
 
-    virtual void set_origin (iPoint new_origin);
-    iPoint       get_origin (void) const;
-    virtual void set_obj (GObj * o);
-    GObj *       get_obj (void) const;
+    virtual void   set_origin (iPoint new_origin);
+    virtual iPoint get_origin (void) const;
+    virtual void   set_obj (GObj * o);
+    virtual GObj * get_obj (void) const;
 
     virtual void draw(const iRect & r);
     virtual void draw_image (const iImage & img, const iPoint & p);
