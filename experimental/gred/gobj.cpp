@@ -17,7 +17,9 @@ GObjTestTile::draw(const iRect &range){
 }
 iRect
 GObjTestTile::range(void){
-  return iRect(GCoordMin,GCoordMin,GCoordMax,GCoordMax);
+  return iRect(
+    iPoint(GCoordMin,GCoordMin),
+    iPoint(GCoordMax,GCoordMax));
 }
 
 
@@ -46,7 +48,9 @@ GObjSolidFill::draw(const iRect &range){
 }
 iRect
 GObjSolidFill::range(void){
-  return iRect(GCoordMin,GCoordMin,GCoordMax,GCoordMax);
+  return iRect(
+    iPoint(GCoordMin,GCoordMin),
+    iPoint(GCoordMax,GCoordMax));
 }
 
 iImage
@@ -68,7 +72,9 @@ GObjTestGrid::draw(const iRect &range){
 }
 iRect
 GObjTestGrid::range(void){
-  return iRect(GCoordMin,GCoordMin,GCoordMax,GCoordMax);
+  return iRect(
+    iPoint(GCoordMin,GCoordMin),
+    iPoint(GCoordMax,GCoordMax));
 }
 
 iImage
@@ -91,6 +97,8 @@ GObjTestGridSlow::draw(const iRect &range){
 }
 iRect
 GObjTestGridSlow::range(void){
-  return iRect(GCoordMin,GCoordMin,GCoordMax,GCoordMax);
+  return iRect(
+    iPoint(GCoordMin,GCoordMin),
+    iPoint(GCoordMax,GCoordMax));
 }
 
