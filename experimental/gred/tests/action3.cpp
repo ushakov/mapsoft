@@ -1,8 +1,6 @@
-#include "gobj_test_grid.h"
-#include "dthread_viewer.h"
-#include "actions.h"
-#include "rubber.h"
+#include "gred.h"
 
+#include "gobj_test_grid.h"
 #include "action_test_circ.h"
 
 int main(int argc, char **argv){

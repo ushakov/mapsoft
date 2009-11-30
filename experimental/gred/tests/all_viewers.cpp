@@ -1,7 +1,4 @@
-#include <iostream>
-#include "dthread_viewer.h"
-#include "mthread_viewer.h"
-#include "simple_viewer.h"
+#include "gred.h"
 #include "gobj_test_tile.h"
 
 class TestWin : public Gtk::Window{
