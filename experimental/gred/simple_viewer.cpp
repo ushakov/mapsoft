@@ -1,7 +1,9 @@
 #include "simple_viewer.h"
 
 #include <gdk/gdk.h>
+#include <cassert>
 #include "../../core/utils/image_gdk.h"
+#include "../../core/lib2d/rect.h"
 
 SimpleViewer::SimpleViewer(GObj * o) :
     obj(o),
@@ -17,15 +19,19 @@ SimpleViewer::SimpleViewer(GObj * o) :
     Gdk::POINTER_MOTION_HINT_MASK );
 }
 
-void SimpleViewer::set_origin (iPoint new_origin) {
+void SimpleViewer::set_origin (iPoint p) {
+  assert(obj !=NULL);
+  iRect r=obj->range();
+  int w=get_width();
+  int h=get_height();
 
-  if (new_origin.x + get_width()  > GCoordMax) new_origin.x=GCoordMax - get_width();
-  if (new_origin.y + get_height() > GCoordMax) new_origin.y=GCoordMax - get_height();
-  if (new_origin.x < GCoordMin) new_origin.x=GCoordMin;
-  if (new_origin.y < GCoordMin) new_origin.y=GCoordMin;
+  if (p.x + w >= r.x + r.w) p.x = r.x + r.w - w - 1;
+  if (p.y + h >= r.y + r.h) p.y = r.y+ r.h - h - 1;
+  if (p.x < r.x) p.x=r.x;
+  if (p.y < r.y) p.y=r.y;
 
-  get_window()->scroll(origin.x-new_origin.x, origin.y-new_origin.y);
-  origin = new_origin;
+  get_window()->scroll(origin.x-p.x, origin.y-p.y);
+  origin = p;
 }
 
 iPoint SimpleViewer::get_origin (void) const {
