@@ -19,15 +19,36 @@
 class Mapview : public Gtk::Window {
 public:
 
-    Viewer * viewer;
+    Viewer    * viewer;
+    LayerList * layer_list; /// Gtk::TreeView for layers
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
+    Gtk::Statusbar * statusbar;
 
-    Gtk::Statusbar statusbar;
     std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
     std::vector<boost::shared_ptr<LayerTRK> > trk_layers;
     std::vector<boost::shared_ptr<LayerWPT> > wpt_layers;
+
     std::vector<boost::shared_ptr<geo_data> > data;
+
+private:
+    Gtk::FileSelection file_sel_load;
+    Gtk::FileSelection file_sel_save;
+    Gtk::Widget * menubar;
+
+    g_map reference;
+    bool have_reference;
+
+    boost::shared_ptr<ActionManager> action_manager;
+    Gtk::RadioAction::Group mode_group;
+
+    struct timeval click_started;
+
+    GenericDialog * gend;
+    sigc::connection current_connection;
+    Layer * layer_to_configure;
+
+public:
 
     Mapview () :
 	file_sel_load ("Load file:"),
@@ -35,31 +56,49 @@ public:
 	have_reference(false)
     {
 
-	viewer = new Viewer();
-	// window initialization
-	signal_delete_event().connect (sigc::mem_fun (this, &Mapview::on_delete));
-	set_default_size(640,480);
+	viewer     = new Viewer();
+	layer_list = new LayerList();
+	statusbar  = new Gtk::Statusbar;
+
+	gend = GenericDialog::get_instance();
 
 	action_manager.reset (new ActionManager(this));
 
-	//load file selector
-	file_sel_load.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::load_file_sel));
-	file_sel_load.get_ok_button()->signal_clicked().connect (sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
-	file_sel_load.get_cancel_button()->signal_clicked().connect (sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
-	
- 	//save file selector
- 	file_sel_save.get_ok_button()->signal_clicked().connect (sigc::mem_fun (this, &Mapview::save_file_sel));
- 	file_sel_save.get_ok_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
- 	file_sel_save.get_cancel_button()->signal_clicked().connect (sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
+	/// window initialization
+	signal_delete_event().connect_notify (
+	  sigc::mem_fun (this, &Mapview::exit));
+	set_default_size(640,480);
 
-//        viewer->signal_button_press_event().connect (sigc::mem_fun (this, &Mapview::on_button_press));
-        viewer->signal_button_release_event().connect (sigc::mem_fun (this, &Mapview::on_button_release));
-        signal_key_press_event().connect (sigc::mem_fun (this, &Mapview::on_key_press));
+	/// events from load file selector
+	file_sel_load.get_ok_button()->signal_clicked().connect (
+	  sigc::mem_fun (this, &Mapview::load_file_sel));
+	file_sel_load.get_ok_button()->signal_clicked().connect (
+	  sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
+	file_sel_load.get_cancel_button()->signal_clicked().connect (
+	  sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
+	
+	/// events from save file selector
+	file_sel_save.get_ok_button()->signal_clicked().connect (
+	  sigc::mem_fun (this, &Mapview::save_file_sel));
+	file_sel_save.get_ok_button()->signal_clicked().connect (
+	  sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
+	file_sel_save.get_cancel_button()->signal_clicked().connect (
+	  sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
+
+        /// keypress and mouse button press events
+        viewer->signal_button_release_event().connect (
+          sigc::mem_fun (this, &Mapview::on_button_release));
+        signal_key_press_event().connect (
+          sigc::mem_fun (this, &Mapview::on_key_press));
+
+	/// events from layer list
+	layer_list->store->signal_row_changed().connect (
+	  sigc::mem_fun (this, &Mapview::layer_edited));
+	layer_list->signal_button_press_event().connect_notify (
+	  sigc::mem_fun (this, &Mapview::configure_layer));
 	
 	/***************************************/
 	//start building menus
-
-
 	actions = Gtk::ActionGroup::create();
 	actions->add(Gtk::Action::create("MenuFile", "_File"));
 	actions->add(Gtk::Action::create("MenuGeodata", "_Geodata"));
@@ -71,7 +110,6 @@ public:
 	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT), sigc::mem_fun(this, &Gtk::Widget::hide_all));
 
 	// make all modes!
-
 	actions->add(Gtk::Action::create("MenuModes", "_Modes"));
 	std::vector<std::string> modes = action_manager->get_mode_list();
 	for (int m = 0; m < modes.size(); ++m) {
@@ -110,53 +148,52 @@ public:
 	    "</ui>";
 	ui_manager->add_ui_from_string(ui);
 	menubar = ui_manager->get_widget("/MenuBar");
-	
-	statusbar.push("Welcome to mapsoft viewer!",0);
-	
+
+
+        /// pack widgets
 	guint drawing_padding = 5;
-	
+
 	Gtk::VBox * vbox = manage(new Gtk::VBox);
 	vbox->pack_start(*menubar, false, true, 0);
-	
+
 	Gtk::HPaned * paned = manage(new Gtk::HPaned);
 	paned->pack1(*viewer, Gtk::EXPAND | Gtk::FILL);
 	
 	Gtk::ScrolledWindow * scrw = manage(new Gtk::ScrolledWindow);
-	scrw->add(layer_list);
+	scrw->add(*layer_list);
 	scrw->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 	scrw->set_size_request(128,-1);
 	paned->pack2(*scrw, Gtk::FILL);
 
 	vbox->pack_start(*paned, true, true, drawing_padding);
-	vbox->pack_start(statusbar, false, true, 0);
+	vbox->pack_start(*statusbar, false, true, 0);
 	add (*vbox);
 
-	// connect events from layer list
-// 	layer_list.add_events (Gdk::BUTTON_PRESS_MASK);
-	layer_list.store->signal_row_changed().connect (sigc::mem_fun (this, &Mapview::layer_edited));
-	layer_list.signal_button_press_event().connect_notify (sigc::mem_fun (this, &Mapview::configure_layer));
 
-
-	gend = GenericDialog::get_instance();
-
+	statusbar->push("Welcome to mapsoft viewer!",0);
 	show_all();
     }
 
+    virtual ~Mapview() {
+      delete viewer;
+      delete layer_list;
+      delete statusbar;
+    }
 
     void layer_edited (const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter) {
 	VLOG(2) << "layer_edited at " << path.to_string();
 	Gtk::TreeModel::Row row = *iter;
 	bool need_refresh = false;
 	
-	Layer * layer = row[layer_list.columns.layer];
+	Layer * layer = row[layer_list->columns.layer];
 	if (!layer) return;
-	int new_depth = row[layer_list.columns.depth];
+	int new_depth = row[layer_list->columns.depth];
 	if (viewer->workplane.get_layer_depth (layer) != new_depth) {
 	    viewer->workplane.set_layer_depth (layer, new_depth);
 	    need_refresh = true;
 	}
 
-	int new_active = row[layer_list.columns.checked];
+	int new_active = row[layer_list->columns.checked];
 	if (new_active != viewer->workplane.get_layer_active (layer)) {
 	    viewer->workplane.set_layer_active (layer, new_active);
 	    need_refresh = true;
@@ -173,32 +210,32 @@ public:
 	    return;
 	}
 
-	if (event->window != layer_list.get_bin_window()->gobj()) {
+	if (event->window != layer_list->get_bin_window()->gobj()) {
 	    return;
 	}
 
 	Gtk::TreeModel::Path path;
 	Gtk::TreeViewColumn *col = NULL;
 	int cx, cy;
-	if (!layer_list.get_path_at_pos(event->x, event->y,
+	if (!layer_list->get_path_at_pos(event->x, event->y,
 				       path, col, cx, cy)) {
 	    return;
 	}
 	LOG() << "Path=" << path.to_string();
 
-	Gtk::TreeModel::iterator iter = layer_list.store->get_iter(path);
+	Gtk::TreeModel::iterator iter = layer_list->store->get_iter(path);
 	Gtk::TreeModel::Row row = *iter;
 	bool need_refresh = false;
 
-	Layer * layer = row[layer_list.columns.layer];
-	LOG() << "LAYER_CONFIG REQ: " << row[layer_list.columns.text] << " (" << layer << ")\n";
+	Layer * layer = row[layer_list->columns.layer];
+	LOG() << "LAYER_CONFIG REQ: " << row[layer_list->columns.text] << " (" << layer << ")\n";
 	if (!layer) return;
 	Options opt = layer->get_config();
 	if (opt.size() == 0) return;
 	layer_to_configure = layer;
 
 	current_connection = gend->signal_result().connect(sigc::mem_fun(this, &Mapview::layer_config_result));
-	Glib::ustring name = row[layer_list.columns.text];
+	Glib::ustring name = row[layer_list->columns.text];
 	gend->activate(name, opt);
     }
 
@@ -228,7 +265,7 @@ public:
 
     void load_file(std::string selected_filename) {
 	g_print ("Loading: %s\n", selected_filename.c_str());
-	statusbar.push("Loading...", 0);
+	statusbar->push("Loading...", 0);
 	boost::shared_ptr<geo_data> world (new geo_data);
 
 	data.push_back(world);
@@ -263,14 +300,14 @@ public:
 	    viewer->set_window_origin(wpt_layer->range().TLC());
 	}
 	refresh();
-	statusbar.pop();
+	statusbar->pop();
     }
 
      void save_file_sel() {
  	std::string selected_filename;
  	selected_filename = file_sel_save.get_filename();
  	g_print ("Saving file: %s\n", selected_filename.c_str());
- 	statusbar.push("Saving...", 0);
+ 	statusbar->push("Saving...", 0);
 
         geo_data world;
 
@@ -285,23 +322,18 @@ public:
  	io::out(selected_filename, world, Options());
      }
 
-    gboolean on_delete(GdkEventAny * e) {
-	g_print ("Exiting...\n");
-	hide_all();
-	return true;
+    void exit(GdkEventAny * e) {
+      g_print ("Exiting...\n");
+      hide_all();
     }
 
     void add_layer (Layer * layer, int depth, Glib::ustring name) {
        viewer->workplane.add_layer(layer, depth);
-       layer_list.add_layer(layer, depth, name);
+       layer_list->add_layer(layer, depth, name);
     }
 
     void refresh () {
        viewer->refresh();
-    }
-
-    virtual ~Mapview() {
-      delete viewer;
     }
 
     bool on_key_press(GdkEventKey * event) {
@@ -331,7 +363,6 @@ public:
         return false;
     }
 
-
 //    bool on_button_press (GdkEventButton * event) {
 //      if (event->button == 1) {
 //        gettimeofday (&click_started, NULL);
@@ -358,27 +389,6 @@ public:
       return false;
     }
 
-
-
-private:
-
-    LayerList layer_list;
-    Gtk::FileSelection file_sel_load;
-    Gtk::FileSelection file_sel_save;
-    Gtk::Statusbar * status_bar;
-    Gtk::Widget * menubar;
-
-    g_map reference;
-    bool have_reference;
-
-    boost::shared_ptr<ActionManager> action_manager;
-    Gtk::RadioAction::Group mode_group;
-
-    struct timeval click_started;
-
-    GenericDialog * gend;
-    sigc::connection current_connection;
-    Layer * layer_to_configure;
 };
 
 

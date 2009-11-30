@@ -45,7 +45,7 @@ public:
 		st << "Editing track... "
 		   << current_track->size() << " points, "
                    << current_track->length()/1000 << " km";
-		state->statusbar.push(st.str(),0);
+		state->statusbar->push(st.str(),0);
 
 	        current_connection = gend->signal_result().connect(sigc::mem_fun(this, &EditTrack::on_result));
 		gend->activate(get_name(), opt);
@@ -70,7 +70,7 @@ private:
 	    } else {
 		// do nothing
 	    }
-	    state->statusbar.push("",0);
+	    state->statusbar->push("",0);
 	    current_track = 0;
             current_connection.disconnect();
 	}

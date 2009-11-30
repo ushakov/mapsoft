@@ -60,7 +60,7 @@ public:
 	st << "Creating new track... "
            << new_track.size() << " points, "
            << new_track.length()/1000 << " km";
-	state->statusbar.push(st.str(),0);
+	state->statusbar->push(st.str(),0);
         state->viewer->rubber.clear();
 	for (int i = 0; i<new_track.size()-1; i++){
 	  g_point p1 = new_track[i];
@@ -88,7 +88,7 @@ private:
 	  current_layer->get_world()->trks.push_back(new_track);
           state->viewer->workplane.refresh_layer(current_layer);
 	}
-	state->statusbar.push("",0);
+	state->statusbar->push("",0);
 	new_track.clear();
 	state->viewer->rubber.clear();
         current_connection.disconnect();
