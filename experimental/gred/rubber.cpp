@@ -50,12 +50,12 @@ void
 Rubber::before_motion_notify (GdkEventMotion * event) {
   if (!event->is_hint) return;
   mouse_pos=iPoint((int)event->x,(int)event->y);
-  erase(viewer->on_drag);
+  erase(viewer->is_on_drag());
 }
 void
 Rubber::after_motion_notify (GdkEventMotion * event) {
   if (!event->is_hint) return;
-  draw(viewer->on_drag);
+  draw(viewer->is_on_drag());
 }
 
 /// This stuff must be done after viewer window is set up

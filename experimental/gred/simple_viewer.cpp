@@ -117,3 +117,18 @@ bool SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
   }
   return false;
 }
+
+bool
+SimpleViewer::is_on_drag(){
+  return on_drag;
+}
+
+int
+SimpleViewer::get_epoch(){
+  return epoch;
+}
+
+void
+SimpleViewer::inc_epoch(){
+  epoch++;
+}

@@ -27,9 +27,9 @@ GObj * MThreadViewer::get_fast_obj() const {
 }
 
 void MThreadViewer::updater(const iRect & r){
-  int e=epoch;
+  int e=get_epoch();
   std::pair<iPoint, iImage> p(r.TLC(), SimpleViewer::get_obj()->draw(r));
-  if (e==epoch){
+  if (e==get_epoch()){
     mutex->lock();
     done_cache.insert(p);
     mutex->unlock();

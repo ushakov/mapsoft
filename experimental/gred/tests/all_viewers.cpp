@@ -60,7 +60,7 @@ class TestWin : public Gtk::Window{
 
   void change_viewer(SimpleViewer *v1){
     if (!v1) return;
-    v->epoch++;
+    v->inc_epoch();
     v=v1;
     remove();
     add(*v);

@@ -25,9 +25,9 @@ class SimpleViewer : public Gtk::DrawingArea {
     virtual bool on_button_release_event (GdkEventButton * event);
     virtual bool on_motion_notify_event (GdkEventMotion * event);
 
-    bool on_drag;
-    iPoint drag_pos;
-    int epoch;
+    virtual bool is_on_drag();
+    virtual int  get_epoch();
+    virtual void inc_epoch();
 
     sigc::signal<void> signal_before_draw;
     sigc::signal<void> signal_after_draw;
@@ -36,6 +36,11 @@ class SimpleViewer : public Gtk::DrawingArea {
 
     GObj * obj;
     iPoint origin;
+
+    bool on_drag;
+    iPoint drag_pos;
+
+    int epoch;
 };
 
 #endif
