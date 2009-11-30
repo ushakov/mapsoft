@@ -1,5 +1,20 @@
+noinst_LIBRARIES = libgred.a
+
+libgred_a_SOURCES =\
+  actions.cpp\
+  rubber.cpp\
+  gobj.cpp\
+  simple_viewer.cpp\
+  mthread_viewer.cpp\
+  dthread_viewer.cpp
+
+
 LDADD =\
- ../../core/lib2d/lib2d.a
+ libgred.a\
+ ../../core/lib2d/lib2d.a\
+ $(GTKMM_LIBS)
+
+INCLUDES = $(GTKMM_CFLAGS)
 
 bin_PROGRAMS =\
   simple_viewer_test1\
