@@ -35,7 +35,7 @@ void clear_data(Viewer * v) {
    v->refresh();
 }
 
-void toggle_downloading (Gtk::CheckMenuItem * menu_item, LayerKS * g, Viewer * v) {
+void toggle_downloading (Gtk::CheckMenuItem * menu_item, LayerKS * g, Viewer1 * v) {
     std::cerr << "toggle_downloading" << std::endl;
     if (menu_item->get_active()) {
 	std::cerr << "downloading set to on" << std::endl;
@@ -49,7 +49,7 @@ void toggle_downloading (Gtk::CheckMenuItem * menu_item, LayerKS * g, Viewer * v
     }
 }
 
-void load_file(Gtk::FileSelection * file_selector, Viewer * v) {
+void load_file(Gtk::FileSelection * file_selector, Viewer1 * v) {
    std::string selected_filename;
    selected_filename = file_selector->get_filename();
    g_print ("Loading: %s\n", selected_filename.c_str());
@@ -73,7 +73,7 @@ gboolean on_delete (GdkEventAny * e, Gtk::Window * win){
   return true;
 }
 
-gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer * v ) {
+gboolean on_keypress ( GdkEventKey * event, Workplane * w, Viewer1 * v ) {
 
     switch (event->keyval) {
     case 105:
@@ -148,7 +148,7 @@ main(int argc, char **argv)
     w->add_layer(&gl,300);
     w->add_layer(&tl,200);
     w->add_layer(&wl,100);
-    Viewer viewer(w);
+    Viewer1 viewer(w);
 
     //load file selector
     Gtk::FileSelection file_sel_load ("Load file:");

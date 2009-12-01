@@ -5,13 +5,13 @@
 #include <map>
 #include <string>
 #include "iface/action.h"
-#include "simple_viewer.h"
+#include "iface/viewer.h"
 #include "../../core/lib2d/point.h"
 
 class Actions : public std::map<std::string, Action *> {
 public:
 
-  Actions(SimpleViewer * v);
+  Actions(Viewer * v);
 
   /// add action;/ if name=="" try to get it from action->get_name()
   void add(Action * a, std::string name="");
@@ -29,7 +29,7 @@ private:
   struct timeval click_started;
   Gdk::ModifierType state;
   iPoint p;
-  SimpleViewer * viewer;
+  Viewer * viewer;
 };
 
 #endif

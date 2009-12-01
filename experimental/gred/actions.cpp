@@ -1,6 +1,7 @@
 #include "actions.h"
+#include <cassert>
 
-Actions::Actions(SimpleViewer * v):
+Actions::Actions(Viewer * v):
     viewer(v),
     current(NULL){
 

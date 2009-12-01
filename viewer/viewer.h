@@ -10,16 +10,15 @@
 #include "../core/utils/cache.h"
 
 #include "../experimental/gred/rubber.h"
-#include "../experimental/gred/simple_viewer.h"
 #include "workplane.h"
 
 //
-class Viewer : public SimpleViewer {
+class Viewer1 : public Viewer {
 
 public:
 
-    Viewer (int tile_size=256);
-    virtual ~Viewer ();
+    Viewer1 (int tile_size=256);
+    virtual ~Viewer1 ();
 
     void set_origin (iPoint new_origin);
     void set_origin(int x, int y);
@@ -98,10 +97,15 @@ private:
     virtual bool on_button_release_event (GdkEventButton * event);
     virtual bool on_motion_notify_event (GdkEventMotion * event);
 
-    virtual bool is_on_drag();
+    virtual bool is_on_drag(){ return on_drag;}
+    sigc::signal<void> & signal_before_draw(){ return signal_before_draw_;}
+    sigc::signal<void> & signal_after_draw(){ return signal_after_draw_;}
+
+  private:
+
+    sigc::signal<void> signal_before_draw_;
+    sigc::signal<void> signal_after_draw_;
     bool on_drag;
-    sigc::signal<void> signal_before_draw;
-    sigc::signal<void> signal_after_draw;
 
 /**************************************/
 };

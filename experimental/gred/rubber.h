@@ -2,7 +2,7 @@
 #define RUBBER_VIEWER_H
 
 #include <list>
-#include "simple_viewer.h"
+#include "iface/viewer.h"
 
 typedef unsigned int rubbfl_t;
 #define RUBBFL_PLANE     0
@@ -51,11 +51,11 @@ private:
   std::list<RubberSegment> rubber, drawn;
   iPoint mouse_pos;
   Glib::RefPtr<Gdk::GC> gc;
-  SimpleViewer * viewer;
+  Viewer * viewer;
 
 public:
 
-  Rubber(SimpleViewer * v);
+  Rubber(Viewer * v);
 
 private:
 

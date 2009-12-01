@@ -18,7 +18,7 @@ RubberSegment::absolute(Point<int> mouse, Point<int> origin) const{
     flags);
 }
 
-Rubber::Rubber(SimpleViewer * v): viewer(v){
+Rubber::Rubber(Viewer * v): viewer(v){
   assert(viewer != NULL);
 
   /// We need to initialize our GC after viewer window will be set up.
@@ -27,9 +27,9 @@ Rubber::Rubber(SimpleViewer * v): viewer(v){
     sigc::mem_fun (*this, &Rubber::init_gc));
 
   /// Remove rubber before redraw, put it back after.
-  viewer->signal_before_draw.connect(
+  viewer->signal_before_draw().connect(
     sigc::bind( sigc::mem_fun (*this, &Rubber::erase), true));
-  viewer->signal_after_draw.connect(
+  viewer->signal_after_draw().connect(
     sigc::bind( sigc::mem_fun (*this, &Rubber::draw), true));
 
   /// Remove rubber before mouse motion, put it back after.

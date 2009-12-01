@@ -3,8 +3,9 @@
 
 #include <gtkmm.h>
 #include "iface/gobj.h"
+#include "iface/viewer.h"
 
-class SimpleViewer : public Gtk::DrawingArea {
+class SimpleViewer : public Viewer {
   public:
 
     SimpleViewer(GObj * pl);
@@ -29,10 +30,13 @@ class SimpleViewer : public Gtk::DrawingArea {
     virtual int  get_epoch();
     virtual void inc_epoch();
 
-    sigc::signal<void> signal_before_draw;
-    sigc::signal<void> signal_after_draw;
+    sigc::signal<void> & signal_before_draw(){ return signal_before_draw_;}
+    sigc::signal<void> & signal_after_draw(){ return signal_after_draw_;}
 
   private:
+
+    sigc::signal<void> signal_before_draw_;
+    sigc::signal<void> signal_after_draw_;
 
     GObj * obj;
     iPoint origin;

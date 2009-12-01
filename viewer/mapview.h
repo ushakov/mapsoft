@@ -19,7 +19,7 @@
 class Mapview : public Gtk::Window {
 public:
 
-    Viewer    * viewer;
+    Viewer1   * viewer;
     LayerList * layer_list; /// Gtk::TreeView for layers
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
@@ -56,7 +56,7 @@ public:
 	have_reference(false)
     {
 
-	viewer     = new Viewer();
+	viewer     = new Viewer1();
 	layer_list = new LayerList();
 	statusbar  = new Gtk::Statusbar;
 

@@ -8,9 +8,8 @@
 
 
 
-Viewer::Viewer (int tile_size):
-    SimpleViewer((GObj *)NULL),
-       workplane (tile_size), rubber(this){
+Viewer1::Viewer1 (int tile_size):
+    workplane (tile_size), rubber(this){
 
     we_need_cache_updater=true;
 
@@ -18,13 +17,13 @@ Viewer::Viewer (int tile_size):
     mutex = new(Glib::Mutex);
     cache_updater_cond = new(Glib::Cond);
 
-    update_tile_signal.connect(sigc::mem_fun(*this, &Viewer::update_tile));
+    update_tile_signal.connect(sigc::mem_fun(*this, &Viewer1::update_tile));
 
-    workplane.signal_refresh.connect(sigc::mem_fun(*this, &Viewer::refresh));
+    workplane.signal_refresh.connect(sigc::mem_fun(*this, &Viewer1::refresh));
 
     // сделаем отдельный thread из функции cache_updater
     // joinable = true, чтобы подождать его завершения в деструкторе...
-    cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer::cache_updater), true);
+    cache_updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &Viewer1::cache_updater), true);
 
     add_events (
 	    Gdk::BUTTON_PRESS_MASK |
@@ -34,7 +33,7 @@ Viewer::Viewer (int tile_size):
 	    Gdk::POINTER_MOTION_HINT_MASK );
 }
 
-Viewer::~Viewer (){
+Viewer1::~Viewer1 (){
 
     delete(mutex);
     delete(cache_updater_cond);
@@ -42,26 +41,26 @@ Viewer::~Viewer (){
 
 /**************************************/
 
-void Viewer::set_origin (iPoint new_origin) {
+void Viewer1::set_origin (iPoint new_origin) {
     iPoint shift = window_origin - new_origin;
     window_origin -= shift;
     change_viewport();
     get_window()->scroll(shift.x, shift.y);
 }
-void Viewer::set_origin(int x, int y){
+void Viewer1::set_origin(int x, int y){
     set_origin(iPoint(x,y));
 }
-iPoint Viewer::get_origin (void) const{
+iPoint Viewer1::get_origin (void) const{
     return window_origin;
 }
-iPoint Viewer::get_window_size() const{
+iPoint Viewer1::get_window_size() const{
     return iPoint(get_width(), get_height());
 }
 
 /**************************************/
 
-void Viewer::refresh(){
-  std::cerr << "Viewer::refresh()\n";
+void Viewer1::refresh(){
+  std::cerr << "Viewer1::refresh()\n";
 
   // extra и т.п. должно быть таким же, как в change_viewport
   iRect tiles = tiles_on_rect(
@@ -89,7 +88,7 @@ void Viewer::refresh(){
 
 /**************************************/
 
-void Viewer::cache_updater(){
+void Viewer1::cache_updater(){
 
    while (1) {
 
@@ -152,7 +151,7 @@ void Viewer::cache_updater(){
 
 /**************************************/
 
-void Viewer::update_tile(){
+void Viewer1::update_tile(){
     if (!we_need_cache_updater) return;
 
     iPoint p = tile_done_queue.front();
@@ -166,7 +165,7 @@ void Viewer::update_tile(){
 
 /**************************************/
 
-void Viewer::draw_tile(const iPoint & tile_key){
+void Viewer1::draw_tile(const iPoint & tile_key){
 
   int tile_size = workplane.get_tile_size();
   iRect screen(window_origin.x,
@@ -206,7 +205,7 @@ void Viewer::draw_tile(const iPoint & tile_key){
 /**************************************/
 
 // перерисовка области экрана, очистка кэша и заданий
-void Viewer::fill (int sx, int sy, int w, int h){ // in window coordinates, should be inside the window
+void Viewer1::fill (int sx, int sy, int w, int h){ // in window coordinates, should be inside the window
 
     // какие плитки видны на экране:
     iRect tiles = tiles_on_rect(
@@ -218,17 +217,17 @@ void Viewer::fill (int sx, int sy, int w, int h){ // in window coordinates, shou
     std::cerr << "window_origin: " << window_origin << std::endl;
     std::cerr << "tiles: " << tiles << std::endl;
 #endif
-    signal_before_draw.emit();
+    signal_before_draw_.emit();
     // Нарисуем плитки, поместим запросы первой очереди.
     for (int tj = tiles.y; tj<tiles.y+tiles.h; tj++){
       for (int ti = tiles.x; ti<tiles.x+tiles.w; ti++){
         draw_tile(iPoint(ti,tj));
       }
     }
-    signal_after_draw.emit();
+    signal_after_draw_.emit();
   }
 
-void Viewer::change_viewport () {
+void Viewer1::change_viewport () {
   // tiles -- прямоугольник плиток, необходимый для отрисовки экрана
   iRect tiles = tiles_on_rect(
     iRect(window_origin.x, window_origin.y,
@@ -290,7 +289,7 @@ void Viewer::change_viewport () {
 }
 
 
-void Viewer::on_hide() {
+void Viewer1::on_hide() {
     mutex->lock();
     we_need_cache_updater = false;
     cache_updater_cond->signal();
@@ -301,19 +300,19 @@ void Viewer::on_hide() {
     std::cerr << "OK\n";
 }
 
-void Viewer::zoom_out(int i){
+void Viewer1::zoom_out(int i){
    iPoint wcenter = get_origin() + get_window_size()/2;
    set_origin(wcenter/i - get_window_size()/2);
    workplane/=i;
 }
 
-void Viewer::zoom_in(int i){
+void Viewer1::zoom_in(int i){
    iPoint wcenter = get_origin() + get_window_size()/2;
    set_origin(wcenter*i - get_window_size()/2);
    workplane*=i;
 }
 
-bool Viewer::on_expose_event (GdkEventExpose * event){
+bool Viewer1::on_expose_event (GdkEventExpose * event){
     VLOG(2) << "expose: " << event->area.x << "," << event->area.y << " "
             << event->area.width << "x" << event->area.height;
 
@@ -329,7 +328,7 @@ bool Viewer::on_expose_event (GdkEventExpose * event){
     return true;
 }
 
-bool Viewer::on_button_press_event (GdkEventButton * event) {
+bool Viewer1::on_button_press_event (GdkEventButton * event) {
     if (event->button == 2) {
         drag_pos = iPoint ((int)event->x, (int)event->y);
         on_drag=true;
@@ -337,12 +336,12 @@ bool Viewer::on_button_press_event (GdkEventButton * event) {
     return false;
 }
 
-bool Viewer::on_button_release_event (GdkEventButton * event) {
+bool Viewer1::on_button_release_event (GdkEventButton * event) {
   if (event->button == 2) on_drag=false;
   return false;
 }
 
-bool Viewer::on_motion_notify_event (GdkEventMotion * event) {
+bool Viewer1::on_motion_notify_event (GdkEventMotion * event) {
     if (!event->is_hint) return false;
     if (on_drag){
       iPoint pos ((int) event->x, (int) event->y);
@@ -354,8 +353,4 @@ bool Viewer::on_motion_notify_event (GdkEventMotion * event) {
     return false;
 }
 
-bool
-Viewer::is_on_drag(){
-  return on_drag;
-}
 
