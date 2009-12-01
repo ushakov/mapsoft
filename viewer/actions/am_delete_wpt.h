@@ -2,9 +2,8 @@
 #define AM_DELETE_WPT_H
 
 #include "action_mode.h"
-#include "action_manager.h"
-#include "generic_dialog.h"
-#include "mapview.h"
+#include "../generic_dialog.h"
+#include "../mapview.h"
 
 class DeleteWaypoint : public ActionMode {
 public:

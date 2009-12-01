@@ -5,7 +5,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-#include "action_mode.h"
+#include "actions/action_mode.h"
 
 class Mapview;
 

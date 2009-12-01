@@ -2,8 +2,7 @@
 #define AM_MOVE_TPT_H
 
 #include "action_mode.h"
-#include "action_manager.h"
-#include "mapview.h"
+#include "../mapview.h"
 
 class MoveTrackpoint : public ActionMode {
 public:

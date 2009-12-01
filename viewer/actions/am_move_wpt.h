@@ -2,8 +2,7 @@
 #define AM_MOVE_WPT_H
 
 #include "action_mode.h"
-#include "action_manager.h"
-#include "mapview.h"
+#include "../mapview.h"
 
 class MoveWaypoint : public ActionMode {
 public:

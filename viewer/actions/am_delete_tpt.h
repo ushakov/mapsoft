@@ -2,8 +2,7 @@
 #define AM_DELETE_TPT_H
 
 #include "action_mode.h"
-#include "action_manager.h"
-#include "mapview.h"
+#include "../mapview.h"
 
 class DeleteTrackpoint : public ActionMode {
 public:

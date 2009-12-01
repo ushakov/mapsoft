@@ -1,7 +1,7 @@
 #ifndef ACTION_MODE_H
 #define ACTION_MODE_H
 
-#include "../core/lib2d/point.h"
+#include "../../core/lib2d/point.h"
 
 // Interface.
 class ActionMode {

@@ -6,8 +6,7 @@
 #include <iomanip>
 
 #include "action_mode.h"
-#include "action_manager.h"
-#include "mapview.h"
+#include "../mapview.h"
 
 class MarkTrack : public ActionMode {
 public:

@@ -2,9 +2,8 @@
 #define AM_ADD_WPT_H
 
 #include "action_mode.h"
-#include "action_manager.h"
-#include "generic_dialog.h"
-#include "mapview.h"
+#include "../generic_dialog.h"
+#include "../mapview.h"
 
 class AddWaypoint : public ActionMode {
 public:
