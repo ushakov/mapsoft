@@ -3,6 +3,7 @@
 
 #include "iface/action.h"
 #include "iface/gobj.h"
+#include "iface/viewer.h"
 
 #include "rubber.h"
 #include "actions.h"
