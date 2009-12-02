@@ -1,18 +1,20 @@
 #include "gred.h"
 #include "gobj_test_tile.h"
+#include "gobj_test_grid.h"
 
 class TestWin : public Gtk::Window{
   public:
 
   GObjTestTile      o1;
   GObjTestTileSlow  o2;
+  GObjTestGrid      o3;
 
   SimpleViewer *v;
   SimpleViewer *v1;
   MThreadViewer *v2;
   DThreadViewer *v3;
 
-  TestWin(){
+  TestWin(): o3(150000){
     v1 = new SimpleViewer(&o1);
     v2 = new MThreadViewer(&o2);
     v3 = new DThreadViewer(&o2);
@@ -28,6 +30,8 @@ class TestWin : public Gtk::Window{
               << " '1' - SimpleViewer\n"
               << " '2' - MThreadViewer\n"
               << " '3' - DThreadViewer\n"
+              << " '9' - Gradient object\n"
+              << " '0' - Grid object\n"
               << " 'R' - Refresh\n"
               << " 'Q' - Quit\n";
  }
@@ -50,6 +54,12 @@ class TestWin : public Gtk::Window{
          return true;
        case '3':
          change_viewer(v3);
+         return true;
+       case '9':
+         v->set_obj(&o2);
+         return true;
+       case '0':
+         v->set_obj(&o3);
          return true;
      }
      return false;
