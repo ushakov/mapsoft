@@ -40,6 +40,7 @@ iPoint SimpleViewer::get_origin (void) const {
 
 void SimpleViewer::set_obj (GObj * o){
   obj=o;
+  redraw();
 }
 
 GObj * SimpleViewer::get_obj (void) const{
