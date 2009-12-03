@@ -6,6 +6,7 @@
 
 #include <iomanip>
 #include <fstream>
+#include <cstring>
 
 #include "mp_io.h"
 #include "../utils/spirit_utils.h"
@@ -160,9 +161,26 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
       << "\r\nID="              << world.ID
       << "\r\nName="            << cnv.from_utf(world.Name);
 
-  for (Options::const_iterator o=world.Opts.begin(); o!=world.Opts.end(); o++){
-    if (o->first == "CodePage") out << "\r\nCodePage=" << codepage; // use our new codepage
-    else out << "\r\n" << o->first << "=" << cnv.from_utf(o->second);
+  // we need options to be printed in right order (Levels before Level0...)
+  Options lopts=world.Opts; //copy options
+
+  const char* names[] = {"ID","Name","Elevation","Preprocess","CodePage",
+    "LblCoding","TreSize","TreMargin","RgnLimit","POIIndex","Levels",
+    "Level0","Level1","Level2","Level3","Level4","Level5","Level6",
+    "Zoom0","Zoom1","Zoom2","Zoom3","Zoom4","Zoom5","Zoom6"};
+
+  for (int i=0; i<sizeof(names)/sizeof(char*); i++){
+    if (lopts.count(names[i])>0){
+      if (strcmp(names[i],"CodePage")==0)
+        out << "\r\nCodePage=" << codepage; // use our new codepage
+      else
+        out << "\r\n" << names[i] << "=" << cnv.from_utf(lopts[names[i]]);
+      lopts.erase(names[i]);
+    }
+  }
+  // other options
+  for (Options::const_iterator o=lopts.begin(); o!=lopts.end(); o++){
+    out << "\r\n" << o->first << "=" << cnv.from_utf(o->second);
   }
 
   out << "\r\n[END-IMG ID]\r\n";
