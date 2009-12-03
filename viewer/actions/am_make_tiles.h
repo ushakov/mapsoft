@@ -80,10 +80,12 @@ private:
     g_point one, two;
 
     void on_result(int r) {
-	Options opt = gend->get_options();
-	std::string filename = opt.get("dirname", std::string("tiles"));
-	filename += ".tiles";
-	tiles::write_file(filename.c_str(), *current_layer->get_world(), opt);
+        if (r == 0) { // OK
+	  Options opt = gend->get_options();
+	  std::string filename = opt.get("dirname", std::string("tiles"));
+	  filename += ".tiles";
+	  tiles::write_file(filename.c_str(), *current_layer->get_world(), opt);
+	}
     }
 };
 
