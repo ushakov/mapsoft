@@ -9,7 +9,7 @@ GenericDialog::GenericDialog (){
       sigc::mem_fun (this, &GenericDialog::on_response));
     signal_delete_event().connect(
       sigc::mem_fun (this, &GenericDialog::on_delete));
-    get_vbox()->pack_start(table);
+    table=NULL;
 }
 
 
@@ -18,22 +18,25 @@ void GenericDialog::activate (
       const Options & options,
       const sigc::slot2<void,int,Options> & _on_res){
 
+  deactivate();
   on_res = _on_res;
   set_title(title);
 
-  table.resize(options.size(), 2);
-  entries.clear();
+  table = new Gtk::Table;
+  table->resize(options.size(), 2);
+
   int k = 0;
   for (Options::const_iterator i = options.begin(); i != options.end(); ++i, ++k) {
     Gtk::Label * label = Gtk::manage(new Gtk::Label (i->first, 1.0, 0.5));
-    table.attach(*label, 0,1, k,k+1);
+    table->attach(*label, 0,1, k,k+1);
 
     Gtk::Entry * entry = Gtk::manage (new Gtk::Entry);
-    table.attach(*entry, 1,2, k,k+1);
+    table->attach(*entry, 1,2, k,k+1);
     entry->set_editable(true);
     entry->set_text(i->second);
     entries[i->first]=entry;
   }
+  get_vbox()->add(*table);
   show_all();
 }
 
@@ -45,16 +48,24 @@ void GenericDialog::on_response (int response) {
     }
   }
   on_res(response, options);
-  entries.clear();
-  hide_all();
+  clear();
 }
 
 bool GenericDialog::on_delete (GdkEventAny * e) {
-  deactivate();
+  on_res(0, Options());
+  clear();
 }
 
 void GenericDialog::deactivate () {
   on_res(0, Options());
+  clear();
+}
+
+void GenericDialog::clear () {
   entries.clear();
   hide_all();
+  if (table!=NULL) {
+    get_vbox()->remove(*table);
+//    delete table;
+  }
 }

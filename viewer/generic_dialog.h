@@ -22,16 +22,17 @@ public:
       const sigc::slot2<void, int, Options> & _on_res);
 
     void deactivate ();
-
 private:
 //    void cell_changed (std::string name, Gtk::Entry * entry);
+    void clear ();
+
     void on_response (int response);
     bool on_delete (GdkEventAny * e);
 
     std::map<std::string, Gtk::Entry *> entries;
-    Gtk::Table table;
 
     sigc::slot2<void, int, Options> on_res;
+    Gtk::Table * table;
 };
 
 #endif /* GENERIC_DIALOG_H */
