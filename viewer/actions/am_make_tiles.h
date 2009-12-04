@@ -84,6 +84,7 @@ private:
 	  filename += ".tiles";
 	  tiles::write_file(filename.c_str(), *current_layer->get_world(), opt);
 	}
+        state->viewer->rubber.clear();
     }
 };
 
