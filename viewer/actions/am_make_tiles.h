@@ -10,7 +10,6 @@
 class MakeTiles : public ActionMode {
 public:
     MakeTiles (Mapview * state_) : state(state_) {
-      	gend = GenericDialog::get_instance();
 	have_points = 0;
     }
 
@@ -24,7 +23,7 @@ public:
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() {
-	gend->deactivate();
+	state->gend.deactivate();
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
@@ -48,8 +47,8 @@ public:
 	    opt.put("geom", bb);
 	    opt.put("google", 17);
 	    opt.put("dirname", "tiles");
-	    current_connection = gend->signal_result().connect(sigc::mem_fun(this, &MakeTiles::on_result));
-	    gend->activate(get_name(), opt);
+	    current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &MakeTiles::on_result));
+	    state->gend.activate(get_name(), opt);
 	}
     }
 
@@ -72,7 +71,6 @@ public:
 
 private:
     Mapview       * state;
-    GenericDialog * gend;
     LayerGeoMap   * current_layer;
     sigc::connection current_connection;
     int have_points;
@@ -81,11 +79,12 @@ private:
 
     void on_result(int r) {
         if (r == 0) { // OK
-	  Options opt = gend->get_options();
+	  Options opt = state->gend.get_options();
 	  std::string filename = opt.get("dirname", std::string("tiles"));
 	  filename += ".tiles";
 	  tiles::write_file(filename.c_str(), *current_layer->get_world(), opt);
 	}
+        state->viewer->rubber.clear();
     }
 };
 

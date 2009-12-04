@@ -11,7 +11,7 @@
 // Manager of a Gtk::Dialog showing and allowing to edit the supplied Options' content
 // Can register callbacks on ok/cancel events. Only one dialog can be active at a time.
 
-class GenericDialog {
+class GenericDialog : public Gtk::Dialog{
 public:
     // Activates the dialog using the options supplied.
     void activate (std::string title, Options const & _options);
@@ -26,33 +26,22 @@ public:
 	return m_signal_result;
     }
 
-    static GenericDialog * get_instance() {
-	if (!instance) {
-	    instance = new GenericDialog;
-	}
-	return instance;
-    }
-
     void deactivate ();
-    
-protected:
-    // This should actually be a singleton, so the constructor is protected
-    GenericDialog()
-    { }
+
+    GenericDialog();
 
 private:
 //    void cell_changed (std::string name, Gtk::Entry * entry);
     void on_response (int response);
     bool on_delete (GdkEventAny * e);
 
-    static GenericDialog * instance;
-
-    boost::shared_ptr<Gtk::Dialog> dialog;
     Options options;
 
     std::map<std::string, Gtk::Entry *> entries;
 
     sigc::signal<void, int> m_signal_result;
+
+    Gtk::Table table;
 };
 
 #endif /* GENERIC_DIALOG_H */

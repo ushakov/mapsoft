@@ -9,9 +9,7 @@
 
 class AddTrack : public ActionMode {
 public:
-    AddTrack (Mapview * state_) : state(state_) {
-	gend = GenericDialog::get_instance();
-    }
+    AddTrack (Mapview * state_) : state(state_) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -25,7 +23,7 @@ public:
     virtual void abort() {
 	state->viewer->rubber.clear();
 	new_track = g_track();
-	gend->deactivate();
+	state->gend.deactivate();
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
@@ -43,8 +41,8 @@ public:
                                         // к layer_list и т.п.
 
  	  Options opt = new_track.to_options();
-  	  current_connection = gend->signal_result().connect(sigc::mem_fun(this, &AddTrack::on_result));
-	  gend->activate(get_name(), opt);
+  	  current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &AddTrack::on_result));
+	  state->gend.activate(get_name(), opt);
         }
 
         g_map map = current_layer->get_ref();
@@ -73,7 +71,6 @@ public:
 
 private:
     Mapview       * state;
-    GenericDialog * gend;
     LayerTRK      * current_layer;
 
     g_track  new_track;
@@ -83,7 +80,7 @@ private:
     void on_result(int r) {
 	if (r == 0) { // OK
           assert (current_layer);
-          new_track.parse_from_options(gend->get_options());
+          new_track.parse_from_options(state->gend.get_options());
 	  current_layer->get_world()->trks.push_back(new_track);
           state->viewer->workplane.refresh_layer(current_layer);
 	}

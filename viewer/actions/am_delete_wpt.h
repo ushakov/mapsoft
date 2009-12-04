@@ -7,9 +7,7 @@
 
 class DeleteWaypoint : public ActionMode {
 public:
-    DeleteWaypoint (Mapview * state_) : state(state_) {
-	gend = GenericDialog::get_instance();
-    }
+    DeleteWaypoint (Mapview * state_) : state(state_) {}
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -21,7 +19,7 @@ public:
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() {
-	gend->deactivate();
+	state->gend.deactivate();
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
@@ -36,8 +34,8 @@ public:
             if (point_addr.first >= 0) {
                 std::cout << "DELETEWPT: found at " << current_layer << std::endl;
 
-                current_connection = gend->signal_result().connect(sigc::mem_fun(this, &DeleteWaypoint::on_result));
-                gend->activate("Delete Waypoint?", Options());
+                current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &DeleteWaypoint::on_result));
+                state->gend.activate("Delete Waypoint?", Options());
                 break;
             }
         }
@@ -46,7 +44,6 @@ public:
 private:
     std::pair<int, int> point_addr;
     Mapview       * state;
-    GenericDialog * gend;
     LayerWPT      * current_layer;
     sigc::connection current_connection;
 

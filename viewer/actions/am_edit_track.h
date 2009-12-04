@@ -10,7 +10,6 @@
 class EditTrack : public ActionMode {
 public:
     EditTrack (Mapview * state_) : state(state_) {
-      	gend = GenericDialog::get_instance();
 	current_track = 0;
     }
 
@@ -24,7 +23,7 @@ public:
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() {
-	gend->deactivate();
+	state->gend.deactivate();
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
@@ -46,8 +45,8 @@ public:
                    << current_track->length()/1000 << " km";
 		state->statusbar->push(st.str(),0);
 
-	        current_connection = gend->signal_result().connect(sigc::mem_fun(this, &EditTrack::on_result));
-		gend->activate(get_name(), opt);
+	        current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &EditTrack::on_result));
+		state->gend.activate(get_name(), opt);
 		break;
 	    }
 	}
@@ -55,7 +54,6 @@ public:
 
 private:
     Mapview       * state;
-    GenericDialog * gend;
     g_track       * current_track;
     LayerTRK      * current_layer;
     sigc::connection current_connection;
@@ -63,7 +61,7 @@ private:
     void on_result(int r) {
 	if (current_track) {
 	    if (r == 0) { // OK
-		current_track->parse_from_options(gend->get_options());
+		current_track->parse_from_options(state->gend.get_options());
                 state->viewer->workplane.refresh_layer(current_layer);
  		std::cout << "EDITTRACK: " << current_track->comm << std::endl;
 	    } else {
