@@ -5,8 +5,8 @@
 
 GenericDialog::GenericDialog (){
 
-    add_button ("Ok", 0);
-    add_button ("Cancel", 1);
+    add_button (Gtk::Stock::OK, 0);
+    add_button (Gtk::Stock::CANCEL, 1);
 
     signal_response().connect(
       sigc::mem_fun (this, &GenericDialog::on_response));
