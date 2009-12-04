@@ -23,11 +23,11 @@ public:
 
     Viewer1     viewer;
     Rubber      rubber;
-    LayerList * layer_list; /// Gtk::TreeView for layers
+    LayerList   layer_list; /// Gtk::TreeView for layers
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
-    Gtk::Statusbar * statusbar;
-    GenericDialog gend;
+    Gtk::Statusbar  statusbar;
+    GenericDialog   gend;
 
     std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
     std::vector<boost::shared_ptr<LayerTRK> > trk_layers;
@@ -58,10 +58,6 @@ public:
 	have_reference(false),
 	rubber(&viewer)
     {
-
-	layer_list = new LayerList();
-	statusbar  = new Gtk::Statusbar;
-
 	action_manager.reset (new ActionManager(this));
 
 	/// window initialization
@@ -92,9 +88,9 @@ public:
           sigc::mem_fun (this, &Mapview::on_key_press));
 
 	/// events from layer list
-	layer_list->store->signal_row_changed().connect (
+	layer_list.store->signal_row_changed().connect (
 	  sigc::mem_fun (this, &Mapview::layer_edited));
-	layer_list->signal_button_press_event().connect_notify (
+	layer_list.signal_button_press_event().connect_notify (
 	  sigc::mem_fun (this, &Mapview::configure_layer));
 	
 	/***************************************/
@@ -160,39 +156,36 @@ public:
 	paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
 	
 	Gtk::ScrolledWindow * scrw = manage(new Gtk::ScrolledWindow);
-	scrw->add(*layer_list);
+	scrw->add(layer_list);
 	scrw->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 	scrw->set_size_request(128,-1);
 	paned->pack2(*scrw, Gtk::FILL);
 
 	vbox->pack_start(*paned, true, true, drawing_padding);
-	vbox->pack_start(*statusbar, false, true, 0);
+	vbox->pack_start(statusbar, false, true, 0);
 	add (*vbox);
 
 
-	statusbar->push("Welcome to mapsoft viewer!",0);
+	statusbar.push("Welcome to mapsoft viewer!",0);
 	show_all();
     }
 
-    virtual ~Mapview() {
-      delete layer_list;
-      delete statusbar;
-    }
+    virtual ~Mapview() { }
 
     void layer_edited (const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter) {
 	VLOG(2) << "layer_edited at " << path.to_string();
 	Gtk::TreeModel::Row row = *iter;
 	bool need_refresh = false;
 	
-	Layer * layer = row[layer_list->columns.layer];
+	Layer * layer = row[layer_list.columns.layer];
 	if (!layer) return;
-	int new_depth = row[layer_list->columns.depth];
+	int new_depth = row[layer_list.columns.depth];
 	if (viewer.workplane.get_layer_depth (layer) != new_depth) {
 	    viewer.workplane.set_layer_depth (layer, new_depth);
 	    need_refresh = true;
 	}
 
-	int new_active = row[layer_list->columns.checked];
+	int new_active = row[layer_list.columns.checked];
 	if (new_active != viewer.workplane.get_layer_active (layer)) {
 	    viewer.workplane.set_layer_active (layer, new_active);
 	    need_refresh = true;
@@ -209,31 +202,31 @@ public:
 	    return;
 	}
 
-	if (event->window != layer_list->get_bin_window()->gobj()) {
+	if (event->window != layer_list.get_bin_window()->gobj()) {
 	    return;
 	}
 
 	Gtk::TreeModel::Path path;
 	Gtk::TreeViewColumn *col = NULL;
 	int cx, cy;
-	if (!layer_list->get_path_at_pos(event->x, event->y,
+	if (!layer_list.get_path_at_pos(event->x, event->y,
 				       path, col, cx, cy)) {
 	    return;
 	}
 	LOG() << "Path=" << path.to_string();
 
-	Gtk::TreeModel::iterator iter = layer_list->store->get_iter(path);
+	Gtk::TreeModel::iterator iter = layer_list.store->get_iter(path);
 	Gtk::TreeModel::Row row = *iter;
 	bool need_refresh = false;
 
-	Layer * layer = row[layer_list->columns.layer];
-	LOG() << "LAYER_CONFIG REQ: " << row[layer_list->columns.text] << " (" << layer << ")\n";
+	Layer * layer = row[layer_list.columns.layer];
+	LOG() << "LAYER_CONFIG REQ: " << row[layer_list.columns.text] << " (" << layer << ")\n";
 	if (!layer) return;
 	Options opt = layer->get_config();
 	if (opt.size() == 0) return;
 	layer_to_configure = layer;
 
-	Glib::ustring name = row[layer_list->columns.text];
+	Glib::ustring name = row[layer_list.columns.text];
 	gend.activate(name, opt,
 	  sigc::mem_fun(this, &Mapview::layer_config_result));
     }
@@ -263,7 +256,7 @@ public:
 
     void load_file(std::string selected_filename) {
 	g_print ("Loading: %s\n", selected_filename.c_str());
-	statusbar->push("Loading...", 0);
+	statusbar.push("Loading...", 0);
 	boost::shared_ptr<geo_data> world (new geo_data);
 
 	data.push_back(world);
@@ -298,14 +291,14 @@ public:
 	    viewer.set_origin(wpt_layer->range().TLC());
 	}
 	refresh();
-	statusbar->pop();
+	statusbar.pop();
     }
 
      void save_file_sel() {
  	std::string selected_filename;
  	selected_filename = file_sel_save.get_filename();
  	g_print ("Saving file: %s\n", selected_filename.c_str());
- 	statusbar->push("Saving...", 0);
+ 	statusbar.push("Saving...", 0);
 
         geo_data world;
 
@@ -327,7 +320,7 @@ public:
 
     void add_layer (Layer * layer, int depth, Glib::ustring name) {
        viewer.workplane.add_layer(layer, depth);
-       layer_list->add_layer(layer, depth, name);
+       layer_list.add_layer(layer, depth, name);
     }
 
     void refresh () {

@@ -43,7 +43,7 @@ public:
 		st << "Editing track... "
 		   << current_track->size() << " points, "
                    << current_track->length()/1000 << " km";
-		state->statusbar->push(st.str(),0);
+		state->statusbar.push(st.str(),0);
 
 		state->gend.activate(get_name(), opt,
 		  sigc::mem_fun(this, &EditTrack::on_result));
@@ -66,7 +66,7 @@ private:
 	    } else {
 		// do nothing
 	    }
-	    state->statusbar->push("",0);
+	    state->statusbar.push("",0);
 	    current_track = 0;
 	}
     }
