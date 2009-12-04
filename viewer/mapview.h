@@ -24,6 +24,7 @@ public:
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
     Gtk::Statusbar * statusbar;
+    GenericDialog gend;
 
     std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
     std::vector<boost::shared_ptr<LayerTRK> > trk_layers;
@@ -44,7 +45,6 @@ private:
 
     struct timeval click_started;
 
-    GenericDialog * gend;
     sigc::connection current_connection;
     Layer * layer_to_configure;
 
@@ -59,8 +59,6 @@ public:
 	viewer     = new Viewer1();
 	layer_list = new LayerList();
 	statusbar  = new Gtk::Statusbar;
-
-	gend = GenericDialog::get_instance();
 
 	action_manager.reset (new ActionManager(this));
 
@@ -234,15 +232,15 @@ public:
 	if (opt.size() == 0) return;
 	layer_to_configure = layer;
 
-	current_connection = gend->signal_result().connect(sigc::mem_fun(this, &Mapview::layer_config_result));
+	current_connection = gend.signal_result().connect(sigc::mem_fun(this, &Mapview::layer_config_result));
 	Glib::ustring name = row[layer_list->columns.text];
-	gend->activate(name, opt);
+	gend.activate(name, opt);
     }
 
     void layer_config_result (int r) {
 	if (r == 0) { // OK
 	    assert(layer_to_configure);
-	    layer_to_configure->set_config(gend->get_options());
+	    layer_to_configure->set_config(gend.get_options());
 	    std::cout << "LAYER_CONFIG: " << layer_to_configure << "\n";
 	    viewer->workplane.refresh_layer(layer_to_configure);
 	    refresh();

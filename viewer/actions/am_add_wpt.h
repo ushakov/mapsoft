@@ -7,9 +7,7 @@
 
 class AddWaypoint : public ActionMode {
 public:
-    AddWaypoint (Mapview * state_) : state(state_) {
-	gend = GenericDialog::get_instance();
-    }
+    AddWaypoint (Mapview * state_) : state(state_) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -21,7 +19,7 @@ public:
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() {
-	gend->deactivate();
+	state->gend.deactivate();
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
@@ -48,13 +46,12 @@ public:
 	cnv.frw(wpt);
 	Options opt = wpt.to_options();
 
-	current_connection = gend->signal_result().connect(sigc::mem_fun(this, &AddWaypoint::on_result));
-	gend->activate(get_name(), opt);
+	current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &AddWaypoint::on_result));
+	state->gend.activate(get_name(), opt);
     }
 
 private:
     Mapview       * state;
-    GenericDialog * gend;
     LayerWPT      * current_layer;
 
     sigc::connection current_connection;
@@ -63,7 +60,7 @@ private:
 	if (r == 0) { // OK
           assert (current_layer);
 	  g_waypoint wpt; 
-          wpt.parse_from_options(gend->get_options());
+          wpt.parse_from_options(state->gend.get_options());
           if (current_layer->get_world()->wpts.size()==0) 
 	    current_layer->get_world()->wpts.push_back(g_waypoint_list());
           current_layer->get_world()->wpts[0].push_back(wpt);
