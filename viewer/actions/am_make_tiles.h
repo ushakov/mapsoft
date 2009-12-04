@@ -47,8 +47,8 @@ public:
 	    opt.put("geom", bb);
 	    opt.put("google", 17);
 	    opt.put("dirname", "tiles");
-	    current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &MakeTiles::on_result));
-	    state->gend.activate(get_name(), opt);
+	    state->gend.activate(get_name(), opt,
+	      sigc::mem_fun(this, &MakeTiles::on_result));
 	}
     }
 
@@ -72,7 +72,6 @@ public:
 private:
     Mapview       * state;
     LayerGeoMap   * current_layer;
-    sigc::connection current_connection;
     int have_points;
 
     g_point one, two;

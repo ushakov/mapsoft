@@ -37,8 +37,8 @@ public:
 		current_tpt = &(current_layer->get_world()->trks[d.first][d.second]);
 		Options opt = current_tpt->to_options();
 
-	        current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &EditTrackpoint::on_result));
-		state->gend.activate(get_name(), opt);
+		state->gend.activate(get_name(), opt,
+		  sigc::mem_fun(this, &EditTrackpoint::on_result));
                 break;
 	    }
 	}
@@ -48,7 +48,6 @@ private:
     Mapview       * state;
     g_trackpoint  * current_tpt;
     LayerTRK      * current_layer;
-    sigc::connection current_connection;
 
     void on_result(int r) {
 	if (current_tpt) {
@@ -60,8 +59,6 @@ private:
 		// do nothing
 	    }
 	    current_tpt = 0;
-	    state->gend.deactivate();
-//            current_connection.disconnect();
 	}
     }
 };

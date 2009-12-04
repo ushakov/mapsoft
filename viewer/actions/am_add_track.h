@@ -41,8 +41,8 @@ public:
                                         // к layer_list и т.п.
 
  	  Options opt = new_track.to_options();
-  	  current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &AddTrack::on_result));
-	  state->gend.activate(get_name(), opt);
+	  state->gend.activate(get_name(), opt, 
+	    sigc::mem_fun(this, &AddTrack::on_result));
         }
 
         g_map map = current_layer->get_ref();
@@ -75,20 +75,18 @@ private:
 
     g_track  new_track;
 
-    sigc::connection current_connection;
-
     void on_result(int r) {
-	if (r == 0) { // OK
+       if (r == 0) { // OK
           assert (current_layer);
           new_track.parse_from_options(state->gend.get_options());
-	  current_layer->get_world()->trks.push_back(new_track);
+         current_layer->get_world()->trks.push_back(new_track);
           state->viewer->workplane.refresh_layer(current_layer);
-	}
-	state->statusbar->push("",0);
-	new_track.clear();
-	state->viewer->rubber.clear();
-        current_connection.disconnect();
+       }
+       state->statusbar->push("",0);
+       new_track.clear();
+       state->viewer->rubber.clear();
     }
+
 };
 
 #endif /* AM_ADD_TRACK_H */

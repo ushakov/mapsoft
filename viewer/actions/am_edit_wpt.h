@@ -37,8 +37,8 @@ public:
 		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
 		Options opt = current_wpt->to_options();
 
-	        current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &EditWaypoint::on_result));
-		state->gend.activate(get_name(), opt);
+		state->gend.activate(get_name(), opt,
+		   sigc::mem_fun(this, &EditWaypoint::on_result));
 		break;
 	    }
 	}
@@ -48,7 +48,6 @@ private:
     Mapview       * state;
     g_waypoint    * current_wpt;
     LayerWPT      * current_layer;
-    sigc::connection current_connection;
 
     void on_result(int r) {
 	if (current_wpt) {
@@ -60,7 +59,6 @@ private:
 		// do nothing
 	    }
 	    current_wpt = 0;
-            current_connection.disconnect();
 	}
     }
 };

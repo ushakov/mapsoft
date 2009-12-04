@@ -45,7 +45,6 @@ private:
 
     struct timeval click_started;
 
-    sigc::connection current_connection;
     Layer * layer_to_configure;
 
 public:
@@ -232,9 +231,9 @@ public:
 	if (opt.size() == 0) return;
 	layer_to_configure = layer;
 
-	current_connection = gend.signal_result().connect(sigc::mem_fun(this, &Mapview::layer_config_result));
 	Glib::ustring name = row[layer_list->columns.text];
-	gend.activate(name, opt);
+	gend.activate(name, opt,
+	  sigc::mem_fun(this, &Mapview::layer_config_result));
     }
 
     void layer_config_result (int r) {
@@ -248,7 +247,6 @@ public:
 	    // do nothing
 	}
 	layer_to_configure = NULL;
-        current_connection.disconnect();
     }
 
     void on_mode_change (int m) {

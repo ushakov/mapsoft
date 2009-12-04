@@ -46,15 +46,13 @@ public:
 	cnv.frw(wpt);
 	Options opt = wpt.to_options();
 
-	current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &AddWaypoint::on_result));
-	state->gend.activate(get_name(), opt);
+	state->gend.activate(get_name(), opt,
+	  sigc::mem_fun(this, &AddWaypoint::on_result));
     }
 
 private:
     Mapview       * state;
     LayerWPT      * current_layer;
-
-    sigc::connection current_connection;
 
     void on_result(int r) {
 	if (r == 0) { // OK
@@ -66,10 +64,7 @@ private:
           current_layer->get_world()->wpts[0].push_back(wpt);
           state->viewer->workplane.refresh_layer(current_layer);
    	  std::cout << "ADDWPT: " << wpt.name << "\n";
-	} else {
-	  // do nothing
 	}
-        current_connection.disconnect();
     }
 };
 

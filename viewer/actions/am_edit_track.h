@@ -45,8 +45,8 @@ public:
                    << current_track->length()/1000 << " km";
 		state->statusbar->push(st.str(),0);
 
-	        current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &EditTrack::on_result));
-		state->gend.activate(get_name(), opt);
+		state->gend.activate(get_name(), opt,
+		  sigc::mem_fun(this, &EditTrack::on_result));
 		break;
 	    }
 	}
@@ -56,7 +56,6 @@ private:
     Mapview       * state;
     g_track       * current_track;
     LayerTRK      * current_layer;
-    sigc::connection current_connection;
 
     void on_result(int r) {
 	if (current_track) {
@@ -69,7 +68,6 @@ private:
 	    }
 	    state->statusbar->push("",0);
 	    current_track = 0;
-            current_connection.disconnect();
 	}
     }
 };

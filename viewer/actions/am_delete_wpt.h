@@ -34,8 +34,8 @@ public:
             if (point_addr.first >= 0) {
                 std::cout << "DELETEWPT: found at " << current_layer << std::endl;
 
-                current_connection = state->gend.signal_result().connect(sigc::mem_fun(this, &DeleteWaypoint::on_result));
-                state->gend.activate("Delete Waypoint?", Options());
+                state->gend.activate("Delete Waypoint?", Options(),
+                  sigc::mem_fun(this, &DeleteWaypoint::on_result));
                 break;
             }
         }
@@ -45,17 +45,13 @@ private:
     std::pair<int, int> point_addr;
     Mapview       * state;
     LayerWPT      * current_layer;
-    sigc::connection current_connection;
 
     void on_result(int r) {
 	if (r == 0) { // OK
           current_layer->get_world()->wpts[point_addr.first].erase(
             current_layer->get_world()->wpts[point_addr.first].begin()+point_addr.second);
           state->viewer->workplane.refresh_layer(current_layer);
-	} else {
-	  // do nothing
 	}
-        current_connection.disconnect();
     }
 };
 

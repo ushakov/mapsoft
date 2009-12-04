@@ -13,22 +13,19 @@
 
 class GenericDialog : public Gtk::Dialog{
 public:
+    GenericDialog();
+
     // Activates the dialog using the options supplied.
-    void activate (std::string title, Options const & _options);
+    void activate (
+      const std::string & title,
+      const Options & _options,
+      const sigc::slot1<void,int> & _on_res);
 
     // Gets the (modified by user) options. Can be called at any time, but useful
     // only if signal_result already fired with result == 0.
     Options get_options() { return options; }
 
-    // A void f(int) callback that fires when the dialog's result is available.
-    // Result is: 0 -- ok, 1 -- cancel.
-    sigc::signal<void, int> & signal_result() {
-	return m_signal_result;
-    }
-
     void deactivate ();
-
-    GenericDialog();
 
 private:
 //    void cell_changed (std::string name, Gtk::Entry * entry);
@@ -38,10 +35,9 @@ private:
     Options options;
 
     std::map<std::string, Gtk::Entry *> entries;
-
-    sigc::signal<void, int> m_signal_result;
-
     Gtk::Table table;
+
+    sigc::slot1<void,int> on_res;
 };
 
 #endif /* GENERIC_DIALOG_H */
