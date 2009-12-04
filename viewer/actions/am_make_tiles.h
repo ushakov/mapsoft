@@ -35,8 +35,8 @@ public:
 	    one = geo;
 	    have_points = 1;
 	    // make rubber
-	    state->viewer->rubber.clear();
-	    state->viewer->rubber.add_rect(p);
+	    state->rubber.clear();
+	    state->rubber.add_rect(p);
 	} else if (have_points == 1) {
 	    g_point geo = p;
 	    if (!get_geo_point(geo)) return;
@@ -57,7 +57,7 @@ public:
 	current_layer = NULL;
 	for (int i = 0; i < state->map_layers.size(); i++){
 	    layer = state->map_layers[i].get();
-	    if (state->viewer->workplane.get_layer_active(layer)) {
+	    if (state->viewer.workplane.get_layer_active(layer)) {
 		current_layer = layer;
 		break;
 	    }
@@ -82,7 +82,7 @@ private:
 	  filename += ".tiles";
 	  tiles::write_file(filename.c_str(), *current_layer->get_world(), o);
 	}
-        state->viewer->rubber.clear();
+        state->rubber.clear();
     }
 };
 

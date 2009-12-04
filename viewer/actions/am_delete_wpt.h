@@ -28,7 +28,7 @@ public:
 
         for (int i = 0; i < state->wpt_layers.size(); ++i) {
             current_layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
-	    if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
+	    if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
             assert (current_layer);
             point_addr = current_layer->find_waypoint(p);
             if (point_addr.first >= 0) {
@@ -50,7 +50,7 @@ private:
 	if (r == 0) { // OK
           current_layer->get_world()->wpts[point_addr.first].erase(
             current_layer->get_world()->wpts[point_addr.first].begin()+point_addr.second);
-          state->viewer->workplane.refresh_layer(current_layer);
+          state->viewer.workplane.refresh_layer(current_layer);
 	}
     }
 };

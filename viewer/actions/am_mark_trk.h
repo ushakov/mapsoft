@@ -83,7 +83,7 @@ public:
 		    pp = tp;
 		}
 		add_wpt(wpt_list, (*track)[e-s], len);
-		state->viewer->workplane.refresh_layer(current_layer);
+		state->viewer.workplane.refresh_layer(current_layer);
 		return;
 	    }
 	}

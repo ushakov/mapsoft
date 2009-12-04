@@ -31,7 +31,7 @@ public:
 	std::cout << "EDITTRACK: " << p << std::endl;
 	for (int i = 0; i < state->trk_layers.size(); ++i) {
 	    current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-            if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
+            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_track(p);
 	    if (d.first >= 0) {
@@ -61,7 +61,7 @@ private:
 	if (current_track) {
 	    if (r == 0) { // OK
 		current_track->parse_from_options(o);
-                state->viewer->workplane.refresh_layer(current_layer);
+                state->viewer.workplane.refresh_layer(current_layer);
  		std::cout << "EDITTRACK: " << current_track->comm << std::endl;
 	    } else {
 		// do nothing

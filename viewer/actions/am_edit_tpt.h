@@ -29,7 +29,7 @@ public:
 	std::cout << "EDITTPT: " << p << std::endl;
 	for (int i = 0; i < state->trk_layers.size(); ++i) {
 	    current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-            if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
+            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_trackpoint(p);
 	    if (d.first >= 0) {
@@ -53,7 +53,7 @@ private:
 	if (current_tpt) {
 	    if (r == 0) { // OK
 		current_tpt->parse_from_options(o);
-                state->viewer->workplane.refresh_layer(current_layer);
+                state->viewer.workplane.refresh_layer(current_layer);
  		std::cout << "EDITWPT: OK\n";
 	    } else {
 		// do nothing

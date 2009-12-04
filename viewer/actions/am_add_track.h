@@ -21,7 +21,7 @@ public:
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() {
-	state->viewer->rubber.clear();
+	state->rubber.clear();
 	new_track = g_track();
 	state->gend.deactivate();
     }
@@ -34,7 +34,7 @@ public:
           // найдем layer, в который можно запихать трек
 	  for (int i=0; i<state->trk_layers.size(); i++){
             current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-            if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
+            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
 	    break;
           }
           if (current_layer==0) return; // надо бы добавлять новый, но для этого нужен доступ
@@ -58,14 +58,14 @@ public:
            << new_track.size() << " points, "
            << new_track.length()/1000 << " km";
 	state->statusbar->push(st.str(),0);
-        state->viewer->rubber.clear();
+        state->rubber.clear();
 	for (int i = 0; i<new_track.size()-1; i++){
 	  g_point p1 = new_track[i];
 	  g_point p2 = new_track[i+1];
           cnv.bck(p1); cnv.bck(p2);
-	  state->viewer->rubber.add(p1,p2, RUBBFL_PLANE);
+	  state->rubber.add(p1,p2, RUBBFL_PLANE);
         }
-	state->viewer->rubber.add_diag(p);
+	state->rubber.add_diag(p);
 
     }
 
@@ -80,11 +80,11 @@ private:
           assert (current_layer);
           new_track.parse_from_options(o);
          current_layer->get_world()->trks.push_back(new_track);
-          state->viewer->workplane.refresh_layer(current_layer);
+          state->viewer.workplane.refresh_layer(current_layer);
        }
        state->statusbar->push("",0);
        new_track.clear();
-       state->viewer->rubber.clear();
+       state->rubber.clear();
     }
 
 };

@@ -9,8 +9,8 @@
 #include "../core/lib2d/image.h"
 #include "../core/utils/cache.h"
 
-#include "../experimental/gred/rubber.h"
 #include "workplane.h"
+#include "../experimental/gred/iface/viewer.h"
 
 //
 class Viewer1 : public Viewer {
@@ -30,7 +30,6 @@ public:
     void zoom_in(int i);
 
     Workplane workplane;
-    Rubber    rubber;
 
 private:
 

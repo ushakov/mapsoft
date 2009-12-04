@@ -9,7 +9,7 @@
 
 
 Viewer1::Viewer1 (int tile_size):
-    workplane (tile_size), rubber(this){
+    workplane (tile_size){
 
     we_need_cache_updater=true;
 

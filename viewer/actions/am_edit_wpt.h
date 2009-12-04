@@ -29,7 +29,7 @@ public:
 	std::cout << "EDITWPT: " << p << std::endl;
 	for (int i = 0; i < state->wpt_layers.size(); ++i) {
 	    current_layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
-            if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
+            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_waypoint(p);
 	    if (d.first >= 0) {
@@ -53,7 +53,7 @@ private:
 	if (current_wpt) {
 	    if (r == 0) { // OK
 		current_wpt->parse_from_options(o);
-                state->viewer->workplane.refresh_layer(current_layer);
+                state->viewer.workplane.refresh_layer(current_layer);
  		std::cout << "EDITWPT: " << current_wpt->name << std::endl;
 	    } else {
 		// do nothing

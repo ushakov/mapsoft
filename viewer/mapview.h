@@ -15,11 +15,14 @@
 #include "../core/layers/layer_trk.h"
 #include "../core/layers/layer_wpt.h"
 #include "../core/utils/log.h"
+#include "../experimental/gred/rubber.h"
+
 
 class Mapview : public Gtk::Window {
 public:
 
-    Viewer1   * viewer;
+    Viewer1     viewer;
+    Rubber      rubber;
     LayerList * layer_list; /// Gtk::TreeView for layers
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
@@ -52,10 +55,10 @@ public:
     Mapview () :
 	file_sel_load ("Load file:"),
 	file_sel_save ("Save as:"),
-	have_reference(false)
+	have_reference(false),
+	rubber(&viewer)
     {
 
-	viewer     = new Viewer1();
 	layer_list = new LayerList();
 	statusbar  = new Gtk::Statusbar;
 
@@ -83,7 +86,7 @@ public:
 	  sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
 
         /// keypress and mouse button press events
-        viewer->signal_button_release_event().connect (
+        viewer.signal_button_release_event().connect (
           sigc::mem_fun (this, &Mapview::on_button_release));
         signal_key_press_event().connect (
           sigc::mem_fun (this, &Mapview::on_key_press));
@@ -154,7 +157,7 @@ public:
 	vbox->pack_start(*menubar, false, true, 0);
 
 	Gtk::HPaned * paned = manage(new Gtk::HPaned);
-	paned->pack1(*viewer, Gtk::EXPAND | Gtk::FILL);
+	paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
 	
 	Gtk::ScrolledWindow * scrw = manage(new Gtk::ScrolledWindow);
 	scrw->add(*layer_list);
@@ -172,7 +175,6 @@ public:
     }
 
     virtual ~Mapview() {
-      delete viewer;
       delete layer_list;
       delete statusbar;
     }
@@ -185,14 +187,14 @@ public:
 	Layer * layer = row[layer_list->columns.layer];
 	if (!layer) return;
 	int new_depth = row[layer_list->columns.depth];
-	if (viewer->workplane.get_layer_depth (layer) != new_depth) {
-	    viewer->workplane.set_layer_depth (layer, new_depth);
+	if (viewer.workplane.get_layer_depth (layer) != new_depth) {
+	    viewer.workplane.set_layer_depth (layer, new_depth);
 	    need_refresh = true;
 	}
 
 	int new_active = row[layer_list->columns.checked];
-	if (new_active != viewer->workplane.get_layer_active (layer)) {
-	    viewer->workplane.set_layer_active (layer, new_active);
+	if (new_active != viewer.workplane.get_layer_active (layer)) {
+	    viewer.workplane.set_layer_active (layer, new_active);
 	    need_refresh = true;
 	}
 
@@ -241,7 +243,7 @@ public:
 	    assert(layer_to_configure);
 	    layer_to_configure->set_config(o);
 	    std::cout << "LAYER_CONFIG: " << layer_to_configure << "\n";
-	    viewer->workplane.refresh_layer(layer_to_configure);
+	    viewer.workplane.refresh_layer(layer_to_configure);
 	    refresh();
 	} else {
 	    // do nothing
@@ -277,7 +279,7 @@ public:
 	    map_layer->set_ref(reference);
 	    map_layers.push_back(map_layer);
 	    add_layer(map_layer.get(), 300, "map: " + selected_filename);
-	    viewer->set_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
+	    viewer.set_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
 	}
 	if (world->trks.size() > 0) {
 	    // we are loading tracks: if we already have reference, use it
@@ -285,7 +287,7 @@ public:
 	    trk_layer->set_ref(reference);
 	    trk_layers.push_back(trk_layer);
 	    add_layer(trk_layer.get(), 200, "trk: " + selected_filename);
-	    viewer->set_origin(trk_layer->range().TLC());
+	    viewer.set_origin(trk_layer->range().TLC());
 	}
 	if (world->wpts.size() > 0) {
 	    // we are loading waypoints: if we already have reference, use it
@@ -293,7 +295,7 @@ public:
 	    wpt_layer->set_ref(reference);
 	    wpt_layers.push_back(wpt_layer);
 	    add_layer(wpt_layer.get(), 100, "wpt: " + selected_filename);
-	    viewer->set_origin(wpt_layer->range().TLC());
+	    viewer.set_origin(wpt_layer->range().TLC());
 	}
 	refresh();
 	statusbar->pop();
@@ -324,12 +326,12 @@ public:
     }
 
     void add_layer (Layer * layer, int depth, Glib::ustring name) {
-       viewer->workplane.add_layer(layer, depth);
+       viewer.workplane.add_layer(layer, depth);
        layer_list->add_layer(layer, depth, name);
     }
 
     void refresh () {
-       viewer->refresh();
+       viewer.refresh();
     }
 
     bool on_key_press(GdkEventKey * event) {
@@ -339,14 +341,14 @@ public:
         case 61:
         case 65451: // + =
         {
-          viewer->zoom_in(2);
+          viewer.zoom_in(2);
           return true;
         }
         case 45:
         case 95:
         case 65453: // _ -
         {
-          viewer->zoom_out(2);
+          viewer.zoom_out(2);
           return true;
         }
         case 'r':
@@ -377,7 +379,7 @@ public:
 //        if (d > 250) return true;
 
         iPoint p(int(event->x), int(event->y));
-        p += viewer->get_origin();
+        p += viewer.get_origin();
         VLOG(2) << "click at: " << p.x << "," << p.y << " " << event->button;
         action_manager->click(p);
         return true;

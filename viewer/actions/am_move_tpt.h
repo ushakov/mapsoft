@@ -20,7 +20,7 @@ public:
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() { 
-        state->viewer->rubber.clear();
+        state->rubber.clear();
         mystate=0;
     }
 
@@ -32,7 +32,7 @@ public:
 	  for (int i = 0; i < state->trk_layers.size(); ++i) {
             current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
 	    
-            if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
+            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_trackpoint(p);
 	    if (d.first >= 0) {
@@ -44,16 +44,16 @@ public:
 		if ((d.second > 0)&&(!current_layer->get_world()->trks[d.first][d.second].start)){
   		  g_point p1 = current_layer->get_world()->trks[d.first][d.second-1];
 		  cnv.bck(p1);
-                  state->viewer->rubber.add_diag(p1);
+                  state->rubber.add_diag(p1);
 		}
 		if ((d.second < current_layer->get_world()->trks[d.first].size()-1)&&
 		    (!current_layer->get_world()->trks[d.first][d.second+1].start)){
   		  g_point p1 = current_layer->get_world()->trks[d.first][d.second+1];
 		  cnv.bck(p1);
-                  state->viewer->rubber.add_diag(p1);
+                  state->rubber.add_diag(p1);
 		}
-		if (state->viewer->rubber.size()==0)
-                  state->viewer->rubber.add_diag(p);
+		if (state->rubber.size()==0)
+                  state->rubber.add_diag(p);
                 mystate=1;
 		break;
             }
@@ -66,9 +66,9 @@ public:
           cnv.frw(pt);
           current_tpt->x = pt.x;
           current_tpt->y = pt.y;
-          state->viewer->workplane.refresh_layer(current_layer);
+          state->viewer.workplane.refresh_layer(current_layer);
 	  mystate=0;
-          state->viewer->rubber.clear();
+          state->rubber.clear();
           current_layer=0;
           current_tpt=0;
         }

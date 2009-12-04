@@ -25,7 +25,7 @@ public:
 
         for (int i = 0; i < state->trk_layers.size(); ++i) {
             LayerTRK * current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-	    if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
+	    if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
             assert (current_layer);
             std::pair<int, int> point_addr = current_layer->find_trackpoint(p);
             if (point_addr.first >= 0) {
@@ -35,7 +35,7 @@ public:
                   current_layer->get_world()->trks[point_addr.first].begin()+point_addr.second);
 		if (start && (point_addr.second < current_layer->get_world()->trks[point_addr.first].size()))
                   current_layer->get_world()->trks[point_addr.first][point_addr.second].start = start;
-                state->viewer->workplane.refresh_layer(current_layer);
+                state->viewer.workplane.refresh_layer(current_layer);
                 break;
             }
         }

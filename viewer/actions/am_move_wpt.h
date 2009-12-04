@@ -20,7 +20,7 @@ public:
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() { 
-        state->viewer->rubber.clear();
+        state->rubber.clear();
         mystate=0;
     }
 
@@ -31,15 +31,15 @@ public:
           std::cout << " MOVEWPT: " << p << std::endl;
 	  for (int i = 0; i < state->wpt_layers.size(); ++i) {
             current_layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
-            if (!state->viewer->workplane.get_layer_active(current_layer)) continue;
+            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_waypoint(p);
 	    if (d.first >= 0) {
 		std::cout << "MOVEWPT: found at " << current_layer << std::endl;
 		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
-		state->viewer->rubber.add_src_sq(p, 2);
-		state->viewer->rubber.add_dst_sq(2);
-                state->viewer->rubber.add_diag(p);
+		state->rubber.add_src_sq(p, 2);
+		state->rubber.add_dst_sq(2);
+                state->rubber.add_diag(p);
                 mystate=1;
 		break;
             }
@@ -52,9 +52,9 @@ public:
           cnv.frw(pt);
           current_wpt->x = pt.x;
           current_wpt->y = pt.y;
-          state->viewer->workplane.refresh_layer(current_layer);
+          state->viewer.workplane.refresh_layer(current_layer);
 	  mystate=0;
-          state->viewer->rubber.clear();
+          state->rubber.clear();
           current_layer=0;
           current_wpt=0;
         }
