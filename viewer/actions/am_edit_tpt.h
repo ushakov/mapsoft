@@ -49,10 +49,10 @@ private:
     g_trackpoint  * current_tpt;
     LayerTRK      * current_layer;
 
-    void on_result(int r) {
+    void on_result(int r, const Options & o) {
 	if (current_tpt) {
 	    if (r == 0) { // OK
-		current_tpt->parse_from_options(state->gend.get_options());
+		current_tpt->parse_from_options(o);
                 state->viewer->workplane.refresh_layer(current_layer);
  		std::cout << "EDITWPT: OK\n";
 	    } else {

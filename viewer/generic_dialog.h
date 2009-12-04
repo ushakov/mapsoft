@@ -4,7 +4,7 @@
 #include <gtkmm.h>
 #include <string>
 #include <map>
-#include <boost/shared_ptr.hpp>
+#include <sigc++/sigc++.h>
 
 #include "../core/utils/options.h"
 
@@ -19,11 +19,7 @@ public:
     void activate (
       const std::string & title,
       const Options & _options,
-      const sigc::slot1<void,int> & _on_res);
-
-    // Gets the (modified by user) options. Can be called at any time, but useful
-    // only if signal_result already fired with result == 0.
-    Options get_options() { return options; }
+      const sigc::slot2<void, int, Options> & _on_res);
 
     void deactivate ();
 
@@ -32,12 +28,10 @@ private:
     void on_response (int response);
     bool on_delete (GdkEventAny * e);
 
-    Options options;
-
     std::map<std::string, Gtk::Entry *> entries;
     Gtk::Table table;
 
-    sigc::slot1<void,int> on_res;
+    sigc::slot2<void, int, Options> on_res;
 };
 
 #endif /* GENERIC_DIALOG_H */

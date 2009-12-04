@@ -46,7 +46,7 @@ private:
     Mapview       * state;
     LayerWPT      * current_layer;
 
-    void on_result(int r) {
+    void on_result(int r, const Options & o) {
 	if (r == 0) { // OK
           current_layer->get_world()->wpts[point_addr.first].erase(
             current_layer->get_world()->wpts[point_addr.first].begin()+point_addr.second);

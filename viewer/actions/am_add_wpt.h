@@ -54,11 +54,11 @@ private:
     Mapview       * state;
     LayerWPT      * current_layer;
 
-    void on_result(int r) {
+    void on_result(int r, const Options & o) {
 	if (r == 0) { // OK
           assert (current_layer);
 	  g_waypoint wpt; 
-          wpt.parse_from_options(state->gend.get_options());
+          wpt.parse_from_options(o);
           if (current_layer->get_world()->wpts.size()==0) 
 	    current_layer->get_world()->wpts.push_back(g_waypoint_list());
           current_layer->get_world()->wpts[0].push_back(wpt);

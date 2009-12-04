@@ -236,10 +236,10 @@ public:
 	  sigc::mem_fun(this, &Mapview::layer_config_result));
     }
 
-    void layer_config_result (int r) {
+    void layer_config_result (int r, const Options & o) {
 	if (r == 0) { // OK
 	    assert(layer_to_configure);
-	    layer_to_configure->set_config(gend.get_options());
+	    layer_to_configure->set_config(o);
 	    std::cout << "LAYER_CONFIG: " << layer_to_configure << "\n";
 	    viewer->workplane.refresh_layer(layer_to_configure);
 	    refresh();

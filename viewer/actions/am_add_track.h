@@ -75,10 +75,10 @@ private:
 
     g_track  new_track;
 
-    void on_result(int r) {
+    void on_result(int r, const Options & o) {
        if (r == 0) { // OK
           assert (current_layer);
-          new_track.parse_from_options(state->gend.get_options());
+          new_track.parse_from_options(o);
          current_layer->get_world()->trks.push_back(new_track);
           state->viewer->workplane.refresh_layer(current_layer);
        }

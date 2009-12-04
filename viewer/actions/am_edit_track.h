@@ -57,10 +57,10 @@ private:
     g_track       * current_track;
     LayerTRK      * current_layer;
 
-    void on_result(int r) {
+    void on_result(int r, const Options & o) {
 	if (current_track) {
 	    if (r == 0) { // OK
-		current_track->parse_from_options(state->gend.get_options());
+		current_track->parse_from_options(o);
                 state->viewer->workplane.refresh_layer(current_layer);
  		std::cout << "EDITTRACK: " << current_track->comm << std::endl;
 	    } else {

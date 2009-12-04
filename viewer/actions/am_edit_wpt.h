@@ -49,10 +49,10 @@ private:
     g_waypoint    * current_wpt;
     LayerWPT      * current_layer;
 
-    void on_result(int r) {
+    void on_result(int r, const Options & o) {
 	if (current_wpt) {
 	    if (r == 0) { // OK
-		current_wpt->parse_from_options(state->gend.get_options());
+		current_wpt->parse_from_options(o);
                 state->viewer->workplane.refresh_layer(current_layer);
  		std::cout << "EDITWPT: " << current_wpt->name << std::endl;
 	    } else {

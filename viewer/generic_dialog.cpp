@@ -1,7 +1,4 @@
-#include <string>
-#include <sigc++/sigc++.h>
 #include "generic_dialog.h"
-#include "../core/utils/options.h"
 
 GenericDialog::GenericDialog (){
 
@@ -18,18 +15,16 @@ GenericDialog::GenericDialog (){
 
 void GenericDialog::activate (
       const std::string & title,
-      const Options & _options,
-      const sigc::slot1<void,int> & _on_res){
+      const Options & options,
+      const sigc::slot2<void,int,Options> & _on_res){
 
-
-  options = _options;
   on_res = _on_res;
   set_title(title);
 
   table.resize(options.size(), 2);
   entries.clear();
   int k = 0;
-  for (Options::iterator i = options.begin(); i != options.end(); ++i, ++k) {
+  for (Options::const_iterator i = options.begin(); i != options.end(); ++i, ++k) {
     Gtk::Label * label = Gtk::manage(new Gtk::Label (i->first, 1.0, 0.5));
     table.attach(*label, 0,1, k,k+1);
 
@@ -43,10 +38,13 @@ void GenericDialog::activate (
 }
 
 void GenericDialog::on_response (int response) {
-  for (std::map<std::string, Gtk::Entry *>::const_iterator i=entries.begin(); i!=entries.end();i++){
-    options[i->first]  = i->second->get_text();
+  Options options;
+  if (response==0){
+    for (std::map<std::string, Gtk::Entry *>::const_iterator i=entries.begin(); i!=entries.end();i++){
+      options[i->first]  = i->second->get_text();
+    }
   }
-  on_res(response);
+  on_res(response, options);
   entries.clear();
   hide_all();
 }
@@ -56,7 +54,7 @@ bool GenericDialog::on_delete (GdkEventAny * e) {
 }
 
 void GenericDialog::deactivate () {
-  on_res(0);
+  on_res(0, Options());
   entries.clear();
   hide_all();
 }
