@@ -33,18 +33,13 @@ iRect tile_covering(const dRect & r, int tsize){
 		   tile_y2 - tile_y1);
 }
 
-
-void MakeFileNames(const char* filename, string* index_file, string* data_file, string* tmp_file) {
+void PrepareOutputDir(const char* filename, string* dirname) {
   string fname(filename);
 
-  string base = fname.substr(0, fname.rfind("."));
-
-  *index_file = base + "/index.nb";
-  *data_file = base + "/map.data";
-  *tmp_file = base + "/tmp.jpg";
+  *dirname = fname.substr(0, fname.rfind("."));
   
   string cmd = "mkdir -p ";
-  cmd += base;
+  cmd += *dirname;
   system(cmd.c_str());
 }
 
@@ -156,24 +151,10 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
   tile.w = 256;
   tile.h = 256;
 
-  string index_file, data_file, tmp_file;
-  MakeFileNames(filename, &index_file, &data_file, &tmp_file);
+  string dirname;
+  PrepareOutputDir(filename, &dirname);
 
-  FILE * index = fopen(index_file.c_str(), "wb");
-  if (!index) {
-    cerr << "cannot open file " << index_file << " for writing!" << endl;
-    exit(1);
-  }
-  // write placeholder for total elements
-  WriteInt(index, 0);
-  size_t offset = 0;
-  size_t num_tiles = 0;
-
-  string cat_cmd = "cat ";
-  cat_cmd += tmp_file + " >> " + data_file;
-  string rm_cmd = "rm " + data_file;
-  system(rm_cmd.c_str());
-  
+  int num_tiles = 0;
   for (int z = 0; z <= gg_zoom; ++z) {
     // prepare ref
     double scale = pow(2.0, gg_zoom - z);
@@ -189,6 +170,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
 
     layer.set_ref(zoom_ref);
 
+    vector<int> x_coords, y_coords, zooms, offsets;
     for(int x = tiles.x; x < tiles.x + tiles.w; ++x) {
       for(int y = tiles.y; y < tiles.y + tiles.h; ++y) {
 	tile.x = x * 256;
@@ -197,35 +179,14 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
 	if (!tile_image.empty()) {
 	  // make filename
 	  std::stringstream ss;
-	  ss << "tile_"
+	  ss << dirname
+             << "/tile_"
 	     << setfill('0') << setw(2) << z << "_"
 	     << setw(6) << x << "_"
 	     << setw(6) << y << ".jpg";
 	  // save image
 	  image_r::save(tile_image, ss.str().c_str(), opt);
-	  // get file size
-	  struct stat st;
-	  stat(tmp_file.c_str(), &st);
-	  size_t len = st.st_size;
-	  
-	  // write index
-	  // 	WriteInt(index, z);
-	  // 	WriteInt(index, y);
-	  // 	WriteInt(index, x);
-	  // 	WriteInt(index, offset);
-	  // 	WriteInt(index, len);
-	  
-	  // append to data file
-	  // 	int r = system(cat_cmd.c_str());
-	  // 	if (r != 0) {
-	  // 	  cerr << "cat returned " << r << " errno=" << errno << endl;
-	  // 	  exit(1);
-	  // 	}
-	  // 	offset += len;
-	  // 	num_tiles ++;
-	  
-	  // 	stat(data_file.c_str(), &st);
-	  // 	cerr << "file size - offset = " << (int)st.st_size - offset << endl;
+          num_tiles++;
 	}
 	if (num_tiles % 100 == 0) {
 	  cerr << "tiles done: " << num_tiles << " now at " << x << "," << y << endl;
@@ -233,11 +194,6 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
       }
     }
   }
-  
-  fseek(index, 0, SEEK_SET);
-  WriteInt(index, num_tiles);
-  cerr << "total " << num_tiles << " written" << endl;
-  fclose(index);
 
   return true;
 }
