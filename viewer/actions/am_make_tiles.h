@@ -47,6 +47,7 @@ public:
 	    opt.put("geom", bb);
 	    opt.put("google", 17);
 	    opt.put("dirname", "tiles");
+	    state->rubber.clear();
 	    state->gend.activate(get_name(), opt,
 	      sigc::mem_fun(this, &MakeTiles::on_result));
 	}
@@ -77,12 +78,12 @@ private:
     g_point one, two;
 
     void on_result(int r, const Options & o) {
+	have_points = 0;
         if (r == 0) { // OK
 	  std::string filename = o.get("dirname", std::string("tiles"));
 	  filename += ".tiles";
 	  tiles::write_file(filename.c_str(), *current_layer->get_world(), o);
 	}
-        state->rubber.clear();
     }
 };
 
