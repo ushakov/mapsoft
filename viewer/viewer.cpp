@@ -11,6 +11,7 @@
 Viewer1::Viewer1 (int tile_size):
     workplane (tile_size){
 
+    on_drag = false;
     we_need_cache_updater=true;
 
     Glib::thread_init();

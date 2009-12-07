@@ -123,7 +123,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
 
   if (k==0){
     if (proj.val == 4 && gg_zoom >= 0){    // Google proj and zoom level set
-      double upp = 360.0 / 256.0 / (1 << gg_zoom);
+      double upp = 2e7 / 256.0 / (1 << gg_zoom);
       k=1.0/upp;
     }
     else if (proj.val == 5 && ks_zoom > 0){
