@@ -30,6 +30,7 @@ private:
     std::map<std::string, Gtk::Entry *> entries;
     sigc::slot2<void, int, Options> on_res;
     Gtk::Table * table;
+    bool hidden;
 };
 
 #endif /* GENERIC_DIALOG_H */
