@@ -29,6 +29,7 @@ void GenericDialog::activate (
       const Options & options,
       const sigc::slot2<void,int,Options> & _on_res){
 
+  hidden=true;  // don't hide window in deactivate()
   deactivate(); // deactivate old dialog
 
   if (table){ // we can't do it in on_response callback
@@ -56,11 +57,9 @@ void GenericDialog::activate (
   }
   get_vbox()->add(*table);
 
-  resize(1,1);
-  deiconify();
-  show_all();
-  show_now();
-std::cerr << ">>> SHOW\n";
+  resize(1,1); // change size
+  if (hidden) show_all();
+  hidden=false;
 }
 
 // deactivate is a special case of on_response
@@ -83,7 +82,8 @@ void GenericDialog::on_response (int response) {
     on_res(1, Options());
   }
   on_res=sigc::slot2<void,int,Options>(); // we don't want to call it any more
-  hide_all();
-std::cerr << ">>> HIDE\n";
+
+  if (!hidden) hide_all();
+  hidden=true;
 }
 
