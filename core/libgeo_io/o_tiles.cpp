@@ -59,7 +59,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
   // Note! geom is in lat/lng coordinates!
   dRect geom = opt.get("geom", Rect<double>());
   Proj  proj(opt.get("proj",string("google")));
-  Datum datum(opt.get("datum",string("wgs84")));
+  Datum datum(opt.get("datum",string("sphere")));
 
   double scale  = opt.get("scale",  0.0);
   double rscale = opt.get("rscale", 0.0);
@@ -123,7 +123,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
 
   if (k==0){
     if (proj.val == 4 && gg_zoom >= 0){    // Google proj and zoom level set
-      double upp = 2e7 / 256.0 / (1 << gg_zoom);
+      double upp = - tiles_orig_dest.x / 128.0 / (1 << gg_zoom);
       k=1.0/upp;
     }
     else if (proj.val == 5 && ks_zoom > 0){
