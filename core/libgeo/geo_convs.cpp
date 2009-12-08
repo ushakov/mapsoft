@@ -62,8 +62,6 @@ projPJ mkproj(const Datum & D, const Proj & P, const Options & o){
           exit(1);
     }
 
-    std::cerr << "mkproj: creating projection: \"" << projpar.str() << "\"\n";
-
     projPJ ret=pj_init_plus(projpar.str().c_str());
     if (!ret){
         std::cerr << "mkproj: Error: can't create proj: \"" << projpar.str() << "\"\n";
@@ -290,7 +288,6 @@ map2pt::map2pt(const g_map & sM,
 // При этом в какой СК нарисована карта и какие параметры проекции
 // используются - нам не важно - это станет частью лин.преобразования!
 
-cerr<< "map2pt: creating projections:\n";
     // projection for reference points
     pr_ref = mkproj(Datum("WGS84"), Proj("lonlat"), Options()); // for ref points
 
@@ -302,8 +299,6 @@ cerr<< "map2pt: creating projections:\n";
       pr_map = pr_dst;
     else
       pr_map = mkproj(dD, sM.map_proj, map_popts(sM));
-
-cerr<< "map2pt: ok\n";
 
     refcounter   = new int;
     *refcounter  = 1;
