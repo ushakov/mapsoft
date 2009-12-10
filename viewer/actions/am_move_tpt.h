@@ -16,12 +16,12 @@ public:
     virtual std::string get_name() { return "Move Trackpoint"; }
 
     // Activates this mode.
-    virtual void activate() { }
+    virtual void activate() {
+      mystate=0;
+    }
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() { 
-        state->rubber.clear();
-        mystate=0;
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
@@ -31,7 +31,7 @@ public:
           std::cout << " MOVETPT: " << p << std::endl;
 	  for (int i = 0; i < state->trk_layers.size(); ++i) {
             current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-	    
+
             if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_trackpoint(p);

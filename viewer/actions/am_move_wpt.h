@@ -16,13 +16,12 @@ public:
     virtual std::string get_name() { return "Move Waypoint"; }
 
     // Activates this mode.
-    virtual void activate() { }
+    virtual void activate() {
+      mystate=0;
+    }
 
     // Abandons any action in progress and deactivates mode.
-    virtual void abort() { 
-        state->rubber.clear();
-        mystate=0;
-    }
+    virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p) {

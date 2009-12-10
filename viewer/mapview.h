@@ -246,6 +246,8 @@ public:
 
     void on_mode_change (int m) {
 	action_manager->set_mode(m);
+	gend.deactivate();
+	rubber.clear();
     }
 
     void load_file_sel() {
