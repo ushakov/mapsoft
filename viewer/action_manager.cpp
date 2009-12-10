@@ -12,6 +12,7 @@
 #include "actions/am_add_track.h"
 #include "actions/am_mark_trk.h"
 #include "actions/am_make_tiles.h"
+#include "actions/am_refmap.h"
 
 ActionManager::ActionManager (Mapview * state_)
     : state(state_)
@@ -29,5 +30,6 @@ ActionManager::ActionManager (Mapview * state_)
     modes.push_back(boost::shared_ptr<ActionMode>(new AddTrack(state)));
     modes.push_back(boost::shared_ptr<ActionMode>(new MarkTrack(state)));
     modes.push_back(boost::shared_ptr<ActionMode>(new MakeTiles(state)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new RefMap(state)));
 }
 

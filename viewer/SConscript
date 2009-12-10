@@ -14,6 +14,7 @@ cpp_files = Split ("""
 	../experimental/gred/rubber.cpp
 	../experimental/gred/simple_viewer.cpp
 	workplane.cpp
+	actions/am_refmap.cpp
         """)
 
 le.Library("viewer", cpp_files)
