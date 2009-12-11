@@ -35,12 +35,12 @@ public:
 
     std::vector<boost::shared_ptr<geo_data> > data;
 
+    g_map reference;
 private:
     Gtk::FileSelection file_sel_load;
     Gtk::FileSelection file_sel_save;
     Gtk::Widget * menubar;
 
-    g_map reference;
     bool have_reference;
 
     boost::shared_ptr<ActionManager> action_manager;

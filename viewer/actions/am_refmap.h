@@ -27,9 +27,16 @@ public:
 
 private:
     Mapview       * state;
+    LayerGeoMap * map_layer;
     boost::shared_ptr<LayerGeoMap> layer;
 
-    geo_data mymap;
+    boost::shared_ptr<geo_data> mymap;
+    convs::map2pt current_conv;
+
+    std::vector<g_refpoint> refpoints;
+    bool last_refpoint_partial;
+
+    int context;  // for statusbar
 
     void on_result(int r, const Options & o);
 };
