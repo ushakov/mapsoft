@@ -27,18 +27,25 @@ public:
 
 private:
     Mapview       * state;
+
+    bool working;
+    
     LayerGeoMap * map_layer;
     boost::shared_ptr<LayerGeoMap> layer;
 
     boost::shared_ptr<geo_data> mymap;
-    convs::map2pt current_conv;
+    boost::shared_ptr<convs::map2pt> current_conv;
 
+    double default_dpp; // default scale, degrees per image pixel
+    dPoint default_origin; // default origin, lonlat
+    iPoint size; // image size
     std::vector<g_refpoint> refpoints;
     bool last_refpoint_partial;
 
     int context;  // for statusbar
 
     void on_result(int r, const Options & o);
+    void remake_ref();
 };
 
 #endif /* AM_REFMAP_H */
