@@ -330,7 +330,7 @@ bool Viewer1::on_expose_event (GdkEventExpose * event){
 }
 
 bool Viewer1::on_button_press_event (GdkEventButton * event) {
-    if (event->button == 2) {
+    if (event->button == 3) {
         drag_pos = iPoint ((int)event->x, (int)event->y);
         on_drag=true;
     }
@@ -338,7 +338,7 @@ bool Viewer1::on_button_press_event (GdkEventButton * event) {
 }
 
 bool Viewer1::on_button_release_event (GdkEventButton * event) {
-  if (event->button == 2) on_drag=false;
+  if (event->button == 3) on_drag=false;
   return false;
 }
 
