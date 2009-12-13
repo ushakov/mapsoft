@@ -159,7 +159,7 @@ struct Image{
       return data[y*w+x] | 0xFF000000;
     }
     inline void set_na(int x, int y, T c) {
-	data[y*w+x] = (c | 0xff000000);
+	data[y*w+x] = (c & 0x00ffffff) | (data[y*w+x] & 0xff000000);
     }
     inline T get_na(const iPoint & p, T c) const {
       return data[p.y*w+p.x] | 0xFF000000;

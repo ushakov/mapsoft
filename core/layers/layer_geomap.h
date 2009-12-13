@@ -35,6 +35,8 @@ private:
 //  Options O; // для всех карт должны быть одинаковы!
   g_map mymap;
   bool drawborder;
+
+  unsigned char alpha;
  
 public:
 
@@ -42,7 +44,8 @@ public:
       world(_world),
       image_cache(4),
       mymap(convs::mymap(*_world)),
-      drawborder(_drawborder)
+      drawborder(_drawborder),
+      alpha(0xff)
     {make_m2ms();}
 
     // получить/установить привязку layer'a
@@ -50,6 +53,9 @@ public:
     void set_ref(const g_map & map){mymap=map; make_m2ms();}
     void set_ref(){set_ref(convs::mymap(*world));}
     const geo_data * get_world() { return world; }
+
+    void set_alpha(unsigned char a) { alpha = a; }
+    unsigned char get_alpha() { return alpha; }
 
     void refresh(){image_cache.clear();}
 
@@ -90,7 +96,7 @@ public:
 	if (rect_intersect(myrange, src).empty()) {
 	    return iImage(0,0);
 	}
-	iImage ret(src.w, src.h, 0);
+	iImage ret(src.w, src.h, alpha << 24);
 	draw(src.TLC(), ret);
 	return ret;
     }
