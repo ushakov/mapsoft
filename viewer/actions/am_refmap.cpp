@@ -54,7 +54,7 @@ void RefMap::on_result(int r, const Options & o) {
         // Add the map
         layer.reset(new LayerGeoMap(mymap.get()));
         layer->set_ref(ref);
-        layer->set_alpha(0x80);
+//        layer->set_alpha(0x80);
         state->data.push_back(mymap);
         state->map_layers.push_back(layer);
         state->add_layer(layer.get(), 250, "ref: " + mymap->maps[0].file);
