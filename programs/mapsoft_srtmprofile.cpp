@@ -1,9 +1,6 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <map>
-#include <set>
-#include <list>
 #include <stdexcept>
 #include <cmath>
 #include <cstring>
@@ -17,6 +14,8 @@
 #include "../core/libgeo_io/io.h"
 #include "../core/libgeo/geo_data.h"
 #include "../core/libgeo/geo_convs.h"
+
+#include "../core/utils/read_conf.h"
 
 // Перенесение данных srtm в привязанный fig-файл.
 
@@ -42,49 +41,32 @@ main(int argc, char** argv){
   if (argc < 5) usage(argv[0]);
 
   Options opts;
-  list<string> infiles;
-  string outfile = "";
-  string srtm_dir = "";
 
-// разбор командной строки
-  srtm_dir = argv[1];
-  for (int i=2; i<argc; i++){ 
+  if (!read_conf(argc, argv, opts)) usage(argv[0]);
+  if (opts.exists("help")) usage(argv[0]);
 
-    if ((strcmp(argv[i], "-h")==0)||
-        (strcmp(argv[i], "-help")==0)||
-        (strcmp(argv[i], "--help")==0)) usage(argv[0]);
-
-    if (strcmp(argv[i], "-o")==0){
-      if (i==argc-1) usage(argv[0]);
-      i+=1;
-      outfile = argv[i];
-      continue;
-    }
-
-//    if (strcmp(argv[i], "-O")==0){
-//      if (i==argc-1) usage(argv[0]);
-//      i+=1;
-//      opts.put_string(argv[i]);
-//      continue;
-//    }
-
-    infiles.push_back(argv[i]);
-  }
-
+  string outfile = opts.get("out", string());
   if (outfile == "") usage(argv[0]);
+
+  StrVec infiles = opts.get("cmdline_args", StrVec());
+
+  if (infiles.size() < 2) usage(argv[0]);
+
+  string srtm_dir = infiles.front();
+  infiles.erase(infiles.begin(), infiles.begin()+1);
 
   ofstream out(outfile.c_str()); 
   srtm3 s(srtm_dir, 10, interp_mode_off);
 
   geo_data world;
-  list<string>::const_iterator i;
+  StrVec::const_iterator i;
   for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, world, opts);
 
   int n = 0;
   double len = 0; 
 
-  convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), Options(),
-                  Datum("wgs84"), Proj("latlon"), Options());
+  convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), opts,
+                  Datum("wgs84"), Proj("latlon"), opts);
 
   vector<g_track>::const_iterator t;
   for(t=world.trks.begin(); t!=world.trks.end(); t++) {

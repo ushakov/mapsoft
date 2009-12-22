@@ -12,6 +12,7 @@
 
 #include "../core/libgeo_io/io.h"
 #include "../core/libgeo/geo_convs.h"
+#include "../core/utils/read_conf.h"
 
 using namespace std;
 
@@ -22,29 +23,17 @@ void usage(const char *fname){
 int main(int argc, char *argv[]) {
 
   Options opts;
-  list<string> infiles;
 
 // разбор командной строки
-  for (int i=1; i<argc; i++){ 
+  if (!read_conf(argc, argv, opts)) usage(argv[0]);
+  if (opts.exists("help")) usage(argv[0]);
 
-    if ((strcmp(argv[i], "-h")==0)||
-        (strcmp(argv[i], "-help")==0)||
-        (strcmp(argv[i], "--help")==0)) usage(argv[0]);
-
-//    if (strcmp(argv[i], "-O")==0){
-//      if (i==argc-1) usage(argv[0]);
-//      i+=1;
-//      opts.put_string(argv[i]);
-//      continue;
-//    }
-
-    infiles.push_back(argv[i]);
-  }
+  StrVec infiles = opts.get("cmdline_args", StrVec());
 
 // чтение файлов
 
   geo_data world;
-  list<string>::const_iterator i;
+  StrVec::const_iterator i;
   for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, world, opts);
 
 // Распечатка комментариев точек
@@ -58,8 +47,8 @@ int main(int argc, char *argv[]) {
 
   vector<g_track>::const_iterator t;
   for(t=world.trks.begin(); t!=world.trks.end(); t++) {
-    convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), Options(),
-                    Datum("wgs84"), Proj("lonlat"), Options());
+    convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), opts,
+                    Datum("wgs84"), Proj("lonlat"), opts);
     double len = 0; 
     double active_len = 0;
     time_t active_time = 0;
