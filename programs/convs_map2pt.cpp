@@ -1,3 +1,4 @@
+#include <sstream>
 #include "../core/libgeo/geo_convs.h"
 #include "../core/libgeo_io/io.h"
 
@@ -45,43 +46,54 @@ int main(int argc, char** argv){
   );
 
   while (!cin.eof()){
+    string str;
+    getline(cin, str);
+    istringstream sstr(str);
+
     string s;
     double acc;
     dPoint p;
     dLine  l;
     iRect  r;
-    cin >> s;
+    sstr >> s;
     if (s == "frw"){
-      cin >> p;
+      sstr >> p;
       cnv.frw(p);
-      cout << fixed << p << "\n";
+      if (!sstr.eof()) cerr << "Error: frw\n";
+      else cout << fixed << p << "\n";
       continue;
     }
     if (s == "bck"){
-      cin >> p;
+      sstr >> p;
       cnv.bck(p);
-      cout << fixed << p << "\n";
+      if (!sstr.eof()) cerr << "Error: bck\n";
+      else cout << fixed << p << "\n";
       continue;
     }
     if (s == "line_frw"){
-      cin >> l >> acc;
-      cout << fixed << cnv.line_frw(l, acc) << "\n";
+      sstr >> l >> acc;
+      if (!sstr.eof()) cerr << "Error: line_frw\n";
+      else cout << fixed << cnv.line_frw(l, acc) << "\n";
       continue;
     }
     if (s == "line_bck"){
-      cin >> l >> acc;
-      cout << fixed << cnv.line_bck(l, acc) << "\n";
+      sstr >> l >> acc;
+      if (!sstr.eof()) cerr << "Error: line_bck\n";
+      else cout << fixed << cnv.line_bck(l, acc) << "\n";
       continue;
     }
     if (s == "bb_frw"){
-      cin >> r;
-      cout << fixed << cnv.bb_frw(r) << "\n";
+      sstr >> r;
+      if (!sstr.eof()) cerr << "Error: bb_frw\n";
+      else cout << fixed << cnv.bb_frw(r) << "\n";
       continue;
     }
     if (s == "bb_bck"){
-      cin >> r;
-      cout << fixed << cnv.bb_bck(r) << "\n";
+      sstr >> r;
+      if (!sstr.eof()) cerr << "Error: bb_bck\n";
+      else cout << fixed << cnv.bb_bck(r) << "\n";
       continue;
     }
+    if (s != "") cerr << "Error: unknown command\n";
   }
 }
