@@ -10,7 +10,6 @@
 class MakeTiles : public ActionMode {
 public:
     MakeTiles (Mapview * state_) : state(state_) {
-	have_points = 0;
     }
 
     // Returns name of the mode as string.
@@ -19,12 +18,12 @@ public:
     }
 
     // Activates this mode.
-    virtual void activate() { }
+    virtual void activate() {
+      have_points = 0;
+    }
 
     // Abandons any action in progress and deactivates mode.
-    virtual void abort() {
-	state->gend.deactivate();
-    }
+    virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p) {

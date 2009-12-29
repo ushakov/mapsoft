@@ -12,19 +12,17 @@ class MarkTrack : public ActionMode {
 public:
      MarkTrack (Mapview * state_) : state(state_) {
     }
-    
+
     // Returns name of the mode as string.
     virtual std::string get_name() {
 	return "Mark Track's length";
     }
 
     // Activates this mode.
-    virtual void activate() {
-    }
+    virtual void activate() { }
 
     // Abandons any action in progress and deactivates mode.
-    virtual void abort() {
-    }
+    virtual void abort() { }
 
     void add_wpt (g_waypoint_list * wpt_list, g_point where, double what) {
 	std::ostringstream ss;
@@ -35,7 +33,7 @@ public:
 	wpt.y = where.y;
 	wpt_list->push_back(wpt);
     }
-    
+
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p) {
 	for (int i = 0; i < state->trk_layers.size(); ++i) {

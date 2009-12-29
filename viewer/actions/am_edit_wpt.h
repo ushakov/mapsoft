@@ -20,9 +20,7 @@ public:
     virtual void activate() { }
 
     // Abandons any action in progress and deactivates mode.
-    virtual void abort() {
-	state->gend.deactivate();
-    }
+    virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p) {
