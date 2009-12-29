@@ -39,7 +39,8 @@ using namespace boost::spirit;
 		double lat,lon,time;
 		int symb, map_displ, displ, color, bgcolor, pt_dir;
 		double prox_dist, alt;  // alt in feet
-		int font_size, font_style, size;
+		int font_style, size;
+		double font_size;
 
                 oe_waypoint(){
 			// all default values -- in geo_data.h
@@ -306,7 +307,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
     !(scs >> !(int_p[assign_a(wpt.displ)]) >> 
     !(scs >> !(real_p[assign_a(wpt.prox_dist)]) >> 
     !(scs >> !(real_p[assign_a(wpt.alt)]) >> 
-    !(scs >> !(int_p[assign_a(wpt.font_size)]) >> 
+    !(scs >> !(real_p[assign_a(wpt.font_size)]) >> 
     !(scs >> !(int_p[assign_a(wpt.font_style)]) >> 
     !(scs >> !(int_p[assign_a(wpt.size)]) >> 
     !(scs >> *ch)))))))))))))))))) >> eol_p
@@ -490,7 +491,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << p->displ      << ','
 			  << p->prox_dist  << ','
 			  << (p->z >= 1e20 ? -777: p->z/0.3048) << ','
-			  << p->font_size  << ','
+			  << setprecision(2) << setw(5)<< p->font_size  << ','
 			  << p->font_style << ','
 			  << p->size       << "\r\n";
 		}
