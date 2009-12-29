@@ -176,7 +176,7 @@ std::istream & operator>> (std::istream & s, Line<T> & l){
   char sep;
   s >> p;
   l.push_back(p);
-  while (!s.eof()){
+  while (s.good()){
     s >> std::ws >> sep >> std::ws >> p;
     if (sep!=','){
       s.setstate(std::ios::failbit);
