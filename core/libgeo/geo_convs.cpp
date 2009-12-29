@@ -161,6 +161,7 @@ g_line pt2pt::line_frw(const g_line & l, double acc, int max) const {
         P2 = C1;
       }
       m--;
+      if (m==0) ret.push_back(P2a);
     } while ((P1!=P2)&&(m>0));
   }
   return ret;
@@ -194,6 +195,7 @@ g_line pt2pt::line_bck(const g_line & l, double acc, int max) const{
         P2 = C1;
       }
       m--;
+      if (m==0) ret.push_back(P2a);
     } while ((P1!=P2) && (m>0));
   }
   return ret;
@@ -499,6 +501,7 @@ g_line map2pt::line_frw(const g_line & l, int max) const {
       }
 //    } while (!P1.equals(P2));
       m--;
+      if (m==0) ret.push_back(P2a);
     } while ((P1!=P2)&&(m>0));
   }
   return ret;
@@ -533,6 +536,7 @@ g_line map2pt::line_bck(const g_line & l, int max)  const{
       }
 //    } while (!P1.equals(P2));
       m--;
+      if (m==0) ret.push_back(P2a);
     } while ((P1!=P2) && (m>0));
   }
   return ret;
@@ -597,6 +601,7 @@ g_line map2map::line_frw(const g_line & l, int max) const {
       }
 //    } while (!P1.equals(P2));
       m--;
+      if (m==0) ret.push_back(P2a);
     } while ((P1!=P2) && (m>0));
   }
   return ret;
@@ -630,6 +635,7 @@ g_line map2map::line_bck(const g_line & l, int max) const {
       }
 //    } while (!P1.equals(P2));
       m--;
+      if (m==0) ret.push_back(P2a);
     } while ((P1!=P2) && (m>0));
   }
   return ret;
