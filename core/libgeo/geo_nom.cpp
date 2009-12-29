@@ -44,7 +44,7 @@ dRect nom_range(const string & key){
       uint_p[assign_a(b)] >> 
       !( dash_p >> (
          ((digit_p >> digit_p >> digit_p >> dash_p)[assign_a(c1)] >> (digit_p)[assign_a(d)] >> dash_p >> digit_p) ||
-         ((digit_p >> digit_p >> digit_p >> dash_p)[assign_a(c1)] >> digit_p >> digit_p >> digit_p) ||
+         ((digit_p >> digit_p >> digit_p >> dash_p)[assign_a(c1)][assign_a(d,0)] >> digit_p >> digit_p >> digit_p) ||
          ((digit_p >> digit_p >> dash_p)[assign_a(c2)] >> digit_p >> digit_p) ||
          ((digit_p >> dash_p)[assign_a(c5)] >> digit_p) 
       ));
