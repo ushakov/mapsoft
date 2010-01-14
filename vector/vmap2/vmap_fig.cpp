@@ -84,7 +84,9 @@ Options read_fig(const string & fig_file, vmap & M){
     if ((i->forward_arrow==0)&&(i->backward_arrow==1)) dir=2;
     if (dir!=0) o.opts.put("Dir", dir);
 
-    o.push_back(cnv.line_frw(*i));
+    dLine pts=*i;
+    cnv.line_frw_p2p(pts);
+    o.push_back(pts);
 
     // BC!! old-style keys
     zn::zn_key k=zn::get_key(*i);
@@ -289,14 +291,15 @@ int get_fig(const string & fig_file, const vmap & M,
       dLine pts;
       // convert points
       if (fig.area_fill != -1){ // filled polygon -- join segments
-        pts=cnv.line_bck(join_polygons(o->second));
+        pts=join_polygons(o->second);
         i=o->second.end(); // stop iteration
       }
       else {
         fig.clear();
-        pts=cnv.line_bck(*i);
+        pts=*i;
         i++;
       }
+      cnv.line_bck_p2p(pts);
 
       if (!toedit) rect_crop(cutter, pts, fig.area_fill!=-1);
 
