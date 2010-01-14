@@ -38,7 +38,7 @@ public:
     LayerTRK (geo_data * _world) : 
       world(_world), mymap(convs::mymap(*world)), 
       cnv(convs::mymap(*world), Datum("wgs84"), Proj("lonlat")),
-      myrange(rect_pump(cnv.bb_bck(world->range_geodata()), 110))
+      myrange(rect_pump(cnv.bb_bck(world->range_geodata()), 1.0))
     { 
 #ifdef DEBUG_LAYER_TRK
       std::cerr  << "LayerTRK: set_ref range: " << myrange << "\n";
@@ -48,14 +48,14 @@ public:
     }
 
     void refresh(){
-	myrange = rect_pump(cnv.bb_bck(world->range_geodata()), 110);
+	myrange = rect_pump(cnv.bb_bck(world->range_geodata()), 1.0);
     }
 
     // получить/установить привязку layer'a
     virtual g_map get_ref() const {return mymap;}
     virtual void set_ref(const g_map & map){
       mymap=map; cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"));
-      myrange=cnv.bb_bck(world->range_geodata());
+      myrange=cnv.bb_bck(world->range_geodata(), 1.0);
 #ifdef DEBUG_LAYER_TRK
       std::cerr  << "LayerTRK: set_ref range: " << myrange << "\n";
 #endif

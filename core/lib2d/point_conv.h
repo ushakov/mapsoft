@@ -1,49 +1,59 @@
 #ifndef POINT_CONV_H
 #define POINT_CONV_H
 
+#include "point.h"
+#include "line.h"
+#include "line_utils.h"
 #include <boost/operators.hpp>
 
-
-namespace convs{
-
-// common interface for point conversions
-struct interface
+// common Conv for point conversions
+struct Conv
   : public boost::additive<dPoint>,
-    public boost::multiplicative<PointConv, double>,
+    public boost::multiplicative<Conv, double>
 {
+/*
   // shifts and rescales
-  virtual PointConv & operator-= (dPoint const & s) = 0;
-  virtual PointConv & operator+= (dPoint const & s) = 0;
-  virtual PointConv & operator/= (double k) = 0;
-  virtual PointConv & operator*= (double k) = 0;
+  virtual Conv & operator-= (dPoint const & s) = 0;
+  virtual Conv & operator+= (dPoint const & s) = 0;
+  virtual Conv & operator/= (double k) = 0;
+  virtual Conv & operator*= (double k) = 0;
+*/
 
-  virtual void frw(dPoint & p) = 0;
-  virtual void bck(dPoint & p) = 0;
+  virtual void frw(dPoint & p) const =0;
+  virtual void bck(dPoint & p) const =0;
+
+  virtual void line_frw_p2p(dLine & l) const {
+    for (dLine::iterator i=l.begin(); i!=l.end(); i++) frw(*i);
+  }
+  virtual void line_bck_p2p(dLine & l) const {
+    for (dLine::iterator i=l.begin(); i!=l.end(); i++) bck(*i);
+  }
 
   // Convert a line. Each segment can be divided to provide
   // accuracy <acc> in source units. <max> is a maximum number
   // of divisions.
-  virtual dLine line_frw(const Line<double> & l, double acc=1, int max=100){
-    g_line ret;
+  virtual dLine line_frw(const Line<double> & l, double acc=1, int max=10) const {
+    dLine ret;
     if (l.size()==0) return ret;
-    g_point P1 = l[0], P1a =P1;
-    frw_safe(P1a); ret.push_back(P1a); // add first point
-    g_point P2, P2a;
+    dPoint P1 = l[0], P1a =P1;
+    frw(P1a); ret.push_back(P1a); // add first point
+    dPoint P2, P2a;
 
     for (int i=1; i<l.size(); i++){
       P1 = l[i-1];
       P2 = l[i];
-      int m=max;
+      double d = pdist(P1-P2)/(max+1)*1.5;
       do {
-        P1a = P1; frw_safe(P1a);
-        P2a = P2; frw_safe(P2a);
+        P1a = P1; frw(P1a);
+        P2a = P2; frw(P2a);
         // C1 - is a center of (P1-P2)
         // C2-C1 is a perpendicular to (P1-P2) with acc length
-        g_point C1 = (P1+P2)/2.;
-        g_point C2 = C1 + acc*pnorm(g_point(P1.y-P2.y, -P1.x+P2.x));.
-        g_point C1a = C1; frw_safe(C1a);
-        g_point C2a = C2; frw_safe(C2a);
-        if (pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)){
+        dPoint C1 = (P1+P2)/2.;
+        dPoint C2 = C1 + acc*pnorm(dPoint(P1.y-P2.y, -P1.x+P2.x));
+        dPoint C1a = C1; frw(C1a);
+        dPoint C2a = C2; frw(C2a);
+        if ((pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)) ||
+            (pdist(P1-P2) < d)){
           // go to the rest of line (P2-l[i])
           ret.push_back(P2a);
           P1 = P2;
@@ -53,29 +63,30 @@ struct interface
           // go to the first half (P1-C1) of current line
           P2 = C1;
         }
-        m--;
-      } while ((P1!=P2)&&(m>0));
+      } while (P1!=P2);
     }
     return ret;
   }
 
-  virtual dLine line_bck(const Line<double> & l, double acc=1, int max=100){
-    g_line ret;
+  virtual dLine line_bck(const Line<double> & l, double acc=1, int max=10) const {
+    dLine ret;
     if (l.size()==0) return ret;
-    g_point P1 = l[0], P1a =P1; bck_safe(P1a); ret.push_back(P1a);
-    g_point P2, P2a;
+    dPoint P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
+    dPoint P2, P2a;
 
     for (int i=1; i<l.size(); i++){
       P1 = l[i-1];
       P2 = l[i];
-      int m=max;
+      double d = pdist(P1-P2)/(max+1)*1.5;
       do {
-        P1a = P1; bck_safe(P1a);
-        P2a = P2; bck_safe(P2a);
-        g_point C1 = (P1+P2)/2.;
-        g_point C1a = C1; bck_safe(C1a);
+        P1a = P1; bck(P1a);
+        P2a = P2; bck(P2a);
+        dPoint C1 = (P1+P2)/2.;
+        dPoint C1a = C1; bck(C1a);
 
-        if (pdist(C1a, (P1a+P2a)/2.) < acc){
+        if ((pdist(C1a, (P1a+P2a)/2.) < acc) ||
+            (pdist(P1-P2) < d)){
+
           ret.push_back(P2a);
           P1 = P2;
           P2 = l[i];
@@ -83,51 +94,47 @@ struct interface
         else {
           P2 = C1;
         }
-        m--;
-      } while ((P1!=P2) && (m>0));
+      } while (P1!=P2);
     }
     return ret;
   }
 
   // convert a rectagle and return bounding box of resulting figure
-  virtual dRect bb_frw(const Rect<double> & R, double acc=1, int max=100){
-    g_line l = line_frw(rect2line(R), acc, max);
+  virtual dRect bb_frw(const Rect<double> & R, double acc=1, int max=100) const {
+    dLine l = line_frw(rect2line(R), acc, max);
     return l.range();
   }
-  virtual dRect bb_bck(const Rect<double> & R, double acc=1, int max=100){
-    g_line l = line_bck(rect2line(R),acc, max);
+  virtual dRect bb_bck(const Rect<double> & R, double acc=1, int max=100) const {
+    dLine l = line_bck(rect2line(R),acc, max);
     return l.range();
   }
 };
 
 // simple conversion: shift and scale
-struct simple: public interface {
+struct SimpleConv: public Conv {
 
   dPoint shift;
   double scale;
 
-  simple & operator-= (dPoint const & s) {shift-=s;}
-  simple & operator+= (dPoint const & s) {shift+=s;}
-  simple & operator*= (double k) {scale*=k;}
-  simple & operator/= (double k) {scale/=k;}
+  Conv & operator-= (dPoint const & s) {shift-=s;}
+  Conv & operator+= (dPoint const & s) {shift+=s;}
+  Conv & operator*= (double k) {scale*=k;}
+  Conv & operator/= (double k) {scale/=k;}
 
   void frw(dPoint & p){p=p*scale+shift;}
   void bck(dPoint & p){p=(p-shift)/scale;}
 
-  void frw_safe(dPoint & p){p=p*scale+shift;}
-  void bck_safe(dPoint & p){p=(p-shift)/scale;}
-
-  virtual dLine line_frw(const Line<double> & l, double acc=1, int max=100){
-    g_line ret;
+  virtual dLine line_frw(const Line<double> & l, double acc=1, int max=10){
+    dLine ret;
     for (dLine::const_iterator i=l.begin(); i!=l.end(); i++)
-      l.push_back((*i)*scale+shift);
+      ret.push_back((*i)*scale+shift);
     return ret;
   }
 
-  virtual dLine line_bck(const Line<double> & l, double acc=1, int max=100){
-    g_line ret;
+  virtual dLine line_bck(const Line<double> & l, double acc=1, int max=10){
+    dLine ret;
     for (dLine::const_iterator i=l.begin(); i!=l.end(); i++)
-      l.push_back(((*i)-shift)/scale);
+      ret.push_back(((*i)-shift)/scale);
     return ret;
   }
 
@@ -141,7 +148,5 @@ struct simple: public interface {
     else         return dRect((R.BRC()-shift)*scale,(R.TLC()-shift)*scale);
   }
 };
-
-}//namespace
 
 #endif /* POINT_CONV_H */

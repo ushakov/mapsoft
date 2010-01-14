@@ -128,88 +128,6 @@ void pt2pt::bck(g_point & p) const{
   pjconv(pr_dst, pr_src, p);
 }
 
-// преобразования линий
-// точность acc - в координатах исходной проекции
-// код одинаков с map2pt::line_frw/line_bck
-// но как их объединить - пока не придумал...
-
-g_line pt2pt::line_frw(const g_line & l, double acc, int max) const {
-
-  g_line ret;
-  // добавим первую точку
-  if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
-  g_point P2, P2a;
-
-  for (int i=1; i<l.size(); i++){
-    P1 = l[i-1];
-    P2 = l[i];
-    int m=max;
-    do {
-      P1a = P1; frw(P1a);
-      P2a = P2; frw(P2a);
-      g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C2 = C1 + acc*pnorm(g_point(P1.y-P2.y, -P1.x+P2.x)); // отступим на acc в сторону от середины.
-      g_point C1a = C1; frw(C1a);
-      g_point C2a = C2; frw(C2a);
-      if (pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)){
-        ret.push_back(P2a);
-        P1 = P2;
-        P2 = l[i];
-      }
-      else {
-        P2 = C1;
-      }
-      m--;
-      if (m==0) ret.push_back(P2a);
-    } while ((P1!=P2)&&(m>0));
-  }
-  return ret;
-}
-
-
-g_line pt2pt::line_bck(const g_line & l, double acc, int max) const{
-
-  g_line ret;
-  // добавим первую точку
-  if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
-  g_point P2, P2a;
-
-  for (int i=1; i<l.size(); i++){
-    P1 = l[i-1];
-    P2 = l[i];
-    int m=max;
-    do {
-      P1a = P1; bck(P1a);
-      P2a = P2; bck(P2a);
-      g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C1a = C1; bck(C1a);
-
-      if (pdist(C1a, (P1a+P2a)/2.) < acc){
-        ret.push_back(P2a);
-        P1 = P2;
-        P2 = l[i];
-      }
-      else {
-        P2 = C1;
-      }
-      m--;
-      if (m==0) ret.push_back(P2a);
-    } while ((P1!=P2) && (m>0));
-  }
-  return ret;
-}
-
-dRect pt2pt::bb_frw(const Rect<double> & R, double acc) const{
-  g_line l = line_frw(rect2line(R),acc);
-  return l.range();
-}
-dRect pt2pt::bb_bck(const Rect<double> & R, double acc) const{
-  g_line l = line_bck(rect2line(R),acc);
-  return l.range();
-}
-
 
 /*******************************************************************/
 /* Приведение матрицы (N+1)xN к диагональному виду */
@@ -473,76 +391,6 @@ void map2pt::bck(g_point & p) const{
 }
 
 
-g_line map2pt::line_frw(const g_line & l, int max) const {
-  g_line ret;
-  // добавим первую точку
-  if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
-  g_point P2, P2a;
-
-  for (int i=1; i<l.size(); i++){
-    P1 = l[i-1];
-    P2 = l[i];
-    int m = max;
-    do {
-      P1a = P1; frw(P1a);
-      P2a = P2; frw(P2a);
-      g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C2 = C1 + 0.5*g_point(P1.y-P2.y, -P1.x+P2.x)/pdist(P1,P2); // отступим на 0.5 в сторону от середины.
-      g_point C1a = C1; frw(C1a);
-      g_point C2a = C2; frw(C2a);
-      if (pdist(C1a, (P1a+P2a)/2.) < pdist(C1a,C2a)){
-        ret.push_back(P2a);
-        P1 = P2;
-        P2 = l[i];
-      }
-      else {
-        P2 = C1;
-      }
-//    } while (!P1.equals(P2));
-      m--;
-      if (m==0) ret.push_back(P2a);
-    } while ((P1!=P2)&&(m>0));
-  }
-  return ret;
-}
-
-
-g_line map2pt::line_bck(const g_line & l, int max)  const{
-
-  g_line ret;
-  // добавим первую точку
-  if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
-  g_point P2, P2a;
-
-  for (int i=1; i<l.size(); i++){
-    P1 = l[i-1];
-    P2 = l[i];
-    int m=max;
-    do {
-      P1a = P1; bck(P1a);
-      P2a = P2; bck(P2a);
-      g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C1a = C1; bck(C1a);
-
-      if (pdist(C1a, (P1a+P2a)/2.) < 0.5){
-        ret.push_back(P2a);
-        P1 = P2;
-        P2 = l[i];
-      }
-      else {
-        P2 = C1;
-      }
-//    } while (!P1.equals(P2));
-      m--;
-      if (m==0) ret.push_back(P2a);
-    } while ((P1!=P2) && (m>0));
-  }
-  return ret;
-}
-
-
 /*******************************************************************/
 // преобразование из карты в карту
 // здесь может быть суровое разбиение карты на куски и аппроксимация линейными преобразованиями...
@@ -572,74 +420,6 @@ map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
 
 void map2map::frw(g_point & p) const {c1.frw(p); c2.bck(p);}
 void map2map::bck(g_point & p) const {c2.frw(p); c1.bck(p);}
-
-
-g_line map2map::line_frw(const g_line & l, int max) const {
-
-  g_line ret;
-  // добавим первую точку
-  if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; frw(P1a); ret.push_back(P1a);
-  g_point P2, P2a;
-
-  for (int i=1; i<l.size(); i++){
-    P1 = l[i-1];
-    P2 = l[i];
-    int m=max;
-    do {
-      P1a = P1; frw(P1a);
-      P2a = P2; frw(P2a);
-      g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C1a = C1; frw(C1a);
-      if (pdist(C1a, (P1a+P2a)/2.) < 0.5){
-        ret.push_back(P2a);
-        P1 = P2;
-        P2 = l[i];
-      }
-      else {
-        P2 = C1;
-      }
-//    } while (!P1.equals(P2));
-      m--;
-      if (m==0) ret.push_back(P2a);
-    } while ((P1!=P2) && (m>0));
-  }
-  return ret;
-}
-
-
-g_line map2map::line_bck(const g_line & l, int max) const {
-
-  g_line ret;
-  // добавим первую точку
-  if (l.size()==0) return ret;
-  g_point P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
-  g_point P2, P2a;
-
-  for (int i=1; i<l.size(); i++){
-    P1 = l[i-1];
-    P2 = l[i];
-    int m=max;
-    do {
-      P1a = P1; bck(P1a);
-      P2a = P2; bck(P2a);
-      g_point C1 = (P1+P2)/2.; // середина отрезка
-      g_point C1a = C1; bck(C1a);
-      if (pdist(C1a, (P1a+P2a)/2.) < 0.5){
-        ret.push_back(P2a);
-        P1 = P2;
-        P2 = l[i];
-      }
-      else {
-        P2 = C1;
-      }
-//    } while (!P1.equals(P2));
-      m--;
-      if (m==0) ret.push_back(P2a);
-    } while ((P1!=P2) && (m>0));
-  }
-  return ret;
-}
 
 
 // ****************
@@ -709,7 +489,7 @@ int map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect,
     return 0;
 }
 
-iRect map2map::bb_frw(const Rect<int> & R) const{
+iRect map2map::bb_frw_i(const Rect<int> & R) const{
   g_line l = line_frw(rect2line(R));
   dRect r = l.range();
   return iRect(
@@ -718,7 +498,7 @@ iRect map2map::bb_frw(const Rect<int> & R) const{
   );
 }
 
-iRect map2map::bb_bck(const Rect<int> & R) const{
+iRect map2map::bb_bck_i(const Rect<int> & R) const{
   g_line l = line_bck(rect2line(R));
   dRect r = l.range();
   return iRect(
@@ -726,22 +506,6 @@ iRect map2map::bb_bck(const Rect<int> & R) const{
     iPoint(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
   );
 }
-
-dRect map2pt::bb_frw(const iRect & R) const{
-  g_line l = line_frw(rect2line(R));
-  return l.range();
-}
-
-iRect map2pt::bb_bck(const dRect & R) const{
-  g_line l = line_bck(rect2line(R));
-  dRect r = l.range();
-  return iRect(
-    iPoint(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
-    iPoint(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
-  );
-}
-
-
 
 // Быстрая проверка границ
   border_tester::border_tester(g_line & brd) : border(brd){

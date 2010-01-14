@@ -45,7 +45,7 @@ public:
 
     virtual void draw (iPoint origin, iImage & image){
         iRect dst_rect = image.range() + origin;
-        iRect src_rect = cnv.bb_bck(dst_rect);
+        iRect src_rect = cnv.bb_bck_i(dst_rect);
 
 
 #ifdef DEBUG_LAYER_KS

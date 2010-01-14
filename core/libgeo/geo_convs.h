@@ -7,6 +7,7 @@
 #include "geo_data.h"
 #include "../utils/options.h"
 #include "../lib2d/image.h"
+#include "../lib2d/point_conv.h"
 #include <proj_api.h>
 
 namespace convs{
@@ -18,7 +19,7 @@ projPJ mkproj(const Datum & D, const Proj & P, const Options & o);
 // точки преобразуются по ссылке, чтобы можно было не копируя
 // преобразовывать координаты в сложных штуках типа g_waypoint
 
-struct pt2pt{
+struct pt2pt : Conv{
 
   pt2pt(const Datum & sD, const Proj & sP, const Options & sPo,
         const Datum & dD, const Proj & dP, const Options & dPo);
@@ -29,16 +30,6 @@ struct pt2pt{
 
   void frw(g_point & p) const;
   void bck(g_point & p) const;
-
-  // преобразования линий
-  // точность acc - в координатах исходной проекции
-  g_line line_frw(const g_line & l, double acc, int max=100) const;
-  g_line line_bck(const g_line & l, double acc, int max=100) const;
-
-  // преобразование прямоугольника (в произвольную фигуру) и нахождение 
-  // минимального прямоугольника, в котором она лежит
-  dRect bb_frw(const Rect<double> & R, double acc) const;
-  dRect bb_bck(const Rect<double> & R, double acc) const;
 
   private:
     projPJ pr_src, pr_dst;
@@ -52,7 +43,7 @@ struct pt2pt{
 // преобразование из точки карты в геодезическую точку
 // здесь же - выяснение всяких параметров карты (размер изображения, масштам метров/точку)
 // сюда же - преобразование линий!
-struct map2pt{
+struct map2pt : Conv{
   map2pt(const g_map & sM,
          const Datum & dD, const Proj & dP, const Options & dPo = Options());
 
@@ -62,12 +53,6 @@ struct map2pt{
 
   void frw(g_point & p) const;
   void bck(g_point & p) const;
-
-  g_line line_frw(const g_line & l, int max=100) const;
-  g_line line_bck(const g_line & l, int max=100) const;
-
-  dRect bb_frw(const iRect & R) const;
-  iRect bb_bck(const dRect & R) const;
 
   private:
     projPJ pr_ref, pr_map, pr_dst;
@@ -110,13 +95,10 @@ struct border_tester{
 // здесь же - преобразование линий
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
-struct map2map{
+struct map2map : Conv{
   map2map(const g_map & sM, const g_map & dM, bool test_brd_ = true);
   void frw(g_point & p) const;
   void bck(g_point & p) const;
-
-  g_line line_frw(const g_line & l, int max=100) const;
-  g_line line_bck(const g_line & l, int max=100) const;
 
   // src_scale -- во сколько раз была уменьшена растровая картинка при загрузке
   // cnv_rect - прямоугольник в плоскости _преобразованной картинки_!!!
@@ -125,11 +107,8 @@ struct map2map{
   int image_bck(iImage & src_img, int src_scale, iRect cnv_rect, 
                 iImage & dst_img, iRect dst_rect) const;
 
-
-  // преобразование прямоугольника (в произвольную фигуру) и нахождение 
-  // минимального прямоугольника, в котором она лежит
-  iRect bb_frw(const Rect<int> & R) const;
-  iRect bb_bck(const Rect<int> & R) const;
+  iRect bb_frw_i(const Rect<int> & R) const;
+  iRect bb_bck_i(const Rect<int> & R) const;
 
     bool test_brd;
     map2pt c1,c2;
