@@ -565,10 +565,13 @@ int crop(int argc, char** argv){
   string datum;
   string file;
   dRect cutter;
+  Options O;
   if (argc==5){
     proj     = argv[1];
     datum    = argv[2];
     cutter=boost::lexical_cast<dRect>(argv[3]);
+    O.put("lon0", convs::lon_pref2lon0(cutter.x));
+    cutter.x=convs::lon_delprefix(cutter.x);
     file     = argv[4];
   } else {
     proj     = "lonlat";
@@ -594,7 +597,7 @@ int crop(int argc, char** argv){
     if (ref.size()<3){
       cerr << "ERR: not a GEO-fig\n"; return 1;
     }
-    convs::map2pt cnv(ref, Datum(datum), Proj(proj));
+    convs::map2pt cnv(ref, Datum(datum), Proj(proj), O);
 
     fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
@@ -614,7 +617,7 @@ int crop(int argc, char** argv){
       cerr << "ERR: bad mp file\n"; return 1;
     }
     convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
-                     Datum(datum), Proj(proj), Options());
+                     Datum(datum), Proj(proj), O);
 
     // Run cnv on point from cutter
     // to avoid automatic setting of lon0 from the first point of mp-file

@@ -592,8 +592,14 @@ iRect map2map::bb_bck_i(const Rect<int> & R) const{
              (ry == s));
   }
 
-double lon2lon0(double lon){
+double lon2lon0(const double lon){
   return floor( lon/6.0 ) * 6 + 3;
+}
+double lon_pref2lon0(const double lon){
+  return floor( lon/1e6 ) * 6 - 3;
+}
+double lon_delprefix(const double lon){
+  return lon - floor( lon/1e6 ) * 1e6;
 }
 
 g_map mymap(const geo_data & world){ // естественная привязка геоданных

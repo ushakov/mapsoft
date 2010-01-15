@@ -127,8 +127,10 @@ g_map mymap(const geo_data & world); // естественная привязк�
 // масштаб карты, единиц проекции P в точке
 double map_mpp(const g_map &map, Proj P);
 
-// find central meridian for a given longitude
-double lon2lon0(double lon);
+// find central meridian for a given longitude/point/rect
+double lon2lon0(const double lon);
+double lon_pref2lon0(const double lon);
+double lon_delprefix(const double lon);
 
 }//namespace
 #endif

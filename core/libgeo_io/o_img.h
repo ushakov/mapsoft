@@ -6,7 +6,7 @@
 
 namespace img {
 
-    bool write_file (const char* filename, const geo_data & world, const Options & opt);
+    bool write_file (const char* filename, const geo_data & world, Options opt);
 
 }
 #endif

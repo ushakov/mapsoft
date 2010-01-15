@@ -116,6 +116,7 @@ W=;H=;X=;Y=;K=;
 [ "$Y" = 0 -o -z "$K" ] || Y="${Y}000"
 
 zone="$(printf "$X" | head -c -6)"
+X="$(printf "$X" | tail -c 6)"
 [ -z "$zone" -o -n "$lon0" ] || lon0="$((6*$zone-3))"
 
 [ -z "$geom" -o -n "$lon0" ] ||
