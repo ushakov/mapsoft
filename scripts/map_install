@@ -1,9 +1,6 @@
 #!/bin/sh -eu
 
-
-. shell-config
-. shell-error
-. shell-quote
+. map_functions.sh
 
 dpi_def=100
 dpi_preview=25
@@ -49,59 +46,13 @@ img="${name}.img"
 vmap="mapsoft_vmap"
 cgm="cgpsmapper-static"
 
-settings="./settings"
-sep="[[:space:]]*=[[:space:]]*"
-
 ########## conf
-style="$(shell_config_get "$settings" "style:$name" "$sep")"
-[ -n "$style" ] ||
-  style="$(shell_config_get "$settings" "style" "$sep")"
-[ -n "$style" ] ||
-  style="mmb"
-conf="/usr/share/mapsoft/$style.cnf"
-[ -f "$conf" ] ||
-  fatal "Error: can't find $conf"
-
-########## rscale
-rscale="$(shell_config_get "$settings" "rscale:$name" "$sep")"
-[ -n "$rscale" ] ||
-  rscale="$(shell_config_get "$settings" "rscale" "$sep")"
-[ -n "$rscale" ] ||
-  rscale="50000"
-
-########## geom
-geom="$(shell_config_get "$settings" "geom:$name" "$sep")"
-[ -n "$geom" ] ||
-  geom="$(shell_config_get "$settings" "geom" "$sep")"
-
-########## comm
-comm="$(shell_config_get "$settings" "comm:$name" "$sep")"
-[ -n "$comm" ] ||
-  comm="$(shell_config_get "$settings" "comm" "$sep")"
-if [ -z "$comm" -a -s "$mp" ]; then
-  comm="$(sed -n 's/^Name=\([^\r]*\)\r\?$/\1/p' "$mp")"
-fi
-[ -n "$comm" ] ||
-  comm="$name"
-
-########## basedir
-basedir="$(shell_config_get "$settings" "basedir:$name" "$sep")"
-[ -n "$basedir" ] ||
-  basedir="$(shell_config_get "$settings" "basedir" "$sep")"
-[ -n "$basedir" ] ||
-  basedir="."
-
-########## auth
-auth="$(shell_config_get "$settings" "auth:$name" "$sep")"
-[ -n "$auth" ] ||
-  auth="$(shell_config_get "$settings" "auth" "$sep")"
-if [ -z "$auth" -a -s "$mp" ]; then
-  auth="$(sed -n 's/^Copyright=\([^\r]*\)\r\?$/\1/p' "$mp")"
-fi
-[ -n "$auth" ] ||
-  auth="$name"
-
-################################
+style="$(get_map_par "$name" "style" "mmb")"
+rscale="$(get_map_par "$name" "rscale" "50000")"
+geom="$(get_map_par "$name" "geom" "")"
+comm="$(get_map_par "$name" "comm" "$name")"
+basedir="$(get_map_par "$name" "basedir" ".")"
+auth="$(get_map_par "$name" "auth" "")"
 
 cat << EOF
 $0:
@@ -112,6 +63,10 @@ $0:
 * basedir: $basedir
 
 EOF
+
+conf="/usr/share/mapsoft/$style.cnf"
+[ -f "$conf" ] ||
+  fatal "Error: can't find $conf"
 
 ################################
 
