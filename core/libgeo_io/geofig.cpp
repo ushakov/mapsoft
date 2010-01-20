@@ -54,6 +54,11 @@ using namespace boost::spirit;
           cerr << "Geofig: old-style option: " << key << ": " << O[key] << "\n";
         }
 
+        if (x>=1e6){
+          O.put("lon0", convs::lon_pref2lon0(x));
+          x=convs::lon_delprefix(x);
+        }
+
  	g_refpoint ref(x,y,(*i)[0].x,(*i)[0].y);
         if (min.x>(*i)[0].x) min.x = (*i)[0].x;
         if (min.y>(*i)[0].y) min.y = (*i)[0].y;
