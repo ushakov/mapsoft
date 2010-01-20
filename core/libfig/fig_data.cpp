@@ -7,7 +7,7 @@ using namespace std;
 void fig_object::set_points(const dLine & v){
   clear();
   for (int i=0;i<v.size();i++)
-    push_back(iPoint(int(v[i].x), int(v[i].y)));
+    push_back(iPoint(lround(v[i].x), lround(v[i].y)));
 }
 
 void fig_object::set_points(const iLine & v){
