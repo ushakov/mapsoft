@@ -209,6 +209,7 @@ main(int argc, char **argv){
     }
     // все перевалы разом!
     if ((type == 0x6406)||
+        (type == 0x6620)||
         (type == 0x6621)||
         (type == 0x6622)||
         (type == 0x6623)||
