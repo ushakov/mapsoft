@@ -64,10 +64,6 @@ $0:
 
 EOF
 
-conf="/usr/share/mapsoft/$style.cnf"
-[ -f "$conf" ] ||
-  fatal "Error: can't find $conf"
-
 ################################
 
 datadir="$basedir/$name"
@@ -77,10 +73,10 @@ datadir="$basedir/$name"
 ####### make name.mp
 if [ -s "$mp" ]; then
   cp "$mp" "$datadir/$mp"
-  "$vmap" remove "$conf" "$datadir/$mp" all
+  "$vmap" remove "$style" "$datadir/$mp" all
 fi
 
-"$vmap" copy "$conf" "$fig" "$datadir/$mp" all
+"$vmap" copy "$style" "$fig" "$datadir/$mp" all
 
 id="$(sed -n 's/^ID=\([^\r]*\)\r\?$/\1/p' "$datadir/$mp")"
 if [ -z "$id" -o "$id" = 0 ]; then
@@ -111,7 +107,7 @@ fi
 
 
 if [ -z "$nopng" ]; then
-  get_print "$conf" "$fig" "$datadir/$fig"
+  get_print "$style" "$fig" "$datadir/$fig"
   fig2pnm --map "$datadir/$name.map" "$datadir/$fig" |
     pnmtopng > "$datadir/$name.png"
   rm -f "$TMPDIR/gs_*"

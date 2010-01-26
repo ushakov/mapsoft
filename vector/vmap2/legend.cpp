@@ -54,13 +54,13 @@ legend::legend(const string & style){
   string gf="/usr/share/mapsoft/"+style+".sty";
   string lf="./"+style+".sty";
   struct stat st_buf;
-  if (stat(gf.c_str(), &st_buf) == 0)
-    conf_file=gf;
-  else if (stat(lf.c_str(), &st_buf) == 0)
+  if (stat(lf.c_str(), &st_buf) == 0)
     conf_file=lf;
+  else if (stat(gf.c_str(), &st_buf) == 0)
+    conf_file=gf;
   else {
      cerr << "Can't find style " << style << " in "
-          << gf << " or " << lf << "\n";
+          << lf << " or " << gf << "\n";
      exit(1);
   }
 

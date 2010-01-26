@@ -44,7 +44,8 @@ class zn_conv{
   int min_depth, max_depth;
 
   // Конструктор - чтение конфигурационного файла
-  zn_conv(const std::string & conf_file);
+  // (./<style>.cnf, /usr/share/mapsoft/<style>.cnf)
+  zn_conv(const std::string & style);
 
     // Операции с mp- и fig-объектами, для которых 
     // требуется конф.файл

@@ -63,7 +63,7 @@ int copy(int argc, char** argv){
 
   if (argc < 4){
     cerr << "Copy map objects.\n"
-         << "  usage: mapsoft_vmap copy <conf>  <in mp|fig> <out mp|fig> <filter> <filter args>\n"
+         << "  usage: mapsoft_vmap copy <style>  <in mp|fig> <out mp|fig> <filter> <filter args>\n"
          << "FIG files must have geo-reference.\n"
          << filter_help();
     return 1;
@@ -163,7 +163,7 @@ int remove(int argc, char** argv){
 
   if (argc < 3){
     cerr << "Remove map objects from mp or fig.\n"
-         << "  usage: mapsoft_vmap remove <conf> <fig|mp> <filter> <filter arg>\n"
+         << "  usage: mapsoft_vmap remove <style> <fig|mp> <filter> <filter arg>\n"
          << "FIG file must have geo-reference.\n"
          << filter_help();
     return 1;
@@ -236,7 +236,7 @@ int remove_keys(int argc, char** argv){
 
   if (argc < 3){
     cerr << "Remove keys of map objects from mp or fig.\n"
-         << "  usage: mapsoft_vmap remove <conf> <fig|mp> <filter> <filter arg>\n"
+         << "  usage: mapsoft_vmap remove <style> <fig|mp> <filter> <filter arg>\n"
          << filter_help();
     return 1;
   }
@@ -329,7 +329,7 @@ int update_fig(int argc, char** argv){
 
   if (argc != 4){
     cerr << "Update fig.\n"
-         << "  usage: mapsoft_vmap update_fig <conf> <map name> <editor> <fig>\n";
+         << "  usage: mapsoft_vmap update_fig <style> <map name> <editor> <fig>\n";
     return 1;
   }
   string cfile    = argv[0];
@@ -488,7 +488,7 @@ int update_mp(int argc, char** argv){
 
   if (argc != 4){
     cerr << "Update mp.\n"
-         << "  usage: mapsoft_vmap update_mp <conf> <map name> <editor> <mp>\n";
+         << "  usage: mapsoft_vmap update_mp <style> <map name> <editor> <mp>\n";
     return 1;
   }
   string cfile    = argv[0];
@@ -555,8 +555,8 @@ int crop(int argc, char** argv){
 
   if ((argc != 5) && (argc!=3)){
     cerr << "Update keys.\n"
-         << "  usage: mapsoft_vmap crop <conf> <proj> <datum> <geom> <fig|mp>\n"
-         << "         mapsoft_vmap crop <conf> <nom> <fig|mp>\n";
+         << "  usage: mapsoft_vmap crop <style> <proj> <datum> <geom> <fig|mp>\n"
+         << "         mapsoft_vmap crop <style> <nom> <fig|mp>\n";
     return 1;
   }
 
@@ -653,7 +653,7 @@ int range(int argc, char** argv){
 
   if (argc != 4){
     cerr << "Get range.\n"
-         << "  usage: mapsoft_vmap range <conf> <proj> <datum> <fig|mp>\n";
+         << "  usage: mapsoft_vmap range <style> <proj> <datum> <fig|mp>\n";
     return 1;
   }
 
@@ -720,7 +720,7 @@ int remove_grids(int argc, char** argv){
 
   if (argc < 2){
     cerr << "Remove non-map objects from fig. Keep reference, labels, map-objects\n"
-         << "  usage: mapsoft_vmap remove_grids <conf> <fig>\n";
+         << "  usage: mapsoft_vmap remove_grids <style> <fig>\n";
     return 1;
   }
 
@@ -761,7 +761,7 @@ int remove_labels(int argc, char** argv){
 
   if (argc < 2){
     cerr << "Remove labels from fig.\n"
-         << "  usage: mapsoft_vmap remove_labels <conf> <fig>\n";
+         << "  usage: mapsoft_vmap remove_labels <style> <fig>\n";
     return 1;
   }
 
@@ -800,7 +800,7 @@ int copy_labels(int argc, char** argv){
 
   if (argc < 3){
     cerr << "Copy labels from fig to fig.\n"
-         << "  usage: mapsoft_vmap copy_labels <conf> <infig> <outfig>\n";
+         << "  usage: mapsoft_vmap copy_labels <style> <infig> <outfig>\n";
     return 1;
   }
 
@@ -856,7 +856,7 @@ int show_maps(int argc, char** argv){
 
   if (argc != 2){
     cerr << "Show maps.\n"
-         << "  usage: mapsoft_vmap maps <conf> <fig|mp>\n";
+         << "  usage: mapsoft_vmap maps <style> <fig|mp>\n";
     return 1;
   }
 
@@ -910,7 +910,7 @@ int show_maps(int argc, char** argv){
 int switch_map(int argc, char** argv){
   if (argc != 3){
     cerr << "Make all objects and their labels to be in one map (fig).\n"
-         << "  usage: mapsoft_vmap one_map <conf> <map name> <fig>\n";
+         << "  usage: mapsoft_vmap one_map <style> <map name> <fig>\n";
     return 1;
   }
   string cfile    = argv[0];

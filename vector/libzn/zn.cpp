@@ -37,7 +37,7 @@ typedef enum {
 
 // zn_conv constructor. Read config file,
 // build structure with fig and mp objects
-zn_conv::zn_conv(const string & conf_file){
+zn_conv::zn_conv(const string & style){
 
   yaml_parser_t parser;
   yaml_event_t event;
@@ -53,6 +53,21 @@ zn_conv::zn_conv(const string & conf_file){
   min_depth=999;
   max_depth=0;
   znaki.clear();
+
+  string conf_file;
+  // looking for a style
+  string gf="/usr/share/mapsoft/"+style+".cnf";
+  string lf="./"+style+".cnf";
+  struct stat st_buf;
+  if (stat(lf.c_str(), &st_buf) == 0)
+    conf_file=lf;
+  else if (stat(gf.c_str(), &st_buf) == 0)
+    conf_file=gf;
+  else {
+     cerr << "Can't find style " << style << " in "
+          << lf << " or " << gf << "\n";
+     exit(1);
+  }
 
   // читаем конф.файл.
   FILE *file = fopen(conf_file.c_str(), "r");
