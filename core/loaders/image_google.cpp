@@ -86,7 +86,7 @@ int load(
 	  if (!f) return 1;
 	  int n = rand() % 4;
 	  std::ostringstream urls;
-	  urls << "http://khm" << n << ".google.com/kh?&v=37&hl=ru" 
+	  urls << "http://khm" << n << ".google.com/kh?&v=53" 
                << "&x=" << xt << "&y=" << yt << "&z=" << google_scale-1 << "&s=";
           urls.write("Galileo", (xt*3+yt)%8);
 	  std::string url = urls.str();
