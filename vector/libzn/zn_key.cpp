@@ -175,23 +175,34 @@ void clear_key(mp::mp_object & mp){
 }
 
 void fig_old2new(fig::fig_world & F){
+
+  int n;
+
+  n=0;
   fig::fig_world::iterator i;
   for (i=F.begin(); i!=F.end();i++){
     if ((i->comment.size()<2) || (i->comment[1] != "[skip]")) continue;
     i->comment.clear();
     i->opts["MapType"]="pic";
+    n++;
   }
+  if (n>0) std::cerr << "converting old-style pics: " << n << "\n";
 
   // for labels find nearest object point
   // objects with non-empty label
+
+  n=0;
   std::map<id_type, fig::fig_object> objs;
   for (i=F.begin(); i!=F.end();i++){
     if ((i->comment.size()<1) || (i->comment[0] == "")) continue;
     zn_key k = get_key(*i);
     if (k.id==0) continue;
     objs[k.id]=*i;
+    n++;
   }
+  if (n>0) std::cerr << "old-style objects with text: " << n << "\n";
 
+  n=0;
   i=F.begin();
   while (i!=F.end()){
     zn_label_key k = get_label_key(*i);
@@ -205,7 +216,7 @@ void fig_old2new(fig::fig_world & F){
     }
     fig::fig_object & o = objs[k.id];
     if ((o.size()<1) || (i->size()<1)){
-       i=F.erase(i);
+      i=F.erase(i);
       continue;
     }
     iPoint pt=o[0];
@@ -220,15 +231,20 @@ void fig_old2new(fig::fig_world & F){
     i->opts.put("RefPt", pt);
     i->comment.clear();
     i++;
+    n++;
   }
+  if (n>0) std::cerr << "converting old-style labels: " << n << "\n";
 
+  n=0;
   for (i=F.begin(); i!=F.end();i++){
     zn_key k = get_key(*i);
     if (k.id==0) continue;
     for (int j=2; j<i->comment.size(); j++) i->comment[j-1]=i->comment[j];
     i->comment.resize(i->comment.size()-1);
     if (k.map == "westra_passes") i->opts["Source"]=k.map;
+    n++;
   }
+  if (n>0) std::cerr << "converting old-style objects: " << n << "\n";
 
 }
 
