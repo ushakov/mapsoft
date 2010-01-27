@@ -289,6 +289,10 @@ int crop(const string & mode, int argc, char** argv){
       if (mode=="range_remove"){
         if (l.size()!=0) {i=F.erase(i); obj_cnt2++;} else i++;
       }
+      else {
+        cerr << "mapsoft_vmap crop: unknown mode\n";
+        break;
+      }
     }
 
     fig::fig_object brd = fig::make_object("2 3 0 1 0 * * * * * * * * * * *");
@@ -332,8 +336,12 @@ int crop(const string & mode, int argc, char** argv){
           if (line.size()==0) l=i->erase(l); else l++;
         }
         else
-        if (mode=="range_delete"){
+        if (mode=="range_remove"){
           if (line.size()!=0) l=i->erase(l); else l++;
+        }
+        else {
+          cerr << "mapsoft_vmap crop: unknown mode\n";
+          break;
         }
       }
       if (i->size()==0) {i=M.erase(i); obj_cnt2++;} else i++;
