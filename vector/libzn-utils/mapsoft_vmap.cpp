@@ -3,8 +3,8 @@
 #include "../../core/libgeo_io/geofig.h"
 #include "../../core/libmp/mp.h"
 
+#include "../libzn/zn_key.h" // for zn::fig_old2new()
 #include "../libzn/zn.h"
-#include "../libzn/zn_key.h"
 
 #include "../../core/lib2d/line_rectcrop.h"
 #include "../../core/libgeo_io/io.h"
@@ -16,42 +16,6 @@ bool testext(const string & nstr, const char *ext){
     int pos = nstr.rfind(ext);
     return ((pos>0)&&(pos == nstr.length()-strlen(ext)));
 }
-bool testfilter(const string & filter, const string & arg, const zn::zn_key & k){
-    return ((filter == "all") ||
-            ((filter == "map")  && (arg == k.map)) ||
-            ((filter == "nmap") && (arg != k.map)) ||
-            ((filter == "src")  && (arg == k.source)) ||
-            ((filter == "nsrc") && (arg != k.source)));
-}
-string filter_help(void){
-  return  string("filters:\n") +
-          "  all        -- all map objects\n" +
-          "  map  <map> -- objects with keys having map=<map>\n" +
-          "  map  ""    -- objects without keys\n" +
-          "  nmap <map> -- objects with keys having map!=<map> \n" +
-          "  nmap ""    -- objects with keys\n" +
-          "  src  <src> -- objects with keys having source=<src> \n" +
-          "  nsrc <src> -- objects with keys having source!=<src> \n";
-}
-
-void copy_comment(const fig::fig_world::iterator & i, const fig::fig_world::iterator & end){
-  if (i->type == 6){ // составной объект
-    // копируем первые непустые строки комментария в следующий объект
-    // остальное нам не нужно
-    fig::fig_world::iterator j=i; j++;
-
-    // пропускаем подписи
-    while ((j!=end) && (j->comment.size()>1) && (j->comment[1]=="[skip]")) j++;
-
-    if ((j!=end) && (i->comment.size()>0)){
-      if (j->comment.size()< i->comment.size()) j->comment.resize(i->comment.size());
-      for (int n=0; n<i->comment.size(); n++) j->comment[n] = i->comment[n];
-
-    }
-  }
-}
-
-
 
 /*****************************************************/
 /// Копировать картографические объекты из (mp|fig) в (mp|fig)
@@ -61,32 +25,18 @@ void copy_comment(const fig::fig_world::iterator & i, const fig::fig_world::iter
 
 int copy(int argc, char** argv){
 
-  if (argc < 4){
+  if (argc < 3){
     cerr << "Copy map objects.\n"
-         << "  usage: mapsoft_vmap copy <style>  <in mp|fig> <out mp|fig> <filter> <filter args>\n"
-         << "FIG files must have geo-reference.\n"
-         << filter_help();
+         << "  usage: mapsoft_vmap copy <style>  <in mp|fig> <out mp|fig> [<source>]\n"
+         << "FIG files must have geo-reference.\n";
     return 1;
   }
 
   string cfile = argv[0];
   string ifile = argv[1];
   string ofile = argv[2];
-  string filter = argv[3];
-  string arg;
-  if ((filter != "all") &&
-      (filter != "map") && (filter != "nmap") &&
-      (filter != "src") && (filter != "nsrc")){
-    cerr << "ERR: unknown filter!\n";
-    return 1;
-  }
-  if (filter!="all"){
-    if (argc<5){
-      cerr << "ERR: argument required!\n";
-      return 1;
-    }
-    arg=argv[4];
-  }
+  string source;
+  if (argc>3) source = argv[3];
 
   cerr << "copying from " << ifile << " to " << ofile << ": ";
 
@@ -106,7 +56,7 @@ int copy(int argc, char** argv){
     }
     convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
     for (fig::fig_world::iterator i=IF.begin(); i!=IF.end(); i++){
-      if (i->type==6) copy_comment(i, IF.end());
+      if (i->type==6) zconverter.fig_copy_comment(i, IF.end());
       if (!zconverter.is_map_depth(*i)) continue;
       IM.push_back(zconverter.fig2mp(*i, cnv));
     }
@@ -131,7 +81,7 @@ int copy(int argc, char** argv){
     }
     convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
     for (mp::mp_world::const_iterator i=IM.begin(); i!=IM.end(); i++){
-      if ((filter=="all") || testfilter(filter, arg, zn::get_key(*i))){
+      if ((source == "") || (i->Opts.get("Source", string()) == source)){
         obj_cnt++;
         list<fig::fig_object> tmp=zconverter.mp2fig(*i, cnv);
         OF.insert(OF.end(), tmp.begin(), tmp.end());
@@ -143,7 +93,7 @@ int copy(int argc, char** argv){
     mp::read(ofile.c_str(), OM);
     // если файла нет - OM остается пустым
     for (mp::mp_world::const_iterator i=IM.begin(); i!=IM.end(); i++){
-      if ((filter=="all") || testfilter(filter, arg, zn::get_key(*i))){
+      if ((source == "") || (i->Opts.get("Source", string()) == source)){
         obj_cnt++;
         OM.push_back(*i);
       }
@@ -161,31 +111,17 @@ int copy(int argc, char** argv){
 /// Удалить картографические объекты (fig|mp)
 int remove(int argc, char** argv){
 
-  if (argc < 3){
+  if (argc < 2){
     cerr << "Remove map objects from mp or fig.\n"
-         << "  usage: mapsoft_vmap remove <style> <fig|mp> <filter> <filter arg>\n"
-         << "FIG file must have geo-reference.\n"
-         << filter_help();
+         << "  usage: mapsoft_vmap remove <style> <fig|mp> [<source>]\n"
+         << "FIG file must have geo-reference.\n";
     return 1;
   }
 
   string cfile  = argv[0];
   string file   = argv[1];
-  string filter = argv[2];
-  string arg;
-  if ((filter != "all") &&
-      (filter != "map") && (filter != "nmap") &&
-      (filter != "src") && (filter != "nsrc")){
-    cerr << "ERR: unknown filter!\n";
-    return 1;
-  }
-  if (filter!="all"){
-    if (argc<4){
-      cerr << "ERR: argument required!\n";
-      return 1;
-    }
-    arg=argv[3];
-  }
+  string source;
+  if (argc>2) source = argv[2];
 
   cerr << "removing map objects from " << file <<": ";
 
@@ -202,7 +138,7 @@ int remove(int argc, char** argv){
     fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
       if (zconverter.is_map_depth(*i) &&
-          ((filter=="all") || testfilter(filter, arg, zn::get_key(*i))))
+        ((source == "") || (i->opts.get("Source", string()) == source)))
              {i=F.erase(i); obj_cnt++;}
       else i++;
     }
@@ -217,7 +153,7 @@ int remove(int argc, char** argv){
 
     mp::mp_world::iterator i=M.begin();
     while (i!=M.end()){
-      if ((filter=="all") || testfilter(filter, arg, zn::get_key(*i)))
+      if ((source == "") || (i->Opts.get("Source", string()) == source))
         {i=M.erase(i); obj_cnt++;}
       else i++;
     }
@@ -230,75 +166,6 @@ int remove(int argc, char** argv){
   return 0;
 }
 
-/*****************************************************/
-/// Удалить ключи картографических объектов (fig|mp)
-int remove_keys(int argc, char** argv){
-
-  if (argc < 3){
-    cerr << "Remove keys of map objects from mp or fig.\n"
-         << "  usage: mapsoft_vmap remove <style> <fig|mp> <filter> <filter arg>\n"
-         << filter_help();
-    return 1;
-  }
-
-  string cfile  = argv[0];
-  string file   = argv[1];
-  string filter = argv[2];
-  string arg;
-  if ((filter != "all") &&
-      (filter != "map") && (filter != "nmap") &&
-      (filter != "src") && (filter != "nsrc")){
-    cerr << "ERR: unknown filter!\n";
-    return 1;
-  }
-  if (filter!="all"){
-    if (argc<4){
-      cerr << "ERR: argument required!\n";
-      return 1;
-    }
-    arg=argv[3];
-  }
-
-  cerr << "removing keys from " << file <<": ";
-
-  zn::zn_conv zconverter(cfile);
-
-  int obj_cnt=0;
-
-  if (testext(file, ".fig")){
-    fig::fig_world F;
-    if (!fig::read(file.c_str(), F)) {
-      cerr << "ERR: bad fig file\n"; return 1;
-    }
-
-    for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
-      if (i->type==6) copy_comment(i, F.end());
-      if (zconverter.is_map_depth(*i) &&
-          testfilter(filter, arg, zn::get_key(*i)))
-             {zn::clear_key(*i); obj_cnt++;}
-    }
-    fig::write(file, F);
-  }
-
-  else if (testext(file, ".mp")){
-    mp::mp_world M;
-    if (!mp::read(file.c_str(), M)) {
-      cerr << "ERR: bad mp file\n"; return 1;
-    }
-
-    for (mp::mp_world::iterator i=M.begin(); i!=M.end(); i++){
-      if (testfilter(filter, arg, zn::get_key(*i)))
-         {zn::clear_key(*i); obj_cnt++;}
-    }
-    mp::write(file, M);
-  }
-  else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
-
-  cerr << obj_cnt << " keys removed\n";
-
-  return 0;
-}
-
 
 /*****************************************************/
 ///  Обновление подписей (fig)
@@ -307,35 +174,25 @@ int remove_keys(int argc, char** argv){
 // - если у объекта поменялось название - подпись меняется
 // - если исчез объект, к которому привязана подпись - подпись удаляется
 /*****************************************************/
-/// Обновление ключей (fig|mp)
-// - для объектов с ключом - если надо, меняется тип объекта в зависимости от внешнего вида
-//   (м.б вообще не хранить тип в ключе?)
-// - для объектов без ключа - создается новый ключ, source устанавливается из параметра source
-// - если найдется несколько объектов с одинаковым ключом в одной карте - для всех создаются новые ключи
-/*****************************************************/
 /// Обновление картинок (fig)
 //  - раскрываются все составные объекты
-//  - удаляются все старые картинки (объекты с комментариями [skip])
+//  - удаляются все старые картинки (объекты с MapType=pic)
 //  - fig-файл сортируется
 //  - новые картинки создаются
-//  картинки добавляются ко всем объектам (вне зависимости от ключа)
 //  объект и его картинка оборачиваются в compound, комментарий объекта
 //  переносится в комментарий compound'a
 
 /*****************************************************/
 /// update fig map
-/// (new function to replace keys+labels+pics)
 int update_fig(int argc, char** argv){
 
-  if (argc != 4){
+  if (argc != 2){
     cerr << "Update fig.\n"
-         << "  usage: mapsoft_vmap update_fig <style> <map name> <editor> <fig>\n";
+         << "  usage: mapsoft_vmap update_fig <style> <fig>\n";
     return 1;
   }
   string cfile    = argv[0];
-  string map_name = argv[1];
-  string editor   = argv[2];
-  string file     = argv[3];
+  string file     = argv[1];
 
   // read file
   cerr << "updating FIG file " << file <<"\n";
@@ -344,217 +201,24 @@ int update_fig(int argc, char** argv){
     cerr << "ERR: bad fig file\n"; return 1;
   }
 
-  map<string, multimap<zn::id_type, fig::fig_object> > labels;
-  map<string, multiset<zn::id_type> > dup_counter;
+  zn::fig_old2new(F);
 
   zn::zn_conv zconverter(cfile);
-
-  // First pass
-  fig::fig_world::iterator i=F.begin();
-  while (i!=F.end()){
-    // * remove compounds, copy comments from them
-    // * remove objects with "[skip]" comment
-    if (i->type==6) copy_comment(i, F.end());
-    if ((i->type==6) || (i->type==-6) ||
-        ((i->comment.size()>1) && (i->comment[1] == "[skip]"))){
-      i=F.erase(i);
-      continue;
-    }
-    // * move labels to labels multimap
-    zn::zn_label_key k = zn::get_label_key(*i);
-    if (k.id!=0){// подписи
-      labels[k.map].insert(pair<zn::id_type, fig::fig_object>(k.id,*i));
-      i=F.erase(i);
-      continue;
-    }
-    // * count objects
-    if (zconverter.is_map_depth(*i)){
-      zn::zn_key k = zn::get_key(*i);
-      if (k.id!=0) dup_counter[k.map].insert(k.id);
-    }
-    i++;
-  }
-
-  int obj_n_cnt=0;
-  int obj_o_cnt=0;
-  // Second pass. Clear duplicated keys, create new keys, update keys
-  for (i=F.begin(); i!=F.end(); i++){
-    if (!zconverter.is_map_depth(*i)) continue;
-    zn::zn_key key = zn::get_key(*i);
-    if (dup_counter[key.map].count(key.id)>1){
-      std::cerr << "Warning: clear duplicated keys " << key.id << "@" << key.map << "\n";
-      key.id=0;
-    }
-    if (key.id == 0){ // new key
-      key=zn::make_key(map_name, editor);
-      obj_n_cnt++;
-    }
-    else {  // old key
-      obj_o_cnt++;
-    }
-
-    key.type = zconverter.get_type(*i); // тип объекта - по внешнему виду
-    if (key.type==0){
-      std::cerr << "Warning: unknown fig object. Put to depth=10\n";
-      i->depth=10;
-    }
-    zn::add_key(*i, key);  // add key
-  }
-
-  // Third pass. Update labels
-  int l_n_count=0;
-  int l_o_count=0;
-  int l_m_count=0;
-  list<fig::fig_object> NEW;
-  for (i=F.begin(); i!=F.end(); i++){
-    if (!zconverter.is_map_depth(*i)) continue;
-    zn::zn_key key = zn::get_key(*i);
-
-    // FIXME: remove this code if all is OK!
-    if (key.sid!=0){
-      key.id=key.sid; key.map=key.source;
-      std::cerr << "Warning: key.sid!=0. This is impossible!\n";
-    }
-
-    // unknown objects
-    if (key.id ==0){
-      std::cerr << "Warning: key.id!=0!\n";
-      continue;
-    }
-
-    // если у объекта есть название, но нет подписи - сделаем ее
-    if ((i->comment.size()>0) &&
-        (i->comment[0] != "") &&
-        (labels[key.map].count(key.id) == 0)){
-      list<fig::fig_object> l1 = zconverter.make_labels(*i, key.type); // изготовим новые подписи
-      add_key(l1, zn::zn_label_key(key));
-      NEW.insert(NEW.end(), l1.begin(), l1.end());
-      l_n_count+=l1.size();
-      continue;
-    }
-    // вытащим из хэша все старые подписи для этого объекта
-    for (multimap<zn::id_type, fig::fig_object>::iterator l = labels[key.map].find(key.id);
-        (l != labels[key.map].end()) && (l->first == key.id); l++){
-      // текст подписи = название объекта
-      string text = (i->comment.size()>0)? i->comment[0]:"";
-      if (text != l->second.text){
-        l->second.text = text;
-        l_m_count++;
-      } else l_o_count++;
-      zconverter.label_update(l->second, key.type);
-      if (text !="") NEW.push_back(l->second);
-    }
-  }
-  F.insert(F.end(), NEW.begin(), NEW.end());
-
-  // sort fig before creating compounds
-  F.sort();
-
-  // Fourth pass. Create pics
-  NEW.clear();
-  int p_count=0;
-
-  i=F.begin();
-  while (i!=F.end()){
-    if (zconverter.is_map_depth(*i)){
-      list<fig::fig_object> l1 = zconverter.make_pic(*i, zconverter.get_type(*i));
-      if (l1.size()>1){ p_count++;
-        i=F.erase(i);
-        F.insert(i, l1.begin(), l1.end());
-        continue;
-      }
-    }
-    i++;
-  }
-
-  cerr << " * Map objects: "
-       << obj_n_cnt << " new, "
-       << obj_o_cnt << " old\n";
-  cerr << " * Labels:      "
-       << l_n_count << " new, "
-       << l_m_count << " modified, "
-       << l_o_count << " non-modified\n";
-  cerr << " * Pics:        "
-       << l_o_count << " pics added\n";
+  zconverter.fig_remove_pics(F);
+  zconverter.fig_update_labels(F);
+  F.sort();  // sort fig before creating compounds
+  zconverter.fig_add_pics(F);
 
   fig::write(file, F);
   return 0;
 }
 
 /*****************************************************/
-/// update mp map
-/// (new function to replace keys+labels+pics)
-int update_mp(int argc, char** argv){
-
-  if (argc != 4){
-    cerr << "Update mp.\n"
-         << "  usage: mapsoft_vmap update_mp <style> <map name> <editor> <mp>\n";
-    return 1;
-  }
-  string cfile    = argv[0];
-  string map_name = argv[1];
-  string editor   = argv[2];
-  string file     = argv[3];
-
-  zn::zn_conv zconverter(cfile);
-
-  // read file
-  cerr << "updating MP file " << file <<"\n";
-  mp::mp_world M;
-  if (!mp::read(file.c_str(), M)) {
-    cerr << "ERR: bad mp file\n"; return 1;
-  }
-
-  map<string, multiset<zn::id_type> > dup_counter;
-  // First pass. Count objects
-  mp::mp_world::iterator i=M.begin();
-  while (i!=M.end()){
-    zn::zn_key k = zn::get_key(*i);
-    if (k.id!=0) dup_counter[k.map].insert(k.id);
-    i++;
-  }
-
-  int obj_n_cnt=0;
-  int obj_o_cnt=0;
-  // Second pass. Clear duplicated keys, create new keys, update keys
-  for (i=M.begin(); i!=M.end(); i++){
-    zn::zn_key key = zn::get_key(*i);
-    if (dup_counter[key.map].count(key.id)>1){
-      std::cerr << "Warning: clear duplicated keys " << key.id << "@" << key.map << "\n";
-      key.id=0;
-    }
-    if (key.id == 0){ // new key
-      key=zn::make_key(map_name, editor);
-      obj_n_cnt++;
-    }
-    else {  // old key
-      obj_o_cnt++;
-    }
-    key.type = zconverter.get_type(*i); // тип объекта - по внешнему виду
-    if (key.type==0) std::cerr << "Warning: unknown mp object\n";
-    zn::add_key(*i, key);  // add key
-  }
-
-  // sort mp
-  M.sort();
-
-  cerr << " * Map objects: "
-       << obj_n_cnt << " new, "
-       << obj_o_cnt << " old\n";
-
-  mp::write(file, M);
-  return 0;
-}
-
-
-
-
-/*****************************************************/
 /// Обрезать картографические объекты (fig|mp)
 int crop(int argc, char** argv){
 
   if ((argc != 5) && (argc!=3)){
-    cerr << "Update keys.\n"
+    cerr << "crop map.\n"
          << "  usage: mapsoft_vmap crop <style> <proj> <datum> <geom> <fig|mp>\n"
          << "         mapsoft_vmap crop <style> <nom> <fig|mp>\n";
     return 1;
@@ -743,7 +407,7 @@ int remove_grids(int argc, char** argv){
   fig::fig_world::iterator i=F.begin();
   while (i!=F.end()){
     if (!zconverter.is_map_depth(*i) &&
-        (zn::get_label_key(*i).map=="") &&
+        (i->opts.get("MapType", string()) != "label") &&
         ((i->comment.size()==0) || (0!=strncmp(i->comment[0].c_str(), "REF",3))))
            {i=F.erase(i); obj_cnt++;}
     else i++;
@@ -759,18 +423,15 @@ int remove_grids(int argc, char** argv){
 /// Удалить подписи из (fig).
 int remove_labels(int argc, char** argv){
 
-  if (argc < 2){
+  if (argc < 1){
     cerr << "Remove labels from fig.\n"
-         << "  usage: mapsoft_vmap remove_labels <style> <fig>\n";
+         << "  usage: mapsoft_vmap remove_labels <fig>\n";
     return 1;
   }
 
-  string cfile  = argv[0];
-  string file   = argv[1];
+  string file   = argv[0];
 
   cerr << "removing labels objects from " << file <<": ";
-
-  zn::zn_conv zconverter(cfile);
 
   int obj_cnt=0;
 
@@ -783,7 +444,7 @@ int remove_labels(int argc, char** argv){
 
   fig::fig_world::iterator i=F.begin();
   while (i!=F.end()){
-    if (zn::get_label_key(*i).map!="")
+    if (i->opts.get("MapType", string()) == "label")
       {i=F.erase(i); obj_cnt++;}
     else i++;
   }
@@ -798,19 +459,16 @@ int remove_labels(int argc, char** argv){
 /// Копировать все подписи (объекты, имеющие ключ подписи) из (fig) в (fig).
 int copy_labels(int argc, char** argv){
 
-  if (argc < 3){
+  if (argc < 2){
     cerr << "Copy labels from fig to fig.\n"
-         << "  usage: mapsoft_vmap copy_labels <style> <infig> <outfig>\n";
+         << "  usage: mapsoft_vmap copy_labels <infig> <outfig>\n";
     return 1;
   }
 
-  string cfile  = argv[0];
-  string ifile   = argv[1];
-  string ofile   = argv[2];
+  string ifile   = argv[0];
+  string ofile   = argv[1];
 
   cerr << "copying labels from " << ifile <<" to " << ofile << ": ";
-
-  zn::zn_conv zconverter(cfile);
 
   int obj_cnt=0;
 
@@ -837,10 +495,15 @@ int copy_labels(int argc, char** argv){
   convs::map2map cnv(iref, oref);
 
   for (fig::fig_world::iterator i=IF.begin(); i!=IF.end(); i++){
-    if (zn::get_label_key(*i).map=="")  continue;
+    if (i->opts.get("MapType", string()) != "label") continue;
     obj_cnt++;
     fig::fig_object j=*i; j.clear();
     j.set_points(cnv.line_frw(*i));
+
+    dPoint p=i->opts.get("RefPt", iPoint());
+    cnv.frw(p);
+    j.opts.put("RefPt", iPoint(p));
+
     OF.push_back(j);
   }
   fig::write(ofile, OF);
@@ -851,12 +514,12 @@ int copy_labels(int argc, char** argv){
 }
 
 /*****************************************************/
-/// Показать карты, объекты из которых присутствуют в (fig|mp)
-int show_maps(int argc, char** argv){
+/// Count objects with different sources (fig|mp)
+int show_sources(int argc, char** argv){
 
   if (argc != 2){
-    cerr << "Show maps.\n"
-         << "  usage: mapsoft_vmap maps <style> <fig|mp>\n";
+    cerr << "Show sources.\n"
+         << "  usage: mapsoft_vmap show_sources <style> <fig|mp>\n";
     return 1;
   }
 
@@ -876,10 +539,9 @@ int show_maps(int argc, char** argv){
     int maxid=0;
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
       if (!zconverter.is_map_depth(*i)) continue;
-      zn::zn_key key = zn::get_key(*i);
-      if (key.map == "") continue;
-      if (cnt.count(key.map)==0) cnt[key.map]=1;
-      else cnt[key.map]++;
+      string s = i->opts.get("Source", string());
+      if (cnt.count(s)==0) cnt[s]=1;
+      else cnt[s]++;
     }
   }
   else if (testext(file, ".mp")){
@@ -890,10 +552,9 @@ int show_maps(int argc, char** argv){
 
     int maxid=0;
     for (mp::mp_world::iterator i=M.begin(); i!=M.end(); i++){
-      zn::zn_key key = zn::get_key(*i);
-      if (key.map == "") continue;
-      if (cnt.count(key.map)==0) cnt[key.map]=1;
-      else cnt[key.map]++;
+      string s = i->Opts.get("Source", string());
+      if (cnt.count(s)==0) cnt[s]=1;
+      else cnt[s]++;
     }
   }
   else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
@@ -905,19 +566,18 @@ int show_maps(int argc, char** argv){
 }
 
 /*****************************************************/
-/// Create new keys for objects and their labels
-/// which are came from other map.
-int switch_map(int argc, char** argv){
+/// Set source parameter for each object
+int set_source(int argc, char** argv){
   if (argc != 3){
     cerr << "Make all objects and their labels to be in one map (fig).\n"
-         << "  usage: mapsoft_vmap one_map <style> <map name> <fig>\n";
+         << "  usage: mapsoft_vmap set_source <style> <source> <fig>\n";
     return 1;
   }
-  string cfile    = argv[0];
-  string map_name = argv[1];
-  string file     = argv[2];
+  string cfile  = argv[0];
+  string source = argv[1];
+  string file   = argv[2];
 
-  cerr << "renaming object maps to " << map_name <<": ";
+  cerr << "setting source parameter to " << source <<": ";
 
   zn::zn_conv zconverter(cfile);
 
@@ -926,43 +586,16 @@ int switch_map(int argc, char** argv){
     cerr << "ERR: bad fig file\n"; return 1;
   }
 
-  map<string, map<zn::id_type, zn::id_type> > cnv;
   int o_cnt=0;
-  int l_cnt=0;
 
-  // First pass. Rename map in object keys
   fig::fig_world::iterator i=F.begin();
   for (i=F.begin(); i!=F.end(); i++){
     if (!zconverter.is_map_depth(*i)) continue;
-    zn::zn_key k = zn::get_key(*i);
-    if (k.id==0) continue;
-    if (k.map==map_name) continue;
-    // id is not unique, so create new id
-    zn::id_type newid=zn::make_id();
-    cnv[k.map].insert(pair<zn::id_type, zn::id_type>(k.id, newid));
-    // change key
-    k.map=map_name;
-    k.id=newid;
-    zn::add_key(*i, k);
+    i->opts["Source"]=source;
     o_cnt++;
   }
-  // Second pass. Rename map in label keys
-  for (i=F.begin(); i!=F.end(); i++){
-    zn::zn_label_key k = zn::get_label_key(*i);
-    if (k.id==0) continue;
-    if (k.map==map_name) continue;
-    map<zn::id_type, zn::id_type>::const_iterator p=cnv[k.map].find(k.id);
-    if (p==cnv[k.map].end()){
-      cerr << "Warning: label without object: " << k << "\n";
-      continue;
-    }
-    k.map=map_name;
-    k.id=p->second;
-    zn::add_key(*i, k);
-    l_cnt++;
-  }
   fig::write(file, F);
-  cerr << o_cnt << " objects, " << l_cnt << " labels\n";
+  cerr << o_cnt << " objects\n";
 }
 
 /*****************************************************/
@@ -972,31 +605,33 @@ int main(int argc, char** argv){
          << "commands: \n"
          << "  - crop          -- crop map objects in (fig|mp)\n"
          << "  - range         -- get range of map objects in (fig|mp)\n"
+
          << "  - copy          -- copy map objects from (fig|mp) to (fig|mp)\n"
-         << "  - copy_labels   -- copy all labels from (fig) to (fig)\n"
          << "  - remove        -- remove map objects from (fig|mp) map\n"
+
          << "  - remove_grids  -- remove all but reference, lables, and map objects from fig\n"
          << "  - remove_labels -- remove lables from fig\n"
-         << "  - remove_keys   -- remove keys from objects\n"
-         << "  - update_fig    -- update fig (new function to replace keys+labels+pics)\n"
-         << "  - update_mp     -- update mp  (new function to replace keys+labels+pics)\n"
-         << "  - show_maps     -- show map names in (fig|mp)\n"
-         << "  - switch_map    -- make all objects and their labels to be in one map\n"
+         << "  - copy_labels   -- copy all labels from (fig) to (fig)\n"
+
+         << "  - update_fig    -- update labels and pics on a fig\n"
+         << "  - show_sources  -- show sources in (fig|mp)\n"
+         << "  - set_source    -- set source parameter for each object\n"
 ;
     exit(0);
   }
   if (strcmp(argv[1], "crop")==0)           exit(crop(argc-2, argv+2));
   if (strcmp(argv[1], "range")==0)          exit(range(argc-2, argv+2));
+
   if (strcmp(argv[1], "copy")==0)           exit(copy(argc-2, argv+2));
-  if (strcmp(argv[1], "copy_labels")==0)    exit(copy_labels(argc-2, argv+2));
   if (strcmp(argv[1], "remove")==0)         exit(remove(argc-2, argv+2));
+
   if (strcmp(argv[1], "remove_grids")==0)   exit(remove_grids(argc-2, argv+2));
   if (strcmp(argv[1], "remove_labels")==0)  exit(remove_labels(argc-2, argv+2));
-  if (strcmp(argv[1], "remove_keys")==0)    exit(remove_keys(argc-2, argv+2));
+  if (strcmp(argv[1], "copy_labels")==0)    exit(copy_labels(argc-2, argv+2));
+
   if (strcmp(argv[1], "update_fig")==0)     exit(update_fig(argc-2, argv+2));
-  if (strcmp(argv[1], "update_mp")==0)      exit(update_mp(argc-2, argv+2));
-  if (strcmp(argv[1], "show_maps")==0)      exit(show_maps(argc-2, argv+2));
-  if (strcmp(argv[1], "switch_map")==0)     exit(switch_map(argc-2, argv+2));
+  if (strcmp(argv[1], "show_sources")==0)   exit(show_sources(argc-2, argv+2));
+  if (strcmp(argv[1], "set_source")==0)     exit(set_source(argc-2, argv+2));
 
   cerr << "unknown command: " << argv[1] << "\n";
   exit(1);

@@ -174,5 +174,63 @@ void clear_key(mp::mp_object & mp){
   if (mp.Comment.size()>0) mp.Comment[0]="";
 }
 
+void fig_old2new(fig::fig_world & F){
+  fig::fig_world::iterator i;
+  for (i=F.begin(); i!=F.end();i++){
+    if ((i->comment.size()<2) || (i->comment[1] != "[skip]")) continue;
+    i->comment.clear();
+    i->opts["MapType"]="pic";
+  }
+
+  // for labels find nearest object point
+  // objects with non-empty label
+  std::map<id_type, fig::fig_object> objs;
+  for (i=F.begin(); i!=F.end();i++){
+    if ((i->comment.size()<1) || (i->comment[0] == "")) continue;
+    zn_key k = get_key(*i);
+    if (k.id==0) continue;
+    objs[k.id]=*i;
+  }
+
+  i=F.begin();
+  while (i!=F.end()){
+    zn_label_key k = get_label_key(*i);
+    if (k.id==0) {
+      i++;
+      continue;
+    }
+    if (objs.count(k.id)<1){
+       i=F.erase(i);
+       continue;
+    }
+    fig::fig_object & o = objs[k.id];
+    if ((o.size()<1) || (i->size()<1)){
+       i=F.erase(i);
+      continue;
+    }
+    iPoint pt=o[0];
+    double dist=pdist(pt,(*i)[0]);
+    for (fig::fig_object::iterator p=o.begin(); p!=o.end(); p++){
+      if (dist > pdist((*p), (*i)[0])){
+        dist=pdist((*p), (*i)[0]);
+        pt=(*p);
+      }
+    }
+    i->opts["MapType"]="label";
+    i->opts.put("RefPt", pt);
+    i->comment.clear();
+    i++;
+  }
+
+  for (i=F.begin(); i!=F.end();i++){
+    zn_key k = get_key(*i);
+    if (k.id==0) continue;
+    for (int j=2; j<i->comment.size(); j++) i->comment[j-1]=i->comment[j];
+    i->comment.resize(i->comment.size()-1);
+    if (k.map == "westra_passes") i->opts["Source"]=k.map;
+  }
+
+}
+
 } // namespace
 

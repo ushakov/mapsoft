@@ -350,14 +350,14 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, 
     }
   }
 
-  if (fig.comment.size()>1){
-    if (fig.type == 4){
-      mp.Label = fig.text;
-      mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
-    } else if (fig.comment.size()>0){
-      mp.Label = fig.comment[0];
-      mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
-    }
+  mp.Opts = fig.opts;
+
+  if (fig.type == 4){
+    mp.Label = fig.text;
+    mp.Comment=fig.comment;
+  } else if (fig.comment.size()>0){
+    mp.Label = fig.comment[0];
+    mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
   }
 
   g_line pts = cnv.line_frw(fig);
@@ -449,8 +449,7 @@ list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type){
       cerr << "warning: picture in " << z->second.pic 
            << " has objects with wrong depth!\n";
     }
-    i->comment.resize(2); 
-    i->comment[1] = "[skip]";
+    i->opts["MapType"]="pic";
     ret.push_back(*i);
   }
   fig::fig_make_comp(ret);

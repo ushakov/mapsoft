@@ -76,6 +76,8 @@ void add_key(mp::mp_object & mp, const zn_key & key);
 void clear_key(fig::fig_object & fig);
 void clear_key(mp::mp_object & mp);
 
+// convert old-style pictures and labels
+void fig_old2new(fig::fig_world & F);
 
 } // namespace
 

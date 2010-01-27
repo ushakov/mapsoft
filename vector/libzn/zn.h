@@ -82,6 +82,162 @@ class zn_conv{
   //Лежит ли его глубина в диапазоне между максимальной и минимальной глубиной
   //объектов из конф.файла.
   bool is_map_depth(const fig::fig_object & o);
+
+
+  /// functions for updating fig map
+
+  // copy comment from compound to the first object in it
+  void fig_copy_comment(const fig::fig_world::iterator & i,
+                        const fig::fig_world::iterator & end){
+    if (i->type == 6){ // составной объект
+      // копируем первые непустые строки комментария в следующий объект
+      // остальное нам не нужно
+      fig::fig_world::iterator j=i; j++;
+
+      // пропускаем подписи
+      while ((j!=end) && (j->comment.size()>1) && (j->comment[1]=="[skip]")) j++;
+
+      if ((j!=end) && (i->comment.size()>0)){
+        if (j->comment.size()< i->comment.size()) j->comment.resize(i->comment.size());
+        for (int n=0; n<i->comment.size(); n++) j->comment[n] = i->comment[n];
+
+      }
+    }
+  }
+
+  // Remove compounds and objects with [skip] comment
+  void fig_remove_pics(fig::fig_world & F){
+    fig::fig_world::iterator i=F.begin();
+    while (i!=F.end()){
+      // * copy comments from compounds, remove compounds
+      // * remove pictures MapType=pic
+      if (i->type==6) fig_copy_comment(i, F.end());
+      if ((i->type==6) || (i->type==-6) ||
+          (i->opts.get("MapType", std::string()) == "pic")){
+        i=F.erase(i);
+        continue;
+      }
+      i++;
+    }
+  }
+
+  int fig_add_pics(fig::fig_world & F){
+    fig::fig_world::iterator i=F.begin();
+    int count=0;
+
+    while (i!=F.end()){
+      if (is_map_depth(*i)){
+        std::list<fig::fig_object> l1 = make_pic(*i, get_type(*i));
+        if (l1.size()>1){
+          count++;
+          i=F.erase(i);
+          F.insert(i, l1.begin(), l1.end());
+          continue;
+        }
+      }
+      i++;
+    }
+    return count;
+  }
+
+  double dist( const iPoint & p, const iLine & l, iPoint & nearest){
+    if (l.size()<1) return 1e99;
+    double ret=pdist(p,l[0]);
+    nearest=l[0];
+    for (iLine::const_iterator i=l.begin(); i!=l.end(); i++){
+      if (ret > pdist(p, *i)){
+        ret=pdist(p, *i);
+        nearest=*i;
+      }
+    }
+    return ret;
+  }
+
+  int fig_update_labels(fig::fig_world & F){
+
+    double maxd=0.2*fig::cm2fig;
+
+    fig::fig_world::iterator i;
+    int count=0;
+
+    // find all labels
+    std::list<fig::fig_world::iterator> labels;
+    for (i=F.begin(); i!=F.end(); i++){
+      if ((i->opts.exists("MapType")) &&
+          (i->opts["MapType"]=="label") &&
+          (i->opts.exists("RefPt")) ){
+        labels.push_back(i);
+      }
+    }
+
+    // find all objects with title
+    std::list<fig::fig_world::iterator> needlabel;
+    for (i=F.begin(); i!=F.end(); i++){
+      if (!is_map_depth(*i) || (i->size() <1)) continue;
+      if ((i->comment.size()>0) && (i->comment[0]!="")) needlabel.push_back(i);
+    }
+
+    std::list<fig::fig_world::iterator>::iterator o,l;
+
+    // first pass: labels with correct text
+    o=needlabel.begin();
+    while (o!=needlabel.end()){
+      bool found=false;
+      l=labels.begin();
+      while (l!=labels.end()){
+        iPoint nearest;
+        if (((*l)->text == (*o)->comment[0]) &&
+            (dist((*l)->opts.get("RefPt", iPoint(0,0)), **o, nearest) < maxd)){
+          (*l)->opts.put("RefPt", nearest);
+          found=true;
+          label_update(**l, get_type(**o));
+          l=labels.erase(l);
+          continue;
+        }
+        l++;
+      }
+      if (found) o=needlabel.erase(o); else o++;
+    }
+
+    // second pass: labels with changed text
+    o=needlabel.begin();
+    while (o!=needlabel.end()){
+      bool found=false;
+      l=labels.begin();
+      while (l!=labels.end()){
+        iPoint nearest;
+        if (dist((*l)->opts.get("RefPt", iPoint(0,0)), **o, nearest) < maxd){
+          (*l)->text=(*o)->comment[0];
+          (*l)->opts.put("RefPt", nearest);
+          found=true;
+          label_update(**l, get_type(**o));
+          l=labels.erase(l);
+          continue;
+        }
+        l++;
+      }
+      if (found) o=needlabel.erase(o); else o++;
+    }
+
+    // 3rd pass: create new labels
+    for (o=needlabel.begin(); o!=needlabel.end(); o++){
+      std::list<fig::fig_object> L=make_labels(**o);
+      for (std::list<fig::fig_object>::iterator j=L.begin(); j!=L.end(); j++){
+        if (j->size() < 1) continue;
+        iPoint nearest;
+        double d=dist((*j)[0], **o, nearest);
+        j->opts["MapType"]="label";
+        j->opts.put("RefPt", nearest);
+        F.push_back(*j);
+      }
+    }
+
+    // 4th pass: remove unused labels
+    for (l=labels.begin(); l!=labels.end(); l++) F.erase(*l);
+
+    return count;
+  }
+
 };
 
 
