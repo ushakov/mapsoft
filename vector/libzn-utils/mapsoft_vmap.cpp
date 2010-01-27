@@ -25,31 +25,33 @@ bool testext(const string & nstr, const char *ext){
 
 int copy(int argc, char** argv){
 
-  if (argc < 3){
+  if (argc < 2){
     cerr << "Copy map objects.\n"
-         << "  usage: mapsoft_vmap copy <style>  <in mp|fig> <out mp|fig> [<source>]\n"
+         << "  usage: mapsoft_vmap copy <in mp|fig> <out mp|fig> [<source>]\n"
          << "FIG files must have geo-reference.\n";
     return 1;
   }
 
-  string cfile = argv[0];
-  string ifile = argv[1];
-  string ofile = argv[2];
+  string ifile = argv[0];
+  string ofile = argv[1];
   string source;
-  if (argc>3) source = argv[3];
+  if (argc>2) source = argv[2];
 
   cerr << "copying from " << ifile << " to " << ofile << ": ";
 
   fig::fig_world IF, OF;
   mp::mp_world   IM, OM;
 
-  zn::zn_conv zconverter(cfile);
 
   // читаем входной файл, преобразуем все в IM
   if (testext(ifile, ".fig")){
     if (!fig::read(ifile.c_str(), IF)) {
       cerr << "ERR: bad fig file " << ifile << "\n"; return 1;
     }
+
+    string style=IF.opts.get("style", string());
+    zn::zn_conv zconverter(style);
+
     g_map ref = fig::get_ref(IF);
     if (ref.size()<3){
       cerr << "ERR: not a GEO-fig\n"; return 1;
@@ -75,6 +77,10 @@ int copy(int argc, char** argv){
     if (!fig::read(ofile.c_str(), OF)) {
       cerr << "ERR: bad fig file " << ofile << "\n"; return 1;
     }
+
+    string style=OF.opts.get("style", string());
+    zn::zn_conv zconverter(style);
+
     g_map ref = fig::get_ref(OF);
     if (ref.size()<3){
       cerr << "ERR: not a GEO-fig\n"; return 1;
@@ -111,21 +117,18 @@ int copy(int argc, char** argv){
 /// Удалить картографические объекты (fig|mp)
 int remove(int argc, char** argv){
 
-  if (argc < 2){
+  if (argc < 1){
     cerr << "Remove map objects from mp or fig.\n"
-         << "  usage: mapsoft_vmap remove <style> <fig|mp> [<source>]\n"
+         << "  usage: mapsoft_vmap remove <fig|mp> [<source>]\n"
          << "FIG file must have geo-reference.\n";
     return 1;
   }
 
-  string cfile  = argv[0];
-  string file   = argv[1];
+  string file   = argv[0];
   string source;
-  if (argc>2) source = argv[2];
+  if (argc>1) source = argv[1];
 
   cerr << "removing map objects from " << file <<": ";
-
-  zn::zn_conv zconverter(cfile);
 
   int obj_cnt=0;
 
@@ -134,6 +137,9 @@ int remove(int argc, char** argv){
     if (!fig::read(file.c_str(), F)) {
       cerr << "ERR: bad fig file\n"; return 1;
     }
+
+    string style=F.opts.get("style", string());
+    zn::zn_conv zconverter(style);
 
     fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
@@ -166,7 +172,6 @@ int remove(int argc, char** argv){
   return 0;
 }
 
-
 /*****************************************************/
 ///  Обновление подписей (fig)
 // - если к объекту есть подписи - оставим их
@@ -186,13 +191,12 @@ int remove(int argc, char** argv){
 /// update fig map
 int update_fig(int argc, char** argv){
 
-  if (argc != 2){
+  if (argc != 1){
     cerr << "Update fig.\n"
-         << "  usage: mapsoft_vmap update_fig <style> <fig>\n";
+         << "  usage: mapsoft_vmap update_fig <fig>\n";
     return 1;
   }
-  string cfile    = argv[0];
-  string file     = argv[1];
+  string file     = argv[0];
 
   // read file
   cerr << "updating FIG file " << file <<"\n";
@@ -201,9 +205,11 @@ int update_fig(int argc, char** argv){
     cerr << "ERR: bad fig file\n"; return 1;
   }
 
+  string style=F.opts.get("style", string());
+  zn::zn_conv zconverter(style);
+
   zn::fig_old2new(F);
 
-  zn::zn_conv zconverter(cfile);
   zconverter.fig_remove_pics(F);
   zconverter.fig_update_labels(F);
   F.sort();  // sort fig before creating compounds
@@ -217,31 +223,30 @@ int update_fig(int argc, char** argv){
 /// Обрезать картографические объекты (fig|mp)
 int crop(int argc, char** argv){
 
-  if ((argc != 5) && (argc!=3)){
+  if ((argc != 4) && (argc!=2)){
     cerr << "crop map.\n"
-         << "  usage: mapsoft_vmap crop <style> <proj> <datum> <geom> <fig|mp>\n"
-         << "         mapsoft_vmap crop <style> <nom> <fig|mp>\n";
+         << "  usage: mapsoft_vmap crop <proj> <datum> <geom> <fig|mp>\n"
+         << "         mapsoft_vmap crop <nom> <fig|mp>\n";
     return 1;
   }
 
-  string cfile    = argv[0];
   string proj;
   string datum;
   string file;
   dRect cutter;
   Options O;
-  if (argc==5){
-    proj     = argv[1];
-    datum    = argv[2];
-    cutter=boost::lexical_cast<dRect>(argv[3]);
+  if (argc==4){
+    proj     = argv[0];
+    datum    = argv[1];
+    cutter=boost::lexical_cast<dRect>(argv[2]);
     O.put("lon0", convs::lon_pref2lon0(cutter.x));
     cutter.x=convs::lon_delprefix(cutter.x);
-    file     = argv[4];
+    file     = argv[3];
   } else {
     proj     = "lonlat";
     datum    = "pulkovo";
-    cutter=convs::nom_range(argv[1]);
-    file     = argv[2];
+    cutter=convs::nom_range(argv[0]);
+    file     = argv[1];
   }
 
   cerr << "cropping " << file <<" to " << cutter << ": ";
@@ -250,13 +255,15 @@ int crop(int argc, char** argv){
   int obj_c_cnt=0;
   int obj_d_cnt=0;
 
-  zn::zn_conv zconverter(cfile);
-
   if (testext(file, ".fig")){
     fig::fig_world F;
     if (!fig::read(file.c_str(), F)) {
       cerr << "ERR: bad fig file\n"; return 1;
     }
+
+    string style=F.opts.get("style", string());
+    zn::zn_conv zconverter(style);
+
     g_map ref = fig::get_ref(F);
     if (ref.size()<3){
       cerr << "ERR: not a GEO-fig\n"; return 1;
@@ -312,32 +319,30 @@ int crop(int argc, char** argv){
 }
 
 /*****************************************************/
-/// �������� �������� ���������������� �������� (fig|mp)
+/// show map object range (fig|mp)
 int range(int argc, char** argv){
 
-  if (argc != 4){
+  if (argc != 3){
     cerr << "Get range.\n"
-         << "  usage: mapsoft_vmap range <style> <proj> <datum> <fig|mp>\n";
+         << "  usage: mapsoft_vmap range <proj> <datum> <fig|mp>\n";
     return 1;
   }
 
-  string cfile    = argv[0];
-  string proj;
-  string datum;
-  string file;
+  string proj  = argv[0];
+  string datum = argv[1];
+  string file  = argv[2];
 
   dRect ret;
-  proj     = argv[1];
-  datum    = argv[2];
-  file     = argv[3];
-
-  zn::zn_conv zconverter(cfile);
 
   if (testext(file, ".fig")){
     fig::fig_world F;
     if (!fig::read(file.c_str(), F)) {
       cerr << "ERR: bad fig file\n"; return 1;
     }
+
+    string style=F.opts.get("style", string());
+    zn::zn_conv zconverter(style);
+
     g_map ref = fig::get_ref(F);
     if (ref.size()<3){
       cerr << "ERR: not a GEO-fig\n"; return 1;
@@ -382,18 +387,15 @@ int range(int argc, char** argv){
 /// Удалить сетку и т.п.оформление (fig). Остаются: привязка, подписи, объекты
 int remove_grids(int argc, char** argv){
 
-  if (argc < 2){
+  if (argc < 1){
     cerr << "Remove non-map objects from fig. Keep reference, labels, map-objects\n"
-         << "  usage: mapsoft_vmap remove_grids <style> <fig>\n";
+         << "  usage: mapsoft_vmap remove_grids <fig>\n";
     return 1;
   }
 
-  string cfile  = argv[0];
-  string file   = argv[1];
+  string file   = argv[0];
 
   cerr << "removing non-map objects from " << file <<": ";
-
-  zn::zn_conv zconverter(cfile);
 
   int obj_cnt=0;
 
@@ -403,6 +405,9 @@ int remove_grids(int argc, char** argv){
   if (!fig::read(file.c_str(), F)) {
     cerr << "ERR: bad fig file\n"; return 1;
   }
+
+  string style=F.opts.get("style", string());
+  zn::zn_conv zconverter(style);
 
   fig::fig_world::iterator i=F.begin();
   while (i!=F.end()){
@@ -517,24 +522,24 @@ int copy_labels(int argc, char** argv){
 /// Count objects with different sources (fig|mp)
 int show_sources(int argc, char** argv){
 
-  if (argc != 2){
+  if (argc != 1){
     cerr << "Show sources.\n"
-         << "  usage: mapsoft_vmap show_sources <style> <fig|mp>\n";
+         << "  usage: mapsoft_vmap show_sources <fig|mp>\n";
     return 1;
   }
 
   map<string, int> cnt;
 
-  string cfile    = argv[0];
-  string file     = argv[1];
-
-  zn::zn_conv zconverter(cfile);
+  string file     = argv[0];
 
   if (testext(file, ".fig")){
     fig::fig_world F;
     if (!fig::read(file.c_str(), F)) {
       cerr << "ERR: bad fig file\n"; return 1;
     }
+
+    string style=F.opts.get("style", string());
+    zn::zn_conv zconverter(style);
 
     int maxid=0;
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
@@ -568,23 +573,23 @@ int show_sources(int argc, char** argv){
 /*****************************************************/
 /// Set source parameter for each object
 int set_source(int argc, char** argv){
-  if (argc != 3){
+  if (argc != 2){
     cerr << "Make all objects and their labels to be in one map (fig).\n"
-         << "  usage: mapsoft_vmap set_source <style> <source> <fig>\n";
+         << "  usage: mapsoft_vmap set_source <source> <fig>\n";
     return 1;
   }
-  string cfile  = argv[0];
-  string source = argv[1];
-  string file   = argv[2];
+  string source = argv[0];
+  string file   = argv[1];
 
   cerr << "setting source parameter to " << source <<": ";
-
-  zn::zn_conv zconverter(cfile);
 
   fig::fig_world F;
   if (!fig::read(file.c_str(), F)) {
     cerr << "ERR: bad fig file\n"; return 1;
   }
+
+  string style=F.opts.get("style", string());
+  zn::zn_conv zconverter(style);
 
   int o_cnt=0;
 
