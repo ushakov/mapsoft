@@ -189,11 +189,11 @@ int remove(int argc, char** argv){
 
 /*****************************************************/
 /// update fig map
-int update_fig(int argc, char** argv){
+int update(int argc, char** argv){
 
   if (argc != 1){
     cerr << "Update fig.\n"
-         << "  usage: mapsoft_vmap update_fig <fig>\n";
+         << "  usage: mapsoft_vmap update <fig>\n";
     return 1;
   }
   string file     = argv[0];
@@ -618,7 +618,7 @@ int main(int argc, char** argv){
          << "  - remove_labels -- remove lables from fig\n"
          << "  - copy_labels   -- copy all labels from (fig) to (fig)\n"
 
-         << "  - update_fig    -- update labels and pics on a fig\n"
+         << "  - update        -- update labels and pics on a fig\n"
          << "  - show_sources  -- show sources in (fig|mp)\n"
          << "  - set_source    -- set source parameter for each object\n"
 ;
@@ -634,7 +634,7 @@ int main(int argc, char** argv){
   if (strcmp(argv[1], "remove_labels")==0)  exit(remove_labels(argc-2, argv+2));
   if (strcmp(argv[1], "copy_labels")==0)    exit(copy_labels(argc-2, argv+2));
 
-  if (strcmp(argv[1], "update_fig")==0)     exit(update_fig(argc-2, argv+2));
+  if (strcmp(argv[1], "update")==0)         exit(update(argc-2, argv+2));
   if (strcmp(argv[1], "show_sources")==0)   exit(show_sources(argc-2, argv+2));
   if (strcmp(argv[1], "set_source")==0)     exit(set_source(argc-2, argv+2));
 
