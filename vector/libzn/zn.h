@@ -174,6 +174,8 @@ class zn_conv{
     std::list<fig::fig_world::iterator> needlabel;
     for (i=F.begin(); i!=F.end(); i++){
       if (!is_map_depth(*i) || (i->size() <1)) continue;
+      int type=get_type(*i);
+      if ((znaki.count(type)<1) || !znaki[type].istxt) continue;
       if ((i->comment.size()>0) && (i->comment[0]!="")) needlabel.push_back(i);
     }
 
