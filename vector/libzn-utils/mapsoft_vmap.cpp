@@ -221,12 +221,12 @@ int update(int argc, char** argv){
 
 /*****************************************************/
 /// Обрезать картографические объекты (fig|mp)
-int crop(int argc, char** argv){
+int crop(const string & mode, int argc, char** argv){
 
   if ((argc != 4) && (argc!=2)){
     cerr << "crop map.\n"
-         << "  usage: mapsoft_vmap crop <proj> <datum> <geom> <fig|mp>\n"
-         << "         mapsoft_vmap crop <nom> <fig|mp>\n";
+         << "  usage: mapsoft_vmap " << mode << " <proj> <datum> <geom> <fig|mp>\n"
+         << "         mapsoft_vmap " << mode << " <nom> <fig|mp>\n";
     return 1;
   }
 
@@ -249,11 +249,10 @@ int crop(int argc, char** argv){
     file     = argv[1];
   }
 
-  cerr << "cropping " << file <<" to " << cutter << ": ";
+  cerr << mode << " " << file <<" to " << cutter << ": ";
 
-  int obj_n_cnt=0;
-  int obj_c_cnt=0;
-  int obj_d_cnt=0;
+  int obj_cnt1=0;
+  int obj_cnt2=0;
 
   if (testext(file, ".fig")){
     fig::fig_world F;
@@ -273,12 +272,31 @@ int crop(int argc, char** argv){
     fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
       if (!zconverter.is_map_depth(*i)) { i++; continue;}
+      obj_cnt1++;
       dLine l = cnv.line_frw(*i);
       bool closed= i->is_closed() || (i->area_fill != -1);
-      if (rect_crop(cutter, l, closed)) obj_c_cnt++; else obj_n_cnt++;
-      i->set_points(cnv.line_bck(l));
-      if (i->size()==0) {i=F.erase(i); obj_d_cnt++; obj_c_cnt--;} else i++;
+      rect_crop(cutter, l, closed);
+
+      if (mode=="range_crop"){
+        i->set_points(cnv.line_bck(l));
+        if (l.size()==0) {i=F.erase(i); obj_cnt2++;} else i++;
+      }
+      else
+      if (mode=="range_select"){
+        if (l.size()==0) {i=F.erase(i); obj_cnt2++;} else i++;
+      }
+      else
+      if (mode=="range_remove"){
+        if (l.size()!=0) {i=F.erase(i); obj_cnt2++;} else i++;
+      }
     }
+
+    fig::fig_object brd = fig::make_object("2 3 0 1 0 * * * * * * * * * * *");
+    zconverter.fig_update(brd,0x10001D);
+    brd.set_points(cnv.line_bck(rect2line(cutter)));
+    brd.opts["Source"] = "border";
+    F.push_back(brd);
+
     fig::write(file, F);
   }
 
@@ -298,23 +316,39 @@ int crop(int argc, char** argv){
 
     mp::mp_world::iterator i=M.begin();
     while (i!=M.end()){
+      obj_cnt1++;
       mp::mp_object::iterator l=i->begin();
       while (l!=i->end()){
         dLine line = cnv.line_frw(*l, 1e-7);
         bool closed= (i->Class == "POLYGON");
-        if (rect_crop(cutter, line, closed)) obj_c_cnt++; else obj_n_cnt++;
-        *l=cnv.line_bck(line, 1e-7);
-        if (l->size()==0) {l=i->erase(l); obj_d_cnt++; obj_c_cnt--;} else l++;
+        rect_crop(cutter, line, closed);
+
+        if (mode=="range_crop"){
+          *l=cnv.line_bck(line, 1e-7);
+          if (line.size()==0) l=i->erase(l); else l++;
+        }
+        else
+        if (mode=="range_select"){
+          if (line.size()==0) l=i->erase(l); else l++;
+        }
+        else
+        if (mode=="range_delete"){
+          if (line.size()!=0) l=i->erase(l); else l++;
+        }
       }
-      if (i->size()==0) {i=M.erase(i);} else i++;
+      if (i->size()==0) {i=M.erase(i); obj_cnt2++;} else i++;
     }
+
+    mp::mp_object brd=mp::make_object("POLYLINE 0x1D * *");
+    brd.push_back(cnv.line_bck(rect2line(cutter)));
+    brd.Opts["Source"] = "border";
+    M.push_back(brd);
+
     mp::write(file, M);
   }
   else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
 
-  cerr << obj_n_cnt << " non-modified, "
-       << obj_c_cnt << " cropped, "
-       << obj_d_cnt << " deleted\n";
+  cerr << " removed " << obj_cnt2 << " objects from " << obj_cnt1 << "\n";
   return 0;
 }
 
@@ -354,7 +388,13 @@ int range(int argc, char** argv){
       ret=rect_bounding_box(ret, dRect(i->range()));
       i++;
     }
-    convs::map2pt cnv(ref, Datum(datum), Proj(proj));
+    Options O;
+    if (Proj(proj) == Proj("tmerc")){
+      O.put("lon0", convs::lon2lon0(ref.center().x));
+      O.put("E0",   500000.0);
+      O.put("N0",   0.0);
+    }
+    convs::map2pt cnv(ref, Datum(datum), Proj(proj),O);
     std::cout << cnv.bb_frw(ret);
   }
 
@@ -608,7 +648,9 @@ int main(int argc, char** argv){
   if (argc < 2){
     cerr << "usage: mapsoft_vmap <command> <args>\n"
          << "commands: \n"
-         << "  - crop          -- crop map objects in (fig|mp)\n"
+         << "  - range_crop    -- crop map objects in (fig|mp)\n"
+         << "  - range_select  -- \n"
+         << "  - range_remove  -- \n"
          << "  - range         -- get range of map objects in (fig|mp)\n"
 
          << "  - copy          -- copy map objects from (fig|mp) to (fig|mp)\n"
@@ -624,7 +666,10 @@ int main(int argc, char** argv){
 ;
     exit(0);
   }
-  if (strcmp(argv[1], "crop")==0)           exit(crop(argc-2, argv+2));
+  if (strcmp(argv[1], "range_crop")==0)     exit(crop("range_crop", argc-2, argv+2));
+  if (strcmp(argv[1], "range_select")==0)   exit(crop("range_select",  argc-2, argv+2));
+  if (strcmp(argv[1], "range_remove")==0)   exit(crop("range_remove",  argc-2, argv+2));
+
   if (strcmp(argv[1], "range")==0)          exit(range(argc-2, argv+2));
 
   if (strcmp(argv[1], "copy")==0)           exit(copy(argc-2, argv+2));
