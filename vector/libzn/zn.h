@@ -155,7 +155,8 @@ class zn_conv{
 
   int fig_update_labels(fig::fig_world & F){
 
-    double maxd=0.2*fig::cm2fig;
+    double maxd1=1*fig::cm2fig; // for labels with correct text
+    double maxd2=0.2*fig::cm2fig; // for other labels
 
     fig::fig_world::iterator i;
     int count=0;
@@ -189,7 +190,7 @@ class zn_conv{
       while (l!=labels.end()){
         iPoint nearest;
         if (((*l)->text == (*o)->comment[0]) &&
-            (dist((*l)->opts.get("RefPt", iPoint(0,0)), **o, nearest) < maxd)){
+            (dist((*l)->opts.get("RefPt", iPoint(0,0)), **o, nearest) < maxd1)){
           (*l)->opts.put("RefPt", nearest);
           found=true;
           label_update(**l, get_type(**o));
@@ -208,7 +209,7 @@ class zn_conv{
       l=labels.begin();
       while (l!=labels.end()){
         iPoint nearest;
-        if (dist((*l)->opts.get("RefPt", iPoint(0,0)), **o, nearest) < maxd){
+        if (dist((*l)->opts.get("RefPt", iPoint(0,0)), **o, nearest) < maxd2){
           (*l)->text=(*o)->comment[0];
           (*l)->opts.put("RefPt", nearest);
           found=true;
