@@ -9,7 +9,7 @@ using namespace std;
 // изготовление текстовой таблички с названиями знаков
 
 void usage(){
-    cerr << "usage: get_text <conf_file> > out.txt\n";
+    cerr << "usage: get_text <style> > out.txt\n";
     exit(0);
 }
 
@@ -17,8 +17,8 @@ void usage(){
 main(int argc, char** argv){
 
   if (argc != 2) usage();
-  string conf_file = argv[1];
+  string style = argv[1];
 
-  zn::zn_conv zconverter(conf_file);
+  zn::zn_conv zconverter(syle);
   cout << zn::make_text(zconverter);
 }

@@ -7,7 +7,7 @@
 using namespace std;
 
 void usage(){
-    cerr << "usage: get_legend <conf_file> > out.fig\n";
+    cerr << "usage: get_legend <style> > out.fig\n";
     exit(0);
 }
 
@@ -15,9 +15,9 @@ void usage(){
 main(int argc, char** argv){
 
   if (argc != 2) usage();
-  string conf_file = argv[1];
+  string style = argv[1];
 
-  zn::zn_conv zconverter(conf_file);
+  zn::zn_conv zconverter(style);
   fig::fig_world F = make_legend(zconverter);
   fig::write(cout, F);
 }

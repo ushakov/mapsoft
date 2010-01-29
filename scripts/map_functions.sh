@@ -50,7 +50,8 @@ download_wp(){
   local geom="$1"
   date="$(date +"%F %T")"
   wget "$(geom2wp "$geom")" -O - |
-    sed "s/^;[[:space:]]*\([0-9]\+@westra_passes\)/;0x0 $date \1/" > "${name}_wp.mp"
+    sed "s/^;[[:space:]]*\([0-9]\+@westra_passes\)/;0x0 $date \1/;
+          /^\[POI\]/aSource=westra_passes" > "${name}_wp.mp"
   wget "$(geom2wp "$geom" txt)" -O - |
     iconv -f utf-8 -c | sort -k1,1 -n > "${name}_wp.txt"
 }

@@ -62,19 +62,19 @@ double nearest_line(const iMultiLine & lines, dPoint & vec, Point<double> & pt, 
 
 main(int argc, char **argv){
 
-  if (argc!=4){
+  if (argc!=3){
     std::cerr << "usage: " << argv[0] << " <in.fig> <out.fig>\n";
     exit(0);
   }
-  string infile    = argv[2];
-  string outfile   = argv[3];
-
-  string style=IF.opts.get("style", string());
-  zn::zn_conv zconverter(style);
+  string infile    = argv[1];
+  string outfile   = argv[2];
 
   fig_world W;
   if (!read(infile.c_str(), W)){cerr << "Bad fig file " << infile << "\n"; exit(0);}
   fig_world NW;
+
+  string style=IF.opts.get("style", string());
+  zn::zn_conv zconverter(style);
 
   // для убыстрения делаем два прогона - в первом распихиваем 
   // по  отдельным спискам все линейные объекты, к которым мы хотим привязывать точки:

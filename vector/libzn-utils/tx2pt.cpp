@@ -18,19 +18,19 @@ using namespace fig;
 
 main(int argc, char **argv){
 
-  if (argc!=4){
-    std::cerr << "usage: " << argv[0] << " <conf_file> <in.fig> <out.fig>\n";
+  if (argc!=3){
+    std::cerr << "usage: " << argv[0] << " <in.fig> <out.fig>\n";
     exit(0);
   }
-  string conf_file = argv[1];
-  string infile    = argv[2];
-  string outfile   = argv[3];
-
-  zn::zn_conv zconverter(conf_file);
+  string infile    = argv[1];
+  string outfile   = argv[2];
 
   fig_world W;
   if (!read(infile.c_str(), W)){cerr << "Bad fig file " << infile << "\n"; exit(0);}
   fig_world NW;
+
+  string style=W.opts.get("style", string());
+  zn::zn_conv zconverter(style);
 
   int cnt=0;
 

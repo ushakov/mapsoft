@@ -8,17 +8,17 @@
 using namespace std;
 
 void usage(){
-    cerr << "usage: zn_mkfiglib <conf_file> <out_dir>\n";
+    cerr << "usage: zn_mkfiglib <style> <out_dir>\n";
     exit(0);
 }
 
 main(int argc, char** argv){
 
   if (argc != 3) usage();
-  string conf_file = argv[1];
+  string style   = argv[1];
   string out_dir = argv[2];
 
-  zn::zn_conv z(conf_file);
+  zn::zn_conv z(style);
   for (map<int, zn::zn>::const_iterator i = z.znaki.begin(); i!=z.znaki.end(); i++){
     fig::fig_world F;
     list<fig::fig_object> l=z.make_pic(make_sample(i), i->first);
