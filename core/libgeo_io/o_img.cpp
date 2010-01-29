@@ -20,10 +20,15 @@ namespace img{
 
 bool write_file (const char* filename, const geo_data & world, Options opt){
 
-  dRect geom = opt.get("geom", Rect<double>());
+  dRect geom;
+  if (opt.exists("geom")){
+    geom = opt.get("geom", Rect<double>());
 
-  opt.put("lon0", convs::lon_pref2lon0(geom.x));
-  geom.x=convs::lon_delprefix(geom.x);
+    if (geom.x>1e6){
+      opt.put("lon0", convs::lon_pref2lon0(geom.x));
+      geom.x=convs::lon_delprefix(geom.x);
+    }
+  }
 
   Proj  proj(opt.get("proj", string("tmerc")));
   Datum datum(opt.get("datum", string("pulkovo")));
