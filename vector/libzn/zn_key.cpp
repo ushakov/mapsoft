@@ -192,12 +192,12 @@ void fig_old2new(fig::fig_world & F){
   // objects with non-empty label
 
   n=0;
-  std::map<id_type, fig::fig_object> objs;
+  std::map<std::string, fig::fig_object> objs;
   for (i=F.begin(); i!=F.end();i++){
     if ((i->comment.size()<1) || (i->comment[0] == "")) continue;
     zn_key k = get_key(*i);
     if (k.id==0) continue;
-    objs[k.id]=*i;
+    objs[boost::lexical_cast<std::string>(k.id)+"@"+k.map]=*i;
     n++;
   }
   if (n>0) std::cerr << "old-style objects with text: " << n << "\n";
@@ -210,11 +210,12 @@ void fig_old2new(fig::fig_world & F){
       i++;
       continue;
     }
-    if (objs.count(k.id)<1){
+    std::string key=boost::lexical_cast<std::string>(k.id)+"@"+k.map;
+    if (objs.count(key)<1){
        i=F.erase(i);
        continue;
     }
-    fig::fig_object & o = objs[k.id];
+    fig::fig_object & o = objs[key];
     if ((o.size()<1) || (i->size()<1)){
       i=F.erase(i);
       continue;
@@ -227,6 +228,17 @@ void fig_old2new(fig::fig_world & F){
         pt=(*p);
       }
     }
+/*
+fig::fig_object x=fig::make_object("2 1 0 1 5 7 4 -1 -1 0.000 0 0 -1 0 0 2");
+x.opts.put("key", key);
+x.opts.put("txt", i->text);
+x.opts.put("dist1", pdist(pt,(*i)[0]));
+x.opts.put("dist2", pdist(o[0],(*i)[0]));
+x.push_back(pt);
+x.push_back((*i)[0]);
+F.push_back(x);
+*/
+
     i->opts["MapType"]="label";
     i->opts.put("RefPt", pt);
     i->comment.clear();

@@ -208,9 +208,10 @@ int update(int argc, char** argv){
   string style=F.opts.get("style", string());
   zn::zn_conv zconverter(style);
 
+  zconverter.fig_remove_pics(F);
+
   zn::fig_old2new(F);
 
-  zconverter.fig_remove_pics(F);
   zconverter.fig_update_labels(F);
   F.sort();  // sort fig before creating compounds
   zconverter.fig_add_pics(F);

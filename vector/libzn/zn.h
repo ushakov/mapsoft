@@ -95,7 +95,9 @@ class zn_conv{
       fig::fig_world::iterator j=i; j++;
 
       // пропускаем подписи
-      while ((j!=end) && (j->comment.size()>1) && (j->comment[1]=="[skip]")) j++;
+      while ((j!=end) &&
+        ( ((j->comment.size()>1) && (j->comment[1]=="[skip]")) ||
+          (j->opts.get("MapType", std::string()) == "pic") )) j++;
 
       if ((j!=end) && (i->comment.size()>0)){
         if (j->comment.size()< i->comment.size()) j->comment.resize(i->comment.size());
@@ -113,6 +115,7 @@ class zn_conv{
       // * remove pictures MapType=pic
       if (i->type==6) fig_copy_comment(i, F.end());
       if ((i->type==6) || (i->type==-6) ||
+          ((i->comment.size()>1) && (i->comment[1]=="[skip]")) ||
           (i->opts.get("MapType", std::string()) == "pic")){
         i=F.erase(i);
         continue;
