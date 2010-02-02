@@ -158,8 +158,9 @@ class zn_conv{
 
   int fig_update_labels(fig::fig_world & F){
 
-    double maxd1=1*fig::cm2fig; // for labels with correct text
-    double maxd2=0.2*fig::cm2fig; // for other labels
+    double maxd1=1*fig::cm2fig; // for the nearest label with correct text
+    double maxd2=1*fig::cm2fig; // for other labels with correct text
+    double maxd3=0.2*fig::cm2fig; // for other labels
 
     fig::fig_world::iterator i;
     int count=0;
@@ -175,73 +176,90 @@ class zn_conv{
     }
 
     // find all objects with title
-    std::list<fig::fig_world::iterator> needlabel;
+    std::list<std::pair<fig::fig_world::iterator, int> > objs;
     for (i=F.begin(); i!=F.end(); i++){
       if (!is_map_depth(*i) || (i->size() <1)) continue;
       int type=get_type(*i);
       if ((znaki.count(type)<1) || !znaki[type].istxt) continue;
-      if ((i->comment.size()>0) && (i->comment[0]!="")) needlabel.push_back(i);
+      if ((i->comment.size()>0) && (i->comment[0]!="")) 
+        objs.push_back(std::pair<fig::fig_world::iterator, int>(i,0));
     }
 
-    std::list<fig::fig_world::iterator>::iterator o,l;
+    std::list<fig::fig_world::iterator>::iterator l;
+    std::list<std::pair<fig::fig_world::iterator, int> >::iterator o;
 
-    // first pass: labels with correct text
-    o=needlabel.begin();
-    while (o!=needlabel.end()){
-      bool found=false;
+    // one nearest label with correct text
+    for (o=objs.begin(); o!=objs.end(); o++){
+      double d0=1e99;
+      std::list<fig::fig_world::iterator>::iterator l0;
+      iPoint n0;
+
+      for (l=labels.begin(); l!=labels.end(); l++){
+        if ((*l)->text != o->first->comment[0]) continue;
+        iPoint nearest;
+        double d=dist((*l)->opts.get("RefPt", iPoint(0,0)), *(o->first), nearest);
+        if ( d < d0){ d0=d; n0=nearest; l0=l;}
+      }
+      if (d0 < maxd1){
+        (*l0)->opts.put("RefPt", n0);
+        label_update(**l0, get_type(*(o->first)));
+        o->second++;
+        labels.erase(l0);
+      }
+    }
+
+    // labels with correct text
+    for (o=objs.begin(); o!=objs.end(); o++){
       l=labels.begin();
       while (l!=labels.end()){
         iPoint nearest;
-        if (((*l)->text == (*o)->comment[0]) &&
-            (dist((*l)->opts.get("RefPt", iPoint(0,0)), **o, nearest) < maxd1)){
+        if (((*l)->text == o->first->comment[0]) &&
+            (dist((*l)->opts.get("RefPt", iPoint(0,0)), *(o->first), nearest) < maxd2)){
           (*l)->opts.put("RefPt", nearest);
-          found=true;
-          label_update(**l, get_type(**o));
+          label_update(**l, get_type(*(o->first)));
+          o->second++;
           l=labels.erase(l);
           continue;
         }
         l++;
       }
-      if (found) o=needlabel.erase(o); else o++;
     }
 
-    // second pass: labels with changed text
-    o=needlabel.begin();
-    while (o!=needlabel.end()){
-      bool found=false;
+    // labels with changed text
+    for (o=objs.begin(); o!=objs.end(); o++){
       l=labels.begin();
       while (l!=labels.end()){
         iPoint nearest;
-        if (dist((*l)->opts.get("RefPt", iPoint(0,0)), **o, nearest) < maxd2){
-          (*l)->text=(*o)->comment[0];
+        if (dist((*l)->opts.get("RefPt", iPoint(0,0)), *(o->first), nearest) < maxd3){
+          (*l)->text=o->first->comment[0];
           (*l)->opts.put("RefPt", nearest);
-          found=true;
-          label_update(**l, get_type(**o));
+          label_update(**l, get_type(*(o->first)));
+          o->second++;
           l=labels.erase(l);
           continue;
         }
         l++;
       }
-      if (found) o=needlabel.erase(o); else o++;
     }
 
-    // 3rd pass: create new labels
-    for (o=needlabel.begin(); o!=needlabel.end(); o++){
-      std::list<fig::fig_object> L=make_labels(**o);
+    // create new labels
+    for (o=objs.begin(); o!=objs.end(); o++){
+      if (o->second > 0) continue;
+      std::list<fig::fig_object> L=make_labels(*(o->first));
       for (std::list<fig::fig_object>::iterator j=L.begin(); j!=L.end(); j++){
         if (j->size() < 1) continue;
         iPoint nearest;
-        double d=dist((*j)[0], **o, nearest);
+        double d=dist((*j)[0], *(o->first), nearest);
         j->opts["MapType"]="label";
         j->opts.put("RefPt", nearest);
         F.push_back(*j);
       }
     }
 
-    // 4th pass: remove unused labels
+    // remove unused labels
     for (l=labels.begin(); l!=labels.end(); l++) F.erase(*l);
 
-    return count;
+    return 0;
   }
 
 };
