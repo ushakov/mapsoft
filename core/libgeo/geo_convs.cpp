@@ -460,6 +460,7 @@ int map2map::image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
 
 int map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect, 
                        iImage & dst_img, iRect dst_rect) const{
+    cerr << "WARNING(ushakov): I suspect image_bck is broken" << endl;
     if (cnv_rect.empty() || dst_rect.empty()) return 1;
     // во сколько раз придется растягивать картинку
     int xscale = int(floor(dst_rect.w/cnv_rect.w));
