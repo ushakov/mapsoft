@@ -25,24 +25,41 @@ class ActionTestLine : public Action{
 
   void click(const iPoint & p, const Gdk::ModifierType & state){
 
-    rubber->clear();
     if (state&Gdk::BUTTON1_MASK){
       if (state&Gdk::CONTROL_MASK){
-        if (data.size()>0) data.resize(data.size()-1);
+
+        if (data.size()>0) data.pop_back();
+
+        if (rubber->size()>0){
+          rubber->pop();
+        }
+        if (rubber->size()>0){
+          RubberSegment s = rubber->pop();
+          s.flags |= RUBBFL_MOUSE_P2;
+          s.p2=iPoint(0,0);
+          rubber->add(s);
+        }
       }
-      else data.push_back(p);
-      if (data.size()>0) rubber->add_diag(data[data.size()-1]);
-      for (int i=0; i+1<data.size(); i++){
-        rubber->add(data[i], data[i+1], RUBBFL_PLANE);
+      else{
+        if (rubber->size()>0){
+          RubberSegment s = rubber->pop();
+          s.flags &= ~RUBBFL_MOUSE;
+          s.p2 = p;
+          rubber->add(s);
+        }
+        rubber->add_diag(p);
+        data.push_back(p);
       }
     }
     else if (state&Gdk::BUTTON2_MASK){
       data.push_back(p);
       std::cout << data << "\n";
       data.clear();
+      rubber->clear();
     }
     else if (state&Gdk::BUTTON3_MASK){
       data.clear();
+      rubber->clear();
     }
   }
   Rubber * rubber;

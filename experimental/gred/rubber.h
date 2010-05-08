@@ -21,6 +21,8 @@ typedef unsigned int rubbfl_t;
 #define RUBBFL_CIRC  0x30
 #define RUBBFL_CIRCC 0x40
 
+#define RUBBFL_DRAWN 0x100
+
 /// Class for the rubber segment -- two points with some flags
 /// flags bits (see definitions above):
 /// 0 - p1.x connected to mouse?
@@ -33,22 +35,24 @@ typedef unsigned int rubbfl_t;
 ///   0x20 -- ellipse with the enter in p1
 ///   0x30 -- circle with p1-p2 diameter
 ///   0x40 -- circle with p1-p2 radius
+/// 8 - was segment drawn?
 
 struct RubberSegment{
   rubbfl_t flags;
   iPoint p1, p2;
+  iPoint pf1, pf2;
 
   /// create RubberSegment from two points and flags
   RubberSegment(const iPoint & p1_, const iPoint & p2_, const rubbfl_t flags_);
 
-  /// convert segment coordinates to absolute values
-  RubberSegment absolute(Point<int> mouse, Point<int> origin) const;
+  /// save current absolute coordinates for drawing
+  void fix(Point<int> mouse, Point<int> origin);
 };
 
 /// Class for drawing rubber lines on a viewer
 class Rubber{
 private:
-  std::list<RubberSegment> rubber, drawn;
+  std::list<RubberSegment> rubber;
   iPoint mouse_pos;
   Glib::RefPtr<Gdk::GC> gc;
   Viewer * viewer;
@@ -82,8 +86,14 @@ public:
            const int x2, const int y2,
            const rubbfl_t flags);
 
+  /// remove the last segment from the rubber and get it
+  RubberSegment pop(void);
+  /// get the last segment from the rubber
+  RubberSegment get(void);
+
   /// cleanup rubber
   void clear();
+  /// count segments
   int size();
 
   /// High-level functions for adding some types of segments

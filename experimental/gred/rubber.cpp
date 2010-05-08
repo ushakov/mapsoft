@@ -8,14 +8,12 @@ RubberSegment::RubberSegment(
       p1(p1_), p2(p2_), flags(flags_){
 }
 
-RubberSegment
-RubberSegment::absolute(Point<int> mouse, Point<int> origin) const{
-  return RubberSegment(
-    iPoint ((flags & RUBBFL_MOUSE_P1X)? (p1.x+mouse.x) : (p1.x-origin.x),
-            (flags & RUBBFL_MOUSE_P1Y)? (p1.y+mouse.y) : (p1.y-origin.y)),
-    iPoint ((flags & RUBBFL_MOUSE_P2X)? (p2.x+mouse.x) : (p2.x-origin.x),
-            (flags & RUBBFL_MOUSE_P2Y)? (p2.y+mouse.y) : (p2.y-origin.y)),
-    flags);
+void
+RubberSegment::fix(Point<int> mouse, Point<int> origin){
+  pf1 = iPoint ((flags & RUBBFL_MOUSE_P1X)? (p1.x+mouse.x) : (p1.x-origin.x),
+                (flags & RUBBFL_MOUSE_P1Y)? (p1.y+mouse.y) : (p1.y-origin.y));
+  pf2 = iPoint ((flags & RUBBFL_MOUSE_P2X)? (p2.x+mouse.x) : (p2.x-origin.x),
+                (flags & RUBBFL_MOUSE_P2Y)? (p2.y+mouse.y) : (p2.y-origin.y));
 }
 
 Rubber::Rubber(Viewer * v): viewer(v){
@@ -74,36 +72,36 @@ Rubber::draw_segment(const RubberSegment &s){
   int r,w,h,x,y;
   switch (s.flags & RUBBFL_TYPEMASK){
      case RUBBFL_LINE:
-       viewer->get_window()->draw_line(gc, s.p1.x, s.p1.y, s.p2.x, s.p2.y);
+       viewer->get_window()->draw_line(gc, s.pf1.x, s.pf1.y, s.pf2.x, s.pf2.y);
        break;
      case RUBBFL_ELL:
-       w=abs(s.p2.x-s.p1.x);
-       h=abs(s.p2.y-s.p1.y);
-       x=s.p1.x < s.p2.x  ? s.p1.x:s.p2.x;
-       y=s.p1.y < s.p2.y  ? s.p1.y:s.p2.y;
+       w=abs(s.pf2.x-s.pf1.x);
+       h=abs(s.pf2.y-s.pf1.y);
+       x=s.pf1.x < s.pf2.x  ? s.pf1.x:s.pf2.x;
+       y=s.pf1.y < s.pf2.y  ? s.pf1.y:s.pf2.y;
        viewer->get_window()->draw_arc(gc, false, x, y, w, h, 0, 360*64);
        break;
      case RUBBFL_ELLC:
-       w=2*abs(s.p2.x-s.p1.x);
-       h=2*abs(s.p2.y-s.p1.y);
-       x=s.p1.x-w;
-       y=s.p1.y-h;
+       w=2*abs(s.pf2.x-s.pf1.x);
+       h=2*abs(s.pf2.y-s.pf1.y);
+       x=s.pf1.x-w;
+       y=s.pf1.y-h;
        viewer->get_window()->draw_arc(gc, false, x, y, w, h, 0, 360*64);
        break;
      case RUBBFL_CIRC:
-       w=(int)pdist(s.p2, s.p1);
-       x=(s.p1.x + s.p2.x - w)/2;
-       y=(s.p1.y + s.p2.y - w)/2;
+       w=(int)pdist(s.pf2, s.pf1);
+       x=(s.pf1.x + s.pf2.x - w)/2;
+       y=(s.pf1.y + s.pf2.y - w)/2;
        viewer->get_window()->draw_arc(gc, false, x, y, w, w, 0, 360*64);
        break;
      case RUBBFL_CIRCC:
-       r=(int)pdist(s.p2, s.p1);
-       x=s.p1.x - r;
-       y=s.p1.y - r;
+       r=(int)pdist(s.pf2, s.pf1);
+       x=s.pf1.x - r;
+       y=s.pf1.y - r;
        viewer->get_window()->draw_arc(gc, false, x, y, 2*r, 2*r, 0, 360*64);
        break;
      default:
-       std::cerr << "rubber: bad flags: " << s.flags << "\n";
+       std::cerr << "rubber: bad type: " << (s.flags & RUBBFL_TYPEMASK) << "\n";
   }
 }
 
@@ -111,31 +109,36 @@ Rubber::draw_segment(const RubberSegment &s){
 void
 Rubber::draw(const bool all){
   if (!gc) return;
-  for (std::list<RubberSegment>::const_iterator i = rubber.begin(); i != rubber.end(); i++){
-    if (!all && !(i->flags & RUBBFL_MOUSE)) continue;
-    RubberSegment s=i->absolute(mouse_pos, viewer->get_origin());
-    draw_segment(s);
-    drawn.push_back(s);
+  std::list<RubberSegment>::iterator i;
+  for (i = rubber.begin(); i != rubber.end(); i++){
+    if ((!all && !(i->flags & RUBBFL_MOUSE)) ||
+        (i->flags & RUBBFL_DRAWN)) continue; // already drawn
+
+    i->fix(mouse_pos, viewer->get_origin());
+    i->flags |= RUBBFL_DRAWN;
+    draw_segment(*i);
   }
 }
 
 void
 Rubber::erase(const bool all){
   if (!gc) return;
-  std::list<RubberSegment>::iterator i = drawn.begin();
-  while (i != drawn.end()){
-    if (!all && !(i->flags & RUBBFL_MOUSE)) {i++; continue;}
+  std::list<RubberSegment>::iterator i;
+  for (i = rubber.begin(); i != rubber.end(); i++){
+    if ((!all && !(i->flags & RUBBFL_MOUSE)) ||
+        !(i->flags & RUBBFL_DRAWN)) continue; // wasn't drawn
     draw_segment(*i);
-    i=drawn.erase(i);
+    i->flags &= ~RUBBFL_DRAWN;
   }
 }
 
 /// add segment to a rubber
 void
 Rubber::add(const RubberSegment & s){
-  erase();
   rubber.push_back(s);
-  draw();
+  rubber.rbegin()->fix(mouse_pos, viewer->get_origin());
+  rubber.rbegin()->flags |= RUBBFL_DRAWN;
+  draw_segment(*rubber.rbegin());
 }
 
 void
@@ -147,6 +150,23 @@ void
 Rubber::add(const int x1, const int y1,
                 const int x2, const int y2, const rubbfl_t flags){
   add(RubberSegment(iPoint(x1,y1), Point<int>(x2,y2), flags));
+}
+
+/// remove the last segment from the rubber and get it
+RubberSegment
+Rubber::pop(void){
+  if (rubber.size()<1) return RubberSegment(0,0,0);
+  RubberSegment s = *rubber.rbegin();
+  if (s.flags & RUBBFL_DRAWN) draw_segment(s); // erase segment
+  rubber.pop_back();
+  return s;
+}
+
+/// get the last segment from the rubber
+RubberSegment
+Rubber::get(void){
+  if (rubber.size()<1) return RubberSegment(0,0,0);
+  return *rubber.rbegin();
 }
 
 /// cleanup rubber
