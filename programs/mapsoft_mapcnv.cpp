@@ -66,6 +66,10 @@ main(int argc, char **argv){
     cerr << "Empty geometry! Use -g option.\n";
     exit(1);
   }
+  if (geom.x>1e6){
+    opts.put("lon0", convs::lon_pref2lon0(geom.x));
+    geom.x=convs::lon_delprefix(geom.x);
+  }
 
   Proj  proj(opts.get("proj", string("tmerc")));
   Datum datum(opts.get("datum", string("pulkovo")));
