@@ -23,11 +23,11 @@ projPJ mkproj(const Datum & D, const Proj & P, const Options & o){
     if (P==Proj("google"))  projpar << " +proj=merc";
     else  projpar << " +proj=" << P;
 
-    Enum::output_fmt = old_enum_fmt;
-
     if (D==Datum("pulkovo"))
        projpar << " +ellps=krass +towgs84=+28,-130,-95";
     else projpar << " +datum=" << D;
+
+    Enum::output_fmt = old_enum_fmt;
 
     switch (P.val){
 
