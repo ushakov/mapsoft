@@ -19,6 +19,6 @@ main(int argc, char** argv){
   if (argc != 2) usage();
   string style = argv[1];
 
-  zn::zn_conv zconverter(syle);
+  zn::zn_conv zconverter(style);
   cout << zn::make_text(zconverter);
 }
