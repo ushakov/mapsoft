@@ -55,8 +55,7 @@ main(int argc, char **argv){
   if (!read_conf(argc, argv, opts)) usage(argv[0]);
   if (opts.exists("help")) usage(argv[0]);
 
-  string outfile="";
-  opts.get("out", outfile);
+  string outfile = opts.get("out", string());
   string figfile = opts.get("fig", string());
   string htmfile = opts.get("htm", string());
   string mapfile = opts.get("map", string());
