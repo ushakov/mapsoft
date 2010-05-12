@@ -70,6 +70,7 @@ Rubber::init_gc() {
 void
 Rubber::draw_segment(const RubberSegment &s){
   int r,w,h,x,y;
+  if (!gc) return;
   switch (s.flags & RUBBFL_TYPEMASK){
      case RUBBFL_LINE:
        viewer->get_window()->draw_line(gc, s.pf1.x, s.pf1.y, s.pf2.x, s.pf2.y);
@@ -108,7 +109,6 @@ Rubber::draw_segment(const RubberSegment &s){
 /// functions for drawing and erasing rubber
 void
 Rubber::draw(const bool all){
-  if (!gc) return;
   std::list<RubberSegment>::iterator i;
   for (i = rubber.begin(); i != rubber.end(); i++){
     if ((!all && !(i->flags & RUBBFL_MOUSE)) ||
@@ -122,7 +122,6 @@ Rubber::draw(const bool all){
 
 void
 Rubber::erase(const bool all){
-  if (!gc) return;
   std::list<RubberSegment>::iterator i;
   for (i = rubber.begin(); i != rubber.end(); i++){
     if ((!all && !(i->flags & RUBBFL_MOUSE)) ||
