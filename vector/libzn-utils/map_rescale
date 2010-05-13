@@ -103,7 +103,7 @@ fi
 cmap="/usr/share/mapsoft/$style.cmap.pnm"
 [ -s "$cmap" ] || fatal "Can't find cmap for style $style: $cmap"
 
-geom_regexp="[[:space:]]*\([0-9]\+\)x\([0-9]\+\)+\([0-9]\+\)+\([0-9]\+\)\(k\?\)[[:space:]]*"
+geom_regexp="[[:space:]]*\([0-9\.]\+\)x\([0-9\.]\+\)+\([0-9\.]\+\)+\([0-9\.]\+\)\(k\?\)[[:space:]]*"
 TMP="$(printf "$geom" |
   sed -n "s/^$geom_regexp\$/W=\1; H=\2; X=\3; Y=\4; K=\5;/p")"
 
