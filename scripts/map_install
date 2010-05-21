@@ -179,3 +179,7 @@ ${auth:+<p>Author: $auth}
 </body>
 </html>
 EOF
+
+# this hack is done against "-0" values in the map border
+# OZI writer must be fixed to avoid negative values...
+sed -i -e '/^MMPXY/s/,-0/,0/g' $datadir/*.map
