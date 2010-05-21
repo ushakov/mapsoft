@@ -25,6 +25,8 @@ projPJ mkproj(const Datum & D, const Proj & P, const Options & o){
 
     if (D==Datum("pulkovo"))
        projpar << " +ellps=krass +towgs84=+28,-130,-95";
+    else if (D==Datum("sphere"))
+       projpar << " +ellps=sphere";
     else projpar << " +datum=" << D;
 
     Enum::output_fmt = old_enum_fmt;
