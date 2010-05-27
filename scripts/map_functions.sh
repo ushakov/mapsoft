@@ -24,10 +24,19 @@ geom2lon0(){
   bc
 }
 
+# remove prefix from tmerc geometry
+geom_prefixrem(){
+  echo "$1" |
+  sed -n '
+    s/^\([0-9\.]\+x[0-9\.]\+[\+-]\)[0-9]*\([0-9]\{6\}[\+\.-].*\)/\1\2/p
+    /^[0-9\.]\+x[0-9\.]\+[\+-]\([0-9]\{0,5\}[\+\.-].*\)/p' |
+  bc
+}
+
 # get wgs lonlat bbox for a pulkovo tmerc geometry
 geom2ll(){
-  echo "bb_frw $1 1" |
-  convs_pt2pt "pulk" "tmerc" "lon0=$(geom2lon0 "$geom")" "wgs84" "lonlat" ""
+  echo "bb_frw $(geom_prefixrem $1) 1" |
+  convs_pt2pt "pulk" "tmerc" "lon0=$(geom2lon0 "$1")" "wgs84" "lonlat" ""
 }
 
 # get url for downloading data from westra passes catalog
