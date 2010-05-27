@@ -26,16 +26,15 @@ geom2lon0(){
 
 # remove prefix from tmerc geometry
 geom_prefixrem(){
-  echo "$1" |
+  printf "%s\n" "$1" |
   sed -n '
     s/^\([0-9\.]\+x[0-9\.]\+[\+-]\)[0-9]*\([0-9]\{6\}[\+\.-].*\)/\1\2/p
-    /^[0-9\.]\+x[0-9\.]\+[\+-]\([0-9]\{0,5\}[\+\.-].*\)/p' |
-  bc
+    /^[0-9\.]\+x[0-9\.]\+[\+-]\([0-9]\{0,5\}[\+\.-].*\)/p'
 }
 
 # get wgs lonlat bbox for a pulkovo tmerc geometry
 geom2ll(){
-  echo "bb_frw $(geom_prefixrem $1) 1" |
+  echo "bb_frw $(geom_prefixrem "$1") 1" |
   convs_pt2pt "pulk" "tmerc" "lon0=$(geom2lon0 "$1")" "wgs84" "lonlat" ""
 }
 
@@ -48,8 +47,8 @@ geom2wp(){
   {
     local x1 x2 y1 y2 dx dy
     read dx dy x1 y1
-    x2="$(printf "${x1#+} + $dx\n" | bc -l)"
-    y2="$(printf "${y1#+} + $dy\n" | bc -l)"
+    x2="$(printf -- "${x1#+} + $dx\n" | bc -l)"
+    y2="$(printf -- "${y1#+} + $dy\n" | bc -l)"
     printf "http://www.westra.ru/cgi-bin/show_pass.pl?lat1=%f&lat2=%f&lon1=%f&lon2=%f&searchbtn=1&fmt=$fmt"\
      $y1 $y2 $x1 $x2
   }
@@ -134,8 +133,8 @@ download_gl(){
   {
     local x1 x2 y1 y2 dx dy
     read dx dy x1 y1
-    x2="$(printf "${x1#+} + $dx\n" | bc -l)"
-    y2="$(printf "${y1#+} + $dy\n" | bc -l)"
+    x2="$(printf -- "${x1#+} + $dx\n" | bc -l)"
+    y2="$(printf -- "${y1#+} + $dy\n" | bc -l)"
     get_gl GLIMS_Glacier_Polygons "$x1,$y1,$x2,$y2" | gml2mp > "${name}_gl.mp"
   }
 }
