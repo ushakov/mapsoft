@@ -9,7 +9,7 @@
 
 class AddTrack : public ActionMode {
 public:
-    AddTrack (Mapview * state_) : state(state_) { }
+    AddTrack (Mapview * mapview_) : mapview(mapview_) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -19,69 +19,84 @@ public:
     // Activates this mode.
     virtual void activate() {
       new_track.clear();
+      mapview->rubber.clear();
     }
 
     // Abandons any action in progress and deactivates mode.
     virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p) {
-	std::cout << "ADDTRACK: " << p << std::endl;
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 
-	if (new_track.size() == 0){ // первое тыканье
-          // найдем layer, в который можно запихать трек
+
+        /// find/create current_layer at the first click
+	if (new_track.size() == 0){
           current_layer = NULL;
           LayerTRK * layer;
-          current_layer = NULL;
-          for (int i=0; i<state->trk_layers.size(); i++){
-            layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-            if (state->viewer.workplane.get_layer_active(layer)) {
+          for (int i=0; i<mapview->trk_layers.size(); i++){
+            layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
+            if (mapview->viewer.workplane.get_layer_active(layer)) {
               current_layer = layer;
               break;
             }
           }
           if (current_layer == NULL){
             boost::shared_ptr<geo_data> world (new geo_data);
-            state->data.push_back(world);
+            mapview->data.push_back(world);
 
             boost::shared_ptr<LayerTRK> trk_layer(new LayerTRK(world.get()));
-            trk_layer->set_ref(state->reference);
-            state->trk_layers.push_back(trk_layer);
-            state->add_layer(trk_layer.get(), 200, "trk: new");
+            trk_layer->set_ref(mapview->reference);
+            mapview->trk_layers.push_back(trk_layer);
+            mapview->add_layer(trk_layer.get(), 200, "trk: new");
             current_layer = dynamic_cast<LayerTRK *>(trk_layer.get());
           }
 
  	  Options opt = new_track.to_options();
-	  state->gend.activate(get_name(), opt, 
+	  mapview->gend.activate(get_name(), opt, 
 	    sigc::mem_fun(this, &AddTrack::on_result));
         }
 
-        g_map map = current_layer->get_ref();
-        convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
+	/// add or remove point
+        if (state&Gdk::CONTROL_MASK){
+	  std::cout << "remove track point" << std::endl;
+          if (new_track.size()>0) new_track.pop_back();
+          if (mapview->rubber.size()>0){
+            mapview->rubber.pop();
+          }
+          if (mapview->rubber.size()>0){
+            RubberSegment s = mapview->rubber.pop();
+            s.flags |= RUBBFL_MOUSE_P2;
+            s.p2=iPoint(0,0);
+            mapview->rubber.add(s);
+          }
+        }
+        else{
+	  std::cout << "add track point: " << p << std::endl;
+          if (mapview->rubber.size()>0){
+            RubberSegment s = mapview->rubber.pop();
+            s.flags &= ~RUBBFL_MOUSE;
+            s.p2 = p;
+            mapview->rubber.add(s);
+          }
+          mapview->rubber.add_diag(p);
+          g_map map = current_layer->get_ref();
+          convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
 
-        g_trackpoint pt;
-        pt.x = p.x; pt.y=p.y;
-	cnv.frw(pt);
+          g_trackpoint pt;
+          pt.x = p.x; pt.y=p.y;
+  	  cnv.frw(pt);
+ 	  new_track.push_back(pt);
+        }
 
-	new_track.push_back(pt);
 	std::ostringstream st;
 	st << "Creating new track... "
            << new_track.size() << " points, "
            << new_track.length()/1000 << " km";
-	state->statusbar.push(st.str(),0);
-        state->rubber.clear();
-	for (int i = 0; i<new_track.size()-1; i++){
-	  g_point p1 = new_track[i];
-	  g_point p2 = new_track[i+1];
-          cnv.bck(p1); cnv.bck(p2);
-	  state->rubber.add(p1,p2, RUBBFL_PLANE);
-        }
-	state->rubber.add_diag(p);
-
+	mapview->statusbar.push(st.str(),0);
     }
 
 private:
-    Mapview       * state;
+    Mapview       * mapview;
     LayerTRK      * current_layer;
 
     g_track  new_track;
@@ -91,11 +106,11 @@ private:
           assert (current_layer);
           new_track.parse_from_options(o);
          current_layer->get_world()->trks.push_back(new_track);
-          state->viewer.workplane.refresh_layer(current_layer);
+          mapview->viewer.workplane.refresh_layer(current_layer);
        }
-       state->statusbar.push("",0);
+       mapview->statusbar.push("",0);
        new_track.clear();
-       state->rubber.clear();
+       mapview->rubber.clear();
     }
 
 };

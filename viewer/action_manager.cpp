@@ -14,22 +14,22 @@
 #include "actions/am_make_tiles.h"
 #include "actions/am_goto_ll.h"
 
-ActionManager::ActionManager (Mapview * state_)
-    : state(state_)
+ActionManager::ActionManager (Mapview * mapview_)
+    : mapview(mapview_)
 {
     current_mode = 0;
     modes.push_back(boost::shared_ptr<ActionMode>(new ActionModeNone));
-    modes.push_back(boost::shared_ptr<ActionMode>(new AddWaypoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new EditWaypoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MoveWaypoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new DeleteWaypoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrackpoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MoveTrackpoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new DeleteTrackpoint(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrack(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new AddTrack(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MarkTrack(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MakeTiles(state)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new GotoLL(state)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new AddWaypoint(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new EditWaypoint(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new MoveWaypoint(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new DeleteWaypoint(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrackpoint(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new MoveTrackpoint(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new DeleteTrackpoint(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrack(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new AddTrack(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new MarkTrack(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new MakeTiles(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new GotoLL(mapview)));
 }
 

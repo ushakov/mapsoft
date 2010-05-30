@@ -10,7 +10,7 @@
 
 class MarkTrack : public ActionMode {
 public:
-     MarkTrack (Mapview * state_) : state(state_) {
+     MarkTrack (Mapview * mapview_) : mapview(mapview_) {
     }
 
     // Returns name of the mode as string.
@@ -35,9 +35,9 @@ public:
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p) {
-	for (int i = 0; i < state->trk_layers.size(); ++i) {
-            LayerTRK * current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
+	for (int i = 0; i < mapview->trk_layers.size(); ++i) {
+            LayerTRK * current_layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_trackpoint(p);
 	    if (d.first >= 0) {
@@ -81,14 +81,14 @@ public:
 		    pp = tp;
 		}
 		add_wpt(wpt_list, (*track)[e-s], len);
-		state->viewer.workplane.refresh_layer(current_layer);
+		mapview->viewer.workplane.refresh_layer(current_layer);
 		return;
 	    }
 	}
     }
 
 private:
-    Mapview  * state;
+    Mapview  * mapview;
 };
 
 

@@ -6,7 +6,7 @@
 
 class MoveTrackpoint : public ActionMode {
 public:
-    MoveTrackpoint (Mapview * state_) : state(state_) {
+    MoveTrackpoint (Mapview * mapview_) : mapview(mapview_) {
 	current_tpt = 0;
         current_layer = 0;
         mystate = 0;
@@ -25,14 +25,14 @@ public:
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p) {
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 
         if (mystate==0){ // select point
           std::cout << " MOVETPT: " << p << std::endl;
-	  for (int i = 0; i < state->trk_layers.size(); ++i) {
-            current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
+	  for (int i = 0; i < mapview->trk_layers.size(); ++i) {
+            current_layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
 
-            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
+            if (!mapview->viewer.workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_trackpoint(p);
 	    if (d.first >= 0) {
@@ -44,16 +44,16 @@ public:
 		if ((d.second > 0)&&(!current_layer->get_world()->trks[d.first][d.second].start)){
   		  g_point p1 = current_layer->get_world()->trks[d.first][d.second-1];
 		  cnv.bck(p1);
-                  state->rubber.add_diag(p1);
+                  mapview->rubber.add_diag(p1);
 		}
 		if ((d.second < current_layer->get_world()->trks[d.first].size()-1)&&
 		    (!current_layer->get_world()->trks[d.first][d.second+1].start)){
   		  g_point p1 = current_layer->get_world()->trks[d.first][d.second+1];
 		  cnv.bck(p1);
-                  state->rubber.add_diag(p1);
+                  mapview->rubber.add_diag(p1);
 		}
-		if (state->rubber.size()==0)
-                  state->rubber.add_diag(p);
+		if (mapview->rubber.size()==0)
+                  mapview->rubber.add_diag(p);
                 mystate=1;
 		break;
             }
@@ -66,16 +66,16 @@ public:
           cnv.frw(pt);
           current_tpt->x = pt.x;
           current_tpt->y = pt.y;
-          state->viewer.workplane.refresh_layer(current_layer);
+          mapview->viewer.workplane.refresh_layer(current_layer);
 	  mystate=0;
-          state->rubber.clear();
+          mapview->rubber.clear();
           current_layer=0;
           current_tpt=0;
         }
     }
 
 private:
-    Mapview      * state;
+    Mapview      * mapview;
     g_trackpoint * current_tpt;
     LayerTRK     * current_layer;
     int mystate; // 0 - select point, 1 - move point

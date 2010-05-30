@@ -7,7 +7,7 @@
 
 class AddWaypoint : public ActionMode {
 public:
-    AddWaypoint (Mapview * state_) : state(state_) { }
+    AddWaypoint (Mapview * mapview_) : mapview(mapview_) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -21,14 +21,14 @@ public:
     virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p) {
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 	std::cout << "ADDWPT: " << p << std::endl;
 
 	LayerWPT * layer;
 	current_layer = NULL;
-	for (int i=0; i<state->wpt_layers.size(); i++){
-          layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
-          if (state->viewer.workplane.get_layer_active(layer)) {
+	for (int i=0; i<mapview->wpt_layers.size(); i++){
+          layer = dynamic_cast<LayerWPT *> (mapview->wpt_layers[i].get());
+          if (mapview->viewer.workplane.get_layer_active(layer)) {
 	      current_layer = layer;
 	      break;
 	  }
@@ -36,12 +36,12 @@ public:
 
         if (current_layer==0){
           boost::shared_ptr<geo_data> world (new geo_data);
-          state->data.push_back(world);
+          mapview->data.push_back(world);
 
           boost::shared_ptr<LayerWPT> wpt_layer(new LayerWPT(world.get()));
-          wpt_layer->set_ref(state->reference);
-          state->wpt_layers.push_back(wpt_layer);
-          state->add_layer(wpt_layer.get(), 100, "wpt: new");
+          wpt_layer->set_ref(mapview->reference);
+          mapview->wpt_layers.push_back(wpt_layer);
+          mapview->add_layer(wpt_layer.get(), 100, "wpt: new");
           current_layer = dynamic_cast<LayerWPT *>(wpt_layer.get());
         }
 
@@ -53,12 +53,12 @@ public:
 	cnv.frw(wpt);
 	Options opt = wpt.to_options();
 
-	state->gend.activate(get_name(), opt,
+	mapview->gend.activate(get_name(), opt,
 	  sigc::mem_fun(this, &AddWaypoint::on_result));
     }
 
 private:
-    Mapview       * state;
+    Mapview       * mapview;
     LayerWPT      * current_layer;
 
     void on_result(int r, const Options & o) {
@@ -69,7 +69,7 @@ private:
           if (current_layer->get_world()->wpts.size()==0) 
 	    current_layer->get_world()->wpts.push_back(g_waypoint_list());
           current_layer->get_world()->wpts[0].push_back(wpt);
-          state->viewer.workplane.refresh_layer(current_layer);
+          mapview->viewer.workplane.refresh_layer(current_layer);
    	  std::cout << "ADDWPT: " << wpt.name << "\n";
 	}
     }

@@ -9,7 +9,7 @@
 
 class MakeTiles : public ActionMode {
 public:
-    MakeTiles (Mapview * state_) : state(state_) {
+    MakeTiles (Mapview * mapview_) : mapview(mapview_) {
     }
 
     // Returns name of the mode as string.
@@ -26,7 +26,7 @@ public:
     virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p) {
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 	std::cout << "MAKETILES: " << p << " points: " << have_points << std::endl;
 	if (have_points == 0) {
 	    g_point geo = p;
@@ -34,8 +34,8 @@ public:
 	    one = geo;
 	    have_points = 1;
 	    // make rubber
-	    state->rubber.clear();
-	    state->rubber.add_rect(p);
+	    mapview->rubber.clear();
+	    mapview->rubber.add_rect(p);
 	} else if (have_points == 1) {
 	    g_point geo = p;
 	    if (!get_geo_point(geo)) return;
@@ -46,8 +46,8 @@ public:
 	    opt.put("geom", bb);
 	    opt.put("google", 17);
 	    opt.put("dirname", "tiles");
-	    state->rubber.clear();
-	    state->gend.activate(get_name(), opt,
+	    mapview->rubber.clear();
+	    mapview->gend.activate(get_name(), opt,
 	      sigc::mem_fun(this, &MakeTiles::on_result));
 	}
     }
@@ -55,9 +55,9 @@ public:
     bool get_geo_point(g_point& p) {
 	LayerGeoMap * layer;
 	current_layer = NULL;
-	for (int i = 0; i < state->map_layers.size(); i++){
-	    layer = state->map_layers[i].get();
-	    if (state->viewer.workplane.get_layer_active(layer)) {
+	for (int i = 0; i < mapview->map_layers.size(); i++){
+	    layer = mapview->map_layers[i].get();
+	    if (mapview->viewer.workplane.get_layer_active(layer)) {
 		current_layer = layer;
 		break;
 	    }
@@ -70,7 +70,7 @@ public:
     }
 
 private:
-    Mapview       * state;
+    Mapview       * mapview;
     LayerGeoMap   * current_layer;
     int have_points;
 

@@ -11,7 +11,7 @@ class Mapview;
 
 class ActionManager {
 public:
-    ActionManager(Mapview * state_);
+    ActionManager(Mapview * mapview_);
 
     std::vector<std::string> get_mode_list () {
 	std::vector<std::string> r;
@@ -31,12 +31,12 @@ public:
 	modes[current_mode]->abort();
     }
     
-    void click (iPoint p) {
-	modes[current_mode]->handle_click(p);
+    void click (iPoint p, const Gdk::ModifierType & state) {
+	modes[current_mode]->handle_click(p, state);
     }
 
 private:
-    Mapview      * state;
+    Mapview      * mapview;
     std::vector<boost::shared_ptr<ActionMode> > modes;
     int current_mode;
 };

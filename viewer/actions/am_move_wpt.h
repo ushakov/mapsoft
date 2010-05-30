@@ -6,7 +6,7 @@
 
 class MoveWaypoint : public ActionMode {
 public:
-    MoveWaypoint (Mapview * state_) : state(state_) {
+    MoveWaypoint (Mapview * mapview_) : mapview(mapview_) {
 	current_wpt = 0;
         current_layer = 0;
         mystate = 0;
@@ -24,21 +24,21 @@ public:
     virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p) {
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 
         if (mystate==0){ // select point
           std::cout << " MOVEWPT: " << p << std::endl;
-	  for (int i = 0; i < state->wpt_layers.size(); ++i) {
-            current_layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
-            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
+	  for (int i = 0; i < mapview->wpt_layers.size(); ++i) {
+            current_layer = dynamic_cast<LayerWPT *> (mapview->wpt_layers[i].get());
+            if (!mapview->viewer.workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_waypoint(p);
 	    if (d.first >= 0) {
 		std::cout << "MOVEWPT: found at " << current_layer << std::endl;
 		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
-		state->rubber.add_src_sq(p, 2);
-		state->rubber.add_dst_sq(2);
-                state->rubber.add_diag(p);
+		mapview->rubber.add_src_sq(p, 2);
+		mapview->rubber.add_dst_sq(2);
+                mapview->rubber.add_diag(p);
                 mystate=1;
 		break;
             }
@@ -51,16 +51,16 @@ public:
           cnv.frw(pt);
           current_wpt->x = pt.x;
           current_wpt->y = pt.y;
-          state->viewer.workplane.refresh_layer(current_layer);
+          mapview->viewer.workplane.refresh_layer(current_layer);
 	  mystate=0;
-          state->rubber.clear();
+          mapview->rubber.clear();
           current_layer=0;
           current_wpt=0;
         }
     }
 
 private:
-    Mapview      * state;
+    Mapview      * mapview;
     g_waypoint   * current_wpt;
     LayerWPT     * current_layer;
     int mystate; // 0 - select point, 1 - move point

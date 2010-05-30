@@ -7,7 +7,7 @@
 
 class EditWaypoint : public ActionMode {
 public:
-    EditWaypoint (Mapview * state_) : state(state_) {
+    EditWaypoint (Mapview * mapview_) : mapview(mapview_) {
 	current_wpt = 0;
     }
 
@@ -23,11 +23,11 @@ public:
     virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p) {
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 	std::cout << "EDITWPT: " << p << std::endl;
-	for (int i = 0; i < state->wpt_layers.size(); ++i) {
-	    current_layer = dynamic_cast<LayerWPT *> (state->wpt_layers[i].get());
-            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
+	for (int i = 0; i < mapview->wpt_layers.size(); ++i) {
+	    current_layer = dynamic_cast<LayerWPT *> (mapview->wpt_layers[i].get());
+            if (!mapview->viewer.workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_waypoint(p);
 	    if (d.first >= 0) {
@@ -35,7 +35,7 @@ public:
 		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
 		Options opt = current_wpt->to_options();
 
-		state->gend.activate(get_name(), opt,
+		mapview->gend.activate(get_name(), opt,
 		   sigc::mem_fun(this, &EditWaypoint::on_result));
 		break;
 	    }
@@ -43,7 +43,7 @@ public:
     }
 
 private:
-    Mapview       * state;
+    Mapview       * mapview;
     g_waypoint    * current_wpt;
     LayerWPT      * current_layer;
 
@@ -51,7 +51,7 @@ private:
 	if (current_wpt) {
 	    if (r == 0) { // OK
 		current_wpt->parse_from_options(o);
-                state->viewer.workplane.refresh_layer(current_layer);
+                mapview->viewer.workplane.refresh_layer(current_layer);
  		std::cout << "EDITWPT: " << current_wpt->name << std::endl;
 	    } else {
 		// do nothing

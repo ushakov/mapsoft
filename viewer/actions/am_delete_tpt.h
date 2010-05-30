@@ -6,7 +6,7 @@
 
 class DeleteTrackpoint : public ActionMode {
 public:
-    DeleteTrackpoint (Mapview * state_) : state(state_) { }
+    DeleteTrackpoint (Mapview * mapview_) : mapview(mapview_) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -20,12 +20,12 @@ public:
     virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p) {
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 	std::cout << "DELETETPT: " << p << std::endl;
 
-        for (int i = 0; i < state->trk_layers.size(); ++i) {
-            LayerTRK * current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-	    if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
+        for (int i = 0; i < mapview->trk_layers.size(); ++i) {
+            LayerTRK * current_layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
+	    if (!mapview->viewer.workplane.get_layer_active(current_layer)) continue;
             assert (current_layer);
             std::pair<int, int> point_addr = current_layer->find_trackpoint(p);
             if (point_addr.first >= 0) {
@@ -35,14 +35,14 @@ public:
                   current_layer->get_world()->trks[point_addr.first].begin()+point_addr.second);
 		if (start && (point_addr.second < current_layer->get_world()->trks[point_addr.first].size()))
                   current_layer->get_world()->trks[point_addr.first][point_addr.second].start = start;
-                state->viewer.workplane.refresh_layer(current_layer);
+                mapview->viewer.workplane.refresh_layer(current_layer);
                 break;
             }
         }
     }
 
 private:
-    Mapview * state;
+    Mapview * mapview;
 };
 
 #endif /* AM_DELETE_TPT_H */

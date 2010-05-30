@@ -7,7 +7,7 @@
 
 class EditTrackpoint : public ActionMode {
 public:
-    EditTrackpoint (Mapview * state_) : state(state_) {
+    EditTrackpoint (Mapview * mapview_) : mapview(mapview_) {
 	current_tpt = 0;
     }
 
@@ -23,11 +23,11 @@ public:
     virtual void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p) {
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 	std::cout << "EDITTPT: " << p << std::endl;
-	for (int i = 0; i < state->trk_layers.size(); ++i) {
-	    current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
+	for (int i = 0; i < mapview->trk_layers.size(); ++i) {
+	    current_layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
+            if (!mapview->viewer.workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_trackpoint(p);
 	    if (d.first >= 0) {
@@ -35,7 +35,7 @@ public:
 		current_tpt = &(current_layer->get_world()->trks[d.first][d.second]);
 		Options opt = current_tpt->to_options();
 
-		state->gend.activate(get_name(), opt,
+		mapview->gend.activate(get_name(), opt,
 		  sigc::mem_fun(this, &EditTrackpoint::on_result));
                 break;
 	    }
@@ -43,7 +43,7 @@ public:
     }
 
 private:
-    Mapview       * state;
+    Mapview       * mapview;
     g_trackpoint  * current_tpt;
     LayerTRK      * current_layer;
 
@@ -51,7 +51,7 @@ private:
 	if (current_tpt) {
 	    if (r == 0) { // OK
 		current_tpt->parse_from_options(o);
-                state->viewer.workplane.refresh_layer(current_layer);
+                mapview->viewer.workplane.refresh_layer(current_layer);
  		std::cout << "EDITWPT: OK\n";
 	    } else {
 		// do nothing
