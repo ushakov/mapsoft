@@ -30,13 +30,26 @@ public:
 
 	if (new_track.size() == 0){ // первое тыканье
           // найдем layer, в который можно запихать трек
-	  for (int i=0; i<state->trk_layers.size(); i++){
-            current_layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
-            if (!state->viewer.workplane.get_layer_active(current_layer)) continue;
-	    break;
+          current_layer = NULL;
+          LayerTRK * layer;
+          current_layer = NULL;
+          for (int i=0; i<state->trk_layers.size(); i++){
+            layer = dynamic_cast<LayerTRK *> (state->trk_layers[i].get());
+            if (state->viewer.workplane.get_layer_active(layer)) {
+              current_layer = layer;
+              break;
+            }
           }
-          if (current_layer==0) return; // надо бы добавлять новый, но для этого нужен доступ
-                                        // к layer_list и т.п.
+          if (current_layer == NULL){
+            boost::shared_ptr<geo_data> world (new geo_data);
+            state->data.push_back(world);
+
+            boost::shared_ptr<LayerTRK> trk_layer(new LayerTRK(world.get()));
+            trk_layer->set_ref(state->reference);
+            state->trk_layers.push_back(trk_layer);
+            state->add_layer(trk_layer.get(), 200, "trk: new");
+            current_layer = dynamic_cast<LayerTRK *>(trk_layer.get());
+          }
 
  	  Options opt = new_track.to_options();
 	  state->gend.activate(get_name(), opt, 

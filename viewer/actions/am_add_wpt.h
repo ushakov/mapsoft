@@ -33,8 +33,17 @@ public:
 	      break;
 	  }
         }
-        if (current_layer == 0) return; // надо бы добавлять новый, но для этого нужен доступ
-	                                // к layer_list и т.п.
+
+        if (current_layer==0){
+          boost::shared_ptr<geo_data> world (new geo_data);
+          state->data.push_back(world);
+
+          boost::shared_ptr<LayerWPT> wpt_layer(new LayerWPT(world.get()));
+          wpt_layer->set_ref(state->reference);
+          state->wpt_layers.push_back(wpt_layer);
+          state->add_layer(wpt_layer.get(), 100, "wpt: new");
+          current_layer = dynamic_cast<LayerWPT *>(wpt_layer.get());
+        }
 
         g_map map = current_layer->get_ref();
 
