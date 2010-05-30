@@ -339,7 +339,6 @@ public:
         {
           reference*=2;
           rubber*=2;
-          rubber.dump();
           viewer.zoom_in(2);
           return true;
         }
@@ -349,7 +348,6 @@ public:
         {
           reference/=2;
           rubber/=2;
-          rubber.dump();
           viewer.zoom_out(2);
           return true;
         }
