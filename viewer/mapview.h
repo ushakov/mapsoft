@@ -338,6 +338,7 @@ public:
         case 65451: // + =
         {
           viewer.zoom_in(2);
+          reference*=2;
           return true;
         }
         case 45:
@@ -345,6 +346,7 @@ public:
         case 65453: // _ -
         {
           viewer.zoom_out(2);
+          reference/=2;
           return true;
         }
         case 'r':
