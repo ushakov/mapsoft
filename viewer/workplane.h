@@ -41,7 +41,7 @@ public:
     Workplane & operator+= (dPoint k);
 
     void set_tile_size(int s);
-    int get_tile_size();
+    int get_tile_size() const;
 
     inline void clear_tile_cache();
 

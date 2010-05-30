@@ -142,7 +142,7 @@ void Workplane::set_tile_size(int s){
 	tile_size=s;
 }
 
-int Workplane::get_tile_size() {
+int Workplane::get_tile_size() const{
 	return tile_size;
 }
 

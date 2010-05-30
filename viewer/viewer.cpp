@@ -3,7 +3,7 @@
 #include "viewer.h"
 #include "../core/utils/image_gdk.h"
 #include "../core/utils/log.h"
-
+#include "../core/lib2d/image_source.h"
 /**************************************/
 
 
@@ -355,4 +355,29 @@ bool Viewer1::on_motion_notify_event (GdkEventMotion * event) {
     return false;
 }
 
+iImage Viewer1::get_image(const iRect & bb){
+  iImage ret(bb.w, bb.h);
 
+  int tile_size = workplane.get_tile_size();
+  iRect tiles = tiles_on_rect(bb, tile_size);
+
+  for (int tj = tiles.y; tj<tiles.y+tiles.h; tj++){
+    for (int ti = tiles.x; ti<tiles.x+tiles.w; ti++){
+      iPoint key(ti,tj);
+
+      iImage tile = tile_cache.count(key)?
+          tile_cache.find(key)->second :
+          workplane.get_image(key);
+
+      iRect tile_rect(ti*tile_size, tj*tile_size,
+          tile_size, tile_size);
+
+      iImageSourceImage source(tile);
+      source.render_to_image(ret,
+        rect_intersect(tile_rect, bb) - tile_rect.TLC(),
+        rect_intersect(bb, tile_rect) - bb.TLC());
+
+    }
+  }
+  return ret;
+}

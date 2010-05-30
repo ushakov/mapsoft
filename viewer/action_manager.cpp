@@ -13,6 +13,7 @@
 #include "actions/am_mark_trk.h"
 #include "actions/am_make_tiles.h"
 #include "actions/am_goto_ll.h"
+#include "actions/am_save_image.h"
 
 ActionManager::ActionManager (Mapview * mapview_)
     : mapview(mapview_)
@@ -31,5 +32,6 @@ ActionManager::ActionManager (Mapview * mapview_)
     modes.push_back(boost::shared_ptr<ActionMode>(new MarkTrack(mapview)));
     modes.push_back(boost::shared_ptr<ActionMode>(new MakeTiles(mapview)));
     modes.push_back(boost::shared_ptr<ActionMode>(new GotoLL(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new SaveImage(mapview)));
 }
 

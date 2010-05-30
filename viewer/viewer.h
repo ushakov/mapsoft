@@ -29,6 +29,8 @@ public:
     void zoom_out(int i);
     void zoom_in(int i);
 
+    iImage get_image(const iRect & bb);
+
     Workplane workplane;
 
 private:
