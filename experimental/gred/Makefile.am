@@ -1,7 +1,7 @@
 noinst_LIBRARIES = libgred.a
 
 libgred_a_SOURCES =\
-  actions.cpp\
+  action_manager.cpp\
   rubber.cpp\
   simple_viewer.cpp\
   mthread_viewer.cpp\

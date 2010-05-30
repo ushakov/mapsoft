@@ -11,10 +11,10 @@ int main(int argc, char **argv){
 
     DThreadViewer viewer(&p1);
     Rubber  rubber(&viewer);
-    Actions actions(&viewer);
+    ActionManager AM(&viewer);
     ActionTestBox A1(&rubber);
-    actions.add(&A1);
-    actions.select("TestBox");
+    AM.add(&A1);
+    AM.select(A1.get_name());
 
     win.add(viewer);
     win.set_default_size(640,480);

@@ -12,13 +12,13 @@ int main(int argc, char **argv){
 
     DThreadViewer viewer(&p1);
     Rubber  rubber(&viewer);
-    Actions actions(&viewer);
+    ActionManager AM(&viewer);
 
     ActionTestBox  A1(&rubber);
     ActionTestLine A2(&rubber);
-    actions.add(&A1);
-    actions.add(&A2);
-    actions.select("TestLine");
+    AM.add(&A1);
+    AM.add(&A2);
+    AM.select(A2.get_name());
 
     win.add(viewer);
     win.set_default_size(640,480);

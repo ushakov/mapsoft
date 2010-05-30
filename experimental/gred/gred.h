@@ -6,7 +6,7 @@
 #include "iface/viewer.h"
 
 #include "rubber.h"
-#include "actions.h"
+#include "action_manager.h"
 #include "simple_viewer.h"
 #include "dthread_viewer.h"
 #include "mthread_viewer.h"

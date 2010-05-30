@@ -1,8 +1,6 @@
-#include "gobj_test_grid.h"
-#include "dthread_viewer.h"
-#include "actions.h"
-#include "rubber.h"
+#include "gred.h"
 
+#include "gobj_test_grid.h"
 #include "action_test_line.h"
 
 int main(int argc, char **argv){
@@ -22,10 +20,10 @@ int main(int argc, char **argv){
     rubber1.add_rect(p);
     rubber1.add_diag(p);
 
-    Actions actions(&viewer);
+    ActionManager AM(&viewer);
     ActionTestLine A(&rubber2);
-    actions.add(&A);
-    actions.select("TestLine");
+    AM.add(&A);
+    AM.select(A.get_name());
 
     win.add(viewer);
     win.set_default_size(640,480);

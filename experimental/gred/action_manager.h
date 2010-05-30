@@ -1,5 +1,5 @@
-#ifndef ACTION_VIEWER_H
-#define ACTION_VIEWER_H
+#ifndef ACTION_MANAGER_H
+#define ACTION_MANAGER_H
 
 #include <sys/time.h>
 #include <map>
@@ -8,10 +8,10 @@
 #include "iface/viewer.h"
 #include "../../core/lib2d/point.h"
 
-class Actions : public std::map<std::string, Action *> {
+class ActionManager : public std::map<std::string, Action *> {
 public:
 
-  Actions(Viewer * v);
+  ActionManager(Viewer * v);
 
   /// add action;/ if name=="" try to get it from action->get_name()
   void add(Action * a, std::string name="");
