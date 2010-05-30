@@ -19,11 +19,12 @@ public:
     // Activates this mode.
     virtual void activate() {
       new_track.clear();
-      mapview->rubber.clear();
     }
 
     // Abandons any action in progress and deactivates mode.
-    virtual void abort() { }
+    virtual void abort() {
+      activate();
+    }
 
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {

@@ -370,6 +370,14 @@ public:
 //    }
 
     bool on_button_release (GdkEventButton * event) {
+
+std::cerr << "BUTTON: " << event->button << "\n";
+      if (event->button == 3) {
+        rubber.clear();
+        action_manager->clear_state();
+        return true;
+      }
+
       if (event->button == 1) {
 
 //        struct timeval click_ended;

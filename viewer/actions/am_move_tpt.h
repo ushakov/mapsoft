@@ -21,7 +21,8 @@ public:
     }
 
     // Abandons any action in progress and deactivates mode.
-    virtual void abort() { 
+    virtual void abort() {
+      activate();
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
