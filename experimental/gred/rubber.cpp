@@ -180,6 +180,41 @@ Rubber::size(){
   return rubber.size();
 }
 
+Rubber & Rubber::operator/= (double k){
+  erase();
+  for (std::list<RubberSegment>::iterator i = rubber.begin(); i != rubber.end(); ++i){
+    if (!(i->flags & RUBBFL_MOUSE_P1X)) i->p1.x/=k;
+    if (!(i->flags & RUBBFL_MOUSE_P1Y)) i->p1.y/=k;
+    if (!(i->flags & RUBBFL_MOUSE_P2X)) i->p2.x/=k;
+    if (!(i->flags & RUBBFL_MOUSE_P2Y)) i->p2.y/=k;
+  }
+  return *this;
+}
+Rubber & Rubber::operator*= (double k){
+  erase();
+  for (std::list<RubberSegment>::iterator i = rubber.begin(); i != rubber.end(); ++i){
+    if (!(i->flags & RUBBFL_MOUSE_P1X)) i->p1.x*=k;
+    if (!(i->flags & RUBBFL_MOUSE_P1Y)) i->p1.y*=k;
+    if (!(i->flags & RUBBFL_MOUSE_P2X)) i->p2.x*=k;
+    if (!(i->flags & RUBBFL_MOUSE_P2Y)) i->p2.y*=k;
+  }
+  return *this;
+}
+
+void Rubber::dump(void) const{
+  std::cerr << "Rubber:\n";
+  for (std::list<RubberSegment>::const_iterator i = rubber.begin(); i != rubber.end(); ++i){
+    std::cerr << i->p1 << " " << i->p2 
+              << " " << (i->flags & RUBBFL_MOUSE_P1X)
+              << " " << (i->flags & RUBBFL_MOUSE_P2X)
+              << " " << (i->flags & RUBBFL_MOUSE_P1Y)
+              << " " << (i->flags & RUBBFL_MOUSE_P2Y)
+              << " " << (i->flags >>4) 
+              << "\n";
+  }
+  std::cerr << "-------\n";
+}
+
 /// High-level functions for adding some types of segments
 
 void

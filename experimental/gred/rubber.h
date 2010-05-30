@@ -40,7 +40,7 @@ typedef unsigned int rubbfl_t;
 struct RubberSegment{
   rubbfl_t flags;
   iPoint p1, p2;
-  iPoint pf1, pf2;
+  iPoint pf1, pf2; // absolute coordinates of drawn segment
 
   /// create RubberSegment from two points and flags
   RubberSegment(const iPoint & p1_, const iPoint & p2_, const rubbfl_t flags_);
@@ -95,6 +95,13 @@ public:
   void clear();
   /// count segments
   int size();
+
+  // modify coordinates connected to plane
+  Rubber & operator/= (double k);
+  Rubber & operator*= (double k);
+
+  // dump rubber to stderr
+  void dump(void) const;
 
   /// High-level functions for adding some types of segments
   void add_src_sq(const iPoint & p, int size);

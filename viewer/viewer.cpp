@@ -161,7 +161,9 @@ void Viewer1::update_tile(){
 #ifdef DEBUG_VIEWER
     std::cerr << "update_tile: " << p << "\n";
 #endif
+    signal_before_draw_.emit();
     draw_tile(p);
+    signal_after_draw_.emit();
     cache_updater_cond->signal();
 }
 

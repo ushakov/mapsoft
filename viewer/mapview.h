@@ -337,16 +337,20 @@ public:
         case 61:
         case 65451: // + =
         {
-          viewer.zoom_in(2);
           reference*=2;
+          rubber*=2;
+          rubber.dump();
+          viewer.zoom_in(2);
           return true;
         }
         case 45:
         case 95:
         case 65453: // _ -
         {
-          viewer.zoom_out(2);
           reference/=2;
+          rubber/=2;
+          rubber.dump();
+          viewer.zoom_out(2);
           return true;
         }
         case 'r':
