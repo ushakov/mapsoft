@@ -234,7 +234,7 @@ g_rect g_track::range() const{
 
 double g_track::length() const{
   double ret=0;
-  for (int i=0; i<size()-1; i++){
+  for (int i=0; i<(int)size()-1; i++){
     g_point p1=(*this)[i] * M_PI/180.0;
     g_point p2=(*this)[i+1] * M_PI/180.0;
     double cos_l=cos(p2.x-p1.x);
