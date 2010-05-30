@@ -13,6 +13,7 @@ Viewer1::Viewer1 (int tile_size):
 
     on_drag = false;
     we_need_cache_updater=true;
+    epoch=0;
 
     Glib::thread_init();
     mutex = new(Glib::Mutex);
@@ -63,6 +64,8 @@ iPoint Viewer1::get_window_size() const{
 void Viewer1::refresh(){
   std::cerr << "Viewer1::refresh()\n";
 
+  epoch++;
+
   // extra и т.п. должно быть таким же, как в change_viewport
   iRect tiles = tiles_on_rect(
     iRect(window_origin.x, window_origin.y,
@@ -103,17 +106,17 @@ void Viewer1::cache_updater(){
 
       if (!tiles_todo.empty()){
          // сделаем плитку, которую просили
+         int e=epoch;
          iPoint key = *tiles_todo.begin();
-         tiles_todo.erase(key);
          mutex->unlock();
 
          iImage tile = workplane.get_image(key);
 
          mutex->lock();
-         // чтобы при перемасштабировании и обнулении кэша в него не попала старая картинка 8|
-         if (tile_cache.count(key)!=0){
-            tile_cache.erase(key);
-            tile_cache.insert(std::pair<iPoint,iImage>(key, tile));
+         if (e == epoch){
+           tiles_todo.erase(key);
+           tile_cache.erase(key);
+           tile_cache.insert(std::make_pair(key, tile));
          }
          mutex->unlock();
 
@@ -124,22 +127,20 @@ void Viewer1::cache_updater(){
 
       if (!tiles_todo2.empty()) {
          // сделаем плитку второй очереди
+         int e=epoch;
          iPoint key = *tiles_todo2.begin();
-         tiles_todo2.erase(key);
          mutex->unlock();
 
          iImage tile = workplane.get_image(key);
 
          mutex->lock();
-         tile_cache.erase(key);
-         tile_cache.insert(std::make_pair(key, tile));
+         if (e == epoch){
+           tiles_todo2.erase(key);
+           tile_cache.erase(key);
+           tile_cache.insert(std::make_pair(key, tile));
+         }
          mutex->unlock();
 
-         // и ничего не скажем...
-         // upd. скажем! Иначе refresh не работает!
-         // upd. дело не в этом
-         tile_done_queue.push(key);
-         update_tile_signal.emit();
          continue;
       }
 

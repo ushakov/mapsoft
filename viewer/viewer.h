@@ -105,6 +105,7 @@ private:
     sigc::signal<void> signal_before_draw_;
     sigc::signal<void> signal_after_draw_;
     bool on_drag;
+    int epoch;
 
 /**************************************/
 };
