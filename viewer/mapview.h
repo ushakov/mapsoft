@@ -6,7 +6,6 @@
 #include <gtkmm.h>
 
 #include "workplane.h"
-#include "viewer.h"
 #include "layerlist.h"
 #include "generic_dialog.h"
 #include "action_manager.h"
@@ -15,14 +14,18 @@
 #include "../core/layers/layer_trk.h"
 #include "../core/layers/layer_wpt.h"
 #include "../core/utils/log.h"
+
 #include "../experimental/gred/rubber.h"
+#include "../experimental/gred/dthread_viewer.h"
 
 
 class Mapview : public Gtk::Window {
 public:
 
-    Viewer1     viewer;
-    Rubber      rubber;
+    DThreadViewer viewer;
+    Rubber        rubber;
+    Workplane     workplane;
+
     LayerList   layer_list; /// Gtk::TreeView for layers
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
@@ -57,6 +60,7 @@ public:
 	file_sel_load ("Load file:"),
 	file_sel_save ("Save as:"),
 	have_reference(false),
+        viewer(&workplane),
 	rubber(&viewer)
     {
 	action_manager.reset (new ActionManager(this));
@@ -181,14 +185,14 @@ public:
 	Layer * layer = row[layer_list.columns.layer];
 	if (!layer) return;
 	int new_depth = row[layer_list.columns.depth];
-	if (viewer.workplane.get_layer_depth (layer) != new_depth) {
-	    viewer.workplane.set_layer_depth (layer, new_depth);
+	if (workplane.get_layer_depth (layer) != new_depth) {
+	    workplane.set_layer_depth (layer, new_depth);
 	    need_refresh = true;
 	}
 
 	int new_active = row[layer_list.columns.checked];
-	if (new_active != viewer.workplane.get_layer_active (layer)) {
-	    viewer.workplane.set_layer_active (layer, new_active);
+	if (new_active != workplane.get_layer_active (layer)) {
+	    workplane.set_layer_active (layer, new_active);
 	    need_refresh = true;
 	}
 
@@ -237,7 +241,7 @@ public:
 	    assert(layer_to_configure);
 	    layer_to_configure->set_config(o);
 	    std::cout << "LAYER_CONFIG: " << layer_to_configure << "\n";
-	    viewer.workplane.refresh_layer(layer_to_configure);
+	    workplane.refresh_layer(layer_to_configure);
 	    refresh();
 	} else {
 	    // do nothing
@@ -322,12 +326,12 @@ public:
     }
 
     void add_layer (Layer * layer, int depth, Glib::ustring name) {
-       viewer.workplane.add_layer(layer, depth);
+       workplane.add_layer(layer, depth);
        layer_list.add_layer(layer, depth, name);
     }
 
     void refresh () {
-       viewer.refresh();
+       viewer.redraw();
     }
 
     bool on_key_press(GdkEventKey * event) {
@@ -339,7 +343,10 @@ public:
         {
           reference*=2;
           rubber*=2;
-          viewer.zoom_in(2);
+          workplane*=2;
+          iPoint wsize   = iPoint(get_width(), get_height());
+          iPoint wcenter = viewer.get_origin() + wsize/2;
+          viewer.set_origin(wcenter*2 - wsize/2);
           return true;
         }
         case 45:
@@ -348,7 +355,10 @@ public:
         {
           reference/=2;
           rubber/=2;
-          viewer.zoom_out(2);
+          workplane/=2;
+          iPoint wsize   = iPoint(get_width(), get_height());
+          iPoint wcenter = viewer.get_origin() + wsize/2;
+          viewer.set_origin(wcenter/2 - wsize/2);
           return true;
         }
         case 'r':

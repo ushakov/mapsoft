@@ -63,7 +63,8 @@ private:
           std::string fname=o.get("filename", std::string("image.jpg"));
           if (fname == "") fname = "image.jpg";
 
-	  iImage image = mapview->viewer.get_image(bb);
+	  // iImage image = mapview->viewer.get_image(bb);
+	  iImage image = mapview->workplane.draw(bb);
 	  image_r::save(image, fname.c_str(), o);
 
           g_map ref;

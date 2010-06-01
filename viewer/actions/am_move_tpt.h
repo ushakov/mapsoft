@@ -33,7 +33,7 @@ public:
 	  for (int i = 0; i < mapview->trk_layers.size(); ++i) {
             current_layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
 
-            if (!mapview->viewer.workplane.get_layer_active(current_layer)) continue;
+            if (!mapview->workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_trackpoint(p);
 	    if (d.first >= 0) {
@@ -67,7 +67,7 @@ public:
           cnv.frw(pt);
           current_tpt->x = pt.x;
           current_tpt->y = pt.y;
-          mapview->viewer.workplane.refresh_layer(current_layer);
+          mapview->workplane.refresh_layer(current_layer);
 	  mystate=0;
           mapview->rubber.clear();
           current_layer=0;

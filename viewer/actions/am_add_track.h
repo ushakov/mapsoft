@@ -36,7 +36,7 @@ public:
           LayerTRK * layer;
           for (int i=0; i<mapview->trk_layers.size(); i++){
             layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
-            if (mapview->viewer.workplane.get_layer_active(layer)) {
+            if (mapview->workplane.get_layer_active(layer)) {
               current_layer = layer;
               break;
             }
@@ -107,7 +107,7 @@ private:
           assert (current_layer);
           new_track.parse_from_options(o);
          current_layer->get_world()->trks.push_back(new_track);
-          mapview->viewer.workplane.refresh_layer(current_layer);
+          mapview->workplane.refresh_layer(current_layer);
        }
        mapview->statusbar.push("",0);
        new_track.clear();

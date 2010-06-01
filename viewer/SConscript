@@ -10,9 +10,10 @@ le.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
 le.Library("viewer", Split ("""
         generic_dialog.cpp
 	action_manager.cpp
-	viewer.cpp
 	../experimental/gred/rubber.cpp
 	../experimental/gred/simple_viewer.cpp
+	../experimental/gred/dthread_viewer.cpp
+	../experimental/gred/gobj_solid_fill.cpp
 	workplane.cpp
         """))
 

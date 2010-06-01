@@ -26,7 +26,7 @@ public:
 
         for (int i = 0; i < mapview->wpt_layers.size(); ++i) {
             current_layer = dynamic_cast<LayerWPT *> (mapview->wpt_layers[i].get());
-	    if (!mapview->viewer.workplane.get_layer_active(current_layer)) continue;
+	    if (!mapview->workplane.get_layer_active(current_layer)) continue;
             assert (current_layer);
             point_addr = current_layer->find_waypoint(p);
             if (point_addr.first >= 0) {
@@ -48,7 +48,7 @@ private:
 	if (r == 0) { // OK
           current_layer->get_world()->wpts[point_addr.first].erase(
             current_layer->get_world()->wpts[point_addr.first].begin()+point_addr.second);
-          mapview->viewer.workplane.refresh_layer(current_layer);
+          mapview->workplane.refresh_layer(current_layer);
 	}
     }
 };

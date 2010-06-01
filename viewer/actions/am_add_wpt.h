@@ -28,7 +28,7 @@ public:
 	current_layer = NULL;
 	for (int i=0; i<mapview->wpt_layers.size(); i++){
           layer = dynamic_cast<LayerWPT *> (mapview->wpt_layers[i].get());
-          if (mapview->viewer.workplane.get_layer_active(layer)) {
+          if (mapview->workplane.get_layer_active(layer)) {
 	      current_layer = layer;
 	      break;
 	  }
@@ -69,7 +69,7 @@ private:
           if (current_layer->get_world()->wpts.size()==0) 
 	    current_layer->get_world()->wpts.push_back(g_waypoint_list());
           current_layer->get_world()->wpts[0].push_back(wpt);
-          mapview->viewer.workplane.refresh_layer(current_layer);
+          mapview->workplane.refresh_layer(current_layer);
    	  std::cout << "ADDWPT: " << wpt.name << "\n";
 	}
     }

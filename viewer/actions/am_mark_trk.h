@@ -81,7 +81,7 @@ public:
 		    pp = tp;
 		}
 		add_wpt(wpt_list, (*track)[e-s], len);
-		mapview->viewer.workplane.refresh_layer(current_layer);
+		mapview->workplane.refresh_layer(current_layer);
 		return;
 	    }
 	}

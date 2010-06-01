@@ -15,8 +15,11 @@ class SimpleViewer : public Viewer {
     virtual void   set_obj (GObj * o);
     virtual GObj * get_obj (void) const;
 
+    // draw image from the GObj on the screen
     virtual void draw(const iRect & r);
+    // draw the given image on the screen
     virtual void draw_image (const iImage & img, const iPoint & p);
+    // draw part of the given image on the screen
     virtual void draw_image (const iImage & img, const iRect & part, const iPoint & p);
 
     virtual void redraw();

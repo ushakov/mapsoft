@@ -59,7 +59,7 @@ public:
 	current_layer = NULL;
 	for (int i = 0; i < mapview->map_layers.size(); i++){
 	    layer = mapview->map_layers[i].get();
-	    if (mapview->viewer.workplane.get_layer_active(layer)) {
+	    if (mapview->workplane.get_layer_active(layer)) {
 		current_layer = layer;
 		break;
 	    }
