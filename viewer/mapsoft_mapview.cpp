@@ -10,7 +10,6 @@
 //#define DEBUG_JPEG
 //#define DEBUG_MAPVIEW
 
-#include "viewer.h"
 #include "mapview.h"
 
 #include "../core/libgeo_io/io.h"
