@@ -17,7 +17,8 @@ class Viewer1 : public Viewer {
 
 public:
 
-    Viewer1 (int tile_size=256);
+    const static int tile_size=256;
+    Viewer1();
     virtual ~Viewer1 ();
 
     void set_origin (iPoint new_origin);

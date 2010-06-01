@@ -8,16 +8,20 @@
 #include "../core/utils/cache.h"
 #include "../core/layers/layer.h"
 
+#include "../experimental/gred/iface/gobj.h"
 
-class Workplane {
+
+class Workplane : public GObj {
     static const int CacheCapacity = 200;
 public:
 
     sigc::signal<void> signal_refresh;
 
-    Workplane (int _tile_size=256);
+    Workplane();
 
-    iImage  get_image(iPoint tile_key);
+    // functions for gred/gobj interface
+    iImage  draw(const iRect & tile);
+    iRect   range(void);
 
     std::multimap<int, Layer *>::iterator find_layer (Layer * layer);
 
@@ -40,17 +44,13 @@ public:
     Workplane & operator-= (dPoint k);
     Workplane & operator+= (dPoint k);
 
-    void set_tile_size(int s);
-    int get_tile_size() const;
-
     inline void clear_tile_cache();
 
 private:
     std::multimap <int, Layer *> layers;
     std::map <Layer *, bool> layers_active;
-    int tile_size;
 
-    typedef Cache<iPoint,iImage> LayerCache;
+    typedef Cache<iRect,iImage> LayerCache;
     std::map<Layer *, boost::shared_ptr<LayerCache> > tile_cache;
 };
 

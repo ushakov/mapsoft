@@ -8,8 +8,7 @@
 
 
 
-Viewer1::Viewer1 (int tile_size):
-    workplane (tile_size){
+Viewer1::Viewer1 (){
 
     on_drag = false;
     we_need_cache_updater=true;
@@ -69,7 +68,7 @@ void Viewer1::refresh(){
   // extra и т.п. должно быть таким же, как в change_viewport
   iRect tiles = tiles_on_rect(
     iRect(window_origin.x, window_origin.y,
-    get_width(), get_height()), workplane.get_tile_size());
+    get_width(), get_height()), tile_size);
 
   const int extra = std::max(tiles.w, tiles.h);
 
@@ -110,7 +109,7 @@ void Viewer1::cache_updater(){
          iPoint key = *tiles_todo.begin();
          mutex->unlock();
 
-         iImage tile = workplane.get_image(key);
+         iImage tile = workplane.draw(iRect(key.x,key.y,1,1)*tile_size);
 
          mutex->lock();
          if (e == epoch){
@@ -131,7 +130,7 @@ void Viewer1::cache_updater(){
          iPoint key = *tiles_todo2.begin();
          mutex->unlock();
 
-         iImage tile = workplane.get_image(key);
+         iImage tile = workplane.draw(iRect(key.x,key.y,1,1)*tile_size);
 
          mutex->lock();
          if (e == epoch){
@@ -171,7 +170,6 @@ void Viewer1::update_tile(){
 
 void Viewer1::draw_tile(const iPoint & tile_key){
 
-  int tile_size = workplane.get_tile_size();
   iRect screen(window_origin.x,
                    window_origin.y,
                    get_width(), get_height());
@@ -213,8 +211,7 @@ void Viewer1::fill (int sx, int sy, int w, int h){ // in window coordinates, sho
 
     // какие плитки видны на экране:
     iRect tiles = tiles_on_rect(
-      iRect(window_origin.x + sx, window_origin.y + sy, w, h), 
-      workplane.get_tile_size());
+      iRect(window_origin.x + sx, window_origin.y + sy, w, h), tile_size);
 
 #ifdef DEBUG_VIEWER
     std::cerr << "fill: " << sx << "," << sy << " " << w << "x" << h << std::endl;
@@ -235,7 +232,7 @@ void Viewer1::change_viewport () {
   // tiles -- прямоугольник плиток, необходимый для отрисовки экрана
   iRect tiles = tiles_on_rect(
     iRect(window_origin.x, window_origin.y,
-    get_width(), get_height()), workplane.get_tile_size());
+    get_width(), get_height()), tile_size);
 
   // Плитки, которые были запрошены, но не сделаны, и уже уехали
   // с экрана -- нам неинтересны. Пропалываем tiles_todo
@@ -360,7 +357,6 @@ bool Viewer1::on_motion_notify_event (GdkEventMotion * event) {
 iImage Viewer1::get_image(const iRect & bb){
   iImage ret(bb.w, bb.h);
 
-  int tile_size = workplane.get_tile_size();
   iRect tiles = tiles_on_rect(bb, tile_size);
 
   for (int tj = tiles.y; tj<tiles.y+tiles.h; tj++){
@@ -369,7 +365,7 @@ iImage Viewer1::get_image(const iRect & bb){
 
       iImage tile = tile_cache.count(key)?
           tile_cache.find(key)->second :
-          workplane.get_image(key);
+          workplane.draw(iRect(key.x,key.y,1,1)*tile_size);
 
       iRect tile_rect(ti*tile_size, tj*tile_size,
           tile_size, tile_size);

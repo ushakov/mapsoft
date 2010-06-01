@@ -3,26 +3,31 @@
 #include "workplane.h"
 
 
-Workplane::Workplane (int _tile_size): tile_size(_tile_size) { }
+Workplane::Workplane(void) { }
 
-iImage  Workplane::get_image(iPoint tile_key){
-	iImage image(tile_size,tile_size, 0xff000000); // черная картинка-основа
-	iRect src_rect = image.range() + tile_key*tile_size;
+iImage  Workplane::draw(const iRect & tile){
+	iImage image(tile.w, tile.h, 0xff000000); // черная картинка-основа
 
-//	std::cerr << "WP: drawing " << src_rect << "\n";
-	for (std::multimap<int, Layer *>::reverse_iterator itl = layers.rbegin(); itl != layers.rend();  ++itl){
+	for (std::multimap<int, Layer *>::reverse_iterator
+                itl = layers.rbegin(); itl != layers.rend();  ++itl){
 	    Layer * layer = itl->second;
 	    if (layers_active[layer]) {
-		if (!tile_cache[layer]->contains(tile_key)) {
-		    tile_cache[layer]->add(tile_key, layer->get_image(src_rect));
+		if (!tile_cache[layer]->contains(tile)) {
+		    tile_cache[layer]->add(tile, layer->get_image(tile));
 		}
-		iImage& tile = tile_cache[layer]->get(tile_key);
-		if (tile.w != 0) {
-		    image.render(0,0,tile);
+		iImage& tile_img = tile_cache[layer]->get(tile);
+		if (tile_img.w != 0) {
+		    image.render(0,0,tile_img);
 		}
 	    }
 	}
 	return image;
+}
+
+iRect Workplane::range(void){
+  return iRect(
+  iPoint(INT_MIN/2, INT_MIN/2),
+  iPoint(INT_MAX/2, INT_MAX/2));
 }
 
 std::multimap<int, Layer *>::iterator Workplane::find_layer (Layer * layer) {
@@ -133,17 +138,6 @@ Workplane & Workplane::operator+= (dPoint k){
             (*itl->second)+=k;
 	    tile_cache[itl->second]->clear();
 	}
-}
-
-void Workplane::set_tile_size(int s){
-	if (tile_size != s) {
-	    clear_tile_cache();
-	}
-	tile_size=s;
-}
-
-int Workplane::get_tile_size() const{
-	return tile_size;
 }
 
 inline void Workplane::clear_tile_cache() {
