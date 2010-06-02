@@ -1,0 +1,12 @@
+Import('env_gtk')
+
+env_gtk.Library('gred', \
+    Split ("""
+      action_manager.cpp
+      rubber.cpp
+      simple_viewer.cpp
+      mthread_viewer.cpp
+      dthread_viewer.cpp
+      gobj_solid_fill.cpp
+     """))
+
