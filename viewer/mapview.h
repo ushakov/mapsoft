@@ -97,6 +97,11 @@ public:
 	  sigc::mem_fun (this, &Mapview::layer_edited));
 	layer_list.signal_button_press_event().connect_notify (
 	  sigc::mem_fun (this, &Mapview::configure_layer));
+
+	/// events from workplane
+	workplane.signal_refresh.connect (
+	  sigc::mem_fun (viewer, &DThreadViewer::redraw));
+
 	
 	/***************************************/
 	//start building menus
