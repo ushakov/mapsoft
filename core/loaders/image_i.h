@@ -1,7 +1,7 @@
 #ifndef IMAGE_I_H
 #define IMAGE_I_H
 
-#include "../lib2d/image.h"
+#include "lib2d/image.h"
 
 namespace image_i{
 

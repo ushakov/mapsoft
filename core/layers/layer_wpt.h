@@ -9,10 +9,10 @@
 #include <assert.h>
 
 #include "layer_geo.h"
-#include "../libgeo/geo_convs.h"
-#include "../utils/image_gd.h"
+#include "libgeo/geo_convs.h"
+#include "utils/image_gd.h"
 
-#include "../lib2d/point_utils.h"
+#include "lib2d/point_utils.h"
 
 #include <boost/shared_ptr.hpp>
 

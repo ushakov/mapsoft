@@ -1,4 +1,4 @@
-#include "../lib2d/image_source.h"
+#include "lib2d/image_source.h"
 
 namespace image_i{
 

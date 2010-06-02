@@ -1,7 +1,7 @@
 #include "rubber.h"
 #include <cassert>
 
-#include "../../core/lib2d/point_utils.h" // for pdist()
+#include "lib2d/point_utils.h" // for pdist()
 
 RubberSegment::RubberSegment(
   const iPoint & p1_, const iPoint & p2_, const rubbfl_t flags_):

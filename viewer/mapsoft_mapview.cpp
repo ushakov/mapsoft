@@ -12,7 +12,7 @@
 
 #include "mapview.h"
 
-#include "../core/libgeo_io/io.h"
+#include "libgeo_io/io.h"
 
 int
 main(int argc, char **argv)

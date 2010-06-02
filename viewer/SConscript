@@ -1,19 +1,14 @@
-Import ('env')
-le = env.Clone()
+Import ('env_gtk')
+le = env_gtk.Clone()
 
-mapsoft_libs = Split ("geo_io geo loaders jeeps fig mp utils 2d")
+mapsoft_libs = Split ("viewer gred geo_io geo loaders jeeps fig mp utils 2d")
 other_libs   = Split ("usb tiff jpeg png gd curl proj")
 
-le.Prepend(LIBS=["viewer",mapsoft_libs,other_libs])
-le.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
+le.Prepend(LIBS=[mapsoft_libs,other_libs])
 
 le.Library("viewer", Split ("""
         generic_dialog.cpp
 	action_manager.cpp
-	../experimental/gred/rubber.cpp
-	../experimental/gred/simple_viewer.cpp
-	../experimental/gred/dthread_viewer.cpp
-	../experimental/gred/gobj_solid_fill.cpp
 	workplane.cpp
         """))
 

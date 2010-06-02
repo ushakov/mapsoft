@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "../libfig/fig.h"
-#include "../libgeo/geo_data.h"
+#include "libfig/fig.h"
+#include "libgeo/geo_data.h"
 
 
 namespace fig {

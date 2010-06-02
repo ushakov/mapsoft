@@ -1,8 +1,8 @@
 #ifndef GOBJ_IFACE_H
 #define GOBJ_IFACE_H
 
-#include "../../../core/lib2d/rect.h"
-#include "../../../core/lib2d/image.h"
+#include "lib2d/rect.h"
+#include "lib2d/image.h"
 
 class GObj{
   public:

@@ -1,3 +1,4 @@
+#include "utils/spirit_utils.h"
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/insert_at_actor.hpp>
@@ -9,9 +10,8 @@
 #include <cstring>
 
 #include "mp_io.h"
-#include "../utils/spirit_utils.h"
-#include "../utils/iconv_utils.h"
-#include "../lib2d/point_utils.h"
+#include "utils/iconv_utils.h"
+#include "lib2d/point_utils.h"
 
 namespace mp {
 

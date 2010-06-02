@@ -22,10 +22,9 @@ AC_CONFIG_FILES([
   core/loaders/Makefile
   core/libfig/Makefile
   core/libmp/Makefile
+  core/gred/Makefile
+  core/gred_tests/Makefile
   programs/Makefile
   viewer/Makefile
-  experimental/Makefile
-  experimental/gred/Makefile
-  experimental/gred/tests/Makefile
 ])
 AC_OUTPUT

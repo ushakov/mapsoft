@@ -1,8 +1,8 @@
 #ifndef IO_GU_H
 #define IO_GU_H
 
-#include "../libgeo/geo_data.h"
-#include "../utils/options.h"
+#include "libgeo/geo_data.h"
+#include "utils/options.h"
 
 namespace gu {
     bool read_file (const char* filename, geo_data & world, const Options & opt);

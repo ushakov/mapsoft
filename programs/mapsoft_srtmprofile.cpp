@@ -5,17 +5,17 @@
 #include <cmath>
 #include <cstring>
 
-#include "../core/utils/srtm3.h"
-#include "../core/lib2d/line.h"
+#include "utils/srtm3.h"
+#include "lib2d/line.h"
 
-#include "../core/lib2d/line_utils.h"
-#include "../core/lib2d/line_polycrop.h"
+#include "lib2d/line_utils.h"
+#include "lib2d/line_polycrop.h"
 
-#include "../core/libgeo_io/io.h"
-#include "../core/libgeo/geo_data.h"
-#include "../core/libgeo/geo_convs.h"
+#include "libgeo_io/io.h"
+#include "libgeo/geo_data.h"
+#include "libgeo/geo_convs.h"
 
-#include "../core/utils/read_conf.h"
+#include "utils/read_conf.h"
 
 // Перенесение данных srtm в привязанный fig-файл.
 

@@ -6,12 +6,12 @@
 #include <cmath>
 
 #include "geo_types.h"
-#include "../lib2d/line.h"
-#include "../lib2d/rect.h"
-#include "../utils/options.h"
+#include "lib2d/line.h"
+#include "lib2d/rect.h"
+#include "utils/options.h"
 
-#include "../utils/m_time.h"
-#include "../utils/m_color.h"
+#include "utils/m_time.h"
+#include "utils/m_color.h"
 
 /*********************************/
 // points:

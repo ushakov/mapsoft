@@ -10,4 +10,3 @@ libgred_a_SOURCES =\
 
 INCLUDES = $(GTKMM_CFLAGS)
 
-SUBDIRS = . tests

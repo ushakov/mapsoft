@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../../core/lib2d/line.h"
+#include "lib2d/line.h"
 #include "iface/action.h"
 #include "rubber.h"
 

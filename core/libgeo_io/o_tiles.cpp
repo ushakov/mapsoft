@@ -5,16 +5,16 @@
 
 #include <sys/stat.h>
 
-#include "../layers/layer_geomap.h"
-//#include "../layers/layer_wpt.h"
-//#include "../layers/layer_trk.h"
-#include "../layers/layer_google.h"
-#include "../layers/layer_ks.h"
+#include "layers/layer_geomap.h"
+//#include "layers/layer_wpt.h"
+//#include "layers/layer_trk.h"
+#include "layers/layer_google.h"
+#include "layers/layer_ks.h"
 
-#include "../libgeo/geo_convs.h"
-#include "../libgeo/geo_refs.h"
-#include "../libgeo_io/geofig.h"
-#include "../lib2d/line_utils.h"
+#include "libgeo/geo_convs.h"
+#include "libgeo/geo_refs.h"
+#include "libgeo_io/geofig.h"
+#include "lib2d/line_utils.h"
 
 #include "io_oe.h"
 

@@ -6,7 +6,7 @@
 #include <map>
 #include <sigc++/sigc++.h>
 
-#include "../core/utils/options.h"
+#include "utils/options.h"
 
 // Manager of a Gtk::Dialog showing and allowing to edit the supplied Options' content
 // Can register callbacks on ok/cancel events. Only one dialog can be active at a time.

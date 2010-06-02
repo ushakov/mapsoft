@@ -4,11 +4,11 @@
 #include <sigc++/sigc++.h>
 #include <boost/shared_ptr.hpp>
 
-#include "../core/lib2d/image.h"
-#include "../core/utils/cache.h"
-#include "../core/layers/layer.h"
+#include "lib2d/image.h"
+#include "utils/cache.h"
+#include "layers/layer.h"
 
-#include "../experimental/gred/iface/gobj.h"
+#include "iface/gobj.h"
 
 
 class Workplane : public GObj {

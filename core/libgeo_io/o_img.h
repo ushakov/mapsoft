@@ -1,8 +1,8 @@
 #ifndef O_IMG_H
 #define O_IMG_H
 
-#include "../libgeo/geo_data.h"
-#include "../utils/options.h"
+#include "libgeo/geo_data.h"
+#include "utils/options.h"
 
 namespace img {
 

@@ -1,6 +1,6 @@
 #include <sstream>
-#include "../core/libgeo/geo_convs.h"
-#include "../core/libgeo_io/io.h"
+#include "libgeo/geo_convs.h"
+#include "libgeo_io/io.h"
 
 // command line interface to convs::map2pt conversions
 

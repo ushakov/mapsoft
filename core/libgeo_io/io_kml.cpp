@@ -1,4 +1,4 @@
-#include "../utils/spirit_utils.h"
+#include "utils/spirit_utils.h"
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/clear_actor.hpp>
@@ -15,8 +15,8 @@
 
 #include <math.h>
 
-#include "../jeeps/gpsmath.h"
-#include "../jeeps/gpsdatum.h"
+#include "jeeps/gpsmath.h"
+#include "jeeps/gpsdatum.h"
 
 
 namespace kml {

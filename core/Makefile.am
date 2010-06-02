@@ -1,1 +1,1 @@
-SUBDIRS = jeeps lib2d utils loaders layers libgeo libgeo_io libfig libmp
+SUBDIRS = jeeps lib2d utils loaders layers libgeo libgeo_io libfig libmp gred_tests

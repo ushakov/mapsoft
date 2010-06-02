@@ -4,11 +4,11 @@
 
 #include "viewer.h"
 #include "workplane.h"
-#include "../core/layers/layer_ks.h"
-#include "../core/layers/layer_geodata.h"
-#include "../core/layers/layer_wpt.h"
-#include "../core/layers/layer_trk.h"
-#include "../core/libgeo_io/io.h"
+#include "layers/layer_ks.h"
+#include "layers/layer_geodata.h"
+#include "layers/layer_wpt.h"
+#include "layers/layer_trk.h"
+#include "libgeo_io/io.h"
 
 int sc = 3;
 geo_data world;

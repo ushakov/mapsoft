@@ -2,8 +2,8 @@
 #define LAYER_RH_H
 
 #include "layer.h"
-#include "../loaders/image_r.h"
-#include "../loaders/image_i.h"
+#include "loaders/image_r.h"
+#include "loaders/image_i.h"
 #include <math.h>
 #include <string>
 

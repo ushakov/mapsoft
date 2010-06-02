@@ -5,8 +5,8 @@
 #include <cstring>
 
 #include "io_gps.h"
-#include "../jeeps/gps.h"
-#include "../utils/iconv_utils.h"
+#include "jeeps/gps.h"
+#include "utils/iconv_utils.h"
 
 namespace gps {
 	using namespace std;

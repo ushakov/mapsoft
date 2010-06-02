@@ -1,7 +1,7 @@
 #ifndef IMAGE_PNG_H
 #define IMAGE_PNG_H
 
-#include "../lib2d/image.h"
+#include "lib2d/image.h"
 
 namespace image_png{
 

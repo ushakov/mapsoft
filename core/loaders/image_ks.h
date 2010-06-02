@@ -10,8 +10,8 @@
 #include <curl/curl.h>
 #include <sys/stat.h>
 
-#include "../utils/cache.h"
-#include "../lib2d/image.h"
+#include "utils/cache.h"
+#include "lib2d/image.h"
 #include "image_jpeg.h"
 
 namespace ks{

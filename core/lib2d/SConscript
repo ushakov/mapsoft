@@ -1,9 +1,8 @@
 Import ('env')
 
-src=Split ("""
+env.Library('2d',
+  Split ("""
     point_int.cpp
     rect.cpp
-""")
-
-env.Library('2d', src)
+  """))
 

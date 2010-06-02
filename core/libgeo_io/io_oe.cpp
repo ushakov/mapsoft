@@ -1,4 +1,4 @@
-#include "../utils/spirit_utils.h"
+#include "utils/spirit_utils.h"
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <boost/spirit/actor/clear_actor.hpp>
@@ -13,15 +13,15 @@
 #include <map>
 
 #include "io_oe.h"
-#include "../libgeo/geo_convs.h"
-#include "../utils/options.h"
-#include "../lib2d/line_utils.h"
-#include "../utils/iconv_utils.h"
+#include "libgeo/geo_convs.h"
+#include "utils/options.h"
+#include "lib2d/line_utils.h"
+#include "utils/iconv_utils.h"
 
 #include <math.h>
 
-#include "../jeeps/gpsmath.h"
-#include "../jeeps/gpsdatum.h"
+#include "jeeps/gpsmath.h"
+#include "jeeps/gpsdatum.h"
 
 
 namespace oe{

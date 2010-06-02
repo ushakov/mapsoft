@@ -6,7 +6,7 @@
 #include <string>
 #include "iface/action.h"
 #include "iface/viewer.h"
-#include "../../core/lib2d/point.h"
+#include "lib2d/point.h"
 
 class ActionManager : public std::map<std::string, Action *> {
 public:

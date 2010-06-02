@@ -1,6 +1,5 @@
 import os
 
-
 subdirs = Split ("""
 		core
 		core/lib2d
@@ -12,6 +11,8 @@ subdirs = Split ("""
 		core/loaders
 		core/utils
 		core/libmp
+		core/gred
+		core/gred_tests
 		programs
 		viewer
 		vector/libzn
@@ -62,7 +63,13 @@ if ARGUMENTS.get('gheapcheck', 0):
 	env.Append (LINKFLAGS='-ltcmalloc')
 
 env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
+env.Append (CPPPATH = "#core")
 
 Export('env')
+
+env_gtk = env.Clone()
+env_gtk.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
+Export('env_gtk')
+
 SConscript (map (lambda(s): s+"/SConscript", subdirs))
 

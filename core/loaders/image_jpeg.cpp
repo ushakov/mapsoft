@@ -1,6 +1,6 @@
 #include "image_jpeg.h"
 
-#include "../lib2d/image_source.h"
+#include "lib2d/image_source.h"
 
 #include <jpeglib.h>
 #include <stdio.h>

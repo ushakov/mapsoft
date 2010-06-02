@@ -2,8 +2,8 @@
 
 #include <gdk/gdk.h>
 #include <cassert>
-#include "../../core/utils/image_gdk.h"
-#include "../../core/lib2d/rect.h"
+#include "utils/image_gdk.h"
+#include "lib2d/rect.h"
 
 SimpleViewer::SimpleViewer(GObj * o) :
     obj(o),

@@ -2,7 +2,7 @@
 #define VIEWER_IFACE_H
 
 #include <gtkmm.h>
-#include "../../../core/lib2d/point.h"
+#include "lib2d/point.h"
 
 /// This is the abstract Viewer to be used with
 /// Actions and Rubber objects

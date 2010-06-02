@@ -6,31 +6,35 @@ other_libs   = Split ("usb tiff jpeg png gd curl proj")
 
 env_geo.Prepend(LIBS=[mapsoft_libs, other_libs])
 
-env_geo.Program('mapsoft_add2fig.cpp')
-env_geo.Program('mapsoft_convert.cpp')
-env_geo.Program('mapsoft_pt2map.cpp')
-env_geo.Program('mapsoft_mapcnv.cpp')
-env_geo.Program('mapsoft_mapcnv1.cpp')
-env_geo.Program('mapsoft_getks.cpp')
-env_geo.Program('mapsoft_getks_ll.cpp')
-env_geo.Program('mapsoft_getks_nom.cpp')
-env_geo.Program('mapsoft_getgoogle.cpp')
-env_geo.Program('mapsoft_mkmap.cpp')
-env_geo.Program('mapsoft_ref.cpp')
-env_geo.Program('mapsoft_toxyz.cpp')
-env_geo.Program('mapsoft_map2fig.cpp')
-env_geo.Program('mapsoft_srtm2fig.cpp')
-env_geo.Program('mapsoft_fig2fig.cpp')
-env_geo.Program('mapsoft_calc_nom2ll.cpp')
-env_geo.Program('mapsoft_measure.cpp')
-env_geo.Program('mapsoft_trackprofile.cpp')
-env_geo.Program('mapsoft_srtmprofile.cpp')
-env_geo.Program('mapsoft_pano.cpp')
-env_geo.Program('fig_ref_mod.cpp')
+map (lambda(f): env_geo.Program(f+'.cpp'),\
+  Split("""
+    mapsoft_add2fig
+    mapsoft_convert
+    mapsoft_pt2map
+    mapsoft_mapcnv
+    mapsoft_mapcnv1
+    mapsoft_getks
+    mapsoft_getks_ll
+    mapsoft_getks_nom
+    mapsoft_getgoogle
+    mapsoft_mkmap
+    mapsoft_ref
+    mapsoft_toxyz
+    mapsoft_map2fig
+    mapsoft_srtm2fig
+    mapsoft_fig2fig
+    mapsoft_calc_nom2ll
+    mapsoft_measure
+    mapsoft_trackprofile
+    mapsoft_srtmprofile
+    mapsoft_pano
+    fig_ref_mod
 
-env_geo.Program("convs_pt2pt.cpp")
-env_geo.Program("convs_map2pt.cpp")
-env_geo.Program("convs_nom.cpp")
+    convs_pt2pt
+    convs_map2pt
+    convs_nom
+    """))
+
 
 env.Program('fig_crop.cpp', LIBS=['fig', 'utils'])
 env.Program('fig_sort.cpp', LIBS=['fig', 'utils'])

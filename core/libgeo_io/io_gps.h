@@ -1,8 +1,8 @@
 #ifndef IO_GPS_H
 #define IO_GPS_H
 
-#include "../libgeo/geo_data.h"
-#include "../utils/options.h"
+#include "libgeo/geo_data.h"
+#include "utils/options.h"
 
 namespace gps {
 

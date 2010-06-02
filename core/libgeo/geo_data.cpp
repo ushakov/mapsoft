@@ -1,5 +1,5 @@
 #include "geo_data.h"
-#include "../../core/loaders/image_r.h"
+#include "loaders/image_r.h"
 #include "geo_convs.h"
 
 g_waypoint::g_waypoint (){

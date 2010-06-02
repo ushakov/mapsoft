@@ -1,6 +1,6 @@
 #include "io.h"
-#include "../libgeo/geo_convs.h"
-#include "../libgeo/geo_nom.h"
+#include "libgeo/geo_convs.h"
+#include "libgeo/geo_nom.h"
 
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/assign_actor.hpp>

@@ -1,5 +1,5 @@
-#include "../core/libfig/fig_utils.h"
-#include "../core/libfig/fig_io.h"
+#include "libfig/fig_utils.h"
+#include "libfig/fig_io.h"
 
 // Сортировка fig-файла (для удобства хранения в git, просмотра diff'a и т.п.)
 

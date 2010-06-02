@@ -4,7 +4,7 @@
 #include <gd.h>
 
 #include <string>
-#include "../lib2d/image.h"
+#include "lib2d/image.h"
 
 // #define IMAGE_DRAW_FONT "Arial Bold"
 #define IMAGE_DRAW_FONT "/usr/share/fonts/corefonts/comicbd.ttf"

@@ -5,7 +5,7 @@
 
 // При таком преобразовании данные не копируются!
 
-#include "../lib2d/image.h"
+#include "lib2d/image.h"
 #include <gdkmm/pixbuf.h>
 
 inline Glib::RefPtr<Gdk::Pixbuf> make_pixbuf_from_image (const iImage & image){

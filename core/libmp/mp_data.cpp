@@ -1,5 +1,5 @@
 #include "mp_data.h"
-#include "../lib2d/point_utils.h"
+#include "lib2d/point_utils.h"
 
 namespace mp {
 

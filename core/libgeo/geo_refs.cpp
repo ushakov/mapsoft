@@ -2,8 +2,8 @@
 
 #include "geo_refs.h"
 #include "geo_convs.h"
-#include "../loaders/image_google.h"
-#include "../loaders/image_ks.h"
+#include "loaders/image_google.h"
+#include "loaders/image_ks.h"
 
 g_map ref_google(int scale){
    g_map ret;

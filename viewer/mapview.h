@@ -9,14 +9,14 @@
 #include "layerlist.h"
 #include "generic_dialog.h"
 #include "action_manager.h"
-#include "../core/libgeo_io/io.h"
-#include "../core/layers/layer_geomap.h"
-#include "../core/layers/layer_trk.h"
-#include "../core/layers/layer_wpt.h"
-#include "../core/utils/log.h"
+#include "libgeo_io/io.h"
+#include "layers/layer_geomap.h"
+#include "layers/layer_trk.h"
+#include "layers/layer_wpt.h"
+#include "utils/log.h"
 
-#include "../experimental/gred/rubber.h"
-#include "../experimental/gred/dthread_viewer.h"
+#include "gred/rubber.h"
+#include "gred/dthread_viewer.h"
 
 
 class Mapview : public Gtk::Window {

@@ -7,15 +7,15 @@
 #include <math.h>
 
 #include "layer_geo.h"
-#include "../libgeo/geo_convs.h"
-#include "../loaders/image_r.h"
-#include "../loaders/image_i.h"
-#include "../utils/image_gd.h"
-#include "../utils/cache.h"
+#include "libgeo/geo_convs.h"
+#include "loaders/image_r.h"
+#include "loaders/image_i.h"
+#include "utils/image_gd.h"
+#include "utils/cache.h"
 
 //#include "../libgeo_io/io.h"
 
-#include "../lib2d/point_utils.h"
+#include "lib2d/point_utils.h"
 
 
 /// Растровый слой для показа привязанных карт.
