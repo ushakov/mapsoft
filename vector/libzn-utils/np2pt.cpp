@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
-#include "../../core/libfig/fig.h"
-#include "../../core/utils/m_time.h"
+#include "libfig/fig.h"
+#include "utils/m_time.h"
 #include <cmath>
 #include "../libzn/zn.h"
-#include "line_dist.h"
+#include "lib2d/line_dist.h"
 
 using namespace std;
 using namespace fig;
