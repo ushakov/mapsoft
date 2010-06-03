@@ -248,6 +248,13 @@ double g_track::length() const{
   return ret*6380000.0;
 }
 
+g_track::operator g_line(void) const{
+  g_line ret;
+  for (g_track::const_iterator i=begin(); i!=end(); i++) ret.push_back(g_point(*i));
+  return ret;
+}
+
+
 Options g_map::to_options () const {
     Options opt;
     opt.put("comm",     comm);
