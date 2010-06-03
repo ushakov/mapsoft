@@ -1,14 +1,14 @@
 #include <string>
 #include <cstring>
-#include "../../core/libgeo_io/geofig.h"
-#include "../../core/libmp/mp.h"
+#include "libgeo_io/geofig.h"
+#include "libmp/mp.h"
 
 #include "../libzn/zn_key.h" // for zn::fig_old2new()
 #include "../libzn/zn.h"
 
-#include "../../core/lib2d/line_rectcrop.h"
-#include "../../core/libgeo_io/io.h"
-#include "../../core/libgeo/geo_nom.h"
+#include "lib2d/line_rectcrop.h"
+#include "libgeo_io/io.h"
+#include "libgeo/geo_nom.h"
 
 using namespace std;
 

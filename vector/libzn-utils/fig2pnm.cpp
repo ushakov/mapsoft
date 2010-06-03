@@ -3,10 +3,10 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../../core/utils/pnm_shifter.h"
-#include "../../core/lib2d/point.h"
-#include "../../core/libgeo_io/geofig.h"
-#include "../../core/libgeo_io/io.h"
+#include "utils/pnm_shifter.h"
+#include "lib2d/point.h"
+#include "libgeo_io/geofig.h"
+#include "libgeo_io/io.h"
 
 #include <iostream>
 #include <vector>

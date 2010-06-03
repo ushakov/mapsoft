@@ -112,6 +112,8 @@ struct g_track : std::vector<g_trackpoint>{
     g_rect range() const;
     /// get length in m
     double length() const;
+
+    operator g_line() const;
 };
 
 /// map
