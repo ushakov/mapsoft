@@ -13,9 +13,13 @@
   DEBUG_CACHE_GET  -- выдавать обращения к кэшу
 */
 
+template <typename K, typename V> class CacheIterator;
+
 template <typename K, typename V>
 class Cache {
 public:
+    typedef CacheIterator<K, V> iterator;
+
     /** Коструктор: создание кэша из n элементов*/
     Cache (int n) : capacity (n) {
 	for (int i = 0; i < capacity; ++i)
@@ -70,7 +74,9 @@ public:
     add (K const & key, V const & value)
     {
 	if (contains(key)) {
-	    erase(key);
+	  int idx = index[key];
+	  storage[idx].second = value;
+	  return 0;
 	}
 #ifdef DEBUG_CACHE
 	std::cout << "cache: add " << key << " ";
@@ -152,6 +158,26 @@ public:
 	usage.clear();
     }
 
+    // Iterator support:
+    //   Iterator traverses all the cache elements in order of
+    //   increasing keys. All iterators are valid until the first
+    //   cache insert or delete (changing value for existing key does
+    //   not invalidate iterators).
+
+    iterator begin() {
+	return CacheIterator<K, V>(this, index.begin());
+    }
+
+    iterator end() {
+	return CacheIterator<K, V>(this, index.end());
+    }
+
+    iterator erase(iterator it) {
+	typename std::map<K, int>::const_iterator it2 = it++;
+	erase(it2->first);
+	return it;
+    }
+
     int capacity;
 
     std::vector<std::pair<K,V> > storage;
@@ -160,6 +186,7 @@ public:
     std::vector<int> usage;
 
 private:
+    friend class CacheIterator<K, V>;
 
     // index end is removed
     template <typename T>
@@ -202,5 +229,28 @@ std::ostream & operator<< (std::ostream & s, const Cache<K,V> & cache)
   s << ")";
   return s;
 }
+
+template <typename K, typename V>
+    class CacheIterator : public std::map<K, int>::const_iterator {
+ public:
+    std::pair<K, V>& operator*() {
+	return cache->storage[std::map<K, int>::const_iterator::operator*().second];
+    }
+
+    std::pair<K, V>* operator->() {
+	return &(cache->storage[std::map<K, int>::const_iterator::operator*().second]);
+    }
+
+ private:
+    friend class Cache<K, V>;
+    CacheIterator (Cache<K, V>* cache_,
+		   typename std::map<K, int>::const_iterator iter_)
+      : std::map<K, int>::const_iterator(iter_), 
+        cache(cache_) 
+    {
+    }
+
+    Cache<K, V>* cache;
+};
 
 #endif /* CACHE_H */
