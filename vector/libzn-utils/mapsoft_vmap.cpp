@@ -624,32 +624,50 @@ int show_sources(int argc, char** argv){
 int set_source(int argc, char** argv){
   if (argc != 2){
     cerr << "Make all objects and their labels to be in one map (fig).\n"
-         << "  usage: mapsoft_vmap set_source <source> <fig>\n";
+         << "  usage: mapsoft_vmap set_source <fig> <source>\n";
     return 1;
   }
-  string source = argv[0];
-  string file   = argv[1];
-
-  cerr << "setting source parameter to " << source <<": ";
-
-  fig::fig_world F;
-  if (!fig::read(file.c_str(), F)) {
-    cerr << "ERR: bad fig file\n"; return 1;
-  }
-
-  string style=F.opts.get("style", string());
-  zn::zn_conv zconverter(style);
+  string file   = argv[0];
+  string source = argv[1];
 
   int o_cnt=0;
 
-  fig::fig_world::iterator i=F.begin();
-  for (i=F.begin(); i!=F.end(); i++){
-    if (!zconverter.is_map_depth(*i)) continue;
-    i->opts["Source"]=source;
-    o_cnt++;
+  cerr << "setting source parameter to " << source <<": ";
+
+  if (testext(file, ".fig")){
+    fig::fig_world F;
+    if (!fig::read(file.c_str(), F)) {
+      cerr << "ERR: bad fig file\n"; return 1;
+    }
+
+    string style=F.opts.get("style", string());
+    zn::zn_conv zconverter(style);
+
+
+    fig::fig_world::iterator i=F.begin();
+    for (i=F.begin(); i!=F.end(); i++){
+      if (!zconverter.is_map_depth(*i)) continue;
+      i->opts["Source"]=source;
+      o_cnt++;
+    }
+    fig::write(file, F);
   }
-  fig::write(file, F);
+  else if (testext(file, ".mp")){
+    mp::mp_world M;
+    if (!mp::read(file.c_str(), M)) {
+      cerr << "ERR: bad mp file\n"; return 1;
+    }
+    mp::mp_world::iterator i=M.begin();
+    for (i=M.begin(); i!=M.end(); i++){
+      i->Opts["Source"]=source;
+      o_cnt++;
+    }
+    mp::write(file, M);
+  }
+  else { cerr << "ERR: file is not .fig or .mp\n"; return 1; }
+
   cerr << o_cnt << " objects\n";
+  return 0;
 }
 
 /*****************************************************/
