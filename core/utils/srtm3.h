@@ -126,28 +126,105 @@ class srtm3 {
   short geth(const iPoint & p){
     //сюда надо написать мого чего про интерполяцию!!!
     return geth_(p);
-  } 
+  }
+  short geth(const int x, const int y){
+    geth(iPoint(x,y));
+  }
 
   // вернуть высоту точки (вещественные координаты, 
   // простая интерполяция по четырем соседним точкам)
   short geth(const dPoint & p){
-    int y1 = floor(p.y*1200);
-    int y2 = ceil(p.y*1200);
-    int x1 = floor(p.x*1200);
-    int x2 = ceil(p.x*1200);
+    double x = p.x*1200;
+    double y = p.y*1200;
+    int x1 = floor(x);
+    int x2 = x1+1;
+    int y1 = floor(y);
+    int y2 = y1+1;
 
-    short h1=geth(iPoint(x1,y1));
-    short h2=geth(iPoint(x1,y2));
+    short h1=geth(x1,y1);
+    short h2=geth(x1,y2);
 
     if ((h1<srtm_min)||(h2<srtm_min)) return srtm_undef;
-    short h12 = (int)( h1+ (h2-h1)*(p.y*1200-y1)/double(y2-y1) );
+    short h12 = (int)( h1+ (h2-h1)*(y-y1) );
 
     short h3=geth(iPoint(x2,y1));
     short h4=geth(iPoint(x2,y2));
     if ((h3<srtm_min)||(h4<srtm_min)) return srtm_undef;
-    short h34 = (int)( h3 + (h4-h3)*(p.y*1200-y1)/double(y2-y1) );
+    short h34 = (int)( h3 + (h4-h3)*(y-y1) );
 
-    return (short)( h12 + (h34-h12)*(p.x*1200-x1)/double(x2-x1) );
+    return (short)( h12 + (h34-h12)*(x-x1) );
+  }
+
+
+  // interpolate function between 4 points
+  // for use in int16()
+  short int4(int x1, int x2, int x3, int x4,
+              int f1, int f2, int f3, int f4, double x){
+
+    x-=x1; x2-=x1; x3-=x1; x4-=x1; x1=0;
+
+    double k2=double(f2-f1)/double(x2-x1);
+    double k3=double(f3-f2)/double(x3-x2);
+    double k4=double(f4-f3)/double(x4-x3);
+
+    double m3=(k3-k2)/double(x3-x1);
+    double m4=(k4-k3)/double(x4-x2);
+
+    double a = (m4-m3)/double(x4-x1);
+    double b = m3 - a*(x1+x2+x3);
+    double c = k2 - (x1*x1+x2*x2+x1*x2)*a - (x1+x2)*b;
+    double d = f1 - a*x1*x1*x1 - b*x1*x1 - c*x1;
+
+//    double c = k2 - (x1+x2)*m3 - (x1*x2 + x1*x3 + x2*x3)*a;
+//    double d = f1 - x1*k2 + x1*x2*m3 - a*x1*x2*x3;
+
+    return short(a*x*x*x + b*x*x + c*x + d);
+  }
+
+  // the same with fixed distance between points
+  short int4(int x1, int f1, int f2, int f3, int f4, double x){
+
+    x-=x1;
+    x1=0;
+    int x2=1;
+    int x3=2;
+    int x4=3;
+
+    double k2=f2-f1;
+    double k3=f3-f2;
+    double k4=f4-f3;
+
+    double m3=(k3-k2)/2.0;
+    double m4=(k4-k3)/2.0;
+
+    double a = (m4-m3)/3.0;
+    double b = m3 - a*(x1+x2+x3);
+    double c = k2 - (x1*x1+x2*x2+x1*x2)*a - (x1+x2)*b;
+    double d = f1 - a*x1*x1*x1 - b*x1*x1 - c*x1;
+
+//    double c = k2 - (x1+x2)*m3 - (x1*x2 + x1*x3 + x2*x3)*a;
+//    double d = f1 - x1*k2 + x1*x2*m3 - a*x1*x2*x3;
+
+    return short(a*x*x*x + b*x*x + c*x + d);
+  }
+
+
+  // вернуть высоту точки (вещественные координаты,
+  // интерполяция по 16 соседним точкам)
+  short geth16(const dPoint & p){
+
+    double x = p.x*1200;
+    double y = p.y*1200;
+    int x0 = floor(x)-1;
+    int y0 = floor(y)-1;
+
+    int hx[4], hy[4];
+
+    for (int i=0; i<4; i++){
+      for (int j=0; j<4; j++) hx[j]=geth(x0+j, y0+i);
+      hy[i]= int4(x0, hx[0],hx[1],hx[2],hx[3], x);
+    }
+    return int4(y0, hy[0],hy[1],hy[2],hy[3], y);
   }
 
   // найти множество соседних точек одной высоты (не более max точек)
@@ -170,7 +247,7 @@ class srtm3 {
     }
     return ret;
   }
-   
+
 };
 
 
