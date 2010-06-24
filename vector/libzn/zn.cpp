@@ -308,6 +308,7 @@ list<fig::fig_object> zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & 
     ret_o.comment.push_back(mp.Label);
   }
   ret_o.comment.insert(ret_o.comment.end(), mp.Comment.begin(), mp.Comment.end());
+  ret_o.opts.put("Source", mp.Opts.get("Source", string()));
 
   // convert points
   if (mp.Class == "POLYGON"){
@@ -359,6 +360,7 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, 
     mp.Label = fig.comment[0];
     mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
   }
+  mp.Opts.put("Source", fig.opts.get("Source",string()));
 
   g_line pts = cnv.line_frw(fig);
 
