@@ -2,7 +2,6 @@
 #define DTHREAD_VIEWER
 
 #include "simple_viewer.h"
-#include "gobj_solid_fill.h"
 #include <map>
 #include <set>
 #include <queue>
@@ -22,16 +21,9 @@ class DThreadViewer : public SimpleViewer {
 
     void redraw (void);
 
-    void set_fast_obj();
-    void set_fast_obj(GObj * o);
-    GObj * get_fast_obj() const;
-
   private:
     const static int TILE_SIZE=256;
     const static int TILE_MARG=2;
-
-    GObj *fast_obj;
-    GObjSolidFill default_fast_obj;
 
     std::map<iPoint,iImage> tiles_cache;
     std::set<iPoint>        tiles_todo;

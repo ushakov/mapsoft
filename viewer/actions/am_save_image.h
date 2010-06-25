@@ -64,7 +64,8 @@ private:
           if (fname == "") fname = "image.jpg";
 
 	  // iImage image = mapview->viewer.get_image(bb);
-	  iImage image = mapview->workplane.draw(bb);
+	  iImage image(bb.w, bb.h, 0xFF000000);
+          mapview->workplane.draw(image, bb.TLC());
 	  image_r::save(image, fname.c_str(), o);
 
           g_map ref;

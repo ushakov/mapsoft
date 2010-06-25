@@ -8,8 +8,7 @@ class GObjTestGrid: public GObj{
   int delay;
 public:
   GObjTestGrid(const int delay = 0);
-  virtual iImage draw(const iRect &range);
-  virtual iRect range(void);
+  virtual int draw(iImage &img, const iPoint &origin);
 };
 
 

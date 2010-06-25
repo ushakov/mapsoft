@@ -114,6 +114,11 @@ struct Image{
     void fill(const T value){
       for (int i = 0; i<w*h;i++) data[i]=value;
     }
+    /// with transparency
+    void fill_a(const T value){
+      for (int j=0; j<h; j++)
+        for (int i=0; i<w; i++) set_a(i,j);
+    }
     /// Is image empty
     bool empty() const{
       return (w<=0)||(h<=0);

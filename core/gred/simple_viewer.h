@@ -14,6 +14,8 @@ class SimpleViewer : public Viewer {
     virtual iPoint get_origin (void) const;
     virtual void   set_obj (GObj * o);
     virtual GObj * get_obj (void) const;
+    virtual void   set_bgcolor (int c);
+    virtual int    get_bgcolor (void) const;
 
     // draw image from the GObj on the screen
     virtual void draw(const iRect & r);
@@ -48,6 +50,7 @@ class SimpleViewer : public Viewer {
     iPoint drag_pos;
 
     int epoch;
+    int bgcolor;
 };
 
 #endif

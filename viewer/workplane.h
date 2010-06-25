@@ -20,8 +20,7 @@ public:
     Workplane();
 
     // functions for gred/gobj interface
-    iImage  draw(const iRect & tile);
-    iRect   range(void);
+    int draw(iImage &img, const iPoint &origin);
 
     std::multimap<int, Layer *>::iterator find_layer (Layer * layer);
 

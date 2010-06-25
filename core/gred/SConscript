@@ -7,6 +7,5 @@ env_gtk.Library('gred', \
       simple_viewer.cpp
       mthread_viewer.cpp
       dthread_viewer.cpp
-      gobj_solid_fill.cpp
      """))
 

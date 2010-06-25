@@ -1,13 +1,13 @@
 #include <assert.h>
-
 #include "workplane.h"
 
 
 Workplane::Workplane(void) { }
 
-iImage  Workplane::draw(const iRect & tile){
-	iImage image(tile.w, tile.h, 0xff000000); // черная картинка-основа
+int
+Workplane::draw(iImage &img, const iPoint &origin){
 
+        iRect tile(origin.x, origin.y, img.w, img.h );
 	for (std::multimap<int, Layer *>::reverse_iterator
                 itl = layers.rbegin(); itl != layers.rend();  ++itl){
 	    Layer * layer = itl->second;
@@ -17,20 +17,17 @@ iImage  Workplane::draw(const iRect & tile){
 		}
 		iImage& tile_img = tile_cache[layer]->get(tile);
 		if (tile_img.w != 0) {
-		    image.render(0,0,tile_img);
+		    img.render(0,0,tile_img);
 		}
 	    }
 	}
-	return image;
+        // кажется, что когда будет нечто, использующее код возврата,
+        // workplane можно будет им заменить! Так что не смотрим, нарисовали ли мы что-нибудь.
+	return GOBJ_FILL_PART;
 }
 
-iRect Workplane::range(void){
-  return iRect(
-  iPoint(INT_MIN/2, INT_MIN/2),
-  iPoint(INT_MAX/2, INT_MAX/2));
-}
-
-std::multimap<int, Layer *>::iterator Workplane::find_layer (Layer * layer) {
+std::multimap<int, Layer *>::iterator
+Workplane::find_layer (Layer * layer) {
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
 	    if (itl->second == layer) { return itl; }
@@ -38,7 +35,8 @@ std::multimap<int, Layer *>::iterator Workplane::find_layer (Layer * layer) {
 	return layers.end();
 }
 
-void Workplane::add_layer (Layer * layer, int depth) {
+void
+Workplane::add_layer (Layer * layer, int depth) {
 	std::cout << "Adding layer " << layer << " at depth " << depth << std::endl;
 	if (find_layer(layer) != layers.end()) {
 	    std::cout << "Already have this layer!" << std::endl;
@@ -51,7 +49,8 @@ void Workplane::add_layer (Layer * layer, int depth) {
 	tile_cache[layer].reset(new LayerCache(CacheCapacity));
 }
 
-void Workplane::remove_layer (Layer * layer){
+void
+Workplane::remove_layer (Layer * layer){
 	std::cout << "Removing layer " << layer << std::endl;
 	std::multimap<int, Layer *>::iterator itl = find_layer(layer);	
 	if (itl == layers.end()) {
@@ -64,7 +63,8 @@ void Workplane::remove_layer (Layer * layer){
 	tile_cache.erase(layer);
 }
 
-void Workplane::set_layer_depth (Layer * layer, int newdepth){
+void
+Workplane::set_layer_depth (Layer * layer, int newdepth){
 	std::cout << "Setting depth of layer " << layer << " to " << newdepth << std::endl;
 	std::multimap<int, Layer *>::iterator itl = find_layer(layer);
 	if (itl == layers.end()) {
@@ -76,7 +76,8 @@ void Workplane::set_layer_depth (Layer * layer, int newdepth){
 	layers.insert(std::make_pair(newdepth, layer));
 }
 
-int Workplane::get_layer_depth (Layer * layer){
+int
+Workplane::get_layer_depth (Layer * layer){
 	std::cout << "Getting depth of layer " << layer << std::endl;
 	std::multimap<int, Layer *>::iterator itl = find_layer(layer);	
 	if (itl == layers.end()) {
@@ -87,13 +88,15 @@ int Workplane::get_layer_depth (Layer * layer){
 	return itl->first;
 }
 
-void Workplane::refresh_layer (Layer * layer){
+void
+Workplane::refresh_layer (Layer * layer){
 	layer->refresh();
 	tile_cache[layer]->clear();
         signal_refresh.emit();
 }
 
-void Workplane::set_layer_active (Layer * layer, bool active) {
+void
+Workplane::set_layer_active (Layer * layer, bool active) {
 	if (find_layer(layer) == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -140,7 +143,8 @@ Workplane & Workplane::operator+= (dPoint k){
 	}
 }
 
-inline void Workplane::clear_tile_cache() {
+inline void
+Workplane::clear_tile_cache() {
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
 	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));

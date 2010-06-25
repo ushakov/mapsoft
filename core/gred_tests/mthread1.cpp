@@ -6,11 +6,9 @@ int main(int argc, char **argv){
 
     Gtk::Main     kit (argc, argv);
     Gtk::Window   win;
-    GObjTestTile      o1;
-    GObjTestTileSlow  o2;
+    GObjTestTile  o2(true);
 
     MThreadViewer viewer(&o2);
-    viewer.set_fast_obj(&o1);
 
     win.add(viewer);
     win.set_default_size(640,480);

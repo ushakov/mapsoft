@@ -7,10 +7,8 @@ class GObjSolidFill: public GObj{
   int color;
 
 public:
-
   GObjSolidFill(const int c=0xFF000000);
-  virtual iImage draw(const iRect &range);
-  virtual iRect range(void);
+  virtual int draw(iImage &img, const iPoint &origin);
 };
 
 #endif

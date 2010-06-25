@@ -9,7 +9,8 @@ SimpleViewer::SimpleViewer(GObj * o) :
     obj(o),
     origin(iPoint(0,0)),
     on_drag(false),
-    epoch(0) {
+    epoch(0),
+    bgcolor(0xFF000000) {
   set_name("MapsoftViewer");
   set_events (
     Gdk::BUTTON_PRESS_MASK |
@@ -19,9 +20,10 @@ SimpleViewer::SimpleViewer(GObj * o) :
     Gdk::POINTER_MOTION_HINT_MASK );
 }
 
-void SimpleViewer::set_origin (iPoint p) {
-  assert(obj !=NULL);
-  iRect r=obj->range();
+void
+SimpleViewer::set_origin (iPoint p) {
+  iRect r = obj? obj->range(): GOBJ_MAX_RANGE;
+
   int w=get_width();
   int h=get_height();
 
@@ -34,30 +36,48 @@ void SimpleViewer::set_origin (iPoint p) {
   origin = p;
 }
 
-iPoint SimpleViewer::get_origin (void) const {
+iPoint
+SimpleViewer::get_origin (void) const {
   return origin;
 }
 
-void SimpleViewer::set_obj (GObj * o){
+void
+SimpleViewer::set_obj (GObj * o){
   obj=o;
   redraw();
 }
 
-GObj * SimpleViewer::get_obj (void) const{
+GObj *
+SimpleViewer::get_obj (void) const{
   return obj;
 }
 
-void SimpleViewer::redraw (void){
+void
+SimpleViewer::set_bgcolor (int c){
+  bgcolor=c | 0xFF000000;
+}
+
+int
+SimpleViewer::get_bgcolor (void) const{
+  return bgcolor;
+}
+
+void
+SimpleViewer::redraw (void){
   epoch++;
   draw(iRect(0, 0, get_width(), get_height()));
 }
 
-void SimpleViewer::draw(const iRect & r){
+void
+SimpleViewer::draw(const iRect & r){
   if (r.empty()) return;
-  draw_image(obj->draw(r + origin), r.TLC());
+  iImage img(r.w, r.h, 0xFF000000 | bgcolor);
+  if (obj) obj->draw(img, r.TLC()+origin);
+  draw_image(img, r.TLC());
 }
 
-void SimpleViewer::draw_image (const iImage & img, const iPoint & p){
+void
+SimpleViewer::draw_image (const iImage & img, const iPoint & p){
   Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
   Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
   Glib::RefPtr<Gdk::Window> widget = get_window();
@@ -68,7 +88,8 @@ void SimpleViewer::draw_image (const iImage & img, const iPoint & p){
   signal_after_draw_.emit();
 }
 
-void SimpleViewer::draw_image (const iImage & img, const iRect & part, const iPoint & p){
+void
+SimpleViewer::draw_image (const iImage & img, const iRect & part, const iPoint & p){
   Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
   Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
   Glib::RefPtr<Gdk::Window> widget = get_window();
@@ -79,7 +100,8 @@ void SimpleViewer::draw_image (const iImage & img, const iRect & part, const iPo
   signal_after_draw_.emit();
 }
 
-bool SimpleViewer::on_expose_event (GdkEventExpose * event){
+bool
+SimpleViewer::on_expose_event (GdkEventExpose * event){
   GdkRectangle *rects;
   int nrects;
   gdk_region_get_rectangles(event->region, &rects, &nrects);
@@ -91,7 +113,8 @@ bool SimpleViewer::on_expose_event (GdkEventExpose * event){
   return true;
 }
 
-bool SimpleViewer::on_button_press_event (GdkEventButton * event) {
+bool
+SimpleViewer::on_button_press_event (GdkEventButton * event) {
   if ((event->button == 1) || (event->button == 2)){
     drag_pos = iPoint((int)event->x, (int)event->y);
     on_drag=true;
@@ -102,14 +125,16 @@ bool SimpleViewer::on_button_press_event (GdkEventButton * event) {
   return false;
 }
 
-bool SimpleViewer::on_button_release_event (GdkEventButton * event) {
+bool
+SimpleViewer::on_button_release_event (GdkEventButton * event) {
   if ((event->button == 1) || (event->button == 2)){
     on_drag=false;
   }
   return false;
 }
 
-bool SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
+bool
+SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
   if (!event->is_hint) return false;
   if (on_drag){
     iPoint p((int)event->x, (int)event->y);
