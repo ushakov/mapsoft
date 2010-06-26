@@ -1,0 +1,30 @@
+Import('env_gtk')
+env_gred = env_gtk.Clone()
+
+env_gred.Prepend(LIBS=Split('gred 2d '))
+env_gred.Append(CPPPATH='#/core/gred')
+
+files=Split('gobj_test_tile.cpp gobj_test_grid.cpp gobj_solid_fill.cpp')
+
+map (lambda(f): env_gred.Program([f+'.cpp'] + files),\
+  Split("""
+    simple1
+    simple2
+    mthread1
+    mthread2
+    dthread1
+    dthread2
+    dthread_line
+    simple_rubb1
+    simple_rubb2
+    mthread_rubb1
+    dthread_rubb1
+    action1
+    action2
+    action3
+    all_viewers
+    two_rubbers
+    """))
+
+
+
