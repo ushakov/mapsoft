@@ -16,8 +16,12 @@ const iRect GOBJ_MAX_RANGE(
 
 class GObj{
 public:
+
   virtual int draw(iImage &img, const iPoint &origin) = 0;
-  virtual iRect range(void){ return GOBJ_MAX_RANGE; }
+
+  virtual iRect range(void) const { return GOBJ_MAX_RANGE; }
+
+  virtual void rescale(const double k){}
 
   // object can be drawn in "gray mode":
   // gray colors, borders instead of images etc.
