@@ -78,7 +78,7 @@ void SimpleViewer::set_scale(const double k){
   if (obj) obj->set_scale(k);
   dPoint wsize(get_width(), get_height());
   dPoint wcenter = dPoint(get_origin()) + wsize/2.0;
-  set_origin(wcenter*k - wsize*k);
+  set_origin((wcenter*k/sc - wsize/2.0));
   sc=k;
 }
 
