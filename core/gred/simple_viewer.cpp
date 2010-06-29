@@ -79,6 +79,7 @@ void SimpleViewer::set_scale(const double k){
   dPoint wsize(get_width(), get_height());
   dPoint wcenter = dPoint(get_origin()) + wsize/2.0;
   set_origin((wcenter*k/sc - wsize/2.0));
+  redraw();
   sc=k;
 }
 
@@ -100,6 +101,7 @@ SimpleViewer::draw(const iRect & r){
 
 void
 SimpleViewer::draw_image (const iImage & img, const iPoint & p){
+  if (!is_realized()) return;
   Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
   Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
   Glib::RefPtr<Gdk::Window> widget = get_window();
@@ -112,6 +114,7 @@ SimpleViewer::draw_image (const iImage & img, const iPoint & p){
 
 void
 SimpleViewer::draw_image (const iImage & img, const iRect & part, const iPoint & p){
+  if (!is_realized()) return;
   Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
   Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
   Glib::RefPtr<Gdk::Window> widget = get_window();

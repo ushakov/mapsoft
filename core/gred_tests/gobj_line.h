@@ -5,7 +5,8 @@
 #include "lib2d/line.h"
 #include "utils/cache.h"
 
-#define CACHE_SIZE 100
+#define LINE_CACHE_SIZE1 1000
+#define LINE_CACHE_SIZE2 1000
 
 /*****************/
 
@@ -150,14 +151,13 @@ class GObjLine: public GObj{
   iMultiLine line;
   iRect line_range;
 
-  Cache<iRect, iMultiLine> cache;
+  static Cache<GObjLine *, Cache<iRect, iMultiLine> > cache;
 
 public:
   GObjLine(const iMultiLine & line_, const int color_, const int thickness_):
        line(line_), color(color_),
        thickness(thickness_), sc_thickness(thickness_),
-       sc(1.0), line_range(line.range()),
-    cache(CACHE_SIZE){
+       sc(1.0), line_range(line.range()){
   }
 
   void set_scale(const double k){
@@ -165,10 +165,10 @@ public:
     line_range = dRect(line.range())*k;
     sc_thickness = thickness*sc;
     if (sc_thickness==0) sc_thickness++;
-    cache.clear();
+    refresh();
   }
   void refresh(){
-    cache.clear();
+    if (cache.contains(this)) cache.get(this).clear();
   }
 
   void draw_mline(iImage &img, const iPoint &origin, const iMultiLine &l){
@@ -186,12 +186,20 @@ public:
   int draw(iImage &img, const iPoint &origin){
     iRect r(origin.x, origin.y, img.w, img.h);
 
-    if (!cache.contains(r)){
-      cache.add(r,
-         crop_and_scale_multiline(line, rect_pump(r,sc_thickness/2), sc));
-    }
+/// debugging: show tile bounds
+//for (int a = 0; a< img.w; a++) img.set(a,0, 0xFFFF0000);
+//for (int a = 0; a< img.h; a++) img.set(0,a, 0xFFFF0000);
 
-    iMultiLine & l = cache.get(r);
+    if (!cache.contains(this))
+      cache.add(this, Cache<iRect, iMultiLine>(LINE_CACHE_SIZE2));
+
+    Cache<iRect, iMultiLine> & cache2 = cache.get(this);
+
+    if (!cache2.contains(r))
+      cache2.add(r,
+         crop_and_scale_multiline(line, rect_pump(r,sc_thickness/2), sc));
+
+    iMultiLine & l = cache2.get(r);
     draw_mline(img, origin, l);
     return (l.size() >0) ? GOBJ_FILL_PART : GOBJ_FILL_NONE;
   }
@@ -200,7 +208,8 @@ public:
     return line_range;
   }
 
-
 };
+
+Cache<GObjLine *, Cache<iRect, iMultiLine> > GObjLine::cache(LINE_CACHE_SIZE1);
 
 #endif
