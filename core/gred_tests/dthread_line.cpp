@@ -29,9 +29,10 @@ int main(int argc, char **argv){
       }
     }
 
-    GObjLine O(L, 0xFF00FF00, 7);
+    GObjLine O(L, 0xFF00FF00, 8);
     DThreadViewer viewer(&O);
-    O.rescale(0.01);
+    viewer.set_origin(O.range().TLC());
+    viewer.set_scale(0.125);
 
     win.add(viewer);
     win.set_default_size(640,480);

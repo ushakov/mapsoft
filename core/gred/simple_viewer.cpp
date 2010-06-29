@@ -10,14 +10,18 @@ SimpleViewer::SimpleViewer(GObj * o) :
     origin(iPoint(0,0)),
     on_drag(false),
     epoch(0),
-    bgcolor(0xFF000000) {
+    bgcolor(0xFF000000),
+    sc(1.0) {
   set_name("MapsoftViewer");
   set_events (
     Gdk::BUTTON_PRESS_MASK |
+    Gdk::KEY_PRESS_MASK |
     Gdk::BUTTON_RELEASE_MASK |
     Gdk::SCROLL_MASK |
     Gdk::POINTER_MOTION_MASK |
     Gdk::POINTER_MOTION_HINT_MASK );
+  // this grabs focus for key events:
+  set_can_focus(); grab_focus();
 }
 
 void
@@ -32,7 +36,9 @@ SimpleViewer::set_origin (iPoint p) {
   if (p.x < r.x) p.x=r.x;
   if (p.y < r.y) p.y=r.y;
 
-  get_window()->scroll(origin.x-p.x, origin.y-p.y);
+  if (is_realized()){
+    get_window()->scroll(origin.x-p.x, origin.y-p.y);
+  }
   origin = p;
 }
 
@@ -66,6 +72,22 @@ void
 SimpleViewer::redraw (void){
   epoch++;
   draw(iRect(0, 0, get_width(), get_height()));
+}
+
+void SimpleViewer::set_scale(const double k){
+  if (obj) obj->set_scale(k);
+  dPoint wsize(get_width(), get_height());
+  dPoint wcenter = dPoint(get_origin()) + wsize/2.0;
+  set_origin(wcenter*k - wsize*k);
+  sc=k;
+}
+
+double SimpleViewer::get_scale(void) const{
+  return sc;
+}
+
+void SimpleViewer::rescale(const double k){
+  set_scale(sc*k);
 }
 
 void
@@ -119,9 +141,6 @@ SimpleViewer::on_button_press_event (GdkEventButton * event) {
     drag_pos = iPoint((int)event->x, (int)event->y);
     on_drag=true;
   }
-  else if (event->button == 3) {
-    redraw();
-  }
   return false;
 }
 
@@ -140,6 +159,33 @@ SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
     iPoint p((int)event->x, (int)event->y);
     set_origin(origin - p + drag_pos);
     drag_pos = p;
+  }
+  return false;
+}
+
+bool
+SimpleViewer::on_key_press_event (GdkEventKey * event) {
+  switch (event->keyval) {
+    case 43:
+    case 61:
+    case 65451: // + =
+    {
+      rescale(2.0);
+      return true;
+    }
+    case 45:
+    case 95:
+    case 65453: // _ -
+    {
+      rescale(0.5);
+      return true;
+    }
+    case 'r':
+    case 'R': // refresh
+    {
+      redraw();
+      return true;
+    }
   }
   return false;
 }

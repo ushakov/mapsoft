@@ -160,7 +160,7 @@ public:
     cache(CACHE_SIZE){
   }
 
-  void rescale(const double k){
+  void set_scale(const double k){
     sc=k;
     line_range = dRect(line.range())*k;
     sc_thickness = thickness*sc;

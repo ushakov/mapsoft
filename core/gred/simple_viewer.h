@@ -25,11 +25,15 @@ class SimpleViewer : public Viewer {
     virtual void draw_image (const iImage & img, const iRect & part, const iPoint & p);
 
     virtual void redraw();
+    virtual void rescale(const double k);
+    virtual void set_scale(const double k);
+    virtual double get_scale(void) const;
 
     virtual bool on_expose_event (GdkEventExpose * event);
     virtual bool on_button_press_event (GdkEventButton * event);
     virtual bool on_button_release_event (GdkEventButton * event);
     virtual bool on_motion_notify_event (GdkEventMotion * event);
+    virtual bool on_key_press_event(GdkEventKey * event);
 
     virtual bool is_on_drag();
     virtual int  get_epoch();
@@ -51,6 +55,8 @@ class SimpleViewer : public Viewer {
 
     int epoch;
     int bgcolor;
+
+    double sc;
 };
 
 #endif
