@@ -3,38 +3,34 @@
 
 #include "lib2d/rect.h"
 #include "lib2d/image.h"
-#include <limits.h>
 
 // return codes for draw function
-const int GOBJ_FILL_NONE = 0; // object draws nothing
-const int GOBJ_FILL_PART = 1; // object draws some points
-const int GOBJ_FILL_ALL  = 2; // object fills in the whole image with opaque colors
+extern const int GOBJ_FILL_NONE; // object draws nothing
+extern const int GOBJ_FILL_PART; // object draws some points
+extern const int GOBJ_FILL_ALL; // object fills in the whole image with opaque colors
 
-const iRect GOBJ_MAX_RANGE(
-  iPoint(INT_MIN/2, INT_MIN/2),
-  iPoint(INT_MAX/2, INT_MAX/2));
+extern const iRect GOBJ_MAX_RANGE;
 
 class GObj{
 public:
 
-  GObj(): gray_mode(false), sc(1.0) {}
+  GObj();
 
   virtual int draw(iImage &img, const iPoint &origin) = 0;
 
-  virtual iRect range(void) const { return GOBJ_MAX_RANGE; }
+  virtual iRect range(void) const;
 
-  virtual void set_scale(const double k) {}
-//  virtual void remap(const Conv & cnv){}
+  virtual void set_scale(const double k);
+//  virtual void set_conv(const Conv & cnv);
 
   // object can be drawn in "gray mode":
   // gray colors, borders instead of images etc.
-  bool is_gray(){return gray_mode;}
-  void gray_on(){gray_mode=true;}
-  void gray_off(){gray_mode=false;}
+  bool is_gray();
+  void gray_on();
+  void gray_off();
 
 private:
   bool gray_mode;
-  double sc;
 };
 
 #endif

@@ -2,6 +2,7 @@ Import('env_gtk')
 
 env_gtk.Library('gred', \
     Split ("""
+      gobj.cpp
       action_manager.cpp
       rubber.cpp
       simple_viewer.cpp

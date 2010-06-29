@@ -204,3 +204,9 @@ void
 SimpleViewer::inc_epoch(){
   epoch++;
 }
+
+sigc::signal<void> &
+SimpleViewer::signal_before_draw(){ return signal_before_draw_;}
+
+sigc::signal<void> &
+SimpleViewer::signal_after_draw(){ return signal_after_draw_;}

@@ -1,6 +1,6 @@
 #include "mthread_viewer.h"
 
-MThreadViewer::MThreadViewer(GObj * pl) : SimpleViewer(pl){
+MThreadViewer::MThreadViewer(GObj * o) : SimpleViewer(o){
 
   if (!Glib::thread_supported()) Glib::thread_init();
   done_signal.connect(sigc::mem_fun(*this, &MThreadViewer::on_done_signal));

@@ -32,7 +32,7 @@ typedef unsigned int rubbfl_t;
 /// 4-7 - type of segment:
 ///   0x00 -- line
 ///   0x10 -- ellipse in a box with p1-p2 diagonal
-///   0x20 -- ellipse with the enter in p1
+///   0x20 -- ellipse with center in p1
 ///   0x30 -- circle with p1-p2 diameter
 ///   0x40 -- circle with p1-p2 radius
 /// 8 - was segment drawn?
@@ -95,13 +95,12 @@ public:
   void clear();
   /// count segments
   int size();
+  // dump rubber to stderr
+  void dump(void) const;
 
   // modify coordinates connected to plane
   Rubber & operator/= (double k);
   Rubber & operator*= (double k);
-
-  // dump rubber to stderr
-  void dump(void) const;
 
   /// High-level functions for adding some types of segments
   void add_src_sq(const iPoint & p, int size);

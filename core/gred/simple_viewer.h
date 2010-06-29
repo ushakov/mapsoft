@@ -8,7 +8,7 @@
 class SimpleViewer : public Viewer {
   public:
 
-    SimpleViewer(GObj * pl);
+    SimpleViewer(GObj * o = NULL);
 
     virtual void   set_origin (iPoint new_origin);
     virtual iPoint get_origin (void) const;
@@ -39,8 +39,8 @@ class SimpleViewer : public Viewer {
     virtual int  get_epoch();
     virtual void inc_epoch();
 
-    sigc::signal<void> & signal_before_draw(){ return signal_before_draw_;}
-    sigc::signal<void> & signal_after_draw(){ return signal_after_draw_;}
+    sigc::signal<void> & signal_before_draw();
+    sigc::signal<void> & signal_after_draw();
 
   private:
 
