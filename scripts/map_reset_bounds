@@ -1,0 +1,32 @@
+#!/bin/sh -efu
+
+if [ -x "${1:-}"]; then
+  echo "usage: $0 <file.map> ..."
+  exit 1
+fi
+
+for map in "$@"; do
+  echo "map:   $map"
+
+  img="$(sed -n -e '3{s/\r//;p}' "$map")"
+  echo "image: $img"
+
+  size="$(file "$img" |
+    sed -e 's/.*image, *\([0-9]\+\) *x *\([0-9]\+\) *,.*/\1x\2/')"
+  x="${size%x*}"
+  y="${size#*x}"
+  echo "size: ${x}x${y}"
+
+  sed -i -e "
+    s/^MMPXY,1,[0-9]\+,[0-9]\+/MMPXY,1,0,0/
+    s/^MMPXY,2,[0-9]\+,[0-9]\+/MMPXY,1,$x,0/
+    s/^MMPXY,3,[0-9]\+,[0-9]\+/MMPXY,1,$x,$y/
+    s/^MMPXY,4,[0-9]\+,[0-9]\+/MMPXY,1,0,$y/
+    /^MMPXY,([5-9]\|[1-9][0-9]\+),/d
+  " $map
+
+  mapsoft_convert "$map" -o "$map"
+
+  echo "done"
+done
+
