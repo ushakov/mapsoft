@@ -12,6 +12,8 @@
 using namespace std;
 using namespace fig;
 
+double const fig2ps = 0.063; // 1.05/1200 in/fig : 1/72 in/ps
+
 typedef multimap<int, fig_world::iterator> omap_t;
 typedef pair<int, fig_world::iterator> op_t;
 
@@ -19,7 +21,7 @@ typedef pair<int, fig_world::iterator> op_t;
 main(int argc, char **argv){
 
   if (argc!=3){
-    std::cerr << "usage: " << argv[0] << " <conf_file> <in.fig>\n";
+    std::cerr << "usage: " << argv[0] << " <style> <in.fig>\n";
     exit(0);
   }
 
@@ -70,8 +72,13 @@ main(int argc, char **argv){
     if (!objects.count(i->first)) objects.insert(op_t(i->first, W.end()));
   }
 
-  iRect rng=W.range();
-
+  dPoint r_tlc = dPoint(W.range().TLC()) * fig2ps;
+  dPoint r_brc = dPoint(W.range().BRC()) * fig2ps;
+  r_tlc.x=floor(r_tlc.x);
+  r_tlc.y=floor(r_tlc.y);
+  r_brc.x=ceil(r_brc.x);
+  r_brc.y=ceil(r_brc.y);
+  iRect rng(r_tlc, r_brc);
 
 #define GS_SETBBOX    0
 #define GS_MOVETO     1
@@ -85,6 +92,16 @@ main(int argc, char **argv){
 #define GS_ARCT       9
 #define GS_CLOSEPATH 10
 #define GS_UCACHE    11
+
+  // print EPS header
+
+  cout
+    << "%!PS-Adobe-2.0 EPSF-2.0\n"
+    << "%%Title: " << infile << "\n"
+    << "%%Creator: mapsoft fig2ps\n"
+    << "%%BoundingBox: 0 0 " << rng.w << " " << rng.h << "\n"
+    << "%Magnification: 1.0000\n"
+    << "%%EndComments\n";
 
 
   // print definitions of postscript upaths for all types
@@ -119,8 +136,8 @@ main(int argc, char **argv){
       cmd.push_back(GS_LINETO);
       for (fig_object::const_iterator j=i->second->begin();
                                       j!=i->second->end(); j++){
-        crd.push_back(j->x - rng.x);
-        crd.push_back(j->y - rng.y);
+        crd.push_back(j->x*fig2ps - rng.x);
+        crd.push_back(rng.y + rng.h - 1 - j->y*fig2ps);
       }
       if (type=='a') cmd.push_back(GS_CLOSEPATH); // close areas
     }
