@@ -72,8 +72,21 @@ main(int argc, char **argv){
     if (!objects.count(i->first)) objects.insert(op_t(i->first, W.end()));
   }
 
-  dPoint r_tlc = dPoint(W.range().TLC()) * fig2ps;
-  dPoint r_brc = dPoint(W.range().BRC()) * fig2ps;
+  dRect drng(0,0,0,0);
+  bool first=true;
+  for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
+    if ((i->depth <50) || (i->depth>=200)) continue;
+    if (first){
+      first=false;
+      drng=i->range();
+    }
+    else {
+      drng = rect_bounding_box(drng, dRect(i->range()));
+    }
+  }
+
+  dPoint r_tlc = dPoint(drng.TLC()) * fig2ps;
+  dPoint r_brc = dPoint(drng.BRC()) * fig2ps;
   r_tlc.x=floor(r_tlc.x);
   r_tlc.y=floor(r_tlc.y);
   r_brc.x=ceil(r_brc.x);
