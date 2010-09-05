@@ -75,6 +75,7 @@ SimpleViewer::redraw (void){
 }
 
 void SimpleViewer::set_scale(const double k){
+  signal_on_rescale_.emit(k);
   if (obj) obj->set_scale(k);
   dPoint wsize(get_width(), get_height());
   dPoint wcenter = dPoint(get_origin()) + wsize/2.0;
@@ -213,3 +214,6 @@ SimpleViewer::signal_before_draw(){ return signal_before_draw_;}
 
 sigc::signal<void> &
 SimpleViewer::signal_after_draw(){ return signal_after_draw_;}
+
+sigc::signal<void, double> &
+SimpleViewer::signal_on_rescale(){ return signal_on_rescale_;}

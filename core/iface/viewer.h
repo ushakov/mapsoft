@@ -19,6 +19,7 @@ class Viewer : public Gtk::DrawingArea {
     /// actual drawings on Gtk::DrawingArea.
     virtual sigc::signal<void> & signal_before_draw() = 0;
     virtual sigc::signal<void> & signal_after_draw() = 0;
+    virtual sigc::signal<void, double> & signal_on_rescale() = 0;
 };
 
 #endif
