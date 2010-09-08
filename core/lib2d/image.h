@@ -81,7 +81,6 @@ struct Image{
     Image(int _w, int _h, const T & value){
       create(_w, _h);
       fill(value);
-      for (int i = 0; i<w*h;i++) data[i]=value;
     }
     /// Copy constructor
     Image(const Image & other){
