@@ -10,9 +10,15 @@ int main(int argc, char **argv){
     Gtk::Window   win;
 
 
+    if (argc!=2){
+      std::cerr << "usage: dthread_line <data file>\n";
+      exit(1);
+    }
+    std::ifstream f(argv[1]);
+
     iMultiLine L;
     iPoint p;
-    std::ifstream f("dthread_line.txt");
+    int n=0;
 
     while (f) {
       iLine Li;
@@ -25,9 +31,11 @@ int main(int argc, char **argv){
       }
       if (Li.size()>0){ 
         L.push_back(Li);
+        n+=Li.size();
         Li.clear();
       }
     }
+    std::cerr << L.size() << " lines, " << n << " points...\n";
 
     GObjLine O(L, 0xFF00FF00, 2);
     DThreadViewer viewer(&O);
