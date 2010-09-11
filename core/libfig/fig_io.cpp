@@ -12,10 +12,10 @@
 
 namespace fig {
 
-std::string default_enc("KOI8-R");
-
 using namespace std;
 using namespace boost::spirit;
+
+string default_enc("KOI8-R");
 
 /****************************************************************/
 
@@ -28,6 +28,47 @@ bool point_f_counter(){npoints_f--; return npoints_f>=0;}
 int sub_type;
 bool no_picture(){return sub_type!=5;}
 
+// convert fig colors to/from rgb
+int
+color_fig2rgb(const int c, const map<int,int> & custom){
+  map<int,int>::const_iterator i;
+  i=colors.find(c);
+  if (i!=colors.end()) return i->second;
+  i=custom.find(c);
+  if (i!=custom.end()) return i->second;
+  cerr << "Unknown fig color: " << c << "\n";
+  return c;
+}
+int
+color_rgb2fig(const int c, const map<int,int> & custom){
+  map<int,int>::const_iterator i;
+  for (i=colors.begin(); i!=colors.end(); i++){
+    if (i->first == -1 ) continue; // avoid -1 value ("default color")
+    if (i->second == c) return i->first;
+  }
+  for (i=custom.begin(); i!=custom.end(); i++){
+    if (i->second == c) return i->first;
+  }
+  cerr << "Unknown fig color: " << c << "\n";
+  return -1;
+}
+// Add new rgb color to custom colormap if needed. Return true if color was added
+bool
+color_rgbadd(const int c, map<int,int> & custom){
+  int maxc=0;
+  map<int,int>::const_iterator i;
+  for (i=colors.begin(); i!=colors.end(); i++){
+    if (i->first > maxc) maxc=i->first;
+    if (i->second == c) return false;
+  }
+  for (i=custom.begin(); i!=custom.end(); i++){
+    if (i->first > maxc) maxc=i->first;
+    if (i->second == c) return false;
+  }
+  custom.insert(pair<int,int>(maxc+1, c));
+  return true;
+}
+
 // function for reading objects from file
 bool read(const char* filename, fig_world & world, const Options & opts){
 
@@ -35,11 +76,12 @@ bool read(const char* filename, fig_world & world, const Options & opts){
 
   fig_object o, o0;
   iPoint p;
-  std::vector<std::string> comment;
+  vector<string> comment;
+  map<int,int> custom_colors;
 
   int color_num=0;
 
-  std::string key;
+  string key;
   Options tmp_opts;
 
   rule_t ch = anychar_p - eol_p;
@@ -113,7 +155,7 @@ bool read(const char* filename, fig_world & world, const Options & opts){
   /*******************************************/
   rule_t c0_color = ch_p('0')
 	>> +blank_p >> uint_p[assign_a(color_num)]
-	>> +blank_p >> '#' >> hex_p[insert_at_a(ret.colors,color_num)]
+	>> +blank_p >> '#' >> hex_p[insert_at_a(custom_colors,color_num)]
 	>> eol_p;
   /*******************************************/
   rule_t c5_arc   = ch_p('5')[assign_a(o.type,5)]  // Arc
@@ -212,17 +254,10 @@ bool read(const char* filename, fig_world & world, const Options & opts){
     tmp_opts.put(cnv.from_utf(o->first), cnv.from_utf(o->second));
   ret.opts.swap(tmp_opts);
 
-
-  // convert colors
+  // convert colors to rgb
   for (fig::fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
-    if (i->pen_color > 31){
-      if (ret.colors.find(i->pen_color)!=ret.colors.end()) i->pen_color = 0x1000000+ret.colors[i->pen_color];
-      else std::cerr << "unknown fig-color " << i->pen_color << "\n";
-    }
-    if (i->fill_color > 31){
-      if (ret.colors.find(i->fill_color)!=ret.colors.end()) i->fill_color = 0x1000000+ret.colors[i->fill_color];
-      else std::cerr << "unknown fig-color " << i->fill_color << "\n";
-    }
+    i->pen_color  = color_fig2rgb(i->pen_color,  custom_colors);
+    i->fill_color = color_fig2rgb(i->fill_color, custom_colors);
   }
 
   // merge world and ret
@@ -242,7 +277,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
   IConv cnv(enc);
 
   int n;
-  // запись заголовка
+  // writing header
   out << "#FIG 3.2\n" 
       << world.orientation << "\n"
       << world.justification << "\n"
@@ -254,12 +289,14 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
       << world.multiple_page << "\n"
       << world.transparent_color << "\n";
 
+  // writing comments
   for (0;n<world.comment.size();n++){
     if (n>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
     string s = cnv.from_utf(world.comment[n]);
     if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
     out << "# " << s << "\n";
   }
+  // writing options (as comments)
   for (Options::const_iterator o=world.opts.begin();o!=world.opts.end();o++){
     if (n++>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
       string s = cnv.from_utf(o->first) + "=" + cnv.from_utf(o->second);
@@ -270,54 +307,22 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
   out << world.resolution << " " 
       << world.coord_system << "\n";
 
-  std::map<int,int> color_tr;
-  fig::fig_colors colors = world.colors;
 
-  // поиск новых цветов
+  // looking for custom colors
+  map<int,int> custom_colors;
   for (fig::fig_world::const_iterator i=world.begin(); i!=world.end(); i++){
-
-    if (i->pen_color >= 0x1000000){
-      int maxc = 31;
-      bool found_col = false;
-      for (std::map<int,int>::const_iterator c = colors.begin(); c != colors.end(); c++){
-        if (c->first <= 31) continue;
-        if (c->first > maxc) maxc=c->first;
-        if (c->second == i->pen_color-0x1000000) {color_tr[i->pen_color] = c->first; found_col = true;}
-      }
-      if (!found_col){
-        color_tr[i->pen_color] = maxc+1;
-        colors.insert(std::pair<int,int>(maxc+1, i->pen_color-0x1000000));
-      }
-    }
-
-    if (i->fill_color >= 0x1000000){
-      int maxc = 31;
-      bool found_col = false;
-      for (std::map<int,int>::const_iterator c = colors.begin(); c != colors.end(); c++){
-        if (c->first <= 31) continue;
-        if (c->first > maxc) maxc=c->first;
-        if (c->second == i->fill_color-0x1000000) {color_tr[i->fill_color] = c->first; found_col = true;}
-      }
-      if (!found_col){
-        color_tr[i->fill_color] = maxc+1;
-        colors.insert(std::pair<int,int>(maxc+1, i->fill_color-0x1000000));
-      }
-    }
-
+    color_rgbadd(i->pen_color,  custom_colors);
+    color_rgbadd(i->fill_color, custom_colors);
   }
-
-
-  // запись цветов
-  for (fig_colors::const_iterator 
-       i  = colors.begin(); 
-       i != colors.end(); i++){
-    if (i->first > 31) 
+  // writing custom colors
+  for (map<int,int>::const_iterator i  = custom_colors.begin();
+       i != custom_colors.end(); i++){
       out << "0 " << i->first << " #" 
           << setbase(16) << setw(6) << setfill('0')
           << i->second << setbase(10) << "\n";
   }
 
-  // запись разных объектов
+  // writing objects
   for (fig_world::const_iterator
        i  = world.begin(); 
        i != world.end(); i++){
@@ -337,12 +342,10 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
 
     int nn = i->size();
     int nn1=nn;
-    std::vector<float> f = i->f;
+    vector<float> f = i->f;
 
-    int pen_color = i->pen_color;
-    int fill_color = i->fill_color;
-    if (pen_color > 0x1000000) pen_color = color_tr[pen_color];
-    if (fill_color > 0x1000000) fill_color = color_tr[fill_color];
+    int pen_color  = color_rgb2fig(i->pen_color,  custom_colors);
+    int fill_color = color_rgb2fig(i->fill_color, custom_colors);
 
     switch (i->type){
     case 0: // Color
