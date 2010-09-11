@@ -187,7 +187,8 @@ namespace fig {
 	   (farrow_width == o.farrow_width) && (barrow_width == o.barrow_width) &&
 	   (farrow_height == o.farrow_height) && (barrow_height == o.barrow_height) &&
            (image_file == o.image_file) && (image_orient == o.image_orient) &&
-           (text == o.text) && (comment == o.comment) && (f == o.f) && iLine::operator==(o));
+           (text == o.text) && (comment == o.comment) && (opts == o.opts) &&
+           (f == o.f) && iLine::operator==(o));
         }
 
 	bool operator< (const fig_object & o) const{
@@ -236,6 +237,7 @@ namespace fig {
           if (text != o.text) return (text < o.text);
           if (comment != o.comment) return (comment < o.comment);
           if (f != o.f) return (f < o.f);
+          if (opts != o.opts) return (opts < o.opts);
           return iLine::operator<(o);
         }
 
@@ -322,13 +324,23 @@ namespace fig {
           return *this;
         }
 
-        iRect range(){
+        iRect range() const{
           if (this->size()<1) return iRect(0,0,0,0);
           fig_world::const_iterator i=this->begin();
           iRect ret=i->range();
           while ((++i) != this->end())
             ret = rect_bounding_box(ret, i->range());
           return ret;
+        }
+
+        int real_color(const int fig_color) const{
+          int c = 0;
+          if (fig_color > 0x1000000)
+            c = fig_color - 0x1000000;
+          else if  (colors.count(fig_color))
+            c = colors.find(fig_color)->second;
+          return 0xff000000 | ((c & 0xff0000) >> 16) |
+              (c & 0xff00) | ((c & 0xff) << 16);
         }
 
         /// remove empty compounds
