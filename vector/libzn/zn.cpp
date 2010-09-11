@@ -227,9 +227,6 @@ int zn_conv::get_type (const fig::fig_object & o) const {
 
     int c1 = o.pen_color;
     int c2 = i->second.fig.pen_color;
-    // цвет -1 совпадает с цветом 0!
-    if (c1 == -1) c1 = 0;
-    if (c2 == -1) c2 = 0;
 
     if (((o.type==2) || (o.type==3)) && (o.size()>1)){
       // должны совпасть глубина и толщина
@@ -245,12 +242,9 @@ int zn_conv::get_type (const fig::fig_object & o) const {
       int af2 = i->second.fig.area_fill;
       int fc1 = o.fill_color;
       int fc2 = i->second.fig.fill_color;
-      // цвет -1 совпадает с цветом 0!
-      if (fc1 == -1) fc1 = 0;
-      if (fc2 == -1) fc2 = 0;
       // белая заливка бывает двух видов
-      if ((fc1!=7)&&(af1==40)) {fc1=7; af1=20;}
-      if ((fc2!=7)&&(af2==40)) {fc2=7; af2=20;}
+      if ((fc1!=0xffffff)&&(af1==40)) {fc1=0xffffff; af1=20;}
+      if ((fc2!=0xffffff)&&(af2==40)) {fc2=0xffffff; af2=20;}
 
       // тип заливки должен совпасть
       if (af1 != af2) continue;

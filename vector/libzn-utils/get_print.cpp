@@ -232,7 +232,7 @@ main(int argc, char **argv){
         (type == 0x100002)||
         (type == 0x10000B)||
         (type == 0x100004)){
-      i->pen_color=0; 
+      i->pen_color=0;
       if (type == 0x100001) i->thickness--; 
       NW.push_back(*i); 
       fig_object o = *i;
@@ -243,7 +243,8 @@ main(int argc, char **argv){
     // непроезжий грейдер
     if (type == 0x100007){
       i->pen_color=0; i->cap_style=0; i->line_style=0; NW.push_back(*i);
-      fig_object o = *i; o.line_style=2; o.style_val=6; o.depth--; o.pen_color=7; NW.push_back(o);
+      fig_object o = *i;
+      o.line_style=2; o.style_val=6; o.depth--; o.pen_color=0xffffff; NW.push_back(o);
       o.line_style=0; o.thickness-=2; NW.push_back(o);
       continue;
     }
@@ -532,7 +533,7 @@ main(int argc, char **argv){
     }
 
    if (type == 0x200014){ // редколесье 
-     i->pen_color=0x170db70;
+     i->pen_color=0x70db70;
      NW.push_back(*i); continue;
    }
 

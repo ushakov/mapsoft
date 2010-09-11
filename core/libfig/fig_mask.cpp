@@ -23,6 +23,7 @@ namespace mask {
 fig_object make_object(const fig_object & obj, const std::string & mask){
 
   fig_object o = obj;
+  int pen_color = o.pen_color, fill_color = o.fill_color;
 
   mask::f_arr=0; mask::b_arr=0; // на случай *
   rule<> ch = anychar_p - eol_p;
@@ -30,8 +31,8 @@ fig_object make_object(const fig_object & obj, const std::string & mask){
   rule<> r_sub_type       = +blank_p >> (ch_p('*') | uint_p[assign_a(o.sub_type)]);
   rule<> r_line_style     = +blank_p >> (ch_p('*') | int_p[assign_a(o.line_style)]);
   rule<> r_thickness      = +blank_p >> (ch_p('*') | int_p[assign_a(o.thickness)]);
-  rule<> r_pen_color      = +blank_p >> (ch_p('*') | int_p[assign_a(o.pen_color)]);
-  rule<> r_fill_color     = +blank_p >> (ch_p('*') | int_p[assign_a(o.fill_color)]);
+  rule<> r_pen_color      = +blank_p >> (ch_p('*') | int_p[assign_a(pen_color)]);
+  rule<> r_fill_color     = +blank_p >> (ch_p('*') | int_p[assign_a(fill_color)]);
   rule<> r_depth          = +blank_p >> (ch_p('*') | uint_p[assign_a(o.depth)]);
   rule<> r_pen_style      = +blank_p >> (ch_p('*') | int_p[assign_a(o.pen_style)]);
   rule<> r_area_fill      = +blank_p >> (ch_p('*') | int_p[assign_a(o.area_fill)]);
@@ -117,6 +118,14 @@ fig_object make_object(const fig_object & obj, const std::string & mask){
   if (!parse(mask.c_str(), *blank_p >> (c1_ellipse | c2_polyline | c3_spline | c4_text | c5_arc | 
        c6_compound_start | c6_compound_end) >> *blank_p ).full)
     cerr << "Can't parse fig mask: " << mask << "\n";
+
+  // convert colors to rgb
+  map<int,int>::const_iterator i;
+  i=colors.find(pen_color);
+  o.pen_color = (i!=colors.end())? i->second : pen_color;
+  i=colors.find(fill_color);
+  o.fill_color = (i!=colors.end())? i->second : fill_color;
+
   return o;
 }
 
