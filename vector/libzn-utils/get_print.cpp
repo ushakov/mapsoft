@@ -174,7 +174,7 @@ main(int argc, char **argv){
 
     // отметка уреза воды
     if (type == 0x1000){ 
-      *i = make_object(*i, "1 3 0 1 22046463 7 57 -1 20 2.000 1 0.000 * * 23 23 * * * *");
+      *i = make_object(*i, "1 3 0 1 5269247 7 57 -1 20 2.000 1 0.000 * * 23 23 * * * *");
       i->center_x = (*i)[0].x;
       i->center_y = (*i)[0].y;
       NW.push_back(*i); continue;
@@ -373,7 +373,7 @@ main(int argc, char **argv){
       NW.push_back(*i);
       double step = 400;
       fig_object o = make_object(*i,
-        "2 1 0 2 25725064 7 82 -1 -1 0.000 0 0 -1 1 1 * 0 0 2.00 90.00 90.00 0 0 2.00 90.00 90.00");
+        "2 1 0 2 8947848 7 82 -1 -1 0.000 0 0 -1 1 1 * 0 0 2.00 90.00 90.00 0 0 2.00 90.00 90.00");
       o.farrow_width = (i->thickness<3)? 60:90;
       o.barrow_width = (i->thickness<3)? 60:90;
       o.farrow_height = (i->thickness<3)? 60:90;
@@ -405,7 +405,7 @@ main(int argc, char **argv){
       i->line_style=0;
       NW.push_back(*i);
       double step = 600;
-      fig_object o = make_object(*i, "1 3 0 1 25725064 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
+      fig_object o = make_object(*i, "1 3 0 1 8947848 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
 
       LineDist<int> ld(*i); 
       if (ld.length()<=step) step = ld.length();
@@ -567,7 +567,7 @@ main(int argc, char **argv){
         n++;
       }
       crop_lines(ls, ls1, c, true);
-      fig_object o = make_object("2 1 0 1 22046463 7 87 -1 -1 0.000 0 1 0 0 0 0");
+      fig_object o = make_object("2 1 0 1 5269247 7 87 -1 -1 0.000 0 1 0 0 0 0");
       if (type == 0x200051) {o.line_style=1; o.style_val=5;}
       for (dMultiLine::iterator l = ls.begin(); l!=ls.end(); l++){
         o.set_points(*l);
