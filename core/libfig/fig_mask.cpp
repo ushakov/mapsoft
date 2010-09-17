@@ -125,6 +125,9 @@ fig_object make_object(const fig_object & obj, const std::string & mask){
   o.pen_color = (i!=colors.end())? i->second : pen_color;
   i=colors.find(fill_color);
   o.fill_color = (i!=colors.end())? i->second : fill_color;
+  // backward compat:
+  if (o.pen_color > 0x1000000) o.pen_color-=0x1000000;
+  if (o.fill_color > 0x1000000) o.fill_color-=0x1000000;
 
   return o;
 }
