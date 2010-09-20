@@ -405,7 +405,7 @@ main(int argc, char **argv){
       i->line_style=0;
       NW.push_back(*i);
       double step = 600;
-      fig_object o = make_object(*i, "1 3 0 1 8947848 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
+      fig_object o = make_object(*i, "1 3 0 1 8947848 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
 
       LineDist<int> ld(*i); 
       if (ld.length()<=step) step = ld.length();
