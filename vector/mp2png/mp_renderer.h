@@ -44,7 +44,7 @@ struct MPRenderer{
     rng=cnv.bb_frw(W.range());
 
     m2pt=100.0/rscale * dpi / 2.54;
-    lw1 = dpi/80.0; // standard line width (1/80in)
+    lw1 = dpi/100; // standard line width (1/80in)
 
     std::cerr
        << "  datum  = " << D << "\n"
@@ -102,6 +102,10 @@ struct MPRenderer{
   void
   set_cap_butt(){
     cr->set_line_cap(Cairo::LINE_CAP_BUTT);
+  }
+  void
+  set_cap_square(){
+    cr->set_line_cap(Cairo::LINE_CAP_SQUARE);
   }
   void
   set_join_miter(){
@@ -167,6 +171,19 @@ struct MPRenderer{
       }
       if (curve_l!=0)  cr->line_to(old.x, old.y);
       if (close) cr->close_path();
+    }
+  }
+
+  void
+  mkptpath(const mp::mp_object & o){
+    for (mp::mp_object::const_iterator l=o.begin(); l!=o.end(); l++){
+      if (l->size()<1) continue;
+      dPoint p = *l->begin();
+      cnv.frw(p);
+      p *= m2pt;
+      p.x = p.x - rng.x; p.y=rng.y + rng.h - p.y;
+      cr->move_to(p.x, p.y);
+      cr->rel_line_to(0,0);
     }
   }
 
@@ -275,8 +292,22 @@ struct MPRenderer{
       if (o->Type!=type) continue;
       if (o->Class!="POLYLINE") continue;
       mkpath(*o, 0, curve_l);
-      cr->stroke();
     }
+    cr->stroke();
+    cr->restore();
+  }
+
+  void
+  render_points(int type, int col, double th){
+    cr->save();
+    set_th(th);
+    set_color(col);
+    for (mp::mp_world::const_iterator o=W.begin(); o!=W.end(); o++){
+      if (o->Type!=type) continue;
+      if (o->Class!="POI") continue;
+      mkptpath(*o);
+    }
+    cr->stroke();
     cr->restore();
   }
 
