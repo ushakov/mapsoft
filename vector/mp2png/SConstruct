@@ -1,0 +1,19 @@
+env = Environment ()
+
+
+subdirs = Split ("""
+                core/lib2d
+                core/loaders
+                core/utils
+                core/libgeo
+                core/libmp
+                """)
+
+env.Append (CCFLAGS=['-O2'])
+env.Append (CPPPATH = "../../core")
+env.Append (LIBPATH = map(lambda(s): "../../"+s, subdirs) )
+env.Append (LIBS = Split("mp geo loaders utils 2d proj png jpeg tiff") )
+
+env.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
+
+env.Program("mp2png.cpp")
