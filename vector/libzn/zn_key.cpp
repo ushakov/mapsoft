@@ -56,7 +56,7 @@ std::istream & operator>> (std::istream & s, zn_key & t){
      ).full){
     if (!timestr.empty()) newkey.time = boost::lexical_cast<Time>(timestr);
   } else {
-    std::cerr << "zn_key: can't find valid key in " << str << "\n";
+//    std::cerr << "zn_key: can't find valid key in " << str << "\n";
     newkey = zn_key();
   }
 
