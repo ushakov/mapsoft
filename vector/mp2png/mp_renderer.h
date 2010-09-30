@@ -3,12 +3,14 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <list>
 #include <cairomm/cairommconfig.h>
 #include <cairomm/context.h>
 #include <cairomm/surface.h>
 
 #include <libgeo/geo_convs.h>
+#include <libgeo_io/io_oe.h>
 #include <libmp/mp.h>
 
 const double img_dpi = 300.0;
@@ -21,6 +23,8 @@ struct MPRenderer{
   convs::pt2pt cnv;
   double rscale, dpi, m2pt, lw1;
   dRect rng_m, rng_pt;
+  Datum D;
+  Proj P;
 
   MPRenderer(const char * in_file):
         cnv(Datum("wgs84"), Proj("lonlat"), Options(),
@@ -31,8 +35,8 @@ struct MPRenderer{
     Options proj_opts;
     rscale = 50000;
     dpi = 200;
-    Datum D("pulkovo");
-    Proj  P("tmerc");
+    D = Datum("pulkovo");
+    P = Proj("tmerc");
 
     double lon0=convs::lon2lon0(W.range().CNT().x);
     proj_opts.put("lon0", lon0);
@@ -134,6 +138,10 @@ struct MPRenderer{
     p.x = p.x*m2pt - rng_pt.x;
     p.y = rng_pt.y + rng_pt.h - p.y*m2pt;
   }
+//  void pt_pt2m(dPoint & p){
+//    p.x = (p.x+rng_pt.x)/m2pt;
+//    p.y = (rng_pt.y + rng_pt.h - p.y)/m2pt;
+//  }
 
   void
   mkpath(const mp::mp_object & o, const int close, double curve_l=0){
@@ -462,6 +470,26 @@ struct MPRenderer{
   void
   save_png(const char * out_file){
     surface->write_to_png(out_file);
+  }
+
+  void
+  save_map(const char * map, const char * png){
+    g_map M;
+    M.file = png;
+    M.comm = W.Name;
+    M.map_proj = P;
+    dLine l = rect2line(rng_m);
+    for (dLine::const_iterator p=l.begin(); p!=l.end(); p++){
+      dPoint gp = *p, rp = *p;
+      cnv.bck(gp); pt_m2pt(rp);
+      // small negative values brokes map-file
+      if (rp.x<0) rp.x=0;
+      if (rp.y<0) rp.y=0;
+      M.border.push_back(rp);
+      M.push_back(g_refpoint(gp, rp));
+    }
+    std::ofstream f(map);
+    oe::write_map_file(f, M, Options());
   }
 
 };
