@@ -10,6 +10,7 @@
 #include <cairomm/surface.h>
 
 #include <libgeo/geo_convs.h>
+#include <libgeo/geo_nom.h>
 #include <libgeo_io/io_oe.h>
 #include <libmp/mp.h>
 
@@ -22,6 +23,7 @@ struct MPRenderer{
   mp::mp_world W;
   convs::pt2pt cnv;
   double rscale, dpi, m2pt, lw1;
+  dLine brd;
   dRect rng_m, rng_pt;
   Datum D;
   Proj P;
@@ -47,7 +49,20 @@ struct MPRenderer{
     m2pt=100.0/rscale * dpi / 2.54;
     lw1 = dpi/80; // standard line width (1/80in)
 
-    rng_m=cnv.bb_frw(W.range());
+    // try find range from name
+    dRect nom_r = convs::nom_range(W.Name);
+    if (!nom_r.empty()){
+      convs::pt2pt cnv_p(Datum("pulk"), Proj("lonlat"), Options(),
+                         Datum("wgs84"), Proj("lonlat"), Options());
+      brd = cnv.line_frw(cnv_p.line_frw(rect2line(nom_r)));
+      rng_m = brd.range();
+    }
+    else{
+      rng_m = cnv.bb_frw(W.range());
+      brd = rect2line(rng_m);
+    }
+    rng_m = rect_pump(rng_m, 3/m2pt);
+
     rng_pt = rng_m*m2pt;
 
     std::cerr
@@ -64,6 +79,23 @@ struct MPRenderer{
       Cairo::FORMAT_ARGB32, rng_pt.w, rng_pt.h);
     cr = Cairo::Context::create(surface);
     set_color(0xFFFFFF); cr->paint();
+    for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
+      dPoint pc=*p; pt_m2pt(pc);
+      if (p==brd.begin()) cr->move_to(pc.x,pc.y);
+      else cr->line_to(pc.x,pc.y);
+    }
+    cr->close_path();
+    cr->save();
+    cr->set_source_rgb(0,0,0);
+    cr->set_line_width(6); // draw border
+    cr->stroke_preserve();
+    cr->restore();
+    cr->clip_preserve();   // set clipping region
+    cr->save();
+    cr->set_source_rgb(1,1,1); // erase border inside clip region
+    cr->set_line_width(10);
+    cr->stroke();
+    cr->restore();
   }
 
   void set_color(int c){
@@ -468,18 +500,14 @@ struct MPRenderer{
   }
 
   void
-  save_png(const char * out_file){
-    surface->write_to_png(out_file);
-  }
-
-  void
-  save_map(const char * map, const char * png){
+  save_image(const char * png, const char * map){
+    if (png) surface->write_to_png(png);
+    if (!map) return;
     g_map M;
     M.file = png;
     M.comm = W.Name;
     M.map_proj = P;
-    dLine l = rect2line(rng_m);
-    for (dLine::const_iterator p=l.begin(); p!=l.end(); p++){
+    for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
       dPoint gp = *p, rp = *p;
       cnv.bck(gp); pt_m2pt(rp);
       // small negative values brokes map-file
@@ -524,10 +552,6 @@ struct MPRenderer{
       cr->line_to(pec.x, pc.y);
       p.y+=dy;
     }
-    cr->stroke();
-    cr->set_source_rgb(0,0,0);
-    cr->set_line_width(8);
-    cr->rectangle(pbc.x,pec.y,pec.x-pbc.x,pbc.y-pec.y);
     cr->stroke();
     cr->restore();
   }

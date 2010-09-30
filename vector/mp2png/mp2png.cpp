@@ -3,13 +3,13 @@
 main(int argc, char* argv[]){
 
   // parse command line options, read mp-file
-  if (argc!=4) {
-    std::cerr << "Usage: mp2png <in.mp> <out.png> <out.map>\n";
+  if ((argc!=3) && (argc!=4)) {
+    std::cerr << "Usage: mp2png <in.mp> <out.png> [<out.map>]\n";
     exit(1);
   }
   const char *  in_mp = argv[1];
   const char * out_png = argv[2];
-  const char * out_map = argv[3];
+  const char * out_map = (argc>3)? argv[3]:NULL;
   MPRenderer R(in_mp);
 
   //*******************************
@@ -180,8 +180,7 @@ main(int argc, char* argv[]){
   R.render_grid(1000, 1000);
 
   //*******************************
-  R.save_png(out_png);
-  R.save_map(out_map, out_png);
+  R.save_image(out_png, out_map);
 
   //*******************************
 }
