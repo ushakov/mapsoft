@@ -20,16 +20,13 @@ struct MPRenderer{
   mp::mp_world W;
   convs::pt2pt cnv;
   double rscale, dpi, m2pt, lw1;
-  dRect rng;
+  dRect rng_m, rng_pt;
 
   MPRenderer(const char * in_file):
         cnv(Datum("wgs84"), Proj("lonlat"), Options(),
             Datum("wgs84"), Proj("lonlat"), Options()){
     std::cerr << "Reading " << in_file << "\n";
     if (!mp::read(in_file, W)) exit(1);
-
-    surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, rng.w, rng.h);
-    cr = Cairo::Context::create(surface);
 
     Options proj_opts;
     rscale = 50000;
@@ -40,28 +37,28 @@ struct MPRenderer{
     double lon0=convs::lon2lon0(W.range().CNT().x);
     proj_opts.put("lon0", lon0);
 
-    cnv = convs::pt2pt(Datum("WGS84"), Proj("lonlat"), Options(), D, P, proj_opts);
-    rng=cnv.bb_frw(W.range());
+    cnv = convs::pt2pt(
+      Datum("WGS84"), Proj("lonlat"), Options(), D, P, proj_opts);
 
     m2pt=100.0/rscale * dpi / 2.54;
-    lw1 = dpi/100; // standard line width (1/80in)
+    lw1 = dpi/80; // standard line width (1/80in)
+
+    rng_m=cnv.bb_frw(W.range());
+    rng_pt = rng_m*m2pt;
 
     std::cerr
        << "  datum  = " << D << "\n"
        << "  proj   = " << P << "\n"
        << "  lon0   = " << lon0 << "\n"
-       << "  range  = " << iRect(rng) << "\n"
+       << "  range  = " << iRect(rng_m) << "\n"
        << "  scale  = 1:" << rscale << "\n"
        << "  dpi    = " << dpi << "\n"
        << "  m2pt   = " << m2pt << "\n"
-       << "  image = " << int(rng.w*m2pt) << "x" << int(rng.h*m2pt)<< "\n";
+       << "  image = " << int(rng_pt.w) << "x" << int(rng_pt.h)<< "\n";
 
-    rng*=m2pt;
-
-    surface = Cairo::ImageSurface::create(Cairo::FORMAT_ARGB32, rng.w, rng.h);
+    surface = Cairo::ImageSurface::create(
+      Cairo::FORMAT_ARGB32, rng_pt.w, rng_pt.h);
     cr = Cairo::Context::create(surface);
-
-    cr->set_identity_matrix();
     set_color(0xFFFFFF); cr->paint();
   }
 
@@ -116,7 +113,9 @@ struct MPRenderer{
     cr->set_line_join(Cairo::LINE_JOIN_ROUND);
   }
 
-
+  // create pattern from png-file, rescaled
+  // according to dpi and img_dpi values and
+  // translated to the image center
   Cairo::RefPtr<Cairo::SurfacePattern>
   get_patt_from_png(const char * fname){
     Cairo::RefPtr<Cairo::ImageSurface> patt_surf =
@@ -130,6 +129,12 @@ struct MPRenderer{
     return patt;
   }
 
+  // convert coordinates from meters to pixels
+  void pt_m2pt(dPoint & p){
+    p.x = p.x*m2pt - rng_pt.x;
+    p.y = rng_pt.y + rng_pt.h - p.y*m2pt;
+  }
+
   void
   mkpath(const mp::mp_object & o, const int close, double curve_l=0){
     curve_l*=lw1;
@@ -139,9 +144,7 @@ struct MPRenderer{
       dPoint old;
       bool first = true;
       for (dLine::iterator p=l1.begin(); p!=l1.end(); p++){
-        *p *= m2pt;
-        p->x = p->x - rng.x; p->y=rng.y + rng.h - p->y;
-
+        pt_m2pt(*p);
         if (p==l1.begin()){
           cr->move_to(p->x, p->y);
           old=*p;
@@ -174,16 +177,56 @@ struct MPRenderer{
     }
   }
 
+  // path for drawing points
   void
   mkptpath(const mp::mp_object & o){
     for (mp::mp_object::const_iterator l=o.begin(); l!=o.end(); l++){
       if (l->size()<1) continue;
       dPoint p = *l->begin();
       cnv.frw(p);
-      p *= m2pt;
-      p.x = p.x - rng.x; p.y=rng.y + rng.h - p.y;
+      pt_m2pt(p);
       cr->move_to(p.x, p.y);
       cr->rel_line_to(0,0);
+    }
+  }
+
+  // paths for bridge sign
+  void
+  mkbrpath1(const mp::mp_object & o){
+    for (mp::mp_object::const_iterator l=o.begin(); l!=o.end(); l++){
+      if (l->size()<2) continue;
+      dPoint p1 = (*l)[0], p2 = (*l)[1];
+      cnv.frw(p1); cnv.frw(p2);
+      pt_m2pt(p1); pt_m2pt(p2); 
+      cr->move_to(p1.x, p1.y);
+      cr->line_to(p2.x, p2.y);
+    }
+  }
+  void
+  mkbrpath2(const mp::mp_object & o, double th, double side){
+    th*=lw1/2.0;
+    side*=lw1/sqrt(2.0);
+    for (mp::mp_object::const_iterator l=o.begin(); l!=o.end(); l++){
+      if (l->size()<2) continue;
+      dPoint p1 = (*l)[0], p2 = (*l)[1];
+      cnv.frw(p1); cnv.frw(p2);
+      pt_m2pt(p1); pt_m2pt(p2);
+      if (th >= lw1*3){
+        cr->move_to(p1.x, p1.y);
+        cr->line_to(p2.x, p2.y);
+      }
+      dPoint t = pnorm(p2-p1);
+      dPoint n(-t.y, t.x);
+      dPoint P;
+      P = p1 + th*n + side*(n-t); cr->move_to(P.x, P.y);
+      P = p1 + th*n;              cr->line_to(P.x, P.y);
+      P = p2 + th*n;              cr->line_to(P.x, P.y);
+      P = p2 + th*n + side*(n+t); cr->line_to(P.x, P.y);
+
+      P = p1 - th*n - side*(n+t); cr->move_to(P.x, P.y);
+      P = p1 - th*n;              cr->line_to(P.x, P.y);
+      P = p2 - th*n;              cr->line_to(P.x, P.y);
+      P = p2 - th*n - side*(n-t); cr->line_to(P.x, P.y);
     }
   }
 
@@ -192,11 +235,8 @@ struct MPRenderer{
     for (mp::mp_object::const_iterator l=o.begin(); l!=o.end(); l++){
       if (l->size()<1) continue;
       dLine l1 = cnv.line_frw(*l);
-      for (dLine::iterator p=l1.begin(); p!=l1.end(); p++){
-        *p *= m2pt;
-        p->x = p->x - rng.x; p->y=rng.y + rng.h - p->y;
-      }
       dPoint p=l1.range().CNT();
+      pt_m2pt(p);
       cr->save();
       cr->translate(p.x, p.y);
       cr->set_source(patt);
@@ -204,6 +244,8 @@ struct MPRenderer{
       cr->restore();
     }
   }
+
+
 
 
   void
@@ -311,6 +353,30 @@ struct MPRenderer{
     cr->restore();
   }
 
+  void
+  render_bridge(int type, double th1, double th2, double side){
+    cr->save();
+    cr->set_line_cap(Cairo::LINE_CAP_BUTT);
+    cr->set_line_join(Cairo::LINE_JOIN_ROUND);
+    set_th(th1);
+    set_color(0xFFFFFF);
+    for (mp::mp_world::const_iterator o=W.begin(); o!=W.end(); o++){
+      if (o->Type!=type) continue;
+      if (o->Class!="POLYLINE") continue;
+      mkbrpath1(*o);
+    }
+    cr->stroke();
+    set_th(th2);
+    set_color(0x0);
+    for (mp::mp_world::const_iterator o=W.begin(); o!=W.end(); o++){
+      if (o->Type!=type) continue;
+      if (o->Class!="POLYLINE") continue;
+      mkbrpath2(*o, th1+th2, side);
+    }
+    cr->stroke();
+    cr->restore();
+  }
+
 // CONTOURS
 
   void
@@ -328,8 +394,6 @@ struct MPRenderer{
     cr->stroke();
     cr->restore();
   }
-
-
   std::list<iPoint>
   make_cnt(int c, double dist){
     dist*=lw1;
@@ -380,7 +444,6 @@ struct MPRenderer{
     }
     return ret;
   }
-
   void
   filter_cnt(std::list<iPoint> & cnt, int c){
     unsigned char *data=surface->get_data();

@@ -4,7 +4,7 @@ main(int argc, char* argv[]){
 
   // parse command line options, read mp-file
   if (argc!=3) {
-    std::cerr << "Usage: mp2png <in_file1> <out_file>\n";
+    std::cerr << "Usage: mp2png <in.mp> <out.png>\n";
     exit(1);
   }
   const char *  in_file = argv[1];
@@ -122,10 +122,19 @@ main(int argc, char* argv[]){
   R.render_line(0x1,  0x0,      1, 10); // автомагистраль - черная середина
   R.render_line(0xD,  0x0, 3, 10); // маленькая Ж/Д
   R.render_line(0x27, 0x0, 4, 10); // Ж/Д
-// обрывы
-// мосты
-// точечные объекты
+  R.set_cap_round();
+  R.set_dash(4, 2, 2, 2);   R.render_line(0x1D, 0x900000, 1, 0); // граница
 
+  R.set_dash(2, 2); R.render_line(0x1E, 0x900000, 1, 0); // нижний край обрыва
+  R.unset_dash();   R.render_line(0x03, 0x900000, 1, 0); // верхний край обрыва
+  R.unset_dash();   R.render_line(0x19, 0x000000, 1, 0); // забор
+
+  R.render_bridge(0x1B, 0, 1, 2); // туннель
+  R.render_bridge(0x08, 1, 1, 2); // мост-1
+  R.render_bridge(0x09, 3, 1, 2); // мост-2
+  R.render_bridge(0x0E, 6, 1, 2); // мост-5
+
+// точечные объекты
   R.render_im_in_points(0x0F00, "zn/trig.png");
   R.render_im_in_points(0x2C04, "zn/pam.png");
   R.render_im_in_points(0x2C0B, "zn/cerkov.png");
