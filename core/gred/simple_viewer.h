@@ -41,11 +41,13 @@ class SimpleViewer : public Viewer {
 
     sigc::signal<void> & signal_before_draw();
     sigc::signal<void> & signal_after_draw();
+    sigc::signal<void, double> & signal_on_rescale();
 
   private:
 
     sigc::signal<void> signal_before_draw_;
     sigc::signal<void> signal_after_draw_;
+    sigc::signal<void, double> signal_on_rescale_;
 
     GObj * obj;
     iPoint origin;

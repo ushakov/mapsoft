@@ -1,8 +1,116 @@
 #include "fig_data.h"
+#include <map>
+#include <string>
 
 namespace fig {
 
 using namespace std;
+
+/*************************************************/
+/// static data
+
+// fig units, 1.05/1200in (not 1/1200in, I don't know why...)
+const double cm2fig = 1200.0 / 1.05 / 2.54;
+const double fig2cm = 1.0 / cm2fig;
+
+// fig colors
+typedef pair<int,int> p_ii;
+const p_ii colors_a[] = {
+  p_ii(-1, 0x000000), // default
+  p_ii(0,  0x000000), // black
+  p_ii(1,  0x0000ff), // blue
+  p_ii(2,  0x00ff00), // green
+  p_ii(3,  0x00ffff), // cyan
+  p_ii(4,  0xff0000), // red
+  p_ii(5,  0xff00ff), // magenta
+  p_ii(6,  0xffff00), // yellow
+  p_ii(7,  0xffffff), // white
+  p_ii(8,  0x000090), // blue4
+  p_ii(9,  0x0000b0), // blue3
+  p_ii(10, 0x0000d0), // blue2
+  p_ii(11, 0x87ceff), // ltblue
+  p_ii(12, 0x009000), // green4
+  p_ii(13, 0x00b000), // green3
+  p_ii(14, 0x00d000), // green2
+  p_ii(15, 0x009090), // cyan4
+  p_ii(16, 0x00b0b0), // cyan3
+  p_ii(17, 0x00d0d0), // cyan2
+  p_ii(18, 0x900000), // red4
+  p_ii(19, 0xb00000), // red3
+  p_ii(20, 0xd00000), // red2
+  p_ii(21, 0x900090), // magenta4
+  p_ii(22, 0xb000b0), // magenta3
+  p_ii(23, 0xd000d0), // magenta2
+  p_ii(24, 0x803000), // brown4
+  p_ii(25, 0xa04000), // brown3
+  p_ii(26, 0xc06000), // brown2
+  p_ii(27, 0xff8080), // pink4
+  p_ii(28, 0xffa0a0), // pink3
+  p_ii(29, 0xffc0c0), // pink2
+  p_ii(30, 0xffe0e0), // pink
+  p_ii(31, 0xffd700)  // gold
+};
+const map<int,int> colors(&colors_a[0],
+    &colors_a[sizeof(colors_a)/sizeof(p_ii)]);
+
+// fig postscript fonts
+typedef pair<int,string> p_is;
+const p_is psfonts_a[] = {
+  p_is(-1, "Default"),
+  p_is( 0, "Times-Roman"),
+  p_is( 1, "Times-Italic"),
+  p_is( 2, "Times-Bold"),
+  p_is( 3, "Times-BoldItalic"),
+  p_is( 4, "AvantGarde-Book"),
+  p_is( 5, "AvantGarde-BookOblique"),
+  p_is( 6, "AvantGarde-Demi"),
+  p_is( 7, "AvantGarde-DemiOblique"),
+  p_is( 8, "Bookman-Light"),
+  p_is( 9, "Bookman-LightItalic"),
+  p_is(10, "Bookman-Demi"),
+  p_is(11, "Bookman-DemiItalic"),
+  p_is(12, "Courier"),
+  p_is(13, "Courier-Oblique"),
+  p_is(14, "Courier-Bold"),
+  p_is(15, "Courier-BoldOblique"),
+  p_is(16, "Helvetica"),
+  p_is(17, "Helvetica-Oblique"),
+  p_is(18, "Helvetica-Bold"),
+  p_is(19, "Helvetica-BoldOblique"),
+  p_is(20, "Helvetica-Narrow"),
+  p_is(21, "Helvetica-Narrow-Oblique"),
+  p_is(22, "Helvetica-Narrow-Bold"),
+  p_is(23, "Helvetica-Narrow-BoldOblique"),
+  p_is(24, "NewCenturySchlbk-Roman"),
+  p_is(25, "NewCenturySchlbk-Italic"),
+  p_is(26, "NewCenturySchlbk-Bold"),
+  p_is(27, "NewCenturySchlbk-BoldItalic"),
+  p_is(28, "Palatino-Roman"),
+  p_is(29, "Palatino-Italic"),
+  p_is(30, "Palatino-Bold"),
+  p_is(31, "Palatino-BoldItalic"),
+  p_is(32, "Symbol"),
+  p_is(33, "ZapfChancery-MediumItalic"),
+  p_is(34, "ZapfDingbats"),
+};
+const map<int,string> psfonts(&psfonts_a[0],
+    &psfonts_a[sizeof(psfonts_a)/sizeof(p_is)]);
+
+// fig tex fonts
+const p_is texfonts_a[] = {
+  p_is( 0, "Default"),
+  p_is( 1, "Roman"),
+  p_is( 2, "Bold"),
+  p_is( 3, "Italic"),
+  p_is( 4, "Sans Serif"),
+  p_is( 5, "Typewriter")
+};
+const map<int,string> texfonts(&texfonts_a[0],
+    &texfonts_a[sizeof(texfonts_a)/sizeof(p_is)]);
+
+/*************************************************/
+
+
 
 void fig_object::set_points(const dLine & v){
   clear();
@@ -35,6 +143,7 @@ void fig_world::remove_empty_comp(){
   }
   while(removed>0);
 }
+
 
 } //namespace
 

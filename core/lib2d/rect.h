@@ -42,6 +42,7 @@ public:
     Point<T> TRC() const { return  Point<T>(x+w,y);}
     Point<T> BRC() const { return  Point<T>(x+w,y+h);}
     Point<T> BLC() const { return  Point<T>(x,y+h);}
+    Point<T> CNT() const { return  Point<T>(x+w/2,y+h/2);}
 
     Rect<T> & operator/= (T k)
     {

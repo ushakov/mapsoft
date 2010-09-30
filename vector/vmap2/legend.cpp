@@ -241,10 +241,6 @@ string legend::get_type (const fig::fig_object & o) const {
       int c1 = o.pen_color;
       int c2 = fig->pen_color;
 
-      // there is no difference between -1 and 0 colors
-      if (c1 == -1) c1 = 0;
-      if (c2 == -1) c2 = 0;
-
       if (o.size()>1){ // lines
         // compare depth and thickness
         if ((o.depth     != fig->depth) ||
@@ -258,12 +254,10 @@ string legend::get_type (const fig::fig_object & o) const {
         int af2 = fig->area_fill;
         int fc1 = o.fill_color;
         int fc2 = fig->fill_color;
-        // there is no difference between -1 and 0 colors
-        if (fc1 == -1) fc1 = 0;
-        if (fc2 == -1) fc2 = 0;
+
         // белая заливка бывает двух видов
-        if ((fc1!=7)&&(af1==40)) {fc1=7; af1=20;}
-        if ((fc2!=7)&&(af2==40)) {fc2=7; af2=20;}
+        if ((fc1!=0xffffff)&&(af1==40)) {fc1=0xffffff; af1=20;}
+        if ((fc2!=0xffffff)&&(af2==40)) {fc2=0xffffff; af2=20;}
 
         // тип заливки должен совпасть
         if (af1 != af2) continue;

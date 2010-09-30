@@ -13,99 +13,11 @@
 /// связанное с fig-файлами
 namespace fig {
 
-    // FIG units, 1.05/1200in 
-    // (not 1/1200in, I don't know why...)
-    const double cm2fig = 449.943757;
-    const double fig2cm = 2.2225e-3;
 
-    struct fig_colors : std::map<int,int> {
-        fig_colors(){
-	    insert(begin(), std::pair<int,int>(-1, 0x000000));
-	    insert(begin(), std::pair<int,int>(0,  0x000000));
-	    insert(begin(), std::pair<int,int>(1,  0x0000ff));
-	    insert(begin(), std::pair<int,int>(2,  0x00ff00));
-	    insert(begin(), std::pair<int,int>(3,  0x00ffff));
-	    insert(begin(), std::pair<int,int>(4,  0xff0000));
-	    insert(begin(), std::pair<int,int>(5,  0xff00ff));
-	    insert(begin(), std::pair<int,int>(6,  0xffff00));
-	    insert(begin(), std::pair<int,int>(7,  0xffffff));
-	    insert(begin(), std::pair<int,int>(8,  0x000090));
-	    insert(begin(), std::pair<int,int>(9,  0x0000b0));
-	    insert(begin(), std::pair<int,int>(10, 0x0000d0));
-	    insert(begin(), std::pair<int,int>(11, 0x87ceff));
-	    insert(begin(), std::pair<int,int>(12, 0x009000));
-	    insert(begin(), std::pair<int,int>(13, 0x00b000));
-	    insert(begin(), std::pair<int,int>(14, 0x00d000));
-	    insert(begin(), std::pair<int,int>(15, 0x009090));
-	    insert(begin(), std::pair<int,int>(16, 0x00b0b0));
-	    insert(begin(), std::pair<int,int>(17, 0x00d0d0));
-	    insert(begin(), std::pair<int,int>(18, 0x900000));
-	    insert(begin(), std::pair<int,int>(19, 0xb00000));
-	    insert(begin(), std::pair<int,int>(20, 0xd00000));
-	    insert(begin(), std::pair<int,int>(21, 0x900090));
-	    insert(begin(), std::pair<int,int>(22, 0xb000b0));
-	    insert(begin(), std::pair<int,int>(23, 0xd000d0));
-	    insert(begin(), std::pair<int,int>(24, 0x803000));
-	    insert(begin(), std::pair<int,int>(25, 0xa04000));
-	    insert(begin(), std::pair<int,int>(26, 0xc06000));
-	    insert(begin(), std::pair<int,int>(27, 0xff8080));
-	    insert(begin(), std::pair<int,int>(28, 0xffa0a0));
-	    insert(begin(), std::pair<int,int>(29, 0xffc0c0));
-	    insert(begin(), std::pair<int,int>(30, 0xffe0e0));
-	    insert(begin(), std::pair<int,int>(31, 0xffd700));
-	}
-    };
-    struct fig_psfonts : std::map<int,std::string> {
-        fig_psfonts(){
-            insert(begin(), std::pair<int,std::string>(-1, "Default"));
-            insert(begin(), std::pair<int,std::string>( 0, "Times-Roman"));
-            insert(begin(), std::pair<int,std::string>( 1, "Times-Italic"));
-            insert(begin(), std::pair<int,std::string>( 2, "Times-Bold"));
-            insert(begin(), std::pair<int,std::string>( 3, "Times-BoldItalic"));
-            insert(begin(), std::pair<int,std::string>( 4, "AvantGarde-Book"));
-            insert(begin(), std::pair<int,std::string>( 5, "AvantGarde-BookOblique"));
-            insert(begin(), std::pair<int,std::string>( 6, "AvantGarde-Demi"));
-            insert(begin(), std::pair<int,std::string>( 7, "AvantGarde-DemiOblique"));
-            insert(begin(), std::pair<int,std::string>( 8, "Bookman-Light"));
-            insert(begin(), std::pair<int,std::string>( 9, "Bookman-LightItalic"));
-            insert(begin(), std::pair<int,std::string>(10, "Bookman-Demi"));
-            insert(begin(), std::pair<int,std::string>(11, "Bookman-DemiItalic"));
-            insert(begin(), std::pair<int,std::string>(12, "Courier"));
-            insert(begin(), std::pair<int,std::string>(13, "Courier-Oblique"));
-            insert(begin(), std::pair<int,std::string>(14, "Courier-Bold"));
-            insert(begin(), std::pair<int,std::string>(15, "Courier-BoldOblique"));
-            insert(begin(), std::pair<int,std::string>(16, "Helvetica"));
-            insert(begin(), std::pair<int,std::string>(17, "Helvetica-Oblique"));
-            insert(begin(), std::pair<int,std::string>(18, "Helvetica-Bold"));
-            insert(begin(), std::pair<int,std::string>(19, "Helvetica-BoldOblique"));
-            insert(begin(), std::pair<int,std::string>(20, "Helvetica-Narrow"));
-            insert(begin(), std::pair<int,std::string>(21, "Helvetica-Narrow-Oblique"));
-            insert(begin(), std::pair<int,std::string>(22, "Helvetica-Narrow-Bold"));
-            insert(begin(), std::pair<int,std::string>(23, "Helvetica-Narrow-BoldOblique"));
-            insert(begin(), std::pair<int,std::string>(24, "NewCenturySchlbk-Roman"));
-            insert(begin(), std::pair<int,std::string>(25, "NewCenturySchlbk-Italic"));
-            insert(begin(), std::pair<int,std::string>(26, "NewCenturySchlbk-Bold"));
-            insert(begin(), std::pair<int,std::string>(27, "NewCenturySchlbk-BoldItalic"));
-            insert(begin(), std::pair<int,std::string>(28, "Palatino-Roman"));
-            insert(begin(), std::pair<int,std::string>(29, "Palatino-Italic"));
-            insert(begin(), std::pair<int,std::string>(30, "Palatino-Bold"));
-            insert(begin(), std::pair<int,std::string>(31, "Palatino-BoldItalic"));
-            insert(begin(), std::pair<int,std::string>(32, "Symbol"));
-            insert(begin(), std::pair<int,std::string>(33, "ZapfChancery-MediumItalic"));
-            insert(begin(), std::pair<int,std::string>(34, "ZapfDingbats"));
-	}
-    };
-    struct fig_texfonts : std::map<int,std::string> {
-        fig_texfonts(){
-            insert(begin(), std::pair<int,std::string>( 0,"Default"));
-            insert(begin(), std::pair<int,std::string>( 0,"Roman"));
-            insert(begin(), std::pair<int,std::string>( 2,"Bold"));
-            insert(begin(), std::pair<int,std::string>( 1,"Italic"));
-            insert(begin(), std::pair<int,std::string>(16,"Sans Serif"));
-            insert(begin(), std::pair<int,std::string>(12,"Typewriter"));
-	}
-    };
-
+  extern const double                    cm2fig, fig2cm;   // fig units
+  extern const std::map<int,int>         colors;           // fig colors
+  extern const std::map<int,std::string> psfonts;          // ps fonts
+  extern const std::map<int,std::string> texfonts;         // tex fonts
 
     /// fig object
     struct fig_object : iLine,
@@ -187,7 +99,8 @@ namespace fig {
 	   (farrow_width == o.farrow_width) && (barrow_width == o.barrow_width) &&
 	   (farrow_height == o.farrow_height) && (barrow_height == o.barrow_height) &&
            (image_file == o.image_file) && (image_orient == o.image_orient) &&
-           (text == o.text) && (comment == o.comment) && (f == o.f) && iLine::operator==(o));
+           (text == o.text) && (comment == o.comment) && (opts == o.opts) &&
+           (f == o.f) && iLine::operator==(o));
         }
 
 	bool operator< (const fig_object & o) const{
@@ -236,6 +149,7 @@ namespace fig {
           if (text != o.text) return (text < o.text);
           if (comment != o.comment) return (comment < o.comment);
           if (f != o.f) return (f < o.f);
+          if (opts != o.opts) return (opts < o.opts); // ?!
           return iLine::operator<(o);
         }
 
@@ -278,7 +192,7 @@ namespace fig {
         void set_points(const dLine & v);
         void set_points(const iLine & v);
 
-	/// преобразовать в линию 
+	/// преобразовать в линию
         template <typename T>
         operator Line<T> () const {
           Line<T> ret;
@@ -286,6 +200,7 @@ namespace fig {
             ret.push_back(Point<T>((*this)[i].x, (*this)[i].y));
           return ret;
         }
+
     };
 
     /// fig-file
@@ -302,7 +217,6 @@ namespace fig {
 
         std::vector<std::string> comment;
 	Options opts;
-	fig_colors colors;
 
         fig_world(){
           orientation="Portrait";
@@ -322,7 +236,7 @@ namespace fig {
           return *this;
         }
 
-        iRect range(){
+        iRect range() const{
           if (this->size()<1) return iRect(0,0,0,0);
           fig_world::const_iterator i=this->begin();
           iRect ret=i->range();

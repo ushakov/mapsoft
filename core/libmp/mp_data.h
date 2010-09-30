@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "lib2d/line.h"
+#include "lib2d/rect.h"
 #include "utils/options.h"
 
 namespace mp {
@@ -70,6 +71,14 @@ namespace mp {
           Opts["Zoom1"]  = "1";
           Opts["Zoom2"]  = "2";
           Opts["Zoom3"]  = "3";
+        }
+        dRect range() const{
+          if (this->size()<1) return dRect(0,0,0,0);
+          mp_world::const_iterator i=this->begin();
+          dRect ret=i->range();
+          while ((++i) != this->end())
+            ret = rect_bounding_box(ret, i->range());
+          return ret;
         }
     };
 

@@ -1,84 +1,308 @@
-/DeviceRGB setcolorspace
+/PinkColor   { 1 0.50 .50 }      def  /PinkSet   { PinkColor   setcolor } def
+/WhiteColor  { 1 1 1 }           def  /WhiteSet  { WhiteColor  setcolor } def
+/NWhiteColor { 0.98 0.98 0.98 }  def  /NWhiteSet { NWhiteColor setcolor } def
+/BlackColor  { 0 0 0 }           def  /BlackSet  { BlackColor  setcolor } def
+/GreyColor   { 0.7 0.7 0.7 }     def  /GreySet   { GreyColor   setcolor } def
+/GreenColor  { 0.6667 1 0.6667 } def  /GreenSet  { GreenColor  setcolor } def
+/DGreenColor { 0 0.5747 0 }      def  /DGreenSet { DGreenColor setcolor } def
+/DBlueColor  { 0.3137 0.4 1 }    def  /DBlueSet  { DBlueColor  setcolor } def
+/BlueColor   { 0 1 1 }           def  /BlueSet   { BlueColor   setcolor } def
+/BrownColor  { 0.7529 0.3765 0 } def  /BrownSet  { BrownColor  setcolor } def
 
-0.23622 0.23622 scale
-0 0 100 100 setbbox
+/Shade {dup dup currentrgbcolor 4 -2 roll mul 4 -2 roll mul
+  4 -2 roll mul setrgbcolor} bind def
 
-/PinkColor { 1 0.50 .50 setcolor } def
-/WhiteColor { 1 1 1 setcolor } def
-/BlackColor { 0 0 0 setcolor } def
-/BrownColor { 0.7529 0.3765 0 setcolor } def
-/GreenColor  { 0.6667 1 0.6667 setcolor } def
-/DGreenColor { 0 0.5747 0 setcolor } def
 
-/CntDash {[30 30] 0 setdash} def
-/ProsDash {[80 60] 0 setdash} def
-/HorDash {[120 80] 0 setdash} def
+/CntDash {[LW1 LW2] 0 setdash} def
+/TDash   {[LW3 LW3] 0 setdash} def
+/ProsDash {[5 2] 0 setdash} def
+/HorDash {[7 3] 0 setdash} def
 /NoDash  {[] 0 setdash} def
+
+/LW1V { 0.4725 } def
+/LW1 { LW1V         setlinewidth} def
+/LWH { LW1V  0.5 mul setlinewidth} def
+/LWT { LW1V 0.75 mul setlinewidth} def
+/LW2 { LW1V    2 mul setlinewidth} def
+/LW3 { LW1V    3 mul setlinewidth} def
+/LW4 { LW1V    4 mul setlinewidth} def
+/LW5 { LW1V    5 mul setlinewidth} def
+/LW6 { LW1V    6 mul setlinewidth} def
+/LW7 { LW1V    7 mul setlinewidth} def
+
+<<
+ /PatternType 1
+ /PaintType 2
+ /TilingType 1
+ /BBox [0 0 4 2]
+ /XStep 4
+ /YStep 2
+ /PaintProc
+ {
+  LWT
+  newpath
+  0 0 4 2 moveto lineto
+  4 0 0 2 moveto lineto stroke
+ }
+>>
+matrix makepattern /HatchPatt exch def
+
+<<
+ /PatternType 1
+ /PaintType 2
+ /TilingType 1
+ /BBox [0 0 4 6]
+ /XStep 8
+ /YStep 8
+ /PaintProc
+ {
+  newpath
+  LW1
+  0 4 4 4 moveto lineto
+  2 0 2 6 moveto lineto stroke
+ }
+>>
+matrix makepattern /CemPatt exch def
 
 <<
  /PatternType 1
  /PaintType 2
  /TilingType 2
- /BBox [0 0 200 100]
- /XStep 200
- /YStep 100
+ /BBox [0 0 6 3]
+ /XStep 6
+ /YStep 3
  /PaintProc
  {
+  LWT
   newpath
-  1 setlinewidth
-  0 0 200 100 moveto lineto stroke
-  newpath
-  200 0 0 100 moveto lineto stroke
+  0 0.5 moveto 4 0 rlineto 1 0 rmoveto 1 0 rlineto
+  0 1.5 moveto 1 0 rlineto 1 0 rmoveto 4 0 rlineto
+  0 2.5 moveto 3 0 rlineto 1 0 rmoveto 2 0 rlineto
+  stroke
  }
 >>
-matrix makepattern /HatchPatt exch def
+matrix makepattern /B1Patt exch def
 
+<<
+ /PatternType 1
+ /PaintType 2
+ /TilingType 2
+ /BBox [0 0 8 6]
+ /XStep 8
+ /YStep 6
+ /PaintProc
+ {
+  LWT
+  newpath
+  0 0.5 moveto 2 0 rlineto 2 0 rmoveto 2 0 rlineto
+  0 2.0 moveto 1 0 rlineto 2 0 rmoveto 2 0 rlineto 2 0 rmoveto 1 0 rlineto
+  0 3.5 moveto 1 0 rmoveto 2 0 rlineto 2 0 rmoveto 2 0 rlineto
+  0 5.0 moveto 2 0 rmoveto 2 0 rlineto 2 0 rmoveto 2 0 rlineto
+  stroke
+ }
+>>
+matrix makepattern /B2Patt exch def
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-gsave % леса
+(./pslib.ps) run
 
-  GreenColor  POLYGON_0x16 ufill  % лес
-  WhiteColor  POLYGON_0x52 ufill  % поле
-              POLYGON_0x14 ufill  % редколесье
-              POLYGON_0x4f ufill  % свежая вырубка
-  GreenColor  POLYGON_0x50 ufill  % старая вырубка
-
-
-  gsave
-    0 0.5747 0 HatchPatt setpattern
-    POLYGON_0x4f ufill % свежая вырубка --TODO
-
-    0 0.5747 0 HatchPatt setpattern
-    POLYGON_0x50 ufill % старая вырубка --TODO
-
-    gsave
-      0.6667 1 0.6667 HatchPatt setpattern
-      POLYGON_0x14 ufill % редколесье     --TODO
-    grestore
-  grestore
-
-  GreenColor  POLYGON_0x15 ufill % остров леса
-  CntDash DGreenColor 20 setlinewidth
-  POLYGON_0x15 ustroke
-  POLYGON_0x16 ustroke
-  POLYGON_0x52 ustroke
-  POLYLINE_0x23 ustroke % контур леса
-grestore
+1 setlinecap
+1 setlinejoin
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-gsave % горизонтали
-  BrownColor  10 setlinewidth  POLYLINE_0x21 ustroke
-  BrownColor  15 setlinewidth  POLYLINE_0x22 ustroke
-  HorDash BrownColor  10 setlinewidth  POLYLINE_0x20 ustroke
-grestore
 
-ProsDash BlackColor 10 setlinewidth POLYLINE_0x16 ustroke NoDash % просека
+/DeviceRGB setcolorspace
+GreenSet  POLYGON_0x16 ufill  % лес
+WhiteSet  POLYGON_0x52 ufill  % поле
+NWhiteSet POLYGON_0x14 ufill  % редколесье
+          POLYGON_0x4f ufill  % свежая вырубка
+GreenSet  POLYGON_0x50 ufill  % старая вырубка
+GreenSet  POLYGON_0x15 ufill  % остров леса
 
-BlackColor  80 setlinewidth  POLYLINE_0x2 ustroke
-            60 setlinewidth  POLYLINE_0x4 ustroke
-WhiteColor  20 setlinewidth  POLYLINE_0x4 ustroke
-PinkColor   40 setlinewidth  POLYLINE_0x2 ustroke
+%showpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/DeviceRGB setcolorspace
+
+% ледник -- TODO
+
+% штриховка вырубок
+DGreenColor HatchPatt setpattern
+POLYGON_0x4f ufill % свежая вырубка
+
+DGreenColor HatchPatt setpattern
+POLYGON_0x50 ufill % старая вырубка
+
+GreenColor HatchPatt setpattern
+POLYGON_0x14 ufill % редколесье
+
+/DeviceRGB setcolorspace
+
+% контуры леса
+CntDash DGreenSet LW1 POLYLINE_0x23 ustroke NoDash
+
+% населенка
+WhiteSet  0.7  Shade  POLYGON_0x4 ufill  % закрытые территории
+BlackSet LWT POLYGON_0x4  ustroke
+
+PinkSet               POLYGON_0xe ufill  % деревни
+BlackSet LWT POLYGON_0xe  ustroke
+
+PinkSet   0.7  Shade  POLYGON_0x1 ufill  % город
+BlackSet LWT POLYGON_0x1  ustroke % город
+
+DGreenSet 0.7  Shade  POLYGON_0x4e ufill % дачи
+BlackSet LWT POLYGON_0x4e ustroke % дачи
+
+DGreenSet 0.5  Shade  POLYGON_0x1a ufill % кладбище
+BlackSet LWT POLYGON_0x1a ustroke % кладбище
+
+%  newpath POLYGON_0x1a uappend pathbbox newpath
+%  3 -1 roll add 2 div  3 1 roll add 2 div  exch -3 add  moveto
+%  0 6 rlineto -2 -2 rmoveto 4 0 rlineto
+%  BlackColor LW1 stroke
+
+BlackColor CemPatt setpattern POLYGON_0x1a ufill
+
+/DeviceRGB setcolorspace
+
+%горизонтали
+BrownSet
+LW1  POLYLINE_0x21 8 stroke_spline
+HorDash           POLYLINE_0x20 8 stroke_spline NoDash
+LW2  POLYLINE_0x22 8 stroke_spline
+
+% хорошие-плохие пути
+LW3
+1 0.8431 0 setcolor
+POLYLINE_0x35 5 stroke_spline
+TDash POLYLINE_0x34 5 stroke_spline NoDash
+0 0.7 0 setcolor
+POLYLINE_0x32 5 stroke_spline
+TDash POLYLINE_0x33 5 stroke_spline NoDash
+
+
+
+% болота
+DBlueSet LW1
+/boloto { % in: step shift1 shift2 upath
+  clipsave initclip
+  newpath uappend pathbbox clip newpath % step a1 a2  x1 y1 x2 y2
+  3 -1 roll exch 7 -1 roll exch
+  { % loop: a1 a2  x1 x2  y
+    3 copy exch
+    8 -2 roll exch dup
+    3 1 roll 9 2 roll add
+    4 3 roll moveto lineto
+  } for
+  stroke
+  cliprestore
+  pop pop
+} def
+
+%[4 2] 0 setdash 2 0 4 POLYGON_0x51 boloto
+%[8 2] 0 setdash 1.5 0 4 POLYGON_0x4c boloto
+
+DBlueColor B1Patt setpattern
+POLYGON_0x4c ufill % болото
+DBlueColor B2Patt setpattern
+POLYGON_0x51 ufill % болото
+/DeviceRGB setcolorspace
+
+% старые болота
+NoDash POLYLINE_0x24 ustroke
+
+
+% реки
+DBlueSet
+[3 2] 0 setdash
+LW1 POLYLINE_0x26 5 stroke_spline NoDash
+LW1 POLYLINE_0x15 5 stroke_spline
+LW2 POLYLINE_0x18 5 stroke_spline
+LW3 POLYLINE_0x1f 6 stroke_spline
+
+
+%showpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/DeviceRGB setcolorspace
+
+%водоемы
+BlueSet  POLYGON_0x29 ufill  % водоемы
+BlueSet  POLYGON_0x3b ufill  % крупные водоемы
+
+DBlueSet % TODO -- auto border
+LW1 POLYGON_0x29 5 stroke_spline
+LW1 POLYGON_0x3b 5 stroke_spline
+
+% серединка реки
+BlueSet LW1 POLYLINE_0x1f 6 stroke_spline
+
+% острова
+
+%showpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% лэп и газопроводы
+0 setlinecap
+0.5313 0.5313 0.5313 setcolor
+LW2
+POLYLINE_0x1a ustroke
+LW3
+POLYLINE_0x29 ustroke % большая ЛЭП
+[6 2] 0 setdash
+POLYLINE_0x28 ustroke % газопровод
+NoDash
+
+% дома
+BlackSet
+LW3
+POLYLINE_0x5 ustroke
+
+% дороги
+
+0 setlinecap
+WhiteSet LW3
+LW4  POLYLINE_0x7 6 stroke_spline  % непроезжий грейдер - белая подложка
+
+1 0 0 setcolor
+[4 2 1 2] 0 setdash LW1 POLYLINE_0x1d ustroke % граница
+
+BlackSet
+[3 3] 0 setdash LW1 POLYLINE_0x16 ustroke         % просека
+[6 2] 0 setdash LW1 POLYLINE_0xa  5 stroke_spline % грунтовка
+[1 1] 0 setdash LW1 POLYLINE_0x2a 5 stroke_spline % тропа
+[3 2] 0 setdash LW3 POLYLINE_0x7 5 stroke_spline  % непр.грейдер - черный пунктир
+NoDash
+LW1  POLYLINE_0x6 5 stroke_spline
+LW3  POLYLINE_0x4 5 stroke_spline  % грейдер
+LW4  POLYLINE_0x2 6 stroke_spline
+LW5  POLYLINE_0xb 6 stroke_spline
+LW7  POLYLINE_0x1 6 stroke_spline
+WhiteSet  LW1  POLYLINE_0x4 5 stroke_spline
+          LW1  POLYLINE_0x7 5 stroke_spline
+PinkSet   LW2  POLYLINE_0x2 6 stroke_spline
+          LW3  POLYLINE_0xb 6 stroke_spline
+          LW5  POLYLINE_0x1 6 stroke_spline
+BlackSet  LW1  POLYLINE_0x1 6 stroke_spline
+LW3  POLYLINE_0xd  6 stroke_spline % УЖД
+LW4  POLYLINE_0x27 6 stroke_spline % ЖД
+
+
+% обрывы
+
+% мосты
+
+% точечные объекты
+
+% подписи
+
+% сетка
+
+% легенда
 
 showpage
-quit

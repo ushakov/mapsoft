@@ -38,12 +38,10 @@ public:
 
     bool get_layer_active (Layer * layer);
 
-    Workplane & operator/= (double k);
-    Workplane & operator*= (double k);
-    Workplane & operator-= (dPoint k);
-    Workplane & operator+= (dPoint k);
+    void set_scale(const double k);
 
     inline void clear_tile_cache();
+
 
 private:
     std::multimap <int, Layer *> layers;
@@ -51,6 +49,7 @@ private:
 
     typedef Cache<iRect,iImage> LayerCache;
     std::map<Layer *, boost::shared_ptr<LayerCache> > tile_cache;
+    double sc;
 };
 
 

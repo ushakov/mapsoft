@@ -33,7 +33,7 @@ void ImageDrawContext::DrawText (int x, int y, int color, const char *text) {
     char *fnt = strdup(IMAGE_DRAW_FONT);
     char *txt = strdup(text);
     char * n = gdImageStringFT(gd_image, brect, gd_color, fnt, IMAGE_DRAW_FONT_SIZE, 0, x, y, txt);
-    delete(fnt); delete(txt);
+    free(fnt); free(txt);
     if (n) {
         std::cerr << "GD Error: " << n << std::endl;
     }
@@ -101,7 +101,7 @@ iRect ImageDrawContext::GetTextMetrics (const char * text) {
     char *fnt = strdup(IMAGE_DRAW_FONT);
     char *txt = strdup(text);
     gdImageStringFT(0, brect, 0, fnt, IMAGE_DRAW_FONT_SIZE, 0, 0, 0, txt);
-    delete(fnt); delete(txt);
+    free(fnt); free(txt);
     return iRect (brect[6], brect[7], brect[2] - brect[6], brect[3] - brect[7]);
 }
 

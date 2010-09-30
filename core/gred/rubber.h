@@ -99,8 +99,7 @@ public:
   void dump(void) const;
 
   // modify coordinates connected to plane
-  Rubber & operator/= (double k);
-  Rubber & operator*= (double k);
+  void rescale(double k);
 
   /// High-level functions for adding some types of segments
   void add_src_sq(const iPoint & p, int size);

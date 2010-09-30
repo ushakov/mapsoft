@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
       if ((i->Type!=0xd00) && (i->Type!=0xf00) && (i->Type!=0x1100) && // вершина
           (i->Type!=0x6406) && ((i->Type < 0x6620) || (i->Type > 0x6626))) // перевал
           continue;
-      int c=(i->Type>0x6000)?12:8;
+      int c=(i->Type>0x6000)?0x009000:0x000090;
       g_point pw = fast_cnv(lon0, (*l)[0] * (M_PI/180.0));
 
       double r = sqrt(pow(pw.x-p0.x,2)+pow(pw.y-p0.y,2));

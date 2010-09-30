@@ -89,8 +89,6 @@ public:
         /// keypress and mouse button press events
         viewer.signal_button_release_event().connect (
           sigc::mem_fun (this, &Mapview::on_button_release));
-        signal_key_press_event().connect (
-          sigc::mem_fun (this, &Mapview::on_key_press));
 
 	/// events from layer list
 	layer_list.store->signal_row_changed().connect (
@@ -338,44 +336,6 @@ public:
     void refresh () {
        viewer.redraw();
     }
-
-    bool on_key_press(GdkEventKey * event) {
-        VLOG(2) << "key_press: " << event->keyval << "";
-        switch (event->keyval) {
-        case 43:
-        case 61:
-        case 65451: // + =
-        {
-          reference*=2;
-          rubber*=2;
-          workplane*=2;
-          iPoint wsize   = iPoint(get_width(), get_height());
-          iPoint wcenter = viewer.get_origin() + wsize/2;
-          viewer.set_origin(wcenter*2 - wsize/2);
-          return true;
-        }
-        case 45:
-        case 95:
-        case 65453: // _ -
-        {
-          reference/=2;
-          rubber/=2;
-          workplane/=2;
-          iPoint wsize   = iPoint(get_width(), get_height());
-          iPoint wcenter = viewer.get_origin() + wsize/2;
-          viewer.set_origin(wcenter/2 - wsize/2);
-          return true;
-        }
-        case 'r':
-        case 'R': // refresh
-        {
-          refresh();
-          return true;
-        }
-        }
-        return false;
-    }
-
 //    bool on_button_press (GdkEventButton * event) {
 //      if (event->button == 1) {
 //        gettimeofday (&click_started, NULL);

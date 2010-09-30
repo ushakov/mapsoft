@@ -36,6 +36,10 @@ Rubber::Rubber(Viewer * v): viewer(v){
   viewer->signal_motion_notify_event().connect_notify(
     sigc::mem_fun (*this, &Rubber::after_motion_notify), true);
 
+  // Rescale rubber
+  viewer->signal_on_rescale().connect(
+    sigc::mem_fun (*this, &Rubber::rescale));
+
 }
 
 /// On mouse motions we need to redraw only mouse-connected lines
@@ -180,17 +184,7 @@ Rubber::size(){
   return rubber.size();
 }
 
-Rubber & Rubber::operator/= (double k){
-  erase();
-  for (std::list<RubberSegment>::iterator i = rubber.begin(); i != rubber.end(); ++i){
-    if (!(i->flags & RUBBFL_MOUSE_P1X)) i->p1.x/=k;
-    if (!(i->flags & RUBBFL_MOUSE_P1Y)) i->p1.y/=k;
-    if (!(i->flags & RUBBFL_MOUSE_P2X)) i->p2.x/=k;
-    if (!(i->flags & RUBBFL_MOUSE_P2Y)) i->p2.y/=k;
-  }
-  return *this;
-}
-Rubber & Rubber::operator*= (double k){
+void Rubber::rescale(double k){
   erase();
   for (std::list<RubberSegment>::iterator i = rubber.begin(); i != rubber.end(); ++i){
     if (!(i->flags & RUBBFL_MOUSE_P1X)) i->p1.x*=k;
@@ -198,7 +192,6 @@ Rubber & Rubber::operator*= (double k){
     if (!(i->flags & RUBBFL_MOUSE_P2X)) i->p2.x*=k;
     if (!(i->flags & RUBBFL_MOUSE_P2Y)) i->p2.y*=k;
   }
-  return *this;
 }
 
 void Rubber::dump(void) const{

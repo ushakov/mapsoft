@@ -2,7 +2,7 @@
 #include "workplane.h"
 
 
-Workplane::Workplane(void) { }
+Workplane::Workplane(void) : sc(1.0) { }
 
 int
 Workplane::draw(iImage &img, const iPoint &origin){
@@ -114,33 +114,13 @@ bool Workplane::get_layer_active (Layer * layer) {
 	return layers_active[layer];
 }
 
-Workplane & Workplane::operator/= (double k){ 
+void Workplane::set_scale(const double k){
 	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
-	     itl != layers.end(); ++itl) {
-            (*itl->second)/=k;
-	    tile_cache[itl->second]->clear();
+    					itl != layers.end(); ++itl) {
+		(*itl->second)*=k/sc;
+		tile_cache[itl->second]->clear();
 	}
-}
-Workplane & Workplane::operator*= (double k){ 
-	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
-	     itl != layers.end(); ++itl) {
-            (*itl->second)*=k;
-	    tile_cache[itl->second]->clear();
-	}
-}
-Workplane & Workplane::operator-= (dPoint k){ 
-	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
-	     itl != layers.end(); ++itl) {
-            (*itl->second)-=k;
-	    tile_cache[itl->second]->clear();
-	}
-}
-Workplane & Workplane::operator+= (dPoint k){ 
-	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
-	     itl != layers.end(); ++itl) {
-            (*itl->second)+=k;
-	    tile_cache[itl->second]->clear();
-	}
+	sc=k;
 }
 
 inline void
