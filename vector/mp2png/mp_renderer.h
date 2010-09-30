@@ -492,6 +492,46 @@ struct MPRenderer{
     oe::write_map_file(f, M, Options());
   }
 
+  void render_grid(double dx, double dy){
+    dPoint pb(
+      rng_m.x,
+      rng_m.y
+    );
+    dPoint pe(
+      rng_m.x+rng_m.w,
+      rng_m.y+rng_m.h
+    );
+    dPoint p(
+      dx * floor(rng_m.x/dx),
+      dy * floor(rng_m.y/dy)
+    );
+    dPoint pbc(pb); pt_m2pt(pbc);
+    dPoint pec(pe); pt_m2pt(pec);
+    // note: pb.y < pe.y, but pbc.y > pec.y!
+
+    cr->save();
+    cr->set_source_rgba(0,0,0,0.5);
+    cr->set_line_width(2);
+    while (p.x<pe.x){
+      dPoint pc(p); pt_m2pt(pc);
+      cr->move_to(pc.x, pbc.y);
+      cr->line_to(pc.x, pec.y);
+      p.x+=dx;
+    }
+    while (p.y<pe.y){
+      dPoint pc(p); pt_m2pt(pc);
+      cr->move_to(pbc.x, pc.y);
+      cr->line_to(pec.x, pc.y);
+      p.y+=dy;
+    }
+    cr->stroke();
+    cr->set_source_rgb(0,0,0);
+    cr->set_line_width(8);
+    cr->rectangle(pbc.x,pec.y,pec.x-pbc.x,pbc.y-pec.y);
+    cr->stroke();
+    cr->restore();
+  }
+
 };
 
 #endif

@@ -177,6 +177,8 @@ main(int argc, char* argv[]){
 % легенда
 */
 
+  R.render_grid(1000, 1000);
+
   //*******************************
   R.save_png(out_png);
   R.save_map(out_map, out_png);
