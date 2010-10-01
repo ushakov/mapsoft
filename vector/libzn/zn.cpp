@@ -51,14 +51,19 @@ is_to_skip(fig::fig_object o){
          (o.opts.get("MapType", std::string()) == "pic");
 }
 // convert fig arrow to direction
+// arr text mp
+// --  1    0
+// ->  0    1
+// <-  2    2
 int
-fig_arr2dir(const fig::fig_object & f){
-  if ((f.forward_arrow==1)&&(f.backward_arrow==0)) return 1;
+fig_arr2dir(const fig::fig_object & f, bool text){
+  if ((f.forward_arrow==1)&&(f.backward_arrow==0)) return text?0:1;
   if ((f.forward_arrow==0)&&(f.backward_arrow==1)) return 2;
-  return 0;
+  return text?1:0;
 }
 void
-fig_dir2arr(fig::fig_object & f, const int dir){
+fig_dir2arr(fig::fig_object & f, int dir, bool text){
+  if (text && (dir<2)) dir=(dir+1)%2;
   if      (dir==1){f.forward_arrow=1; f.backward_arrow=0;}
   else if (dir==2){f.backward_arrow=1; f.forward_arrow=0;}
   else    {f.backward_arrow=0; f.forward_arrow=0;}
@@ -69,8 +74,6 @@ void
 fig_remove_pics(fig::fig_world & F){
   fig::fig_world::iterator i=F.begin();
   while (i!=F.end()){
-    // * copy comments from compounds, remove compounds
-    // * remove pictures MapType=pic
     if (i->type==6) fig_copy_comment(i, F.end());
     if (is_to_skip(*i)){
       i=F.erase(i);

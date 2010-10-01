@@ -28,8 +28,8 @@ void fig_copy_comment(const fig::fig_world::iterator & i,
 bool is_to_skip(fig::fig_object o);
 
 // convert fig arrow to direction
-int  fig_arr2dir(const fig::fig_object & f);
-void fig_dir2arr(fig::fig_object & f, const int dir);
+int  fig_arr2dir(const fig::fig_object & f, bool text=false);
+void fig_dir2arr(fig::fig_object & f, int dir, bool text=false);
 
 // Remove compounds and objects with [skip] comment
 void fig_remove_pics(fig::fig_world & F);
