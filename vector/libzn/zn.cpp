@@ -354,6 +354,38 @@ zn_conv::get_type (const fig::fig_object & o) const {
   return 0;
 }
 
+// Получить заготовку fig-объекта заданного типа
+fig::fig_object
+zn_conv::get_fig_template(int type){
+  if (znaki.find(type) != znaki.end()){
+    return znaki.find(type)->second.fig;
+  }
+  else {
+    if (unknown_types.count(type) == 0){
+      cerr << "mp2fig: unknown type: 0x"
+           << setbase(16) << type << setbase(10) << "\n";
+      unknown_types.insert(type);
+    }
+    return default_fig;
+  }
+}
+
+// Получить заготовку mp-объекта заданного типа
+mp::mp_object
+zn_conv::get_mp_template(int type){
+  if (znaki.find(type) != znaki.end()){
+    return znaki.find(type)->second.mp;
+  }
+  else {
+    if (unknown_types.count(type) == 0){
+      cerr << "fig2mp: unknown type: 0x"
+           << setbase(16) << type << setbase(10) << "\n";
+      unknown_types.insert(type);
+    }
+    return default_mp;
+  }
+}
+
 // Преобразовать mp-объект в fig-объект
 // Если тип 0, то он определяется функцией get_type по объекту
 list<fig::fig_object>
@@ -361,15 +393,7 @@ zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
 
   if (type ==0) type = get_type(mp);
   list<fig::fig_object> ret;
-  fig::fig_object ret_o = default_fig;
-
-  if (znaki.find(type) != znaki.end()) ret_o = znaki.find(type)->second.fig;
-  else {
-    if (unknown_types.count(type) == 0){
-      cerr << "mp2fig: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
-      unknown_types.insert(type);
-    }
-  }
+  fig::fig_object ret_o = get_fig_template(type);
 
   if (ret_o.type == 4){
     ret_o.text = mp.Label;
@@ -407,21 +431,14 @@ zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
   return ret;
 }
 
+
 // преобразовать fig-объект в mp-объект
 // Если тип 0, то он определяется функцией get_type по объекту
 mp::mp_object
 zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type){
   if (type ==0) type = get_type(fig);
 
-  mp::mp_object mp = default_mp;
-  if (znaki.find(type) != znaki.end()) mp = znaki.find(type)->second.mp;
-  else {
-    if (unknown_types.count(type) == 0){
-      cerr << "fig2mp: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
-      unknown_types.insert(type);
-    }
-  }
-
+  mp::mp_object mp = get_mp_template(type);
   mp.Opts = fig.opts;
 
   if (fig.type == 4){
