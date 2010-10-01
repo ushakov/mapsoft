@@ -524,3 +524,8 @@
   name: bad route
   mp:   POLYLINE 0x50 0 0
   fig:  2 1 1 1 4210752 7 80 -1 -1 4.000 0 0 -1 0 0 0
+
+-
+  name: text object
+  mp:   POLYLINE 0xFF 0 0
+  fig:  2 1 0 1 4 7 52 -1 -1 0.000 0 0 7 0 0 0
