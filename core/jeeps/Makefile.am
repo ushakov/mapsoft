@@ -1,7 +1,0 @@
-noinst_LIBRARIES = libjeeps.a
-
-libjeeps_a_SOURCES = gpsapp.c gpscom.c gpsdatum.c\
- gpsdevice.c gpsdevice_ser.c gpsdevice_usb.c\
- gpsfmt.c gpsinput.c gpslibusb.c gpsmath.c gpsmem.c gpsproj.c\
- gpsprot.c gpsread.c gpsrqst.c gpssend.c gpsserial.c gpsusbcommon.c\
- gpsusbread.c gpsusbsend.c gpsusbstub.c gpsusbwin.c gpsutil.c utils.c
