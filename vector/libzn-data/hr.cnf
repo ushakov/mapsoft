@@ -520,5 +520,9 @@
   mp:   POLYLINE 0x2B 0 0
   fig:  2 1 2 1 26 7 90 -1 -1 2.000 1 1 0 0 0 0
 
- 
+-
+  name: text object
+  mp:   POLYLINE 0xFF 0 0
+  fig:  2 1 0 1 4 7 52 -1 -1 0.000 0 0 7 0 0 0
+
 
