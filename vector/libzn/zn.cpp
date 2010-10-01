@@ -181,7 +181,24 @@ zn_conv::zn_conv(const string & style){
     }
 
     if (event.type == YAML_MAPPING_END_EVENT){
-      znaki.insert(pair<int, zn>(get_type(z.mp), z));
+      int type = get_type(z.mp);
+      // add label_pos
+      if (z.txt.type == 4){
+        if (z.txt.sub_type==0){ // text on the TR side
+          z.label_pos=1;
+          z.label_dir=1;
+        }
+        else if (z.txt.sub_type==2){ // text on the TL side
+          z.label_pos=2;
+          z.label_dir=2;
+        }
+        else if (z.txt.sub_type==1) { //centered text
+          z.label_dir=0;
+          if (type & line_mask) z.label_pos=4; // text along the line
+          else z.label_pos=3;                  // text on the center
+        }
+      }
+      znaki.insert(pair<int, zn>(type, z));
       state=N;
     }
 
@@ -199,7 +216,7 @@ zn_conv::zn_conv(const string & style){
       val.insert(0, (const char *)event.data.scalar.value, event.data.scalar.length);
 
       if (key=="name"){
-        z.name = val; 
+        z.name = val;
         continue;
       }
 
@@ -221,7 +238,6 @@ zn_conv::zn_conv(const string & style){
       }
 
       if (key=="txt"){
-        z.istxt=true;
         z.txt = fig::make_object(val);
         if (z.txt.type!=4){
           cerr << "Error while reading " << conf_file << ": "
@@ -539,11 +555,14 @@ zn_conv::make_labels(const fig::fig_object & fig, int type){
     return ret;
   }
 
-  if (!z->second.istxt) return ret;            // подпись не нужна
+  int lpos = z->second.label_pos;
+  int ldir  = z->second.label_dir;
+
+  if (!lpos) return ret;                      // no label for this object
   if ((fig.comment.size()==0)||
-      (fig.comment[0].size()==0)) return ret;     // нечего писать!
-  // заготовка для подписи
-  fig::fig_object txt = z->second.txt;
+      (fig.comment[0].size()==0)) return ret; // empty label
+
+  fig::fig_object txt = z->second.txt; // label template
 
   if (is_map_depth(txt)){
     cerr << "Error: label depth " << txt.depth << " is in map object depth range!";
@@ -554,14 +573,9 @@ zn_conv::make_labels(const fig::fig_object & fig, int type){
 
   // определим координаты и наклон подписи
   iPoint p = fig[0];
-  if      (txt.sub_type == 0 ) p += iPoint(1,-1)*txt_dist;
-  else if (txt.sub_type == 1 ) p += iPoint(0,-2)*txt_dist;
-  else if (txt.sub_type == 2 ) p += iPoint(-1,-1)*txt_dist;
 
   if (fig.size()>=2){
-
-    if ((type >= line_mask) && (type < area_mask) && (txt.sub_type == 1)){ // линия с центрированным текстом
-      // ставится в середину линии
+    if (lpos==4){ // label along the line
       p = (fig[fig.size()/2-1] + fig[fig.size()/2]) / 2;
       iPoint p1 = fig[fig.size()/2-1] - fig[fig.size()/2];
 
@@ -571,45 +585,48 @@ zn_conv::make_labels(const fig::fig_object & fig, int type){
       if (v.x<0) v=-1.0*v;
       txt.angle = atan2(-v.y, v.x);
 
-      p-= iPoint(int(-v.y*txt_dist), int(v.x*txt_dist));
-
+      p-= iPoint(int(-v.y*txt_dist*2), int(v.x*txt_dist*2));
     }
-    else { // другие случаи 
-      if (txt.sub_type == 0 ) { // left just.text
-        // ищем точку с максимальным x-y
-        p = fig[0];
-        int max = p.x-p.y;
-        for (int i = 0; i<fig.size(); i++){
-          if (fig[i].x-fig[i].y > max) {
-            max = fig[i].x-fig[i].y;
-            p = fig[i];
-          }
+    else if (lpos==1 ) { // left just.text
+      // ищем точку с максимальным x-y
+      p = fig[0];
+      int max = p.x-p.y;
+      for (int i = 0; i<fig.size(); i++){
+        if (fig[i].x-fig[i].y > max) {
+          max = fig[i].x-fig[i].y;
+          p = fig[i];
         }
-        p+=iPoint(1,-1)*txt_dist;
-      } else if (txt.sub_type == 2 ) { // right just.text
-        // ищем точку с минимальным x+y
-        p = fig[0];
-        int min = p.x+p.y;
-        for (int i = 0; i<fig.size(); i++){
-          if (fig[i].x+fig[i].y < min) {
-            min = fig[i].x+fig[i].y;
-            p = fig[i];
-          }
-        }
-        p+=iPoint(-1,-1)*txt_dist;
-      } else if (txt.sub_type == 1 ) { // centered text
-        // ищем середину объекта
-        iPoint pmin = fig[0];
-        iPoint pmax = fig[0];
-        for (int i = 0; i<fig.size(); i++){
-          if (pmin.x > fig[i].x) pmin.x = fig[i].x;
-          if (pmin.y > fig[i].y) pmin.y = fig[i].y;
-          if (pmax.x < fig[i].x) pmax.x = fig[i].x;
-          if (pmax.y < fig[i].y) pmax.y = fig[i].y;
-        }
-        p=(pmin+pmax)/2;
       }
+      p+=iPoint(1,-1)*txt_dist;
+    } else if (lpos==2) { // right just.text
+      // ищем точку с минимальным x+y
+      p = fig[0];
+      int min = p.x+p.y;
+      for (int i = 0; i<fig.size(); i++){
+        if (fig[i].x+fig[i].y < min) {
+          min = fig[i].x+fig[i].y;
+          p = fig[i];
+        }
+      }
+      p+=iPoint(-1,-1)*txt_dist;
+    } else if (lpos=3 ) { // center
+      // ищем середину объекта
+      iPoint pmin = fig[0];
+      iPoint pmax = fig[0];
+      for (int i = 0; i<fig.size(); i++){
+        if (pmin.x > fig[i].x) pmin.x = fig[i].x;
+        if (pmin.y > fig[i].y) pmin.y = fig[i].y;
+        if (pmax.x < fig[i].x) pmax.x = fig[i].x;
+        if (pmax.y < fig[i].y) pmax.y = fig[i].y;
+      }
+      p=(pmin+pmax)/2;
     }
+  }
+  else { // one-point object
+    if      (lpos == 1 ) p += iPoint(1,-1)*txt_dist;
+    else if (lpos == 2 ) p += iPoint(-1,-1)*txt_dist;
+    else if (lpos == 3 ) p += iPoint(0, 0)*txt_dist;
+    else if (lpos == 4 ) p += iPoint(0,-2)*txt_dist;
   }
   txt.text = fig.comment[0];
   txt.push_back(p);
@@ -671,7 +688,7 @@ zn_conv::fig_update_labels(fig::fig_world & F){
   for (i=F.begin(); i!=F.end(); i++){
     if (!is_map_depth(*i) || (i->size() <1)) continue;
     int type=get_type(*i);
-    if ((znaki.count(type)<1) || !znaki[type].istxt) continue;
+    if ((znaki.count(type)<1) || !znaki[type].label_pos) continue;
     if ((i->comment.size()>0) && (i->comment[0]!="")) 
       objs.push_back(std::pair<fig::fig_world::iterator, int>(i,0));
   }
