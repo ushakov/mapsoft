@@ -22,11 +22,69 @@ namespace zn{
 
 using namespace std;
 
-// Depth region in wich all crtographic objects live.
-// Its boundaries are minimal and maximum depth of objects in config file
-bool zn_conv::is_map_depth(const fig::fig_object & o){
-  return ((o.type!=6) && (o.type!=-6) && (o.depth>=min_depth) && (o.depth<=max_depth));
+// copy comment from compound to the first object in it
+void
+fig_copy_comment(const fig::fig_world::iterator & i,
+                      const fig::fig_world::iterator & end){
+  if (i->type == 6){ // составной объект
+    // копируем первые непустые строки комментария в следующий объект
+    // остальное нам не нужно
+    fig::fig_world::iterator j=i; j++;
+
+    // пропускаем подписи
+    while ((j!=end) &&
+      ( ((j->comment.size()>1) && (j->comment[1]=="[skip]")) ||
+        (j->opts.get("MapType", std::string()) == "pic") )) j++;
+
+    if ((j!=end) && (i->comment.size()>0)){
+      if (j->comment.size()< i->comment.size()) j->comment.resize(i->comment.size());
+      for (int n=0; n<i->comment.size(); n++) j->comment[n] = i->comment[n];
+
+    }
+  }
 }
+// convert fig arrow to direction
+int
+fig_arr2dir(const fig::fig_object & f){
+  if ((f.forward_arrow==1)&&(f.backward_arrow==0)) return 1;
+  if ((f.forward_arrow==0)&&(f.backward_arrow==1)) return 2;
+  return 0;
+}
+// Remove compounds and objects with [skip] comment
+void
+fig_remove_pics(fig::fig_world & F){
+  fig::fig_world::iterator i=F.begin();
+  while (i!=F.end()){
+    // * copy comments from compounds, remove compounds
+    // * remove pictures MapType=pic
+    if (i->type==6) fig_copy_comment(i, F.end());
+    if ((i->type==6) || (i->type==-6) ||
+        ((i->comment.size()>1) && (i->comment[1]=="[skip]")) ||
+        (i->opts.get("MapType", std::string()) == "pic")){
+      i=F.erase(i);
+      continue;
+    }
+    i++;
+  }
+}
+// Find nearest point in the line
+double
+dist( const iPoint & p, const iLine & l, iPoint & nearest){
+  if (l.size()<1) return 1e99;
+  double ret=pdist(p,l[0]);
+  nearest=l[0];
+  for (iLine::const_iterator i=l.begin(); i!=l.end(); i++){
+    if (ret > pdist(p, *i)){
+      ret=pdist(p, *i);
+      nearest=*i;
+    }
+  }
+  return ret;
+}
+
+
+
+
 
 // States for our YAML parser
 typedef enum {
@@ -212,14 +270,16 @@ zn_conv::zn_conv(const string & style){
 
 
 // определить тип mp-объекта (почти тривиальная функция :))
-int zn_conv::get_type(const mp::mp_object & o) const{
+int
+zn_conv::get_type(const mp::mp_object & o) const{
   return o.Type
      + ((o.Class == "POLYLINE")?line_mask:0)
      + ((o.Class == "POLYGON")?area_mask:0);
 }
 
 // определить тип fig-объекта по внешнему виду.
-int zn_conv::get_type (const fig::fig_object & o) const {
+int
+zn_conv::get_type (const fig::fig_object & o) const {
   if ((o.type!=2) && (o.type!=3) && (o.type!=4)) return 0; // объект неинтересного вида
 
 
@@ -280,10 +340,10 @@ int zn_conv::get_type (const fig::fig_object & o) const {
 
 // Преобразовать mp-объект в fig-объект
 // Если тип 0, то он определяется функцией get_type по объекту
-list<fig::fig_object> zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
+list<fig::fig_object>
+zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
 
   if (type ==0) type = get_type(mp);
-
   list<fig::fig_object> ret;
   fig::fig_object ret_o = default_fig;
 
@@ -333,7 +393,8 @@ list<fig::fig_object> zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & 
 
 // преобразовать fig-объект в mp-объект
 // Если тип 0, то он определяется функцией get_type по объекту
-mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type){
+mp::mp_object
+zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type){
   if (type ==0) type = get_type(fig);
 
   mp::mp_object mp = default_mp;
@@ -375,7 +436,8 @@ mp::mp_object zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, 
 
 // Поменять параметры в соответствии с типом.
 // Если тип 0, то он определяется функцией get_type по объекту
-void zn_conv::fig_update(fig::fig_object & fig, int type){
+void
+zn_conv::fig_update(fig::fig_object & fig, int type){
   if (type ==0) type = get_type(fig);
 
   fig::fig_object tmp = default_fig;
@@ -406,7 +468,8 @@ void zn_conv::fig_update(fig::fig_object & fig, int type){
 // Поменять параметры подписи в соответствии с типом
 // (шрифт, размер, цвет)
 // Если тип 0 - ничего не менять
-void zn_conv::label_update(fig::fig_object & fig, int type) const{
+void
+zn_conv::label_update(fig::fig_object & fig, int type) const{
 
   map<int, zn>::const_iterator z = znaki.find(type);
   if (z != znaki.end()){
@@ -418,7 +481,8 @@ void zn_conv::label_update(fig::fig_object & fig, int type) const{
 }
 
 // Создать картинку к объекту в соответствии с типом.
-list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type){
+list<fig::fig_object>
+zn_conv::make_pic(const fig::fig_object & fig, int type){
 
   list<fig::fig_object> ret;
   if (fig.size()==0) return ret;
@@ -458,7 +522,8 @@ list<fig::fig_object> zn_conv::make_pic(const fig::fig_object & fig, int type){
 }
 
 // Создать подписи к объекту.
-list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type){
+list<fig::fig_object>
+zn_conv::make_labels(const fig::fig_object & fig, int type){
 
   list<fig::fig_object> ret;
   if (fig.size() == 0) return ret;                   // странный объект
@@ -468,7 +533,7 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
   map<int, zn>::const_iterator z = znaki.find(type);
   if (z==znaki.end()){
     if (unknown_types.count(type) == 0){
-      cerr << "make_labels: unknown type: 0x" << std::setbase(16) << type << setbase(10) << "\n";
+      cerr << "make_labels: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
       unknown_types.insert(type);
     }
     return ret;
@@ -551,5 +616,143 @@ list<fig::fig_object> zn_conv::make_labels(const fig::fig_object & fig, int type
   ret.push_back(txt);
   return(ret);
 }
+
+// Depth region in wich all crtographic objects live.
+// Its boundaries are minimal and maximum depth of objects in config file
+bool
+zn_conv::is_map_depth(const fig::fig_object & o) const{
+  return ((o.type!=6) && (o.type!=-6) && (o.depth>=min_depth) && (o.depth<=max_depth));
+}
+
+/// functions for updating fig map
+
+int
+zn_conv::fig_add_pics(fig::fig_world & F){
+  fig::fig_world::iterator i=F.begin();
+  int count=0;
+
+  while (i!=F.end()){
+    if (is_map_depth(*i)){
+      std::list<fig::fig_object> l1 = make_pic(*i, get_type(*i));
+      if (l1.size()>1){
+        count++;
+        i=F.erase(i);
+        F.insert(i, l1.begin(), l1.end());
+        continue;
+      }
+    }
+    i++;
+  }
+  return count;
+}
+
+int
+zn_conv::fig_update_labels(fig::fig_world & F){
+
+  double maxd1=1*fig::cm2fig; // for the nearest label with correct text
+  double maxd2=1*fig::cm2fig; // for other labels with correct text
+  double maxd3=0.2*fig::cm2fig; // for other labels
+
+  fig::fig_world::iterator i;
+  int count=0;
+
+  // find all labels
+  std::list<fig::fig_world::iterator> labels;
+  for (i=F.begin(); i!=F.end(); i++){
+    if ((i->opts.exists("MapType")) &&
+        (i->opts["MapType"]=="label") &&
+        (i->opts.exists("RefPt")) ){
+      labels.push_back(i);
+    }
+  }
+
+  // find all objects with title
+  std::list<std::pair<fig::fig_world::iterator, int> > objs;
+  for (i=F.begin(); i!=F.end(); i++){
+    if (!is_map_depth(*i) || (i->size() <1)) continue;
+    int type=get_type(*i);
+    if ((znaki.count(type)<1) || !znaki[type].istxt) continue;
+    if ((i->comment.size()>0) && (i->comment[0]!="")) 
+      objs.push_back(std::pair<fig::fig_world::iterator, int>(i,0));
+  }
+
+  std::list<fig::fig_world::iterator>::iterator l;
+  std::list<std::pair<fig::fig_world::iterator, int> >::iterator o;
+
+  // one nearest label with correct text
+  for (o=objs.begin(); o!=objs.end(); o++){
+    double d0=1e99;
+    std::list<fig::fig_world::iterator>::iterator l0;
+    iPoint n0;
+
+    for (l=labels.begin(); l!=labels.end(); l++){
+      if ((*l)->text != o->first->comment[0]) continue;
+      iPoint nearest;
+      double d=dist((*l)->opts.get("RefPt", iPoint(0,0)), *(o->first), nearest);
+      if ( d < d0){ d0=d; n0=nearest; l0=l;}
+    }
+    if (d0 < maxd1){
+      (*l0)->opts.put("RefPt", n0);
+      label_update(**l0, get_type(*(o->first)));
+      o->second++;
+      labels.erase(l0);
+    }
+  }
+
+  // labels with correct text
+  for (o=objs.begin(); o!=objs.end(); o++){
+    l=labels.begin();
+    while (l!=labels.end()){
+      iPoint nearest;
+      if (((*l)->text == o->first->comment[0]) &&
+          (dist((*l)->opts.get("RefPt", iPoint(0,0)), *(o->first), nearest) < maxd2)){
+        (*l)->opts.put("RefPt", nearest);
+        label_update(**l, get_type(*(o->first)));
+        o->second++;
+        l=labels.erase(l);
+        continue;
+      }
+      l++;
+    }
+  }
+
+  // labels with changed text
+  for (o=objs.begin(); o!=objs.end(); o++){
+    l=labels.begin();
+    while (l!=labels.end()){
+      iPoint nearest;
+      if (dist((*l)->opts.get("RefPt", iPoint(0,0)), *(o->first), nearest) < maxd3){
+        (*l)->text=o->first->comment[0];
+        (*l)->opts.put("RefPt", nearest);
+        label_update(**l, get_type(*(o->first)));
+        o->second++;
+        l=labels.erase(l);
+        continue;
+      }
+      l++;
+    }
+  }
+
+  // create new labels
+  for (o=objs.begin(); o!=objs.end(); o++){
+    if (o->second > 0) continue;
+    std::list<fig::fig_object> L=make_labels(*(o->first));
+    for (std::list<fig::fig_object>::iterator j=L.begin(); j!=L.end(); j++){
+      if (j->size() < 1) continue;
+      iPoint nearest;
+      double d=dist((*j)[0], *(o->first), nearest);
+      j->opts["MapType"]="label";
+      j->opts.put("RefPt", nearest);
+      F.push_back(*j);
+    }
+  }
+
+  // remove unused labels
+  for (l=labels.begin(); l!=labels.end(); l++) F.erase(*l);
+  return 0;
+}
+
+
+
 } // namespace
 

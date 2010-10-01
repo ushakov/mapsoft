@@ -58,7 +58,7 @@ int copy(int argc, char** argv){
     }
     convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
     for (fig::fig_world::iterator i=IF.begin(); i!=IF.end(); i++){
-      if (i->type==6) zconverter.fig_copy_comment(i, IF.end());
+      if (i->type==6) zn::fig_copy_comment(i, IF.end());
       if (!zconverter.is_map_depth(*i)) continue;
       IM.push_back(zconverter.fig2mp(*i, cnv));
     }
@@ -208,8 +208,7 @@ int update(int argc, char** argv){
   string style=F.opts.get("style", string());
   zn::zn_conv zconverter(style);
 
-  zconverter.fig_remove_pics(F);
-
+  zn::fig_remove_pics(F);
   zn::fig_old2new(F);
 
   zconverter.fig_update_labels(F);
