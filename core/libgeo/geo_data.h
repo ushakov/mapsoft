@@ -8,10 +8,10 @@
 #include "geo_types.h"
 #include "lib2d/line.h"
 #include "lib2d/rect.h"
-#include "utils/options.h"
+#include "options/options.h"
 
-#include "utils/m_time.h"
-#include "utils/m_color.h"
+#include "options/m_time.h"
+#include "options/m_color.h"
 
 /*********************************/
 // points:

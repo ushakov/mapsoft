@@ -1,7 +1,7 @@
 Import ('env_gtk')
 le = env_gtk.Clone()
 
-mapsoft_libs = Split ("viewer gred geo_io geo loaders jeeps fig mp utils 2d")
+mapsoft_libs = Split ("viewer gred geo_io geo loaders jeeps fig mp utils options 2d")
 other_libs   = Split ("usb tiff jpeg png gd curl proj")
 
 le.Prepend(LIBS=[mapsoft_libs,other_libs])

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <sstream>
-#include <utils/options.h>
+#include <options/options.h>
 
 //unit-test for Options object
 using namespace std;

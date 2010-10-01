@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "libfig/fig.h"
-#include "utils/m_time.h"
+#include "options/m_time.h"
 #include <cmath>
 #include <cstring>
 #include "../libzn/zn.h"

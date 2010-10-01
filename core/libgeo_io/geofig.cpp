@@ -8,7 +8,7 @@
 #include <iomanip>
 #include "geofig.h"
 #include "libgeo/geo_convs.h"
-#include "utils/options.h"
+#include "options/options.h"
 #include "loaders/image_r.h"
 
 namespace fig {

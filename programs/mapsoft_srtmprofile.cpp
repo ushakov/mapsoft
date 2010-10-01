@@ -15,7 +15,7 @@
 #include "libgeo/geo_data.h"
 #include "libgeo/geo_convs.h"
 
-#include "utils/read_conf.h"
+#include "options/read_conf.h"
 
 // Перенесение данных srtm в привязанный fig-файл.
 

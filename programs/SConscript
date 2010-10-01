@@ -1,7 +1,7 @@
 Import ('env')
 env_geo = env.Clone()
 
-mapsoft_libs = Split ("geo_io geo loaders jeeps fig mp utils 2d")
+mapsoft_libs = Split ("geo_io geo loaders jeeps fig mp utils options 2d")
 other_libs   = Split ("usb tiff jpeg png gd curl proj")
 
 env_geo.Prepend(LIBS=[mapsoft_libs, other_libs])

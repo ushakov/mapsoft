@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "lib2d/line.h"
-#include "utils/options.h"
+#include "options/options.h"
 #include "libfig/fig.h"
 
 #include "libgeo_io/geofig.h"

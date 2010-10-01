@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "fig_data.h"
-#include "utils/options.h"
+#include "options/options.h"
 
 namespace fig {
 

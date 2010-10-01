@@ -11,7 +11,7 @@
 #include <math.h>
 
 #include "libgeo_io/io.h"
-#include "utils/read_conf.h"
+#include "options/read_conf.h"
 
 using namespace std;
 

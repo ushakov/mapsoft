@@ -4,7 +4,7 @@
 #include <boost/operators.hpp>
 
 #include <lib2d/image.h>
-#include <utils/options.h>
+#include <options/options.h>
 #include <libgeo/geo_data.h>
 
 /// Растровый слой -- абстрактный класс.

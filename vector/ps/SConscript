@@ -1,6 +1,6 @@
 Import ('env')
 
-mapsoft_libs = Split ("zn geo_io geo loaders jeeps fig mp utils 2d")
+mapsoft_libs = Split ("zn geo_io geo loaders jeeps fig mp utils options 2d")
 other_libs   = Split ("curl usb tiff jpeg png gd yaml proj")
 
 env1 = env.Clone()

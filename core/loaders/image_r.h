@@ -5,7 +5,7 @@
 // (jpeg, tiff, png)
 
 #include "lib2d/image.h"
-#include "utils/options.h"
+#include "options/options.h"
 
 // из-за фигни с setjmp.h надо, чтобы image_png.h был раньше
 // чем image_jpeg.h

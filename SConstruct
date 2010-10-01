@@ -13,6 +13,7 @@ subdirs = Split ("""
 		core/libmp
 		core/gred
 		core/gred_tests
+		core/options
 		programs
 		viewer
 		vector/libzn
@@ -27,15 +28,7 @@ env = Environment ()
 
 ######################################
 
-AddOption('--prefix',
-          dest='prefix',
-          nargs=1, type='string',
-          action='store',
-          metavar='DIR',
-          default='',
-          help='installation prefix')
-
-env.PREFIX = GetOption('prefix')
+env.PREFIX = ''
 env.bindir=env.PREFIX+'/usr/bin'
 env.datadir=env.PREFIX+'/usr/share/mapsoft'
 env.man1dir=env.PREFIX+'/usr/share/man/man1'

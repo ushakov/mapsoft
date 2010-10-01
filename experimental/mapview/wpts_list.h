@@ -1,7 +1,7 @@
 #ifndef WPTS_LIST_H
 #define WPTS_LIST_H
 
-#include "../utils/m_time.h"
+#include "options/m_time.h"
 // Gtk::Widget, показывающий waypoints активного файла из MapviewData
 
 class WPTSListColumns : public Gtk::TreeModelColumnRecord {

@@ -12,7 +12,7 @@
 
 #include "libgeo_io/io.h"
 #include "libgeo/geo_convs.h"
-#include "utils/read_conf.h"
+#include "options/read_conf.h"
 
 using namespace std;
 

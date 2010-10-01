@@ -5,7 +5,7 @@
 
 #include <vector>
 #include "geo_data.h"
-#include "utils/options.h"
+#include "options/options.h"
 #include "lib2d/image.h"
 #include "lib2d/point_conv.h"
 #include <proj_api.h>

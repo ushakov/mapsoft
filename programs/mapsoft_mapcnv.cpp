@@ -7,7 +7,7 @@
 #include "libgeo/geo_convs.h"
 #include "libgeo_io/geofig.h"
 
-#include "utils/read_conf.h"
+#include "options/read_conf.h"
 #include "lib2d/line_utils.h"
 
 using namespace std;

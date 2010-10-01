@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "lib2d/line.h"
-#include "utils/options.h"
+#include "options/options.h"
 
 /// связанное с fig-файлами
 namespace fig {
