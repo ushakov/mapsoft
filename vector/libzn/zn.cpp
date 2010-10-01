@@ -201,14 +201,14 @@ zn_conv::zn_conv(const string & style){
       if (z.txt.type == 4){
         if (z.txt.sub_type==0){ // text on the TR side
           z.label_pos=1;
-          z.label_dir=1;
+          z.label_dir=0;
         }
         else if (z.txt.sub_type==2){ // text on the TL side
           z.label_pos=2;
           z.label_dir=2;
         }
         else if (z.txt.sub_type==1) { //centered text
-          z.label_dir=0;
+          z.label_dir=1;
           if (type & line_mask) z.label_pos=4; // text along the line
           else z.label_pos=3;                  // text on the center
         }
@@ -592,7 +592,6 @@ zn_conv::make_labels(const fig::fig_object & fig, int type){
   }
 
   int lpos = z->second.label_pos;
-  int ldir  = z->second.label_dir;
 
   if (!lpos) return ret;                      // no label for this object
   if ((fig.comment.size()==0)||
