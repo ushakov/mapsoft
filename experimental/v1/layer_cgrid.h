@@ -10,7 +10,7 @@ public:
     LayerCGrid (int _step=100, int _color=0xFF808080)
       : step (_step), color(_color) { }
 
-    iRect range(){return Rect<int>(0,0,0,0);}
+    iRect range(){return iRect();}
     void refresh(){}
 
     iImage get_image (iRect src){

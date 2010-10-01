@@ -11,7 +11,7 @@ namespace image_tiff{
 iPoint size(const char *file);
 
 // loading from Rect in jpeg-file to Rect in image
-int load(const char *file, iRect src_rect, iImage & image, Rect<int> dst_rect);
+int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect);
 
 // save part of image
 int save(const iImage & im, const iRect & src_rect,

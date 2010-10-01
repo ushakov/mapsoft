@@ -73,11 +73,11 @@ private:
           ref.file=fname;
           ref.comm="created by mapsoft_mapview";
 
-          g_point pts[4] = {bb.TLC(), bb.TRC(), bb.BRC(), bb.BLC()};
+          dPoint pts[4] = {bb.TLC(), bb.TRC(), bb.BRC(), bb.BLC()};
           convs::map2pt cnv(mapview->reference, Datum("wgs84"), Proj("lonlat"));
           for (int i=0; i<4; i++){
-            g_point p = pts[i]; cnv.frw(p);
-            ref.push_back(g_refpoint(p, pts[i] - (g_point)bb.TLC()));
+            dPoint p = pts[i]; cnv.frw(p);
+            ref.push_back(g_refpoint(p, pts[i] - (dPoint)bb.TLC()));
             ref.border.push_back(pts[i]);
           }
 

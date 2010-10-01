@@ -222,19 +222,19 @@ bool point_in_rect (const Point<T> & p, const Rect<T> & r){
 */
 
 // диапазон плиток, накрывающих данный прямоугольник
-iRect tiles_on_rect(const Rect<int> & r, int tsize);
+iRect tiles_on_rect(const iRect & r, int tsize);
 // диапазон плиток, лежащих внутри данного прямоугольника
-iRect tiles_in_rect(const Rect<int> & r, int tsize);
+iRect tiles_in_rect(const iRect & r, int tsize);
 
 
 // два прямоугольника задают преобразование.
 // функция соответствующим образом сдвигает и растягивает третий прямоугольник
-void transform_rect(const iRect & src, const Rect<int> & dst, Rect<int> & r);
+void transform_rect(const iRect & src, const iRect & dst, iRect & r);
 // Функция, нужная для загрузчика картинок.
 // Правильное подрезание краев, выходящих за пределы картинки
 void clip_rects_for_image_loader(
-    const iRect & src_img, Rect<int> & src,
-    const iRect & dst_img, Rect<int> & dst);
+    const iRect & src_img, iRect & src,
+    const iRect & dst_img, iRect & dst);
 
 
 #endif /* RECT_H */

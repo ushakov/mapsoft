@@ -33,7 +33,7 @@ using namespace boost::spirit;
     proj=w.opts.get("map_proj", proj); // new-stile option
     ret.map_proj=Proj(proj);
 
-    g_point min(1e99,1e99), max(-1e99,-1e99);
+    dPoint min(1e99,1e99), max(-1e99,-1e99);
     fig_world::const_iterator i;
     for (i=w.begin();i!=w.end();i++){
       if ((i->type!=2)&&(i->type!=3)) continue;
@@ -79,9 +79,9 @@ using namespace boost::spirit;
     // границы - по точкам привязки или по объекту BRD
     if (brd.size() < 3) {
       ret.border.push_back(min);
-      ret.border.push_back(g_point(min.x,max.y));
+      ret.border.push_back(dPoint(min.x,max.y));
       ret.border.push_back(max);
-      ret.border.push_back(g_point(max.x,min.y));
+      ret.border.push_back(dPoint(max.x,min.y));
     } else {
       ret.border.insert(ret.border.end(), brd.begin(), brd.end());
     }
@@ -122,7 +122,7 @@ using namespace boost::spirit;
     for (int n=0; n<m.size(); n++){
       fig::fig_object o = fig::make_object("2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 *");
       o.push_back(iPoint( int(m[n].xr), int(m[n].yr) ));
-      g_point p(m[n]);
+      dPoint p(m[n]);
       cnv.bck(p);
       ostringstream comm;
       Enum::output_fmt=Enum::xml_fmt;
@@ -267,7 +267,7 @@ using namespace boost::spirit;
           if ((j->comment.size()>0)&&(parse(j->comment[0].c_str(), str_p("BRD")
             >> !(+space_p >> (*anychar_p)[assign_a(brd_comm)])).full)&&(brd_comm==comm)){
             for (int n=0;n<nn;n++){
-              map.border.push_back(g_point(
+              map.border.push_back(dPoint(
                 a1*(*j)[n].x + b1*(*j)[n].y + c1, 
                 a2*(*j)[n].x + b2*(*j)[n].y + c2
               ));
@@ -275,10 +275,10 @@ using namespace boost::spirit;
           }
         }
         if (map.border.empty()){
-          map.border.push_back(g_point(0,0));
-          map.border.push_back(g_point(WH.x,0));
-          map.border.push_back(g_point(WH.x,WH.y));
-          map.border.push_back(g_point(0,WH.y));
+          map.border.push_back(dPoint(0,0));
+          map.border.push_back(dPoint(WH.x,0));
+          map.border.push_back(dPoint(WH.x,WH.y));
+          map.border.push_back(dPoint(0,WH.y));
         }
 
         d.maps.push_back(map);
@@ -299,7 +299,7 @@ using namespace boost::spirit;
     for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
       for (w=wl->begin();w!=wl->end();w++){
 
-        g_point p(w->x, w->y);
+        dPoint p(w->x, w->y);
         cnv.bck(p);
 
 	fig::fig_object f = fig::make_object("2 1 0 2 0 7 6 0 -1 1 1 1 -1 0 0 *");
@@ -331,7 +331,7 @@ using namespace boost::spirit;
       do {
         vector<iPoint> pts;
         do{
-          g_point p(t->x, t->y);
+          dPoint p(t->x, t->y);
           cnv.bck(p);
           pts.push_back(iPoint(int(p.x),int(p.y)));
           t++;

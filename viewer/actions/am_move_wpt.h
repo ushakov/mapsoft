@@ -49,7 +49,7 @@ public:
           assert (current_layer);
           g_map map = current_layer->get_ref();
           convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
-          g_point pt(p.x, p.y);
+          dPoint pt(p.x, p.y);
           cnv.frw(pt);
           current_wpt->x = pt.x;
           current_wpt->y = pt.y;

@@ -6,8 +6,8 @@
 class LayerWait : public Layer {
 public:
     LayerWait (){ }
-    
-    virtual void draw (iRect src, iImage & img, Rect<int> dst){    
+
+    virtual void draw (iRect src, iImage & img, iRect dst){
 
 	sleep(1);
     }

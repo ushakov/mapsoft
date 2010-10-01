@@ -109,7 +109,7 @@ g_refpoint::g_refpoint(double _x, double _y, double _xr, double _yr){
     xr=_xr; yr=_yr;
 }
 
-g_refpoint::g_refpoint(g_point p, g_point r){
+g_refpoint::g_refpoint(dPoint p, dPoint r){
     x=p.x; y=p.y;
     xr=r.x; yr=r.y;
 }
@@ -151,7 +151,7 @@ g_waypoint_list::g_waypoint_list(){
 }
 
 /// get range in lon-lat coords
-g_rect g_waypoint_list::range() const{
+dRect g_waypoint_list::range() const{
     double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
     g_waypoint_list::const_iterator i;
     for (i=begin();i!=end();i++){
@@ -160,8 +160,8 @@ g_rect g_waypoint_list::range() const{
         if (i->x < minx) minx = i->x;
         if (i->y < miny) miny = i->y;
     }
-    if ((minx>maxx)||(miny>maxy)) return g_rect(0,0,0,0);
-    return g_rect(minx,miny, maxx-minx, maxy-miny);
+    if ((minx>maxx)||(miny>maxy)) return dRect(0,0,0,0);
+    return dRect(minx,miny, maxx-minx, maxy-miny);
 }
 
 /// convert waypoint_list values to Options object
@@ -219,7 +219,7 @@ void g_track::parse_from_options (Options const & opt){
 }
 
 /// get range in lon-lat coords
-g_rect g_track::range() const{
+dRect g_track::range() const{
     double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
     std::vector<g_trackpoint>::const_iterator i;
     for (i=begin();i!=end();i++){
@@ -228,15 +228,15 @@ g_rect g_track::range() const{
         if (i->x < minx) minx = i->x;
         if (i->y < miny) miny = i->y;
     }
-    if ((minx>maxx)||(miny>maxy)) return g_rect(0,0,0,0);
-    return g_rect(minx,miny, maxx-minx, maxy-miny);
+    if ((minx>maxx)||(miny>maxy)) return dRect(0,0,0,0);
+    return dRect(minx,miny, maxx-minx, maxy-miny);
 }
 
 double g_track::length() const{
   double ret=0;
   for (int i=0; i<(int)size()-1; i++){
-    g_point p1=(*this)[i] * M_PI/180.0;
-    g_point p2=(*this)[i+1] * M_PI/180.0;
+    dPoint p1=(*this)[i] * M_PI/180.0;
+    dPoint p2=(*this)[i+1] * M_PI/180.0;
     double cos_l=cos(p2.x-p1.x);
     double cos_f1=cos(p1.y);
     double sin_f1=sin(p1.y);
@@ -248,9 +248,9 @@ double g_track::length() const{
   return ret*6380000.0;
 }
 
-g_track::operator g_line(void) const{
-  g_line ret;
-  for (g_track::const_iterator i=begin(); i!=end(); i++) ret.push_back(g_point(*i));
+g_track::operator dLine(void) const{
+  dLine ret;
+  for (g_track::const_iterator i=begin(); i!=end(); i++) ret.push_back(dPoint(*i));
   return ret;
 }
 
@@ -302,7 +302,7 @@ g_map & g_map::operator*= (double k){
   return *this;
 }
 
-g_map & g_map::operator-= (g_point k){
+g_map & g_map::operator-= (dPoint k){
   g_map::iterator i;
   for (i=begin();i!=end();i++){
       i->xr -= k.x;
@@ -312,7 +312,7 @@ g_map & g_map::operator-= (g_point k){
   return *this;
 }
 
-g_map & g_map::operator+= (g_point k){
+g_map & g_map::operator+= (dPoint k){
   g_map::iterator i;
   for (i=begin();i!=end();i++){
     i->xr += k.x;
@@ -338,7 +338,7 @@ void g_map::ensure_border() {
 /// get range in lon-lat coords
 /// диапазон карт определяется по точкам привязки, и по границам, если
 /// они есть
-g_rect g_map::range() const {
+dRect g_map::range() const {
   double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
   g_map::const_iterator i;
   for (i = begin(); i != end(); ++i){
@@ -347,21 +347,21 @@ g_rect g_map::range() const {
     if (i->x < minx) minx = i->x;
     if (i->y < miny) miny = i->y;
   }
-  g_line::const_iterator j;
+  dLine::const_iterator j;
   convs::map2pt conv(*this, Datum("WGS84"), Proj("lonlat"));
   for (j = border.begin(); j != border.end(); ++j){
-    g_point p(*j); conv.frw(p);
+    dPoint p(*j); conv.frw(p);
     if (p.x > maxx) maxx = p.x;
     if (p.y > maxy) maxy = p.y;
     if (p.x < minx) minx = p.x;
     if (p.y < miny) miny = p.y;
   }
-  if ((minx > maxx) || (miny > maxy)) return g_rect(0, 0, 0, 0);
-  return g_rect(minx, miny, maxx-minx, maxy-miny);
+  if ((minx > maxx) || (miny > maxy)) return dRect(0, 0, 0, 0);
+  return dRect(minx, miny, maxx-minx, maxy-miny);
 }
 
 /// get central point of map (lon-lat) using reference points
-g_point g_map::center() const {
+dPoint g_map::center() const {
   double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
   g_map::const_iterator i;
   for (i = begin(); i != end(); ++i){
@@ -370,8 +370,8 @@ g_point g_map::center() const {
     if (i->x < minx) minx = i->x;
     if (i->y < miny) miny = i->y;
   }
-  if ((minx > maxx) || (miny > maxy)) return g_point(0, 0);
-  return g_point((maxx+minx)/2, (maxy+miny)/2);
+  if ((minx > maxx) || (miny > maxy)) return dPoint(0, 0);
+  return dPoint((maxx+minx)/2, (maxy+miny)/2);
 }
 
 /// create g_map with borders from 
@@ -401,14 +401,14 @@ void g_map::create_from_options(const Options & opt){
   // Conversion to target coordiates
   convs::pt2pt c(Datum("wgs84"), Proj("lonlat"), Options(),
                  datum, proj, opt);
-  g_line brd;
+  dLine brd;
   brd.push_back(geom.BLC());
   brd.push_back(geom.BRC());
   brd.push_back(geom.TRC());
   brd.push_back(geom.TLC());
-  for (g_line::const_iterator p=brd.begin(); p!=brd.end(); p++){
-    g_point pg=*p;
-    g_point pr=*p;
+  for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
+    dPoint pg=*p;
+    dPoint pr=*p;
     c.bck(pg);
     pr-=geom.TLC();
     pr.y=geom.h-pr.y;
@@ -427,8 +427,8 @@ void geo_data::clear(){
 /// get range of all maps in lon-lat coords
 /// диапазон карт определяется по точкам привязки, и по границам, если
 /// они есть
-g_rect geo_data::range_map() const {
-  g_rect ret(0,0,0,0);
+dRect geo_data::range_map() const {
+  dRect ret(0,0,0,0);
   if (maps.size()>0) ret=maps[0].range();
   else return ret;
   for (std::vector<g_map>::const_iterator i = maps.begin();
@@ -439,8 +439,8 @@ g_rect geo_data::range_map() const {
 /// get range of all maps in lon-lat coords
 /// то же самое, но сначала делается попытка узнать границы из
 /// графического файла, если их нет
-g_rect geo_data::range_map_correct() {
-  g_rect ret(0,0,0,0);
+dRect geo_data::range_map_correct() {
+  dRect ret(0,0,0,0);
   if (maps.size()>0) ret=maps[0].range();
   else return ret;
   for (std::vector<g_map>::iterator i = maps.begin();
@@ -453,8 +453,8 @@ g_rect geo_data::range_map_correct() {
 }
 
 /// get range of all tracks and waypoints in lon-lat coords
-g_rect geo_data::range_geodata() const{
-  g_rect ret(0,0,0,0);
+dRect geo_data::range_geodata() const{
+  dRect ret(0,0,0,0);
   if (wpts.size()>0) ret=wpts[0].range();
   else if (trks.size()>0) ret=trks[0].range();
   else return ret;
@@ -467,7 +467,7 @@ g_rect geo_data::range_geodata() const{
 }
 
 /// get range of all data in lon-lat coords
-g_rect geo_data::range() const{
+dRect geo_data::range() const{
   return rect_bounding_box(range_map(), range_geodata());
 }
 

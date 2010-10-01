@@ -43,13 +43,13 @@ public:
 
 		current_tpt = &(current_layer->get_world()->trks[d.first][d.second]);
 		if ((d.second > 0)&&(!current_layer->get_world()->trks[d.first][d.second].start)){
-  		  g_point p1 = current_layer->get_world()->trks[d.first][d.second-1];
+  		  dPoint p1 = current_layer->get_world()->trks[d.first][d.second-1];
 		  cnv.bck(p1);
                   mapview->rubber.add_diag(p1);
 		}
 		if ((d.second < current_layer->get_world()->trks[d.first].size()-1)&&
 		    (!current_layer->get_world()->trks[d.first][d.second+1].start)){
-  		  g_point p1 = current_layer->get_world()->trks[d.first][d.second+1];
+  		  dPoint p1 = current_layer->get_world()->trks[d.first][d.second+1];
 		  cnv.bck(p1);
                   mapview->rubber.add_diag(p1);
 		}
@@ -63,7 +63,7 @@ public:
           assert (current_layer);
           g_map map = current_layer->get_ref();
           convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
-          g_point pt(p.x, p.y);
+          dPoint pt(p.x, p.y);
           cnv.frw(pt);
           current_tpt->x = pt.x;
           current_tpt->y = pt.y;

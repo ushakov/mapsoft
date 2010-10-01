@@ -41,7 +41,7 @@ int load(
  
   int src_width = 256*(int)pow(2,google_scale-1);
 
-  iRect src_points = Rect<int>(0,0,src_width,src_width);
+  iRect src_points = iRect(0,0,src_width,src_width);
 
   // подрежем прямоугольники
   clip_rects_for_image_loader(

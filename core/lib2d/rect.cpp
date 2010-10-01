@@ -7,7 +7,7 @@
 // (кстати, исходя из этого сделана и проверка на вхождение точки в прямоугольник)
 // В этом случае, при делении на целое число надо пользоваться
 // такой функцией:
-iRect rect_intdiv(const Rect<int> & r, int i){
+iRect rect_intdiv(const iRect & r, int i){
 
       if (i==1) return r;
 
@@ -24,7 +24,7 @@ iRect rect_intdiv(const Rect<int> & r, int i){
       return iRect(x1,y1,x2-x1+1,y2-y1+1);
 }*/
 
-iRect tiles_on_rect(const Rect<int> & r, int tsize){
+iRect tiles_on_rect(const iRect & r, int tsize){
 // диапазон плиток, накрывающих данный прямоугольник
   int x1 = (r.x>=0) ? (r.x/tsize):((r.x+1)/tsize - 1);
   int y1 = (r.y>=0) ? (r.y/tsize):((r.y+1)/tsize - 1);
@@ -35,7 +35,7 @@ iRect tiles_on_rect(const Rect<int> & r, int tsize){
   return iRect(x1,y1,w,h);
 }
 
-iRect tiles_in_rect(const Rect<int> & r, int tsize){
+iRect tiles_in_rect(const iRect & r, int tsize){
 // диапазон плиток, лежащих внутри данного прямоугольника
   int x1 = (r.x>0) ? ((r.x-1)/tsize + 1):(r.x/tsize);
   int y1 = (r.y>0) ? ((r.y-1)/tsize + 1):(r.y/tsize);

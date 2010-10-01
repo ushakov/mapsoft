@@ -23,7 +23,7 @@ public:
       g_map map = mapview->reference;
       convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
 
-      g_point P = mapview->viewer.get_origin();
+      dPoint P = mapview->viewer.get_origin();
       cnv.frw(P);
       opt.put("Longitude", P.x);
       opt.put("Latitude", P.y);
@@ -44,7 +44,7 @@ private:
        if (r == 0) { // OK
          g_map map = mapview->reference;
          convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
-         g_point P(o.get("Longitude",0.0), o.get("Latitude",0.0));
+         dPoint P(o.get("Longitude",0.0), o.get("Latitude",0.0));
          cnv.bck(P);
          mapview->viewer.set_origin(P);
        }

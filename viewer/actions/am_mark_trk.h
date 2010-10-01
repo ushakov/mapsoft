@@ -25,7 +25,7 @@ public:
     // Abandons any action in progress and deactivates mode.
     virtual void abort() { }
 
-    void add_wpt (g_waypoint_list & wpt_list, g_point where, double what) {
+    void add_wpt (g_waypoint_list & wpt_list, dPoint where, double what) {
 	std::ostringstream ss;
 	g_waypoint wpt;
 	wpt.bgcolor=0xFF00FFFF;
@@ -69,7 +69,7 @@ public:
     	    LineDist<double> ld(gk_track);
     	    while (!ld.is_end()){
 	      ld.move_frw(1000);
-              g_point p=ld.pt(); cnv.frw(p);
+              dPoint p=ld.pt(); cnv.frw(p);
 	      add_wpt (wpt_list, p, ld.dist());
 	    }
 

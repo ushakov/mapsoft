@@ -195,7 +195,7 @@ iImage load(const char *file, const int scale){
   iPoint s = size(file);
   iImage ret(s.x/scale,s.y/scale);
   if (s.x*s.y==0) return ret;
-  load(file, iRect(0,0,s.x,s.y), ret, Rect<int>(0,0,s.x/scale,s.y/scale));
+  load(file, iRect(0,0,s.x,s.y), ret, iRect(0,0,s.x/scale,s.y/scale));
   return ret;
 }
 

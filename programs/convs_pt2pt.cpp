@@ -43,9 +43,9 @@ int main(int argc, char** argv){
 
     string s;
     double acc;
-    g_point p;
-    g_line l;
-    g_rect r;
+    dPoint p;
+    dLine l;
+    dRect r;
     sstr >> s;
     if (s == "frw"){
       sstr >> p;

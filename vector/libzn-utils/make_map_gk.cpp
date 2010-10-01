@@ -36,7 +36,7 @@ main(int argc, char** argv){
   O["lon0"] = lon0;
   convs::pt2pt c(Datum("pulkovo"), Proj("tmerc"), O, Datum("wgs84"), Proj("lonlat"), Options());
 
-  g_point p1(x1,y1), p2(x1,y2), p3(x2,y2), p4(x2,y1);
+  dPoint p1(x1,y1), p2(x1,y2), p3(x2,y2), p4(x2,y1);
   c.frw(p1); c.frw(p2); c.frw(p3); c.frw(p4);
 
   double xf = (x2-x1)*fig::cm2fig/scale;

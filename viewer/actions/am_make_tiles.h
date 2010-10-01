@@ -31,7 +31,7 @@ public:
     virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 	std::cout << "MAKETILES: " << p << " points: " << have_points << std::endl;
 	if (have_points == 0) {
-	    g_point geo = p;
+	    dPoint geo = p;
 	    if (!get_geo_point(geo)) return;
 	    one = geo;
 	    have_points = 1;
@@ -39,7 +39,7 @@ public:
 	    mapview->rubber.clear();
 	    mapview->rubber.add_rect(p);
 	} else if (have_points == 1) {
-	    g_point geo = p;
+	    dPoint geo = p;
 	    if (!get_geo_point(geo)) return;
 	    two = geo;
 	    have_points = 2;
@@ -54,7 +54,7 @@ public:
 	}
     }
 
-    bool get_geo_point(g_point& p) {
+    bool get_geo_point(dPoint& p) {
 	LayerGeoMap * layer;
 	current_layer = NULL;
 	for (int i = 0; i < mapview->map_layers.size(); i++){
@@ -76,7 +76,7 @@ private:
     LayerGeoMap   * current_layer;
     int have_points;
 
-    g_point one, two;
+    dPoint one, two;
 
     void on_result(int r, const Options & o) {
 	have_points = 0;

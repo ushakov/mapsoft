@@ -67,7 +67,7 @@ main(int argc, char** argv){
   int lat2  = int( ceil(1200*range.BRC().y));
 
   // граница картинки в lonlat
-  g_line border_ll = fig_cnv.line_frw(fig_ref.border);
+  dLine border_ll = fig_cnv.line_frw(fig_ref.border);
 
 
   if (cmd == "hor"){
@@ -121,9 +121,9 @@ main(int argc, char** argv){
             x1 = i->second;
           } else{
             x2 = i->second;
-            g_line hor;
-            hor.push_back((g_point(p) + g_point(crn(int(x1))) + g_point(dir(int(x1)))*double(x1-int(x1)))/1200.0);
-            hor.push_back((g_point(p) + g_point(crn(int(x2))) + g_point(dir(int(x2)))*double(x2-int(x2)))/1200.0);
+            dLine hor;
+            hor.push_back((dPoint(p) + dPoint(crn(int(x1))) + dPoint(dir(int(x1)))*double(x1-int(x1)))/1200.0);
+            hor.push_back((dPoint(p) + dPoint(crn(int(x2))) + dPoint(dir(int(x2)))*double(x2-int(x2)))/1200.0);
             hors[h].push_back(hor);
             h=srtm_undef;
             count+=hor.size();
@@ -208,7 +208,7 @@ main(int argc, char** argv){
   
           // если мы спустились от исходной точки более чем на DH или размер области более PS
           if ((h - max > DH ) || (pts.size() > PS)) {
-            g_point p1 = g_point(p)/1200.0;
+            dPoint p1 = dPoint(p)/1200.0;
             if (!test_pt(p1, border_ll)) break;
             fig::fig_object o = fig::make_object("2 1 0 3 24 7  57 -1 -1 0.000 0 1 -1 0 0 1");
             fig_cnv.bck(p1);
@@ -236,7 +236,7 @@ main(int argc, char** argv){
       for (int lon=lon1; lon<lon2-1; lon++){
         iPoint p(lon,lat);
         short h = s.geth(p);
-        g_point p1 = g_point(p)/1200.0;
+        dPoint p1 = dPoint(p)/1200.0;
         if ((h==srtm_undef)&&test_pt(p1, border_ll)) aset.insert(p);
       }
     }
@@ -245,7 +245,7 @@ main(int argc, char** argv){
     aline = pset2line(aset);
     for(dMultiLine::iterator iv = aline.begin(); iv!=aline.end(); iv++){
       if (iv->size()<3) continue;
-      g_line l = fig_cnv.line_bck((*iv)/1200.0);
+      dLine l = fig_cnv.line_bck((*iv)/1200.0);
       fig::fig_object o = fig::make_object("2 3 0 0 0 4 110 -1 20 0.000 0 0 -1 0 0 0");
       o.insert(o.end(), l.begin(), l.end());
       F.push_back(o);
@@ -269,7 +269,7 @@ main(int argc, char** argv){
       short hx = s.geth(p+iPoint(1,0));
       short hy = s.geth(p+iPoint(0,1));
       if ((h<srtm_min) || (hx<srtm_min) || (hy<srtm_min)) continue;
-      g_point gr(double(hx-h)/londeg, double(hy-h)/latdeg);
+      dPoint gr(double(hx-h)/londeg, double(hy-h)/latdeg);
       double a = atan(pdist(gr))*180/M_PI;
       if (a > 45) aset.insert(p);
     }
@@ -280,7 +280,7 @@ main(int argc, char** argv){
   aline = pset2line(aset);
   for(dMultiLine::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
-    g_line l = (*iv)/1200.0;
+    dLine l = (*iv)/1200.0;
     mp::mp_object mpo;
     mpo.Class = "POLYGON";
     mpo.Label = "high slope";

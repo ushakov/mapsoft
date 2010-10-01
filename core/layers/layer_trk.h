@@ -113,7 +113,7 @@ public:
 	}
         for (std::vector<g_trackpoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
-          g_point p(pt->x,pt->y); cnv.bck(p);
+          dPoint p(pt->x,pt->y); cnv.bck(p);
 	  pi = iPoint(p)-origin;
 
 	  iRect line_bb(pio, pi); 
@@ -139,7 +139,7 @@ public:
 	target_rect = rect_pump(target_rect, radius);
 	for (int track = 0; track < world->trks.size(); ++track) {
 	    for (int tpt = 0; tpt < world->trks[track].size(); ++tpt) {
-		g_point p(world->trks[track][tpt].x,world->trks[track][tpt].y);
+		dPoint p(world->trks[track][tpt].x,world->trks[track][tpt].y);
 		cnv.bck(p);
 
 		if (point_in_rect(iPoint(p), target_rect)){
@@ -160,25 +160,25 @@ public:
 	for (int track = 0; track < world->trks.size(); ++track) {
 	    int ts = world->trks[track].size();
    	    if (ts>0){
-		g_point p(world->trks[track][0].x,world->trks[track][0].y);
+		dPoint p(world->trks[track][0].x,world->trks[track][0].y);
 		cnv.bck(p);
 		if (point_in_rect(iPoint(p), target_rect)){
 		    return std::make_pair(track, -2);
 		}
-		p = g_point(world->trks[track][ts-1].x,world->trks[track][ts-1].y);
+		p = dPoint(world->trks[track][ts-1].x,world->trks[track][ts-1].y);
 		cnv.bck(p);
 		if (point_in_rect(iPoint(p), target_rect)){
 		    return std::make_pair(track, -3);
 		}
             }
 	    for (int tpt = 0; tpt < ts-1; ++tpt) {
-		g_point p1(world->trks[track][tpt].x,world->trks[track][tpt].y);
-		g_point p2(world->trks[track][tpt+1].x,world->trks[track][tpt+1].y);
+		dPoint p1(world->trks[track][tpt].x,world->trks[track][tpt].y);
+		dPoint p2(world->trks[track][tpt+1].x,world->trks[track][tpt+1].y);
 		cnv.bck(p1); cnv.bck(p2);
 
-		g_point v1 = pscal(g_point(pt)-p1, p2-p1)/pdist(p2,p1);
+		dPoint v1 = pscal(dPoint(pt)-p1, p2-p1)/pdist(p2,p1);
 		if ((pdist(v1) < 0)||(pdist(v1)>pdist(p2-p1))) continue;
-                if (pdist(g_point(pt)-p1, v1) < radius){
+                if (pdist(dPoint(pt)-p1, v1) < radius){
 		    return std::make_pair(track, tpt);
 		}
 

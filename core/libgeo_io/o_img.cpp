@@ -57,14 +57,14 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
 
   // creating initial map reference with borders
   g_map ref; // unscaled ref
-  g_line brd;
+  dLine brd;
   brd.push_back(geom.BLC());
   brd.push_back(geom.BRC());
   brd.push_back(geom.TRC());
   brd.push_back(geom.TLC());
-  for (g_line::const_iterator p=brd.begin(); p!=brd.end(); p++){
-    g_point pg=*p;
-    g_point pr=*p;
+  for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
+    dPoint pg=*p;
+    dPoint pr=*p;
     c.bck(pg);
     pr.y=(geom.y+geom.h)-(pr.y-geom.y);
     ref.push_back(g_refpoint(pg, pr));
@@ -179,7 +179,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
       << "<map name=\"m\">\n";
     for (vector<g_map>::const_iterator i=world.maps.begin(); i!=world.maps.end(); i++){
       convs::map2map cnv(*i, ref);
-      g_line brd=cnv.line_frw(i->border);
+      dLine brd=cnv.line_frw(i->border);
       f << "<area shape=\"poly\" " 
         <<       "href=\""   << i->file << "\" "
         <<       "alt=\""    << i->comm << "\" "

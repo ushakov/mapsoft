@@ -26,10 +26,10 @@ g_map ref_google(int scale){
 
    for (g_map::iterator i = ret.begin(); i!=ret.end(); i++) c.bck(*i);
 
-   ret.border.push_back(g_point(0,0));
-   ret.border.push_back(g_point(width,0));
-   ret.border.push_back(g_point(width,width));
-   ret.border.push_back(g_point(0,width));
+   ret.border.push_back(dPoint(0,0));
+   ret.border.push_back(dPoint(width,0));
+   ret.border.push_back(dPoint(width,width));
+   ret.border.push_back(dPoint(0,width));
    return ret;
 }
 
@@ -47,7 +47,7 @@ g_map ref_ks_old(int scale){
    // в Proj(ks) параметры эллипсоида записаны жестко
    convs::pt2pt c1(Datum("wgs84"), Proj("ks"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
 
-   g_point p(5 * (1<<14) * 256, 5 * (1<<14) * 256);
+   dPoint p(5 * (1<<14) * 256, 5 * (1<<14) * 256);
    c1.frw(p);
    double width = 5*256*(1<<(scale-3));
    double maxlat=p.y;
@@ -58,10 +58,10 @@ g_map ref_ks_old(int scale){
    ret.push_back(g_refpoint(p.x,0,   width,width));
    ret.push_back(g_refpoint(0,  0,   0,width));
 
-   ret.border.push_back(g_point(0,0));
-   ret.border.push_back(g_point(width,0));
-   ret.border.push_back(g_point(width,width));
-   ret.border.push_back(g_point(0,width));
+   ret.border.push_back(dPoint(0,0));
+   ret.border.push_back(dPoint(width,0));
+   ret.border.push_back(dPoint(width,width));
+   ret.border.push_back(dPoint(0,width));
    return ret;
 }
 
@@ -82,12 +82,12 @@ g_map ref_ks(int scale){
    ret.push_back(g_refpoint(0,0,0,width));
 
    // ручная поправка :(((
-   ret += g_point(6.0/(1<<(14-scale)),0);
+   ret += dPoint(6.0/(1<<(14-scale)),0);
 
-   ret.border.push_back(g_point(0,0));
-   ret.border.push_back(g_point(width,0));
-   ret.border.push_back(g_point(width,width));
-   ret.border.push_back(g_point(0,width));
+   ret.border.push_back(dPoint(0,0));
+   ret.border.push_back(dPoint(width,0));
+   ret.border.push_back(dPoint(width,width));
+   ret.border.push_back(dPoint(0,width));
 
    return ret;
 }

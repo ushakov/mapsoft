@@ -36,11 +36,11 @@ void usage(const char *fname){
   exit(0);
 }
 
-g_point fast_cnv(double lon0, g_point p){
-  return g_point((p.x-lon0)*Re*cos(p.y), p.y*Re);
+dPoint fast_cnv(double lon0, dPoint p){
+  return dPoint((p.x-lon0)*Re*cos(p.y), p.y*Re);
 }
-g_point fast_rcnv(double lon0, g_point p){
-  return g_point(lon0 + p.x/Re/cos(p.y/Re), p.y/Re);
+dPoint fast_rcnv(double lon0, dPoint p){
+  return dPoint(lon0 + p.x/Re/cos(p.y/Re), p.y/Re);
 }
 
 int r2col(double r){
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
   // примерный шаг srtm
   int dr = int(1/1200.0 * Re *M_PI/90.0 *cos(lat0));
 
-  g_point p0 = fast_cnv(lon0, g_point(lon0, lat0));
+  dPoint p0 = fast_cnv(lon0, dPoint(lon0, lat0));
   double x0 = p0.x;
   double y0 = p0.y;
   double z0 = alt0;
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
     for (int i = min_r/dr; i<max_r/dr; i++){
       int r = i*dr;
 
-      g_point p = fast_rcnv(lon0, g_point(r*cos(a)+x0, r*sin(a)+y0)) * (180.0/M_PI);
+      dPoint p = fast_rcnv(lon0, dPoint(r*cos(a)+x0, r*sin(a)+y0)) * (180.0/M_PI);
       double alt = (double)s.geth(p);
       if (alt > srtm_min_interp) alt-=srtm_zer_interp;
 
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
           (i->Type!=0x6406) && ((i->Type < 0x6620) || (i->Type > 0x6626))) // перевал
           continue;
       int c=(i->Type>0x6000)?0x009000:0x000090;
-      g_point pw = fast_cnv(lon0, (*l)[0] * (M_PI/180.0));
+      dPoint pw = fast_cnv(lon0, (*l)[0] * (M_PI/180.0));
 
       double r = sqrt(pow(pw.x-p0.x,2)+pow(pw.y-p0.y,2));
       if ((r > max_r)||(r<min_r)) continue;
@@ -195,7 +195,7 @@ int main(int argc, char *argv[]) {
     fig << "6 0 0 " << int(width*kk) << " " << int(height*kk) << "\n";
     for (int j=0; j<world.wpts[i].size(); j++){
 
-      g_point pw = fast_cnv(lon0, world.wpts[i][j] * (M_PI/180.0));
+      dPoint pw = fast_cnv(lon0, world.wpts[i][j] * (M_PI/180.0));
 
       double r = sqrt(pow(pw.x-p0.x,2)+pow(pw.y-p0.y,2));
       if ((r > max_r)||(r<min_r)) continue;

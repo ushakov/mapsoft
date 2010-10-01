@@ -55,7 +55,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
 
   for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
     for (w=wl->begin();w!=wl->end();w++){
-      g_point p(w->x, w->y);
+      dPoint p(w->x, w->y);
       cnv.bck(p);
       if (p.x > maxx) maxx = p.x;
       if (p.y > maxy) maxy = p.y;
@@ -65,7 +65,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   }
   for (tl=world.trks.begin();tl!=world.trks.end();tl++){
     for (t=tl->begin();t!=tl->end();t++){
-      g_point p(t->x, t->y);
+      dPoint p(t->x, t->y);
       cnv.bck(p);
       if (p.x > maxx) maxx = p.x;
       if (p.y > maxy) maxy = p.y;
@@ -102,7 +102,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   // сделаем привязку нашей карты (в координатах растрового изображения!)
   g_map ref;
 
-  g_point rp1(minx, miny), rp2(minx, maxy), rp3(maxx, miny), rp4(maxx, maxy);
+  dPoint rp1(minx, miny), rp2(minx, maxy), rp3(maxx, miny), rp4(maxx, maxy);
   cnv.frw(rp1); cnv.frw(rp2); cnv.frw(rp3); cnv.frw(rp4);
 
   double k = scale/2.54e-2*dpi;
@@ -112,9 +112,9 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   ref.push_back(g_refpoint(rp2.x, rp2.y, 0, 0));
   ref.push_back(g_refpoint(rp3.x, rp3.y, W, H));
   ref.push_back(g_refpoint(rp4.x, rp4.y, W, 0));
-  ref.border.push_back(g_point(0,0));
-  ref.border.push_back(g_point(0,0));
-  ref.border.push_back(g_point(0,0));
+  ref.border.push_back(dPoint(0,0));
+  ref.border.push_back(dPoint(0,0));
+  ref.border.push_back(dPoint(0,0));
   ref.map_proj=proj;
 
   // если даны какие-то карты - пополним кэш
@@ -207,7 +207,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
     int wpt_color=0, wpt_depth=59, wpt_width=2;
     int wpt_txt_color=22, wpt_txt_depth=58, wpt_txt_font=18, wpt_txt_size=8;
     for (w=wl->begin();w!=wl->end();w++){
-      g_point p(w->x, w->y);
+      dPoint p(w->x, w->y);
       g_waypoint def_pt;
       cnv.bck(p);
       int tx=int((p.x-minx)*kf), ty=int((maxy-p.y)*kf);
@@ -253,7 +253,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
       vector<iPoint> pts;
       g_track def_t;
       do{
-        g_point p(t->x, t->y);
+        dPoint p(t->x, t->y);
         cnv.bck(p);
 	pts.push_back(iPoint(int((p.x-minx)*kf),int((maxy-p.y)*kf)));
         t++;

@@ -122,11 +122,11 @@ void pt2pt::destroy(void){
 }
 ///
 
-void pt2pt::frw(g_point & p) const{
+void pt2pt::frw(dPoint & p) const{
   pjconv(pr_src, pr_dst, p);
 }
 
-void pt2pt::bck(g_point & p) const{
+void pt2pt::bck(dPoint & p) const{
   pjconv(pr_dst, pr_src, p);
 }
 
@@ -238,10 +238,10 @@ map2pt::map2pt(const g_map & sM,
   }
   if (border.size()==0) {
     iPoint wh = image_r::size(sM.file.c_str());
-    border.push_back(g_point(0, 0));
-    border.push_back(g_point(wh.x, 0));
-    border.push_back(g_point(wh.x, wh.y));
-    border.push_back(g_point(0, wh.y));
+    border.push_back(dPoint(0, 0));
+    border.push_back(dPoint(wh.x, 0));
+    border.push_back(dPoint(wh.x, wh.y));
+    border.push_back(dPoint(0, wh.y));
   }
 
   // А теперь следите за руками...
@@ -372,7 +372,7 @@ void map2pt::destroy(void){
 ///
 
 
-void map2pt::frw(g_point & p) const{
+void map2pt::frw(dPoint & p) const{
   // do linear transformation
   double x = k_map2geo[0]*p.x + k_map2geo[1]*p.y + k_map2geo[2];
   double y = k_map2geo[3]*p.x + k_map2geo[4]*p.y + k_map2geo[5];
@@ -382,7 +382,7 @@ void map2pt::frw(g_point & p) const{
   return;
 }
 
-void map2pt::bck(g_point & p) const{
+void map2pt::bck(dPoint & p) const{
   if (pr_map!=pr_dst) pjconv(pr_dst, pr_map, p);
   // do linear transformation
   double x = k_geo2map[0]*p.x + k_geo2map[1]*p.y + k_geo2map[2];
@@ -420,8 +420,8 @@ map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
   }
 }
 
-void map2map::frw(g_point & p) const {c1.frw(p); c2.bck(p);}
-void map2map::bck(g_point & p) const {c2.frw(p); c1.bck(p);}
+void map2map::frw(dPoint & p) const {c1.frw(p); c2.bck(p);}
+void map2map::bck(dPoint & p) const {c2.frw(p); c1.bck(p);}
 
 
 // ****************
@@ -443,7 +443,7 @@ int map2map::image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
 
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x+=xscale){
         x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
-	g_point p(x,y);
+	dPoint p(x,y);
         bck(p);
         if (test_brd && !tst_bck.test(int(p.x), int(p.y))) continue;
 	p/=src_scale;
@@ -476,7 +476,7 @@ int map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect,
       y = cnv_rect.y + ((dst_y-dst_rect.y)*cnv_rect.h)/dst_rect.h;
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
         x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
-        g_point p(x,y);
+        dPoint p(x,y);
         if (test_brd && !tst_bck.test(int(p.x), int(p.y))) continue;
         bck(p); p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
@@ -492,8 +492,8 @@ int map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect,
     return 0;
 }
 
-iRect map2map::bb_frw_i(const Rect<int> & R) const{
-  g_line l = line_frw(rect2line(R));
+iRect map2map::bb_frw_i(const iRect & R) const{
+  dLine l = line_frw(rect2line(R));
   dRect r = l.range();
   return iRect(
     iPoint(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
@@ -501,8 +501,8 @@ iRect map2map::bb_frw_i(const Rect<int> & R) const{
   );
 }
 
-iRect map2map::bb_bck_i(const Rect<int> & R) const{
-  g_line l = line_bck(rect2line(R));
+iRect map2map::bb_bck_i(const iRect & R) const{
+  dLine l = line_bck(rect2line(R));
   dRect r = l.range();
   return iRect(
     iPoint(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
@@ -511,7 +511,7 @@ iRect map2map::bb_bck_i(const Rect<int> & R) const{
 }
 
 // Быстрая проверка границ
-  border_tester::border_tester(g_line & brd) : border(brd){
+  border_tester::border_tester(dLine & brd) : border(brd){
     sides.clear();
     int n = border.size();
     for (int i = 0; i < n; i++){
@@ -577,7 +577,7 @@ iRect map2map::bb_bck_i(const Rect<int> & R) const{
     int rx = 0; int ry=0;
     iPoint p1 = range.TLC();
     iPoint p2 = range.BRC();
-    g_line::const_iterator p;
+    dLine::const_iterator p;
 //    std::cerr << "brd::tst: " << p1 << " " << p2 << "\n";
     for (p = border.begin(); p !=border.end(); p++){
 //    std::cerr << *p << " ";
@@ -635,9 +635,9 @@ g_map mymap(const geo_data & world){ // естественная привязк�
 
     // точки привязки
     pt2pt cnv(Datum("WGS84"), ret.map_proj, O, Datum("WGS84"), Proj("lonlat"), O);
-    g_point p(lon0,0); cnv.bck(p);
-    g_point p1=p+g_point(mpp*1000,0); cnv.frw(p1);
-    g_point p2=p+g_point(0,mpp*1000); cnv.frw(p2);
+    dPoint p(lon0,0); cnv.bck(p);
+    dPoint p1=p+dPoint(mpp*1000,0); cnv.frw(p1);
+    dPoint p2=p+dPoint(0,mpp*1000); cnv.frw(p2);
     cnv.frw(p);
 
     ret.push_back(g_refpoint(p.x,p.y,   0,1000));
@@ -645,7 +645,7 @@ g_map mymap(const geo_data & world){ // естественная привязк�
     ret.push_back(g_refpoint(p2.x,p2.y, 0,0));
     // чтоб не пытались определять границы из файла
     for (int i=0;i<3;i++)
-      ret.border.push_back(g_point(0,0));
+      ret.border.push_back(dPoint(0,0));
     return ret;
 }
 
@@ -655,11 +655,11 @@ double map_mpp(const g_map &map, Proj P){
   g_map map1=map; map1.map_proj=P;
   convs::pt2pt c(Datum("wgs84"), P, map_popts(map1), Datum("wgs84"), Proj("lonlat"), Options());
   for (int i=1; i<map.size();i++){
-    g_point p1(map[i-1].x,map[i-1].y);
-    g_point p2(map[i].x,  map[i].y);
+    dPoint p1(map[i-1].x,map[i-1].y);
+    dPoint p2(map[i].x,  map[i].y);
     c.bck(p1); c.bck(p2);
     l1+=pdist(p1,p2);
-    l2+=pdist(g_point(map[i].xr, map[i].yr), g_point(map[i-1].xr, map[i-1].yr));
+    l2+=pdist(dPoint(map[i].xr, map[i].yr), dPoint(map[i-1].xr, map[i-1].yr));
   }
   if (l2==0) return 0;
   return l1/l2;

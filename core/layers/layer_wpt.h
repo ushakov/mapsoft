@@ -108,7 +108,7 @@ public:
 	iPoint pi, pio;
         for (std::vector<g_waypoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
-          g_point p(pt->x,pt->y); cnv.bck(p);
+          dPoint p(pt->x,pt->y); cnv.bck(p);
 	  pi = iPoint(p)-origin;
 
 	  Color color = pt->color;
@@ -145,7 +145,7 @@ public:
 	target_rect = rect_pump(target_rect, radius);
 	for (int wptl = 0; wptl < world->wpts.size(); ++wptl) {
 	    for (int wpt = 0; wpt < world->wpts[wptl].size(); ++wpt) {
-		g_point p(world->wpts[wptl][wpt].x,world->wpts[wptl][wpt].y);
+		dPoint p(world->wpts[wptl][wpt].x,world->wpts[wptl][wpt].y);
 		cnv.bck(p);
 //		std::cout << "wpt: (" << wptl << "," << wpt << ")[" << world->wpts[wptl][wpt].name << "] @ " << wp << std::endl;
 

@@ -28,8 +28,8 @@ struct pt2pt : Conv{
   pt2pt & operator=(const pt2pt & other);
   ~pt2pt();
 
-  void frw(g_point & p) const;
-  void bck(g_point & p) const;
+  void frw(dPoint & p) const;
+  void bck(dPoint & p) const;
 
   private:
     projPJ pr_src, pr_dst;
@@ -51,8 +51,8 @@ struct map2pt : Conv{
   map2pt & operator=(const map2pt & other);
   ~map2pt();
 
-  void frw(g_point & p) const;
-  void bck(g_point & p) const;
+  void frw(dPoint & p) const;
+  void bck(dPoint & p) const;
 
   private:
     projPJ pr_ref, pr_map, pr_dst;
@@ -63,8 +63,8 @@ struct map2pt : Conv{
     int * refcounter;
 
   public:
-    g_line border;
-    g_line border_geo;
+    dLine border;
+    dLine border_geo;
 };
 
 // autodetect map projection options (lon0) if needed
@@ -78,9 +78,9 @@ struct border_tester{
    double k;
   };
   std::vector<side> sides;
-  g_line border;
+  dLine border;
   public:
-  border_tester(g_line & brd);
+  border_tester(dLine & brd);
   // попадает ли точка в пределы границы
   bool test(const int x, const int y) const;
   // расстояние до ближайшей границы справа
@@ -97,8 +97,8 @@ struct border_tester{
 
 struct map2map : Conv{
   map2map(const g_map & sM, const g_map & dM, bool test_brd_ = true);
-  void frw(g_point & p) const;
-  void bck(g_point & p) const;
+  void frw(dPoint & p) const;
+  void bck(dPoint & p) const;
 
   // src_scale -- во сколько раз была уменьшена растровая картинка при загрузке
   // cnv_rect - прямоугольник в плоскости _преобразованной картинки_!!!
@@ -107,14 +107,14 @@ struct map2map : Conv{
   int image_bck(iImage & src_img, int src_scale, iRect cnv_rect, 
                 iImage & dst_img, iRect dst_rect) const;
 
-  iRect bb_frw_i(const Rect<int> & R) const;
-  iRect bb_bck_i(const Rect<int> & R) const;
+  iRect bb_frw_i(const iRect & R) const;
+  iRect bb_bck_i(const iRect & R) const;
 
     bool test_brd;
     map2pt c1,c2;
     border_tester tst_frw, tst_bck;
-    g_line border_src; // граница sM
-    g_line border_dst; // это след от границы sM на dM! 
+    dLine border_src; // граница sM
+    dLine border_dst; // это след от границы sM на dM! 
 };
 
 g_map mymap(const geo_data & world); // естественная привязка геоданных

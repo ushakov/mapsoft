@@ -35,7 +35,7 @@ main(int argc, char **argv){
     LayerGoogle ml("/d/MAPS/GOOGLE", zoom);
     ml.set_downloading(true);
 
-    g_point p1(X1,Y2), p2(X2,Y2), p3(X2,Y1), p4(X1,Y1);
+    dPoint p1(X1,Y2), p2(X2,Y2), p3(X2,Y1), p4(X1,Y1);
     Options O;
     O["lon0"]=lon0;
     convs::pt2pt c(Datum("pulk42"), Proj("tmerc"), O, Datum("wgs84"), Proj("lonlat"), O);
@@ -46,9 +46,9 @@ main(int argc, char **argv){
     ref.push_back(g_refpoint(p2.x, p2.y, (X2-X1)/m_per_pt, 0));
     ref.push_back(g_refpoint(p3.x, p3.y, (X2-X1)/m_per_pt, (Y2-Y1)/m_per_pt));
     ref.push_back(g_refpoint(p4.x, p4.y, 0, (Y2-Y1)/m_per_pt));
-    ref.border.push_back(g_point(0,0));
-    ref.border.push_back(g_point(0,0));
-    ref.border.push_back(g_point(0,0));
+    ref.border.push_back(dPoint(0,0));
+    ref.border.push_back(dPoint(0,0));
+    ref.border.push_back(dPoint(0,0));
     ref.map_proj=Proj("tmerc");
 
     ml.set_ref(ref);

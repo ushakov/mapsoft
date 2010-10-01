@@ -60,7 +60,7 @@ main(int argc, char **argv){
   string htmfile = opts.get("htm", string());
   string mapfile = opts.get("map", string());
 
-  dRect geom = opts.get("geom", Rect<double>());
+  dRect geom = opts.get<dRect>("geom");
   if (geom.empty()){
     cerr << "Empty geometry! Use -g option.\n";
     exit(1);
@@ -81,14 +81,14 @@ main(int argc, char **argv){
 
   g_map ref; // unscaled ref
   convs::pt2pt c(datum, proj, opts, Datum("wgs84"), Proj("lonlat"), Options());
-  g_line brd;
+  dLine brd;
   brd.push_back(geom.BLC());
   brd.push_back(geom.BRC());
   brd.push_back(geom.TRC());
   brd.push_back(geom.TLC());
-  for (g_line::const_iterator p=brd.begin(); p!=brd.end(); p++){
-    g_point pg=*p;
-    g_point pr=*p;
+  for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
+    dPoint pg=*p;
+    dPoint pr=*p;
     c.frw(pg);
     pr.y=(geom.y+geom.h)-(pr.y-geom.y);
     ref.push_back(g_refpoint(pg, pr));
@@ -142,7 +142,7 @@ main(int argc, char **argv){
         << "<map name=\"m\">\n";
       for (vector<g_map>::const_iterator i=world.maps.begin(); i!=world.maps.end(); i++){
         convs::map2map cnv(*i, ref*k*factor);
-        g_line brd=cnv.line_frw(i->border) - geom.TLC()*k*factor;
+        dLine brd=cnv.line_frw(i->border) - geom.TLC()*k*factor;
         f << "<area shape=\"poly\" " 
           <<       "href=\""   << i->file << "\" "
           <<       "alt=\""    << i->comm << "\" "
@@ -160,7 +160,7 @@ main(int argc, char **argv){
 
   if (figfile != ""){
     fig::fig_world W;
-    g_map fig_ref= (ref - g_point(ref[0].xr, ref[0].yr)) * k * 2.54 / dpi * factor * fig::cm2fig;
+    g_map fig_ref= (ref - dPoint(ref[0].xr, ref[0].yr)) * k * 2.54 / dpi * factor * fig::cm2fig;
     fig::set_ref(W, fig_ref, Options());
 
     if (outfile != ""){
@@ -180,6 +180,6 @@ main(int argc, char **argv){
   }
   if (mapfile != ""){
     ofstream f(mapfile.c_str());
-    oe::write_map_file(f, (ref-g_point(ref[0].xr, ref[0].yr)) * k * factor, Options());
+    oe::write_map_file(f, (ref-dPoint(ref[0].xr, ref[0].yr)) * k * factor, Options());
   }
 }

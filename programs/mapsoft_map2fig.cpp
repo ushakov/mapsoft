@@ -82,7 +82,7 @@ main(int argc, char **argv){
     else { // с google map_mpp не работает (т.к. во всех точках все разное)
       // например, горизонтальный масштаб
       dRect range = fig_ref.border.range();
-      g_point p1(range.TLC()), p2(range.TRC());
+      dPoint p1(range.TLC()), p2(range.TRC());
       convs::map2map c(map_ref, fig_ref);
 
 
@@ -92,11 +92,11 @@ convs::map2pt c2(map_ref, Datum("WGS84"), Proj("tmerc"), o);
 
       double l1=0,l2=0;
       for (int i=1; i<fig_ref.size();i++){
-        g_point p1(fig_ref[i-1].xr,fig_ref[i-1].yr);
-        g_point p2(fig_ref[i].xr,  fig_ref[i].yr);
+        dPoint p1(fig_ref[i-1].xr,fig_ref[i-1].yr);
+        dPoint p2(fig_ref[i].xr,  fig_ref[i].yr);
         c.bck(p1); c.bck(p2);
         l1+=pdist(p1,p2);
-        l2+=pdist(g_point(fig_ref[i].xr, fig_ref[i].yr), g_point(fig_ref[i-1].xr, fig_ref[i-1].yr));
+        l2+=pdist(dPoint(fig_ref[i].xr, fig_ref[i].yr), dPoint(fig_ref[i-1].xr, fig_ref[i-1].yr));
 std::cerr << "fig->g: " << fig_ref[i].xr << " " << fig_ref[i].yr << " -> "
                         << p2 << "\n";
 p2=dPoint(fig_ref[i].xr,  fig_ref[i].yr);
@@ -143,9 +143,9 @@ std::cerr << dx << " x " << dy << " tile_size\n";
 
     for (int j = 0; j<ny; j++){
     for (int i = 0; i<nx; i++){
-      g_point tlc(range.x+i*dx, range.y+j*dy);
+      dPoint tlc(range.x+i*dx, range.y+j*dy);
 
-      iImage im = ml->get_image(iRect(tlc, tlc+g_point(dx,dy)));
+      iImage im = ml->get_image(iRect(tlc, tlc+dPoint(dx,dy)));
       if (im.empty()) continue;
       std::ostringstream fname; fname << dir_name << "/" << source[0] << depth << "-" << i << "-" << j << ".jpg"; 
       image_r::save(im, fname.str().c_str(), Options());
@@ -153,9 +153,9 @@ std::cerr << dx << " x " << dy << " tile_size\n";
       fig::fig_object o = fig::make_object("2 5 0 1 0 -1 "+depth+" -1 -1 0.000 0 0 -1 0 0 *");
 
       o.push_back(tlc*rescale);
-      o.push_back((tlc+g_point(dx,0))*rescale);
-      o.push_back((tlc+g_point(dx,dy))*rescale);
-      o.push_back((tlc+g_point(0,dy))*rescale);
+      o.push_back((tlc+dPoint(dx,0))*rescale);
+      o.push_back((tlc+dPoint(dx,dy))*rescale);
+      o.push_back((tlc+dPoint(0,dy))*rescale);
       o.push_back(tlc*rescale);
       o.image_file = fname.str();
       o.comment.push_back("MAP "+fname.str());

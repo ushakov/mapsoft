@@ -23,12 +23,12 @@ void map_nom_brd(geo_data & world){
 
     convs::map2pt conv(*i, Datum("pulk42"), Proj("lonlat"));
 
-    g_line brd;
-    brd.push_back(g_point(lon1,lat2));
-    brd.push_back(g_point(lon2,lat2));
-    brd.push_back(g_point(lon2,lat1));
-    brd.push_back(g_point(lon1,lat1));
-    brd.push_back(g_point(lon1,lat2));
+    dLine brd;
+    brd.push_back(dPoint(lon1,lat2));
+    brd.push_back(dPoint(lon2,lat2));
+    brd.push_back(dPoint(lon2,lat1));
+    brd.push_back(dPoint(lon1,lat1));
+    brd.push_back(dPoint(lon1,lat2));
     i->border = conv.line_bck(brd);
   }
 }

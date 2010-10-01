@@ -68,18 +68,18 @@ main(int argc, char** argv){
   // Наш прямоугольник в СК Пулково!
 
   convs::pt2pt c0(Datum("pulkovo"), Proj("lonlat"), Options(),Datum("wgs84"),Proj("lonlat"), Options());
-  g_point p01(r0.TLC()), p02(r0.BRC());
+  dPoint p01(r0.TLC()), p02(r0.BRC());
   c0.frw(p01); c0.frw(p02);
-  dRect r = Rect<double>(p01, p02);
+  dRect r = dRect(p01, p02);
 
-  g_line border_ll = rect2line(r);
+  dLine border_ll = rect2line(r);
 
 
   convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), O, Datum("wgs84"), Proj("lonlat"), Options());
 
-//  g_line border_fig = cnv.line_frw(border_ll) * fig::cm2fig*scale*100;
+//  dLine border_fig = cnv.line_frw(border_ll) * fig::cm2fig*scale*100;
 
-  g_point p1(r.TLC()), p2(r.TRC()), p3(r.BRC()), p4(r.BLC());
+  dPoint p1(r.TLC()), p2(r.TRC()), p3(r.BRC()), p4(r.BLC());
 
   cnv.bck(p1); cnv.bck(p2); cnv.bck(p3); cnv.bck(p4);
 
@@ -101,8 +101,8 @@ main(int argc, char** argv){
 
   double marg = 2*cm2pt;
 
-  g_point f_min(min(p1.x, p4.x)-marg, min(p1.y, p2.y)-marg);
-  g_point f_max(max(p2.x, p3.x)+marg, max(p3.y, p4.y)+marg);
+  dPoint f_min(min(p1.x, p4.x)-marg, min(p1.y, p2.y)-marg);
+  dPoint f_max(max(p2.x, p3.x)+marg, max(p3.y, p4.y)+marg);
 
   p1-=f_min; p1.y = f_max.y-f_min.y-p1.y;
   p2-=f_min; p2.y = f_max.y-f_min.y-p2.y;

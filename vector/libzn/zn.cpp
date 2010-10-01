@@ -479,7 +479,7 @@ zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type){
   }
   mp.Opts.put("Source", fig.opts.get("Source",string()));
 
-  g_line pts = cnv.line_frw(fig);
+  dLine pts = cnv.line_frw(fig);
 
   // если у нас замкнутая линия - добавим в mp еще одну точку:
   if ((mp.Class == "POLYLINE") &&

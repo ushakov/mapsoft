@@ -74,15 +74,15 @@ main(int argc, char** argv){
   Options O;
   O["lon0"] = lon0;
   convs::pt2pt c1("pulkovo", "tmerc", O, "wgs84", "lonlat", Options());
-  g_line brd;
-  brd.push_back(g_point(x1,y1));
-  brd.push_back(g_point(x1,y2));
-  brd.push_back(g_point(x2,y2));
-  brd.push_back(g_point(x2,y1));
-  g_line brdll = c1.line_frw(brd, acc);
+  dLine brd;
+  brd.push_back(dPoint(x1,y1));
+  brd.push_back(dPoint(x1,y2));
+  brd.push_back(dPoint(x2,y2));
+  brd.push_back(dPoint(x2,y1));
+  dLine brdll = c1.line_frw(brd, acc);
 
   if (brdll.size()<3) {cerr << "can't find ll boundary\n"; exit(0);}
-  g_point min(brdll[0]), max(brdll[0]);
+  dPoint min(brdll[0]), max(brdll[0]);
   for (int i=0; i<brdll.size(); i++){
     if (min.x > brdll[i].x) min.x = brdll[i].x;
     if (min.y > brdll[i].y) min.y = brdll[i].y;

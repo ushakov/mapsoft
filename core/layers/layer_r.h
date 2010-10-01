@@ -53,7 +53,7 @@ public:
 	return ret;
     }
 
-    virtual void draw (iRect src_rect, iImage & img, Rect<int> dst_rect){
+    virtual void draw (iRect src_rect, iImage & img, iRect dst_rect){
         // Подрежем прямоугольники:
         clip_rects_for_image_loader(file_rect, src_rect, img.range(), dst_rect);
         if (src_rect.empty() || dst_rect.empty()) return;

@@ -79,23 +79,23 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
 
   int ks_zoom = opt.get("ks",     -1);
   int gg_zoom = opt.get("google", -1);
-  g_point tiles_orig = opt.get("tiles_orig", g_point(-180.0, 85.051128779806589));
+  dPoint tiles_orig = opt.get("tiles_orig", dPoint(-180.0, 85.051128779806589));
 
   // tiles_orig_dest is the origin in the destination coordinates
   // we want x axis to go west-east, and y axis to go north-south
-  g_point tiles_orig_dest = tiles_orig;
+  dPoint tiles_orig_dest = tiles_orig;
   c.frw(tiles_orig_dest);
 
   // creating initial map reference with borders
   g_map ref; // unscaled ref
-  g_line brd;
+  dLine brd;
   brd.push_back(geom.BLC());
   brd.push_back(geom.BRC());
   brd.push_back(geom.TRC());
   brd.push_back(geom.TLC());
-  for (g_line::const_iterator p=brd.begin(); p!=brd.end(); p++){
-    g_point pg=*p;
-    g_point pr=*p;
+  for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
+    dPoint pg=*p;
+    dPoint pr=*p;
     c.frw(pr);
     pr.x = pr.x - tiles_orig_dest.x;
     pr.y = tiles_orig_dest.y - pr.y;

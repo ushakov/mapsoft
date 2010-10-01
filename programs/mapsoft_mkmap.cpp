@@ -93,8 +93,8 @@ main(int argc, char **argv){
     map.comm = key + ' ' + comm;
     map.map_proj=Proj("tmerc");
 
-    g_point p1 = r.TLC();
-    g_point p2 = r.BRC();
+    dPoint p1 = r.TLC();
+    dPoint p2 = r.BRC();
 
       std::cerr << "key: " << key << '\n';
       std::cerr << "lon: " << p1.x << " - "<< p2.x << '\n';

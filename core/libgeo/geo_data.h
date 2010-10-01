@@ -16,13 +16,8 @@
 /*********************************/
 // points:
 
-// abstract point
-typedef dPoint g_point;
-typedef dLine  g_line;
-typedef dRect  g_rect;
-
 /// single waypoint
-struct g_waypoint : g_point {
+struct g_waypoint : dPoint {
     std::string  name;
     std::string  comm;
     Time         t;
@@ -44,7 +39,7 @@ struct g_waypoint : g_point {
 };
 
 /// single trackpoint
-struct g_trackpoint : g_point {
+struct g_trackpoint : dPoint {
     double z;
     double depth;
     bool start;
@@ -56,11 +51,11 @@ struct g_trackpoint : g_point {
 };
 
 /// reference point
-struct g_refpoint : g_point {
+struct g_refpoint : dPoint {
     double xr, yr; // raster points
 
     g_refpoint(double _x, double _y, double _xr, double _yr);
-    g_refpoint(g_point p, g_point r);
+    g_refpoint(dPoint p, dPoint r);
     g_refpoint();
     Options to_options () const;
     void parse_from_options (Options const & opt);
@@ -90,7 +85,7 @@ struct g_waypoint_list : std::vector<g_waypoint>{
     void parse_from_options (Options const & opt);
 
     /// get range in lon-lat coords
-    g_rect range() const;
+    dRect range() const;
 };
 
 /// track
@@ -109,24 +104,24 @@ struct g_track : std::vector<g_trackpoint>{
     void parse_from_options (Options const & opt);
 
     /// get range in lon-lat coords
-    g_rect range() const;
+    dRect range() const;
     /// get length in m
     double length() const;
 
-    operator g_line() const;
+    operator dLine() const;
 };
 
 /// map
 struct g_map : std::vector<g_refpoint>
 #ifndef SWIG
   , public boost::multiplicative<g_map,double>,
-  public boost::additive<g_map, g_point>
+  public boost::additive<g_map, dPoint>
 #endif  // SWIG
 {
     std::string comm;
     std::string file;
     Proj   map_proj;
-    g_line border;
+    dLine border;
 
     Options to_options () const;
     void parse_from_options (Options const & opt);
@@ -137,13 +132,13 @@ struct g_map : std::vector<g_refpoint>
 
     g_map & operator/= (double k);
     g_map & operator*= (double k);
-    g_map & operator-= (g_point k);
-    g_map & operator+= (g_point k);
+    g_map & operator-= (dPoint k);
+    g_map & operator+= (dPoint k);
 
     /// get range of map (lon-lat) using refpoints and borders
-    g_rect range() const;
+    dRect range() const;
     /// get central point of map (lon-lat) using reference points
-    g_point center() const;
+    dPoint center() const;
 
     // ensure the border is ok (uses file access and coordinate
     // conversion)
@@ -153,8 +148,8 @@ struct g_map : std::vector<g_refpoint>
     %extend {
       g_map operator/(double p) { return *$self / p; }
       g_map operator*(double p) { return *$self * p; }
-      g_map operator-(const g_point& p) { return *$self - p; }
-      g_map operator+(const g_point& p) { return *$self + p; }
+      g_map operator-(const dPoint& p) { return *$self - p; }
+      g_map operator+(const dPoint& p) { return *$self + p; }
     }
 #endif  // SWIG
 };
@@ -173,14 +168,14 @@ struct geo_data {
   void clear();
 
   /// get range of all maps in lon-lat coords, fast
-  g_rect range_map() const;
+  dRect range_map() const;
   /// get range of all maps in lon-lat coords, correct (try to compute
   /// borders)
-  g_rect range_map_correct();
+  dRect range_map_correct();
   /// get range of all tracks and waypoints in lon-lat coords
-  g_rect range_geodata() const;
+  dRect range_geodata() const;
   /// get range of all data in lon-lat coords
-  g_rect range() const;
+  dRect range() const;
 };
 
 template <typename T>

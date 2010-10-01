@@ -42,16 +42,16 @@ main(int argc, char **argv){
 
     // определим диапазон карты в координатах lonlat (в СК wgs84)
     convs::pt2pt c0(Datum("pulkovo"), Proj("lonlat"), Options(), Datum("wgs84"), Proj("lonlat"), Options());
-    g_point p01(r0.TLC()), p02(r0.BRC());
+    dPoint p01(r0.TLC()), p02(r0.BRC());
     c0.frw(p01); c0.frw(p02);
-    dRect r = Rect<double>(p01, p02);
+    dRect r = dRect(p01, p02);
 
     // граница карты в СК wgs84
-    g_line border_ll = rect2line(r);
+    dLine border_ll = rect2line(r);
 
     // углы в координытах lonlat -> углы в координатах карты
     convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), O, Datum("pulkovo"), Proj("lonlat"), Options());
-    g_point p1(r0.TLC()), p2(r0.TRC()), p3(r0.BRC()), p4(r0.BLC());
+    dPoint p1(r0.TLC()), p2(r0.TRC()), p3(r0.BRC()), p4(r0.BLC());
     cnv.bck(p1); cnv.bck(p2); cnv.bck(p3); cnv.bck(p4);
 
     p1/=m_per_pt;
@@ -59,8 +59,8 @@ main(int argc, char **argv){
     p3/=m_per_pt;
     p4/=m_per_pt;
 
-    g_point f_min(std::min(p1.x, p4.x), std::min(p1.y, p2.y));
-    g_point f_max(std::max(p2.x, p3.x), std::max(p3.y, p4.y));
+    dPoint f_min(std::min(p1.x, p4.x), std::min(p1.y, p2.y));
+    dPoint f_max(std::max(p2.x, p3.x), std::max(p3.y, p4.y));
 
     p1-=f_min; p1.y = f_max.y-f_min.y-p1.y;
     p2-=f_min; p2.y = f_max.y-f_min.y-p2.y;
@@ -88,7 +88,7 @@ main(int argc, char **argv){
     iImage im = ml.get_image (iRect(0,0,w,h));
 
     ImageDrawContext * ctx(ImageDrawContext::Create(&im));
-    for (g_line::iterator i = ref.border.begin(), j=i+1; j!=ref.border.end(); i++,j++)
+    for (dLine::iterator i = ref.border.begin(), j=i+1; j!=ref.border.end(); i++,j++)
       ctx->DrawLine(*i, *j, 1, 0xC0000000);
     ctx->StampAndClear();
     O.put("quality", 85);

@@ -50,7 +50,7 @@ main(int argc, char** argv){
     o.clear();
     if ((o.type == 6)||(o.type == -6)) continue;
     if (o.type == 1){
-      g_point p(o.center_x, o.center_y);
+      dPoint p(o.center_x, o.center_y);
       cnv.frw(p);
       o.push_back(p);
     } else {

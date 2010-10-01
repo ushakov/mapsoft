@@ -177,7 +177,7 @@ using namespace boost::spirit;
 		double proj_E0, proj_N0;
 		double proj_lat1, proj_lat2, proj_hgt; // I don't know how to use these things
                 vector<oe_mappoint> points;
-                g_line border;
+                dLine border;
 
 	        oe_map ()
 		    : mag_var_h(0), mag_var_d(0), mag_var_m(0),
@@ -245,7 +245,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   oe_waypoint    wpt, wpt0; // wawpoint
   oe_trackpoint  tpt, tpt0; // trackpoint
   oe_mappoint    mpt, mpt0; // map ref point
-  g_point        bpt, bpt0; // map border
+  dPoint        bpt, bpt0; // map border
   oe_waypoint_list w;
   oe_track         t;
   oe_map           m;
@@ -563,7 +563,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			f << "MM0,Yes\r\n"
 			  << "MMPNUM," << m.border.size() << "\r\n";
 			int n=0;
-			for (g_line::const_iterator it =m.border.begin();
+			for (dLine::const_iterator it =m.border.begin();
 				 it!=m.border.end(); it++){
 				n++;
 				f << "MMPXY," << n << "," 
@@ -573,10 +573,10 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			n=0;
 			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"), Options());
 			f.precision(8);
-			for (g_line::const_iterator it =m.border.begin();
+			for (dLine::const_iterator it =m.border.begin();
 				 it!=m.border.end(); it++){
 				n++;
-                                g_point p1=*it; cnv.frw(p1);
+                                dPoint p1=*it; cnv.frw(p1);
 				f << "MMPLL," << n << "," 
                                   << right << fixed << setprecision(6) << setfill(' ')
                                   << setw(10) << p1.x << ','

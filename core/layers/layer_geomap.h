@@ -65,8 +65,8 @@ public:
       for (int i=0; i< world->maps.size(); i++){
         convs::map2map c(world->maps[i], mymap);
 	m2ms.push_back(c);
-        
-        g_point p1(0,0), p2(1000,0), p3(0,1000);
+
+        dPoint p1(0,0), p2(1000,0), p3(0,1000);
         c.frw(p1); c.frw(p2); c.frw(p3);
         double sc_x = 1000/pdist(p1,p2);
         double sc_y = 1000/pdist(p1,p3);

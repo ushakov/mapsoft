@@ -29,7 +29,7 @@ public:
 	return ret;
     }
 
-    virtual void draw (iRect src_rect, iImage & dst_img, Rect<int> dst_rect){
+    virtual void draw (iRect src_rect, iImage & dst_img, iRect dst_rect){
 	image_i::load(image, src_rect, dst_img, dst_rect);
     }
 

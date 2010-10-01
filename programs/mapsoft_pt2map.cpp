@@ -29,7 +29,7 @@ int main(int argc, char** argv){
     io::in(*i, world, opts);
 
   while (!cin.eof()){
-    g_point p;
+    dPoint p;
     cin >> p.y >> p.x;
     for (vector<g_map>::iterator m=world.maps.begin(); m!=world.maps.end(); m++){
       if (! point_in_rect (p, m->range())) continue;

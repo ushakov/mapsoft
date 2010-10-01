@@ -15,8 +15,8 @@ public:
 
     virtual LayerGeo & operator/= (double k){ set_ref(get_ref()/k); return *this; }
     virtual LayerGeo & operator*= (double k){ set_ref(get_ref()*k); return *this; }
-    virtual LayerGeo & operator-= (g_point k){ set_ref(get_ref()-k); return *this; }
-    virtual LayerGeo & operator+= (g_point k){ set_ref(get_ref()+k); return *this; }
+    virtual LayerGeo & operator-= (dPoint k){ set_ref(get_ref()-k); return *this; }
+    virtual LayerGeo & operator+= (dPoint k){ set_ref(get_ref()+k); return *this; }
 
     LayerGeo() {}
     LayerGeo (LayerGeo const & other) { }
