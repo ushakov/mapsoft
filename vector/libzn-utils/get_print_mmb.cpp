@@ -260,9 +260,14 @@ main(int argc, char **argv){
       o.line_style=0; o.thickness-=2; NW.push_back(o);
       continue;
     }
+    // просеки, тропы
+    if (type == 0x10001C) || (type == 0x100016) || (type == 0x10002A){
+      i->cap_style=2;
+    }
     // непроезжая грунтовка
     if (type == 0x10000A){
       i->pen_color=0; i->type=2; i->sub_type=1;
+      i->cap_style=2;
       LineDist<int> ld(*i);
       while (!ld.is_end()){
         fig_object o = *i;
