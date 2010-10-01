@@ -114,7 +114,7 @@ using namespace boost::spirit;
 
     // Если хочется, можно записать точки привязки в нужной проекции
     string pproj=O.get("proj", string("lonlat"));
-    string pdatum=O.get("datum", string("wgs84"));
+    string pdatum=O.get<string>("datum", "wgs84");
 
     convs::pt2pt cnv(Datum(pdatum), Proj(pproj), O,
                      Datum("wgs84"), Proj("lonlat"), O);

@@ -57,9 +57,9 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
   if (world.range_map().empty()) return false;
 
   // Note! geom is in lat/lng coordinates!
-  dRect geom = opt.get("geom", Rect<double>());
-  Proj  proj(opt.get("proj",string("google")));
-  Datum datum(opt.get("datum",string("sphere")));
+  dRect geom = opt.get<dRect>("geom");
+  Proj  proj(opt.get<string>("proj", "google"));
+  Datum datum(opt.get<string>("datum", "sphere"));
 
   double scale  = opt.get("scale",  0.0);
   double rscale = opt.get("rscale", 0.0);

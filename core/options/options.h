@@ -34,7 +34,7 @@ struct Options : std::map<std::string,std::string>{
     /// Returns value for given key
     /// If option does not exists or cast fails then default value returns
     template<typename T>
-    T get (const std::string & key, const T & def) const {
+    T get (const std::string & key, const T & def = T()) const {
       std::map<std::string, std::string>::const_iterator it = find(key);
       if (it != end()) {
         try {

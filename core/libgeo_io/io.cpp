@@ -299,7 +299,7 @@ namespace io {
 	}
 
   void skip(geo_data & world, const Options & opt){
-    string sk = opt.get("skip", string());
+    string sk = opt.get<string>("skip");
     if (sk == "") return;
     bool m = (sk.find("m")!=string::npos) || (sk.find("M")!=string::npos);
     bool w = (sk.find("w")!=string::npos) || (sk.find("W")!=string::npos);

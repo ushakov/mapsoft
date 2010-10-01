@@ -381,7 +381,7 @@ void g_map::create_from_options(const Options & opt){
   file     = opt.get("file",     file);
   map_proj = opt.get("map_proj", map_proj);
 
-  dRect geom = opt.get("geom", Rect<double>());
+  dRect geom = opt.get<dRect>("geom");
   Proj  proj(opt.get("proj", std::string("tmerc")));
   Datum datum(opt.get("datum", std::string("pulkovo")));
 

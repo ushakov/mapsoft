@@ -22,7 +22,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
 
   dRect geom;
   if (opt.exists("geom")){
-    geom = opt.get("geom", Rect<double>());
+    geom = opt.get<dRect>("geom");
 
     if (geom.x>1e6){
       opt.put("lon0", convs::lon_pref2lon0(geom.x));
@@ -30,8 +30,8 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     }
   }
 
-  Proj  proj(opt.get("proj", string("tmerc")));
-  Datum datum(opt.get("datum", string("pulkovo")));
+  Proj  proj(opt.get<string>("proj", "tmerc"));
+  Datum datum(opt.get<string>("datum", "pulkovo"));
 
   double scale  = opt.get("scale",  0.0);
   double rscale = opt.get("rscale", 0.0);
@@ -121,8 +121,8 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   iImage im(geom.w,geom.h,0x00FFFFFF);
 
   if (gg_zoom>=0){
-    string dir    = opt.get("google_dir", string());
-    bool download = opt.get("download", false);
+    string dir    = opt.get<string>("google_dir");
+    bool download = opt.get<bool>("download", false);
     LayerGoogle l(dir, gg_zoom);
     l.set_ref(ref);
     l.set_downloading(download);
@@ -131,7 +131,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   }
 
   if (ks_zoom>=0){
-    string dir    = opt.get("ks_dir", string());
+    string dir    = opt.get<string>("ks_dir");
     bool download = opt.get("download", false);
     LayerKS l(dir, ks_zoom);
     l.set_ref(ref);
@@ -167,7 +167,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   image_r::save(im, filename, opt);
 
   // writing html map if needed
-  string htmfile = opt.get("htm", string());
+  string htmfile = opt.get<string>("htm");
   if (htmfile != ""){
     ofstream f(htmfile.c_str());
     f << "<html><body>\n"
@@ -192,7 +192,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   }
 
   // writing fig if needed
-  string figfile = opt.get("fig", string());
+  string figfile = opt.get<string>("fig");
   if (figfile != ""){
     fig::fig_world W;
     g_map fig_ref= ref * 2.54 / dpi * fig::cm2fig;
@@ -213,7 +213,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   }
 
   // writing map if needed
-  string mapfile = opt.get("map", string());
+  string mapfile = opt.get<string>("map");
   if (mapfile != ""){
     ofstream f(mapfile.c_str());
     oe::write_map_file(f, ref, Options());
