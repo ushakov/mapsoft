@@ -43,6 +43,13 @@ fig_copy_comment(const fig::fig_world::iterator & i,
     }
   }
 }
+// object need to be skipped (compounds, pics, [skip])
+bool
+is_to_skip(fig::fig_object o){
+  return (o.type==6) || (o.type==-6) ||
+         ((o.comment.size()>1) && (o.comment[1]=="[skip]")) ||
+         (o.opts.get("MapType", std::string()) == "pic");
+}
 // convert fig arrow to direction
 int
 fig_arr2dir(const fig::fig_object & f){
@@ -50,6 +57,13 @@ fig_arr2dir(const fig::fig_object & f){
   if ((f.forward_arrow==0)&&(f.backward_arrow==1)) return 2;
   return 0;
 }
+void
+fig_dir2arr(fig::fig_object & f, const int dir){
+  if      (dir==1){f.forward_arrow=1; f.backward_arrow=0;}
+  else if (dir==2){f.backward_arrow=1; f.forward_arrow=0;}
+  else    {f.backward_arrow=0; f.forward_arrow=0;}
+}
+
 // Remove compounds and objects with [skip] comment
 void
 fig_remove_pics(fig::fig_world & F){
@@ -58,9 +72,7 @@ fig_remove_pics(fig::fig_world & F){
     // * copy comments from compounds, remove compounds
     // * remove pictures MapType=pic
     if (i->type==6) fig_copy_comment(i, F.end());
-    if ((i->type==6) || (i->type==-6) ||
-        ((i->comment.size()>1) && (i->comment[1]=="[skip]")) ||
-        (i->opts.get("MapType", std::string()) == "pic")){
+    if (is_to_skip(*i)){
       i=F.erase(i);
       continue;
     }
@@ -279,7 +291,8 @@ zn_conv::zn_conv(const string & style){
   yaml_parser_delete(&parser);
   assert(!fclose(file));
 
-  default_fig = fig::make_object("2 1 2 2 4 7 10 -1 -1 6.000 0 2 -1 0 0 0");
+  default_fig = fig::make_object("2 1 2 2 4 7 10 -1 -1 6.000 0 0 -1 0 0 0");
+  default_txt = fig::make_object("4 0 4 10 -1 18 8 0.0000 4");
   default_mp = mp::make_object("POLYLINE 0x0 0 1");
 }
 
@@ -386,6 +399,24 @@ zn_conv::get_mp_template(int type){
   }
 }
 
+// Получить заготовку fig-подписи заданного типа
+fig::fig_object
+zn_conv::get_label_template(int type){
+  if (znaki.find(type) != znaki.end()){
+    return znaki.find(type)->second.txt;
+  }
+  else {
+    if (unknown_types.count(type) == 0){
+      cerr << "mp2fig: unknown type: 0x"
+           << setbase(16) << type << setbase(10) << "\n";
+      unknown_types.insert(type);
+    }
+    return default_txt;
+  }
+}
+
+
+
 // Преобразовать mp-объект в fig-объект
 // Если тип 0, то он определяется функцией get_type по объекту
 list<fig::fig_object>
@@ -412,8 +443,6 @@ zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
   else {
     for (dMultiLine::const_iterator i=mp.begin(); i!=mp.end(); i++){
       ret_o.clear();
-//      g_line pts = cnv.line_bck(*i);
-//      for (int i=0; i<pts.size(); i++) ret_o.push_back(pts[i]);
       ret_o.set_points(cnv.line_bck(*i));
       // замкнутая линия
       if ((mp.Class == "POLYLINE") && (ret_o.size()>1) && (ret_o[0]==ret_o[ret_o.size()-1])){
@@ -421,10 +450,7 @@ zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
         ret_o.close();
       }
       // стрелки
-      int dir = mp.Opts.get("DirIndicator",0);
-      if      (dir==1){ret_o.forward_arrow=1; ret_o.backward_arrow=0;}
-      else if (dir==2){ret_o.backward_arrow=1; ret_o.forward_arrow=0;}
-      else    {ret_o.backward_arrow=0; ret_o.forward_arrow=0;}
+      fig_dir2arr(ret_o, mp.Opts.get("DirIndicator",0) );
       ret.push_back(ret_o);
     }
   }
@@ -472,15 +498,7 @@ zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type){
 void
 zn_conv::fig_update(fig::fig_object & fig, int type){
   if (type ==0) type = get_type(fig);
-
-  fig::fig_object tmp = default_fig;
-  if (znaki.find(type) != znaki.end()) tmp = znaki.find(type)->second.fig;
-  else {
-    if (unknown_types.count(type) == 0){
-      cerr << "fig_update: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
-      unknown_types.insert(type);
-    }
-  }
+  fig::fig_object tmp = get_fig_template(type);
 
   // копируем разные параметры:
   fig.line_style = tmp.line_style;
@@ -502,15 +520,13 @@ zn_conv::fig_update(fig::fig_object & fig, int type){
 // (шрифт, размер, цвет)
 // Если тип 0 - ничего не менять
 void
-zn_conv::label_update(fig::fig_object & fig, int type) const{
+zn_conv::label_update(fig::fig_object & fig, int type){
 
-  map<int, zn>::const_iterator z = znaki.find(type);
-  if (z != znaki.end()){
-    fig.pen_color = z->second.txt.pen_color;
-    fig.font      = z->second.txt.font;
-    fig.font_size = z->second.txt.font_size;
-    fig.depth     = z->second.txt.depth;
-  }
+  fig::fig_object tmp = get_label_template(type);
+  fig.pen_color = tmp.pen_color;
+  fig.font      = tmp.font;
+  fig.font_size = tmp.font_size;
+  fig.depth     = tmp.depth;
 }
 
 // Создать картинку к объекту в соответствии с типом.

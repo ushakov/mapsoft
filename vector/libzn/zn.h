@@ -23,15 +23,19 @@ const int area_mask = 0x200000; // сколько добавлять к типу
 // copy comment from compound to the first object in it
 void fig_copy_comment(const fig::fig_world::iterator & i,
                       const fig::fig_world::iterator & end);
+
+// is object need to be skipped (compounds, pics, [skip])
+bool is_to_skip(fig::fig_object o);
+
 // convert fig arrow to direction
-int fig_arr2dir(const fig::fig_object & f);
+int  fig_arr2dir(const fig::fig_object & f);
+void fig_dir2arr(fig::fig_object & f, const int dir);
 
 // Remove compounds and objects with [skip] comment
 void fig_remove_pics(fig::fig_world & F);
 
 // Find nearets point in the line
 double dist( const iPoint & p, const iLine & l, iPoint & nearest);
-
 
 
 
@@ -62,6 +66,7 @@ class zn_conv{
 
   std::map<int, zn> znaki;      // упорядочены по типу
   fig::fig_object default_fig;  // как рисовать неизвестные знаки
+  fig::fig_object default_txt;  // как рисовать неизвестные подписи
   mp::mp_object default_mp;     // как рисовать неизвестные знаки
 
   std::set<int> unknown_types; // база неизвестных типов, чтоб на каждый ругаться единожды
@@ -86,6 +91,9 @@ class zn_conv{
   // Получить заготовку mp-объекта заданного типа
   mp::mp_object get_mp_template(int type);
 
+  // Получить заготовку fig-подписи заданного типа
+  fig::fig_object get_label_template(int type);
+
 
       // в следующих функциях, если указан тип 0, то он определяется по объекту
 
@@ -107,7 +115,7 @@ class zn_conv{
   // Поменять параметры подписи в соответствии с типом
   // (шрифт, размер, цвет, глубина)
   // Если тип 0 - ничего не менять
-  void label_update(fig::fig_object & fig, int type) const;
+  void label_update(fig::fig_object & fig, int type);
 
   //Грубая проверка, является ли объект картографическим объектом.
   //Лежит ли его глубина в диапазоне между максимальной и минимальной глубиной
