@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "lib2d/line.h"
+#include "lib2d/line_utils.h"
 #include "options/options.h"
 #include "libfig/fig.h"
 
@@ -146,7 +147,7 @@ struct world : std::list<object> {
   dPoint max_xmy(const dLine & l){
     if (l.size()<1) return dPoint(0,0);
     dPoint p(l[0]);
-    int max = p.x-p.y;
+    double max = p.x-p.y;
     for (dLine::const_iterator i = l.begin(); i!=l.end(); i++){
       if (i->x - i->y > max) {
         max = i->x - i->y;
@@ -158,7 +159,7 @@ struct world : std::list<object> {
   dPoint max_xpy(const dLine & l){
     if (l.size()<1) return dPoint(0,0);
     dPoint p(l[0]);
-    int max = p.x+p.y;
+    double max = p.x+p.y;
     for (dLine::const_iterator i = l.begin(); i!=l.end(); i++){
       if (i->x + i->y > max) {
         max = i->x + i->y;
