@@ -28,13 +28,13 @@ main(int argc, char **argv){
     if (!fig::read(ifile.c_str(), F)) {
       cerr << "ERR: bad fig file " << ifile << "\n"; exit(1);
     }
-    V.get_from_fig(F);
+    V.get(F);
   }
   else if (testext(ifile, ".mp")){
     if (!mp::read(ifile.c_str(), M)) {
       cerr << "ERR: bad mp file " << ifile << "\n"; exit(1);
     }
-    V.get_from_mp(M);
+    V.get(M);
   }
   else { cerr << "ERR: input file is not .fig or .mp\n"; exit(1);}
 
@@ -48,12 +48,12 @@ main(int argc, char **argv){
     if (!fig::read(ofile.c_str(), F1)) {
       cerr << "ERR: bad fig file " << ofile << "\n"; return 1;
     }
-    V.put_to_fig(F1);
+    V.put(F1);
     fig::write(ofile, F1);
   }
   else if (testext(ofile, ".mp")){
     mp::read(ofile.c_str(), M1);
-    V.put_to_mp(M1);
+    V.put(M1);
     mp::write(ofile, M1);
   }
   else { cerr << "ERR: output file is not .fig or .mp\n"; return 1; }

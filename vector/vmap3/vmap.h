@@ -30,6 +30,9 @@ extern const double label_len;
 extern const double label_new_dist;
 extern const bool fig_text_labels;
 
+extern const double default_rscale;
+extern const std::string default_style;
+
 struct lpos {
   int    dir; // 0: left, 1: center, 2: right
   double ang; // angle, degrees
@@ -51,9 +54,12 @@ struct object: dMultiLine {
 };
 
 struct world : std::list<object> {
+private:
   std::string style;
   double rscale;
+  dLine brd;
 
+public:
   /*
    Процедура нахождения соответствия между подписями и объектами:
    1. Каждый объект берет по одной подписи с правильным текстом и с точкой
@@ -75,27 +81,31 @@ struct world : std::list<object> {
   void new_labels(world & objects, zn::zn_conv & zconverter);
 
   // add vmap objects and labels from fig
-  int get_from_fig(const fig::fig_world & F);
+  int get(const fig::fig_world & F);
 
   // add vmap objects and labels from fig
-  int get_from_mp(const mp::mp_world & M);
+  int get(const mp::mp_world & M);
 
   // put vmap to referenced fig
-  int put_to_fig(fig::fig_world & F, bool put_labels=true);
+  int put(fig::fig_world & F, bool put_labels=true);
 
   // put vmap to mp
-  int put_to_mp(mp::mp_world & M, bool put_labels=true);
-
-  // approximate distance in m
-  double dist_pt(const dPoint & p, double lat);
-  // approximate distance in m
-  double dist_pt_pt(const dPoint & p1, const dPoint & p2);
-  // Find point n in the line l which is nearest to the point p. Return distance in cm
-  double dist_pt_l(const dPoint & p, const dMultiLine & l, dPoint & n);
-  // convert shift
-  dPoint v_cm2deg(const dPoint & p, const double lat);
-
+  int put(mp::mp_world & M, bool put_labels=true);
 };
+
+// convert vector between meters and degrees (approximate)
+dPoint v_m2deg(const dPoint & v, const double lat);
+dPoint v_deg2m(const dPoint & v, const double lat);
+
+// approximate distance in m
+double dist_pt(const dPoint & v, double lat);
+
+// approximate distance in m
+double dist_pt_pt(const dPoint & p1, const dPoint & p2);
+
+// Find point n in the line l which is nearest to the point p.
+// Return distance in m
+double dist_pt_l(const dPoint & p, const dMultiLine & l, dPoint & n);
 
 } // namespace
 #endif

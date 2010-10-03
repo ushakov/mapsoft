@@ -22,36 +22,10 @@ const double label_len          = 0.3;
 const double label_new_dist     = 0.1;
 const bool fig_text_labels = true;
 
-// approximate distance in m
-double
-world::dist_pt(const dPoint & p, double lat){
-  double dx = p.x * cos(M_PI/180.0 * lat);
-  double dy = p.y;
-  return 6380000 * sqrt(dx*dx+dy*dy) * M_PI/180;
-}
-// approximate distance in m
-double
-world::dist_pt_pt(const dPoint & p1, const dPoint & p2){ // approximate distance in m
-  return dist_pt(p2-p1, (p2.y+p1.y)/2.0);
-}
-// Find point n in the line l which is nearest to the point p. Return distance in cm
-double
-world::dist_pt_l(const dPoint & p, const dMultiLine & l, dPoint & n){
-  double ret = 1e99;
-  for (dMultiLine::const_iterator i=l.begin(); i!=l.end(); i++){
-    for (dLine::const_iterator j=i->begin(); j!=i->end(); j++){
-      double d = dist_pt_pt(p, *j);
-      if (ret > d){ ret=d; n=*j; }
-    }
-  }
-  return ret * 100 / rscale;
-}
-dPoint
-world::v_cm2deg(const dPoint & p, const double lat){ // convert shift
-  dPoint ret(p*rscale/100.0/6380000.0 * 180/M_PI);
-  ret.x /= cos(M_PI/180.0 * lat);
-  return ret;
-}
+const double default_rscale = 50000;
+const string default_style = "default";
+
+/***************************************/
 
 /*
  Процедура нахождения соответствия между подписями и объектами:
@@ -82,7 +56,7 @@ world::add_labels(world & objects,  std::list<lpos_full> & labels){
       double d = dist_pt_l(l->ref, *o, p);
       if ( d < d0){ d0=d; p0=p; l0=l;}
     }
-    if (d0 < label_search_dist1){
+    if (d0 * 100 / rscale < label_search_dist1){
       o->labels.push_back(*l0);
       labels.erase(l0);
     }
@@ -94,8 +68,10 @@ world::add_labels(world & objects,  std::list<lpos_full> & labels){
     l=labels.begin();
     while (l!=labels.end()){
       // near ref or near pos
-      if ( ((l->text == o->text) && (dist_pt_l(l->ref, *o, p) < label_search_dist2)) ||
-           ((l->text == o->text) && (dist_pt_l(l->pos, *o, p) < label_search_dist2)) ){
+      if ( ((l->text == o->text) &&
+            (dist_pt_l(l->ref, *o, p)* 100 / rscale < label_search_dist2)) ||
+           ((l->text == o->text) &&
+            (dist_pt_l(l->pos, *o, p)* 100 / rscale < label_search_dist2)) ){
         o->labels.push_back(*l);
         l = labels.erase(l);
         continue;
@@ -109,7 +85,7 @@ world::add_labels(world & objects,  std::list<lpos_full> & labels){
     if (o->text == "") continue;
     l=labels.begin();
     while (l!=labels.end()){
-      if (dist_pt_l(l->ref, *o, p) < label_search_dist3){
+      if (dist_pt_l(l->ref, *o, p)* 100 / rscale < label_search_dist3){
         o->labels.push_back(*l);
         l = labels.erase(l);
         continue;
@@ -118,6 +94,8 @@ world::add_labels(world & objects,  std::list<lpos_full> & labels){
     }
   }
 }
+
+/***************************************/
 
 dPoint
 max_xmy(const dLine & l){
@@ -166,11 +144,11 @@ world::new_labels(world & objects, zn::zn_conv & zconverter){
       switch (lp){
         case 1: // TR side of object (max x-y point + (1,-1)*td)
           l.pos = max_xpy(*i) +
-                    v_cm2deg(dPoint(1,1) * label_new_dist/sqrt(2.0), (*i)[0].y);
+            v_m2deg(rscale / 100.0 * dPoint(1,1) * label_new_dist/sqrt(2.0), (*i)[0].y);
           break;
         case 2: // TL side of object
           l.pos = max_xmy(*i) +
-                    v_cm2deg(dPoint(-1,1) * label_new_dist/sqrt(2.0), (*i)[0].y);
+            v_m2deg(rscale / 100.0 * dPoint(-1,1) * label_new_dist/sqrt(2.0), (*i)[0].y);
           break;
         case 3: // object center
           l.pos = i->range().CNT();
@@ -183,7 +161,8 @@ world::new_labels(world & objects, zn::zn_conv & zconverter){
             dPoint v = pnorm(dp);
             if (v.x<0) v=-1.0*v;
             l.ang = atan2(v.y, v.x);
-            l.pos = cp + v_cm2deg(dPoint(-v.y, v.x)*label_new_dist, (*i)[0].y);
+            l.pos = cp +
+              v_m2deg(rscale / 100.0 * dPoint(-v.y, v.x)*label_new_dist, (*i)[0].y);
           }
           else if (i->size()==1) l.pos = (*i)[0];
           break;
@@ -193,22 +172,28 @@ world::new_labels(world & objects, zn::zn_conv & zconverter){
   }
 }
 
+/***************************************/
+
 // add vmap objects and labels from fig
 int
-world::get_from_fig(const fig::fig_world & F){
-  std::string style=F.opts.get("style", style);
-  zn::zn_conv zconverter(style);
+world::get(const fig::fig_world & F){
+  // get fig reference
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
     std::cerr << "ERR: not a GEO-fig\n"; return 1;
   }
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
 
+  // get map data
+  rscale = 100 * convs::map_mpp(ref, Proj("tmerc")) * fig::cm2fig;
+  rscale = F.opts.get<double>("RScale", rscale);
+  style = F.opts.get<string>("Style", default_style);
+  // TODO - brd
+
+  // get map objects and labels:
+  zn::zn_conv zconverter(style);
   std::list<lpos_full> labels; // ownerless labels
   world o4l; // objects waiting for a label
-
-  rscale = 100 * convs::map_mpp(ref, Proj("tmerc")) * fig::cm2fig;
-
   std::vector<std::string> cmp_comm, comm;
   for (fig::fig_world::const_iterator i=F.begin(); i!=F.end(); i++){
     if (i->type==6)  cmp_comm = i->comment;
@@ -286,12 +271,13 @@ world::get_from_fig(const fig::fig_world & F){
 
 // add vmap objects and labels from fig
 int
-world::get_from_mp(const mp::mp_world & M){
+world::get(const mp::mp_world & M){
 
-  // TODO -- detect correct style, rscale, border...
-  std::string style="mmb";
-  rscale = 50000;
+  // get map data -- TODO
+  style = default_style;
+  rscale = default_rscale;
 
+  // get map objects and labels:
   zn::zn_conv zconverter(style);
   std::list<lpos_full> labels; // ownerless labels
   world o4l; // objects waiting for a label
@@ -337,13 +323,11 @@ world::get_from_mp(const mp::mp_world & M){
   return 0;
 }
 
+/***************************************/
 
 // put vmap to referenced fig
 int
-world::put_to_fig(fig::fig_world & F, bool put_labels){
-
-  // TODO - get correct style
-  std::string style = F.opts.get("style", std::string("default"));
+world::put(fig::fig_world & F, bool put_labels){
   zn::zn_conv zconverter(style);
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
@@ -415,11 +399,8 @@ world::put_to_fig(fig::fig_world & F, bool put_labels){
 
 // put vmap to mp
 int
-world::put_to_mp(mp::mp_world & M, bool put_labels){
-  // TODO - get correct style
-  std::string style = "mmb";
+world::put(mp::mp_world & M, bool put_labels){
   zn::zn_conv zconverter(style);
-
   for (world::const_iterator o = begin(); o!=end(); o++){
     mp::mp_object mp = zconverter.get_mp_template(o->type);
     mp.dMultiLine::operator=(*o); // copy points
@@ -444,7 +425,7 @@ world::put_to_mp(mp::mp_world & M, bool put_labels){
       if (l->ang!=0){ // TODO -- fix angle?
         tmp.push_back(pos +
              ((l->dir == 2)? -1.0:1.0) *
-             v_cm2deg(label_len *dPoint(cos(l->ang), -sin(l->ang)), pos.y));
+             v_m2deg(rscale / 100.0 * label_len *dPoint(cos(l->ang), -sin(l->ang)), pos.y));
       }
       txt.push_back(tmp);
       M.push_back(txt);
@@ -452,6 +433,41 @@ world::put_to_mp(mp::mp_world & M, bool put_labels){
   }
 }
 
+/***************************************/
 
+dPoint
+v_m2deg(const dPoint & v, const double lat){
+  dPoint ret(v/6380000.0 * 180/M_PI);
+  ret.x /= cos(M_PI/180.0 * lat);
+  return ret;
+}
+dPoint
+v_deg2m(const dPoint & v, const double lat){
+  dPoint ret(v * 6380000 * M_PI/180);
+  ret.x *= cos(M_PI/180.0 * lat);
+  return ret;
+}
+
+double
+dist_pt(const dPoint & v, double lat){
+  return pdist(v_deg2m(v,lat));
+}
+double
+dist_pt_pt(const dPoint & p1, const dPoint & p2){ // approximate distance in m
+  return  pdist(v_deg2m(p2-p1,(p2.y+p1.y)/2.0));
+}
+double
+dist_pt_l(const dPoint & p, const dMultiLine & l, dPoint & n){
+  double ret = 1e99;
+  for (dMultiLine::const_iterator i=l.begin(); i!=l.end(); i++){
+    for (dLine::const_iterator j=i->begin(); j!=i->end(); j++){
+      double d = dist_pt_pt(p, *j);
+      if (ret > d){ ret=d; n=*j; }
+    }
+  }
+  return ret;
+}
+
+/***************************************/
 
 } // namespace
