@@ -48,7 +48,7 @@ using namespace boost::spirit;
                         lat=dflt.y; lon=dflt.x; time=dflt.t.value;
                         symb=dflt.symb.val; displ=dflt.displ; map_displ=dflt.map_displ.val;
 			color=dflt.color.RGB().value; bgcolor=dflt.bgcolor.RGB().value; pt_dir=dflt.pt_dir.val;
-			prox_dist=dflt.prox_dist; alt=dflt.z;
+			prox_dist=dflt.prox_dist; alt=-777;
 			font_size=dflt.font_size; font_style=dflt.font_style; size=dflt.size;
                 }
                 operator g_waypoint () const{
@@ -81,7 +81,7 @@ using namespace boost::spirit;
                 oe_trackpoint(){
 			g_trackpoint dflt;
                         lat=dflt.y; lon=dflt.x; start=dflt.start;
-                        time=dflt.t.value; alt=-dflt.z;
+                        time=dflt.t.value; alt=-777;
                 }
                 operator g_trackpoint () const{
                         g_trackpoint ret;
@@ -267,110 +267,110 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   rule_t scs = *blank_p >> ',' >> *blank_p;
 
   rule_t wpt_head = 
-    str_p("OziExplorer Waypoint File Version ") >> 
-    str_p("1.1") >> eol_p >>
-    (+ch)[assign_a(w.datum)] >> eol_p >> // Datum
-    +ch >> eol_p >>                      // Reserved for future use
-    (+ch)[assign_a(w.symbset)] >> eol_p; // Symbol set (unused)
+    str_p("OziExplorer Waypoint File Version ") >>
+    str_p("1.1") >> +eol_p >>
+    (+ch)[assign_a(w.datum)] >> eol_p >>  // Datum
+    +ch >> +eol_p >>                      // Reserved for future use
+    (+ch)[assign_a(w.symbset)] >> +eol_p; // Symbol set (unused)
 
   rule_t trk_head = 
-    str_p("OziExplorer Track Point File Version ") >> 
-    (str_p("2.0") || "2.1") >> eol_p >>
-    (+ch)[assign_a(t.datum)] >> eol_p >>
+    str_p("OziExplorer Track Point File Version ") >>
+    (str_p("2.0") || "2.1") >> +eol_p >>
+    (+ch)[assign_a(t.datum)] >> +eol_p >>
     +ch >> eol_p >> // Altitude is in feet
     +ch >> eol_p >> // Reserved for future use
-      ch_p('0') >> 
-      !(scs >> !(int_p[assign_a(t.width)]) >> 
-      !(scs >> !(int_p[assign_a(t.color)]) >> 
-      !(scs >> !((*pr)[assign_a(t.comm)]) >> 
-      !(scs >> !(int_p[assign_a(t.skip)]) >> 
-      !(scs >> !(int_p[assign_a(t.type)]) >> 
-      !(scs >> !(int_p[assign_a(t.fill)]) >> 
-      !(scs >> !(int_p[assign_a(t.cfill)]) >> 
+      ch_p('0') >>
+      !(scs >> !(int_p[assign_a(t.width)]) >>
+      !(scs >> !(int_p[assign_a(t.color)]) >>
+      !(scs >> !((*pr)[assign_a(t.comm)]) >>
+      !(scs >> !(int_p[assign_a(t.skip)]) >>
+      !(scs >> !(int_p[assign_a(t.type)]) >>
+      !(scs >> !(int_p[assign_a(t.fill)]) >>
+      !(scs >> !(int_p[assign_a(t.cfill)]) >>
       !(scs >> *ch)))))))) >>
-    eol_p >> 
-    uint_p >> eol_p;
+    +eol_p >>
+    uint_p >> +eol_p;
 
-  rule_t wpt_point = 
-    *blank_p >> int_p >> // Number, unused
-    !(scs >> !((*pr)[assign_a(wpt.name)]) >> 
-    !(scs >> !(real_p[assign_a(wpt.lat)]) >> 
-    !(scs >> !(real_p[assign_a(wpt.lon)]) >> 
-    !(scs >> !(real_p[assign_a(wpt.time)]) >> 
-    !(scs >> !(int_p[assign_a(wpt.symb)]) >> 
+  rule_t wpt_point =
+    (*blank_p >> int_p >> // Number, unused
+    scs >> (*pr)[assign_a(wpt.name)] >>
+    scs >> real_p[assign_a(wpt.lat)] >>
+    scs >> real_p[assign_a(wpt.lon)] >>
+    !(scs >> !(real_p[assign_a(wpt.time)]) >>
+    !(scs >> !(int_p[assign_a(wpt.symb)]) >>
     !(scs >> !(int_p) >>  // status, always 1, unused
-    !(scs >> !(int_p[assign_a(wpt.map_displ)]) >> 
-    !(scs >> !(int_p[assign_a(wpt.color)]) >> 
-    !(scs >> !(int_p[assign_a(wpt.bgcolor)]) >> 
-    !(scs >> !((*pr)[assign_a(wpt.comm)]) >> 
-    !(scs >> !(int_p[assign_a(wpt.pt_dir)]) >> 
-    !(scs >> !(int_p[assign_a(wpt.displ)]) >> 
-    !(scs >> !(real_p[assign_a(wpt.prox_dist)]) >> 
-    !(scs >> !(real_p[assign_a(wpt.alt)]) >> 
-    !(scs >> !(real_p[assign_a(wpt.font_size)]) >> 
-    !(scs >> !(int_p[assign_a(wpt.font_style)]) >> 
-    !(scs >> !(int_p[assign_a(wpt.size)]) >> 
-    !(scs >> *ch)))))))))))))))))) >> eol_p
+    !(scs >> !(int_p[assign_a(wpt.map_displ)]) >>
+    !(scs >> !(int_p[assign_a(wpt.color)]) >>
+    !(scs >> !(int_p[assign_a(wpt.bgcolor)]) >>
+    !(scs >> !((*pr)[assign_a(wpt.comm)]) >>
+    !(scs >> !(int_p[assign_a(wpt.pt_dir)]) >>
+    !(scs >> !(int_p[assign_a(wpt.displ)]) >>
+    !(scs >> !(real_p[assign_a(wpt.prox_dist)]) >>
+    !(scs >> !(real_p[assign_a(wpt.alt)]) >>
+    !(scs >> !(real_p[assign_a(wpt.font_size)]) >>
+        !(scs >> !(int_p[assign_a(wpt.font_style)]) >>
+    !(scs >> !(int_p[assign_a(wpt.size)]) >>
+    !(scs >> *ch))))))))))))))) >> +eol_p)
 	    [push_back_a(w.points, wpt)][assign_a(wpt, wpt0)];
-    
+
   rule_t trk_point =
-    !(*blank_p >> !(real_p[assign_a(tpt.lat)]) >> 
-    !(scs >> !(real_p[assign_a(tpt.lon)]) >> 
-    !(scs >> !(uint_p[assign_a(tpt.start)]) >> 
-    !(scs >> !(real_p[assign_a(tpt.alt)]) >> 
-    !(scs >> !(real_p[assign_a(tpt.time)]) >> 
-    !(scs >> *ch)))))) >> eol_p
+    (*blank_p >> real_p[assign_a(tpt.lat)] >>
+    scs >> real_p[assign_a(tpt.lon)] >>
+    !(scs >> !(uint_p[assign_a(tpt.start)]) >>
+    !(scs >> !(real_p[assign_a(tpt.alt)]) >>
+    !(scs >> !(real_p[assign_a(tpt.time)]) >>
+    !(scs >> *ch)))) >> +eol_p)
 	    [push_back_a(t.points, tpt)][assign_a(tpt, tpt0)];
 
 
-  rule_t map_point = 
-    *blank_p >> "Point" >> uint_p >> 
-    scs >> "xy" >> 
+  rule_t map_point =
+    (*blank_p >> "Point" >> uint_p >> 
+    scs >> "xy" >>
     scs >> !(uint_p[assign_a(mpt.x)]) >>
-    scs >> !(uint_p[assign_a(mpt.y)]) >>    
-    scs >> (str_p("in")|"ex") >> scs >> "deg" >> 
-    scs >> !(uint_p[assign_a(mpt.lat_d)]) >>    
-    scs >> !(ureal_p[assign_a(mpt.lat_m)]) >>    
-    scs >> !(ch_p('S')[assign_a(mpt.lat_h,-1)] || 
-             ch_p('N')[assign_a(mpt.lat_h,+1)]) >>    
-    scs >> !(uint_p[assign_a(mpt.lon_d)]) >>    
-    scs >> !(ureal_p[assign_a(mpt.lon_m)]) >>    
+    scs >> !(uint_p[assign_a(mpt.y)]) >>
+    scs >> (str_p("in")|"ex") >> scs >> "deg" >>
+    scs >> !(uint_p[assign_a(mpt.lat_d)]) >>
+    scs >> !(ureal_p[assign_a(mpt.lat_m)]) >>
+    scs >> !(ch_p('S')[assign_a(mpt.lat_h,-1)] ||
+             ch_p('N')[assign_a(mpt.lat_h,+1)]) >>
+    scs >> !(uint_p[assign_a(mpt.lon_d)]) >>
+    scs >> !(ureal_p[assign_a(mpt.lon_m)]) >>
     scs >> !(ch_p('W')[assign_a(mpt.lat_h,-1)] ||
-             ch_p('E')[assign_a(mpt.lat_h,+1)]) >>    
-    scs >> "grid" >> scs >> *pr >> 
+             ch_p('E')[assign_a(mpt.lat_h,+1)]) >>
+    scs >> "grid" >> scs >> *pr >>
     scs >> !(uint_p[assign_a(mpt.grid_x)]) >>
     scs >> !(uint_p[assign_a(mpt.grid_y)]) >>
-    scs >> *ch >> eol_p
+    scs >> *ch >> +eol_p)
             [push_back_a(m.points, mpt)][assign_a(mpt, mpt0)];
 
   rule_t MM = 
        // v2.2
-       (str_p("MMPNUM") >> scs >> uint_p >> eol_p >>
-       *("MMPXY" >> scs >> uint_p >> scs >> 
-        uint_p[assign_a(bpt.x)] >> scs >> uint_p[assign_a(bpt.y)] >> eol_p
+       (str_p("MMPNUM") >> scs >> uint_p >> +eol_p >>
+       *("MMPXY" >> scs >> uint_p >> scs >>
+        uint_p[assign_a(bpt.x)] >> scs >> uint_p[assign_a(bpt.y)] >> +eol_p
           [push_back_a(m.border,bpt)])) ||
        // v2.0
        (str_p("MM1A") >> /* why is it here? -- scs >> uint_p  >> */
        *(scs >> uint_p[assign_a(bpt.x)] >> scs >> uint_p[assign_a(bpt.y)]
-          [push_back_a(m.border,bpt)] ) >> eol_p); 
+          [push_back_a(m.border,bpt)] ) >> +eol_p); 
 
 
   rule_t map_rule = 
     str_p("OziExplorer Map Data File Version ") >>
-    (str_p("2.0") || "2.1" || "2.2") >> eol_p >>
-    (*ch)[assign_a(m.comm)] >> eol_p >>
-    (*ch)[assign_a(m.file)] >> eol_p >>
+    (str_p("2.0") || "2.1" || "2.2") >> +eol_p >>
+    (*ch)[assign_a(m.comm)] >> +eol_p >>
+    (*ch)[assign_a(m.file)] >> +eol_p >>
     *ch >> eol_p >> // 1 TIFF scale factor -- ignored
-    (*pr)[assign_a(m.datum)] >> !(scs >> *ch) >> eol_p >> 
-    *ch >> eol_p >> // Reserved 1
-    *ch >> eol_p >> // Reserved 2
+    (*pr)[assign_a(m.datum)] >> !(scs >> *ch) >> +eol_p >>
+    *ch >> +eol_p >> // Reserved 1
+    *ch >> +eol_p >> // Reserved 2
     "Magnetic Variation" >> 
       scs >> !(uint_p[assign_a(m.mag_var_d)]) >>
       scs >> !(ureal_p[assign_a(m.mag_var_m)]) >>
       scs >> !(ch_p('W')[assign_a(m.mag_var_h,-1)] ||
-               ch_p('E')[assign_a(m.mag_var_h,+1)]) >> eol_p >> 
+               ch_p('E')[assign_a(m.mag_var_h,+1)]) >> +eol_p >>
     "Map Projection" >> 
-    scs >> (*pr)[assign_a(m.map_proj)] >> !(scs >> *ch) >> eol_p >>
+    scs >> (*pr)[assign_a(m.map_proj)] >> !(scs >> *ch) >> +eol_p >>
     +(map_point) >>
     "Projection Setup" >> 
       !(scs >> !(real_p[assign_a(m.proj_lat0)]) >>
@@ -381,16 +381,16 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
       !(scs >> !(real_p[assign_a(m.proj_lat1)]) >>
       !(scs >> !(real_p[assign_a(m.proj_lat2)]) >>
       !(scs >> !(real_p[assign_a(m.proj_hgt)]) >>
-      !(scs >> *ch))))))))) >> eol_p >>
-    "Map Feature" >> *ch >> eol_p >>
-    *( (str_p("MF") >> *ch >> eol_p >>   // MF (3 lines, unsupported)
-       *ch >> eol_p >> *ch >> eol_p) ||
-       (str_p("MC") >> *ch >> eol_p >>   // MC (2 lines, unsupported)
-       *ch >> eol_p ) ) >> 
-    "Track File" >> *ch >> eol_p >>
-    *( str_p("TF") >> *ch >> eol_p ) >>  // TF (1 line, unsupported)
-    "Moving Map" >> *ch >> eol_p >>
-    "MM0" >> scs >> *ch >> eol_p >> // Yes or No, does not matter
+      !(scs >> *ch))))))))) >> +eol_p >>
+    "Map Feature" >> *ch >> +eol_p >>
+    *( (str_p("MF") >> *ch >> +eol_p >>   // MF (3 lines, unsupported)
+       *ch >> +eol_p >> *ch >> +eol_p) ||
+       (str_p("MC") >> *ch >> +eol_p >>   // MC (2 lines, unsupported)
+       *ch >> +eol_p ) ) >> 
+    "Track File" >> *ch >> +eol_p >>
+    *( str_p("TF") >> *ch >> +eol_p ) >>  // TF (1 line, unsupported)
+    "Moving Map" >> *ch >> +eol_p >>
+    "MM0" >> scs >> *ch >> +eol_p >> // Yes or No, does not matter
     MM >> 
     *anychar_p;
 
