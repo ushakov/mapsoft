@@ -1,5 +1,9 @@
 env = Environment ()
 
+env.Library('vmap', \
+    Split ("""
+     vmap.cpp
+    """))
 
 subdirs = Split ("""
                 core/lib2d
@@ -16,7 +20,7 @@ env.Append (CCFLAGS=['-O2'])
 env.Append (CPPPATH = ["../../core", "../libzn"])
 env.Append (LIBPATH = map(lambda(s): "../../"+s, subdirs) )
 env.Append (LIBPATH = "../libzn" )
-env.Append (LIBS = Split("zn mp fig geo_io geo loaders utils options 2d proj png jpeg tiff yaml") )
+env.Append (LIBS = Split("vmap zn mp fig geo_io geo loaders utils options 2d proj png jpeg tiff yaml") )
 
 env.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
 
