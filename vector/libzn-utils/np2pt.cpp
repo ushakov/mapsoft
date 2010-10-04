@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "libfig/fig.h"
-#include "options/m_time.h"
+#include "utils/m_time.h"
 #include <cmath>
 #include "../libzn/zn.h"
 #include "lib2d/line_dist.h"
@@ -19,25 +19,26 @@ main(int argc, char **argv){
 
   if (argc!=3){
     std::cerr << "usage: " << argv[0] << " <in.fig> <out.fig>\n";
-    exit(0);
+    exit(1);
   }
-  string infile    = argv[1];
-  string outfile   = argv[2];
+  const char * infile    = argv[1];
+  const char * outfile   = argv[2];
 
   fig_world W;
-  if (!read(infile.c_str(), W)){cerr << "Bad fig file " << infile << "\n"; exit(0);}
-  fig_world NW;
+  if (!read(infile, W)){
+    cerr << "Bad fig file " << infile << "\n";
+    exit(1);
+  }
 
   string style=W.opts.get("style", string());
   zn::zn_conv zconverter(style);
 
-  for (fig_world::iterator i=W.begin(); i!=W.end(); i++){
-
+  fig_world::iterator i=W.begin();
+  while(i!=W.end()){
     int type = zconverter.get_type(*i);
-
     // город, деревня
     if ((type == 0x200001) || (type == 0x20000E)){
-      if ((i->comment.size() == 0)||(i->comment[0]=="")) {NW.push_back(*i); continue;}
+      if ((i->comment.size() == 0)||(i->comment[0]=="")) { i++; continue; }
       // ищем середину объекта
       iPoint p=i->center();
       // создаем точку
@@ -45,15 +46,18 @@ main(int argc, char **argv){
       o.push_back(p);
       o.thickness = (type == 0x200001)? 5:3;
       o.comment.swap(i->comment);
-      NW.push_back(o);
+      W.push_back(o);
     }
     // удаляем пустые точки
     if ((type == 0x700) || (type == 0x800) || (type == 0x900)){
-      if ((i->comment.size() < 1) || (i->comment[0]=="")) {continue;}
+      if ((i->comment.size() < 1) || (i->comment[0]=="")) {
+        i=W.erase(i);
+        continue;
+      }
     }
-    // прочие объекты - без изменений
-    NW.push_back(*i);
+    i++;
   }
-  ofstream out(outfile.c_str());
-  write(out, NW);
+
+  ofstream out(outfile);
+  write(out, W);
 }
