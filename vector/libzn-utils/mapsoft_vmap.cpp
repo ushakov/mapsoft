@@ -5,6 +5,7 @@
 
 #include "../libzn/zn_key.h" // for zn::fig_old2new()
 #include "../libzn/zn.h"
+#include "lib2d/line_utils.h"
 
 #include "lib2d/line_rectcrop.h"
 #include "libgeo_io/io.h"
