@@ -73,7 +73,7 @@ main(int argc, char **argv){
   if (!read(infile.c_str(), W)){cerr << "Bad fig file " << infile << "\n"; exit(0);}
   fig_world NW;
 
-  string style=W.opts.get("style", string());
+  string style=W.opts.get<string>("style", "default");
   zn::zn_conv zconverter(style);
 
   // для убыстрения делаем два прогона - в первом распихиваем 

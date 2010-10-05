@@ -22,7 +22,7 @@ const double label_len          = 0.3;
 const double label_new_dist     = 0.1;
 
 const double default_rscale = 50000;
-const string default_style = "mmb";
+const string default_style = "default";
 
 /***************************************/
 

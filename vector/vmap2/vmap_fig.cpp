@@ -49,7 +49,7 @@ Options read_fig(const string & fig_file, vmap & M){
     return Options();
   }
 
-  string style=F.opts.get("style", string("mmb"));
+  string style=F.opts.get("style", string("default"));
   legend leg(style);
 
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
@@ -205,7 +205,7 @@ int get_fig(const string & fig_file, const vmap & M,
   lpos_t lpos=M.lpos.find(lpos_id)->second;
 
   // creating legend object
-  string style=rmap.opts.get("style", string("mmb"));
+  string style=rmap.opts.get("style", string("default"));
   legend leg(style);
 
   // prepare fig file and create map reference for it

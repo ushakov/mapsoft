@@ -30,7 +30,7 @@ main(int argc, char **argv){
     exit(1);
   }
 
-  string style=W.opts.get("style", string());
+  string style=W.opts.get<string>("style", "default");
   zn::zn_conv zconverter(style);
 
   fig_world::iterator i=W.begin();

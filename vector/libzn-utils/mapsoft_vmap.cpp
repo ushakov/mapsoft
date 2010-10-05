@@ -49,7 +49,7 @@ int copy(int argc, char** argv){
       cerr << "ERR: bad fig file " << ifile << "\n"; return 1;
     }
 
-    string style=IF.opts.get("style", string());
+    string style=IF.opts.get<string>("style", "default");
     zn::zn_conv zconverter(style);
 
     g_map ref = fig::get_ref(IF);
@@ -78,7 +78,7 @@ int copy(int argc, char** argv){
       cerr << "ERR: bad fig file " << ofile << "\n"; return 1;
     }
 
-    string style=OF.opts.get("style", string());
+    string style=OF.opts.get<string>("style", "default");
     zn::zn_conv zconverter(style);
 
     g_map ref = fig::get_ref(OF);
@@ -138,7 +138,7 @@ int remove(int argc, char** argv){
       cerr << "ERR: bad fig file\n"; return 1;
     }
 
-    string style=F.opts.get("style", string());
+    string style=F.opts.get<string>("style", "default");
     zn::zn_conv zconverter(style);
 
     fig::fig_world::iterator i=F.begin();
@@ -205,7 +205,7 @@ int update(int argc, char** argv){
     cerr << "ERR: bad fig file\n"; return 1;
   }
 
-  string style=F.opts.get("style", string());
+  string style=F.opts.get<string>("style", "default");
   zn::zn_conv zconverter(style);
 
   zn::fig_remove_pics(F);
@@ -260,7 +260,7 @@ int crop(const string & mode, int argc, char** argv){
       cerr << "ERR: bad fig file\n"; return 1;
     }
 
-    string style=F.opts.get("style", string());
+    string style=F.opts.get<string>("style", "default");
     zn::zn_conv zconverter(style);
 
     g_map ref = fig::get_ref(F);
@@ -382,7 +382,7 @@ int range(int argc, char** argv){
       cerr << "ERR: bad fig file\n"; return 1;
     }
 
-    string style=F.opts.get("style", string());
+    string style=F.opts.get<string>("style", "default");
     zn::zn_conv zconverter(style);
 
     g_map ref = fig::get_ref(F);
@@ -454,7 +454,7 @@ int remove_grids(int argc, char** argv){
     cerr << "ERR: bad fig file\n"; return 1;
   }
 
-  string style=F.opts.get("style", string());
+  string style=F.opts.get<string>("style", "default");
   zn::zn_conv zconverter(style);
 
   fig::fig_world::iterator i=F.begin();
@@ -586,7 +586,7 @@ int show_sources(int argc, char** argv){
       cerr << "ERR: bad fig file\n"; return 1;
     }
 
-    string style=F.opts.get("style", string());
+    string style=F.opts.get<string>("style", "default");
     zn::zn_conv zconverter(style);
 
     int maxid=0;
@@ -639,7 +639,7 @@ int set_source(int argc, char** argv){
       cerr << "ERR: bad fig file\n"; return 1;
     }
 
-    string style=F.opts.get("style", string());
+    string style=F.opts.get<string>("style", "default");
     zn::zn_conv zconverter(style);
 
 
