@@ -293,7 +293,7 @@ world::get(const fig::fig_world & F){
       }
 
       object o;
-      o.opts = i->opts;
+//      o.opts = i->opts; // todo: copy useful options
       o.type = type;
       if (i->comment.size()>0){
         o.text = i->comment[0];
@@ -368,12 +368,12 @@ world::get(const mp::mp_world & M){
       for (dMultiLine::const_iterator j=i->begin(); j!=i->end(); j++){
         if (j->size()<2) continue;
         lpos_full l;
-        l.text = i->Label;
+        l.dir  = i->Opts.get<int>("LabelDirection", 0);
+        l.text = i->Opts.get<string>("LabelText");
         l.ref = (*j)[0];
         l.pos = (*j)[1];
-        l.dir = i->Opts.get("Direction", 0);
-        if (j->size()>=3){
-          l.ang=ang_pll2a((*j)[1], (*j)[2], l.dir);
+        if (i->Opts.exists("LabelAngle")){
+          l.ang = i->Opts.get("LabelAngle",0.0);
           l.hor = false;
         }
         else{
@@ -386,7 +386,7 @@ world::get(const mp::mp_world & M){
     else {
       object o;
       o.dMultiLine::operator=(*i);
-      o.opts = i->Opts;
+//      o.opts = i->Opts; // todo
       o.type = type;
       o.text = i->Label;
       o.comm = i->Comment;
@@ -437,7 +437,7 @@ world::put(fig::fig_world & F, bool put_labels, bool fig_text_labels){
     fig::fig_object fig = zconverter.get_fig_template(o->type);
     fig.comment.push_back(o->text);
     fig.comment.insert(fig.comment.end(), o->comm.begin(), o->comm.end());
-    fig.opts = o->opts;
+//    fig.opts = o->opts;
 
     if (o->type & zn::area_mask){
       fig.set_points(cnv.line_bck(join_polygons(*o)));
@@ -506,6 +506,8 @@ world::put(mp::mp_world & M, bool put_labels){
   // TODO - rscale
   M.Name = name;
   M.ID = mp_id;
+  M.Opts.put("RScale", rscale);
+  M.Opts.put("Style",   style);
 
   // add border object
   mp::mp_object brd_o = zconverter.get_mp_template(border_type);
@@ -518,7 +520,7 @@ world::put(mp::mp_world & M, bool put_labels){
     mp.dMultiLine::operator=(*o); // copy points
     mp.Label   = o->text;
     mp.Comment = o->comm;
-    mp.Opts    = o->opts;
+//    mp.Opts    = o->opts;
 
     M.push_back(mp);
 
@@ -529,13 +531,12 @@ world::put(mp::mp_world & M, bool put_labels){
       dPoint ref;  dist_pt_l(l->pos, *o, ref);
       dPoint pos = l->pos;
       mp::mp_object txt=zconverter.get_mp_template(label_type);
-      txt.Opts.put("Direction", l->dir); //TODO -- fix
-      txt.Label=o->text;
+      txt.Opts.put("LabelDirection", l->dir);
+      txt.Opts.put("LabelText", o->text);
+      if (!l->hor) txt.Opts.put("LabelAngle", l->ang);
       dLine tmp;
       tmp.push_back(ref);
       tmp.push_back(pos);
-      if (!l->hor)
-        tmp.push_back(ang_a2pll(l->ang, l->dir, pos));
       txt.push_back(tmp);
       M.push_back(txt);
     }
