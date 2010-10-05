@@ -299,8 +299,6 @@ zn_conv::zn_conv(const string & style){
   default_mp = mp::make_object("POLYLINE 0x0 0 1");
 }
 
-
-
 // определить тип mp-объекта (почти тривиальная функция :))
 int
 zn_conv::get_type(const mp::mp_object & o) const{

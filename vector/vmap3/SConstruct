@@ -26,3 +26,4 @@ env.Append (LIBS = Split("vmap zn mp fig geo_io geo loaders utils options 2d pro
 env.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
 
 env.Program("vmap_copy.cpp")
+env.Program("vmap_render.cpp")

@@ -56,14 +56,14 @@ struct object: dMultiLine {
 };
 
 struct world : std::list<object> {
-private:
   int         mp_id;
   std::string name;
   std::string style;
   double      rscale;
   dLine       brd;
 
-public:
+  dRect range() const;
+
   /*
    Процедура нахождения соответствия между подписями и объектами:
    1. Каждый объект берет по одной подписи с правильным текстом и с точкой
@@ -104,15 +104,12 @@ public:
   // put vmap to file. Format is determined by extension (fig, mp)
   int put(const char * fname, bool put_labels=true, bool fig_text_labels=true);
 
-
-private:
-
   double ang_pll2a(const dPoint & p1, const dPoint & p2, int dir);
-  double ang_pfig2a(const dPoint & p1, const dPoint & p2, int dir, convs::map2pt & cnv);
-  double ang_afig2a(double afig, int dir, convs::map2pt & cnv, dPoint fig_pos);
+  double ang_pfig2a(const dPoint & p1, const dPoint & p2, int dir, Conv & cnv);
+  double ang_afig2a(double afig, int dir, Conv & cnv, dPoint fig_pos);
   dPoint ang_a2pll(double a, int dir, dPoint pos);
-  dPoint ang_a2pfig(double a, int dir, convs::map2pt & cnv, dPoint fig_pos);
-  double ang_a2afig(double a, convs::map2pt & cnv, dPoint fig_pos);
+  dPoint ang_a2pfig(double a, int dir, Conv & cnv, dPoint fig_pos);
+  double ang_a2afig(double a, Conv & cnv, dPoint fig_pos);
 };
 
 // convert vector between meters and degrees (approximate)

@@ -28,6 +28,17 @@ const string default_style = "default";
 
 /***************************************/
 
+dRect
+world::range() const{
+  if (this->size()<1) return dRect(0,0,0,0);
+  world::const_iterator i=this->begin();
+  dRect ret=i->range();
+  while ((++i) != this->end())
+    ret = rect_bounding_box(ret, i->range());
+  return ret;
+}
+
+
 /*
  Процедура нахождения соответствия между подписями и объектами:
  1. Каждый объект берет по одной подписи с правильным текстом и с точкой
@@ -184,13 +195,13 @@ world::ang_pll2a(const dPoint & p1, const dPoint & p2, int dir){
   return atan2(v.y, v.x);
 }
 double
-world::ang_pfig2a(const dPoint & p1, const dPoint & p2, int dir, convs::map2pt & cnv){
+world::ang_pfig2a(const dPoint & p1, const dPoint & p2, int dir, Conv & cnv){
   dPoint p1l(p1), p2l(p2);
   cnv.frw(p1l); cnv.frw(p2l);
   return ang_pll2a(p1l, p2l, dir);
 }
 double
-world::ang_afig2a(double afig, int dir, convs::map2pt & cnv, dPoint fig_pos){
+world::ang_afig2a(double afig, int dir, Conv & cnv, dPoint fig_pos){
   double llen = label_len * fig::cm2fig;
   dPoint dp = llen * dPoint(cos(afig), -sin(afig));
   return ang_pfig2a(fig_pos, fig_pos+dp, dir, cnv);
@@ -207,14 +218,14 @@ world::ang_a2pll(double a, int dir, dPoint pos){
   return pos+v;
 }
 dPoint
-world::ang_a2pfig(double a, int dir, convs::map2pt & cnv, dPoint fig_pos){
+world::ang_a2pfig(double a, int dir, Conv & cnv, dPoint fig_pos){
   dPoint pos(fig_pos); cnv.frw(pos);
   dPoint ret = ang_a2pll(a, dir, pos);
   cnv.bck(ret);
   return ret;
 }
 double
-world::ang_a2afig(double a, convs::map2pt & cnv, dPoint fig_pos){
+world::ang_a2afig(double a, Conv & cnv, dPoint fig_pos){
   dPoint v = ang_a2pfig(a, 0, cnv, fig_pos) - fig_pos;
   return atan2(-v.y, v.x);
 }
