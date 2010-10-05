@@ -48,7 +48,7 @@ main(int argc, char **argv){
     if (!fig::read(ofile.c_str(), F1)) {
       cerr << "ERR: bad fig file " << ofile << "\n"; return 1;
     }
-    V.put(F1);
+    V.put(F1, true, true);
     fig::write(ofile, F1);
   }
   else if (testext(ofile, ".mp")){

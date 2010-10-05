@@ -19,7 +19,7 @@ subdirs = Split ("""
 env.Append (CCFLAGS=['-O2'])
 env.Append (CPPPATH = ["../../core", "../libzn"])
 env.Append (LIBPATH = map(lambda(s): "../../"+s, subdirs) )
-env.Append (LIBPATH = "../libzn" )
+env.Append (LIBPATH = ["../libzn", "."] )
 env.Append (LIBS = Split("vmap zn mp fig geo_io geo loaders utils options 2d proj png jpeg tiff yaml") )
 
 env.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')

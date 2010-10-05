@@ -20,10 +20,9 @@ const double label_search_dist2 = 1.0;
 const double label_search_dist3 = 0.1;
 const double label_len          = 0.3;
 const double label_new_dist     = 0.1;
-const bool fig_text_labels = true;
 
 const double default_rscale = 50000;
-const string default_style = "default";
+const string default_style = "mmb";
 
 /***************************************/
 
@@ -172,9 +171,56 @@ world::new_labels(world & objects, zn::zn_conv & zconverter){
   }
 }
 
+// input angle conversions:
+//                           ll p1,p2 -> ll angle   : mp labels
+//              fig p1,p2 -> ll p1,p2 -> ll angle   : fig object labels
+// fig angle -> fig p1,p2 -> ll p1,p2 -> ll angle   : fig text labels
+double
+world::ang_pll2a(const dPoint & p1, const dPoint & p2, int dir){
+  dPoint v = (dir == 2)? p1-p2 : p2-p1;
+  if (dir == 2) v=-1.0*v;
+  return atan2(v.y, v.x);
+}
+double
+world::ang_pfig2a(const dPoint & p1, const dPoint & p2, int dir, convs::map2pt & cnv){
+  dPoint p1l(p1), p2l(p2);
+  cnv.frw(p1l); cnv.frw(p2l);
+  return ang_pll2a(p1l, p2l, dir);
+}
+double
+world::ang_afig2a(double afig, int dir, convs::map2pt & cnv, dPoint fig_pos){
+  double llen = label_len * fig::cm2fig;
+  dPoint dp = llen * dPoint(cos(afig), -sin(afig));
+  return ang_pfig2a(fig_pos, fig_pos+dp, dir, cnv);
+}
+// output angle conversions
+// ll angle -> ll dp                                : mp labels
+// ll angle -> ll dp -> fig dp                      : fig object labels
+// ll angle -> ll dp -> fig dp -> fig a             : fig text labels
+dPoint
+world::ang_a2pll(double a, int dir, dPoint pos){
+  dPoint v(cos(a), sin(a));
+  v*=pdist(v_m2deg(rscale / 100.0 * label_len * v, pos.y));
+  v*=(dir == 2)? -1.0:1.0;
+  return pos+v;
+}
+dPoint
+world::ang_a2pfig(double a, int dir, convs::map2pt & cnv, dPoint fig_pos){
+  dPoint pos(fig_pos); cnv.frw(pos);
+  dPoint ret = ang_a2pll(a, dir, pos);
+  cnv.bck(ret);
+  return ret;
+}
+double
+world::ang_a2afig(double a, convs::map2pt & cnv, dPoint fig_pos){
+  dPoint v = ang_a2pfig(a, 0, cnv, fig_pos) - fig_pos;
+  return atan2(-v.y, v.x);
+}
+
+
 /***************************************/
 
-// add vmap objects and labels from fig
+// get vmap objects and labels from fig
 int
 world::get(const fig::fig_world & F){
   // get fig reference
@@ -186,8 +232,8 @@ world::get(const fig::fig_world & F){
 
   // get map data
   rscale = 100 * convs::map_mpp(ref, Proj("tmerc")) * fig::cm2fig;
-  rscale = F.opts.get<double>("RScale", rscale);
-  style = F.opts.get<string>("Style", default_style);
+  rscale = F.opts.get<double>("rscale", rscale);
+  style = F.opts.get<string>("style", default_style);
   // TODO - brd
 
   // get map objects and labels:
@@ -207,7 +253,7 @@ world::get(const fig::fig_world & F){
 
       if (cmp_comm.size()>0) comm=cmp_comm;
       else comm=i->comment;
-        if (type==label_type){ // special type -- label objects
+      if (type==label_type){ // special type -- label objects
         if (i->size()<2) continue;
         if (i->comment.size()<1) continue;
         lpos_full l;
@@ -215,10 +261,13 @@ world::get(const fig::fig_world & F){
         l.ref = (*i)[0]; cnv.frw(l.ref);
         l.pos = (*i)[1]; cnv.frw(l.pos);
         l.dir = zn::fig_arr2dir(*i, true);
-        l.ang=0;
         if (i->size()>=3){
-          dPoint p((*i)[2]-(*i)[1]); // TODO -- fix angle?
-          l.ang = atan2(p.y, p.x);
+          l.ang=ang_pfig2a((*i)[1], (*i)[2], l.dir, cnv);
+          l.hor=false;
+        }
+        else{
+          l.ang=0;
+          l.hor=true;
         }
         labels.push_back(l);
         continue;
@@ -241,8 +290,7 @@ world::get(const fig::fig_world & F){
       o.push_back(pts);
       o.dir=zn::fig_arr2dir(*i);
       // keep objects waiting for a label separately
-      // TODO -- don't modify zconverter by []
-      if ((zconverter.znaki[type].label_pos) && (o.text != "")) o4l.push_back(o);
+      if ((zconverter.get_label_pos(type)) && (o.text != "")) o4l.push_back(o);
       else push_back(o);
       continue;
     }
@@ -254,9 +302,17 @@ world::get(const fig::fig_world & F){
       lpos_full l;
       l.pos = (*i)[0]; cnv.frw(l.pos);
       l.ref = i->opts.get("RefPt", l.pos); cnv.frw(l.ref);
-      l.ang  = i->angle;
       l.dir  = i->sub_type;
       l.text = i->text;
+      // fix angle (fig->latlon)
+      if (i->angle!=0){
+        l.ang = ang_afig2a(i->angle, l.dir, cnv, l.pos);
+        l.hor = false;
+      }
+      else {
+        l.ang = 0;
+        l.hor = true;
+      }
       labels.push_back(l);
       continue;
     }
@@ -269,7 +325,7 @@ world::get(const fig::fig_world & F){
   return 0;
 }
 
-// add vmap objects and labels from fig
+// get vmap objects and labels from mp
 int
 world::get(const mp::mp_world & M){
 
@@ -292,10 +348,13 @@ world::get(const mp::mp_world & M){
         l.ref = (*j)[0];
         l.pos = (*j)[1];
         l.dir = i->Opts.get("Direction", 0);
-        l.ang=0;
         if (j->size()>=3){
-          dPoint p((*j)[2]-(*j)[1]);
-          l.ang = atan2(-p.y, p.x);
+          l.ang=ang_pll2a((*j)[1], (*j)[2], l.dir);
+          l.hor = false;
+        }
+        else{
+          l.ang = 0;
+          l.hor = true;
         }
         labels.push_back(l);
       }
@@ -327,7 +386,7 @@ world::get(const mp::mp_world & M){
 
 // put vmap to referenced fig
 int
-world::put(fig::fig_world & F, bool put_labels){
+world::put(fig::fig_world & F, bool put_labels, bool fig_text_labels){
   zn::zn_conv zconverter(style);
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
@@ -366,14 +425,18 @@ world::put(fig::fig_world & F, bool put_labels){
 
     std::list<lpos>::const_iterator l;
     for (l=o->labels.begin(); l!=o->labels.end(); l++){
-      dPoint ref;  dist_pt_l(l->pos, *o, ref); cnv.bck(ref);
-      dPoint pos=l->pos; cnv.bck(pos);
+      dPoint ref;  dist_pt_l(l->pos, *o, ref);
+      cnv.bck(ref);
+      dPoint pos = l->pos;
+      cnv.bck(pos);
+
       fig::fig_object txt;
       if (fig_text_labels){
         txt=zconverter.get_label_template(o->type);
         txt.text=o->text;
         txt.sub_type=l->dir;
-        txt.angle=l->ang; // TODO -- fix angle?
+        if (l->hor) txt.angle=0;
+        else txt.angle=ang_a2afig(l->ang, cnv, pos);
         txt.push_back(pos);
         txt.opts.put("RefPt", ref);
         txt.opts.put("MapType", std::string("label"));
@@ -384,12 +447,8 @@ world::put(fig::fig_world & F, bool put_labels){
         zn::fig_dir2arr(txt, l->dir, true);
         txt.push_back(ref);
         txt.push_back(pos);
-        if (l->ang!=0){ // TODO -- fix angle?
-          txt.push_back(pos +
-             ((l->dir == 2)? -1.0:1.0) *
-             /*double(o->text.size()) **/ label_len * fig::cm2fig *
-             dPoint(cos(l->ang), -sin(l->ang)));
-        }
+        if (!l->hor)
+          txt.push_back(ang_a2pfig(l->ang, l->dir, cnv, pos));
         txt.comment.push_back(o->text);
       }
       F.push_back(txt);
@@ -422,11 +481,8 @@ world::put(mp::mp_world & M, bool put_labels){
       dLine tmp;
       tmp.push_back(ref);
       tmp.push_back(pos);
-      if (l->ang!=0){ // TODO -- fix angle?
-        tmp.push_back(pos +
-             ((l->dir == 2)? -1.0:1.0) *
-             v_m2deg(rscale / 100.0 * label_len *dPoint(cos(l->ang), -sin(l->ang)), pos.y));
-      }
+      if (!l->hor)
+        tmp.push_back(ang_a2pll(l->ang, l->dir, pos));
       txt.push_back(tmp);
       M.push_back(txt);
     }
@@ -467,6 +523,7 @@ dist_pt_l(const dPoint & p, const dMultiLine & l, dPoint & n){
   }
   return ret;
 }
+
 
 /***************************************/
 

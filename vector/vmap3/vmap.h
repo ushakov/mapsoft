@@ -28,7 +28,6 @@ extern const double label_search_dist2;
 extern const double label_search_dist3;
 extern const double label_len;
 extern const double label_new_dist;
-extern const bool fig_text_labels;
 
 extern const double default_rscale;
 extern const std::string default_style;
@@ -37,6 +36,7 @@ struct lpos {
   int    dir; // 0: left, 1: center, 2: right
   double ang; // angle, degrees
   dPoint pos;
+  bool   hor; // horisontal text
 };
 
 struct lpos_full : public lpos { // for internal use
@@ -87,10 +87,18 @@ public:
   int get(const mp::mp_world & M);
 
   // put vmap to referenced fig
-  int put(fig::fig_world & F, bool put_labels=true);
+  int put(fig::fig_world & F, bool put_labels=true, bool fig_text_labels=true);
 
   // put vmap to mp
   int put(mp::mp_world & M, bool put_labels=true);
+private:
+
+  double ang_pll2a(const dPoint & p1, const dPoint & p2, int dir);
+  double ang_pfig2a(const dPoint & p1, const dPoint & p2, int dir, convs::map2pt & cnv);
+  double ang_afig2a(double afig, int dir, convs::map2pt & cnv, dPoint fig_pos);
+  dPoint ang_a2pll(double a, int dir, dPoint pos);
+  dPoint ang_a2pfig(double a, int dir, convs::map2pt & cnv, dPoint fig_pos);
+  double ang_a2afig(double a, convs::map2pt & cnv, dPoint fig_pos);
 };
 
 // convert vector between meters and degrees (approximate)
