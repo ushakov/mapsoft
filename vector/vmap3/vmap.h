@@ -80,10 +80,10 @@ public:
   // create new labels
   void new_labels(world & objects, zn::zn_conv & zconverter);
 
-  // add vmap objects and labels from fig
+  // get vmap objects and labels from fig
   int get(const fig::fig_world & F);
 
-  // add vmap objects and labels from fig
+  // get vmap objects and labels from fig
   int get(const mp::mp_world & M);
 
   // put vmap to referenced fig
@@ -91,6 +91,16 @@ public:
 
   // put vmap to mp
   int put(mp::mp_world & M, bool put_labels=true);
+
+
+  // Get vmap objects and labels from.
+  // Format is determined by extension (fig, mp)
+  int get(const char * fname);
+
+  // put vmap to file. Format is determined by extension (fig, mp)
+  int put(const char * fname, bool put_labels=true, bool fig_text_labels=true);
+
+
 private:
 
   double ang_pll2a(const dPoint & p1, const dPoint & p2, int dir);

@@ -3,6 +3,7 @@ env = Environment ()
 env.Library('vmap', \
     Split ("""
      vmap.cpp
+     vmap_file.cpp
     """))
 
 subdirs = Split ("""

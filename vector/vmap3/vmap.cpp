@@ -226,7 +226,7 @@ world::get(const fig::fig_world & F){
   // get fig reference
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
-    std::cerr << "ERR: not a GEO-fig\n"; return 1;
+    std::cerr << "ERR: not a GEO-fig\n"; return 0;
   }
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
 
@@ -322,7 +322,7 @@ world::get(const fig::fig_world & F){
   // create new labels
   new_labels(o4l, zconverter);
   insert(begin(), o4l.begin(), o4l.end());
-  return 0;
+  return 1;
 }
 
 // get vmap objects and labels from mp
@@ -379,7 +379,7 @@ world::get(const mp::mp_world & M){
   // create new labels
   new_labels(o4l, zconverter);
   insert(begin(), o4l.begin(), o4l.end());
-  return 0;
+  return 1;
 }
 
 /***************************************/
@@ -390,7 +390,7 @@ world::put(fig::fig_world & F, bool put_labels, bool fig_text_labels){
   zn::zn_conv zconverter(style);
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
-    std::cerr << "ERR: not a GEO-fig\n"; return 1;
+    std::cerr << "ERR: not a GEO-fig\n"; return 0;
   }
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
   for (world::const_iterator o = begin(); o!=end(); o++){
@@ -454,6 +454,7 @@ world::put(fig::fig_world & F, bool put_labels, bool fig_text_labels){
       F.push_back(txt);
     }
   }
+  return 1;
 }
 
 // put vmap to mp
@@ -487,6 +488,7 @@ world::put(mp::mp_world & M, bool put_labels){
       M.push_back(txt);
     }
   }
+  return 1;
 }
 
 /***************************************/
