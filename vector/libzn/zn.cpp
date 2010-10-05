@@ -370,55 +370,49 @@ zn_conv::get_type (const fig::fig_object & o) const {
   return 0;
 }
 
-// Получить заготовку fig-объекта заданного типа
-fig::fig_object
-zn_conv::get_fig_template(int type){
-  if (znaki.find(type) != znaki.end()){
-    return znaki.find(type)->second.fig;
-  }
-  else {
+map<int, zn>::const_iterator
+zn_conv::find_type(int type){
+  map<int, zn>::const_iterator ret = znaki.find(type);
+  if (ret == znaki.end()){
     if (unknown_types.count(type) == 0){
-      cerr << "mp2fig: unknown type: 0x"
+      cerr << "libzn: unknown type: 0x"
            << setbase(16) << type << setbase(10) << "\n";
       unknown_types.insert(type);
     }
-    return default_fig;
   }
+  return ret;
+}
+
+// Получить заготовку fig-объекта заданного типа
+fig::fig_object
+zn_conv::get_fig_template(int type){
+  map<int, zn>::const_iterator z = find_type(type);
+  if (z != znaki.end()) return z->second.fig;
+  else return default_fig;
 }
 
 // Получить заготовку mp-объекта заданного типа
 mp::mp_object
 zn_conv::get_mp_template(int type){
-  if (znaki.find(type) != znaki.end()){
-    return znaki.find(type)->second.mp;
-  }
-  else {
-    if (unknown_types.count(type) == 0){
-      cerr << "fig2mp: unknown type: 0x"
-           << setbase(16) << type << setbase(10) << "\n";
-      unknown_types.insert(type);
-    }
-    return default_mp;
-  }
+  map<int, zn>::const_iterator z = find_type(type);
+  if (z != znaki.end()) return z->second.mp;
+  else return default_mp;
 }
 
 // Получить заготовку fig-подписи заданного типа
 fig::fig_object
 zn_conv::get_label_template(int type){
-  if (znaki.find(type) != znaki.end()){
-    return znaki.find(type)->second.txt;
-  }
-  else {
-    if (unknown_types.count(type) == 0){
-      cerr << "mp2fig: unknown type: 0x"
-           << setbase(16) << type << setbase(10) << "\n";
-      unknown_types.insert(type);
-    }
-    return default_txt;
-  }
+  map<int, zn>::const_iterator z = find_type(type);
+  if (z != znaki.end()) return z->second.txt;
+  else return default_txt;
 }
 
-
+// Получить тип подписи
+int zn_conv::get_label_pos(int type){
+  map<int, zn>::const_iterator z = find_type(type);
+  if (z != znaki.end()) return z->second.label_pos;
+  else return 0;
+}
 
 // Преобразовать mp-объект в fig-объект
 // Если тип 0, то он определяется функцией get_type по объекту
@@ -541,15 +535,8 @@ zn_conv::make_pic(const fig::fig_object & fig, int type){
   ret.push_back(fig);
 
   if (type ==0) type = get_type(fig);
-  map<int, zn>::const_iterator z = znaki.find(type);
-  if (z == znaki.end()){
-    if (unknown_types.count(type) == 0){
-      cerr << "make_pic: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
-      unknown_types.insert(type);
-    }
-    return ret;
-  }
-
+  map<int, zn>::const_iterator z = find_type(type);
+  if (z == znaki.end()) return ret;
   if (z->second.pic=="") return ret; // нет картинки
 
   fig::fig_world PIC;
@@ -582,14 +569,8 @@ zn_conv::make_labels(const fig::fig_object & fig, int type){
 
   if (type ==0) type = get_type(fig);
 
-  map<int, zn>::const_iterator z = znaki.find(type);
-  if (z==znaki.end()){
-    if (unknown_types.count(type) == 0){
-      cerr << "make_labels: unknown type: 0x" << setbase(16) << type << setbase(10) << "\n";
-      unknown_types.insert(type);
-    }
-    return ret;
-  }
+  map<int, zn>::const_iterator z = find_type(type);
+  if (z==znaki.end()) return ret;
 
   int lpos = z->second.label_pos;
 

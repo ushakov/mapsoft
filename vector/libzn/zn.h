@@ -85,6 +85,8 @@ class zn_conv{
   // определить тип fig-объекта по внешнему виду, в соответствии с конф.файлом
   int get_type(const fig::fig_object & o) const;
 
+  std::map<int, zn>::const_iterator find_type(int type);
+
   // Получить заготовку fig-объекта заданного типа
   fig::fig_object get_fig_template(int type);
 
@@ -94,6 +96,8 @@ class zn_conv{
   // Получить заготовку fig-подписи заданного типа
   fig::fig_object get_label_template(int type);
 
+  // Получить тип подписи
+  int get_label_pos(int type);
 
       // в следующих функциях, если указан тип 0, то он определяется по объекту
 
