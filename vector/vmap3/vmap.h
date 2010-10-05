@@ -23,6 +23,8 @@ namespace vmap {
 /*****************************************************************/
 
 extern const int label_type;
+extern const int border_type;
+
 extern const double label_search_dist1;
 extern const double label_search_dist2;
 extern const double label_search_dist3;
@@ -55,9 +57,11 @@ struct object: dMultiLine {
 
 struct world : std::list<object> {
 private:
+  int         mp_id;
+  std::string name;
   std::string style;
-  double rscale;
-  dLine brd;
+  double      rscale;
+  dLine       brd;
 
 public:
   /*

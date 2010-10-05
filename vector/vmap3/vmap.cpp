@@ -15,6 +15,8 @@ namespace vmap {
 using namespace std;
 
 const int label_type = 0x1000FF;
+const int border_type = 0x1000FE;
+
 const double label_search_dist1 = 1.0; // cm
 const double label_search_dist2 = 1.0;
 const double label_search_dist3 = 0.1;
@@ -233,8 +235,9 @@ world::get(const fig::fig_world & F){
   // get map data
   rscale = 100 * convs::map_mpp(ref, Proj("tmerc")) * fig::cm2fig;
   rscale = F.opts.get<double>("rscale", rscale);
-  style = F.opts.get<string>("style", default_style);
-  // TODO - brd
+  style  = F.opts.get<string>("style", default_style);
+  name   = F.opts.get<string>("name");
+  mp_id  = F.opts.get<int>("mp_id");
 
   // get map objects and labels:
   zn::zn_conv zconverter(style);
@@ -253,6 +256,11 @@ world::get(const fig::fig_world & F){
 
       if (cmp_comm.size()>0) comm=cmp_comm;
       else comm=i->comment;
+
+      if (type==border_type){ // special type -- border
+        brd = cnv.line_frw(*i);
+        continue;
+      }
       if (type==label_type){ // special type -- label objects
         if (i->size()<2) continue;
         if (i->comment.size()<1) continue;
@@ -332,6 +340,8 @@ world::get(const mp::mp_world & M){
   // get map data -- TODO
   style = default_style;
   rscale = default_rscale;
+  name  = M.Name;
+  mp_id = M.ID;
 
   // get map objects and labels:
   zn::zn_conv zconverter(style);
@@ -339,7 +349,10 @@ world::get(const mp::mp_world & M){
   world o4l; // objects waiting for a label
   for (mp::mp_world::const_iterator i=M.begin(); i!=M.end(); i++){
     int type = zconverter.get_type(*i);
-    if (type==label_type){ // special type -- label objects
+    if (type==border_type){ // special type -- border
+      brd = join_polygons(*i);
+    }
+    else if (type==label_type){ // special type -- label objects
       if (i->Label=="") continue;
       for (dMultiLine::const_iterator j=i->begin(); j!=i->end(); j++){
         if (j->size()<2) continue;
@@ -393,6 +406,21 @@ world::put(fig::fig_world & F, bool put_labels, bool fig_text_labels){
     std::cerr << "ERR: not a GEO-fig\n"; return 0;
   }
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+
+  // save map parameters
+  F.opts.put("style",  style);
+  F.opts.put("rscale", rscale);
+  F.opts.put("name",   name);
+  F.opts.put("mp_id",  mp_id);
+
+  // add border
+  fig::fig_object brd_o = zconverter.get_fig_template(border_type);
+  brd_o.set_points(cnv.line_bck(brd));
+  brd_o.close();
+  F.comment.push_back("BRD " + name);
+  F.push_back(brd_o);
+
+  // add other objects
   for (world::const_iterator o = begin(); o!=end(); o++){
 
     fig::fig_object fig = zconverter.get_fig_template(o->type);
@@ -461,6 +489,19 @@ world::put(fig::fig_world & F, bool put_labels, bool fig_text_labels){
 int
 world::put(mp::mp_world & M, bool put_labels){
   zn::zn_conv zconverter(style);
+
+  // save map parameters
+  // TODO - style
+  // TODO - rscale
+  M.Name = name;
+  M.ID = mp_id;
+
+  // add border object
+  mp::mp_object brd_o = zconverter.get_mp_template(border_type);
+  brd_o.push_back(brd);
+  M.push_back(brd_o);
+
+  // add other objects
   for (world::const_iterator o = begin(); o!=end(); o++){
     mp::mp_object mp = zconverter.get_mp_template(o->type);
     mp.dMultiLine::operator=(*o); // copy points
@@ -478,7 +519,7 @@ world::put(mp::mp_world & M, bool put_labels){
       dPoint pos = l->pos;
       mp::mp_object txt=zconverter.get_mp_template(label_type);
       txt.Opts.put("Direction", l->dir); //TODO -- fix
-      txt.Label = o->text;
+      txt.Label=o->text;
       dLine tmp;
       tmp.push_back(ref);
       tmp.push_back(pos);
