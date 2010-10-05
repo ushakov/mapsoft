@@ -428,7 +428,9 @@ zn_conv::mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type){
     ret_o.comment.push_back(mp.Label);
   }
   ret_o.comment.insert(ret_o.comment.end(), mp.Comment.begin(), mp.Comment.end());
-  ret_o.opts.put("Source", mp.Opts.get("Source", string()));
+
+  string source=mp.Opts.get<string>("Source");
+  if (source!="") ret_o.opts.put("Source", source);
 
   // convert points
   if (mp.Class == "POLYGON"){
@@ -469,7 +471,8 @@ zn_conv::fig2mp(const fig::fig_object & fig, convs::map2pt & cnv, int type){
     mp.Label = fig.comment[0];
     mp.Comment.insert(mp.Comment.begin(), fig.comment.begin()+1, fig.comment.end());
   }
-  mp.Opts.put("Source", fig.opts.get("Source",string()));
+  string source=fig.opts.get<string>("Source");
+  if (source != "") mp.Opts.put("Source", source);
 
   dLine pts = cnv.line_frw(fig);
 
@@ -542,10 +545,10 @@ zn_conv::make_pic(const fig::fig_object & fig, int type){
 
   for (fig::fig_world::iterator i = PIC.begin(); i!=PIC.end(); i++){
     (*i) += fig[0];
-    if (is_map_depth(*i)){
-      cerr << "warning: picture in " << z->second.pic 
-           << " has objects with wrong depth!\n";
-    }
+//    if (is_map_depth(*i)){
+//      cerr << "warning: picture in " << z->second.pic 
+//           << " has objects with wrong depth!\n";
+//    }
     i->opts["MapType"]="pic";
     ret.push_back(*i);
   }
