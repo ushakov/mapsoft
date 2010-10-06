@@ -14,14 +14,14 @@ bool testext(const char * str, const char * ext){
     return pos && (strcmp(pos+1, ext)==0);
 }
 
-int world::get(const char * fname){
+int world::get(const char * fname, const Options & O){
   if (testext(fname, "fig")){
     fig::fig_world F;
     if (!fig::read(fname, F)){
       cerr << "error: bad fig file " << fname << "\n";
       return 0;
     }
-    if (!get(F)){
+    if (!get(F, O)){
       cerr << "error: can't read vmap from fig file " << fname << "\n";
       return 0;
     }
@@ -32,7 +32,7 @@ int world::get(const char * fname){
       cerr << "error: bad mp file " << fname << "\n";
       return 0;
     }
-    if (!get(M)){
+    if (!get(M, O)){
       cerr << "error: can't read vmap from mp file " << fname << "\n";
       return 0;
     }

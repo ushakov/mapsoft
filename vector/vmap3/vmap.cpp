@@ -235,7 +235,14 @@ world::ang_a2afig(double a, Conv & cnv, dPoint fig_pos){
 
 // get vmap objects and labels from fig
 int
-world::get(const fig::fig_world & F){
+world::get(const fig::fig_world & F, const Options & O){
+
+  // Options:
+  // set_source_from_name (int, default 0)
+  // set_source           (string)
+  // select_source
+  // skip_source
+
   // get fig reference
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
@@ -293,7 +300,17 @@ world::get(const fig::fig_world & F){
       }
 
       object o;
-//      o.opts = i->opts; // todo: copy useful options
+
+      // filter and set source
+      string source = i->opts.get<string>("Source"); // from original object
+      // select source:
+      if (O.exists("select_source") && (source!=O.get<string>("select_source"))) continue;
+      if (O.exists("skip_source") && (source==O.get<string>("skip_source"))) continue;
+      // set source:
+      if (O.get<int>("set_source_from_name", 0)) source = name; // from map name
+      source = O.get("set_source", source);
+      if (source != "") o.opts.put<string>("Source", source);
+
       o.type = type;
       if (i->comment.size()>0){
         o.text = i->comment[0];
@@ -346,7 +363,13 @@ world::get(const fig::fig_world & F){
 
 // get vmap objects and labels from mp
 int
-world::get(const mp::mp_world & M){
+world::get(const mp::mp_world & M, const Options & O){
+
+  // Options:
+  // set_source_from_name (int, default 0)
+  // set_source           (string)
+  // select_source
+  // skip_source
 
   // get map data -- TODO
   style =  M.Opts.get("Style", default_style);
@@ -385,8 +408,18 @@ world::get(const mp::mp_world & M){
     }
     else {
       object o;
+
+      // filter and set source:
+      string source = i->Opts.get<string>("Source"); // from original object
+      // select source:
+      if (O.exists("select_source") && (source!=O.get<string>("select_source"))) continue;
+      if (O.exists("skip_source") && (source==O.get<string>("skip_source"))) continue;
+      // set source:
+      if (O.get<int>("set_source_from_name", 0)) source = name; // from map name
+      source = O.get("set_source", source);
+      if (source != "") o.opts.put<string>("Source", source);
+
       o.dMultiLine::operator=(*i);
-//      o.opts = i->Opts; // todo
       o.type = type;
       o.text = i->Label;
       o.comm = i->Comment;
@@ -454,7 +487,9 @@ world::put(fig::fig_world & F, const Options & O){
     fig::fig_object fig = zconverter.get_fig_template(o->type);
     fig.comment.push_back(o->text);
     fig.comment.insert(fig.comment.end(), o->comm.begin(), o->comm.end());
-//    fig.opts = o->opts;
+
+    string source=o->opts.get<string>("Source");
+    if (source != "") fig.opts.put("Source", source);
 
     if (o->type & zn::area_mask){
       fig.set_points(cnv.line_bck(join_polygons(*o)));
@@ -542,7 +577,9 @@ world::put(mp::mp_world & M, const Options & O){
     mp.dMultiLine::operator=(*o); // copy points
     mp.Label   = o->text;
     mp.Comment = o->comm;
-//    mp.Opts    = o->opts;
+
+    string source=o->opts.get<string>("Source");
+    if (source != "") mp.Opts.put("Source", source);
 
     M.push_back(mp);
 

@@ -83,10 +83,10 @@ struct world : std::list<object> {
   void new_labels(world & objects, zn::zn_conv & zconverter);
 
   // get vmap objects and labels from fig
-  int get(const fig::fig_world & F);
+  int get(const fig::fig_world & F, const Options & O = Options());
 
   // get vmap objects and labels from fig
-  int get(const mp::mp_world & M);
+  int get(const mp::mp_world & M, const Options & O = Options());
 
   /* put vmap to referenced fig
      options:
@@ -106,7 +106,7 @@ struct world : std::list<object> {
 
   // Get vmap objects and labels from.
   // Format is determined by extension (fig, mp)
-  int get(const char * fname);
+  int get(const char * fname, const Options & O = Options());
 
   // put vmap to file. Format is determined by extension (fig, mp)
   // Options are passed to corresponding put()  function
