@@ -43,20 +43,20 @@ int world::get(const char * fname){
   }
   return 1;
 }
-int world::put(const char * fname, bool put_labels, bool fig_text_labels){
+int world::put(const char * fname, const Options & O){
   if (testext(fname, "fig")){
     fig::fig_world F;
     if (!fig::read(fname, F)) {
       cerr << "error: bad fig file " << fname << "\n"; 
       return 0;
     }
-    put(F, put_labels, fig_text_labels);
+    put(F, O);
     fig::write(fname, F);
   }
   else if (testext(fname, "mp")){
     mp::mp_world M;
     mp::read(fname, M);
-    put(M, put_labels);
+    put(M, O);
     mp::write(fname, M);
   }
   else {

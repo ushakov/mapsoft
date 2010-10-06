@@ -6,11 +6,9 @@
 #include <list>
 
 #include "lib2d/line.h"
-//#include "options/options.h"
+#include "options/options.h"
 #include "libfig/fig.h"
 
-//#include "libgeo_io/geofig.h"
-//#include "libgeo/geo_convs.h"
 #include "../libzn/zn.h"
 
 // Class for vector map representation
@@ -90,11 +88,20 @@ struct world : std::list<object> {
   // get vmap objects and labels from fig
   int get(const mp::mp_world & M);
 
-  // put vmap to referenced fig
-  int put(fig::fig_world & F, bool put_labels=true, bool fig_text_labels=true);
+  /* put vmap to referenced fig
+     options:
+       int append          (default 0)
+       int skip_labels     (default 1)
+       int fig_text_labels (default 1)
+  */
+  int put(fig::fig_world & F, const Options & O = Options());
 
-  // put vmap to mp
-  int put(mp::mp_world & M, bool put_labels=true);
+  /* put vmap to mp
+     options:
+       int append          (default 0)
+       int skip_labels     (default 1)
+  */
+  int put(mp::mp_world & M, const Options & O = Options());
 
 
   // Get vmap objects and labels from.
@@ -102,7 +109,8 @@ struct world : std::list<object> {
   int get(const char * fname);
 
   // put vmap to file. Format is determined by extension (fig, mp)
-  int put(const char * fname, bool put_labels=true, bool fig_text_labels=true);
+  // Options are passed to corresponding put()  function
+  int put(const char * fname, const Options & O = Options());
 
   double ang_pll2a(const dPoint & p1, const dPoint & p2, int dir);
   double ang_pfig2a(const dPoint & p1, const dPoint & p2, int dir, Conv & cnv);

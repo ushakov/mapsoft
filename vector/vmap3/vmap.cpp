@@ -349,8 +349,8 @@ int
 world::get(const mp::mp_world & M){
 
   // get map data -- TODO
-  style = default_style;
-  rscale = default_rscale;
+  style =  M.Opts.get("Style", default_style);
+  rscale = M.Opts.get("RScale", default_rscale);
   name  = M.Name;
   mp_id = M.ID;
 
@@ -410,13 +410,30 @@ world::get(const mp::mp_world & M){
 
 // put vmap to referenced fig
 int
-world::put(fig::fig_world & F, bool put_labels, bool fig_text_labels){
+world::put(fig::fig_world & F, const Options & O){
+  // get options
+  int append          = O.get<int>("append", 0);
+  int skip_labels     = O.get<int>("put_labels", 1);
+  int fig_text_labels = O.get<int>("fig_text_labels", 1);
+
   zn::zn_conv zconverter(style);
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
     std::cerr << "ERR: not a GEO-fig\n"; return 0;
   }
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+
+  // cleanup fig if not in append mode
+  if (!append){
+    fig::fig_world::iterator i = F.begin();
+    while (i!=F.end()){
+      if ((i->type==6) || (i->type==-6) ||
+           zn::is_to_skip(*i) ||
+           (i->opts.get<string>("MapType") == "label") ||
+           zconverter.is_map_depth(*i)) i=F.erase(i);
+      else i++;
+    }
+  }
 
   // save map parameters
   F.opts.put("style",  style);
@@ -460,7 +477,7 @@ world::put(fig::fig_world & F, bool put_labels, bool fig_text_labels){
       }
     }
     // labels
-    if (!put_labels || (o->text == "")) continue;
+    if (skip_labels || (o->text == "")) continue;
 
     std::list<lpos>::const_iterator l;
     for (l=o->labels.begin(); l!=o->labels.end(); l++){
@@ -498,16 +515,21 @@ world::put(fig::fig_world & F, bool put_labels, bool fig_text_labels){
 
 // put vmap to mp
 int
-world::put(mp::mp_world & M, bool put_labels){
+world::put(mp::mp_world & M, const Options & O){
   zn::zn_conv zconverter(style);
 
+  // get options
+  int append          = O.get<int>("append",     0);
+  int skip_labels     = O.get<int>("put_labels", 1);
+
   // save map parameters
-  // TODO - style
-  // TODO - rscale
   M.Name = name;
   M.ID = mp_id;
   M.Opts.put("RScale", rscale);
   M.Opts.put("Style",   style);
+
+  // cleanup fig if not in append mode
+  if (!append) M.clear();
 
   // add border object
   mp::mp_object brd_o = zconverter.get_mp_template(border_type);
@@ -525,7 +547,7 @@ world::put(mp::mp_world & M, bool put_labels){
     M.push_back(mp);
 
     // labels
-    if (!put_labels || (o->text == "")) continue;
+    if (skip_labels || (o->text == "")) continue;
     std::list<lpos>::const_iterator l;
     for (l=o->labels.begin(); l!=o->labels.end(); l++){
       dPoint ref;  dist_pt_l(l->pos, *o, ref);
