@@ -12,6 +12,8 @@
 
 using namespace boost::spirit;
 
+const char * Options::warn_unused_message = "unknown option: ";
+
 bool Options::exists (const std::string & key) const {return (find(key) != end());}
 
 /*
@@ -23,7 +25,7 @@ std::set<std::string> Options::unknown (const std::set<std::string> & known) con
     return ret;
 }*/
 
-void Options::warn_unused (const std::string * used) const{
+void Options::warn_unused (const std::string * used, const char *msg) const{
   const_iterator i;
   for (i=begin(); i!=end(); i++){
     const std::string * str = &used[0];
@@ -33,8 +35,7 @@ void Options::warn_unused (const std::string * used) const{
       str++;
     }
     if (!find)
-      std::cerr << "Unknown option: "
-                << i->first << " = " << i->second << "\n";
+      std::cerr << msg << i->first << " = " << i->second << "\n";
   }
   return;
 }

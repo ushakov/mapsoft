@@ -17,6 +17,7 @@
 */
 
 struct Options : std::map<std::string,std::string>{
+    const static char * warn_unused_message;
 
     /// Set option value for a given key
     /// On error old value remains
@@ -54,7 +55,8 @@ struct Options : std::map<std::string,std::string>{
 
     /** Поиск неизвестных (не перечисленных в known :)) ключей....
         Старая версия */
-    void warn_unused (const std::string * used) const;
+    void warn_unused (const std::string * used,
+                      const char *msg = warn_unused_message) const;
 
     /** Проверить наличие ключа */
     bool exists (const std::string & key) const;
