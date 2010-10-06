@@ -595,7 +595,7 @@ struct VMAPRenderer{
     M.map_proj = P;
     for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
       dPoint gp = *p, rp = *p;
-      cnv.bck(gp); pt_m2pt(rp);
+      cnv.frw(gp); pt_m2pt(rp);
       // small negative values brokes map-file
       if (rp.x<0) rp.x=0;
       if (rp.y<0) rp.y=0;
