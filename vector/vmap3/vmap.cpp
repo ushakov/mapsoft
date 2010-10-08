@@ -349,10 +349,6 @@ world::get(const fig::fig_world & F, const Options & O){
       continue;
     }
   }
-  // find labels for each object
-  add_labels();
-  // create new labels
-  new_labels(zconverter);
   return 1;
 }
 
@@ -420,10 +416,6 @@ world::get(const mp::mp_world & M, const Options & O){
       push_back(o);
     }
   }
-  // find labels for each object
-  add_labels();
-  // create new labels
-  new_labels(zconverter);
   return 1;
 }
 
@@ -438,6 +430,12 @@ world::put(fig::fig_world & F, const Options & O){
   int fig_text_labels = O.get<int>("fig_text_labels", 1);
 
   zn::zn_conv zconverter(style);
+  // find labels for each object
+  add_labels();
+  // create new labels
+  new_labels(zconverter);
+
+
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
     std::cerr << "ERR: not a GEO-fig\n"; return 0;
@@ -540,6 +538,10 @@ world::put(fig::fig_world & F, const Options & O){
 int
 world::put(mp::mp_world & M, const Options & O){
   zn::zn_conv zconverter(style);
+  // find labels for each object
+  add_labels();
+  // create new labels
+  new_labels(zconverter);
 
   // get options
   int append          = O.get<int>("append",     0);
