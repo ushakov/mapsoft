@@ -606,11 +606,13 @@ world::put(fig::fig_world & F, const Options & O){
   F.opts.put("mp_id",  mp_id);
 
   // add border
-  fig::fig_object brd_o = zconverter.get_fig_template(border_type);
-  brd_o.set_points(cnv.line_bck(brd));
-  brd_o.close();
-  F.comment.push_back("BRD " + name);
-  if (brd.size()!=0) F.push_back(brd_o);
+  if (brd.size()>0){
+    fig::fig_object brd_o = zconverter.get_fig_template(border_type);
+    brd_o.set_points(cnv.line_bck(brd));
+    brd_o.close();
+    brd_o.comment.push_back("BRD " + name);
+    if (brd.size()!=0) F.push_back(brd_o);
+  }
 
   // add other objects
   for (world::const_iterator o = begin(); o!=end(); o++){
