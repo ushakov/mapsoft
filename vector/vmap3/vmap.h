@@ -89,19 +89,10 @@ struct world : std::list<object> {
   // get vmap objects and labels from fig
   int get(const mp::mp_world & M, const Options & O = Options());
 
-  /* put vmap to referenced fig
-     options:
-       int append          (default 0)
-       int skip_labels     (default 0)
-       int fig_text_labels (default 1)
-  */
+  // put vmap to referenced fig
   int put(fig::fig_world & F, const Options & O = Options());
 
-  /* put vmap to mp
-     options:
-       int append          (default 0)
-       int skip_labels     (default 0)
-  */
+  // put vmap to mp
   int put(mp::mp_world & M, const Options & O = Options());
 
 

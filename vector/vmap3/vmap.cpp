@@ -237,12 +237,6 @@ world::ang_a2afig(double a, Conv & cnv, dPoint fig_pos){
 int
 world::get(const fig::fig_world & F, const Options & O){
 
-  // Options:
-  // set_source_from_name (int, default 0)
-  // set_source           (string)
-  // select_source
-  // skip_source
-
   // get fig reference
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
@@ -299,7 +293,14 @@ world::get(const fig::fig_world & F, const Options & O){
 
       object o;
 
+      // OPTION skip_all
+      if (O.get<int>("skip_all", 0)) continue;
+
       // filter and set source
+      // OPTION select_source
+      // OPTION skip_source
+      // OPTION set_source_from_name
+      // OPTION set_source
       string source = i->opts.get<string>("Source"); // from original object
       // select source:
       if (O.exists("select_source") && (source!=O.get<string>("select_source"))) continue;
@@ -398,7 +399,14 @@ world::get(const mp::mp_world & M, const Options & O){
     else {
       object o;
 
+      // OPTION skip_all
+      if (O.get<int>("skip_all", 0)) continue;
+
       // filter and set source:
+      // OPTION select_source
+      // OPTION skip_source
+      // OPTION set_source_from_name
+      // OPTION set_source
       string source = i->Opts.get<string>("Source"); // from original object
       // select source:
       if (O.exists("select_source") && (source!=O.get<string>("select_source"))) continue;
@@ -425,9 +433,9 @@ world::get(const mp::mp_world & M, const Options & O){
 int
 world::put(fig::fig_world & F, const Options & O){
   // get options
-  int append          = O.get<int>("append", 0);
-  int skip_labels     = O.get<int>("put_labels", 0);
-  int fig_text_labels = O.get<int>("fig_text_labels", 1);
+  int append          = O.get<int>("append", 0);          // OPTION append 0
+  int skip_labels     = O.get<int>("skip_labels", 0);     // OPTION skip_labels 0
+  int fig_text_labels = O.get<int>("fig_text_labels", 1); // OPTION fig_text_labels 1
 
   zn::zn_conv zconverter(style);
   // find labels for each object
@@ -474,8 +482,19 @@ world::put(fig::fig_world & F, const Options & O){
     fig.comment.push_back(o->text);
     fig.comment.insert(fig.comment.end(), o->comm.begin(), o->comm.end());
 
+    // filter and set source:
+    // OPTION select_source
+    // OPTION skip_source
+    // OPTION set_source
+    // OPTION set_source_from_name
     string source=o->opts.get<string>("Source");
-    if (source != "") fig.opts.put("Source", source);
+    // select source:
+    if (O.exists("select_source") && (source!=O.get<string>("select_source"))) continue;
+    if (O.exists("skip_source") && (source==O.get<string>("skip_source"))) continue;
+    // set source:
+    if (O.get<int>("set_source_from_name", 0)) source = name; // from map name
+    source = O.get("set_source", source);
+    if (source != "") fig.opts.put<string>("Source", source);
 
     if (o->type & zn::area_mask){
       fig.set_points(cnv.line_bck(join_polygons(*o)));
@@ -544,8 +563,8 @@ world::put(mp::mp_world & M, const Options & O){
   new_labels(zconverter);
 
   // get options
-  int append          = O.get<int>("append",     0);
-  int skip_labels     = O.get<int>("put_labels", 0);
+  int append          = O.get<int>("append",     0);  // OPTION append 0
+  int skip_labels     = O.get<int>("skip_labels", 0); // OPTION skip_labels 0
 
   // save map parameters
   M.Name = name;
@@ -570,8 +589,22 @@ world::put(mp::mp_world & M, const Options & O){
     mp.Label   = o->text;
     mp.Comment = o->comm;
 
+    // OPTION skip_all
+    if (O.get<int>("skip_all", 0)) continue;
+
+    // filter and set source:
+    // OPTION select_source
+    // OPTION skip_source
+    // OPTION set_source
+    // OPTION set_source_from_name
     string source=o->opts.get<string>("Source");
-    if (source != "") mp.Opts.put("Source", source);
+    // select source:
+    if (O.exists("select_source") && (source!=O.get<string>("select_source"))) continue;
+    if (O.exists("skip_source") && (source==O.get<string>("skip_source"))) continue;
+    // set source:
+    if (O.get<int>("set_source_from_name", 0)) source = name; // from map name
+    source = O.get("set_source", source);
+    if (source != "") mp.Opts.put<string>("Source", source);
 
     M.push_back(mp);
 
