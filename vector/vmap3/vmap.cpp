@@ -155,6 +155,7 @@ world::new_labels(zn::zn_conv & zconverter){
       lpos l;
       l.ang = 0;
       l.dir = z->second.label_dir;
+      l.hor = true;
       switch (lp){
         case 1: // TR side of object (max x-y point + (1,-1)*td)
           l.pos = max_xpy(*i) +
@@ -177,6 +178,7 @@ world::new_labels(zn::zn_conv & zconverter){
             l.ang = atan2(v.y, v.x);
             l.pos = cp +
               v_m2deg(rscale / 100.0 * dPoint(-v.y, v.x)*label_new_dist, (*i)[0].y);
+            l.hor = false;
           }
           else if (i->size()==1) l.pos = (*i)[0];
           break;
