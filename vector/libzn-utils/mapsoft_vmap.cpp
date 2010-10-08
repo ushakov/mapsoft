@@ -60,7 +60,7 @@ int copy(int argc, char** argv){
     convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
     for (fig::fig_world::iterator i=IF.begin(); i!=IF.end(); i++){
       if (i->type==6) zn::fig_copy_comment(i, IF.end());
-      if (!zconverter.is_map_depth(*i)) continue;
+      if (zn::is_to_skip(*i) || !zconverter.is_map_depth(*i)) continue;
       IM.push_back(zconverter.fig2mp(*i, cnv));
     }
   }
@@ -144,7 +144,7 @@ int remove(int argc, char** argv){
 
     fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
-      if (zconverter.is_map_depth(*i) &&
+      if (!zn::is_to_skip(*i) && zconverter.is_map_depth(*i) &&
         ((source == "") || (i->opts.get("Source", string()) == source)))
              {i=F.erase(i); obj_cnt++;}
       else i++;
@@ -272,7 +272,7 @@ int crop(const string & mode, int argc, char** argv){
 
     fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
-      if (!zconverter.is_map_depth(*i)) { i++; continue;}
+      if (zn::is_to_skip(*i) || !zconverter.is_map_depth(*i)) { i++; continue;}
       obj_cnt1++;
       dLine l = cnv.line_frw(*i);
       bool closed= i->is_closed() || (i->area_fill != -1);
@@ -393,7 +393,7 @@ int range(int argc, char** argv){
 
     fig::fig_world::iterator i=F.begin();
     while (i!=F.end()){
-      if (!zconverter.is_map_depth(*i)) { i++; continue;}
+      if (zn::is_to_skip(*i) || !zconverter.is_map_depth(*i)) { i++; continue;}
       ret=rect_bounding_box(ret, dRect(i->range()));
       i++;
     }
@@ -592,7 +592,7 @@ int show_sources(int argc, char** argv){
 
     int maxid=0;
     for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
-      if (!zconverter.is_map_depth(*i)) continue;
+      if (zn::is_to_skip(*i) || !zconverter.is_map_depth(*i)) continue;
       string s = i->opts.get("Source", string());
       if (cnt.count(s)==0) cnt[s]=1;
       else cnt[s]++;
@@ -646,7 +646,7 @@ int set_source(int argc, char** argv){
 
     fig::fig_world::iterator i=F.begin();
     for (i=F.begin(); i!=F.end(); i++){
-      if (!zconverter.is_map_depth(*i)) continue;
+      if (zn::is_to_skip(*i) || !zconverter.is_map_depth(*i)) continue;
       i->opts["Source"]=source;
       o_cnt++;
     }
