@@ -54,38 +54,38 @@ world::range() const{
   переименовывать объект, но не делать это одновременно.
 */
 int
-world::add_labels(world & objects,  std::list<lpos_full> & labels){
+world::add_labels(){
   std::list<lpos_full>::iterator l, l0;
   world::iterator o;
   dPoint p, p0;
 
   // one nearest label with correct text (label_search_dist1 parameter)
-  for (o=objects.begin(); o!=objects.end(); o++){
+  for (o=begin(); o!=end(); o++){
     if (o->text == "") continue;
     double d0=1e99;
-    for (l=labels.begin(); l!=labels.end(); l++){
+    for (l=lbuf.begin(); l!=lbuf.end(); l++){
       if (l->text != o->text) continue;
       double d = dist_pt_l(l->ref, *o, p);
       if ( d < d0){ d0=d; p0=p; l0=l;}
     }
     if (d0 * 100 / rscale < label_search_dist1){
       o->labels.push_back(*l0);
-      labels.erase(l0);
+      lbuf.erase(l0);
     }
   }
 
   // labels with correct text (label_search_dist2 parameter)
-  for (o=objects.begin(); o!=objects.end(); o++){
+  for (o=begin(); o!=end(); o++){
     if (o->text == "") continue;
-    l=labels.begin();
-    while (l!=labels.end()){
+    l=lbuf.begin();
+    while (l!=lbuf.end()){
       // near ref or near pos
       if ( ((l->text == o->text) &&
             (dist_pt_l(l->ref, *o, p)* 100 / rscale < label_search_dist2)) ||
            ((l->text == o->text) &&
             (dist_pt_l(l->pos, *o, p)* 100 / rscale < label_search_dist2)) ){
         o->labels.push_back(*l);
-        l = labels.erase(l);
+        l = lbuf.erase(l);
         continue;
       }
       l++;
@@ -93,13 +93,13 @@ world::add_labels(world & objects,  std::list<lpos_full> & labels){
   }
 
   // labels with changed text (label_search_dist3 parameter)
-  for (o=objects.begin(); o!=objects.end(); o++){
+  for (o=begin(); o!=end(); o++){
     if (o->text == "") continue;
-    l=labels.begin();
-    while (l!=labels.end()){
+    l=lbuf.begin();
+    while (l!=lbuf.end()){
       if (dist_pt_l(l->ref, *o, p)* 100 / rscale < label_search_dist3){
         o->labels.push_back(*l);
-        l = labels.erase(l);
+        l = lbuf.erase(l);
         continue;
       }
       l++;
@@ -138,8 +138,8 @@ max_xpy(const dLine & l){
 
 // create new labels
 void
-world::new_labels(world & objects, zn::zn_conv & zconverter){
-  for (world::iterator o=objects.begin(); o!=objects.end(); o++){
+world::new_labels(zn::zn_conv & zconverter){
+  for (world::iterator o=begin(); o!=end(); o++){
     if ((o->labels.size()>0) || (o->text=="")) continue;
 
     std::map<int, zn::zn>::const_iterator z = zconverter.znaki.find(o->type);
@@ -259,8 +259,6 @@ world::get(const fig::fig_world & F, const Options & O){
 
   // get map objects and labels:
   zn::zn_conv zconverter(style);
-  std::list<lpos_full> labels; // ownerless labels
-  world o4l; // objects waiting for a label
   std::vector<std::string> cmp_comm, comm;
   for (fig::fig_world::const_iterator i=F.begin(); i!=F.end(); i++){
     if (i->type==6)  cmp_comm = i->comment;
@@ -295,7 +293,7 @@ world::get(const fig::fig_world & F, const Options & O){
           l.ang=0;
           l.hor=true;
         }
-        labels.push_back(l);
+        lbuf.push_back(l);
         continue;
       }
 
@@ -325,9 +323,7 @@ world::get(const fig::fig_world & F, const Options & O){
           ((*i)[0]!=(*i)[i->size()-1])) pts.push_back(pts[0]);
       o.push_back(pts);
       o.dir=zn::fig_arr2dir(*i);
-      // keep objects waiting for a label separately
-      if ((zconverter.get_label_pos(type)) && (o.text != "")) o4l.push_back(o);
-      else push_back(o);
+      push_back(o);
       continue;
     }
     // find normal labels
@@ -349,15 +345,14 @@ world::get(const fig::fig_world & F, const Options & O){
         l.ang = 0;
         l.hor = true;
       }
-      labels.push_back(l);
+      lbuf.push_back(l);
       continue;
     }
   }
   // find labels for each object
-  add_labels(o4l, labels);
+  add_labels();
   // create new labels
-  new_labels(o4l, zconverter);
-  insert(begin(), o4l.begin(), o4l.end());
+  new_labels(zconverter);
   return 1;
 }
 
@@ -379,8 +374,6 @@ world::get(const mp::mp_world & M, const Options & O){
 
   // get map objects and labels:
   zn::zn_conv zconverter(style);
-  std::list<lpos_full> labels; // ownerless labels
-  world o4l; // objects waiting for a label
   for (mp::mp_world::const_iterator i=M.begin(); i!=M.end(); i++){
     int type = zconverter.get_type(*i);
     if (type==border_type){ // special type -- border
@@ -403,7 +396,7 @@ world::get(const mp::mp_world & M, const Options & O){
           l.ang = 0;
           l.hor = true;
         }
-        labels.push_back(l);
+        lbuf.push_back(l);
       }
     }
     else {
@@ -424,18 +417,13 @@ world::get(const mp::mp_world & M, const Options & O){
       o.text = i->Label;
       o.comm = i->Comment;
       o.dir  = i->Opts.get("Direction", 0);
-
-      // keep objects waiting for a label separately
-      // TODO -- don't modify zconverter by []
-      if ((zconverter.znaki[type].label_pos) && (o.text != "")) o4l.push_back(o);
-      else push_back(o);
+      push_back(o);
     }
   }
   // find labels for each object
-  add_labels(o4l, labels);
+  add_labels();
   // create new labels
-  new_labels(o4l, zconverter);
-  insert(begin(), o4l.begin(), o4l.end());
+  new_labels(zconverter);
   return 1;
 }
 
@@ -446,7 +434,7 @@ int
 world::put(fig::fig_world & F, const Options & O){
   // get options
   int append          = O.get<int>("append", 0);
-  int skip_labels     = O.get<int>("put_labels", 1);
+  int skip_labels     = O.get<int>("put_labels", 0);
   int fig_text_labels = O.get<int>("fig_text_labels", 1);
 
   zn::zn_conv zconverter(style);
@@ -479,7 +467,7 @@ world::put(fig::fig_world & F, const Options & O){
   brd_o.set_points(cnv.line_bck(brd));
   brd_o.close();
   F.comment.push_back("BRD " + name);
-  F.push_back(brd_o);
+  if (brd.size()!=0) F.push_back(brd_o);
 
   // add other objects
   for (world::const_iterator o = begin(); o!=end(); o++){
@@ -555,7 +543,7 @@ world::put(mp::mp_world & M, const Options & O){
 
   // get options
   int append          = O.get<int>("append",     0);
-  int skip_labels     = O.get<int>("put_labels", 1);
+  int skip_labels     = O.get<int>("put_labels", 0);
 
   // save map parameters
   M.Name = name;
@@ -568,8 +556,10 @@ world::put(mp::mp_world & M, const Options & O){
 
   // add border object
   mp::mp_object brd_o = zconverter.get_mp_template(border_type);
-  brd_o.push_back(brd);
-  M.push_back(brd_o);
+  if (brd.size()!=0){
+     brd_o.push_back(brd);
+     M.push_back(brd_o);
+  }
 
   // add other objects
   for (world::const_iterator o = begin(); o!=end(); o++){

@@ -61,6 +61,7 @@ struct world : std::list<object> {
   dLine       brd;
 
   dRect range() const;
+  std::list<lpos_full> lbuf; // buffer for ownerless labels
 
   /*
    Процедура нахождения соответствия между подписями и объектами:
@@ -76,11 +77,11 @@ struct world : std::list<object> {
     для того, чтобы не потерять подпись, надо либо двигать, либо
     переименовывать объект, но не делать это одновременно.
   */
-  // add labels to objects
-  int add_labels(world & objects,  std::list<lpos_full> & labels);
+  // add labels from lbuf to objects
+  int add_labels();
 
   // create new labels
-  void new_labels(world & objects, zn::zn_conv & zconverter);
+  void new_labels(zn::zn_conv & zconverter);
 
   // get vmap objects and labels from fig
   int get(const fig::fig_world & F, const Options & O = Options());
@@ -91,7 +92,7 @@ struct world : std::list<object> {
   /* put vmap to referenced fig
      options:
        int append          (default 0)
-       int skip_labels     (default 1)
+       int skip_labels     (default 0)
        int fig_text_labels (default 1)
   */
   int put(fig::fig_world & F, const Options & O = Options());
@@ -99,7 +100,7 @@ struct world : std::list<object> {
   /* put vmap to mp
      options:
        int append          (default 0)
-       int skip_labels     (default 1)
+       int skip_labels     (default 0)
   */
   int put(mp::mp_world & M, const Options & O = Options());
 
