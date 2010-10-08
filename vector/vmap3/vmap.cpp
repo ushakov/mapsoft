@@ -184,6 +184,8 @@ world::new_labels(zn::zn_conv & zconverter){
   }
 }
 
+/***************************************/
+
 // input angle conversions:
 //                           ll p1,p2 -> ll angle   : mp labels
 //              fig p1,p2 -> ll p1,p2 -> ll angle   : fig object labels
@@ -230,6 +232,31 @@ world::ang_a2afig(double a, Conv & cnv, dPoint fig_pos){
   return atan2(-v.y, v.x);
 }
 
+
+/***************************************/
+
+bool
+skip_object(const Options & O, const object &o){
+  if (O.get<int>("skip_all", 0)) return true;
+
+  if (O.exists("select_type") && (o.type!=O.get<int>("select_type", 0))) return true;
+  if (O.exists("skip_type") && (o.type==O.get<int>("skip_type", 0))) return true;
+
+  string source = o.opts.get<string>("Source");
+  if (O.exists("select_source") && (source!=O.get<string>("select_source"))) return true;
+  if (O.exists("skip_source") && (source==O.get<string>("skip_source"))) return true;
+  return false;
+}
+void
+set_source(Options & o, const string & source){
+  if (source != "") o.put<string>("Source", source);
+}
+void
+change_source(const Options & O, Options &o, const string &name){
+  string source = o.get<string>("Source"); // from original object
+  if (O.get<int>("set_source_from_name", 0)) source = name; // from map name
+  set_source(o, O.get("set_source", source));
+}
 
 /***************************************/
 
@@ -292,25 +319,20 @@ world::get(const fig::fig_world & F, const Options & O){
       }
 
       object o;
+      o.type = type;
+      set_source(o.opts, i->opts.get<string>("Source"));
 
       // OPTION skip_all
-      if (O.get<int>("skip_all", 0)) continue;
-
-      // filter and set source
+      // OPTION skip_type
+      // OPTION select_type
       // OPTION select_source
       // OPTION skip_source
+      if (skip_object(O, o)) continue;
+
       // OPTION set_source_from_name
       // OPTION set_source
-      string source = i->opts.get<string>("Source"); // from original object
-      // select source:
-      if (O.exists("select_source") && (source!=O.get<string>("select_source"))) continue;
-      if (O.exists("skip_source") && (source==O.get<string>("skip_source"))) continue;
-      // set source:
-      if (O.get<int>("set_source_from_name", 0)) source = name; // from map name
-      source = O.get("set_source", source);
-      if (source != "") o.opts.put<string>("Source", source);
+      change_source(O, o.opts, name);
 
-      o.type = type;
       if (i->comment.size()>0){
         o.text = i->comment[0];
         o.comm.insert(o.comm.begin(),
@@ -399,28 +421,24 @@ world::get(const mp::mp_world & M, const Options & O){
     else {
       object o;
 
-      // OPTION skip_all
-      if (O.get<int>("skip_all", 0)) continue;
-
-      // filter and set source:
-      // OPTION select_source
-      // OPTION skip_source
-      // OPTION set_source_from_name
-      // OPTION set_source
-      string source = i->Opts.get<string>("Source"); // from original object
-      // select source:
-      if (O.exists("select_source") && (source!=O.get<string>("select_source"))) continue;
-      if (O.exists("skip_source") && (source==O.get<string>("skip_source"))) continue;
-      // set source:
-      if (O.get<int>("set_source_from_name", 0)) source = name; // from map name
-      source = O.get("set_source", source);
-      if (source != "") o.opts.put<string>("Source", source);
-
-      o.dMultiLine::operator=(*i);
       o.type = type;
       o.text = i->Label;
       o.comm = i->Comment;
       o.dir  = i->Opts.get("Direction", 0);
+      set_source(o.opts, i->Opts.get<string>("Source"));
+
+      // OPTION skip_all
+      // OPTION skip_type
+      // OPTION select_type
+      // OPTION select_source
+      // OPTION skip_source
+      if (skip_object(O, o)) continue;
+
+      // OPTION set_source_from_name
+      // OPTION set_source
+      change_source(O, o.opts, name);
+
+      o.dMultiLine::operator=(*i);
       push_back(o);
     }
   }
@@ -478,23 +496,23 @@ world::put(fig::fig_world & F, const Options & O){
   // add other objects
   for (world::const_iterator o = begin(); o!=end(); o++){
 
-    fig::fig_object fig = zconverter.get_fig_template(o->type);
-    fig.comment.push_back(o->text);
-    fig.comment.insert(fig.comment.end(), o->comm.begin(), o->comm.end());
-
-    // filter and set source:
+    // OPTION skip_all
+    // OPTION skip_type
+    // OPTION select_type
     // OPTION select_source
     // OPTION skip_source
-    // OPTION set_source
+    if (skip_object(O, *o)) continue;
+
+    fig::fig_object fig = zconverter.get_fig_template(o->type);
+
+    set_source(fig.opts, o->opts.get<string>("Source"));
+
     // OPTION set_source_from_name
-    string source=o->opts.get<string>("Source");
-    // select source:
-    if (O.exists("select_source") && (source!=O.get<string>("select_source"))) continue;
-    if (O.exists("skip_source") && (source==O.get<string>("skip_source"))) continue;
-    // set source:
-    if (O.get<int>("set_source_from_name", 0)) source = name; // from map name
-    source = O.get("set_source", source);
-    if (source != "") fig.opts.put<string>("Source", source);
+    // OPTION set_source
+    change_source(O, fig.opts, name);
+
+    fig.comment.push_back(o->text);
+    fig.comment.insert(fig.comment.end(), o->comm.begin(), o->comm.end());
 
     if (o->type & zn::area_mask){
       fig.set_points(cnv.line_bck(join_polygons(*o)));
@@ -584,28 +602,25 @@ world::put(mp::mp_world & M, const Options & O){
 
   // add other objects
   for (world::const_iterator o = begin(); o!=end(); o++){
+
+    // OPTION skip_all
+    // OPTION skip_type
+    // OPTION select_type
+    // OPTION select_source
+    // OPTION skip_source
+    if (skip_object(O, *o)) continue;
+
     mp::mp_object mp = zconverter.get_mp_template(o->type);
+
+    set_source(mp.Opts, o->opts.get<string>("Source"));
+
+    // OPTION set_source_from_name
+    // OPTION set_source
+    change_source(O, mp.Opts, name);
+
     mp.dMultiLine::operator=(*o); // copy points
     mp.Label   = o->text;
     mp.Comment = o->comm;
-
-    // OPTION skip_all
-    if (O.get<int>("skip_all", 0)) continue;
-
-    // filter and set source:
-    // OPTION select_source
-    // OPTION skip_source
-    // OPTION set_source
-    // OPTION set_source_from_name
-    string source=o->opts.get<string>("Source");
-    // select source:
-    if (O.exists("select_source") && (source!=O.get<string>("select_source"))) continue;
-    if (O.exists("skip_source") && (source==O.get<string>("skip_source"))) continue;
-    // set source:
-    if (O.get<int>("set_source_from_name", 0)) source = name; // from map name
-    source = O.get("set_source", source);
-    if (source != "") mp.Opts.put<string>("Source", source);
-
     M.push_back(mp);
 
     // labels

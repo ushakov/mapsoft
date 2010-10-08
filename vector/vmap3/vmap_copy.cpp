@@ -26,6 +26,8 @@ void usage(){
      << "    --select_source <string value> -- copy only objects with given source\n"
      << "    --skip_source <string value>   -- copy all objects but ones with given source\n"
      << "    (select_source and skip_source options are processed before set_source_*)\n"
+     << "    --select_type <int value>      -- copy only objects with given type\n"
+     << "    --skip_typee <int value>       -- copy all objects but ones with given type\n"
      << "    --skip_all                     -- don't read any objects, only labels\n"
      << "    -v, --verbose                  -- be verbose (works only in global options)\n"
      << "  output options:\n"
@@ -40,6 +42,10 @@ void usage(){
      << "    --set_source_from_fname        -- set source parameter from file name\n"
      << "    --select_source <string value> -- copy only objects with given source\n"
      << "    --skip_source <string value>   -- copy all objects but ones with given source\n"
+     << "    (select_source and skip_source options are processed before set_source_*)\n"
+     << "    --select_type <int value>      -- copy only objects with given type\n"
+     << "    --skip_typee <int value>       -- copy all objects but ones with given type\n"
+     << "    --skip_all                     -- don't read any objects, only labels\n"
   ;
   exit(1);
 }
@@ -56,6 +62,8 @@ Options parse_in_options(int argc, char **argv){
       {"set_source_from_fname", 0, 0 , 0},
       {"select_source",         1, 0 , 0},
       {"skip_source",           1, 0 , 0},
+      {"select_type",           1, 0 , 0},
+      {"skip_type",             1, 0 , 0},
       {"skip_all",              0, 0 , 0},
       {"out",         0, 0 , 'o'},
       {"verbose",     0, 0 , 'v'},
@@ -81,6 +89,10 @@ Options parse_in_options(int argc, char **argv){
           O.put<string>("select_source", optarg);
         if (strcmp(long_options[option_index].name, "skip_source")==0)
           O.put<string>("skip_source", optarg);
+        if (strcmp(long_options[option_index].name, "select_type")==0)
+          O.put<string>("select_type", optarg);
+        if (strcmp(long_options[option_index].name, "skip_type")==0)
+          O.put<string>("skip_type", optarg);
         if (strcmp(long_options[option_index].name, "skip_all")==0)
           O.put<string>("skip_all", "1");
         break;
@@ -99,12 +111,15 @@ Options parse_out_options(int argc, char **argv){
     int this_option_optind = optind ? optind : 1;
     int option_index = 0;
     static struct option long_options[] = {
-      {"skip_labels", 0, 0 , 0},
+      {"skip_labels",  0, 0 , 0},
       {"set_source",            1, 0 , 0},
       {"set_source_from_name",  0, 0 , 0},
       {"set_source_from_fname", 0, 0 , 0},
       {"select_source",         1, 0 , 0},
       {"skip_source",           1, 0 , 0},
+      {"select_type",           1, 0 , 0},
+      {"skip_type",             1, 0 , 0},
+      {"skip_all",              0, 0 , 0},
       {"append",      0, 0 , 'a'},
       {"name",        1, 0 , 'n'},
       {"mp_id",       1, 0 , 'i'},
@@ -132,6 +147,10 @@ Options parse_out_options(int argc, char **argv){
           O.put<string>("set_source_from_fname", "1");
         if (strcmp(long_options[option_index].name, "select_source")==0)
           O.put<string>("select_source", optarg);
+        if (strcmp(long_options[option_index].name, "select_type")==0)
+          O.put<string>("select_type", optarg);
+        if (strcmp(long_options[option_index].name, "skip_type")==0)
+          O.put<string>("skip_type", optarg);
         if (strcmp(long_options[option_index].name, "skip_source")==0)
           O.put<string>("skip_source", optarg);
         break;
