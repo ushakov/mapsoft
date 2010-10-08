@@ -357,6 +357,9 @@ world::get(const fig::fig_world & F, const Options & O){
   }
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
 
+  int skip_labels = O.get<int>("skip_labels", 0);     // OPTION skip_labels 0
+  if (O.get<int>("read_labels", 0)) skip_labels=0;    // OPTION read_labels
+
   // get map data
   rscale = 100 * convs::map_mpp(ref, Proj("tmerc")) * fig::cm2fig;
   rscale = F.opts.get<double>("rscale", rscale);
@@ -396,6 +399,7 @@ world::get(const fig::fig_world & F, const Options & O){
         continue;
       }
       if (type==label_type){ // special type -- label objects
+        if (skip_labels) continue;
         if (i->size()<2) continue;
         if (i->comment.size()<1) continue;
         lpos_full l;
@@ -454,6 +458,7 @@ world::get(const fig::fig_world & F, const Options & O){
         (i->opts.get("MapType", std::string())=="label") &&
         (i->opts.exists("RefPt")) ){
       if ((!i->is_text()) || (i->size()<1)) continue;
+      if (skip_labels) continue;
       lpos_full l;
       l.pos = (*i)[0]; cnv.frw(l.pos);
       l.ref = i->opts.get("RefPt", l.pos); cnv.frw(l.ref);
@@ -485,6 +490,9 @@ world::get(const mp::mp_world & M, const Options & O){
   name  = M.Name;
   mp_id = M.ID;
 
+  int skip_labels = O.get<int>("skip_labels", 0);     // OPTION skip_labels 0
+  if (O.get<int>("read_labels", 0)) skip_labels=0;    // OPTION read_labels
+
   // OPTION skip_range
   // OPTION select_range
   // OPTION crop_range
@@ -505,6 +513,7 @@ world::get(const mp::mp_world & M, const Options & O){
     }
     else if (type==label_type){ // special type -- label objects
       if (i->Label=="") continue;
+      if (skip_labels) continue;
       for (dMultiLine::const_iterator j=i->begin(); j!=i->end(); j++){
         if (j->size()<2) continue;
         lpos_full l;

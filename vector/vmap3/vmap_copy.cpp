@@ -22,6 +22,9 @@ void usage(){
      << "\n"
      << "  input options:\n"
      << "\n"
+     << "    --skip_labels                  -- don't read labels\n"
+     << "    --read_labels                  -- do read labels\n"
+     << "\n"
      << "    --set_source <string value>    -- set source parameter\n"
      << "    --set_source_from_name         -- set source parameter from map name\n"
      << "    --set_source_from_fname        -- set source parameter from file name\n"
@@ -45,17 +48,6 @@ void usage(){
      << "    (lon0 can be overriden by prefix in range x coord)\n"
      << "\n"
      << "    -v, --verbose                  -- be verbose (works only in global options)\n"
-
-    // OPTION skip_range
-    // OPTION select_range
-    // OPTION crop_range
-    // OPTION skip_nom
-    // OPTION select_nom
-    // OPTION crop_nom
-    // OPTION range_datum lonlat
-    // OPTION range_proj  wgs84
-    // OPTION range_lon0  0
-
      << "\n"
      << "  output options:\n"
      << "\n"
@@ -88,6 +80,9 @@ Options parse_in_options(int argc, char **argv){
     int this_option_optind = optind ? optind : 1;
     int option_index = 0;
     static struct option long_options[] = {
+      {"skip_labels",           0, 0, 0},
+      {"read_labels",           0, 0, 0},
+
       {"set_source",            1, 0, 0},
       {"set_source_from_name",  0, 0, 0},
       {"set_source_from_fname", 0, 0, 0},
@@ -125,10 +120,10 @@ Options parse_in_options(int argc, char **argv){
         if (long_options[i].val == c) option_index = i;
         i++;
       }
-      if (!long_options[option_index].name){
-        std::cerr << "error: bad option\n";
-        exit(1);
-      }
+    }
+    if (opterr || !long_options[option_index].name){
+      std::cerr << "error: bad option\n";
+      exit(1);
     }
     O.put<string>(long_options[option_index].name,
       long_options[option_index].has_arg? optarg:"1");
@@ -143,7 +138,7 @@ Options parse_out_options(int argc, char **argv){
     int this_option_optind = optind ? optind : 1;
     int option_index = 0;
     static struct option long_options[] = {
-      {"skip_labels",  0, 0 , 0},
+      {"skip_labels",           0, 0, 0},
 
       {"set_source",            1, 0 , 0},
       {"set_source_from_name",  0, 0 , 0},
@@ -170,10 +165,10 @@ Options parse_out_options(int argc, char **argv){
         if (long_options[i].val == c) option_index = i;
         i++;
       }
-      if (!long_options[option_index].name){
-        std::cerr << "error: bad option\n";
-        exit(1);
-      }
+    }
+    if (opterr || !long_options[option_index].name){
+      std::cerr << "error: bad option\n";
+      exit(1);
     }
     O.put<string>(long_options[option_index].name,
       long_options[option_index].has_arg? optarg:"1");
