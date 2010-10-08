@@ -5,8 +5,10 @@
 #include <iostream>
 
 #include "lib2d/line_utils.h"
+#include "lib2d/line_rectcrop.h"
 #include "libgeo_io/geofig.h"
 #include "libgeo/geo_convs.h"
+#include "libgeo/geo_nom.h"
 #include "../libzn/zn.h"
 #include "vmap.h"
 
@@ -258,6 +260,90 @@ change_source(const Options & O, Options &o, const string &name){
   set_source(o, O.get("set_source", source));
 }
 
+
+struct RangeCutter{
+  dRect skip_range, crop_range, select_range;
+  convs::pt2pt *skip_cnv, *crop_cnv, *select_cnv;
+
+  RangeCutter(const Options & O){
+    // OPTION skip_range
+    // OPTION select_range
+    // OPTION crop_range
+    // OPTION skip_nom
+    // OPTION select_nom
+    // OPTION crop_nom
+    // OPTION range_datum lonlat
+    // OPTION range_proj  wgs84
+    // OPTION range_lon0  0
+
+    skip_cnv   = mk_cnv_and_range(O, "skip", skip_range);
+    crop_cnv   = mk_cnv_and_range(O, "crop", crop_range);
+    select_cnv = mk_cnv_and_range(O, "select", select_range);
+  }
+  ~RangeCutter(){
+    if (skip_cnv) delete skip_cnv;
+    if (crop_cnv) delete crop_cnv;
+    if (select_cnv) delete select_cnv;
+  }
+
+  convs::pt2pt *
+  mk_cnv_and_range(const Options & O, const string & prefix, dRect & range){
+    double lon0 = O.get<double>("range_lon0", 0);
+    Proj  P = O.get<Proj>("range_proj", Proj("lonlat"));
+    Datum D = O.get<Datum>("range_datum", Datum("wgs84"));
+    convs::pt2pt *cnv = NULL;
+
+    if (O.exists(prefix+"_nom")){
+      range=convs::nom_range(O.get<string>(prefix+"_nom"));
+      P = Proj("lonlat");
+      D = Datum("pulkovo");
+    }
+    else if (O.exists(prefix+"_range")){
+      range = O.get<dRect>(prefix+"_range");
+      if (range.x>=1e6){
+        double lon0p = convs::lon_pref2lon0(range.x);
+        range.x = convs::lon_delprefix(range.x);
+        if (lon0p!=0) lon0=lon0p;
+      }
+    }
+    Options ProjO;
+    ProjO.put<double>("lon0", lon0);
+    if (!range.empty())
+        cnv = new convs::pt2pt(
+          Datum("wgs84"), Proj("lonlat"), Options(), D, P, ProjO);
+    return cnv;
+  }
+
+  void
+  process(object & o){
+    dMultiLine::iterator l = o.begin();
+    while (l != o.end()){
+
+      if (l->size() > 0){
+        bool closed = ( (*l)[0] == (*l)[l->size()-1] );
+        if (skip_cnv){
+          dLine lc = skip_cnv->line_frw(*l);
+          rect_crop(skip_range, lc, closed);
+          if (lc.size()!=0) l->clear();
+        }
+        if (select_cnv){
+          dLine lc = select_cnv->line_frw(*l);
+          rect_crop(select_range, lc, closed);
+          if (lc.size()==0) l->clear();
+        }
+        if (crop_cnv){
+          dLine lc = crop_cnv->line_frw(*l);
+          rect_crop(crop_range, lc, closed);
+          *l = crop_cnv->line_bck(lc);
+        }
+      }
+
+      if (l->size()==0) l=o.erase(l);
+      else l++;
+    }
+  }
+};
+
 /***************************************/
 
 // get vmap objects and labels from fig
@@ -277,6 +363,17 @@ world::get(const fig::fig_world & F, const Options & O){
   style  = F.opts.get<string>("style", default_style);
   name   = F.opts.get<string>("name");
   mp_id  = F.opts.get<int>("mp_id");
+
+  // OPTION skip_range
+  // OPTION select_range
+  // OPTION crop_range
+  // OPTION skip_nom
+  // OPTION select_nom
+  // OPTION crop_nom
+  // OPTION range_datum lonlat
+  // OPTION range_proj  wgs84
+  // OPTION range_lon0  0
+  RangeCutter RC(O);
 
   // get map objects and labels:
   zn::zn_conv zconverter(style);
@@ -346,7 +443,10 @@ world::get(const fig::fig_world & F, const Options & O){
           ((*i)[0]!=(*i)[i->size()-1])) pts.push_back(pts[0]);
       o.push_back(pts);
       o.dir=zn::fig_arr2dir(*i);
-      push_back(o);
+
+      // crop, skip, select range
+      RC.process(o);
+      if (o.size()>0) push_back(o);
       continue;
     }
     // find normal labels
@@ -379,17 +479,22 @@ world::get(const fig::fig_world & F, const Options & O){
 int
 world::get(const mp::mp_world & M, const Options & O){
 
-  // Options:
-  // set_source_from_name (int, default 0)
-  // set_source           (string)
-  // select_source
-  // skip_source
-
   // get map data -- TODO
   style =  M.Opts.get("Style", default_style);
   rscale = M.Opts.get("RScale", default_rscale);
   name  = M.Name;
   mp_id = M.ID;
+
+  // OPTION skip_range
+  // OPTION select_range
+  // OPTION crop_range
+  // OPTION skip_nom
+  // OPTION select_nom
+  // OPTION crop_nom
+  // OPTION range_datum lonlat
+  // OPTION range_proj  wgs84
+  // OPTION range_lon0  0
+  RangeCutter RC(O);
 
   // get map objects and labels:
   zn::zn_conv zconverter(style);
@@ -439,7 +544,10 @@ world::get(const mp::mp_world & M, const Options & O){
       change_source(O, o.opts, name);
 
       o.dMultiLine::operator=(*i);
-      push_back(o);
+
+      // crop, skip, select range
+      RC.process(o);
+      if (o.size()>0) push_back(o);
     }
   }
   return 1;
@@ -495,6 +603,7 @@ world::put(fig::fig_world & F, const Options & O){
 
   // add other objects
   for (world::const_iterator o = begin(); o!=end(); o++){
+    if (o->size()==0) continue;
 
     // OPTION skip_all
     // OPTION skip_type
@@ -602,6 +711,7 @@ world::put(mp::mp_world & M, const Options & O){
 
   // add other objects
   for (world::const_iterator o = begin(); o!=end(); o++){
+    if (o->size()==0) continue;
 
     // OPTION skip_all
     // OPTION skip_type
@@ -619,6 +729,7 @@ world::put(mp::mp_world & M, const Options & O){
     change_source(O, mp.Opts, name);
 
     mp.dMultiLine::operator=(*o); // copy points
+
     mp.Label   = o->text;
     mp.Comment = o->comm;
     M.push_back(mp);
