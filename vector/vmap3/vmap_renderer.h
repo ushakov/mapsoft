@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <list>
+#include <cstring>
 #include <cairomm/cairommconfig.h>
 #include <cairomm/context.h>
 #include <cairomm/surface.h>
@@ -30,7 +31,7 @@ struct VMAPRenderer{
   Datum D;
   Proj P;
 
-  VMAPRenderer(const char * in_file, int dpi_=200):
+  VMAPRenderer(const char * in_file, int dpi_=300):
         cnv(Datum("wgs84"), Proj("lonlat"), Options(),
             Datum("wgs84"), Proj("lonlat"), Options()){
     std::cerr << "Reading " << in_file << "\n";
@@ -51,7 +52,7 @@ struct VMAPRenderer{
 
     m2pt=100.0/W.rscale * dpi / 2.54;
     lw1 = dpi/105.0; // standard line width (1/105in?)
-    fs1 = dpi/75.0;  // standard font size
+    fs1 = dpi/89.0;  // standard font size
 
     // try find range from name
     dRect nom_r = convs::nom_range(W.name);
@@ -83,6 +84,8 @@ struct VMAPRenderer{
       Cairo::FORMAT_ARGB32, rng_pt.w, rng_pt.h);
     cr = Cairo::Context::create(surface);
 
+    cr->set_antialias(Cairo::ANTIALIAS_NONE);
+
     set_color(0xFFFFFF); cr->paint();
     for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
       dPoint pc=*p; pt_m2pt(pc);
@@ -101,6 +104,7 @@ struct VMAPRenderer{
     cr->set_line_width(10);
     cr->stroke();
     cr->restore();
+    W.add_labels();
   }
 
   void set_color(int c){
@@ -416,89 +420,165 @@ struct VMAPRenderer{
   }
 
   void
-  render_labels(){
-    cr->save();
+  erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
+                   int dark_th, int search_dist){
 
-    zn::zn_conv zc(W.style);
+    unsigned char *data=surface->get_data();
+    int w=surface->get_width();
+    int h=surface->get_height();
+    int s=surface->get_stride();
+#define COL(x,y)  ((data[s*(y) + 4*(x) + 2] << 16)\
+                 + (data[s*(y) + 4*(x) + 1] << 8)\
+                 +  data[s*(y) + 4*(x) + 0])
+#define ADJ(x,y,i)  COL( x+ ((i==1)?1:0) - ((i==3)?1:0), y + ((i==2)?1:0) - ((i==0)?1:0))
+#define DIST2(x,y) ((x)*(x) + (y)*(y))
+#define IS_DARK(x,y) (data[s*(y) + 4*(x) + 2]\
+                 +  data[s*(y) + 4*(x) + 1]\
+                 +  data[s*(y) + 4*(x) + 0] < 3*dark_th)
+#define MIN(x,y) (x<y? x:y)
+#define MAX(x,y) (x>y? x:y)
+
+    unsigned char *bw_data=bw_surface->get_data();
+    int bws=bw_surface->get_stride();
+
+std::cerr << "str: " << bws << " " << s << "\n";
+#define IS_TEXT(x,y)  ((bw_data[bws*(y) + (x)/8] >> ((x)%8))&1)\
+
+    // walk through all non-border points
+    for (int y=0; y<h; y++){
+      for (int x=0; x<w; x++){
+        if (!IS_TEXT(x,y)) continue;
+
+        if (!IS_DARK(x,y)) continue;
+        // find nearest point with light color:
+        int r = search_dist;
+        int dd = 2*search_dist*search_dist+1;
+        int yym=y, xxm=x;
+        for (int yy = MAX(0, y-r); yy < MIN(h, y+r+1); yy++){
+          for (int xx = MAX(0, x-r); xx < MIN(w, x+r+1); xx++){
+            if (IS_DARK(xx,yy)) continue;
+            if ((y-yy)*(y-yy) + (x-xx)*(x-xx) < dd){
+              dd = (y-yy)*(y-yy) + (x-xx)*(x-xx);
+              yym=yy; xxm=xx;
+            }
+          }
+        }
+
+        if ((xxm==x) && (yym==y))
+          memset(data + s*y + 4*x, 0xFF, 3);
+        else
+          memcpy(data + s*y + 4*x, data + s*yym + 4*xxm, 3);
+      }
+    }
+  }
+
+  void
+  set_fig_font(int font, double fs, Cairo::RefPtr<Cairo::Context> C){
     std::string       face;
     Cairo::FontSlant  slant;
     Cairo::FontWeight weight;
+    switch(font){
+      case 0:
+        face="times";
+        slant=Cairo::FONT_SLANT_NORMAL;
+        weight=Cairo::FONT_WEIGHT_NORMAL;
+        break;
+      case 1:
+        face="times";
+        slant=Cairo::FONT_SLANT_ITALIC;
+        weight=Cairo::FONT_WEIGHT_NORMAL;
+        break;
+      case 2:
+        face="times";
+        slant=Cairo::FONT_SLANT_NORMAL;
+        weight=Cairo::FONT_WEIGHT_BOLD;
+        break;
+      case 3:
+        face="times";
+        slant=Cairo::FONT_SLANT_ITALIC;
+        weight=Cairo::FONT_WEIGHT_BOLD;
+        break;
+      case 16:
+        face="sans";
+        slant=Cairo::FONT_SLANT_NORMAL;
+        weight=Cairo::FONT_WEIGHT_NORMAL;
+        break;
+      case 17:
+        face="sans";
+        slant=Cairo::FONT_SLANT_OBLIQUE;
+        weight=Cairo::FONT_WEIGHT_NORMAL;
+        break;
+      case 18:
+        face="sans";
+        slant=Cairo::FONT_SLANT_NORMAL;
+        weight=Cairo::FONT_WEIGHT_BOLD;
+        break;
+      case 19:
+        face="sans";
+        slant=Cairo::FONT_SLANT_OBLIQUE;
+        weight=Cairo::FONT_WEIGHT_BOLD;
+        break;
+      default:
+        std::cerr << "warning: unsupported fig font: " << font << "\n";
+        face="sans";
+        slant=Cairo::FONT_SLANT_NORMAL;
+        weight=Cairo::FONT_WEIGHT_NORMAL;
+    }
+    if (face=="times") fs/=0.85;
+    C->set_font_size(fs*fs1);
+    C->set_font_face(
+      Cairo::ToyFontFace::create(face, slant, weight));
+  }
 
-    for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
-      std::map<int, zn::zn>::const_iterator z = zc.find_type(o->type);
-      if (!z->second.label_pos) continue;
 
-      Cairo::TextExtents ext;
-      cr->get_text_extents (o->text, ext);
+  void
+  render_labels(double bound=3, int dark_th = 170, int search_dist=6){
+    cr->save();
 
-      double fs=z->second.txt.font_size*fs1;
-      set_color(z->second.txt.pen_color);
-      switch(z->second.txt.font){
-        case 0:
-          face="times";
-          slant=Cairo::FONT_SLANT_NORMAL;
-          weight=Cairo::FONT_WEIGHT_NORMAL;
-          break;
-        case 1:
-          face="times";
-          slant=Cairo::FONT_SLANT_ITALIC;
-          weight=Cairo::FONT_WEIGHT_NORMAL;
-          break;
-        case 2:
-          face="times";
-          slant=Cairo::FONT_SLANT_NORMAL;
-          weight=Cairo::FONT_WEIGHT_BOLD;
-          break;
-        case 3:
-          face="times";
-          slant=Cairo::FONT_SLANT_ITALIC;
-          weight=Cairo::FONT_WEIGHT_BOLD;
-          break;
-        case 16:
-          face="sans";
-          slant=Cairo::FONT_SLANT_NORMAL;
-          weight=Cairo::FONT_WEIGHT_NORMAL;
-          break;
-        case 17:
-          face="sans";
-          slant=Cairo::FONT_SLANT_OBLIQUE;
-          weight=Cairo::FONT_WEIGHT_NORMAL;
-          break;
-        case 18:
-          face="sans";
-          slant=Cairo::FONT_SLANT_NORMAL;
-          weight=Cairo::FONT_WEIGHT_BOLD;
-          break;
-        case 19:
-          face="sans";
-          slant=Cairo::FONT_SLANT_OBLIQUE;
-          weight=Cairo::FONT_WEIGHT_BOLD;
-          break;
-        default:
-          std::cerr << "warning: unsupported fig font: " << z->second.txt.font << "\n";
-          face="sans";
-          slant=Cairo::FONT_SLANT_NORMAL;
-          weight=Cairo::FONT_WEIGHT_NORMAL;
+    zn::zn_conv zc(W.style);
+
+    Cairo::RefPtr<Cairo::ImageSurface> bw_surface = Cairo::ImageSurface::create(
+      Cairo::FORMAT_A1, surface->get_width(), surface->get_height());
+    Cairo::RefPtr<Cairo::Context> bw_cr = Cairo::Context::create(bw_surface);
+    bw_cr->set_line_width(bound*lw1);
+
+    for (int pass=1; pass<=2; pass++){
+      for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+        std::map<int, zn::zn>::const_iterator z = zc.find_type(o->type);
+        if (z==zc.znaki.end()) continue;
+        if (!z->second.label_pos) continue;
+
+        set_color(z->second.txt.pen_color);
+
+        Cairo::RefPtr<Cairo::Context> cur_cr = (pass==1)? bw_cr:cr;
+
+        set_fig_font(z->second.txt.font, z->second.txt.font_size, cur_cr);
+
+        Cairo::TextExtents ext;
+        cur_cr->get_text_extents (o->text, ext);
+
+        for (std::list<vmap::lpos>::const_iterator l=o->labels.begin(); l!=o->labels.end(); l++){
+          dPoint p(l->pos);
+          cnv.bck(p);
+          double ang=W.ang_a2afig(l->ang, cnv, p);
+          pt_m2pt(p);
+
+          cur_cr->save();
+          cur_cr->move_to(p.x, p.y);
+          if (!l->hor) cur_cr->rotate(ang);
+          if (l->dir == 1) cur_cr->rel_move_to(-ext.width/2, 0);
+          if (l->dir == 2) cur_cr->rel_move_to(-ext.width, 0);
+          if (pass == 1){
+            cur_cr->text_path(o->text);
+            cur_cr->stroke();
+          }
+          else {
+            cur_cr->show_text(o->text); // draw text
+          }
+          cur_cr->restore();
+        }
       }
-
-      cr->set_font_size(fs);
-      cr->set_font_face(
-        Cairo::ToyFontFace::create(face, slant, weight));
-
-      for (std::list<vmap::lpos>::const_iterator l=o->labels.begin(); l!=o->labels.end(); l++){
-        dPoint p(l->pos);
-        cnv.bck(p);
-        double ang=W.ang_a2afig(l->ang, cnv, p);
-        pt_m2pt(p);
-        cr->move_to(p.x, p.y);
-        cr->save();
-        if (!l->hor) cr->rotate(ang);
-        if (face=="sans")  cr->scale(0.85, 1); //?!
-        if (l->dir == 1) cr->rel_move_to(-ext.width/2, 0);
-        if (l->dir == 2) cr->rel_move_to(-ext.width, 0);
-        cr->show_text(o->text);
-        cr->restore();
-      }
+      if (pass==1) erase_under_text(bw_surface, dark_th, search_dist);
     }
     cr->restore();
   }
@@ -528,11 +608,6 @@ struct VMAPRenderer{
     int w=surface->get_width();
     int h=surface->get_height();
     int s=surface->get_stride();
-#define COL(x,y)  ((data[s*(y) + 4*(x) + 2] << 16)\
-                 + (data[s*(y) + 4*(x) + 1] << 8)\
-                 +  data[s*(y) + 4*(x) + 0])
-#define ADJ(x,y,i)  COL( x+ ((i==1)?1:0) - ((i==3)?1:0), y + ((i==2)?1:0) - ((i==0)?1:0))
-#define DIST2(x,y) ((x)*(x) + (y)*(y))
     std::list<iPoint> points;
     std::list<iPoint> ret;
 
