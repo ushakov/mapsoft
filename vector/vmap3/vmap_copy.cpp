@@ -73,92 +73,84 @@ void usage(){
   exit(1);
 }
 
-Options parse_in_options(int argc, char **argv){
+static struct option in_options[] = {
+  {"skip_labels",           0, 0, 0},
+  {"read_labels",           0, 0, 0},
+
+  {"set_source",            1, 0, 0},
+  {"set_source_from_name",  0, 0, 0},
+  {"set_source_from_fname", 0, 0, 0},
+  {"select_source",         1, 0, 0},
+  {"skip_source",           1, 0, 0},
+  {"select_type",           1, 0, 0},
+  {"skip_type",             1, 0, 0},
+  {"skip_all",              0, 0, 0},
+
+  {"skip_range",            1, 0, 0},
+  {"select_range",          1, 0, 0},
+  {"crop_range",            1, 0, 0},
+  {"skip_nom",              1, 0, 0},
+  {"select_nom",            1, 0, 0},
+  {"crop_nom",              1, 0, 0},
+  {"range_datum",           1, 0, 0},
+  {"range_proj",            1, 0, 0},
+  {"range_lon0",            1, 0, 0},
+
+  {"out",         0, 0 , 'o'},
+  {"verbose",     0, 0 , 'v'},
+  {0,0,0,0}
+};
+
+static struct option out_options[] = {
+  {"skip_labels",           0, 0, 0},
+
+  {"set_source",            1, 0 , 0},
+  {"set_source_from_name",  0, 0 , 0},
+  {"set_source_from_fname", 0, 0 , 0},
+  {"select_source",         1, 0 , 0},
+  {"skip_source",           1, 0 , 0},
+  {"select_type",           1, 0 , 0},
+  {"skip_type",             1, 0 , 0},
+  {"skip_all",              0, 0 , 0},
+
+  {"append",      0, 0 , 'a'},
+  {"name",        1, 0 , 'n'},
+  {"mp_id",       1, 0 , 'i'},
+  {"rscale",      1, 0 , 'm'},
+  {"style",       1, 0 , 's'},
+  {"verbose",     0, 0 , 'v'},
+  {0,0,0,0}
+};
+
+
+Options
+parse_options(int argc, char **argv,
+              struct option long_options[], const char * last_opt = NULL){
   Options O;
   int c;
-  while(1){
-    int this_option_optind = optind ? optind : 1;
-    int option_index = 0;
-    static struct option long_options[] = {
-      {"skip_labels",           0, 0, 0},
-      {"read_labels",           0, 0, 0},
 
-      {"set_source",            1, 0, 0},
-      {"set_source_from_name",  0, 0, 0},
-      {"set_source_from_fname", 0, 0, 0},
-      {"select_source",         1, 0, 0},
-      {"skip_source",           1, 0, 0},
-      {"select_type",           1, 0, 0},
-      {"skip_type",             1, 0, 0},
-      {"skip_all",              0, 0, 0},
-
-      {"skip_range",            1, 0, 0},
-      {"select_range",          1, 0, 0},
-      {"crop_range",            1, 0, 0},
-      {"skip_nom",              1, 0, 0},
-      {"select_nom",            1, 0, 0},
-      {"crop_nom",              1, 0, 0},
-      {"range_datum",           1, 0, 0},
-      {"range_proj",            1, 0, 0},
-      {"range_lon0",            1, 0, 0},
-
-      {"out",         0, 0 , 'o'},
-      {"verbose",     0, 0 , 'v'},
-      {0,0,0,0}
-    };
-    c = getopt_long(argc, argv, "+ov", long_options, &option_index); // note "+" in option list
-    if (c == -1) break;
-
-    if (O.exists("out")){
-      cerr << "error: wrong position of --out special option\n";
-      exit(1);
-    }
-
-    if (c!=0){ // short option -- we must manually set option_index
-      int i = 0;
-      while (long_options[i].name){
-        if (long_options[i].val == c) option_index = i;
-        i++;
-      }
-    }
-    if (opterr || !long_options[option_index].name){
-      std::cerr << "error: bad option\n";
-      exit(1);
-    }
-    O.put<string>(long_options[option_index].name,
-      long_options[option_index].has_arg? optarg:"1");
+  string optstring="+"; // note "+" in optstring
+  int i = 0;
+    while (long_options[i].name){
+    if (long_options[i].val != 0) optstring+=long_options[i].val;
+    if (long_options[i].has_arg==1)  optstring+=":";
+    if (long_options[i].has_arg==2)  optstring+=";";
+    i++;
   }
-  return O;
-}
 
-Options parse_out_options(int argc, char **argv){
-  Options O;
-  int c;
   while(1){
     int this_option_optind = optind ? optind : 1;
     int option_index = 0;
-    static struct option long_options[] = {
-      {"skip_labels",           0, 0, 0},
 
-      {"set_source",            1, 0 , 0},
-      {"set_source_from_name",  0, 0 , 0},
-      {"set_source_from_fname", 0, 0 , 0},
-      {"select_source",         1, 0 , 0},
-      {"skip_source",           1, 0 , 0},
-      {"select_type",           1, 0 , 0},
-      {"skip_type",             1, 0 , 0},
-      {"skip_all",              0, 0 , 0},
-
-      {"append",      0, 0 , 'a'},
-      {"name",        1, 0 , 'n'},
-      {"mp_id",       1, 0 , 'i'},
-      {"rscale",      1, 0 , 'm'},
-      {"style",       1, 0 , 's'},
-      {"verbose",     0, 0 , 'v'},
-      {0,0,0,0}
-    };
-    c = getopt_long(argc, argv, "+an:i:m:s:v", long_options, &option_index); // note "+" in option list
+    c = getopt_long(argc, argv, optstring.c_str(), long_options, &option_index);
     if (c == -1) break;
+    if (c == '?') exit(1);
+
+    if (last_opt && O.exists(last_opt)){
+      cerr << "error: wrong position of --" << last_opt << " special option\n";
+      exit(1);
+    }
+
     if (c!=0){ // short option -- we must manually set option_index
       int i = 0;
       while (long_options[i].name){
@@ -166,7 +158,7 @@ Options parse_out_options(int argc, char **argv){
         i++;
       }
     }
-    if (opterr || !long_options[option_index].name){
+    if (!long_options[option_index].name){
       std::cerr << "error: bad option\n";
       exit(1);
     }
@@ -180,7 +172,7 @@ Options parse_out_options(int argc, char **argv){
 main(int argc, char **argv){
 
   Options O;
-  Options GO = parse_in_options(argc, argv); // read global options
+  Options GO = parse_options(argc, argv, in_options, "out"); // read global options
   argc-=optind;
   argv+=optind;
   optind=0;
@@ -199,7 +191,7 @@ main(int argc, char **argv){
     const char * ifile = argv[0];
 
     // parse options for this file and append global options
-    O = parse_in_options(argc, argv);
+    O = parse_options(argc, argv, in_options, "out");
     argc-=optind;
     argv+=optind;
     optind=0;
@@ -226,7 +218,7 @@ main(int argc, char **argv){
   const char * ofile = argv[0];
 
   // parse output options
-  O = parse_out_options(argc, argv);
+  O = parse_options(argc, argv, out_options);
   argc-=optind;
   argv+=optind;
   optind=0;
