@@ -195,7 +195,9 @@ struct MultiLine : std::vector<Line<T> >
 #ifndef SWIG
     , public boost::additive<MultiLine<T> >,
     public boost::additive<MultiLine<T>, Point<T> >,
-    public boost::multiplicative<MultiLine<T>,T>
+    public boost::multiplicative<MultiLine<T>,T>,
+    public boost::less_than_comparable<MultiLine<T> >,
+    public boost::equality_comparable<MultiLine<T> >
 #endif  //SWIG
 {
 
@@ -218,6 +220,35 @@ struct MultiLine : std::vector<Line<T> >
     for (typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)-=p;
     return *this;
   }
+
+#ifndef SWIG
+  // меньше, если первая отличающаяся линия меньше,
+  // или не существует
+  bool operator< (const MultiLine<T> & p) const {
+    typename MultiLine<T>::const_iterator i1=this->begin(), i2=p.begin();
+    do {
+      if (i1==this->end()){
+        if (i2==p.end()) return false;
+        else return true;
+      }
+      else if (i2==p.end()) return false;
+
+      if ((*i1)!=(*i2)) return (*i1) < (*i2);
+      i1++; i2++;
+    } while(1);
+  }
+
+  bool operator== (const MultiLine<T> & p) const {
+    if (this->size()!=p.size()) return false;
+    typename MultiLine<T>::const_iterator i1=this->begin(), i2=p.begin();
+    do {
+      if (i1==this->end()) return true;
+      if ((*i1)!=(*i2)) return false;
+      i1++; i2++;
+    } while(1);
+  }
+#endif
+
 
   double length () const {
     double ret=0;
