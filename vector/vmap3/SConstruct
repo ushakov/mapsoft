@@ -4,6 +4,11 @@ env.Library('vmap', \
     Split ("""
      vmap.cpp
      vmap_file.cpp
+     vmap_fig.cpp
+     vmap_mp.cpp
+     vmap_cnv.cpp
+     vmap_filt.cpp
+     vmap_labels.cpp
     """))
 
 subdirs = Split ("""

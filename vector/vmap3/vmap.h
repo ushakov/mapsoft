@@ -71,54 +71,44 @@ struct world : std::list<object> {
 
   dRect range() const;
 
-  /*
-   Процедура нахождения соответствия между подписями и объектами:
-   1. Каждый объект берет по одной подписи с правильным текстом и с точкой
-      привязки не далее label_search_dist1 от него.
-   2. Каждый объект берет все остальные подписи с правильным текстом и с
-      точкой привязки или положением не далее label_search_dist2 от него.
-   3. Каждый объект берет все подписи, с точкой привязки не далее
-      label_search_dist3 от него.
-   4. Невостребованные подписи теряются.
-
-    Считается что label_search_dist2 существенно больше label_search_dist3, так что
-    для того, чтобы не потерять подпись, надо либо двигать, либо
-    переименовывать объект, но не делать это одновременно.
-  */
-  // add labels from lbuf to objects
-  int add_labels();
-
-  // create new labels
-  void new_labels(zn::zn_conv & zconverter);
-
-  // get vmap objects and labels from fig
-  int get(const fig::fig_world & F, const Options & O = Options());
-
-  // get vmap objects and labels from fig
-  int get(const mp::mp_world & M, const Options & O = Options());
-
-  // put vmap to referenced fig
-  int put(fig::fig_world & F, const Options & O = Options());
-
-  // put vmap to mp
-  int put(mp::mp_world & M, const Options & O = Options());
-
-
-  // Get vmap objects and labels from.
-  // Format is determined by extension (fig, mp)
-  int get(const char * fname, const Options & O = Options());
-
-  // put vmap to file. Format is determined by extension (fig, mp)
-  // Options are passed to corresponding put()  function
-  int put(const char * fname, const Options & O = Options());
-
-  double ang_pll2a(const dPoint & p1, const dPoint & p2, int dir);
-  double ang_pfig2a(const dPoint & p1, const dPoint & p2, int dir, Conv & cnv);
-  double ang_afig2a(double afig, int dir, Conv & cnv, dPoint fig_pos);
-  dPoint ang_a2pll(double a, int dir, dPoint pos);
-  dPoint ang_a2pfig(double a, int dir, Conv & cnv, dPoint fig_pos);
-  double ang_a2afig(double a, Conv & cnv, dPoint fig_pos);
+  // Add objects and lbuf from the world W, set style etc from W
+  void add(const world & W);
 };
+
+
+// Reading and writing fig (see vmap_fig.cpp):
+world read(const fig::fig_world & F);
+int write(fig::fig_world & F, const world & W, const Options & O = Options());
+
+// Reading and writing mp (see vmap_mp.cpp):
+world read(const mp::mp_world & M);
+int write(mp::mp_world & M, const world & W, const Options & O = Options());
+
+// Reading and writing any file (see vmap_file.cpp).
+// Format is determined by extension (fig, mp).
+// Options are passed to corresponding put()  function. 
+world read(const char * fname);
+int  write(const char * fname, const world & W, const Options & O = Options());
+
+// Functions for merging labels with objects (see vmap_labels.cpp):
+int add_labels(world & W);   // add labels from lbuf to objects
+void new_labels(world & W);  // create new labels
+
+// filtering and statistics (see vmap_filt.cpp):
+void filter(world & W, const Options & O);
+
+
+// Some usefil conversion functions (see vmap_cnv.cpp):
+// Angle conversions
+double ang_pll2a(const dPoint & p1, const dPoint & p2, int dir);
+double ang_pfig2a(const dPoint & p1, const dPoint & p2, int dir, Conv & cnv);
+double ang_afig2a(double afig, int dir, Conv & cnv, dPoint fig_pos);
+dPoint ang_a2pll(double a, int dir, dPoint pos, const double rscale);
+dPoint ang_a2pfig(double a, int dir, Conv & cnv, dPoint fig_pos, const double rscale);
+double ang_a2afig(double a, Conv & cnv, dPoint fig_pos, const double rscale);
+
+// put source to options if it is not empty
+void set_source(Options & o, const std::string & source);
 
 // convert vector between meters and degrees (approximate)
 dPoint v_m2deg(const dPoint & v, const double lat);

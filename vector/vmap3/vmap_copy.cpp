@@ -158,10 +158,12 @@ main(int argc, char **argv){
     if (O.get<int>("verbose",0))
       cout << "reading: " << ifile  << "\n";
 
-    if (!V.get(ifile, O)) exit(1);
+    vmap::world V1 = vmap::read(ifile);
+    filter(V1, O);
+    V.add(V1);
+
   }
   while (!O.exists("out"));
-
 
   /***************** output ****************/
 
@@ -177,37 +179,6 @@ main(int argc, char **argv){
   argv+=optind;
   optind=0;
 
-  /***************** modify vmap ****************/
-
-  if (O.exists("name")) V.name = O.get<string>("name");
-
-  if (O.exists("mp_id")){
-    int mp_id = O.get<int>("mp_id", 0);
-    if (mp_id<= 0){
-      cerr << "error: bad mp_id value: " << O.get<string>("mp_id") << "\n";
-      exit(1);
-    }
-    V.mp_id  = mp_id;
-  }
-
-  if (O.exists("rscale")){
-    double rscale = O.get<double>("rscale", 0.0);
-    if (rscale <= 0){
-      cerr << "error: bad rscale value: " << O.get<string>("rscale") << "\n";
-      exit(1);
-    }
-    V.rscale = rscale;
-  }
-
-  if (O.exists("style")){
-    string style = O.get<string>("style");
-    if (style == ""){
-      cerr << "error: empty style value\n";
-      exit(1);
-    }
-    V.style  = style;
-  }
-
   /***************** write file ****************/
 
   if (O.exists("set_source_from_fname"))
@@ -216,7 +187,14 @@ main(int argc, char **argv){
   if (GO.get<int>("verbose",0))
     cout << "writing to: " << ofile << "\n";
 
-  if (!V.put(ofile, O)) exit(1);
+  // find labels for each object
+  add_labels(V);
+  // create new labels
+  new_labels(V);
+
+  filter(V, O);
+
+  if (!vmap::write(ofile, V, O)) exit(1);
 
   exit(0);
 }

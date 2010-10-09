@@ -14,49 +14,45 @@ bool testext(const char * str, const char * ext){
     return pos && (strcmp(pos+1, ext)==0);
 }
 
-int world::get(const char * fname, const Options & O){
+world
+read(const char * fname){
   if (testext(fname, "fig")){
     fig::fig_world F;
     if (!fig::read(fname, F)){
       cerr << "error: bad fig file " << fname << "\n";
-      return 0;
+      return vmap::world();
     }
-    if (!get(F, O)){
-      cerr << "error: can't read vmap from fig file " << fname << "\n";
-      return 0;
-    }
+    return read(F);
   }
   else if (testext(fname, "mp")){
     mp::mp_world M;
     if (!mp::read(fname, M)){
       cerr << "error: bad mp file " << fname << "\n";
-      return 0;
+      return vmap::world();
     }
-    if (!get(M, O)){
-      cerr << "error: can't read vmap from mp file " << fname << "\n";
-      return 0;
-    }
+    return read(M);
   }
   else{
     cerr << "error: input file is not .fig or .mp\n";
-    return 0;
+    return vmap::world();
   }
-  return 1;
 }
-int world::put(const char * fname, const Options & O){
+
+int
+write(const char * fname, const world & W, const Options & O){
   if (testext(fname, "fig")){
     fig::fig_world F;
     if (!fig::read(fname, F)) {
       cerr << "error: bad fig file " << fname << "\n"; 
       return 0;
     }
-    put(F, O);
+    write(F, W, O);
     fig::write(fname, F);
   }
   else if (testext(fname, "mp")){
     mp::mp_world M;
     mp::read(fname, M);
-    put(M, O);
+    write(M, W, O);
     mp::write(fname, M);
   }
   else {

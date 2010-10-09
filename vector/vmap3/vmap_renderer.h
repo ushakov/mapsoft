@@ -35,7 +35,9 @@ struct VMAPRenderer{
         cnv(Datum("wgs84"), Proj("lonlat"), Options(),
             Datum("wgs84"), Proj("lonlat"), Options()){
     std::cerr << "Reading " << in_file << "\n";
-    if (!W.get(in_file)){
+
+    W=vmap::read(in_file);
+    if (W.size()==0){
       exit(1);
     }
 
@@ -104,7 +106,7 @@ struct VMAPRenderer{
     cr->set_line_width(10);
     cr->stroke();
     cr->restore();
-    W.add_labels();
+    vmap::add_labels(W);
   }
 
   void set_color(int c){
@@ -441,7 +443,6 @@ struct VMAPRenderer{
     unsigned char *bw_data=bw_surface->get_data();
     int bws=bw_surface->get_stride();
 
-std::cerr << "str: " << bws << " " << s << "\n";
 #define IS_TEXT(x,y)  ((bw_data[bws*(y) + (x)/8] >> ((x)%8))&1)\
 
     // walk through all non-border points
@@ -560,7 +561,7 @@ std::cerr << "str: " << bws << " " << s << "\n";
         for (std::list<vmap::lpos>::const_iterator l=o->labels.begin(); l!=o->labels.end(); l++){
           dPoint p(l->pos);
           cnv.bck(p);
-          double ang=W.ang_a2afig(l->ang, cnv, p);
+          double ang=vmap::ang_a2afig(l->ang, cnv, p, W.rscale);
           pt_m2pt(p);
 
           cur_cr->save();
