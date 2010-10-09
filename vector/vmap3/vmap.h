@@ -44,6 +44,12 @@ struct lpos_full : public lpos { // for internal use
   std::string text;
 };
 
+typedef enum{
+  POI = 0,
+  POLYLINE = 1,
+  POLYGON = 2
+} object_class;
+
 struct object: dMultiLine {
   int             type;  // MP type + 0x100000 for lines, 0x200000 for polygons
   int             dir;   // direction from mp, arrows from fig
@@ -51,6 +57,8 @@ struct object: dMultiLine {
   std::list<lpos> labels;
   Options                  opts; // some Key=Value fields
   std::vector<std::string> comm; // comments
+
+  object_class get_class() const;
 };
 
 struct world : std::list<object> {
@@ -59,9 +67,9 @@ struct world : std::list<object> {
   std::string style;
   double      rscale;
   dLine       brd;
+  std::list<lpos_full> lbuf; // buffer for ownerless labels
 
   dRect range() const;
-  std::list<lpos_full> lbuf; // buffer for ownerless labels
 
   /*
    Процедура нахождения соответствия между подписями и объектами:

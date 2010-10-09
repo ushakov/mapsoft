@@ -270,9 +270,17 @@ change_source(const Options & O, Options &o, const string &name){
 }
 
 
+// crop/cut/select range, get statistics
 struct RangeCutter{
   dRect skip_range, crop_range, select_range;
   convs::pt2pt *skip_cnv, *crop_cnv, *select_cnv;
+  int cnt_o, cnt_l, cnt_p;
+  set<string> sources;
+  dRect show_range;
+
+  double lon0;
+  Datum D;
+  Proj P;
 
   RangeCutter(const Options & O){
     // OPTION skip_range
@@ -285,42 +293,45 @@ struct RangeCutter{
     // OPTION range_proj  wgs84
     // OPTION range_lon0  0
 
-    skip_cnv   = mk_cnv_and_range(O, "skip", skip_range);
-    crop_cnv   = mk_cnv_and_range(O, "crop", crop_range);
+    P = O.get<Proj>("range_proj", Proj("lonlat"));
+    D = O.get<Datum>("range_datum", Datum("wgs84"));
+    lon0 = O.get<double>("range_lon0", 0);
+
+    skip_cnv   = mk_cnv_and_range(O, "skip",   skip_range);
+    crop_cnv   = mk_cnv_and_range(O, "crop",   crop_range);
     select_cnv = mk_cnv_and_range(O, "select", select_range);
+    cnt_o=0; cnt_l=0; cnt_p=0;
   }
   ~RangeCutter(){
-    if (skip_cnv) delete skip_cnv;
-    if (crop_cnv) delete crop_cnv;
+    if (skip_cnv)   delete skip_cnv;
+    if (crop_cnv)   delete crop_cnv;
     if (select_cnv) delete select_cnv;
   }
 
   convs::pt2pt *
   mk_cnv_and_range(const Options & O, const string & prefix, dRect & range){
-    double lon0 = O.get<double>("range_lon0", 0);
-    Proj  P = O.get<Proj>("range_proj", Proj("lonlat"));
-    Datum D = O.get<Datum>("range_datum", Datum("wgs84"));
-    convs::pt2pt *cnv = NULL;
 
     if (O.exists(prefix+"_nom")){
       range=convs::nom_range(O.get<string>(prefix+"_nom"));
-      P = Proj("lonlat");
-      D = Datum("pulkovo");
+      return new convs::pt2pt(
+          Datum("wgs84"), Proj("lonlat"), Options(),
+          Datum("pulkovo"), Proj("lonlat"), Options());
     }
-    else if (O.exists(prefix+"_range")){
+    if (O.exists(prefix+"_range")){
+      Options ProjO;
+      ProjO.put<double>("lon0", lon0);
+
       range = O.get<dRect>(prefix+"_range");
       if (range.x>=1e6){
         double lon0p = convs::lon_pref2lon0(range.x);
         range.x = convs::lon_delprefix(range.x);
-        if (lon0p!=0) lon0=lon0p;
+        ProjO.put<double>("lon0", lon0p);;
       }
-    }
-    Options ProjO;
-    ProjO.put<double>("lon0", lon0);
-    if (!range.empty())
-        cnv = new convs::pt2pt(
+      if (!range.empty())
+        return new convs::pt2pt(
           Datum("wgs84"), Proj("lonlat"), Options(), D, P, ProjO);
-    return cnv;
+    }
+    return NULL;
   }
 
   void
@@ -346,10 +357,30 @@ struct RangeCutter{
           *l = crop_cnv->line_bck(lc);
         }
       }
-
-      if (l->size()==0) l=o.erase(l);
-      else l++;
+      if (l->size()==0){
+        l=o.erase(l);
+      }
+      else {
+        show_range = rect_bounding_box(show_range, l->range());
+        cnt_l++;
+        cnt_p+=l->size();
+        l++;
+      }
     }
+    if (o.size()>0) cnt_o++;
+    sources.insert(o.opts.get<string>("Source"));
+  }
+
+  void
+  print_info(){
+    cout << "  objects: " << cnt_o << "\n";
+    cout << "  lines:   " << cnt_l << "\n";
+    cout << "  points:  " << cnt_p << "\n";
+    cout << "  bbox:    " << show_range << "\n";
+    cout << "  sources:";
+    for (set<string>::const_iterator i=sources.begin(); i!=sources.end(); i++)
+      cout << " " << *i;
+    cout << "\n";
   }
 };
 
@@ -486,6 +517,7 @@ world::get(const fig::fig_world & F, const Options & O){
       continue;
     }
   }
+  if (O.get<int>("verbose", 0)) RC.print_info();
   return 1;
 }
 
@@ -571,6 +603,7 @@ world::get(const mp::mp_world & M, const Options & O){
       if (o.size()>0) push_back(o);
     }
   }
+  if (O.get<int>("verbose", 0)) RC.print_info();
   return 1;
 }
 

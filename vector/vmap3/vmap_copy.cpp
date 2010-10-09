@@ -47,7 +47,7 @@ void usage(){
      << "    --range_lon0 <double>       -- set lon0tmerc proj in range settings\n"
      << "    (lon0 can be overriden by prefix in range x coord)\n"
      << "\n"
-     << "    -v, --verbose               -- be verbose (works only in global options)\n"
+     << "    -v, --verbose               -- be verbose\n"
      << "\n"
      << "  output options:\n"
      << "\n"
@@ -118,7 +118,6 @@ static struct option out_options[] = {
   {"mp_id",       1, 0 , 'i'},
   {"rscale",      1, 0 , 'm'},
   {"style",       1, 0 , 's'},
-  {"verbose",     0, 0 , 'v'},
   {0,0,0,0}
 };
 
@@ -141,7 +140,7 @@ main(int argc, char **argv){
 
   do {
     if (argc<1){
-      std::cerr << "error: no output files\n";
+      std::cerr << "no output files\n";
       exit(1);
     }
     const char * ifile = argv[0];
@@ -156,10 +155,9 @@ main(int argc, char **argv){
     if (O.exists("set_source_from_fname"))
       O.put<string>("set_source", ifile);
 
-    if (GO.get<int>("verbose",0)){
-      cerr << "reading " << ifile << "\n";
-      cerr << "  with options " << O << "\n";
-    }
+    if (O.get<int>("verbose",0))
+      cout << "reading: " << ifile  << "\n";
+
     if (!V.get(ifile, O)) exit(1);
   }
   while (!O.exists("out"));
@@ -215,10 +213,9 @@ main(int argc, char **argv){
   if (O.exists("set_source_from_fname"))
     O.put<string>("set_source", ofile);
 
-  if (GO.get<int>("verbose",0)){
-    std::cerr << "writing to " << ofile << "\n";
-      cerr << "  with options " << O << "\n";
-  }
+  if (GO.get<int>("verbose",0))
+    cout << "writing to: " << ofile << "\n";
+
   if (!V.put(ofile, O)) exit(1);
 
   exit(0);
