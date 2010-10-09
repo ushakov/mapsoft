@@ -30,6 +30,13 @@ const string default_style = "default";
 
 /***************************************/
 
+object_class
+object::get_class() const{
+  if (type & zn::area_mask) return POLYGON;
+  if (type & zn::line_mask) return POLYLINE;
+  return POI;
+}
+
 dRect
 world::range() const{
   if (this->size()<1) return dRect(0,0,0,0);
@@ -443,7 +450,7 @@ world::get(const fig::fig_world & F, const Options & O){
       }
       dLine pts = cnv.line_frw(*i);
       // if closed polyline -> add one more point
-      if ((type & zn::line_mask) &&
+      if ((o.get_class() == POLYLINE) &&
           (i->is_closed()) &&
           (i->size()>0) &&
           ((*i)[0]!=(*i)[i->size()-1])) pts.push_back(pts[0]);
@@ -514,13 +521,16 @@ world::get(const mp::mp_world & M, const Options & O){
       brd = join_polygons(*i);
     }
     else if (type==label_type){ // special type -- label objects
-      if (i->Label=="") continue;
       if (skip_labels) continue;
+      int dir = i->Opts.get<int>("LabelDirection", 0);
+      string text = i->Opts.get<string>("LabelText");
+      if (text == "") continue;
+
       for (dMultiLine::const_iterator j=i->begin(); j!=i->end(); j++){
         if (j->size()<2) continue;
         lpos_full l;
-        l.dir  = i->Opts.get<int>("LabelDirection", 0);
-        l.text = i->Opts.get<string>("LabelText");
+        l.dir  = dir;
+        l.text = text;
         l.ref = (*j)[0];
         l.pos = (*j)[1];
         if (i->Opts.exists("LabelAngle")){
@@ -636,7 +646,7 @@ world::put(fig::fig_world & F, const Options & O){
     fig.comment.push_back(o->text);
     fig.comment.insert(fig.comment.end(), o->comm.begin(), o->comm.end());
 
-    if (o->type & zn::area_mask){
+    if (o->get_class() == POLYGON){
       fig.set_points(cnv.line_bck(join_polygons(*o)));
       F.push_back(fig);
     } else {
@@ -645,7 +655,7 @@ world::put(fig::fig_world & F, const Options & O){
         fig.clear();
         fig.set_points(cnv.line_bck(*l));
         // closed polyline
-        if ((o->type & zn::line_mask) &&
+        if ((o->get_class() == POLYLINE) &&
             (fig.size()>1) && (fig[0]==fig[fig.size()-1])){
           fig.resize(fig.size()-1);
           fig.close();
