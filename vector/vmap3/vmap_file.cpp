@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <cstring>
 
 #include "libfig/fig.h"
@@ -32,6 +33,10 @@ read(const char * fname){
     }
     return read(M);
   }
+  else if (testext(fname, "vmap")){
+    ifstream IN(fname);
+    return read(IN);
+  }
   else{
     cerr << "error: input file is not .fig or .mp\n";
     return vmap::world();
@@ -54,6 +59,10 @@ write(const char * fname, const world & W, const Options & O){
     mp::read(fname, M);
     write(M, W, O);
     mp::write(fname, M);
+  }
+  else if (testext(fname, "vmap")){
+    ofstream OUT(fname);
+    write(OUT, W);
   }
   else {
     cerr << "error: output file is not .fig or .mp\n";

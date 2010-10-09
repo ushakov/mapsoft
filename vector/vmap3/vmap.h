@@ -1,6 +1,7 @@
 #ifndef VMAP_H
 #define VMAP_H
 
+#include <iostream>
 #include <vector>
 #include <string>
 #include <list>
@@ -37,11 +38,14 @@ struct lpos {
   double ang; // angle, degrees
   dPoint pos;
   bool   hor; // horisontal text
+  bool operator< (const lpos & o) const;
+  lpos();
 };
 
 struct lpos_full : public lpos { // for internal use
   dPoint ref;
   std::string text;
+  bool operator< (const lpos_full & o) const;
 };
 
 typedef enum{
@@ -50,7 +54,7 @@ typedef enum{
   POLYGON = 2
 } object_class;
 
-struct object: dMultiLine {
+struct object: public dMultiLine {
   int             type;  // MP type + 0x100000 for lines, 0x200000 for polygons
   int             dir;   // direction from mp, arrows from fig
   std::string     text;  // label text
@@ -59,6 +63,8 @@ struct object: dMultiLine {
   std::vector<std::string> comm; // comments
 
   object_class get_class() const;
+  bool operator< (const object & o) const;
+  object();
 };
 
 struct world : std::list<object> {
@@ -68,6 +74,8 @@ struct world : std::list<object> {
   double      rscale;
   dLine       brd;
   std::list<lpos_full> lbuf; // buffer for ownerless labels
+
+  world();
 
   dRect range() const;
 
@@ -83,6 +91,10 @@ int write(fig::fig_world & F, const world & W, const Options & O = Options());
 // Reading and writing mp (see vmap_mp.cpp):
 world read(const mp::mp_world & M);
 int write(mp::mp_world & M, const world & W, const Options & O = Options());
+
+// Reading and writitng native format
+world read(std::istream & IN);
+int write(std::ostream & OUT, const world & W);
 
 // Reading and writing any file (see vmap_file.cpp).
 // Format is determined by extension (fig, mp).
