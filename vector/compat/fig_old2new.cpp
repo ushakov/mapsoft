@@ -1,4 +1,7 @@
-#include "../libzn/zn_key.h" // for zn::fig_old2new()
+#include "zn_key.h" // for zn::fig_old2new()
+
+// convert old maps, with object identifires to
+// new ones with label refpoints
 
 using namespace std;
 

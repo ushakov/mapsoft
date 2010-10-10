@@ -3,7 +3,6 @@
 #include "libgeo_io/geofig.h"
 #include "libmp/mp.h"
 
-#include "../libzn/zn_key.h" // for zn::fig_old2new()
 #include "../libzn/zn.h"
 #include "lib2d/line_utils.h"
 
@@ -210,7 +209,6 @@ int update(int argc, char** argv){
   zn::zn_conv zconverter(style);
 
   zn::fig_remove_pics(F);
-  zn::fig_old2new(F);
 
   zconverter.fig_update_labels(F);
   F.sort();  // sort fig before creating compounds

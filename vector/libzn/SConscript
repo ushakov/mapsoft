@@ -2,6 +2,5 @@ Import ('env')
 env.Library('zn', \
     Split ("""
         zn.cpp
-        zn_key.cpp
         zn_lists.cpp
      """))

@@ -19,7 +19,6 @@ env1.Program('make_map_gk.cpp')
 env1.Program('make_nom2.cpp')
 env1.Program('make_nom.cpp')
 env1.Program('np2pt.cpp')
-env1.Program('fig_old2new.cpp')
 
 #env1.Program('get_ps.cpp')
 

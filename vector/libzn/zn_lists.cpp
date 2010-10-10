@@ -3,7 +3,6 @@
 #include <iomanip>
 #include <sstream>
 #include "zn.h"
-#include "zn_key.h"
 #include "zn_lists.h"
 
 namespace zn{
@@ -42,15 +41,8 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
     o+=shift;
     o.comment.push_back("text");
 
-    zn_key key;
-    key.type = i->first;
-    key.id = count+1;
-    key.map = "get_legend_map";
-    add_key(o, key);
-
     std::list<fig::fig_object> l1 = z.make_pic(o, i->first);
     std::list<fig::fig_object> l2 = z.make_labels(o, i->first);
-    add_key(l2, zn_label_key(key));
 
     ret.insert(ret.end(), l1.begin(), l1.end());
     ret.insert(ret.end(), l2.begin(), l2.end());
@@ -60,7 +52,7 @@ fig::fig_world make_legend(zn_conv & z, int grid, int dg){
     text.push_back(iPoint(grid*8, grid));
     text+=shift;
     ret.push_back(text);
-    
+
     std::ostringstream mp_key;
     mp_key << i->second.mp.Class << " 0x" << std::setbase(16) << i->second.mp.Type;
     text.text = mp_key.str();
