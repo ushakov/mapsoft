@@ -261,7 +261,7 @@ main(int argc, char **argv){
       continue;
     }
     // просеки, тропы
-    if (type == 0x10001C) || (type == 0x100016) || (type == 0x10002A){
+    if ((type == 0x10001C) || (type == 0x100016) || (type == 0x10002A)){
       i->cap_style=2;
     }
     // непроезжая грунтовка
