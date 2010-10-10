@@ -76,6 +76,9 @@ add_labels(world & W){
       l++;
     }
   }
+
+  // clear unused labels
+  W.lbuf.clear();
 }
 
 /***************************************/

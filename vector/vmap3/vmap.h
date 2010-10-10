@@ -92,6 +92,9 @@ int write(fig::fig_world & F, const world & W, const Options & O = Options());
 world read(const mp::mp_world & M);
 int write(mp::mp_world & M, const world & W, const Options & O = Options());
 
+// note: fig and mp write functions can't write lbuf yet. It is not
+// a problem becouse vmap_copy always do add_labels
+
 // Reading and writitng native format
 world read(std::istream & IN);
 int write(std::ostream & OUT, const world & W);
