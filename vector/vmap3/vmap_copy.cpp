@@ -126,22 +126,19 @@ main(int argc, char **argv){
 
   if (argc==1) usage();
 
-  Options O;
-  Options GO = parse_options(argc, argv, in_options, "out"); // read global options
+  Options O = parse_options(argc, argv, in_options, "out");
+  Options GO(O); // global options
   argc-=optind;
   argv+=optind;
   optind=0;
 
-  if (GO.exists("out")){
-      std::cerr << "error: no input files\n";
-      exit(1);
-  }
   vmap::world V;
 
-  do {
+  while (!O.exists("out")) {
     if (argc<1){
-      std::cerr << "no output files\n";
-      exit(1);
+      if (O.get<int>("verbose",0))
+        cout << "no output files\n";
+      exit(0);
     }
     const char * ifile = argv[0];
 
@@ -161,15 +158,13 @@ main(int argc, char **argv){
     vmap::world V1 = vmap::read(ifile);
     filter(V1, O);
     V.add(V1);
-
   }
-  while (!O.exists("out"));
 
   /***************** output ****************/
 
   if (argc<1){
-    std::cerr << "no output files\n";
-    exit(1);
+    if (O.get<int>("verbose",0))
+      cout << "no output files\n";
   }
   const char * ofile = argv[0];
 
