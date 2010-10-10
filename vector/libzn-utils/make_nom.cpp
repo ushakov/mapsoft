@@ -7,6 +7,7 @@
 #include "libgeo_io/io.h"
 
 #include "lib2d/line_utils.h"
+#include "options/m_getopt.h"
 #include "lib2d/line_polycrop.h"
 
 #include "loaders/image_r.h" // определение размеров картинки (image_r::size)
@@ -21,23 +22,33 @@
 using namespace std;
 
 void usage(){
-    cerr << "usage: make_map_nom <map name> > out.fig\n";
-    cerr << "       make_map_nom <png map name> <dpi> > out.map\n";
+    cerr << "usage: make_nom [-m <magnification>] <map name> > out.fig\n";
+    cerr << "       make_nom [-m <magnification>] <png map name> <dpi> > out.map\n";
     cerr << "(pulkovo-42 datum, tmerc proj)\n";
     exit(0);
 }
 
+static struct option opts[] = {
+  {"magnification",           1, 0, 'm'},
+  {0,0,0,0}
+};
 
 const string maps_dir = "./maps";
 
 main(int argc, char** argv){
 
+  Options cmdline_opts = parse_options(argc, argv, opts);
+  double magnification = cmdline_opts.get<double>("magnification", 1.0);
+  argc-=optind;
+  argv+=optind;
+  optind=0;
+
   bool dofig;
 
-  if (argc == 2) dofig = true;
-  else if (argc == 3) dofig = false;
+  if (argc == 1) dofig = true;
+  else if (argc == 2) dofig = false;
   else usage();
-  string map_name  = argv[1];
+  string map_name  = argv[0];
   int dpi;
 
 
@@ -47,10 +58,10 @@ main(int argc, char** argv){
 // определим осевой меридиан
   double lon0 = (r0.TLC().x + r0.TRC().x)/2;
   if (r0.w > 11.9) lon0 = floor( lon0/3 ) * 3; // сдвоенные десятки
-  else lon0 = floor( lon0/6.0 ) * 6 + 3;
+  else lon0 = convs::lon2lon0(lon0);
 
   Options O;
-  O["lon0"] = boost::lexical_cast<string>(lon0);
+  O.put<double>("lon0", lon0);
 
 //масштаб карты
   double scale;
@@ -59,6 +70,7 @@ main(int argc, char** argv){
   else if (r0.h < 1.99) scale = 1/200000.0;
   else if (r0.h < 3.99) scale = 1/500000.0;
   else scale = 1/1000000.0;
+  scale*=magnification;
 
   // Наш прямоугольник в СК Пулково!
 
@@ -82,7 +94,7 @@ main(int argc, char** argv){
   double cm2pt = fig::cm2fig;
 
   if (!dofig){
-    double dpi = atof(argv[2]);
+    double dpi = atof(argv[1]);
     cm2pt = dpi/2.54;
   }
 
@@ -152,7 +164,7 @@ main(int argc, char** argv){
     fig::fig_object t = fig::make_object("4 1 0 31 -1 18 10 0.0000 4");
     o.comment.push_back("[grid]");
     t.comment.push_back("[grid labels]");
-    int step = 2;
+    int step = 2 * magnification;
 
     for (int i = int(ceil(f_min.x*fig::fig2cm/step));
              i < int(floor(f_max.x*fig::fig2cm/step)); i++){
