@@ -276,12 +276,14 @@ struct VMAPRenderer{
   }
 
   void
-  paintim(const vmap::object & o, const Cairo::RefPtr<Cairo::SurfacePattern> & patt){
+  paintim(const vmap::object & o,
+          const Cairo::RefPtr<Cairo::SurfacePattern> & patt, double ang=0){
     for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
       if (l->size()<1) continue;
       dPoint p=l->range().CNT();
       cr->save();
       cr->translate(p.x, p.y);
+      cr->rotate(ang);
       cr->set_source(patt);
       cr->paint();
       cr->restore();
@@ -331,18 +333,51 @@ struct VMAPRenderer{
     }
     cr->restore();
   }
+
+
   // place image in points
   void
-  render_im_in_points(int type, const char * fname){
-    cr->save();
+  render_im_in_points(int type, const char * fname,
+                      const std::vector<int> line_types = std::vector<int>(),
+                      bool rot=true, double maxdist=10){
+    maxdist*=lw1;
+
+    dMultiLine lines;
+    if (line_types.size()>0){
+      for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+        if (std::find(line_types.begin(), line_types.end(), o->type) == line_types.end()) continue;
+        lines.insert(lines.end(), o->begin(), o->end());
+      }
+    }
+    else rot=false;
+
     Cairo::RefPtr<Cairo::SurfacePattern> patt =
       get_patt_from_png(fname);
     for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
       if (o->type!=type) continue;
-      paintim(*o, patt);
+
+      for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
+        if (l->size()<1) continue;
+        dPoint p = (*l)[0];
+        double ang=0;
+
+        if (lines.size()>0){
+           dPoint t(1,0);
+           nearest_pt(lines, t, p, maxdist);
+           ang=atan2(t.y, t.x);
+        }
+
+        cr->save();
+        cr->translate(p.x, p.y);
+        if (rot) cr->rotate(ang);
+        cr->set_source(patt);
+        cr->paint();
+        cr->restore();
+      }
     }
-    cr->restore();
   }
+
+
 
   // contoured polygons
   void
