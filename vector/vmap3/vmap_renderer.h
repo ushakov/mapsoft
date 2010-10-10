@@ -11,6 +11,7 @@
 #include <cairomm/surface.h>
 
 #include <lib2d/line_utils.h>
+#include "lib2d/line_dist.h"
 #include <libgeo/geo_convs.h>
 #include <libgeo/geo_nom.h>
 #include <libgeo_io/io_oe.h>
@@ -31,6 +32,17 @@ struct VMAPRenderer{
   dRect rng_m, rng_pt;
   Datum D;
   Proj P;
+
+
+  // convert coordinates from meters to pixels
+  void pt_m2pt(dPoint & p){
+    p.x = p.x*m2pt - rng_pt.x;
+    p.y = rng_pt.y + rng_pt.h - p.y*m2pt;
+  }
+//  void pt_pt2m(dPoint & p){
+//    p.x = (p.x+rng_pt.x)/m2pt;
+//    p.y = (rng_pt.y + rng_pt.h - p.y)/m2pt;
+//  }
 
   VMAPRenderer(const char * in_file, int dpi_=300):
         cnv(Datum("wgs84"), Proj("lonlat"), Options(),
@@ -83,12 +95,17 @@ struct VMAPRenderer{
        << "  m2pt   = " << m2pt << "\n"
        << "  image = " << int(rng_pt.w) << "x" << int(rng_pt.h)<< "\n";
 
+
+    // create Cairo surface and context
     surface = Cairo::ImageSurface::create(
       Cairo::FORMAT_ARGB32, rng_pt.w, rng_pt.h);
     cr = Cairo::Context::create(surface);
 
-    cr->set_antialias(Cairo::ANTIALIAS_NONE);
+    // antialiasing is not compatable with erasing
+    // dark points under labels
+    cr->set_antialias(Cairo::ANTIALIAS_NONE); 
 
+    // draw border, set clipping region
     set_color(0xFFFFFF); cr->paint();
     for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
       dPoint pc=*p; pt_m2pt(pc);
@@ -107,8 +124,29 @@ struct VMAPRenderer{
     cr->set_line_width(10);
     cr->stroke();
     cr->restore();
+
+    // modify vmap
     vmap::add_labels(W);
+    // convert coordinates to px
+    for (vmap::world::iterator o=W.begin(); o!=W.end(); o++){
+      for (vmap::object::iterator l=o->begin(); l!=o->end(); l++){
+        for (dLine::iterator p=l->begin(); p!=l->end(); p++){
+          cnv.bck(*p);
+          pt_m2pt(*p);
+        }
+      }
+      for (std::list<vmap::lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
+        cnv.bck(l->pos);
+        pt_m2pt(l->pos);
+      }
+    }
+    for (dLine::iterator p=W.brd.begin(); p!=W.brd.end(); p++){
+      cnv.bck(*p);
+      pt_m2pt(*p);
+    }
+
   }
+
 
   void set_color(int c){
     cr->set_source_rgb(
@@ -185,27 +223,16 @@ struct VMAPRenderer{
     }
   }
 
-  // convert coordinates from meters to pixels
-  void pt_m2pt(dPoint & p){
-    p.x = p.x*m2pt - rng_pt.x;
-    p.y = rng_pt.y + rng_pt.h - p.y*m2pt;
-  }
-//  void pt_pt2m(dPoint & p){
-//    p.x = (p.x+rng_pt.x)/m2pt;
-//    p.y = (rng_pt.y + rng_pt.h - p.y)/m2pt;
-//  }
 
   void
   mkpath(const vmap::object & o, const int close, double curve_l=0){
     curve_l*=lw1;
     for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
       if (l->size()<1) continue;
-      dLine l1 = cnv.line_bck(*l);
       dPoint old;
       bool first = true;
-      for (dLine::iterator p=l1.begin(); p!=l1.end(); p++){
-        pt_m2pt(*p);
-        if (p==l1.begin()){
+      for (dLine::const_iterator p=l->begin(); p!=l->end(); p++){
+        if (p==l->begin()){
           cr->move_to(p->x, p->y);
           old=*p;
           continue;
@@ -243,46 +270,8 @@ struct VMAPRenderer{
     for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
       if (l->size()<1) continue;
       dPoint p = *l->begin();
-      cnv.bck(p);
-      pt_m2pt(p);
       cr->move_to(p.x, p.y);
       cr->rel_line_to(0,0);
-    }
-  }
-
-  // paths for bridge sign
-  void
-  mkbrpath1(const vmap::object & o){
-    for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
-      if (l->size()<2) continue;
-      dPoint p1 = (*l)[0], p2 = (*l)[1];
-      cnv.bck(p1); cnv.bck(p2);
-      pt_m2pt(p1); pt_m2pt(p2); 
-      cr->move_to(p1.x, p1.y);
-      cr->line_to(p2.x, p2.y);
-    }
-  }
-  void
-  mkbrpath2(const vmap::object & o, double th, double side){
-    th*=lw1/2.0;
-    side*=lw1/sqrt(2.0);
-    for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
-      if (l->size()<2) continue;
-      dPoint p1 = (*l)[0], p2 = (*l)[1];
-      cnv.bck(p1); cnv.bck(p2);
-      pt_m2pt(p1); pt_m2pt(p2);
-      dPoint t = pnorm(p2-p1);
-      dPoint n(-t.y, t.x);
-      dPoint P;
-      P = p1 + th*n + side*(n-t); cr->move_to(P.x, P.y);
-      P = p1 + th*n;              cr->line_to(P.x, P.y);
-      P = p2 + th*n;              cr->line_to(P.x, P.y);
-      P = p2 + th*n + side*(n+t); cr->line_to(P.x, P.y);
-
-      P = p1 - th*n - side*(n+t); cr->move_to(P.x, P.y);
-      P = p1 - th*n;              cr->line_to(P.x, P.y);
-      P = p2 - th*n;              cr->line_to(P.x, P.y);
-      P = p2 - th*n - side*(n-t); cr->line_to(P.x, P.y);
     }
   }
 
@@ -290,9 +279,7 @@ struct VMAPRenderer{
   paintim(const vmap::object & o, const Cairo::RefPtr<Cairo::SurfacePattern> & patt){
     for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
       if (l->size()<1) continue;
-      dLine l1 = cnv.line_bck(*l);
-      dPoint p=l1.range().CNT();
-      pt_m2pt(p);
+      dPoint p=l->range().CNT();
       cr->save();
       cr->translate(p.x, p.y);
       cr->set_source(patt);
@@ -376,8 +363,6 @@ struct VMAPRenderer{
   }
 
 
-
-
   void
   render_line(int type, int col, double th, double curve_l){
     cr->save();
@@ -404,6 +389,39 @@ struct VMAPRenderer{
     cr->restore();
   }
 
+
+
+  // paths for bridge sign
+  void
+  mkbrpath1(const vmap::object & o){
+    for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
+      if (l->size()<2) continue;
+      dPoint p1 = (*l)[0], p2 = (*l)[1];
+      cr->move_to(p1.x, p1.y);
+      cr->line_to(p2.x, p2.y);
+    }
+  }
+  void
+  mkbrpath2(const vmap::object & o, double th, double side){
+    th*=lw1/2.0;
+    side*=lw1/sqrt(2.0);
+    for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
+      if (l->size()<2) continue;
+      dPoint p1 = (*l)[0], p2 = (*l)[1];
+      dPoint t = pnorm(p2-p1);
+      dPoint n(-t.y, t.x);
+      dPoint P;
+      P = p1 + th*n + side*(n-t); cr->move_to(P.x, P.y);
+      P = p1 + th*n;              cr->line_to(P.x, P.y);
+      P = p2 + th*n;              cr->line_to(P.x, P.y);
+      P = p2 + th*n + side*(n+t); cr->line_to(P.x, P.y);
+
+      P = p1 - th*n - side*(n+t); cr->move_to(P.x, P.y);
+      P = p1 - th*n;              cr->line_to(P.x, P.y);
+      P = p2 - th*n;              cr->line_to(P.x, P.y);
+      P = p2 - th*n - side*(n-t); cr->line_to(P.x, P.y);
+    }
+  }
   void
   render_bridge(int type, double th1, double th2, double side){
     cr->save();
@@ -428,6 +446,143 @@ struct VMAPRenderer{
     cr->stroke();
     cr->restore();
   }
+
+
+  void
+  render_line_el(int type, int col, double th, double step=40){
+    render_line(type, col, th, 0);
+    double width=th*1.2*lw1;
+    step*=lw1;
+
+    cr->save();
+    set_cap_round();
+    set_th(1.8);
+    set_color(col);
+    for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+      if (o->type!=(type | zn::line_mask)) continue;
+      for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
+        LineDist<int> ld(*l);
+        if (ld.length()<=step) continue;
+        double fstep = ld.length()/ceil(ld.length()/step);
+        ld.move_frw(fstep/2);
+        int n=1;
+        while (ld.dist() < ld.length()){
+          dPoint vn=ld.norm()*width;
+          dPoint vt=ld.tang()*width;
+          dPoint p1,p2,p3;
+          p1=p2=p3=ld.pt();
+          p1+=vn; p3-=vn;
+          if (n%4 == 1){ p1+=vt; p3+=vt;}
+          if (n%4 == 3){ p1-=vt; p3-=vt;}
+          cr->move_to(p1.x, p1.y);
+          cr->line_to(p2.x, p2.y);
+          cr->line_to(p3.x, p3.y);
+          n++;
+          ld.move_frw(fstep);
+        }
+      }
+    }
+    cr->stroke();
+    cr->restore();
+  }
+
+  void
+  render_line_obr(int type, int col, double th){
+    render_line(type, col, th, 0);
+    double width=th*2*lw1;
+    double step=th*4*lw1;
+
+    cr->save();
+    set_cap_round();
+    set_th(th);
+    set_color(col);
+
+    for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+      if (o->type!=(type | zn::line_mask)) continue;
+      int k=1;
+      if (o->dir==2) k=-1;
+      for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
+        LineDist<int> ld(*l);
+        if (ld.length()<=step) continue;
+        double fstep = ld.length()/ceil(ld.length()/step);
+        ld.move_frw(fstep/2);
+        while (ld.dist() < ld.length()){
+         dPoint p=ld.pt(), vn=ld.norm()*width*k;
+          cr->move_to(p.x, p.y);
+          cr->line_to(p.x+vn.x, p.y+vn.y);
+          ld.move_frw(fstep);
+        }
+      }
+    }
+    cr->stroke();
+    cr->restore();
+  }
+
+  void
+  render_line_zab(int type, int col, double th){
+    render_line(type, col, th, 0);
+    double width=th*2*lw1;
+    double step=th*8*lw1;
+
+    cr->save();
+    set_cap_round();
+    set_th(th);
+    set_color(col);
+
+    for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+      if (o->type!=(type | zn::line_mask)) continue;
+      int k=1;
+      if (o->dir==2) k=-1;
+      for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
+        LineDist<int> ld(*l);
+        if (ld.length()<=step) continue;
+        double fstep = ld.length()/ceil(ld.length()/step);
+        ld.move_frw((fstep-width)/2);
+        int n=0;
+        while (ld.dist() < ld.length()){
+         dPoint p=ld.pt(), v=(ld.norm()-ld.tang())*width*k;
+          cr->move_to(p.x, p.y);
+          cr->line_to(p.x+v.x, p.y+v.y);
+          ld.move_frw((n%2==0)?width:fstep-width);
+          n++;
+        }
+      }
+    }
+    cr->stroke();
+    cr->restore();
+  }
+
+  void
+  render_line_gaz(int type, int col, double th, double step=40){
+    render_line(type, col, th, 0);
+    double width=th*0.8*lw1;
+    step*=lw1;
+
+    cr->save();
+    set_th(1);
+    for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+      if (o->type!=(type | zn::line_mask)) continue;
+      for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
+        LineDist<int> ld(*l);
+        if (ld.length()<=step) continue;
+        double fstep = ld.length()/ceil(ld.length()/step);
+        ld.move_frw(fstep/2);
+        while (ld.dist() < ld.length()){
+          dPoint p=ld.pt();
+          cr->begin_new_sub_path();
+          cr->arc(p.x, p.y, width, 0.0, 2*M_PI);
+          ld.move_frw(fstep);
+        }
+      }
+    }
+    set_color(0xFFFFFF);
+    cr->fill_preserve();
+    set_color(col);
+    cr->stroke();
+    cr->restore();
+  }
+
+
 
   void
   erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
@@ -569,9 +724,7 @@ struct VMAPRenderer{
 
         for (std::list<vmap::lpos>::const_iterator l=o->labels.begin(); l!=o->labels.end(); l++){
           dPoint p(l->pos);
-          cnv.bck(p);
           double ang=vmap::ang_a2afig(l->ang, cnv, p, W.rscale);
-          pt_m2pt(p);
 
           cur_cr->save();
           cur_cr->move_to(p.x, p.y);
@@ -680,7 +833,6 @@ struct VMAPRenderer{
     M.map_proj = P;
     for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
       dPoint gp = *p, rp = *p;
-      cnv.frw(gp); pt_m2pt(rp);
       // small negative values brokes map-file
       if (rp.x<0) rp.x=0;
       if (rp.y<0) rp.y=0;

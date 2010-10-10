@@ -20,8 +20,6 @@ main(int argc, char* argv[]){
 
   std::list<iPoint> cnt = R.make_cnt(0xAAFFAA, 2);     // контуры леса
 
-  // ледник -- TODO
-
   R.render_im_filled_polygons(0x4f, "vyr_n.png");
   R.render_im_filled_polygons(0x50, "vyr_o.png");
   R.render_im_filled_polygons(0x14, "redk.png");
@@ -34,6 +32,8 @@ main(int argc, char* argv[]){
   R.set_cap_round(); R.set_join_round(); R.set_dash(0, 2);
   R.render_line(0x23, 0x009000, 1, 0); // контуры, нарисованные вручную
   R.unset_dash();
+
+  R.render_im_filled_polygons(0x4d, "ledn.png"); // ледник
 
   //*******************************
 
@@ -91,13 +91,13 @@ main(int argc, char* argv[]){
   //*******************************
 
   R.set_cap_butt(); R.set_join_miter();
-  R.render_line(0x1A, 0x888888, 2, 0); // маленькая ЛЭП
-  R.render_line(0x29, 0x888888, 3, 0); // большая ЛЭП
-  R.render_line(0x28, 0x888888, 3, 0); // газопровод
+  R.render_line_el(0x1A, 0x888888, 2); // маленькая ЛЭП
+  R.render_line_el(0x29, 0x888888, 3); // большая ЛЭП
+  R.render_line_gaz(0x28, 0x888888, 3); // газопровод
 
   //*******************************
 
-  R.render_line(0x5, 0xFFFFFF, 3, 0); // дома (перенести выше?)
+  R.render_line(0x5, 0, 3, 0); // дома (перенести выше?)
 
   //*******************************
   R.set_join_round();
@@ -125,8 +125,8 @@ main(int argc, char* argv[]){
   R.set_dash(4, 2, 0, 2);   R.render_line(0x1D, 0x900000, 1, 0); // граница
 
   R.set_dash(2, 2); R.render_line(0x1E, 0x900000, 1, 0); // нижний край обрыва
-  R.unset_dash();   R.render_line(0x03, 0x900000, 1, 0); // верхний край обрыва
-  R.render_line(0x19, 0x000000, 1, 0); // забор
+  R.unset_dash();   R.render_line_obr(0x03, 0x900000, 1); // верхний край обрыва
+  R.render_line_zab(0x19, 0x900000, 1); // забор
 
   R.render_bridge(0x1B, 0, 1, 2); // туннель
   R.render_bridge(0x08, 1, 1, 2); // мост-1
