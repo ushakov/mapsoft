@@ -1,5 +1,7 @@
 Import ('env')
 
 env.Install(env.datadir, Split("""
-  pics mmb.cnf hr.cnf default.cnf
+  pics/ mmb.cnf hr.cnf default.cnf
 """))
+
+env.Install(env.datadir, Split("pics/*.fig pics/*.png"))

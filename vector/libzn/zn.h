@@ -12,7 +12,6 @@
 #include "options/m_time.h"
 
 // операции с конф.файлом и типами объектов
-// хочется, чтоб этот класс ничего не знал про ключи, а работал только с типами...
 
 namespace zn{
 
@@ -85,6 +84,8 @@ class zn_conv{
   // определить тип fig-объекта по внешнему виду, в соответствии с конф.файлом
   int get_type(const fig::fig_object & o) const;
 
+  // то же, что и find, но ругается, если тип не найден и
+  // про него еще не ругались
   std::map<int, zn>::const_iterator find_type(int type);
 
   // Получить заготовку fig-объекта заданного типа
@@ -97,9 +98,21 @@ class zn_conv{
   fig::fig_object get_label_template(int type);
 
   // Получить тип подписи
-  int get_label_pos(int type);
+  int get_label_pos(int type); // переименовать?
 
       // в следующих функциях, если указан тип 0, то он определяется по объекту
+
+  // Создать картинку к объекту
+  std::list<fig::fig_object> make_pic(const fig::fig_object & fig, int type=0);
+
+  //Грубая проверка, является ли объект картографическим объектом.
+  //Лежит ли его глубина в диапазоне между максимальной и минимальной глубиной
+  //объектов из конф.файла.
+  bool is_map_depth(const fig::fig_object & o) const;
+
+
+  // Все следующие функции, насколько я понимаю, становятся ненужными при переходе на vmap3:
+  // пока они используются в mapsoft_vmap и к.
 
   // Преобразовать mp-объект в fig-объекты
   std::list<fig::fig_object> mp2fig(const mp::mp_object & mp, convs::map2pt & cnv, int type=0);
@@ -110,21 +123,13 @@ class zn_conv{
   // Поменять параметры в соответствии с типом
   void fig_update(fig::fig_object & fig, int type=0);
 
-  // Создать картинку к объекту
-  std::list<fig::fig_object> make_pic(const fig::fig_object & fig, int type=0);
-
   // Создать подписи к объекту
-  std::list<fig::fig_object> make_labels(const fig::fig_object & fig, int type=0);
+  std::list<fig::fig_object> make_labels(const fig::fig_object & fig, int type=0); 
 
   // Поменять параметры подписи в соответствии с типом
   // (шрифт, размер, цвет, глубина)
   // Если тип 0 - ничего не менять
   void label_update(fig::fig_object & fig, int type);
-
-  //Грубая проверка, является ли объект картографическим объектом.
-  //Лежит ли его глубина в диапазоне между максимальной и минимальной глубиной
-  //объектов из конф.файла.
-  bool is_map_depth(const fig::fig_object & o) const;
 
   /// functions for updating fig map
   int fig_add_pics(fig::fig_world & F);

@@ -17,7 +17,8 @@
 #include "../libzn/zn.h"
 #include "vmap.h"
 
-const double img_dpi = 300.0;
+const double pics_dpi = 600.0;
+const char * pics_dir = "/usr/share/mapsoft/pics";
 
 struct VMAPRenderer{
 
@@ -161,19 +162,27 @@ struct VMAPRenderer{
   }
 
   // create pattern from png-file, rescaled
-  // according to dpi and img_dpi values and
+  // according to dpi and pics_dpi values and
   // translated to the image center
   Cairo::RefPtr<Cairo::SurfacePattern>
   get_patt_from_png(const char * fname){
-    Cairo::RefPtr<Cairo::ImageSurface> patt_surf =
-      Cairo::ImageSurface::create_from_png(fname);
-    Cairo::RefPtr<Cairo::SurfacePattern> patt =
-      Cairo::SurfacePattern::create(patt_surf);
-    Cairo::Matrix M=Cairo::identity_matrix();
-    M.translate(patt_surf->get_width()/2.0, patt_surf->get_height()/2.0);
-    M.scale(img_dpi/dpi, img_dpi/dpi);
-    patt->set_matrix(M);
-    return patt;
+    std::string file(pics_dir);
+    file+="/";  file+=fname;
+    try{
+      Cairo::RefPtr<Cairo::ImageSurface> patt_surf =
+        Cairo::ImageSurface::create_from_png(file.c_str());
+      Cairo::RefPtr<Cairo::SurfacePattern> patt =
+        Cairo::SurfacePattern::create(patt_surf);
+      Cairo::Matrix M=Cairo::identity_matrix();
+      M.translate(patt_surf->get_width()/2.0, patt_surf->get_height()/2.0);
+      M.scale(pics_dpi/dpi, pics_dpi/dpi);
+      patt->set_matrix(M);
+      return patt;
+    }
+    catch (Cairo::logic_error err){
+      std::cerr << "error: " << err.what() << " " << file << "\n";
+      exit(1);
+    }
   }
 
   // convert coordinates from meters to pixels
@@ -262,10 +271,6 @@ struct VMAPRenderer{
       dPoint p1 = (*l)[0], p2 = (*l)[1];
       cnv.bck(p1); cnv.bck(p2);
       pt_m2pt(p1); pt_m2pt(p2);
-      if (th >= lw1*3){
-        cr->move_to(p1.x, p1.y);
-        cr->line_to(p2.x, p2.y);
-      }
       dPoint t = pnorm(p2-p1);
       dPoint n(-t.y, t.x);
       dPoint P;
@@ -404,18 +409,21 @@ struct VMAPRenderer{
     cr->save();
     cr->set_line_cap(Cairo::LINE_CAP_BUTT);
     cr->set_line_join(Cairo::LINE_JOIN_ROUND);
-    set_th(th1);
-    set_color(0xFFFFFF);
-    for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
-      if (o->type!=(type | zn::line_mask)) continue;
-      mkbrpath1(*o);
+    if (th1!=0){
+      set_th(th1);
+      set_color(0xFFFFFF);
+      for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+        if (o->type!=(type | zn::line_mask)) continue;
+        mkbrpath1(*o);
+      }
+      cr->stroke();
+      th1+=th2;
     }
-    cr->stroke();
     set_th(th2);
     set_color(0x0);
     for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
       if (o->type!=(type | zn::line_mask)) continue;
-      mkbrpath2(*o, th1+th2, side);
+      mkbrpath2(*o, th1, side);
     }
     cr->stroke();
     cr->restore();
@@ -445,7 +453,7 @@ struct VMAPRenderer{
 
 #define IS_TEXT(x,y)  ((bw_data[bws*(y) + (x)/8] >> ((x)%8))&1)\
 
-    // walk through all non-border points
+    // walk through all points
     for (int y=0; y<h; y++){
       for (int x=0; x<w; x++){
         if (!IS_TEXT(x,y)) continue;
@@ -533,7 +541,7 @@ struct VMAPRenderer{
 
 
   void
-  render_labels(double bound=3, int dark_th = 170, int search_dist=6){
+  render_labels(double bound=2.5, int dark_th = 170, int search_dist=6){
     cr->save();
 
     zn::zn_conv zc(W.style);
@@ -542,6 +550,7 @@ struct VMAPRenderer{
       Cairo::FORMAT_A1, surface->get_width(), surface->get_height());
     Cairo::RefPtr<Cairo::Context> bw_cr = Cairo::Context::create(bw_surface);
     bw_cr->set_line_width(bound*lw1);
+    bw_cr->set_line_join(Cairo::LINE_JOIN_ROUND);
 
     for (int pass=1; pass<=2; pass++){
       for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){

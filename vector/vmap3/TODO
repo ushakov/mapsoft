@@ -1,5 +1,3 @@
-POI 0x5905   395 ж/д станция
-
 POI 0x6508 0 водопад
 POI 0x650E 3 порог
 
@@ -8,12 +6,7 @@ POLYGON 0x19 0 крутой склон
 POLYGON 0xA 0 дырка в srtm данных
 
 POLYLINE 0x0 4 кривая надпись
-POLYLINE 0x8 286 мост1 (пешеходный)
-POLYLINE 0x9 1039 мост2 (автомобильный)
-POLYLINE 0xE 80 мост5 (на автомагистралях)
 POLYLINE 0x19 143 забор
-POLYLINE 0x1B 5 пешеходный тоннель
-POLYLINE 0x1D 71 граница областей
 POLYLINE 0x1E 16 нижний край обрыва
 
 TODO:

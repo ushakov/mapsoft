@@ -1,11 +1,2 @@
 *.[oa]
-Makefile
-Makefile.in
-.deps
 .sconsign.dblite
-aclocal.m4
-autom4te.cache
-confdefs.h
-config.log
-config.status
-configure

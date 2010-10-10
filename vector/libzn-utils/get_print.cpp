@@ -452,7 +452,7 @@ main(int argc, char **argv){
     }
 
     // забор
-    if (type == 0x100019){ 
+    if (type == 0x100019){
       double step = 130;
       double w    = 30;
       int k=1;

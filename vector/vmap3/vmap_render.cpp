@@ -22,9 +22,9 @@ main(int argc, char* argv[]){
 
   // ледник -- TODO
 
-  R.render_im_filled_polygons(0x4f, "zn/vyr_n.png");
-  R.render_im_filled_polygons(0x50, "zn/vyr_o.png");
-  R.render_im_filled_polygons(0x14, "zn/redk.png");
+  R.render_im_filled_polygons(0x4f, "vyr_n.png");
+  R.render_im_filled_polygons(0x50, "vyr_o.png");
+  R.render_im_filled_polygons(0x14, "redk.png");
 
   R.render_col_filled_polygons(0x15, 0xAAFFAA); // остров леса поверх вырубок
 
@@ -68,8 +68,8 @@ main(int argc, char* argv[]){
 
   //*******************************
 
-  R.render_im_filled_polygons(0x51, "zn/bol_l.png"); // болота
-  R.render_im_filled_polygons(0x4C, "zn/bol_h.png"); // болота труднопроходимые
+  R.render_im_filled_polygons(0x51, "bol_l.png"); // болота
+  R.render_im_filled_polygons(0x4C, "bol_h.png"); // болота труднопроходимые
   R.render_line(0x24, 0x5066FF, 1, 0); // старые болота
 
   //*******************************
@@ -126,7 +126,7 @@ main(int argc, char* argv[]){
 
   R.set_dash(2, 2); R.render_line(0x1E, 0x900000, 1, 0); // нижний край обрыва
   R.unset_dash();   R.render_line(0x03, 0x900000, 1, 0); // верхний край обрыва
-  R.unset_dash();   R.render_line(0x19, 0x000000, 1, 0); // забор
+  R.render_line(0x19, 0x000000, 1, 0); // забор
 
   R.render_bridge(0x1B, 0, 1, 2); // туннель
   R.render_bridge(0x08, 1, 1, 2); // мост-1
@@ -143,30 +143,30 @@ main(int argc, char* argv[]){
   R.set_cap_square();
   R.render_points(0x6402, 0x0, 4); // дом
 
-  R.render_im_in_points(0x0F00, "zn/trig.png");
-  R.render_im_in_points(0x2C04, "zn/pam.png");
-  R.render_im_in_points(0x2C0B, "zn/cerkov.png");
-  R.render_im_in_points(0x2F08, "zn/avt.png");
-  R.render_im_in_points(0x5905, "zn/zd.png");
-  R.render_im_in_points(0x6406, "zn/per.png");
-  R.render_im_in_points(0x6620, "zn/pernk.png");
-  R.render_im_in_points(0x6621, "zn/per1a.png");
-  R.render_im_in_points(0x6622, "zn/per1b.png");
-  R.render_im_in_points(0x6623, "zn/per2a.png");
-  R.render_im_in_points(0x6624, "zn/per2b.png");
-  R.render_im_in_points(0x6625, "zn/per3a.png");
-  R.render_im_in_points(0x6626, "zn/per3b.png");
-  R.render_im_in_points(0x660B, "zn/kan.png");
-  R.render_im_in_points(0x650A, "zn/ldp.png");
-  R.render_im_in_points(0x6403, "zn/kladb.png");
-  R.render_im_in_points(0x6411, "zn/bash.png");
-  R.render_im_in_points(0x6415, "zn/razv.png");
-  R.render_im_in_points(0x640C, "zn/shaht.png");
-  R.render_im_in_points(0x6603, "zn/yama.png");
-  R.render_im_in_points(0x6606, "zn/ohotn.png");
-  R.render_im_in_points(0x6613, "zn/pupyr.png");
-  R.render_im_in_points(0x6616, "zn/skala.png");
-  R.render_im_in_polygons(0x1A, "zn/cem_cross.png"); // крестики на кладбищах
+  R.render_im_in_points(0x0F00, "trig.png");
+  R.render_im_in_points(0x2C04, "pam.png");
+  R.render_im_in_points(0x2C0B, "cerkov.png");
+  R.render_im_in_points(0x2F08, "avt.png");
+  R.render_im_in_points(0x5905, "zd.png");
+  R.render_im_in_points(0x6406, "per.png");
+  R.render_im_in_points(0x6620, "pernk.png");
+  R.render_im_in_points(0x6621, "per1a.png");
+  R.render_im_in_points(0x6622, "per1b.png");
+  R.render_im_in_points(0x6623, "per2a.png");
+  R.render_im_in_points(0x6624, "per2b.png");
+  R.render_im_in_points(0x6625, "per3a.png");
+  R.render_im_in_points(0x6626, "per3b.png");
+  R.render_im_in_points(0x660B, "kan.png");
+  R.render_im_in_points(0x650A, "ldp.png");
+  R.render_im_in_points(0x6403, "kladb.png");
+  R.render_im_in_points(0x6411, "bash.png");
+  R.render_im_in_points(0x6415, "razv.png");
+  R.render_im_in_points(0x640C, "shaht.png");
+  R.render_im_in_points(0x6603, "yama.png");
+  R.render_im_in_points(0x6606, "ohotn.png");
+  R.render_im_in_points(0x6613, "pupyr.png");
+  R.render_im_in_points(0x6616, "skala.png");
+  R.render_im_in_polygons(0x1A, "cross.png"); // крестики на кладбищах
 
   R.render_grid(1000, 1000);
 
