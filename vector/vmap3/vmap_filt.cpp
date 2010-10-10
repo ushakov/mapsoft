@@ -225,7 +225,8 @@ filter(world & W, const Options & O){
 
     // crop, skip, select range
     RC.process(*o);
-    o++;
+    if (o->size()==0) o=W.erase(o);
+    else o++;
   }
 }
 
