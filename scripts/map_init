@@ -1,0 +1,19 @@
+#!/bin/sh -efu
+
+name=$1
+
+. map_functions.sh
+
+jpg="$(mktemp).jpg"
+
+geom="$(get_map_par "$name" "geom" "")"
+style="$(get_map_par "$name" "style" "mmb")"
+rscale="$(get_map_par "$name" "rscale" "100000")"
+
+mapsoft_convert -o "$jpg" --fig="$name.fig" \
+  -g "$geom" --rscale="$rscale" --dpi="1"
+
+rm -f -- "$jpg"
+sed -i -e "
+  /1200 2/i# \\\\style=$style
+  /^# MAP/,\$d" "$name.fig"

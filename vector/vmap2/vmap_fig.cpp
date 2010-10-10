@@ -1,10 +1,11 @@
 #include <sstream>
 
 #include "vmap.h"
+#include "libgeo_io/geofig.h"
+#include "libgeo/geo_convs.h"
 
-#include "../libzn/zn_key.h" // for backward compat. read old-style keys
-#include "../../core/lib2d/line_utils.h"
-#include "../../core/lib2d/line_rectcrop.h"
+#include "lib2d/line_utils.h"
+#include "lib2d/line_rectcrop.h"
 #include "legend.h"
 
 
@@ -71,7 +72,7 @@ Options read_fig(const string & fig_file, vmap & M){
 
     string type=leg.get_type(*i);
     if (type!="") o.opts.put("Type", type);
-    else std::cerr << "Warning: unknown object type\n";
+    else cerr << "Warning: unknown object type\n";
 
     // add point if line is closed
     if ((i->is_closed()) &&
@@ -88,14 +89,8 @@ Options read_fig(const string & fig_file, vmap & M){
     cnv.line_frw_p2p(pts);
     o.push_back(pts);
 
-    // BC!! old-style keys
-    zn::zn_key k=zn::get_key(*i);
-    zn::clear_key(*i);
-    string id = boost::lexical_cast<string>(k.id);  // BC!!
-    if (k.map!="") id+="@" + k.map;
-
     // new-style ID
-    id=i->opts.get("ID", id);
+    string id=i->opts.get<string>("ID");
     if ((id=="")||(id=="0")) id=make_id();
 
     if (i->comment.size()>0)
@@ -112,7 +107,7 @@ Options read_fig(const string & fig_file, vmap & M){
       }
       // else create new object with new id
       else {
-        std::cerr << "Warning: duplicated ID \"" << id << "\"\n";
+        cerr << "Warning: duplicated ID \"" << id << "\"\n";
         id_dup.insert(id);
         id=make_id();
         M.mobjs[id]=o;
@@ -132,14 +127,8 @@ Options read_fig(const string & fig_file, vmap & M){
   for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
     if (i->type!=4) continue;
 
-    // BC!! old-style keys
-    zn::zn_label_key k=zn::get_label_key(*i);
-    string id=boost::lexical_cast<string>(k.id);  // BC!!
-    if (k.map!="") id+="@" + k.map;
-    zn::clear_key(*i);
-
     // new-style ID
-    id=i->opts.get("LabelID", id);
+    string id=i->opts.get<string>("LabelID");
     if ((id=="")||(id=="0")) continue;
 
     // trow out label positions for duplicated ids
@@ -222,7 +211,6 @@ int get_fig(const string & fig_file, const vmap & M,
   fig::fig_world::iterator o=F.begin();
   while (o!=F.end()){
     if (leg.is_map_depth(*o) ||  // map object
-        (zn::get_label_key(*o).map!="") || // BC!!! old-style label
         (o->opts.get("LabelID", string()) != "") || // new-style label
         test_skip(*o)) // objects with [skip] label
            o=F.erase(o);
@@ -313,7 +301,7 @@ int get_fig(const string & fig_file, const vmap & M,
       }
 
       // find labels
-      std::list<fig::fig_object> fl1;
+      list<fig::fig_object> fl1;
       for (lpos_t::const_iterator l  = lpos.lower_bound(id);
                                   l != lpos.upper_bound(id); l++){
         dPoint p=l->second;
@@ -332,7 +320,7 @@ int get_fig(const string & fig_file, const vmap & M,
         fl1=leg.make_labels(fig,type);
       }
       // make pics
-      std::list<fig::fig_object> fl2=leg.make_pic(fig,type);
+      list<fig::fig_object> fl2=leg.make_pic(fig,type);
       F.insert(F.end(), fl1.begin(),fl1.end());
       F.insert(F.end(), fl2.begin(),fl2.end());
     }

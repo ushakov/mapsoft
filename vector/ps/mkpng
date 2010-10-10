@@ -1,0 +1,16 @@
+#!/bin/sh -efu
+
+file="$1"
+dpi=300
+
+size="$(sed -n -e 's/^%%BoundingBox.* \([0-9]\+\) \([0-9]\+\)$/\1x\2/p' "$file")"
+x="${size%x*}"
+y="${size#*x}"
+
+x="$(($x*$dpi/72))"
+y="$(($y*$dpi/72))"
+
+gs -dNOPAUSE -dBATCH -sDEVICE=png16m \
+   -sOutputFile="${file%.ps}.png"\
+   -r"$dpi" -g"$x"x"$y"\
+   "$file"

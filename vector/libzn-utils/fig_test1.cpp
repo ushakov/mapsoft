@@ -5,6 +5,9 @@
 #include "libgeo_io/io.h"
 #include "libgeo/geo_convs.h"
 
+// для проверки сдвига fig-файла при многочисленных
+// преобразованиях координат...
+
 using namespace std;
 
 bool testext(const string & nstr, const char *ext){
@@ -18,7 +21,6 @@ int main(int argc, char** argv){
     cerr  << "Insufficient arguments\n"; return 1;
   }
 
-  string cfile = "/usr/share/mapsoft/mmb.cnf";
   string file = argv[1];
 
   fig::fig_world F;

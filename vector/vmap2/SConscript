@@ -10,7 +10,7 @@ env.Library('vmap2', \
      """))
 
 libs1=Split("vmap2 utils 2d")
-libs2=Split("vmap2 fig mp zn geo_io geo loaders jeeps utils 2d yaml tiff png jpeg proj")
+libs2=Split("vmap2 fig mp zn geo_io geo loaders jeeps options utils 2d yaml tiff png jpeg proj")
 
 env.Program("vmap_putfig.cpp",  LIBS=[libs2])
 env.Program("vmap_getfig.cpp",  LIBS=[libs2])
