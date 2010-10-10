@@ -6,59 +6,11 @@
 #include <cstring>
 #include "../libzn/zn.h"
 #include "lib2d/line_dist.h"
+#include "lib2d/line_utils.h"
 #include "lib2d/line_polycrop.h"
 
 using namespace std;
 using namespace fig;
-
-/*
-Преобразование fig -> fig для печати.
-Тип объекта определяется по его внешнему виду, 
-хранилище карт и ключи никак не используются
-*/
-
-
-// Найти ближайшую к точке pt линию из списка.
-// В pt запихать эту ближайшую точку, в vec - едиичный вектор направления линии,
-// вернуть расстояние. 
-// Поиск происходит на расстоянии не более maxdist (xfig units)
-double nearest_line(const iMultiLine & lines, dPoint & vec, Point<double> & pt, double maxdist=100){
-
-  dPoint minp(pt),minvec(1,0);
-  double minl=maxdist;
-
-  for (iMultiLine::const_iterator i  = lines.begin(); i != lines.end(); i++){
-    for (int j=1; j<i->size(); j++){
-      dPoint p1((*i)[j-1]);
-      dPoint p2((*i)[j]);
-
-      double  ll = pdist(p1,p2);
-      if (ll==0) continue;
-      dPoint vec = (p2-p1)/ll;
-
-      double ls = pdist(pt,p1);
-      double le = pdist(pt,p2);
-
-      if (ls<minl){ minl=ls; minp=p1; minvec=vec; }
-      if (le<minl){ minl=le; minp=p2; minvec=vec; }
-
-      double prl = pscal(pt-p1, vec);
-
-      if ((prl>=0)&&(prl<=ll)) { // проекция попала на отрезок
-        dPoint pc = p1 + vec * prl;
-        double lc=pdist(pt,pc);
-        if (lc<minl) { minl=lc; minp=pc; minvec=vec; }
-      }
-    }
-  }
-  pt=minp;
-  vec=minvec;
-  return minl;
-}
-
-
-
-
 
 main(int argc, char **argv){
 
@@ -181,17 +133,17 @@ main(int argc, char **argv){
     }
     // платформа
     if (type == 0x5905){
-      dPoint t, p((*i)[0]);
-      nearest_line(list_zd, t, p);
-
+      dPoint t(1,0);
+      iPoint p((*i)[0]);
+      nearest_pt(list_zd, t, p, 100);
       dPoint n(-t.y,t.x);
       fig_object o = make_object(*i, "2 3 0 1 0 7 * * 20 * 0 0 0 0 0 *");
       o.clear();
       t *= 80, n *= 35; // длина и ширина
-      o.push_back(p+t+n);
-      o.push_back(p+t-n);
-      o.push_back(p-t-n);
-      o.push_back(p-t+n);
+      o.push_back(p+iPoint(t+n));
+      o.push_back(p+iPoint(t-n));
+      o.push_back(p-iPoint(t+n));
+      o.push_back(p-iPoint(t-n));
       NW.push_back(o); continue;
     }
     // все перевалы разом!
@@ -203,8 +155,9 @@ main(int argc, char **argv){
         (type == 0x6624)||
         (type == 0x6625)||
         (type == 0x6626)){
-      dPoint t, p((*i)[0]);
-      nearest_line(list_h, t, p);
+      dPoint t(1,0);
+      iPoint p((*i)[0]);
+      nearest_pt(list_h, t, p, 100);
       (*i)[0]=p;
       list<fig_object> l1 = zconverter.make_pic(*i, type);
       fig::fig_rotate(l1, atan2(t.y, t.x), p);
@@ -214,15 +167,16 @@ main(int argc, char **argv){
     // порог и водопад
     if ((type == 0x650E) || (type == 0x6508)){
 
-      dPoint t1, p1((*i)[0]);
-      nearest_line(list_r, t1, p1);
+      dPoint t(1,0);
+      iPoint p((*i)[0]);
+      nearest_pt(list_r, t, p, 100);
 
-      dPoint n(-t1.y,t1.x);
+      dPoint n(-t.y,t.x);
       fig_object o = make_object("2 1 0 2 1 0 57 -1 0 0 0 1 0 0 0 *");
       double w = 30; // длина штриха
       if (type == 0x6508) o.thickness=3;
-      o.push_back(p1+n*w);
-      o.push_back(p1-n*w);
+      o.push_back(p+iPoint(n*w));
+      o.push_back(p-iPoint(n*w));
       NW.push_back(o);
       continue;
     }

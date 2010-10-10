@@ -7,45 +7,6 @@ using namespace std;
 
 /****************************************************************/
 
-double nearest_pt(dPoint & vec, Point<double> & pt,  
-  const std::list<fig_object> & objects, const std::string & mask, double maxdist){
-
-  dPoint minp(pt),minvec(1,0);
-  double minl=maxdist; // далеко объекты не уносим!!!
-
-  for (fig_world::const_iterator i  = objects.begin(); i != objects.end(); i++){
-    if (!test_object(*i, mask)) continue;
-
-    int np = i->size();
-
-    for (int j=1; j<np; j++){
-      dPoint p1((*i)[j-1].x, (*i)[j-1].y);
-      dPoint p2((*i)[j].x, (*i)[j].y);
-      double  ll = sqrt((p2.x-p1.x)*(p2.x-p1.x)+(p2.y-p1.y)*(p2.y-p1.y));
-      dPoint vec((p2.x-p1.x)/ll, (p2.y-p1.y)/ll);
-
-      double ls = sqrt((pt.x-p1.x)*(pt.x-p1.x)+(pt.y-p1.y)*(pt.y-p1.y)); 
-      double le = sqrt((pt.x-p2.x)*(pt.x-p2.x)+(pt.y-p2.y)*(pt.y-p2.y)); 
-
-      if (ls<minl){ minl=ls; minp=p1; minvec=vec; }
-      if (le<minl){ minl=le; minp=p2; minvec=vec; }
-
-      double prl = ((pt.x-p1.x)*vec.x+(pt.y-p1.y)*vec.y); 
-
-      if ((prl>=0)&&(prl<=ll)) { // проекция попала на отрезок
-        dPoint p = p1 + vec * ((pt.x-p1.x)*vec.x+(pt.y-p1.y)*vec.y);
-        double lc=sqrt((pt.x-p.x)*(pt.x-p.x)+(pt.y-p.y)*(pt.y-p.y));
-        if (lc<minl) {
-          minl=lc; minp=p; minvec=vec;
-        }
-      }
-    }
-  }
-  pt=minp;
-  vec=minvec;
-  return minl;
-}
-
 // размер fig-объектов
 iRect range(std::list<fig_object> & objects){
   if ((objects.size()<1) || (objects.begin()->size()<1)) return iRect(0,0,0,0);

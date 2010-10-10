@@ -176,4 +176,46 @@ Line<T> join_polygons(const MultiLine<T> & L){
   return ret;
 }
 
+// Найти ближайшую к pt точку из линии line.
+// Если найдена точка ближе, чем maxdist, то в vec записывается
+// единичный вектор направления линии, а в pt - ближайшая точка.
+// Если точки ближе maxdist не найдено - возвращается maxdist,
+// а vec и pt не меняются.
+template<typename T>
+double nearest_pt(const Line<T> & line, dPoint & vec, Point<T> & pt, double maxdist){
+
+  for (int j=1; j<line.size(); j++){
+    Point<T> p1(line[j-1]);
+    Point<T> p2(line[j]);
+
+    double  ll = pdist(p1,p2);
+    if (ll==0) continue;
+    dPoint v = dPoint(p2-p1)/ll;
+
+    double ls = pdist(pt,p1);
+    double le = pdist(pt,p2);
+
+    if (ls<maxdist){ maxdist=ls; pt=p1; vec=v; }
+    if (le<maxdist){ maxdist=le; pt=p2; vec=v; }
+
+    double prl = pscal(dPoint(pt-p1), v);
+
+    if ((prl>=0)&&(prl<=ll)) { // проекция попала на отрезок
+      Point<T> pc = p1 + Point<T>(v * prl);
+      double lc=pdist(pt,pc);
+      if (lc<maxdist) { maxdist=lc; pt=pc; vec=v; }
+    }
+  }
+  return maxdist;
+}
+
+template<typename T>
+double nearest_pt(const MultiLine<T> & lines, dPoint & vec, Point<T> & pt, double maxdist){
+  for (typename MultiLine<T>::const_iterator i  = lines.begin(); i != lines.end(); i++){
+    maxdist = nearest_pt(*i, vec, pt, maxdist);
+  }
+  return maxdist;
+}
+
+
 #endif

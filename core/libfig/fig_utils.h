@@ -8,14 +8,6 @@
 /// связанное с fig-файлами
 namespace fig {
 
-  /// Спроектировать точку pt на ближайшую линию из objects, удовлетворяющую маске mask,
-  /// вернуть направление (единичный вектор vec) линии в этой точке и расстояние до линии
-  /// (нужно это все для изготовления знаков ж/д платформ, порогов, водопадов -
-  /// точечных объектов, привязанных к линии, которые хочется изображать
-  /// ориентированно)
-  double nearest_pt(dPoint & vec, Point<double> & pt,
-    const std::list<fig_object> & objects, const std::string & mask, double maxdist=100);
-
   // размер fig-объектов
   iRect range(std::list<fig_object> & objects);
 
