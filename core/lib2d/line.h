@@ -12,7 +12,7 @@
 #include "rect.h"
 
 
-/** Ломаная линия (std::vector<Point<T> >). */
+/* Ломаная линия (std::vector<Point<T> >). */
 
 template <typename T>
 struct Line : std::vector<Point<T> >

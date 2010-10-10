@@ -2,10 +2,14 @@
 #define POINT_H
 
 #include <boost/operators.hpp>
-#include <iostream>
-#include <ios>
+#include <ios>   // for << and >> operators
 #include <cmath> // for rint
 
+/// 2-d point
+/** Short typedefs:
+ *   - iPoint for Point<int>
+ *   - dPoint for Point<double>
+*/
 
 template <typename T>
 struct Point
@@ -16,12 +20,17 @@ struct Point
     public boost::equality_comparable<Point<T> >
 #endif
 {
-  T x, y;
+  /// x coordinate
+  T x;
+  /// y coordinate
+  T y; 
 
+  /// Constructor.
   Point(T _x=0, T _y=0)
 	: x(_x), y(_y)
   { }
 
+  /// Swap point with other one.
   void
   swap (Point & other)
   {
@@ -29,20 +38,23 @@ struct Point
 	std::swap (y, other.y);
   }
 
-  Point<T> & operator-= (Point const & t)
+  /// Subtract corresponding coordinates: p=Point(p.x-other.x, p.y-other.y).
+  Point<T> & operator-= (Point const & other)
   {
-	x -= t.x;
-	y -= t.y;
+	x -= other.x;
+	y -= other.y;
 	return *this;
   }
 
-  Point<T> & operator+= (Point const & t)
+  /// Add corresponding coordinates: p=Point(p.x+other.x, p.y+other.y).
+  Point<T> & operator+= (Point const & other)
   {
-	x += t.x;
-	y += t.y;
+	x += other.x;
+	y += other.y;
 	return *this;
   }
 
+  /// Divide coordinates by k: p=Point(p.x/k, p.y/k).
   Point<T> & operator/= (T k)
   {
 	x /= k;
@@ -50,6 +62,7 @@ struct Point
 	return *this;
   }
 
+  /// Multiply coordinates by k: p=Point(p.x*k, p.y*k).
   Point<T> & operator*= (T k)
   {
 	x *= k;
@@ -57,31 +70,38 @@ struct Point
 	return *this;
   }
 
-  T manhattan_length () const
+  /// Invert point coordinates.
+  Point<T> & operator- ()
   {
-	return abs(x) + abs(y);
+	x = -x;
+	y = -y;
+	return *this;
   }
 
 #ifndef SWIG
-  bool operator< (const Point<T> & p) const
+  /// Less then operator: (x < other.x)  || ((x == other.x) && (y < other.y)).
+  bool operator< (const Point<T> & other) const
   {
-	return (x<p.x) || ((x==p.x)&&(y<p.y));
+	return (x<other.x) || ((x==other.x)&&(y<other.y));
   }
 
-  bool operator== (const Point<T> & p) const
+  /// Equal opertator: (x==other.x) && (y==other.y).
+  bool operator== (const Point<T> & other) const
   {
-	return (x==p.x)&&(y==p.y);
+	return (x==other.x)&&(y==other.y);
   }
 
+  /// Cast to Point<double>.
   operator Point<double>() const{
     return Point<double>(double(this->x), double(this->y));
   }
 
+  /// Cast to Point<int>.
   operator Point<int>() const{
     return Point<int>(int(rint(this->x)), int(rint(this->y)));
   }
 #else  // SWIG
-  // replace boost added standalone operators
+  // Replace boost added standalone operators.
   %extend {
     Point<T> operator+ (Point<T> const & t) { return *$self + t; }
     Point<T> operator- (Point<T> const & t) { return *$self - t; }
@@ -90,15 +110,24 @@ struct Point
     swig_cmp(Point<T>);
     swig_str();
   }
-#endif  // SWIG    
+#endif  // SWIG
+
+  /// Calculate manhattan length: abs(x)+abs(y).
+  T manhattan_length () const
+  {
+	return abs(x) + abs(y);
+  }
+
 };
 
+/// Output operator: print point as a comma-separated pair of coordinartes.
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Point<T> & p){
   s << p.x << "," << p.y;
   return s;
 }
 
+/// Input operator: read point from a comma-separated pair of coordainates.
 template <typename T>
 std::istream & operator>> (std::istream & s, Point<T> & p){
   char sep;
@@ -114,6 +143,5 @@ std::istream & operator>> (std::istream & s, Point<T> & p){
 
 typedef Point<double> dPoint;
 typedef Point<int>    iPoint;
-
 
 #endif /* POINT_H */

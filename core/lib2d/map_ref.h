@@ -6,9 +6,9 @@
 #include <map>
 #include <boost/operators.hpp>
 
-/// A set of reference points with a border.
-/// This object isn't used now, becouse i don't know where
-/// it can be useful without geo conversions...
+// A set of reference points with a border.
+// This object isn't used now, becouse i don't know where
+// it can be useful without geo conversions...
 
 template <typename T1, typename T2>
 struct MapRef : std::vector <std::pair<Point<T1>, Point<T2> > >

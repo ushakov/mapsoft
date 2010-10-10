@@ -378,7 +378,7 @@ list<fig::fig_object> legend::make_labels(
       if ((p1.x == 0) && (p1.y == 0)) p1.x = 1;
 
       dPoint v = pnorm(p1);
-      if (v.x<0) v=-1.0*v;
+      if (v.x<0) v=-v;
       txt.angle = atan2(-v.y, v.x);
 
       p-= iPoint(int(-v.y*txt_dist), int(v.x*txt_dist));

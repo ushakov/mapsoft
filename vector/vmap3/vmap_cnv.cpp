@@ -24,7 +24,7 @@ using namespace std;
 double
 ang_pll2a(const dPoint & p1, const dPoint & p2, int dir){
   dPoint v = (dir == 2)? p1-p2 : p2-p1;
-  if (dir == 2) v=-1.0*v;
+  if (dir == 2) v=-v;
   return atan2(v.y, v.x);
 }
 double

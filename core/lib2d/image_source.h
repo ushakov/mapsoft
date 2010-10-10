@@ -7,7 +7,7 @@
 #include "image.h"
 
 
-/// ImageSource<T> interface -- source for image loader
+// ImageSource<T> interface -- source for image loader
 
 template <typename T>
 struct ImageSource{
@@ -58,7 +58,7 @@ typedef ImageSource<double> dImageSource;
 typedef ImageSource<int>    iImageSource;
 
 
-/// ImageSourceImage -- source from Image
+// ImageSourceImage -- source from Image
 
 template <typename T>
 struct ImageSourceImage: ImageSource<T>{
