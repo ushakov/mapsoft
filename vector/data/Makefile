@@ -10,8 +10,12 @@ GET_L = ../libzn-utils/get_legend
 GET_P = ../libzn-utils/get_print
 F2P   = ../libzn-utils/fig2pnm
 
+%.fig: %.cnf
+	$(GET_L) %< > %@
+
 %.conv.fig: %.fig
 	$(GET_P) $< $@
+
 %.png: %.fig
 	LANG=ru_RU.KOI8-R $(F2P) $< | pnmtopng > $@
 
@@ -19,12 +23,10 @@ F2P   = ../libzn-utils/fig2pnm
 	LANG=ru_RU.KOI8-R $(F2P) $< | pnmtopng > $@
 
 
-mmb_fig: mmb.cnf ../libzn-utils/zn_mkfiglib
-	mkdir -p "$@"
-	rm -f "$@/*"
-	../libzn-utils/zn_mkfiglib mmb $@
+mmb_fig: mmb.cnf zn_figlib
+	rm -rf -- "$@"
+	./zn_figlib mmb $@
 
-hr_fig: hr.cnf ../libzn-utils/zn_mkfiglib
-	mkdir -p "$@"
-	rm -f "$@/*"
-	../libzn-utils/zn_mkfiglib hr $@
+hr_fig: hr.cnf zn_figlib
+	rm -rf -- "$@"
+	./zn_figlib hr $@

@@ -5,3 +5,12 @@ env.Install(env.datadir, Split("""
 """))
 
 env.Install(env.datadir, Split("pics/*.fig pics/*.png"))
+
+
+mapsoft_libs = Split ("vmap geo_io geo loaders jeeps fig mp options utils 2d")
+other_libs   = Split ("curl usb tiff jpeg png yaml proj")
+env1 = env.Clone()
+env1.Prepend(LIBS=[mapsoft_libs,other_libs])
+env1.Program('zn_figlib.cpp')
+env1.Program('zn_legend.cpp')
+env1.Program('zn_text.cpp')

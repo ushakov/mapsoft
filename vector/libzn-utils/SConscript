@@ -1,24 +1,19 @@
 Import ('env')
 
-mapsoft_libs = Split ("zn geo_io geo loaders jeeps fig mp options utils 2d")
+mapsoft_libs = Split ("vmap geo_io geo loaders jeeps fig mp options utils 2d")
 other_libs   = Split ("curl usb tiff jpeg png gd yaml proj")
 
 env1 = env.Clone()
 env1.Prepend(LIBS=[mapsoft_libs,other_libs])
 
 env1.Program('mapsoft_vmap.cpp')
-env1.Program('zn_mkfiglib.cpp')
 
 env1.Program('fig2pnm.cpp')
 
-env1.Program('get_legend.cpp')
 env1.Program('get_print.cpp')
 env1.Program('get_print_mmb.cpp')
-env1.Program('get_text.cpp')
 env1.Program('make_map_gk.cpp')
 env1.Program('make_nom.cpp')
-
-#env1.Program('get_ps.cpp')
 
 env2 = env.Clone()
 env2.Prepend(LIBS=['mp', 'utils', '2d'])
