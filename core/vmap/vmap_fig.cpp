@@ -214,8 +214,8 @@ write(fig::fig_world & F, const world & W, const Options & O){
         if (l->hor) txt.angle=0;
         else txt.angle=ang_a2afig(l->ang, cnv, pos, W.rscale);
         txt.push_back(pos);
-        txt.opts.put("RefPt", ref);
-        txt.opts.put("MapType", std::string("label"));
+        txt.opts.put<iPoint>("RefPt", ref);
+        txt.opts.put<string>("MapType", "label");
       }
       else {
         txt.clear();
