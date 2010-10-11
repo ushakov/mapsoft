@@ -373,7 +373,7 @@ zn_conv::find_type(int type){
   map<int, zn>::const_iterator ret = znaki.find(type);
   if (ret == znaki.end()){
     if (unknown_types.count(type) == 0){
-      cerr << "libzn: unknown type: 0x"
+      cerr << "zn: unknown type: 0x"
            << setbase(16) << type << setbase(10) << "\n";
       unknown_types.insert(type);
     }

@@ -2,7 +2,7 @@
 
 #include <string>
 #include <fstream>
-#include "../libzn/zn_lists.h"
+#include "vmap/zn_lists.h"
 
 using namespace std;
 

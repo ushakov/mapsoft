@@ -1,6 +1,0 @@
-Import ('env')
-env.Library('zn', \
-    Split ("""
-        zn.cpp
-        zn_lists.cpp
-     """))

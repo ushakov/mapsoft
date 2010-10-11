@@ -9,7 +9,7 @@
 #include "geo_io/geofig.h"
 #include "geo/geo_convs.h"
 #include "geo/geo_nom.h"
-#include "../libzn/zn.h"
+#include "vmap/zn.h"
 #include "vmap.h"
 
 namespace vmap {

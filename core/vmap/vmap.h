@@ -10,7 +10,7 @@
 #include "options/options.h"
 #include "fig/fig.h"
 
-#include "../libzn/zn.h"
+#include "vmap/zn.h"
 
 // Class for vector map representation
 

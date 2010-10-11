@@ -14,9 +14,10 @@ subdirs = Split ("""
 		core/gred
 		core/gred_tests
 		core/options
+		core/vmap
+
 		programs
 		viewer
-		vector/libzn
 		vector/libzn-utils
 		vector/data
 		vector/ps

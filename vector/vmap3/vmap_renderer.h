@@ -15,8 +15,8 @@
 #include <geo/geo_convs.h>
 #include <geo/geo_nom.h>
 #include <geo_io/io_oe.h>
-#include "../libzn/zn.h"
-#include "vmap.h"
+#include "vmap/zn.h"
+#include "vmap/vmap.h"
 
 const double pics_dpi = 600.0;
 const char * pics_dir = "/usr/share/mapsoft/pics";

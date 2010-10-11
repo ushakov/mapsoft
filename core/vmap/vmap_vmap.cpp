@@ -7,7 +7,7 @@
 #include <cstdlib> // for atoi
 
 #include "2d/line_utils.h"
-#include "../libzn/zn.h"
+#include "vmap/zn.h"
 #include "vmap.h"
 
 namespace vmap {

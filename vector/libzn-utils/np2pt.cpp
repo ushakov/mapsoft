@@ -3,7 +3,7 @@
 #include "fig/fig.h"
 #include "options/m_time.h"
 #include <cmath>
-#include "../libzn/zn.h"
+#include "vmap/zn.h"
 #include "2d/line_dist.h"
 
 using namespace std;

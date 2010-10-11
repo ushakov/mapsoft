@@ -1,7 +1,7 @@
 #include <string>
 #include <cstring>
 #include "options/m_getopt.h"
-#include "vmap.h"
+#include "vmap/vmap.h"
 #include "fig/fig.h"
 
 using namespace std;

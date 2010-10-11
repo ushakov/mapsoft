@@ -3,7 +3,7 @@
 #include "geo_io/geofig.h"
 #include "mp/mp.h"
 
-#include "../libzn/zn.h"
+#include "vmap/zn.h"
 #include "2d/line_utils.h"
 
 #include "2d/line_rectcrop.h"

@@ -3,7 +3,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-#include "../libzn/zn_lists.h"
+#include "vmap/zn_lists.h"
 
 using namespace std;
 
