@@ -15,10 +15,3 @@ env1.Program('get_print_mmb.cpp')
 env1.Program('make_map_gk.cpp')
 env1.Program('make_nom.cpp')
 
-env2 = env.Clone()
-env2.Prepend(LIBS=['mp', 'utils', '2d'])
-
-env2.Program(["mp_bboxes.cpp"])
-env2.Program('mp_bboxes2.cpp')
-
-

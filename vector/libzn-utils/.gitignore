@@ -1,15 +1,7 @@
 fig2pnm
 fig_test1
-get_legend
 get_print
 get_print_mmb
-get_text
 make_map_gk
 make_nom
-make_nom2
 mapsoft_vmap
-mp_bboxes
-mp_bboxes2
-np2pt
-tx2pt
-zn_mkfiglib
