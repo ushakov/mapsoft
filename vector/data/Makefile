@@ -1,6 +1,7 @@
 targets = mmb.png hr.png\
           mmb.conv.fig hr.conv.fig mmb.conv.png hr.conv.png\
-          mmb_fig hr_fig
+          mmb_fig hr_fig\
+          pics_dir
 
 all: $(targets)
 clean:
@@ -30,3 +31,18 @@ mmb_fig: mmb.cnf zn_figlib
 hr_fig: hr.cnf zn_figlib
 	rm -rf -- "$@"
 	./zn_figlib hr $@
+
+pics_dir:
+	make -C pics
+
+datadir=/usr/share/mapsoft
+figlibdir=/usr/share/xfig/Libraries
+
+install:
+	mkdir -p -- $(datadir) $(figlibdir)
+	cp -f -- mmb.cnf hr.cnf $(datadir)
+	ln -sf -- mmb.cnf $(datadir)/default.cnf
+	rm -rf -- $(datadir)/pics
+	cp -rf -- pics $(datadir)/
+	rm -rf -- $(figlibdir)/{mmb_fig,hr_fig}
+	cp -rf -- mmb_fig hr_fig $(figlibdir)/
