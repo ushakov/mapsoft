@@ -2,7 +2,6 @@
 #define LINE_UTILS_H
 
 #include "line.h"
-#include "point_utils.h"
 
 //преобразовать прямоугольник в линию из 4 точек
 template<typename T>

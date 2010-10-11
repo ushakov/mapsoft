@@ -4,7 +4,6 @@
 #include <sstream>
 #include <cassert>
 
-#include "lib2d/point_utils.h"
 #include "lib2d/line_utils.h"
 
 #include "loaders/image_r.h" // определение размеров картинки (image_r::size)

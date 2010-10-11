@@ -2,7 +2,6 @@
 #define POINT_CROSS_H
 
 #include "point.h"
-#include "point_utils.h"
 
 // пересечение прямых, задаваемых отрезками p1-p2 и p3-p4.
 // для точки пересечения p возвращаются два числа:

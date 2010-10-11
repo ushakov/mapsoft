@@ -1,6 +1,5 @@
 #include "fig_utils.h"
 #include "lib2d/line_rectcrop.h"
-#include "lib2d/point_utils.h"
 
 namespace fig {
 using namespace std;

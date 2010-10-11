@@ -11,7 +11,6 @@
 
 #include "mp_io.h"
 #include "utils/iconv_utils.h"
-#include "lib2d/point_utils.h"
 
 namespace mp {
 

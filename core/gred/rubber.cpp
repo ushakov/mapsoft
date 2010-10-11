@@ -1,7 +1,6 @@
 #include "rubber.h"
 #include <cassert>
-
-#include "lib2d/point_utils.h" // for pdist()
+#include <iostream> // for std::cerr
 
 RubberSegment::RubberSegment(
   const iPoint & p1_, const iPoint & p2_, const rubbfl_t flags_):

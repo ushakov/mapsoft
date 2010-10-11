@@ -8,12 +8,10 @@
 #include <list>
 #include <vector>
 #include "point.h"
-#include "point_utils.h"
 #include "rect.h"
 
 
-/* Ломаная линия (std::vector<Point<T> >). */
-
+/// 2d line:  std::vector<Point<T> >.
 template <typename T>
 struct Line : std::vector<Point<T> >
 #ifndef SWIG
@@ -25,27 +23,32 @@ struct Line : std::vector<Point<T> >
 #endif
 {
 
+  /// Divide coordinates by k.
   Line<T> & operator/= (T k) {
     for (typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)/=k;
     return *this;
   }
 
+  /// Multiply coordinates by k.
   Line<T> & operator*= (T k) {
     for (typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)*=k;
     return *this;
   }
 
+  /// Add p to every point of line.
   Line<T> & operator+= (Point<T> p) {
     for (typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)+=p;
     return *this;
   }
 
+  /// Subtract p from every point of line.
   Line<T> & operator-= (Point<T> p) {
     for (typename Line<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)-=p;
     return *this;
   }
 
-  double length () const {
+  /// Calculate line length.
+  double length() const {
     double ret=0;
     for (int i=0; i<this->size()-1; i++)
       ret+=pdist((*this)[i], (*this)[i+1]);
@@ -53,8 +56,9 @@ struct Line : std::vector<Point<T> >
   }
 
 #ifndef SWIG
-  // линия меньше, если первая отличающаяся точка меньше,
-  // или не существует
+  /// Less then operator.
+  /// линия меньше, если первая отличающаяся точка меньше,
+  /// или не существует
   bool operator< (const Line<T> & p) const {
     typename Line<T>::const_iterator i1=this->begin(), i2=p.begin();
     do {
@@ -69,6 +73,7 @@ struct Line : std::vector<Point<T> >
     } while(1);
   }
 
+  /// Equal opertator.
   bool operator== (const Line<T> & p) const {
     if (this->size()!=p.size()) return false;
     typename Line<T>::const_iterator i1=this->begin(), i2=p.begin();
@@ -80,7 +85,7 @@ struct Line : std::vector<Point<T> >
   }
 #endif
 
-  // такая же проверка, как ==, но для линий идущих навстречу...
+  /// такая же проверка, как ==, но для линий идущих навстречу...
   bool isinv(const Line<T> & p) const {
     if (this->size()!=p.size()) return false;
     typename Line<T>::const_iterator i1=this->begin();
@@ -92,7 +97,7 @@ struct Line : std::vector<Point<T> >
     } while(1);
   }
 
-  // invert line
+  /// Invert line.
   Line<T> inv(void) const{
     Line<T> ret;
     for (typename Line<T>::const_reverse_iterator i=this->rbegin();
@@ -100,8 +105,9 @@ struct Line : std::vector<Point<T> >
     return ret;
   }
 
-  // проверить, не переходит ли линия в линию l сдвигом на некоторый вектор
-  // (вектор записывается в shift)
+  /// Is line l just shifted version of this.
+  /// проверить, не переходит ли линия в линию l сдвигом на некоторый вектор
+  /// (вектор записывается в shift)
   bool isshifted(const Line<T> & l, Point<T> & shift) const{
     shift = Point<T>(0,0);
     if (this->size()!=l.size()) return false;
@@ -115,6 +121,7 @@ struct Line : std::vector<Point<T> >
     } while(1);
   }
 
+  /// Line range.
   Rect<T> range() const{
     if (this->size()<1) return Rect<T>(0,0,0,0);
     Point<T> min((*this)[0]), max((*this)[0]);
@@ -128,12 +135,14 @@ struct Line : std::vector<Point<T> >
     return Rect<T>(min,max);
   }
 
+  /// Center of the range.
+  /// \todo use the same name for Line and Rect?
   Point<T> center() const{
-    Rect<T> r=range();
-    return (r.TLC() + r.BRC())/2;
+    return range().CNT();
   }
 
 #ifndef SWIG
+  /// Cast to Line<double>
   operator Line<double>() const{
     Line<double> ret;
     for (typename Line<T>::const_iterator i=this->begin(); i!=this->end(); i++)
@@ -141,6 +150,7 @@ struct Line : std::vector<Point<T> >
     return ret;
   }
 
+  /// Cast to Line<int>
   operator Line<int>() const{
     Line<int> ret;
     for (typename Line<T>::const_iterator i=this->begin(); i!=this->end(); i++)
@@ -160,9 +170,15 @@ struct Line : std::vector<Point<T> >
 #endif  // SWIG
 };
 
+/// \relates Line
+/// \brief Line with double coordinates
 typedef Line<double> dLine;
+/// \relates Line
+/// \brief Line with int coordinates
 typedef Line<int>    iLine;
 
+/// \relates Line
+/// \brief Output operator: print Line as comma-separated points
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Line<T> & l){
   for (typename Line<T>::const_iterator i=l.begin(); i!=l.end(); i++)
@@ -170,6 +186,8 @@ std::ostream & operator<< (std::ostream & s, const Line<T> & l){
   return s;
 }
 
+/// \relates Rect
+/// \brief Input operator: read Line from a comma-separated points string
 template <typename T>
 std::istream & operator>> (std::istream & s, Line<T> & l){
   Point<T> p;
@@ -188,8 +206,7 @@ std::istream & operator>> (std::istream & s, Line<T> & l){
   return s;
 }
 
-// Line with multiple segments (std::vector<Line<T> >)
-
+/// Line with multiple segments (std::vector<Line<T> >)
 template <typename T>
 struct MultiLine : std::vector<Line<T> >
 #ifndef SWIG
@@ -201,29 +218,42 @@ struct MultiLine : std::vector<Line<T> >
 #endif  //SWIG
 {
 
+  /// Divide coordinates by k.
   MultiLine<T> & operator/= (T k) {
     for (typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)/=k;
     return *this;
   }
 
+  /// Multiply coordinates by k.
   MultiLine<T> & operator*= (T k) {
     for (typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)*=k;
     return *this;
   }
 
+  /// Add p to every point of line.
   MultiLine<T> & operator+= (Point<T> p) {
     for (typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)+=p;
     return *this;
   }
 
+  /// Subtract p from every point of line.
   MultiLine<T> & operator-= (Point<T> p) {
     for (typename MultiLine<T>::iterator i=this->begin(); i!=this->end(); i++) (*i)-=p;
     return *this;
   }
 
+  /// Calculate sum of line lengths.
+  double length () const {
+    double ret=0;
+    for(typename MultiLine<T>::const_iterator i=this->begin(); i!=this->end(); i++)
+      ret+=i->length();
+    return ret;
+  }
+
 #ifndef SWIG
-  // меньше, если первая отличающаяся линия меньше,
-  // или не существует
+  /// Less then operator.
+  /// меньше, если первая отличающаяся линия меньше,
+  /// или не существует
   bool operator< (const MultiLine<T> & p) const {
     typename MultiLine<T>::const_iterator i1=this->begin(), i2=p.begin();
     do {
@@ -238,6 +268,7 @@ struct MultiLine : std::vector<Line<T> >
     } while(1);
   }
 
+  /// Equal opertator.
   bool operator== (const MultiLine<T> & p) const {
     if (this->size()!=p.size()) return false;
     typename MultiLine<T>::const_iterator i1=this->begin(), i2=p.begin();
@@ -249,14 +280,7 @@ struct MultiLine : std::vector<Line<T> >
   }
 #endif
 
-
-  double length () const {
-    double ret=0;
-    for(typename MultiLine<T>::const_iterator i=this->begin(); i!=this->end(); i++)
-      ret+=i->length();
-    return ret;
-  }
-
+  /// MultiLine range.
   Rect<T> range() const{
     if (this->size()<1) return Rect<T>(0,0,0,0);
     typename MultiLine<T>::const_iterator i=this->begin();
@@ -265,12 +289,14 @@ struct MultiLine : std::vector<Line<T> >
     return ret;
   }
 
+  /// Center of the range.
+  /// \todo use the same name for Line, MultiLine and Rect?
   Point<T> center() const{
-    Rect<T> r=range();
-    return (r.TLC() + r.BRC())/2;
+    return range().CNT();
   }
 
 #ifndef SWIG
+  /// Cast to MultiLine<double>
   operator MultiLine<double>() const{
     MultiLine<double> ret;
     for (typename MultiLine<T>::const_iterator i=this->begin(); i!=this->end(); i++)
@@ -278,6 +304,7 @@ struct MultiLine : std::vector<Line<T> >
     return ret;
   }
 
+  /// Cast to MultiLine<int>
   operator MultiLine<int>() const{
     MultiLine<int> ret;
     for (typename MultiLine<T>::const_iterator i=this->begin(); i!=this->end(); i++)
@@ -295,7 +322,11 @@ struct MultiLine : std::vector<Line<T> >
 #endif  //SWIG  
 };
 
+/// \relates MultiLine
+/// \brief MultiLine with double coordinates
 typedef MultiLine<double> dMultiLine;
+/// \relates MultiLine
+/// \brief MultiLine with int coordinates
 typedef MultiLine<int>    iMultiLine;
 
 #endif /* LINE_H */

@@ -9,7 +9,7 @@
 
 #include "legend.h"
 
-#include "../../core/lib2d/point_utils.h"
+#include "../../core/lib2d/point.h"
 #include "../../core/libfig/fig.h"
 #include "../../core/libmp/mp.h"
 

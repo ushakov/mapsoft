@@ -2,7 +2,6 @@
 #define LINE_POLYCROP_H
 
 #include "line.h"
-#include "point_utils.h"
 #include "point_cross.h"
 
 /// обрезание линий по многоугольнику. 

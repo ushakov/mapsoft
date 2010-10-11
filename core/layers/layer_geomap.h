@@ -15,7 +15,7 @@
 
 //#include "../libgeo_io/io.h"
 
-#include "lib2d/point_utils.h"
+#include "lib2d/point.h"
 
 
 /// Растровый слой для показа привязанных карт.

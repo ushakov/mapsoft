@@ -6,10 +6,6 @@
 #include <cmath> // for rint
 
 /// 2-d point
-/** Short typedefs:
- *   - iPoint for Point<int>
- *   - dPoint for Point<double>
-*/
 
 template <typename T>
 struct Point
@@ -20,10 +16,9 @@ struct Point
     public boost::equality_comparable<Point<T> >
 #endif
 {
-  /// x coordinate
-  T x;
-  /// y coordinate
-  T y; 
+
+  T x; ///< x coordinate
+  T y; ///< y coordinate
 
   /// Constructor.
   Point(T _x=0, T _y=0)
@@ -113,21 +108,25 @@ struct Point
 #endif  // SWIG
 
   /// Calculate manhattan length: abs(x)+abs(y).
+  /** \todo remove -- NOT USED!
+    */
   T manhattan_length () const
   {
-	return abs(x) + abs(y);
+    return abs(x) + abs(y);
   }
 
 };
 
-/// Output operator: print point as a comma-separated pair of coordinartes.
+/// \relates Point
+/// \brief Output operator: print point as a comma-separated pair of coordinartes.
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Point<T> & p){
   s << p.x << "," << p.y;
   return s;
 }
 
-/// Input operator: read point from a comma-separated pair of coordainates.
+/// \relates Point
+/// \brief Input operator: read point from a comma-separated pair of coordainates.
 template <typename T>
 std::istream & operator>> (std::istream & s, Point<T> & p){
   char sep;
@@ -141,7 +140,39 @@ std::istream & operator>> (std::istream & s, Point<T> & p){
   return s;
 }
 
+/// \relates Point
+/// \brief Scalar multiplication: p1.x*p2.x + p1.y*p2.y.
+template <typename T>
+double pscal(const Point<T> & p1, const Point<T> & p2){
+  return p1.x*p2.x + p1.y*p2.y;
+}
+/// \relates Point
+/// \brief Length: sqrt(double(p.x*p.x + p.y*p.y)).
+/// \todo move to Point class?
+template <typename T>
+double pdist(const Point<T> & p){
+  return sqrt((double)(pscal(p,p)));
+}
+/// \relates Point
+/// \brief Distance: pdist(p1-p2).
+template <typename T>
+double pdist(const Point<T> & p1, const Point<T> & p2){
+  return pdist(p1-p2);
+}
+/// \relates Point
+/// \brief Normalize.
+/// \todo move to Point class?
+template <typename T>
+Point<double> pnorm(const Point<T> & p){
+  double l = pdist(p);
+  return Point<double>(double(p.x)/l, double(p.y/l));
+}
+
+/// \relates Point
+/// \brief Point with double coordinates
 typedef Point<double> dPoint;
+/// \relates Point
+/// \brief Point with int coordinates
 typedef Point<int>    iPoint;
 
 #endif /* POINT_H */

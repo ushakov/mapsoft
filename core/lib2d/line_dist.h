@@ -7,8 +7,6 @@
 // газопроводов, лэп...
 
 #include "line.h"
-#include "point_utils.h"
-#include <vector>
 
 template <typename T>
 class LineDist{
