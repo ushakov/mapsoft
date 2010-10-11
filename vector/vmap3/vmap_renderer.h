@@ -137,6 +137,7 @@ struct VMAPRenderer{
       }
       for (std::list<vmap::lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
         cnv.bck(l->pos);
+        if (!l->hor) l->ang=vmap::ang_a2afig(l->ang, cnv, l->pos, W.rscale);
         pt_m2pt(l->pos);
       }
     }
@@ -759,11 +760,9 @@ struct VMAPRenderer{
 
         for (std::list<vmap::lpos>::const_iterator l=o->labels.begin(); l!=o->labels.end(); l++){
           dPoint p(l->pos);
-          double ang=vmap::ang_a2afig(l->ang, cnv, p, W.rscale);
-
           cur_cr->save();
           cur_cr->move_to(p.x, p.y);
-          if (!l->hor) cur_cr->rotate(ang);
+          if (!l->hor) cur_cr->rotate(l->ang);
           if (l->dir == 1) cur_cr->rel_move_to(-ext.width/2, 0);
           if (l->dir == 2) cur_cr->rel_move_to(-ext.width, 0);
           if (pass == 1){

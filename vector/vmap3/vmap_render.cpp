@@ -137,7 +137,6 @@ main(int argc, char* argv[]){
   R.set_cap_round();
   R.render_points(0x1100, 0x0, 4); // отметка высоты
   R.render_points(0xD00,  0x0, 3); // маленькая отметка высоты
-  R.render_points(0x1000, 0x6066FF, 4); // отметка уреза воды
   R.render_points(0x6414, 0x5066FF, 4); // родник
   R.set_cap_square();
   R.render_points(0x6402, 0x0, 4); // дом
