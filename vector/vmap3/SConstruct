@@ -12,24 +12,19 @@ env.Library('vmap', \
      vmap_labels.cpp
     """))
 
-subdirs = Split ("""
-                core/lib2d
-                core/loaders
-                core/utils
-                core/options
-                core/libgeo_io
-                core/libgeo
-                core/libmp
-                core/libfig
-                """)
+mapsoft_libs=Split("mp fig geo_io geo loaders utils options 2d")
+vmap_libs=Split("vmap zn")
+other_libs=Split("proj png jpeg tiff yaml")
 
 env.Append (CCFLAGS=['-O2'])
 env.Append (CPPPATH = ["../../core", "../libzn"])
-env.Append (LIBPATH = map(lambda(s): "../../"+s, subdirs) )
+env.Append (LIBPATH = map(lambda(s): "../../core/"+s, mapsoft_libs) )
 env.Append (LIBPATH = ["../libzn", "."] )
-env.Append (LIBS = Split("vmap zn mp fig geo_io geo loaders utils options 2d proj png jpeg tiff yaml") )
+env.Append (LIBS = [vmap_libs, mapsoft_libs, other_libs] )
 
 env.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
 
 env.Program("vmap_copy.cpp")
 env.Program("vmap_render.cpp")
+env.Program("vmap_mmb_filter.cpp")
+
