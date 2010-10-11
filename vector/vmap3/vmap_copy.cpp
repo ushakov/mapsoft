@@ -6,11 +6,6 @@
 
 using namespace std;
 
-bool testext(const string & nstr, const char *ext){
-    int pos = nstr.rfind(ext);
-    return ((pos>0)&&(pos == nstr.length()-strlen(ext)));
-}
-
 void usage(){
   const char * prog = "vmap_copy";
 
@@ -33,7 +28,7 @@ void usage(){
      << "    (select_source and skip_source options are processed before set_source_*)\n"
      << "\n"
      << "    --select_type <int value>   -- copy only objects with given type\n"
-     << "    --skip_typee <int value>    -- copy all objects but ones with given type\n"
+     << "    --skip_type <int value>     -- copy all objects but ones with given type\n"
      << "    --skip_all                  -- don't read any objects, only labels\n"
      << "\n"
      << "    --skip_range <geometry>     -- skip objects touching range\n"
