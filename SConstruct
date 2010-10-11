@@ -19,9 +19,8 @@ subdirs = Split ("""
 		programs
 		viewer
 		vector/libzn-utils
+		vector/vmap3
 		vector/data
-		vector/ps
-		vector/vmap2
 		""")
 
 #SetOption('implicit_cache', 1)

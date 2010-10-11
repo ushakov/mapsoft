@@ -1,0 +1,13 @@
+Import ('env')
+
+mapsoft_libs=Split("vmap mp fig geo_io geo loaders utils options 2d")
+other_libs=Split("proj png jpeg tiff yaml")
+
+env1 = env.Clone()
+env1.Prepend(LIBS=[mapsoft_libs,other_libs])
+env1.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
+
+env1.Program("vmap_copy.cpp")
+env1.Program("vmap_render.cpp")
+env1.Program("vmap_mmb_filter.cpp")
+
