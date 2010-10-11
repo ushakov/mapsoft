@@ -13,7 +13,7 @@
 
 #include "2d/image.h"
 #include "2d/point_int.h"
-#include "cache.h"
+#include "2d/cache.h"
 
 // Получение высоты любой точки из директории с srtm-данными
 // Кэширование кусочков

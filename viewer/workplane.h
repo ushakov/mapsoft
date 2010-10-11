@@ -5,7 +5,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "2d/image.h"
-#include "utils/cache.h"
+#include "2d/cache.h"
 #include "layers/layer.h"
 
 #include "iface/gobj.h"

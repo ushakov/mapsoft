@@ -3,7 +3,7 @@
 
 #include "iface/gobj.h"
 #include "2d/line.h"
-#include "utils/cache.h"
+#include "2d/cache.h"
 
 #define LINE_CACHE_SIZE1 1000
 #define LINE_CACHE_SIZE2 1000

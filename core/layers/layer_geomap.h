@@ -11,7 +11,7 @@
 #include "loaders/image_r.h"
 #include "loaders/image_i.h"
 #include "utils/image_gd.h"
-#include "utils/cache.h"
+#include "2d/cache.h"
 
 //#include "geo_io/io.h"
 
