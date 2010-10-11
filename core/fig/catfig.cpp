@@ -3,7 +3,7 @@
 main(int argc, char* argv[]){
 
   if (argc<2) {
-    std::cerr << "Usage: fig_test <in_file1> ... > <out_file>\n";
+    std::cerr << "Usage: catfig <in_file1> ... > <out_file>\n";
     exit(1);
   }
 
