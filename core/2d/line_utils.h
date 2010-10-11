@@ -183,6 +183,8 @@ Line<T> join_polygons(const MultiLine<T> & L){
 template<typename T>
 double nearest_pt(const Line<T> & line, dPoint & vec, Point<T> & pt, double maxdist){
 
+  Point<T> pm = pt;
+
   for (int j=1; j<line.size(); j++){
     Point<T> p1(line[j-1]);
     Point<T> p2(line[j]);
@@ -194,25 +196,30 @@ double nearest_pt(const Line<T> & line, dPoint & vec, Point<T> & pt, double maxd
     double ls = pdist(pt,p1);
     double le = pdist(pt,p2);
 
-    if (ls<maxdist){ maxdist=ls; pt=p1; vec=v; }
-    if (le<maxdist){ maxdist=le; pt=p2; vec=v; }
+    if (ls<maxdist){ maxdist=ls; pm=p1; vec=v; }
+    if (le<maxdist){ maxdist=le; pm=p2; vec=v; }
 
     double prl = pscal(dPoint(pt-p1), v);
 
     if ((prl>=0)&&(prl<=ll)) { // проекция попала на отрезок
       Point<T> pc = p1 + Point<T>(v * prl);
       double lc=pdist(pt,pc);
-      if (lc<maxdist) { maxdist=lc; pt=pc; vec=v; }
+      if (lc<maxdist) { maxdist=lc; pm=pc; vec=v; }
     }
   }
+  pt=pm;
   return maxdist;
 }
 
 template<typename T>
 double nearest_pt(const MultiLine<T> & lines, dPoint & vec, Point<T> & pt, double maxdist){
+  dPoint pm=pt;
   for (typename MultiLine<T>::const_iterator i  = lines.begin(); i != lines.end(); i++){
-    maxdist = nearest_pt(*i, vec, pt, maxdist);
+    Point<T> p = pt;
+    maxdist = nearest_pt(*i, vec, p, maxdist);
+    if ( p != pt) { pm = p;}
   }
+  pt=pm;
   return maxdist;
 }
 
