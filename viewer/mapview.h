@@ -9,7 +9,7 @@
 #include "layerlist.h"
 #include "generic_dialog.h"
 #include "action_manager.h"
-#include "libgeo_io/io.h"
+#include "geo_io/io.h"
 #include "layers/layer_geomap.h"
 #include "layers/layer_trk.h"
 #include "layers/layer_wpt.h"

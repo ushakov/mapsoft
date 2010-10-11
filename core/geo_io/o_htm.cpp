@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 
 #include "io.h"
-#include "libgeo/geo_convs.h"
+#include "geo/geo_convs.h"
 #include "options/options.h"
 #include "layers/layer_geomap.h"
 

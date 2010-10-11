@@ -11,7 +11,7 @@
 #include "layers/layer_google.h"
 #include "layers/layer_wpt.h"
 #include "layers/layer_trk.h"
-#include "libgeo_io/io.h"
+#include "geo_io/io.h"
 
 int sc = 1;
 geo_data world;

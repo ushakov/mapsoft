@@ -6,11 +6,11 @@
 #include <cmath>
 
 #include "../srtm3.h"
-#include "../../lib2d/line.h"
-#include "../../lib2d/point_int.h"
-#include "../../libmp/mp.h"
-#include "../../libgeo/geo_data.h"
-#include "../../libgeo/geo_convs.h"
+#include "../../2d/line.h"
+#include "../../2d/point_int.h"
+#include "../../mp/mp.h"
+#include "../../geo/geo_data.h"
+#include "../../geo/geo_convs.h"
 
 // Проверка работы srtm3.h, line.h, point_int.h 
 // Автоматическое построение карты района (горизонтали, вершины и т.п.)...

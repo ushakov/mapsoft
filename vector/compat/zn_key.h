@@ -4,9 +4,9 @@
 #include <string>
 #include <list>
 #include <map>
-#include "libgeo/geo_convs.h"
-#include "libgeo_io/geofig.h"
-#include "libmp/mp.h"
+#include "geo/geo_convs.h"
+#include "geo_io/geofig.h"
+#include "mp/mp.h"
 
 #include "options/m_time.h"
 

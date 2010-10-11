@@ -11,8 +11,8 @@
 #include <map>
 #include <queue>
 
-#include "lib2d/image.h"
-#include "lib2d/point_int.h"
+#include "2d/image.h"
+#include "2d/point_int.h"
 #include "cache.h"
 
 // Получение высоты любой точки из директории с srtm-данными

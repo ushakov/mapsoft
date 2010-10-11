@@ -1,7 +1,7 @@
 #ifndef GEO_NOM_H
 #define GEO_NOM_H
 
-#include "lib2d/rect.h"
+#include "2d/rect.h"
 
 namespace convs{
 

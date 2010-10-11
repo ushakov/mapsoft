@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../../../core/libgeo/geo_convs.h"
+#include "geo/geo_convs.h"
 
 int main(){
   Options o;

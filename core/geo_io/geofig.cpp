@@ -7,7 +7,7 @@
 #include <sstream>
 #include <iomanip>
 #include "geofig.h"
-#include "libgeo/geo_convs.h"
+#include "geo/geo_convs.h"
 #include "options/options.h"
 #include "loaders/image_r.h"
 

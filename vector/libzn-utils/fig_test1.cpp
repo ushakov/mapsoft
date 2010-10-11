@@ -1,9 +1,9 @@
 #include <string>
 #include <cstring>
-#include "libgeo_io/geofig.h"
+#include "geo_io/geofig.h"
 
-#include "libgeo_io/io.h"
-#include "libgeo/geo_convs.h"
+#include "geo_io/io.h"
+#include "geo/geo_convs.h"
 
 // для проверки сдвига fig-файла при многочисленных
 // преобразованиях координат...

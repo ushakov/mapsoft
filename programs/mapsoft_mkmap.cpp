@@ -11,9 +11,9 @@
 #include <sys/stat.h>
 #include <math.h>
 
-#include "libgeo_io/io.h"
-#include "libgeo/geo_convs.h"
-#include "libgeo/geo_nom.h"
+#include "geo_io/io.h"
+#include "geo/geo_convs.h"
+#include "geo/geo_nom.h"
 
 
 using namespace std;

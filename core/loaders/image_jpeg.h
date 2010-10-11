@@ -1,7 +1,7 @@
 #ifndef IMAGE_JPEG_H
 #define IMAGE_JPEG_H
 
-#include "lib2d/image.h"
+#include "2d/image.h"
 
 namespace image_jpeg {
 

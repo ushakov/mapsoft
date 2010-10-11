@@ -1,5 +1,5 @@
 #include <iostream>
-#include <libmp/mp.h>
+#include <mp/mp.h>
 
 using namespace std;
 

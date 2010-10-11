@@ -13,9 +13,9 @@
 #include <map>
 
 #include "io_oe.h"
-#include "libgeo/geo_convs.h"
+#include "geo/geo_convs.h"
 #include "options/options.h"
-#include "lib2d/line_utils.h"
+#include "2d/line_utils.h"
 #include "utils/iconv_utils.h"
 
 #include <math.h>

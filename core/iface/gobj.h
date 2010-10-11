@@ -1,8 +1,8 @@
 #ifndef GOBJ_IFACE_H
 #define GOBJ_IFACE_H
 
-#include "lib2d/rect.h"
-#include "lib2d/image.h"
+#include "2d/rect.h"
+#include "2d/image.h"
 
 // return codes for draw function
 extern const int GOBJ_FILL_NONE; // object draws nothing

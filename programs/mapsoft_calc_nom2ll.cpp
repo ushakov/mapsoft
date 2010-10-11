@@ -1,6 +1,6 @@
 #include <iomanip>
-#include "libgeo/geo_convs.h"
-#include "libgeo/geo_nom.h"
+#include "geo/geo_convs.h"
+#include "geo/geo_nom.h"
 
 int main(int argc, char **argv){
   if (argc<=1) std::cout << "lat: 0 0 lon: 0 0";

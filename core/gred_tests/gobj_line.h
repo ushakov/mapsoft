@@ -2,7 +2,7 @@
 #define GOBJ_LINE_H
 
 #include "iface/gobj.h"
-#include "lib2d/line.h"
+#include "2d/line.h"
 #include "utils/cache.h"
 
 #define LINE_CACHE_SIZE1 1000

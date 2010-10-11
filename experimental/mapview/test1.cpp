@@ -1,5 +1,5 @@
 #include "list_store_for_wpt.h"
-#include "../libgeo_io/io.h"
+#include "geo_io/io.h"
 
 
 

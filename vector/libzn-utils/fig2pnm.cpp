@@ -4,9 +4,9 @@
 #include <boost/lexical_cast.hpp>
 
 #include "utils/pnm_shifter.h"
-#include "lib2d/point.h"
-#include "libgeo_io/geofig.h"
-#include "libgeo_io/io.h"
+#include "2d/point.h"
+#include "geo_io/geofig.h"
+#include "geo_io/io.h"
 
 #include <iostream>
 #include <vector>

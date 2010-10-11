@@ -7,7 +7,7 @@
 
 #include "action_mode.h"
 #include "../mapview.h"
-#include "lib2d/line_dist.h"
+#include "2d/line_dist.h"
 
 class MarkTrack : public ActionMode {
 public:

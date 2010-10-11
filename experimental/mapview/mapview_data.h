@@ -14,14 +14,14 @@
 #include <vector>
 #include <string>
 
-#include "../libgeo/geo_data.h"
-#include "../libgeo_io/io.h"
-#include "../layers/layer.h"
+#include "geo/geo_data.h"
+#include "geo_io/io.h"
+#include "layers/layer.h"
 #include "workplane.h"
 
 // вообще-то хочется сюда другие layer'ы сделать...
-#include "../layers/layer_geodata.h"
-#include "../layers/layer_geomap.h"
+#include "layers/layer_geodata.h"
+#include "layers/layer_geomap.h"
 
 // файл данных
 struct MapviewDataFile : public geo_data{

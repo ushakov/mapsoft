@@ -7,14 +7,14 @@
 #include <math.h>
 
 #include "layer_geo.h"
-#include "libgeo/geo_convs.h"
-#include "libgeo/geo_refs.h"
+#include "geo/geo_convs.h"
+#include "geo/geo_refs.h"
 #include "utils/cache.h"
 #include "loaders/image_google.h"
 #include "loaders/image_i.h"
 #include "utils/image_gd.h"
 
-//#include "libgeo_io/io.h"
+//#include "geo_io/io.h"
 
 
 /// Растровый слой для показа снимков google.

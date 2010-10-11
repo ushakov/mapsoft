@@ -9,9 +9,9 @@
 
 #include "legend.h"
 
-#include "../../core/lib2d/point.h"
-#include "../../core/libfig/fig.h"
-#include "../../core/libmp/mp.h"
+#include "../../core/2d/point.h"
+#include "../../core/fig/fig.h"
+#include "../../core/mp/mp.h"
 
 #include <boost/lexical_cast.hpp>
 

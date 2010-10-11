@@ -2,7 +2,7 @@
 #define LAYER_H
 
 #include <boost/operators.hpp>
-#include "lib2d/image.h"
+#include "2d/image.h"
 #include "options/options.h"
 
 /// Растровый слой -- абстрактный класс.

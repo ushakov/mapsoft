@@ -8,11 +8,11 @@
 #include "utils/srtm3.h"
 #include "jeeps/gpsmath.h"
 
-#include "libgeo_io/io.h"
-#include "libgeo/geo_convs.h"
+#include "geo_io/io.h"
+#include "geo/geo_convs.h"
 #include "loaders/image_r.h"
-#include "libmp/mp.h"
-#include "libfig/fig.h"
+#include "mp/mp.h"
+#include "fig/fig.h"
 
 // панорама по srtm с геоданными. 
 

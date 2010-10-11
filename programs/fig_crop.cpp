@@ -1,5 +1,5 @@
-#include "../core/libfig/fig_utils.h"
-#include "../core/libfig/fig_io.h"
+#include "fig/fig_utils.h"
+#include "fig/fig_io.h"
 
 // Обрезка fig-файла по объекту-прямоугольнику с комментарием CUTTER
 // (из нескольких - по последнему)

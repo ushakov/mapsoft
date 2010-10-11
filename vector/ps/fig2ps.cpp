@@ -2,12 +2,12 @@
 #include <fstream>
 #include <vector>
 #include <iomanip>
-#include "libfig/fig.h"
+#include "fig/fig.h"
 #include "options/m_time.h"
 #include <cmath>
 #include <cstring>
 #include "../libzn/zn.h"
-#include "lib2d/line_polycrop.h"
+#include "2d/line_polycrop.h"
 
 using namespace std;
 using namespace fig;

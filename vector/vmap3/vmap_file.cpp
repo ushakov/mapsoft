@@ -3,7 +3,7 @@
 #include <fstream>
 #include <cstring>
 
-#include "libfig/fig.h"
+#include "fig/fig.h"
 #include "vmap.h"
 
 namespace vmap {

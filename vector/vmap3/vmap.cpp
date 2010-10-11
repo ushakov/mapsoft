@@ -4,11 +4,11 @@
 #include <map>
 #include <iostream>
 
-#include "lib2d/line_utils.h"
-#include "lib2d/line_rectcrop.h"
-#include "libgeo_io/geofig.h"
-#include "libgeo/geo_convs.h"
-#include "libgeo/geo_nom.h"
+#include "2d/line_utils.h"
+#include "2d/line_rectcrop.h"
+#include "geo_io/geofig.h"
+#include "geo/geo_convs.h"
+#include "geo/geo_nom.h"
 #include "../libzn/zn.h"
 #include "vmap.h"
 

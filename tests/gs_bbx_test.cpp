@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <libfig/fig.h>
+#include <fig/fig.h>
 #include <utils/gs_bbx.h>
 #include <cmath>
 

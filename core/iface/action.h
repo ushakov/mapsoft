@@ -3,7 +3,7 @@
 
 #include <gtkmm.h>
 #include <string>
-#include "lib2d/point.h"
+#include "2d/point.h"
 
 // Action interface
 class Action {

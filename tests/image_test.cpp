@@ -1,6 +1,6 @@
 //#include "pointset.h"
 #include <iostream>
-#include <lib2d/image.h>
+#include <2d/image.h>
 #include <utils/color.h>
 
 

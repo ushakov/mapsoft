@@ -11,10 +11,10 @@
 #include "layers/layer_google.h"
 #include "layers/layer_ks.h"
 
-#include "libgeo/geo_convs.h"
-#include "libgeo/geo_refs.h"
-#include "libgeo_io/geofig.h"
-#include "lib2d/line_utils.h"
+#include "geo/geo_convs.h"
+#include "geo/geo_refs.h"
+#include "geo_io/geofig.h"
+#include "2d/line_utils.h"
 
 #include "io_oe.h"
 

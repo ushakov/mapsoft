@@ -2,15 +2,15 @@ import os
 
 subdirs = Split ("""
 		core
-		core/lib2d
-		core/libfig
-		core/libgeo
-		core/libgeo_io
+		core/2d
+		core/fig
+		core/geo
+		core/geo_io
 		core/jeeps
 		core/layers
 		core/loaders
 		core/utils
-		core/libmp
+		core/mp
 		core/gred
 		core/gred_tests
 		core/options
@@ -18,7 +18,7 @@ subdirs = Split ("""
 		viewer
 		vector/libzn
 		vector/libzn-utils
-		vector/libzn-data
+		vector/data
 		vector/ps
 		vector/vmap2
 		""")

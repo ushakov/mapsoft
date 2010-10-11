@@ -6,7 +6,7 @@
 #include <map>
 #include <iostream>
 
-#include "../../core/lib2d/line.h"
+#include "../../core/2d/line.h"
 #include "options/options.h"
 
 // Class for vector map common representation

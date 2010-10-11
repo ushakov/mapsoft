@@ -1,5 +1,5 @@
-#include "../../libgeo_io/geofig.h"
-#include "../../libgeo/geo_convs.h"
+#include "geo_io/geofig.h"
+#include "geo/geo_convs.h"
 
 // Изготовление правильного привязанного fig-файла
 // на нужный диапазон координат

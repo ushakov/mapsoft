@@ -4,7 +4,7 @@
 // загрузка/сохранение произольного растрового изображения
 // (jpeg, tiff, png)
 
-#include "lib2d/image.h"
+#include "2d/image.h"
 #include "options/options.h"
 
 // из-за фигни с setjmp.h надо, чтобы image_png.h был раньше

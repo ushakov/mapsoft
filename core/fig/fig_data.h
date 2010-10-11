@@ -7,7 +7,7 @@
 #include <map>
 #include <iostream>
 
-#include "lib2d/line.h"
+#include "2d/line.h"
 #include "options/options.h"
 
 /// связанное с fig-файлами

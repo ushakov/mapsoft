@@ -6,9 +6,9 @@
 #include <string>
 #include <list>
 
-#include "lib2d/line.h"
+#include "2d/line.h"
 #include "options/options.h"
-#include "libfig/fig.h"
+#include "fig/fig.h"
 
 #include "../libzn/zn.h"
 

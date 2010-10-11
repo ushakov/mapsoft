@@ -4,7 +4,7 @@
 // function for I/O
 
 #include <string>
-#include "libgeo/geo_data.h"
+#include "geo/geo_data.h"
 #include "options/options.h"
 
 #include "io_gps.h"

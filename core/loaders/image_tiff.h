@@ -1,7 +1,7 @@
 #ifndef IMAGE_TIFF_H
 #define IMAGE_TIFF_H
 
-#include "lib2d/image.h"
+#include "2d/image.h"
 
 #include <tiffio.h>
 

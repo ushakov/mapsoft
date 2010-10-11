@@ -1,5 +1,5 @@
 #include "vmap.h"
-#include "../../core/lib2d/line_rectcrop.h"
+#include "../../core/2d/line_rectcrop.h"
 
 using namespace std;
 namespace vmap{

@@ -315,7 +315,7 @@ void transform_rect(const iRect & src, const iRect & dst, iRect & r);
 /// \brief /// Функция, нужная для загрузчика картинок.
 /// Правильное подрезание краев, выходящих за пределы картинки
 /// TODO: move from here?
-/// used in layers, loaders, lib2d/image_source.h
+/// used in layers, loaders, 2d/image_source.h
 void clip_rects_for_image_loader(
     const iRect & src_img, iRect & src,
     const iRect & dst_img, iRect & dst);

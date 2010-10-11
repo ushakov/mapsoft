@@ -3,9 +3,9 @@
 
 #include <boost/operators.hpp>
 
-#include <lib2d/image.h>
+#include <2d/image.h>
 #include <options/options.h>
-#include <libgeo/geo_data.h>
+#include <geo/geo_data.h>
 
 /// Растровый слой -- абстрактный класс.
 /// Знает, как отдать некоторую растровую картинку в прямоугольных

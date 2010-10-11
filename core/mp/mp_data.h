@@ -6,8 +6,8 @@
 #include <string>
 #include <iostream>
 
-#include "lib2d/line.h"
-#include "lib2d/rect.h"
+#include "2d/line.h"
+#include "2d/rect.h"
 #include "options/options.h"
 
 namespace mp {

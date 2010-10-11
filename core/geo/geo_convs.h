@@ -6,8 +6,8 @@
 #include <vector>
 #include "geo_data.h"
 #include "options/options.h"
-#include "lib2d/image.h"
-#include "lib2d/point_conv.h"
+#include "2d/image.h"
+#include "2d/point_conv.h"
 #include <proj_api.h>
 
 namespace convs{

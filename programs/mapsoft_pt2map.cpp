@@ -1,5 +1,5 @@
-#include "libgeo/geo_convs.h"
-#include "libgeo_io/io.h"
+#include "geo/geo_convs.h"
+#include "geo_io/io.h"
 #include "options/read_conf.h"
 
 // command line interface to convs::pt2pt conversions

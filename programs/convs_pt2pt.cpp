@@ -1,5 +1,5 @@
 #include <sstream>
-#include "../core/libgeo/geo_convs.h"
+#include "geo/geo_convs.h"
 
 // command line interface to convs::pt2pt conversions
 

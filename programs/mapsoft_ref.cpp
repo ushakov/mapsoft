@@ -11,8 +11,8 @@
 #include <sstream>
 #include <iomanip>
 
-#include "libgeo_io/io.h"
-#include "libfig/fig.h"
+#include "geo_io/io.h"
+#include "fig/fig.h"
 
 using namespace std;
 

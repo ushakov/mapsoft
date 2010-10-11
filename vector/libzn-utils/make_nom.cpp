@@ -1,14 +1,14 @@
 // Изготовление закотоввки для номенклатурной карты
 // в проекции Гаусса-Крюгера, СК Пулково-42.
 
-#include "libgeo/geo_convs.h"
-#include "libgeo/geo_nom.h"
-#include "libgeo_io/geofig.h"
-#include "libgeo_io/io.h"
+#include "geo/geo_convs.h"
+#include "geo/geo_nom.h"
+#include "geo_io/geofig.h"
+#include "geo_io/io.h"
 
-#include "lib2d/line_utils.h"
+#include "2d/line_utils.h"
 #include "options/m_getopt.h"
-#include "lib2d/line_polycrop.h"
+#include "2d/line_polycrop.h"
 
 #include "loaders/image_r.h" // определение размеров картинки (image_r::size)
 

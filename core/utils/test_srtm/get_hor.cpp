@@ -8,7 +8,7 @@
 #include "../srtm3.h"
 #include "../line.h"
 #include "../point_int.h"
-#include "../../libmp/mp.h"
+#include "../../mp/mp.h"
 
 // Проверка работы srtm3.h, line.h, point_int.h 
 // Автоматическое построение карты района (горизонтали, вершины и т.п.)...

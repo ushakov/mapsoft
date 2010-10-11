@@ -1,7 +1,7 @@
 #ifndef O_TILES_H
 #define O_TILES_H
 
-#include "libgeo/geo_data.h"
+#include "geo/geo_data.h"
 #include "options/options.h"
 
 namespace tiles {

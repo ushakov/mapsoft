@@ -1,6 +1,6 @@
 #include <cstring>
-#include "libgeo_io/geofig.h"
-#include "libgeo/geo_convs.h"
+#include "geo_io/geofig.h"
+#include "geo/geo_convs.h"
 
 // Модификация привязки fig-файла.
 // Меняются только координаты в точках привязки!

@@ -3,12 +3,12 @@
 #include <fstream>
 
 #include "layers/layer_geomap.h"
-#include "libgeo_io/io.h"
-#include "libgeo/geo_convs.h"
-#include "libgeo_io/geofig.h"
+#include "geo_io/io.h"
+#include "geo/geo_convs.h"
+#include "geo_io/geofig.h"
 
 #include "options/read_conf.h"
-#include "lib2d/line_utils.h"
+#include "2d/line_utils.h"
 
 using namespace std;
 

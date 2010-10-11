@@ -1,7 +1,7 @@
-#include <lib2d/point.h>
-#include <lib2d/line.h>
-#include <lib2d/rect.h>
-#include <libgeo/geo_types.h>
+#include <2d/point.h>
+#include <2d/line.h>
+#include <2d/rect.h>
+#include <geo/geo_types.h>
 #include <boost/lexical_cast.hpp>
 
 template<typename T1, typename T2>

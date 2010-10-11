@@ -3,7 +3,7 @@
 #include <gdk/gdk.h>
 #include <cassert>
 #include "utils/image_gdk.h"
-#include "lib2d/rect.h"
+#include "2d/rect.h"
 
 SimpleViewer::SimpleViewer(GObj * o) :
     obj(o),

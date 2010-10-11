@@ -4,8 +4,8 @@
 #include <string>
 #include <map>
 #include <set>
-#include "../../core/libmp/mp_data.h"
-#include "../../core/libfig/fig_data.h"
+#include "mp/mp_data.h"
+#include "fig/fig_data.h"
 
 namespace vmap{
 

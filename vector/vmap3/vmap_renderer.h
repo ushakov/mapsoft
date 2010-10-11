@@ -10,11 +10,11 @@
 #include <cairomm/context.h>
 #include <cairomm/surface.h>
 
-#include <lib2d/line_utils.h>
-#include "lib2d/line_dist.h"
-#include <libgeo/geo_convs.h>
-#include <libgeo/geo_nom.h>
-#include <libgeo_io/io_oe.h>
+#include <2d/line_utils.h>
+#include "2d/line_dist.h"
+#include <geo/geo_convs.h>
+#include <geo/geo_nom.h>
+#include <geo_io/io_oe.h>
 #include "../libzn/zn.h"
 #include "vmap.h"
 

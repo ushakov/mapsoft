@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <cstdlib> // for atoi
 
-#include "lib2d/line_utils.h"
+#include "2d/line_utils.h"
 #include "../libzn/zn.h"
 #include "vmap.h"
 

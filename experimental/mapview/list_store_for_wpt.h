@@ -4,7 +4,7 @@
 // преобразование набора точек в GTK::ListStore и обратно
 
 #include <gtkmm.h>
-#include "../libgeo/geo_data.h"
+#include "geo/geo_data.h"
 
 //класс, описывающий поля точки в Gtk::TreeModel
 class WPT_ListColumns : public Gtk::TreeModelColumnRecord {

@@ -4,7 +4,7 @@
 #include <sigc++/sigc++.h>
 #include <boost/shared_ptr.hpp>
 
-#include "lib2d/image.h"
+#include "2d/image.h"
 #include "utils/cache.h"
 #include "layers/layer.h"
 

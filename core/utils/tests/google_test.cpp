@@ -3,7 +3,7 @@
 //#define DEBUG_IMAGE
 
 #include <iostream>
-#include "../../../core/lib2d/image.h"
+#include "../../../core/2d/image.h"
 #include "../../../core/loaders/image_google.h"
 
 int main(){
