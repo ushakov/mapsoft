@@ -7,9 +7,7 @@ env1 = env.Clone()
 env1.Prepend(LIBS=[mapsoft_libs,other_libs])
 
 env1.Program('mapsoft_vmap.cpp')
-
 env1.Program('fig2pnm.cpp')
-
 env1.Program('get_print.cpp')
 env1.Program('get_print_mmb.cpp')
 env1.Program('make_map_gk.cpp')
