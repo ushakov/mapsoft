@@ -8,5 +8,3 @@ env.Library('options', \
     strvec.cpp
     m_getopt.cpp
   """))
-
-SConscript ("tests/SConscript")
