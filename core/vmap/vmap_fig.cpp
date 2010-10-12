@@ -44,64 +44,12 @@ read(const fig::fig_world & F){
     if (i->type==-6) cmp_comm.clear();
     if (zn::is_to_skip(*i)) continue;
 
-    // read map objects
-    int type=0;
-    if (zconverter.is_map_depth(*i) &&
-       (type = zconverter.get_type(*i)) ){
-
-      if (cmp_comm.size()>0) comm=cmp_comm;
-      else comm=i->comment;
-
-      if (type==border_type){ // special type -- border
-        ret.brd = cnv.line_frw(*i);
-        continue;
-      }
-      if (type==label_type){ // special type -- label objects
-        if (i->size()<2) continue;
-        if (i->comment.size()<1) continue;
-        lpos_full l;
-        l.text = i->comment[0];
-        l.ref = (*i)[0]; cnv.frw(l.ref);
-        l.pos = (*i)[1]; cnv.frw(l.pos);
-        l.dir = zn::fig_arr2dir(*i, true);
-        if (i->size()>=3){
-          l.ang=ang_pfig2a((*i)[1], (*i)[2], l.dir, cnv);
-          l.hor=false;
-        }
-        else{
-          l.ang=0;
-          l.hor=true;
-        }
-        ret.lbuf.push_back(l);
-        continue;
-      }
-
-      object o;
-      o.type = type;
-      set_source(o.opts, i->opts.get<string>("Source"));
-
-      if (i->comment.size()>0){
-        o.text = i->comment[0];
-        o.comm.insert(o.comm.begin(),
-            i->comment.begin()+1, i->comment.end());
-      }
-      dLine pts = cnv.line_frw(*i);
-      // if closed polyline -> add one more point
-      if ((o.get_class() == POLYLINE) &&
-          (i->is_closed()) &&
-          (i->size()>0) &&
-          ((*i)[0]!=(*i)[i->size()-1])) pts.push_back(pts[0]);
-      o.push_back(pts);
-      o.dir=zn::fig_arr2dir(*i);
-
-      if (o.size()>0) ret.push_back(o);
-      continue;
-    }
     // find normal labels
     if ((i->opts.exists("MapType")) &&
         (i->opts.get("MapType", std::string())=="label") &&
-        (i->opts.exists("RefPt")) ){
-      if ((!i->is_text()) || (i->size()<1)) continue;
+        (i->opts.exists("RefPt")) &&
+        (i->is_text()) &&
+        (i->size()>0) ){
       lpos_full l;
       l.pos = (*i)[0]; cnv.frw(l.pos);
       l.ref = i->opts.get("RefPt", l.pos); cnv.frw(l.ref);
@@ -119,6 +67,65 @@ read(const fig::fig_world & F){
       ret.lbuf.push_back(l);
       continue;
     }
+
+
+    // read map objects
+    if (!zconverter.is_map_depth(*i)) continue;
+
+    int type = zconverter.get_type(*i);
+    if (!type) continue;
+
+    // copy comment from compound
+    if (cmp_comm.size()>0) comm=cmp_comm;
+    else comm=i->comment;
+
+    // special type -- border
+    if (type==border_type){ 
+      ret.brd = cnv.line_frw(*i);
+      continue;
+    }
+
+    // special type -- label objects
+    if (type==label_type){
+      if (i->size()<2) continue;
+      if (i->comment.size()<1) continue;
+      lpos_full l;
+      l.text = i->comment[0];
+      l.ref = (*i)[0]; cnv.frw(l.ref);
+      l.pos = (*i)[1]; cnv.frw(l.pos);
+      l.dir = zn::fig_arr2dir(*i, true);
+      if (i->size()>=3){
+        l.ang=ang_pfig2a((*i)[1], (*i)[2], l.dir, cnv);
+        l.hor=false;
+      }
+      else{
+        l.ang=0;
+        l.hor=true;
+      }
+      ret.lbuf.push_back(l);
+      continue;
+    }
+
+    // normal objects
+    object o;
+    o.type = type;
+    set_source(o.opts, i->opts.get<string>("Source"));
+
+    if (i->comment.size()>0){
+      o.text = i->comment[0];
+      o.comm.insert(o.comm.begin(),
+          i->comment.begin()+1, i->comment.end());
+    }
+    dLine pts = cnv.line_frw(*i);
+    // if closed polyline -> add one more point
+    if ((o.get_class() == POLYLINE) &&
+        (i->is_closed()) &&
+        (i->size()>0) &&
+        ((*i)[0]!=(*i)[i->size()-1])) pts.push_back(pts[0]);
+    o.push_back(pts);
+    o.dir=zn::fig_arr2dir(*i);
+
+    if (o.size()>0) ret.push_back(o);
   }
   return ret;
 }
