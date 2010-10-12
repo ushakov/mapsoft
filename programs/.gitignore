@@ -1,9 +1,6 @@
 convs_map2pt
 convs_nom
 convs_pt2pt
-fig_crop
-fig_ref_mod
-fig_sort
 mapsoft_add2fig
 mapsoft_calc_nom2ll
 mapsoft_convert
@@ -15,15 +12,10 @@ mapsoft_getks_nom
 mapsoft_map2fig
 mapsoft_mapcnv
 mapsoft_mapcnv1
-mapsoft_mark
-mapsoft_mark.cpp
-mapsoft_measure
 mapsoft_mkmap
 mapsoft_pano
 mapsoft_pt2map
 mapsoft_ref
 mapsoft_srtm2fig
-mapsoft_srtmprofile
 mapsoft_toxyz
-mapsoft_trackprofile
 test
