@@ -4,7 +4,7 @@ le = env.Clone()
 le.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
 
 mapsoft_libs = Split (" geo_io geo loaders jeeps fig utils 2d")
-other_libs   = Split ("usb tiff jpeg png gd")
+other_libs   = Split ("usb tiff jpeg png")
 le.Append(LIBS=[mapsoft_libs,other_libs])
 
 le.Program('mapview.cpp')

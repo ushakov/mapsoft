@@ -1,10 +1,11 @@
 Import ('env')
 
 mapsoft_libs = Split ("vmap geo_io geo loaders jeeps fig mp options utils 2d")
-other_libs   = Split ("curl usb tiff jpeg png gd yaml proj")
+other_libs   = Split ("curl usb tiff jpeg png yaml proj")
 
 env1 = env.Clone()
 env1.Prepend(LIBS=[mapsoft_libs,other_libs])
+env1.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
 
 env1.Program('mapsoft_vmap.cpp')
 env1.Program('fig2pnm.cpp')
