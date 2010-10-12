@@ -6,7 +6,7 @@
 #include <fstream>
 #include <list>
 #include <cstring>
-#include <cairomm/cairommconfig.h>
+//#include <cairomm/cairommconfig.h>
 #include <cairomm/context.h>
 #include <cairomm/surface.h>
 
