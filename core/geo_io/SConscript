@@ -1,5 +1,9 @@
 Import ('env')
-env.Library('geo_io', \
+
+e=env.Clone()
+e.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
+
+e.Library('geo_io', \
     Split ("""
     filters.cpp
     io.cpp

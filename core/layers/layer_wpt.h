@@ -10,7 +10,7 @@
 
 #include "layer_geo.h"
 #include "geo/geo_convs.h"
-#include "utils/image_gd.h"
+#include "utils/cairo_wrapper.h"
 
 #include "2d/point.h"
 
@@ -46,7 +46,7 @@ public:
 #endif
       wpt_color_override.value = 0;
       wpt_bgcolor_override.value = 0;
-      dot_width = 8;
+      dot_width = 4;
     }
 
     void refresh(){
@@ -82,7 +82,7 @@ public:
 	dot_width = opt.get("Waypoint dot size", dot_width);
     }
 
-    
+
     // Optimized get_image to return empty image outside of bounds.
     virtual iImage get_image (iRect src){
 	if (rect_intersect(myrange, src).empty()) {
@@ -99,17 +99,20 @@ public:
       std::cerr  << "LayerWPT: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
       if (rect_intersect(myrange, rect_pump(src_rect,110)).empty()) return;
-      boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&image));
+      CairoWrapper cr(image);
 
-      iRect rect_pumped = rect_pump(image.range(), 6);
+      double text_pad=2.0;
+      dPoint flag_shift(0,-10);
+      dPoint text_shift = flag_shift + dPoint(text_pad, -text_pad);
 
       for (std::vector<g_waypoint_list>::const_iterator it = world->wpts.begin();
 	   it!= world->wpts.end(); it++){
-	iPoint pi, pio;
+
+
         for (std::vector<g_waypoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
-          dPoint p(pt->x,pt->y); cnv.bck(p);
-	  pi = iPoint(p)-origin;
+
+          dPoint p(pt->x,pt->y); cnv.bck(p); p-=origin;
 
 	  Color color = pt->color;
 	  if ((wpt_color_override.value & 0xff000000) != 0) {
@@ -119,24 +122,42 @@ public:
 	  if ((wpt_bgcolor_override.value & 0xff000000) != 0) {
 	      bgcolor = wpt_bgcolor_override;
 	  }
-	
-          if (point_in_rect(pi, rect_pumped)){
-	      ctx->DrawCircle(pi, dot_width, 1, color.value, true, bgcolor.value);
+
+          cr->move_to(p + text_shift);
+          dRect txt_rect = cr->get_text_extents(pt->name);
+          txt_rect = rect_pump(txt_rect, text_pad);
+          dRect pt_rect = rect_pump(txt_rect, p);
+          pt_rect = rect_pump(pt_rect, double(dot_width+1));
+
+          if (!rect_intersect(pt_rect, dRect(image.range())).empty()){
+            /*
+            // debug
+            cr->rectangle(pt_rect);
+            cr->set_color(0xFF00FF);
+            cr->fill();
+            */
+
+            cr->move_to(p);
+            cr->circle(p, dot_width);
+            cr->rectangle(txt_rect);
+            cr->set_color(bgcolor.value);
+            cr->fill();
+
+            cr->move_to(p);
+            cr->circle(p, dot_width);
+            cr->move_to(p+dPoint(0,-dot_width));
+            cr->rel_line_to(flag_shift);
+            cr->rectangle(txt_rect);
+            cr->set_color(color.value);
+            cr->set_line_width(1);
+            cr->stroke();
+
+            cr->set_color(color.value);
+            cr->move_to(p + text_shift);
+            cr->show_text(pt->name);
 	  }
-	  iRect textbb = ImageDrawContext::GetTextMetrics(pt->name.c_str());
-	  iRect padded = rect_pump(textbb, 2);
-	  iPoint shift = iPoint(2,-10);
-	  iPoint shifted = pi + shift;
-	  if (point_in_rect(pi, rect_pump (image.range(), padded+shift))) {
-	      ctx->DrawLine(pi, (padded + shifted).TLC(), 1, color.value);
-	      ctx->DrawFilledRect(padded + shifted, bgcolor.value);
-	      ctx->DrawRect(padded + shifted, 1, color.value);
-	      ctx->DrawText(shifted.x, shifted.y, color.value, pt->name.c_str());
-	  }
-          pio=pi;
         }
       }
-      ctx->StampAndClear();
     }
 
 

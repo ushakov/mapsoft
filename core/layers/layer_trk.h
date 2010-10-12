@@ -10,7 +10,7 @@
 
 #include "layer_geo.h"
 #include "geo/geo_convs.h"
-#include "utils/image_gd.h"
+#include "utils/cairo_wrapper.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -93,12 +93,11 @@ public:
       std::cerr  << "LayerTRK: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
       if (rect_intersect(myrange, rect_pump(src_rect,110)).empty()) return;
-      boost::shared_ptr<ImageDrawContext> ctx(ImageDrawContext::Create(&image));
+
+      CairoWrapper cr(image);
 
       for (std::vector<g_track>::const_iterator it = world->trks.begin();
                                          it!= world->trks.end(); it++){
-	bool start=true;
-	iPoint pi, pio;
 
 	int w = it->width;
 	if (track_width_override != 0) {
@@ -109,26 +108,28 @@ public:
 	if ((track_color_override.value & 0xff000000) != 0) {
 	    color = track_color_override;
 	}
+        cr->set_color(color.value);
+        cr->set_line_width(w);
+
+	dPoint po;
+
+        iRect rect_pumped = rect_pump(image.range(),w);
+
         for (std::vector<g_trackpoint>::const_iterator pt = it->begin();
                                             pt!= it->end(); pt++){
-          dPoint p(pt->x,pt->y); cnv.bck(p);
-	  pi = iPoint(p)-origin;
-
-	  iRect line_bb(pio, pi); 
-
-	  line_bb = rect_pump(line_bb, 2*w);
-	  if (!rect_intersect(line_bb, image.range()).empty()) {
-	      if (!start){
-	        if (!pt->start) ctx->DrawLine(pio, pi, w, color.value);
-	        ctx->DrawCircle(pio, w, 2, color.value, false);
-	      }
-	      else start=false;
-	  }
-	  pio=pi;
-        }
-        ctx->DrawCircle(pio, w, 2, color.value, false);
+          dPoint p(*pt); cnv.bck(p);  p-=origin;
+          if (point_in_rect(iPoint(p), rect_pumped)){
+            if ((pt == it->begin()) || (pt->start)) cr->move_to(p);
+            else {
+              cr->move_to(po);
+              cr->line_to(p);
+            }
+            cr->circle(p, 0.75*w);
+          }
+          po=p;
+	}
+        cr->stroke();
       }
-      ctx->StampAndClear();
     }
 
 

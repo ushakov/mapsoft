@@ -1,11 +1,16 @@
 Import ('env')
 
-env.Library('utils', \
+e=env.Clone()
+
+e.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
+
+e.Library('utils', \
   Split("""
     log.cpp
     iconv_utils.cpp spirit_utils.cpp
     image_gd.cpp
     pnm_shifter.cpp
+    cairo_wrapper.cpp
   """))
 
 SConscript ("tests/SConscript")

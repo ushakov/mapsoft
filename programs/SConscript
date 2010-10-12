@@ -5,6 +5,7 @@ mapsoft_libs = Split ("geo_io geo loaders jeeps fig mp utils options 2d")
 other_libs   = Split ("usb tiff jpeg png gd curl proj")
 
 env_geo.Prepend(LIBS=[mapsoft_libs, other_libs])
+env_geo.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
 
 map (lambda(f): env_geo.Program(f+'.cpp'),\
   Split("""
@@ -28,16 +29,11 @@ map (lambda(f): env_geo.Program(f+'.cpp'),\
     mapsoft_trackprofile
     mapsoft_srtmprofile
     mapsoft_pano
-    fig_ref_mod
 
     convs_pt2pt
     convs_map2pt
     convs_nom
     """))
-
-
-env.Program('fig_crop.cpp', LIBS=['fig', 'utils'])
-env.Program('fig_sort.cpp', LIBS=['fig', 'utils'])
 
 env.Install(env.man1dir, Split("""
   mapsoft_convert.1

@@ -11,7 +11,7 @@
 #include "geo_io/geofig.h"
 #include "2d/line_utils.h"
 
-#include "utils/image_gd.h"
+#include "utils/cairo_wrapper.h"
 #include <boost/lexical_cast.hpp>
 
 /** Изготовление номенклатурного листа с космоснимком */
@@ -87,10 +87,12 @@ main(int argc, char **argv){
     int h=int(f_max.y-f_min.y);
     iImage im = ml.get_image (iRect(0,0,w,h));
 
-    ImageDrawContext * ctx(ImageDrawContext::Create(&im));
-    for (dLine::iterator i = ref.border.begin(), j=i+1; j!=ref.border.end(); i++,j++)
-      ctx->DrawLine(*i, *j, 1, 0xC0000000);
-    ctx->StampAndClear();
+    CairoWrapper cr(im);
+    cr->set_color_a(0xC0000000);
+    if (ref.border.size()>0) cr->move_to(ref.border[0]);
+    for (dLine::iterator i = ref.border.begin(); i!=ref.border.end(); i++) cr->line_to(*i);
+    cr->close_path();
+    cr->stroke();
     O.put("quality", 85);
     image_r::save(im, ref.file.c_str(), O);
 

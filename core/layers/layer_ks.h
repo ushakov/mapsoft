@@ -12,9 +12,6 @@
 #include "2d/cache.h"
 #include "loaders/image_ks.h"
 #include "loaders/image_i.h"
-#include "utils/image_gd.h"
-
-//#include "geo_io/io.h"
 
 
 /// Слой для показа снимков kosmosnimki.ru.

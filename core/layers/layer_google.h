@@ -12,10 +12,6 @@
 #include "2d/cache.h"
 #include "loaders/image_google.h"
 #include "loaders/image_i.h"
-#include "utils/image_gd.h"
-
-//#include "geo_io/io.h"
-
 
 /// Растровый слой для показа снимков google.
 

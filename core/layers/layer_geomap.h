@@ -10,7 +10,7 @@
 #include "geo/geo_convs.h"
 #include "loaders/image_r.h"
 #include "loaders/image_i.h"
-#include "utils/image_gd.h"
+#include "utils/cairo_wrapper.h"
 #include "2d/cache.h"
 
 //#include "geo_io/io.h"
@@ -103,7 +103,9 @@ public:
 #endif
         if (rect_intersect(myrange, src_rect).empty()) return;
         if ((world == NULL)||(world->maps.size()==0)) return;
-        ImageDrawContext * ctx  = ImageDrawContext::Create(&image);
+        CairoWrapper cr(image);
+        cr->set_line_width(1);
+        cr->set_color(0x0000FF);
 
 	for (int i=0; i<world->maps.size(); i++){
           std::string file = world->maps[i].file;
@@ -131,18 +133,15 @@ public:
             m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
           }
 
-          if (drawborder)
-          for (int j=0; j<m2ms[i].border_dst.size(); j++){
-            dPoint p1(m2ms[i].border_dst[j]);
-            dPoint p2((j==m2ms[i].border_dst.size()-1) ? m2ms[i].border_dst[0] : m2ms[i].border_dst[j+1]);
-
-            iPoint p1i(p1); p1i-=src_rect.TLC();
-            iPoint p2i(p2); p2i-=src_rect.TLC();
-            ctx->DrawLine(p1i,p2i, 1, COLOR_RED);
+          if (drawborder){
+            for (dLine::iterator p=m2ms[i].border_dst.begin(); p!=m2ms[i].border_dst.end(); p++){
+              if (p==m2ms[i].border_dst.begin()) cr->move_to((*p)-dPoint(src_rect.TLC()));
+              else cr->line_to((*p)-dPoint(src_rect.TLC()));
+            }
+            cr->close_path();
           }
        }
-       ctx->StampAndClear();
-       delete ctx;
+       cr->stroke();
     }
 
 
