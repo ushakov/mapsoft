@@ -1,0 +1,24 @@
+env = Environment ()
+
+mapsoft_libs=Split("vmap2 vmap fig mp geo_io geo loaders jeeps options utils 2d yaml tiff png jpeg proj")
+other_libs=Split("yaml proj png jpeg tiff")
+
+env.Append (CCFLAGS=['-O2'])
+env.Append (CPPPATH = ["../../core"])
+env.Append (LIBPATH = map(lambda(s): "../../core/"+s, mapsoft_libs) )
+env.Append (LIBPATH = ".")
+env.Append (LIBS = [mapsoft_libs, other_libs] )
+
+env.Library('vmap2', \
+    Split ("""
+        legend.cpp
+        vmap.cpp
+        vmap_io.cpp
+        vmap_id.cpp
+        vmap_fig.cpp
+     """))
+
+env.Program("vmap_putfig.cpp")
+env.Program("vmap_getfig.cpp")
+
+

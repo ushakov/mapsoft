@@ -1,0 +1,14 @@
+env = Environment ()
+
+mapsoft_libs=Split("vmap geo_io geo loaders fig mp utils options 2d jeeps")
+other_libs=Split("proj png jpeg tiff yaml")
+
+env.Append (CCFLAGS=['-O2'])
+env.Append (CPPPATH = ["../../core"])
+env.Append (LIBPATH = map(lambda(s): "../../core/"+s, mapsoft_libs) )
+env.Append (LIBS = [mapsoft_libs, other_libs] )
+
+env.Program('fig2ps.cpp')
+
+
+
