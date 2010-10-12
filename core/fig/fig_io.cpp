@@ -327,6 +327,10 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
        i  = world.begin(); 
        i != world.end(); i++){
 
+    // We don't support color objects!
+    // color object with comment or options breaks all!
+    if (i->type==0) continue;
+
     for (n=0;n<i->comment.size();n++){
       if (n>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
       string s = cnv.from_utf(i->comment[n]);
