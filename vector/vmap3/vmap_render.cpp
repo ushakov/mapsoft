@@ -14,17 +14,17 @@ main(int argc, char* argv[]){
 
   //*******************************
 
-  R.render_col_filled_polygons(0x16, 0xAAFFAA); // лес
-  R.render_col_filled_polygons(0x52, 0xFFFFFF); // поле
-  R.render_col_filled_polygons(0x15, 0xAAFFAA); // остров леса
+  R.render_polygons(0x16, 0xAAFFAA); // лес
+  R.render_polygons(0x52, 0xFFFFFF); // поле
+  R.render_polygons(0x15, 0xAAFFAA); // остров леса
 
   std::list<iPoint> cnt = R.make_cnt(0xAAFFAA, 2);     // контуры леса
 
-  R.render_im_filled_polygons(0x4f, "vyr_n.png");
-  R.render_im_filled_polygons(0x50, "vyr_o.png");
-  R.render_im_filled_polygons(0x14, "redk.png");
+  R.render_polygons(0x4f, "vyr_n.png");
+  R.render_polygons(0x50, "vyr_o.png");
+  R.render_polygons(0x14, "redk.png");
 
-  R.render_col_filled_polygons(0x15, 0xAAFFAA); // остров леса поверх вырубок
+  R.render_polygons(0x15, 0xAAFFAA); // остров леса поверх вырубок
 
   R.filter_cnt(cnt, 0xAAFFAA); // убираем контуры, оказавшеся поверх вырубок
   R.draw_cnt(cnt, 0x009000, 1); // рисуем контуры
@@ -33,15 +33,15 @@ main(int argc, char* argv[]){
   R.render_line(0x23, 0x009000, 1, 0); // контуры, нарисованные вручную
   R.unset_dash();
 
-  R.render_im_filled_polygons(0x4d, "ledn.png"); // ледник
+  R.render_polygons(0x4d, "ledn.png"); // ледник
 
   //*******************************
 
-  R.render_cnt_polygons(0x4,  0xB0B0B0, 0x000000, 0.7); // закрытые территории
-  R.render_cnt_polygons(0xE,  0xFF8080, 0x000000, 0.7); // деревни
-  R.render_cnt_polygons(0x1,  0xB05959, 0x000000, 0.7); // города
-  R.render_cnt_polygons(0x4E, 0x557F55, 0x000000, 0.7); // дачи
-  R.render_cnt_polygons(0x1A, 0x557F55, 0x000000, 0.7); // кладбища
+  R.render_polygons(0x4,  0xB0B0B0, 0x000000, 0.7); // закрытые территории
+  R.render_polygons(0xE,  0xFF8080, 0x000000, 0.7); // деревни
+  R.render_polygons(0x1,  0xB05959, 0x000000, 0.7); // города
+  R.render_polygons(0x4E, 0x557F55, 0x000000, 0.7); // дачи
+  R.render_polygons(0x1A, 0x557F55, 0x000000, 0.7); // кладбища
 
   //*******************************
 
@@ -68,8 +68,8 @@ main(int argc, char* argv[]){
 
   //*******************************
 
-  R.render_im_filled_polygons(0x51, "bol_l.png"); // болота
-  R.render_im_filled_polygons(0x4C, "bol_h.png"); // болота труднопроходимые
+  R.render_polygons(0x51, "bol_l.png"); // болота
+  R.render_polygons(0x4C, "bol_h.png"); // болота труднопроходимые
   R.render_line(0x24, 0x5066FF, 1, 0); // старые болота
 
   //*******************************
@@ -82,9 +82,9 @@ main(int argc, char* argv[]){
   R.render_line(0x18, 0x5066FF, 2, 10); // река-2
   R.render_line(0x1F, 0x5066FF, 3, 10); // река-3
 
-  R.render_cnt_polygons(0x29, 0x00FFFF, 0x5066FF, 1, 20); // водоемы
-  R.render_cnt_polygons(0x3B, 0x00FFFF, 0x5066FF, 1, 20); // большие водоемы
-  R.render_cnt_polygons(0x53, 0xFFFFFF, 0x5066FF, 1, 20); // острова
+  R.render_polygons(0x29, 0x00FFFF, 0x5066FF, 1, 20); // водоемы
+  R.render_polygons(0x3B, 0x00FFFF, 0x5066FF, 1, 20); // большие водоемы
+  R.render_polygons(0x53, 0xFFFFFF, 0x5066FF, 1, 20); // острова
 
   R.render_line(0x1F, 0x00FFFF, 1, 10); // середина реки-3
 

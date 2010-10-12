@@ -4,7 +4,16 @@ mapsoft_libs=Split("vmap mp fig geo_io geo loaders utils options 2d")
 other_libs=Split("proj png jpeg tiff yaml")
 
 env1 = env.Clone()
-env1.Prepend(LIBS=[mapsoft_libs,other_libs])
+
+env1.Library('vmap_renderer',\
+  Split ("""
+    vmap_rend_cnt.cpp
+    vmap_rend_txt.cpp
+    vmap_rend_pic.cpp
+    vmap_renderer.cpp
+  """))
+
+env1.Prepend(LIBS=["vmap_renderer", mapsoft_libs,other_libs])
 env1.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
 
 env1.Program("vmap_copy.cpp")
