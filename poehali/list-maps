@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Скрипт для получения списка карт на poehali.org по координатам
+# Результат -- набор ссылок, по ссылке на строку
+# Координаты передаются в виде LAT LON, с десятичными долями градусов,
+# разделитель точка.
+
+if (( $# < 2 ))
+then
+   cat <<END_OF_USAGE
+List maps of poehali.org by coordinates.
+
+Usage: $0 lat lon
+
+Coordinates are degrees with decimal fraction part, separated with dot.
+
+Example: $0 61.242495831955 31.742935180578
+END_OF_USAGE
+   exit
+fi
+
+URL="http://poehali.org/maps/get"
+
+# Запрос
+# Параметры: LAT LON
+# Выдает ответ на стандартный вывод
+query_coord() {
+   DATA="lat=$1&lng=$2&format=&type=&scale=&sf_format=js"
+
+   curl -s "$URL" -d "$DATA"
+}
+
+# Разбор ответа
+# Получает на стандартный ввод неразобранный ответ
+# Выводит на стандартный вывод извлеченные ссылки
+parse_answer() {
+   xmlstarlet sel -t -m "/div/div/ul/li/a" -o "http://poehali.org" -v "@href" -n
+}
+
+query_coord "$1" "$2" | parse_answer

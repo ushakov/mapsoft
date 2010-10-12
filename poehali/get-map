@@ -2,58 +2,130 @@
 
 # Пример: get-map n37 050k 027-1
 
-if [[ $# < 3 ]]
+if (( $# == 1 ))
 then
-   echo "Пример: $0 n37 050k 027-1"
+   if [[ "$1" =~ http://poehali.org/maps/([0-9a-z]+)--([a-z][0-9]+)-([0-9_%-]+).html ]]
+   then
+      scale="${BASH_REMATCH[1]}"
+      lon="${BASH_REMATCH[2]}"
+      page="${BASH_REMATCH[3]}"
+      do_image=1
+      do_ref=1
+   elif [[ "$1" =~ ([0-9a-z]+)--([a-z][0-9]+)-([0-9_-]+).map ]]
+   then
+      scale="${BASH_REMATCH[1]}"
+      lon="${BASH_REMATCH[2]}"
+      page="${BASH_REMATCH[3]}"
+      do_ref=1
+   elif [[ "$1" =~ ([0-9a-z]+)--([a-z][0-9]+)-([0-9_-]+).png ]]
+   then
+      scale="${BASH_REMATCH[1]}"
+      lon="${BASH_REMATCH[2]}"
+      page="${BASH_REMATCH[3]}"
+      do_image=1
+   elif [[ "$1" =~ ([0-9a-z]+)--([a-z][0-9]+)-([0-9_-]+).gif ]]
+   then
+      scale="${BASH_REMATCH[1]}"
+      lon="${BASH_REMATCH[2]}"
+      page="${BASH_REMATCH[3]}"
+      do_image=1
+   fi
+elif (( $# == 3 ))
+then
+   lon=$1
+   scale=$2
+   page=$3
+   do_image=1
+   do_ref=1
+fi
+
+if [ -z "$do_image" -a -z "$do_ref" ]
+then
+   cat << END_OF_USAGE
+Query: $*
+
+poehali.org maps and refs download
+
+Usage:
+$0 n37 050k 027-1
+$0 http://poehali.org/maps/050k--p35-132-1_2.html
+$0 050k--p35-132-1_2
+$0 050k--p35-132-1_2.map
+$0 050k--p35-132-1_2.png
+$0 050k--p35-132-1_2.gif
+END_OF_USAGE
    exit
 fi
 
 CONFDIR=$HOME/.poehali
 
-lon=$1
-scale=$2
-page=$3
 gifcode=`cat $CONFDIR/gifcode`
 mapcode=`cat $CONFDIR/mapcode`
 gifmapstor=`cat $CONFDIR/gifmapstor`
 mapmapstor=`cat $CONFDIR/mapmapstor`
 basefilename=$scale--$lon-$page
+giftmt=`cat $CONFDIR/giftmt`
+maptmt=`cat $CONFDIR/maptmt`
+sid=`awk '/nbmpgf/ {print $7}' $CONFDIR/cookies`
 
-printf "Скачиваю $basefilename.gif ... "
-if wget -q -O$basefilename.gif --load-cookies=$CONFDIR/cookies --post-data="m=$lon/$scale/$basefilename.gif&code=$gifcode" http://m$gifmapstor.mapstor.com/p_getfile.php?m=$lon%2F$scale%2F$basefilename.gif
+if [ -n "$do_image" ]
 then
-   echo "готово"
-else
-   echo "ошибка"
-   exit
+   if [ -f "$basefilename.png" ]
+   then
+      echo "Файл $basefilename.png существует"
+   else
+      if [ -f "$basefilename.gif" ]
+      then
+         echo "Файл $basefilename.gif существует"
+      else
+         printf "Скачиваю %s ... " "$basefilename.gif"
+         if wget -q -O"$basefilename.gif" --load-cookies=$CONFDIR/cookies --post-data="m=$lon/$scale/$basefilename.gif&code=$gifcode&sid=$sid" "http://m$gifmapstor.mapstor.com/p_getfile.php?m=$lon%2F$scale%2F$basefilename.gif&tmt=$giftmt"
+         then
+            echo "готово"
+         else
+            echo "ошибка"
+            rm -f "$basefilename.gif"
+            exit
+         fi
+      fi
+
+      printf "Преобразую %s в %s ... " "$basefilename.gif" "$basefilename.png"
+      if convert "$basefilename.gif" "$basefilename.png"
+      then
+         echo "готово"
+         rm "$basefilename.gif"
+      else
+         echo "ошибка"
+         exit
+      fi
+   fi
 fi
 
-printf "Скачиваю $basefilename.map ... "
-if wget -q -O$basefilename.map --load-cookies=$CONFDIR/cookies --post-data="m=$lon/$scale/$basefilename.map&code=$mapcode" http://m$mapmapstor.mapstor.com/p_getfileref.php?m=$lon%2F$scale%2F$basefilename.map
+if [ -n "$do_ref" ]
 then
-   echo "готово"
-else
-   echo "ошибка"
-   exit
-fi
+   if [ -f "$basefilename.map" ]
+   then
+      echo "Файл $basefilename.map существует"
+   else
+      printf "Скачиваю %s ... " "$basefilename.map"
+      if wget -q -O"$basefilename.map" --load-cookies="$CONFDIR/cookies" --post-data="m=$lon/$scale/$basefilename.map&code=$mapcode&sid=$sid" "http://m$mapmapstor.mapstor.com/p_getfileref.php?m=$lon%2F$scale%2F$basefilename.map&tmt=$maptmt"
+      then
+         echo "готово"
+      else
+         echo "ошибка"
+         rm "$basefilename.map"
+         exit
+      fi
+   fi
 
-printf "Преобразую $basefilename.gif в $basefilename.png ... "
-if convert $basefilename.gif $basefilename.png
-then
-   echo "готово"
-   rm $basefilename.gif
-else
-   echo "ошибка"
-   exit
-fi
-
-printf "Правлю $basefilename.map ... "
-if sed -i "s/$basefilename.gif/$basefilename.png/g" $basefilename.map
-then
-   echo "готово"
-else
-   echo "ошибка"
-   exit
+   printf "Правлю %s ... " "$basefilename.map"
+   if sed -i "s/$basefilename.gif/$basefilename.png/g" $basefilename.map
+   then
+      echo "готово"
+   else
+      echo "ошибка"
+      exit
+   fi
 fi
 
 # vim: tw=0

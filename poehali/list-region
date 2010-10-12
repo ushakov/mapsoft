@@ -1,0 +1,25 @@
+#!/usr/bin/ruby
+
+if ARGV.size < 4
+   puts <<-END_OF_USAGE
+   Get list of poehali.org maps by region
+
+   Usage: #$0 LAT1 LON1 LAT2 LON2
+
+   Example: #$0 61.242495831955 31.742935180578 61.242495831955 32.204360961801
+   END_OF_USAGE
+   exit
+end
+
+lat_range = Range.new(*(ARGV.values_at(0,2).map{|e| e.to_f}.sort))
+lon_range = Range.new(*(ARGV.values_at(1,3).map{|e| e.to_f}.sort))
+
+result = []
+lat_step = lat_range.step(0.1)
+lon_range.step(0.2).each do |lon|
+   lat_step.each do |lat|
+      result += `list-maps #{lat} #{lon}`.split("\n")
+   end
+end
+
+puts result.uniq
