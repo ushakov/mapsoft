@@ -192,6 +192,11 @@ zn_conv::zn_conv(const string & style){
 
     if (event.type == YAML_MAPPING_START_EVENT){
       z=zn();
+      z.txt=default_txt;
+      z.fig=default_fig;
+      z.mp=default_mp;
+      z.label_pos=0;
+      z.label_dir=0;
       state=KEY;
     }
 
