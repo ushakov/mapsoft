@@ -69,6 +69,7 @@ ang_a2afig(double a, Conv & cnv, dPoint fig_pos, const double rscale){
 void
 set_source(Options & o, const string & source){
   if (source != "") o.put<string>("Source", source);
+  else o.erase("Source");
 }
 
 dPoint
