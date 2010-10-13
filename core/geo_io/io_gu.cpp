@@ -1,6 +1,3 @@
-#include <boost/spirit/actor/assign_actor.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
-
 #include <iostream>
 #include <fstream>
 #include <iomanip>
