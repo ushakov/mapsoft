@@ -1,0 +1,16 @@
+Import('env')
+
+mapsoft_libs = Split("geo_io geo loaders fig mp utils options 2d jeeps")
+other_libs   = Split ("usb tiff jpeg png curl proj")
+
+e=env.Clone()
+e.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
+e.Prepend(LIBS=[mapsoft_libs, other_libs])
+
+map (lambda(f): e.Program(f+'.cpp'),\
+  Split("""
+    mapsoft_measure
+    mapsoft_mark
+    mapsoft_trackprofile
+    mapsoft_srtmprofile
+    """))
