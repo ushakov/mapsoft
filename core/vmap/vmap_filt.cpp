@@ -63,7 +63,29 @@ struct RangeCutter{
     action = O.get<string>("range_action");
 
     cnv=NULL;
+
     if (action == "") return;
+
+    if (action == "help"){
+      std::cout << "range actions:\n"
+                << "  skip     -- skip   objects, touching range\n"
+                << "  select   -- select objects, touching range (complementary to skip)\n"
+                << "  crop     -- crop\n"
+                << "  crop_spl -- smartly crop lines to minimize extra segments on the borders\n"
+                << "  help     -- show this help\n"
+      ;
+      return;
+    }
+
+    if ((action != "skip") &&
+        (action != "select") &&
+        (action != "crop") &&
+        (action != "crop_spl")){
+      std::cerr << "warning: skipping unknown range action: " << action << "\n"
+                << "         see --range_action help\n"
+      ;
+      return;
+    }
 
     if (O.exists("range_nom")){
       range=convs::nom_range(O.get<string>("range_nom"));
@@ -115,6 +137,18 @@ struct RangeCutter{
         }
         else if (action == "crop"){
           *l = cnv->line_bck(lc);
+        }
+        else if (action == "crop_spl"){
+          if (o.type & zn::line_mask){
+            dMultiLine ML = rect_split_cropped(range, lc);
+            for (dMultiLine::const_iterator i=ML.begin(); i!=ML.end(); i++){
+              l = o.insert(l, cnv->line_bck(*i)) + 1;
+            }
+            l->clear();
+          }
+          else{
+            *l = cnv->line_bck(lc);
+          }
         }
       }
       if (l->size()==0){

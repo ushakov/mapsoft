@@ -214,22 +214,17 @@ bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line, bool closed){
 }
 
 /**
-  Обрезать линию по прямоугольнику, чтобы получилось много линий и
-  не возникло лишних сегментов, как в rect_crop.
-  Линии из одной точки также не возникают.
+  Разбить результат результат работы rect_crop() на отдельные линии
+  с длиной больше 1, не лежащие на сторонах прямоугольника cutter.
 */
 template <typename T>
-MultiLine<T> rect_crop_ml(const Rect<T> & cutter, const Line<T> & line){
-
-  Line<T> cropped(line);
-  rect_crop(cutter, cropped, false);
-
+MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped){
   MultiLine<T> ret;
   Line<T> rl;
 
-  typename Line<T>::iterator p;
+  typename Line<T>::const_iterator p, n;
   for (p=cropped.begin(); p!=cropped.end(); p++){
-    typename Line<T>::iterator n = p+1;
+    n = p+1;
 
     if (n!=cropped.end()){
       // сегмент лежит на границе - нам такой не нужен!
@@ -247,6 +242,17 @@ MultiLine<T> rect_crop_ml(const Rect<T> & cutter, const Line<T> & line){
   }
   if (rl.size()>1) ret.push_back(rl);
   return ret;
+}
+
+/**
+  Произвести rect_crop(), а затем rect_split_cropped()
+*/
+template <typename T>
+MultiLine<T> rect_crop_ml(const Rect<T> & cutter, const Line<T> & line){
+
+  Line<T> cropped(line);
+  rect_crop(cutter, cropped, false);
+  return rect_split_cropped(cutter, cropped);
 }
 
 
