@@ -2,7 +2,7 @@
 //#define DEBUG_CACHE
 //#define DEBUG_IMAGE
 
-#include <image_r.h>
+#include "loaders/image_r.h"
 
 int main(){
 

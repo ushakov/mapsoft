@@ -3,10 +3,10 @@
 //#define DEBUG_IMAGE
 
 #include <iostream>
-#include "../../../core/2d/image.h"
-#include "../../../core/loaders/image_jpeg.h"
-#include "../../../core/loaders/image_tiff.h"
-#include "../../../core/utils/image_gdk.h"
+#include "2d/image.h"
+#include "loaders/image_jpeg.h"
+#include "loaders/image_tiff.h"
+#include "utils/image_gdk.h"
 
 #include <gdkmm/pixbuf.h>
 #include <gdkmm/wrap_init.h>

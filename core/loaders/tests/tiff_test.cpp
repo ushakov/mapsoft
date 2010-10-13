@@ -2,8 +2,8 @@
 //#define DEBUG_CACHE
 //#define DEBUG_IMAGE
 
-#include <image_tiff.h>
-#include <image_jpeg.h>
+#include "loaders/image_tiff.h"
+#include "loaders/image_jpeg.h"
 
 int main(){
 

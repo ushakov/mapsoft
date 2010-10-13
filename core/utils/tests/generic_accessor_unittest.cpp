@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "../../../core/utils/generic_accessor.h"
+#include "utils/generic_accessor.h"
 
 int main (int argc, char ** argv)
 {

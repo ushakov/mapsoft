@@ -1,4 +1,3 @@
-#include "../utils/spirit_utils.h"
 #include <boost/spirit/actor/assign_actor.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 
@@ -12,6 +11,7 @@
 
 #include "io_gu.h"
 #include "utils/iconv_utils.h"
+#include "utils/spirit_utils.h"
 
 
 

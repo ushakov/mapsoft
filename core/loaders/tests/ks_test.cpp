@@ -2,8 +2,8 @@
 //#define DEBUG_CACHE
 //#define DEBUG_IMAGE
 
-#include "../image_ks.h"
-#include "../image_jpeg.h"
+#include "loaders/image_ks.h"
+#include "loaders/image_jpeg.h"
 
 int main(){
   int zoom=3;
