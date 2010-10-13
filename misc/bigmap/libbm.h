@@ -4,7 +4,7 @@
         v 0.2, slazav, 29.9.2006
 */
 
-#include <image.h>
+#include <2d/image.h>
 
 static int bm_debug = 1; // выдавать всякие сообщения
 

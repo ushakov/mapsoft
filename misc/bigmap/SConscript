@@ -1,0 +1,6 @@
+Import('env')
+
+libs=Split("loaders options 2d jpeg tiff png")
+
+env.Program(["map4.cpp", "libbm.cpp"], LIBS=[libs])
+env.Program(["map6.cpp", "libbm.cpp"], LIBS=[libs])

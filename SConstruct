@@ -17,6 +17,7 @@ subdirs = Split ("""
 		core/vmap
 
 		tests
+                misc
 		programs
 		viewer
 		vector/libzn-utils

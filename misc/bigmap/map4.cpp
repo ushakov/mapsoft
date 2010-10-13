@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include <image_r.h>
+#include <loaders/image_r.h>
 
 #include "libbm.h"
 

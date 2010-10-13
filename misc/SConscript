@@ -1,0 +1,8 @@
+Import ('env')
+
+subdirs = Split ("""
+  bigmap
+  """)
+
+SConscript (map (lambda(s): s+"/SConscript", subdirs))
+
