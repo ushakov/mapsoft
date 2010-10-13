@@ -29,10 +29,11 @@ add_labels(world & W){
   std::list<lpos_full>::iterator l, l0;
   world::iterator o;
   dPoint p, p0;
+  zn::zn_conv zc(W.style);
 
   // one nearest label with correct text (label_search_dist1 parameter)
   for (o=W.begin(); o!=W.end(); o++){
-    if (o->text == "") continue;
+    if ((o->text == "") || (zc.get_label_type(o->type)==0)) continue;
     double d0=1e99;
     for (l=W.lbuf.begin(); l!=W.lbuf.end(); l++){
       if (l->text != o->text) continue;
@@ -47,7 +48,7 @@ add_labels(world & W){
 
   // labels with correct text (label_search_dist2 parameter)
   for (o=W.begin(); o!=W.end(); o++){
-    if (o->text == "") continue;
+    if ((o->text == "") || (zc.get_label_type(o->type)==0)) continue;
     l=W.lbuf.begin();
     while (l!=W.lbuf.end()){
       // near ref or near pos
@@ -65,7 +66,7 @@ add_labels(world & W){
 
   // labels with changed text (label_search_dist3 parameter)
   for (o=W.begin(); o!=W.end(); o++){
-    if (o->text == "") continue;
+    if ((o->text == "") || (zc.get_label_type(o->type)==0)) continue;
     l=W.lbuf.begin();
     while (l!=W.lbuf.end()){
       if (dist_pt_l(l->ref, *o, p)* 100 / W.rscale < label_search_dist3){
@@ -115,23 +116,22 @@ max_xpy(const dLine & l){
 // create new labels
 void
 new_labels(world & W){
-  zn::zn_conv zconverter(W.style);
+  zn::zn_conv zc(W.style);
   for (world::iterator o=W.begin(); o!=W.end(); o++){
     if ((o->labels.size()>0) || (o->text=="")) continue;
 
-    std::map<int, zn::zn>::const_iterator z = zconverter.znaki.find(o->type);
-    if (z==zconverter.znaki.end()) continue;
-    int lp = z->second.label_pos;
-    if (!lp) continue; // no label for this object
+    int lt = zc.get_label_type(o->type);
+    int ld = zc.get_label_dir(o->type);
+    if (lt==0) continue; // no label for this object
 
     for (dMultiLine::iterator i=o->begin(); i!=o->end(); i++){
 
       if (i->size()<1) continue;
       lpos l;
       l.ang = 0;
-      l.dir = z->second.label_dir;
+      l.dir = ld;
       l.hor = true;
-      switch (lp){
+      switch (lt){
         case 1: // TR side of object (max x-y point + (1,-1)*td)
           l.pos = max_xpy(*i) +
             v_m2deg(W.rscale / 100.0 * dPoint(1,1) * label_new_dist/sqrt(2.0), (*i)[0].y);

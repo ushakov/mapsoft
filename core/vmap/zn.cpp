@@ -195,27 +195,27 @@ zn_conv::zn_conv(const string & style){
       z.txt=default_txt;
       z.fig=default_fig;
       z.mp=default_mp;
-      z.label_pos=0;
+      z.label_type=0;
       z.label_dir=0;
       state=KEY;
     }
 
     if (event.type == YAML_MAPPING_END_EVENT){
       int type = get_type(z.mp);
-      // add label_pos
+      // add label_type
       if (z.txt.type == 4){
         if (z.txt.sub_type==0){ // text on the TR side
-          z.label_pos=1;
+          z.label_type=1;
           z.label_dir=0;
         }
         else if (z.txt.sub_type==2){ // text on the TL side
-          z.label_pos=2;
+          z.label_type=2;
           z.label_dir=2;
         }
         else if (z.txt.sub_type==1) { //centered text
           z.label_dir=1;
-          if (type & line_mask) z.label_pos=4; // text along the line
-          else z.label_pos=3;                  // text on the center
+          if (type & line_mask) z.label_type=4; // text along the line
+          else z.label_type=3;                  // text on the center
         }
       }
       znaki.insert(pair<int, zn>(type, z));
@@ -410,10 +410,16 @@ zn_conv::get_label_template(int type){
   else return default_txt;
 }
 
-// Получить тип подписи
-int zn_conv::get_label_pos(int type){
+// Получить тип подписи (для несуществующих - 0)
+int zn_conv::get_label_type(int type){
   map<int, zn>::const_iterator z = find_type(type);
-  if (z != znaki.end()) return z->second.label_pos;
+  if (z != znaki.end()) return z->second.label_type;
+  else return 0;
+}
+// Получить направление подписи (для несуществующих - 0)
+int zn_conv::get_label_dir(int type){
+  map<int, zn>::const_iterator z = find_type(type);
+  if (z != znaki.end()) return z->second.label_dir;
   else return 0;
 }
 
@@ -578,7 +584,7 @@ zn_conv::make_labels(const fig::fig_object & fig, int type){
   map<int, zn>::const_iterator z = find_type(type);
   if (z==znaki.end()) return ret;
 
-  int lpos = z->second.label_pos;
+  int lpos = z->second.label_type;
 
   if (!lpos) return ret;                      // no label for this object
   if ((fig.comment.size()==0)||
@@ -710,7 +716,7 @@ zn_conv::fig_update_labels(fig::fig_world & F){
   for (i=F.begin(); i!=F.end(); i++){
     if (!is_map_depth(*i) || (i->size() <1)) continue;
     int type=get_type(*i);
-    if ((znaki.count(type)<1) || !znaki[type].label_pos) continue;
+    if ((znaki.count(type)<1) || !znaki[type].label_type) continue;
     if ((i->comment.size()>0) && (i->comment[0]!="")) 
       objs.push_back(std::pair<fig::fig_world::iterator, int>(i,0));
   }

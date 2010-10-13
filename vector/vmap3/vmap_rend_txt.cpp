@@ -128,7 +128,7 @@ VMAPRenderer::render_labels(double bound, int dark_th, int search_dist){
     for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
       std::map<int, zn::zn>::const_iterator z = zc.find_type(o->type);
       if (z==zc.znaki.end()) continue;
-      if (!z->second.label_pos) continue;
+      if (!z->second.label_type) continue;
 
       set_color(z->second.txt.pen_color);
 
