@@ -6,6 +6,7 @@ subdirs = Split ("""
   gred_tests
   mp_bboxes
   ps
+  srtm_pics
   tim
   vmap2
   """)
