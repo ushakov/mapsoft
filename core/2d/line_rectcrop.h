@@ -5,12 +5,13 @@
 #include "rect.h"
 
 
-/** Обрезание линии или многоугольника line по границам прямоугольника cutter.
- Для многоугольника (closed=true) чуть по-другому обрабатывается отрезок от
- первой точки до последней.
- Одна из основных особенностей - при обрезке не увеличивается количество
- объектов.
- */
+/**
+  Обрезание линии или многоугольника line по границам прямоугольника cutter.
+  Для многоугольника (closed=true) чуть по-другому обрабатывается отрезок от
+  первой точки до последней.
+  При обрезке не увеличивается количество объектов, зато могут возникать лишние
+  сегменты на границе прямоугольника.
+*/
 
 template <typename T>
 bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
@@ -134,10 +135,12 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
   return res;
 }
 
-// То же, но без добавления новых точек
-// (для обрезки куска карты в надежде, что потом его можно будет вклеить обратно).
-// Выглядит не слишком красиво, так как могут оставаться очень далекие от
-// района обрезки точки (необходимые, чтоб обойти угол).
+/**
+  То же, но без добавления новых точек
+  (для обрезки куска карты в надежде, что потом его можно будет вклеить обратно).
+  Выглядит не слишком красиво, так как могут оставаться очень далекие от
+  района обрезки точки (необходимые, чтоб обойти угол).
+*/
 template <typename T>
 bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line, bool closed){
 
@@ -209,6 +212,43 @@ bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line, bool closed){
   }
   return res;
 }
+
+/**
+  Обрезать линию по прямоугольнику, чтобы получилось много линий и
+  не возникло лишних сегментов, как в rect_crop.
+  Линии из одной точки также не возникают.
+*/
+template <typename T>
+MultiLine<T> rect_crop_ml(const Rect<T> & cutter, const Line<T> & line){
+
+  Line<T> cropped(line);
+  rect_crop(cutter, cropped, false);
+
+  MultiLine<T> ret;
+  Line<T> rl;
+
+  typename Line<T>::iterator p;
+  for (p=cropped.begin(); p!=cropped.end(); p++){
+    typename Line<T>::iterator n = p+1;
+
+    if (n!=cropped.end()){
+      // сегмент лежит на границе - нам такой не нужен!
+      if (((p->x == n->x) && (n->x == cutter.x)) ||
+          ((p->x == n->x) && (n->x == cutter.x+cutter.w)) ||
+          ((p->y == n->y) && (n->y == cutter.y)) ||
+          ((p->y == n->y) && (n->y == cutter.y+cutter.h))){
+        rl.push_back(*p);
+        if (rl.size()>1) ret.push_back(rl);
+        rl.clear();
+        continue;
+      }
+    }
+    rl.push_back(*p);
+  }
+  if (rl.size()>1) ret.push_back(rl);
+  return ret;
+}
+
 
 // fast and inaccurate test to find lines touching rectangle.
 template <typename T>
