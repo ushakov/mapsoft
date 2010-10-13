@@ -37,8 +37,7 @@ change_source(const Options & O, Options &o, const string &name){
 
 // crop/cut/select range, get statistics
 struct RangeCutter{
-  dRect skip_range, crop_range, select_range;
-  convs::pt2pt *skip_cnv, *crop_cnv, *select_cnv;
+  convs::pt2pt *cnv;
   int cnt_o, cnt_l, cnt_p;
   set<string> sources;
   dRect show_range;
@@ -46,87 +45,82 @@ struct RangeCutter{
   double lon0;
   Datum D;
   Proj P;
+  dRect range;
+  std::string action;
 
   RangeCutter(const Options & O){
-    // OPTION skip_range
-    // OPTION select_range
-    // OPTION crop_range
-    // OPTION skip_nom
-    // OPTION select_nom
-    // OPTION crop_nom
     // OPTION range_datum lonlat
     // OPTION range_proj  wgs84
     // OPTION range_lon0  0
+    // OPTION range
+    // OPTION range_nom
+    // OPTION range_action
 
     P = O.get<Proj>("range_proj", Proj("lonlat"));
     D = O.get<Datum>("range_datum", Datum("wgs84"));
     lon0 = O.get<double>("range_lon0", 0);
+    range = O.get<dRect>("range");
+    action = O.get<string>("range_action");
 
-    skip_cnv   = mk_cnv_and_range(O, "skip",   skip_range);
-    crop_cnv   = mk_cnv_and_range(O, "crop",   crop_range);
-    select_cnv = mk_cnv_and_range(O, "select", select_range);
-    cnt_o=0; cnt_l=0; cnt_p=0;
-  }
-  ~RangeCutter(){
-    if (skip_cnv)   delete skip_cnv;
-    if (crop_cnv)   delete crop_cnv;
-    if (select_cnv) delete select_cnv;
-  }
+    cnv=NULL;
+    if (action == "") return;
 
-  convs::pt2pt *
-  mk_cnv_and_range(const Options & O, const string & prefix, dRect & range){
-
-    if (O.exists(prefix+"_nom")){
-      range=convs::nom_range(O.get<string>(prefix+"_nom"));
-      return new convs::pt2pt(
+    if (O.exists("range_nom")){
+      range=convs::nom_range(O.get<string>("range_nom"));
+      cnv = new convs::pt2pt(
           Datum("wgs84"), Proj("lonlat"), Options(),
           Datum("pulkovo"), Proj("lonlat"), Options());
     }
-    if (O.exists(prefix+"_range")){
+    else {
       Options ProjO;
       ProjO.put<double>("lon0", lon0);
-
-      range = O.get<dRect>(prefix+"_range");
       if (range.x>=1e6){
         double lon0p = convs::lon_pref2lon0(range.x);
         range.x = convs::lon_delprefix(range.x);
         ProjO.put<double>("lon0", lon0p);;
       }
       if (!range.empty())
-        return new convs::pt2pt(
+        cnv = new convs::pt2pt(
           Datum("wgs84"), Proj("lonlat"), Options(), D, P, ProjO);
     }
-    return NULL;
+    if ((cnv==NULL) && (action!="")){
+      std::cerr << "warning: can't set geo conversion for range_action="
+                << action << "\n";
+      std::cerr << "         skipping action\n";
+    }
+    cnt_o=0; cnt_l=0; cnt_p=0;
   }
+  ~RangeCutter(){
+    if (cnv)   delete cnv;
+  }
+
 
   void
   process(object & o){
+    if ((cnv==NULL) || (action == "")) return;
     dMultiLine::iterator l = o.begin();
     while (l != o.end()){
 
-      if (l->size() > 0){
+      if (l->size()>0){
+
         bool closed = ( (*l)[0] == (*l)[l->size()-1] );
-        if (skip_cnv){
-          dLine lc = skip_cnv->line_frw(*l);
-          rect_crop(skip_range, lc, closed);
+        dLine lc = cnv->line_frw(*l);
+        rect_crop(range, lc, closed);
+
+        if (action == "skip"){
           if (lc.size()!=0) l->clear();
         }
-        if (select_cnv){
-          dLine lc = select_cnv->line_frw(*l);
-          rect_crop(select_range, lc, closed);
+        else if (action == "select"){
           if (lc.size()==0) l->clear();
         }
-        if (crop_cnv){
-          dLine lc = crop_cnv->line_frw(*l);
-          rect_crop(crop_range, lc, closed);
-          *l = crop_cnv->line_bck(lc);
+        else if (action == "crop"){
+          *l = cnv->line_bck(lc);
         }
       }
       if (l->size()==0){
         l=o.erase(l);
       }
       else {
-        show_range = rect_bounding_box(show_range, l->range());
         cnt_l++;
         cnt_p+=l->size();
         l++;
@@ -141,7 +135,6 @@ struct RangeCutter{
     cout << "  objects: " << cnt_o << "\n";
     cout << "  lines:   " << cnt_l << "\n";
     cout << "  points:  " << cnt_p << "\n";
-    cout << "  bbox:    " << show_range << "\n";
     cout << "  sources:";
     for (set<string>::const_iterator i=sources.begin(); i!=sources.end(); i++)
       cout << " " << *i;

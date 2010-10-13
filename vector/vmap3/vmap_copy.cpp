@@ -31,16 +31,14 @@ void usage(){
      << "    --skip_type <int value>     -- copy all objects but ones with given type\n"
      << "    --skip_all                  -- don't read any objects, only labels\n"
      << "\n"
-     << "    --skip_range <geometry>     -- skip objects touching range\n"
-     << "    --select_range <geometry>   -- select objects touching range\n"
-     << "    --crop_range <geometry>     -- crop objects to the range\n"
-     << "    --skip_nom <string>         -- \n"
-     << "    --select_nom <string>       -- \n"
-     << "    --crop_nom <string>         -- \n"
-     << "    --range_datum <string>      -- set datum for range settings (wgs84, pulkovo)\n"
-     << "    --range_proj <string>       -- set proj for range settings (lonlat, tmerc)\n"
-     << "    --range_lon0 <double>       -- set lon0tmerc proj in range settings\n"
-     << "    (lon0 can be overriden by prefix in range x coord)\n"
+     << "    --range_datum <string>      -- set datum for range setting (wgs84, pulkovo, ...)\n"
+     << "    --range_proj <string>       -- set proj for range setting (lonlat, tmerc, ...)\n"
+     << "    --range_lon0 <double>       -- set lon0 for tmerc proj in range settings\n"
+     << "    --range <geometry>          -- set range\n"
+     << "                                   (prefix in x coord can override lon0)\n"
+     << "    --range_nom <name>          -- set nomenclature range\n"
+     << "                                   (overrides range, range_datum, range_proj)\n"
+     << "    --range_action <action>     -- select actions to do with range (crop, skip, select)\n"
      << "\n"
      << "    -v, --verbose               -- be verbose\n"
      << "\n"
@@ -81,15 +79,12 @@ static struct option in_options[] = {
   {"skip_type",             1, 0, 0},
   {"skip_all",              0, 0, 0},
 
-  {"skip_range",            1, 0, 0},
-  {"select_range",          1, 0, 0},
-  {"crop_range",            1, 0, 0},
-  {"skip_nom",              1, 0, 0},
-  {"select_nom",            1, 0, 0},
-  {"crop_nom",              1, 0, 0},
   {"range_datum",           1, 0, 0},
   {"range_proj",            1, 0, 0},
   {"range_lon0",            1, 0, 0},
+  {"range",                 1, 0, 0},
+  {"range_nom",             1, 0, 0},
+  {"range_action",          1, 0, 0},
 
   {"out",         0, 0 , 'o'},
   {"verbose",     0, 0 , 'v'},
