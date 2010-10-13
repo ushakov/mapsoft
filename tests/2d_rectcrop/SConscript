@@ -1,0 +1,4 @@
+Import('env')
+
+libs=Split("fig utils options 2d")
+env.Program("rectcrop.cpp",  LIBS=[libs])
