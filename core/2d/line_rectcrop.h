@@ -7,7 +7,10 @@
 
 /** Обрезание линии или многоугольника line по границам прямоугольника cutter.
  Для многоугольника (closed=true) чуть по-другому обрабатывается отрезок от
- первой точки до последней */
+ первой точки до последней.
+ Одна из основных особенностей - при обрезке не увеличивается количество
+ объектов.
+ */
 
 template <typename T>
 bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
@@ -18,7 +21,6 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
   T yh=cutter.y+cutter.h;
 
   if (line.size()<3) closed=false;
-  Line<T> e; // for stable end iterator
 
   bool res=false;
 
@@ -36,34 +38,37 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
     while (p!=line.end()){
       // Предыдущая и следующая точки
       // Если их нет - они устанавливаются в line.end()
-      typename Line<T>::iterator pp = p, np = p;
+      typename Line<T>::iterator ppi = p, npi = p;
 
-      if (skip) pp=line.end();
+      if (skip) ppi=line.end();
       else {
         if (p==line.begin()){
-          pp = line.end();
-          if (closed) pp--;
+          ppi = line.end();
+          if (closed) ppi--;
         }
-        else pp--;
+        else ppi--;
       }
 
-      np++;
-      if ((np==line.end()) && closed) np=line.begin();
+      npi++;
+      if ((npi==line.end()) && closed)
+        npi=line.begin();
 
-      // stable iterators
-      if (pp==line.end()) pp=e.end();
-      if (np==line.end()) np=e.end();
+      bool pp_e = (ppi==line.end());
+      bool np_e = (npi==line.end());
+      Point<T> pp,np;
+      if (ppi!=line.end()) pp=*ppi;
+      if (npi!=line.end()) np=*npi;
 
       // для четырех сторон:
       if ((i==0) && (p->x>xh)){
-        if ((pp!=e.end()) && (pp->x < xh)){
+        if (!pp_e && (pp.x < xh)){
            p = line.insert(p, Point<T>(xh, p->y -
-            ((p->y - pp->y)*(p->x - xh))/(p->x - pp->x) ));
+            ((p->y - pp.y)*(p->x - xh))/(p->x - pp.x) ));
            p++;
         }
-        if ((np!=e.end()) && (np->x < xh)){
+        if (!np_e && (np.x < xh)){
            p = line.insert(p, Point<T>(xh, p->y -
-            ((p->y - np->y)*(p->x - xh))/(p->x - np->x) ));
+            ((p->y - np.y)*(p->x - xh))/(p->x - np.x) ));
            p++;
         }
         p=line.erase(p);
@@ -73,14 +78,14 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
       }
 
       if ((i==1) && (p->x<xl)){
-        if ((pp!=e.end()) && (pp->x > xl)){
+        if (!pp_e && (pp.x > xl)){
            p = line.insert(p, Point<T>(xl, p->y -
-            ((p->y - pp->y)*(p->x - xl))/(p->x - pp->x) ));
+            ((p->y - pp.y)*(p->x - xl))/(p->x - pp.x) ));
            p++;
         }
-        if ((np!=e.end()) && (np->x > xl)){
+        if (!np_e && (np.x > xl)){
            p = line.insert(p, Point<T>(xl, p->y -
-            ((p->y - np->y)*(p->x - xl))/(p->x - np->x) ));
+            ((p->y - np.y)*(p->x - xl))/(p->x - np.x) ));
            p++;
         }
         p=line.erase(p);
@@ -90,14 +95,14 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
       }
 
       if ((i==2) && (p->y>yh)){
-        if ((pp!=e.end()) && (pp->y < yh)){
+        if (!pp_e && (pp.y < yh)){
            p = line.insert(p, Point<T>(p->x -
-            ((p->x - pp->x)*(p->y - yh))/(p->y - pp->y), yh));
+            ((p->x - pp.x)*(p->y - yh))/(p->y - pp.y), yh));
            p++;
         }
-        if ((np!=e.end()) && (np->y < yh)){
+        if (!np_e && (np.y < yh)){
            p = line.insert(p, Point<T>(p->x -
-            ((p->x - np->x)*(p->y - yh))/(p->y - np->y), yh));
+            ((p->x - np.x)*(p->y - yh))/(p->y - np.y), yh));
            p++;
         }
         p=line.erase(p);
@@ -107,14 +112,14 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
       }
 
       if ((i==3) && (p->y<yl)){
-        if ((pp!=e.end()) && (pp->y > yl)){
+        if (!pp_e && (pp.y > yl)){
            p = line.insert(p, Point<T>(p->x -
-            ((p->x - pp->x)*(p->y - yl))/(p->y - pp->y), yl));
+            ((p->x - pp.x)*(p->y - yl))/(p->y - pp.y), yl));
            p++;
         }
-        if ((np!=e.end()) && (np->y > yl)){
+        if (!np_e && (np.y > yl)){
            p = line.insert(p, Point<T>(p->x -
-            ((p->x - np->x)*(p->y - yl))/(p->y - np->y), yl));
+            ((p->x - np.x)*(p->y - yl))/(p->y - np.y), yl));
            p++;
         }
         p=line.erase(p);
@@ -129,7 +134,10 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
   return res;
 }
 
-
+// То же, но без добавления новых точек
+// (для обрезки куска карты в надежде, что потом его можно будет вклеить обратно).
+// Выглядит не слишком красиво, так как могут оставаться очень далекие от
+// района обрезки точки (необходимые, чтоб обойти угол).
 template <typename T>
 bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line, bool closed){
 
@@ -139,65 +147,65 @@ bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line, bool closed){
   T yh=cutter.y+cutter.h;
 
   if (line.size()<3) closed=false;
-  Line<T> e; // for stable end iterator
 
   bool res=false;
 
-  // for eny Rect side
-  for (int i=0; i<4; i++){
+  // Идем по линии.
+  // Если точка и ее соседи выходят за одну из сторон
+  // прямоугольника - удаляем точку
 
-    typename Line<T>::iterator p=line.begin();
-    while (p!=line.end()){
-      // prev and next points
-      typename Line<T>::iterator pp = p, np = p;
+  typename Line<T>::iterator p=line.begin();
+  while (p!=line.end()){
 
-      if (p==line.begin()){
-        pp = line.end();
-        if (closed) pp--;
-      }
-      else pp--;
+    // Предыдущая и следующая точки
+    // Если их нет - они устанавливаются в line.end()
+    typename Line<T>::iterator ppi = p, npi = p;
 
-      np++;
-      if ((np==line.end()) && closed) np=line.begin();
-
-      // stable iterators
-      if (pp==line.end()) pp=e.end();
-      if (np==line.end()) np=e.end();
-
-      if ((i==0) && (p->x > xh)){
-        if (((pp==e.end()) || (pp->x > xh)) &&
-            ((np==e.end()) || (np->x > xh))){
-          p=line.erase(p);
-          res=true;
-          continue;
-        }
-      }
-      if ((i==1) && (p->x < xl)){
-        if (((pp==e.end()) || (pp->x < xl)) &&
-            ((np==e.end()) || (np->x < xl))){
-          p=line.erase(p);
-          res=true;
-          continue;
-        }
-      }
-      if ((i==2) && (p->y > yh)){
-        if (((pp==e.end()) || (pp->y > yh)) &&
-            ((np==e.end()) || (np->y > yh))){
-          p=line.erase(p);
-          res=true;
-          continue;
-        }
-      }
-      if ((i==3) && (p->y < yl)){
-        if (((pp==e.end()) || (pp->y < yl)) &&
-            ((np==e.end()) || (np->y < yl))){
-          p=line.erase(p);
-          res=true;
-          continue;
-        }
-      }
-      p++;
+    if (p==line.begin()){
+      ppi = line.end();
+      if (closed) ppi--;
     }
+    else ppi--;
+
+    npi++;
+    if ((npi==line.end()) && closed)
+      npi=line.begin();
+
+    bool pp_e = (ppi==line.end());
+    bool np_e = (npi==line.end());
+    Point<T> pp,np;
+    if (ppi!=line.end()) pp=*ppi;
+    if (npi!=line.end()) np=*npi;
+
+    if ((p->x > xh) &&
+        (pp_e || (pp.x > xh)) &&
+        (np_e || (np.x > xh))){
+      p=line.erase(p);
+      res=true;
+      continue;
+    }
+    if ((p->x < xl) &&
+        (pp_e || (pp.x < xl)) &&
+        (np_e || (np.x < xl))){
+      p=line.erase(p);
+      res=true;
+      continue;
+    }
+    if ((p->y > yh) &&
+        (pp_e || (pp.y > yh)) &&
+        (np_e || (np.y > yh))){
+      p=line.erase(p);
+      res=true;
+      continue;
+    }
+    if ((p->y < yl) &&
+        (pp_e || (pp.y < yl)) &&
+        (np_e || (np.y < yl))){
+      p=line.erase(p);
+      res=true;
+      continue;
+    }
+    p++;
   }
   return res;
 }
