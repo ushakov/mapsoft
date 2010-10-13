@@ -1,28 +1,12 @@
 import os
 
 subdirs = Split ("""
-		core
-		core/2d
-		core/fig
-		core/geo
-		core/geo_io
-		core/jeeps
-		core/layers
-		core/loaders
-		core/utils
-		core/mp
-		core/gred
-		core/gred_tests
-		core/options
-		core/vmap
-
+                core
 		tests
                 misc
 		programs
 		viewer
-		vector/libzn-utils
-		vector/vmap3
-		vector/data
+		vector
 		""")
 
 #SetOption('implicit_cache', 1)
@@ -57,14 +41,21 @@ if ARGUMENTS.get('gprofile', 0):
 if ARGUMENTS.get('gheapcheck', 0):
 	env.Append (LINKFLAGS='-ltcmalloc')
 
-env.Append (LIBPATH = map(lambda(s): "#"+s, subdirs))
-env.Append (CPPPATH = "#core")
+env.Prepend(LIBPATH=".")
 
 Export('env')
 
-env_gtk = env.Clone()
+## cairo env
+env_cairo = env.Clone()
+env_cairo.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
+Export('env_cairo')
+
+## cairo+gtk env
+env_gtk = env_cairo.Clone()
 env_gtk.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
 Export('env_gtk')
 
-SConscript (map (lambda(s): s+"/SConscript", subdirs))
+env_list=[env, env_cairo, env_gtk]
+Export('env_list')
 
+SConscript (map (lambda(s): s+"/SConscript", subdirs))

@@ -1,6 +1,25 @@
 import distutils.sysconfig
-
 Import ('env')
+
+subdirs = Split ("""
+    2d
+    fig
+    geo
+    geo_io
+    gred
+    gred_tests
+    jeeps
+    loaders
+    mp
+    options
+    utils
+    vmap
+""")
+
+# add LIBPATH and CPPPATH to all global env!
+Import('env_list')
+map(lambda(e):  e.Append(LIBPATH = map(lambda(s): "#core/"+s, subdirs)), env_list)
+map(lambda(e):  e.Append (CPPPATH = "#core"), env_list)
 
 #swig = env.Clone()
 #swig.Append(CPPPATH = [distutils.sysconfig.get_python_inc()])
@@ -8,3 +27,5 @@ Import ('env')
 #swig.Replace(SHLIBPREFIX = "")
 #swig.Append(LIBS = Split("geo_io geo 2d fig utils jeeps loaders tiff jpeg png curl"))
 #swig.SharedLibrary("_core.so", ["swig.i"])
+
+SConscript (map (lambda(s): s+"/SConscript", subdirs))

@@ -1,16 +1,15 @@
-Import ('env')
 
 mapsoft_libs = Split ("vmap geo_io geo loaders jeeps fig mp options utils 2d")
 other_libs   = Split ("curl usb tiff jpeg png yaml proj")
 
-env1 = env.Clone()
-env1.Prepend(LIBS=[mapsoft_libs,other_libs])
-env1.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
+Import ('env_cairo')
+e = env_cairo.Clone()
+e.Prepend(LIBS=[mapsoft_libs,other_libs])
 
-env1.Program('mapsoft_vmap.cpp')
-env1.Program('fig2pnm.cpp')
-env1.Program('get_print.cpp')
-env1.Program('get_print_mmb.cpp')
-env1.Program('make_map_gk.cpp')
-env1.Program('make_nom.cpp')
+e.Program('mapsoft_vmap.cpp')
+e.Program('fig2pnm.cpp')
+e.Program('get_print.cpp')
+e.Program('get_print_mmb.cpp')
+e.Program('make_map_gk.cpp')
+e.Program('make_nom.cpp')
 

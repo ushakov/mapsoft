@@ -1,0 +1,6 @@
+subdirs = Split ("""
+    libzn-utils
+    vmap3
+    data
+""")
+SConscript (map (lambda(s): s+"/SConscript", subdirs))
