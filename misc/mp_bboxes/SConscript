@@ -1,0 +1,10 @@
+mapsoft_libs=Split("mp utils 2d")
+
+Import('env')
+e=env.Clone()
+e.Prepend(LIBS=[mapsoft_libs])
+
+e.Program(["mp_bboxes.cpp"])
+e.Program('mp_bboxes2.cpp')
+
+

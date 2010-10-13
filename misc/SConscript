@@ -2,7 +2,11 @@ Import ('env')
 
 subdirs = Split ("""
   bigmap
+  fig_mod
+  mp_bboxes
+  ps
   tim
+  vmap2
   """)
 
 SConscript (map (lambda(s): s+"/SConscript", subdirs))
