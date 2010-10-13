@@ -7,7 +7,6 @@ subdirs = Split ("""
     geo
     geo_io
     gred
-    gred_tests
     jeeps
     loaders
     mp

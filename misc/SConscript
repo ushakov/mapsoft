@@ -3,6 +3,7 @@ Import ('env')
 subdirs = Split ("""
   bigmap
   fig_mod
+  gred_tests
   mp_bboxes
   ps
   tim
