@@ -1,13 +1,19 @@
 #ifndef LINE_DIST_H
 #define LINE_DIST_H
 
-// линия параметризуется длиной
-// можно получать точки через некоторые интервалы
-// сделано для рисования условных обозначений - всяких сложных пунктиров,
-// газопроводов, лэп...
-
 #include "line.h"
 
+///\addtogroup lib2d
+///@{
+///\defgroup line_dist
+///@{
+
+/**
+ линия параметризуется длиной
+ можно получать точки через некоторые интервалы
+ сделано для рисования условных обозначений - всяких сложных пунктиров,
+ газопроводов, лэп...
+*/
 template <typename T>
 class LineDist{
 
@@ -35,31 +41,31 @@ class LineDist{
     }
 
 
-  // длина всей линии
+  /// длина всей линии
   double length() const {return ls[ls.size()-1];}
 
-  // текущее расстояние от начала
+  /// текущее расстояние от начала
   double dist() const {return current_l;}
 
-  // текущая точка 
+  /// текущая точка 
   dPoint pt() const{
     if (is_end()) return line[current_n];
     else return (line[current_n] + (line[current_n+1]-line[current_n]) *  
                  (current_l-ls[current_n])/(ls[current_n+1]-ls[current_n]) );
   }
-  // единичный касаельный вектор 
+  /// единичный касаельный вектор 
   dPoint tang() const{
     if (is_end()) return dPoint(1,0);
     return pnorm(line[current_n+1]-line[current_n]);
   }
-  // единичный перпендикулярный вектор 
+  /// единичный перпендикулярный вектор 
   dPoint norm() const{
     dPoint ret = tang();
     return dPoint(-ret.y, ret.x);
   }
 
-  // вырезать из ломеной кусок от текущей точки, длиной dl>0
-  // сдвинуть текущую точку
+  /// вырезать из ломеной кусок от текущей точки, длиной dl>0
+  /// сдвинуть текущую точку
   Line<T>  get_points(double dl){
     Line<T> ret;
     if (dl <= 0) return ret;
@@ -84,10 +90,10 @@ class LineDist{
     return ret;
   }
 
-  // сдвинуть текущую точку в начало
+  /// сдвинуть текущую точку в начало
   void move_begin(){current_l = 0; current_n=0;}
 
-  // подвинуть текущую точку вперед на dl
+  /// подвинуть текущую точку вперед на dl
   void move_frw(double dl){
 
     if (dl < 0) {move_bck(-dl); return;}
@@ -100,7 +106,7 @@ class LineDist{
     current_n--;
     current_l=l;
   }
-  // подвинуть текущую точку назад на dl
+  /// подвинуть текущую точку назад на dl
   void move_bck(double dl){
     if (dl < 0) {move_frw(-dl); return;}
     if (dl == 0) return;
@@ -111,13 +117,13 @@ class LineDist{
     }
     current_l=l;    
   }
-  // подвинуть текущую точку вперед до ближайшего узла
+  /// подвинуть текущую точку вперед до ближайшего узла
   void move_frw_to_node(){
     if (current_n == ls.size()-1) return;
     current_n++;
     current_l=ls[current_n];
   }
-  // подвинуть текущую точку назад до ближайшего узла
+  /// подвинуть текущую точку назад до ближайшего узла
   void move_bck_to_node(){
     if ((current_l==ls[current_n]) && (current_n!=0)) current_n--;
     current_l=ls[current_n];

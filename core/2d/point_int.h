@@ -5,6 +5,11 @@
 #include "point.h"
 #include "line.h"
 
+///\addtogroup lib2d
+///@{
+///\defgroup point_int
+///@{
+
 /// Доступ к 8 соседним точкам
 iPoint adjacent(const Point<int> &p, const int dir);
 

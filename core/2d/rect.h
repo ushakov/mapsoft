@@ -6,8 +6,12 @@
 #include <iostream> // for std::cerr << warning 
 #include "point.h"
 
-/// 2-d rectangle
+///\addtogroup lib2d
+///@{
+///\defgroup rect
+///@{
 
+/// 2-d rectangle
 template <typename T>
 class Rect
 #ifndef SWIG

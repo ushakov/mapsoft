@@ -5,8 +5,12 @@
 #include <ios>   // for << and >> operators
 #include <cmath> // for rint
 
-/// 2-d point
+///\addtogroup lib2d
+///@{
+///\defgroup point
+///@{
 
+/// 2-d point
 template <typename T>
 struct Point
 #ifndef SWIG

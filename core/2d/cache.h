@@ -7,12 +7,18 @@
 #include <cassert>
 #include <iostream>
 
+///\addtogroup lib2d
+///@{
+///\defgroup cache
+///\brief Cache class.
+///Full description of test class
+///@{
+
 /** Кэш объектов типа V, упорядоченных по ключу типа K.
   директивы компилятору:
   DEBUG_CACHE      -- выдавать на stderr добавления/удаления элементов
   DEBUG_CACHE_GET  -- выдавать обращения к кэшу
 */
-
 template <typename K, typename V> class CacheIterator;
 
 template <typename K, typename V>

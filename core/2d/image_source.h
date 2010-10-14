@@ -6,9 +6,12 @@
 #include <cassert>
 #include "image.h"
 
+///\addtogroup lib2d
+///@{
+///\defgroup image_source
+///@{
 
-// ImageSource<T> interface -- source for image loader
-
+/// ImageSource<T> interface -- source for image loader
 template <typename T>
 struct ImageSource{
 

@@ -1,7 +1,6 @@
 #include "line_utils.h"
 #include "point_conv.h"
 
-
 void
 Conv::line_frw_p2p(dLine & l) const {
   for (dLine::iterator i=l.begin(); i!=l.end(); i++) frw(*i);

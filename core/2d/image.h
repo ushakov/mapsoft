@@ -10,10 +10,14 @@
 #endif
 
 
-// Image<T> -- 2-d array of T elements.
-// - Image data is not duplicated at copying.
-// - Compile with -O1 option to increase speed
+///\addtogroup lib2d
+///@{
+///\defgroup image
+///@{
 
+/// 2-d array of T elements.
+/// - Image data is not duplicated at copying.
+/// - Compile with -O1 option to increase speed
 template <typename T>
 struct Image{
 
@@ -24,7 +28,7 @@ struct Image{
   private:
     int *refcounter;
 
-    // create image
+    /// create image
     void create(int _w, int _h){
       w=_w; h=_h;
       assert(w>=0);
@@ -41,7 +45,7 @@ struct Image{
 #endif
     }
 
-    // copy image
+    /// copy image
     void copy(const Image & other){
       w=other.w; h=other.h;
       data = other.data;
@@ -55,7 +59,7 @@ struct Image{
 #endif
     }
 
-    // destroy image
+    /// destroy image
     void destroy(void){
 #ifdef DEBUG_IMAGE
       std::cerr << "Image destructor:" 
@@ -239,9 +243,13 @@ struct Image{
 #endif  // SWIG
 };
 
+/// \relates Image
 typedef Image<double> dImage;
-typedef Image<int>    iImage;
 
+/// \relates Image
+typedef Image<int> iImage;
+
+/// \relates Image
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Image<T> & i)
 {

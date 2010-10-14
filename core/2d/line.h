@@ -10,6 +10,11 @@
 #include "point.h"
 #include "rect.h"
 
+///\addtogroup lib2d
+///@{
+///\defgroup line
+///@{
+
 
 /// 2d line:  std::vector<Point<T> >.
 template <typename T>

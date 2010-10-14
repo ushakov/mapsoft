@@ -3,6 +3,11 @@
 
 #include "line.h"
 
+///\addtogroup lib2d
+///@{
+///\defgroup line_utils
+///@{
+
 //преобразовать прямоугольник в линию из 4 точек
 template<typename T>
 Line<T> rect2line(const Rect<T> & r){

@@ -4,10 +4,16 @@
 #include "line.h"
 #include "point_cross.h"
 
+///\addtogroup lib2d
+///@{
+///\defgroup line_polycrop
+///@{
+
+
 /// обрезание линий по многоугольнику. 
 /// для резки многоугольников работает не всегда, треьует большого переписывания :(
 
-// лежит ли точка в многоугольнике poly
+/// лежит ли точка в многоугольнике poly
 template<typename T>
 bool test_pt (const dPoint & pt, const T & poly){
   double a = 0;
@@ -28,7 +34,7 @@ bool test_pt (const dPoint & pt, const T & poly){
   return (fabs(a)>M_PI);
 }
 
-// обрезать все линии, входящие/не входящие в многоугольник cutter и добавить их в lines1
+/// обрезать все линии, входящие/не входящие в многоугольник cutter и добавить их в lines1
 template<typename T>
 void crop_lines(std::vector<T> & lines,
                 std::vector<T> & lines1,

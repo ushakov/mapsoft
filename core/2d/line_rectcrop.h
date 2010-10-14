@@ -4,8 +4,13 @@
 #include "line.h"
 #include "rect.h"
 
+///\addtogroup lib2d
+///@{
+///\defgroup rectcrop
+///@{
 
 /**
+\brief Crop a line by a rectangle; line connectivity is kept but extra segments cat appear on crop bounds.
   Обрезание линии или многоугольника line по границам прямоугольника cutter.
   Для многоугольника (closed=true) чуть по-другому обрабатывается отрезок от
   первой точки до последней.
@@ -289,4 +294,3 @@ bool rect_crop_test(const Rect<T> & cutter, const Line<T> & line, bool closed){
 }
 
 #endif
-

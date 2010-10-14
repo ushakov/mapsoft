@@ -8,6 +8,9 @@
 
 #include <boost/lexical_cast.hpp>
 
+///\addtogroup options
+///@{
+
 /** Хранилище для объектов произвольного типа с ключом типа string 
   Удобно для хранения разных параметров типа "count=10 width=0.5
   time=10:20:00 text=aaa" Для типов данных, хранящихся в Options
@@ -15,7 +18,6 @@
   аргументов (чтоб к ним можно было применять  boost::lexical_cast для
   преобразования в std::string и обратно)
 */
-
 struct Options : std::map<std::string,std::string>{
     const static char * warn_unused_message;
 
@@ -63,8 +65,11 @@ struct Options : std::map<std::string,std::string>{
 
 };
 
+/// \relates Options
 /** Операторы вывода-вывода для Options */
 std::ostream & operator<< (std::ostream & s, const Options & o);
+
+/// \relates Options
 std::istream & operator>> (std::istream & s, Options & o);
 
 #endif

@@ -7,9 +7,12 @@ cstdlib cstdio  cassert cmath cstring cerrno ctime
 math.h stdarg.h stddef.h stdio.h stdlib.h string.h time.h limits.h unistd.h
 sys\/types.h sys\/stat.h sys\/time.h getopt.h assert.h errno.h fcntl.h
 "
+showboost=
 
 std=$(printf "%s" "$std" | tr '\n' ' ' | sed 's/[[:space:]]/\\|/g')
-
+[ -z "$showboost" ] &&
+  showboost="/<\(boost\/[^\.\/]*\).*>/d" ||
+  showboost="s/<\(boost\/[^\.\/]*\).*>/  \1/"
 
 dirs="$(find . -maxdepth 1 -type d)"
 for d in $dirs; do
@@ -25,7 +28,7 @@ for d in $dirs; do
 
       s/\"\([^/]\+\)\/[^/]\+\"/\1/
 
-      s/<\(boost\/[^\.\/]*\).*>/  \1/
+      $showboost
 
       s/<proj_api.h>/  libproj/
       s/<yaml.h>/  libyaml/
