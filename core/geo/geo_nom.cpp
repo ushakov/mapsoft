@@ -3,8 +3,8 @@
 #include <iostream>
 #include <iomanip>
 
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
 
 
 namespace convs{
@@ -13,7 +13,7 @@ using namespace std;
 
 // по названию листа возвращает диапазон геодезических координат в СК pulkovo-42
 dRect nom_range(const string & key){
-    using namespace boost::spirit;
+    using namespace boost::spirit::classic;
 
     string a  = " ";
     int  b  = 0;

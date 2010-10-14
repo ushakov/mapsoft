@@ -1,16 +1,16 @@
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
-#include <boost/spirit/actor/insert_at_actor.hpp>
-#include <boost/spirit/actor/clear_actor.hpp>
-#include <boost/spirit/actor/erase_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
+#include <boost/spirit/include/classic_insert_at_actor.hpp>
+#include <boost/spirit/include/classic_clear_actor.hpp>
+#include <boost/spirit/include/classic_erase_actor.hpp>
 
 #include "options.h"
 
 #include <ios>
 
 
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 const char * Options::warn_unused_message = "unknown option: ";
 

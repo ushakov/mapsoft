@@ -15,8 +15,8 @@
 #include "2d/line_utils.h"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
 
 namespace zn{
 

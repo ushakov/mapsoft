@@ -1,15 +1,15 @@
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
-#include <boost/spirit/actor/insert_at_actor.hpp>
-#include <boost/spirit/actor/clear_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
+#include <boost/spirit/include/classic_insert_at_actor.hpp>
+#include <boost/spirit/include/classic_clear_actor.hpp>
 
 #include "fig_mask.h"
 
 namespace fig {
 
 using namespace std;
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 // to protect from fig_io.cpp
 namespace mask {

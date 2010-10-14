@@ -1,7 +1,7 @@
 #include "utils/spirit_utils.h"
-#include <boost/spirit/actor/assign_actor.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
-#include <boost/spirit/actor/clear_actor.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
+#include <boost/spirit/include/classic_clear_actor.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -20,7 +20,7 @@
 
 
 namespace kml {
-    using namespace boost::spirit;
+    using namespace boost::spirit::classic;
     
     // Записывает в KML-файл треки и точки
     // Не записывает карты! (хм, а может, надо?)

@@ -1,12 +1,12 @@
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
 
 #include "mp_mask.h"
 
 namespace mp {
 
 using namespace std;
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 // Построить mp-объект на основе obj, подставив все не-звездочки из маски
 mp_object make_object(const mp_object & obj, const std::string & mask){

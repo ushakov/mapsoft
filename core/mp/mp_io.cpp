@@ -1,9 +1,9 @@
 #include "utils/spirit_utils.h"
-#include <boost/spirit/actor/assign_actor.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
-#include <boost/spirit/actor/insert_at_actor.hpp>
-#include <boost/spirit/actor/clear_actor.hpp>
-#include <boost/spirit/actor/erase_actor.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
+#include <boost/spirit/include/classic_insert_at_actor.hpp>
+#include <boost/spirit/include/classic_clear_actor.hpp>
+#include <boost/spirit/include/classic_erase_actor.hpp>
 
 #include <iomanip>
 #include <fstream>
@@ -15,7 +15,7 @@
 namespace mp {
 
 using namespace std;
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 bool read(const char* filename, mp_world & world, const Options & opts){
 
