@@ -11,8 +11,9 @@ namespace convs{
 
 using namespace std;
 
-// по названию листа возвращает диапазон геодезических координат в СК pulkovo-42
-dRect nom_range(const string & key){
+// п©п╬ п╫п╟п╥п╡п╟п╫п╦я▌ п╩п╦я│я┌п╟ п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ п╢п╦п╟п©п╟п╥п╬п╫ пЁп╣п╬п╢п╣п╥п╦я┤п╣я│п╨п╦я┘ п╨п╬п╬я─п╢п╦п╫п╟я┌ п╡ п║п  pulkovo-42
+dRect
+nom_range(const string & key){
     using namespace boost::spirit::classic;
 
     string a  = " ";
@@ -24,7 +25,7 @@ dRect nom_range(const string & key){
     int m=1;
     string key1 = key+" ";
 
-    // поймем номер листа
+    // п©п╬п╧п╪п╣п╪ п╫п╬п╪п╣я─ п╩п╦я│я┌п╟
 
     rule<> ndigit_p = anychar_p-digit_p;
     rule<> dash_p = ch_p('-')||'_';
@@ -117,8 +118,9 @@ dRect nom_range(const string & key){
     return dRect(dPoint(lon1,lat1), Point<double>(lon2,lat2));
 }
 
-// по координатам в СК pulkovo-42 возвращает название листа
-string nom_name(const dPoint & p, int sc){
+// п©п╬ п╨п╬п╬я─п╢п╦п╫п╟я┌п╟п╪ п╡ п║п  pulkovo-42 п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ п╫п╟п╥п╡п╟п╫п╦п╣ п╩п╦я│я┌п╟
+string
+nom_name(const dPoint & p, int sc){
     if ((p.x <-180) || (p.x>180) || (p.y<0) || (p.y>90)){
       cerr << "nom_name: point coordinates out or range: " << p << "\n";
       exit(1);
