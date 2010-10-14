@@ -244,7 +244,7 @@ int crop(const string & mode, int argc, char** argv){
   } else {
     proj     = "lonlat";
     datum    = "pulkovo";
-    cutter=convs::nom_range(argv[0]);
+    cutter=convs::nom_to_range(argv[0]);
     file     = argv[1];
   }
 

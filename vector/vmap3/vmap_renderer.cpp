@@ -36,7 +36,7 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_):
   fs1 = dpi/89.0;  // standard font size
 
   // try find range from name
-  dRect nom_r = convs::nom_range(W.name);
+  dRect nom_r = convs::nom_to_range(W.name);
   if (!nom_r.empty()){
     convs::pt2pt cnv_p(Datum("pulk"), Proj("lonlat"), Options(),
                        Datum("wgs84"), Proj("lonlat"), Options());

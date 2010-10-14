@@ -88,7 +88,7 @@ struct RangeCutter{
     }
 
     if (O.exists("range_nom")){
-      range=convs::nom_range(O.get<string>("range_nom"));
+      range=convs::nom_to_range(O.get<string>("range_nom"));
       cnv = new convs::pt2pt(
           Datum("wgs84"), Proj("lonlat"), Options(),
           Datum("pulkovo"), Proj("lonlat"), Options());

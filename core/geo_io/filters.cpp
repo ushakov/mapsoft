@@ -14,7 +14,7 @@ void map_nom_brd(geo_data & world){
   vector<g_map>::iterator i;
   for (i = world.maps.begin(); i!=world.maps.end(); i++){
 
-    dRect r = convs::nom_range(i->comm);
+    dRect r = convs::nom_to_range(i->comm);
     if (r.empty()) return;
     double lon1 = r.x;
     double lat1 = r.y;

@@ -1,0 +1,4 @@
+Import('env')
+
+libs=Split("geo 2d")
+env.Program("geo_nom_test.cpp",  LIBS=[libs])

@@ -53,7 +53,7 @@ main(int argc, char** argv){
 
 
 // определим диапазон карты в координатах lonlat
-  dRect r0 = convs::nom_range(map_name);
+  dRect r0 = convs::nom_to_range(map_name);
 
 // определим осевой меридиан
   double lon0 = (r0.TLC().x + r0.TRC().x)/2;

@@ -1,17 +1,18 @@
 #include "geo/geo_nom.h"
 #include <iostream>
 #include <cstring>
-
-// command line interface to convs::nom_name/nom_range
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace convs;
 
 void usage(){
   cerr << "\n"
-       << "Command line interface to convs::nom_name/nom_range conversions.\n"
-       << "usage: echo <points> | convs_nom -n <rscale>\n"
-       << "       echo <names>  | convs_nom -r\n"
+       << "Map nomenclature conversions.\n"
+       << "usage: convs_nom -p <point> <rscale>\n"
+       << "       convs_nom -r <range> <rscale>\n"
+       << "       convs_nom -n <name>\n"
+       << "       convs_nom -s <name> x_shift y_shift\n"
        << "\n"
   ;
   exit(1);
@@ -19,19 +20,31 @@ void usage(){
 
 int main(int argc, char** argv){
 
-  if ((argc == 3) && (strcmp(argv[1], "-n") == 0)){
-    while (!cin.eof()){
-      dPoint p;
-      cin >> p;
-      cout << nom_name(p, atoi(argv[2])) << "\n";
-    }
+  if ((argc == 4) && (strcmp(argv[1], "-p") == 0)){
+    string name = pt_to_nom(
+        boost::lexical_cast<dPoint>(argv[2]),
+        boost::lexical_cast<double>(argv[3]) );
+    cout << name << "\n";
+    exit (0);
   }
-  else if ((argc == 2) && (strcmp(argv[1], "-r") == 0)){
-    while (!cin.eof()){
-      string s;
-      cin >> s;
-      if (s!="") cout << nom_range(s) << "\n";
+  if ((argc == 4) && (strcmp(argv[1], "-r") == 0)){
+    vector<string> names = range_to_nomlist(
+        boost::lexical_cast<dRect>(argv[2]),
+        boost::lexical_cast<double>(argv[3]) );
+    for (vector<string>::iterator i=names.begin(); i!=names.end(); i++){
+      cout << *i << "\n";
     }
+    exit (0);
   }
-  else usage();
+  else if ((argc == 3) && (strcmp(argv[1], "-n") == 0)){
+    cout << nom_to_range(argv[2]) << "\n";
+    exit (0);
+  }
+  else if ((argc == 5) && (strcmp(argv[1], "-s") == 0)){
+    iPoint sh(boost::lexical_cast<int>(argv[3]),
+              boost::lexical_cast<int>(argv[4]));
+    cout << nom_shift(argv[2], sh) << "\n";
+    exit (0);
+  }
+  usage();
 }

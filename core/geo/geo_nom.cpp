@@ -11,9 +11,8 @@ namespace convs{
 
 using namespace std;
 
-// по названию листа возвращает диапазон геодезических координат в СК pulkovo-42
 dRect
-nom_range(const string & key){
+nom_to_range(const string & key, int & rscale){
     using namespace boost::spirit::classic;
 
     string a  = " ";
@@ -85,7 +84,9 @@ nom_range(const string & key){
     parse(c5.c_str(), uint_p[assign_a(c5i)] >> !dash_p);
     parse(d.c_str(),  uint_p[assign_a(di)] >> !dash_p);
 
+    rscale=1000000;
     if ((di != 0)&&(c1i != 0)){  // 1:50 000
+      rscale=50000;
       col = ((c1i-1)%12)*2 + (di-1)%2;
       row = 23 - ((c1i-1)/12)*2 - (di-1)/2;
       lon1 += col*6.0/24; lon2=lon1+6.0/24;
@@ -93,6 +94,7 @@ nom_range(const string & key){
 //      cerr << "1:50 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c1i != 0){  // 1:100 000
+      rscale=100000;
       col = (c1i-1)%12;
       row = 11 - (c1i-1)/12;
       lon1 += col*6.0/12; lon2=lon1+6.0/12;
@@ -100,6 +102,7 @@ nom_range(const string & key){
 //      cerr << "1:100 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c2i != 0){  // 1:200 000
+      rscale=200000;
       col = (c2i-1)%6;
       row = 5 - (c2i-1)/6;
       lon1 += col*6.0/6; lon2=lon1+6.0/6;
@@ -107,6 +110,7 @@ nom_range(const string & key){
 //      cerr << "1:200 000, col: " << col << ", row: "<< row << '\n';
     }
     else if (c5i != 0){  // 1:500 000
+      rscale=500000;
       col = (c5i-1)%2;
       row = 1 - (c5i-1)/2;
       lon1 += col*6.0/2; lon2=lon1+6.0/2;
@@ -118,11 +122,17 @@ nom_range(const string & key){
     return dRect(dPoint(lon1,lat1), Point<double>(lon2,lat2));
 }
 
+dRect
+nom_to_range(const string & key){
+  int rscale;
+  return nom_to_range(key, rscale);
+}
+
 // по координатам в СК pulkovo-42 возвращает название листа
 string
-nom_name(const dPoint & p, int sc){
+pt_to_nom(const dPoint & p, int sc){
     if ((p.x <-180) || (p.x>180) || (p.y<0) || (p.y>90)){
-      cerr << "nom_name: point coordinates out or range: " << p << "\n";
+      cerr << "pt_to_nom: point coordinates out or range: " << p << "\n";
       exit(1);
     }
 
@@ -139,7 +149,7 @@ nom_name(const dPoint & p, int sc){
       case  200000: n=6;  w=2; break;
       case  100000: n=12; w=3; break;
       case   50000: n=12; w=3; break;
-      default: cerr << "nom_name: wrong scale: " << sc << "\n"; exit(1);
+      default: cerr << "pt_to_nom: wrong scale: " << sc << "\n"; exit(1);
     }
 
     int row=n-1-(int)floor((p.y/4.0-floor(p.y/4))*n);
@@ -182,5 +192,34 @@ nom_name(const dPoint & p, int sc){
 
     return out.str();
 }
+
+string
+nom_shift(const std::string & name, const iPoint & shift){
+  int scale;
+  dRect r=nom_to_range(name, scale);
+  return pt_to_nom(r.CNT() + dPoint(shift.x * r.w, shift.y * r.h), scale);
+}
+
+vector<string>
+range_to_nomlist(const dRect & range, int rscale){
+  vector<string> ret;
+
+  dRect  r;
+  dPoint p=range.TLC();
+
+  while (p.y < range.BRC().y){
+    p.x=range.x;
+    while (p.x < range.BRC().x){
+      string name=pt_to_nom(p, rscale);
+      ret.push_back(name);
+      if (p.x==range.x) // map widths can be different in different rows
+         r = nom_to_range(name);
+      p.x+=r.w;
+    }
+    p.y+=r.h;
+  }
+  return ret;
+}
+
 
 }//namespace
