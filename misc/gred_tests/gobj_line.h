@@ -1,7 +1,7 @@
 #ifndef GOBJ_LINE_H
 #define GOBJ_LINE_H
 
-#include "iface/gobj.h"
+#include "gred/iface/gobj.h"
 #include "2d/line.h"
 #include "2d/cache.h"
 
