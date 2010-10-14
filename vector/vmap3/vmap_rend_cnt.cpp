@@ -44,6 +44,9 @@ VMAPRenderer::make_cnt(int col, double dist){
           mk_pt=false;
           break;
         }
+	// We scan the field from top to bottom. Therefore we will
+	// never use points that are higher than (current y - dist)
+	// again.
         if (abs(p.y - i->y) > dist) {
           i=points.erase(i);
         }
