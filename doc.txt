@@ -1,0 +1,12 @@
+There is some global information for doxyden documentation.
+
+/**
+\mainpage Mapsoft tools and libraries
+
+\section libs libraries
+- \ref lib2d
+  - \ref point      "Класс Point<T>: точка с двумя координатами типа T."
+  - \ref line       "Класс Line<T>: массив точек."
+  - \ref line_dist  "Класс LineDist: хождение вперед и назад по линии, и получение ее параметров."
+
+*/

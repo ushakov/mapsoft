@@ -28,7 +28,7 @@ main(int argc, char **argv){
   string style=W.opts.get<string>("style", "default");
   zn::zn_conv zconverter(style);
 
-  // для убыстрения делаем два прогона - в первом распихиваем 
+  // для убыстрения делаем два прогона - в первом распихиваем
   // по  отдельным спискам все линейные объекты, к которым мы хотим привязывать точки:
   // ж/д, реки и хребты. Во втором уже делаем собственно преобразование объектов...
 
@@ -60,7 +60,7 @@ main(int argc, char **argv){
     if (i->opts.get("MapType",string()) == "pic") continue;
     if (((i->depth >=30) && (i->depth<50)) ||
         ((i->depth >=200) && (i->depth<400))){
-      if (pass==1) NW.push_back(*i); 
+      if (pass==1) NW.push_back(*i);
       continue;
     }
     // сохраним привязку!
@@ -80,7 +80,7 @@ main(int argc, char **argv){
           (type == 0x10000D)) list_zd.push_back(*i);
       if ((type == 0x100015)||
           (type == 0x100018)||
-          (type == 0x10001F)|| 
+          (type == 0x10001F)||
           (type == 0x100026)) list_r.push_back(*i);
       if (type == 0x10000C)   list_h.push_back(*i);
       continue;
@@ -112,8 +112,8 @@ main(int argc, char **argv){
          (type == 0x10002A) || // тропа
          (type == 0x10002B) || // сухая канава
          (type == 0x100032) || // плохой путь
-         (type == 0x100033) || // 
-         (type == 0x100034) || // 
+         (type == 0x100033) || //
+         (type == 0x100034) || //
          (type == 0x100035) || // отличнй путь
          (type == 0x200014) || // редколесье
 //         (type == 0x200015) || // остров леса
@@ -125,7 +125,7 @@ main(int argc, char **argv){
        ) any2xspl(*i, 0.6, fig::cm2fig*0.3);
 
     // отметка уреза воды
-    if (type == 0x1000){ 
+    if (type == 0x1000){
       *i = make_object(*i, "1 3 0 1 5269247 7 57 -1 20 2.000 1 0.000 * * 23 23 * * * *");
       i->center_x = (*i)[0].x;
       i->center_y = (*i)[0].y;
@@ -187,8 +187,8 @@ main(int argc, char **argv){
         (type == 0x10000B)||
         (type == 0x100004)){
       i->pen_color=0;
-      if (type == 0x100001) i->thickness--; 
-      NW.push_back(*i); 
+      if (type == 0x100001) i->thickness--;
+      NW.push_back(*i);
       fig_object o = *i;
       o.pen_color = o.fill_color; o.depth--; o.thickness-=2; NW.push_back(o);
       if (o.thickness>3) {o.pen_color = 0; o.depth--; o.thickness=1;  NW.push_back(o);}
@@ -210,7 +210,7 @@ main(int argc, char **argv){
     if (type == 0x10000A){
       i->pen_color=0; i->type=2; i->sub_type=1;
       i->cap_style=2;
-      LineDist<int> ld(*i);
+      LineDist ld(*i);
       while (!ld.is_end()){
         fig_object o = *i;
         o.set_points(ld.get_points(80));
@@ -222,7 +222,7 @@ main(int argc, char **argv){
     // теряющаяся грунтовка
     if (type == 0x100050){
       i->pen_color=0; i->type=2; i->sub_type=1;
-      LineDist<int> ld(*i);
+      LineDist ld(*i);
       while (!ld.is_end()){
         fig_object o = *i;
         o.set_points(ld.get_points(18));
@@ -237,7 +237,7 @@ main(int argc, char **argv){
     // горизонталь пунктирная
     if (type == 0x100020){
       i->type=2; i->sub_type=1; i->line_style=0;
-      LineDist<int> ld(*i);
+      LineDist ld(*i);
       while (!ld.is_end()){
         fig_object o = *i;
         o.set_points(ld.get_points(70));
@@ -249,7 +249,7 @@ main(int argc, char **argv){
     // река пунктирная, пересыхающий ручей
     if (type == 0x100026){
       i->type=2; i->sub_type=1; i->line_style=0;
-      LineDist<int> ld(*i);
+      LineDist ld(*i);
       while (!ld.is_end()){
         fig_object o = *i;
         o.set_points(ld.get_points(40));
@@ -259,14 +259,14 @@ main(int argc, char **argv){
       continue;
     }
     // река-3
-    if (type == 0x10001F){ 
+    if (type == 0x10001F){
       NW.push_back(*i);
-      fig_object o = *i; o.pen_color = o.fill_color; o.depth--; o.thickness-=2; 
+      fig_object o = *i; o.pen_color = o.fill_color; o.depth--; o.thickness-=2;
       NW.push_back(o);  continue;
     }
 
     // мост
-    if ((type == 0x100008) || (type == 0x100009) || (type == 0x10000E)){ 
+    if ((type == 0x100008) || (type == 0x100009) || (type == 0x10000E)){
         i->resize(2);
         dPoint p1=(*i)[0], p2=(*i)[1];
         double ll = pdist(p1,p2);
@@ -301,7 +301,7 @@ main(int argc, char **argv){
     }
 
     // пешеходный тоннель
-    if (type == 0x10001B){ 
+    if (type == 0x10001B){
 
         i->resize(2);
         dPoint p1=(*i)[0], p2=(*i)[1];
@@ -328,7 +328,7 @@ main(int argc, char **argv){
     }
 
     // ЛЭП
-    if ((type == 0x100029)||(type == 0x10001A)){ 
+    if ((type == 0x100029)||(type == 0x10001A)){
       NW.push_back(*i);
       double step = 400;
       fig_object o = make_object(*i,
@@ -339,7 +339,7 @@ main(int argc, char **argv){
       o.barrow_height = (i->thickness<3)? 60:90;
       double w = (i->thickness<3)? 40:60; // ширина черточек
 
-      LineDist<int> ld(*i); 
+      LineDist ld(*i);
       if (ld.length()<=step) step = ld.length();
       else step = ld.length()/floor(ld.length()/step);
       ld.move_frw(step/2);
@@ -366,7 +366,7 @@ main(int argc, char **argv){
       double step = 600;
       fig_object o = make_object(*i, "1 3 0 1 8947848 7 82 -1 20 0.000 1 0.0000 * * 40 40 * * * *");
 
-      LineDist<int> ld(*i); 
+      LineDist ld(*i);
       if (ld.length()<=step) step = ld.length();
       else step = ld.length()/floor(ld.length()/step);
       ld.move_frw(step/2);
@@ -382,10 +382,10 @@ main(int argc, char **argv){
     }
 
     // кривая надпись
-    if (type == 0x100000){ 
+    if (type == 0x100000){
       if ((i->size()<2)||(i->comment.size()<1)||(i->comment[0].size()<1)) continue;
 
-      LineDist<int> ld(*i); 
+      LineDist ld(*i);
       double shift = 7.5*i->thickness;
 
       fig_object o = make_object(*i, "4 1 * * * 3 * * 4");
@@ -419,7 +419,7 @@ main(int argc, char **argv){
       NW.push_back(*i);
       fig_object o = *i; o.clear();
 
-      LineDist<int> ld(*i);
+      LineDist ld(*i);
       if (ld.length()<=step) step = ld.length();
       else step = ld.length()/floor(ld.length()/step);
       ld.move_frw((step-w)/2);
@@ -437,7 +437,7 @@ main(int argc, char **argv){
     }
 
     // верхний край обрыва
-    if (type == 0x100003){ 
+    if (type == 0x100003){
 
       double step = 40;
       double w    = 20;
@@ -451,7 +451,7 @@ main(int argc, char **argv){
       NW.push_back(*i);
       fig_object o = *i; o.clear();
 
-      LineDist<int> ld(*i);
+      LineDist ld(*i);
       if (ld.length()<=step) step = ld.length();
       else step = ld.length()/floor(ld.length()/step);
       ld.move_frw(step/2);
@@ -468,11 +468,11 @@ main(int argc, char **argv){
     }
 
     // большой водоем
-    if (type == 0x20003B){ 
+    if (type == 0x20003B){
       i->area_fill = 20; NW.push_back(*i); continue;
     }
     // кладбище
-    if (type == 0x20001A){ 
+    if (type == 0x20001A){
       i->area_fill=10;
       int w1=23, w2=45; // размер крестика
 
@@ -491,13 +491,13 @@ main(int argc, char **argv){
       NW.push_back(*i); continue;
     }
 
-   if (type == 0x200014){ // редколесье 
+   if (type == 0x200014){ // редколесье
      i->pen_color=0x70db70;
      NW.push_back(*i); continue;
    }
 
    // болота
-   if ((type == 0x20004C) || (type == 0x200051)){ 
+   if ((type == 0x20004C) || (type == 0x200051)){
       int step = 40; // расстояние между штрихами
 
       // ищем габариты объекта
@@ -514,7 +514,7 @@ main(int argc, char **argv){
       dMultiLine ls, ls1;
       int n=0;
       for (int y = pmin.y; y< pmax.y; y+=step){
-        dLine l; 
+        dLine l;
         if (n%2==0){
           l.push_back(iPoint(pmin.x, y));
           l.push_back(iPoint(pmax.x, y));

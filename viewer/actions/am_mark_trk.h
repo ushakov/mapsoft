@@ -66,7 +66,7 @@ public:
 
 	    add_wpt (wpt_list, (*track)[b], 0);
 
-    	    LineDist<double> ld(gk_track);
+    	    LineDist ld(gk_track);
     	    while (!ld.is_end()){
 	      ld.move_frw(1000);
               dPoint p=ld.pt(); cnv.frw(p);

@@ -9,129 +9,44 @@
 ///@{
 
 /**
- линия параметризуется длиной
- можно получать точки через некоторые интервалы
- сделано для рисования условных обозначений - всяких сложных пунктиров,
- газопроводов, лэп...
+ Класс, позволяющий перемещаться вдоль линии, получая различные параметры.
+ Сделано для рисования условных обозначений - всяких сложных пунктиров и т.п.
+ Линия параметризуется длиной, по ней можно ходить вперед и назад, получая
+ точки, расположенные через нужные интервалы, направление касательной и нормали
+ в этих точках и т.п.
 */
-template <typename T>
 class LineDist{
 
   dLine   line; // копия линии
 
-  std::vector<double> ls; // длина ломаной до точки [i]
-  double  current_l; // 
-  int     current_n; // 
+  std::vector<double> ls; // lengths from the beginning to every node
+  int     current_n;      // current node
+  double  current_l;      // current distance from the current_n
 
-  public:
-    LineDist(const Line<T> & _line){
-      line.insert(line.end(), _line.begin(), _line.end());
-      current_l=0;
-      current_n=0;
+public:
 
-      double l=0;
-      ls.push_back(0);
-      for (int j=1; j<_line.size(); j++){
-        dPoint p1 (_line[j-1]);
-        dPoint p2 (_line[j]);
-        if (p1 == p2) continue;
-        l+=pdist(p1,p2); 
-        ls.push_back(l);
-      }
-    }
+  LineDist(const dLine & _line); ///< Constructor: create LineDist object from a line.
 
+  double length() const; ///< Get line length.
 
-  /// длина всей линии
-  double length() const {return ls[ls.size()-1];}
+  dPoint pt() const;    ///< Get current point.
+  double dist() const;  ///< Get current distance from the line beginning.
+  dPoint tang() const;  ///< Get unit tangent vector at current point.
+  dPoint norm() const;  ///< Get unit normal vector at current point.
 
-  /// текущее расстояние от начала
-  double dist() const {return current_l;}
+  /// Get part of line with dl length, starting from current point;
+  /// move current point by dl
+  dLine get_points(double dl);
 
-  /// текущая точка 
-  dPoint pt() const{
-    if (is_end()) return line[current_n];
-    else return (line[current_n] + (line[current_n+1]-line[current_n]) *  
-                 (current_l-ls[current_n])/(ls[current_n+1]-ls[current_n]) );
-  }
-  /// единичный касаельный вектор 
-  dPoint tang() const{
-    if (is_end()) return dPoint(1,0);
-    return pnorm(line[current_n+1]-line[current_n]);
-  }
-  /// единичный перпендикулярный вектор 
-  dPoint norm() const{
-    dPoint ret = tang();
-    return dPoint(-ret.y, ret.x);
-  }
+  void move_begin();        ///< Move current point to the first node.
+  void move_end();          ///< Move current point to the last node.
+  void move_frw(double dl); ///< Move current point forward by dl distance.
+  void move_bck(double dl); ///< Move current point backward by dl distance.
+  void move_frw_to_node();  ///< Move current point forward to the nearest node.
+  void move_bck_to_node();  ///< Move current point backward to the nearest node.
 
-  /// вырезать из ломеной кусок от текущей точки, длиной dl>0
-  /// сдвинуть текущую точку
-  Line<T>  get_points(double dl){
-    Line<T> ret;
-    if (dl <= 0) return ret;
-
-    double l = current_l + dl;
-
-    // добавим первую точку
-    ret.push_back(pt());
-    if (is_end()) return ret;
-
-    while (current_l < l){
-      if (is_end()) return ret;
-      move_frw_to_node();
-      // добавим следующий узел
-      ret.push_back(line[current_n]);
-    }
-    // последний узел находится дальше, чем нужная нам длина.
-    // подвинем...
-    current_n--;
-    current_l=l;
-    *ret.rbegin() = pt();
-    return ret;
-  }
-
-  /// сдвинуть текущую точку в начало
-  void move_begin(){current_l = 0; current_n=0;}
-
-  /// подвинуть текущую точку вперед на dl
-  void move_frw(double dl){
-
-    if (dl < 0) {move_bck(-dl); return;}
-    if (dl == 0) return;
-    double l = current_l + dl;
-    while (current_l < l){
-      if (is_end()) return;
-      move_frw_to_node();
-    }
-    current_n--;
-    current_l=l;
-  }
-  /// подвинуть текущую точку назад на dl
-  void move_bck(double dl){
-    if (dl < 0) {move_frw(-dl); return;}
-    if (dl == 0) return;
-    double l = current_l - dl;
-    while (current_l > l){
-      if (current_n == 0) return;
-      move_bck_to_node();
-    }
-    current_l=l;    
-  }
-  /// подвинуть текущую точку вперед до ближайшего узла
-  void move_frw_to_node(){
-    if (current_n == ls.size()-1) return;
-    current_n++;
-    current_l=ls[current_n];
-  }
-  /// подвинуть текущую точку назад до ближайшего узла
-  void move_bck_to_node(){
-    if ((current_l==ls[current_n]) && (current_n!=0)) current_n--;
-    current_l=ls[current_n];
-  }
-  bool is_end() const{
-    return (current_n == ls.size()-1);
-  }
-
+  bool is_begin() const;    ///< Is current point at the first node?
+  bool is_end() const;      ///< Is current point at the last node?
 };
 
 #endif
