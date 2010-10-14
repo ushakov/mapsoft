@@ -70,10 +70,14 @@ VMAPRenderer::filter_cnt(std::list<iPoint> & cnt, int col){
   int h=surface->get_height();
   int s=surface->get_stride();
   std::list<iPoint>::iterator p=cnt.begin();
-  while (p!=cnt.end()){
-    if ((p->x>=w) || (p->x<0) || (p->y>=h) || (p->y<0)) continue;
-    if (PCOL(*p)!=col) p=cnt.erase(p);
-    else p++;
+  while (p != cnt.end()){
+    if (p->x >= w || p->x < 0 || p->y >= h || p->y < 0) {
+      p = cnt.erase(p);
+    } else if (PCOL(*p)!=col) {
+      p = cnt.erase(p);
+    } else {
+      p++;
+    }
   }
 }
 
