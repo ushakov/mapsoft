@@ -1,5 +1,6 @@
-Import ('env_cairo')
-e=env_cairo.Clone()
+Import ('env')
+e=env.Clone()
+e.ParseConfig('pkg-config --cflags --libs cairomm-1.0')
 
 e.Library('utils', \
   Split("""

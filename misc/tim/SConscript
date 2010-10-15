@@ -1,10 +1,7 @@
+Import('env')
+e=env.Clone()
 
-mapsoft_libs = Split("geo_io geo loaders fig mp utils options 2d jeeps")
-other_libs   = Split ("usb tiff jpeg png curl proj")
-
-Import('env_cairo')
-e=env_cairo.Clone()
-e.Prepend(LIBS=[mapsoft_libs, other_libs])
+e.ParseConfig('pkg-config --cflags --libs geo_io')
 
 map (lambda(f): e.Program(f+'.cpp'),\
   Split("""

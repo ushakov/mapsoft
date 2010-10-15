@@ -16,11 +16,10 @@ subdirs = Split ("""
     vmap
 """)
 
-# add LIBPATH and CPPPATH to all global env!
-Import('env_list')
-map(lambda(e):  e.Append(LIBPATH = map(lambda(s): "#core/"+s, subdirs)), env_list)
-map(lambda(e):  e.Append (CPPPATH = "#core"), env_list)
-map(lambda(e):  e.Append(ENV = {'PKG_CONFIG_PATH': os.getcwd()+'/pc'}), env_list)
+# add CPPPATH and PKG_CONFIG_PATH to global env
+env.Append (LIBPATH = map(lambda(s): "#core/"+s, subdirs))
+env.Append (CPPPATH = "#core")
+env.Append (ENV = {'PKG_CONFIG_PATH': os.getcwd()+'/pc'})
 
 #swig = env.Clone()
 #swig.Append(CPPPATH = [distutils.sysconfig.get_python_inc()])

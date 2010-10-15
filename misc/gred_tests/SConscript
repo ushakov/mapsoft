@@ -1,12 +1,11 @@
-Import('env_gtk')
-env_gred = env_gtk.Clone()
+Import('env')
+e = env.Clone()
 
-env_gred.Prepend(LIBS=Split('gred 2d '))
-env_gred.Append(CPPPATH='#/core/gred')
+e.ParseConfig('pkg-config --cflags --libs gred gtkmm-2.4')
 
 files=Split('gobj_test_tile.cpp gobj_test_grid.cpp gobj_solid_fill.cpp')
 
-map (lambda(f): env_gred.Program([f+'.cpp'] + files),\
+map (lambda(f): e.Program([f+'.cpp'] + files),\
   Split("""
     simple1
     simple2

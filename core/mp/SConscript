@@ -7,8 +7,8 @@ env.Library('mp', \
         mp_data.cpp
      """))
 
-libs=Split("mp utils 2d")
-env.Program("catmp.cpp",  LIBS=[libs])
-
-env.Install(env.bindir, ['catmp'])
+e=env.Clone()
+e.ParseConfig('pkg-config --cflags --libs mp')
+e.Program("catmp.cpp")
+e.Install(env.bindir, ['catmp'])
 

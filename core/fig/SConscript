@@ -8,8 +8,8 @@ env.Library('fig', \
         fig_data.cpp
      """))
 
-libs=Split("fig utils 2d")
-env.Program("catfig.cpp",  LIBS=[libs])
-
-env.Install(env.bindir, ['catfig'])
+e=env.Clone()
+e.ParseConfig('pkg-config --cflags --libs fig')
+e.Program("catfig.cpp")
+e.Install(env.bindir, ['catfig'])
 

@@ -1,6 +1,9 @@
-Import('env_gtk')
+Import('env')
 
-env_gtk.Library('gred', \
+e=env.Clone()
+e.ParseConfig('pkg-config --cflags gtkmm-2.4')
+
+e.Library('gred', \
     Split ("""
       gobj.cpp
       action_manager.cpp

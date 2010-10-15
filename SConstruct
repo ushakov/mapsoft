@@ -39,19 +39,6 @@ env.Prepend(LIBPATH=".")
 
 Export('env')
 
-## cairo env
-env_cairo = env.Clone()
-env_cairo.ParseConfig('pkg-config --cflags --libs cairomm-1.0,freetype2')
-Export('env_cairo')
-
-## cairo+gtk env
-env_gtk = env_cairo.Clone()
-env_gtk.ParseConfig('pkg-config --cflags --libs gtkmm-2.4,gthread-2.0')
-Export('env_gtk')
-
-env_list=[env, env_cairo, env_gtk]
-Export('env_list')
-
 if ARGUMENTS.get('minimal', 0):
 	SConscript (map (lambda(s): s+"/SConscript", subdirs_min))
 else:
