@@ -1,7 +1,7 @@
 #include <iostream>
 #include "gobj_test_grid.h"
-#include "mthread_viewer.h"
-#include "rubber.h"
+#include "gred/mthread_viewer.h"
+#include "gred/rubber.h"
 
 
 int main(int argc, char **argv){

@@ -1,6 +1,6 @@
 #include <iostream>
 #include "gred/iface/action.h"
-#include "rubber.h"
+#include "gred/rubber.h"
 
 class ActionTestCirc : public Action{
   public:

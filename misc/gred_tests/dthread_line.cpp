@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "dthread_viewer.h"
+#include "gred/dthread_viewer.h"
 #include "gobj_line.h"
 
 

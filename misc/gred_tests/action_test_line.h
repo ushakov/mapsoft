@@ -1,7 +1,7 @@
 #include <iostream>
 #include "2d/line.h"
 #include "gred/iface/action.h"
-#include "rubber.h"
+#include "gred/rubber.h"
 
 
 class ActionTestLine : public Action{

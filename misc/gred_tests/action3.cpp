@@ -1,4 +1,4 @@
-#include "gred.h"
+#include "gred/gred.h"
 
 #include "gobj_test_grid.h"
 #include "action_test_circ.h"

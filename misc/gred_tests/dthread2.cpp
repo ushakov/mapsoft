@@ -1,5 +1,5 @@
 #include <iostream>
-#include "dthread_viewer.h"
+#include "gred/dthread_viewer.h"
 #include "gobj_test_grid.h"
 
 int main(int argc, char **argv){

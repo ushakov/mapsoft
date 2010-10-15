@@ -1,7 +1,7 @@
 #include <iostream>
 #include "gobj_test_tile.h"
-#include "simple_viewer.h"
-#include "rubber.h"
+#include "gred/simple_viewer.h"
+#include "gred/rubber.h"
 
 
 int main(int argc, char **argv){
