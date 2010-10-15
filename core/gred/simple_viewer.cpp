@@ -15,13 +15,10 @@ SimpleViewer::SimpleViewer(GObj * o) :
   set_name("MapsoftViewer");
   set_events (
     Gdk::BUTTON_PRESS_MASK |
-    Gdk::KEY_PRESS_MASK |
     Gdk::BUTTON_RELEASE_MASK |
     Gdk::SCROLL_MASK |
     Gdk::POINTER_MOTION_MASK |
     Gdk::POINTER_MOTION_HINT_MASK );
-  // this grabs focus for key events:
-  set_can_focus(); grab_focus();
 }
 
 void
@@ -163,33 +160,6 @@ SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
     iPoint p((int)event->x, (int)event->y);
     set_origin(origin - p + drag_pos);
     drag_pos = p;
-  }
-  return false;
-}
-
-bool
-SimpleViewer::on_key_press_event (GdkEventKey * event) {
-  switch (event->keyval) {
-    case 43:
-    case 61:
-    case 65451: // + =
-    {
-      rescale(2.0);
-      return true;
-    }
-    case 45:
-    case 95:
-    case 65453: // _ -
-    {
-      rescale(0.5);
-      return true;
-    }
-    case 'r':
-    case 'R': // refresh
-    {
-      redraw();
-      return true;
-    }
   }
   return false;
 }
