@@ -1,20 +1,14 @@
 import os
 
-subdirs = Split ("""
-                core
-		tests
-                misc
-		programs
-		viewer
-		vector
-		""")
+subdirs_min = Split("core programs viewer vector")
+subdirs_max = subdirs_min + Split("tests misc")
 
 #SetOption('implicit_cache', 1)
 env = Environment ()
 
 ######################################
 
-env.PREFIX = ''
+env.PREFIX = ARGUMENTS.get('prefix', '')
 env.bindir=env.PREFIX+'/usr/bin'
 env.datadir=env.PREFIX+'/usr/share/mapsoft'
 env.man1dir=env.PREFIX+'/usr/share/man/man1'
@@ -58,4 +52,16 @@ Export('env_gtk')
 env_list=[env, env_cairo, env_gtk]
 Export('env_list')
 
-SConscript (map (lambda(s): s+"/SConscript", subdirs))
+if ARGUMENTS.get('minimal', 0):
+	SConscript (map (lambda(s): s+"/SConscript", subdirs_min))
+else:
+	SConscript (map (lambda(s): s+"/SConscript", subdirs_max))
+
+Help("""
+You can build mapsoft with the following options:
+  scons -Q debug=1          // build with -ggdb
+  scons -Q profile=1        // build with -pg
+  scons -Q gheapcheck=1     // build with -ltcmalloc
+  scons -Q minimal=1        // skip misc and tests dirs
+  scons -Q prefix=<prefix>  // set installation prefix
+""")
