@@ -10,8 +10,8 @@ Packager: Vladislav Zavjalov <slazav@altlinux.org>
 Source: %name-%version.tar
 
 BuildRequires: boost-devel gcc-c++ libcurl-devel
-BuildRequires: libgd2-devel libgtkmm2-devel libjpeg-devel libtiff-devel
-BuildRequires: libusb-compat-devel libyaml-devel proj-devel python-devel
+BuildRequires: libcairomm-devel libgtkmm2-devel libjpeg-devel libtiff-devel
+BuildRequires: libusb-devel libyaml-devel proj-devel python-devel
 BuildRequires: scons swig
 
 %description
@@ -21,10 +21,10 @@ mapsoft - programs for working with maps and geodata
 %setup -q
 
 %build
-scons
+scons -Q minimal=1
 
 %install
-scons --prefix=%buildroot install
+scons -Q minimal=1 -Q prefix=%buildroot install
 
 %files
 %_bindir/*
