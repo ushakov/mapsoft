@@ -75,9 +75,14 @@ read(const fig::fig_world & F){
     int type = zconverter.get_type(*i);
     if (!type) continue;
 
-    // copy comment from compound
-    if (cmp_comm.size()>0) comm=cmp_comm;
-    else comm=i->comment;
+    // copy comment from compound to the first object:
+    if (cmp_comm.size()>0){
+      comm=cmp_comm;
+      cmp_comm.clear();
+    }
+    else{
+      comm=i->comment;
+    }
 
     // special type -- border
     if (type==border_type){ 
@@ -88,9 +93,9 @@ read(const fig::fig_world & F){
     // special type -- label objects
     if (type==label_type){
       if (i->size()<2) continue;
-      if (i->comment.size()<1) continue;
+      if (comm.size()<1) continue;
       lpos_full l;
-      l.text = i->comment[0];
+      l.text = comm[0];
       l.ref = (*i)[0]; cnv.frw(l.ref);
       l.pos = (*i)[1]; cnv.frw(l.pos);
       l.dir = zn::fig_arr2dir(*i, true);
@@ -111,10 +116,10 @@ read(const fig::fig_world & F){
     o.type = type;
     set_source(o.opts, i->opts.get<string>("Source"));
 
-    if (i->comment.size()>0){
-      o.text = i->comment[0];
+    if (comm.size()>0){
+      o.text = comm[0];
       o.comm.insert(o.comm.begin(),
-          i->comment.begin()+1, i->comment.end());
+          comm.begin()+1, comm.end());
     }
     dLine pts = cnv.line_frw(*i);
     // if closed polyline -> add one more point
