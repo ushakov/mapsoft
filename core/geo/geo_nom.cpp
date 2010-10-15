@@ -205,18 +205,25 @@ range_to_nomlist(const dRect & range, int rscale){
   vector<string> ret;
 
   dRect  r;
-  dPoint p=range.TLC();
+  dPoint far=range.TLC();
+  dPoint cnt=range.TLC();
 
-  while (p.y < range.BRC().y){
-    p.x=range.x;
-    while (p.x < range.BRC().x){
-      string name=pt_to_nom(p, rscale);
+  while (far.y < range.BRC().y){
+    far.x=cnt.x=range.x;
+    while (far.x < range.BRC().x){
+      string name=pt_to_nom(cnt, rscale);
       ret.push_back(name);
-      if (p.x==range.x) // map widths can be different in different rows
-         r = nom_to_range(name);
-      p.x+=r.w;
+      if (far.x==range.x){ // map widths can be different in different rows
+        r = nom_to_range(name);
+        far=r.BRC();
+        cnt=r.CNT();
+      }
+      else{
+        far+=dPoint(r.w, r.h);
+      }
+      cnt.x+=r.w;
     }
-    p.y+=r.h;
+    cnt.y+=r.h;
   }
   return ret;
 }

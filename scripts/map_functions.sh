@@ -38,6 +38,13 @@ geom2ll(){
   convs_pt2pt "pulk" "tmerc" "lon0=$(geom2lon0 "$1")" "wgs84" "lonlat" ""
 }
 
+# ret nomenclature names
+geom2nom(){
+  local geom="$1"
+  local rscale="${2:-50000}"
+  convs_nom -r "$(geom2ll "$geom")" "$rscale"
+}
+
 # get url for downloading data from westra passes catalog
 geom2wp(){
   local geom="$1"
