@@ -92,6 +92,7 @@ public:
 #ifdef DEBUG_LAYER_TRK
       std::cerr  << "LayerTRK: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
+      // FIXME - use correct range instead of +110
       if (rect_intersect(myrange, rect_pump(src_rect,110)).empty()) return;
 
       CairoWrapper cr(image);
@@ -112,19 +113,22 @@ public:
         cr->set_line_width(w);
 
 	dPoint po;
-
-        iRect rect_pumped = rect_pump(image.range(),w);
-
-        for (std::vector<g_trackpoint>::const_iterator pt = it->begin();
-                                            pt!= it->end(); pt++){
+        std::vector<g_trackpoint>::const_iterator pt;
+        for (pt = it->begin(); pt!= it->end(); pt++){
           dPoint p(*pt); cnv.bck(p);  p-=origin;
-          if (point_in_rect(iPoint(p), rect_pumped)){
-            if ((pt == it->begin()) || (pt->start)) cr->move_to(p);
+          if (pt == it->begin()) po=p;
+
+          iRect r = rect_pump(iRect(p,po), w);
+
+          if (!rect_intersect(r, image.range()).empty()){
+            if ((pt == it->begin()) || pt->start){
+              cr->circle(p, 0.75*w);
+            }
             else {
               cr->move_to(po);
               cr->line_to(p);
+              cr->circle(p, 0.75*w);
             }
-            cr->circle(p, 0.75*w);
           }
           po=p;
 	}
