@@ -1,5 +1,6 @@
 import distutils.sysconfig
 Import ('env')
+import os.path
 
 subdirs = Split ("""
     2d
@@ -19,6 +20,7 @@ subdirs = Split ("""
 Import('env_list')
 map(lambda(e):  e.Append(LIBPATH = map(lambda(s): "#core/"+s, subdirs)), env_list)
 map(lambda(e):  e.Append (CPPPATH = "#core"), env_list)
+map(lambda(e):  e.Append(ENV = {'PKG_CONFIG_PATH': os.getcwd()+'/pc'}), env_list)
 
 #swig = env.Clone()
 #swig.Append(CPPPATH = [distutils.sysconfig.get_python_inc()])

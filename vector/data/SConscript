@@ -8,7 +8,6 @@ env.Install(env.datadir, Split("pics"))
 
 
 e = env.Clone()
-e['ENV']['PKG_CONFIG_PATH'] = "../../core/pc"
 e.ParseConfig('pkg-config --cflags --libs vmap')
 
 e.Program('zn_figlib.cpp')
