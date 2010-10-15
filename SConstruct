@@ -1,4 +1,5 @@
 import os
+import mapsoft
 
 subdirs = Split ("""
                 core
@@ -10,7 +11,8 @@ subdirs = Split ("""
 		""")
 
 #SetOption('implicit_cache', 1)
-env = Environment ()
+env = Environment()
+mapsoft.Setup(env)
 
 ######################################
 

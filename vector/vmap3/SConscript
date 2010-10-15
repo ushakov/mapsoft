@@ -1,20 +1,21 @@
-
-mapsoft_libs=Split("vmap mp fig geo_io geo loaders utils options 2d")
-other_libs=Split("proj png jpeg tiff yaml")
-
 Import ('env_cairo')
 e = env_cairo.Clone()
-e.Prepend(LIBS=["vmap_renderer", mapsoft_libs,other_libs])
 
-e.Library('vmap_renderer',\
-  Split ("""
-    vmap_rend_cnt.cpp
-    vmap_rend_txt.cpp
-    vmap_rend_pic.cpp
-    vmap_renderer.cpp
-  """))
+e.MDeps(Split("""
+              vmap_renderer
+              vmap mp fig geo_io geo loaders utils options 2d
+              proj png jpeg tiff yaml
+              """))
 
-e.Program("vmap_copy.cpp")
-e.Program("vmap_render.cpp")
-e.Program("vmap_mmb_filter.cpp")
+e.MLib('vmap_renderer',
+       srcs = Split ("""
+                     vmap_rend_cnt.cpp
+                     vmap_rend_txt.cpp
+                     vmap_rend_pic.cpp
+                     vmap_renderer.cpp
+                     """))
+
+e.MProg("vmap_copy.cpp")
+e.MProg("vmap_render.cpp")
+e.MProg("vmap_mmb_filter.cpp")
 
