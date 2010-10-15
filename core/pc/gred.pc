@@ -2,6 +2,6 @@ libdir=core/gred
 
 Name: gred
 Description: Mapsoft gred library
-Requires: gtkmm utils 2d
+Requires: gtkmm-2.4 utils 2d
 Version: 1
 Libs: -lgred
