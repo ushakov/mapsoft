@@ -1,18 +1,17 @@
-Import ('env_gtk')
-le = env_gtk.Clone()
+Import ('env')
 
-mapsoft_libs = Split ("viewer gred geo_io geo loaders jeeps fig mp utils options 2d")
-other_libs   = Split ("usb tiff jpeg png curl proj")
+e=env.Clone()
+e['ENV']['PKG_CONFIG_PATH'] = "../core/pc"
+e.ParseConfig('pkg-config --cflags --libs gred geo_io mp')
 
-le.Prepend(LIBS=[mapsoft_libs,other_libs])
-
-le.Library("viewer", Split ("""
+e.Library("viewer", Split ("""
         generic_dialog.cpp
 	action_manager.cpp
 	workplane.cpp
         """))
+e.Prepend(LIBS=["viewer"])
 
-le.Program("mapsoft_mapview.cpp")
+e.Program("mapsoft_mapview.cpp")
 #le.Program('mapsoft_googleview', "mapsoft_googleview.cpp")
 #le.Program('mapsoft_ksview', "mapsoft_ksview.cpp")
 
