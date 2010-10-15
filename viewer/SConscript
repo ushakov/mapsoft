@@ -12,6 +12,10 @@ e.Library("viewer", Split ("""
 e.Prepend(LIBS=["viewer"])
 
 e.Program("mapsoft_mapview.cpp")
+
 #le.Program('mapsoft_googleview', "mapsoft_googleview.cpp")
 #le.Program('mapsoft_ksview', "mapsoft_ksview.cpp")
 
+env.Install(env.bindir, Split("""
+  mapsoft_mapview
+"""))
