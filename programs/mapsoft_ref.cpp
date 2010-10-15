@@ -2,8 +2,8 @@
 // ./mapsoft_ref <data> -f <fig-file>
 // привязка строится по соответствию треков и точек в fig-файле и в данных
 
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
 
 
 #include <cstring>
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
   }
 
   // теперь все точки и треки заменяем на точки привязки!
-  using namespace boost::spirit;
+  using namespace boost::spirit::classic;
   for (fig::fig_world::iterator i=F.begin(); i!=F.end(); i++){
     string name;
     if ((i->comment.size()>0)&&(parse(i->comment[0].c_str(), str_p("WPT")

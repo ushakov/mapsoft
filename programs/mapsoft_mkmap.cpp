@@ -2,8 +2,8 @@
 #include <fstream>
 #include <iomanip>
 
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
 
 #include <string>
 #include <cstring>
@@ -17,7 +17,7 @@
 
 
 using namespace std;
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 void usage(const char *fname){
   cerr << "Usage: "<< fname << " <infile> -o <outfile>\n";
