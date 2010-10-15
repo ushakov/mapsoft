@@ -31,7 +31,7 @@ main(int argc, char **argv){
     double m_per_pt   = deg_per_pt * M_PI/180 * 6378137.0;
 
     // определим диапазон карты в координатах lonlat (в СК Пулково!)
-    dRect r0 = convs::nom_range(map_name);
+    dRect r0 = convs::nom_to_range(map_name);
 
     // определим осевой меридиан
     double lon0 = (r0.TLC().x + r0.TRC().x)/2;

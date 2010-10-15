@@ -8,7 +8,7 @@
 #include "2d/cache.h"
 #include "layers/layer.h"
 
-#include "iface/gobj.h"
+#include "gred/iface/gobj.h"
 
 
 class Workplane : public GObj {

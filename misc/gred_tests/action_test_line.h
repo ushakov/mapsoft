@@ -1,6 +1,6 @@
 #include <iostream>
 #include "2d/line.h"
-#include "iface/action.h"
+#include "gred/iface/action.h"
 #include "rubber.h"
 
 

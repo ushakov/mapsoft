@@ -2,8 +2,8 @@
 #include "geo/geo_convs.h"
 #include "geo/geo_nom.h"
 
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
 
 
 namespace filters{
@@ -14,7 +14,7 @@ void map_nom_brd(geo_data & world){
   vector<g_map>::iterator i;
   for (i = world.maps.begin(); i!=world.maps.end(); i++){
 
-    dRect r = convs::nom_range(i->comm);
+    dRect r = convs::nom_to_range(i->comm);
     if (r.empty()) return;
     double lon1 = r.x;
     double lat1 = r.y;

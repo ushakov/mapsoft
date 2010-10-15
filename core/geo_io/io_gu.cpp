@@ -17,7 +17,7 @@ namespace gu {
 	const char *default_charset = "KOI8-R";
 
 	using namespace std;
-	using namespace boost::spirit;
+	using namespace boost::spirit::classic;
 
 // format-specific data types and conversions to geo_data.h types...
 	struct gu_waypoint{

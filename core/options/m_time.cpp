@@ -1,8 +1,8 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
 
 #include "m_time.h"
 
@@ -48,7 +48,7 @@ Time::Time(const std::string & str){
   //               "yy-mm-dd HH:MM:SS"
   //               "yyyy-mm-dd HH:MM"
   //               "yyyy-mm-dd"
-  using namespace boost::spirit;
+  using namespace boost::spirit::classic;
   struct tm ts;
   ts.tm_hour=0;
   ts.tm_min=0;

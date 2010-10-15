@@ -36,7 +36,7 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_):
   fs1 = dpi/89.0;  // standard font size
 
   // try find range from name
-  dRect nom_r = convs::nom_range(W.name);
+  dRect nom_r = convs::nom_to_range(W.name);
   if (!nom_r.empty()){
     convs::pt2pt cnv_p(Datum("pulk"), Proj("lonlat"), Options(),
                        Datum("wgs84"), Proj("lonlat"), Options());
@@ -364,7 +364,7 @@ VMAPRenderer::render_line_el(int type, int col, double th, double step){
   for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
-      LineDist<int> ld(*l);
+      LineDist ld(*l);
       if (ld.length()<=step) continue;
       double fstep = ld.length()/ceil(ld.length()/step);
       ld.move_frw(fstep/2);
@@ -405,7 +405,7 @@ VMAPRenderer::render_line_obr(int type, int col, double th){
     int k=1;
     if (o->dir==2) k=-1;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
-      LineDist<int> ld(*l);
+      LineDist ld(*l);
       if (ld.length()<=step) continue;
       double fstep = ld.length()/ceil(ld.length()/step);
       ld.move_frw(fstep/2);
@@ -437,7 +437,7 @@ VMAPRenderer::render_line_zab(int type, int col, double th){
     int k=1;
     if (o->dir==2) k=-1;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
-      LineDist<int> ld(*l);
+      LineDist ld(*l);
       if (ld.length()<=step) continue;
       double fstep = ld.length()/ceil(ld.length()/step);
       ld.move_frw((fstep-width)/2);
@@ -466,7 +466,7 @@ VMAPRenderer::render_line_gaz(int type, int col, double th, double step){
   for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
-      LineDist<int> ld(*l);
+      LineDist ld(*l);
       if (ld.length()<=step) continue;
       double fstep = ld.length()/ceil(ld.length()/step);
       ld.move_frw(fstep/2);

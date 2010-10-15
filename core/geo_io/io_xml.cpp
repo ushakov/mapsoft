@@ -1,8 +1,8 @@
 #include "utils/spirit_utils.h"
-#include <boost/spirit/actor/assign_actor.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
-#include <boost/spirit/actor/insert_at_actor.hpp>
-#include <boost/spirit/actor/clear_actor.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
+#include <boost/spirit/include/classic_insert_at_actor.hpp>
+#include <boost/spirit/include/classic_clear_actor.hpp>
 
 #include <iostream>
 #include <iomanip>
@@ -21,7 +21,7 @@ namespace xml {
         const char *default_charset = "KOI8-R";
 
 	using namespace std;
-	using namespace boost::spirit;
+	using namespace boost::spirit::classic;
 
 // function for reading objects from XML file
 // into the world object

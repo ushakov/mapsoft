@@ -1,6 +1,8 @@
 #include <iostream>
 #include "spirit_utils.h"
 
+using namespace boost::spirit::classic;
+
 /** function for parsing file and reporting errors */
 bool parse_file(const char * name, const char *file, const rule_t & rule){
 
@@ -15,11 +17,11 @@ bool parse_file(const char * name, const char *file, const rule_t & rule){
       return false;
     }
 
-    info_t res = boost::spirit::parse(pit_t(first, last, file), pit_t(), rule);
+    info_t res = parse(pit_t(first, last, file), pit_t(), rule);
 
     if (!res.full){
       pit_t it=res.stop;
-      boost::spirit::file_position fpos=it.get_position();
+      file_position fpos=it.get_position();
 
       std::cerr << name << ": can't parse file: " << fpos.file <<
         " at line: " << fpos.line <<

@@ -1,7 +1,7 @@
 #ifndef GOBJ_TEST_TILE_H
 #define GOBJ_TEST_TILE_H
 
-#include "iface/gobj.h"
+#include "gred/iface/gobj.h"
 
 class GObjTestTile: public GObj{
   bool slow;

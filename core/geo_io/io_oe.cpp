@@ -1,7 +1,7 @@
 #include "utils/spirit_utils.h"
-#include <boost/spirit/actor/assign_actor.hpp>
-#include <boost/spirit/actor/push_back_actor.hpp>
-#include <boost/spirit/actor/clear_actor.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
+#include <boost/spirit/include/classic_push_back_actor.hpp>
+#include <boost/spirit/include/classic_clear_actor.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -29,7 +29,7 @@ namespace oe{
 const char *default_charset = "WINDOWS-1251";
  
 using namespace std;
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 // format-specific data types and conversions to geo_data.h types...
 
@@ -268,15 +268,15 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
   rule_t wpt_head = 
     str_p("OziExplorer Waypoint File Version ") >>
-    str_p("1.1") >> +eol_p >>
+    str_p("1.1") >> eol_p >>
     (+ch)[assign_a(w.datum)] >> eol_p >>  // Datum
-    +ch >> +eol_p >>                      // Reserved for future use
+    +ch >> eol_p >>                      // Reserved for future use
     (+ch)[assign_a(w.symbset)] >> +eol_p; // Symbol set (unused)
 
   rule_t trk_head = 
     str_p("OziExplorer Track Point File Version ") >>
-    (str_p("2.0") || "2.1") >> +eol_p >>
-    (+ch)[assign_a(t.datum)] >> +eol_p >>
+    (str_p("2.0") || "2.1") >> eol_p >>
+    (+ch)[assign_a(t.datum)] >> eol_p >>
     +ch >> eol_p >> // Altitude is in feet
     +ch >> eol_p >> // Reserved for future use
       ch_p('0') >>
@@ -357,18 +357,18 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
   rule_t map_rule = 
     str_p("OziExplorer Map Data File Version ") >>
-    (str_p("2.0") || "2.1" || "2.2") >> +eol_p >>
-    (*ch)[assign_a(m.comm)] >> +eol_p >>
-    (*ch)[assign_a(m.file)] >> +eol_p >>
+    (str_p("2.0") || "2.1" || "2.2") >> eol_p >>
+    (*ch)[assign_a(m.comm)] >> eol_p >>
+    (*ch)[assign_a(m.file)] >> eol_p >>
     *ch >> eol_p >> // 1 TIFF scale factor -- ignored
-    (*pr)[assign_a(m.datum)] >> !(scs >> *ch) >> +eol_p >>
-    *ch >> +eol_p >> // Reserved 1
-    *ch >> +eol_p >> // Reserved 2
+    (*pr)[assign_a(m.datum)] >> !(scs >> *ch) >> eol_p >>
+    *ch >> eol_p >> // Reserved 1
+    *ch >> eol_p >> // Reserved 2
     "Magnetic Variation" >> 
       scs >> !(uint_p[assign_a(m.mag_var_d)]) >>
       scs >> !(ureal_p[assign_a(m.mag_var_m)]) >>
       scs >> !(ch_p('W')[assign_a(m.mag_var_h,-1)] ||
-               ch_p('E')[assign_a(m.mag_var_h,+1)]) >> +eol_p >>
+               ch_p('E')[assign_a(m.mag_var_h,+1)]) >> eol_p >>
     "Map Projection" >> 
     scs >> (*pr)[assign_a(m.map_proj)] >> !(scs >> *ch) >> +eol_p >>
     +(map_point) >>

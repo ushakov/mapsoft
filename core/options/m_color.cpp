@@ -1,8 +1,8 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/actor/assign_actor.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_assign_actor.hpp>
 
 #include "m_color.h"
 
@@ -17,7 +17,7 @@ std::ostream & operator<< (std::ostream & s, const Color & t){
 }
 
 Color::Color(const std::string & str){
-  using namespace boost::spirit;
+  using namespace boost::spirit::classic;
   if (!parse(str.c_str(), ch_p('#') >> hex_p[assign_a(value)]).full)
     std::cerr << "Color: can't find hexadecimal value in " << str << "\n";
   int alpha = (value & 0xff000000) >> 24;
