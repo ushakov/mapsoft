@@ -1,7 +1,6 @@
 #ifndef CAIRO_WRAPPER_H
 #define CAIRO_WRAPPER_H
 
-//#include <cairomm/cairommconfig.h>
 #include <cairomm/context.h>
 #include <cairomm/surface.h>
 
@@ -11,8 +10,9 @@
 #include "2d/point.h"
 #include "2d/rect.h"
 
+/// This class contains functions
+/// we want to add to the Cairo::Context
 struct CairoExtra : public Cairo::Context {
-
   void save_png(const char *fname);
   void set_color_a(const int c);
   void set_color(const int c);
@@ -29,7 +29,12 @@ struct CairoExtra : public Cairo::Context {
 };
 
 struct CairoWrapper: Cairo::RefPtr<CairoExtra> {
+private:
+  // this is used only in CairoWrapper(img) constructor
+  // for increasing refcounter of the original image
+  iImage image;
   const static Cairo::Format format;
+public:
   CairoWrapper(int w, int h);
   CairoWrapper(const iImage & img);
 };

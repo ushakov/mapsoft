@@ -61,7 +61,7 @@ dRect CairoExtra::get_text_extents(const std::string & utf8){
 }
 
 
-CairoWrapper::CairoWrapper(int w, int h){
+CairoWrapper::CairoWrapper(int w, int h): image(0,0){
   // check if surface raw data compatable with iImage
   assert(Cairo::ImageSurface::format_stride_for_width(format, w) == w*4);
 
@@ -73,7 +73,7 @@ CairoWrapper::CairoWrapper(int w, int h){
     (cast_static(Cairo::Context::create(surface)));
 }
 
-CairoWrapper::CairoWrapper(const iImage & img){
+CairoWrapper::CairoWrapper(const iImage & img): image(img){
 
   // check if surface raw data compatable with iImage
   assert(Cairo::ImageSurface::format_stride_for_width(format, img.w) == img.w*4);
