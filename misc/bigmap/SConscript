@@ -1,8 +1,6 @@
-libs=Split("loaders options 2d jpeg tiff png")
-
 Import('env')
 e=env.Clone()
-e.Prepend(LIBS=[libs])
+e.ParseConfig('pkg-config --cflags --libs loaders')
 
 e.Program(["map4.cpp", "libbm.cpp"])
 e.Program(["map6.cpp", "libbm.cpp"])

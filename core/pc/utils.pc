@@ -1,7 +1,5 @@
-libdir=core/utils
-
 Name: utils
 Description: Mapsoft utils library
 Requires: cairomm-1.0 freetype2 loaders options geo 2d
 Version: 1
-Libs: -lutils
+Libs: -L\#core/utils -lutils

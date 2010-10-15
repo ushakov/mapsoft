@@ -1,10 +1,7 @@
-
-mapsoft_libs=Split("vmap2 vmap fig mp geo_io geo loaders jeeps options utils 2d yaml tiff png jpeg proj")
-other_libs=Split("yaml proj png jpeg tiff")
-
 Import('env')
 e=env.Clone()
-e.Prepend(LIBS=[mapsoft_libs, other_libs])
+e.ParseConfig('pkg-config --cflags --libs vmap')
+e.Prepend(LIBS=["vmap2"])
 
 e.Library('vmap2', \
     Split ("""

@@ -1,5 +1,7 @@
 Import('env')
+e=env.Clone()
 
-libs=Split("fig utils options 2d")
-env.Program("rectcrop.cpp",  LIBS=[libs])
-env.Program("crop_ml.cpp",  LIBS=[libs])
+e.ParseConfig('pkg-config --cflags --libs fig')
+
+e.Program("rectcrop.cpp")
+e.Program("crop_ml.cpp")

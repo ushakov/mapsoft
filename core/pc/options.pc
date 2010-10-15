@@ -1,7 +1,5 @@
-libdir=core/options
-
 Name: options
 Description: Mapsoft options library
 Requires:
 Version: 1
-Libs: -loptions
+Libs: -L\#core/options -loptions
