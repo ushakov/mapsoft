@@ -1,10 +1,18 @@
 import os
 
+
+def UseLibs(env, libs):
+   if isinstance(libs, list):
+      libs = " ".join(libs)
+   env.ParseConfig('pkg-config --cflags --libs %s' % libs)
+
+
 subdirs_min = Split("core programs viewer vector")
 subdirs_max = subdirs_min + Split("tests misc")
 
 #SetOption('implicit_cache', 1)
 env = Environment ()
+env.AddMethod(UseLibs)
 
 ######################################
 
