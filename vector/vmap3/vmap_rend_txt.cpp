@@ -62,7 +62,7 @@ void
 VMAPRenderer::erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
                                int dark_th, int search_dist){
 
-  // data and s indentifires used in COL macro!
+  // data and s indentifiers used in COL macro!
   unsigned char *data=surface->get_data();
   int w=surface->get_width();
   int h=surface->get_height();

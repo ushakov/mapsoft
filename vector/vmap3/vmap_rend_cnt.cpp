@@ -44,6 +44,9 @@ VMAPRenderer::make_cnt(int col, double dist){
           mk_pt=false;
           break;
         }
+	// We scan the field from top to bottom. Therefore we will
+	// never use points that are higher than (current y - dist)
+	// again.
         if (abs(p.y - i->y) > dist) {
           i=points.erase(i);
         }
@@ -67,10 +70,14 @@ VMAPRenderer::filter_cnt(std::list<iPoint> & cnt, int col){
   int h=surface->get_height();
   int s=surface->get_stride();
   std::list<iPoint>::iterator p=cnt.begin();
-  while (p!=cnt.end()){
-    if ((p->x>=w) || (p->x<0) || (p->y>=h) || (p->y<0)) continue;
-    if (PCOL(*p)!=col) p=cnt.erase(p);
-    else p++;
+  while (p != cnt.end()){
+    if (p->x >= w || p->x < 0 || p->y >= h || p->y < 0) {
+      p = cnt.erase(p);
+    } else if (PCOL(*p)!=col) {
+      p = cnt.erase(p);
+    } else {
+      p++;
+    }
   }
 }
 
