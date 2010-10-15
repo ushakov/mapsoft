@@ -1,0 +1,7 @@
+libdir=core/geo_io
+
+Name: geo_io
+Description: Mapsoft geo_io library
+Requires: fig geo jeeps layers loaders utils options 2d
+Version: 1
+Libs: -lgeo_io

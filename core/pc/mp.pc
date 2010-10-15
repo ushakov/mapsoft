@@ -1,0 +1,7 @@
+libdir=core/mp
+
+Name: mp
+Description: Mapsoft mp library
+Requires: utils options 2d
+Version: 1
+Libs: -lmp

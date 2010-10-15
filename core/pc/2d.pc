@@ -1,0 +1,7 @@
+libdir=core/2d
+
+Name: 2d
+Description: Mapsoft 2d library
+Requires:
+Version: 1
+Libs: -l2d

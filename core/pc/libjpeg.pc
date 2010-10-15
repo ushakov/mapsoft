@@ -1,0 +1,5 @@
+Name: libjpeg
+Description: libjpeg
+Requires:
+Version: 1
+Libs: -ljpeg

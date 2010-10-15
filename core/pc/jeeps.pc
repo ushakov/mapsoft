@@ -1,0 +1,7 @@
+libdir=core/jeeps
+
+Name: jeeps
+Description: Mapsoft jeeps library
+Requires: libusb
+Version: 1
+Libs: -ljeeps

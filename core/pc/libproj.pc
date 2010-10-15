@@ -1,0 +1,5 @@
+Name: libproj
+Description: libproj
+Requires:
+Version: 1
+Libs: -lproj

@@ -1,0 +1,7 @@
+libdir=core/loaders
+
+Name: loaders
+Description: Mapsoft loaders library
+Requires: libcurl libpng libjpeg libtiff  2d options
+Version: 1
+Libs: -lloaders

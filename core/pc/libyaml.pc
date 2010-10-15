@@ -1,0 +1,5 @@
+Name: libyaml
+Description: libyaml
+Requires:
+Version: 1
+Libs: -lyaml

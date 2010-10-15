@@ -1,0 +1,7 @@
+libdir=core/geo
+
+Name: geo
+Description: Mapsoft geo library
+Requires: libproj  2d options loaders
+Version: 1
+Libs: -lgeo
