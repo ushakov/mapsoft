@@ -1,10 +1,8 @@
+Import ('env')
+e = env.Clone()
 
-mapsoft_libs = Split ("vmap geo_io geo loaders jeeps fig mp options utils 2d")
-other_libs   = Split ("curl usb tiff jpeg png yaml proj")
-
-Import ('env_cairo')
-e = env_cairo.Clone()
-e.Prepend(LIBS=[mapsoft_libs,other_libs])
+e['ENV']['PKG_CONFIG_PATH'] = "../../core/pc"
+e.ParseConfig('pkg-config --cflags --libs vmap')
 
 e.Program('mapsoft_vmap.cpp')
 e.Program('fig2pnm.cpp')

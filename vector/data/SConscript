@@ -4,13 +4,13 @@ env.Install(env.datadir, Split("""
   pics/ mmb.cnf hr.cnf default.cnf
 """))
 
-env.Install(env.datadir, Split("pics/*.fig pics/*.png"))
+env.Install(env.datadir, Split("pics"))
 
 
-mapsoft_libs = Split ("vmap geo_io geo loaders jeeps fig mp options utils 2d")
-other_libs   = Split ("curl usb tiff jpeg png yaml proj")
-env1 = env.Clone()
-env1.Prepend(LIBS=[mapsoft_libs,other_libs])
-env1.Program('zn_figlib.cpp')
-env1.Program('zn_legend.cpp')
-env1.Program('zn_text.cpp')
+e = env.Clone()
+e['ENV']['PKG_CONFIG_PATH'] = "../../core/pc"
+e.ParseConfig('pkg-config --cflags --libs vmap')
+
+e.Program('zn_figlib.cpp')
+e.Program('zn_legend.cpp')
+e.Program('zn_text.cpp')
