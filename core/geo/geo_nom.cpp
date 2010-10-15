@@ -219,7 +219,7 @@ range_to_nomlist(const dRect & range, int rscale){
         cnt=r.CNT();
       }
       else{
-        far+=dPoint(r.w, r.h);
+        far.x+=r.w;
       }
       cnt.x+=r.w;
     }
