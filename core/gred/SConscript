@@ -1,7 +1,7 @@
 Import('env')
 
 e=env.Clone()
-e.ParseConfig('pkg-config --cflags gtkmm-2.4')
+e.ParseConfig('pkg-config --cflags gtkmm-2.4 gthread-2.0')
 
 e.Library('gred', \
     Split ("""
