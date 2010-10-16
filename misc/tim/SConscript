@@ -1,7 +1,7 @@
 Import('env')
 e=env.Clone()
 
-e.ParseConfig('pkg-config --cflags --libs geo_io')
+e.UseLibs('geo_io')
 
 map (lambda(f): e.Program(f+'.cpp'),\
   Split("""

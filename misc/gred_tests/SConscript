@@ -1,7 +1,7 @@
 Import('env')
 e = env.Clone()
 
-e.ParseConfig('pkg-config --cflags --libs gred gtkmm-2.4')
+e.UseLibs('gred')
 
 files=Split('gobj_test_tile.cpp gobj_test_grid.cpp gobj_solid_fill.cpp')
 

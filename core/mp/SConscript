@@ -8,7 +8,7 @@ env.Library('mp', \
      """))
 
 e=env.Clone()
-e.ParseConfig('pkg-config --cflags --libs mp')
+e.UseLibs('mp')
 e.Program("catmp.cpp")
 e.Install(env.bindir, ['catmp'])
 

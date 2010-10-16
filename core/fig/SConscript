@@ -9,7 +9,7 @@ env.Library('fig', \
      """))
 
 e=env.Clone()
-e.ParseConfig('pkg-config --cflags --libs fig')
+e.UseLibs('fig')
 e.Program("catfig.cpp")
 e.Install(env.bindir, ['catfig'])
 

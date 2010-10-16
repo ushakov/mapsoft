@@ -1,6 +1,6 @@
 Import('env')
 e=env.Clone()
-e.ParseConfig('pkg-config --cflags --libs mp utils')
+e.UseLibs('mp utils')
 
 e.Program(["mp_bboxes.cpp"])
 e.Program('mp_bboxes2.cpp')

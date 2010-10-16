@@ -1,7 +1,7 @@
 Import ('env')
 e = env.Clone()
 
-e.ParseConfig('pkg-config --cflags --libs vmap')
+e.UseLibs('vmap')
 
 e.Program('mapsoft_vmap.cpp')
 e.Program('fig2pnm.cpp')

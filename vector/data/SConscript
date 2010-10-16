@@ -8,7 +8,7 @@ env.Install(env.datadir, Split("pics"))
 
 
 e = env.Clone()
-e.ParseConfig('pkg-config --cflags --libs vmap')
+e.UseLibs('vmap')
 
 e.Program('zn_figlib.cpp')
 e.Program('zn_legend.cpp')
