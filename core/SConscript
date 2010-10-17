@@ -1,4 +1,4 @@
-import distutils.sysconfig
+#import distutils.sysconfig
 Import ('env')
 
 subdirs = Split ("""

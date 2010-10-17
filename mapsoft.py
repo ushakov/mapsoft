@@ -1,67 +1,87 @@
 import collections
 
 
-class DepsInfo(object):
+class Target(object):
+    def __init__(self, env, name):
+        self.name = name
+        self.compile_flags = ""
+        self.link_flags = ""
+        self.libs = ""
+        self.srcs = ""
+        self.env = env
+
+    def Add(self, env):
+        env.Prepend(LIBS = self.deps)
+        env.Prepend(LINKFLAGS = self.link_flags)
+        env.Prepend(CCFLAGS = self.compile_flags)
+
+
+class LocalTarget(Target):
+    def __init__(self, env, name):
+        super(Target, self).__init__(env, name)
+
+
+class ExternalLib(Target):
+    def __init__(self, env, name):
+        super(Target, self).__init__(env, name)
+
+    def ParseFlags(self, arg):
+        self.env.ParseFlags(arg)
+
+
+class DepTracker(object):
     def __init__(self):
-        self.deps = collections.defaultdict(list)
+        self.deps = {}
+
+    def RegisterTarget(self, target, deps):
+        self.deps[target.name] = deps
 
     def GetDeps(self, target):
-        """Returns full transitive deps"""
+        if target.name not in self.deps:
+            raise 'Unknown target %s' % target.name
+        
 
-        # expanded is the set of targets which dependencies have been
-        # fetched (no one can enter this set twice!)
-        expanded = set([target])
-
-        # inv.: resulting_deps are (transitive) dependencies of
-        # target, all direct dependencies of those that are not in
-        # resulting_deps are in new_targets.
-        resulting_deps = set([target])
-        new_targets = self.deps[target]
-        while new_targets:
-            next_new_targets = []
-            for new_target in new_targets:
-                if new_target in expanded:
-                    raise Exception("Circular dependecy in expansion of %s" % new_target)
-                deps = self.deps[new_target]
-                resulting_deps.append(new_target)
-                if deps:
-                    expanded.append(new_target)
-                    next_new_targets.extend(deps)
-        return list(resulting_deps)
-
-    def AddDeps(self, target, deps):
-        assert target not in self.deps
-        self.deps[target] = deps
+def _ParseKW(target, kw):
+    if 'deps' in kw:
+        target.libs = kw['deps']
+    if 'srcs' in kw:
+        target.srcs = kw['srcs']
+    if 'cflags' in kw:
+        target.compile_flags = kw['cflags']
+    if 'lflags' in kw:
+        target.link_flags = kw['lflags']
 
 
-GLOBAL_DEPS = DepsInfo()
+def _ResolveDeps(env, target):
+    def func(trg, src, env):
+        print target
+        raise "not implemented"
+    return env.Action(func)
 
 
-def MProg(env, name, srcs = None, deps = None):
-    if deps is not None:
-        env.Prepend(LIBS = deps)
-    if srcs is not None:
-        env.Program(target = name, 
-                    source = srcs)
-    else:
-        env.Program(name)
+def MProg(env, name, **kw):
+    target = LocalTarget(env, name)
+    _ParseKW(target, kw)
+    env.Program(name, kw['srcs'])
+    env.PreAction(name, _ResolveDeps(env, target))
 
 
 def MLib(env, name, srcs = None, deps = None):
-    if deps is not None:
-        env.Prepend(LIBS = deps)
-    if srcs is not None:
-        env.Library(target = name, 
-                    source = srcs)
+    target = LocalTarget(env, name)
+    _ParseKW(target, kw)
+    env.Library(name, kw['srcs'])
+    env.PreAction(name, _ResolveDeps(env, target))
+
+
+def ExtLib(env, name, pkg_config_deps):
+    target = ExternalLib(env, name)
+    if isinstance(pkg_config_deps, str):
+        pkg_config_str = pkg_config_deps
     else:
-        env.Library(name)
-
-
-def MDeps(env, deps):
-    GLOBAL_DEPS.AddDeps(???
-    
+        pkg_config_str = ','.join(pkg_config_deps)
+    target.ParseFlags('pkg-config --libs --cflags %s' % pkg_config_str)
+    DEPS.RegisterTarget(target, [])
 
 def Setup(env):
     env.AddMethod(MProg)
     env.AddMethod(MLib)
-    env.AddMethod(MDeps)
