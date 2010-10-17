@@ -45,6 +45,8 @@ if ARGUMENTS.get('gheapcheck', 0):
 
 env.Prepend(LIBPATH=".")
 
+env.ExtLib('cairo', 'cairomm-1.0,freetype2')
+
 Export('env')
 
 ## cairo env
@@ -61,3 +63,5 @@ env_list=[env, env_cairo, env_gtk]
 Export('env_list')
 
 SConscript (map (lambda(s): s+"/SConscript", subdirs))
+
+mapsoft.Finish()

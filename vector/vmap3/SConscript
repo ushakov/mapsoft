@@ -1,21 +1,29 @@
 Import ('env_cairo')
 e = env_cairo.Clone()
 
-e.MDeps(Split("""
-              vmap_renderer
-              vmap mp fig geo_io geo loaders utils options 2d
-              proj png jpeg tiff yaml
-              """))
-
 e.MLib('vmap_renderer',
-       srcs = Split ("""
-                     vmap_rend_cnt.cpp
-                     vmap_rend_txt.cpp
-                     vmap_rend_pic.cpp
-                     vmap_renderer.cpp
-                     """))
+       srcs = Split("""
+                    vmap_rend_cnt.cpp
+                    vmap_rend_txt.cpp
+                    vmap_rend_pic.cpp
+                    vmap_renderer.cpp
+                    """),
+       deps = [])
 
-e.MProg("vmap_copy.cpp")
-e.MProg("vmap_render.cpp")
-e.MProg("vmap_mmb_filter.cpp")
+#       Split("""
+#                    vmap mp fig geo_io geo loaders utils options 2d
+#                    proj png jpeg tiff yaml
+#                    """))
+
+e.MProg('vmap_copy',
+        srcs = ['vmap_copy.cpp'],
+        deps = ['vmap_renderer'])
+
+e.MProg('vmap_render',
+        srcs = ['vmap_render.cpp'],
+        deps = ['vmap_renderer'])
+
+e.MProg('vmap_mmb_filter',
+        srcs = ['vmap_mmb_filter.cpp'],
+        deps = ['vmap_renderer'])
 

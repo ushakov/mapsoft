@@ -1,9 +1,10 @@
 Import ('env')
-env.Library('geo', \
-    Split ("""
-	geo_convs.cpp
-	geo_data.cpp
-	geo_types.cpp
-        geo_refs.cpp
-	geo_nom.cpp
-     """))
+
+env.MLib('geo',
+         srcs = Split ("""
+                       geo_convs.cpp
+                       geo_data.cpp
+                       geo_types.cpp
+                       geo_refs.cpp
+                       geo_nom.cpp
+                       """))

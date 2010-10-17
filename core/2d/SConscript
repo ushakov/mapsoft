@@ -1,10 +1,11 @@
 Import ('env')
 
-env.Library('2d',
-  Split ("""
-    point_int.cpp
-    rect.cpp
-    point_conv.cpp
-    line_dist.cpp
-  """))
+env.MLib('2d',
+         srcs = Split ("""
+            point_int.cpp
+            rect.cpp
+            point_conv.cpp
+            line_dist.cpp
+            """),
+         deps = [])
 
