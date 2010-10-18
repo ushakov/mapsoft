@@ -9,14 +9,12 @@ class Target(object):
         self.link_flags = ""
         self.deps = []
         self.env = env
-        self.add_env = Environment()
+        self.add_dict = {}
 
     def Apply(self, env):
         env.Prepend(LINKFLAGS = self.link_flags)
         env.Prepend(CCFLAGS = self.compile_flags)
-        print env
-        env.Prepend(**(self.add_env.Dictionary()))
-        print 'adding %s' % self.add_dict
+        env.Prepend(**self.add_dict)
 
 
 class LocalTarget(Target):
@@ -28,8 +26,8 @@ class ExternalLib(Target):
     def __init__(self, env, name):
         super(ExternalLib, self).__init__(env, name)
 
-    def ParseConfig(self, arg):
-        self.add_dict = self.env.ParseConfig(arg)
+    def ParseFlags(self, arg):
+        self.add_dict = self.env.ParseFlags(arg)
 
 
 class DepsTracker(object):
@@ -84,7 +82,6 @@ def _ResolveDeps(target):
     deps = DEPS.GetDeps(target)
     _ApplyFlags(target.env, deps)
     target.env.Prepend(LIBS = deps)
-    print 'deps=%s' % deps
 
 
 def MProg(parent_env, name, **kw):
@@ -110,7 +107,7 @@ def ExtLib(parent_env, name, pkg_config_deps):
         pkg_config_str = pkg_config_deps
     else:
         pkg_config_str = ','.join(pkg_config_deps)
-    target.ParseConfig('pkg-config --libs --cflags %s' % pkg_config_str)
+    target.ParseFlags('!pkg-config --libs --cflags %s' % pkg_config_str)
     DEPS.RegisterTarget(target)
 
 def Setup(env):
