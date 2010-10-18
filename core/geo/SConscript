@@ -1,10 +1,16 @@
 Import ('env')
 
 env.MLib('geo',
-         srcs = Split ("""
-                       geo_convs.cpp
-                       geo_data.cpp
-                       geo_types.cpp
-                       geo_refs.cpp
-                       geo_nom.cpp
-                       """))
+         srcs = Split("""
+                  geo_convs.cpp
+                  geo_data.cpp
+                  geo_types.cpp
+                  geo_refs.cpp
+                  geo_nom.cpp
+                  """),
+         deps = Split("""
+                  2d
+                  utils
+                  options
+                  libproj
+                  """))

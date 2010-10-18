@@ -1,15 +1,18 @@
 Import('env')
 
-env.Library('fig', \
-    Split ("""
-        fig_io.cpp
-        fig_mask.cpp
-        fig_utils.cpp
-        fig_data.cpp
-     """))
+env.MLib('fig',
+         srcs = Split ("""
+                  fig_io.cpp
+                  fig_mask.cpp
+                  fig_utils.cpp
+                  fig_data.cpp
+                  """),
+         deps = ['utils',
+                 '2d'])
 
-libs=Split("fig utils 2d")
-env.Program("catfig.cpp",  LIBS=[libs])
+env.MProg('catfig',
+          srcs = ['catfig.cpp'],
+          deps = ['fig'])
 
 env.Install(env.bindir, ['catfig'])
 
