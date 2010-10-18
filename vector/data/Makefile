@@ -7,12 +7,12 @@ all: $(targets)
 clean:
 	rm -rf $(targets)
 
-GET_L = ../libzn-utils/get_legend
+GET_L = ./zn_legend
 GET_P = ../libzn-utils/get_print
 F2P   = ../libzn-utils/fig2pnm
 
 %.fig: %.cnf
-	$(GET_L) %< > %@
+	$(GET_L) %{<.cnf=} > %@
 
 %.conv.fig: %.fig
 	$(GET_P) $< $@
