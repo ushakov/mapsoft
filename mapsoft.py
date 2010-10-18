@@ -100,7 +100,7 @@ def MLib(parent_env, name, **kw):
     DEPS.RegisterTarget(target)
 
 
-def ExtLib(parent_env, name, pkg_config_deps):
+def ExtLibPkgConfig(parent_env, name, pkg_config_deps):
     env = parent_env.Clone()
     target = ExternalLib(env, name)
     if isinstance(pkg_config_deps, str):
@@ -110,10 +110,20 @@ def ExtLib(parent_env, name, pkg_config_deps):
     target.ParseFlags('!pkg-config --libs --cflags %s' % pkg_config_str)
     DEPS.RegisterTarget(target)
 
+
+def ExtLib(parent_env, name, cflags = "", lflags = ""):
+    env = parent_env.Clone()
+    target = ExternalLib(env, name)
+    target.compile_flags = cflags
+    target.link_flags = lflags
+    DEPS.RegisterTarget(target)
+
+
 def Setup(env):
     env.AddMethod(MProg)
     env.AddMethod(MLib)
     env.AddMethod(ExtLib)
+    env.AddMethod(ExtLibPkgConfig)
 
 
 def Finish():
