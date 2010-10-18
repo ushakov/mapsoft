@@ -1,14 +1,15 @@
 Import('env')
 
-env.Library('mp', \
-    Split ("""
-        mp_io.cpp
-        mp_mask.cpp
-        mp_data.cpp
-     """))
+env.MLib('mp',
+         srcs = Split("""
+                      mp_io.cpp
+                      mp_mask.cpp
+                      mp_data.cpp
+                      """))
 
-libs=Split("mp utils 2d")
-env.Program("catmp.cpp",  LIBS=[libs])
+env.MProg('catmp',
+          srcs = ['catmp.cpp'],
+          deps = Split("""mp utils 2d"""))
 
 env.Install(env.bindir, ['catmp'])
 

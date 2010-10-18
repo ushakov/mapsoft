@@ -1,7 +1,15 @@
 Import ('env')
 le = env.Clone()
 
-le.Program('generic_accessor_unittest', 'generic_accessor_unittest.cpp', LIBS=['utils'])
-le.Program('cache_test', 'cache_test.cpp', LIBS=['utils'])
-# le.Program('options_test', 'options_test.cpp', LIBS=['utils'])
+le.MProg('generic_accessor_unittest',
+         srcs = ['generic_accessor_unittest.cpp'],
+         deps = ['utils'])
+
+le.MProg('cache_test',
+         srcs = ['cache_test.cpp'],
+         deps = ['utils'])
+
+#le.MProg('options_test',
+#         srcs = ['options_test.cpp'],
+#         deps = ['utils'])
 

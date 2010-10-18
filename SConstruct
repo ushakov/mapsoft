@@ -46,6 +46,7 @@ if ARGUMENTS.get('gheapcheck', 0):
 env.Prepend(LIBPATH=".")
 
 env.ExtLib('cairo', 'cairomm-1.0,freetype2')
+env.ExtLib('gtk', 'gtkmm-2.4,gthread-2.0')
 
 Export('env')
 

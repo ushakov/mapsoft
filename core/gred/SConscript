@@ -1,12 +1,13 @@
-Import('env_gtk')
+Import('env')
 
-env_gtk.Library('gred', \
-    Split ("""
-      gobj.cpp
-      action_manager.cpp
-      rubber.cpp
-      simple_viewer.cpp
-      mthread_viewer.cpp
-      dthread_viewer.cpp
-     """))
+env.MLib('gred',
+         srcs = Split ("""
+                       gobj.cpp
+                       action_manager.cpp
+                       rubber.cpp
+                       simple_viewer.cpp
+                       mthread_viewer.cpp
+                       dthread_viewer.cpp
+                       """),
+         deps = ['gtk'])
 
