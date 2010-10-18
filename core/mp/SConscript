@@ -6,7 +6,11 @@ env.MLib('mp',
                       mp_mask.cpp
                       mp_data.cpp
                       """),
-         deps = Split("""utils 2d"""))
+         deps = Split("""
+                  utils
+                  2d
+                  options
+                  """))
 
 env.MProg('catmp',
           srcs = ['catmp.cpp'],

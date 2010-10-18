@@ -1,14 +1,23 @@
 Import ('env')
 env.MLib('vmap',
          srcs = Split("""
-                      zn.cpp
-                      zn_lists.cpp
-                      vmap.cpp
-                      vmap_file.cpp
-                      vmap_fig.cpp
-                      vmap_mp.cpp
-                      vmap_vmap.cpp
-                      vmap_cnv.cpp
-                      vmap_filt.cpp
-                      vmap_labels.cpp
-                      """))
+                  zn.cpp
+                  zn_lists.cpp
+                  vmap.cpp
+                  vmap_file.cpp
+                  vmap_fig.cpp
+                  vmap_mp.cpp
+                  vmap_vmap.cpp
+                  vmap_cnv.cpp
+                  vmap_filt.cpp
+                  vmap_labels.cpp
+                  """),
+         deps = Split("""
+                  2d
+                  fig
+                  geo
+                  geo_io
+                  mp
+                  options
+                  libyaml
+                  """))

@@ -9,5 +9,9 @@ env.MLib('gred',
                        mthread_viewer.cpp
                        dthread_viewer.cpp
                        """),
-         deps = ['gtk'])
+         deps = Split("""
+                  2d
+                  utils
+                  gtk
+                  """))
 

@@ -2,12 +2,20 @@ Import ('env')
 
 env.MLib('loaders',
          srcs = Split("""
-                      image_jpeg.cpp
-                      image_tiff.cpp
-                      image_png.cpp
-                      image_i.cpp
-                      image_r.cpp
-                      image_google.cpp
-                      image_ks.cpp
-                      """))
+                  image_jpeg.cpp
+                  image_tiff.cpp
+                  image_png.cpp
+                  image_i.cpp
+                  image_r.cpp
+                  image_google.cpp
+                  image_ks.cpp
+                  """),
+         deps = Split("""
+                  2d
+                  fig
+                  geo
+                  geo_io
+                  jeeps
+                  options
+                  utils"""))
 

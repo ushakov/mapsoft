@@ -47,7 +47,9 @@ env.Prepend(LIBPATH=".")
 
 env.ExtLibPkgConfig('cairo', 'cairomm-1.0,freetype2')
 env.ExtLibPkgConfig('gtk', 'gtkmm-2.4,gthread-2.0')
+env.ExtLibPkgConfig('libusb', 'libusb-1.0')
 env.ExtLib('libproj', lflags = '-lproj')
+env.ExtLib('libyaml', lflags = '-lyaml')
 
 Export('env')
 

@@ -2,10 +2,10 @@ Import ('env')
 
 env.MLib('options',
          srcs = Split("""
-                      options.cpp
-                      read_conf.cpp
-                      m_time.cpp
-                      m_color.cpp
-                      strvec.cpp
-                      m_getopt.cpp
-                      """))
+                  options.cpp
+                  read_conf.cpp
+                  m_time.cpp
+                  m_color.cpp
+                  strvec.cpp
+                  m_getopt.cpp
+                  """))
