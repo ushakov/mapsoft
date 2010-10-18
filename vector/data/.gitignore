@@ -1,5 +1,6 @@
 *.fig
 *.png
+*.pnm
 *_fig
 zn_figlib
 zn_legend

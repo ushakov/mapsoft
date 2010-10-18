@@ -7,37 +7,28 @@ e.UseLibs('vmap')
 
 #### TODO: сделать удаление цели перед установкой для pics hr_fig mmb_fig
 
-#### Method for cnf 2 fig conversion
-def Cnf2Fig(env, name):
-   """Setup command for cnf2fig conversion by <name> argument"""
-   cmd = env.Command(name+'.fig', name+'.cnf',\
-     "./zn_legend %s > %s.fig" % (name, name), chdir = 1)
+#### Method for cnf 2 png conversion
+def Cnf2Png(env, name):
+   """Setup command for cnf2png conversion by <name> argument"""
+   cmd = env.Command(name+'.png', name+'.cnf', "\
+     tmpfig=$$(mktemp);\
+     tmpfig_c=$$(mktemp);\
+     ./zn_legend %s > $$tmpfig;\
+     ../libzn-utils/get_print $$tmpfig $$tmpfig_c;\
+     LANG=ru_RU.KOI8-R ../libzn-utils/fig2pnm $$tmpfig_c |\
+        pnmscale 0.5 |\
+        pnmremap -mapfile %s.cmap.pnm |\
+        pnmtopng > %s.png" % (name, name, name), chdir = 1)
    env.Depends(cmd, 'zn_legend')
-e.AddMethod(Cnf2Fig)
-
-#### Method for fig 2 conv conversion
-def Fig2Conv(env, name):
-   """Setup command for fig2conv conversion by <name> argument"""
-   cmd = env.Command(name+'.conv.fig', name+'.fig',\
-     "../libzn-utils/get_print %s.fig %s.conv.fig" % (name, name), chdir = 1)
-   env.Depends(cmd, '../libzn-utils/get_print')
-e.AddMethod(Fig2Conv)
-
-#### Method for fig 2 png conversion
-def Fig2Png(env, name):
-   """Setup command for fig2png conversion by <name> argument"""
-   cmd = env.Command(name+'.png', name+'.fig', \
-     "LANG=ru_RU.KOI8-R ../libzn-utils/fig2pnm %s.fig |\
-           pnmscale 0.5 |\
-           pnmquant 256 |\
-           pnmtopng > %s.png" % (name, name), chdir = 1)
    env.Depends(cmd, '../libzn-utils/fig2pnm')
-e.AddMethod(Fig2Png)
+   env.Depends(cmd, '../libzn-utils/get_print')
+   env.Depends(cmd, name+'.cmap.pnm')
+e.AddMethod(Cnf2Png)
 
 #### Method for cnf 2 colormap conversion
 def Cnf2CM(env, name):
    """Setup command for cnf2CM conversion by <name> argument"""
-   cmd = env.Command(name+'.cmap.pnm', name+'.fig', "\
+   cmd = env.Command(name+'.cmap.pnm', name+'.cnf', "\
      tmpfig=$$(mktemp);\
      tmpfig_c=$$(mktemp);\
      ./zn_legend -c %s > $$tmpfig;\
@@ -65,23 +56,17 @@ e.Program('zn_figlib.cpp')
 e.Program('zn_legend.cpp')
 e.Program('zn_text.cpp')
 
-e.Cnf2Fig('mmb')
-e.Fig2Conv('mmb')
-e.Fig2Png('mmb')
-e.Fig2Png('mmb.conv')
-e.Figlib('mmb')
+e.Cnf2Png('mmb')
 e.Cnf2CM('mmb')
 e.Install(e.datadir, "mmb.cnf")
+e.Install(e.datadir, "mmb.png")
 e.Install(e.datadir, "mmb.cmap.pnm")
 e.Install(e.figlibdir, "mmb_fig")
 
-e.Cnf2Fig('hr')
-e.Fig2Conv('hr')
-e.Fig2Png('hr')
-e.Fig2Png('hr.conv')
-e.Figlib('hr')
+e.Cnf2Png('hr')
 e.Cnf2CM('hr')
 e.Install(e.datadir, "hr.cnf")
+e.Install(e.datadir, "hr.png")
 e.Install(e.datadir, "hr.cmap.pnm")
 e.Install(e.figlibdir, "hr_fig")
 
