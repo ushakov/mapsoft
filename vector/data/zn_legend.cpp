@@ -16,7 +16,7 @@ void usage(){
 main(int argc, char** argv){
 
   bool cmap=false;
-  if ((argc >=1 ) && (strcmp("-c", argv[1])==0)){
+  if ((argc >=2 ) && (strcmp("-c", argv[1])==0)){
     cmap=true;
     argc--;
     argv++;
