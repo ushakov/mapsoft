@@ -5,11 +5,12 @@ env.MLib('mp',
                       mp_io.cpp
                       mp_mask.cpp
                       mp_data.cpp
-                      """))
+                      """),
+         deps = Split("""utils 2d"""))
 
 env.MProg('catmp',
           srcs = ['catmp.cpp'],
-          deps = Split("""mp utils 2d"""))
+          deps = ['mp'])
 
 env.Install(env.bindir, ['catmp'])
 
