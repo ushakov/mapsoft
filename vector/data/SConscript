@@ -10,28 +10,52 @@ e.UseLibs('vmap')
 #### Method for cnf 2 fig conversion
 def Cnf2Fig(env, name):
    """Setup command for cnf2fig conversion by <name> argument"""
-   cmd = env.Command(name+'.fig', name+'.cnf', "./zn_legend %s > %s.fig" % (name, name), chdir = 1)
+   cmd = env.Command(name+'.fig', name+'.cnf',\
+     "./zn_legend %s > %s.fig" % (name, name), chdir = 1)
    env.Depends(cmd, 'zn_legend')
 e.AddMethod(Cnf2Fig)
 
 #### Method for fig 2 conv conversion
 def Fig2Conv(env, name):
    """Setup command for fig2conv conversion by <name> argument"""
-   cmd = env.Command(name+'.conv.fig', name+'.fig', "../libzn-utils/get_print %s.fig %s.conv.fig" % (name, name), chdir = 1)
+   cmd = env.Command(name+'.conv.fig', name+'.fig',\
+     "../libzn-utils/get_print %s.fig %s.conv.fig" % (name, name), chdir = 1)
    env.Depends(cmd, '../libzn-utils/get_print')
 e.AddMethod(Fig2Conv)
 
 #### Method for fig 2 png conversion
 def Fig2Png(env, name):
    """Setup command for fig2png conversion by <name> argument"""
-   cmd = env.Command(name+'.png', name+'.fig', "LANG=ru_RU.KOI8-R ../libzn-utils/fig2pnm %s.fig | pnmtopng > %s.png" % (name, name), chdir = 1)
+   cmd = env.Command(name+'.png', name+'.fig', \
+     "LANG=ru_RU.KOI8-R ../libzn-utils/fig2pnm %s.fig |\
+           pnmscale 0.5 |\
+           pnmquant 256 |\
+           pnmtopng > %s.png" % (name, name), chdir = 1)
    env.Depends(cmd, '../libzn-utils/fig2pnm')
 e.AddMethod(Fig2Png)
+
+#### Method for cnf 2 colormap conversion
+def Cnf2CM(env, name):
+   """Setup command for cnf2CM conversion by <name> argument"""
+   cmd = env.Command(name+'.cmap.pnm', name+'.fig', "\
+     tmpfig=$$(mktemp);\
+     tmpfig_c=$$(mktemp);\
+     ./zn_legend -c %s > $$tmpfig;\
+     ../libzn-utils/get_print $$tmpfig $$tmpfig_c;\
+     LANG=ru_RU.KOI8-R ../libzn-utils/fig2pnm $$tmpfig_c |\
+        pnmscale 0.5 |\
+        pnmcolormap -sort 256 > %s.cmap.pnm" % (name, name), chdir = 1)
+   env.Depends(cmd, 'zn_legend')
+   env.Depends(cmd, '../libzn-utils/fig2pnm')
+   env.Depends(cmd, '../libzn-utils/get_print')
+e.AddMethod(Cnf2CM)
 
 #### Method for figlib creation
 def Figlib(env, name):
    """Setup command for figlib creation by <name> argument"""
-   cmd = env.Command(name+'_fig/', name+'.cnf', "rm -f -- %s_fig; ./zn_figlib %s %s_fig" % (name, name, name), chdir = 1)
+   cmd = env.Command(name+'_fig/', name+'.cnf', "\
+     rm -f -- %s_fig;\
+     ./zn_figlib %s %s_fig" % (name, name, name), chdir = 1)
    env.Clean(cmd, name+'_fig')
    env.Depends(cmd, 'zn_figlib')
 e.AddMethod(Figlib)
@@ -46,7 +70,9 @@ e.Fig2Conv('mmb')
 e.Fig2Png('mmb')
 e.Fig2Png('mmb.conv')
 e.Figlib('mmb')
+e.Cnf2CM('mmb')
 e.Install(e.datadir, "mmb.cnf")
+e.Install(e.datadir, "mmb.cmap.pnm")
 e.Install(e.figlibdir, "mmb_fig")
 
 e.Cnf2Fig('hr')
@@ -54,7 +80,9 @@ e.Fig2Conv('hr')
 e.Fig2Png('hr')
 e.Fig2Png('hr.conv')
 e.Figlib('hr')
+e.Cnf2CM('hr')
 e.Install(e.datadir, "hr.cnf")
+e.Install(e.datadir, "hr.cmap.pnm")
 e.Install(e.figlibdir, "hr_fig")
 
 e.SymLink("mmb.cnf", "default.cnf", e.datadir)
