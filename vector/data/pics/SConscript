@@ -8,7 +8,7 @@ env1 = env.Clone()
 def pic2png(env, task):
    """Setup command for pic2png conversion by <name>:<cnt> argument"""
    name, sep, cnt = task.partition(':')
-   env.Command(name+'.png', name+'.fig', "./make_pics %s.fig %s.png %s" % (name, name, cnt), chdir = os.getcwd())
+   env.Command(name+'.png', name+'.fig', "./make_pics %s.fig %s.png %s" % (name, name, cnt), chdir = 1)
 env1.AddMethod(pic2png, 'Pic2Png')
 ####
 
