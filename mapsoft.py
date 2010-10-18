@@ -42,8 +42,8 @@ class DepsTracker(object):
     def GetDeps(self, target):
         if target.name not in self.deps:
             raise Exception('Unknown target %s' % target.name)
-        need_resolving = set(self.deps[target.name])
-        results = [target.name]
+        need_resolving = self.deps[target.name]
+        results = []
         seen = set(target.name)
         while need_resolving:
             next_need_resolving = []
