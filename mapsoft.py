@@ -16,6 +16,9 @@ class Target(object):
         env.Prepend(CCFLAGS = self.compile_flags)
         env.Prepend(**self.add_dict)
 
+    def ShouldRemoveSelf(self):
+        return False
+
 
 class LocalTarget(Target):
     def __init__(self, env, name):
@@ -28,6 +31,15 @@ class ExternalLib(Target):
 
     def ParseFlags(self, arg):
         self.add_dict = self.env.ParseFlags(arg)
+
+    def ShouldRemoveSelf(self):
+        return True
+
+
+class RemainingVertices(object):
+    def __init__(self):
+        self.vertex = None
+        self.remaining = None
 
 
 class DepsTracker(object):
@@ -42,31 +54,56 @@ class DepsTracker(object):
     def GetDeps(self, target):
         if target.name not in self.deps:
             raise Exception('Unknown target %s' % target.name)
-        need_resolving = self.deps[target.name]
-        results = []
-        seen = set(target.name)
-        while need_resolving:
-            next_need_resolving = []
-            for trg in need_resolving:
-                if trg not in self.deps:
+        # Topologically sort the deps graph. Algorithm: run dfs, when
+        # going back from each vertex, add it to start of
+        # results. seen contain the set of already visited
+        # vertices. stack is the backtrack stack (contains remaining
+        # lists at each vertex).
+        stack = []
+        seen = set()
+        result = []
+        rem = RemainingVertices()
+        rem.vertex = target.name
+        rem.remaining = target.deps
+        stack.append(rem)
+        seen.add(target.name)
+        while stack:
+            rem = stack[-1]
+#            print 'looking at %s (%s remaining)' % (rem.vertex, len(rem.remaining))
+            if len(rem.remaining) == 0:
+                result = [rem.vertex] + result
+                stack = stack[:-1]
+#                print 'added %s' % rem.vertex
+                continue
+            to_visit = rem.remaining[0]
+            rem.remaining = rem.remaining[1:]
+            if to_visit not in seen:
+#                print '   visiting %s' % to_visit
+                seen.add(to_visit)
+                new_rem = RemainingVertices()
+                new_rem.vertex = to_visit
+                if to_visit not in self.deps:
                     raise Exception('Dep not found: %s' % trg)
-                if trg in seen:
-                    continue
-                results.append(trg)
-                seen.add(trg)
-                new_deps = self.deps[trg]
-                next_need_resolving.extend(new_deps)
-            need_resolving = next_need_resolving
-        return results
+                new_rem.remaining = self.deps[to_visit]
+                stack.append(new_rem)
+        assert result[0] == target.name
+        result = result[1:]
+#        print '%s: %s' % (target.name, result)
+        return result
 
 
 DEPS = DepsTracker()
         
 
-def _ApplyFlags(env, deps):
+def _ApplyFlags(target, deps):
+    outdeps = []
+    target.Apply(target.env)
     for name in deps:
-        target = DEPS.targets[name]
-        target.Apply(env)
+        dep = DEPS.targets[name]
+        dep.Apply(target.env)
+        if not dep.ShouldRemoveSelf():
+            outdeps.append(name)
+    return outdeps
 
 
 def _ParseKW(target, kw):
@@ -80,7 +117,7 @@ def _ParseKW(target, kw):
 
 def _ResolveDeps(target):
     deps = DEPS.GetDeps(target)
-    _ApplyFlags(target.env, deps)
+    deps = _ApplyFlags(target, deps)
     target.env.Prepend(LIBS = deps)
 
 
