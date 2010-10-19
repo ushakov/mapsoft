@@ -1,7 +1,0 @@
-Import ('env_base')
-
-env1 = env_base.Clone()
-env1.Prepend (LIBS=['base'])
-env1.Append  (LIBPATH = ['..'])
-
-env1.Program('test_options.cpp')
