@@ -1,0 +1,5 @@
+Import('env')
+e=env.Clone()
+e.UseLibs('fig utils')
+
+e.Program("gs_bbx_test.cpp")

@@ -59,7 +59,7 @@ struct gs_bbx{
     char c; std::string s;
     while (read(out_pipe[0], &c, 1)!=1); // ждем
     do { s.push_back(c); } while (read(out_pipe[0], &c, 1)==1);
-    using namespace boost::spirit;
+    using namespace boost::spirit::classic;
     dRect ret;
     if ( !parse(s.c_str(), 
         str_p("%%BoundingBox:") >> +space_p >> 
