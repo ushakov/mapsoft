@@ -76,10 +76,11 @@ main(){
     std::cout << "broken value after bad_lexical_cast in get: "<< i0 << " != " << i1 << "\n"; err++;}
 
   // запись всего объекта Options
-  string options_str = "b=\"1\" d=\"0.01\" i=\"10\" s=\"mystring\"";
+  string options_str  = "b=\"1\" d=\"0.01\" i=\"10\" s=\"mystring\"";
+  string options_str1 = "b=\"1\"\nd=\"0.01\"\ni=\"10\"\ns=\"mystring\"";
   ostringstream st1; st1 << O;
-  if (st1.str() != options_str) {
-    std::cout << "operator<< test failed: \"" << st1.str() << "\" != \"" << options_str << "\"\n"; err++;}
+  if (st1.str() != options_str1) {
+    std::cout << "operator<< test failed: \"" << st1.str() << "\" != \"" << options_str1 << "\"\n"; err++;}
 
   // чтение Options
   istringstream st2(st1.str());

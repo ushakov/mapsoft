@@ -1,0 +1,8 @@
+Import('env')
+e=env.Clone()
+e.UseLibs('options')
+
+e.Program("options_read.cpp")
+e.Program("options_test.cpp")
+e.Program("read_conf_test.cpp")
+e.Program("strvec_test.cpp")

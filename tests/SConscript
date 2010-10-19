@@ -3,6 +3,7 @@ Import ('env')
 subdirs = Split ("""
     2d_rectcrop
     geo_nom
+    options
   """)
 
 SConscript (map (lambda(s): s+"/SConscript", subdirs))
