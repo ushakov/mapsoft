@@ -17,5 +17,8 @@ env.MLib('loaders',
                   geo_io
                   jeeps
                   options
-                  utils"""))
+                  utils
+                  libjpeg
+                  libtiff
+                  libpng"""))
 

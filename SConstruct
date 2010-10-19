@@ -50,6 +50,9 @@ env.ExtLibPkgConfig('gtk', 'gtkmm-2.4,gthread-2.0')
 env.ExtLibPkgConfig('libusb', 'libusb-1.0')
 env.ExtLib('libproj', lflags = '-lproj')
 env.ExtLib('libyaml', lflags = '-lyaml')
+env.ExtLib('libjpeg', lflags = '-ljpeg')
+env.ExtLib('libtiff', lflags = '-ltiff')
+env.ExtLib('libpng', lflags = '-lpng')
 
 Export('env')
 

@@ -1,5 +1,5 @@
-Import ('env_cairo')
-e = env_cairo.Clone()
+Import ('env')
+e = env.Clone()
 
 e.MLib('vmap_renderer',
        srcs = Split("""
@@ -15,11 +15,6 @@ e.MLib('vmap_renderer',
                 vmap
                 cairo
                 """))
-
-#       Split("""
-#                    vmap mp fig geo_io geo loaders utils options 2d
-#                    proj png jpeg tiff yaml
-#                    """))
 
 e.MProg('vmap_copy',
         srcs = ['vmap_copy.cpp'],
