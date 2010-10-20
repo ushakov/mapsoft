@@ -1,15 +1,43 @@
+Import ('env')
 
-mapsoft_libs = Split ("vmap geo_io geo loaders jeeps fig mp options utils 2d")
-other_libs   = Split ("curl usb tiff jpeg png yaml proj")
+env.MProg('mapsoft_vmap',
+          srcs = ['mapsoft_vmap.cpp'],
+          deps = ['geo_io',
+                  'mp',
+                  'vmap',
+                  '2d',
+                  'geo'])
 
-Import ('env_cairo')
-e = env_cairo.Clone()
-e.Prepend(LIBS=[mapsoft_libs,other_libs])
+env.MProg('fig2pnm',
+          srcs = ['fig2pnm.cpp'],
+          deps = ['utils',
+                  '2d',
+                  'geo_io'])
 
-e.Program('mapsoft_vmap.cpp')
-e.Program('fig2pnm.cpp')
-e.Program('get_print.cpp')
-e.Program('get_print_mmb.cpp')
-e.Program('make_map_gk.cpp')
-e.Program('make_nom.cpp')
+env.MProg('get_print',
+          srcs = ['get_print.cpp'],
+          deps = ['2d',
+                  'fig',
+                  'options',
+                  'vmap'])
+
+env.MProg('get_print_mmb',
+          srcs = ['get_print_mmb.cpp'],
+          deps = ['2d',
+                  'fig',
+                  'options',
+                  'vmap'])
+
+env.MProg('make_map_gk',
+          srcs = ['make_map_gk.cpp'],
+          deps = ['geo',
+                  'geo_io'])
+
+env.MProg('make_nom',
+          srcs = ['make_nom.cpp'],
+          deps = ['2d',
+                  'geo',
+                  'geo_io',
+                  'loaders',
+                  'options'])
 
