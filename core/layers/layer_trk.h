@@ -16,8 +16,6 @@ private:
   convs::map2pt cnv;
   g_map mymap;
   iRect myrange;
-  int track_width_override;
-  Color track_color_override;
 
 public:
   LayerTRK (geo_data * _world);
@@ -33,12 +31,6 @@ public:
 
   /// Set some reasonable reference.
   void set_ref();
-
-  /// Get layer configuration.
-  Options get_config() const;
-
-  /// Set layer configuration from Options.
-  void set_config(const Options& opt);
 
   /// Optimized get_image to return empty image outside of bounds.
   iImage get_image (iRect src);

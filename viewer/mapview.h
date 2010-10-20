@@ -52,8 +52,6 @@ private:
 
     struct timeval click_started;
 
-    Layer * layer_to_configure;
-
 public:
 
     Mapview () :
@@ -95,8 +93,6 @@ public:
 	/// events from layer list
 	layer_list.store->signal_row_changed().connect (
 	  sigc::mem_fun (this, &Mapview::layer_edited));
-	layer_list.signal_button_press_event().connect_notify (
-	  sigc::mem_fun (this, &Mapview::configure_layer));
 
 	/// events from workplane
 	workplane.signal_refresh.connect (
@@ -204,54 +200,6 @@ public:
 	if (need_refresh) {
 	    refresh();
 	}
-    }
-
-    void configure_layer (GdkEventButton* event) {
-	LOG() << "Event: button=" << event->button;
-	if (event->button != 3 || event->type != GDK_BUTTON_PRESS) {
-	    return;
-	}
-
-	if (event->window != layer_list.get_bin_window()->gobj()) {
-	    return;
-	}
-
-	Gtk::TreeModel::Path path;
-	Gtk::TreeViewColumn *col = NULL;
-	int cx, cy;
-	if (!layer_list.get_path_at_pos(event->x, event->y,
-				       path, col, cx, cy)) {
-	    return;
-	}
-	LOG() << "Path=" << path.to_string();
-
-	Gtk::TreeModel::iterator iter = layer_list.store->get_iter(path);
-	Gtk::TreeModel::Row row = *iter;
-	bool need_refresh = false;
-
-	Layer * layer = row[layer_list.columns.layer];
-	LOG() << "LAYER_CONFIG REQ: " << row[layer_list.columns.text] << " (" << layer << ")\n";
-	if (!layer) return;
-	Options opt = layer->get_config();
-	if (opt.size() == 0) return;
-	layer_to_configure = layer;
-
-	Glib::ustring name = row[layer_list.columns.text];
-	gend.activate(name, opt,
-	  sigc::mem_fun(this, &Mapview::layer_config_result));
-    }
-
-    void layer_config_result (int r, const Options & o) {
-	if (r == 0) { // OK
-	    assert(layer_to_configure);
-	    layer_to_configure->set_config(o);
-	    std::cout << "LAYER_CONFIG: " << layer_to_configure << "\n";
-	    workplane.refresh_layer(layer_to_configure);
-	    refresh();
-	} else {
-	    // do nothing
-	}
-	layer_to_configure = NULL;
     }
 
     void on_mode_change (int m) {

@@ -26,16 +26,6 @@ public:
     virtual iRect range () const = 0;
     virtual void refresh() = 0;
 
-    /// Gets current layer configuration as Options
-    /// Default implementation returns empty Options
-    virtual Options get_config() const{
-	return Options();
-    }
-
-    /// Gets layer configuration from Options
-    /// Default implementation does nothing
-    virtual void set_config(const Options& opt) {  }
-
     virtual Layer & operator/= (double k) = 0;
     virtual Layer & operator*= (double k) = 0;
     virtual Layer & operator-= (dPoint k) = 0;

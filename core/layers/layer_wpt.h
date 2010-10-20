@@ -17,8 +17,6 @@ private:
   convs::map2pt cnv;
   g_map mymap;
   iRect myrange;
-  Color wpt_color_override;
-  Color wpt_bgcolor_override;
   int dot_width;
 
 public:
@@ -36,12 +34,6 @@ public:
 
   /// Set some reasonable reference.
   void set_ref();
-
-  /// Get layer configuration.
-  Options get_config() const;
-
-  /// Set layer configuration from Options.
-  void set_config(const Options& opt);
 
   /// Optimized get_image to return empty image outside of bounds.
   iImage get_image (iRect src);

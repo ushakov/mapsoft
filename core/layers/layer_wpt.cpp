@@ -13,8 +13,6 @@ LayerWPT::LayerWPT (geo_data * _world) :
 #ifdef DEBUG_LAYER_WPT
   cerr  << "LayerWPT: set_ref range: " << myrange << "\n";
 #endif
-  wpt_color_override.value = 0;
-  wpt_bgcolor_override.value = 0;
   dot_width = 4;
 }
 
@@ -40,23 +38,6 @@ LayerWPT::set_ref(const g_map & map){
 void
 LayerWPT::set_ref(){
   set_ref(convs::mymap(*world));
-}
-
-Options
-LayerWPT::get_config() const{
-  Options opt;
-  opt.put("Waypoint color override", wpt_color_override);
-  opt.put("Waypoint background color override", wpt_bgcolor_override);
-  opt.put("Waypoint dot size", dot_width);
-  return opt;
-}
-
-void
-LayerWPT::set_config(const Options& opt){
-  cout << "LayerWPT: set_config" << opt << "\n";
-  wpt_color_override = opt.get("Waypoint color override", wpt_color_override);
-  wpt_bgcolor_override = opt.get("Waypoint background color override", wpt_bgcolor_override);
-  dot_width = opt.get("Waypoint dot size", dot_width);
 }
 
 iImage
@@ -87,13 +68,7 @@ LayerWPT::draw(const iPoint origin, iImage & image){
       dPoint p(pt->x,pt->y); cnv.bck(p); p-=origin;
 
       Color color = pt->color;
-      if ((wpt_color_override.value & 0xff000000) != 0) {
-        color = wpt_color_override;
-      }
       Color bgcolor = pt->bgcolor;
-      if ((wpt_bgcolor_override.value & 0xff000000) != 0) {
-        bgcolor = wpt_bgcolor_override;
-      }
 
       cr->move_to(p + text_shift);
       dRect txt_rect = cr->get_text_extents(pt->name);

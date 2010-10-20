@@ -14,8 +14,6 @@ LayerTRK::LayerTRK(geo_data * _world):
 #ifdef DEBUG_LAYER_TRK
   cerr  << "LayerTRK: set_ref range: " << myrange << "\n";
 #endif
-  track_width_override = 0;
-  track_color_override.value = 0;
 }
 
 void
@@ -43,21 +41,6 @@ LayerTRK::set_ref(){
   set_ref(convs::mymap(*world));
 }
 
-Options
-LayerTRK::get_config() const{
-  Options opt;
-  opt.put("Track line width override", track_width_override);
-  opt.put("Track color override", track_color_override);
-  return opt;
-}
-
-void
-LayerTRK::set_config(const Options& opt){
-  cout << "LayerTRK: set_config" << opt << "\n";
-  track_width_override = opt.get("Track line width override", track_width_override);
-  track_color_override = opt.get("Track color override", track_color_override);
-}
-
 iImage
 LayerTRK::get_image (iRect src){
   if (rect_intersect(myrange, src).empty()) {
@@ -83,14 +66,8 @@ LayerTRK::draw(const iPoint origin, iImage & image){
                                      it!= world->trks.end(); it++){
 
     int w = it->width;
-    if (track_width_override != 0) {
-      w = track_width_override;
-    }
-
     Color color = it->color;
-    if ((track_color_override.value & 0xff000000) != 0) {
-      color = track_color_override;
-    }
+
     cr->set_color(color.value);
     cr->set_line_width(w);
 
