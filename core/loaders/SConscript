@@ -12,12 +12,7 @@ env.MLib('loaders',
                   """),
          deps = Split("""
                   2d
-                  fig
-                  geo
-                  geo_io
-                  jeeps
                   options
-                  utils
                   libjpeg
                   libtiff
                   libpng

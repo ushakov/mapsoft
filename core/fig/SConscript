@@ -8,7 +8,8 @@ env.MLib('fig',
                   fig_data.cpp
                   """),
          deps = ['utils',
-                 '2d'])
+                 '2d',
+                 'options'])
 
 env.MProg('catfig',
           srcs = ['catfig.cpp'],

@@ -10,7 +10,6 @@ e.MLib('utils',
                 cairo_wrapper.cpp
                 """),
        deps = ['2d',
-               'geo',
                'loaders',
                'options',
                'cairo'])
