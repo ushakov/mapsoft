@@ -54,41 +54,62 @@ class DepsTracker(object):
     def GetDeps(self, target):
         if target.name not in self.deps:
             raise Exception('Unknown target %s' % target.name)
+        debug = False
+
         # Topologically sort the deps graph. Algorithm: run dfs, when
         # going back from each vertex, add it to start of
         # results. seen contain the set of already visited
         # vertices. stack is the backtrack stack (contains remaining
         # lists at each vertex).
         stack = []
-        seen = set()
+        color = {}
+        GREY = 'grey'
+        BLACK = 'black'
         result = []
         rem = RemainingVertices()
         rem.vertex = target.name
         rem.remaining = target.deps
         stack.append(rem)
-        seen.add(target.name)
+        color[target.name] = GREY
         while stack:
             rem = stack[-1]
-#            print 'looking at %s (%s remaining)' % (rem.vertex, len(rem.remaining))
+            if debug:
+                print 'looking at %s (%s remaining)' % (rem.vertex, len(rem.remaining))
             if len(rem.remaining) == 0:
                 result = [rem.vertex] + result
                 stack = stack[:-1]
-#                print 'added %s' % rem.vertex
+                color[rem.vertex] = BLACK
+                if debug:
+                    print 'added %s' % rem.vertex
                 continue
             to_visit = rem.remaining[0]
             rem.remaining = rem.remaining[1:]
-            if to_visit not in seen:
-#                print '   visiting %s' % to_visit
-                seen.add(to_visit)
+            if to_visit not in color:
+                if debug:
+                    print '   visiting %s' % to_visit
+                color[to_visit] = GREY
                 new_rem = RemainingVertices()
                 new_rem.vertex = to_visit
                 if to_visit not in self.deps:
                     raise Exception('Dep not found: %s' % trg)
                 new_rem.remaining = self.deps[to_visit]
                 stack.append(new_rem)
+            elif color[to_visit] == GREY:
+                loop = []
+                cur = len(stack) - 1
+                while cur >= 0 and stack[cur].vertex != to_visit:
+                    loop.append(stack[cur].vertex)
+                    cur -= 1
+                loop.append(to_visit)
+                if cur < 0:
+                    raise Exception("Logic error in unlooping %s -> %s" % (
+                        target.name, to_visit))
+                loop.reverse()
+                raise Exception("loop! %s" % loop)
         assert result[0] == target.name
         result = result[1:]
-#        print '%s: %s' % (target.name, result)
+        if debug:
+            print '%s: %s' % (target.name, result)
         return result
 
 
