@@ -1,1 +1,10 @@
 Import('env')
+e=env.Clone()
+e.UseLibs('utils')
+
+e.Library('layers', \
+    Split ("""
+        layer_geomap.cpp
+        layer_trk.cpp
+        layer_wpt.cpp
+     """))

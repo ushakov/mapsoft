@@ -10,6 +10,7 @@
 //#include "layers/layer_trk.h"
 #include "layers/layer_google.h"
 #include "layers/layer_ks.h"
+#include "loaders/image_r.h"
 
 #include "geo/geo_convs.h"
 #include "geo/geo_refs.h"

@@ -9,6 +9,7 @@ subdirs = Split ("""
     geo_io
     gred
     jeeps
+    layers
     loaders
     mp
     options

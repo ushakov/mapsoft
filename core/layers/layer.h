@@ -23,12 +23,12 @@ public:
 	return ret;
     }
 
-    virtual iRect range () = 0;
+    virtual iRect range () const = 0;
     virtual void refresh() = 0;
 
     /// Gets current layer configuration as Options
     /// Default implementation returns empty Options
-    virtual Options get_config() {
+    virtual Options get_config() const{
 	return Options();
     }
 

@@ -6,6 +6,7 @@
 #include "layers/layer_wpt.h"
 #include "layers/layer_google.h"
 #include "layers/layer_ks.h"
+#include "loaders/image_r.h"
 
 #include "geo/geo_convs.h"
 #include "geo/geo_refs.h"

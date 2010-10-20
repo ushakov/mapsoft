@@ -66,7 +66,7 @@ public:
     }
 
 
-    virtual iRect range (){
+    virtual iRect range () const{
 	return iRect(0,0,256*(1<<(scale-1)), 256*(1<<(scale-1)));
     }
 
