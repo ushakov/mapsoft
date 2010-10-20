@@ -1,5 +1,11 @@
 Import('env')
 
-libs=Split("fig utils options 2d")
-env.Program("rectcrop.cpp",  LIBS=[libs])
-env.Program("crop_ml.cpp",  LIBS=[libs])
+env.MProg('rectcrop',
+          srcs = ['rectcrop.cpp'],
+          deps = ['2d',
+                  'fig'])
+
+env.MProg('crop_ml',
+          srcs = ['crop_ml.cpp'],
+          deps = ['2d',
+                  'fig'])
