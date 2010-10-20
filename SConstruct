@@ -53,6 +53,7 @@ env.ExtLib('libyaml', lflags = '-lyaml')
 env.ExtLib('libjpeg', lflags = '-ljpeg')
 env.ExtLib('libtiff', lflags = '-ltiff')
 env.ExtLib('libpng', lflags = '-lpng')
+env.ExtLib('libcurl', lflags = '-lcurl')
 
 Export('env')
 

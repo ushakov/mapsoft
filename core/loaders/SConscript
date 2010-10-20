@@ -20,5 +20,6 @@ env.MLib('loaders',
                   utils
                   libjpeg
                   libtiff
-                  libpng"""))
+                  libpng
+                  libcurl"""))
 
