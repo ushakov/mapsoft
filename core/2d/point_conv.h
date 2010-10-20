@@ -4,23 +4,20 @@
 #include "point.h"
 #include "line.h"
 #include "rect.h"
-#include <boost/operators.hpp>
+#include <map>
 
 ///\addtogroup lib2d
 ///@{
 ///\defgroup point_conv
 ///@{
 
-/// common Conv for point conversions
-struct Conv
-  : public boost::additive<dPoint>,
-    public boost::multiplicative<Conv, double>
-{
+/// Abstract point transformation.
+struct Conv{
 
   virtual void frw(dPoint & p) const =0;
   virtual void bck(dPoint & p) const =0;
 
-  /// convert a line, point by point
+  /// Convert a line, point to point.
   virtual void line_frw_p2p(dLine & l) const;
   virtual void line_bck_p2p(dLine & l) const;
 
@@ -30,31 +27,36 @@ struct Conv
   virtual dLine line_frw(const dLine & l, double acc=1, int max=10) const;
   virtual dLine line_bck(const dLine & l, double acc=1, int max=10) const;
 
-  /// convert a rectagle and return bounding box of resulting figure
+  /// Convert a rectagle and return bounding box of resulting figure.
   virtual dRect bb_frw(const dRect & R, double acc=1, int max=100) const;
   virtual dRect bb_bck(const dRect & R, double acc=1, int max=100) const;
 };
 
-/// simple conversion: shift and scale
-/// NOT USED AND NOT TESTED!
-struct SimpleConv: public Conv {
+/// Affine transformation
+struct AffConv : Conv {
+private:
+  std::vector<double> k_frw;
+  std::vector<double> k_bck;
+  void bck_recalc(); ///< recalculate k_bck matrix
 
-  dPoint shift;
-  double scale;
+public:
+  /// constructor - trivial transformation
+  AffConv();
 
-  SimpleConv & operator-= (dPoint const & s);
-  SimpleConv & operator+= (dPoint const & s);
-  SimpleConv & operator*= (double const k);
-  SimpleConv & operator/= (double const k);
+  /// constructor - from g_ref
+  AffConv(const std::map<dPoint, dPoint> & ref);
 
-  void frw(dPoint & p);
-  void bck(dPoint & p);
+  /// reset from g_ref
+  void set_from_ref(const std::map<dPoint, dPoint> & ref);
 
-  virtual dLine line_frw(const dLine & l, double acc=1, int max=100);
-  virtual dLine line_bck(const dLine & l, double acc=1, int max=100);
+  /// reset to trivial
+  void reset();
 
-  virtual dRect bb_frw(const dRect & R, double acc=1, int max=100);
-  virtual dRect bb_bck(const dRect & R, double acc=1, int max=100);
+  void shift(const dPoint & p);
+  void scale(const double kx, const double ky);
+
+  void frw(dPoint & p) const;
+  void bck(dPoint & p) const;
 };
 
 #endif /* POINT_CONV_H */

@@ -12,15 +12,10 @@
 
 namespace convs{
 
-// create PROJ4 projection object from our D, P and options
-projPJ mkproj(const Datum & D, const Proj & P, const Options & o);
-
-// преобразование геодезических координат
-// точки преобразуются по ссылке, чтобы можно было не копируя
-// преобразовывать координаты в сложных штуках типа g_waypoint
-
+/// Преобразование геодезических координат.
+/// Точки преобразуются по ссылке, чтобы можно было не копируя
+/// преобразовывать координаты в сложных штуках типа g_waypoint
 struct pt2pt : Conv{
-
   pt2pt(const Datum & sD, const Proj & sP, const Options & sPo,
         const Datum & dD, const Proj & dP, const Options & dPo);
 
@@ -31,18 +26,14 @@ struct pt2pt : Conv{
   void frw(dPoint & p) const;
   void bck(dPoint & p) const;
 
-  private:
-    projPJ pr_src, pr_dst;
-    void copy(const pt2pt & other);
-    void destroy(void);
-    int * refcounter;
+private:
+  projPJ pr_src, pr_dst;
+  void copy(const pt2pt & other);
+  void destroy(void);
+  int * refcounter;
 };
 
-
-
-// преобразование из точки карты в геодезическую точку
-// здесь же - выяснение всяких параметров карты (размер изображения, масштам метров/точку)
-// сюда же - преобразование линий!
+/// Преобразование из точки карты в геодезическую точку.
 struct map2pt : Conv{
   map2pt(const g_map & sM,
          const Datum & dD, const Proj & dP, const Options & dPo = Options());
@@ -54,47 +45,39 @@ struct map2pt : Conv{
   void frw(dPoint & p) const;
   void bck(dPoint & p) const;
 
-  private:
-    projPJ pr_ref, pr_map, pr_dst;
-    double k_map2geo[6];
-    double k_geo2map[6];
-    void copy(const map2pt & other);
-    void destroy(void);
-    int * refcounter;
+  dLine border;
+  dLine border_geo;
 
-  public:
-    dLine border;
-    dLine border_geo;
+private:
+  projPJ pr_ref, pr_map, pr_dst;
+  AffConv lin_cnv;
+  void copy(const map2pt & other);
+  void destroy(void);
+  int * refcounter;
 };
 
-// autodetect map projection options (lon0) if needed
-Options map_popts(const g_map & M, Options O = Options());
-
-// Быстрая проверка границ
+/// Быстрая проверка границ.
 struct border_tester{
-  private:
+private:
   struct side{
    int x1,x2,y1,y2;
    double k;
   };
   std::vector<side> sides;
   dLine border;
-  public:
-  border_tester(dLine & brd);
-  // попадает ли точка в пределы границы
+public:
+  border_tester(const dLine & brd);
+  /// попадает ли точка в пределы границы
   bool test(const int x, const int y) const;
-  // расстояние до ближайшей границы справа
+  /// расстояние до ближайшей границы справа
   int nearest_border (const int x, const int y) const;
-  // "задевает" ли карта данный район
+  /// "задевает" ли карта данный район
   bool test_range(iRect range) const;
 };
 
-
-// преобразование из карты в карту
-// здесь может быть суровое разбиение карты на куски и аппроксимация линейными преобразованиями...
-// здесь же - преобразование линий
-// здесь же - преобразование картинок (с интерфейсом как у image loader'a)
-
+/// Преобразование из карты в карту.
+/// Здесь может быть суровое разбиение карты на куски и аппроксимация линейными преобразованиями...
+/// Здесь же - преобразование картинок (с интерфейсом как у image loader'a).
 struct map2map : Conv{
   map2map(const g_map & sM, const g_map & dM, bool test_brd_ = true);
   void frw(dPoint & p) const;
@@ -110,26 +93,36 @@ struct map2map : Conv{
   iRect bb_frw_i(const iRect & R) const;
   iRect bb_bck_i(const iRect & R) const;
 
-    bool test_brd;
-    map2pt c1,c2;
-    border_tester tst_frw, tst_bck;
-    dLine border_src; // граница sM
-    dLine border_dst; // это след от границы sM на dM! 
+  map2pt c1,c2;
+
+  dLine border_src; // граница sM
+  dLine border_dst; // это след от границы sM на dM! 
+  bool test_brd;
+  border_tester tst_frw, tst_bck;
 };
 
-g_map mymap(const geo_data & world); // естественная привязка геоданных
-// тип проекции -- по первой карте, или lonlat, если карт нет
-// осевой меридиан -- 6n+3, наиболее близкий к середине диапазона треков и точек,
-// а если их нет - к середине диапазона карт
-// масштаб -- соответствующий минимальному масштабу карт, если они есть,
-// или 1/3600 градуса на точку, если карт нет
 
-// масштаб карты, единиц проекции P в точке
+/// Autodetect map projection options (lon0) if needed.
+Options map_popts(const g_map & M, Options O = Options());
+
+/// Make some reasonable reference for geodata.
+/// тип проекции -- по первой карте, или lonlat, если карт нет
+/// осевой меридиан -- 6n+3, наиболее близкий к середине диапазона треков и точек,
+/// а если их нет - к середине диапазона карт
+/// масштаб -- соответствующий минимальному масштабу карт, если они есть,
+/// или 1/3600 градуса на точку, если карт нет
+g_map mymap(const geo_data & world); 
+
+/// Get map scale in projection P units per point
 double map_mpp(const g_map &map, Proj P);
 
-// find central meridian for a given longitude/point/rect
+/// Find central meridian for a given longitude.
 double lon2lon0(const double lon);
+
+/// Find central meridian for a given tmerc x coordinate with zone prefix.
 double lon_pref2lon0(const double lon);
+
+/// Remove zone prefix from tmerc x coordinate.
 double lon_delprefix(const double lon);
 
 }//namespace
