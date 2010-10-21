@@ -137,6 +137,8 @@ read(const fig::fig_world & F){
 
 /***************************************/
 
+const double brd_fig_acc = 10; // border generalization accuracy in fig units
+
 // put vmap to referenced fig
 int
 write(fig::fig_world & F, const world & W, const Options & O){
@@ -153,10 +155,17 @@ write(fig::fig_world & F, const world & W, const Options & O){
     if (refs.size()<3){
       refs=rect2line(W.range());
     }
+    // add last = first if needed
+    if ((refs.size()>0) && (refs[0]!=refs[refs.size()-1])) refs.push_back(refs[0]);
+    // reduce border to 5 points, remove last one
+    refs=generalize(refs, -1, 5); 
+    if (refs.size()>4) refs.resize(4);
+
     Options PrO;
     PrO.put<double>("lon0", convs::lon2lon0(refs.center().x));
     convs::pt2pt ref_cnv(Datum("wgs84"), Proj("lonlat"), PrO,
                          Datum("wgs84"), Proj("tmerc"), PrO);
+
     dLine refs_fig(refs);
     ref_cnv.line_frw_p2p(refs_fig);
     refs_fig *= 100.0/W.rscale * fig::cm2fig; // fig units
@@ -195,7 +204,8 @@ write(fig::fig_world & F, const world & W, const Options & O){
   // add border
   if (W.brd.size()>0){
     fig::fig_object brd_o = zconverter.get_fig_template(border_type);
-    brd_o.set_points(cnv.line_bck(W.brd));
+    // convert and reduce point number
+    brd_o.set_points(generalize(cnv.line_bck(W.brd), brd_fig_acc, -1));
     brd_o.close();
     brd_o.comment.push_back("BRD " + W.name);
     if (W.brd.size()!=0) F.push_back(brd_o);
