@@ -148,7 +148,29 @@ write(fig::fig_world & F, const world & W, const Options & O){
 
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
-    std::cerr << "ERR: not a GEO-fig\n"; return 0;
+    // create ref from brd or from map range
+    dLine refs=W.brd;
+    if (refs.size()<3){
+      refs=rect2line(W.range());
+    }
+    Options PrO;
+    PrO.put<double>("lon0", convs::lon2lon0(refs.center().x));
+    convs::pt2pt ref_cnv(Datum("wgs84"), Proj("lonlat"), PrO,
+                         Datum("wgs84"), Proj("tmerc"), PrO);
+    dLine refs_fig(refs);
+    ref_cnv.line_frw_p2p(refs_fig);
+    refs_fig *= 100.0/W.rscale * fig::cm2fig; // fig units
+    refs_fig -= refs_fig.range().BLC();
+
+    ref.clear(); ref.border.clear();
+    for (int i=0;i<refs.size();i++){
+      refs_fig[i].y*=-1;
+      ref.push_back(g_refpoint(refs[i], refs_fig[i]));
+      ref.border.push_back(refs[i]);
+    }
+    ref.map_proj=Proj("tmerc");
+    fig::rem_ref(F);
+    fig::set_ref(F, ref, Options());
   }
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
 

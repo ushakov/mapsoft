@@ -47,16 +47,15 @@ int
 write(const char * fname, const world & W, const Options & O){
   if (testext(fname, "fig")){
     fig::fig_world F;
-    if (!fig::read(fname, F)) {
-      cerr << "error: bad fig file " << fname << "\n"; 
-      return 0;
-    }
+    ifstream test(fname);
+    if (test.good()) fig::read(fname, F);
     write(F, W, O);
     fig::write(fname, F);
   }
   else if (testext(fname, "mp")){
     mp::mp_world M;
-    mp::read(fname, M);
+    ifstream test(fname);
+    if (test.good()) mp::read(fname, M);
     write(M, W, O);
     mp::write(fname, M);
   }
