@@ -43,6 +43,7 @@ struct RangeCutter{
   Proj P;
   dRect range;
   std::string action;
+  dLine newbrd;
 
   RangeCutter(const Options & O){
     P = O.get<Proj>("range_proj", Proj("lonlat"));
@@ -51,9 +52,8 @@ struct RangeCutter{
     range = O.get<dRect>("range");
     action = O.get<string>("range_action");
 
-    cnv=NULL;
 
-    if (action == "") return;
+    cnv=NULL;
 
     if (action == "help"){
       std::cout << "range actions:\n"
@@ -66,7 +66,8 @@ struct RangeCutter{
       return;
     }
 
-    if ((action != "skip") &&
+    if ((action != "") &&
+        (action != "skip") &&
         (action != "select") &&
         (action != "crop") &&
         (action != "crop_spl")){
@@ -99,12 +100,16 @@ struct RangeCutter{
                 << action << "\n";
       std::cerr << "         skipping action\n";
     }
+
+    if (O.get<int>("set_brd_from_range", 0) && cnv && !range.empty()){
+      newbrd=cnv->line_bck(rect2line(range));
+    }
     cnt_o=0; cnt_l=0; cnt_p=0;
   }
+
   ~RangeCutter(){
     if (cnv)   delete cnv;
   }
-
 
   void
   process(object & o){
@@ -216,9 +221,10 @@ filter(world & W, const Options & O){
   // OPTION range_lon0  0
   // OPTION range
   // OPTION range_nom
-  // OPTION range_action
-
+  // OPTION range_action ""
+  // OPTION set_brd_from_range 0
   RangeCutter RC(O);
+  if (RC.newbrd.size()>0) W.brd=RC.newbrd;
 
   world::iterator o=W.begin();
   while (o!=W.end()){

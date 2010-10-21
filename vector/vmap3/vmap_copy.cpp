@@ -15,10 +15,25 @@ void usage(){
      << "         <input_file1> [<input_options1>] ... \\\n"
      << "         (--out|-o) <output_file> [<output_options>]\n"
      << "\n"
+     << "Every input file is read, filtered according to input options\n"
+     << "and appended to previous ones. After all files have beed read labels\n"
+     << "are attached to map objects. After that output filtering is applied\n"
+     << "and map is wrote to the output file.\n"
+     << "\n"
      << "  input options:\n"
+     << "    -v, --verbose               -- be verbose\n"
+     << "    <any filter options>\n"
+     << "\n"
+     << "  output options:\n"
+     << "\n"
+     << "    -a, --append                -- don't remove map from output file\n"
+     << "    <any filter options>\n"
+     << "\n"
+     << "  filter options:\n"
      << "\n"
      << "    --skip_labels               -- don't read labels\n"
      << "    --read_labels               -- do read labels\n"
+     << "    (--read_lebels options is intendent to override global --skip_labels option)\n"
      << "\n"
      << "    --set_source <string>       -- set source parameter\n"
      << "    --set_source_from_name      -- set source parameter from map name\n"
@@ -40,29 +55,15 @@ void usage(){
      << "                                   (overrides range, range_datum, range_proj)\n"
      << "    --range_action <action>     -- select actions to do with range\n"
      << "                                   (crop, select, skip, crop_spl, help)\n"
+     << "    --set_brd_from_range        -- set map border from range/range_nom options\n"
+     << "                        (border from last input only goes to the output)\n"
      << "\n"
-     << "    -v, --verbose               -- be verbose\n"
-     << "\n"
-     << "  output options:\n"
-     << "\n"
-     << "    -a, --append                -- don't remove map from output file\n"
      << "    -n, --name <string>         -- set map name\n"
      << "    -i, --mp_id <int>           -- set mp id\n"
      << "    -m, --rscale <double>       -- set reversed scale (50000 for 1:50000 map)\n"
      << "    -s, --style <string>        -- set map style\n"
+     << "                        (values from last input only goes to the output)\n"
      << "\n"
-     << "    --skip_labels               -- don't write labels\n"
-     << "\n"
-     << "    --set_source <string>       -- set source parameter\n"
-     << "    --set_source_from_name      -- set source parameter from map name\n"
-     << "    --set_source_from_fname     -- set source parameter from file name\n"
-     << "    --select_source <string>    -- copy only objects with given source\n"
-     << "    --skip_source <string>      -- copy all objects but ones with given source\n"
-     << "    (select_source and skip_source options are processed before set_source_*)\n"
-     << "\n"
-     << "    --select_type <int>         -- copy only objects with given type\n"
-     << "    --skip_typee <int>          -- copy all objects but ones with given type\n"
-     << "    --skip_all                  -- don't read any objects, only labels\n"
   ;
   exit(1);
 }
@@ -86,6 +87,12 @@ static struct option in_options[] = {
   {"range",                 1, 0, 0},
   {"range_nom",             1, 0, 0},
   {"range_action",          1, 0, 0},
+  {"set_brd_from_range",    0, 0, 0},
+
+  {"name",        1, 0 , 'n'},
+  {"mp_id",       1, 0 , 'i'},
+  {"rscale",      1, 0 , 'm'},
+  {"style",       1, 0 , 's'},
 
   {"out",         0, 0 , 'o'},
   {"verbose",     0, 0 , 'v'},
@@ -94,6 +101,7 @@ static struct option in_options[] = {
 
 static struct option out_options[] = {
   {"skip_labels",           0, 0, 0},
+  {"read_labels",           0, 0, 0},
 
   {"set_source",            1, 0 , 0},
   {"set_source_from_name",  0, 0 , 0},
@@ -104,11 +112,20 @@ static struct option out_options[] = {
   {"skip_type",             1, 0 , 0},
   {"skip_all",              0, 0 , 0},
 
-  {"append",      0, 0 , 'a'},
+  {"range_datum",           1, 0, 0},
+  {"range_proj",            1, 0, 0},
+  {"range_lon0",            1, 0, 0},
+  {"range",                 1, 0, 0},
+  {"range_nom",             1, 0, 0},
+  {"range_action",          1, 0, 0},
+  {"set_border_from_range", 0, 0, 0},
+
   {"name",        1, 0 , 'n'},
   {"mp_id",       1, 0 , 'i'},
   {"rscale",      1, 0 , 'm'},
   {"style",       1, 0 , 's'},
+
+  {"append",      0, 0 , 'a'},
   {0,0,0,0}
 };
 
