@@ -118,7 +118,7 @@ static struct option out_options[] = {
   {"range",                 1, 0, 0},
   {"range_nom",             1, 0, 0},
   {"range_action",          1, 0, 0},
-  {"set_border_from_range", 0, 0, 0},
+  {"set_brd_from_range", 0, 0, 0},
 
   {"name",        1, 0 , 'n'},
   {"mp_id",       1, 0 , 'i'},
