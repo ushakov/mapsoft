@@ -31,10 +31,6 @@ skip_object(const Options & O, const object &o){
   return false;
 }
 
-void
-change_source(const Options & O, Options &o, const string &name){
-}
-
 // crop/cut/select range, get statistics
 struct RangeCutter{
   convs::pt2pt *cnv;
@@ -49,13 +45,6 @@ struct RangeCutter{
   std::string action;
 
   RangeCutter(const Options & O){
-    // OPTION range_datum lonlat
-    // OPTION range_proj  wgs84
-    // OPTION range_lon0  0
-    // OPTION range
-    // OPTION range_nom
-    // OPTION range_action
-
     P = O.get<Proj>("range_proj", Proj("lonlat"));
     D = O.get<Datum>("range_datum", Datum("wgs84"));
     lon0 = O.get<double>("range_lon0", 0);
@@ -222,15 +211,13 @@ filter(world & W, const Options & O){
   if (O.get<int>("read_labels", 0)) skip_labels=0;
   if (skip_labels) W.lbuf.clear();
 
-  // OPTION skip_range
-  // OPTION select_range
-  // OPTION crop_range
-  // OPTION skip_nom
-  // OPTION select_nom
-  // OPTION crop_nom
   // OPTION range_datum lonlat
   // OPTION range_proj  wgs84
   // OPTION range_lon0  0
+  // OPTION range
+  // OPTION range_nom
+  // OPTION range_action
+
   RangeCutter RC(O);
 
   world::iterator o=W.begin();
