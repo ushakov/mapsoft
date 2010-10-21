@@ -57,6 +57,7 @@ void usage(){
      << "                                   (crop, select, skip, crop_spl, help)\n"
      << "    --set_brd_from_range        -- set map border from range/range_nom options\n"
      << "                        (border from last input only goes to the output)\n"
+     << "    --set_brd <line>            -- set map border from wgs84 points\n"
      << "\n"
      << "    -n, --name <string>         -- set map name\n"
      << "    -i, --mp_id <int>           -- set mp id\n"
@@ -88,6 +89,7 @@ static struct option in_options[] = {
   {"range_nom",             1, 0, 0},
   {"range_action",          1, 0, 0},
   {"set_brd_from_range",    0, 0, 0},
+  {"set_brd",               1, 0, 0},
 
   {"name",        1, 0 , 'n'},
   {"mp_id",       1, 0 , 'i'},
@@ -118,7 +120,8 @@ static struct option out_options[] = {
   {"range",                 1, 0, 0},
   {"range_nom",             1, 0, 0},
   {"range_action",          1, 0, 0},
-  {"set_brd_from_range", 0, 0, 0},
+  {"set_brd_from_range",    0, 0, 0},
+  {"set_brd",               1, 0, 0},
 
   {"name",        1, 0 , 'n'},
   {"mp_id",       1, 0 , 'i'},

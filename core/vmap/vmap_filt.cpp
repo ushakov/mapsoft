@@ -210,6 +210,11 @@ filter(world & W, const Options & O){
     W.style  = style;
   }
 
+  // OPTION set_brd
+  if (O.exists("set_brd")){
+    W.brd = O.get<dLine>("set_brd");
+  }
+
   // OPTION skip_labels 0
   // OPTION read_labels
   int skip_labels = O.get<int>("skip_labels", 0);
