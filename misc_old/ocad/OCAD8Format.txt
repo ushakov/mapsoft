@@ -861,7 +861,7 @@ Objects are stored as a TElement structure.
     ResHeight: longint;        {reserved for future use to
                                store a height information}
     ResId: string[15];         {reserved}
-    Poly: array[0..1999] of TCord; {OCAD 8: array[0..32767]    
+    Poly: array[0..1999] of TCord; {OCAD 8: array[0..32767]
                                coordinates of the object
                                followed by a zero-terminated
                                string if nText > 0
@@ -998,7 +998,7 @@ of the file and adjust SetupPos and SetupSize.
     TemplateEnabled: wordbool; {true if a template is opened, not used in OCAD 8}
     TempResol: SmallInt;       {resolution of the template file
                                in DPI, not used in OCAD 8}
-    rTempAng: double;          {Angle of the adjusted template, 
+    rTempAng: double;          {Angle of the adjusted template,
                                not used in OCAD 8}
     Reserved: TCord;
     Reserved: double;

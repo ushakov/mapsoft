@@ -73,7 +73,7 @@ OCAD files start with a file header:
     Res2: longint;             // Not used
     InfoSize: longint;         // Not used
     StringIndexBlk: longint;   // file position of string index block -> TStringIndexBlock    // max 256 strings
-    FileNamePos: integer;      // file position of file name, used for temporary files and 
+    FileNamePos: integer;      // file position of file name, used for temporary files and
     						   // to recovery the file
     FileNameSize: integer;     // size of the file name, used for temporary files only
     Res4: integer;             // Not used
@@ -149,7 +149,7 @@ Symbols - Base symbols
                                // object it tells how far away from the coordinates of the
                                // object anything of the point symbol can appear.
     FilePos: integer;          // Used internally. Value in the file is not defined.
-    Group: SmallInt;           // Group ID in the symbol tree. Lower and higher 8 bit are 
+    Group: SmallInt;           // Group ID in the symbol tree. Lower and higher 8 bit are
                                // used for 2 different symbol trees.
     nColors: SmallInt;         // Number of colors of the symbol max. 14
                                //   -1: the number of colors is > 14
@@ -164,7 +164,7 @@ Symbols - Point symbols
 -----------------------
 Point symbols are stored with this structure:
 
-  TPointSym = packed record   
+  TPointSym = packed record
     Size: integer;             // See TBaseSym
     SymNum: integer;           // See TBaseSym
     Otp: byte;                 // 1
@@ -463,7 +463,7 @@ sizes which are measured in 0.1 typographical points.
                                //   1: shadow framing
                                //   2: line framing
                                //   3: rectangle framing
-    FrLineStyle: byte;         // Framing line style                             
+    FrLineStyle: byte;         // Framing line style
                                //   0: default OCAD 8 Miter
                                //   2: ps_Join_Bevel
                                //   1: ps_Join_Round
@@ -537,7 +537,7 @@ TObjectIndexBlock
 -----------------
 
 Each Object Index Block contains the position of the next Object Index Block and the file
-position and other information of 256 objects. 
+position and other information of 256 objects.
 
   TObjectIndexBlock = record   // Size: 10296 Bytes
     NextObjectIndexBlock: integer;
@@ -692,7 +692,7 @@ si_CoursePar = 1031
 
 si_CsObject[list] = 1 (course setting object)
 ---------------------------------------------
-  // First = Code 
+  // First = Code
   // Y = Type (s=start, c=control, m=marked route, f=finish, d=control description,
   //           n=course title, u=start number, v=variation code, t=text block)
   // c = Symbol for field C
@@ -826,7 +826,7 @@ si_ExportPar = 1035 (export settings)
   // First = Format (AI, BMP, DXF, EPS, GIF, JPEG, OIM, PDF, Shape, SVG, TIFF)
   // a = Anti-Aliasing
   // b = combined spot colors
-  // c = color format (0=32 bit, 1=24 bit, 2=256 colors, 3=grayscale, 4=8 bit CMYK                     
+  // c = color format (0=32 bit, 1=24 bit, 2=256 colors, 3=grayscale, 4=8 bit CMYK
   //     5=1 bit, 6=halftone screen)
   // l = color correction (0 off, 1 on)
   // o = spot color separations
@@ -1028,7 +1028,7 @@ si_ImpLayer[list] = 13 (imported dxf layer)
   // First = Name
   // n = layer number
 
-si_XmlScriptPar = 1042                                                     
+si_XmlScriptPar = 1042
 -------------------------------------------
   // f = last used file
 
