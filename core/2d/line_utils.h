@@ -82,60 +82,68 @@ void split (MultiLine<T> & lines, int points){
 }
 
 // Убрать из линии некоторые точки, так, чтобы линия
-// не сместилась от исходного положения более чем на e
+// не сместилась от исходного положения более чем на e (если e>0)
+// или уменьшить число точек в линии до np (если np>2)
+// todo: closed lines
 template<typename T>
-void generalize (MultiLine<T> & lines, double e){
-  for (typename MultiLine<T>::iterator l = lines.begin(); l!=lines.end(); l++){
+Line<T> generalize(const Line<T> & line, double e, int np){
+  // какие точки мы хотим исключить:
+  std::vector<bool> skip(line.size(), false);
 
-    // какие точки мы хотим исключить:
-    std::vector<bool> skip(l->size(),false);
-
-    while (l->size()>2){
-      // для каждой точки найдем расстояние от нее до 
-      // прямой, соединяющей две соседние (не пропущенные) точки.
-      // найдем минимум этой величины
-      double min = 1e99; //важно, что >e 
-      int mini;
-      for (int i=1; i<l->size()-1; i++){
-        if (skip[i]) continue;
-        int ip, in;
-        // помним, что skip[0] и skip[l->size()-1] всегда false
-        for (ip=i-1; ip>=0; ip--)          if (!skip[ip]) break;
-        for (in=i+1; in<l->size()-1; in++) if (!skip[in]) break;
-        Point<T> p1 = (*l)[ip];
-        Point<T> p2 = (*l)[i];
-        Point<T> p3 = (*l)[in];
-        double ll = pdist(p3-p1);
-        dPoint v = (p3-p1)/ll;
-        double prj = pscal(v, p2-p1);
-        double dp;
-        if      (prj<=0)  dp = pdist(p2,p1);
-        else if (prj>=ll) dp = pdist(p2,p3);
-        else              dp = pdist(p2-p1-v*prj);
-        // в начале у нас обязатеьно i==1
-        if ((i==1) || (min>dp)) {min = dp; mini=i;}
-      }
-      // если этот минимум меньше e - выкинем точку
-      if (min<e) skip[mini]=true;
-      else break;
+  np-=2; // end points are not counted
+  while (1){
+    // для каждой точки найдем расстояние от нее до
+    // прямой, соединяющей две соседние (не пропущенные) точки.
+    // найдем минимум этой величины
+    double min=-1;
+    int mini; // index of point with minimal deviation
+    int n=0;
+    for (int i=1; i<line.size()-1; i++){
+      if (skip[i]) continue;
+      n++; // count point we doesn't plan to skip
+      int ip, in; // previous and next indexes
+      // skip[0] and skip[line.size()-1] are always false
+      for (ip=i-1; ip>=0; ip--)            if (!skip[ip]) break;
+      for (in=i+1; in<line.size()-1; in++) if (!skip[in]) break;
+      Point<T> p1 = line[ip];
+      Point<T> p2 = line[i];
+      Point<T> p3 = line[in];
+      double ll = pdist(p3-p1);
+      dPoint v = (p3-p1)/ll;
+      double prj = pscal(v, p2-p1);
+      double dp;
+      if      (prj<=0)  dp = pdist(p2,p1);
+      else if (prj>=ll) dp = pdist(p2,p3);
+      else              dp = pdist(p2-p1-v*prj);
+      if ((min<0) || (min>dp)) {min = dp; mini=i;}
     }
+    if (n<=2) break;
+    // если этот минимум меньше e или точек в линии больше np - выкинем точку
+    if ( ((e>0) && (min<e)) ||
+         ((np>0) && (n>np))) skip[mini]=true;
+    else break;
+  }
+  // сделаем новую линию
+  Line<T> ret;
+  for (int i = 0; i<line.size(); i++) if (!skip[i]) ret.push_back(line[i]);
+  return ret;
+}
 
-    // сделаем новую линию
-    Line<T> newl;
-    for (int i = 0; i<l->size(); i++) if (!skip[i]) newl.push_back((*l)[i]);
+// То же для набора линий. Слишком короткие куски исчезают.
+template<typename T>
+void generalize(MultiLine<T> & lines, double e){
+  for (typename MultiLine<T>::iterator l = lines.begin(); l!=lines.end(); l++){
+    Line<T> newl = generalize(*l, e, -1);
     l->swap(newl);
-
     // если осталась линия из двух близких точек - сотрем ее.
     if ((l->size() == 2) && (pdist((*l)[0],(*l)[1]) < e)){
       l=lines.erase(l); l--;
     }
   }
-
 }
 
 // FIG does not support polygons with multiple segments while
 // MP, OCAD, PS does. This function converts multiple segments into one.
-
 template<typename T>
 Line<T> join_polygons(const MultiLine<T> & L){
 
