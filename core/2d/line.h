@@ -197,8 +197,11 @@ template <typename T>
 std::istream & operator>> (std::istream & s, Line<T> & l){
   Point<T> p;
   char sep;
-  s >> p;
-  l.push_back(p);
+  s >> std::ws;
+  if (s.good()){
+    s >> p;
+    l.push_back(p);
+  }
   while (s.good()){
     s >> std::ws >> sep >> std::ws >> p;
     if (sep!=','){
