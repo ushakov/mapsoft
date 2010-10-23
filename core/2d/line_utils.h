@@ -20,17 +20,23 @@ Line<T> rect2line(const Rect<T> & r){
   return  ret;
 }
 
+// повернуть линию на угол a вокруг точки p0.
+template<typename T>
+void lrotate(Line<T> & line, const T a, const Point<T> & p0 = Point<T>(0,0)){
+  double c = cos(a);
+  double s = sin(a);
+  for (typename Line<T>::iterator p = line.begin(); p!=line.end(); p++){
+    double x = p->x-p0.x, y = p->y-p0.y;
+    p->x = (T)(x*c - y*s + p0.x);
+    p->y = (T)(x*s + y*c + p0.y);
+  }
+}
+
 // повернуть линии на угол a вокруг точки p0.
 template<typename T>
 void lrotate(MultiLine<T> & lines, const T a, const Point<T> & p0 = Point<T>(0,0)){
-  double c = cos(a);
-  double s = sin(a);
   for (typename MultiLine<T>::iterator l = lines.begin(); l!=lines.end(); l++){
-    for (typename Line<T>::iterator p = l->begin(); p!=l->end(); p++){
-      double x = p->x-p0.x, y = p->y-p0.y;
-      p->x = (T)(x*c - y*s + p0.x);
-      p->y = (T)(x*s + y*c + p0.y);
-    }
+    lrotate(*l, a, p0);
   }
 }
 

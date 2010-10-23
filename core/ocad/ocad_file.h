@@ -13,6 +13,10 @@
 #include "ocad_index.h"
 #include "ocad_fname.h"
 
+#include "2d/point.h"
+#include "2d/line.h"
+#include "2d/rect.h"
+
 namespace ocad{
 
 typedef ocad_index<ocad_string>  ocad_strings;
@@ -42,8 +46,7 @@ struct ocad_file{
   // ocad_info                // v 6 7 8
 
   // read ocad 6,7,8,9, cast to ocad 9 structures -- todo
-  void read(const char * fn){
-    int verb=2;
+  void read(const char * fn, int verb=0){
 
     // open file
     FILE * F = fopen(fn, "r");
@@ -161,6 +164,15 @@ struct ocad_file{
          std::cerr << "warning: no symbol: "
                    << o->sym << "\n";
     }
+  }
+
+  iRect range() const{
+    iRect ret;
+    ocad_objects::const_iterator o;
+    for (o=objects.begin(); o!=objects.end(); o++){
+      ret = rect_bounding_box(ret, o->range());
+    }
+    return ret;
   }
 
 };

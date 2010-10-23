@@ -1,0 +1,5 @@
+Name: ocad
+Description: Mapsoft ocad library
+Requires: utils 2d
+Version: 1
+Libs: -L\#core/ocad -locad

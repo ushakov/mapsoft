@@ -12,7 +12,7 @@ main(int argc, char **argv){
   }
   ocad_file O;
   try{
-    O.read(argv[1]);
+    O.read(argv[1], 2);
   }
   catch (const char * msg){
     std::cerr << argv[1] << ": " << msg << "\n";

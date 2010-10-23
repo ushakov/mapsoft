@@ -1,10 +1,7 @@
 #ifndef OCAD_TYPES_H
 #define OCAD_TYPES_H
 
-#include <iostream>
-#include <iomanip>
 #include <string>
-#include <cassert>
 #include "../../core/utils/iconv_utils.h"
 namespace ocad{
 
@@ -14,47 +11,18 @@ namespace ocad{
 /// convert pascal-string to c-string
 /// maxlen includes first byte;
 /// NOT USED?
-void str_pas2c(char * str, int maxlen){
-  int l = str[0];
-  if (l>=maxlen){
-    std::cerr << "warning: not a pascal-string?\n";
-    l=maxlen-1;
-  }
-  for (int i=0; i<l; i++) str[i]=str[i+1];
-  str[l]='\0';
-}
+void str_pas2c(char * str, int maxlen);
 
 /// convert pascal-string to std::string
 /// maxlen includes first byte;
-std::string str_pas2str(const char * str, int maxlen){
-  int l = str[0]+1;
-  if (l>maxlen){
-    std::cerr << "warning: not a pascal-string? "
-              << "(first byte: " << (int)str[0] << ")\n";
-    l=maxlen;
-  }
-  if (l<1){
-    std::cerr << "warning: not a pascal-string? "
-              << "(first byte: " << (int)str[0] << ")\n";
-    l=1;
-  }
-  return std::string(str+1, str+l);
-}
+std::string str_pas2str(const char * str, int maxlen);
 
 /// convert std::string to pascal-string
 ///  maxlen includes first byte
-void
-str_str2pas(char * pas, const std::string & str, int maxlen){
-  if (str.size() > maxlen-1)
-    std::cerr << "warning: cropping string.";
+void str_str2pas(char * pas, const std::string & str, int maxlen);
 
-  int size = MIN(str.size(), maxlen-1);
-  pas[0] = size;
-  for (int i=0; i<size; i++) pas[i+1]=str[i];
-}
-
-IConv iconv_uni("UTF-16");
-IConv iconv_win("CP1251");
+extern const IConv iconv_uni;
+extern const IConv iconv_win;
 
 /// OCAD6-7-8-9 data types
 
@@ -70,26 +38,12 @@ struct ocad_coord{ // 8 bytes
   ocad_long x;
   ocad_long y;
 
-  ocad_coord(){
-     assert ( sizeof(*this) == 8);
-    memset(this, 0, sizeof(*this));
-  }
-
-  int getx() const{
-    return x>>8;
-  }
-  int gety() const{
-    return y>>8;
-  }
-  int getf() const{
-    return (x & 0xFF) << 8 + (y & 0xFF);
-  }
-  void setx(int v){
-    x = (x & 0xFF) + v << 8;
-  }
-  void sety(int v){
-    y = (y & 0xFF) + v << 8;
-  }
+  ocad_coord();
+  int getx() const;
+  int gety() const;
+  int getf() const;
+  void setx(int v);
+  void sety(int v);
 
 /*
   /// this point is the first curve point
@@ -116,20 +70,11 @@ struct ocad_coord{ // 8 bytes
   /// OCAD 7, OCAD 9: this point is a dash point (and 8?)
   bool v79_is_dash() const {return fy & 8;}
 */
-  void dump(std::ostream & s) const{
-    s << " " << getx() << "," << gety();
-    if (getf()) s << "(" << std::setbase(16) << getf()
-                         << std::setbase(10) << ")";
-  }
+  void dump(std::ostream & s) const;
 };
 
 // protect against unsupported versions
-void check_v(int * v){
-  if ((*v<6)||(*v>9)){
-     std::cerr << "unsupported version: " << *v << ", set to 9\n";
-     *v=9;
-  }
-}
+void check_v(int * v);
 
 } // namespace
 #endif

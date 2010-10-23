@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include "ocad_types.h"
+#include <boost/lexical_cast.hpp>
 
 namespace ocad{
 
@@ -23,6 +24,7 @@ struct ocad_string{
 
   ocad_string():type(0),obj(0){}
 
+
   std::string get_field(const char f = 0) const{
     if (f==0){
       return std::string(data.begin(), data.begin() + data.find('\t', 0));
@@ -39,6 +41,11 @@ struct ocad_string{
       }
     } while (tab+1<data.size());
     return std::string();
+  }
+
+  template <typename T>
+  T get(const char f = 0) const{
+    return boost::lexical_cast<T>(get_field(f));
   }
 
   void read(FILE * F, index idx, int v){

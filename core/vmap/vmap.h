@@ -12,15 +12,19 @@
 
 #include "vmap/zn.h"
 
+
 // Class for vector map representation
 
 // TODO - проверить стрелки
 // TODO - проверить углы
 
+namespace ocad{
+struct ocad_file;
+}
+
 namespace vmap {
 
 /*****************************************************************/
-
 extern const int label_type;
 extern const int border_type;
 
@@ -91,6 +95,10 @@ int write(fig::fig_world & F, const world & W, const Options & O = Options());
 // Reading and writing mp (see vmap_mp.cpp):
 world read(const mp::mp_world & M);
 int write(mp::mp_world & M, const world & W, const Options & O = Options());
+
+// Reading and writing ocad (see vmap_ocad.cpp):
+world read(const ocad::ocad_file & O);
+//int write(ocad::ocad_file & O, const world & W, const Options & O = Options());
 
 // note: fig and mp write functions can't write lbuf yet. It is not
 // a problem becouse vmap_copy always do add_labels

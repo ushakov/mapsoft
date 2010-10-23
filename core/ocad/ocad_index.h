@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <vector>
+#include <cassert>
 #include "ocad_types.h"
 
 

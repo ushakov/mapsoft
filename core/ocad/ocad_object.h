@@ -6,6 +6,10 @@
 #include <string>
 #include "ocad_types.h"
 
+#include "2d/point.h"
+#include "2d/rect.h"
+#include "2d/line.h"
+
 namespace ocad{
 
 // common structure for OCAD object
@@ -77,6 +81,27 @@ struct ocad_object{
     return ret;
   }
 
+
+  // lib2d functions
+  iLine line() const{
+    iLine ret;
+    for (int i=0; i<coords.size(); i++){
+      iPoint p(coords[i].getx(),coords[i].gety());
+      ret.push_back(p);
+    }
+    return ret;
+  }
+  iRect range() const{
+    iRect ret;
+    for (int i=0; i<coords.size(); i++){
+      iPoint p(coords[i].getx(),coords[i].gety());
+      if (i==0) ret=iRect(p,p);
+      else ret = rect_pump(ret, p);
+    }
+    return rect_pump(ret, (int)extent);
+  }
+
+
   // get number of 8-byte blocks needed for 0x0000-terminates string txt
   int txt_blocks(const std::string & txt) const{
     if (txt.length() == 0 ) return 0;
@@ -87,7 +112,6 @@ struct ocad_object{
     int n=txt_blocks(txt);
     if (limit>=0) n=MIN(limit, n); // TODO: this can break unicode letters!
     if (n){
-
       char *buf = new char [n*8];
       memset(buf, 0, n*8);
       for (int i=0; i<txt.length(); i++) buf[i] = txt[i];

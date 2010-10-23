@@ -7,6 +7,7 @@ env.Library('vmap', \
      vmap_file.cpp
      vmap_fig.cpp
      vmap_mp.cpp
+     vmap_ocad.cpp
      vmap_vmap.cpp
      vmap_cnv.cpp
      vmap_filt.cpp

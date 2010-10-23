@@ -5,6 +5,7 @@
 
 #include "fig/fig.h"
 #include "vmap.h"
+#include "ocad/ocad_file.h"
 
 namespace vmap {
 
@@ -32,6 +33,17 @@ read(const char * fname){
       return vmap::world();
     }
     return read(M);
+  }
+  else if (testext(fname, "ocd")){
+    ocad::ocad_file O;
+    try{
+      O.read(fname);
+    }
+    catch (const char * msg){
+      cerr << "error: bad ocad file " << fname << "\n";
+      return vmap::world();
+    }
+    return read(O);
   }
   else if (testext(fname, "vmap")){
     ifstream IN(fname);

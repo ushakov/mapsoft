@@ -2,6 +2,7 @@
 #define OCAD_HEADER_H
 
 #include <cstdio>
+#include <cassert>
 #include "ocad_types.h"
 
 namespace ocad{
