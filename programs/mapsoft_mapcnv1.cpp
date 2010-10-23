@@ -1,6 +1,7 @@
 #define DEBUG_LAYER_GEOMAP
 
 #include "layers/layer_geomap.h"
+#include "loaders/image_r.h"
 #include "geo_io/io.h"
 #include "geo/geo_convs.h"
 
