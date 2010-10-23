@@ -45,6 +45,7 @@ struct zn{
   fig::fig_object fig;     // заготовка fig-объекта
   fig::fig_object txt;     // заготовка fig-объекта подписи
   std::string pic;         // картинка для точечного объекта (м.б. пустой)
+  int ocad, ocad_txt;      // номера символов OCAD
   bool istxt;              // делать ли подпись? // использовать label_type
   int label_type;          // положение подписи
   int label_dir;           // направление подписи: 0 - center, 1 - left, 2 - right
@@ -67,6 +68,7 @@ class zn_conv{
   fig::fig_object default_fig;  // как рисовать неизвестные знаки
   fig::fig_object default_txt;  // как рисовать неизвестные подписи
   mp::mp_object default_mp;     // как рисовать неизвестные знаки
+  int default_ocad, default_ocad_txt;
 
   std::set<int> unknown_types; // база неизвестных типов, чтоб на каждый ругаться единожды
   int min_depth, max_depth;
@@ -84,6 +86,10 @@ class zn_conv{
   // определить тип fig-объекта по внешнему виду, в соответствии с конф.файлом
   int get_type(const fig::fig_object & o) const;
 
+  // определить тип по номеру ocad-объекта
+  int get_type(const int ocad_type) const;
+
+
   // то же, что и find, но ругается, если тип не найден и
   // про него еще не ругались
   std::map<int, zn>::const_iterator find_type(int type);
@@ -94,8 +100,14 @@ class zn_conv{
   // Получить заготовку mp-объекта заданного типа
   mp::mp_object get_mp_template(int type);
 
+  // Получить номер объекта ocad
+  int get_ocad_type(int type);
+
   // Получить заготовку fig-подписи заданного типа
   fig::fig_object get_label_template(int type);
+
+  // Получить номер объекта для подписи ocad
+  int get_ocad_label_type(int type);
 
   // Получить тип и направление подписи (по умолчанию 0)
   int get_label_type(int type);

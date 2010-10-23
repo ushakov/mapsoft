@@ -112,6 +112,12 @@ typedef enum {
 // build structure with fig and mp objects
 zn_conv::zn_conv(const string & style){
 
+  default_fig = fig::make_object("2 1 2 2 4 7 10 -1 -1 6.000 0 0 -1 0 0 0");
+  default_txt = fig::make_object("4 0 4 10 -1 18 8 0.0000 4");
+  default_mp = mp::make_object("POLYLINE 0x0 0 1");
+  default_ocad = 704001;
+  default_ocad_txt = 780000;
+
   yaml_parser_t parser;
   yaml_event_t event;
 
@@ -197,6 +203,7 @@ zn_conv::zn_conv(const string & style){
       z.mp=default_mp;
       z.label_type=0;
       z.label_dir=0;
+      z.ocad=z.ocad_txt=0;
       state=KEY;
     }
 
@@ -287,6 +294,16 @@ zn_conv::zn_conv(const string & style){
         continue;
       }
 
+      if (key=="ocad"){
+        z.ocad = atoi(val.c_str());
+        continue;
+      }
+
+      if (key=="ocad_txt"){
+        z.ocad_txt = atoi(val.c_str());
+        continue;
+      }
+
       cerr << "Warning while reading " << conf_file << ": "
            << "unknown field" << key << "\n";
       continue;
@@ -298,10 +315,6 @@ zn_conv::zn_conv(const string & style){
 
   yaml_parser_delete(&parser);
   assert(!fclose(file));
-
-  default_fig = fig::make_object("2 1 2 2 4 7 10 -1 -1 6.000 0 0 -1 0 0 0");
-  default_txt = fig::make_object("4 0 4 10 -1 18 8 0.0000 4");
-  default_mp = mp::make_object("POLYLINE 0x0 0 1");
 }
 
 // определить тип mp-объекта (почти тривиальная функция :))
@@ -349,7 +362,7 @@ zn_conv::get_type (const fig::fig_object & o) const {
     // если заливка - штриховка, то и pen_color должен совпасть 
       // (даже для линий толщины 0)
       if ((af1>41) && (c1 != c2)) continue;
-    
+
       // проведя все тесты, мы считаем, что наш объект соответствует
       // объекту из znaki!
       return i->first;
@@ -369,6 +382,15 @@ zn_conv::get_type (const fig::fig_object & o) const {
           (o.font      == i->second.fig.font))
         return i->first;
     }
+  }
+  return 0;
+}
+
+// определить тип по номеру ocad-объекта
+int
+zn_conv::get_type(const int ocad_type) const{
+  for (map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
+    if (i->second.ocad == ocad_type) return (i->first);
   }
   return 0;
 }
@@ -402,12 +424,28 @@ zn_conv::get_mp_template(int type){
   else return default_mp;
 }
 
+// Получить номер объекта ocad
+int
+zn_conv::get_ocad_type(int type){
+  map<int, zn>::const_iterator z = find_type(type);
+  if (z != znaki.end()) return z->second.ocad;
+  else return default_ocad;
+}
+
 // Получить заготовку fig-подписи заданного типа
 fig::fig_object
 zn_conv::get_label_template(int type){
   map<int, zn>::const_iterator z = find_type(type);
   if (z != znaki.end()) return z->second.txt;
   else return default_txt;
+}
+
+// Получить номер объекта для подписи ocad
+int
+zn_conv::get_ocad_label_type(int type){
+  map<int, zn>::const_iterator z = find_type(type);
+  if (z != znaki.end()) return z->second.ocad_txt;
+  else return default_ocad_txt;
 }
 
 // Получить тип подписи (для несуществующих - 0)
