@@ -2,6 +2,7 @@
 #define OCAD_STRING_H
 
 #include <cstdio>
+#include <iostream>
 #include "ocad_types.h"
 #include <boost/lexical_cast.hpp>
 

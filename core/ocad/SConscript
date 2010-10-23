@@ -1,7 +1,15 @@
 Import('env')
 env.Library('ocad',\
   Split("""
+    ocad_file.cpp
+    ocad_header.cpp
     ocad_types.cpp
+    ocad_fname.cpp
+    ocad_object.cpp
+    ocad_object8.cpp
+    ocad_object9.cpp
+
+    ocad_geo.cpp
   """))
 
 e=env.Clone()

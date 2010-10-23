@@ -22,20 +22,9 @@ struct _ocad_index{ // 1028 bytes
   }
 };
 
-/// Just std::vector with dump() function.
-template <typename T>
-struct ocad_index_base: std::vector<T>{
-  void dump(int verb) const{
-    if (verb<1) return;
-    std::cout << this->size() << " index entries\n";
-    typename std::vector<T>::const_iterator i;
-    for (i = this->begin(); i != this->end(); i++) i->dump(verb);
-  }
-};
-
 /// Class for OCAD index
 template <typename T>
-struct ocad_index: ocad_index_base<T>{
+struct ocad_index: std::vector<T>{
 
   void read(FILE * F, int addr, int v){
 
@@ -95,6 +84,13 @@ struct ocad_index: ocad_index_base<T>{
       n+=256;
     }
     return first_pos;
+  }
+
+  void dump(int verb) const{
+    if (verb<1) return;
+    std::cout << this->size() << " index entries\n";
+    typename std::vector<T>::const_iterator i;
+    for (i = this->begin(); i != this->end(); i++) i->dump(verb);
   }
 
 };

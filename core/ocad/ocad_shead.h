@@ -2,6 +2,7 @@
 #define OCAD8_SHEAD_H
 
 #include <cstdio>
+#include <cassert>
 #include <vector>
 #include "ocad_types.h"
 #include "ocad_colors.h"
