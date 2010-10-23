@@ -1,0 +1,18 @@
+TODO
+ - common ocad object for all versions
+ - reading/writing:
+    - header    -- DONE
+    - shead(v8) -- +/-DONE
+       - converting to/from strings - INACCURATE
+    - symbols8 -- BLOBs
+    - symbols9 -- BLOBs
+    - objects8  -- DONE
+      TODO - check symbol collisions before writing OCAD6..8 objects
+      TODO - strange mask 0x4000 in symbol numbers in object index
+    - objects9  -- DONE
+    - strings - DONE?
+      TODO - filter strings according to version when writing to file
+    - fname (v9) -- DONE?
+    - setup (v8) -- TODO?
+    - info  (v8) -- NOT NEEDED?
+
