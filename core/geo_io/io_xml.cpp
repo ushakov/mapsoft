@@ -80,17 +80,17 @@ namespace xml {
 		IConv cnv(default_charset);
 		for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
 		  for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
-		    p->name = cnv.to_utf(p->name);
-		    p->comm = cnv.to_utf(p->comm);
+		    p->name = cnv.to_utf8(p->name);
+		    p->comm = cnv.to_utf8(p->comm);
 		  }
 		}
 		//преобразование комментариев к трекам в UTF-8
 		for (vector<g_track>::iterator l=ret.trks.begin(); l!=ret.trks.end(); l++){
-		  l->comm = cnv.to_utf(l->comm);
+		  l->comm = cnv.to_utf8(l->comm);
 		}
 		//преобразование комментариев к картам в UTF-8
 		for (vector<g_map>::iterator l=ret.maps.begin(); l!=ret.maps.end(); l++){
-		  l->comm = cnv.to_utf(l->comm);
+		  l->comm = cnv.to_utf8(l->comm);
 		}
 
                 world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
@@ -118,7 +118,7 @@ namespace xml {
 		if (tr.type  != def_t.type)  f << " type="     << tr.type;
 		if (tr.fill  != def_t.fill)  f << " fill="     << tr.fill;
 		if (tr.cfill != def_t.cfill) f << " cfill=\""  << tr.cfill << "\"";
-		if (tr.comm  != def_t.comm)  f << " comm=\""   << cnv.from_utf(tr.comm) << "\"";
+		if (tr.comm  != def_t.comm)  f << " comm=\""   << cnv.from_utf8(tr.comm) << "\"";
 		f << ">\n";
                 vector<g_trackpoint>::const_iterator p, b=tr.begin(), e=tr.end();
 		for (p = b; p != e; p++){
@@ -152,8 +152,8 @@ namespace xml {
                         if (p->x != def_pt.x)       f << " lon=" << fixed << setprecision(6) << p->x;
                         if (p->z   < 1e20)          f << " alt=" << fixed << setprecision(1) << p->z;
 			if (p->t != def_pt.t)       f << " time=\"" << p->t << "\"";
-                        if (p->name != def_pt.name) f << " name=\"" << cnv.from_utf(p->name) << "\"";
-                        if (p->comm != def_pt.comm)             f << " comm=\"" << cnv.from_utf(p->comm) << "\"";
+                        if (p->name != def_pt.name) f << " name=\"" << cnv.from_utf8(p->name) << "\"";
+                        if (p->comm != def_pt.comm)             f << " comm=\"" << cnv.from_utf8(p->comm) << "\"";
                         if (p->prox_dist != def_pt.prox_dist)   f << " prox_dist="  << fixed << setprecision(1) << p->prox_dist;
                         if (p->symb != def_pt.symb)             f << " symb="       << p->symb;
                         if (p->displ != def_pt.displ)           f << " displ="      << p->displ;
@@ -178,7 +178,7 @@ namespace xml {
 		g_refpoint def_pt;
 		g_map def_m;
 		f << "<map points=" << m.size();
-                if (m.comm != def_m.comm) f << " comm=\""   << cnv.from_utf(m.comm) << "\"";
+                if (m.comm != def_m.comm) f << " comm=\""   << cnv.from_utf8(m.comm) << "\"";
                 if (m.file != def_m.file) f << " file=\""   << m.file << "\"";
                 if (m.map_proj != def_m.map_proj) f << " map_proj=" << m.map_proj;
 		if (m.border.size()!=0){

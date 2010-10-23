@@ -235,23 +235,23 @@ bool read(const char* filename, fig_world & world, const Options & opts){
   IConv cnv(enc);
 
   for (fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
-    i->text = cnv.to_utf(i->text);
+    i->text = cnv.to_utf8(i->text);
     for (vector<string>::iterator
           c = i->comment.begin(); c != i->comment.end(); c++){
-      *c = cnv.to_utf(*c);
+      *c = cnv.to_utf8(*c);
     }
     tmp_opts.clear();
     for (Options::iterator o=i->opts.begin();o!=i->opts.end();o++)
-      tmp_opts.put(cnv.from_utf(o->first), cnv.from_utf(o->second));
+      tmp_opts.put(cnv.from_utf8(o->first), cnv.from_utf8(o->second));
     i->opts.swap(tmp_opts);
   }
   for (vector<string>::iterator
       c = ret.comment.begin(); c != ret.comment.end(); c++){
-    *c = cnv.to_utf(*c);
+    *c = cnv.to_utf8(*c);
   }
   tmp_opts.clear();
   for (Options::iterator o=ret.opts.begin();o!=ret.opts.end();o++)
-    tmp_opts.put(cnv.from_utf(o->first), cnv.from_utf(o->second));
+    tmp_opts.put(cnv.from_utf8(o->first), cnv.from_utf8(o->second));
   ret.opts.swap(tmp_opts);
 
   // convert colors to rgb
@@ -292,14 +292,14 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
   // writing comments
   for (0;n<world.comment.size();n++){
     if (n>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
-    string s = cnv.from_utf(world.comment[n]);
+    string s = cnv.from_utf8(world.comment[n]);
     if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
     out << "# " << s << "\n";
   }
   // writing options (as comments)
   for (Options::const_iterator o=world.opts.begin();o!=world.opts.end();o++){
     if (n++>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
-      string s = cnv.from_utf(o->first) + "=" + cnv.from_utf(o->second);
+      string s = cnv.from_utf8(o->first) + "=" + cnv.from_utf8(o->second);
     if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
     out << "# \\" << s << "\n";
   }
@@ -333,13 +333,13 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
 
     for (n=0;n<i->comment.size();n++){
       if (n>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
-      string s = cnv.from_utf(i->comment[n]);
+      string s = cnv.from_utf8(i->comment[n]);
       if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
       out << "# " << s << "\n";
     }
     for (Options::const_iterator o=i->opts.begin();o!=i->opts.end();o++){
       if (n++>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
-      string s = cnv.from_utf(o->first) + "=" + cnv.from_utf(o->second);
+      string s = cnv.from_utf8(o->first) + "=" + cnv.from_utf8(o->second);
       if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
       out << "# \\" << s << "\n";
     }
@@ -486,7 +486,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
         << i->length     << " "
         << (*i)[0].x     << " "
         << (*i)[0].y     << " "
-        << cnv.from_utf(i->text) << "\\001\n";
+        << cnv.from_utf8(i->text) << "\\001\n";
         break;
     case 5: // Arc
       if (nn<3){

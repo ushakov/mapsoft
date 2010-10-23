@@ -151,8 +151,8 @@ namespace gu {
                 IConv cnv(default_charset);
                 for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
                   for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
-                    p->name = cnv.to_utf(p->name);
-                    p->comm = cnv.to_utf(p->comm);
+                    p->name = cnv.to_utf8(p->name);
+                    p->comm = cnv.to_utf8(p->comm);
                   }
                 }
 
@@ -189,13 +189,13 @@ namespace gu {
 		int num = wp.size();
 		f << "[waypoints, " << num << " records]\n";
 		for (vector<g_waypoint>::const_iterator p = wp.begin(); p!=wp.end(); p++){
-			f << left << setw(6) << setfill(' ') << cnv.from_utf(p->name) << " " 
+			f << left << setw(6) << setfill(' ') << cnv.from_utf8(p->name) << " " 
 			  << right << fixed << setprecision(6)
 			  << setw(10) << p->y << " "
 			  << setw(11) << p->x << " "
 			  << setw(5) << p->symb << "/"
 			  << p->displ << " "
-			  << cnv.from_utf(p->comm)  << "\n";
+			  << cnv.from_utf8(p->comm)  << "\n";
 		}
 		f << "[end transfer, " << num << "/" << num << " records]\n";
 	}

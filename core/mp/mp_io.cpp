@@ -87,20 +87,20 @@ bool read(const char* filename, mp_world & world, const Options & opts){
     cerr << "mp::read: Using codepage: " << codepage << "\n";
 
     for (mp_world::iterator i = ret.begin(); i != ret.end(); i++){
-      i->Label = cnv.to_utf(i->Label);
+      i->Label = cnv.to_utf8(i->Label);
       for (Options::iterator o=i->Opts.begin(); o!=i->Opts.end(); o++){
-        o->second=cnv.to_utf(o->second);
+        o->second=cnv.to_utf8(o->second);
       }
     }
 
-    ret.Name = cnv.to_utf(ret.Name);
+    ret.Name = cnv.to_utf8(ret.Name);
     for (Options::iterator o=ret.Opts.begin(); o!=ret.Opts.end(); o++){
-      o->second=cnv.to_utf(o->second);
+      o->second=cnv.to_utf8(o->second);
     }
 
     for (vector<string>::iterator
                   c = ret.Comment.begin(); c != ret.Comment.end(); c++){
-      *c = cnv.to_utf(*c);
+      *c = cnv.to_utf8(*c);
     }
 
     // removing bad objects
@@ -153,12 +153,12 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
   cerr << "mp::write: Using codepage: " << codepage << "\n";
 
   for (vector<string>::const_iterator c = world.Comment.begin();
-       c!=world.Comment.end(); c++) out << ";" << cnv.from_utf(*c) << "\n";
-//cerr <<"Name" << world.Name << "->" << cnv.from_utf(world.Name) << "\n";
+       c!=world.Comment.end(); c++) out << ";" << cnv.from_utf8(*c) << "\n";
+//cerr <<"Name" << world.Name << "->" << cnv.from_utf8(world.Name) << "\n";
   out << setprecision(6) << fixed
       << "\r\n[IMG ID]"
       << "\r\nID="              << world.ID
-      << "\r\nName="            << cnv.from_utf(world.Name);
+      << "\r\nName="            << cnv.from_utf8(world.Name);
 
   // we need options to be printed in right order (Levels before Level0...)
   Options lopts=world.Opts; //copy options
@@ -173,27 +173,27 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
       if (strcmp(names[i],"CodePage")==0)
         out << "\r\nCodePage=" << codepage; // use our new codepage
       else
-        out << "\r\n" << names[i] << "=" << cnv.from_utf(lopts[names[i]]);
+        out << "\r\n" << names[i] << "=" << cnv.from_utf8(lopts[names[i]]);
       lopts.erase(names[i]);
     }
   }
   // other options
   for (Options::const_iterator o=lopts.begin(); o!=lopts.end(); o++){
-    out << "\r\n" << o->first << "=" << cnv.from_utf(o->second);
+    out << "\r\n" << o->first << "=" << cnv.from_utf8(o->second);
   }
 
   out << "\r\n[END-IMG ID]\r\n";
 
   for (mp_world::const_iterator i=world.begin(); i!=world.end(); i++){
     for (vector<string>::const_iterator c = i->Comment.begin();
-         c!=i->Comment.end(); c++) out << ";" << cnv.from_utf(*c) << "\n";
+         c!=i->Comment.end(); c++) out << ";" << cnv.from_utf8(*c) << "\n";
     out << "\r\n[" << i->Class << "]"
         << "\r\nType=0x"     << setbase(16) << i->Type << setbase(10);
-    if (i->Label != "") out << "\r\nLabel=" << cnv.from_utf(i->Label);
+    if (i->Label != "") out << "\r\nLabel=" << cnv.from_utf8(i->Label);
     if (i->EL != 0)     out << "\r\nLevels=" << i->EL;
 
     for (Options::const_iterator o=i->Opts.begin(); o!=i->Opts.end(); o++){
-      out << "\r\n" << o->first << "=" << cnv.from_utf(o->second);
+      out << "\r\n" << o->first << "=" << cnv.from_utf8(o->second);
     }
 
     for (dMultiLine::const_iterator l=i->begin(); l!=i->end(); l++){

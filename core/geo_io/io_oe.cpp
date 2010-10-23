@@ -404,17 +404,17 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   IConv cnv(default_charset);
   for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
     for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
-      p->name = cnv.to_utf(p->name);
-      p->comm = cnv.to_utf(p->comm);
+      p->name = cnv.to_utf8(p->name);
+      p->comm = cnv.to_utf8(p->comm);
     }
   }
   // convert track comments to UTF8
   for (vector<g_track>::iterator l=ret.trks.begin(); l!=ret.trks.end(); l++){
-    l->comm = cnv.to_utf(l->comm);
+    l->comm = cnv.to_utf8(l->comm);
   }
   // convert map comments to UTF8
   for (vector<g_map>::iterator l=ret.maps.begin(); l!=ret.maps.end(); l++){
-    l->comm = cnv.to_utf(l->comm);
+    l->comm = cnv.to_utf8(l->comm);
   }
 
   world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
@@ -439,7 +439,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 		  << "0,"
 		  << trk.width << ',' 
 		  << trk.color.RGB().value << ',' 
-		  << cnv.from_utf(trk.comm)  << ',' 
+		  << cnv.from_utf8(trk.comm)  << ',' 
 		  << trk.skip  << ',' 
 		  << trk.type.val  << ',' 
 		  << trk.fill.val  << ',' 
@@ -476,7 +476,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			 p!= wpt.end(); p++){
 
 			f << right << setw(4) << (++n) << ','
-			  << left  << setw(6) << setfill(' ') << cnv.from_utf(p->name) << ','
+			  << left  << setw(6) << setfill(' ') << cnv.from_utf8(p->name) << ','
 			  << right << fixed << setprecision(6)
 			  << setw(10) << p->y << ','
 			  << setw(11) << p->x << ','
@@ -486,7 +486,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << p->map_displ.val << ','
 			  << p->color.RGB().value   << ','
 			  << p->bgcolor.RGB().value << ','
-			  << cnv.from_utf(p->comm)  << ','
+			  << cnv.from_utf8(p->comm)  << ','
 			  << p->pt_dir.val << ','
 			  << p->displ      << ','
 			  << p->prox_dist  << ','
@@ -505,7 +505,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
 		Enum::output_fmt=Enum::oe_fmt;
 		f << "OziExplorer Map Data File Version 2.2\r\n"
-		  << cnv.from_utf(m.comm) << "\r\n"
+		  << cnv.from_utf8(m.comm) << "\r\n"
 		  << m.file << "\r\n"
 		  << "1 ,Map Code,\r\n"
 		  << "WGS 84,,   0.0000,   0.0000,WGS 84\r\n"

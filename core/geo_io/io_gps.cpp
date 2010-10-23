@@ -107,8 +107,8 @@ namespace gps {
 			 i++)
 		{
 			wpts[n] = GPS_Way_New();
-			memccpy(wpts[n]->ident, cnv.from_utf_7bit(i->name).c_str(), '\0', 255);
-			memccpy(wpts[n]->cmnt,  cnv.from_utf_7bit(i->comm).c_str(), '\0', 255);
+			memccpy(wpts[n]->ident, cnv.from_utf8_7bit(i->name).c_str(), '\0', 255);
+			memccpy(wpts[n]->cmnt,  cnv.from_utf8_7bit(i->comm).c_str(), '\0', 255);
 			wpts[n]->lat  = i->y;
 			wpts[n]->lon  = i->x;
 			wpts[n]->smbl = i->symb.val;
@@ -134,7 +134,7 @@ namespace gps {
 		trks[0]->ishdr = 1;
 		trks[0]->dspl   = tr.displ;
 		trks[0]->colour = tr.color.RGB().value;
-		memccpy(trks[0]->trk_ident, cnv.from_utf_7bit(tr.comm).c_str(), '\0', 255);
+		memccpy(trks[0]->trk_ident, cnv.from_utf8_7bit(tr.comm).c_str(), '\0', 255);
 
 		int n = 1;
 		for (vector<g_trackpoint>::const_iterator i =  tr.begin();

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstring>
 
-const std::string IConv_UTF("UTF-8");
+const std::string IConv_UTF8("UTF-8");
 
 void IConv::print_cnv_err(const std::string & e1, const std::string & e2){
   std::cerr << "IConv: Bad conversion from charset \"" << e1 << "\""
@@ -14,30 +14,30 @@ IConv::IConv(const std::string & enc, const std::string & def_enc){
   std::string def = def_enc;
   if (def.size() == 0) def = enc;
 
-  cd_to_utf = iconv_open(IConv_UTF.c_str(), enc.c_str());
-  if (cd_to_utf == (iconv_t)-1){
-    print_cnv_err(enc, IConv_UTF);
+  cd_to_utf8 = iconv_open(IConv_UTF8.c_str(), enc.c_str());
+  if (cd_to_utf8 == (iconv_t)-1){
+    print_cnv_err(enc, IConv_UTF8);
     std::cerr << "Trying default charset \"" << def << "\"\n";
-    cd_to_utf = iconv_open(IConv_UTF.c_str(), def.c_str());
-    if (cd_to_utf == (iconv_t)-1){
-      print_cnv_err(def, IConv_UTF);
+    cd_to_utf8 = iconv_open(IConv_UTF8.c_str(), def.c_str());
+    if (cd_to_utf8 == (iconv_t)-1){
+      print_cnv_err(def, IConv_UTF8);
       std::cerr << "Skipping conversion\n";
     }
   }
-  cd_from_utf = iconv_open(enc.c_str(), IConv_UTF.c_str());
-  if (cd_from_utf == (iconv_t)-1){
-    print_cnv_err(IConv_UTF, enc);
+  cd_from_utf8 = iconv_open(enc.c_str(), IConv_UTF8.c_str());
+  if (cd_from_utf8 == (iconv_t)-1){
+    print_cnv_err(IConv_UTF8, enc);
     std::cerr << "Trying default charset \"" << def << "\"\n";
-    cd_from_utf = iconv_open(def.c_str(), IConv_UTF.c_str());
-    if (cd_from_utf == (iconv_t)-1){
-      print_cnv_err(IConv_UTF, def);
+    cd_from_utf8 = iconv_open(def.c_str(), IConv_UTF8.c_str());
+    if (cd_from_utf8 == (iconv_t)-1){
+      print_cnv_err(IConv_UTF8, def);
       std::cerr << "Skipping conversion\n";
     }
   }
 }
 IConv::~IConv(){
-  if (cd_to_utf   != (iconv_t)-1) iconv_close(cd_to_utf);
-  if (cd_from_utf != (iconv_t)-1) iconv_close(cd_from_utf);
+  if (cd_to_utf8   != (iconv_t)-1) iconv_close(cd_to_utf8);
+  if (cd_from_utf8 != (iconv_t)-1) iconv_close(cd_from_utf8);
 }
 
 
@@ -74,14 +74,14 @@ std::string IConv::convert_string(iconv_t cd, const std::string & str) const{
   return ret;
 }
 
-std::string IConv::to_utf(const std::string &str) const{
-  return convert_string(cd_to_utf, str);
+std::string IConv::to_utf8(const std::string &str) const{
+  return convert_string(cd_to_utf8, str);
 }
-std::string IConv::from_utf(const std::string &str) const{
-  return convert_string(cd_from_utf, str);
+std::string IConv::from_utf8(const std::string &str) const{
+  return convert_string(cd_from_utf8, str);
 }
-std::string IConv::from_utf_7bit(const std::string &str) const{
-  std::string ret = convert_string(cd_from_utf, str);
+std::string IConv::from_utf8_7bit(const std::string &str) const{
+  std::string ret = convert_string(cd_from_utf8, str);
   for (std::string::iterator i=ret.begin(); i!=ret.end(); i++) *i &= 0x7F;
   return ret;
 }
