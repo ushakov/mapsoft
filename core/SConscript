@@ -12,6 +12,7 @@ subdirs = Split ("""
     layers
     loaders
     mp
+    ocad
     options
     utils
     vmap

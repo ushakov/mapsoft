@@ -1,0 +1,5 @@
+Import('env')
+e=env.Clone()
+e.UseLibs('utils')
+
+e.Program('ocad_test.cpp')
