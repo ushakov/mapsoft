@@ -46,30 +46,30 @@ std::string IConv::convert_string(iconv_t cd, const std::string & str) const{
 
   std::string ret;
 
-  const size_t ISIZE = str.length()+1;
-  char ibuf[ISIZE]; 
-  const size_t OSIZE = 512;
-  char obuf[OSIZE + 1];
+  const size_t ISIZE = str.length();
+  char ibuf[ISIZE];
+
+  // note: in UTF-16 string can contain zeros!
+  for (int i=0; i<ISIZE; i++) ibuf[i] = str[i];
 
   char *ibuf_ptr = ibuf;
   size_t icnt = ISIZE;
 
-  strncpy(ibuf, str.c_str(), str.length() + 1);
+  const size_t OSIZE = 512;
+  char obuf[OSIZE + 1];
 
   while(icnt){
       char *obuf_ptr = obuf;
       size_t ocnt = OSIZE;
 
-//         memset(obuf_ptr,0,OSIZE + 1);
-
       size_t res = iconv(cd, &ibuf_ptr, &icnt, &obuf_ptr, &ocnt);
 
       if (( res == -1) && (errno != E2BIG ) && (icnt>0) && (ocnt>0)){
-        // непонятные буквы
+        // skip unknown char
         icnt--; ocnt--;  *obuf_ptr=*ibuf_ptr; ibuf_ptr++; obuf_ptr++;
       }
-      obuf[OSIZE-ocnt] = 0;
-      ret += obuf;
+      // note: in UTF-16 string can contain zeros!
+      ret += std::string(obuf, obuf+OSIZE-ocnt);
   }
   return ret;
 }
