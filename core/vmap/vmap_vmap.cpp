@@ -235,6 +235,9 @@ write(ostream & OUT, const world & W){
       point_write_cnv(l->pos);
     }
   }
+  for (dLine::iterator p=WS.brd.begin(); p!=WS.brd.end(); p++){
+    point_write_cnv(*p);
+  }
 
   WS.sort();
   WS.lbuf.sort();
