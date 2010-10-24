@@ -9,9 +9,8 @@ namespace ocad{
 /// get reference from ocad file
 g_map get_ref(const ocad_file & O);
 
-/// set reference to ocad
-//void set_ref(const ocad_file & O, const g_ref & ref);
-
+/// set reference from rscale and wgs coords of zero point
+void set_ref(ocad_file & O, double rscale, const dPoint & p0);
 
 } // namespace
 #endif

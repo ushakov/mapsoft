@@ -2,6 +2,7 @@
 #define OCAD_FILE_H
 
 #include <cstdio>
+#include <map>
 #include "ocad_header.h"
 #include "ocad_shead.h"
 #include "ocad_symbol.h"
@@ -17,9 +18,9 @@
 
 namespace ocad{
 
-typedef ocad_index<ocad_string>  ocad_strings;
-typedef ocad_index<ocad_object>  ocad_objects;
-typedef ocad_index<ocad_symbol>  ocad_symbols;
+typedef ocad_index<ocad_string>    ocad_strings;
+typedef ocad_index<ocad_object>    ocad_objects;
+typedef std::map<int, ocad_symbol> ocad_symbols;
 
 /// It is a structure with all passible data blocks.
 /// It can be read or write from files with
@@ -45,10 +46,15 @@ struct ocad_file{
   // verb = 2 - dump all known data from file
   void read(const char * fn, int verb=0);
 
+  /// Write to file.
   void write (const char * fn) const;
 
-  // do it before writing or calculating range...
+  /// Update extents and types for all objects.
+  /// Do it before writing or calculating range...
   void update_extents();
+
+  /// Add new object.
+  int add_object(int sym, iLine pts);
 
   iRect range() const;
 };

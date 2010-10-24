@@ -27,9 +27,7 @@ template <typename T>
 struct ocad_index: std::vector<T>{
 
   void read(FILE * F, int addr, int v){
-
     check_v(&v);
-    this->clear();
     while (addr!=0){
       if (fseek(F, addr, SEEK_SET)!=0)
         throw "can't seek file to index block";

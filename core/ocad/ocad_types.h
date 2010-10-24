@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <cstring>
 #include "utils/iconv_utils.h"
+#include "2d/point.h"
 namespace ocad{
 
 #define MIN(x,y) ((x)<(y)?(x):(y))
@@ -41,6 +42,7 @@ struct ocad_coord{ // 8 bytes
   ocad_long y;
 
   ocad_coord();
+  ocad_coord(const iPoint & p);
   int getx() const;
   int gety() const;
   int getf() const;

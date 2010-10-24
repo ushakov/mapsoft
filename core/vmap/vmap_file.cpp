@@ -38,19 +38,19 @@ read(const char * fname){
     ocad::ocad_file O;
     try{
       O.read(fname);
+      return read(O);
     }
     catch (const char * msg){
-      cerr << "error: bad ocad file " << fname << "\n";
+      cerr << "error: bad ocad file " << fname << ": " << msg << "\n";
       return vmap::world();
     }
-    return read(O);
   }
   else if (testext(fname, "vmap")){
     ifstream IN(fname);
     return read(IN);
   }
   else{
-    cerr << "error: input file is not .fig or .mp\n";
+    cerr << "error: input file extension is not fig mp ocd or vmap\n";
     return vmap::world();
   }
 }
@@ -71,12 +71,26 @@ write(const char * fname, const world & W, const Options & O){
     write(M, W, O);
     mp::write(fname, M);
   }
+  else if (testext(fname, "ocd")){
+    ocad::ocad_file F;
+//    ifstream test(fname);
+//    if (test.good())
+    try{
+      F.read(fname);
+      write(F, W, O);
+      F.write(fname);
+    }
+    catch (const char * msg){
+      cerr << "error: bad ocad file " << fname << "\n";
+      return 0;
+    }
+  }
   else if (testext(fname, "vmap")){
     ofstream OUT(fname);
     write(OUT, W);
   }
   else {
-    cerr << "error: output file is not .fig or .mp\n";
+    cerr << "error: output file extension is not fig mp ocd or vmap\n";
     return 0;
   }
   return 1;

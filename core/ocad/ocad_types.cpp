@@ -57,6 +57,11 @@ ocad_coord::ocad_coord(){
   memset(this, 0, sizeof(*this));
 }
 
+ocad_coord::ocad_coord(const iPoint & p){
+  x = p.x << 8;
+  y = p.y << 8;
+}
+
 int
 ocad_coord::getx() const{
   return x>>8;

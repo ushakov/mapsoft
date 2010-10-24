@@ -2,10 +2,13 @@
 
 #include "2d/line_utils.h"
 #include "geo/geo_convs.h"
+#include <sstream>
 
 using namespace std;
 
 namespace ocad{
+
+#define OCAD_SCALE_PAR 1039
 
 g_map
 get_ref(const ocad_file & O){
@@ -14,7 +17,7 @@ get_ref(const ocad_file & O){
 
   vector<ocad_string>::const_iterator s;
   for (s=O.strings.begin(); s!=O.strings.end(); s++){
-    if ((s->type == 1039) && (s->get<int>('r') == 1)){
+    if ((s->type == OCAD_SCALE_PAR) && (s->get<int>('r') == 1)){
       double rscale  = s->get<double>('m');
       double grid    = s->get<double>('g');
       double grid_r  = s->get<double>('d');
@@ -45,17 +48,41 @@ get_ref(const ocad_file & O){
   return g_map();
 }
 
-/*
-void set_ref(const ocad_file & O, const g_ref & ref){
-  double rscale  = ;
-  double grid    = ;
-  double grid_r  = ;
-  double x       = ;
-  double y       = ;
-  double a       = ;
-  double zone    = ;
+void
+set_ref(ocad_file & O, double rscale, const dPoint & p0){
+
+  // remove old value;
+  vector<ocad_string>::iterator si = O.strings.begin();
+  while (si!=O.strings.end()){
+    if (si->type == OCAD_SCALE_PAR) si = O.strings.erase(si);
+    else si++;
+  }
+
+  Options opts;
+  opts.put<int>("lon0", convs::lon2lon0(p0.x));
+  convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), opts,
+                   Datum("wgs84"), Proj("lonlat"), opts);
+  dPoint pc(p0);
+  cnv.bck(pc);
+
+  // add new string
+  int grid=1000;
+  ostringstream str;
+  str << "\tm" << int(rscale)
+      << "\tg" << grid   // grid, 0.01mm units
+      << "\tr" << "1"    // geo reference is on
+      << "\tx" << int(pc.x)
+      << "\ty" << int(pc.y)
+      << "\ta" << "0"      // angle, deg
+      << "\td" << (grid*rscale)/100000 // grid, 1m units
+      << "\ti" << convs::lon2pref(p0.x) + 2030;
+                  // I don't know that is 2030...
+
+  ocad_string s;
+  s.type = OCAD_SCALE_PAR;
+  s.data = str.str();
+  O.strings.push_back(s);
 }
-*/
 
 
 } // namespace

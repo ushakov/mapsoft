@@ -20,6 +20,12 @@ ocad_object::line() const{
   return ret;
 }
 
+void
+ocad_object::set_coords(const iLine & l){
+  coords.clear();
+  coords = vector<ocad_coord>(l.begin(), l.end());
+}
+
 iRect
 ocad_object::range() const{
   iRect ret;

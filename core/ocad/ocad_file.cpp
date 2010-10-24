@@ -11,9 +11,12 @@ typedef ocad_index<ocad8_object> ocad8_objects;
 typedef ocad_index<ocad9_symbol> ocad9_symbols;
 typedef ocad_index<ocad8_symbol> ocad8_symbols;
 
-
 void
 ocad_file::read(const char * fn, int verb){
+
+  // clear some data
+  symbols.clear();
+  strings.clear();
 
   // open file
   FILE * F = fopen(fn, "r");
@@ -35,18 +38,20 @@ ocad_file::read(const char * fn, int verb){
     strings.insert(strings.end(), s.begin(), s.end());
   }
 
-  symbols.clear();
   if (v>8){
     ocad9_symbols s9;
     s9.read(F, h.sym_pos, v);
-    symbols.insert(symbols.end(), s9.begin(), s9.end());
+    ocad9_symbols::const_iterator i;
+    for (i=s9.begin(); i!=s9.end();i++) symbols[i->sym] = *i;
+    s9.dump(verb);
   }
   else{
     ocad8_symbols s8;
     s8.read(F, h.sym_pos, v);
-    symbols.insert(symbols.end(), s8.begin(), s8.end());
+    ocad8_symbols::const_iterator i;
+    for (i=s8.begin(); i!=s8.end();i++) symbols[i->sym] = *i;
+    s8.dump(verb);
   }
-  symbols.dump(verb);
 
   ocad8_objects o8;
   ocad9_objects o9;
@@ -54,17 +59,13 @@ ocad_file::read(const char * fn, int verb){
   o9.read(F, h.obj9_pos, v);
   objects.insert(objects.end(), o8.begin(), o8.end());
   objects.insert(objects.end(), o9.begin(), o9.end());
-
   objects.dump(verb);
 
   strings.read(F, h.str_pos, v);
-
   strings.dump(verb);
 
   if (v>8) fname.read(F, h.fname_pos, h.fname_size);
-
   fname.dump(verb);
-
 }
 
 void
@@ -101,12 +102,16 @@ ocad_file::write (const char * fn) const{
 
   if (v>8){
     ocad9_symbols s9;
-    s9.insert(s9.end(), symbols.begin(), symbols.end());
+    map<int, ocad_symbol>::const_iterator i;
+    for (i=symbols.begin(); i!=symbols.end();i++)
+      s9.push_back(i->second);
     h.sym_pos = s9.write(F, v);
   }
   else{
     ocad8_symbols s8;
-    s8.insert(s8.end(), symbols.begin(), symbols.end());
+    map<int, ocad_symbol>::const_iterator i;
+    for (i=symbols.begin(); i!=symbols.end();i++)
+      s8.push_back(i->second);
     h.sym_pos = s8.write(F, v);
   }
 
@@ -117,22 +122,38 @@ void
 ocad_file::update_extents(){
   ocad_objects::iterator o;
   for (o=objects.begin(); o!=objects.end(); o++){
-    int sym = o->sym;
-    ocad_symbols::const_iterator s;
-    bool found=false;
-    for (s=symbols.begin(); s!=symbols.end(); s++){
-      if (s->sym == o->sym){
-        o->extent = s->extent;
-        if (o->type!=s->type)
-           cerr << "warning: object ans symbol types differ: "
-                     << o->type << " vs " << s->type << "\n";
-        found=true;
-      }
+
+    map<int,ocad_symbol>::const_iterator e = symbols.find(o->sym);
+    if (e!=symbols.end()){
+      o->extent = e->second.extent;
+      o->type = e->second.type;
     }
-    if (!found)
-       cerr << "warning: no symbol: "
+    else{
+      o->extent = 0;
+      o->type   = 0;
+      cerr << "warning: no symbol: "
                  << o->sym << "\n";
+    }
   }
+}
+
+int
+ocad_file::add_object(int sym, iLine pts){
+
+  map<int,ocad_symbol>::const_iterator e = symbols.find(sym);
+  if (e==symbols.end()){
+    std::cerr << "warning: skipping object of unknown type: " << sym << "\n";
+    return 1;
+  }
+
+  ocad_object o;
+  o.sym = sym;
+  o.type   = e->second.type;
+  o.extent = e->second.extent;
+  o.set_coords(pts);
+  objects.push_back(o);
+
+  return 0;
 }
 
 iRect

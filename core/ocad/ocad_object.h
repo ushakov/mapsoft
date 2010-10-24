@@ -38,6 +38,10 @@ struct ocad_object{
   /// TODO -- correct holes processing!
   iLine line() const;
 
+  /// Set points.
+  /// For creating objects use ocad_file::add_object()!
+  void set_coords(const iLine & l);
+
   /// Get range (with extent added).
   iRect range() const;
 
