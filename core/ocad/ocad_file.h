@@ -32,7 +32,7 @@ struct ocad_file{
   // all possible data blocks
   int v, sv, t;
   ocad8_shead     shead;      // v 6 7 8
-  ocad_symbols    symbols;    // incompat!
+  ocad_symbols    symbols;    // incompatible!
   ocad_objects    objects;    // good!
   ocad_strings    strings;    // so-so, v 8,9
   ocad_fname      fname;      // v 9

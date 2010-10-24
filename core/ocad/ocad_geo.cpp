@@ -14,7 +14,7 @@ get_ref(const ocad_file & O){
 
   vector<ocad_string>::const_iterator s;
   for (s=O.strings.begin(); s!=O.strings.end(); s++){
-    if ((s->type == 1039) && (s->get_field('r') == "1")){
+    if ((s->type == 1039) && (s->get<int>('r') == 1)){
       double rscale  = s->get<double>('m');
       double grid    = s->get<double>('g');
       double grid_r  = s->get<double>('d');

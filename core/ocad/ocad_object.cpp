@@ -31,7 +31,7 @@ ocad_object::range() const{
 
 void
 ocad_object::dump(int verb) const{
-  if (verb<1) return;
+ if (verb<1) return;
   cout << "object: " << sym/1000 << "." << sym%1000
     << " type: " << (int)type
     << " col: " << idx_col << " - " << col;

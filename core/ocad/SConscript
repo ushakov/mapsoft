@@ -1,13 +1,20 @@
 Import('env')
 env.Library('ocad',\
   Split("""
+    ocad_types.cpp
+    ocad_colors.cpp
+
     ocad_file.cpp
     ocad_header.cpp
-    ocad_types.cpp
     ocad_fname.cpp
     ocad_object.cpp
     ocad_object8.cpp
     ocad_object9.cpp
+    ocad_shead.cpp
+    ocad_string.cpp
+    ocad_symbol.cpp
+    ocad_symbol8.cpp
+    ocad_symbol9.cpp
 
     ocad_geo.cpp
   """))

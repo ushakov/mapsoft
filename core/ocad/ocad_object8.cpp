@@ -96,8 +96,6 @@ ocad8_object::read(FILE * F, ocad8_object::index idx, int v){
 
   if (o.unicode) text=iconv_uni.to_utf8(text);
   else           text=iconv_win.to_utf8(text);
-
-  dump(2);
 }
 
 

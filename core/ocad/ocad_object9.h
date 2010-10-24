@@ -11,7 +11,10 @@ namespace ocad{
 // OCAD9 object = OCAD object + low-level index struct + read/write functions
 struct ocad9_object : ocad_object{
 
-  // index block entry type (for using with ocad_index)
+  /// Index entry type and read/write functions are used in ocad_index
+  /// template for reading/writing OCAD files.
+
+  /// Low-level index entry type.
   struct index {
     ocad_coord lower_left;
     ocad_coord upper_right;

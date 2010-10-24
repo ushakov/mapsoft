@@ -11,16 +11,13 @@
 #include "fig/fig.h"
 
 #include "vmap/zn.h"
+#include "ocad/ocad_file.h"
 
 
 // Class for vector map representation
 
 // TODO - проверить стрелки
 // TODO - проверить углы
-
-namespace ocad{
-struct ocad_file;
-}
 
 namespace vmap {
 

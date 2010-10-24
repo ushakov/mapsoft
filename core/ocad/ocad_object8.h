@@ -10,7 +10,10 @@ namespace ocad{
 // OCAD8 object = OCAD object + low-level index struct + read/write functions
 struct ocad8_object : ocad_object{
 
-  /// Index block entry type (for use with ocad_index).
+  /// Index entry type and read/write functions are used in ocad_index
+  /// template for reading/writing OCAD files.
+
+  /// Low-level index entry type.
   struct index{
     ocad_coord lower_left, upper_right;
     ocad_long pos;  // file position
@@ -29,6 +32,7 @@ struct ocad8_object : ocad_object{
 
   /// Construct from ocad_object (trivial).
   ocad8_object(const ocad_object & o);
+
 
   /// Check data and text limits
   void check_limits(ocad_small &n, ocad_small &t, int lt, int ls) const;
