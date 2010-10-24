@@ -12,7 +12,7 @@
 
 namespace vmap {
 
-const int point_scale = 1e6;
+const int point_scale = 1000000;
 
 using namespace std;
 
