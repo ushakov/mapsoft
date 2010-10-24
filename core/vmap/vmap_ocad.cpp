@@ -30,7 +30,7 @@ read(const ocad::ocad_file & F){
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
 
   // get map data
-  ret.rscale = 100 * convs::map_mpp(ref, Proj("tmerc")) * fig::cm2fig;
+  ret.rscale = 100000 * convs::map_mpp(ref, Proj("tmerc"));
   ret.style  = default_style;
   ret.name   = "";
   ret.mp_id  = 0;

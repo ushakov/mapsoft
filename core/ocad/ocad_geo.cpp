@@ -24,22 +24,21 @@ get_ref(const ocad_file & O){
       int zone    = s->get<int>('i'); // grid and zone - "2037"
 
       Options opts;
-      opts.put<int>("lon0", zone%1000);
+      opts.put<int>("lon0", (zone%1000-30)*6-3);
       convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), opts,
                        Datum("wgs84"), Proj("lonlat"), opts);
 
-
       dLine pts0(pts);
       lrotate(pts, -a * M_PI/180);
+      pts*=rscale / 100000; // 1point = 0.01mm
       pts+=p0;
       cnv.line_frw_p2p(pts);
-
       g_map ret;
       for (int i = 0; i < pts.size(); i++){
         ret.push_back(g_refpoint(pts[i], pts0[i]));
       }
       ret.map_proj=Proj("tmerc");
-      ret.border=pts;
+      ret.border=pts0;
       return ret;
     }
   }
