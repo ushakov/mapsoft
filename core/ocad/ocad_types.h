@@ -2,7 +2,9 @@
 #define OCAD_TYPES_H
 
 #include <string>
-#include "../../core/utils/iconv_utils.h"
+#include <stdint.h>
+#include <cstring>
+#include "utils/iconv_utils.h"
 namespace ocad{
 
 #define MIN(x,y) ((x)<(y)?(x):(y))
