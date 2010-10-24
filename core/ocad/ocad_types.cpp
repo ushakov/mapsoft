@@ -78,6 +78,22 @@ ocad_coord::sety(int v){
   y = (y & 0xFF) + v << 8;
 }
 
+bool
+ocad_coord::is_curve_f() const {
+  return x & 1;
+}
+
+bool
+ocad_coord::is_curve_s() const {
+  return x & 2;
+}
+
+bool
+ocad_coord::is_curve() const {
+  return x & 3;
+}
+
+
 void
 ocad_coord::dump(ostream & s) const{
   s << " " << getx() << "," << gety();

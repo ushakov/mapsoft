@@ -14,10 +14,12 @@ ocad_object::line() const{
   iLine ret;
   for (int i=0; i<coords.size(); i++){
     iPoint p(coords[i].getx(),coords[i].gety());
-    ret.push_back(p);
+    if (!coords[i].is_curve())
+      ret.push_back(p);
   }
   return ret;
 }
+
 iRect
 ocad_object::range() const{
   iRect ret;

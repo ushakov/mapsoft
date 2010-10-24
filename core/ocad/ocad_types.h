@@ -45,13 +45,11 @@ struct ocad_coord{ // 8 bytes
   void setx(int v);
   void sety(int v);
 
+  bool is_curve_f() const; ///<< this point is the first curve point
+  bool is_curve_s() const; ///< this point is the second curve point
+  bool is_curve() const;   ///< this point is curve point
+
 /*
-  /// this point is the first curve point
-  bool is_curve_f() const {return fx & 1;}
-
-  /// this point is the second curve point
-  bool is_curve_s() const {return fx & 2;}
-
   /// for double lines: there is no left line between this point and the next point
   bool is_no_left() const {return fx & 4;}
 

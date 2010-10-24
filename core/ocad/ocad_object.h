@@ -35,6 +35,7 @@ struct ocad_object{
   ocad_object();
 
   /// Convert to iLine.
+  /// TODO -- correct holes processing!
   iLine line() const;
 
   /// Get range (with extent added).
