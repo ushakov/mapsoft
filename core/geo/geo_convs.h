@@ -119,6 +119,9 @@ double map_mpp(const g_map &map, Proj P);
 /// Find central meridian for a given longitude.
 double lon2lon0(const double lon);
 
+/// Find prefix number  for a given longitude. (39.5 -> 7)
+int lon2pref(const double lon);
+
 /// Find central meridian for a given tmerc x coordinate with zone prefix.
 double lon_pref2lon0(const double lon);
 

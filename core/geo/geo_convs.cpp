@@ -563,6 +563,11 @@ lon2lon0(const double lon){
   return floor( lon/6.0 ) * 6 + 3;
 }
 
+int
+lon2pref(const double lon){
+  return (lon2lon0(lon)-3)/6+1;
+}
+
 double
 lon_pref2lon0(const double lon){
   return floor( lon/1e6 ) * 6 - 3;
