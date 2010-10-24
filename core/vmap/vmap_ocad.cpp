@@ -106,11 +106,10 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
   dLine refs_fig(refs);
   ref_cnv.line_frw_p2p(refs_fig);
   refs_fig *= 100000.0/W.rscale; // OCAD units
-  refs_fig -= refs_fig.range().BLC();
+  refs_fig -= refs_fig.range().TLC();
 
   ref.clear(); ref.border.clear();
   for (int i=0;i<refs.size();i++){
-    refs_fig[i].y*=-1;
     ref.push_back(g_refpoint(refs[i], refs_fig[i]));
     ref.border.push_back(refs[i]);
   }
