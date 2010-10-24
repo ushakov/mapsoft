@@ -198,11 +198,8 @@ zn_conv::zn_conv(const string & style){
 
     if (event.type == YAML_MAPPING_START_EVENT){
       z=zn();
-      z.txt=default_txt;
       z.fig=default_fig;
       z.mp=default_mp;
-      z.label_type=0;
-      z.label_dir=0;
       z.ocad=z.ocad_txt=0;
       state=KEY;
     }
@@ -224,6 +221,11 @@ zn_conv::zn_conv(const string & style){
           if (type & line_mask) z.label_type=4; // text along the line
           else z.label_type=3;                  // text on the center
         }
+      }
+      else{
+        z.txt=default_txt;
+        z.label_type=0;
+        z.label_dir=0;
       }
       znaki.insert(pair<int, zn>(type, z));
       state=N;
