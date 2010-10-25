@@ -151,7 +151,8 @@ ocad_file::add_object(int sym, iLine pts, double ang, const std::string & text){
   o.type   = e->second.type;
   o.extent = e->second.extent;
   o.set_coords(pts);
-  o.ang = int(ang*10);
+  o.ang = int((90+ang)*10);
+  if (o.ang>1800) o.ang-=3600;
   o.text = text;
   objects.push_back(o);
 
