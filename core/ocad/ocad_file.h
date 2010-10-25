@@ -54,7 +54,8 @@ struct ocad_file{
   void update_extents();
 
   /// Add new object.
-  int add_object(int sym, iLine pts, double ang=0);
+  int add_object(int sym, iLine pts, double ang=0,
+                 const std::string & text = std::string());
 
   iRect range() const;
 };

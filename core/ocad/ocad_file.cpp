@@ -138,7 +138,7 @@ ocad_file::update_extents(){
 }
 
 int
-ocad_file::add_object(int sym, iLine pts, double ang){
+ocad_file::add_object(int sym, iLine pts, double ang, const std::string & text){
 
   map<int,ocad_symbol>::const_iterator e = symbols.find(sym);
   if (e==symbols.end()){
@@ -152,6 +152,7 @@ ocad_file::add_object(int sym, iLine pts, double ang){
   o.extent = e->second.extent;
   o.set_coords(pts);
   o.ang = int(ang*10);
+  o.text = text;
   objects.push_back(o);
 
   return 0;

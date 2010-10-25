@@ -163,6 +163,25 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
       }
     }
 
+    // labels
+    if (o->text == "") continue;
+    std::list<lpos>::const_iterator l;
+    for (l=o->labels.begin(); l!=o->labels.end(); l++){
+
+      dPoint ref;  dist_pt_l(l->pos, *o, ref);
+      cnv.bck(ref);
+      dPoint pos = l->pos;
+      cnv.bck(pos);
+
+      double ang = l->hor ? 0 : cnv.angd_bck(l->pos, l->ang, 0.01);
+      int text_sym = zconverter.get_ocad_label_type(o->type);
+
+      // todo: ref, dir.
+      iLine line;
+      line.push_back(pos);
+      F.add_object(text_sym, line, ang, o->text);
+    }
+
     // todo -- labels!
   }
   // TODO: write lbuf!
