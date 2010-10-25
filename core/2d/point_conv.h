@@ -30,6 +30,15 @@ struct Conv{
   /// Convert a rectagle and return bounding box of resulting figure.
   virtual dRect bb_frw(const dRect & R, double acc=1, int max=100) const;
   virtual dRect bb_bck(const dRect & R, double acc=1, int max=100) const;
+
+  /// Convert angle from y=const line at point p.
+  /// Radians.
+  virtual double ang_frw(dPoint p, double a, double dx) const;
+  virtual double ang_bck(dPoint p, double a, double dx) const;
+  /// Degrees.
+  virtual double angd_frw(dPoint p, double a, double dx) const;
+  virtual double angd_bck(dPoint p, double a, double dx) const;
+
 };
 
 /// Affine transformation

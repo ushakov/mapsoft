@@ -92,6 +92,33 @@ Conv::bb_bck(const dRect & R, double acc, int max) const {
   return l.range();
 }
 
+double
+Conv::ang_frw(dPoint p, double a, double dx) const{
+  dPoint p1 = p + dPoint(dx*cos(a), dx*sin(a));
+  frw(p); frw(p1);
+  p1-=p;
+  return atan2(p1.y, p1.x);
+}
+
+double
+Conv::ang_bck(dPoint p, double a, double dx) const{
+  dPoint p1 = p + dPoint(dx*cos(a), dx*sin(a));
+  bck(p); bck(p1);
+  p1-=p;
+  return atan2(p1.y, p1.x);
+}
+
+double
+Conv::angd_frw(dPoint p, double a, double dx) const{
+  return 180.0/M_PI * ang_frw(p, M_PI/180.0*a, dx);
+}
+
+double
+Conv::angd_bck(dPoint p, double a, double dx) const{
+  return 180.0/M_PI * ang_bck(p, M_PI/180.0*a, dx);
+}
+
+
 /*******************************************************************/
 
 /* Приведение матрицы (N+1)xN к диагональному виду */
