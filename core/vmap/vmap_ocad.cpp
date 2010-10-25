@@ -179,7 +179,12 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
 
       // todo: ref, dir.
       iLine line;
+      // 5 points
       line.push_back(pos);
+      line.push_back(pos + dPoint(  0, 100));
+      line.push_back(pos + dPoint(200, 100));
+      line.push_back(pos + dPoint(200, -100));
+      line.push_back(pos + dPoint(  0, -100));
       F.add_object(text_sym, line, ang, o->text);
     }
 
