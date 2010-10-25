@@ -317,6 +317,19 @@ zn_conv::zn_conv(const string & style){
         continue;
       }
 
+      if (key=="replace_by"){
+        istringstream str(val);
+        int i;
+        str >> hex >> i;
+        if (str.good() || str.eof()) z.replace_by = i;
+        continue;
+      }
+
+      if (key=="curve"){
+        z.curve = atoi(val.c_str());
+        continue;
+      }
+
       cerr << "Warning while reading " << conf_file << ": "
            << "unknown field" << key << "\n";
       continue;

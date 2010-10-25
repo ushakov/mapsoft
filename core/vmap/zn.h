@@ -57,9 +57,11 @@ struct zn{
                            // 0 - center, 1 - left, 2 - right
   std::vector<int> move_to; // список объектов, к которым надо подвинуть данный
   bool rotate;              // надо ли при этом поворачивать
+  int replace_by;           // на какой объект заменять (для устаревших объектов)
+  int curve;                // параметр кривой (метры изгиба?)
 
   // положение подписи:
-  zn(){label_type=0; label_dir=0; rotate=false;}
+  zn(){label_type=0; label_dir=0; rotate=false; replace_by=0; curve=0;}
 };
 
 
