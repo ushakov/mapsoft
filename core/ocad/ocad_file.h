@@ -54,8 +54,11 @@ struct ocad_file{
   void update_extents();
 
   /// Add new object.
+  /// class is used only for unknown symbols.
+  /// 0 - POI, 1 - POLYLINE, 2 - POLYGON, as in vmap
   int add_object(int sym, iLine pts, double ang=0,
-                 const std::string & text = std::string());
+                 const std::string & text = std::string(),
+                 int cl=1);
 
   iRect range() const;
 };

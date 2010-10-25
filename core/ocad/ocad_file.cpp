@@ -138,18 +138,27 @@ ocad_file::update_extents(){
 }
 
 int
-ocad_file::add_object(int sym, iLine pts, double ang, const std::string & text){
-
-  map<int,ocad_symbol>::const_iterator e = symbols.find(sym);
-  if (e==symbols.end()){
-    std::cerr << "warning: skipping object of unknown type: " << sym << "\n";
-    return 1;
-  }
+ocad_file::add_object(int sym, iLine pts, double ang,
+            const std::string & text, int cl){
 
   ocad_object o;
-  o.sym = sym;
-  o.type   = e->second.type;
-  o.extent = e->second.extent;
+
+  map<int,ocad_symbol>::const_iterator e = symbols.find(sym);
+  if (e!=symbols.end()){ // it is not an error!
+    o.sym = sym;
+    o.type   = e->second.type;
+    o.extent = e->second.extent;
+  }
+  else{
+    o.sym = -1;
+    if ((cl <0) || (cl>3)){
+      std::cerr << "warning: wrong class " << cl
+                << "passed to ocad_file::add_object(). Fixed to line.\n";
+      cl=2;
+    }
+    o.type = cl + 1; // 1-pt, 2-line, 3-area
+  }
+
   o.set_coords(pts);
   o.ang = int((90+ang)*10);
   if (o.ang>1800) o.ang-=3600;

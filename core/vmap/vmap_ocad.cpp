@@ -138,10 +138,10 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
     if (o->size()==0) continue;
     int ocad_sym = zconverter.get_ocad_type(o->type);
     if (ocad_sym ==0){
-      std::cerr << "can't find ocad symbol for type: " << o->type << "\n";
-      continue;
+      std::cerr << "warning: unknown ocad symbol for type: " << o->type << "\n";
+      ocad_sym = -1;
     }
-    // todo - source, names, comments, arrows
+    // todo - source, comments
 
     double ang=0;
     if (o->opts.exists("Angle")){
@@ -152,20 +152,21 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
     if (o->get_class() == POLYGON){
       iLine line = cnv.line_bck(join_polygons(*o));
       if (o->dir==2) line = line.inv();
-      F.add_object(ocad_sym, line, ang, o->text);
+      F.add_object(ocad_sym, line, ang, o->text, o->get_class());
     }
     else {
       dMultiLine::const_iterator l;
       for (l=o->begin(); l!=o->end(); l++){
         iLine line = cnv.line_bck(*l);
         if (o->dir==2) line = line.inv();
-        F.add_object(ocad_sym, line, ang, o->text);
+        F.add_object(ocad_sym, line, ang, o->text, o->get_class());
       }
     }
 
     // labels
     if (o->text == "") continue;
     std::list<lpos>::const_iterator l;
+    int obj_num = F.objects.size()-1;
     for (l=o->labels.begin(); l!=o->labels.end(); l++){
 
       dPoint ref;  dist_pt_l(l->pos, *o, ref);
