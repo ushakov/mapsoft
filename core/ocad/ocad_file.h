@@ -54,7 +54,7 @@ struct ocad_file{
   void update_extents();
 
   /// Add new object.
-  int add_object(int sym, iLine pts);
+  int add_object(int sym, iLine pts, double ang=0);
 
   iRect range() const;
 };

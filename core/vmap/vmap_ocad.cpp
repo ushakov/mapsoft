@@ -143,15 +143,22 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
     }
     // todo - source, names, comments, arrows
 
+    double ang=0;
+    if (o->opts.exists("Angle")){
+      ang = o->opts.get<double>("Angle");
+      ang=cnv.angd_bck((*o)[0].center(), ang, 0.01);
+    }
+
     if (o->get_class() == POLYGON){
-      F.add_object(ocad_sym, cnv.line_bck(join_polygons(*o)));
+      F.add_object(ocad_sym, cnv.line_bck(join_polygons(*o)), ang);
     }
     else {
       dMultiLine::const_iterator l;
       for (l=o->begin(); l!=o->end(); l++){
-        F.add_object(ocad_sym, cnv.line_bck(*l));
+        F.add_object(ocad_sym, cnv.line_bck(*l), ang);
       }
     }
+
     // todo -- labels!
   }
   // TODO: write lbuf!
