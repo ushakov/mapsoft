@@ -306,6 +306,17 @@ zn_conv::zn_conv(const string & style){
         continue;
       }
 
+      if ((key=="move_to") || (key=="rotate_to")){
+        istringstream str(val);
+        int i;
+        while (str.good()){
+          str >> hex >> i;
+          if (str.good() || str.eof()) z.move_to.push_back(i);
+        }
+        z.rotate = (key=="rotate_to");
+        continue;
+      }
+
       cerr << "Warning while reading " << conf_file << ": "
            << "unknown field" << key << "\n";
       continue;
@@ -604,6 +615,11 @@ zn_conv::make_pic(const fig::fig_object & fig, int type){
     ret.push_back(*i);
   }
   fig::fig_make_comp(ret);
+
+  if (fig.opts.exists("Angle")){
+    double a = fig.opts.get<double>("Angle", 0);
+    fig::fig_rotate(ret, M_PI/180.0*a, fig[0]);
+  }
 
   // скопируем комментарии из первого объекта в составной объект.
   if (ret.size()>1)

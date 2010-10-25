@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <algorithm>
 
 #include "2d/line_utils.h"
 #include "2d/line_rectcrop.h"
@@ -21,6 +22,8 @@ const double label_search_dist2 = 1.0;
 const double label_search_dist3 = 0.1;
 const double label_len          = 0.3;
 const double label_new_dist     = 0.1;
+
+const double move_to_dist     = 0.002; // deg; -- inaccurate...
 
 /***************************************/
 
@@ -161,6 +164,35 @@ new_labels(world & W){
       o->labels.push_back(l);
     }
   }
+}
+
+void
+move_pics(world & W){
+  zn::zn_conv zc(W.style);
+
+  for (map<int, zn::zn>::const_iterator z=zc.znaki.begin(); z!=zc.znaki.end(); z++){
+    const vector<int> & mt = z->second.move_to;
+    if (mt.size()==0) continue;
+    bool rotate  = z->second.rotate;
+    int  type    = z->first;
+
+    dMultiLine lines;
+    for (world::const_iterator o=W.begin(); o!=W.end(); o++){
+      if (std::find(mt.begin(), mt.end(), o->type) != mt.end())
+        lines.insert(lines.end(), o->begin(), o->end());
+    }
+    for (world::iterator o=W.begin(); o!=W.end(); o++){
+      if (o->type!=type) continue;
+      if (o->size()!=1) continue;
+      if ((*o)[0].size()!=1) continue; // only 1-segment, 1-point objects!
+      dPoint & p = (*o)[0][0];
+      dPoint t(1,0);
+      nearest_pt(lines, t, p, move_to_dist);
+
+      if (rotate) o->opts.put<double>("Angle", 180/M_PI*atan2(t.y, t.x));
+    }
+  }
+
 }
 
 } // namespace

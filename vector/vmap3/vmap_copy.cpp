@@ -197,6 +197,8 @@ main(int argc, char **argv){
   add_labels(V);
   // create new labels
   new_labels(V);
+  // move and rotate pics
+  move_pics(V);
 
   filter(V, O);
 

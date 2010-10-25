@@ -93,7 +93,7 @@ int write(fig::fig_world & F, const world & W, const Options & O = Options());
 world read(const mp::mp_world & M);
 int write(mp::mp_world & M, const world & W, const Options & O = Options());
 
-// Reading and writing ocad (see vmap_ocad.cpp):
+// Reading and writing ocad (see vmap_ocad.cpp) -- EXPERIMENTAL:
 world read(const ocad::ocad_file & F);
 int write(ocad::ocad_file & F, const world & W, const Options & O = Options());
 
@@ -106,13 +106,14 @@ int write(std::ostream & OUT, const world & W);
 
 // Reading and writing any file (see vmap_file.cpp).
 // Format is determined by extension (fig, mp).
-// Options are passed to corresponding put()  function. 
+// Options are passed to corresponding put()  function.
 world read(const char * fname);
 int  write(const char * fname, const world & W, const Options & O = Options());
 
 // Functions for merging labels with objects (see vmap_labels.cpp):
 int add_labels(world & W);   // add labels from lbuf to objects
 void new_labels(world & W);  // create new labels
+void move_pics(world & W);   // move and rotate some signs
 
 // filtering and statistics (see vmap_filt.cpp):
 void filter(world & W, const Options & O);

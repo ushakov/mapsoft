@@ -116,6 +116,12 @@ read(const fig::fig_world & F){
     o.type = type;
     set_source(o.opts, i->opts.get<string>("Source"));
 
+    if (i->opts.exists("Angle")){
+      double a = i->opts.get<double>("Angle");
+      a=cnv.angd_frw(i->center(), a, 1000);
+      o.opts.put<double>("Angle", a);
+    }
+
     if (comm.size()>0){
       o.text = comm[0];
       o.comm.insert(o.comm.begin(),
@@ -220,6 +226,12 @@ write(fig::fig_world & F, const world & W, const Options & O){
 
     fig.comment.push_back(o->text);
     fig.comment.insert(fig.comment.end(), o->comm.begin(), o->comm.end());
+
+    if (o->opts.exists("Angle")){
+      double a = o->opts.get<double>("Angle");
+      a=cnv.angd_bck((*o)[0].center(), a, 0.01);
+      fig.opts.put<double>("Angle", a);
+    }
 
     if (o->get_class() == POLYGON){
       fig.set_points(cnv.line_bck(join_polygons(*o)));
