@@ -69,10 +69,7 @@ struct VMAPRenderer{
   void render_im_in_polygons(int type, const char * fname);
 
   // place image in points
-  void render_im_in_points(int type, const char * fname,
-                      const std::vector<int> line_types = std::vector<int>(),
-                      bool rot=true, double maxdist=10);
-
+  void render_im_in_points(int type, const char * fname);
 
   void mkpath(const vmap::object & o, const int close, double curve_l=0);
 

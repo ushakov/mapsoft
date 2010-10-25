@@ -141,37 +141,22 @@ main(int argc, char* argv[]){
   R.set_cap_square();
   R.render_points(0x6402, 0x0, 4); // дом
 
-  std::vector<int> zd;
-  zd.push_back(0xd | zn::line_mask);
-  zd.push_back(0x27 | zn::line_mask);
-  std::vector<int> riv;
-  riv.push_back(0x26 | zn::line_mask);
-  riv.push_back(0x15 | zn::line_mask);
-  riv.push_back(0x18 | zn::line_mask);
-  riv.push_back(0x1f | zn::line_mask);
-  std::vector<int> riv_n_l(riv);
-  riv_n_l.push_back(0x29 | zn::area_mask);
-  riv_n_l.push_back(0x3b | zn::area_mask);
-  riv_n_l.push_back(0x53 | zn::area_mask);
-  std::vector<int> hr;
-  hr.push_back(0xc | zn::line_mask);
-
-  R.render_im_in_points(0x1000, "ur_vod.png",    riv_n_l, false); // отметка уреза воды
-  R.render_im_in_points(0x6508, "por.png", riv); // порог
-  R.render_im_in_points(0x650E, "vdp.png", riv); // водопад
+  R.render_im_in_points(0x1000, "ur_vod.png"); // отметка уреза воды
+  R.render_im_in_points(0x6508, "por.png"); // порог
+  R.render_im_in_points(0x650E, "vdp.png"); // водопад
   R.render_im_in_points(0x0F00, "trig.png");
   R.render_im_in_points(0x2C04, "pam.png");
   R.render_im_in_points(0x2C0B, "cerkov.png");
   R.render_im_in_points(0x2F08, "avt.png");
-  R.render_im_in_points(0x5905, "zd.png",    zd);
-  R.render_im_in_points(0x6406, "per.png",   hr);
-  R.render_im_in_points(0x6620, "pernk.png", hr);
-  R.render_im_in_points(0x6621, "per1a.png", hr);
-  R.render_im_in_points(0x6622, "per1b.png", hr);
-  R.render_im_in_points(0x6623, "per2a.png", hr);
-  R.render_im_in_points(0x6624, "per2b.png", hr);
-  R.render_im_in_points(0x6625, "per3a.png", hr);
-  R.render_im_in_points(0x6626, "per3b.png", hr);
+  R.render_im_in_points(0x5905, "zd.png");
+  R.render_im_in_points(0x6406, "per.png");
+  R.render_im_in_points(0x6620, "pernk.png");
+  R.render_im_in_points(0x6621, "per1a.png");
+  R.render_im_in_points(0x6622, "per1b.png");
+  R.render_im_in_points(0x6623, "per2a.png");
+  R.render_im_in_points(0x6624, "per2b.png");
+  R.render_im_in_points(0x6625, "per3a.png");
+  R.render_im_in_points(0x6626, "per3b.png");
   R.render_im_in_points(0x660B, "kan.png");
   R.render_im_in_points(0x650A, "ldp.png");
   R.render_im_in_points(0x6403, "kladb.png");

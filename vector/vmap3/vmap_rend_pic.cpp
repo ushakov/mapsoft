@@ -58,18 +58,7 @@ VMAPRenderer::render_im_in_polygons(int type, const char * fname){
 
 // place image in points
 void
-VMAPRenderer::render_im_in_points(int type, const char * fname,
-                    const std::vector<int> line_types, bool rot, double maxdist){
-  maxdist*=lw1;
-
-  dMultiLine lines;
-  if (line_types.size()>0){
-    for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
-      if (std::find(line_types.begin(), line_types.end(), o->type) == line_types.end()) continue;
-      lines.insert(lines.end(), o->begin(), o->end());
-    }
-  }
-  else rot=false;
+VMAPRenderer::render_im_in_points(int type, const char * fname){
 
   Cairo::RefPtr<Cairo::SurfacePattern> patt =
     get_patt_from_png(fname);
@@ -78,18 +67,10 @@ VMAPRenderer::render_im_in_points(int type, const char * fname,
 
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       if (l->size()<1) continue;
-      dPoint p = (*l)[0];
-      double ang=0;
-
-      if (lines.size()>0){
-         dPoint t(1,0);
-         nearest_pt(lines, t, p, maxdist);
-         ang=atan2(t.y, t.x);
-      }
-
       cr->save();
-      cr->translate(p.x, p.y);
-      if (rot) cr->rotate(ang);
+      cr->translate((*l)[0].x, (*l)[0].y);
+      if (o->opts.exists("Angle"))
+        cr->rotate(- o->opts.get<double>("Angle",0) * M_PI/180);
       cr->set_source(patt);
       cr->paint();
       cr->restore();

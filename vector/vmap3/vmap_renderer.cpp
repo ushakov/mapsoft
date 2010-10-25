@@ -93,8 +93,14 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_):
 
   // modify vmap
   vmap::add_labels(W);
+  vmap::move_pics(W);
   // convert coordinates to px
   for (vmap::world::iterator o=W.begin(); o!=W.end(); o++){
+    if (o->opts.exists("Angle")){
+      double a = o->opts.get<double>("Angle",0);
+      a = cnv.angd_bck(o->center(), a, 0.01);
+      o->opts.put<double>("Angle", a);
+    }
     for (vmap::object::iterator l=o->begin(); l!=o->end(); l++){
       for (dLine::iterator p=l->begin(); p!=l->end(); p++){
         cnv.bck(*p);
