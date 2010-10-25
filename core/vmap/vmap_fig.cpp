@@ -57,7 +57,7 @@ read(const fig::fig_world & F){
       l.text = i->text;
       // fix angle (fig->latlon)
       if (i->angle!=0){
-        l.ang = ang_afig2a(i->angle, l.dir, cnv, l.pos);
+        l.ang = cnv.angd_frw((*i)[0], i->angle, 1000);
         l.hor = false;
       }
       else {
@@ -99,8 +99,14 @@ read(const fig::fig_world & F){
       l.ref = (*i)[0]; cnv.frw(l.ref);
       l.pos = (*i)[1]; cnv.frw(l.pos);
       l.dir = zn::fig_arr2dir(*i, true);
-      if (i->size()>=3){
-        l.ang=ang_pfig2a((*i)[1], (*i)[2], l.dir, cnv);
+/*      if (i->size()>=3){
+        dPoint dp=(*i)[2]-(*i)[1];
+        l.ang=cnv.angd_frw((*i)[0], 180/M_PI*atan2(dp.y, dp.x), 1000);
+        l.hor=false;
+      }*/
+      if (i->opts.exists("TxtAngle")){
+        double angle = i->opts.get<double>("TxtAngle", 0);
+        l.ang=cnv.angd_frw((*i)[0], angle, 1000);
         l.hor=false;
       }
       else{
@@ -262,13 +268,14 @@ write(fig::fig_world & F, const world & W, const Options & O){
       dPoint pos = l->pos;
       cnv.bck(pos);
 
+      double angle = l->hor ? 0 : cnv.angd_bck(l->pos, l->ang, 0.01);
+
       fig::fig_object txt;
       if (fig_text_labels){
         txt=zconverter.get_label_template(o->type);
         txt.text=o->text;
         txt.sub_type=l->dir;
-        if (l->hor) txt.angle=0;
-        else txt.angle=ang_a2afig(l->ang, cnv, pos, W.rscale);
+        txt.angle=angle;
         txt.push_back(pos);
         txt.opts.put<iPoint>("RefPt", ref);
         txt.opts.put<string>("MapType", "label");
@@ -279,8 +286,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
         zn::fig_dir2arr(txt, l->dir, true);
         txt.push_back(ref);
         txt.push_back(pos);
-        if (!l->hor)
-          txt.push_back(ang_a2pfig(l->ang, l->dir, cnv, pos, W.rscale));
+        if (!l->hor) txt.opts.put<double>("TxtAngle", angle);
         txt.comment.push_back(o->text);
       }
       F.push_back(txt);

@@ -119,15 +119,6 @@ void move_pics(world & W);   // move and rotate some signs
 void filter(world & W, const Options & O);
 
 
-// Some usefil conversion functions (see vmap_cnv.cpp):
-// Angle conversions
-double ang_pll2a(const dPoint & p1, const dPoint & p2, int dir);
-double ang_pfig2a(const dPoint & p1, const dPoint & p2, int dir, Conv & cnv);
-double ang_afig2a(double afig, int dir, Conv & cnv, dPoint fig_pos);
-dPoint ang_a2pll(double a, int dir, dPoint pos, const double rscale);
-dPoint ang_a2pfig(double a, int dir, Conv & cnv, dPoint fig_pos, const double rscale);
-double ang_a2afig(double a, Conv & cnv, dPoint fig_pos, const double rscale);
-
 // put source to options if it is not empty
 void set_source(Options & o, const std::string & source);
 

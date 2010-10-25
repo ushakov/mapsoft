@@ -109,7 +109,7 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_):
     }
     for (std::list<vmap::lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
       cnv.bck(l->pos);
-      if (!l->hor) l->ang=vmap::ang_a2afig(l->ang, cnv, l->pos, W.rscale);
+      if (!l->hor) l->ang = cnv.angd_bck(l->pos, l->ang, 0.01);
       pt_m2pt(l->pos);
     }
   }
