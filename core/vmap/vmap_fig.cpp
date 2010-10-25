@@ -57,7 +57,7 @@ read(const fig::fig_world & F){
       l.text = i->text;
       // fix angle (fig->latlon)
       if (i->angle!=0){
-        l.ang = cnv.angd_frw((*i)[0], i->angle, 1000);
+        l.ang = cnv.angd_frw((*i)[0], 180/M_PI*i->angle, 1000);
         l.hor = false;
       }
       else {
@@ -275,7 +275,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
         txt=zconverter.get_label_template(o->type);
         txt.text=o->text;
         txt.sub_type=l->dir;
-        txt.angle=angle;
+        txt.angle=M_PI/180*angle;
         txt.push_back(pos);
         txt.opts.put<iPoint>("RefPt", ref);
         txt.opts.put<string>("MapType", "label");

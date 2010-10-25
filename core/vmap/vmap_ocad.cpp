@@ -150,12 +150,16 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
     }
 
     if (o->get_class() == POLYGON){
-      F.add_object(ocad_sym, cnv.line_bck(join_polygons(*o)), ang);
+      iLine line = cnv.line_bck(join_polygons(*o));
+      if (o->dir==2) line = line.inv();
+      F.add_object(ocad_sym, line, ang, o->text);
     }
     else {
       dMultiLine::const_iterator l;
       for (l=o->begin(); l!=o->end(); l++){
-        F.add_object(ocad_sym, cnv.line_bck(*l), ang);
+        iLine line = cnv.line_bck(*l);
+        if (o->dir==2) line = line.inv();
+        F.add_object(ocad_sym, line, ang, o->text);
       }
     }
 

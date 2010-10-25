@@ -51,7 +51,7 @@ is_to_skip(fig::fig_object o){
          (o.opts.get("MapType", std::string()) == "pic");
 }
 // convert fig arrow to direction
-// arr text mp
+// arr text dir(vmap, mp)
 // --  1    0
 // ->  0    1
 // <-  2    2

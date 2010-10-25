@@ -94,25 +94,30 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_):
   // modify vmap
   vmap::add_labels(W);
   vmap::move_pics(W);
+
   // convert coordinates to px
   for (vmap::world::iterator o=W.begin(); o!=W.end(); o++){
+    // convert object angles: deg (latlon) -> rad (raster)
     if (o->opts.exists("Angle")){
       double a = o->opts.get<double>("Angle",0);
-      a = cnv.angd_bck(o->center(), a, 0.01);
+      a = cnv.ang_bck(o->center(), M_PI/180 * a, 0.01);
       o->opts.put<double>("Angle", a);
     }
+    // convert object coords
     for (vmap::object::iterator l=o->begin(); l!=o->end(); l++){
       for (dLine::iterator p=l->begin(); p!=l->end(); p++){
         cnv.bck(*p);
         pt_m2pt(*p);
       }
     }
+    // convert label angles: deg (latlon) -> rad (raster) and pos.
     for (std::list<vmap::lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
+      if (!l->hor) l->ang = cnv.ang_bck(l->pos, M_PI/180 * l->ang, 0.01);
       cnv.bck(l->pos);
-      if (!l->hor) l->ang = cnv.angd_bck(l->pos, l->ang, 0.01);
       pt_m2pt(l->pos);
     }
   }
+  // convert border
   for (dLine::iterator p=W.brd.begin(); p!=W.brd.end(); p++){
     cnv.bck(*p);
     pt_m2pt(*p);

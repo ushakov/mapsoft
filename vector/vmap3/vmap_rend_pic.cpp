@@ -70,7 +70,7 @@ VMAPRenderer::render_im_in_points(int type, const char * fname){
       cr->save();
       cr->translate((*l)[0].x, (*l)[0].y);
       if (o->opts.exists("Angle"))
-        cr->rotate(- o->opts.get<double>("Angle",0) * M_PI/180);
+        cr->rotate(- o->opts.get<double>("Angle",0));
       cr->set_source(patt);
       cr->paint();
       cr->restore();
