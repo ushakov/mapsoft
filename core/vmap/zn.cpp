@@ -331,7 +331,7 @@ zn_conv::zn_conv(const string & style){
       }
 
       cerr << "Warning while reading " << conf_file << ": "
-           << "unknown field" << key << "\n";
+           << "unknown field: " << key << "\n";
       continue;
     }
 
