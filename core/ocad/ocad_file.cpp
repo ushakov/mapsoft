@@ -160,8 +160,7 @@ ocad_file::add_object(int sym, iLine pts, double ang,
   }
 
   o.set_coords(pts);
-  o.ang = int((90+ang)*10);
-  if (o.ang>1800) o.ang-=3600;
+  o.ang = int(ang*10);
   o.text = text;
   objects.push_back(o);
 
