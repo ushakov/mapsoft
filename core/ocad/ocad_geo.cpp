@@ -17,32 +17,38 @@ get_ref(const ocad_file & O){
 
   vector<ocad_string>::const_iterator s;
   for (s=O.strings.begin(); s!=O.strings.end(); s++){
-    if ((s->type == OCAD_SCALE_PAR) && (s->get<int>('r') == 1)){
-      double rscale  = s->get<double>('m');
-      double grid    = s->get<double>('g');
-      double grid_r  = s->get<double>('d');
-      dPoint  p0(s->get<double>('x'),
-                 s->get<double>('y'));
-      double a = s->get<double>('a');
-      int zone    = s->get<int>('i'); // grid and zone - "2037"
+    if ((s->type == OCAD_SCALE_PAR) && (s->get_str('r') == "1")){
+      try{
+        double rscale  = s->get<double>('m');
+        double grid    = s->get<double>('g');
+        double grid_r  = s->get<double>('d');
+        dPoint  p0(s->get<double>('x'),
+                   s->get<double>('y'));
+        double a = s->get<double>('a');
+        int zone    = s->get<int>('i'); // grid and zone - "2037"
 
-      Options opts;
-      opts.put<int>("lon0", (zone%1000-30)*6-3);
-      convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), opts,
-                       Datum("wgs84"), Proj("lonlat"), opts);
+        Options opts;
+        opts.put<int>("lon0", (zone%1000-30)*6-3);
+        convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), opts,
+                         Datum("wgs84"), Proj("lonlat"), opts);
 
-      dLine pts0(pts);
-      lrotate(pts, -a * M_PI/180);
-      pts*=rscale / 100000; // 1point = 0.01mm
-      pts+=p0;
-      cnv.line_frw_p2p(pts);
-      g_map ret;
-      for (int i = 0; i < pts.size(); i++){
-        ret.push_back(g_refpoint(pts[i], pts0[i]));
+        dLine pts0(pts);
+        lrotate(pts, -a * M_PI/180);
+        pts*=rscale / 100000; // 1point = 0.01mm
+        pts+=p0;
+        cnv.line_frw_p2p(pts);
+        g_map ret;
+        for (int i = 0; i < pts.size(); i++){
+          ret.push_back(g_refpoint(pts[i], pts0[i]));
+        }
+        ret.map_proj=Proj("tmerc");
+        ret.border=pts0;
+        return ret;
       }
-      ret.map_proj=Proj("tmerc");
-      ret.border=pts0;
-      return ret;
+      catch(boost::bad_lexical_cast x){
+        std::cerr << "can't get reference: " << x.what() << "\n";
+        return g_map();
+      }
     }
   }
   return g_map();
