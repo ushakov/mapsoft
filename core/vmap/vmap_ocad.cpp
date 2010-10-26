@@ -34,7 +34,6 @@ read(const ocad::ocad_file & F){
   ret.style  = default_style;
   ret.name   = "";
   ret.mp_id  = 0;
-
   // get map objects and labels:
   zn::zn_conv zconverter(ret.style);
 
@@ -80,9 +79,19 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
 
   // get options
   int append          = O.get<int>("append", 0);          // OPTION append 0
+  // append does not work now!
+
+  // read template file.
+  string tmpl = string("/usr/share/mapsoft/") + W.style + ".ocd9";
+  try {
+    F.read(tmpl.c_str());
+  }
+  catch (const char * msg){
+    cerr << "error: bad ocad file " << tmpl.c_str() << "\n";
+    return 0;
+  }
 
   zn::zn_conv zconverter(W.style);
-
 
   // create ref from brd or from map range
   // TODO: here is the same code as in vmap_fig!
@@ -119,18 +128,8 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
   ocad::set_ref(F, W.rscale, refs.center());
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
 
-  // cleanup objects if not in append mode
-  if (!append) F.objects.clear();
-
-  string tmpl = string("/usr/share/mapsoft/") + W.style + ".ocd9";
-  try {
-    F.read(tmpl.c_str());
-  }
-  catch (const char * msg){
-    cerr << "error: bad ocad file " << tmpl.c_str() << "\n";
-    return 0;
-  }
-
+//  // cleanup objects if not in append mode
+//  if (!append) F.objects.clear();
 
   // save map parameters TODO - get/set pair!
   //ocad::set_vmap(F, W.style, W.rscale, W.name, W.mp_id);
