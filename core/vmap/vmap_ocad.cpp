@@ -122,6 +122,16 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
   // cleanup objects if not in append mode
   if (!append) F.objects.clear();
 
+  string tmpl = string("/usr/share/mapsoft/") + W.style + ".ocd9";
+  try {
+    F.read(tmpl.c_str());
+  }
+  catch (const char * msg){
+    cerr << "error: bad ocad file " << tmpl.c_str() << "\n";
+    return 0;
+  }
+
+
   // save map parameters TODO - get/set pair!
   //ocad::set_vmap(F, W.style, W.rscale, W.name, W.mp_id);
 
@@ -166,7 +176,6 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
     // labels
     if (o->text == "") continue;
     std::list<lpos>::const_iterator l;
-    int obj_num = F.objects.size()-1;
     for (l=o->labels.begin(); l!=o->labels.end(); l++){
 
       dPoint ref;  dist_pt_l(l->pos, *o, ref);
@@ -186,6 +195,16 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
       line.push_back(pos + dPoint(200, -100));
       line.push_back(pos + dPoint(  0, -100));
       F.add_object(text_sym, line, ang, o->text);
+
+      ocad::ocad_string st;
+      st.type=50;
+      st.obj=F.objects.size()-1;
+      ostringstream ss;
+      ss << "\tx" << ref.x
+         << "\ty" << ref.y
+      ;
+      st.data = ss.str();
+      F.strings.push_back(st);
     }
 
     // todo -- labels!

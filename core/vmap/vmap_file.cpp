@@ -73,10 +73,7 @@ write(const char * fname, const world & W, const Options & O){
   }
   else if (testext(fname, "ocd")){
     ocad::ocad_file F;
-//    ifstream test(fname);
-//    if (test.good())
     try{
-      F.read(fname);
       write(F, W, O);
       F.write(fname);
     }

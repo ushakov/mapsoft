@@ -62,6 +62,7 @@ e.Install(e.datadir, "mmb.cnf")
 e.Install(e.datadir, "mmb.png")
 e.Install(e.datadir, "mmb.cmap.pnm")
 e.Install(e.figlibdir, "mmb_fig")
+e.Install(e.datadir, "mmb.ocd9")
 
 e.Cnf2Png('hr')
 e.Cnf2CM('hr')
@@ -71,6 +72,8 @@ e.Install(e.datadir, "hr.cmap.pnm")
 e.Install(e.figlibdir, "hr_fig")
 
 e.SymLink("mmb.cnf", "default.cnf", e.datadir)
+e.SymLink("mmb.ocd9", "default.ocd9", e.datadir)
+e.SymLink("mmb.cmap.pnm", "default.cmap.pnm", e.datadir)
 
 SConscript("pics/SConscript")
 e.Install(e.datadir, "pics/")
