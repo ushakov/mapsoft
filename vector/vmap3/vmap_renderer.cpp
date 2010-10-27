@@ -122,6 +122,12 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_):
     cnv.bck(*p);
     pt_m2pt(*p);
   }
+  if (W.size() == 0){
+    std::cerr << "warning: no objects\n";
+  }
+  if (rect_intersect(W.range(), rng_pt).empty()){
+    std::cerr << "warning: map outside calculated range\n";
+  }
 }
 
 void
