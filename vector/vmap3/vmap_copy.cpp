@@ -10,7 +10,7 @@ void usage(){
   const char * prog = "vmap_copy";
 
   cerr
-     << prog << " -- convert vector maps in mp or fig formats.\n"
+     << prog << " -- convert vector maps in mp, fig, vmap or ocad formats.\n"
      << "  usage: " << prog << " [<global_input_options>]\\\n"
      << "         <input_file1> [<input_options1>] ... \\\n"
      << "         (--out|-o) <output_file> [<output_options>]\n"
