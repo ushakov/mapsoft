@@ -12,4 +12,5 @@ env.Library('vmap', \
      vmap_cnv.cpp
      vmap_filt.cpp
      vmap_labels.cpp
+     vmap_ref.cpp
    """))

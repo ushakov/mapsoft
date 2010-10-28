@@ -93,40 +93,11 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
 
   zn::zn_conv zconverter(W.style);
 
-  // create ref from brd or from map range
-  // TODO: here is the same code as in vmap_fig!
-  g_map ref;
-  dLine refs=W.brd;
-  if (refs.size()<3){
-    refs=rect2line(W.range());
-  }
-
-  // add last = first if needed
-  if ((refs.size()>0) && (refs[0]!=refs[refs.size()-1])) refs.push_back(refs[0]);
-  // reduce border to 5 points, remove last one
-  refs=generalize(refs, -1, 5); 
-  if (refs.size()>4) refs.resize(4);
-
-  Options PrO;
-  PrO.put<double>("lon0", convs::lon2lon0(refs.center().x));
-  convs::pt2pt ref_cnv(Datum("wgs84"), Proj("lonlat"), PrO,
-                       Datum("wgs84"), Proj("tmerc"), PrO);
-
-  dLine refs_fig(refs);
-  ref_cnv.line_frw_p2p(refs_fig);
-  refs_fig *= 100000.0/W.rscale; // OCAD units
-  refs_fig -= refs_fig.range().TLC();
-
-  ref.clear(); ref.border.clear();
-  for (int i=0;i<refs.size();i++){
-    ref.push_back(g_refpoint(refs[i], refs_fig[i]));
-    ref.border.push_back(refs[i]);
-  }
-  ref.map_proj=Proj("tmerc");
-  // end of g_map creation code
-
-  ocad::set_ref(F, W.rscale, refs.center());
+  g_map ref = vmap::get_tmerc_rec(W, 1000);
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+
+  dPoint p0(0,0); cnv.frw(p0);
+  ocad::set_ref(F, W.rscale, p0);
 
 //  // cleanup objects if not in append mode
 //  if (!append) F.objects.clear();

@@ -118,11 +118,14 @@ void move_pics(world & W);   // move and rotate some signs
 // filtering and statistics (see vmap_filt.cpp):
 void filter(world & W, const Options & O);
 
+/// create tmerc ref from brd or from map range (see vmap_ref.h):
+g_map get_tmerc_rec(const world & W, double u_per_cm, bool yswap=false);
 
 // put source to options if it is not empty
 void set_source(Options & o, const std::string & source);
 
 // convert vector between meters and degrees (approximate)
+// move to lib2d?
 dPoint v_m2deg(const dPoint & v, const double lat);
 dPoint v_deg2m(const dPoint & v, const double lat);
 
@@ -135,6 +138,7 @@ double dist_pt_pt(const dPoint & p1, const dPoint & p2);
 // Find point n in the line l which is nearest to the point p.
 // Return distance in m
 double dist_pt_l(const dPoint & p, const dMultiLine & l, dPoint & n);
+
 
 } // namespace
 #endif

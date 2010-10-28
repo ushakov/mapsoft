@@ -27,13 +27,8 @@ struct VMAPRenderer{
   Cairo::RefPtr<Cairo::ImageSurface> surface;
   Cairo::RefPtr<Cairo::Context> cr;
   vmap::world W;
-  convs::pt2pt cnv;
-  double dpi, m2pt, lw1, fs1;
-  dLine brd;
-  dRect rng_m, rng_pt;
-  Datum D;
-  Proj P;
-
+  double dpi, lw1, fs1;
+  g_map ref;
 
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
@@ -109,7 +104,8 @@ struct VMAPRenderer{
 
   void save_image(const char * png, const char * map);
 
-  void render_grid(double dx, double dy);
+
+  void render_pulk_grid(double dx, double dy);
 
 
   // functions for drawing text (see vmap_rend_txt.cpp)

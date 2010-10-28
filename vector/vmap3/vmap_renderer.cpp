@@ -1,70 +1,28 @@
 #include "vmap_renderer.h"
 
-// convert coordinates from meters to pixels
-void VMAPRenderer::pt_m2pt(dPoint & p){
-  p.x = p.x*m2pt - rng_pt.x;
-  p.y = rng_pt.y + rng_pt.h - p.y*m2pt;
-}
-//  void pt_pt2m(dPoint & p){
-//    p.x = (p.x+rng_pt.x)/m2pt;
-//    p.y = (rng_pt.y + rng_pt.h - p.y)/m2pt;
-//  }
-
-VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_):
-      cnv(Datum("wgs84"), Proj("lonlat"), Options(),
-          Datum("wgs84"), Proj("lonlat"), Options()){
-  std::cerr << "Reading " << in_file << "\n";
+VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_): dpi(dpi_){
 
   W=vmap::read(in_file);
-  if (W.size()==0){
-    exit(1);
-  }
+  if (W.size()==0) exit(1);
 
-  dpi=dpi_;
-  Options proj_opts;
-  D = Datum("pulkovo");
-  P = Proj("tmerc");
+  ref = vmap::get_tmerc_rec(W, dpi/2.54, true);
+  convs::map2pt cnv = convs::map2pt(ref, Datum("WGS84"), Proj("lonlat"), Options());
 
-  double lon0=convs::lon2lon0(W.range().CNT().x);
-  proj_opts.put("lon0", lon0);
-
-  cnv = convs::pt2pt(D, P, proj_opts,
-    Datum("WGS84"), Proj("lonlat"), Options());
-
-  m2pt=100.0/W.rscale * dpi / 2.54;
   lw1 = dpi/105.0; // standard line width (1/105in?)
   fs1 = dpi/89.0;  // standard font size
 
-  // try find range from name
-  dRect nom_r = convs::nom_to_range(W.name);
-  if (!nom_r.empty()){
-    convs::pt2pt cnv_p(Datum("pulk"), Proj("lonlat"), Options(),
-                       Datum("wgs84"), Proj("lonlat"), Options());
-    brd = cnv.line_bck(cnv_p.line_frw(rect2line(nom_r)));
-    rng_m = brd.range();
-  }
-  else{
-    rng_m = cnv.bb_bck(W.range());
-    brd = rect2line(rng_m);
-  }
-  rng_m = rect_pump(rng_m, 3/m2pt);
-
-  rng_pt = rng_m*m2pt;
+  dRect rng = ref.border.range();
+  rng.x = rng.y = 0;
 
   std::cerr
-     << "  datum  = " << D << "\n"
-     << "  proj   = " << P << "\n"
-     << "  lon0   = " << lon0 << "\n"
-     << "  range  = " << iRect(rng_m) << "\n"
-     << "  scale  = 1:" << W.rscale << "\n"
+     << "  scale  = 1:" << int(W.rscale) << "\n"
      << "  dpi    = " << dpi << "\n"
-     << "  m2pt   = " << m2pt << "\n"
-     << "  image = " << int(rng_pt.w) << "x" << int(rng_pt.h)<< "\n";
+     << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
 
 
   // create Cairo surface and context
   surface = Cairo::ImageSurface::create(
-    Cairo::FORMAT_ARGB32, rng_pt.w, rng_pt.h);
+    Cairo::FORMAT_ARGB32, rng.w, rng.h);
   cr = Cairo::Context::create(surface);
 
   // antialiasing is not compatable with erasing
@@ -73,10 +31,9 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_):
 
   // draw border, set clipping region
   set_color(0xFFFFFF); cr->paint();
-  for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
-    dPoint pc=*p; pt_m2pt(pc);
-    if (p==brd.begin()) cr->move_to(pc.x,pc.y);
-    else cr->line_to(pc.x,pc.y);
+  for (dLine::const_iterator p=ref.border.begin(); p!=ref.border.end(); p++){
+    if (p==ref.border.begin()) cr->move_to(p->x,p->y);
+    else cr->line_to(p->x,p->y);
   }
   cr->close_path();
   cr->save();
@@ -107,26 +64,23 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_):
     for (vmap::object::iterator l=o->begin(); l!=o->end(); l++){
       for (dLine::iterator p=l->begin(); p!=l->end(); p++){
         cnv.bck(*p);
-        pt_m2pt(*p);
       }
     }
     // convert label angles: deg (latlon) -> rad (raster) and pos.
     for (std::list<vmap::lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
       if (!l->hor) l->ang = cnv.ang_bck(l->pos, M_PI/180 * l->ang, 0.01);
       cnv.bck(l->pos);
-      pt_m2pt(l->pos);
     }
   }
   // convert border
   for (dLine::iterator p=W.brd.begin(); p!=W.brd.end(); p++){
     cnv.bck(*p);
-    pt_m2pt(*p);
   }
   if (W.size() == 0){
     std::cerr << "warning: no objects\n";
   }
-  if (rect_intersect(W.range(), rng_pt).empty()){
-    std::cerr << "warning: map outside calculated range\n";
+  if (rect_intersect(W.range(), ref.border.range()).empty()){
+    std::cerr << "warning: map outside its border\n";
   }
 }
 
@@ -506,27 +460,19 @@ void
 VMAPRenderer::save_image(const char * png, const char * map){
   if (png) surface->write_to_png(png);
   if (!map) return;
-  g_map M;
+  g_map M = ref;
   M.file = png;
-  M.comm = W.name;
-  M.map_proj = P;
-  for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
-    dPoint gp = *p, rp = *p;
-    cnv.frw(gp);
-    pt_m2pt(rp);
-    // small negative values brokes map-file TODO - do it more accurate!
-    if (rp.x<0) rp.x=0;
-    if (rp.y<0) rp.y=0;
-
-    M.border.push_back(rp);
-    M.push_back(g_refpoint(gp, rp));
-  }
   std::ofstream f(map);
   oe::write_map_file(f, M, Options());
 }
 
 void
-VMAPRenderer::render_grid(double dx, double dy){
+VMAPRenderer::render_pulk_grid(double dx, double dy){
+
+  convs::map2pt cnv(ref, Datum("pulkovo"), Proj("tmerc"), convs::map_popts(ref));
+
+  dRect rng_m = cnv.bb_frw(ref.border.range(), 1);
+
   dPoint pb(
     rng_m.x,
     rng_m.y
@@ -535,25 +481,27 @@ VMAPRenderer::render_grid(double dx, double dy){
     rng_m.x+rng_m.w,
     rng_m.y+rng_m.h
   );
+  dx *= W.rscale/100;
+  dy *= W.rscale/100;
   dPoint p(
     dx * floor(rng_m.x/dx),
     dy * floor(rng_m.y/dy)
   );
-  dPoint pbc(pb); pt_m2pt(pbc);
-  dPoint pec(pe); pt_m2pt(pec);
+  dPoint pbc(pb); cnv.bck(pbc);
+  dPoint pec(pe); cnv.bck(pec);
   // note: pb.y < pe.y, but pbc.y > pec.y!
 
   cr->save();
   cr->set_source_rgba(0,0,0,0.5);
   cr->set_line_width(2);
   while (p.x<pe.x){
-    dPoint pc(p); pt_m2pt(pc);
+    dPoint pc(p); cnv.bck(pc);
     cr->move_to(pc.x, pbc.y);
     cr->line_to(pc.x, pec.y);
     p.x+=dx;
   }
   while (p.y<pe.y){
-    dPoint pc(p); pt_m2pt(pc);
+    dPoint pc(p); cnv.bck(pc);
     cr->move_to(pbc.x, pc.y);
     cr->line_to(pec.x, pc.y);
     p.y+=dy;
