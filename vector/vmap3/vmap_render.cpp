@@ -1,16 +1,41 @@
 #include "vmap_renderer.h"
+#include "options/m_getopt.h"
+
+using namespace std;
+
+void usage(){
+  const char * prog = "vmap_render";
+
+  cerr
+     << prog << " -- convert vector maps to raster.\n"
+     << "  usage: " << prog << " [<options>] <in_file> <out_file>\n"
+     << "\n"
+     << "  options:\n"
+     << "    -m, --map <map file>    -- write OziExplorer map file\n"
+  ;
+  exit(1);
+}
+
+
+static struct option options[] = {
+  {"map",           1, 0, 'm'},
+  {0,0,0,0}
+};
 
 main(int argc, char* argv[]){
 
-  // parse command line options, read mp-file
-  if ((argc!=3) && (argc!=4)) {
-    std::cerr << "Usage: " << argv[0] << " <in.mp|fig> <out.png> [<out.map>]\n";
-    exit(1);
-  }
-  const char *  in_vmap = argv[1];
-  const char * out_png  = argv[2];
-  const char * out_map  = (argc>3)? argv[3]:NULL;
-  VMAPRenderer R(in_vmap);
+  if (argc==1) usage();
+
+  Options O = parse_options(argc, argv, options);
+  argc-=optind;
+  argv+=optind;
+  optind=0;
+
+  if (argc<2) usage();
+  const char * ifile = argv[0];
+  const char * ofile = argv[1];
+
+  VMAPRenderer R(ifile);
 
   //*******************************
 
@@ -18,7 +43,7 @@ main(int argc, char* argv[]){
   R.render_polygons(0x52, 0xFFFFFF); // поле
   R.render_polygons(0x15, 0xAAFFAA); // остров леса
 
-  std::list<iPoint> cnt = R.make_cnt(0xAAFFAA, 2);     // контуры леса
+  list<iPoint> cnt = R.make_cnt(0xAAFFAA, 2);     // контуры леса
 
   R.render_polygons(0x4f, "vyr_n.png");
   R.render_polygons(0x50, "vyr_o.png");
@@ -174,7 +199,8 @@ main(int argc, char* argv[]){
   R.render_labels();
 
   //*******************************
-  R.save_image(out_png, out_map);
+  string map = O.get<string>("map");
+  R.save_image(ofile, (map=="") ? NULL:map.c_str());
 
   //*******************************
 }
