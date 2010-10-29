@@ -33,7 +33,10 @@ void usage(){
      << "\n"
      << "    --skip_labels               -- don't read labels\n"
      << "    --read_labels               -- do read labels\n"
-     << "    (--read_lebels options is intendent to override global --skip_labels option)\n"
+     << "      (--read_labels options is intendent to override global --skip_labels option)\n"
+     << "    --split_labels              -- split labels from object\n"
+     << "      (be careful when using --split_labels in write options: fig, mp, and ocad\n"
+     << "       does not support writing of splitted labels yet)\n"
      << "\n"
      << "    --set_source <string>       -- set source parameter\n"
      << "    --set_source_from_name      -- set source parameter from map name\n"
@@ -72,6 +75,7 @@ void usage(){
 static struct option in_options[] = {
   {"skip_labels",           0, 0, 0},
   {"read_labels",           0, 0, 0},
+  {"split_labels",          0, 0 , 0},
 
   {"set_source",            1, 0, 0},
   {"set_source_from_name",  0, 0, 0},
@@ -104,6 +108,7 @@ static struct option in_options[] = {
 static struct option out_options[] = {
   {"skip_labels",           0, 0, 0},
   {"read_labels",           0, 0, 0},
+  {"split_labels",          0, 0 , 0},
 
   {"set_source",            1, 0 , 0},
   {"set_source_from_name",  0, 0 , 0},
