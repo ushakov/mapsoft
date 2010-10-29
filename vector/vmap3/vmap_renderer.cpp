@@ -6,6 +6,17 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
   W=vmap::read(in_file);
   if (W.size()==0) exit(1);
 
+  // try to detect border from nom_name
+  // todo - use option set from vmap_filt.cpp
+  dRect nom_range=convs::nom_to_range(W.name);
+  if (nom_range.empty())  nom_range=convs::nom_to_range(in_file);
+  if (!nom_range.empty()){
+    convs::pt2pt nom_cnv(
+      Datum("wgs84"), Proj("lonlat"), Options(),
+      Datum("pulkovo"), Proj("lonlat"), Options());
+    W.brd = nom_cnv.line_bck(rect2line(nom_range));
+  }
+
   ref = vmap::get_tmerc_rec(W, dpi/2.54, true);
 
   lw1 = dpi/105.0; // standard line width (1/105in?)
