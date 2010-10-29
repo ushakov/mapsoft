@@ -171,6 +171,8 @@ VMAPRenderer::render_text(const char *text, dPoint pos, double ang,
   Cairo::TextExtents ext;
   cr->get_text_extents(text, ext);
 
+  if (pos.x<0) pos.x=surface->get_width()+pos.x;
+  if (pos.y<0) pos.y=surface->get_height()+pos.y;
   cr->move_to(pos.x, pos.y);
   cr->rotate(ang);
   if (hdir == 1) cr->rel_move_to(-ext.width/2, 0);
