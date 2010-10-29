@@ -44,25 +44,28 @@ main(int argc, char* argv[]){
   const char * ifile = argv[0];
   const char * ofile = argv[1];
 
+  int dpi=300;
+
   int tm, bm, lm, rm;
   if (O.get<int>("draw_name", 0) ||
       O.get<int>("draw_date", 0) ||
       (O.get<string>("draw_text") == "")) {
-    tm=100; bm=lm=rm=50;
+    tm=dpi/3;
+    bm=lm=rm=dpi/6;
   }
 
-  VMAPRenderer R(ifile, 300, lm, tm, rm, bm);
+  VMAPRenderer R(ifile, dpi, lm, tm, rm, bm);
 
   if (O.get<int>("draw_name", 0))
-    R.render_text(R.W.name.c_str(), dPoint(20,20), 0, 0, 18, 14, 0, 2);
+    R.render_text(R.W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, 0, 2);
 
   if (O.get<int>("draw_date", 0)){
     Time t; t.set_current();
-    R.render_text(t.date_str().c_str(), dPoint(10,200), -M_PI/2, 0, 18, 10, 2, 2);
+    R.render_text(t.date_str().c_str(), dPoint(dpi/30,dpi), -M_PI/2, 0, 18, 10, 2, 2);
   }
 
   if (O.get<string>("draw_text") != ""){
-    R.render_text(O.get<string>("draw_text").c_str(), dPoint(60,-10), 0, 0, 18, 10, 0, 0);
+    R.render_text(O.get<string>("draw_text").c_str(), dPoint(dpi/5,-dpi/30), 0, 0, 18, 10, 0, 0);
   }
 
   //*******************************
@@ -228,10 +231,6 @@ main(int argc, char* argv[]){
   if (grid_step>0) R.render_pulk_grid(grid_step, grid_step);
 
   R.render_labels();
-
-  if (O.get<int>("draw_name", 0)){
-    R.render_text(R.W.name.c_str(), dPoint(20,20), 0, 0, 18, 14, 0, 2);
-  }
 
   //*******************************
   string map = O.get<string>("map");
