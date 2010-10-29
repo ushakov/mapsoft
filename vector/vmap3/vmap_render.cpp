@@ -13,6 +13,7 @@ void usage(){
      << "  options:\n"
      << "    -m, --map <map file>    -- write OziExplorer map file\n"
      << "    -g  --grid <step>       -- draw step x step cm grid\n"
+     << "    -N  --draw_name         -- draw map name\n"
   ;
   exit(1);
 }
@@ -21,6 +22,7 @@ void usage(){
 static struct option options[] = {
   {"map",           1, 0, 'm'},
   {"grid",          1, 0, 'g'},
+  {"draw_name",     0, 0, 'N'},
   {0,0,0,0}
 };
 
@@ -196,14 +198,21 @@ main(int argc, char* argv[]){
   R.render_im_in_points(0x6616, "skala.png");
   R.render_im_in_polygons(0x1A, "cross.png"); // крестики на кладбищах
 
+  //*******************************
+
   double grid_step = O.get<double>("grid", 0);
   if (grid_step>0) R.render_pulk_grid(grid_step, grid_step);
 
   R.render_labels();
 
+  if (O.get<int>("draw_name", 0)){
+    R.render_text(R.W.name.c_str(), dPoint(20,20), 0, 0, 18, 14, 0, 2);
+  }
+
   //*******************************
   string map = O.get<string>("map");
   R.save_image(ofile, (map=="") ? NULL:map.c_str());
+
 
   //*******************************
 }

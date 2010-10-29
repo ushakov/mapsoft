@@ -161,3 +161,25 @@ VMAPRenderer::render_labels(double bound, int dark_th, int search_dist){
   cr->restore();
 }
 
+void
+VMAPRenderer::render_text(const char *text, dPoint pos, double ang,
+       int color, int fig_font, int font_size, int hdir, int vdir){
+  cr->save();
+  set_color(color);
+  set_fig_font(fig_font, font_size, cr);
+
+  Cairo::TextExtents ext;
+  cr->get_text_extents(text, ext);
+
+  cr->move_to(pos.x, pos.y);
+  cr->rotate(ang);
+  if (hdir == 1) cr->rel_move_to(-ext.width/2, 0);
+  if (hdir == 2) cr->rel_move_to(-ext.width, 0);
+  if (vdir == 1) cr->rel_move_to(0, ext.height/2);
+  if (vdir == 2) cr->rel_move_to(0, ext.height);
+
+  cr->reset_clip();
+
+  cr->show_text(text);
+  cr->restore();
+}

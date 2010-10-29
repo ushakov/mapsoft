@@ -117,6 +117,9 @@ struct VMAPRenderer{
 
   void render_labels(double bound=2.5, int dark_th = 170, int search_dist=6);
 
+  void render_text(const char *text, dPoint pos, double ang=0,
+         int color=0, int fig_font=18, int font_size=10, int hdir=0, int vdir=0);
+
 
   // functions for drawing contours (see vmap_rend_cnt.cpp)
 
