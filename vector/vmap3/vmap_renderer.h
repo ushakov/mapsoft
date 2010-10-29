@@ -33,7 +33,7 @@ struct VMAPRenderer{
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
 
-  VMAPRenderer(const char * in_file, int dpi_=300);
+  VMAPRenderer(const char * in_file, int dpi_=300, int lm=0, int tm=0, int rm=0, int bm=0);
 
   void set_color(int c);
   void set_th(double th);

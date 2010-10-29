@@ -1,18 +1,25 @@
 #include "vmap_renderer.h"
 
-VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_): dpi(dpi_){
+VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
+    int lm, int tm, int rm, int bm): dpi(dpi_){
 
   W=vmap::read(in_file);
   if (W.size()==0) exit(1);
 
   ref = vmap::get_tmerc_rec(W, dpi/2.54, true);
-  convs::map2pt cnv = convs::map2pt(ref, Datum("WGS84"), Proj("lonlat"), Options());
 
   lw1 = dpi/105.0; // standard line width (1/105in?)
   fs1 = dpi/89.0;  // standard font size
 
   dRect rng = ref.border.range();
+
+  ref+=dPoint(lm,tm);
+  convs::map2pt cnv = convs::map2pt(ref, Datum("WGS84"), Proj("lonlat"), Options());
+
   rng.x = rng.y = 0;
+  rng.w+=lm+rm; if (rng.w<0) rng.w=0;
+  rng.h+=tm+bm; if (rng.h<0) rng.h=0;
+
 
   std::cerr
      << "  scale  = 1:" << int(W.rscale) << "\n"

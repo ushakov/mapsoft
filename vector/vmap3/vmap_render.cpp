@@ -1,5 +1,6 @@
 #include "vmap_renderer.h"
 #include "options/m_getopt.h"
+#include "options/m_time.h"
 
 using namespace std;
 
@@ -14,6 +15,7 @@ void usage(){
      << "    -m, --map <map file>    -- write OziExplorer map file\n"
      << "    -g  --grid <step>       -- draw step x step cm grid\n"
      << "    -N  --draw_name         -- draw map name\n"
+     << "    -D  --draw_date         -- draw date stamp\n"
   ;
   exit(1);
 }
@@ -23,6 +25,7 @@ static struct option options[] = {
   {"map",           1, 0, 'm'},
   {"grid",          1, 0, 'g'},
   {"draw_name",     0, 0, 'N'},
+  {"draw_date",     0, 0, 'D'},
   {0,0,0,0}
 };
 
@@ -39,7 +42,17 @@ main(int argc, char* argv[]){
   const char * ifile = argv[0];
   const char * ofile = argv[1];
 
-  VMAPRenderer R(ifile);
+  int tm, bm, lm, rm;
+  tm=100; bm=lm=rm=50;
+  VMAPRenderer R(ifile, 300, lm, tm, rm, bm);
+
+  if (O.get<int>("draw_name", 0))
+    R.render_text(R.W.name.c_str(), dPoint(20,20), 0, 0, 18, 14, 0, 2);
+
+  if (O.get<int>("draw_date", 0)){
+    Time t; t.set_current();
+    R.render_text(t.date_str().c_str(), dPoint(10,200), -M_PI/2, 0, 18, 10, 2, 2);
+  }
 
   //*******************************
 
