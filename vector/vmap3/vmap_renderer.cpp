@@ -1,4 +1,10 @@
 #include "vmap_renderer.h"
+#include <string>
+#include <sstream>
+#include <iomanip>
+#include <boost/lexical_cast.hpp>
+
+using namespace std;
 
 VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
     int lm, int tm, int rm, int bm): dpi(dpi_){
@@ -32,7 +38,7 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
   rng.h+=tm+bm; if (rng.h<0) rng.h=0;
 
 
-  std::cerr
+  cerr
      << "  scale  = 1:" << int(W.rscale) << "\n"
      << "  dpi    = " << dpi << "\n"
      << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
@@ -85,7 +91,7 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
       }
     }
     // convert label angles: deg (latlon) -> rad (raster) and pos.
-    for (std::list<vmap::lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
+    for (list<vmap::lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
       if (!l->hor) l->ang = cnv.ang_bck(l->pos, M_PI/180 * l->ang, 0.01);
       cnv.bck(l->pos);
     }
@@ -95,10 +101,10 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
     cnv.bck(*p);
   }
   if (W.size() == 0){
-    std::cerr << "warning: no objects\n";
+    cerr << "warning: no objects\n";
   }
   if (rect_intersect(W.range(), ref.border.range()).empty()){
-    std::cerr << "warning: map outside its border\n";
+    cerr << "warning: map outside its border\n";
   }
 }
 
@@ -120,14 +126,14 @@ VMAPRenderer::unset_dash(){
 }
 void
 VMAPRenderer::set_dash(double d1, double d2){
-  std::vector<double> d;
+  vector<double> d;
   d.push_back(d1*lw1);
   d.push_back(d2*lw1);
   cr->set_dash(d, 0);
 }
 void
 VMAPRenderer::set_dash(double d1, double d2, double d3, double d4){
-  std::vector<double> d;
+  vector<double> d;
   d.push_back(d1*lw1);
   d.push_back(d2*lw1);
   d.push_back(d3*lw1);
@@ -480,12 +486,79 @@ VMAPRenderer::save_image(const char * png, const char * map){
   if (!map) return;
   g_map M = ref;
   M.file = png;
-  std::ofstream f(map);
+  ofstream f(map);
   oe::write_map_file(f, M, Options());
 }
 
 void
-VMAPRenderer::render_pulk_grid(double dx, double dy){
+VMAPRenderer::render_grid_label(double c, double val, bool horiz){
+
+  ostringstream ss;
+  ss << setprecision(7) << val/1000.0;
+
+  if (ref.border.size()<1) return;
+
+  dPoint pmin, pmax;
+  double amin=0, amax=0;
+  for (int i=1; i<ref.border.size(); i++){
+    dPoint p1(ref.border[i-1]);
+    dPoint p2(ref.border[i]);
+    if (horiz){
+      if (p1.x == p2.x) continue;
+      if (p1.x > p2.x) p1.swap(p2);
+      // segment does not cross grid line:
+      if ((p1.x >= c) || (p2.x < c)) continue;
+      double a = atan2(p2.y-p1.y, p2.x-p1.x);
+
+      // crossing point of grid line with border
+      dPoint pc(c, p1.y + (p2.y-p1.y)*(c-p1.x)/(p2.x-p1.x));
+      if ((pmin==dPoint()) || (pmin.y > pc.y)) {pmin=pc; amin=a;}
+      if ((pmax==dPoint()) || (pmax.y < pc.y)) {pmax=pc; amax=a;}
+    }
+    else {
+      if (p1.y == p2.y) continue;
+      if (p1.y > p2.y) p1.swap(p2);
+      // segment does not cross grid line:
+      if ((p1.y >= c) || (p2.y < c)) continue;
+      double a = atan2(p2.y-p1.y, p2.x-p1.x);
+
+      // crossing point of grid line with border
+      dPoint pc(p1.x + (p2.x-p1.x)*(c-p1.y)/(p2.y-p1.y), c);
+      if ((pmin==dPoint()) || (pmin.x > pc.x)) {pmin=pc; amin=a;}
+      if ((pmax==dPoint()) || (pmax.x < pc.x)) {pmax=pc; amax=a;}
+    }
+  }
+
+  if (amin>M_PI/2) amin-=M_PI;
+  if (amin<-M_PI/2) amin+=M_PI;
+  if (amax>M_PI/2) amax-=M_PI;
+  if (amax<-M_PI/2) amax+=M_PI;
+
+  bool drawmin, drawmax;
+  int ydir_max=0, ydir_min=0;
+
+  if (horiz){
+    drawmin = (pmin!=dPoint()) && (abs(amin) < M_PI* 0.1);
+    drawmax = (pmax!=dPoint()) && (abs(amax) < M_PI* 0.1);
+    pmin+=dPoint(0,-dpi/30);
+    pmax+=dPoint(0,+dpi/30);
+    ydir_max=2;
+  }
+  else{
+    drawmin = (pmin!=dPoint()) && (abs(amin) > M_PI* 0.4);
+    drawmax = (pmax!=dPoint()) && (abs(amax) > M_PI* 0.4);
+    pmin+=dPoint(-dpi/30,0);
+    pmax+=dPoint(dpi/30,0);
+    amin=-amin;
+  }
+  if (drawmin)
+    render_text(ss.str().c_str(), pmin, amin, 0, 18, 8, 1,ydir_min);
+  if (drawmax)
+    render_text(ss.str().c_str(), pmax, amax, 0, 18, 8, 1,ydir_max);
+}
+
+void
+VMAPRenderer::render_pulk_grid(double dx, double dy, bool draw_labels){
 
   convs::map2pt cnv(ref, Datum("pulkovo"), Proj("tmerc"), convs::map_popts(ref));
 
@@ -516,12 +589,14 @@ VMAPRenderer::render_pulk_grid(double dx, double dy){
     dPoint pc(p); cnv.bck(pc);
     cr->move_to(pc.x, pbc.y);
     cr->line_to(pc.x, pec.y);
+    if (draw_labels) render_grid_label(pc.x, p.x, true);
     p.x+=dx;
   }
   while (p.y<pe.y){
     dPoint pc(p); cnv.bck(pc);
     cr->move_to(pbc.x, pc.y);
     cr->line_to(pec.x, pc.y);
+    if (draw_labels) render_grid_label(pc.y, p.y, false);
     p.y+=dy;
   }
   cr->stroke();

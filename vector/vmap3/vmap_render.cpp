@@ -14,6 +14,7 @@ void usage(){
      << "  options:\n"
      << "    -m, --map <map file>    -- write OziExplorer map file\n"
      << "    -g  --grid <step>       -- draw step x step cm grid\n"
+     << "    -l  --grid_labels       -- draw grid labels\n"
      << "    -N  --draw_name         -- draw map name\n"
      << "    -D  --draw_date         -- draw date stamp\n"
      << "    -T  --draw_text <text>  -- draw date stamp\n"
@@ -25,6 +26,7 @@ void usage(){
 static struct option options[] = {
   {"map",           1, 0, 'm'},
   {"grid",          1, 0, 'g'},
+  {"grid_labels",   0, 0, 'l'},
   {"draw_name",     0, 0, 'N'},
   {"draw_date",     0, 0, 'D'},
   {"draw_text",     1, 0, 'T'},
@@ -52,6 +54,14 @@ main(int argc, char* argv[]){
       (O.get<string>("draw_text") == "")) {
     tm=dpi/3;
     bm=lm=rm=dpi/6;
+  }
+
+  int grid_labels = O.get<int>("grid_labels", 0);
+  if (grid_labels){
+    bm+=dpi/6;
+    tm+=dpi/6;
+    rm+=dpi/6;
+    lm+=dpi/6;
   }
 
   VMAPRenderer R(ifile, dpi, lm, tm, rm, bm);
@@ -228,7 +238,7 @@ main(int argc, char* argv[]){
   //*******************************
 
   double grid_step = O.get<double>("grid", 0);
-  if (grid_step>0) R.render_pulk_grid(grid_step, grid_step);
+  if (grid_step>0) R.render_pulk_grid(grid_step, grid_step,grid_labels);
 
   R.render_labels();
 

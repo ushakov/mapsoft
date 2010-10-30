@@ -105,8 +105,12 @@ struct VMAPRenderer{
   void save_image(const char * png, const char * map);
 
 
-  void render_pulk_grid(double dx, double dy);
-
+  // нарисовать сетку с шагом dx,dy см в координатах Г-К СК1942г
+  void render_pulk_grid(double dx, double dy, bool draw_labels);
+  // нарисовать подпись сетки в месте пересейчаения
+  // границы карты и линий с данным x=c или y=c (horiz=false)
+  // todo: merge common code for x and y?
+  void render_grid_label(double c, double val, bool horiz);
 
   // functions for drawing text (see vmap_rend_txt.cpp)
 
