@@ -122,12 +122,6 @@ read(const fig::fig_world & F){
     o.type = type;
     set_source(o.opts, i->opts.get<string>("Source"));
 
-    if (i->opts.exists("Angle")){
-      double a = i->opts.get<double>("Angle");
-      a=cnv.angd_frw(i->center(), a, 1000);
-      o.opts.put<double>("Angle", a);
-    }
-
     if (comm.size()>0){
       o.text = comm[0];
       o.comm.insert(o.comm.begin(),
