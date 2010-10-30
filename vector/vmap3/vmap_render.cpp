@@ -50,10 +50,10 @@ main(int argc, char* argv[]){
 
   int dpi=O.get<int>("dpi", 300);
 
-  int tm, bm, lm, rm;
+  int tm=0, bm=0, lm=0, rm=0;
   if (O.get<int>("draw_name", 0) ||
       O.get<int>("draw_date", 0) ||
-      (O.get<string>("draw_text") == "")) {
+      (O.get<string>("draw_text") != "")) {
     tm=dpi/3;
     bm=lm=rm=dpi/6;
   }
