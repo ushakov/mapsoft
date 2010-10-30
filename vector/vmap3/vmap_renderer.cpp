@@ -545,11 +545,12 @@ VMAPRenderer::render_grid_label(double c, double val, bool horiz){
     ydir_max=2;
   }
   else{
+    if (amin>0) amin-=M_PI;
+    if (amax<0) amax+=M_PI;
     drawmin = (pmin!=dPoint()) && (abs(amin) > M_PI* 0.4);
     drawmax = (pmax!=dPoint()) && (abs(amax) > M_PI* 0.4);
     pmin+=dPoint(-dpi/30,0);
     pmax+=dPoint(dpi/30,0);
-    amin=-amin;
   }
   if (drawmin)
     render_text(ss.str().c_str(), pmin, amin, 0, 18, 8, 1,ydir_min);
