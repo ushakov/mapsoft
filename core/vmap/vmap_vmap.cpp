@@ -25,8 +25,8 @@ point_read_cnv(dPoint &p){
 }
 void
 point_write_cnv(dPoint &p){
-  p.x = floor(p.x*point_scale);
-  p.y = floor(p.y*point_scale);
+  p.x = round(p.x*point_scale);
+  p.y = round(p.y*point_scale);
 }
 
 
@@ -207,7 +207,8 @@ void print_line(ostream & OUT, const dLine & L){
   }
 }
 void print_lpos(ostream & OUT, const lpos & L){
-  OUT << iPoint(L.pos) << " " << L.dir << " " << L.hor << " " << L.ang;
+  OUT << iPoint(L.pos) << " " << L.dir << " " << L.hor << " " 
+      << setprecision(5) << round(L.ang*100)/100;
 }
 
 

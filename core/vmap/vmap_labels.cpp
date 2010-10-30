@@ -189,7 +189,8 @@ move_pics(world & W){
       dPoint t(1,0);
       nearest_pt(lines, t, p, move_to_dist);
 
-      if (rotate) o->opts.put<double>("Angle", 180/M_PI*atan2(t.y, t.x));
+      if (rotate)
+        o->opts.put<int>("Angle", lround(180/M_PI*atan2(t.y, t.x)));
     }
   }
 
