@@ -55,9 +55,9 @@ read(const fig::fig_world & F){
       l.ref = i->opts.get("RefPt", l.pos); cnv.frw(l.ref);
       l.dir  = i->sub_type;
       l.text = i->text;
-      // fix angle (fig->latlon)
       if (i->angle!=0){
-        l.ang = cnv.angd_frw((*i)[0], 180/M_PI*i->angle, 1000);
+        // angle is inverted becouse of y inversion
+        l.ang = -cnv.angd_frw((*i)[0], 180/M_PI*i->angle, 1000);
         l.hor = false;
       }
       else {
@@ -241,7 +241,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
       dPoint pos = l->pos;
       cnv.bck(pos);
 
-      double angle = l->hor ? 0 : cnv.angd_bck(l->pos, l->ang, 0.01);
+      double angle = l->hor ? 0 : -cnv.angd_bck(l->pos, l->ang, 0.01);
 
       fig::fig_object txt;
       if (fig_text_labels){
