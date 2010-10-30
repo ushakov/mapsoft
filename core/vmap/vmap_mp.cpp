@@ -101,6 +101,7 @@ write(mp::mp_world & M, const world & W, const Options & O){
     mp::mp_object mp = zconverter.get_mp_template(o->type);
 
     set_source(mp.Opts, o->opts.get<string>("Source"));
+    if (o->dir) mp.Opts.put<int>("Direction", o->dir);
 
     mp.dMultiLine::operator=(*o); // copy points
 
