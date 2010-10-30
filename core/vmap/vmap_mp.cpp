@@ -115,6 +115,7 @@ write(mp::mp_world & M, const world & W, const Options & O){
       dPoint ref;  dist_pt_l(l->pos, *o, ref);
       dPoint pos = l->pos;
       mp::mp_object txt=zconverter.get_mp_template(label_type);
+      txt.Opts.put("LabelRef", ref);
       txt.Opts.put("LabelDirection", l->dir);
       txt.Opts.put("LabelText", o->text);
       if (!l->hor) txt.Opts.put("LabelAngle", l->ang);

@@ -67,6 +67,7 @@ main(int argc, char* argv[]){
   }
 
   VMAPRenderer R(ifile, dpi, lm, tm, rm, bm);
+  bool hr = (R.W.style == "hr");
 
   if (O.get<int>("draw_name", 0))
     R.render_text(R.W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, 0, 2);
@@ -101,7 +102,7 @@ main(int argc, char* argv[]){
   R.render_line(0x23, 0x009000, 1, 0); // контуры, нарисованные вручную
   R.unset_dash();
 
-  R.render_polygons(0x4d, "ledn.png"); // ледник
+  R.render_polygons(0x4d, 0x87CEFF); // ледник
 
   //*******************************
 
@@ -113,16 +114,22 @@ main(int argc, char* argv[]){
 
   //*******************************
 
+  int hor_col = 0xC06000;
+  if (hr) hor_col = 0xD0B090;
+
   R.set_dash(8, 3);
-  R.render_line(0x20, 0xC06000, 1, 20); // пунктирные горизонтали
+  R.render_line(0x20, hor_col, 1, 20); // пунктирные горизонтали
   R.set_dash(2, 2);
   R.render_line(0x2B, 0xC06000, 1, 0); // сухая канава
   R.unset_dash();
-  R.render_line(0x21, 0xC06000, 1, 20); // горизонтали
-  R.render_line(0x22, 0xC06000, 1.6, 20); // жирные горизонтали
+  R.render_line(0x21, hor_col, 1, 20); // горизонтали
+  R.render_line(0x22, hor_col, 1.6, 20); // жирные горизонтали
 
   R.render_line(0x25, 0xA04000, 2, 20); // овраг
-  R.render_line(0xC,  0x803000, 2, 20); // хребет
+
+  int hreb_col = 0x803000;
+  if (hr) hreb_col = 0xC06000;
+  R.render_line(0xC,  hreb_col, 2, 20); // хребет
 
   //*******************************
 
@@ -142,6 +149,9 @@ main(int argc, char* argv[]){
 
   //*******************************
 
+  int water_col = 0x00FFFF;
+  if (hr) water_col = 0x87CEFF;
+
   R.set_cap_round();
   R.set_dash(4, 3);
   R.render_line(0x26, 0x5066FF, 1, 10); // пересыхающая река
@@ -150,11 +160,11 @@ main(int argc, char* argv[]){
   R.render_line(0x18, 0x5066FF, 2, 10); // река-2
   R.render_line(0x1F, 0x5066FF, 3, 10); // река-3
 
-  R.render_polygons(0x29, 0x00FFFF, 0x5066FF, 1, 20); // водоемы
-  R.render_polygons(0x3B, 0x00FFFF, 0x5066FF, 1, 20); // большие водоемы
+  R.render_polygons(0x29, water_col, 0x5066FF, 1, 20); // водоемы
+  R.render_polygons(0x3B, water_col, 0x5066FF, 1, 20); // большие водоемы
   R.render_polygons(0x53, 0xFFFFFF, 0x5066FF, 1, 20); // острова
 
-  R.render_line(0x1F, 0x00FFFF, 1, 10); // середина реки-3
+  R.render_line(0x1F, water_col, 1, 10); // середина реки-3
 
   //*******************************
 
@@ -201,10 +211,13 @@ main(int argc, char* argv[]){
   R.render_bridge(0x09, 3, 1, 2); // мост-2
   R.render_bridge(0x0E, 6, 1, 2); // мост-5
 
+  int pt_col = 0;
+  if (hr) pt_col = 0x803000;
+
 // точечные объекты
   R.set_cap_round();
-  R.render_points(0x1100, 0x0, 4); // отметка высоты
-  R.render_points(0xD00,  0x0, 3); // маленькая отметка высоты
+  R.render_points(0x1100, pt_col, 4); // отметка высоты
+  R.render_points(0xD00,  pt_col, 3); // маленькая отметка высоты
   R.render_points(0x6414, 0x5066FF, 4); // родник
   R.set_cap_square();
   R.render_points(0x6402, 0x0, 4); // дом
@@ -212,7 +225,8 @@ main(int argc, char* argv[]){
   R.render_im_in_points(0x1000, "ur_vod.png"); // отметка уреза воды
   R.render_im_in_points(0x6508, "por.png"); // порог
   R.render_im_in_points(0x650E, "vdp.png"); // водопад
-  R.render_im_in_points(0x0F00, "trig.png");
+  if (hr) R.render_im_in_points(0x0F00, "trig_hr.png");
+  else R.render_im_in_points(0x0F00, "trig.png");
   R.render_im_in_points(0x2C04, "pam.png");
   R.render_im_in_points(0x2C0B, "cerkov.png");
   R.render_im_in_points(0x2F08, "avt.png");
