@@ -219,9 +219,8 @@ main(int argc, char* argv[]){
   R.render_points(0x1100, pt_col, 4); // отметка высоты
   R.render_points(0xD00,  pt_col, 3); // маленькая отметка высоты
   R.render_points(0x6414, 0x5066FF, 4); // родник
-  R.set_cap_square();
-  R.render_points(0x6402, 0x0, 4); // дом
 
+  R.render_im_in_points(0x6402, "dom.png"); // дом
   R.render_im_in_points(0x1000, "ur_vod.png"); // отметка уреза воды
   R.render_im_in_points(0x6508, "por.png"); // порог
   R.render_im_in_points(0x650E, "vdp.png"); // водопад
