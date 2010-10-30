@@ -102,7 +102,7 @@ main(int argc, char* argv[]){
   R.render_line(0x23, 0x009000, 1, 0); // контуры, нарисованные вручную
   R.unset_dash();
 
-  R.render_polygons(0x4d, 0x87CEFF); // ледник
+  R.render_polygons(0x4d, 0xC3E6FF,0,0,20); // ледник
 
   //*******************************
 

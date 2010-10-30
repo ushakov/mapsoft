@@ -242,7 +242,7 @@ bool read(const char* filename, fig_world & world, const Options & opts){
     }
     tmp_opts.clear();
     for (Options::iterator o=i->opts.begin();o!=i->opts.end();o++)
-      tmp_opts.put(cnv.from_utf8(o->first), cnv.from_utf8(o->second));
+      tmp_opts.put(cnv.to_utf8(o->first), cnv.to_utf8(o->second));
     i->opts.swap(tmp_opts);
   }
   for (vector<string>::iterator
@@ -251,7 +251,7 @@ bool read(const char* filename, fig_world & world, const Options & opts){
   }
   tmp_opts.clear();
   for (Options::iterator o=ret.opts.begin();o!=ret.opts.end();o++)
-    tmp_opts.put(cnv.from_utf8(o->first), cnv.from_utf8(o->second));
+    tmp_opts.put(cnv.to_utf8(o->first), cnv.to_utf8(o->second));
   ret.opts.swap(tmp_opts);
 
   // convert colors to rgb
