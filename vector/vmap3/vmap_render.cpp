@@ -13,11 +13,12 @@ void usage(){
      << "\n"
      << "  options:\n"
      << "    -m, --map <map file>    -- write OziExplorer map file\n"
+     << "    -d, --dpi <dpi>         -- set map dpi (default 300)\n"
      << "    -g  --grid <step>       -- draw step x step cm grid\n"
      << "    -l  --grid_labels       -- draw grid labels\n"
      << "    -N  --draw_name         -- draw map name\n"
      << "    -D  --draw_date         -- draw date stamp\n"
-     << "    -T  --draw_text <text>  -- draw date stamp\n"
+     << "    -T  --draw_text <text>  -- draw text\n"
   ;
   exit(1);
 }
@@ -25,6 +26,7 @@ void usage(){
 
 static struct option options[] = {
   {"map",           1, 0, 'm'},
+  {"dpi",           1, 0, 'd'},
   {"grid",          1, 0, 'g'},
   {"grid_labels",   0, 0, 'l'},
   {"draw_name",     0, 0, 'N'},
@@ -46,7 +48,7 @@ main(int argc, char* argv[]){
   const char * ifile = argv[0];
   const char * ofile = argv[1];
 
-  int dpi=300;
+  int dpi=O.get<int>("dpi", 300);
 
   int tm, bm, lm, rm;
   if (O.get<int>("draw_name", 0) ||
