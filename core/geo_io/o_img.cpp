@@ -34,6 +34,9 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   Proj  proj(opt.get<string>("proj", "tmerc"));
   Datum datum(opt.get<string>("datum", "pulkovo"));
 
+  if (!opt.exists("lon0"))
+    opt.put<double>("lon0", convs::lon2lon0(world.range().CNT().x));
+
   double scale  = opt.get("scale",  0.0);
   double rscale = opt.get("rscale", 0.0);
   double dpi    = opt.get("dpi",    0.0);
