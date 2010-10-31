@@ -84,7 +84,6 @@ bool read(const char* filename, mp_world & world, const Options & opts){
     codepage=ret.Opts.get("CodePage", codepage);   // override by file setting
     codepage=opts.get("mp_in_codepage", codepage); // override by user setting
     IConv cnv("CP" + codepage);
-    cerr << "mp::read: Using codepage: " << codepage << "\n";
 
     for (mp_world::iterator i = ret.begin(); i != ret.end(); i++){
       i->Label = cnv.to_utf8(i->Label);
@@ -150,7 +149,6 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
   codepage=world.Opts.get("CodePage", codepage);     // override by file setting
   codepage=opts.get("mp_out_codepage", codepage); // override by user setting
   IConv cnv("CP" + codepage);
-  cerr << "mp::write: Using codepage: " << codepage << "\n";
 
   for (vector<string>::const_iterator c = world.Comment.begin();
        c!=world.Comment.end(); c++) out << ";" << cnv.from_utf8(*c) << "\n";
