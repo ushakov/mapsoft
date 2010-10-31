@@ -2,23 +2,41 @@
 
 # reset map boundaries to th image file dimensions
 
-if [ -x "${1:-}"]; then
+if [ -x "${1:-}" ]; then
   echo "usage: $0 <file.map> ..."
   exit 1
 fi
 
 for map in "$@"; do
+
+  # detect image name from the map
   echo "map:   $map"
-
+  [ -s "$map" ] || {
+    echo "$0: can't find image file $img"
+    exit 1
+  }
   img="$(sed -n -e '3{s/\r//;p}' "$map")"
-  echo "image: $img"
 
+
+  # search image from the map directory, get its size
+  od=$(pwd)
+  nd="${map%/*}"
+  [ -z "$nd" ] || cd "${map%/*}"
+
+  echo "image: $img"
+  [ -s "$img" ] || {
+    echo "$0: can't find image file $img"
+    exit 1
+  }
   size="$(file "$img" |
     sed -e 's/.*image, *\([0-9]\+\) *x *\([0-9]\+\) *,.*/\1x\2/')"
   x="${size%x*}"
   y="${size#*x}"
   echo "size: ${x}x${y}"
 
+  cd "$od"
+
+  # set map border
   sed -i -e "
     s/^MMPXY,1,[0-9]\+,[0-9]\+/MMPXY,1,0,0/
     s/^MMPXY,2,[0-9]\+,[0-9]\+/MMPXY,1,$x,0/
@@ -29,6 +47,5 @@ for map in "$@"; do
 
   mapsoft_convert "$map" -o "$map"
 
-  echo "done"
 done
 
