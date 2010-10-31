@@ -179,11 +179,12 @@ main(int argc, char **argv){
 
   /***************** output ****************/
 
+  const char * ofile = NULL;
   if (argc<1){
     if (O.get<int>("verbose",0))
       cout << "no output files\n";
   }
-  const char * ofile = argv[0];
+  else ofile = argv[0];
 
   // parse output options
   O = parse_options(argc, argv, out_options);
@@ -196,8 +197,6 @@ main(int argc, char **argv){
   if (O.exists("set_source_from_fname"))
     O.put<string>("set_source", ofile);
 
-  if (GO.get<int>("verbose",0))
-    cout << "writing to: " << ofile << "\n";
 
   // find labels for each object
   add_labels(V);
@@ -208,7 +207,11 @@ main(int argc, char **argv){
 
   filter(V, O);
 
-  if (!vmap::write(ofile, V, O)) exit(1);
+  if (ofile){
+    if (GO.get<int>("verbose",0))
+      cout << "writing to: " << ofile << "\n";
+    if (!vmap::write(ofile, V, O)) exit(1);
+  }
 
   exit(0);
 }
