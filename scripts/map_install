@@ -100,9 +100,9 @@ fi
 if [ -z "$nopng" ]; then
 
   ####### make 300dpi name.png + name.map
-  vmap_copy --range_datum=pulkovo --range_proj=tmerc --range_lon0=39\
+  vmap_copy --range_datum=pulkovo --range_proj=tmerc\
     --range="$geom" --set_brd_from_range\
-    --name="$comm_utf" "$fig" -o "$datadir/$fig"
+    --name="$comm_utf" --rscale="$rscale" "$fig" -o "$datadir/$fig"
   vmap_render -g4 -lND \
    -m "$datadir/$name.map" "$datadir/$fig" "$datadir/$name.png"
 
