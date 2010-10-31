@@ -20,8 +20,8 @@ using namespace std;
 
 void
 point_read_cnv(dPoint &p){
-  p.x = (p.x+0.5)/point_scale; // avoid getting different value from floor()
-  p.y = (p.y+0.5)/point_scale;
+  p.x = p.x/point_scale;
+  p.y = p.y/point_scale;
 }
 void
 point_write_cnv(dPoint &p){
