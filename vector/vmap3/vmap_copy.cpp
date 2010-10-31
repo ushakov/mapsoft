@@ -34,6 +34,7 @@ void usage(){
      << "    --skip_labels               -- don't read labels\n"
      << "    --read_labels               -- do read labels\n"
      << "      (--read_labels options is intendent to override global --skip_labels option)\n"
+     << "      (if you skip labels in input options - they will be created before output)\n"
      << "    --split_labels              -- split labels from object\n"
      << "      (be careful when using --split_labels in write options: fig, mp, and ocad\n"
      << "       does not support writing of splitted labels yet)\n"
