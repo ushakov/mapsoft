@@ -23,12 +23,8 @@ Install files into <basedir>/<name>:
  * <name>.img
  * <name>.{$dpi_list}.map
  * <name>.{$dpi_list}.png
-Install symlinks into <basedir>:
- * <name>.png -> <name>/<name>.$dpi_def.png
- * <name>.map -> <name>/<name>.$dpi_def.map
 EOF
 }
-
 
 [ "$#" = 1 ] || {
   print_help
@@ -36,23 +32,28 @@ EOF
 }
 
 name="$1"
-mp="${name}.mp"
 fig="${name}.fig"
-img="${name}.img"
 
 [ -s "$fig" ] ||
   fatal "Error: can't find $fig."
 
-vmap="mapsoft_vmap"
 cgm="cgpsmapper-static"
 
 ########## conf
 style="$(get_map_par "$name" "style" "mmb")"
 rscale="$(get_map_par "$name" "rscale" "50000")"
+comm="$(get_map_par "$name" "comm" "")"
 geom="$(get_map_par "$name" "geom" "")"
-comm="$(get_map_par "$name" "comm" "$name")"
 basedir="$(get_map_par "$name" "basedir" ".")"
 auth="$(get_map_par "$name" "auth" "")"
+
+comm_koi="$(printf "%s" "$comm" | iconv -t "koi8-r")"
+comm_win="$(printf "%s" "$comm" | iconv -t "cp1251")"
+comm_utf="$(printf "%s" "$comm" | iconv -t "utf8")"
+
+auth_koi="$(printf "%s" "$comm" | iconv -t "koi8-r")"
+auth_win="$(printf "%s" "$comm" | iconv -t "cp1251")"
+auth_utf="$(printf "%s" "$comm" | iconv -t "utf8")"
 
 cat << EOF
 $0:
@@ -71,84 +72,65 @@ datadir="$basedir/$name"
   fatal "Error: can't create $datadir"
 
 ####### make name.mp
-if [ -s "$mp" ]; then
-  cp "$mp" "$datadir/$mp"
-  "$vmap" remove "$datadir/$mp"
-fi
 
-"$vmap" copy "$fig" "$datadir/$mp"
+vmap_copy "$fig" -o "$datadir/$name.mp" --skip_labels\
+  --name "$comm_utf"
 
-id="$(sed -n 's/^ID=\([^\r]*\)\r\?$/\1/p' "$datadir/$mp")"
+id="$(sed -n 's/^ID=\([^\r]*\)\r\?$/\1/p' "$datadir/$name.mp")"
 if [ -z "$id" -o "$id" = 0 ]; then
   # create uniq ID for mp
   id="0x$(date "+%s aaa" | md5sum | head -c6)"
   id="$(($id))" # convert to decimal
   quote_sed_regexp_variable id_q "$id"
-  sed -i "s/^ID=.*\$/ID=$id_q\r/" "$datadir/$mp"
+  sed -i "s/^ID=.*\$/ID=$id_q\r/" "$datadir/$name.mp"
 fi
-
-oldcomm="$(sed -n 's/^Name=\([^\r]*\)\r\?$/\1/p' "$datadir/$mp")"
-if [ "$oldcomm" != "$comm" ]; then
-  quote_sed_regexp_variable comm_q "$comm"
-  sed -i "s/^Name=.*\$/Name=$comm_q\r/" "$datadir/$mp"
-fi
-oldauth="$(sed -n 's/^Copyrght=\([^\r]*\)\r\?$/\1/p' "$datadir/$mp")"
+oldauth="$(sed -n 's/^Copyrght=\([^\r]*\)\r\?$/\1/p' "$datadir/$name.mp")"
 if [ "$oldauth" != "$auth" ]; then
   quote_sed_regexp_variable auth_q "$auth"
-  sed -i "s/^Copyright=.*\$/Copyright=$auth_q\r/" "$datadir/$mp"
+  sed -i "s/^Copyright=.*\$/Copyright=$auth_q\r/" "$datadir/$name.mp"
 fi
 
 ####### make name.img
+
 if [ -z "$noimg" ]; then
-  "$cgm" -o "$datadir/$img" "$datadir/$mp"
+  "$cgm" -o "$datadir/$name.img" "$datadir/$name.mp"
 fi
 
-####### make 300dpi name.png + name.map
-
-
+####### make raster
 if [ -z "$nopng" ]; then
-  tmpfig="$(mktemp).fig"
-  cp -- "$fig" "$tmpfig"
-  "$vmap" range_crop tmerc pulk "$geom" "$tmpfig"
-  "$vmap" remove "$tmpfig" border
-  get_print "$tmpfig" "$datadir/$fig"
-  rm -f -- "$tmpfig"
 
-  fig2pnm --map "$datadir/$name.map" "$datadir/$fig" |
-    pnmtopng > "$datadir/$name.png"
-  rm -f "$TMPDIR/gs_*"
+  ####### make 300dpi name.png + name.map
+  vmap_copy --range_datum=pulkovo --range_proj=tmerc --range_lon0=39\
+    --range="$geom" --set_brd_from_range\
+    --name="$comm_utf" "$fig" -o "$datadir/$fig"
+  vmap_render -g4 -lND \
+   -m "$datadir/$name.map" "$datadir/$fig" "$datadir/$name.png"
+
   ####### make resized and cropped images
-
   IFS=','
   for dpi in $dpi_list; do
     scale="$(echo "$dpi/300" | bc -l)"
     map_rescale\
-      ${geom:+-g $geom}\
       -r "$scale"\
-      -n "$comm"\
-      -f "$name.png"\
       -s "$style"\
       -o "$name.$dpi"\
       "$datadir/$name.map"
   done
   IFS=' '
+  rm -f -- "$datadir/$name.png" "$datadir/$name.map"
 fi
 
-zip -j "$datadir/$fig.zip" "$fig"
-zip -j "$datadir/$mp.zip" "$datadir/$mp"
-rm -f -- "$datadir/$fig" "$datadir/$mp"
-if [ -z "$nopng" ]; then
-  rm -f -- "$datadir/$name.png" "$datadir/$name.map"
-  ln -s -f -- "$name/$name.$dpi_def.png" "$basedir/$name.png"
-fi
+zip -j "$datadir/$name.fig.zip" "$name.fig"
+zip -j "$datadir/$name.mp.zip" "$datadir/$name.mp"
+rm -f -- "$datadir/$name.fig" "$datadir/$name.mp"
 
 cat > "$datadir/index.htm" <<EOF
 <html>
 <head>
-<title>slazav maps: $comm</title>
+<title>slazav maps: $comm_koi</title>
 </head>
 <body>
-<h3>$comm</h3>
+<h3>$comm_koi</h3>
 <p><a href="$name.$dpi_def.png">
    <img border=0 src="$name.$dpi_preview.png"/></a>
 <p>Raster maps:
@@ -179,5 +161,3 @@ ${auth:+<p>Author: $auth}
 </body>
 </html>
 EOF
-
-map_reset_bounds $datadir/*.map
