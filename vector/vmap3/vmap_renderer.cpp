@@ -575,6 +575,8 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool draw_labels){
   );
   dx *= W.rscale/100;
   dy *= W.rscale/100;
+  double m=dy/10; // skip labels at distance m from horizontal edges
+
   dPoint p(
     dx * floor(rng_m.x/dx),
     dy * floor(rng_m.y/dy)
@@ -597,7 +599,8 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool draw_labels){
     dPoint pc(p); cnv.bck(pc);
     cr->move_to(pbc.x, pc.y);
     cr->line_to(pec.x, pc.y);
-    if (draw_labels) render_grid_label(pc.y, p.y, false);
+    if (draw_labels && (p.y > pb.y+m) && (p.y<pe.y-m))
+      render_grid_label(pc.y, p.y, false);
     p.y+=dy;
   }
   cr->stroke();
