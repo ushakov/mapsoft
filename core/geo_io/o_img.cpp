@@ -113,7 +113,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   geom -= geom.TLC();
 
   // is output image not too large
-  iPoint max_image = opt.get("max_image", Point<int>(5000,5000));
+  iPoint max_image = opt.get("max_image", Point<int>(10000,10000));
   cerr << "Image size: " << geom.w << "x" << geom.h << "\n";
   if ((geom.w>max_image.x) || (geom.h>max_image.y)){
      cerr << "Error: image is too large ("
