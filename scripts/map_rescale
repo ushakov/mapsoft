@@ -43,6 +43,7 @@ eval set -- "$TEMP"
 
 geom=
 lon0=
+img=
 outname=
 while :; do
   case "$1" in
@@ -75,14 +76,12 @@ map="$1"
 [ -r "$map" ] || fatal "Can't read map file: $map"
 wdir="${map%/*}/"
 
-old_img="$(sed -n '3p' "$map" | tr -d '\r\n')"
-img="${img-$old_img}" # use old_img only if img undefined
-[ -z ${img%%/*} ] || img="$wdir/$img"
-[ -n "$img" ] || fatal "Can't find image name from map file. Use -f option"
-[ -s "$img" ] || fatal "Can't find image file: $img"
+[ -n "$img" ] || img="$(sed -n '3p' "$map" | tr -d '\r\n')"
+[ -s "$img" ] || img="$wdir/${img##*/}"
+[ -s "$img" ] || fatal "Can't find image name from map file. Use -f option"
 
 old_name="$(sed -n '2p' "$map" | tr -d '\r\n')"
-name="${name-$old_name}"
+name="${name-$old_name}" # use name from cmdline if it is defined
 
 if [ -n "$outname" ]; then
   outmap="$wdir$outname.map"
@@ -115,6 +114,13 @@ W=;H=;X=;Y=;K=;
 [ "$X" = 0 -o -z "$K" ] || X="${X}000"
 [ "$Y" = 0 -o -z "$K" ] || Y="${Y}000"
 
+echo "map:        $map -> $outmap"
+echo "image:      $img -> $outimg"
+echo "name:       $old_name -> $name"
+echo "scale:      $scale"
+echo "cmap style: $style"
+echo "lon0:       $lon0"
+
 zone="$(printf "$X" | head -c -6)"
 X="$(printf "$X" | tail -c 6)"
 [ -z "$zone" -o -n "$lon0" ] || lon0="$((6*$zone-3))"
@@ -135,16 +141,10 @@ if [ -n "$geom" ]; then
   [ "$dH" = 0 -o -z "$dK" ] || dH="${dH}000"
   [ "$dX" = 0 -o -z "$dK" ] || dX="${dX}000"
   [ "$dY" = 0 -o -z "$dK" ] || dY="${dY}000"
+  echo "map_geom:   ${W}x${H}+$X+$Y"
+  echo "img_geom:   ${dW}x${dH}+$dX+$dY"
 fi
 
-echo "map:        $map -> $outmap"
-echo "image:      $img -> $outimg"
-echo "name:       $old_name -> $name"
-echo "scale:      $scale"
-echo "cmap style: $style"
-echo "lon0:       $lon0"
-echo "map_geom:   ${W}x${H}+$X+$Y"
-echo "img_geom:   ${dW}x${dH}+$dX+$dY"
 
 
 # cropping and rescaling image
@@ -197,3 +197,4 @@ quote_sed_regexp_variable outimg_q "${outimg##*/}"
 quote_sed_regexp_variable name_q   "$name"
 sed -i "3s/^.*\$/$outimg_q\r/" "$outmap"
 sed -i "2s/^.*\$/$name_q\r/"   "$outmap"
+
