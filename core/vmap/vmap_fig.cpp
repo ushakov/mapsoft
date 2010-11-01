@@ -235,7 +235,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
       dPoint pos = l->pos;
       cnv.bck(pos);
 
-      double angle = l->hor ? 0 : -cnv.angd_bck(l->pos, l->ang, 0.01);
+      double angle = l->hor ? 0 : cnv.angd_bck(l->pos, -l->ang, 0.01);
 
       fig::fig_object txt;
       if (fig_text_labels){
