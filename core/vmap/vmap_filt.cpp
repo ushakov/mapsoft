@@ -116,11 +116,9 @@ struct RangeCutter{
   process(object & o){
     if ((cnv==NULL) || (action == "")) return;
     dMultiLine::iterator l = o.begin();
+    bool closed = (o.get_class() == POLYGON);
     while (l != o.end()){
-
       if (l->size()>0){
-
-        bool closed = ( (*l)[0] == (*l)[l->size()-1] );
         dLine lc = cnv->line_frw(*l);
         rect_crop(range, lc, closed);
 
