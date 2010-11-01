@@ -95,16 +95,18 @@ Conv::bb_bck(const dRect & R, double acc, int max) const {
 double
 Conv::ang_frw(dPoint p, double a, double dx) const{
   dPoint p1 = p + dPoint(dx*cos(a), dx*sin(a));
-  frw(p); frw(p1);
-  p1-=p;
+  dPoint p2 = p - dPoint(dx*cos(a), dx*sin(a));
+ frw(p1); frw(p2);
+  p1-=p2;
   return atan2(p1.y, p1.x);
 }
 
 double
 Conv::ang_bck(dPoint p, double a, double dx) const{
   dPoint p1 = p + dPoint(dx*cos(a), dx*sin(a));
-  bck(p); bck(p1);
-  p1-=p;
+  dPoint p2 = p - dPoint(dx*cos(a), dx*sin(a));
+  bck(p1); bck(p2);
+  p1-=p2;
   return atan2(p1.y, p1.x);
 }
 
