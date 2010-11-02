@@ -1,19 +1,31 @@
 #!/bin/sh -efu
 
-name=$1
+[ "$#" = 1 ] || {
+  echo "usage: $0 <map name>"
+  exit 1
+}
+
+name="$1"
 
 . map_functions.sh
 
-jpg="$(mktemp).jpg"
-
 geom="$(get_map_par "$name" "geom" "")"
-style="$(get_map_par "$name" "style" "mmb")"
-rscale="$(get_map_par "$name" "rscale" "100000")"
+comm="$(get_map_par "$name" "comm" "")"
+style="$(get_map_par "$name" "style" "default")"
+rscale="$(get_map_par "$name" "rscale" "")"
 
-mapsoft_convert -o "$jpg" --fig="$name.fig" \
-  -g "$geom" --rscale="$rscale" --dpi="1"
+[ -n "$geom" ] || {
+  echo "unknown geometry for map $name"
+  exit 1
+}
 
-rm -f -- "$jpg"
-sed -i -e "
-  /1200 2/i# \\\\style=$style
-  /^# MAP/,\$d" "$name.fig"
+[ -n "$rscale" ] || {
+  echo "unknown rscale for map $name, set to 100000"
+  rscale="100000"
+}
+
+./vmap_copy \
+  -o "$name.fig"\
+  --name "$comm" --rscale "$rscale" --style "$style"\
+  --range "$geom" --range_datum "pulkovo" --range_proj "tmerc"\
+  --set_brd_from_range
