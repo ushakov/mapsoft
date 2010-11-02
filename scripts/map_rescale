@@ -90,8 +90,8 @@ if [ -n "$outname" ]; then
   else fatal "Unsupported image format for $img"
   fi
 else
-  outmap="${wdir}_$map"
-  outimg="${wdir}_$img"
+  outmap="${wdir}_${map##*/}"
+  outimg="${wdir}_${img##*/}"
 fi
 
 
