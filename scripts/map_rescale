@@ -90,15 +90,21 @@ if [ -n "$outname" ]; then
   else fatal "Unsupported image format for $img"
   fi
 else
-  outmap="${wdir}_${map##*/}"
-  outimg="${wdir}_${img##*/}"
+  outimg="$img"
+  outmap="$map"
+  tmpimg="$(mktemp map_rescale.XXXXXX.${img##*/})"
+  tmpmap="$(mktemp map_rescale.XXXXXX.${map##*/})"
+  cp -f -- "$img" "$tmpimg"
+  img="$tmpimg"
+  cp -f -- "$map" "$tmpmap"
+  map="$tmpmap"
 fi
 
 
 
 [ -n "${scale:-}" ] || scale=1
 
-[ -n "${style:-}" ] || style=mmb
+[ -n "${style:-}" ] || style=default
 cmap="/usr/share/mapsoft/$style.cmap.pnm"
 [ -s "$cmap" ] || fatal "Can't find cmap for style $style: $cmap"
 
@@ -198,3 +204,5 @@ quote_sed_regexp_variable name_q   "$name"
 sed -i "3s/^.*\$/$outimg_q\r/" "$outmap"
 sed -i "2s/^.*\$/$name_q\r/"   "$outmap"
 
+[ -z "${tmpmap:-}" ] || rm -f -- "$tmpmap"
+[ -z "${tmpimg:-}" ] || rm -f -- "$tmpimg"
