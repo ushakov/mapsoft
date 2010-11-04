@@ -92,7 +92,7 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
     }
     // convert label angles: deg (latlon) -> rad (raster) and pos.
     for (list<vmap::lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
-      if (!l->hor) l->ang = cnv.ang_bck(l->pos, M_PI/180 * l->ang, 0.01);
+      if (!l->hor) l->ang = -cnv.ang_bck(l->pos, -M_PI/180 * l->ang, 0.01);
       cnv.bck(l->pos);
     }
   }
