@@ -23,7 +23,7 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
     W.brd = nom_cnv.line_bck(rect2line(nom_range));
   }
 
-  ref = vmap::get_tmerc_rec(W, dpi/2.54, true);
+  ref = vmap::mk_tmerc_ref(W, dpi/2.54, true);
 
   lw1 = dpi/105.0; // standard line width (1/105in?)
   fs1 = dpi/89.0;  // standard font size

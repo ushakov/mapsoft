@@ -93,7 +93,7 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
 
   zn::zn_conv zconverter(W.style);
 
-  g_map ref = vmap::get_tmerc_rec(W, 1000);
+  g_map ref = vmap::mk_tmerc_ref(W, 1000);
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
 
   dPoint p0(0,0); cnv.frw(p0);

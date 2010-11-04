@@ -4,6 +4,58 @@
 #include "geo_convs.h"
 #include "loaders/image_google.h"
 #include "loaders/image_ks.h"
+#include "2d/line_utils.h"
+
+g_map mk_tmerc_ref(const dLine points, double u_per_m, bool yswap){
+  g_map ref;
+
+  // Get border.
+  dLine brd = convex_border(points);
+
+  // Reduce border to 5 points, remove last one to get ref points.
+  // Note: after convex_border() last point = first point.
+  dLine refs = generalize(brd, -1, 5);
+  if (refs.size()>4) refs.resize(4);
+
+  // Create lonlat -> tmerc conversion with wanted lon0,
+  // convert refs to our map coordinates.
+  Options PrO;
+  PrO.put<double>("lon0", convs::lon2lon0(points.center().x));
+  convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), PrO,
+                   Datum("wgs84"), Proj("tmerc"), PrO);
+  dLine refs_c(refs);
+  cnv.line_frw_p2p(refs_c);
+  refs_c *= u_per_m; // to out units
+  refs_c -= refs_c.range().TLC();
+  double h = refs_c.range().h;
+
+  // swap y if needed
+  if (yswap){
+    for (int i=0;i<refs_c.size();i++)
+      refs_c[i].y = h - refs_c[i].y;
+  }
+
+  // add refpoints to our map
+  for (int i=0;i<refs.size();i++){
+    ref.push_back(g_refpoint(refs[i], refs_c[i]));
+  }
+
+  ref.map_proj=Proj("tmerc");
+
+  // Now we need to convert border to map units.
+  // We can convert them by the same way as refs, but
+  // this is unnecessary duplicating of non-trivial code.
+  // So we constract map2pt conversion from our map.
+
+  // map2pt needs non-empty map border (this will be fixed soon i hope)
+  ref.border = rect2line(refs_c.range());
+
+  // Set ref.border to brd converted to map units.
+  convs::map2pt brd_cnv(ref, Datum("wgs84"), Proj("lonlat"));
+  ref.border = generalize(brd_cnv.line_bck(brd), 1, -1); // 1 unit accuracy
+
+  return ref;
+}
 
 g_map ref_google(int scale){
    g_map ret;
@@ -32,8 +84,6 @@ g_map ref_google(int scale){
    ret.border.push_back(dPoint(0,width));
    return ret;
 }
-
-
 
 g_map ref_ks_old(int scale){
    g_map ret;

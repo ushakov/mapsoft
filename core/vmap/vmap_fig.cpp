@@ -156,7 +156,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
 
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
-    ref = vmap::get_tmerc_rec(W, fig::cm2fig, true);
+    ref = vmap::mk_tmerc_ref(W, fig::cm2fig, true);
     fig::rem_ref(F);
     fig::set_ref(F, ref, Options());
   }

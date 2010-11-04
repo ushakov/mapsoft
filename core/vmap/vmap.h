@@ -119,7 +119,7 @@ void move_pics(world & W);   // move and rotate some signs
 void filter(world & W, const Options & O);
 
 /// create tmerc ref from brd or from map range (see vmap_ref.h):
-g_map get_tmerc_rec(const world & W, double u_per_cm, bool yswap=false);
+g_map mk_tmerc_ref(const world & W, double u_per_cm, bool yswap=false);
 
 // put source to options if it is not empty
 void set_source(Options & o, const std::string & source);
