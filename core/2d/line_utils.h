@@ -104,7 +104,7 @@ Line<T> generalize(const Line<T> & line, double e, int np){
     double min=-1;
     int mini; // index of point with minimal deviation
     int n=0;
-    for (int i=1; i<line.size()-1; i++){
+    for (int i=1; i<int(line.size())-1; i++){
       if (skip[i]) continue;
       n++; // count point we doesn't plan to skip
       int ip, in; // previous and next indexes
