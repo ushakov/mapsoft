@@ -2,6 +2,7 @@ Import ('env')
 
 subdirs = Split ("""
     2d_rectcrop
+    2d_angles
     types_io
     geo_nom
     options

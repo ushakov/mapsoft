@@ -156,15 +156,27 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
       double ang = l->hor ? 0 : cnv.angd_bck(l->pos, l->ang, 0.01);
       int text_sym = zconverter.get_ocad_label_type(o->type);
 
-      // todo: ref, dir.
-      iLine line;
-      // 5 points
-      line.push_back(pos);
-      line.push_back(pos + dPoint(  0, 100));
-      line.push_back(pos + dPoint(200, 100));
-      line.push_back(pos + dPoint(200, -100));
-      line.push_back(pos + dPoint(  0, -100));
-      F.add_object(text_sym, line, ang, o->text);
+      if (text_sym/1000 == 790){
+        iLine line;
+        // 5 points
+        line.push_back(pos);
+        line.push_back(pos + dPoint(  0, 200));
+        line.push_back(pos + dPoint(600, 200));
+        line.push_back(pos + dPoint(600, -200));
+        line.push_back(pos + dPoint(  0, -200));
+        F.add_object(text_sym, line, ang, o->text);
+      }
+      else if (text_sym/1000 == 718){
+        iLine line;
+        line.push_back(pos);
+        line.push_back(pos + 1000*dPoint(cos(ang/180*M_PI), sin(ang/180*M_PI)));
+        F.add_object(text_sym, line, ang, o->text);
+      }
+      else {
+        iLine line;
+        F.add_object(text_sym, line, ang, o->text);
+        F.objects[F.objects.size()-1].type=5;
+      }
 
       ocad::ocad_string st;
       st.type=50;
