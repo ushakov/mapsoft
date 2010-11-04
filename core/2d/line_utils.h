@@ -159,9 +159,8 @@ Line<T> join_polygons(const MultiLine<T> & L){
   ret = *l; l++;
   while (l!=L.end()){
 
-    // Найдем место кратчайшего разреза между ret и очередным куском.
-    // Честно пока делать лень, поэтому найдем минимальное расстояние 
-    // между вершинами...
+    // Найдем место кратчайшего разреза между вершиной ret и
+    // вершиной очередного куска.
 
     double dist = 1e99;
 
@@ -242,5 +241,43 @@ double nearest_pt(const MultiLine<T> & lines, dPoint & vec, Point<T> & pt, doubl
   return maxdist;
 }
 
+/// Found bounding convex polygon for points.
+/// Resulting polygon start from point with minimal x,
+/// it is always clockwise-oriented, its last point =
+/// first point
+template <typename T>
+Line<T> convex_border(const Line<T> & points){
+  Line<T> ret;
+  if (points.size()==0) return ret;
+  typename Line<T>::const_iterator p, p0, p1;
+
+  // find point with minimal x
+  p0=points.begin();
+  for (p=points.begin(); p!=points.end(); p++){
+    if (p0->x > p->x) p0=p;
+  }
+
+  dPoint v0(0,1);
+
+  do {
+    ret.push_back(*p0);
+    p1=p0;
+    p1++; if (p1==points.end()) p1=points.begin();
+    if (p0==p1) break;
+
+    // find point with maximal v*norm(p-p0)
+    double cmax=-1;
+    for (p=points.begin(); p!=points.end(); p++){
+      if (p == p0) continue;
+      dPoint v=pnorm(*p - *p0);
+      double c=pscal(v0, v);
+      if (cmax < c) { cmax=c; p1=p;}
+    }
+    v0=pnorm(*p1 - *p0);
+    p0=p1;
+    assert (ret.size() <= points.size());
+  } while (*p1!=*ret.begin());
+  return ret;
+}
 
 #endif
