@@ -11,14 +11,17 @@ e.UseLibs('vmap')
 def Cnf2Png(env, name):
    """Setup command for cnf2png conversion by <name> argument"""
    cmd = env.Command(name+'.png', name+'.cnf', "\
-     tmpfig=$$(mktemp);\
-     tmpfig_c=$$(mktemp);\
+     tmpfig=\"$$(mktemp)\" || exit;\
+     tmpfig_c=\"$$(mktemp)\" || exit;\
+     trap \"rm -f -- '$$tmpfig' '$$tmpfig_c'\" EXIT; \
      ./zn_legend %s > $$tmpfig;\
      ../libzn-utils/get_print $$tmpfig $$tmpfig_c;\
      LANG=ru_RU.KOI8-R ../libzn-utils/fig2pnm $$tmpfig_c |\
         pnmscale 0.5 |\
         pnmremap -mapfile %s.cmap.pnm |\
-        pnmtopng > %s.png" % (name, name, name), chdir = 1)
+        pnmtopng > %s.png; \
+     rm -f -- \"$$tmpfig\" \"$$tmpfig_c\"; \
+     trap - EXIT" % (name, name, name), chdir = 1)
    env.Depends(cmd, 'zn_legend')
    env.Depends(cmd, '../libzn-utils/fig2pnm')
    env.Depends(cmd, '../libzn-utils/get_print')
@@ -29,13 +32,16 @@ e.AddMethod(Cnf2Png)
 def Cnf2CM(env, name):
    """Setup command for cnf2CM conversion by <name> argument"""
    cmd = env.Command(name+'.cmap.pnm', name+'.cnf', "\
-     tmpfig=$$(mktemp);\
-     tmpfig_c=$$(mktemp);\
+     tmpfig=\"$$(mktemp)\" || exit;\
+     tmpfig_c=\"$$(mktemp)\" || exit;\
+     trap \"rm -f -- '$$tmpfig' '$$tmpfig_c'\" EXIT; \
      ./zn_legend -c %s > $$tmpfig;\
      ../libzn-utils/get_print $$tmpfig $$tmpfig_c;\
      LANG=ru_RU.KOI8-R ../libzn-utils/fig2pnm $$tmpfig_c |\
         pnmscale 0.5 |\
-        pnmcolormap -sort 256 > %s.cmap.pnm" % (name, name), chdir = 1)
+        pnmcolormap -sort 256 > %s.cmap.pnm; \
+     rm -f -- \"$$tmpfig\" \"$$tmpfig_c\"; \
+     trap - EXIT" % (name, name), chdir = 1)
    env.Depends(cmd, 'zn_legend')
    env.Depends(cmd, '../libzn-utils/fig2pnm')
    env.Depends(cmd, '../libzn-utils/get_print')

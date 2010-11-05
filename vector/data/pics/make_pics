@@ -5,17 +5,19 @@ png="$2"
 # vertical position of the image center in % counted from top:
 cnt="${3:-}"
 
-gif="$(mktemp)"
+gif="$(mktemp)" || exit
+trap "rm -f -- '$gif'" EXIT
 
-fig2dev -m7.5 -Lgif -t#ffffff $fig $gif
-convert -trim $gif -repage +0+0 PNG32:$png
-rm -- $gif
+fig2dev -m7.5 -Lgif -t#ffffff "$fig" "$gif"
+convert -trim "$gif" -repage +0+0 PNG32:"$png"
+rm -f -- "$gif"
+trap - EXIT
 
 if [ -n "$cnt" ]; then
   ext="$(($cnt*2-100))"
   [ "$ext" -lt 0 ] &&
     { ext="$((-$ext))"; gravity=south; } || gravity=north
   ext="$(($ext+100))"
-  convert $png -matte -background none -gravity "$gravity"\
-    -extent 100%x${ext}% $png
+  convert "$png" -matte -background none -gravity "$gravity"\
+    -extent "100%x${ext}%" "$png"
 fi
