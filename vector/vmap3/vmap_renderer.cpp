@@ -500,9 +500,12 @@ VMAPRenderer::render_grid_label(double c, double val, bool horiz){
 
   dPoint pmin, pmax;
   double amin=0, amax=0;
-  for (int i=1; i<ref.border.size(); i++){
-    dPoint p1(ref.border[i-1]);
-    dPoint p2(ref.border[i]);
+  dLine::const_iterator i,j;
+  for (i=ref.border.begin(); i!=ref.border.end(); i++){
+    j=i+1;
+    if (j==ref.border.end()) j=ref.border.begin();
+    dPoint p1(*i);
+    dPoint p2(*j);
     if (horiz){
       if (p1.x == p2.x) continue;
       if (p1.x > p2.x) p1.swap(p2);
