@@ -99,7 +99,7 @@ class srtm3 {
 
     if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
     if (srtm_cache.get(key).empty()) return srtm_nofile;
-    
+
     return srtm_cache.get(key).get(crd);
   }
 
@@ -128,7 +128,7 @@ class srtm3 {
     return geth_(p);
   }
   short geth(const int x, const int y){
-    geth(iPoint(x,y));
+    return geth(iPoint(x,y));
   }
 
   // вернуть высоту точки (вещественные координаты, 
