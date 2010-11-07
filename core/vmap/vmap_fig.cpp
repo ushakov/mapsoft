@@ -202,7 +202,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
 
     if (o->opts.exists("Angle")){
       double a = o->opts.get<double>("Angle");
-      a=cnv.angd_bck((*o)[0].center(), a, 0.01);
+      a=-cnv.angd_bck((*o)[0].center(), -a, 0.01);
       fig.opts.put<double>("Angle", a);
     }
 
