@@ -25,8 +25,8 @@ const int datum = 92; //из ../jeeps/gpsdatum.h
 using namespace std;
 int main(int argc, char *argv[]) {
 try{
-    if (argc!=10) {
-	std::cerr << "usage: " << argv[0] << " scale dpi lon0 X1 X2 Y1 Y2 step sstep\n";
+    if (argc!=11) {
+	std::cerr << "usage: " << argv[0] << " scale dpi lon0 X1 X2 Y1 Y2 step sstep style\n";
 	exit(0);
     }
     // Зададим масштаб нужной нам карты, ее границы (в км Г-К), разрешение, осевой меридиан:
@@ -39,6 +39,7 @@ try{
     double Y2    = atof(argv[7]);
     int step   = atoi(argv[8]);
     int sstep  = atoi(argv[9]);
+    std::string style  = argv[10];
 
     const int grid_step = 1000;
 
@@ -124,34 +125,25 @@ try{
               double ngrad = sqrt(dhx*dhx + dhy*dhy);
               double deg = 180/M_PI*atan(ngrad);
 
-/*
-	      //rainbow
-              if (deg<=30) {
-                c1=c2=c3=255;
-                //c1=c2=c3= char(255 - (atan(grey_trans*dhx/ngrad)/atan(grey_trans)+1)*grey_depth);
+              //rainbow
+              if (style == "podm"){
+                if (deg<=5) {c1=c2=c3=255; }
+                else if ((deg>5)&&(deg<=10)) {c1=255; c2=255; c3=255-int(255* (deg-5.0) / (10.0-5.0));} // white -> yellow
+                else if ((deg>10)&&(deg<=15)) {c1=255; c2=255-int(255* (deg-10.0) / (15.0-10.0)); c3=0;} // yellow -> red
+                else if ((deg>15)&&(deg<=20)) {c1=255; c2=0; c3=int(255* (deg-15.0) / (20.0-15.0));} // red -> magenta
+                else if ((deg>20)&&(deg<=25)) {c1=255-int(255* (deg-20.0) / (25.0-20.0)); c2=0; c3=255;} //magenta -> blue
+                else if ((deg>25)&&(deg<=30)) {c1=int(64 * (deg-25.0) / (30.0-25.0)); c2=int(64 * (deg-25.0) / (30.0-25.0)); c3=255-int(192* (deg-25.0) / (30.0-25.0));} // blue -> gray
+                else {c1=64; c2=64; c3=64;}
               }
-
-
-              else if ((deg>30)&&(deg<=35)) {c1=255; c2=255; c3=255-int(255* (deg-30.0) / (35.0-30.0));} // white -> yellow
-              else if ((deg>35)&&(deg<=40)) {c1=255; c2=255-int(255* (deg-35.0) / (40.0-35.0)); c3=0;} // yellow -> red
-              else if ((deg>40)&&(deg<=45)) {c1=255; c2=0; c3=int(255* (deg-40.0) / (45.0-40.0));} // red -> magenta
-              else if ((deg>45)&&(deg<=50)) {c1=255-int(255* (deg-45.0) / (50.0-45.0)); c2=0; c3=255;} //magenta -> blue
-              else if ((deg>50)&&(deg<=55)) {c1=int(64 * (deg-50.0) / (55.0-50.0)); c2=int(64 * (deg-50.0) / (55.0-50.0)); c3=255-int(192* (deg-50.0) / (55.0-50.0));} // blue -> gray
-              else {c1=64; c2=64; c3=64;}
-*/
-//подмосковное:
-              if (deg<=5) {
-                c1=c2=c3=255;
-                //c1=c2=c3= char(255 - (atan(grey_trans*dhx/ngrad)/atan(grey_trans)+1)*grey_depth);
+              else {
+                if (deg<=30){ c1=c2=c3=255; }
+                else if ((deg>30)&&(deg<=35)) {c1=255; c2=255; c3=255-int(255* (deg-30.0) / (35.0-30.0));} // white -> yellow
+                else if ((deg>35)&&(deg<=40)) {c1=255; c2=255-int(255* (deg-35.0) / (40.0-35.0)); c3=0;} // yellow -> red
+                else if ((deg>40)&&(deg<=45)) {c1=255; c2=0; c3=int(255* (deg-40.0) / (45.0-40.0));} // red -> magenta
+                else if ((deg>45)&&(deg<=50)) {c1=255-int(255* (deg-45.0) / (50.0-45.0)); c2=0; c3=255;} //magenta -> blue
+                else if ((deg>50)&&(deg<=55)) {c1=int(64 * (deg-50.0) / (55.0-50.0)); c2=int(64 * (deg-50.0) / (55.0-50.0)); c3=255-int(192* (deg-50.0) / (55.0-50.0));} // blue -> gray
+                else {c1=64; c2=64; c3=64;}
               }
-              else if ((deg>5)&&(deg<=10)) {c1=255; c2=255; c3=255-int(255* (deg-5.0) / (10.0-5.0));} // white -> yellow
-              else if ((deg>10)&&(deg<=15)) {c1=255; c2=255-int(255* (deg-10.0) / (15.0-10.0)); c3=0;} // yellow -> red
-              else if ((deg>15)&&(deg<=20)) {c1=255; c2=0; c3=int(255* (deg-15.0) / (20.0-15.0));} // red -> magenta
-              else if ((deg>20)&&(deg<=25)) {c1=255-int(255* (deg-20.0) / (25.0-20.0)); c2=0; c3=255;} //magenta -> blue
-              else if ((deg>25)&&(deg<=30)) {c1=int(64 * (deg-25.0) / (30.0-25.0)); c2=int(64 * (deg-25.0) / (30.0-25.0)); c3=255-int(192* (deg-25.0) / (30.0-25.0));} // blue -> gray
-              else {c1=64; c2=64; c3=64;}
-
-
             }
 
 	    d1 = ((int)(X+1/k)/grid_step - (int)(X)/grid_step);
