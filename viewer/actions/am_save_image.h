@@ -2,6 +2,7 @@
 #define AM_SAVE_IMAGE_H
 
 #include <sstream>
+#include "2d/line_utils.h"
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
@@ -73,11 +74,13 @@ private:
           ref.file=fname;
           ref.comm="created by mapsoft_mapview";
 
-          dPoint pts[4] = {bb.TLC(), bb.TRC(), bb.BRC(), bb.BLC()};
           convs::map2pt cnv(mapview->reference, Datum("wgs84"), Proj("lonlat"));
-          for (int i=0; i<4; i++){
-            dPoint p = pts[i]; cnv.frw(p);
-            ref.push_back(g_refpoint(p, pts[i] - (dPoint)bb.TLC()));
+          dLine pts   = rect2line(bb);
+          dLine pts_c(pts);
+          cnv.line_frw_p2p(pts_c);
+          pts-=bb.TLC();
+          for (int i=0; i<pts.size(); i++){
+            ref.push_back(g_refpoint(pts_c[i], pts[i]));
             ref.border.push_back(pts[i]);
           }
 
