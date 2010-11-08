@@ -47,9 +47,6 @@ g_map mk_tmerc_ref(const dLine points, double u_per_m, bool yswap){
   // this is unnecessary duplicating of non-trivial code.
   // So we constract map2pt conversion from our map.
 
-  // map2pt needs non-empty map border (this will be fixed soon i hope)
-  ref.border = rect2line(refs_c.range());
-
   // Set ref.border to brd converted to map units.
   convs::map2pt brd_cnv(ref, Datum("wgs84"), Proj("lonlat"));
   ref.border = generalize(brd_cnv.line_bck(brd), 1, -1); // 1 unit accuracy
