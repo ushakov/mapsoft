@@ -244,7 +244,6 @@ map2pt::bck(dPoint & p) const{
 /*******************************************************************/
 // преобразование из карты в карту
 // здесь может быть суровое разбиение карты на куски и аппроксимация линейными преобразованиями...
-// здесь же - преобразование линий
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
 map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
@@ -351,20 +350,14 @@ iRect
 map2map::bb_frw_i(const iRect & R) const{
   dLine l = line_frw(rect2line(R));
   dRect r = l.range();
-  return iRect(
-    iPoint(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
-    iPoint(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
-  );
+  return rect_pump_to_int(l.range());
 }
 
 iRect
 map2map::bb_bck_i(const iRect & R) const{
   dLine l = line_bck(rect2line(R));
   dRect r = l.range();
-  return iRect(
-    iPoint(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
-    iPoint(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
-  );
+  return rect_pump_to_int(l.range());
 }
 
 /*******************************************************************/

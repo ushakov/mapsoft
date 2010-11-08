@@ -101,3 +101,11 @@ void clip_rects_for_image_loader(
    clip_rect_to_rect(dst, dst_img);
    clip_rect_to_rect(dst, src_img_tr);
 }
+
+iRect
+rect_pump_to_int(const dRect & r){
+  return iRect(
+    iPoint(int(floor(r.TLC().x)), int(floor(r.TLC().y))),
+    iPoint(int(ceil(r.BRC().x)), int(ceil(r.BRC().y)))
+  );
+}

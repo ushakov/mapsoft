@@ -307,7 +307,6 @@ iRect tiles_on_rect(const iRect & r, int tsize);
 /// \brief  диапазон плиток, лежащих внутри данного прямоугольника
 iRect tiles_in_rect(const iRect & r, int tsize);
 
-
 /// \relates Rect
 /// \brief 
 /// два прямоугольника задают преобразование.
@@ -324,5 +323,8 @@ void clip_rects_for_image_loader(
     const iRect & src_img, iRect & src,
     const iRect & dst_img, iRect & dst);
 
+/// \relates Rect
+/// \brief  растянуть прямоугольник до ближайших целых значений
+iRect rect_pump_to_int(const dRect & r);
 
 #endif /* RECT_H */
