@@ -494,9 +494,6 @@ mymap(const geo_data & world){
   ret.push_back(g_refpoint(p.x,p.y,   0,1000));
   ret.push_back(g_refpoint(p1.x,p1.y, 1000,1000));
   ret.push_back(g_refpoint(p2.x,p2.y, 0,0));
-  // чтоб не пытались определять границы из файла
-  for (int i=0;i<3;i++)
-    ret.border.push_back(dPoint(0,0));
   return ret;
 }
 
