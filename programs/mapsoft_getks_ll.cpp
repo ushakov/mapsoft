@@ -36,9 +36,6 @@ main(int argc, char **argv){
     ref.push_back(g_refpoint(X2, Y2, (X2-X1)/deg_per_pt, 0));
     ref.push_back(g_refpoint(X2, Y1, (X2-X1)/deg_per_pt, (Y2-Y1)/deg_per_pt));
     ref.push_back(g_refpoint(X1, Y1, 0,                  (Y2-Y1)/deg_per_pt));
-    ref.border.push_back(dPoint(0,0));
-    ref.border.push_back(dPoint(0,0));
-    ref.border.push_back(dPoint(0,0));
     ref.map_proj=Proj("lonlat");
 
     ml.set_ref(ref);
