@@ -4,6 +4,7 @@ subdirs = Split ("""
     2d_rectcrop
     2d_angles
     2d_cache
+    generic_accessor
     margin_classifier
     types_io
     geo_nom
