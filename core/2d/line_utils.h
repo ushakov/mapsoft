@@ -281,4 +281,82 @@ Line<T> convex_border(const Line<T> & points){
   return ret;
 }
 
+/// test_pairs helper function for margin_classifier()
+// Для каждой пары соседних точек из l1 ищем минимальное
+// расстояние от точек l2 до прямой, задаваемой парой.
+// Ищем максимум этой величины (но не менее maxdist) по всем парам.
+// Раастояние считается положительным для точек снаружи от l1
+// (если l1 ориентирована по часовой стрелке) и отрицательно внутри.
+// maxdist, p1,p2 выставляются в соответствии с найденным максимумом.
+template <typename T>
+void
+test_pairs(const Line<T> & l1, const Line<T> & l2,
+           double & maxdist, Point<T> & p1, Point<T> & p2){
+  typename Line<T>::const_iterator i,j;
+  for (i=l1.begin(); i!=l1.end(); i++){
+    j=i+1; if (j==l1.end()) j=l1.begin();
+    if (*i==*j) continue;
+    double mindist=INFINITY;
+    typename Line<T>::const_iterator k;
+    for (k=l2.begin(); k!=l2.end(); k++){
+      dPoint v1(*j-*i);
+      dPoint v2(*k-*i);
+      double K = pscal(v1,v2)/pscal(v1,v1);
+      double d = pdist(K*v1-v2);
+      if ((v1.x*v2.y-v2.x*v1.y)<0) d*=-1;
+      if (d<mindist) mindist=d;
+    }
+    if (maxdist < mindist){
+      maxdist = mindist;
+      p1=*i; p2=*j;
+    }
+  }
+}
+
+/// Find line which separates two point sets L1 and L2 with maximal margin.
+/// Returns margin value (can by < 0).
+/// p0 is set to line origin, and t is set to line direction.
+template <typename T>
+double
+margin_classifier(const Line<T> & L1, const Line<T> & L2,
+  Point<T> & p0, dPoint & t){
+
+  // find borders
+  Line<T> l1=convex_border(L1);
+  Line<T> l2=convex_border(L2);
+
+  // Support vectors (http://en.wikipedia.org/wiki/Support_vector_machine)
+  // лежат на выпуклой границе множства точек. При этом по крайней мере
+  // в одном из множеств их две штуки и они - соседи в выпуклой границе.
+
+  // Пары соседних точек границ ищем минимальное
+  // расстояние от точек чужой границы до прямой, заданной этой парой.
+  // Ищем максимум этой величины по всем парам.
+
+  // Границы, полученные из convex_border() обходятся по часовой стрелке,
+  // так что расстояния положительны снаружи от границы.
+
+  double maxdist=-INFINITY;
+  Point<T> p1,p2;
+  test_pairs(l1,l2,maxdist,p1,p2);
+  test_pairs(l2,l1,maxdist,p1,p2);
+
+  // Мы нашли два support vector'а: p1 и p2 в одной из границ и
+  // расстояние maxdist - ширину зазора между множествами
+  // (возможно, отрицательную).
+
+  // Сместим линию, задаваемую p1 и p2 в сторону положительных расстояний
+  // на maxdist/2.
+
+  t = pnorm(p2-p1);
+  dPoint n(-t.y, t.x);
+  p0 = p1 + Point<T>(n*maxdist/2.0);
+
+  // Линия склейки задается точкой p0 и направлением t!
+  // Ура!
+
+  return maxdist;
+}
+
+
 #endif
