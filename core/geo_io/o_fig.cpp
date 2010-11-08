@@ -112,9 +112,6 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
   ref.push_back(g_refpoint(rp2.x, rp2.y, 0, 0));
   ref.push_back(g_refpoint(rp3.x, rp3.y, W, H));
   ref.push_back(g_refpoint(rp4.x, rp4.y, W, 0));
-  ref.border.push_back(dPoint(0,0));
-  ref.border.push_back(dPoint(0,0));
-  ref.border.push_back(dPoint(0,0));
   ref.map_proj=proj;
 
   // если даны какие-то карты - пополним кэш
