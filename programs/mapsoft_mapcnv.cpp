@@ -82,11 +82,7 @@ main(int argc, char **argv){
 
   g_map ref; // unscaled ref
   convs::pt2pt c(datum, proj, opts, Datum("wgs84"), Proj("lonlat"), Options());
-  dLine brd;
-  brd.push_back(geom.BLC());
-  brd.push_back(geom.BRC());
-  brd.push_back(geom.TRC());
-  brd.push_back(geom.TLC());
+  dLine brd = rect2line(geom);
   for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
     dPoint pg=*p;
     dPoint pr=*p;
