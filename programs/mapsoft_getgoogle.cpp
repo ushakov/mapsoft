@@ -46,9 +46,6 @@ main(int argc, char **argv){
     ref.push_back(g_refpoint(p2.x, p2.y, (X2-X1)/m_per_pt, 0));
     ref.push_back(g_refpoint(p3.x, p3.y, (X2-X1)/m_per_pt, (Y2-Y1)/m_per_pt));
     ref.push_back(g_refpoint(p4.x, p4.y, 0, (Y2-Y1)/m_per_pt));
-    ref.border.push_back(dPoint(0,0));
-    ref.border.push_back(dPoint(0,0));
-    ref.border.push_back(dPoint(0,0));
     ref.map_proj=Proj("tmerc");
 
     ml.set_ref(ref);
