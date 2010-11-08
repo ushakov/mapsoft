@@ -87,9 +87,6 @@ struct map2map : Conv{
   int image_bck(iImage & src_img, int src_scale, iRect cnv_rect, 
                 iImage & dst_img, iRect dst_rect) const;
 
-  iRect bb_frw_i(const iRect & R) const;
-  iRect bb_bck_i(const iRect & R) const;
-
   map2pt c1,c2;
 
   dLine border_src; // граница sM

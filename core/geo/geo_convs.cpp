@@ -346,20 +346,6 @@ map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect,
     return 0;
 }
 
-iRect
-map2map::bb_frw_i(const iRect & R) const{
-  dLine l = line_frw(rect2line(R));
-  dRect r = l.range();
-  return rect_pump_to_int(l.range());
-}
-
-iRect
-map2map::bb_bck_i(const iRect & R) const{
-  dLine l = line_bck(rect2line(R));
-  dRect r = l.range();
-  return rect_pump_to_int(l.range());
-}
-
 /*******************************************************************/
 
 border_tester::border_tester(const dLine & brd) : border(brd){
