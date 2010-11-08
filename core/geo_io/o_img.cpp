@@ -61,11 +61,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
 
   // creating initial map reference with borders
   g_map ref; // unscaled ref
-  dLine brd;
-  brd.push_back(geom.BLC());
-  brd.push_back(geom.BRC());
-  brd.push_back(geom.TRC());
-  brd.push_back(geom.TLC());
+  dLine brd = rect2line(geom);
   for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
     dPoint pg=*p;
     dPoint pr=*p;
