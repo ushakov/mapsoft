@@ -45,9 +45,6 @@ struct map2pt : Conv{
   void frw(dPoint & p) const;
   void bck(dPoint & p) const;
 
-  dLine border;
-  dLine border_geo;
-
 private:
   projPJ pr_ref, pr_map, pr_dst;
   AffConv lin_cnv;

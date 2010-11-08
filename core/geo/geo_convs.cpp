@@ -175,25 +175,6 @@ map2pt::map2pt(const g_map & sM,
   refcounter   = new int;
   *refcounter  = 1;
 
-  border = sM.border;
-
-  // Разберемся с границей. Она нужна нам для всяких рисований и т.п. 
-  // Но модифицировать карту мы не хотим - так что работаем со своей копией.
-  // Граница должна или быть пустой или содержать больше двух точек.
-  // если она пустая - можно попробовать определить ее по граф.файлу
-  if ((border.size()>0)&&(border.size()<3)){
-    cerr << "map2pt: one or two points in border of map "
-         << sM.comm << " (" << sM.file << ")\n";
-    border.clear();
-  }
-  if (border.size()==0) {
-    iPoint wh = image_r::size(sM.file.c_str());
-    border.push_back(dPoint(0, 0));
-    border.push_back(dPoint(wh.x, 0));
-    border.push_back(dPoint(wh.x, wh.y));
-    border.push_back(dPoint(0, wh.y));
-  }
-
   // А теперь следите за руками...
   // Преобразуем (c подменой параметров) точки привязки в те координаты,
   // в которых карта линейна и найдем соответствующее линейное преобразование.
@@ -204,8 +185,6 @@ map2pt::map2pt(const g_map & sM,
     points[pr] = pl;
   }
   lin_cnv.set_from_ref(points);
-
-  border_geo = line_frw(border);
 }
 
 map2pt::map2pt(const map2pt & other){
@@ -232,8 +211,6 @@ map2pt::copy(const map2pt & other){
    pr_map = other.pr_map;
    pr_dst = other.pr_dst;
    lin_cnv = other.lin_cnv;
-   border=other.border;
-   border_geo=other.border_geo;
    (*refcounter)++;
    assert(*refcounter >0);
 }
@@ -273,8 +250,8 @@ map2pt::bck(dPoint & p) const{
 map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
     c1(sM, Datum("wgs84"), dM.map_proj, map_popts(dM)),
     c2(dM, Datum("wgs84"), dM.map_proj, map_popts(dM)),
-    tst_frw(c1.border),
-    tst_bck(c1.border),
+    tst_frw(sM.border),
+    tst_bck(sM.border),
     test_brd(test_brd_)
 {
 
@@ -283,10 +260,13 @@ map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
     c2=map2pt(dM, Datum("wgs84"), Proj("lonlat"), Options());
   }
 
-  border_src = c1.border;
+  g_map M(sM);
+  M.ensure_border();
+  border_src = M.border;
+
   tst_bck = border_tester(border_src);
   if (test_brd){
-    border_dst = line_frw(c1.border);
+    border_dst = line_frw(border_src);
     tst_frw = border_tester(border_dst);
   }
 }
