@@ -2,6 +2,7 @@
 #define LINE_UTILS_H
 
 #include "line.h"
+#include <cassert>
 
 ///\addtogroup lib2d
 ///@{
