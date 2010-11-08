@@ -1,0 +1,6 @@
+Import('env')
+e=env.Clone()
+
+e.UseLibs('2d')
+
+e.Program("cache_test.cpp")
