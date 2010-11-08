@@ -18,38 +18,6 @@ void usage(){
   exit(1);
 }
 
-
-// Для каждой пары соседних точек из l1 ищем минимальное
-// расстояние от точек l2 до прямой, задаваемой парой.
-// Ищем максимум этой величины (но не менее maxdist) по всем парам.
-// Раастояние считается положительным для точек снаружи от l1
-// (если l1 ориентирована по часовой стрелке) и отрицательно внутри.
-// maxdist, p1,p2 выставляются в соответствии с найденным максимумом.
-void
-test_pairs(const dLine & l1, const dLine & l2,
-           double & maxdist, dPoint & p1, dPoint & p2){
-  dLine::const_iterator i,j;
-  for (i=l1.begin(); i!=l1.end(); i++){
-    j=i+1; if (j==l1.end()) j=l1.begin();
-    if (*i==*j) continue;
-    double mindist=INFINITY;
-    dLine::const_iterator k;
-    for (k=l2.begin(); k!=l2.end(); k++){
-      dPoint v1(*j-*i);
-      dPoint v2(*k-*i);
-      double K = pscal(v1,v2)/pscal(v1,v1);
-      double d = pdist(K*v1-v2);
-      if ((v1.x*v2.y-v2.x*v1.y)<0) d*=-1;
-      if (d<mindist) mindist=d;
-    }
-    if (maxdist < mindist){
-      maxdist = mindist;
-      p1=*i; p2=*j;
-    }
-  }
-}
-
-
 main(int argc, char **argv){
 
   if (argc!=4) usage();
@@ -77,42 +45,18 @@ main(int argc, char **argv){
       l2.insert(l2.begin(), l0.begin(), l0.end());
     }
   }
-  // find border
-  l1=convex_border(l1);
-  l2=convex_border(l2);
 
-  std::cerr << " border points: " << l1.size() << " " << l2.size() << "\n";
+  dPoint p0;
+  dPoint t;
+  double m=margin_classifier(l1,l2,p0,t);
 
-  // Support vectors (http://en.wikipedia.org/wiki/Support_vector_machine)
-  // лежат на выпуклой границе множства точек. При этом по крайней мере
-  // в одном из множеств их две штуки и они - соседи в выпуклой границе.
+  // Теперь нам нужно найти, что мы можем склеить.
+  // Нас интересуют во-первых, концы линий, а, во-вторых, стороны
+  // многоугольников, лежащие близко к линии склейки. Тип и название
+  // объекта тоже важны (чтоб Ока с Волгой случайно не склеилась).
 
-  // Пары соседних точек границ ищем минимальное
-  // расстояние от точек чужой границы до прямой, заданной этой парой.
-  // Ищем максимум этой величины по всем парам.
+std::cerr << p0 << " " << t << " " << m << "\n";
 
-  // Границы, полученные из convex_border() обходятся по часовой стрелке,
-  // так что расстояния положительны снаружи от границы.
-
-  double maxdist=-INFINITY;
-  dPoint p1,p2;
-  test_pairs(l1,l2,maxdist,p1,p2);
-  test_pairs(l2,l1,maxdist,p1,p2);
-
-  // Мы нашли два support vector'а: p1 и p2 в одной из границ и
-  // расстояние maxdist - ширину зазора между множествами
-  // (возможно, отрицательную).
-
-  // Сместим линию, задаваемую p1 и p2 в сторону положительных расстояний
-  // на maxdist/2.
-
-  dPoint t = pnorm(p2-p1);
-  dPoint n(t.y, -t.x);
-  dPoint p0 = p1 + n*maxdist/2.0;
-
-  // Нужная линия задается точкой p0 и направлением t!
-
-std::cerr << p0 << " " << t << " " << maxdist << "\n";
 
 
 fig::fig_world F;
