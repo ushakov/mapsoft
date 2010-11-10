@@ -20,6 +20,57 @@
 
 const char* srtm_dir = "/d/MAPS/SRTMv2/"; 
 
+struct rainbow_data{
+  double v;
+  int c;
+};
+
+int get_rainbow(double val, struct rainbow_data RD[], int rd_size){
+  int r=0, g=0, b=0;
+  for (int i=0; i<rd_size; i++){
+
+    r  = (RD[i].c >> 16) & 0xFF;
+    g  = (RD[i].c >> 8) & 0xFF;
+    b  = RD[i].c & 0xFF;
+
+    int ip = (i==0)? i : i-1;
+    if (val <= RD[ip].v) break;
+
+    if (val <= RD[i].v){
+      int rp = (RD[ip].c >> 16) & 0xFF;
+      int gp = (RD[ip].c >> 8) & 0xFF;
+      int bp = RD[ip].c & 0xFF;
+
+      r +=  (r - rp) * (val - RD[ip].v) / (RD[i].v-RD[ip].v);
+      g +=  (g - gp) * (val - RD[ip].v) / (RD[i].v-RD[ip].v);
+      b +=  (b - bp) * (val - RD[ip].v) / (RD[i].v-RD[ip].v);
+      break;
+    }
+  }
+  return (r << 16) + (g << 8) + b;
+}
+
+struct rainbow_data RD_podm[]={
+  {5.0,  0xFFFFFF},
+  {10.0, 0xFFFF00},
+  {15.0, 0xFF0000},
+  {20.0, 0xFF00FF},
+  {25.0, 0x0000FF},
+  {30.0, 0x404040}
+};
+int RDS_podm=sizeof(RD_podm)/sizeof(rainbow_data);
+
+struct rainbow_data RD_hr[]={
+  {30.0, 0xFFFFFF},
+  {35.0, 0xFFFF00},
+  {40.0, 0xFF0000},
+  {45.0, 0xFF00FF},
+  {50.0, 0x0000FF},
+  {55.0, 0x404040}
+};
+int RDS_hr=sizeof(RD_hr)/sizeof(rainbow_data);
+
+
 using namespace std;
 int main(int argc, char *argv[]) {
 try{
@@ -120,24 +171,14 @@ try{
               double deg = 180/M_PI*atan(ngrad);
 
               //rainbow
-              if (style == "podm"){
-                if (deg<=5) {c1=c2=c3=255; }
-                else if ((deg>5)&&(deg<=10)) {c1=255; c2=255; c3=255-int(255* (deg-5.0) / (10.0-5.0));} // white -> yellow
-                else if ((deg>10)&&(deg<=15)) {c1=255; c2=255-int(255* (deg-10.0) / (15.0-10.0)); c3=0;} // yellow -> red
-                else if ((deg>15)&&(deg<=20)) {c1=255; c2=0; c3=int(255* (deg-15.0) / (20.0-15.0));} // red -> magenta
-                else if ((deg>20)&&(deg<=25)) {c1=255-int(255* (deg-20.0) / (25.0-20.0)); c2=0; c3=255;} //magenta -> blue
-                else if ((deg>25)&&(deg<=30)) {c1=int(64 * (deg-25.0) / (30.0-25.0)); c2=int(64 * (deg-25.0) / (30.0-25.0)); c3=255-int(192* (deg-25.0) / (30.0-25.0));} // blue -> gray
-                else {c1=64; c2=64; c3=64;}
-              }
-              else {
-                if (deg<=30){ c1=c2=c3=255; }
-                else if ((deg>30)&&(deg<=35)) {c1=255; c2=255; c3=255-int(255* (deg-30.0) / (35.0-30.0));} // white -> yellow
-                else if ((deg>35)&&(deg<=40)) {c1=255; c2=255-int(255* (deg-35.0) / (40.0-35.0)); c3=0;} // yellow -> red
-                else if ((deg>40)&&(deg<=45)) {c1=255; c2=0; c3=int(255* (deg-40.0) / (45.0-40.0));} // red -> magenta
-                else if ((deg>45)&&(deg<=50)) {c1=255-int(255* (deg-45.0) / (50.0-45.0)); c2=0; c3=255;} //magenta -> blue
-                else if ((deg>50)&&(deg<=55)) {c1=int(64 * (deg-50.0) / (55.0-50.0)); c2=int(64 * (deg-50.0) / (55.0-50.0)); c3=255-int(192* (deg-50.0) / (55.0-50.0));} // blue -> gray
-                else {c1=64; c2=64; c3=64;}
-              }
+              int c;
+              if (style == "podm")
+                c=get_rainbow(deg, RD_podm, RDS_podm);
+              else
+                c=get_rainbow(deg, RD_hr, RDS_hr);
+              c1  = (c >> 16) & 0xFF;
+              c2  = (c >> 8) & 0xFF;
+              c3  = c & 0xFF;
             }
 
 	    d1 = ((int)(p_tmerc.x+1/k)/grid_step - (int)(p_tmerc.x)/grid_step);
