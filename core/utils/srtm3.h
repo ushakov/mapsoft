@@ -208,6 +208,25 @@ class srtm3 {
     return short(a*x*x*x + b*x*x + c*x + d);
   }
 
+  void int_holes(int h[4]){
+    // interpolate 1-point or 2-points holes
+    // maybe this can be written smarter...
+    if ((h[0]>srtm_min) && (h[1]>srtm_min) && (h[2]>srtm_min) && (h[3]>srtm_min)) return;
+    for (int cnt=0; cnt<2; cnt++){
+      if      ((h[0]<=srtm_min) && (h[1]>srtm_min) && (h[2]>srtm_min)) h[0]=2*h[1]-h[2];
+      else if ((h[1]<=srtm_min) && (h[0]>srtm_min) && (h[2]>srtm_min)) h[1]=(h[0]+h[2])/2;
+      else if ((h[1]<=srtm_min) && (h[2]>srtm_min) && (h[3]>srtm_min)) h[1]=2*h[2]-h[3];
+      else if ((h[2]<=srtm_min) && (h[1]>srtm_min) && (h[3]>srtm_min)) h[2]=(h[1]+h[3])/2;
+      else if ((h[2]<=srtm_min) && (h[0]>srtm_min) && (h[1]>srtm_min)) h[2]=2*h[1]-h[0];
+      else if ((h[3]<=srtm_min) && (h[1]>srtm_min) && (h[2]>srtm_min)) h[3]=2*h[2]-h[1];
+      else break;
+    }
+    if ((h[1]<=srtm_min) && (h[2]<=srtm_min) && (h[0]>srtm_min) && (h[3]>srtm_min)){
+      h[1]=(2*h[0] + h[3])/3;
+      h[2]=(h[0] + 2*h[3])/3;
+    }
+  }
+
 
   // вернуть высоту точки (вещественные координаты,
   // интерполяция по 16 соседним точкам)
@@ -222,8 +241,10 @@ class srtm3 {
 
     for (int i=0; i<4; i++){
       for (int j=0; j<4; j++) hx[j]=geth(x0+j, y0+i);
+      int_holes(hx);
       hy[i]= int4(x0, hx[0],hx[1],hx[2],hx[3], x);
     }
+    int_holes(hy);
     return int4(y0, hy[0],hy[1],hy[2],hy[3], y);
   }
 
