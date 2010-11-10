@@ -9,7 +9,9 @@ while read name style geom; do
 
   echo "<<$name>>"
   [ "$style" = "podm" ] && steps="10 10" || steps="50 50"
-  ./srtm_pic 1e-5 200 $geom $steps $style > $name.pnm
-  pnmquant 255 < $name.pnm | pnmtopng > $name.png
-  rm -f $name.pnm
+  ./srtm_pic 1e-5 200 $geom $steps $style > "$name.pnm"
+  pnmquant 255 < "$name.pnm" | pnmtopng > "$name.png"
+  rm -f -- "$name.pnm"
+  sed -e "3s/.*/$name.png/" "srtm_pic_out.map" > "$name.map"
+  rm -f -- "srtm_pic_out.map"
 done < srtm_pic_data.txt

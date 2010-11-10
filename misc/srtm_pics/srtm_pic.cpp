@@ -18,6 +18,7 @@
 // todo -- найти древнюю функцию rainbow для вычисления плавных переходов цветов
 // todo -- вынести в параметры настройки на Сибирь/Подмосковья (разные диапазоны уклонов)
 // todo -- стандартные параметры --geom --lon0 ...
+// todo -- use geo_convs.h?
 
 const char* srtm_dir = "/d/MAPS/SRTMv2/"; 
 const int datum = 92; //из ../jeeps/gpsdatum.h
@@ -90,8 +91,10 @@ try{
 	GPS_Math_Known_Datum_To_WGS84_M(latm, lonm, 0, &lat_wgs_m, &lon_wgs_m, &z, datum);
 
         // g_map
-	if (((i==0)||(i==W-1))&&((j==H)||(j==1)))
+	if (((i==0)||(i==W-1))&&((j==H)||(j==1))){
           m.push_back(g_refpoint(lon_wgs,lat_wgs,i,H-j));
+          m.border.push_back(dPoint(i,H-j));
+        }
 
         h   = s.GETH(dPoint(lon_wgs, lat_wgs));
         hl  = s.GETH(dPoint(lon_wgs_l, lat_wgs_l));
@@ -155,10 +158,8 @@ try{
 	std::cout << c1 << c2 << c3;
       }
     }
-//    m.init(lon0);
-//    options o;
-    m.ensure_border();
-    ofstream mf("out.map");
+    if (m.border.size()>=4) m.border[2].swap(m.border[3]);
+    ofstream mf("srtm_pic_out.map");
     oe::write_map_file(mf, m, Options());
 
 } catch(std::domain_error e){ std::cerr << e.what(); }
