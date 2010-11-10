@@ -8,14 +8,13 @@
 #include "geo/geo_data.h"
 #include "geo/geo_convs.h"
 #include "geo_io/io_oe.h"
+#include "2d/line_utils.h"
 
 #define GETH geth16
 
 // построение растровых горизонталей и выделение крутых уклонов цветами
 // (СК Пулково, координаты Г-К)
 
-// todo -- найти древнюю функцию rainbow для вычисления плавных переходов цветов
-// todo -- вынести в параметры настройки на Сибирь/Подмосковья (разные диапазоны уклонов)
 // todo -- стандартные параметры --geom --lon0 ...
 
 const char* srtm_dir = "/d/MAPS/SRTMv2/"; 
@@ -105,92 +104,93 @@ try{
 
     std::cout << "P6\n" << W << " " << H << "\n255\n";
 
-    int h, hl, hm, ho=srtm_undef, hoo=srtm_undef;
-
-    unsigned char c1,c2,c3;
-    bool dd=false;
+    Options O;
+    O.put<double>("lon0", lon0);
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
+                     Datum("pulkovo"), Proj("tmerc"), O);
 
     g_map m;
     m.comm = "made by mapsoft_srtm_hor";
     m.file = "srtm_pic_out.pnm";
     m.map_proj = Proj("tmerc");
 
-    Options O;
-    O.put<double>("lon0", lon0);
-    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
-                     Datum("pulkovo"), Proj("tmerc"), O);
+    dRect brd(0,0,W,H);
+    brd = brd/k + dPoint(X1,Y1);
+    m.border=rect2line(brd);
 
     for (int j = H; j > 0; j--){
       std::cerr << j << " ";
-      ho = srtm_undef;
+      int ho=srtm_undef, hoo=srtm_undef;
       for (int i = 0; i < W; i++){
 
         dPoint p_tmerc((double)i/k + X1, (double)j/k + Y1);
 	dPoint p  = p_tmerc;
-        dPoint pl = p_tmerc + dPoint(0, 1/k);
-        dPoint pm = p_tmerc + dPoint(1/k, 0);
-        cnv.bck(p), cnv.bck(pl), cnv.bck(pm);
+        cnv.bck(p);
+
+        int h = s.GETH(p);
+        dPoint px = p_tmerc - dPoint(1/k, 0);
+        cnv.bck(px);
+        int hx=s.GETH(px);
+
+        dPoint py = p_tmerc - dPoint(0, 1/k);
+        cnv.bck(py);
+        int hy=s.GETH(py);
+
+        int c=0xFFFFFF;
 
         // g_map
 	if (((i==0)||(i==W-1))&&((j==H)||(j==1))){
           m.push_back(g_refpoint(p.x, p.y, i, H-j));
-          m.border.push_back(dPoint(i,H-j));
         }
 
-        h   = s.GETH(p);
-        hl  = s.GETH(pl);
-        hm  = s.GETH(pm);
-
-	if ((h < srtm_min) || (hl < srtm_min) || (hm < srtm_min) ||
+        // holes
+	if ((h < srtm_min) || (hx < srtm_min) || (hy < srtm_min) ||
             (ho < srtm_min) || (hoo < srtm_min)) { //hole
-	    c1=c2=c3 = 200;
-	    if (h>srtm_min) { ho=h/step; hoo=h/sstep; }
+	  c=0xC8C8C8;
+	  if (h>srtm_min) { ho=h/step; hoo=h/sstep; }
+          goto print_colors;
 	}
-	else {
-	    c1=c2=c3=255;
-	    int d1,d2,d;
 
-/*    	    d1 = (h/step - ho);
-	    d2 = (hl/step - ho);
-
-	    if ((d1!=0)||(d2!=0)) c1=c2=c3=128;
+/*        { // step contours
+     	  double d1 = (h/step - ho);
+	  double d2 = (hy/step - ho);
+	  ho = (abs(d1)>abs(d2))? hy/step:h/step;
+	  if ((d1!=0)||(d2!=0)) { c=0x808080; goto print_colors; }
+        }
 */
+        { // sstep contours
+          double d1 = (h/sstep - hoo);
+	  double d2 = (hy/sstep - hoo);
+	  hoo = (abs(d1)>abs(d2))? hy/sstep:h/sstep;
+	  if ((d1!=0)||(d2!=0)) { c=0; goto print_colors; }
+        }
 
-	    ho = (abs(d1)>abs(d2))? hl/step:h/step;
+        { // greed
+	  double d1 = ((int)(p_tmerc.x+1/k)/grid_step - (int)(p_tmerc.x)/grid_step);
+	  double d2 = ((int)(p_tmerc.y+1/k)/grid_step - (int)(p_tmerc.y)/grid_step);
+          if ((d1>0)||(d2>0)) {c=0x808080; goto print_colors; }
+        }
 
-    	    d1 = (h/sstep - hoo);
-	    d2 = (hl/sstep - hoo);
+        { // slopes
+          double dhx = (h - hx)*k;
+          double dhy = (h - hy)*k;
+          double ngrad = sqrt(dhx*dhx + dhy*dhy);
+          double deg = 180/M_PI*atan(ngrad);
 
-	    if ((d1!=0)||(d2!=0)) c1=c2=c3=0;
-	    hoo = (abs(d1)>abs(d2))? hl/sstep:h/sstep;
+          if (style == "podm")
+            c=get_rainbow(deg, RD_podm, RDS_podm);
+          else
+            c=get_rainbow(deg, RD_hr, RDS_hr);
+        }
 
-            if ((c1==255) && (c2=255) && (c3=255)){
-              double dhx = (h - hm)*k;
-              double dhy = (h - hl)*k;
-              double ngrad = sqrt(dhx*dhx + dhy*dhy);
-              double deg = 180/M_PI*atan(ngrad);
-
-              //rainbow
-              int c;
-              if (style == "podm")
-                c=get_rainbow(deg, RD_podm, RDS_podm);
-              else
-                c=get_rainbow(deg, RD_hr, RDS_hr);
-              c1  = (c >> 16) & 0xFF;
-              c2  = (c >> 8) & 0xFF;
-              c3  = c & 0xFF;
-            }
-
-	    d1 = ((int)(p_tmerc.x+1/k)/grid_step - (int)(p_tmerc.x)/grid_step);
-	    d2 = ((int)(p_tmerc.y+1/k)/grid_step - (int)(p_tmerc.y)/grid_step);
-	    if ((d1>0)||(d2>0)) c1=c2=c3=128; // grid
-
-	}
-
+        print_colors:
+	unsigned char c1,c2,c3;
+        c1  = (c >> 16) & 0xFF;
+        c2  = (c >> 8) & 0xFF;
+        c3  = c & 0xFF;
 	std::cout << c1 << c2 << c3;
       }
     }
-    if (m.border.size()>=4) m.border[2].swap(m.border[3]);
     ofstream mf("srtm_pic_out.map");
     oe::write_map_file(mf, m, Options());
 
