@@ -37,6 +37,7 @@ struct RangeCutter{
   int cnt_o, cnt_l, cnt_p;
   set<string> sources;
   dRect show_range;
+  double tail_size;
 
   double lon0;
   Datum D;
@@ -105,6 +106,9 @@ struct RangeCutter{
       newbrd=cnv->line_bck(rect2line(range), 1e-6);
       newbrd.resize(newbrd.size()-1);
     }
+
+    tail_size = O.get<double>("remove_tails", 0);
+
     cnt_o=0; cnt_l=0; cnt_p=0;
   }
 
@@ -113,12 +117,17 @@ struct RangeCutter{
   }
 
   void
-  process(object & o){
+  process(world & W){
     if ((cnv==NULL) || (action == "")) return;
-    dMultiLine::iterator l = o.begin();
-    bool closed = (o.get_class() == POLYGON);
-    while (l != o.end()){
-      if (l->size()>0){
+    world::iterator o=W.begin();
+
+    while (o!=W.end()){
+      bool closed = (o->get_class() == POLYGON);
+      dMultiLine::iterator l;
+
+      // crop lines
+      for (l = o->begin(); l != o->end(); l++){
+        if (l->size()<1) continue;
         dLine lc = cnv->line_frw(*l);
         rect_crop(range, lc, closed);
 
@@ -132,10 +141,10 @@ struct RangeCutter{
           *l = cnv->line_bck(lc);
         }
         else if (action == "crop_spl"){
-          if (o.type & zn::line_mask){
+          if (o->get_class()==POLYLINE){
             dMultiLine ML = rect_split_cropped(range, lc);
             for (dMultiLine::const_iterator i=ML.begin(); i!=ML.end(); i++){
-              l = o.insert(l, cnv->line_bck(*i)) + 1;
+              l = o->insert(l, cnv->line_bck(*i)) + 1;
             }
             l->clear();
           }
@@ -144,17 +153,74 @@ struct RangeCutter{
           }
         }
       }
-      if (l->size()==0){
-        l=o.erase(l);
+
+      // remove tails
+      if (tail_size > 0){
+        for (l = o->begin(); l != o->end(); l++){
+          if (l->size()<1) continue;
+          dLine lc = cnv->line_frw(*l);
+
+          bool close_to_brd = true;
+          // проверка, что все точки l лежат близко к границе
+          for (dLine::const_iterator pc=lc.begin(); pc!=lc.end(); pc++){
+            if ((fabs(pc->x - range.x) > tail_size) &&
+                (fabs(pc->y - range.y) > tail_size) &&
+                (fabs(pc->x - range.x - range.w) > tail_size) &&
+                (fabs(pc->y - range.y - range.h) > tail_size)){
+              close_to_brd=false;
+              break;
+            }
+          }
+
+          // проверка, что есть такой объект, близко к сторонам
+          // которого лежат все точки l
+          bool close_to_obj = false;
+          world::const_iterator o1;
+          for (o1=W.begin(); !close_to_obj && (o1!=W.end()); o1++){
+            // only objects with the same type and text.
+            if ((o==o1) || (o->type != o1->type) ||
+                (o->text != o1->text)) continue;
+            dMultiLine::const_iterator l1;
+            for (l1 = o1->begin(); !close_to_obj && (l1!=o1->end()); l1++){
+              // skip l==l1
+              if ((o==o1) && (l==l1)) continue;
+
+              bool found=true;
+              dLine l1c = cnv->line_frw(*l1);
+              for (dLine::const_iterator p=lc.begin(); p!=lc.end(); p++){
+                dPoint v, pp(*p);
+
+                if (nearest_pt(l1c, v, pp, tail_size) >= tail_size){
+                  found=false;
+                  break;
+                }
+              }
+              if (found) close_to_obj=true;
+            }
+          }
+
+          if (close_to_brd && close_to_obj) l->clear();
+        }
+      } // remove tails
+
+      // remove empty lines
+      l = o->begin();
+      while (l != o->end()){
+        if (l->size()==0){
+          l=o->erase(l);
+        }
+        else {
+          cnt_l++;
+          cnt_p+=l->size();
+          l++;
+        }
       }
-      else {
-        cnt_l++;
-        cnt_p+=l->size();
-        l++;
-      }
+      if (o->size()>0) cnt_o++;
+      sources.insert(o->opts.get<string>("Source"));
+
+      if (o->size()==0) o=W.erase(o);
+      else o++;
     }
-    if (o.size()>0) cnt_o++;
-    sources.insert(o.opts.get<string>("Source"));
   }
 
   void
@@ -261,12 +327,10 @@ filter(world & W, const Options & O){
     string source = o->opts.get<string>("Source"); // from original object
     if (O.get<int>("set_source_from_name", 0)) source = W.name; // from map name
     set_source(o->opts, O.get("set_source", source));
-
-    // crop, skip, select range
-    RC.process(*o);
-    if (o->size()==0) o=W.erase(o);
-    else o++;
+    o++;
   }
+    // crop, skip, select range
+  RC.process(W);
 }
 
 
