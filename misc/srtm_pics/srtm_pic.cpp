@@ -115,8 +115,9 @@ try{
     m.map_proj = Proj("tmerc");
 
     dRect brd(0,0,W,H);
-    brd = brd/k + dPoint(X1,Y1);
     m.border=rect2line(brd);
+
+    brd = brd/k + dPoint(X1,Y1);
 
     for (int j = H; j > 0; j--){
       std::cerr << j << " ";
@@ -189,6 +190,7 @@ try{
         c2  = (c >> 8) & 0xFF;
         c3  = c & 0xFF;
 	std::cout << c1 << c2 << c3;
+
       }
     }
     ofstream mf("srtm_pic_out.map");

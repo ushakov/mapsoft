@@ -31,9 +31,8 @@ for n in "$@"; do
     [ "$style" = "podm" ] && steps="10 10" || steps="50 50"
     ./srtm_pic 1e-5 200 $geom $steps $style > "$name.pnm"
     pnmquant 255 < "$name.pnm" | pnmtopng > "$name.png"
-    rm -f -- "$name.pnm"
     sed -e "3s/.*/$name.png/" "srtm_pic_out.map" > "$name.map"
-    rm -f -- "srtm_pic_out.map"
+    rm -f -- "srtm_pic_out.map" "$name.pnm"
     found=1
   done < srtm_pic_data.txt
   [ -n "$found" ] || echo "Unknown name <<$n>>"
