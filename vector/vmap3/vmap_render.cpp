@@ -177,8 +177,14 @@ main(int argc, char* argv[]){
 
   R.render_line(0x5, 0, 3, 0); // дома (перенести выше?)
 
-  //*******************************
   R.set_join_round();
+  R.set_cap_round();
+  R.set_dash(0, 2.5);
+  R.render_line(0x2C, hor_col, 3, 10); // вал
+  R.unset_dash();
+
+  //*******************************
+  R.set_cap_butt();
   R.render_line(0x7, 0xFFFFFF, 3, 10); // непроезжий грейдер - белая подложка
   R.set_dash(5, 4); R.render_line(0x16, 0x0, 0.7, 0); // просека
   R.set_dash(8, 5); R.render_line(0x1C, 0x0, 1.4, 0); // просека широкая
