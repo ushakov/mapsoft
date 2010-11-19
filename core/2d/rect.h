@@ -301,6 +301,10 @@ bool point_in_rect (const Point<T> & p, const Rect<T> & r){
 
 /// \relates Rect
 /// \brief  диапазон плиток, накрывающих данный прямоугольник
+/// \todo возможность задавать r и tsize типа double (BRC problem!)
+/// \todo использовать rect_pump_to_int()!
+/// \todo тесты!
+
 iRect tiles_on_rect(const iRect & r, int tsize);
 
 /// \relates Rect
@@ -315,7 +319,7 @@ iRect tiles_in_rect(const iRect & r, int tsize);
 void transform_rect(const iRect & src, const iRect & dst, iRect & r);
 
 /// \relates Rect
-/// \brief /// Функция, нужная для загрузчика картинок.
+/// \brief Функция, нужная для загрузчика картинок.
 /// Правильное подрезание краев, выходящих за пределы картинки
 /// TODO: move from here?
 /// used in layers, loaders, 2d/image_source.h
