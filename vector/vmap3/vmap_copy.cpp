@@ -148,11 +148,8 @@ main(int argc, char **argv){
 
   if (argc==1) usage();
 
-  Options O = parse_options(argc, argv, in_options, "out");
+  Options O = parse_options(&argc, &argv, in_options, "out");
   Options GO(O); // global options
-  argc-=optind;
-  argv+=optind;
-  optind=0;
 
   vmap::world V;
 
@@ -165,10 +162,7 @@ main(int argc, char **argv){
     const char * ifile = argv[0];
 
     // parse options for this file and append global options
-    O = parse_options(argc, argv, in_options, "out");
-    argc-=optind;
-    argv+=optind;
-    optind=0;
+    O = parse_options(&argc, &argv, in_options, "out");
     O.insert(GO.begin(), GO.end());
 
     if (O.exists("set_source_from_fname"))
@@ -192,10 +186,7 @@ main(int argc, char **argv){
   else ofile = argv[0];
 
   // parse output options
-  O = parse_options(argc, argv, out_options);
-  argc-=optind;
-  argv+=optind;
-  optind=0;
+  O = parse_options(&argc, &argv, out_options);
 
   /***************** write file ****************/
 

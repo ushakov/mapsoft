@@ -37,11 +37,8 @@ const string maps_dir = "./maps";
 
 main(int argc, char** argv){
 
-  Options cmdline_opts = parse_options(argc, argv, opts);
+  Options cmdline_opts = parse_options(&argc, &argv, opts);
   double magnification = cmdline_opts.get<double>("magnification", 1.0);
-  argc-=optind;
-  argv+=optind;
-  optind=0;
 
   bool dofig;
 

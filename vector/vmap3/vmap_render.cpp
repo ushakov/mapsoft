@@ -39,10 +39,7 @@ main(int argc, char* argv[]){
 
   if (argc==1) usage();
 
-  Options O = parse_options(argc, argv, options);
-  argc-=optind;
-  argv+=optind;
-  optind=0;
+  Options O = parse_options(&argc, &argv, options);
 
   if (argc<2) usage();
   const char * ifile = argv[0];

@@ -4,7 +4,7 @@
 using namespace std;
 
 Options
-parse_options(int argc, char **argv,
+parse_options(int * argc, char ***argv,
               struct option long_options[], const char * last_opt){
   Options O;
   int c;
@@ -21,7 +21,7 @@ parse_options(int argc, char **argv,
   while(1){
     int option_index = 0;
 
-    c = getopt_long(argc, argv, optstring.c_str(), long_options, &option_index);
+    c = getopt_long(*argc, *argv, optstring.c_str(), long_options, &option_index);
     if (c == -1) break;
     if (c == '?'){
       cerr << "error: bad option: " << argv[optind-1] << "\n";
@@ -51,5 +51,9 @@ parse_options(int argc, char **argv,
     O.put<string>(long_options[option_index].name,
       long_options[option_index].has_arg? optarg:"1");
   }
+  *argc-=optind;
+  *argv+=optind;
+  optind=0;
+
   return O;
 }

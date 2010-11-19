@@ -10,7 +10,7 @@
 // error occures.
 // All options are returned as Options object.
 Options
-parse_options(int argc, char **argv,
+parse_options(int *argc, char ***argv,
               struct option long_options[], const char * last_opt = NULL);
 
 #endif
