@@ -1,0 +1,8 @@
+Import ('env')
+e = env.Clone()
+
+e.UseLibs('vmap')
+
+e.Program("tilevmap_get.cpp")
+e.Program("tilevmap_put.cpp")
+
