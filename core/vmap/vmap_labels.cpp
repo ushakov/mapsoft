@@ -27,8 +27,8 @@ const double move_to_dist     = 0.002; // deg; -- inaccurate...
 
 /***************************************/
 
-int
-add_labels(world & W){
+void
+join_labels(world & W){
   std::list<lpos_full>::iterator l, l0;
   world::iterator o;
   dPoint p, p0;
@@ -87,6 +87,22 @@ add_labels(world & W){
 
 /***************************************/
 
+void
+split_labels(world & W){
+  for (world::iterator o = W.begin(); o!=W.end(); o++){
+    for (std::list<lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
+      lpos_full ll;
+      ll.lpos::operator=(*l);
+      ll.text = o->text;
+      dist_pt_l(l->pos, *o, ll.ref);
+      W.lbuf.push_back(ll);
+    }
+    o->labels.clear();
+  }
+}
+
+/***************************************/
+
 dPoint
 max_xmy(const dLine & l){
   if (l.size()<1) return dPoint(0,0);
@@ -118,7 +134,7 @@ max_xpy(const dLine & l){
 
 // create new labels
 void
-new_labels(world & W){
+create_labels(world & W){
   zn::zn_conv zc(W.style);
   for (world::iterator o=W.begin(); o!=W.end(); o++){
     if ((o->labels.size()>0) || (o->text=="")) continue;
@@ -165,6 +181,17 @@ new_labels(world & W){
     }
   }
 }
+
+/***************************************/
+
+void
+remove_labels(world & W){
+  W.lbuf.clear();
+  for (world::iterator o = W.begin(); o!=W.end(); o++)
+    o->labels.clear();
+}
+
+/***************************************/
 
 void
 move_pics(world & W){

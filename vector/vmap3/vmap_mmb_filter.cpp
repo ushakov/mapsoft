@@ -22,9 +22,9 @@ main(int argc, char **argv){
   vmap::world V = vmap::read(ifile);;
 
   // find labels for each object
-  add_labels(V);
+  join_labels(V);
   // create new labels
-  new_labels(V);
+  create_labels(V);
 
 /************************/
 

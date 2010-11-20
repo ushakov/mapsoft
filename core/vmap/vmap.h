@@ -110,10 +110,12 @@ int write(std::ostream & OUT, const world & W);
 world read(const char * fname);
 int  write(const char * fname, const world & W, const Options & O = Options());
 
-// Functions for merging labels with objects (see vmap_labels.cpp):
-int add_labels(world & W);   // add labels from lbuf to objects
-void new_labels(world & W);  // create new labels
-void move_pics(world & W);   // move and rotate some signs
+// Functions for labels and pics handling (see vmap_labels.cpp):
+void join_labels(world & W);   ///< join labels from lbuf to objects
+void split_labels(world & W);  ///< split labels from objects
+void create_labels(world & W); ///< create new labels
+void remove_labels(world & W); ///< remove all lables
+void move_pics(world & W);     ///< move and rotate some signs
 
 // filtering and statistics (see vmap_filt.cpp):
 void filter(world & W, const Options & O);

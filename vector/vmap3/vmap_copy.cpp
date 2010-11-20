@@ -195,9 +195,9 @@ main(int argc, char **argv){
 
 
   // find labels for each object
-  add_labels(V);
+  join_labels(V);
   // create new labels
-  new_labels(V);
+  create_labels(V);
   // move and rotate pics
   move_pics(V);
 

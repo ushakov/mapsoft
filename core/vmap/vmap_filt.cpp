@@ -16,8 +16,6 @@ namespace vmap {
 
 using namespace std;
 
-/***************************************/
-
 bool
 skip_object(const Options & O, const object &o){
   if (O.get<int>("skip_all", 0)) return true;
@@ -283,23 +281,12 @@ filter(world & W, const Options & O){
   // OPTION skip_labels 0
   // OPTION read_labels
   // OPTION split_labels
-  int skip_labels = O.get<int>("skip_labels", 0);
-  if (O.get<int>("read_labels", 0)) skip_labels=0;
-  int split_labels = O.get<int>("split_labels", 0);
+  int do_skip_labels = O.get<int>("skip_labels", 0);
+  if (O.get<int>("read_labels", 0)) do_skip_labels=0;
+  int do_split_labels = O.get<int>("split_labels", 0);
 
-  if (skip_labels) W.lbuf.clear();
-  for (world::iterator o = W.begin(); o!=W.end(); o++){
-    if (split_labels){
-      for (std::list<lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
-         lpos_full ll;
-         ll.lpos::operator=(*l);
-         ll.text = o->text;
-         dist_pt_l(l->pos, *o, ll.ref);
-         W.lbuf.push_back(ll);
-      }
-    }
-    if (skip_labels || split_labels) o->labels.clear();
-  }
+  if (do_skip_labels)  remove_labels(W);
+  if (do_split_labels) split_labels(W);
 
   // OPTION range_datum lonlat
   // OPTION range_proj  wgs84
@@ -319,8 +306,6 @@ filter(world & W, const Options & O){
     // OPTION select_source
     // OPTION skip_source
     if (skip_object(O, *o)){ o=W.erase(o); continue; }
-
-    if (skip_labels) o->labels.clear();
 
     // OPTION set_source_from_name
     // OPTION set_source

@@ -73,7 +73,7 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
   cr->restore();
 
   // modify vmap
-  vmap::add_labels(W);
+  vmap::join_labels(W);
   vmap::move_pics(W);
 
   // convert coordinates to px
