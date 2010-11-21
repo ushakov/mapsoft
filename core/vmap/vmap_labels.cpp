@@ -169,7 +169,7 @@ create_labels(world & W){
             if ((dp.x == 0) && (dp.y == 0)) dp.x = 1;
             dPoint v = pnorm(dp);
             if (v.x<0) v=-v;
-            l.ang = atan2(v.y, v.x);
+            l.ang = 180.0/M_PI*atan2(v.y, v.x);
             l.pos = cp +
               v_m2deg(W.rscale / 100.0 * dPoint(-v.y, v.x)*label_new_dist, (*i)[0].y);
             l.hor = false;
