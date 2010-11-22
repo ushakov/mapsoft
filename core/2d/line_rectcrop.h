@@ -227,6 +227,12 @@ MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped)
   MultiLine<T> ret;
   Line<T> rl;
 
+  // отдельные точки сохраняем
+  if (cropped.size()==1){
+    ret.push_back(cropped);
+    return ret;
+  }
+
   typename Line<T>::const_iterator p, n;
   for (p=cropped.begin(); p!=cropped.end(); p++){
     n = p+1;
@@ -238,6 +244,7 @@ MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped)
           ((p->y == n->y) && (n->y == cutter.y)) ||
           ((p->y == n->y) && (n->y == cutter.y+cutter.h))){
         rl.push_back(*p);
+        // нас не интересуют обрезки из одной точки:
         if (rl.size()>1) ret.push_back(rl);
         rl.clear();
         continue;
