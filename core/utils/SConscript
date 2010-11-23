@@ -10,4 +10,3 @@ e.Library('utils', \
     cairo_wrapper.cpp
   """))
 
-SConscript ("tests/SConscript")

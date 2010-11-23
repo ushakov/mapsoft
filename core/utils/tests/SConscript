@@ -1,9 +1,0 @@
-Import ('env')
-le = env.Clone()
-
-le.UseLibs('utils')
-
-le.Program('generic_accessor_unittest', 'generic_accessor_unittest.cpp')
-le.Program('cache_test', 'cache_test.cpp')
-# le.Program('options_test', 'options_test.cpp')
-
