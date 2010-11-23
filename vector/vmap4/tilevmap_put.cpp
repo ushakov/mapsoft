@@ -121,7 +121,7 @@ main(int argc, char **argv){
         dMultiLine::iterator l;
         for (l = o1.begin(); l != o1.end(); l++){
           rect_crop(crop_range, *l, closed);
-/*
+
           if (!closed){
             dMultiLine ml = rect_split_cropped(crop_range, *l);
             for (dMultiLine::const_iterator m=ml.begin(); m!=ml.end(); m++){
@@ -129,7 +129,7 @@ main(int argc, char **argv){
             }
             l->clear();
           }
-*/
+
         }
         // remove empty lines
         l = o1.begin();

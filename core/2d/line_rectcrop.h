@@ -228,6 +228,14 @@ MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped)
   MultiLine<T> ret;
   Line<T> rl;
 
+  // Важные промежуточные переменные! Если сравнивать непосредственно
+  // с cutter.x+cutter.w, то получится неточно и кое-что может не
+  // сработать!
+  T xl=cutter.x;
+  T xh=cutter.x+cutter.w;
+  T yl=cutter.y;
+  T yh=cutter.y+cutter.h;
+
   // отдельные точки сохраняем
   if (cropped.size()==1){
     ret.push_back(cropped);
@@ -240,10 +248,10 @@ MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped)
 
     if (n!=cropped.end()){
       // сегмент лежит на границе - нам такой не нужен!
-      if (((p->x == n->x) && (n->x == cutter.x)) ||
-          ((p->x == n->x) && (n->x == cutter.x+cutter.w)) ||
-          ((p->y == n->y) && (n->y == cutter.y)) ||
-          ((p->y == n->y) && (n->y == cutter.y+cutter.h))){
+      if (((p->x == n->x) && (n->x == xl)) ||
+          ((p->x == n->x) && (n->x == xh)) ||
+          ((p->y == n->y) && (n->y == yl)) ||
+          ((p->y == n->y) && (n->y == yh))){
         rl.push_back(*p);
         // нас не интересуют обрезки из одной точки:
         if (rl.size()>1) ret.push_back(rl);
