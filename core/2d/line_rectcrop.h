@@ -10,12 +10,13 @@
 ///@{
 
 /**
-\brief Crop a line by a rectangle; line connectivity is kept but extra segments cat appear on crop bounds.
-  Обрезание линии или многоугольника line по границам прямоугольника cutter.
-  Для многоугольника (closed=true) чуть по-другому обрабатывается отрезок от
-  первой точки до последней.
-  При обрезке не увеличивается количество объектов, зато могут возникать лишние
-  сегменты на границе прямоугольника.
+\brief Crop a line by a rectangle; line connectivity is kept but extra segments can appear on crop bounds.
+Обрезание линии или многоугольника line по границам прямоугольника cutter.
+Для многоугольника (closed=true) чуть по-другому обрабатывается отрезок от
+первой точки до последней.
+При обрезке не увеличивается количество объектов, зато могут возникать лишние
+сегменты на границе прямоугольника (которые можно потом удалить с помощью
+rect_split_cropped()).
 */
 
 template <typename T>
