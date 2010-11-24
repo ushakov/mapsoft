@@ -14,7 +14,7 @@ void usage(){
   const char * prog = "tilevmap_put";
   cerr
      << prog << " -- put tiles to the tiled vmap.\n"
-     << "  usage: " << prog << " [<input_options>] <in file> [<input_options>]\\\\n"
+     << "  usage: " << prog << " [<input_options>] <in file> [<input_options>]\\n"
      << "         (--out|-o) <map dir> [<output_options>]\n"
 
   ;
@@ -145,6 +145,9 @@ main(int argc, char **argv){
       for (lb=V.lbuf.begin(); lb!=V.lbuf.end(); lb++){
         if (point_in_rect(lb->ref, crop_range)) V1.lbuf.push_back(*lb);
       }
+
+      // remove tails, clear empty lines
+      vmap::remove_tails(V1, 1e-5, crop_range);
 
       // write tile
       if (V1.size()){

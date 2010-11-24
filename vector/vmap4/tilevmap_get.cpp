@@ -13,7 +13,7 @@ void usage(){
   const char * prog = "tilevmap_get";
   cerr
      << prog << " -- get region from the tiled vmap.\n"
-     << "  usage: " << prog << " [<input_options>] <map dir> [<input_options>]\\\\n"
+     << "  usage: " << prog << " [<input_options>] <map dir> [<input_options>]\\n"
      << "         (--out|-o) <output_file> [<output_options>]\n"
 
   ;
