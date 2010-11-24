@@ -29,6 +29,79 @@ skip_object(const Options & O, const object &o){
   return false;
 }
 
+// remove empty lines and objects
+void
+remove_empty(world & W){
+  world::iterator o = W.begin();
+  while (o!=W.end()){
+    dMultiLine::iterator l = o->begin();
+    while (l != o->end()){
+      if (l->size()==0) l=o->erase(l);
+      else l++;
+    }
+    if (o->size()==0) o=W.erase(o);
+    else o++;
+  }
+}
+
+
+void
+remove_tails(world & W, double dist, const dRect & cutter, Conv * cnv){
+  if (dist<=0) return;
+
+  world::iterator o;
+  for (o=W.begin(); o!=W.end(); o++){
+    dMultiLine::iterator l;
+    for (l = o->begin(); l != o->end(); l++){
+      if (l->size()<1) continue;
+      // convert line to cutter coords
+      dLine lc = cnv? cnv->line_frw(*l) : *l;
+
+      // проверка, что все точки l лежат близко к границе
+      bool close_to_brd = true;
+      for (dLine::const_iterator pc=lc.begin(); pc!=lc.end(); pc++){
+        if ((fabs(pc->x - cutter.x) > dist) &&
+            (fabs(pc->y - cutter.y) > dist) &&
+            (fabs(pc->x - cutter.x - cutter.w) > dist) &&
+            (fabs(pc->y - cutter.y - cutter.h) > dist)){
+          close_to_brd=false;
+          break;
+        }
+      }
+
+      // проверка, что есть другой такой объект, близко к сторонам
+      // которого лежат все точки l
+      bool close_to_obj = false;
+      world::const_iterator o1;
+      for (o1=W.begin(); !close_to_obj && (o1!=W.end()); o1++){
+        // only objects with the same type and text.
+        if ((o->type != o1->type) || (o->text != o1->text)) continue;
+        dMultiLine::const_iterator l1;
+        for (l1 = o1->begin(); !close_to_obj && (l1!=o1->end()); l1++){
+          // skip l==l1
+          if ((o==o1) && (l==l1)) continue;
+
+          bool found=true;
+          dLine l1c = cnv? cnv->line_frw(*l1) : *l1;
+          for (dLine::const_iterator p=lc.begin(); p!=lc.end(); p++){
+            dPoint v, pp(*p);
+
+            if (nearest_pt(l1c, v, pp, dist) >= dist){
+              found=false;
+              break;
+            }
+          }
+          if (found) close_to_obj=true;
+        }
+      }
+
+      if (close_to_brd && close_to_obj) l->clear();
+    }
+  }
+  remove_empty(W);
+}
+
+
 // crop/cut/select range, get statistics
 struct RangeCutter{
   convs::pt2pt *cnv;
@@ -117,9 +190,9 @@ struct RangeCutter{
   void
   process(world & W){
     if ((cnv==NULL) || (action == "")) return;
-    world::iterator o=W.begin();
 
-    while (o!=W.end()){
+    world::iterator o;
+    for (o=W.begin(); o!=W.end(); o++){
       bool closed = (o->get_class() == POLYGON);
       dMultiLine::iterator l;
 
@@ -147,90 +220,16 @@ struct RangeCutter{
             l->clear();
           }
           else{
-            *l = cnv->line_bck(lc);
+             *l = cnv->line_bck(lc);
           }
         }
       }
-
-      // remove tails
-      if (tail_size > 0){
-        for (l = o->begin(); l != o->end(); l++){
-          if (l->size()<1) continue;
-          dLine lc = cnv->line_frw(*l);
-
-          bool close_to_brd = true;
-          // проверка, что все точки l лежат близко к границе
-          for (dLine::const_iterator pc=lc.begin(); pc!=lc.end(); pc++){
-            if ((fabs(pc->x - range.x) > tail_size) &&
-                (fabs(pc->y - range.y) > tail_size) &&
-                (fabs(pc->x - range.x - range.w) > tail_size) &&
-                (fabs(pc->y - range.y - range.h) > tail_size)){
-              close_to_brd=false;
-              break;
-            }
-          }
-
-          // проверка, что есть такой объект, близко к сторонам
-          // которого лежат все точки l
-          bool close_to_obj = false;
-          world::const_iterator o1;
-          for (o1=W.begin(); !close_to_obj && (o1!=W.end()); o1++){
-            // only objects with the same type and text.
-            if ((o==o1) || (o->type != o1->type) ||
-                (o->text != o1->text)) continue;
-            dMultiLine::const_iterator l1;
-            for (l1 = o1->begin(); !close_to_obj && (l1!=o1->end()); l1++){
-              // skip l==l1
-              if ((o==o1) && (l==l1)) continue;
-
-              bool found=true;
-              dLine l1c = cnv->line_frw(*l1);
-              for (dLine::const_iterator p=lc.begin(); p!=lc.end(); p++){
-                dPoint v, pp(*p);
-
-                if (nearest_pt(l1c, v, pp, tail_size) >= tail_size){
-                  found=false;
-                  break;
-                }
-              }
-              if (found) close_to_obj=true;
-            }
-          }
-
-          if (close_to_brd && close_to_obj) l->clear();
-        }
-      } // remove tails
-
-      // remove empty lines
-      l = o->begin();
-      while (l != o->end()){
-        if (l->size()==0){
-          l=o->erase(l);
-        }
-        else {
-          cnt_l++;
-          cnt_p+=l->size();
-          l++;
-        }
-      }
-      if (o->size()>0) cnt_o++;
-      sources.insert(o->opts.get<string>("Source"));
-
-      if (o->size()==0) o=W.erase(o);
-      else o++;
     }
+
+    // remove tails and clear empty lines
+    if (tail_size > 0) remove_tails(W, tail_size, range, cnv);
   }
 
-  void
-  print_info(){
-    cout << "  objects: " << cnt_o << "\n";
-    cout << "  lines:   " << cnt_l << "\n";
-    cout << "  points:  " << cnt_p << "\n";
-    cout << "  sources:";
-    for (set<string>::const_iterator i=sources.begin(); i!=sources.end(); i++)
-      cout << " " << *i;
-    cout << "\n";
-  }
 };
 
 

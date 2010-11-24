@@ -110,6 +110,7 @@ int write(std::ostream & OUT, const world & W);
 world read(const char * fname);
 int  write(const char * fname, const world & W, const Options & O = Options());
 
+
 // Functions for labels and pics handling (see vmap_labels.cpp):
 void join_labels(world & W);   ///< join labels from lbuf to objects
 void split_labels(world & W);  ///< split labels from objects
@@ -117,8 +118,13 @@ void create_labels(world & W); ///< create new labels
 void remove_labels(world & W); ///< remove all lables
 void move_pics(world & W);     ///< move and rotate some signs
 
+
 // filtering and statistics (see vmap_filt.cpp):
 void filter(world & W, const Options & O);
+// remove empty lines and objects
+void remove_empty(world & W);
+void remove_tails(world & W, double dist, const dRect & cutter, Conv * cnv = NULL);
+
 
 /// create tmerc ref from brd or from map range (see vmap_ref.h):
 g_map mk_tmerc_ref(const world & W, double u_per_cm, bool yswap=false);
