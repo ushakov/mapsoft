@@ -101,6 +101,44 @@ remove_tails(world & W, double dist, const dRect & cutter, Conv * cnv){
   remove_empty(W);
 }
 
+// crop/select/skip
+void range_action(world & W, string action, const dRect & cutter, Conv * cnv){
+  world::iterator o;
+  for (o=W.begin(); o!=W.end(); o++){
+    bool closed = (o->get_class() == POLYGON);
+    dMultiLine::iterator l;
+
+    for (l = o->begin(); l != o->end(); l++){
+      if (l->size()<1) continue;
+      dLine lc = cnv ? cnv->line_frw(*l) : *l;
+      rect_crop(cutter, lc, closed);
+
+      if (action == "skip"){
+        if (lc.size()!=0) l->clear();
+      }
+      else if (action == "select"){
+        if (lc.size()==0) l->clear();
+      }
+      else if (action == "crop"){
+        *l = cnv? cnv->line_bck(lc) : lc;
+      }
+      else if (action == "crop_spl"){
+        if (o->get_class()==POLYLINE){
+          dMultiLine ML = rect_split_cropped(cutter, lc);
+          for (dMultiLine::const_iterator i=ML.begin(); i!=ML.end(); i++){
+            l = o->insert(l, cnv? cnv->line_bck(*i) : *i) + 1;
+          }
+          l->clear();
+        }
+        else{
+           *l = cnv? cnv->line_bck(lc) : lc;
+        }
+      }
+    }
+  }
+  remove_empty(W);
+}
+
 
 // crop/cut/select range, get statistics
 struct RangeCutter{
@@ -189,42 +227,10 @@ struct RangeCutter{
 
   void
   process(world & W){
-    if ((cnv==NULL) || (action == "")) return;
+    if ((range.empty()) || (action == "")) return;
 
-    world::iterator o;
-    for (o=W.begin(); o!=W.end(); o++){
-      bool closed = (o->get_class() == POLYGON);
-      dMultiLine::iterator l;
-
-      // crop lines
-      for (l = o->begin(); l != o->end(); l++){
-        if (l->size()<1) continue;
-        dLine lc = cnv->line_frw(*l);
-        rect_crop(range, lc, closed);
-
-        if (action == "skip"){
-          if (lc.size()!=0) l->clear();
-        }
-        else if (action == "select"){
-          if (lc.size()==0) l->clear();
-        }
-        else if (action == "crop"){
-          *l = cnv->line_bck(lc);
-        }
-        else if (action == "crop_spl"){
-          if (o->get_class()==POLYLINE){
-            dMultiLine ML = rect_split_cropped(range, lc);
-            for (dMultiLine::const_iterator i=ML.begin(); i!=ML.end(); i++){
-              l = o->insert(l, cnv->line_bck(*i)) + 1;
-            }
-            l->clear();
-          }
-          else{
-             *l = cnv->line_bck(lc);
-          }
-        }
-      }
-    }
+    // do range action
+    range_action(W, action, range, cnv);
 
     // remove tails and clear empty lines
     if (tail_size > 0) remove_tails(W, tail_size, range, cnv);
