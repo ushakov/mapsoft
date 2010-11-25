@@ -121,6 +121,7 @@ void move_pics(world & W);     ///< move and rotate some signs
 
 // filtering and statistics (see vmap_filt.cpp):
 void filter(world & W, const Options & O);
+void join_objects(world & W, double dist);
 void remove_tails(world & W, double dist, const dRect & cutter, Conv * cnv = NULL);
 void range_action(world & W, std::string action, const dRect & cutter, Conv * cnv = NULL);
 // remove empty lines and objects

@@ -103,8 +103,7 @@ main(int argc, char **argv){
     }
   }
 
-  // TODO: join objects!
-
+  join_objects(V, 1e-4);
   join_labels(V);
   create_labels(V);
   move_pics(V);

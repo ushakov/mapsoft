@@ -139,6 +139,115 @@ void range_action(world & W, string action, const dRect & cutter, Conv * cnv){
   remove_empty(W);
 }
 
+bool join_two_lines(const dLine & l1, const dLine & l2, dLine & res, const double dist){
+  if (pdist(*(l1.rbegin()), *(l2.begin()))<dist){
+    res.insert(res.end(), l1.begin(), l1.end());
+    res.insert(res.end(), l2.begin()+1, l2.end());
+    return true;
+  }
+  return false;
+}
+
+bool join_two_polygons(const dLine & l1, const dLine & l2, dLine & res, const double dist){
+  dLine::const_iterator p1a,p1b,p2a,p2b;
+  for (p1a = l1.begin(); p1a!=l1.end(); p1a++){
+    p1b=p1a+1;
+    if (p1b==l1.end()) p1b=l1.begin();
+
+    for (p2a = l2.begin(); p2a!=l2.end(); p2a++){
+      p2b=p2a+1;
+      if (p2b==l2.end()) p2b=l2.begin();
+
+      if ((pdist(*p1a,*p2b) < dist) && (pdist(*p1b,*p2a) < dist) &&
+          (pdist(*p1a,*p1b) > dist) && (pdist(*p2a,*p2b) > dist)){
+        res.insert(res.end(), l1.begin(), p1a);
+        if (p2b!=l2.begin()) res.insert(res.end(), p2b, l2.end());
+        res.insert(res.end(), l2.begin(), p2a);
+        if (p1b!=l1.begin()) res.insert(res.end(), p1b, l1.end());
+        return true;
+      }
+
+    }
+  }
+            // TODO
+  return false;
+}
+
+void
+join_objects(world & W, double dist){
+  if (dist<=0) return;
+
+  // TODO: join options and comments?
+
+  // Идем по всем упорядоченным парам линий o1->l1, o2->l2.
+  // Точками не интересуемся.
+  // Для склейки должны совпадать тип и название объекта.
+
+  // Склейка линий происходит только с сохранением направления.
+  // При склейке мы помещаем результат в первую линию, удаляем вторую линию
+  // (которая расположена где-то дальше) и возвращаем o2->l2 на o1->l1 (чтоб
+  // можно было к уже сделанной линии подклеить что-то еще.
+
+  // При склейке многоугольников находятся и склеиваются пары соседних сегментов.
+  // Склеиваются только многоугольники с одинаковой ориентацией (либо по, либо против ч.с.)
+  // После успешной склейки многоугольников требуется еще один проход, чтобы
+  // отловить вещи, типа пересекающихся разрезов. (Подумать, как это оптимизировать!
+  // Отделить ли циклы для линий и для многоугольников?)
+  // Явная проблема: многоугольники, разрезанные на более двух (соединенных) частей
+
+  world::iterator o1,o2;
+  dMultiLine::iterator l1, l2;
+  int lc=0,pc=0,pass=0;
+  bool repeat;
+  do {
+    repeat=false; pass++;
+    for (o1=W.begin(); o1!=W.end(); o1++){
+      if (o1->get_class()==POI) continue;
+      for (l1 = o1->begin(); l1 != o1->end(); l1++){
+        if (l1->size()<1) continue;
+
+        for (o2 = o1; o2 != W.end(); o2++){
+          if (o1->type != o2->type) continue;
+          if (o1->text != o2->text) continue;
+          if ((o1->get_class()==POLYLINE) && (o1->dir != o2->dir)) continue;
+
+          for (l2 = (o1==o2 ? l1+1 : o2->begin()); l2 != o2->end(); l2++){
+            if (l2->size()<1) continue;
+
+            // join lines
+            if (o1->get_class()==POLYLINE){
+              dLine tmp;
+              if (join_two_lines(*l1, *l2, tmp, dist) ||
+                  join_two_lines(*l2, *l1, tmp, dist)){
+                l1->swap(tmp);
+                o2->erase(l2);
+                o2=o1;
+                l2=l1;
+                lc++;
+              }
+            }
+
+            // join polygons
+            else if (o1->get_class()==POLYGON){
+              dLine tmp;
+              if (join_two_polygons(*l1, *l2, tmp, dist)){
+                l1->swap(tmp);
+                o2->erase(l2);
+                o2=o1;
+                l2=l1;
+                pc++;
+                repeat=true;
+              }
+            }
+
+          }
+        }
+      }
+    }
+  } while (repeat);
+std::cerr << "Join: " << lc << " lines, " 
+  << pc << " polygons, " << pass << " passes\n";
+}
 
 // crop/cut/select range, get statistics
 struct RangeCutter{
