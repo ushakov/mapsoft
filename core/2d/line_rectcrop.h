@@ -224,7 +224,7 @@ bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line, bool closed){
   с длиной больше 1, не лежащие на сторонах прямоугольника cutter.
 */
 template <typename T>
-MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped){
+MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped, bool closed=false){
   MultiLine<T> ret;
   Line<T> rl;
 
@@ -242,21 +242,75 @@ MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped)
     return ret;
   }
 
-  typename Line<T>::const_iterator p, n;
-  for (p=cropped.begin(); p!=cropped.end(); p++){
-    n = p+1;
-    rl.push_back(*p);
+  if (!closed){ // lines
+    // Для линий просто выкидываю все сегменты, лежащие на границе
+    // и отдельные точки-обрезки.
+    typename Line<T>::const_iterator p, n;
+    for (p=cropped.begin(); p!=cropped.end(); p++){
+      n = p+1;
+      rl.push_back(*p);
 
-    // сегмент лежит на границе - нам такой не нужен!
-    if ((n==cropped.end()) ||
-        ((p->x == n->x) && (n->x == xl)) ||
-        ((p->x == n->x) && (n->x == xh)) ||
-        ((p->y == n->y) && (n->y == yl)) ||
-        ((p->y == n->y) && (n->y == yh)) ){
-      // нас не интересуют обрезки из одной точки:
-      if (rl.size()>1) ret.push_back(rl);
-      rl.clear();
+      // сегмент лежит на границе - нам такой не нужен!
+      if ((n==cropped.end()) ||
+          ((p->x == n->x) && (n->x == xl)) ||
+          ((p->x == n->x) && (n->x == xh)) ||
+          ((p->y == n->y) && (n->y == yl)) ||
+          ((p->y == n->y) && (n->y == yh)) ){
+        // нас не интересуют обрезки из одной точки:
+        if (rl.size()>1) ret.push_back(rl);
+        rl.clear();
+      }
     }
+  }
+  else { //polygons
+  // для многоугольников ищу пару сегментов, таких что
+  // - оба лежат на одной границе
+  // - один сегмент полностью лежит на другом
+  // - сегменты имеют противоположное направление
+  // по этой паре делаю разрез, прогоняю все заново.
+    ret.push_back(cropped);
+    bool repeat;
+    do{
+      repeat=false;
+      typename MultiLine<T>::iterator l;
+      for (l=ret.begin(); !repeat && (l!=ret.end()); l++){
+
+        typename Line<T>::iterator p1a,p1b,p2a,p2b;
+        for (p1a = l->begin();!repeat && (p1a!=l->end()) ; p1a++){
+          p1b=p1a+1;
+          if (p1b==l->end()) break;
+
+          for (p2a = p1b; !repeat && (p2a!=l->end()); p2a++){
+            p2b=p2a+1;
+            if (p2b==l->end()) p2b=l->begin();
+
+            // оба сегмента должны лежать на границе
+            // и в правильном порядке - один внутри другого и навстречу друг другу.
+            // Наверное, все можно в один if собрать...
+            if (( (((p1a->x == xl) && (p1b->x == xl) && (p2a->x == xl) && (p2b->x == xl)) ||
+                   ((p1a->x == xh) && (p1b->x == xh) && (p2a->x == xh) && (p2b->x == xh)) ) &&
+                  (((p1a->y <= p2b->y) && (p2b->y <= p2a->y) && (p2a->y <= p1b->y)) ||
+                   ((p2a->y <= p1b->y) && (p1b->y <= p1a->y) && (p1a->y <= p2b->y)) ||
+                   ((p1a->y >= p2b->y) && (p2b->y >= p2a->y) && (p2a->y >= p1b->y)) ||
+                   ((p2a->y >= p1b->y) && (p1b->y >= p1a->y) && (p1a->y >= p2b->y)) )) ||
+                ( (((p1a->y == yl) && (p1b->y == yl) && (p2a->y == yl) && (p2b->y == yl)) ||
+                   ((p1a->y == yh) && (p1b->y == yh) && (p2a->y == yh) && (p2b->y == yh)) ) &&
+                  (((p1a->x <= p2b->x) && (p2b->x <= p2a->x) && (p2a->x <= p1b->x)) ||
+                   ((p2a->x <= p1b->x) && (p1b->x <= p1a->x) && (p1a->x <= p2b->x)) ||
+                   ((p1a->x >= p2b->x) && (p2b->x >= p2a->x) && (p2a->x >= p1b->x)) ||
+                   ((p2a->x >= p1b->x) && (p1b->x >= p1a->x) && (p1a->x >= p2b->x)) ))) {
+                Line<T> l1,l2;
+                l1.insert(l1.end(), l->begin(), p1a+1);
+                if (p2b!=l->begin()) l1.insert(l1.end(), p2b, l->end());
+                l2.insert(l2.end(), p1b, p2a+1);
+                l->swap(l1);
+                ret.push_back(l2);
+                repeat=true;
+            }
+          }
+        }
+      }
+    } while (repeat);
   }
   return ret;
 }

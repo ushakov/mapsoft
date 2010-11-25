@@ -169,7 +169,6 @@ bool join_two_polygons(const dLine & l1, const dLine & l2, dLine & res, const do
 
     }
   }
-            // TODO
   return false;
 }
 
