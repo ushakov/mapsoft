@@ -98,7 +98,7 @@ main(int argc, char **argv){
   if (verbose){
     cout << "reading from:      " << in_file << "\n"
          << "map tile size:     " << tsize << "\n"
-         << "lonlat range:      " << trange*tsize << "\n"
+         << "lonlat range:      " << dRect(trange)*tsize << "\n"
          << "tile range:        " << trange << "\n"
          << "writing to:        " << map_dir << "\n"
     ;
@@ -147,7 +147,7 @@ main(int argc, char **argv){
       }
 
       // remove tails, clear empty lines
-      vmap::remove_tails(V1, 1e-5, crop_range);
+      vmap::remove_tails(V1, 1e-4, crop_range);
 
       // write tile
       if (V1.size()){
