@@ -245,23 +245,19 @@ MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped)
   typename Line<T>::const_iterator p, n;
   for (p=cropped.begin(); p!=cropped.end(); p++){
     n = p+1;
-
-    if (n!=cropped.end()){
-      // сегмент лежит на границе - нам такой не нужен!
-      if (((p->x == n->x) && (n->x == xl)) ||
-          ((p->x == n->x) && (n->x == xh)) ||
-          ((p->y == n->y) && (n->y == yl)) ||
-          ((p->y == n->y) && (n->y == yh))){
-        rl.push_back(*p);
-        // нас не интересуют обрезки из одной точки:
-        if (rl.size()>1) ret.push_back(rl);
-        rl.clear();
-        continue;
-      }
-    }
     rl.push_back(*p);
+
+    // сегмент лежит на границе - нам такой не нужен!
+    if ((n==cropped.end()) ||
+        ((p->x == n->x) && (n->x == xl)) ||
+        ((p->x == n->x) && (n->x == xh)) ||
+        ((p->y == n->y) && (n->y == yl)) ||
+        ((p->y == n->y) && (n->y == yh)) ){
+      // нас не интересуют обрезки из одной точки:
+      if (rl.size()>1) ret.push_back(rl);
+      rl.clear();
+    }
   }
-  if (rl.size()>1) ret.push_back(rl);
   return ret;
 }
 
