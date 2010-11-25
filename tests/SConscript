@@ -3,6 +3,7 @@ Import ('env')
 subdirs = Split ("""
     2d_rectcrop
     2d_rectcrop_ml
+    2d_nearest_pt
     2d_angles
     2d_cache
     generic_accessor
