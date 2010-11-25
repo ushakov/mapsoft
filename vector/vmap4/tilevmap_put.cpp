@@ -16,15 +16,21 @@ void usage(){
      << prog << " -- put tiles to the tiled vmap.\n"
      << "  usage: " << prog << " [<input_options>] <in file> [<input_options>]\\n"
      << "         (--out|-o) <map dir> [<output_options>]\n"
-
+     << "  options:\n"
+     << "  -a --add       -- add objects to existing tiles\n"
+     << "  -v --verbose   -- be more verbose\n"
+     << "  -b --backup    -- save old tiles in .bak files\n"
+     << "  -r --autorange -- don't check input map range\n"
   ;
   exit(1);
 }
 
 static struct option in_options[] = {
-  {"autorange",      0, 0, 'a'},
-  {"out",            0, 0, 'o'},
+  {"autorange",      0, 0, 'r'},
   {"verbose",        0, 0, 'v'},
+  {"backup",         0, 0, 'b'},
+  {"add",            0, 0, 'a'},
+  {"out",            0, 0, 'o'},
   {0,0,0,0}
 };
 
@@ -74,6 +80,8 @@ main(int argc, char **argv){
 
   int verbose = OI.get<int>("verbose",0);
   int autorange = OI.get<int>("autorange",0);
+  int backup = OI.get<int>("backup",0);
+  int add = OI.get<int>("add",0);
 
   vmap::world V = vmap::read(in_file);
 
@@ -147,14 +155,24 @@ main(int argc, char **argv){
       // remove tails, clear empty lines
       vmap::remove_tails(V1, 1e-4, crop_range);
 
+
+      ostringstream ss;
+      ss << map_dir << "/" << "t:" << i+trange.x
+         << ":" << j+trange.y << ".vmap";
+      string fname = ss.str();
+
+      // read old tile
+      vmap::world V_old;
+      ifstream test(fname.c_str());
+      if (test.good()) V_old = vmap::read(fname.c_str());
+
+      if (add) V1.add(V_old);
+
+      // write backup
+      if (backup) rename(fname.c_str(), (fname+".bak").c_str());
+
       // write tile
-      if (V1.size()){
-        ostringstream ss;
-        ss << map_dir << "/" << "t:" << i+trange.x
-           << ":" << j+trange.y << ".vmap";
-        string fname = ss.str();
-       vmap::write(fname.c_str(), V1, OO);
-      }
+      if (V1.size()) vmap::write(fname.c_str(), V1, OO);
     }
   }
   exit(0);
