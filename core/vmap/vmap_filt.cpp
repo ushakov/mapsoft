@@ -297,6 +297,10 @@ struct RangeCutter{
 
     if (O.exists("range_nom")){
       range=convs::nom_to_range(O.get<string>("range_nom"));
+      if (range.empty()){
+        std::cerr << "bad name: " << O.get<string>("range_nom") << "\n";
+        exit(1);
+      }
       cnv = new convs::pt2pt(
           Datum("wgs84"), Proj("lonlat"), Options(),
           Datum("pulkovo"), Proj("lonlat"), Options());

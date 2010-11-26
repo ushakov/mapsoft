@@ -246,6 +246,10 @@ int crop(const string & mode, int argc, char** argv){
     datum    = "pulkovo";
     cutter=convs::nom_to_range(argv[0]);
     file     = argv[1];
+    if (cutter.empty()){
+      std::cerr << "Bad name: " << argv[0] << "\n";
+      exit(1);
+    }
   }
 
   cerr << mode << " " << file <<" to " << cutter << ": ";
