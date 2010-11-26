@@ -120,12 +120,14 @@ W=;H=;X=;Y=;K=;
 [ "$X" = 0 -o -z "$K" ] || X="${X}000"
 [ "$Y" = 0 -o -z "$K" ] || Y="${Y}000"
 
-echo "map:        $map -> $outmap"
-echo "image:      $img -> $outimg"
-echo "name:       $old_name -> $name"
-echo "scale:      $scale"
-echo "cmap style: $style"
-echo "lon0:       $lon0"
+if [ -n "$verbose" ]; then
+  echo "map:        $map -> $outmap"
+  echo "image:      $img -> $outimg"
+  echo "name:       $old_name -> $name"
+  echo "scale:      $scale"
+  echo "cmap style: $style"
+  echo "lon0:       $lon0"
+fi
 
 zone="$(printf "$X" | head -c -6)"
 X="$(printf "$X" | tail -c 6)"
@@ -171,6 +173,7 @@ fi
 
 if [ -z "${img##*.png}" -a -n "$(dc -e "[1 p]sa $scale 1 >a")" ]; then
   cmd="$cmd | pnmremap -mapfile=$cmap"
+  [ -n "$verbose" ] || cmd="$cmd 2> /dev/null"
 fi
 
 if   [ -z "${img##*.png}" ]; then cmd="$cmd | pnmtopng > $outimg"
@@ -178,7 +181,9 @@ elif [ -z "${img##*.jpg}" ]; then cmd="$cmd | cjpeg > $outimg"
 else fatal "Unsupported image format for $img"
 fi
 
-echo "Executing: $cmd"
+[ -n "$verbose" ] &&
+   echo "Executing: $cmd" ||
+   cmd="$cmd 2> /dev/null"
 eval $cmd
 
 # cropping and rescaling map
@@ -195,7 +200,9 @@ fi
 
 cmd="$cmd $map -o $outmap"
 
-echo "Executing: $cmd"
+[ -n "$verbose" ] &&
+   echo "Executing: $cmd" ||
+   cmd="$cmd 2> /dev/null"
 eval $cmd
 
 # setting new name and file
