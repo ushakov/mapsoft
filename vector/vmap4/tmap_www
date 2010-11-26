@@ -23,16 +23,50 @@ style="$(head -n1 "$name/.style")"
 [ -n "$style" ] || style="default"
 
 wwwdir="$name.www"
-mkdir -p -- "$wwwdir"
+tiledir="$wwwdir/tiles"
+
+mkdir -p -- "$wwwdir" "$tiledir"
+htm_ext="htm"
 
 for vmap in $name/*.vmap; do
   base="$(basename "$vmap" .vmap)"
-  png="$wwwdir/$base.png"
-  map="$wwwdir/$base.map"
+  pref="${base%%.*}"
+  nums="${base#$pref.}"
+  y="${nums#*.}"
+  x="${nums%.*}"
+
+  png="$tiledir/$base.png"
+  map="$tiledir/$base.map"
+  htm="$tiledir/$base.$htm_ext"
+
+  ## update png- and map-files
   if [ "$png" -ot "$vmap" ]; then
-    echo "Rendering: $base"
+    echo "Rendering PNG: $x - $y"
     vmap_render -m "$map" -ND "$vmap" "$png"
     map_rescale -s "$style" -r "$png_scale" "$map"
   fi
+  ## update html
+  if [ "$htm" -ot "$vmap" ]; then
+    echo "Rendering HTML: $x - $y"
+    l="${pref}.$(($x-1)).${y}"
+    u="${pref}.${x}.$(($y+1))"
+    d="${pref}.${x}.$(($y-1))"
+    r="${pref}.$(($x+1)).${y}"
+    nav=
+    [ -f "$name/$l.vmap" ] && nav="$nav <a href=\"$l.$htm_ext\">[LEFT]</a>"  || nav="$nav [LEFT]"
+    [ -f "$name/$u.vmap" ] && nav="$nav <a href=\"$u.$htm_ext\">[UP]</a>"    || nav="$nav [UP]"
+    [ -f "$name/$d.vmap" ] && nav="$nav <a href=\"$d.$htm_ext\">[DOWN]</a>"  || nav="$nav [DOWN]"
+    [ -f "$name/$r.vmap" ] && nav="$nav <a href=\"$r.$htm_ext\">[RIGHT]</a>" || nav="$nav [RIGHT]"
+    cat > "$htm" <<-EOF
+	<html>
+	<body>
+	<h4>$nav</h4>
+	<img src="${png##*/}">
+	<p><a href="${map##*/}">[MAP]</a>
+	</body>
+	</html>
+	EOF
+  fi
 done
+
 
