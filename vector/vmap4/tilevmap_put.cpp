@@ -157,8 +157,8 @@ main(int argc, char **argv){
 
 
       ostringstream ss;
-      ss << map_dir << "/" << "t:" << i+trange.x
-         << ":" << j+trange.y << ".vmap";
+      ss << map_dir << "/" << "t." << i+trange.x
+         << "." << j+trange.y << ".vmap";
       string fname = ss.str();
 
       // read old tile

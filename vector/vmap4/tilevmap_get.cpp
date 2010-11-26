@@ -91,8 +91,8 @@ main(int argc, char **argv){
   for (int j=0; j<trange.h; j++){
     for (int i=0; i<trange.w; i++){
       ostringstream ss;
-      ss << map_dir << "/" << "t:" << i+trange.x
-         << ":" << j+trange.y << ".vmap";
+      ss << map_dir << "/" << "t." << i+trange.x
+         << "." << j+trange.y << ".vmap";
       string fname = ss.str();
       ifstream test(fname.c_str());
       if (!test.good()){
