@@ -50,29 +50,21 @@ nom_to_range(const string & key, int & rscale){
       ));
 
 
-    if (!parse(key1.c_str(), (map_p_s || map_a_o) >> *anychar_p).full) {
-      cerr << "map_nom_brd: can't parse " << key << "\n";
+    if (!parse(key1.c_str(), (map_p_s || map_a_o) >> *anychar_p).full)
       return dRect(0,0,0,0);
-    }
 
     char ac='a';
     if (a.size()>0) ac=a[0];
 
     if      ((ac>='A')&&(ac <= 'T')) ac-='A';
     else if ((ac>='a')&&(ac <= 't')) ac-='a';
-    else {
-      cerr << "map_nom_brd: can't parse " << key << " (" << ac << ")\n";
-      return dRect(0,0,0,0);
-    }
+    else return dRect(0,0,0,0);
 
     double lat1,lat2,lon1,lon2;
 
     lat1 = ac*4; lat2=lat1+4;
 
-    if ((b<1)||(b>=60)) {
-      cerr << "map_nom_brd: can't parse " << key << " (" << b << ")\n";
-      return dRect(0,0,0,0);
-    }
+    if ((b<1)||(b>=60)) return dRect(0,0,0,0);
 
     lon1 = b*6 - 186; lon2=lon1+6;
 
@@ -131,10 +123,8 @@ nom_to_range(const string & key){
 // по координатам в СК pulkovo-42 возвращает название листа
 string
 pt_to_nom(const dPoint & p, int sc){
-    if ((p.x <-180) || (p.x>180) || (p.y<0) || (p.y>90)){
-      cerr << "pt_to_nom: point coordinates out or range: " << p << "\n";
-      exit(1);
-    }
+    if ((p.x <-180) || (p.x>180) || (p.y<0) || (p.y>90))
+      return string(); // bad coordinates
 
     char A = 'a' + (int)floor(p.y/4);
     int  B = 31 +  (int)floor(p.x/6);
@@ -149,7 +139,7 @@ pt_to_nom(const dPoint & p, int sc){
       case  200000: n=6;  w=2; break;
       case  100000: n=12; w=3; break;
       case   50000: n=12; w=3; break;
-      default: cerr << "pt_to_nom: wrong scale: " << sc << "\n"; exit(1);
+      default: return string(); // unknown scale
     }
 
     int row=n-1-(int)floor((p.y/4.0-floor(p.y/4))*n);
