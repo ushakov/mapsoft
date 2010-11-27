@@ -1,6 +1,8 @@
 #include "geo_data.h"
 #include "loaders/image_r.h"
 #include "geo_convs.h"
+#include "2d/line_utils.h"
+#include "2d/line_rectcrop.h"
 
 g_waypoint::g_waypoint (){
     x          = 0.0;
@@ -326,13 +328,12 @@ g_map & g_map::operator+= (dPoint k){
 // file. If there is no map file (this->file == ""), alas, the border
 // will be empty.
 void g_map::ensure_border() {
-  if (border.size() != 0) return;
   if (file == "") return;
-  iPoint size = image_r::size(file.c_str());
-  border.push_back(iPoint(0,0));
-  border.push_back(iPoint(0,size.y));
-  border.push_back(iPoint(size.x,size.y));
-  border.push_back(iPoint(size.x,0));
+  dRect file_range(dPoint(), image_r::size(file.c_str()));
+  if (border.size() < 3 )
+    border = rect2line(file_range);
+  else
+    rect_crop(file_range, border, true);
 }
 
 /// get range in lon-lat coords
