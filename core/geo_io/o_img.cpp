@@ -50,7 +50,11 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   if (geom.empty()){
     if (! world.range_geodata().empty()){
       geom=c.bb_frw(world.range_geodata(), world.range_geodata().w/1000);
-    } else {
+    }
+    if (! world.range().empty()){
+      geom=c.bb_frw(world.range(), world.range().w/1000);
+    }
+    else {
       cerr << "Empty geometry! Use -g option.\n";
       exit(1);
     }
