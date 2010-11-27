@@ -566,9 +566,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			for (dLine::const_iterator it =m.border.begin();
 				 it!=m.border.end(); it++){
 				n++;
-				f << "MMPXY," << n << "," 
-                                  << right << fixed << setprecision(0) << setfill(' ')
-                                  << it->x << "," << it->y << "\r\n"; 
+				f << "MMPXY," << n << ","
+                                  << int(it->x) << "," << int(it->y) << "\r\n"; 
 			}
 			n=0;
 			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"), Options());
