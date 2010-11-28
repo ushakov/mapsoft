@@ -65,13 +65,14 @@ create_commit(){
   done
   echo "</p>" >> "$index"
 
-  local indexjpg="$comm_dir/index.jpg"
-  local indexmaphtm="$comm_dir/index_map.htm"
+  if ls $comm_dir/*.map &> /dev/null; then
+    local indexjpg="$comm_dir/index.jpg"
+    local indexmaphtm="$comm_dir/index_map.htm"
 
-  if [ ! -f "$indexjpg" -o ! -f "$indexmaphtm" ]; then
-    mapsoft_convert $comm_dir/*.map --dpi=5\
-      --draw_borders=1 --rscale="$rscale"\
-      --htm="$indexmaphtm" -o "$indexjpg"
+    if [ ! -f "$indexjpg" -o ! -f "$indexmaphtm" ]; then
+      mapsoft_convert $comm_dir/*.map --dpi=5\
+        --draw_borders=1 --rscale="$rscale"\
+        --htm="$indexmaphtm" -o "$indexjpg"
 
 #    git stash
 #    local curr="$(git log -n1 --pretty=format:%H)"
@@ -88,13 +89,14 @@ create_commit(){
 
 #    git checkout $curr
 #    git stash pop
+    fi
+    sed -e '
+      /^<img/,/^<\/map/{
+        s/href="[^"]\+\/\([^\/"]\+\).png"/href="..\/..\/tiles\/\1.htm"/
+        s/src="[^"]\+"/src="index.jpg"/
+      }'\
+      "$indexmaphtm" >> "$index"
   fi
-  sed -e '
-    /^<img/,/^<\/map/{
-      s/href="[^"]\+\/\([^\/"]\+\).png"/href="..\/..\/tiles\/\1.htm"/
-      s/src="[^"]\+"/src="index.jpg"/
-    }'\
-    "$indexmaphtm" >> "$index"
 
   cat >> "$index" <<-EOF
 	<p><a href="../../history.htm">[Back to commit list]</a>
