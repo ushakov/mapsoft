@@ -22,88 +22,196 @@ fi
 style="$(head -n1 "$tmap/.style")"
 [ -n "$style" ] || style="default"
 
+rscale="$(head -n1 "$tmap/.rscale")"
+[ -n "$rscale" ] || style="50000"
 
-cat > history.htm <<-EOF
+############################################################
+
+create_commit(){
+  local sha="$1"; shift
+  local auth="$1"; shift
+  local d="$1"; shift
+  local subj="$1"; shift
+
+  local comm_dir="commits/$sha"
+  local index="$comm_dir/index.htm"
+
+  cat > "$index" <<-EOF
 	<html>
 	<body>
-	<ul>
+	<p>by $auth at $d:<br>
+        <b>$subj</b></p>
+	<p>changed tiles:
 	EOF
 
-mkdir -p -- "tiles"
-rm -f -- tiles/*.txt
-
-git log --pretty=format:'%H%x09%aN <%aE>%x09%at%x09%s' |
-while IFS='	' read sha auth t subj; do
-  comm_dir="commits/$sha"
-
-  mkdir -p -- "$comm_dir"
-  printf "%s\t%s\t%s\n" "$auth" "$t" "$subj" > "$comm_dir/info"
-
-  d="$(date -d "@$t" "+%Y/%m/%d %H:%M:%S")"
-  cat >> history.htm <<-EOF
-	<li><b>$d: $auth: $subj</b><br>
-	EOF
-
-  git show --pretty=format:'' --stat $sha |
+  local f g
+  git show --pretty=format:'' --stat "$sha" |
   while IFS='|' read f g; do
     [ -n "$g" ] || continue
     f="${f##*/}"
+    [ -z ${f##*.vmap} ] || continue
+    [ -z ${f%%t.*} ]    || continue
     f="${f%.*}"
-    echo "<a href=\"tiles/$f.htm\">${f#t.}</a> " >> history.htm
-    if [ ! -f "$comm_dir/$f.png" ]; then 
+    echo "<a href=\"../../tiles/$f.htm\">${f#t.}</a> " >> "$index"
+    printf "%s\t%s\n" "$sha" "$subj"  >> "tiles/$f.txt"
+    if [ ! -f "$comm_dir/$f.png" ]; then
       echo "Rendering PNG: ${f#t.}"
-      tmp="$(mktemp).vmap"
+      local tmp="$(mktemp).vmap"
       git cat-file blob "$sha:$tmap/$f.vmap" > $tmp
       vmap_render -m "$comm_dir/$f.map" "$tmp" "$comm_dir/$f.png"
       map_rescale -s "$style" -r "$png_scale" "$comm_dir/$f.map"
       rm -f -- "$tmp"
     fi
-    printf "%s\t%s\n" "$sha" "$subj"  >> "tiles/$f.txt"
   done
-done
+  echo "</p>" >> "$index"
 
-cat >> history.htm <<-EOF
+  local indexjpg="$comm_dir/index.jpg"
+  local indexmaphtm="$comm_dir/index_map.htm"
+
+  if [ ! -f "$indexjpg" -o ! -f "$indexmaphtm" ]; then
+    mapsoft_convert $comm_dir/*.map --dpi=5\
+      --draw_borders=1 --rscale="$rscale"\
+      --htm="$indexmaphtm" -o "$indexjpg"
+
+#    git stash
+#    local curr="$(git log -n1 --pretty=format:%H)"
+#    git checkout $sha
+
+#    local tmp_vmap="$(mktemp).vmap"
+#    local tmp_map="$(mktemp).map"
+#    local tmp_png="$(mktemp).png"
+#    vmap_copy $tmap/*.vmap -o "$tmp_vmap"
+#    vmap_render -m "$tmp_map" "$tmp_vmap" "$tmp_png"
+#    # todo - index image
+
+#    rm -f -- "$tmp_vmap" "$tmp_map" "$tmp_png"
+
+#    git checkout $curr
+#    git stash pop
+  fi
+  sed -e '
+    /^<img/,/^<\/map/{
+      s/href="[^"]\+\/\([^\/"]\+\).png"/href="..\/..\/tiles\/\1.htm"/
+      s/src="[^"]\+"/src="index.jpg"/
+    }'\
+    "$indexmaphtm" >> "$index"
+
+  cat >> "$index" <<-EOF
+	<p><a href="../../history.htm">[Back to commit list]</a>
+	</body>
+	</html>
+	EOF
+}
+
+############################################################
+
+create_commit_list(){
+  mkdir -p -- "tiles" "commits"
+  rm -f -- tiles/*.txt
+
+  local index="history.htm"
+  cat > $index <<-EOF
+	<html>
+	<body>
+	<ul>
+	EOF
+
+  git log --pretty=tformat:'%H%x09%an <%aE>%x09%at%x09%s' |
+  while IFS='	' read sha auth t subj; do
+    local comm_dir="commits/$sha"
+    mkdir -p -- "$comm_dir"
+
+    local d="$(date -d "@$t" "+%Y/%m/%d %H:%M:%S")"
+    cat >> $index <<-EOF
+	<li><a href="$comm_dir/index.htm">by $auth at $d -- $subj</a>
+	EOF
+    echo "COMMIT $sha by $auth at $d -- $subj"
+    create_commit "$sha" "$auth" "$d" "$subj"
+  done
+
+  cat >> $index <<-EOF
 	</ul>
 	</body>
 	</html>
 	EOF
+}
 
-for txt in tiles/*.txt; do
-  htm="${txt%.txt}.htm"
-  base="$(basename "$txt" .txt)"
-  pref="${base%%.*}"
-  nums="${base#$pref.}"
-  y="${nums#*.}"
-  x="${nums%.*}"
+############################################################
 
-  l="${pref}.$(($x-1)).${y}"
-  u="${pref}.${x}.$(($y+1))"
-  d="${pref}.${x}.$(($y-1))"
-  r="${pref}.$(($x+1)).${y}"
-  nav=
-  [ -f "$tmap/$l.vmap" ] && nav="$nav <a href=\"$l.htm\">[left]</a>"  || nav="$nav [left]"
-  [ -f "$tmap/$u.vmap" ] && nav="$nav <a href=\"$u.htm\">[up]</a>"    || nav="$nav [up]"
-  [ -f "$tmap/$d.vmap" ] && nav="$nav <a href=\"$d.htm\">[down]</a>"  || nav="$nav [down]"
-  [ -f "$tmap/$r.vmap" ] && nav="$nav <a href=\"$r.htm\">[right]</a>" || nav="$nav [right]"
+create_tiles(){
+  for txt in tiles/*.txt; do
+    [ -f "$txt" ] || continue
+    local htm="${txt%.txt}.htm"
+    local base="$(basename "$txt" .txt)"
+    local pref="${base%%.*}"
+    local nums="${base#$pref.}"
+    local y="${nums#*.}"
+    local x="${nums%.*}"
 
-  cat > "$htm" <<-EOF
+    local l="${pref}.$(($x-1)).${y}"
+    local u="${pref}.${x}.$(($y+1))"
+    local d="${pref}.${x}.$(($y-1))"
+    local r="${pref}.$(($x+1)).${y}"
+    local nav=
+    [ -f "$tmap/$l.vmap" ] && nav="$nav <a href=\"$l.htm\">[left]</a>"  || nav="$nav [left]"
+    [ -f "$tmap/$u.vmap" ] && nav="$nav <a href=\"$u.htm\">[up]</a>"    || nav="$nav [up]"
+    [ -f "$tmap/$d.vmap" ] && nav="$nav <a href=\"$d.htm\">[down]</a>"  || nav="$nav [down]"
+    [ -f "$tmap/$r.vmap" ] && nav="$nav <a href=\"$r.htm\">[right]</a>" || nav="$nav [right]"
+
+
+    cat > "$htm" <<-EOF
 	<html>
+	<head>
+	<script language="JavaScript">
+	  function update_vis(){
+	    els=document.getElementsByName('sw');
+	    for (var i=0;i<els.length;i++){
+	      document.getElementById(els[i].value).style.visibility=
+	        els[i].checked?'visible':'hidden'
+	    }
+	  }
+	</script>
+	<style type="TEXT/CSS">
+	  img { position: absolute; left: 0px; top: 0px}
+	</style>
+	</head>
 	<body>
-	<center>
-	<h4>$nav</h4>
+	<h4 align="center">$nav</h4>
 	EOF
 
-  while IFS='	' read sha subj; do
+echo "TILE $x $y"
+    local n=0
+    local images=''
+    local inputs=''
+    while IFS='	' read sha subj; do
+      n="$(($n+1))"
+      local vis=''
+      local chk=''
+      [ "$n" = "1" ] && chk="checked" ||
+                        vis="style=\"visibility: hidden;\""
+      images="$images
+        <img id=\"$n\" $vis src=\"../commits/$sha/$base.png\">"
+      inputs="$inputs
+        <input type=\"radio\" name=\"sw\" value=\"$n\" $chk onclick=\"update_vis()\">
+        $subj <a href=\"../commits/$sha/index.htm\">[>>]</a><br>"
+    done < "$txt"
+
     cat >> "$htm" <<-EOF
-	<img src="../commits/$sha/$base.png"><br>
-	$subj<br>
-	<a href="../commits/$sha/$base.map">[MAP]</a><br>
-	EOF
-  done < "$txt"
-
-  cat >> "$htm" <<-EOF
-	</center>
+	<table>
+	<tr><td>
+	<form>$inputs
+	</form>
+	</td><td>
+	<div style="position:relative;">$images
+	</div>
+	</td></tr>
+	</table>
 	</body>
 	</html>
 	EOF
-done
+  done
+}
+
+create_commit_list
+
+create_tiles
