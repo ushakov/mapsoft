@@ -619,11 +619,11 @@
 
 -
   name: text object
-  mp:   POLYLINE 0xFF 0 0
+  mp:   POLYLINE 0x8F 0 0
   fig:  2 1 0 1 4 7 42 -1 -1 0.000 0 0 7 0 0 0
 -
   name: border object
-  mp:   POLYLINE 0xFE 0 0
+  mp:   POLYLINE 0x8E 0 0
   fig:  2 1 0 1 5 7 41 -1 -1 0.000 0 0 7 0 0 0
   ocad: 507000
 
