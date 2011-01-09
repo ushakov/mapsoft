@@ -248,6 +248,114 @@ std::cerr << "Join: " << lc << " lines, "
   << pc << " polygons, " << pass << " passes\n";
 }
 
+struct pt_in_cell: public dPoint{
+  int type;
+  pt_in_cell(const dPoint & p, const int t):dPoint(p), type(t){}
+};
+
+void
+fix_diff(const world & WOLD, world & WNEW, double dist){
+  // Плоскость разбивается на ячейки 4d x 4d с шагом 2d.
+  // Ячейка задается центральной точкой.
+  // В каждую ячейку помещаются точки из старой карты, которые в нее попадают.
+  // Для точки новой карты ищется наиболее подходящая ячейка (округление до 2d)
+  // Выбирается ближайшая точка того же типа, если расстояние до нее меньше d,
+  // то координаты точки из новой карты меняются на координаты точки из старой.
+
+  double cell_step=2.0*dist;
+
+  multimap<iPoint, pt_in_cell> cells;
+
+  world::const_iterator oci;
+  dMultiLine::const_iterator lci;
+  dLine::const_iterator pci;
+
+  for (oci=WOLD.begin(); oci!=WOLD.end(); oci++){
+    for (lci=oci->begin(); lci!=oci->end(); lci++){
+      for (pci=lci->begin(); pci!=lci->end(); pci++){
+        pt_in_cell p(*pci, oci->type);
+        int x1 = int(floor(p.x / cell_step));
+        int x2 = int(ceil(p.x / cell_step));
+        int y1 = int(floor(p.y / cell_step));
+        int y2 = int(ceil(p.y / cell_step));
+        for (int x=x1; x<=x2; x++){
+          for (int y=y1; y<=y2; y++){
+            cells.insert(make_pair(iPoint(x,y), p));
+          }
+        }
+      }
+    }
+  }
+
+  world::iterator oi;
+  dMultiLine::iterator li;
+  dLine::iterator pi;
+
+  for (oi=WNEW.begin(); oi!=WNEW.end(); oi++){
+    for (li=oi->begin(); li!=oi->end(); li++){
+      for (pi=li->begin(); pi!=li->end(); pi++){
+        iPoint cell(int(round(pi->x / cell_step)),
+                    int(round(pi->y / cell_step)));
+
+        multimap<iPoint, pt_in_cell>::const_iterator ci, ci_min=cells.end();
+        double min_dist = 2*dist;
+        for (ci=cells.lower_bound(cell); ci!=cells.upper_bound(cell); ci++){
+          if (oi->type!=ci->second.type) continue;
+          if (pdist(ci->second, *pi) < min_dist){
+            ci_min = ci;
+            min_dist=pdist(ci->second, *pi);
+          }
+        }
+        if (min_dist < dist) *pi = ci_min->second;
+      }
+    }
+  }
+
+  // the same for lbuf
+  cells.clear();
+  list<lpos_full>::const_iterator lbci;
+
+  for (lbci=WOLD.lbuf.begin(); lbci!=WOLD.lbuf.end(); lbci++){
+    for (int t = 0; t<2; t++){
+      pt_in_cell p(t==0 ? lbci->pos:lbci->ref, t);
+      int x1 = int(floor(p.x / cell_step));
+      int x2 = int(ceil(p.x / cell_step));
+      int y1 = int(floor(p.y / cell_step));
+      int y2 = int(ceil(p.y / cell_step));
+      for (int x=x1; x<=x2; x++){
+        for (int y=y1; y<=y2; y++){
+          cells.insert(make_pair(iPoint(x,y), p));
+        }
+      }
+    }
+  }
+
+  list<lpos_full>::iterator lbi;
+
+  for (lbi=WNEW.lbuf.begin(); lbi!=WNEW.lbuf.end(); lbi++){
+    for (int t = 0; t<2; t++){
+      dPoint p(t==0 ? lbi->pos:lbi->ref);
+      iPoint cell(int(round(p.x / cell_step)),
+                  int(round(p.y / cell_step)));
+
+      multimap<iPoint, pt_in_cell>::const_iterator ci, ci_min=cells.end();
+      double min_dist = 2*dist;
+      for (ci=cells.lower_bound(cell); ci!=cells.upper_bound(cell); ci++){
+        if (t!=ci->second.type) continue;
+        if (pdist(ci->second, p) < min_dist){
+          ci_min = ci;
+          min_dist=pdist(ci->second, p);
+        }
+      }
+      if (min_dist < dist){
+        if (t==0) lbi->pos = ci_min->second;
+        else      lbi->ref = ci_min->second;
+      }
+    }
+  }
+
+}
+
 // crop/cut/select range, get statistics
 struct RangeCutter{
   convs::pt2pt *cnv;

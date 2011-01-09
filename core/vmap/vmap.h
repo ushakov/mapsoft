@@ -106,14 +106,14 @@ int write(std::ostream & OUT, const world & W);
 
 // Reading and writing any file (see vmap_file.cpp).
 // Format is determined by extension (fig, mp).
-// Options are passed to corresponding put()  function.
+// Options are passed to corresponding write() function.
 world read(const char * fname);
 int  write(const char * fname, const world & W, const Options & O = Options());
 
 
 // Functions for labels and pics handling (see vmap_labels.cpp):
 void join_labels(world & W);   ///< join labels from lbuf to objects
-void split_labels(world & W);  ///< split labels from objects
+void split_labels(world & W);  ///< split labels from objects to lbuf
 void create_labels(world & W); ///< create new labels
 void remove_labels(world & W); ///< remove all lables
 void move_pics(world & W);     ///< move and rotate some signs
@@ -127,7 +127,8 @@ void range_action(world & W, std::string action, const dRect & cutter, Conv * cn
 // remove empty lines and objects
 void remove_empty(world & W);
 //note: remove_tails and range_action do remove_empty
-
+// remove inessential changes between WOLD and WNEW:
+void fix_diff(const world & WOLD, world & WNEW, double dist);
 
 /// create tmerc ref from brd or from map range (see vmap_ref.h):
 g_map mk_tmerc_ref(const world & W, double u_per_cm, bool yswap=false);
