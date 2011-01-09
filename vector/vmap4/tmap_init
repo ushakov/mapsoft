@@ -13,6 +13,7 @@ usage(){
   echo " -r <rscale> -- set rscale (default $rscale)"
   echo " -s <style>  -- set style (default $style)"
   echo " -t <tsize>  -- set tsize (default $tsize)"
+  echo " -h          -- show help"
   exit 1
 }
 
