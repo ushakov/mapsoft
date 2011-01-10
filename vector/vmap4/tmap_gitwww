@@ -2,18 +2,29 @@
 
 PROG="${0##*/}"
 
+. map_functions.sh
+
+. ./settings.sh
+cfg_git=${cfg_git:-""}
+cfg_map=${cfg_map:-"Какая-то карта..."}
+cfg_maxw=${cfg_maxw:-500}
+
 usage(){
   echo "$PROG -- update www representations of tmap git-repositary"
   echo "usage: $PROG"
   exit 1
 }
 
+text_tohist="[Вернуться к истории изменений]"
+text_tomain="[Вернуться на главную страницу]"
+
 [ "$#" = 0 ] || usage
 
 # name of tmap dir
 tmap="tmap"
 png_scale=0.3
-
+gitbranch=master
+verbose=1
 
 if [ ! -d "$tmap" ]; then
   echo "error: can't find tmap dir: $name"
@@ -26,6 +37,148 @@ rscale="$(head -n1 "$tmap/.rscale")"
 [ -n "$rscale" ] || style="50000"
 
 ############################################################
+# TMP files
+
+exit_handler() {
+        local rc=$?
+        trap - EXIT
+        rm -rf -- "$GITLOG" "$GITMAPS"
+        exit $rc
+}
+trap exit_handler HUP PIPE INT QUIT TERM EXIT
+GITLOG="$(mktemp tmap_gitwww.XXXXXXXXX)"
+GITMAPS="$(mktemp tmap_gitwww.XXXXXXXXX)"
+
+############################################################
+# make dirs
+
+mkdir -p -- "commits" "tiles"
+
+############################################################
+
+[ -z "${verbose:-}" ] || echo "Getting git information..."
+
+git log $gitbranch --pretty=tformat:'%H%x09%an <%aE>%x09%at%x09%s' |
+while IFS='	' read sha auth t subj; do
+  d="$(date -d "@$t" "+%Y/%m/%d %H:%M:%S")"
+  printf "%s\t%s\t%s\t%s\n"  "$sha" "$auth" "$d" "$subj"
+done > "$GITLOG"
+
+git ls-tree --name-only $gitbranch "$tmap/" |
+while read fname; do
+  n="$(basename "$fname" .vmap)"
+  [ -n "${n%%.*}" ] || continue # skip .* names
+#    local sha="$(git log -1 --format=tformat:'%H' "$fname")"
+  printf "%s\n" "$n"
+done >> "$GITMAPS"
+
+check_tile(){
+  local base="$1"
+  fgrep -xq "$base" "$GITMAPS"
+}
+
+############################################################
+
+make_mapindex(){
+  dir="$1"; shift
+  pref="${1:-}"; shift
+  ls $dir/*.map &> /dev/null || return 0
+
+  local indexjpg="$dir/index.jpg"
+  local indexmaphtm="$dir/index_map.htm"
+
+  if [ ! -f "$indexjpg" -o ! -f "$indexmaphtm" ]; then
+    mapsoft_convert $dir/*.map --dpi=5\
+      --draw_borders=1 --rscale="$rscale"\
+      --htm="$indexmaphtm" -o "$indexjpg"
+  fi
+  sed -e '/^<img/ s/src="[^"]\+"/src="index.jpg"/;
+          /^<map/,/^<\/map/{
+           s/href="[^"]\+\/\([^\/"]\+\).png"/href="@@PREF@@\1.htm"/
+          }' "$indexmaphtm" |
+  sed -e "s/@@PREF@@/$pref/"
+}
+
+############################################################
+
+create_index(){
+  [ -z "${verbose:-}" ] || echo "Creating Index..."
+  local index="index.htm"
+  local d="$(date "+%d/%m/%Y")"
+
+  local rmaps=""
+  local name geom title
+  while read name geom title; do
+    [ -n "$name" -a "$name" != "#" ] || continue
+    if [ "$name" = commits -o "$name" = tiles ]; then
+      echo "Error: wrong name for rmap: $name"
+      exit 1
+    fi
+    rmaps="$rmaps
+           <li><a href=\"$name\">$title</a>"
+  done < "rmaps.txt"
+
+  cat > "$index" <<-EOF
+	<html>
+	<body>
+	<h3>$cfg_map</h3>
+
+	<h4>Листы карты:</h4>
+	<ul>
+	  $rmaps
+	</ul>
+
+	<h4>Векторная карта:</h4>
+	<ul>
+	  <li>TODO
+	</ul>
+
+	<h4>Плитки Google:</h4>
+	<ul>
+	  <li>13 TODO
+	  <li>14 TODO
+	</ul>
+
+	<h4>Техническое:</h4>
+	<ul>
+	  <li><a href="commits/index.htm">История изменений</a>
+	  <li><a href="tiles/index.htm">Обзорная карта</a>
+	  <li><a href="$cfg_git">Git-репозиторий</a>
+	</ul>
+	<h4>Последнее обновление: $d</h4>
+	</body>
+	</html>
+	EOF
+}
+
+############################################################
+
+create_history(){
+  [ -z "${verbose:-}" ] || echo "Creating History..."
+  local index="commits/index.htm"
+  cat > $index <<-EOF
+	<html>
+	<body>
+	<h3>История изменений</h3>
+	<ul>
+	EOF
+
+  local sha auth d subj
+  while IFS='	' read sha auth d subj; do
+    cat >> $index <<-EOF
+	<li><a href="$sha/index.htm">$d <i>$auth</i> -- <b>$subj</b></a>
+	EOF
+  done < "$GITLOG"
+
+  cat >> $index <<-EOF
+	</ul>
+        <a href="../index.htm">$text_tomain</a>
+	</body>
+	</html>
+	EOF
+}
+
+############################################################
 
 create_commit(){
   local sha="$1"; shift
@@ -34,14 +187,18 @@ create_commit(){
   local subj="$1"; shift
 
   local comm_dir="commits/$sha"
+  mkdir -p -- "$comm_dir"
+  rm -f -- "commits/$sha/OK"
   local index="$comm_dir/index.htm"
+
+  echo "COMMIT $sha by $auth at $d -- $subj"
 
   cat > "$index" <<-EOF
 	<html>
 	<body>
 	<p>by $auth at $d:<br>
         <b>$subj</b></p>
-	<p>changed tiles:
+	<p>Исправленные плитки:
 	EOF
 
   local f g
@@ -53,7 +210,7 @@ create_commit(){
     [ -z ${f%%t.*} ]    || continue
     f="${f%.*}"
     echo "<a href=\"../../tiles/$f.htm\">${f#t.}</a> " >> "$index"
-    printf "%s\t%s\n" "$sha" "$subj"  >> "tiles/$f.txt"
+
     if [ ! -f "$comm_dir/$f.png" ]; then
       echo "Rendering PNG: ${f#t.}"
       local tmp="$(mktemp).vmap"
@@ -65,103 +222,85 @@ create_commit(){
   done
   echo "</p>" >> "$index"
 
-  if ls $comm_dir/*.map &> /dev/null; then
-    local indexjpg="$comm_dir/index.jpg"
-    local indexmaphtm="$comm_dir/index_map.htm"
-
-    if [ ! -f "$indexjpg" -o ! -f "$indexmaphtm" ]; then
-      mapsoft_convert $comm_dir/*.map --dpi=5\
-        --draw_borders=1 --rscale="$rscale"\
-        --htm="$indexmaphtm" -o "$indexjpg"
-
-#    git stash
-#    local curr="$(git log -n1 --pretty=format:%H)"
-#    git checkout $sha
-
-#    local tmp_vmap="$(mktemp).vmap"
-#    local tmp_map="$(mktemp).map"
-#    local tmp_png="$(mktemp).png"
-#    vmap_copy $tmap/*.vmap -o "$tmp_vmap"
-#    vmap_render -m "$tmp_map" "$tmp_vmap" "$tmp_png"
-#    # todo - index image
-
-#    rm -f -- "$tmp_vmap" "$tmp_map" "$tmp_png"
-
-#    git checkout $curr
-#    git stash pop
-    fi
-    sed -e '
-      /^<img/,/^<\/map/{
-        s/href="[^"]\+\/\([^\/"]\+\).png"/href="..\/..\/tiles\/\1.htm"/
-        s/src="[^"]\+"/src="index.jpg"/
-      }'\
-      "$indexmaphtm" >> "$index"
-  fi
+  make_mapindex "$comm_dir" "..\/..\/tiles\/" >> "$index"
 
   cat >> "$index" <<-EOF
-	<p><a href="../../history.htm">[Back to commit list]</a>
+	<p><a href="../index.htm">$text_tohist</a>
+        <br><a href="../../index.htm">$text_tomain</a>
 	</body>
 	</html>
 	EOF
+  touch "commits/$sha/OK"
 }
 
-############################################################
-
-create_commit_list(){
-  mkdir -p -- "tiles" "commits"
-  rm -f -- tiles/*.txt
-
-  local index="history.htm"
-  cat > $index <<-EOF
-	<html>
-	<body>
-	<ul>
-	EOF
-
-  git log --pretty=tformat:'%H%x09%an <%aE>%x09%at%x09%s' |
-  while IFS='	' read sha auth t subj; do
-    local comm_dir="commits/$sha"
-    mkdir -p -- "$comm_dir"
-
-    local d="$(date -d "@$t" "+%Y/%m/%d %H:%M:%S")"
-    cat >> $index <<-EOF
-	<li><a href="$comm_dir/index.htm">by $auth at $d -- $subj</a>
-	EOF
-    echo "COMMIT $sha by $auth at $d -- $subj"
-    create_commit "$sha" "$auth" "$d" "$subj"
-  done
-
-  cat >> $index <<-EOF
-	</ul>
-	</body>
-	</html>
-	EOF
+create_commits(){
+  [ -z "${verbose:-}" ] || echo "Creating Commits..."
+  local sha auth d subj
+  while IFS='	' read sha auth d subj; do
+    [ -f "commits/$sha/OK" ] ||
+      create_commit "$sha" "$auth" "$d" "$subj"
+  done < "$GITLOG"
 }
+
 
 ############################################################
 
 create_tiles(){
-  for txt in tiles/*.txt; do
-    [ -f "$txt" ] || continue
-    local htm="${txt%.txt}.htm"
-    local base="$(basename "$txt" .txt)"
+  [ -z "${verbose:-}" ] || echo "Creating Tiles..."
+
+  local base
+  while read base; do # each tile
+    local htm="tiles/$base.htm"
+
+
     local pref="${base%%.*}"
     local nums="${base#$pref.}"
     local y="${nums#*.}"
     local x="${nums%.*}"
+    echo "TILE $x $y"
 
     local l="${pref}.$(($x-1)).${y}"
     local u="${pref}.${x}.$(($y+1))"
     local d="${pref}.${x}.$(($y-1))"
     local r="${pref}.$(($x+1)).${y}"
-    local nav=
-    [ -f "$tmap/$l.vmap" ] && nav="$nav <a href=\"$l.htm\">[left]</a>"  || nav="$nav [left]"
-    [ -f "$tmap/$u.vmap" ] && nav="$nav <a href=\"$u.htm\">[up]</a>"    || nav="$nav [up]"
-    [ -f "$tmap/$d.vmap" ] && nav="$nav <a href=\"$d.htm\">[down]</a>"  || nav="$nav [down]"
-    [ -f "$tmap/$r.vmap" ] && nav="$nav <a href=\"$r.htm\">[right]</a>" || nav="$nav [right]"
+    local nav="<!-- NAV --> "
 
+    # slow!!!
+    check_tile "$l" && nav="$nav <a href=\"$l.htm\">[left]</a>"  || nav="$nav [left]"
+    check_tile "$u" && nav="$nav <a href=\"$u.htm\">[up]</a>"    || nav="$nav [up]"
+    check_tile "$d" && nav="$nav <a href=\"$d.htm\">[down]</a>"  || nav="$nav [down]"
+    check_tile "$r" && nav="$nav <a href=\"$r.htm\">[right]</a>" || nav="$nav [right]"
 
-    cat > "$htm" <<-EOF
+    local n=0
+    local images=''
+    local inputs=''
+#    local max_width='0' ## calculating widths with file + sed is too slow!
+    local max_width="$cfg_maxw"
+
+    local lastsha=""
+    local sha auth d subj
+    while IFS='	' read sha auth d subj; do
+      local png_name="commits/$sha/$base.png"
+      [ -f "$png_name" ] || continue
+
+      n="$(($n+1))"
+      local vis=''
+      local chk=''
+#      local w="$(file "$png_name" | sed -n '1s/.* \([0-9]\+\) x [0-9]\+.*/\1/p')"
+#      [ "$w" -le "$max_width" ] || max_width="$w"
+      [ "$n" = "1" ] && chk="checked" ||
+                        vis="style=\"visibility: hidden;\""
+      images="$images
+        <img id=\"$n\" $vis src=\"../$png_name\">"
+      inputs="$inputs
+        <input type=\"radio\" name=\"sw\" value=\"$n\" $chk onclick=\"update_vis()\">
+        $subj <a href=\"../commits/$sha/index.htm\">[>>]</a><br>"
+      [ -n "$lastsha" ] || lastsha="$sha"
+    done < "$GITLOG"
+
+    # problem with navigation!
+    if [ "$htm" -ot "commits/$lastsha/OK" ]; then
+      cat > "$htm" <<-EOF
 	<html>
 	<head>
 	<script language="JavaScript">
@@ -178,42 +317,76 @@ create_tiles(){
 	</style>
 	</head>
 	<body>
-	<h4 align="center">$nav</h4>
-	EOF
-
-echo "TILE $x $y"
-    local n=0
-    local images=''
-    local inputs=''
-    while IFS='	' read sha subj; do
-      n="$(($n+1))"
-      local vis=''
-      local chk=''
-      [ "$n" = "1" ] && chk="checked" ||
-                        vis="style=\"visibility: hidden;\""
-      images="$images
-        <img id=\"$n\" $vis src=\"../commits/$sha/$base.png\">"
-      inputs="$inputs
-        <input type=\"radio\" name=\"sw\" value=\"$n\" $chk onclick=\"update_vis()\">
-        $subj <a href=\"../commits/$sha/index.htm\">[>>]</a><br>"
-    done < "$txt"
-
-    cat >> "$htm" <<-EOF
 	<table>
-	<tr><td>
-	<form>$inputs
-	</form>
-	</td><td>
+	<tr><td width="$max_width" valign="top">
 	<div style="position:relative;">$images
 	</div>
+	</td><td>
+	<h4 align="center">$nav</h4>
+	<h4 align="center">$x $y</h4>
+	<form>$inputs
+	</form>
+        <p>Последняя версия: <a href="$base.png">[PNG]</a>
+           <a href="$base.map">[MAP]</a>
+	<p><a href="../commits/index.htm">$text_tohist</a>
+        <br><a href="../index.htm">$text_tomain</a>
 	</td></tr>
 	</table>
 	</body>
 	</html>
 	EOF
-  done
+    fi
+
+    local target="../commits/$lastsha/$base.png"
+    local name="tiles/$base.png"
+    local old_target="$(readlink -s "$name")"
+    if [ "$target" != "$old_target" ]; then
+      ln -s -f -- "$target" "$name"
+      ln -s -f -- "${target%.png}.map" "${name%.png}.map"
+    fi
+  done < "$GITMAPS"
+
+  cat > "tiles/index.htm" <<-EOF
+	<html>
+	<head>
+	</head>
+	<body>
+        <h3>Обзорная карта</h3>
+	EOF
+  rm -f -- "tiles/index.jpg"
+  make_mapindex "tiles" "" >> "tiles/index.htm"
+  cat >> "tiles/index.htm" <<-EOF
+	<p><a href="../commits/index.htm">$text_tohist</a>
+        <br><a href="../index.htm">$text_tomain</a>
+	</body>
+	</html>
+	EOF
 }
 
-create_commit_list
+############################################################
 
+update_rmap(){
+  local name="$1"
+  local geom="$2"
+  local title="$3"
+  tilevmap_get -r "$(geom2ll "$geom")" "$tmap" -o "$name/$name.vmap"
+}
+
+update_rmaps(){
+  local name geom title
+  while read name geom title; do
+    [ -n "$name" -a "$name" != "#" ] || continue
+    mkdir -p -- "$name"
+
+    update_rmap "$name" "$geom" "$title"
+  done < "rmaps.txt"
+}
+
+############################################################
+
+create_index
+create_history
+create_commits
 create_tiles
+
+update_rmaps
