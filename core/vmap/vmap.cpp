@@ -16,8 +16,8 @@ namespace vmap {
 
 using namespace std;
 
-const int label_type = 0x1000FF;
-const int border_type = 0x1000FE;
+const int label_type = 0x10007F;
+const int border_type = 0x10007E;
 
 const double default_rscale = 50000;
 const string default_style = "default";

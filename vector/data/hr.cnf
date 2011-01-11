@@ -617,12 +617,14 @@
   curve: 50
   replace_by: 0x10002D
 -
+  # note: 0x7F is also hardcoded in core/vmap/vmap.c
   name: text object
-  mp:   POLYLINE 0x8F 0 0
+  mp:   POLYLINE 0x7F 0 0
   fig:  2 1 0 1 4 7 42 -1 -1 0.000 0 0 7 0 0 0
 -
+  # note: 0x7E is also hardcoded in core/vmap/vmap.c
   name: border object
-  mp:   POLYLINE 0x8E 0 0
+  mp:   POLYLINE 0x7E 0 0
   fig:  2 1 0 1 5 7 41 -1 -1 0.000 0 0 7 0 0 0
   ocad: 507000
 
