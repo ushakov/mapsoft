@@ -37,22 +37,23 @@ rscale="$(head -n1 "$tmap/.rscale")"
 [ -n "$rscale" ] || style="50000"
 
 ############################################################
+# make system dirs if needed
+
+mkdir -p -- "commits" "tiles"
+
+############################################################
 # TMP files
 
 exit_handler() {
         local rc=$?
         trap - EXIT
-        rm -rf -- "$GITLOG" "$GITMAPS"
+        rm -rf -- "$GITLOG" "$GITMAPS" "$TMP_VMAP"
         exit $rc
 }
 trap exit_handler HUP PIPE INT QUIT TERM EXIT
-GITLOG="$(mktemp tmap_gitwww.XXXXXXXXX)"
-GITMAPS="$(mktemp tmap_gitwww.XXXXXXXXX)"
-
-############################################################
-# make dirs
-
-mkdir -p -- "commits" "tiles"
+GITLOG="$(mktemp tmap_gitwww.XXXXXXXXX.txt)"
+GITMAPS="$(mktemp tmap_gitwww.XXXXXXXXX.txt)"
+TMP_VMAP="$(mktemp tmap_gitwww.XXXXXXXXX.vmap)"
 
 ############################################################
 
@@ -68,7 +69,7 @@ git ls-tree --name-only $gitbranch "$tmap/" |
 while read fname; do
   n="$(basename "$fname" .vmap)"
   [ -n "${n%%.*}" ] || continue # skip .* names
-#    local sha="$(git log -1 --format=tformat:'%H' "$fname")"
+#    local sha="$(git log "$gitbranch" -1 --format=tformat:'%H' "$fname")"
   printf "%s\n" "$n"
 done >> "$GITMAPS"
 
@@ -80,6 +81,7 @@ check_tile(){
 ############################################################
 
 make_mapindex(){
+  # html map for a number of tiles. Used for commit page and for tiles page
   dir="$1"; shift
   pref="${1:-}"; shift
   ls $dir/*.map &> /dev/null || return 0
@@ -101,22 +103,30 @@ make_mapindex(){
 
 ############################################################
 
-create_index(){
-  [ -z "${verbose:-}" ] || echo "Creating Index..."
-  local index="index.htm"
-  local d="$(date "+%d/%m/%Y")"
-
-  local rmaps=""
+read_rmaps(){
   local name geom title
+  sed -e 's/#.*//; /^[[:space:]]*$/d' "rmaps.txt" |
   while read name geom title; do
-    [ -n "$name" -a "$name" != "#" ] || continue
-    if [ "$name" = commits -o "$name" = tiles ]; then
+    # skip empty lines and comments
+    if [ -z "$name" -o "$name" = "#" ]; then
+      continue
+    fi
+    if [ "$name" = commits -o "$name" = tiles -o \
+         "$name" = tmap -o "$name" = .git -o \
+         "${name%.vmap}" != "${name}" ]; then
       echo "Error: wrong name for rmap: $name"
       exit 1
     fi
-    rmaps="$rmaps
-           <li><a href=\"$name\">$title</a>"
-  done < "rmaps.txt"
+    printf "%s\t%s\t%s\n" "$name" "$geom" "$title"
+  done
+}
+
+############################################################
+
+create_index(){
+  [ -z "${verbose:-}" ] || echo "Creating Index..."
+  local index="index.htm"
+  local d="$(date "+%Y-%m-%d")"
 
   cat > "$index" <<-EOF
 	<html>
@@ -125,7 +135,16 @@ create_index(){
 
 	<h4>Листы карты:</h4>
 	<ul>
-	  $rmaps
+	EOF
+
+  local name geom title
+  read_rmaps | while IFS='	' read name geom title; do
+    [ -f "$name/index.htm" ] || continue
+    local md="$(stat -c "%z" "$name/index.htm" | cut -d" " -f 1)"
+    echo "<li><a href=\"$name/index.htm\">$title</a> /$md/" >> "$index"
+  done
+
+  cat >> "$index" <<-EOF
 	</ul>
 
 	<h4>Векторная карта:</h4>
@@ -213,11 +232,9 @@ create_commit(){
 
     if [ ! -f "$comm_dir/$f.png" ]; then
       echo "Rendering PNG: ${f#t.}"
-      local tmp="$(mktemp).vmap"
-      git cat-file blob "$sha:$tmap/$f.vmap" > $tmp
-      vmap_render -m "$comm_dir/$f.map" "$tmp" "$comm_dir/$f.png"
+      git cat-file blob "$sha:$tmap/$f.vmap" > $TMP_VMAP
+      vmap_render -lg2 -m "$comm_dir/$f.map" "$TMP_VMAP" "$comm_dir/$f.png"
       map_rescale -s "$style" -r "$png_scale" "$comm_dir/$f.map"
-      rm -f -- "$tmp"
     fi
   done
   echo "</p>" >> "$index"
@@ -230,7 +247,8 @@ create_commit(){
 	</body>
 	</html>
 	EOF
-  touch "commits/$sha/OK"
+  touch -d "$d" commits/$sha/*.png commits/$sha/*.map
+  touch -d "$d" "commits/$sha/OK" "commits/$sha/index.htm"
 }
 
 create_commits(){
@@ -299,6 +317,8 @@ create_tiles(){
     done < "$GITLOG"
 
     # problem with navigation!
+    # todo - get nav, rewrite if differ
+
     if [ "$htm" -ot "commits/$lastsha/OK" ]; then
       cat > "$htm" <<-EOF
 	<html>
@@ -365,28 +385,57 @@ create_tiles(){
 
 ############################################################
 
+# TODO
+curr_commit=
+my_git_stash(){
+  git stash
+  curr_commit="$(git log -n1 --pretty=format:%H)"
+  git checkout $gitbranch
+}
+my_git_unstash(){
+  git checkout $curr_commit
+  git stash pop
+}
+
 update_rmap(){
   local name="$1"
   local geom="$2"
   local title="$3"
-  tilevmap_get -r "$(geom2ll "$geom")" "$tmap" -o "$name/$name.vmap"
+
+  # todo - stash - checkout master - stash pop
+  [ -z "${verbose:-}" ] || echo "  $name: collecting tiles..."
+  tilevmap_get -r "$llgeom" "$tmap" -o "$name.vmap"
+
+  [ -z "${verbose:-}" ] || echo "  $name: creating map..."
+  map_install "$name" "$name.vmap"
+}
+
+geom_mtime(){
+  # last modification time for a given geometry (detected from git commit time)
+  local llgeom="$1"
+  local maxt=0
+  for tile in $(tilevmap_get -p -r "$llgeom" "$tmap"); do
+    local t="$(git log "$gitbranch" -1 --format=tformat:'%at' "$tile")"
+    [ "$maxt" -ge "$t" ] || maxt="$t"
+  done
+  echo "$maxt"
 }
 
 update_rmaps(){
+  [ -z "${verbose:-}" ] || echo "Updating RMaps..."
   local name geom title
-  while read name geom title; do
-    [ -n "$name" -a "$name" != "#" ] || continue
-    mkdir -p -- "$name"
-
-    update_rmap "$name" "$geom" "$title"
-  done < "rmaps.txt"
+  read_rmaps | while IFS='	' read name geom title; do
+    local llgeom="$(geom2ll "$geom")"
+    [ "$(geom_mtime "$llgeom")" -lt "$(stat -c%Z $name/index.htm)" ] ||
+      update_rmap "$name" "$llgeom" "$title"
+  done
 }
 
 ############################################################
 
-create_index
-create_history
 create_commits
 create_tiles
-
 update_rmaps
+
+create_history
+create_index
