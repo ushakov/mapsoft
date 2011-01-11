@@ -14,9 +14,10 @@ void usage(){
   cerr
      << prog << " -- get region from the tiled vmap.\n"
      << "  usage: " << prog << " [<input_options>] <map dir> [<input_options>]\\n"
-     << "         (--out|-o) <output_file> [<output_options>]\n"
+     << "         [ (--out|-o) <output_file> [<output_options>] ]\n"
      << "  options:\n"
      << "   -r --range    -- set range (lonlat wgs84)\n"
+     << "   -p --printe   -- print tile names\n"
      << "   -v --verbose  -- be verbose\n"
   ;
   exit(1);
@@ -25,6 +26,7 @@ void usage(){
 static struct option in_options[] = {
   {"range",          1, 0, 'r'},
   {"out",            0, 0, 'o'},
+  {"print",          0, 0, 'p'},
   {"verbose",        0, 0, 'v'},
   {0,0,0,0}
 };
@@ -49,20 +51,16 @@ main(int argc, char **argv){
 
   // options after map_dir
   Options OI1 = parse_options(&argc, &argv, in_options, "out");
-
-  if (!OI1.exists("out") || (argc<1)){
-    cerr << "no output filename\n";
-    exit(1);
-  }
-
-  const char * out_file = argv[0];
-
   OI.insert(OI1.begin(), OI1.end());
 
-  // options after output file
+  const char * out_file = NULL;
+  Options OO;
 
-  Options OO = parse_options(&argc, &argv, in_options);
-
+  if (OI1.exists("out") && (argc>0)){
+    out_file = argv[0];
+    // options after output file
+    Options OO = parse_options(&argc, &argv, in_options);
+  }
 
 /// READ MAP INFO
 
@@ -73,6 +71,7 @@ main(int argc, char **argv){
 
   dRect range = OI.get<dRect>("range");
   int verbose = OI.get<int>("verbose",0);
+  int print = OI.get<int>("print",0);
 
   if (range.empty()){
     cerr << "Error: empty range. Use -r option.\n";
@@ -101,21 +100,24 @@ main(int argc, char **argv){
         if (verbose) cerr << "skipping " << fname << "\n";
         continue;
       }
-      V.add(vmap::read(fname.c_str()));
+      if (print) cout << fname << "\n";
+      if (out_file) V.add(vmap::read(fname.c_str()));
     }
   }
 
-  join_objects(V, 1e-4);
-  join_labels(V);
-  create_labels(V);
-  move_pics(V);
+  if (out_file){
+    join_objects(V, 1e-4);
+    join_labels(V);
+    create_labels(V);
+    move_pics(V);
 
-  // set correct name and border
-  ostringstream sn;
-  sn << tsize << " " << trange;
-  V.name = sn.str();
-  V.brd = rect2line(range);
+    // set correct name and border
+    ostringstream sn;
+    sn << tsize << " " << trange;
+    V.name = sn.str();
+    V.brd = rect2line(range);
 
-  if (!vmap::write(out_file, V, OO)) exit(1);
+    if (!vmap::write(out_file, V, OO)) exit(1);
+  }
   exit(0);
 }
