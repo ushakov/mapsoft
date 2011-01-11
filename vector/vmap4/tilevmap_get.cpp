@@ -15,7 +15,9 @@ void usage(){
      << prog << " -- get region from the tiled vmap.\n"
      << "  usage: " << prog << " [<input_options>] <map dir> [<input_options>]\\n"
      << "         (--out|-o) <output_file> [<output_options>]\n"
-
+     << "  options:\n"
+     << "   -r --range    -- set range (lonlat wgs84)\n"
+     << "   -v --verbose  -- be verbose\n"
   ;
   exit(1);
 }
@@ -70,17 +72,17 @@ main(int argc, char **argv){
 /// GET TILE RANGE
 
   dRect range = OI.get<dRect>("range");
+  int verbose = OI.get<int>("verbose",0);
+
   if (range.empty()){
-    cerr << "empty range\n";
+    cerr << "Error: empty range. Use -r option.\n";
     exit(1);
   }
 
   dRect trange = rect_pump_to_int(range/tsize);
 
-  int verbose = OI.get<int>("verbose",0);
-
   if (verbose){
-    cout << "reading map from:  " << map_dir << "\n"
+    cerr << "reading map from:  " << map_dir << "\n"
          << "map tile size:     " << tsize << "\n"
          << "lonlat range:      " << range << "\n"
          << "tile range:        " << trange << "\n"
@@ -96,7 +98,7 @@ main(int argc, char **argv){
       string fname = ss.str();
       ifstream test(fname.c_str());
       if (!test.good()){
-        if (verbose) cout << "skipping " << fname << "\n";
+        if (verbose) cerr << "skipping " << fname << "\n";
         continue;
       }
       V.add(vmap::read(fname.c_str()));
