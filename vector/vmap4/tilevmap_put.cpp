@@ -167,6 +167,7 @@ main(int argc, char **argv){
       if (test.good()) V_old = vmap::read(fname.c_str());
 
       if (add) V1.add(V_old);
+      else vmap::fix_diff(V_old,V1, 1e-4);
 
       // write backup
       if (backup) rename(fname.c_str(), (fname+".bak").c_str());
