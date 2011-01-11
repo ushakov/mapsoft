@@ -13,10 +13,10 @@ print_help(){
 cat <<EOF
 map_install - install map
 
-Using: ${0##*/} <name>
+Using: ${0##*/} <name> [<file>]
 
-Uses ./settings file for <style>, <geom>, <basedir>, <rscale> settings...
-Uses name.fig and name.mp (if exists).
+Uses .map file for <style>, <geom>, <basedir>, <rscale> settings...
+Default file: <name>.fig
 Install files into <basedir>/<name>:
  * <name>.fig.zip
  * <name>.mp.zip
@@ -26,16 +26,16 @@ Install files into <basedir>/<name>:
 EOF
 }
 
-[ "$#" = 1 ] || {
+[ "$#" = 1 -o "$#" = 2 ] || {
   print_help
   exit 0
 }
 
 name="$1"
-fig="${name}.fig"
+file="${2:-$name.fig}"
 
-[ -s "$fig" ] ||
-  fatal "Error: can't find $fig."
+[ -s "$file" ] ||
+  fatal "Error: can't find $file."
 
 cgm="cgpsmapper-static"
 
@@ -71,10 +71,20 @@ datadir="$basedir/$name"
 [ -d "$datadir" ] || mkdir "$datadir" ||
   fatal "Error: can't create $datadir"
 
-####### make name.mp
+####### make FIG
 
-vmap_copy "$fig" -o "$datadir/$name.mp" --skip_labels\
-  --name "$comm_utf"
+rm -f -- "$datadir/$name.fig"
+vmap_copy --range_datum=pulkovo --range_proj=tmerc\
+  --range="$geom" --range_action=crop_spl --set_brd_from_range\
+  --name="$comm_utf" --rscale="$rscale" "$file" -o "$datadir/$name.fig"
+
+####### make MP
+
+rm -f -- "$datadir/$name.mp"
+vmap_copy --range_datum=pulkovo --range_proj=tmerc\
+  --range="$geom" --range_action=crop_spl --set_brd_from_range\
+  --name="$comm_utf" --rscale="$rscale" "$file"\
+   -o "$datadir/$name.mp" --skip_labels --name "$comm_utf"
 
 id="$(sed -n 's/^ID=\([^\r]*\)\r\?$/\1/p' "$datadir/$name.mp")"
 if [ -z "$id" -o "$id" = 0 ]; then
@@ -90,39 +100,37 @@ if [ "$oldauth" != "$auth" ]; then
   sed -i "s/^Copyright=.*\$/Copyright=$auth_q\r/" "$datadir/$name.mp"
 fi
 
-####### make name.img
+####### make IMG
 
 if [ -z "$noimg" ]; then
   "$cgm" -o "$datadir/$name.img" "$datadir/$name.mp"
 fi
 
-####### make raster
+####### make PNG + MAP
 if [ -z "$nopng" ]; then
 
   ####### make 300dpi name.png + name.map
-  vmap_copy --range_datum=pulkovo --range_proj=tmerc\
-    --range="$geom" --set_brd_from_range\
-    --name="$comm_utf" --rscale="$rscale" "$fig" -o "$datadir/$fig"
+
   vmap_render -g4 -lND \
-   -m "$datadir/$name.map" "$datadir/$fig" "$datadir/$name.png"
+   -m "$datadir/$name.map" "$datadir/$name.fig" "$datadir/$name.png"
 
   ####### make resized and cropped images
   IFS=','
   for dpi in $dpi_list; do
     scale="$(echo "$dpi/300" | bc -l)"
-    map_rescale\
-      -r "$scale"\
-      -s "$style"\
-      -o "$name.$dpi"\
-      "$datadir/$name.map"
+    map_rescale -r "$scale" -s "$style" -o "$name.$dpi" "$datadir/$name.map"
   done
   IFS=' '
   rm -f -- "$datadir/$name.png" "$datadir/$name.map"
 fi
 
-zip -j "$datadir/$name.fig.zip" "$name.fig"
+####### zip MP and FIG
+
+zip -j "$datadir/$name.fig.zip" "$datadir/$name.fig"
 zip -j "$datadir/$name.mp.zip" "$datadir/$name.mp"
 rm -f -- "$datadir/$name.fig" "$datadir/$name.mp"
+
+####### make HTM
 
 cat > "$datadir/index.htm" <<EOF
 <html>
