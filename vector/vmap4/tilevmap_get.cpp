@@ -16,9 +16,9 @@ void usage(){
      << "  usage: " << prog << " [<input_options>] <map dir> [<input_options>]\\n"
      << "         [ (--out|-o) <output_file> [<output_options>] ]\n"
      << "  options:\n"
-     << "   -r --range    -- set range (lonlat wgs84)\n"
-     << "   -p --printe   -- print tile names\n"
-     << "   -v --verbose  -- be verbose\n"
+     << "   -r --range <range>  -- set range (lonlat wgs84)\n"
+     << "   -p --print          -- print tile names\n"
+     << "   -v --verbose        -- be verbose\n"
   ;
   exit(1);
 }
