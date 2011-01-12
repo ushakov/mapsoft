@@ -15,6 +15,5 @@ e.Library('vmap_renderer',\
 e.Program("vmap_copy.cpp")
 e.Program("vmap_render.cpp")
 e.Program("vmap_mmb_filter.cpp")
-e.Program("vmap_join.cpp")
 e.Program("vmap_fix_diff.cpp")
 
