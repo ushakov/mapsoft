@@ -26,6 +26,7 @@ main(int argc, char **argv){
   vmap::world V1 = vmap::read(in1);
   vmap::world V2 = vmap::read(in2);
   vmap::fix_diff(V1,V2, 1e-4);
+  vmap::remove_dups(V2, 1e-5);
 
   vmap::write(out, V2);
   exit(0);
