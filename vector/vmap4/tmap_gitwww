@@ -47,7 +47,7 @@ mkdir -p -- "commits" "tiles"
 exit_handler() {
         local rc=$?
         trap - EXIT
-        rm -rf -- "$GITLOG" "$GITMAPS" "$TMP_VMAP"
+        rm -f -- "$GITLOG" "$GITMAPS" "$TMP_VMAP"
         exit $rc
 }
 trap exit_handler HUP PIPE INT QUIT TERM EXIT
