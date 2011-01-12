@@ -131,20 +131,15 @@ main(int argc, char **argv){
           rect_crop(crop_range, *l, closed);
 
           dMultiLine ml = rect_split_cropped(crop_range, *l, closed);
-          for (dMultiLine::const_iterator m=ml.begin(); m!=ml.end(); m++){
+          for (dMultiLine::iterator m=ml.begin(); m!=ml.end(); m++){
             l = o1.insert(l, *m) + 1;
           }
           l->clear();
-
-        }
-        // remove empty lines
-        l = o1.begin();
-        while (l != o1.end()){
-          if (l->size()==0) l=o1.erase(l);
-          else l++;
         }
         if (o1.size()) V1.push_back(o1);
       }
+      vmap::remove_empty(V1);      // remove empty objects and lines
+      vmap::remove_dups(V1, 1e-5); // remove repeated points
 
       /// crop lbuf
       std::list<vmap::lpos_full>::iterator lb;

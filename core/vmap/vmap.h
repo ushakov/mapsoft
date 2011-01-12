@@ -125,8 +125,10 @@ void join_objects(world & W, double dist);
 void remove_tails(world & W, double dist, const dRect & cutter, Conv * cnv = NULL);
 void range_action(world & W, std::string action, const dRect & cutter, Conv * cnv = NULL);
 // remove empty lines and objects
-void remove_empty(world & W);
 //note: remove_tails and range_action do remove_empty
+void remove_empty(world & W);
+//remove repeated points
+void remove_dups(world & W, double dist);
 // remove inessential changes between WOLD and WNEW:
 void fix_diff(const world & WOLD, world & WNEW, double dist);
 

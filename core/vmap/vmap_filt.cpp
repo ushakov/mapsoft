@@ -44,6 +44,21 @@ remove_empty(world & W){
   }
 }
 
+void
+remove_dups(world & W, double dist){
+  world::iterator oi;
+  dMultiLine::iterator li;
+  for (oi=W.begin(); oi!=W.end(); oi++){
+    for (li=oi->begin(); li!=oi->end(); li++){
+      if (li->size()<1) continue;
+      dLine::iterator p1=li->begin(), p2=p1+1;
+      while (p2!=li->end()){
+        if (pdist(*p1,*p2) < dist) p2=li->erase(p2);
+        else { p1++; p2++;}
+      }
+    }
+  }
+}
 
 void
 remove_tails(world & W, double dist, const dRect & cutter, Conv * cnv){
@@ -353,8 +368,8 @@ fix_diff(const world & WOLD, world & WNEW, double dist){
       }
     }
   }
-
 }
+
 
 // crop/cut/select range, get statistics
 struct RangeCutter{
