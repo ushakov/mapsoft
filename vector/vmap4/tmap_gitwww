@@ -4,7 +4,7 @@ PROG="${0##*/}"
 
 . map_functions.sh
 
-. ./settings.sh
+. ./settings.sh ||:
 cfg_git=${cfg_git:-""}
 cfg_map=${cfg_map:-"Какая-то карта..."}
 cfg_maxw=${cfg_maxw:-500}
@@ -67,6 +67,7 @@ done > "$GITLOG"
 
 git ls-tree --name-only $gitbranch "$tmap/" |
 while read fname; do
+  [ "${fname%.vmap}" != "$fname" ] || continue # skip non *.vmap files
   n="$(basename "$fname" .vmap)"
   [ -n "${n%%.*}" ] || continue # skip .* names
 #    local sha="$(git log "$gitbranch" -1 --format=tformat:'%H' "$fname")"
@@ -435,7 +436,7 @@ update_rmaps(){
 
 create_commits
 create_tiles
-update_rmaps
+#update_rmaps
 
 create_history
 create_index

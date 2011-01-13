@@ -139,7 +139,6 @@ main(int argc, char **argv){
 
       dRect crop_range = (trange.TLC() + dRect(i,j,1,1))*tsize;
       vmap::world V1(V0);
-      V1.brd=rect2line(crop_range);
 
       /// crop objects
       for (vmap::world::const_iterator o=V.begin(); o!=V.end(); o++){
@@ -188,6 +187,7 @@ main(int argc, char **argv){
       if (backup) rename(fname.c_str(), (fname+".bak").c_str());
 
       // write tile
+      V1.brd=rect2line(crop_range);
       if (V1.size()) vmap::write(fname.c_str(), V1, OO);
     }
   }

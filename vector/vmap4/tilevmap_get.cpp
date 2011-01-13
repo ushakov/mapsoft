@@ -99,12 +99,13 @@ main(int argc, char **argv){
     geom.x=convs::lon_delprefix(geom.x);
     convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
                      Datum("pulk"), Proj("tmerc"), O);
-    range=cnv.bb_bck(geom);
+    range=cnv.bb_bck(geom, BE);
     brd = cnv.line_bck(rect2line(geom), BE);
   }
 
   if (range.empty()){
-    cerr << "Error: empty range. Use -m or -r option.\n";
+    if (map!="") cerr << "Error: can't get geometry for a map " << map << "\n";
+    else cerr << "Error: empty range. Use -m or -r option.\n";
     exit(1);
   }
 
@@ -127,9 +128,10 @@ main(int argc, char **argv){
       string fname = ss.str();
       ifstream test(fname.c_str());
       if (!test.good()){
-        if (verbose) cerr << "skipping " << fname << "\n";
+        if (verbose) cerr << "skipping tile: " << fname << "\n";
         continue;
       }
+
       if (print) cout << fname << "\n";
       if (out_file) V.add(vmap::read(fname.c_str()));
     }
