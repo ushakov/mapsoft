@@ -7,6 +7,8 @@
 #include "2d/line_utils.h"
 #include "tmap.h"
 
+const double JE=1e-4; // accuracy for join objects (degree)
+const double BE=1e-4; // accuracy for border calculations (degree)
 
 using namespace std;
 void usage(){
@@ -16,14 +18,18 @@ void usage(){
      << "  usage: " << prog << " [<input_options>] <map dir> [<input_options>]\\n"
      << "         [ (--out|-o) <output_file> [<output_options>] ]\n"
      << "  options:\n"
-     << "   -r --range <range>  -- set range (lonlat wgs84)\n"
-     << "   -p --print          -- print tile names\n"
-     << "   -v --verbose        -- be verbose\n"
+     << "   -m --map <name>          -- get rectangular map\n"
+     << "   -l --label_source <src>  -- use label source ([rmaps]/tiles/none)"
+     << "   -r --range <range>       -- set range (lonlat wgs84)\n"
+     << "   -p --print               -- print tile names\n"
+     << "   -v --verbose             -- be verbose\n"
   ;
   exit(1);
 }
 
 static struct option in_options[] = {
+  {"map",            1, 0, 'm'},
+  {"label_source",   1, 0, 'l'},
   {"range",          1, 0, 'r'},
   {"out",            0, 0, 'o'},
   {"print",          0, 0, 'p'},
@@ -62,7 +68,7 @@ main(int argc, char **argv){
     Options OO = parse_options(&argc, &argv, in_options);
   }
 
-/// READ MAP INFO
+/// READ TMAP INFO
 
   vmap::world V;
   double tsize = read_tmap_data(V, map_dir);
@@ -72,9 +78,33 @@ main(int argc, char **argv){
   dRect range = OI.get<dRect>("range");
   int verbose = OI.get<int>("verbose",0);
   int print = OI.get<int>("print",0);
+  string map = OI.get<string>("map","");
+  string label_source = OI.get<string>("label_source","rmaps");
+  if (label_source != "rmaps" &&
+      label_source != "tiles" &&
+      label_source != "none"){
+    cerr << "Error: bad label_source value.\n";
+    exit(1);
+  }
+
+  // get tmerc range for given map
+  dRect geom = read_rmap_geom(map_dir, map);
+  string title = read_rmap_title(map_dir, map);
+
+  dLine brd;
+  // if range is not set explicitly, set it from the map geom.
+  if (range.empty() && !geom.empty()){
+    Options O;
+    O.put<double>("lon0", convs::lon_pref2lon0(geom.x));
+    geom.x=convs::lon_delprefix(geom.x);
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
+                     Datum("pulk"), Proj("tmerc"), O);
+    range=cnv.bb_bck(geom);
+    brd = cnv.line_bck(rect2line(geom), BE);
+  }
 
   if (range.empty()){
-    cerr << "Error: empty range. Use -r option.\n";
+    cerr << "Error: empty range. Use -m or -r option.\n";
     exit(1);
   }
 
@@ -106,16 +136,29 @@ main(int argc, char **argv){
   }
 
   if (out_file){
-    join_objects(V, 1e-4);
+    join_objects(V, JE);
+
+    if (label_source=="rmaps"){
+      remove_labels(V);
+      vmap::world L = read_rmap_labels(map_dir, map);
+      V.lbuf.swap(L.lbuf);
+    }
+    else if (label_source=="none"){
+      remove_labels(V);
+    }
+
     join_labels(V);
     create_labels(V);
     move_pics(V);
 
-    // set correct name and border
+    // set correct name
     ostringstream sn;
-    sn << tsize << " " << trange;
+    sn << tsize << " " << trange << " " << map;
     V.name = sn.str();
-    V.brd = rect2line(range);
+
+    // set border if it is not set yet
+    if (brd.size()==0) brd = rect2line(range);
+    V.brd.swap(brd);
 
     if (!vmap::write(out_file, V, OO)) exit(1);
   }

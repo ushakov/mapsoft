@@ -17,24 +17,25 @@ void usage(){
      << "  usage: " << prog << " [<input_options>] <in file> [<input_options>]\\n"
      << "         (--out|-o) <map dir> [<output_options>]\n"
      << "  options:\n"
-     << "  -a --add       -- add objects to existing tiles\n"
-     << "  -v --verbose   -- be more verbose\n"
-     << "  -b --backup    -- save old tiles in .bak files\n"
-     << "  -r --autorange -- don't check input map range\n"
+     << "  -a --add                 -- add objects to existing tiles\n"
+     << "  -r --autorange           -- don't check input map range\n"
+     << "  -l --label_source <src>  -- use label source ([rmaps]/tiles/both/none)"
+     << "    (rmaps label source does not work in autorange mode)\n"
+     << "  -b --backup              -- save old tiles in .bak files\n"
+     << "  -v --verbose             -- be more verbose\n"
   ;
   exit(1);
 }
 
 static struct option in_options[] = {
-  {"autorange",      0, 0, 'r'},
-  {"verbose",        0, 0, 'v'},
-  {"backup",         0, 0, 'b'},
   {"add",            0, 0, 'a'},
+  {"autorange",      0, 0, 'r'},
+  {"label_source",   1, 0, 'l'},
+  {"backup",         0, 0, 'b'},
+  {"verbose",        0, 0, 'v'},
   {"out",            0, 0, 'o'},
   {0,0,0,0}
 };
-
-
 
 main(int argc, char **argv){
 
@@ -77,18 +78,28 @@ main(int argc, char **argv){
 /// GET TILE RANGE
 
   iRect trange;
+  string map;
 
   int verbose = OI.get<int>("verbose",0);
   int autorange = OI.get<int>("autorange",0);
   int backup = OI.get<int>("backup",0);
   int add = OI.get<int>("add",0);
+  string label_source = OI.get<string>("label_source","rmaps");
+  if (label_source != "rmaps" &&
+      label_source != "tiles" &&
+      label_source != "both" &&
+      label_source != "none"){
+    cerr << "Error: bad label_source value.\n";
+    exit(1);
+  }
 
   vmap::world V = vmap::read(in_file);
+  split_labels(V);
 
   if (!autorange){
     double ntsize=0;
     istringstream sn(V.name);
-    sn >> ntsize >> trange;
+    sn >> ntsize >> trange >> map;
 
     if (trange.empty() || (ntsize==0)){
       cerr << "bad input file - can't get tsize or trange values\n";
@@ -98,6 +109,15 @@ main(int argc, char **argv){
     if (tsize!=ntsize){
       cerr << "wrong tsize: " << tsize << " != " <<  ntsize << "\n";
       exit(1);
+    }
+
+    // write labels to rmap
+    if ((label_source == "rmaps" || label_source == "both") && map != ""){
+      vmap::world L;
+      L.lbuf.swap(V.lbuf);
+      string lname=map_dir;
+      lname+="/"+map+"/labels.vmap";
+      vmap::write(lname.c_str(), L, Options());
     }
   }
   else { // add mode
@@ -112,7 +132,7 @@ main(int argc, char **argv){
     ;
   }
 
-  split_labels(V);
+  if ( label_source != "tiles" && label_source != "both") remove_labels(V);
 
   for (int j=0; j<trange.h; j++){
     for (int i=0; i<trange.w; i++){

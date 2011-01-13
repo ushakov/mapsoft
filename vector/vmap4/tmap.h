@@ -46,4 +46,25 @@ double read_tmap_data(vmap::world & V, const std::string & map_dir){
   return tsize;
 }
 
+dRect read_rmap_geom(const std::string & map_dir, const std::string & name){
+  dRect geom;
+  if (name == "") return geom;
+  std::ifstream ff((map_dir+"/"+name+"/geom").c_str());
+  if (ff.good()) ff >> geom;
+  return geom;
+}
+std::string read_rmap_title(const std::string & map_dir, const std::string & name){
+  std::string title;
+  if (name == "") return title;
+  std::ifstream ff((map_dir+"/"+name+"/title").c_str());
+  if (ff.good()) ff >> title;
+  return title;
+}
+vmap::world read_rmap_labels(const std::string & map_dir, const std::string & name){
+  std::string fname=map_dir+"/"+name+"/labels.vmap";
+  std::ifstream ff(fname.c_str());
+  if (ff.good()) return vmap::read(fname.c_str());
+  return vmap::world();
+}
+
 #endif
