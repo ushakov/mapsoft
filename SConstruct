@@ -39,7 +39,7 @@ if os.environ.has_key('GCCVER'):
    env.Replace (CC = ("gcc-%s" % ver))
    env.Replace (CXX = ("g++-%s" % ver))
 
-env.Append (CCFLAGS=['-O2', '-Wfloat-equal'])
+env.Append (CCFLAGS=['-O2'])
 
 if ARGUMENTS.get('debug', 0):
 	env.Append (CCFLAGS='-ggdb')
