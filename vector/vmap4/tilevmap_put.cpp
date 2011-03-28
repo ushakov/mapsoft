@@ -180,7 +180,7 @@ main(int argc, char **argv){
       ifstream test(fname.c_str());
       if (test.good()) V_old = vmap::read(fname.c_str());
 
-      if (add) V1.add(V_old);
+      if (add) { V_old.add(V1); V1.swap(V_old); } // swap to keep map pars!
       else vmap::fix_diff(V_old,V1, 1e-4);
 
       // write backup
