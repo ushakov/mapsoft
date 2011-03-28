@@ -52,13 +52,13 @@ class srtm3 {
   bool load(iPoint key){
     char NS='N';
     char EW='E';
-    if (key.y<0) {NS='S'; key.y=-key.y;}
-    if (key.x<0) {EW='W'; key.x=-key.x;}
+    if (key.y<0) {NS='S';}
+    if (key.x<0) {EW='W';}
     // название файла
     std::ostringstream file;
     file << srtm_dir << "/" 
-         << NS << std::setfill('0') << std::setw(2) << key.y
-         << EW << std::setw(3) << key.x << ".hgt";
+         << NS << std::setfill('0') << std::setw(2) << abs(key.y)
+         << EW << std::setw(3) << abs(key.x) << ".hgt";
 
     std::ifstream in(file.str().c_str());
     if (!in){
@@ -87,14 +87,18 @@ class srtm3 {
   short geth_(const iPoint & p){
     iPoint key = p/(srtm_width-1);
     iPoint crd = p - key*(srtm_width-1);
- 
+    if (key.x<0) {key.x--; crd.x+=srtm_width;}
+    if (key.y<0) {key.y--; crd.y+=srtm_width;}
+
     // в исправленных srtm-данных последняя строчка 
     // (которая стала 0-й) иногда содержит нули.
     // и ее не надо использовать!
     if (crd.y==0) {crd.y=srtm_width-1; key.y--;}
 
+
     while (key.x < -max_lon) key.x+=2*max_lon;
     while (key.x >= max_lon) key.x-=2*max_lon;
+
     if ((key.y<-max_lat)||(key.y>=max_lat)) return srtm_nofile;
 
     if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
