@@ -17,3 +17,6 @@ e.Program("vmap_render.cpp")
 e.Program("vmap_mmb_filter.cpp")
 e.Program("vmap_fix_diff.cpp")
 
+env.Install(env.bindir, Split("""
+  vmap_copy vmap_render
+"""))
