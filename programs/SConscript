@@ -8,6 +8,7 @@ map (lambda(f): e.Program(f+'.cpp'),\
   Split("""
     mapsoft_add2fig
     mapsoft_convert
+    mapsoft_gen
     mapsoft_pt2map
     mapsoft_mapcnv
     mapsoft_mapcnv1
