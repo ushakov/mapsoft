@@ -71,9 +71,15 @@ SimpleViewer::redraw (void){
   draw(iRect(0, 0, get_width(), get_height()));
 }
 
-void SimpleViewer::set_scale(const double k){
-  signal_on_rescale_.emit(k);
+void
+SimpleViewer::scale_obj(const double k){
   if (obj) obj->set_scale(k);
+}
+
+void
+SimpleViewer::set_scale(const double k){
+  signal_on_rescale_.emit(k);
+  scale_obj(k);
   dPoint wsize(get_width(), get_height());
   dPoint wcenter = dPoint(get_origin()) + wsize/2.0;
   set_origin((wcenter*k/sc - wsize/2.0));
@@ -81,11 +87,13 @@ void SimpleViewer::set_scale(const double k){
   sc=k;
 }
 
-double SimpleViewer::get_scale(void) const{
+double
+SimpleViewer::get_scale(void) const{
   return sc;
 }
 
-void SimpleViewer::rescale(const double k){
+void
+SimpleViewer::rescale(const double k){
   set_scale(sc*k);
 }
 

@@ -19,6 +19,7 @@ class DThreadViewer : public SimpleViewer {
     void on_done_signal();
     void draw(const iRect & r);
 
+    void scale_obj(const double k);
     void redraw (void);
 
   private:
@@ -30,7 +31,7 @@ class DThreadViewer : public SimpleViewer {
     std::queue<iPoint>      tiles_done;
 
     Glib::Thread           *updater_thread;
-    Glib::Mutex            *updater_mutex;
+    Glib::Mutex            *updater_mutex, *drawer_mutex;
     Glib::Cond             *updater_cond;
     Glib::Dispatcher        done_signal;
 

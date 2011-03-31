@@ -8,6 +8,7 @@ DThreadViewer::DThreadViewer(GObj * pl) :
   done_signal.connect(sigc::mem_fun(*this, &DThreadViewer::on_done_signal));
 
   updater_mutex = new(Glib::Mutex);
+  drawer_mutex = new(Glib::Mutex);
   updater_cond = new(Glib::Cond);
   updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &DThreadViewer::updater), true);
 }
@@ -21,6 +22,7 @@ DThreadViewer::~DThreadViewer(){
 
     updater_thread->join(); // waiting for our thread to exit
     delete(updater_mutex);
+    delete(drawer_mutex);
     delete(updater_cond);
 }
 
@@ -29,9 +31,16 @@ DThreadViewer::redraw (void){
   updater_mutex->lock();
   tiles_cache.clear();
   tiles_todo.clear();
-  updater_mutex->unlock();
   inc_epoch();
+  updater_mutex->unlock();
   draw(iRect(0, 0, get_width(), get_height()));
+}
+
+void
+DThreadViewer::scale_obj(const double k){
+  drawer_mutex->lock();
+  SimpleViewer::scale_obj(k);
+  drawer_mutex->unlock();
 }
 
 iRect
@@ -54,7 +63,11 @@ DThreadViewer::updater(){
 
       iImage tile(TILE_SIZE, TILE_SIZE, 0xFF000000 | get_bgcolor());
       GObj * o = get_obj();
-      if (o) o->draw(tile, tile_to_rect(key).TLC());
+      if (o){
+        drawer_mutex->lock();
+        o->draw(tile, tile_to_rect(key).TLC());
+        drawer_mutex->unlock();
+      }
 
       updater_mutex->lock();
       if (e==get_epoch()){
