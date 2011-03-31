@@ -164,5 +164,7 @@ main(int argc, char **argv){
 
     if (!vmap::write(out_file, V, OO)) exit(1);
   }
+  // write log
+  log_action(map_dir, "GET", trange, map);
   exit(0);
 }

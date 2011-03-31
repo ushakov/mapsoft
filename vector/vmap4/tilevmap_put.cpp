@@ -191,5 +191,7 @@ main(int argc, char **argv){
       if (V1.size()) vmap::write(fname.c_str(), V1, OO);
     }
   }
+  // write log
+  log_action(map_dir, "PUT", trange, map);
   exit(0);
 }

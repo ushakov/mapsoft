@@ -3,6 +3,8 @@
 
 #include <fstream>
 #include <iostream>
+#include <iomanip>
+#include <ctime>
 #include "vmap/vmap.h"
 
 /// read data from tile map dir to vmap V, return tsize
@@ -65,6 +67,22 @@ vmap::world read_rmap_labels(const std::string & map_dir, const std::string & na
   std::ifstream ff(fname.c_str());
   if (ff.good()) return vmap::read(fname.c_str());
   return vmap::world();
+}
+
+void log_action(const std::string & map_dir, const std::string & prefix,
+                const iRect & trange, const std::string & rmap){
+  std::ofstream log((map_dir + "/.log").c_str(), std::ios::app);
+  time_t ts=time(NULL);
+  struct tm * t = localtime(&ts);
+  log << std::setfill('0')
+    << std::setw(2) << t->tm_year+1900 << "-"
+    << std::setw(2) << t->tm_mon+1 << "-"
+    << std::setw(2) << t->tm_mday << " "
+    << std::setw(2) << t->tm_hour << ":"
+    << std::setw(2) << t->tm_min << ":"
+    << std::setw(2) << t->tm_sec << "  "
+    << prefix << "  "
+    << trange << " " << rmap << "\n";
 }
 
 #endif
