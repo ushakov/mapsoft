@@ -19,7 +19,7 @@ void usage(){
      << "  options:\n"
      << "  -a --add                 -- add objects to existing tiles\n"
      << "  -r --autorange           -- don't check input map range\n"
-     << "  -l --label_source <src>  -- use label source ([rmaps]/tiles/both/none)"
+     << "  -l --label_source <src>  -- use label source (rmaps/tiles/[both]/none)"
      << "    (rmaps label source does not work in autorange mode)\n"
      << "  -b --backup              -- save old tiles in .bak files\n"
      << "  -v --verbose             -- be more verbose\n"
@@ -84,7 +84,7 @@ main(int argc, char **argv){
   int autorange = OI.get<int>("autorange",0);
   int backup = OI.get<int>("backup",0);
   int add = OI.get<int>("add",0);
-  string label_source = OI.get<string>("label_source","rmaps");
+  string label_source = OI.get<string>("label_source","both");
   if (label_source != "rmaps" &&
       label_source != "tiles" &&
       label_source != "both" &&
