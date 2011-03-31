@@ -118,6 +118,7 @@ main(int argc, char **argv){
       string lname=map_dir;
       lname+="/"+map+"/labels.vmap";
       vmap::write(lname.c_str(), L, Options());
+      L.lbuf.swap(V.lbuf);
     }
   }
   else { // add mode
