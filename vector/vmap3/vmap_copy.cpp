@@ -66,9 +66,11 @@ void usage(){
      << "                                   border and to other object of the same type)\n"
      << "                                   (range must be set)\n"
      << "\n"
+     << " these options applyed before adding labels:\n"
      << "    --remove_dups <accuracy>    -- remove repeated points\n"
-     << "    --remove_empty              -- remove epmpty objects and lines\n"
+     << "    --remove_empty              -- remove empty objects and lines\n"
      << "                                   (remove_tails and range_action do remove_empty)\n"
+     << "    --join_objects <accuracy>   -- join objects\n"
      << "\n"
      << "    -n, --name <string>         -- set map name\n"
      << "    -i, --mp_id <int>           -- set mp id\n"
@@ -103,8 +105,6 @@ static struct option in_options[] = {
   {"set_brd_from_range",    0, 0, 0},
   {"set_brd",               1, 0, 0},
   {"remove_tails",          1, 0, 0},
-  {"remove_dups",           1, 0, 0},
-  {"remove_empty",          0, 0, 0},
 
   {"name",        1, 0 , 'n'},
   {"mp_id",       1, 0 , 'i'},
@@ -141,6 +141,7 @@ static struct option out_options[] = {
   {"remove_tails",          1, 0, 0},
   {"remove_dups",           1, 0, 0},
   {"remove_empty",          0, 0, 0},
+  {"join_objects",          1, 0, 0},
 
   {"name",        1, 0 , 'n'},
   {"mp_id",       1, 0 , 'i'},
@@ -153,6 +154,7 @@ static struct option out_options[] = {
 
 
 main(int argc, char **argv){
+  try {
 
   if (argc==1) usage();
 
@@ -201,6 +203,17 @@ main(int argc, char **argv){
   if (O.exists("set_source_from_fname"))
     O.put<string>("set_source", ofile);
 
+  // OPTION remove_dups
+  // OPTION remove_empty
+  // OPTION join_objects
+  double remove_dups_acc=O.get("remove_dups", 0.0);
+  if (remove_dups_acc>0) remove_dups(V, remove_dups_acc);
+
+  double join_objects_acc=O.get("join_objects", 0.0);
+  if (join_objects_acc>0) join_objects(V, join_objects_acc);
+
+  int do_remove_empty=O.get("remove_empty", 0);
+  if (do_remove_empty) remove_empty(V);
 
   // find labels for each object
   join_labels(V);
@@ -218,6 +231,10 @@ main(int argc, char **argv){
   }
 
   exit(0);
+  } catch (const char *err){
+    cerr << "ERROR: " << err << "\n";
+    exit(1);
+  }
 }
 
 

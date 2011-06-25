@@ -171,6 +171,7 @@ public:
 	vbox->pack_start(statusbar, false, true, 0);
 	add (*vbox);
 
+        viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
 
 	statusbar.push("Welcome to mapsoft viewer!",0);
 	show_all();

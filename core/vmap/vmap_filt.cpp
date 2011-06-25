@@ -557,13 +557,6 @@ filter(world & W, const Options & O){
   }
     // crop, skip, select range
   RC.process(W);
-
-  // OPTION remove_dups
-  // OPTION remove_empty
-  double remove_dups_acc=O.get("remove_dups", 0);
-  if (remove_dups_acc>0) remove_dups(W, remove_dups_acc);
-  int do_remove_empty=O.get("remove_empty", 0);
-  if (do_remove_empty) remove_empty(W);
 }
 
 } // namespace
