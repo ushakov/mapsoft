@@ -562,7 +562,7 @@ VMAPRenderer::render_grid_label(double c, double val, bool horiz){
 }
 
 void
-VMAPRenderer::render_pulk_grid(double dx, double dy, bool draw_labels){
+VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
 
   convs::map2pt cnv(ref, Datum("pulkovo"), Proj("tmerc"), convs::map_popts(ref));
 
@@ -593,20 +593,23 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool draw_labels){
   cr->set_line_width(2);
   while (p.x<pe.x){
     dPoint pc(p); cnv.bck(pc);
-    cr->move_to(pc.x, pbc.y);
-    cr->line_to(pc.x, pec.y);
-    if (draw_labels) render_grid_label(pc.x, p.x, true);
+    if (labels) render_grid_label(pc.x, p.x, true);
+    else {
+      cr->move_to(pc.x, pbc.y);
+      cr->line_to(pc.x, pec.y);
+    }
     p.x+=dx;
   }
   while (p.y<pe.y){
     dPoint pc(p); cnv.bck(pc);
-    cr->move_to(pbc.x, pc.y);
-    cr->line_to(pec.x, pc.y);
-    if (draw_labels && (p.y > pb.y+m) && (p.y<pe.y-m))
+    if (labels && (p.y > pb.y+m) && (p.y<pe.y-m))
       render_grid_label(pc.y, p.y, false);
+    else {
+      cr->move_to(pbc.x, pc.y);
+      cr->line_to(pec.x, pc.y);
+    }
     p.y+=dy;
   }
   cr->stroke();
   cr->restore();
 }
-

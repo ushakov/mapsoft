@@ -66,17 +66,6 @@ main(int argc, char* argv[]){
   VMAPRenderer R(ifile, dpi, lm, tm, rm, bm);
   bool hr = (R.W.style == "hr");
 
-  if (O.get<int>("draw_name", 0))
-    R.render_text(R.W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, 0, 2);
-
-  if (O.get<int>("draw_date", 0)){
-    Time t; t.set_current();
-    R.render_text(t.date_str().c_str(), dPoint(dpi/30,dpi), -M_PI/2, 0, 18, 10, 2, 2);
-  }
-
-  if (O.get<string>("draw_text") != ""){
-    R.render_text(O.get<string>("draw_text").c_str(), dPoint(dpi/5,-dpi/30), 0, 0, 18, 10, 0, 0);
-  }
 
   //*******************************
 
@@ -256,9 +245,25 @@ main(int argc, char* argv[]){
   //*******************************
 
   double grid_step = O.get<double>("grid", 0);
-  if (grid_step>0) R.render_pulk_grid(grid_step, grid_step,grid_labels);
+  if (grid_step>0) R.render_pulk_grid(grid_step, grid_step, false);
 
   R.render_labels();
+
+  // draw grid labels after labels
+  if ((grid_step>0) && grid_labels) 
+    R.render_pulk_grid(grid_step, grid_step, true);
+
+  if (O.get<int>("draw_name", 0))
+    R.render_text(R.W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, 0, 2);
+
+  if (O.get<int>("draw_date", 0)){
+    Time t; t.set_current();
+    R.render_text(t.date_str().c_str(), dPoint(dpi/30,dpi), -M_PI/2, 0, 18, 10, 2, 2);
+  }
+
+  if (O.get<string>("draw_text") != ""){
+    R.render_text(O.get<string>("draw_text").c_str(), dPoint(dpi/5,-dpi/30), 0, 0, 18, 10, 0, 0);
+  }
 
   //*******************************
   string map = O.get<string>("map");
