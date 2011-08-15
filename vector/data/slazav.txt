@@ -100,6 +100,11 @@
 ;;####################### НАЧАЛО ОПИСАНИЯ ########################################
 ;;################################################################################
 
+[_id]
+codepage=1251
+[end]
+
+
 [_drawOrder]
 Type=0x1,5
 Type=0x4,5
@@ -585,6 +590,7 @@ Xpm="0 0 2 1",
 Type=0x0
 string1=0x4,Надпись
 LineWidth=1
+BorderWidth=0
 Xpm="0 0 2 1",
 "1 c none",
 "2 c none",
@@ -641,6 +647,7 @@ Xpm="0 0 2 1",
 Type=0x5
 string1=0x4,Дом
 LineWidth=3
+BorderWidth=0
 Xpm="0 0 1 1",
 "1 c #000000",
 [end]
@@ -650,6 +657,7 @@ Xpm="0 0 1 1",
 Type=0x6
 string1=0x4,Грунтовка
 LineWidth=2
+BorderWidth=0
 Xpm="0 0 1 1",
 "1 c #000000",
 [end]
@@ -717,6 +725,7 @@ Xpm="0 0 2 1",
 Type=0x0c
 string1=0x4,Хребет
 LineWidth=3
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #BD0000",
 [end]
@@ -726,6 +735,7 @@ Xpm="0 0 1 1"
 Type=0x0d
 string1=0x4,Хребет
 LineWidth=2
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #BD0000",
 [end]
@@ -746,6 +756,7 @@ Xpm="0 0 2 1",
 Type=0x15
 string1=0x4,Ручей
 LineWidth=2
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #0000FF",
 [end]
@@ -766,6 +777,7 @@ Xpm="32 2 2 1"
 Type=0x18
 string1=0x4,Река
 LineWidth=2
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #0000FF",
 [end]
@@ -849,6 +861,7 @@ Xpm="32 4 2 1"
 Type=0x1f
 string1=0x4,Река
 LineWidth=3
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #0000FF",
 [end]
@@ -868,6 +881,7 @@ Xpm="32 1 2 1"
 Type=0x21
 string1=0x4,Горизонталь
 LineWidth=1
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #BD0000",
 [end]
@@ -877,6 +891,7 @@ Xpm="0 0 1 1"
 Type=0x22
 string1=0x4,Горизонталь
 LineWidth=1
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #BD0000",
 [end]
@@ -897,6 +912,7 @@ Xpm="32 2 2 1"
 Type=0x24
 string1=0x4,Болото
 LineWidth=1
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #0000FF",
 [end]
@@ -906,6 +922,7 @@ Xpm="0 0 1 1"
 Type=0x25
 string1=0x4,Овраг
 LineWidth=2
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #BD0000",
 [end]
@@ -988,6 +1005,7 @@ Xpm="32 2 2 1"
 Type=0x32
 string1=0x4,Проходимость-2
 LineWidth=4
+BorderWidth=0
 Xpm="0 0 1 1",
 "1 c #00A500",
 [end]
@@ -1023,6 +1041,7 @@ Xpm="32 4 2 1"
 Type=0x35
 string1=0x4,Проходимость-5
 LineWidth=4
+BorderWidth=0
 Xpm="0 0 1 1",
 "1 c #FF9500",
 [end]
@@ -1032,6 +1051,7 @@ Xpm="0 0 1 1",
 Type=0x36
 string1=0x4,Ледник
 LineWidth=1
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #0000FF",
 [end]
@@ -1041,6 +1061,7 @@ Xpm="0 0 1 1"
 Type=0x37
 string1=0x4,Ледник
 LineWidth=1
+BorderWidth=0
 Xpm="0 0 1 1"
 "1 c #0000FF",
 [end]
