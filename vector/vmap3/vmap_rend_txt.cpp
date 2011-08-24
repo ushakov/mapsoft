@@ -90,6 +90,13 @@ VMAPRenderer::erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
       if (!IS_TEXT(x,y)) continue;
 
       if (!IS_DARK(x,y)) continue;
+
+#ifdef ERASE_MODE_SMOOTH
+      for (int i=0; i<3; i++){
+         int ii=s*y + 4*x + i;
+         data[ii] = 255- (255-data[ii])/2;
+      }
+#else
       // find nearest point with light color:
       int r = search_dist;
       int dd = 2*search_dist*search_dist+1;
@@ -103,11 +110,11 @@ VMAPRenderer::erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
           }
         }
       }
-
       if ((xxm==x) && (yym==y))
         memset(data + s*y + 4*x, 0xFF, 3);
       else
         memcpy(data + s*y + 4*x, data + s*yym + 4*xxm, 3);
+#endif
     }
   }
 }

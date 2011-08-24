@@ -25,6 +25,7 @@ struct VMAPRenderer{
   const static char * pics_dir;
 
   Cairo::RefPtr<Cairo::ImageSurface> surface;
+  Cairo::RefPtr<Cairo::ImageSurface> surface_e; // for erasing lines under text
   Cairo::RefPtr<Cairo::Context> cr;
   vmap::world W;
   double dpi, lw1, fs1;
