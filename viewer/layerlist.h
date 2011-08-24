@@ -12,7 +12,7 @@ public:
 	add(text);
 	add(layer);
     }
-    
+
     Gtk::TreeModelColumn<bool> checked;
     Gtk::TreeModelColumn<int> depth;
     Gtk::TreeModelColumn<Glib::ustring> text;

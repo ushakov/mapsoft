@@ -14,6 +14,7 @@
 #include "actions/am_make_tiles.h"
 #include "actions/am_goto_ll.h"
 #include "actions/am_save_image.h"
+#include "actions/am_show_pt.h"
 
 ActionManager::ActionManager (Mapview * mapview_)
     : mapview(mapview_)
@@ -33,5 +34,6 @@ ActionManager::ActionManager (Mapview * mapview_)
     modes.push_back(boost::shared_ptr<ActionMode>(new MakeTiles(mapview)));
     modes.push_back(boost::shared_ptr<ActionMode>(new GotoLL(mapview)));
     modes.push_back(boost::shared_ptr<ActionMode>(new SaveImage(mapview)));
+    modes.push_back(boost::shared_ptr<ActionMode>(new ShowPt(mapview)));
 }
 
