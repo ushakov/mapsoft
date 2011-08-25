@@ -47,12 +47,15 @@ public:
 
         g_map map = current_layer->get_ref();
 
+
         convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
         g_waypoint wpt;
         wpt.x = p.x; wpt.y=p.y;
 	cnv.frw(wpt);
 	Options opt = wpt.to_options();
 
+        mapview->rubber.clear();
+        mapview->rubber.add_src_mark(p);
 	mapview->gend.activate(get_name(), opt,
 	  sigc::mem_fun(this, &AddWaypoint::on_result));
     }
@@ -62,6 +65,7 @@ private:
     LayerWPT      * current_layer;
 
     void on_result(int r, const Options & o) {
+        mapview->rubber.clear();
 	if (r == 0) { // OK
           assert (current_layer);
 	  g_waypoint wpt; 
