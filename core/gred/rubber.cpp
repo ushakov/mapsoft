@@ -219,6 +219,13 @@ Rubber::add_src_sq(const iPoint & p, int size){
 }
 
 void
+Rubber::add_src_mark(const iPoint & p, int size){
+  add(p-iPoint(size-1,0), p+iPoint(size-1,0), RUBBFL_PLANE);
+  add(p-iPoint(0,size-1), p+iPoint(0,size-1), RUBBFL_PLANE);
+  add(p, p+iPoint(size,0), RUBBFL_CIRCC);
+}
+
+void
 Rubber::add_dst_sq(int size){
   iPoint p1(-size,-size), p2(-size,size);
   iPoint p3( size, size), p4(size,-size);

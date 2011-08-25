@@ -102,14 +102,16 @@ public:
   void rescale(double k);
 
   /// High-level functions for adding some types of segments
-  void add_src_sq(const iPoint & p, int size);
-  void add_dst_sq(int size);
-  void add_diag(const iPoint & p);
-  void add_rect(const iPoint & p);
-  void add_ell(const iPoint & p);
+  void add_src_sq(const iPoint & p, int size=5);    // square mark on the plane
+  void add_src_mark(const iPoint & p, int size=5);  // mark with cross and circle on the plane
+  void add_dst_sq(int size=5);                 // square mark around the mouse
+  void add_diag(const iPoint & p);             // line from the plane point p to the mouse
+  void add_rect(const iPoint & p);             // rectangle from the plane point p to the mouse
+  void add_ell(const iPoint & p);              // ellip
   void add_ellc(const iPoint & p);
   void add_circ(const iPoint & p);
   void add_circc(const iPoint & p);
+
 };
 
 #endif
