@@ -74,18 +74,8 @@ public:
 
 	    // Add new layer for waypoints
 	    boost::shared_ptr<geo_data> wpt_world (new geo_data);
-    	    mapview->data.push_back(wpt_world);
-
-	    boost::shared_ptr<LayerWPT> wpt_layer(new LayerWPT(wpt_world.get()));
-	    wpt_layer->set_ref(mapview->reference);
-	    mapview->wpt_layers.push_back(wpt_layer);
-	    mapview->add_layer(wpt_layer.get(), 100, "wpt: track marks");
-
             wpt_world->wpts.push_back(wpt_list);
-
-	    mapview->workplane.refresh_layer(wpt_layer.get());
-	    return;
-
+            mapview->add_world(wpt_world, "track marks");
 	}
     }
 };

@@ -22,7 +22,7 @@ main(int argc, char **argv)
     Mapview mapview;
 
     for (int i = 1; i < argc; ++i) {
-	mapview.load_file(argv[i]);
+	mapview.add_file(argv[i]);
     }
     kit.run(mapview);
 }

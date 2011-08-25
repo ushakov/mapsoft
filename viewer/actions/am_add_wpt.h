@@ -9,43 +9,23 @@ public:
     AddWaypoint (Mapview * mapview) : ActionMode(mapview) { }
 
     // Returns name of the mode as string.
-    virtual std::string get_name() {
+    std::string get_name() {
 	return "Add Waypoint";
     }
 
     // Activates this mode.
-    virtual void activate() { }
+    void activate() { }
 
     // Abandons any action in progress and deactivates mode.
-    virtual void abort() { }
+    void abort() { }
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
-	std::cout << "ADDWPT: " << p << std::endl;
-
-	LayerWPT * layer;
-	current_layer = NULL;
-	for (int i=0; i<mapview->wpt_layers.size(); i++){
-          layer = dynamic_cast<LayerWPT *> (mapview->wpt_layers[i].get());
-          if (mapview->workplane.get_layer_active(layer)) {
-	      current_layer = layer;
-	      break;
-	  }
-        }
-
-        if (current_layer==0){
-          boost::shared_ptr<geo_data> world (new geo_data);
-          mapview->data.push_back(world);
-
-          boost::shared_ptr<LayerWPT> wpt_layer(new LayerWPT(world.get()));
-          wpt_layer->set_ref(mapview->reference);
-          mapview->wpt_layers.push_back(wpt_layer);
-          mapview->add_layer(wpt_layer.get(), 100, "wpt: new");
-          current_layer = dynamic_cast<LayerWPT *>(wpt_layer.get());
-        }
-
-        g_map map = current_layer->get_ref();
-
+    void handle_click(iPoint p, const Gdk::ModifierType & state) {
+         if (!mapview->have_reference){
+           mapview->statusbar.push("No geo-reference", 0);
+           return;
+         }
+        g_map map = mapview->reference;
         convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
         g_waypoint wpt;
         wpt.x = p.x; wpt.y=p.y;
@@ -59,19 +39,31 @@ public:
     }
 
 private:
-    LayerWPT      * current_layer;
 
     void on_result(int r, const Options & o) {
         mapview->rubber.clear();
 	if (r == 0) { // OK
-          assert (current_layer);
-	  g_waypoint wpt; 
+
+	  g_waypoint wpt;
           wpt.parse_from_options(o);
-          if (current_layer->get_world()->wpts.size()==0) 
-	    current_layer->get_world()->wpts.push_back(g_waypoint_list());
-          current_layer->get_world()->wpts[0].push_back(wpt);
-          mapview->workplane.refresh_layer(current_layer);
-   	  std::cout << "ADDWPT: " << wpt.name << "\n";
+
+          // try to find active wpt layer
+          for (int i=0; i<mapview->wpt_layers.size(); i++){
+           LayerWPT * layer = dynamic_cast<LayerWPT *>
+              (mapview->wpt_layers[i].get());
+            if (mapview->workplane.get_layer_active(layer)) {
+                layer->get_world()->wpts[0].push_back(wpt);
+                mapview->workplane.refresh_layer(layer);
+	        return;
+            }
+          }
+
+          // if there is no active wpt layer
+          boost::shared_ptr<geo_data> world(new geo_data);
+          g_waypoint_list wpts;
+          wpts.push_back(wpt);
+          world->wpts.push_back(wpts);
+          mapview->add_world(world, "new", false);
 	}
     }
 };

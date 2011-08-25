@@ -74,9 +74,8 @@ public:
 
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
-
       if (!mapview->have_reference){
-        mapview->statusbar.push("No geo-referenced layer.", 0);
+        mapview->statusbar.push("No geo-reference", 0);
         return;
       }
       convs::map2pt cnv1(mapview->reference, Datum("wgs84"), Proj("lonlat"));

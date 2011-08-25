@@ -190,19 +190,21 @@ public:
     void load_file_sel() {
 	std::string selected_filename;
 	selected_filename = file_sel_load.get_filename();
-	load_file(selected_filename);
+	add_file(selected_filename);
     }
 
-    void load_file(std::string selected_filename) {
+    void add_file(std::string selected_filename) {
 	g_print ("Loading: %s\n", selected_filename.c_str());
 	statusbar.push("Loading...", 0);
-	boost::shared_ptr<geo_data> world (new geo_data);
 
-	data.push_back(world);
-
+	boost::shared_ptr<geo_data> world(new geo_data);
 	io::in(selected_filename, *(world.get()), Options());
+        add_world(world, selected_filename);
 	LOG() << "Loaded " << selected_filename << " to world at " << world.get();
+    }
 
+    void add_world(const boost::shared_ptr<geo_data> world, const std::string & name, bool scroll=true) {
+	data.push_back(world);
         if (!have_reference){ reference = convs::mymap(*world.get()); have_reference = true; }
 
 	if (world->maps.size() > 0) {
@@ -210,28 +212,29 @@ public:
 	    boost::shared_ptr<LayerGeoMap> map_layer(new LayerGeoMap(world.get()));
 	    map_layer->set_ref(reference);
 	    map_layers.push_back(map_layer);
-	    add_layer(map_layer.get(), 300, "map: " + selected_filename);
-	    viewer.set_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
+	    add_layer(map_layer.get(), 300, "map: " + name);
+	    if (scroll) viewer.set_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
 	}
 	if (world->trks.size() > 0) {
 	    // we are loading tracks: if we already have reference, use it
 	    boost::shared_ptr<LayerTRK> trk_layer(new LayerTRK(world.get()));
 	    trk_layer->set_ref(reference);
 	    trk_layers.push_back(trk_layer);
-	    add_layer(trk_layer.get(), 200, "trk: " + selected_filename);
-	    viewer.set_origin(trk_layer->range().TLC());
+	    add_layer(trk_layer.get(), 200, "trk: " + name);
+	    if (scroll) viewer.set_origin(trk_layer->range().TLC());
 	}
 	if (world->wpts.size() > 0) {
 	    // we are loading waypoints: if we already have reference, use it
 	    boost::shared_ptr<LayerWPT> wpt_layer(new LayerWPT(world.get()));
 	    wpt_layer->set_ref(reference);
 	    wpt_layers.push_back(wpt_layer);
-	    add_layer(wpt_layer.get(), 100, "wpt: " + selected_filename);
-	    viewer.set_origin(wpt_layer->range().TLC());
+	    add_layer(wpt_layer.get(), 100, "wpt: " + name);
+	    if (scroll) viewer.set_origin(wpt_layer->range().TLC());
 	}
 	refresh();
 	statusbar.pop();
     }
+
 
      void save_file_sel() {
  	std::string selected_filename;
