@@ -29,6 +29,7 @@ public:
     LayerList   layer_list; /// Gtk::TreeView for layers
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
+    Gtk::RadioAction::Group mode_group;
     Gtk::Statusbar  statusbar;
     GenericDialog   gend;
 
@@ -44,11 +45,8 @@ public:
 private:
     Gtk::FileSelection file_sel_load;
     Gtk::FileSelection file_sel_save;
-    Gtk::Widget * menubar;
-
 
     boost::shared_ptr<ActionManager> action_manager;
-    Gtk::RadioAction::Group mode_group;
 
     struct timeval click_started;
 
@@ -102,13 +100,14 @@ public:
 	//start building menus
 	actions = Gtk::ActionGroup::create();
 	actions->add(Gtk::Action::create("MenuFile", "_File"));
-	actions->add(Gtk::Action::create("MenuGeodata", "_Geodata"));
-	actions->add(Gtk::Action::create("MenuHelp", "_Help"));
-	
-	actions->add(Gtk::Action::create("Add", Gtk::Stock::ADD), sigc::mem_fun(file_sel_load, &Gtk::Widget::show));
-	actions->add(Gtk::Action::create("Clear", Gtk::Stock::CLEAR));
-	actions->add(Gtk::Action::create("Save", Gtk::Stock::SAVE), sigc::mem_fun(file_sel_save, &Gtk::Widget::show));
-	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT), sigc::mem_fun(this, &Gtk::Widget::hide_all));
+	actions->add(Gtk::Action::create("MenuModes", "_Modes"));
+
+	actions->add(Gtk::Action::create("Add", Gtk::Stock::ADD),
+          sigc::mem_fun(file_sel_load, &Gtk::Widget::show));
+	actions->add(Gtk::Action::create("Save", Gtk::Stock::SAVE),
+          sigc::mem_fun(file_sel_save, &Gtk::Widget::show));
+	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT),
+          sigc::mem_fun(this, &Gtk::Widget::hide_all));
 
 	ui_manager = Gtk::UIManager::create();
 	ui_manager->insert_action_group(actions);
@@ -118,59 +117,28 @@ public:
 	    "<ui>"
 	    "  <menubar name='MenuBar'>"
 	    "    <menu action='MenuFile'>"
-	    "      <menuitem action='Quit'/>"
-	    "    </menu>"
-	    "    <menu action='MenuGeodata'>"
 	    "      <menuitem action='Add'/>"
 	    "      <menuitem action='Save'/>"
-	    "      <menuitem action='Clear'/>"
+	    "      <menuitem action='Quit'/>"
 	    "    </menu>"
-	    "    <menu action='MenuHelp'>"
+	    "    <menu action='MenuModes'>"
 	    "    </menu>"
 	    "  </menubar>"
 	    "</ui>"
 	);
 
-        // create actions
+        // create actions + build menu
 	action_manager.reset (new ActionManager(this));
-
-	// make all modes!
-	actions->add(Gtk::Action::create("MenuModes", "_Modes"));
-	std::vector<std::string> modes = action_manager->get_mode_list();
-	for (int m = 0; m < modes.size(); ++m) {
-	    Glib::RefPtr<Gtk::RadioAction> mode_action =
-		Gtk::RadioAction::create(mode_group,
-					 "Mode" + boost::lexical_cast<std::string>(m),
-					 modes[m]);
-	    actions->add(mode_action, sigc::bind (sigc::mem_fun(*this, &Mapview::on_mode_change), m));
-	}
-	
-	Glib::ustring ui =
-	    "<ui>"
-	    "  <menubar name='MenuBar'>"
-	    "    <menu action='MenuModes'>";
-	for (int m = 0; m < modes.size(); ++m) {
-	    ui += "<menuitem action='Mode"
-		+ boost::lexical_cast<std::string>(m) + "'/>";
-	}
-	ui +=
-	    "    </menu>"
-	    "  </menubar>"
-	    "</ui>";
-	ui_manager->add_ui_from_string(ui);
-
-
-	menubar = ui_manager->get_widget("/MenuBar");
 
         /// pack widgets
 	guint drawing_padding = 5;
 
 	Gtk::VBox * vbox = manage(new Gtk::VBox);
-	vbox->pack_start(*menubar, false, true, 0);
+	vbox->pack_start(* ui_manager->get_widget("/MenuBar"), false, true, 0);
 
 	Gtk::HPaned * paned = manage(new Gtk::HPaned);
 	paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
-	
+
 	Gtk::ScrolledWindow * scrw = manage(new Gtk::ScrolledWindow);
 	scrw->add(layer_list);
 	scrw->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);

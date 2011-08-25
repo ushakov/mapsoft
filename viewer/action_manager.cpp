@@ -36,5 +36,28 @@ ActionManager::ActionManager (Mapview * mapview_)
     modes.push_back(boost::shared_ptr<ActionMode>(new GotoLL(mapview)));
     modes.push_back(boost::shared_ptr<ActionMode>(new SaveImage(mapview)));
     modes.push_back(boost::shared_ptr<ActionMode>(new ShowPt(mapview)));
+
+    // make all modes!
+    for (int m = 0; m < modes.size(); ++m) {
+        Glib::RefPtr<Gtk::RadioAction> mode_action =
+            Gtk::RadioAction::create(mapview->mode_group,
+              "Mode" + boost::lexical_cast<std::string>(m), modes[m]->get_name());
+        mapview->actions->add(mode_action,
+          sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
+    }
+
+    Glib::ustring ui =
+        "<ui>"
+        "  <menubar name='MenuBar'>"
+        "    <menu action='MenuModes'>";
+    for (int m = 0; m < modes.size(); ++m) {
+        ui += "<menuitem action='Mode"
+            + boost::lexical_cast<std::string>(m) + "'/>";
+    }
+    ui +=
+        "    </menu>"
+        "  </menubar>"
+        "</ui>";
+    mapview->ui_manager->add_ui_from_string(ui);
 }
 
