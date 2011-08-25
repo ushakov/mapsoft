@@ -57,9 +57,6 @@ LayerWPT::draw(const iPoint origin, iImage & image){
   if (rect_intersect(myrange, rect_pump(src_rect,110)).empty()) return;
   CairoWrapper cr(image);
 
-  double text_pad=2.0;
-  dPoint flag_shift(0,-10);
-  dPoint text_shift = flag_shift + dPoint(text_pad, -text_pad);
 
   vector<g_waypoint_list>::const_iterator it;
   for (it=world->wpts.begin(); it!=world->wpts.end(); it++){
@@ -70,9 +67,18 @@ LayerWPT::draw(const iPoint origin, iImage & image){
       Color color = pt->color;
       Color bgcolor = pt->bgcolor;
 
+
+      double fs = pt->font_size * 1.5;
+      dPoint flag_shift(0,-fs);
+      double text_pad=fs * 0.2;
+
+      dPoint text_shift = flag_shift + dPoint(text_pad, -text_pad);
+      cr->set_font_size(fs);
+
       cr->move_to(p + text_shift);
       dRect txt_rect = cr->get_text_extents(pt->name);
       txt_rect = rect_pump(txt_rect, text_pad);
+      txt_rect = rect_pump(txt_rect, p + flag_shift);
       dRect pt_rect = rect_pump(txt_rect, p);
       pt_rect = rect_pump(pt_rect, double(dot_width+1));
 
