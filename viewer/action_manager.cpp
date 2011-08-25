@@ -21,43 +21,44 @@ ActionManager::ActionManager (Mapview * mapview_)
     : mapview(mapview_)
 {
     current_mode = 0;
-    modes.push_back(boost::shared_ptr<ActionMode>(new ActionModeNone(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new AddWaypoint(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new EditWaypoint(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MoveWaypoint(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new DeleteWaypoint(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrackpoint(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MoveTrackpoint(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new DeleteTrackpoint(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new EditTrack(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new AddTrack(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MarkTrack(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new MakeTiles(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new GotoLL(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new SaveImage(mapview)));
-    modes.push_back(boost::shared_ptr<ActionMode>(new ShowPt(mapview)));
 
-    // make all modes!
-    for (int m = 0; m < modes.size(); ++m) {
-        Glib::RefPtr<Gtk::RadioAction> mode_action =
-            Gtk::RadioAction::create(mapview->mode_group,
-              "Mode" + boost::lexical_cast<std::string>(m), modes[m]->get_name());
-        mapview->actions->add(mode_action,
-          sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
-    }
-
-    Glib::ustring ui =
-        "<ui>"
-        "  <menubar name='MenuBar'>"
-        "    <menu action='MenuModes'>";
-    for (int m = 0; m < modes.size(); ++m) {
-        ui += "<menuitem action='Mode"
-            + boost::lexical_cast<std::string>(m) + "'/>";
-    }
-    ui +=
-        "    </menu>"
-        "  </menubar>"
-        "</ui>";
-    mapview->ui_manager->add_ui_from_string(ui);
+    AddAction(new ActionModeNone(mapview));
+    AddAction(new AddWaypoint(mapview));
+    AddAction(new EditWaypoint(mapview));
+    AddAction(new MoveWaypoint(mapview));
+    AddAction(new DeleteWaypoint(mapview));
+    AddAction(new EditTrackpoint(mapview));
+    AddAction(new MoveTrackpoint(mapview));
+    AddAction(new DeleteTrackpoint(mapview));
+    AddAction(new EditTrack(mapview));
+    AddAction(new AddTrack(mapview));
+    AddAction(new MarkTrack(mapview));
+    AddAction(new MakeTiles(mapview));
+    AddAction(new GotoLL(mapview));
+    AddAction(new SaveImage(mapview));
+    AddAction(new ShowPt(mapview));
 }
 
+void
+ActionManager::AddAction(ActionMode *action){
+  modes.push_back(boost::shared_ptr<ActionMode>(action));
+  int m = modes.size()-1;
+
+  std::string mid   = "Mode" + boost::lexical_cast<std::string>(m);
+  std::string mname = action->get_name();
+
+  mapview->actions->add(
+    Gtk::RadioAction::create(mapview->mode_group, mid, mname),
+    sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
+
+  mapview->ui_manager->add_ui_from_string(
+    "<ui>"
+    "  <menubar name='MenuBar'>"
+    "    <menu action='MenuModes'>"
+    "      <menuitem action='" + mid + "'/>"
+    "    </menu>"
+    "  </menubar>"
+    "</ui>"
+  );
+
+}

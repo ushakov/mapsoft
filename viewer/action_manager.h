@@ -36,6 +36,10 @@ public:
     }
 
 private:
+
+    // used in constructor
+    void AddAction(ActionMode *action);
+
     Mapview      * mapview;
     std::vector<boost::shared_ptr<ActionMode> > modes;
     int current_mode;
