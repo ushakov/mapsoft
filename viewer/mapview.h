@@ -2,8 +2,10 @@
 #define MAPVIEW_H
 
 #include <sys/time.h>
+#include <cstdlib>
 #include <boost/shared_ptr.hpp>
 #include <gtkmm.h>
+#include <gtkmm/accelmap.h>
 
 #include "workplane.h"
 #include "layerlist.h"
@@ -18,6 +20,8 @@
 #include "gred/rubber.h"
 #include "gred/dthread_viewer.h"
 
+
+#define ACCEL_FILE ".mapsoft/accel"
 
 class Mapview : public Gtk::Window {
 public:
@@ -62,7 +66,7 @@ public:
 
 	/// window initialization
 	signal_delete_event().connect_notify (
-	  sigc::mem_fun (this, &Mapview::exit));
+	  sigc::hide(sigc::mem_fun (this, &Mapview::exit)));
 	set_default_size(640,480);
 
 	/// events from load file selector
@@ -72,7 +76,7 @@ public:
 	  sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
 	file_sel_load.get_cancel_button()->signal_clicked().connect (
 	  sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
-	
+
 	/// events from save file selector
 	file_sel_save.get_ok_button()->signal_clicked().connect (
 	  sigc::mem_fun (this, &Mapview::save_file_sel));
@@ -95,7 +99,6 @@ public:
 	workplane.signal_refresh.connect (
 	  sigc::mem_fun (viewer, &DThreadViewer::redraw));
 
-	
 	/***************************************/
 	//start building menus
 	actions = Gtk::ActionGroup::create();
@@ -106,11 +109,13 @@ public:
 	actions->add(Gtk::Action::create("Save", Gtk::Stock::SAVE),
           sigc::mem_fun(file_sel_save, &Gtk::Widget::show));
 	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT),
-          sigc::mem_fun(this, &Gtk::Widget::hide_all));
+          sigc::mem_fun(this, &Mapview::exit));
 
 	ui_manager = Gtk::UIManager::create();
 	ui_manager->insert_action_group(actions);
+
 	add_accel_group(ui_manager->get_accel_group());
+        Gtk::AccelMap::load(std::string(getenv("HOME")) + "/" + ACCEL_FILE);
 
 	ui_manager->add_ui_from_string(
 	    "<ui>"
@@ -158,7 +163,7 @@ public:
 	VLOG(2) << "layer_edited at " << path.to_string();
 	Gtk::TreeModel::Row row = *iter;
 	bool need_refresh = false;
-	
+
 	Layer * layer = row[layer_list.columns.layer];
 	if (!layer) return;
 	int new_depth = row[layer_list.columns.depth];
@@ -286,7 +291,8 @@ public:
  	io::out(selected_filename, world, Options());
      }
 
-    void exit(GdkEventAny * e) {
+    void exit() {
+      Gtk::AccelMap::save(std::string(getenv("HOME")) + "/" + ACCEL_FILE);
       g_print ("Exiting...\n");
       hide_all();
     }
