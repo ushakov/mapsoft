@@ -7,6 +7,10 @@
 // Interface.
 class ActionMode {
 public:
+
+    Mapview * mapview;
+    ActionMode(Mapview * mapview_) : mapview(mapview_) {}
+
     // Returns name of the mode as string.
     virtual std::string get_name() = 0;
 
@@ -23,22 +27,11 @@ public:
 
 class ActionModeNone : public ActionMode {
 public:
-    // Returns name of the mode as string.
-    virtual std::string get_name() {
-	return "None";
-    }
-
-    // Activates this mode.
-    virtual void activate() {
-    }
-
-    // Abandons any action in progress and deactivates mode.
-    virtual void abort() {
-    }
-
-    // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
-    }
+    ActionModeNone (Mapview * mapview) : ActionMode(mapview) { }
+    virtual std::string get_name() { return "None"; }
+    virtual void activate() { }
+    virtual void abort() { }
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) { }
 };
 
 

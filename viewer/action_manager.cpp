@@ -1,4 +1,5 @@
 #include "action_manager.h"
+#include "mapview.h"
 
 #include "actions/action_mode.h"
 #include "actions/am_edit_wpt.h"
@@ -20,7 +21,7 @@ ActionManager::ActionManager (Mapview * mapview_)
     : mapview(mapview_)
 {
     current_mode = 0;
-    modes.push_back(boost::shared_ptr<ActionMode>(new ActionModeNone));
+    modes.push_back(boost::shared_ptr<ActionMode>(new ActionModeNone(mapview)));
     modes.push_back(boost::shared_ptr<ActionMode>(new AddWaypoint(mapview)));
     modes.push_back(boost::shared_ptr<ActionMode>(new EditWaypoint(mapview)));
     modes.push_back(boost::shared_ptr<ActionMode>(new MoveWaypoint(mapview)));

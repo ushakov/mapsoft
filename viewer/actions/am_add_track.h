@@ -5,11 +5,10 @@
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
-#include "../mapview.h"
 
 class AddTrack : public ActionMode {
 public:
-    AddTrack (Mapview * mapview_) : mapview(mapview_) { }
+    AddTrack (Mapview * mapview) : ActionMode(mapview) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -97,7 +96,6 @@ public:
     }
 
 private:
-    Mapview       * mapview;
     LayerTRK      * current_layer;
 
     g_track  new_track;

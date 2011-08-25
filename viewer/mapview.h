@@ -61,7 +61,6 @@ public:
         viewer(&workplane),
 	rubber(&viewer)
     {
-	action_manager.reset (new ActionManager(this));
 
 	/// window initialization
 	signal_delete_event().connect_notify (
@@ -111,22 +110,11 @@ public:
 	actions->add(Gtk::Action::create("Save", Gtk::Stock::SAVE), sigc::mem_fun(file_sel_save, &Gtk::Widget::show));
 	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT), sigc::mem_fun(this, &Gtk::Widget::hide_all));
 
-	// make all modes!
-	actions->add(Gtk::Action::create("MenuModes", "_Modes"));
-	std::vector<std::string> modes = action_manager->get_mode_list();
-	for (int m = 0; m < modes.size(); ++m) {
-	    Glib::RefPtr<Gtk::RadioAction> mode_action =
-		Gtk::RadioAction::create(mode_group,
-					 "Mode" + boost::lexical_cast<std::string>(m),
-					 modes[m]);
-	    actions->add(mode_action, sigc::bind (sigc::mem_fun(*this, &Mapview::on_mode_change), m));
-	}
-	
 	ui_manager = Gtk::UIManager::create();
 	ui_manager->insert_action_group(actions);
 	add_accel_group(ui_manager->get_accel_group());
 
-	Glib::ustring ui =
+	ui_manager->add_ui_from_string(
 	    "<ui>"
 	    "  <menubar name='MenuBar'>"
 	    "    <menu action='MenuFile'>"
@@ -139,6 +127,27 @@ public:
 	    "    </menu>"
 	    "    <menu action='MenuHelp'>"
 	    "    </menu>"
+	    "  </menubar>"
+	    "</ui>"
+	);
+
+        // create actions
+	action_manager.reset (new ActionManager(this));
+
+	// make all modes!
+	actions->add(Gtk::Action::create("MenuModes", "_Modes"));
+	std::vector<std::string> modes = action_manager->get_mode_list();
+	for (int m = 0; m < modes.size(); ++m) {
+	    Glib::RefPtr<Gtk::RadioAction> mode_action =
+		Gtk::RadioAction::create(mode_group,
+					 "Mode" + boost::lexical_cast<std::string>(m),
+					 modes[m]);
+	    actions->add(mode_action, sigc::bind (sigc::mem_fun(*this, &Mapview::on_mode_change), m));
+	}
+	
+	Glib::ustring ui =
+	    "<ui>"
+	    "  <menubar name='MenuBar'>"
 	    "    <menu action='MenuModes'>";
 	for (int m = 0; m < modes.size(); ++m) {
 	    ui += "<menuitem action='Mode"
@@ -149,8 +158,9 @@ public:
 	    "  </menubar>"
 	    "</ui>";
 	ui_manager->add_ui_from_string(ui);
-	menubar = ui_manager->get_widget("/MenuBar");
 
+
+	menubar = ui_manager->get_widget("/MenuBar");
 
         /// pack widgets
 	guint drawing_padding = 5;
@@ -321,8 +331,6 @@ public:
 //    }
 
     bool on_button_release (GdkEventButton * event) {
-
-std::cerr << "BUTTON: " << event->button << "\n";
       if (event->button == 3) {
         rubber.clear();
         action_manager->clear_state();

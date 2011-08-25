@@ -2,11 +2,10 @@
 #define AM_MOVE_TPT_H
 
 #include "action_mode.h"
-#include "../mapview.h"
 
 class MoveTrackpoint : public ActionMode {
 public:
-    MoveTrackpoint (Mapview * mapview_) : mapview(mapview_) {
+    MoveTrackpoint (Mapview * mapview) : ActionMode(mapview) {
 	current_tpt = 0;
         current_layer = 0;
         mystate = 0;

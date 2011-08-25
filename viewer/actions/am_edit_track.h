@@ -5,11 +5,10 @@
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
-#include "../mapview.h"
 
 class EditTrack : public ActionMode {
 public:
-    EditTrack (Mapview * mapview_) : mapview(mapview_) {
+    EditTrack (Mapview * mapview) : ActionMode(mapview) {
 	current_track = 0;
     }
 
@@ -51,7 +50,6 @@ public:
     }
 
 private:
-    Mapview       * mapview;
     g_track       * current_track;
     LayerTRK      * current_layer;
 

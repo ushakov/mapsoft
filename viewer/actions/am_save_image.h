@@ -6,13 +6,12 @@
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
-#include "../mapview.h"
 
 #include "../../core/loaders/image_r.h"
 
 class SaveImage : public ActionMode {
 public:
-    SaveImage (Mapview * mapview_) : mapview(mapview_) {
+    SaveImage (Mapview * mapview) : ActionMode(mapview) {
     }
 
     // Returns name of the mode as string.

@@ -2,11 +2,10 @@
 #define AM_MOVE_WPT_H
 
 #include "action_mode.h"
-#include "../mapview.h"
 
 class MoveWaypoint : public ActionMode {
 public:
-    MoveWaypoint (Mapview * mapview_) : mapview(mapview_) {
+    MoveWaypoint (Mapview * mapview) : ActionMode(mapview) {
 	current_wpt = 0;
         current_layer = 0;
         mystate = 0;

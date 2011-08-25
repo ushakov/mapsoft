@@ -6,12 +6,11 @@
 #include <iomanip>
 
 #include "action_mode.h"
-#include "../mapview.h"
 #include "2d/line_dist.h"
 
 class MarkTrack : public ActionMode {
 public:
-     MarkTrack (Mapview * mapview_) : mapview(mapview_) {
+     MarkTrack (Mapview * mapview) : ActionMode(mapview) {
     }
 
     // Returns name of the mode as string.

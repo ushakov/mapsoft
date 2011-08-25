@@ -5,11 +5,10 @@
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
-#include "../mapview.h"
 
 class GotoLL : public ActionMode {
 public:
-    GotoLL (Mapview * mapview_) : mapview(mapview_) { }
+    GotoLL (Mapview * mapview) : ActionMode(mapview) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -38,7 +37,6 @@ public:
     virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {}
 
 private:
-    Mapview       * mapview;
 
     void on_result(int r, const Options & o) {
        if (r == 0) { // OK

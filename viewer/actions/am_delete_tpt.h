@@ -2,11 +2,10 @@
 #define AM_DELETE_TPT_H
 
 #include "action_mode.h"
-#include "../mapview.h"
 
 class DeleteTrackpoint : public ActionMode {
 public:
-    DeleteTrackpoint (Mapview * mapview_) : mapview(mapview_) { }
+    DeleteTrackpoint (Mapview * mapview) : ActionMode(mapview) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {

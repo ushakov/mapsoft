@@ -3,7 +3,6 @@
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
-#include "../mapview.h"
 
 #include <geo/geo_nom.h>
 
@@ -60,7 +59,7 @@ public:
 
 class ShowPt : public ActionMode {
 public:
-    ShowPt (Mapview * mapview_) : mapview(mapview_) { }
+    ShowPt (Mapview * mapview) : ActionMode(mapview) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -108,7 +107,6 @@ public:
     }
 
 private:
-    Mapview       * mapview;
     ShowPtDlg     dlg;
 };
 

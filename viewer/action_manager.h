@@ -5,9 +5,9 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-#include "actions/action_mode.h"
-
 class Mapview;
+
+#include "actions/action_mode.h"
 
 class ActionManager {
 public:
@@ -30,7 +30,7 @@ public:
     void clear_state () {
 	modes[current_mode]->abort();
     }
-    
+
     void click (iPoint p, const Gdk::ModifierType & state) {
 	modes[current_mode]->handle_click(p, state);
     }

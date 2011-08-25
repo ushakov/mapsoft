@@ -3,11 +3,10 @@
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
-#include "../mapview.h"
 
 class AddWaypoint : public ActionMode {
 public:
-    AddWaypoint (Mapview * mapview_) : mapview(mapview_) { }
+    AddWaypoint (Mapview * mapview) : ActionMode(mapview) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -61,7 +60,6 @@ public:
     }
 
 private:
-    Mapview       * mapview;
     LayerWPT      * current_layer;
 
     void on_result(int r, const Options & o) {

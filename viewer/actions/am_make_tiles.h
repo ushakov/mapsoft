@@ -5,11 +5,10 @@
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
-#include "../mapview.h"
 
 class MakeTiles : public ActionMode {
 public:
-    MakeTiles (Mapview * mapview_) : mapview(mapview_) {
+    MakeTiles (Mapview * mapview) : ActionMode(mapview) {
     }
 
     // Returns name of the mode as string.
@@ -72,7 +71,6 @@ public:
     }
 
 private:
-    Mapview       * mapview;
     LayerGeoMap   * current_layer;
     int have_points;
 

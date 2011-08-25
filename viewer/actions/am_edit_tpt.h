@@ -3,11 +3,10 @@
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
-#include "../mapview.h"
 
 class EditTrackpoint : public ActionMode {
 public:
-    EditTrackpoint (Mapview * mapview_) : mapview(mapview_) {
+    EditTrackpoint (Mapview * mapview) : ActionMode(mapview) {
 	current_tpt = 0;
     }
 
@@ -43,7 +42,6 @@ public:
     }
 
 private:
-    Mapview       * mapview;
     g_trackpoint  * current_tpt;
     LayerTRK      * current_layer;
 

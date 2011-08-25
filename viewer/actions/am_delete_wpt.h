@@ -3,11 +3,10 @@
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
-#include "../mapview.h"
 
 class DeleteWaypoint : public ActionMode {
 public:
-    DeleteWaypoint (Mapview * mapview_) : mapview(mapview_) {}
+    DeleteWaypoint (Mapview * mapview) : ActionMode(mapview) {}
 
     // Returns name of the mode as string.
     virtual std::string get_name() {
@@ -41,7 +40,6 @@ public:
 
 private:
     std::pair<int, int> point_addr;
-    Mapview       * mapview;
     LayerWPT      * current_layer;
 
     void on_result(int r, const Options & o) {

@@ -3,11 +3,10 @@
 
 #include "action_mode.h"
 #include "../generic_dialog.h"
-#include "../mapview.h"
 
 class EditWaypoint : public ActionMode {
 public:
-    EditWaypoint (Mapview * mapview_) : mapview(mapview_) {
+    EditWaypoint (Mapview * mapview) : ActionMode(mapview) {
 	current_wpt = 0;
     }
 
@@ -43,7 +42,6 @@ public:
     }
 
 private:
-    Mapview       * mapview;
     g_waypoint    * current_wpt;
     LayerWPT      * current_layer;
 
