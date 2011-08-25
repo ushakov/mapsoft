@@ -44,7 +44,7 @@ public:
       ey[k]->set_editable(false);
     }
     get_vbox()->add(table);
-    add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
+    add_button (Gtk::Stock::CLOSE, Gtk::RESPONSE_OK);
     resize(1,1);
   }
   void on_response(int response) {std::cerr << response << "\n"; hide();}
