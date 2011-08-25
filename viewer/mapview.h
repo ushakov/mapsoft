@@ -213,7 +213,6 @@ public:
 	    map_layer->set_ref(reference);
 	    map_layers.push_back(map_layer);
 	    add_layer(map_layer.get(), 300, "map: " + name);
-	    if (scroll) viewer.set_origin((map_layer->range().TLC() + map_layer->range().BRC())/2);
 	}
 	if (world->trks.size() > 0) {
 	    // we are loading tracks: if we already have reference, use it
@@ -221,7 +220,6 @@ public:
 	    trk_layer->set_ref(reference);
 	    trk_layers.push_back(trk_layer);
 	    add_layer(trk_layer.get(), 200, "trk: " + name);
-	    if (scroll) viewer.set_origin(trk_layer->range().TLC());
 	}
 	if (world->wpts.size() > 0) {
 	    // we are loading waypoints: if we already have reference, use it
@@ -229,8 +227,43 @@ public:
 	    wpt_layer->set_ref(reference);
 	    wpt_layers.push_back(wpt_layer);
 	    add_layer(wpt_layer.get(), 100, "wpt: " + name);
-	    if (scroll) viewer.set_origin(wpt_layer->range().TLC());
 	}
+
+	if (scroll){ // scroll to the first trackpoint or waypoint or map center
+          dPoint new_orig;
+
+          std::vector<g_map>::const_iterator mli = world->maps.begin();
+          while (mli!=world->maps.end()){
+            if (mli->size() > 0){
+              new_orig = mli->center();
+              break;
+            }
+            mli++;
+          }
+
+          std::vector<g_waypoint_list>::const_iterator wli = world->wpts.begin();
+          while (wli!=world->wpts.end()){
+            if (wli->size() > 0){
+              new_orig = (*wli)[0];
+              break;
+            }
+            wli++;
+          }
+          std::vector<g_track>::const_iterator tli = world->trks.begin();
+          while (tli!=world->trks.end()){
+            if (tli->size() > 0){
+              new_orig = (*tli)[0];
+              break;
+            }
+            tli++;
+          }
+          if (have_reference){
+            convs::map2pt cnv(reference, Datum("wgs84"), Proj("lonlat"));
+            cnv.bck(new_orig);
+            viewer.set_center(new_orig);
+          }
+        }
+
 	refresh();
 	statusbar.pop();
     }
