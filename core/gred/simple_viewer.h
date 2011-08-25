@@ -11,7 +11,9 @@ class SimpleViewer : public Viewer {
     SimpleViewer(GObj * o = NULL);
 
     virtual void   set_origin (iPoint new_origin);
+    virtual void   set_center (iPoint new_center);
     virtual iPoint get_origin (void) const;
+    virtual iPoint get_center (void) const;
     virtual void   set_obj (GObj * o);
     virtual GObj * get_obj (void) const;
     virtual void   set_bgcolor (int c);

@@ -39,9 +39,19 @@ SimpleViewer::set_origin (iPoint p) {
   origin = p;
 }
 
+void
+SimpleViewer::set_center (iPoint p) {
+  origin = p - iPoint(get_width(), get_height())/2;
+}
+
 iPoint
 SimpleViewer::get_origin (void) const {
   return origin;
+}
+
+iPoint
+SimpleViewer::get_center (void) const {
+  return origin + iPoint(get_width(), get_height())/2;
 }
 
 void
