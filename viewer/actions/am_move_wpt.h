@@ -5,17 +5,15 @@
 
 class MoveWaypoint : public ActionMode {
 public:
-    MoveWaypoint (Mapview * mapview) : ActionMode(mapview) {
-	current_wpt = 0;
-        current_layer = 0;
-        mystate = 0;
-    }
+    MoveWaypoint (Mapview * mapview_) : ActionMode(mapview_) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() { return "Move Waypoint"; }
 
     // Activates this mode.
     virtual void activate() {
+      current_wpt = 0;
+      current_layer = 0;
       mystate=0;
     }
 
@@ -26,7 +24,6 @@ public:
 
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
-
         if (mystate==0){ // select point
           std::cout << " MOVEWPT: " << p << std::endl;
 	  for (int i = 0; i < mapview->wpt_layers.size(); ++i) {
@@ -61,7 +58,6 @@ public:
     }
 
 private:
-    Mapview      * mapview;
     g_waypoint   * current_wpt;
     LayerWPT     * current_layer;
     int mystate; // 0 - select point, 1 - move point

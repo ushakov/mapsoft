@@ -9,7 +9,7 @@ class ActionMode {
 public:
 
     Mapview * mapview;
-    ActionMode(Mapview * mapview_) : mapview(mapview_) {}
+    ActionMode(Mapview * mapview_) : mapview(mapview_) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() = 0;

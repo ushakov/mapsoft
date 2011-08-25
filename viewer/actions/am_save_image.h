@@ -51,7 +51,6 @@ public:
     }
 
 private:
-    Mapview   * mapview;
     int		have_points;
 
     iPoint one, two;

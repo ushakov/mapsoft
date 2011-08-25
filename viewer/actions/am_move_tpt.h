@@ -5,18 +5,16 @@
 
 class MoveTrackpoint : public ActionMode {
 public:
-    MoveTrackpoint (Mapview * mapview) : ActionMode(mapview) {
-	current_tpt = 0;
-        current_layer = 0;
-        mystate = 0;
-    }
+    MoveTrackpoint (Mapview * mapview) : ActionMode(mapview) { }
 
     // Returns name of the mode as string.
     virtual std::string get_name() { return "Move Trackpoint"; }
 
     // Activates this mode.
     virtual void activate() {
-      mystate=0;
+      current_tpt = 0;
+      current_layer = 0;
+      mystate = 0;
     }
 
     // Abandons any action in progress and deactivates mode.
@@ -75,7 +73,6 @@ public:
     }
 
 private:
-    Mapview      * mapview;
     g_trackpoint * current_tpt;
     LayerTRK     * current_layer;
     int mystate; // 0 - select point, 1 - move point

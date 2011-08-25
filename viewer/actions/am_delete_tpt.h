@@ -39,9 +39,6 @@ public:
             }
         }
     }
-
-private:
-    Mapview * mapview;
 };
 
 #endif /* AM_DELETE_TPT_H */

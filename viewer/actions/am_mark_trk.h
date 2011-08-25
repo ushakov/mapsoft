@@ -88,9 +88,6 @@ public:
 
 	}
     }
-
-private:
-    Mapview  * mapview;
 };
 
 
