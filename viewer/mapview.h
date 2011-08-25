@@ -100,7 +100,6 @@ public:
 	//start building menus
 	actions = Gtk::ActionGroup::create();
 	actions->add(Gtk::Action::create("MenuFile", "_File"));
-	actions->add(Gtk::Action::create("MenuModes", "_Modes"));
 
 	actions->add(Gtk::Action::create("Add", Gtk::Stock::ADD),
           sigc::mem_fun(file_sel_load, &Gtk::Widget::show));
@@ -120,8 +119,6 @@ public:
 	    "      <menuitem action='Add'/>"
 	    "      <menuitem action='Save'/>"
 	    "      <menuitem action='Quit'/>"
-	    "    </menu>"
-	    "    <menu action='MenuModes'>"
 	    "    </menu>"
 	    "  </menubar>"
 	    "</ui>"

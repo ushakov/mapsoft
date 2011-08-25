@@ -22,28 +22,33 @@ ActionManager::ActionManager (Mapview * mapview_)
 {
     current_mode = 0;
 
-    AddAction(new ActionModeNone(mapview));
-    AddAction(new AddWaypoint(mapview));
-    AddAction(new EditWaypoint(mapview));
-    AddAction(new MoveWaypoint(mapview));
-    AddAction(new DeleteWaypoint(mapview));
-    AddAction(new EditTrackpoint(mapview));
-    AddAction(new MoveTrackpoint(mapview));
-    AddAction(new DeleteTrackpoint(mapview));
-    AddAction(new EditTrack(mapview));
-    AddAction(new AddTrack(mapview));
-    AddAction(new MarkTrack(mapview));
-    AddAction(new MakeTiles(mapview));
-    AddAction(new GotoLL(mapview));
-    AddAction(new SaveImage(mapview));
-    AddAction(new ShowPt(mapview));
+    AddAction(new AddWaypoint(mapview),     "Waypoints");
+    AddAction(new EditWaypoint(mapview),    "Waypoints");
+    AddAction(new MoveWaypoint(mapview),    "Waypoints");
+    AddAction(new DeleteWaypoint(mapview),  "Waypoints");
+
+    AddAction(new AddTrack(mapview),        "Tracks");
+    AddAction(new EditTrack(mapview),       "Tracks");
+    AddAction(new EditTrackpoint(mapview),  "Tracks");
+    AddAction(new MoveTrackpoint(mapview),  "Tracks");
+    AddAction(new DeleteTrackpoint(mapview),"Tracks");
+    AddAction(new MarkTrack(mapview),       "Tracks");
+
+    AddAction(new ActionModeNone(mapview),  "Misc");
+    AddAction(new SaveImage(mapview),       "Misc");
+    AddAction(new MakeTiles(mapview),       "Misc");
+    AddAction(new GotoLL(mapview),          "Misc");
+    AddAction(new ShowPt(mapview),          "Misc");
+
+    mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));
+    mapview->actions->add(Gtk::Action::create("MenuTracks", "_Tracks"));
+    mapview->actions->add(Gtk::Action::create("MenuMisc", "_Misc"));
 }
 
 void
-ActionManager::AddAction(ActionMode *action){
+ActionManager::AddAction(ActionMode *action, const std::string & menu){
   modes.push_back(boost::shared_ptr<ActionMode>(action));
   int m = modes.size()-1;
-
   std::string mid   = "Mode" + boost::lexical_cast<std::string>(m);
   std::string mname = action->get_name();
 
@@ -54,11 +59,10 @@ ActionManager::AddAction(ActionMode *action){
   mapview->ui_manager->add_ui_from_string(
     "<ui>"
     "  <menubar name='MenuBar'>"
-    "    <menu action='MenuModes'>"
+    "    <menu action='Menu" + menu + "'>"
     "      <menuitem action='" + mid + "'/>"
     "    </menu>"
     "  </menubar>"
     "</ui>"
   );
-
 }
