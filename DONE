@@ -8,6 +8,71 @@ TODO:
     * защищать запрещенные символы при записи геоданных (',' в OE, '"' в XML, ' ' в GU)
 
 ====================================
+25.08.2011
+ * gred
+   - Исправил падение dthread_viewer на выходе (ошибка device or
+     resource busy during pthread_mutex_destroy)
+   - Новые методы set_center, get_center в simple_viewer'е
+   - add add_src_mark function to rubber
+
+ * mapsoft_mapview
+   - Упростил меню, выкинул неиспользуемые пункты, разбил все
+     режимы на несколько подпунктов меню.
+   - В режиме "Add Waypoint" при тыканьи в карту ставится временная
+     отметка.
+   - Добавлен режим "Show point information", показывающий координаты
+     точки в разных системах, а также названия номенклатурных листов,
+     на которые эта точка попадает.
+   - 3-я кнопка мыши не только прерывает все действия, но и убирает
+     соответствующий диалог.
+   - Можно менять размер подписей к точкам.
+   - Исправил ошибку с вычислением диапазонов в layer_wpt - раньше из-за
+     этого не показывались одиночные точки.
+   - Добавил проверку на наличие привязки при добавлении точек и треков -
+     раньше при отсутствии привязки все падало.
+   - При загрузке геоданных вьюер переходит к первой точке трека, или к
+     первому waypoint'у, или к центру первой карты.
+   - Сделал сохранение/восстановление горячих клавиш в $HOME/.mapsoft/accel
+   - при переключении режимов их названия показываются на статусбаре.
+
+28.11.2010-25.08.2011
+ * gred
+   - dthread_viewer: fix sigv on object rescaling -- add additional mutex
+ * vector/data
+   - fix TYP-file (by wladimirych)
+   - change border and label codes
+ * programs:
+   - add mapsoft_gen program: generalize tracks
+ * core/options/m_getopt.cpp: fix error messages
+ * core/utils/srtm3.h: fix work with negative coords
+ * scripts/map_install: cleanup code
+ * vector/vmap4
+   - tilevmap_put, tilevmap_get, tmap_gitwww programs
+ * vector/vmap3
+     _renderer
+   - renderer: новый способ стирать линии под текстом
+   - renderer: исправил ошибку, из-за которой текст на полях
+     стирался при затирании линий под подписями
+   - vmap_copy: add remove_dups, remove_empty, join_objects options
+   - add vmap_copy and vmap_render to install rule
+   - remove unused vmap_join program
+   - add vmap_fix_diff program
+ * vector/vmap4
+    tilevmap_put: fix error in "-l both" option, use it by default
+    tilevmap: add action logging
+    tilevmap_put: keep map pars
+    keep geometry of rectangular maps inside tmap; allow different label sources
+    tilevmap_get: fix help
+    tmap_gitwww: correct rmap generating
+    tilevmap_put: do fix_diff
+    tilevmap_get: -p option; allow working w/o output file
+    tilevmap_get: cleanup code
+    improve tmap_gitwww script
+    add Readme for programs
+
+26.10-28.11.2010
+    TODO!
+
 05.09.2010 - 26.10.2010
  * Система сборки и обустройство директорий:
    - Правильный набор .gitignore-файлов.
