@@ -332,6 +332,7 @@ public:
 
     bool on_button_release (GdkEventButton * event) {
       if (event->button == 3) {
+        gend.deactivate();
         rubber.clear();
         action_manager->clear_state();
         return true;
