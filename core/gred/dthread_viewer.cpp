@@ -10,20 +10,19 @@ DThreadViewer::DThreadViewer(GObj * pl) :
   updater_mutex = new(Glib::Mutex);
   drawer_mutex = new(Glib::Mutex);
   updater_cond = new(Glib::Cond);
-  updater_thread = Glib::Thread::create(sigc::mem_fun(*this, &DThreadViewer::updater), true);
+  updater_thread =
+    Glib::Thread::create(sigc::mem_fun(*this, &DThreadViewer::updater), true);
 }
 
 DThreadViewer::~DThreadViewer(){
-
-    updater_mutex->lock();
-    updater_needed = false;
-    updater_cond->signal();
-    updater_mutex->unlock();
-
-    updater_thread->join(); // waiting for our thread to exit
-    delete(updater_mutex);
-    delete(drawer_mutex);
-    delete(updater_cond);
+  updater_mutex->lock();
+  updater_needed = false;
+  updater_cond->signal();
+  updater_mutex->unlock();
+  updater_thread->join(); // waiting for our thread to exit
+  delete(drawer_mutex);
+  delete(updater_mutex);
+  delete(updater_cond);
 }
 
 void
@@ -111,6 +110,7 @@ DThreadViewer::updater(){
       }
     }
 
+    updater_mutex->lock();
     if (tiles_todo.empty()) updater_cond->wait(*updater_mutex);
     updater_mutex->unlock();
   }
