@@ -71,7 +71,7 @@ public:
         }
 
 	std::ostringstream st;
-	st << "Creating new track... "
+	st << "Add track: "
            << new_track.size() << " points, "
            << new_track.length()/1000 << " km";
 	mapview->statusbar.push(st.str(),0);

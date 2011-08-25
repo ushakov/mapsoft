@@ -181,6 +181,7 @@ public:
     void on_mode_change (int m) {
 	gend.deactivate();
 	rubber.clear();
+        statusbar.push(action_manager->get_mode_name(m),0);
 	action_manager->set_mode(m);
     }
 

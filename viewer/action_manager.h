@@ -27,6 +27,11 @@ public:
 	modes[current_mode]->activate();
     }
 
+    std::string get_mode_name (int mode) {
+      return modes[mode]->get_name();
+    }
+
+
     void clear_state () {
 	modes[current_mode]->abort();
     }
