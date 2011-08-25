@@ -29,7 +29,7 @@ LayerWPT::get_ref() const {
 void
 LayerWPT::set_ref(const g_map & map){
   mymap=map; cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"));
-  myrange=cnv.bb_bck(world->range_geodata(), 1.0);
+  myrange=rect_pump(cnv.bb_bck(world->range_geodata()), 1.0);
 #ifdef DEBUG_LAYER_WPT
   cerr  << "LayerWPT: set_ref range: " << myrange << "\n";
 #endif
@@ -42,7 +42,7 @@ LayerWPT::set_ref(){
 
 iImage
 LayerWPT::get_image (iRect src){
-  if (rect_intersect(myrange, src).empty()) return iImage(0,0);
+  if (rect_intersect(rect_pump(myrange,110), src).empty()) return iImage(0,0);
   iImage ret(src.w, src.h, 0);
   draw(src.TLC(), ret);
   return ret;
@@ -54,7 +54,7 @@ LayerWPT::draw(const iPoint origin, iImage & image){
 #ifdef DEBUG_LAYER_WPT
   cerr  << "LayerWPT: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
-  if (rect_intersect(myrange, rect_pump(src_rect,110)).empty()) return;
+  if (rect_intersect(rect_pump(myrange,110), src_rect).empty()) return;
   CairoWrapper cr(image);
 
 
