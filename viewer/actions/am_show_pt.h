@@ -18,9 +18,7 @@ class ShowPtDlg : public Gtk::Dialog{
 
 public:
   ShowPtDlg(){
-    //
-
-    set_title("Show point information");
+    set_title("Point information");
     table.resize(3, DLG_ROWS); // rows,cols
     table.set_spacings(2);
     const char *label_text[] = {
@@ -78,7 +76,10 @@ public:
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 
-      if (!mapview->have_reference) return;
+      if (!mapview->have_reference){
+        mapview->statusbar.push("No geo-referenced layer.", 0);
+        return;
+      }
       convs::map2pt cnv1(mapview->reference, Datum("wgs84"), Proj("lonlat"));
       convs::map2pt cnv2(mapview->reference, Datum("pulk"),  Proj("lonlat"));
       dPoint p_wl=p; cnv1.frw(p_wl);
@@ -100,6 +101,9 @@ public:
       dlg.set_txt(6, convs::pt_to_nom(p_pl,200000));
       dlg.set_txt(7, convs::pt_to_nom(p_pl,100000));
       dlg.set_txt(8, convs::pt_to_nom(p_pl,50000));
+
+      mapview->rubber.clear();
+      mapview->rubber.add_src_mark(p);
       dlg.show_all();
     }
 
