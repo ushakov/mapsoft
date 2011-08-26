@@ -6,7 +6,7 @@
 
 #include "2d/image.h"
 #include "2d/cache.h"
-#include "layers/layer.h"
+#include "layers/layer_geo.h"
 
 #include "gred/iface/gobj.h"
 
@@ -22,33 +22,34 @@ public:
     // functions for gred/gobj interface
     int draw(iImage &img, const iPoint &origin);
 
-    std::multimap<int, Layer *>::iterator find_layer (Layer * layer);
+    std::multimap<int, LayerGeo *>::iterator find_layer (LayerGeo * layer);
 
-    void add_layer (Layer * layer, int depth);
+    void add_layer (LayerGeo * layer, int depth);
 
-    void remove_layer (Layer * layer);
+    void remove_layer (LayerGeo * layer);
 
-    void set_layer_depth (Layer * layer, int newdepth);
+    void set_layer_depth (LayerGeo * layer, int newdepth);
 
-    int get_layer_depth (Layer * layer);
+    int get_layer_depth (LayerGeo * layer);
 
-    void refresh_layer (Layer * layer);
+    void refresh_layer (LayerGeo * layer);
 
-    void set_layer_active (Layer * layer, bool active);
+    void set_layer_active (LayerGeo * layer, bool active);
 
-    bool get_layer_active (Layer * layer);
+    bool get_layer_active (LayerGeo * layer);
 
     void set_scale(const double k);
 
     inline void clear_tile_cache();
 
+    void set_ref(const g_map & reference);
 
 private:
-    std::multimap <int, Layer *> layers;
-    std::map <Layer *, bool> layers_active;
+    std::multimap <int, LayerGeo *> layers;
+    std::map <LayerGeo *, bool> layers_active;
 
     typedef Cache<iRect,iImage> LayerCache;
-    std::map<Layer *, boost::shared_ptr<LayerCache> > tile_cache;
+    std::map<LayerGeo *, boost::shared_ptr<LayerCache> > tile_cache;
     double sc;
 };
 

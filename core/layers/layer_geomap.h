@@ -34,11 +34,11 @@ public:
   /// Get layer reference.
   g_map get_ref() const;
 
+  /// Get some reasonable reference.
+  g_map get_myref() const;
+
   /// Set layer reference.
   void set_ref(const g_map & map);
-
-  /// Set some reasonable reference.
-  void set_ref();
 
   /// Get pointer to the world object.
   const geo_data * get_world() const;

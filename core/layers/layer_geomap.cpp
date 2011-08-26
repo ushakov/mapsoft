@@ -22,15 +22,15 @@ LayerGeoMap::get_ref() const {
   return mymap;
 }
 
+g_map
+LayerGeoMap::get_myref() const {
+  return convs::mymap(*world);
+}
+
 void
 LayerGeoMap::set_ref(const g_map & map){
   mymap=map;
   make_m2ms();
-}
-
-void
-LayerGeoMap::set_ref(){
-  set_ref(convs::mymap(*world));
 }
 
 const geo_data *

@@ -8,9 +8,9 @@ int
 Workplane::draw(iImage &img, const iPoint &origin){
 
         iRect tile(origin.x, origin.y, img.w, img.h );
-	for (std::multimap<int, Layer *>::reverse_iterator
+	for (std::multimap<int, LayerGeo *>::reverse_iterator
                 itl = layers.rbegin(); itl != layers.rend();  ++itl){
-	    Layer * layer = itl->second;
+	    LayerGeo * layer = itl->second;
 	    if (layers_active[layer]) {
 		if (!tile_cache[layer]->contains(tile)) {
 		    tile_cache[layer]->add(tile, layer->get_image(tile));
@@ -26,9 +26,9 @@ Workplane::draw(iImage &img, const iPoint &origin){
 	return GOBJ_FILL_PART;
 }
 
-std::multimap<int, Layer *>::iterator
-Workplane::find_layer (Layer * layer) {
-	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+std::multimap<int, LayerGeo *>::iterator
+Workplane::find_layer (LayerGeo * layer) {
+	for (std::multimap<int, LayerGeo *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
 	    if (itl->second == layer) { return itl; }
 	}
@@ -36,7 +36,7 @@ Workplane::find_layer (Layer * layer) {
 }
 
 void
-Workplane::add_layer (Layer * layer, int depth) {
+Workplane::add_layer (LayerGeo * layer, int depth) {
 	std::cout << "Adding layer " << layer << " at depth " << depth << std::endl;
 	if (find_layer(layer) != layers.end()) {
 	    std::cout << "Already have this layer!" << std::endl;
@@ -50,9 +50,9 @@ Workplane::add_layer (Layer * layer, int depth) {
 }
 
 void
-Workplane::remove_layer (Layer * layer){
+Workplane::remove_layer (LayerGeo * layer){
 	std::cout << "Removing layer " << layer << std::endl;
-	std::multimap<int, Layer *>::iterator itl = find_layer(layer);	
+	std::multimap<int, LayerGeo *>::iterator itl = find_layer(layer);	
 	if (itl == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -64,9 +64,9 @@ Workplane::remove_layer (Layer * layer){
 }
 
 void
-Workplane::set_layer_depth (Layer * layer, int newdepth){
+Workplane::set_layer_depth (LayerGeo * layer, int newdepth){
 	std::cout << "Setting depth of layer " << layer << " to " << newdepth << std::endl;
-	std::multimap<int, Layer *>::iterator itl = find_layer(layer);
+	std::multimap<int, LayerGeo *>::iterator itl = find_layer(layer);
 	if (itl == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -77,9 +77,9 @@ Workplane::set_layer_depth (Layer * layer, int newdepth){
 }
 
 int
-Workplane::get_layer_depth (Layer * layer){
+Workplane::get_layer_depth (LayerGeo * layer){
 	std::cout << "Getting depth of layer " << layer << std::endl;
-	std::multimap<int, Layer *>::iterator itl = find_layer(layer);	
+	std::multimap<int, LayerGeo *>::iterator itl = find_layer(layer);	
 	if (itl == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -89,14 +89,14 @@ Workplane::get_layer_depth (Layer * layer){
 }
 
 void
-Workplane::refresh_layer (Layer * layer){
+Workplane::refresh_layer (LayerGeo * layer){
 	layer->refresh();
 	tile_cache[layer]->clear();
         signal_refresh.emit();
 }
 
 void
-Workplane::set_layer_active (Layer * layer, bool active) {
+Workplane::set_layer_active (LayerGeo * layer, bool active) {
 	if (find_layer(layer) == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -105,7 +105,7 @@ Workplane::set_layer_active (Layer * layer, bool active) {
 	layers_active[layer] = active;
 }
 
-bool Workplane::get_layer_active (Layer * layer) {
+bool Workplane::get_layer_active (LayerGeo * layer) {
 	if (find_layer(layer) == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -115,7 +115,7 @@ bool Workplane::get_layer_active (Layer * layer) {
 }
 
 void Workplane::set_scale(const double k){
-	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+	for (std::multimap<int, LayerGeo *>::iterator itl = layers.begin();
     					itl != layers.end(); ++itl) {
 		(*itl->second)*=k/sc;
 		tile_cache[itl->second]->clear();
@@ -125,9 +125,18 @@ void Workplane::set_scale(const double k){
 
 inline void
 Workplane::clear_tile_cache() {
-	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+	for (std::multimap<int, LayerGeo *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
 	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
 	}
+}
+
+void
+Workplane::set_ref(const g_map & reference) {
+  for (std::multimap<int, LayerGeo *>::iterator itl = layers.begin();
+    itl != layers.end(); ++itl) {
+    itl->second->set_ref(reference);
+    refresh_layer(itl->second);
+  }
 }
 

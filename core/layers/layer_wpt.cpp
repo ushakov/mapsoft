@@ -26,6 +26,11 @@ LayerWPT::get_ref() const {
   return mymap;
 }
 
+g_map
+LayerWPT::get_myref() const {
+  return convs::mymap(*world);
+}
+
 void
 LayerWPT::set_ref(const g_map & map){
   mymap=map; cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"));
@@ -33,11 +38,6 @@ LayerWPT::set_ref(const g_map & map){
 #ifdef DEBUG_LAYER_WPT
   cerr  << "LayerWPT: set_ref range: " << myrange << "\n";
 #endif
-}
-
-void
-LayerWPT::set_ref(){
-  set_ref(convs::mymap(*world));
 }
 
 iImage

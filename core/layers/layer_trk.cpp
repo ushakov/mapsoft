@@ -26,6 +26,11 @@ LayerTRK::get_ref() const {
   return mymap;
 }
 
+g_map
+LayerTRK::get_myref() const {
+  return convs::mymap(*world);
+}
+
 void
 LayerTRK::set_ref(const g_map & map){
   mymap=map;
@@ -34,11 +39,6 @@ LayerTRK::set_ref(const g_map & map){
 #ifdef DEBUG_LAYER_TRK
   cerr  << "LayerTRK: set_ref range: " << myrange << "\n";
 #endif
-}
-
-void
-LayerTRK::set_ref(){
-  set_ref(convs::mymap(*world));
 }
 
 iImage

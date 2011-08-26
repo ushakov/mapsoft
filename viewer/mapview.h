@@ -164,7 +164,7 @@ public:
 	Gtk::TreeModel::Row row = *iter;
 	bool need_refresh = false;
 
-	Layer * layer = row[layer_list.columns.layer];
+	LayerGeo * layer = row[layer_list.columns.layer];
 	if (!layer) return;
 	int new_depth = row[layer_list.columns.depth];
 	if (workplane.get_layer_depth (layer) != new_depth) {
@@ -208,31 +208,39 @@ public:
 
     void add_world(const boost::shared_ptr<geo_data> world, const std::string & name, bool scroll=true) {
 	data.push_back(world);
-        if (!have_reference){ reference = convs::mymap(*world.get()); have_reference = true; }
-
+        g_map new_ref;
 	if (world->maps.size() > 0) {
 	    // we are loading maps: if we already have reference, use it
 	    boost::shared_ptr<LayerGeoMap> map_layer(new LayerGeoMap(world.get()));
-	    map_layer->set_ref(reference);
+	    new_ref = map_layer->get_myref();
 	    map_layers.push_back(map_layer);
 	    add_layer(map_layer.get(), 300, "map: " + name);
 	}
 	if (world->trks.size() > 0) {
 	    // we are loading tracks: if we already have reference, use it
 	    boost::shared_ptr<LayerTRK> trk_layer(new LayerTRK(world.get()));
-	    trk_layer->set_ref(reference);
+            if (!have_reference) new_ref = trk_layer->get_myref();
+            else trk_layer->set_ref(reference);
 	    trk_layers.push_back(trk_layer);
 	    add_layer(trk_layer.get(), 200, "trk: " + name);
 	}
 	if (world->wpts.size() > 0) {
 	    // we are loading waypoints: if we already have reference, use it
 	    boost::shared_ptr<LayerWPT> wpt_layer(new LayerWPT(world.get()));
-	    wpt_layer->set_ref(reference);
+            if (!have_reference) new_ref = wpt_layer->get_myref();
+            else wpt_layer->set_ref(reference);
 	    wpt_layers.push_back(wpt_layer);
 	    add_layer(wpt_layer.get(), 100, "wpt: " + name);
 	}
 
-	if (scroll){ // scroll to the first trackpoint or waypoint or map center
+        if (new_ref.size()){
+           workplane.set_ref(new_ref);
+           reference=new_ref;
+           have_reference=true;
+        }
+
+	if (scroll && have_reference){
+          // scroll to the first trackpoint or waypoint or map center
           dPoint new_orig;
 
           std::vector<g_map>::const_iterator mli = world->maps.begin();
@@ -260,11 +268,9 @@ public:
             }
             tli++;
           }
-          if (have_reference){
-            convs::map2pt cnv(reference, Datum("wgs84"), Proj("lonlat"));
-            cnv.bck(new_orig);
-            viewer.set_center(new_orig);
-          }
+          convs::map2pt cnv(reference, Datum("wgs84"), Proj("lonlat"));
+          cnv.bck(new_orig);
+          viewer.set_center(new_orig);
         }
 
 	refresh();
@@ -297,7 +303,7 @@ public:
       hide_all();
     }
 
-    void add_layer (Layer * layer, int depth, Glib::ustring name) {
+    void add_layer (LayerGeo * layer, int depth, Glib::ustring name) {
        workplane.add_layer(layer, depth);
        layer_list.add_layer(layer, depth, name);
     }

@@ -26,11 +26,11 @@ public:
   /// Get layer reference.
   g_map get_ref() const;
 
+  /// Get some reasonable reference.
+  g_map get_myref() const;
+
   /// Set layer reference.
   void set_ref(const g_map & map);
-
-  /// Set some reasonable reference.
-  void set_ref();
 
   /// Optimized get_image to return empty image outside of bounds.
   iImage get_image (iRect src);

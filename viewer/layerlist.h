@@ -2,7 +2,7 @@
 #define LAYERLIST_H
 
 #include <gtkmm.h>
-#include "layers/layer.h"
+#include "layers/layer_geo.h"
 
 class LayerListColumns : public Gtk::TreeModelColumnRecord {
 public:
@@ -16,7 +16,7 @@ public:
     Gtk::TreeModelColumn<bool> checked;
     Gtk::TreeModelColumn<int> depth;
     Gtk::TreeModelColumn<Glib::ustring> text;
-    Gtk::TreeModelColumn<Layer *> layer;
+    Gtk::TreeModelColumn<LayerGeo *> layer;
 };
 
 
@@ -32,7 +32,7 @@ public:
 	set_enable_search(false);
     }
 
-    void add_layer (Layer * layer, int depth, Glib::ustring name) {
+    void add_layer (LayerGeo * layer, int depth, Glib::ustring name) {
 //	std::cout << "LL: add layer " << layer << " at depth " << depth << " named " << name << std::endl;
 	Gtk::TreeModel::iterator it = store->append();
 	Gtk::TreeModel::Row row = *it;

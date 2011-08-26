@@ -31,9 +31,9 @@ public:
 
     // получить/установить привязку layer'a
     g_map get_ref() const {return mymap;}
+    g_map get_myref() const {return mymap0;}
 
     void set_ref(const g_map & map){mymap=map; cnv = convs::map2map(mymap0,mymap,false);}
-    void set_ref(){set_ref(mymap0);}
 
     virtual void refresh() {}
 
