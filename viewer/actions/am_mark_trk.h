@@ -39,6 +39,7 @@ public:
     virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 	for (int i = 0; i < mapview->trk_layers.size(); ++i) {
             LayerTRK * current_layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
+            if (!mapview->workplane.get_layer_active(current_layer)) continue;
 	    assert (current_layer);
 	    std::pair<int, int> d = current_layer->find_trackpoint(p);
 
