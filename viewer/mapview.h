@@ -52,7 +52,7 @@ private:
 
     boost::shared_ptr<ActionManager> action_manager;
 
-    struct timeval click_started;
+    iPoint click_start;
 
 public:
 
@@ -86,6 +86,8 @@ public:
 	  sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
 
         /// keypress and mouse button press events
+        viewer.signal_button_press_event().connect (
+          sigc::mem_fun (this, &Mapview::on_button_press));
         viewer.signal_button_release_event().connect (
           sigc::mem_fun (this, &Mapview::on_button_release));
         signal_key_press_event().connect (
@@ -336,13 +338,13 @@ public:
     }
 
 
-//    bool on_button_press (GdkEventButton * event) {
-//      if (event->button == 1) {
-//        gettimeofday (&click_started, NULL);
-//        return true;
-//      }
-//      return false;
-//    }
+    bool on_button_press (GdkEventButton * event) {
+      if (event->button == 1) {
+        click_start = viewer.get_origin();
+        return true;
+      }
+      return false;
+    }
 
     bool on_button_release (GdkEventButton * event) {
       if (event->button == 3) {
@@ -351,20 +353,11 @@ public:
         action_manager->clear_state();
         return true;
       }
-
       if (event->button == 1) {
-
-//        struct timeval click_ended;
-//        gettimeofday (&click_ended, NULL);
-//        int d = (click_ended.tv_sec - click_started.tv_sec) * 1000 +
-//                (click_ended.tv_usec - click_started.tv_usec) / 1000; // in ms
-//        if (d > 250) return true;
-
         iPoint p;
 	Gdk::ModifierType state;
-
-        VLOG(2) << "click at: " << p.x << "," << p.y << " " << event->button;
         viewer.get_window()->get_pointer(p.x,p.y,state);
+        if (pdist(click_start, viewer.get_origin()) > 5) return true;
         p += viewer.get_origin();
         action_manager->click(p, state);
         return true;
