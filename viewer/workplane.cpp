@@ -65,7 +65,6 @@ Workplane::remove_layer (LayerGeo * layer){
 
 void
 Workplane::set_layer_depth (LayerGeo * layer, int newdepth){
-	std::cout << "Setting depth of layer " << layer << " to " << newdepth << std::endl;
 	std::multimap<int, LayerGeo *>::iterator itl = find_layer(layer);
 	if (itl == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
@@ -78,7 +77,6 @@ Workplane::set_layer_depth (LayerGeo * layer, int newdepth){
 
 int
 Workplane::get_layer_depth (LayerGeo * layer){
-	std::cout << "Getting depth of layer " << layer << std::endl;
 	std::multimap<int, LayerGeo *>::iterator itl = find_layer(layer);	
 	if (itl == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
