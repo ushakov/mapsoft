@@ -43,7 +43,7 @@ public:
 private:
 
     // used in constructor
-    void AddAction(ActionMode *action, const std::string & menu);
+    void AddAction(ActionMode *action, const std::string & menu, bool radio = true);
 
     Mapview      * mapview;
     std::vector<boost::shared_ptr<ActionMode> > modes;

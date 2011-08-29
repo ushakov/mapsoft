@@ -16,11 +16,14 @@
 #include "actions/am_goto_ll.h"
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
+#include "actions/am_download.h"
 
 ActionManager::ActionManager (Mapview * mapview_)
     : mapview(mapview_)
 {
     current_mode = 0;
+
+    AddAction(new Download(mapview),        "File", false);
 
     AddAction(new AddWaypoint(mapview),     "Waypoints");
     AddAction(new EditWaypoint(mapview),    "Waypoints");
@@ -43,18 +46,27 @@ ActionManager::ActionManager (Mapview * mapview_)
     mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));
     mapview->actions->add(Gtk::Action::create("MenuTracks", "_Tracks"));
     mapview->actions->add(Gtk::Action::create("MenuMisc", "_Misc"));
+
+    modes.push_back(boost::shared_ptr<ActionMode>(new ActionModeNone(mapview)));
 }
 
 void
-ActionManager::AddAction(ActionMode *action, const std::string & menu){
+ActionManager::AddAction(ActionMode *action, const std::string & menu, bool radio){
   modes.push_back(boost::shared_ptr<ActionMode>(action));
   int m = modes.size()-1;
   std::string mid   = "Mode" + boost::lexical_cast<std::string>(m);
   std::string mname = action->get_name();
 
-  mapview->actions->add(
-    Gtk::RadioAction::create(mapview->mode_group, mid, mname),
-    sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
+  if (radio) {
+    mapview->actions->add(
+      Gtk::RadioAction::create(mapview->mode_group, mid, mname),
+      sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
+  }
+  else {
+    mapview->actions->add(
+      Gtk::Action::create(mid, mname),
+      sigc::mem_fun(action, &ActionMode::activate));
+  }
 
   mapview->ui_manager->add_ui_from_string(
     "<ui>"
