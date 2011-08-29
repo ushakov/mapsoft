@@ -52,7 +52,7 @@ namespace gps {
 		return true;
 	}
 
-	bool get_track (const char* port, geo_data & world, const Options &opt)
+	bool get_tracks (const char* port, geo_data & world, const Options &opt)
 	{
 		GPS_PTrack *trk;
                 if (!init_gps(port)) return false;
@@ -170,7 +170,7 @@ namespace gps {
 
 	bool get_all (const char* port, geo_data & world, const Options &opt){
 	    get_waypoints(port, world, opt);
-	    get_track(port, world, opt);
+	    get_tracks(port, world, opt);
 	    if (opt.find("gps_off")!=opt.end()) GPS_Command_Off(port);
 	    return true;
 	}
