@@ -12,6 +12,7 @@ namespace gps {
     bool get_all (const char* port, geo_data & world, const Options & opt);
     bool put_track (const char* port, const g_track & tr, const Options & opt);
     bool put_waypoints (const char* port, const g_waypoint_list & wp, const Options & opt);
+    void turn_off (const char* port);
     bool put_all (const char* port, const geo_data & world, const Options & opt);
 
 // options:

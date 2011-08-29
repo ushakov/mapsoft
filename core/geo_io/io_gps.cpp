@@ -167,6 +167,9 @@ namespace gps {
 		return true;
 	}
 
+        void turn_off (const char* port){
+          GPS_Command_Off(port);
+        }
 
 	bool get_all (const char* port, geo_data & world, const Options &opt){
 	    get_waypoints(port, world, opt);
