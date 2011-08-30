@@ -40,6 +40,11 @@ public:
 
 private:
 
+    GtkDialog *add_wpt;
+    GtkColorButton *fg, *bg;
+    GtkEntry *name, *comm, *lonlat;
+    GtkSpinButton *font_size;
+
     void on_result(int r, const Options & o) {
         mapview->rubber.clear();
 	if (r == 0) { // OK

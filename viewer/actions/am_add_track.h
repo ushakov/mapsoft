@@ -6,6 +6,12 @@
 #include "action_mode.h"
 #include "../generic_dialog.h"
 
+GtkDialog add_trk
+GtkEntry name
+GtkSpinButton width
+GtkColorButton fg
+GtkButton ok,cancel
+
 class AddTrack : public ActionMode {
 public:
     AddTrack (Mapview * mapview) : ActionMode(mapview) { }
@@ -79,6 +85,12 @@ public:
 
 private:
     g_track  new_track;
+
+    GtkDialog *add_trk;
+    GtkEntry *name;
+    GtkSpinButton *width;
+    GtkColorButton *fg;
+    GtkButton *ok, *cancel;
 
     void on_result(int r, const Options & o) {
        if (r == 0) { // OK
