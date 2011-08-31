@@ -18,12 +18,6 @@ public:
 	return "Mark Track's length";
     }
 
-    // Activates this mode.
-    virtual void activate() { }
-
-    // Abandons any action in progress and deactivates mode.
-    virtual void abort() { }
-
     void add_wpt (g_waypoint_list & wpt_list, dPoint where, double what) {
 	std::ostringstream ss;
 	g_waypoint wpt;

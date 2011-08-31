@@ -13,12 +13,6 @@ public:
 	return "Add Waypoint";
     }
 
-    // Activates this mode.
-    void activate() { }
-
-    // Abandons any action in progress and deactivates mode.
-    void abort() { }
-
     // Sends user click. Coordinates are in workplane's discrete system.
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
          if (!mapview->have_reference){
@@ -40,10 +34,10 @@ public:
 
 private:
 
-    GtkDialog *add_wpt;
-    GtkColorButton *fg, *bg;
-    GtkEntry *name, *comm, *lonlat;
-    GtkSpinButton *font_size;
+    Gtk::Dialog *add_wpt;
+    Gtk::ColorButton *fg, *bg;
+    Gtk::Entry *name, *comm, *lonlat;
+    Gtk::SpinButton *font_size;
 
     void on_result(int r, const Options & o) {
         mapview->rubber.clear();

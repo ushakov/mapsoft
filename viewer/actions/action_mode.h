@@ -15,13 +15,14 @@ public:
     virtual std::string get_name() = 0;
 
     // Activates this mode.
-    virtual void activate() = 0;
+    virtual void activate() { };
 
     // Abandons any action in progress and deactivates mode.
-    virtual void abort() = 0;
+    // no need to reset rubber and generic_dialog
+    virtual void abort() { };
 
     // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) = 0;
+    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) { };
 };
 
 

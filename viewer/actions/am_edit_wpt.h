@@ -15,12 +15,6 @@ public:
 	return "Edit Waypoint";
     }
 
-    // Activates this mode.
-    virtual void activate() { }
-
-    // Abandons any action in progress and deactivates mode.
-    virtual void abort() { }
-
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
 	std::cout << "EDITWPT: " << p << std::endl;
