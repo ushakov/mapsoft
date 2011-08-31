@@ -4,6 +4,9 @@
 #include "2d/point.h"
 #include <gtkmm.h>
 
+#define GETW(x,y)\
+  y=0; builder->get_widget(Glib::ustring(x), y); assert (y);
+
 // Interface.
 class ActionMode {
 public:

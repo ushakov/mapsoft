@@ -2,12 +2,7 @@
 #define AM_DOWNLOAD
 
 #include "action_mode.h"
-#include "../generic_dialog.h"
-
 #include <geo/geo_nom.h>
-
-#define GETW(x,y)\
-  y=0; builder->get_widget(Glib::ustring(x), y); assert (y);
 
 class Download : public ActionMode {
 public:

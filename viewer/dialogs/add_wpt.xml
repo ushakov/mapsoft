@@ -96,7 +96,7 @@
                 <property name="tooltip_text" translatable="yes">WGS84</property>
                 <property name="xalign">1</property>
                 <property name="xpad">3</property>
-                <property name="label" translatable="yes">Lon,Lat:</property>
+                <property name="label" translatable="yes">Lon, Lat:</property>
               </object>
               <packing>
                 <property name="top_attach">4</property>
@@ -133,6 +133,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">&#x2022;</property>
+                <property name="adjustment">font_size_adj</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -221,5 +222,15 @@
         </child>
       </object>
     </child>
+    <action-widgets>
+      <action-widget response="0">ok</action-widget>
+      <action-widget response="0">cancel</action-widget>
+    </action-widgets>
+  </object>
+  <object class="GtkAdjustment" id="font_size_adj">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
   </object>
 </interface>

@@ -2,30 +2,35 @@
 #define AM_ADD_TRACK_H
 
 #include <sstream>
-
 #include "action_mode.h"
-#include "../generic_dialog.h"
 
 class AddTrack : public ActionMode {
 public:
-    AddTrack (Mapview * mapview) : ActionMode(mapview) { }
-
-    // Returns name of the mode as string.
-    std::string get_name() {
-	return "Add Track";
+    AddTrack (Mapview * mapview) : ActionMode(mapview) {
+      builder = Gtk::Builder::create_from_file(
+        "/usr/share/mapsoft/dialogs/add_trk.xml");
+      GETW("add_trk", dlg)
+      GETW("comm", comm)
+      GETW("width", width)
+      GETW("fg", fg)
+      GETW("ok", ok)
+      GETW("cancel", cancel)
+      ok->signal_clicked().connect(
+          sigc::mem_fun (this, &AddTrack::on_ok));
+      cancel->signal_clicked().connect(
+          sigc::mem_fun(this, &AddTrack::on_cancel));
+      dlg->signal_delete_event().connect_notify(
+          sigc::hide(sigc::mem_fun(this, &AddTrack::on_cancel)));
+    }
+    ~AddTrack(){
+      delete dlg, comm, width, fg, ok, cancel;
     }
 
-    // Activates this mode.
-    void activate() {
-      new_track.clear();
-    }
 
-    // Abandons any action in progress and deactivates mode.
-    void abort() {
-      activate();
-    }
+    std::string get_name() { return "Add Track"; }
+    void activate() { on_cancel(); }
+    void abort() { on_cancel(); }
 
-    // Sends user click. Coordinates are in workplane's discrete system.
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
          if (!mapview->have_reference){
            mapview->statusbar.push("No geo-reference", 0);
@@ -33,14 +38,11 @@ public:
          }
 
          if (new_track.size() == 0){
-           Options opt = new_track.to_options();
-           mapview->gend.activate(get_name(), opt,
-             sigc::mem_fun(this, &AddTrack::on_result));
+           trk2dlg();
+           dlg->show();
          }
 
-	/// add or remove point
-        if (state&Gdk::CONTROL_MASK){
-	  std::cout << "remove track point" << std::endl;
+        if (state&Gdk::CONTROL_MASK){ // remove point
           if (new_track.size()>0) new_track.pop_back();
           if (mapview->rubber.size()>0){
             mapview->rubber.pop();
@@ -52,8 +54,7 @@ public:
             mapview->rubber.add(s);
           }
         }
-        else{
-	  std::cout << "add track point: " << p << std::endl;
+        else{ // add point
           if (mapview->rubber.size()>0){
             RubberSegment s = mapview->rubber.pop();
             s.flags &= ~RUBBFL_MOUSE;
@@ -66,8 +67,8 @@ public:
 
           g_trackpoint pt;
           pt.x = p.x; pt.y=p.y;
-  	  cnv.frw(pt);
- 	  new_track.push_back(pt);
+	  cnv.frw(pt);
+	  new_track.push_back(pt);
         }
 
 	std::ostringstream st;
@@ -80,24 +81,45 @@ public:
 private:
     g_track  new_track;
 
-    Gtk::Dialog *add_trk;
-    Gtk::Entry *name;
+    Glib::RefPtr<Gtk::Builder> builder;
+    Gtk::Dialog *dlg;
+    Gtk::Entry *comm;
     Gtk::SpinButton *width;
     Gtk::ColorButton *fg;
     Gtk::Button *ok, *cancel;
 
-    void on_result(int r, const Options & o) {
-       if (r == 0) { // OK
-          new_track.parse_from_options(o);
-          boost::shared_ptr<geo_data> world(new geo_data);
-          world->trks.push_back(new_track);
-          mapview->add_world(world, new_track.comm, false);
-       }
-       mapview->statusbar.push("",0);
-       new_track.clear();
-       mapview->rubber.clear();
+    void on_ok(){
+      dlg2trk();
+      boost::shared_ptr<geo_data> world(new geo_data);
+      world->trks.push_back(new_track);
+      mapview->add_world(world, new_track.comm, false);
+      on_cancel();
     }
-
+    void on_cancel(){
+      mapview->statusbar.push("",0);
+      new_track.clear();
+      new_track.comm="";
+      mapview->rubber.clear();
+      dlg->hide();
+    }
+    void dlg2trk(){
+      new_track.comm = comm->get_text();
+      new_track.width = (int)width->get_value();
+      Gdk::Color c = fg->get_color();
+      new_track.color.value=
+        (((unsigned)c.get_red()   & 0xFF00) >> 8) +
+         ((unsigned)c.get_green() & 0xFF00) +
+        (((unsigned)c.get_blue()  & 0xFF00) << 8);
+    }
+    void trk2dlg(){
+      comm->set_text(new_track.comm);
+      width->set_value(new_track.width);
+      Gdk::Color c;
+      c.set_rgb((new_track.color.value & 0xFF)<<8,
+                (new_track.color.value & 0xFF00),
+                (new_track.color.value & 0xFF0000)>>8);
+      fg->set_color(c);
+    }
 };
 
 #endif /* AM_ADD_TRACK_H */
