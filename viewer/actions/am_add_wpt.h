@@ -22,9 +22,9 @@ public:
       ok->signal_clicked().connect(
           sigc::mem_fun (this, &AddWaypoint::on_ok));
       cancel->signal_clicked().connect(
-          sigc::mem_fun(this, &AddWaypoint::on_cancel));
+          sigc::mem_fun(this, &AddWaypoint::abort));
       dlg->signal_delete_event().connect_notify(
-         sigc::hide(sigc::mem_fun(this, &AddWaypoint::on_cancel)));
+         sigc::hide(sigc::mem_fun(this, &AddWaypoint::abort)));
     } 
     ~AddWaypoint(){
       delete dlg, name, comm, lonlat, fg, bg, font_size, ok, cancel;
@@ -36,6 +36,8 @@ public:
     }
 
     void abort() {
+      mapview->statusbar.push("",0);
+      mapview->rubber.clear();
       dlg->hide();
     }
 
@@ -85,12 +87,7 @@ private:
       wpts.push_back(wpt);
       world->wpts.push_back(wpts);
       mapview->add_world(world, "new", false);
-      on_cancel();
-    }
-    void on_cancel(){
-      mapview->statusbar.push("",0);
-      mapview->rubber.clear();
-      dlg->hide();
+      abort();
     }
 
     void dlg2wpt(g_waypoint &wpt){

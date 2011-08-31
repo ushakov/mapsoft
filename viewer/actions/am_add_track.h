@@ -18,7 +18,7 @@ public:
       ok->signal_clicked().connect(
           sigc::mem_fun (this, &AddTrack::on_ok));
       cancel->signal_clicked().connect(
-          sigc::mem_fun(this, &AddTrack::on_cancel));
+          sigc::mem_fun(this, &AddTrack::abort));
       dlg->signal_delete_event().connect_notify(
           sigc::hide(sigc::mem_fun(this, &AddTrack::on_cancel)));
     }
@@ -28,8 +28,14 @@ public:
 
 
     std::string get_name() { return "Add Track"; }
-    void activate() { on_cancel(); }
-    void abort() { on_cancel(); }
+    void activate() { abort(); }
+    void abort() {
+      mapview->statusbar.push("",0);
+      new_track.clear();
+      new_track.comm="";
+      mapview->rubber.clear();
+      dlg->hide();
+    }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
          if (!mapview->have_reference){
@@ -93,15 +99,9 @@ private:
       boost::shared_ptr<geo_data> world(new geo_data);
       world->trks.push_back(new_track);
       mapview->add_world(world, new_track.comm, false);
-      on_cancel();
+      abort();
     }
-    void on_cancel(){
-      mapview->statusbar.push("",0);
-      new_track.clear();
-      new_track.comm="";
-      mapview->rubber.clear();
-      dlg->hide();
-    }
+
     void dlg2trk(){
       new_track.comm = comm->get_text();
       new_track.width = (int)width->get_value();
