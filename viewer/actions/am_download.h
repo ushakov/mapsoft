@@ -22,6 +22,7 @@ public:
       btn_cancel->signal_clicked().connect(
           sigc::mem_fun(dlg, &Gtk::Window::hide));
       e_dev->set_text("/dev/ttyUSB0");
+      dlg->set_title(get_name());
     }
     ~Download(){
       delete dlg, btn_ok, btn_cancel, cb_w, cb_a, cb_o;

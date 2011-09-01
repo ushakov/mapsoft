@@ -21,6 +21,7 @@ public:
           sigc::mem_fun(this, &AddTrack::abort));
       dlg->signal_delete_event().connect_notify(
           sigc::hide(sigc::mem_fun(this, &AddTrack::abort)));
+      dlg->set_title(get_name());
     }
     ~AddTrack(){
       delete dlg, comm, width, fg, ok, cancel;

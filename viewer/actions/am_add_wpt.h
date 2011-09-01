@@ -25,7 +25,8 @@ public:
           sigc::mem_fun(this, &AddWaypoint::abort));
       dlg->signal_delete_event().connect_notify(
          sigc::hide(sigc::mem_fun(this, &AddWaypoint::abort)));
-    } 
+      dlg->set_title(get_name());
+    }
     ~AddWaypoint(){
       delete dlg, name, comm, lonlat, fg, bg, font_size, ok, cancel;
     }
