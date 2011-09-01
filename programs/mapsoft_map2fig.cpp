@@ -64,15 +64,11 @@ main(int argc, char **argv){
       std::cerr << "File is not modified, exiting.\n";
       exit(1);
     }
-    g_map fig_ref = fig::get_ref(F);
 
-    // в LayerGeo установим привязку, подходящую для карты
-    ml->set_ref();
-
-    // нам нужно установить туда привязку fig-файла, но перемаштабированную
+    // нам нужно установить в layer привязку fig-файла, но перемаштабированную
     // нужным образом 
-    g_map map_ref = ml->get_ref();
-
+    g_map fig_ref = fig::get_ref(F);
+    g_map map_ref = ml->get_myref();
 
     // rescale > 1, если точки fig меньше точки растра
     double rescale;
