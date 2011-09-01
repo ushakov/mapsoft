@@ -24,7 +24,7 @@ public:
       dlg->set_title(get_name());
     }
     ~AddTrack(){
-      delete dlg, comm, width, fg, ok, cancel;
+      delete dlg;
     }
 
 

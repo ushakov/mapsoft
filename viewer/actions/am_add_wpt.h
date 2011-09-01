@@ -29,7 +29,7 @@ public:
       dlg->set_title(get_name());
     }
     ~AddWaypoint(){
-      delete dlg, name, comm, lonlat, fg, bg, font_size, size, ok, cancel;
+      delete dlg;
     }
 
 

@@ -25,7 +25,7 @@ public:
       dlg->set_title(get_name());
     }
     ~Download(){
-      delete dlg, btn_ok, btn_cancel, cb_w, cb_a, cb_o;
+      delete dlg;
     }
 
     std::string get_name() { return "Download from GPS"; }
