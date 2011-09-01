@@ -38,6 +38,7 @@ public:
     }
 
     void abort() {
+      wpt.name=wpt.comm="";
       mapview->statusbar.push("",0);
       mapview->rubber.clear();
       dlg->hide();
@@ -51,10 +52,9 @@ public:
          }
         g_map map = mapview->reference;
         convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
-        g_waypoint wpt;
         wpt.x = p.x; wpt.y=p.y;
 	cnv.frw(wpt);
-        wpt2dlg(wpt);
+        wpt2dlg();
         dlg->show();
         mapview->rubber.clear();
         mapview->rubber.add_src_mark(p);
@@ -68,10 +68,10 @@ private:
     Gtk::Entry *name, *comm, *lonlat;
     Gtk::SpinButton *font_size, *size;
     Gtk::Button *ok, *cancel;
+    g_waypoint wpt;
 
     void on_ok(){
-      g_waypoint wpt;
-      dlg2wpt(wpt);
+      dlg2wpt();
 
       // try to find active wpt layer
       for (int i=0; i<mapview->wpt_layers.size(); i++){
@@ -92,7 +92,7 @@ private:
       abort();
     }
 
-    void dlg2wpt(g_waypoint &wpt){
+    void dlg2wpt(){
       dPoint p = boost::lexical_cast<dPoint>(lonlat->get_text());
       wpt.x=p.x; wpt.y=p.y;
       wpt.name = name->get_text();
@@ -110,7 +110,7 @@ private:
          ((unsigned)c.get_green() & 0xFF00) +
         (((unsigned)c.get_blue()  & 0xFF00) << 8);
     }
-    void wpt2dlg(const g_waypoint &wpt){
+    void wpt2dlg(){
       std::ostringstream ws;
       ws.setf(std::ios::fixed);
       ws << std::setprecision(6) <<wpt.x << ", " << wpt.y;
