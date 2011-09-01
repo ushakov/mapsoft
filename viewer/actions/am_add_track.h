@@ -20,7 +20,7 @@ public:
       cancel->signal_clicked().connect(
           sigc::mem_fun(this, &AddTrack::abort));
       dlg->signal_delete_event().connect_notify(
-          sigc::hide(sigc::mem_fun(this, &AddTrack::on_cancel)));
+          sigc::hide(sigc::mem_fun(this, &AddTrack::abort)));
     }
     ~AddTrack(){
       delete dlg, comm, width, fg, ok, cancel;
