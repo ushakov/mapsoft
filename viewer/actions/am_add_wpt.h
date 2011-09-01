@@ -15,6 +15,7 @@ public:
       GETW("comm", comm)
       GETW("lonlat", lonlat)
       GETW("font_size", font_size)
+      GETW("size", size)
       GETW("fg", fg)
       GETW("bg", bg)
       GETW("ok", ok)
@@ -28,7 +29,7 @@ public:
       dlg->set_title(get_name());
     }
     ~AddWaypoint(){
-      delete dlg, name, comm, lonlat, fg, bg, font_size, ok, cancel;
+      delete dlg, name, comm, lonlat, fg, bg, font_size, size, ok, cancel;
     }
 
 
@@ -65,7 +66,7 @@ private:
     Gtk::Dialog *dlg;
     Gtk::ColorButton *fg, *bg;
     Gtk::Entry *name, *comm, *lonlat;
-    Gtk::SpinButton *font_size;
+    Gtk::SpinButton *font_size, *size;
     Gtk::Button *ok, *cancel;
 
     void on_ok(){
@@ -97,6 +98,7 @@ private:
       wpt.name = name->get_text();
       wpt.comm = comm->get_text();
       wpt.font_size = (int)font_size->get_value();
+      wpt.size = (int)size->get_value();
       Gdk::Color c = fg->get_color();
       wpt.color.value=
         (((unsigned)c.get_red()   & 0xFF00) >> 8) +
@@ -116,6 +118,7 @@ private:
       name->set_text(wpt.name);
       comm->set_text(wpt.comm);
       font_size->set_value(wpt.font_size);
+      size->set_value(wpt.size);
       Gdk::Color c;
       c.set_rgb((wpt.color.value & 0xFF)<<8,
                 (wpt.color.value & 0xFF00),

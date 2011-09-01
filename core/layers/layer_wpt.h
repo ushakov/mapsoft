@@ -17,7 +17,6 @@ private:
   convs::map2pt cnv;
   g_map mymap;
   iRect myrange;
-  int dot_width;
 
 public:
 

@@ -13,7 +13,6 @@ LayerWPT::LayerWPT (geo_data * _world) :
 #ifdef DEBUG_LAYER_WPT
   cerr  << "LayerWPT: set_ref range: " << myrange << "\n";
 #endif
-  dot_width = 4;
 }
 
 void
@@ -69,6 +68,7 @@ LayerWPT::draw(const iPoint origin, iImage & image){
 
 
       double fs = pt->font_size * 1.5;
+      double dot_width = pt->size/4.0;
       dPoint flag_shift(0,-fs);
       double text_pad=fs * 0.2;
 
@@ -80,7 +80,7 @@ LayerWPT::draw(const iPoint origin, iImage & image){
       txt_rect = rect_pump(txt_rect, text_pad);
       txt_rect = rect_pump(txt_rect, p + flag_shift);
       dRect pt_rect = rect_pump(txt_rect, p);
-      pt_rect = rect_pump(pt_rect, double(dot_width+1));
+      pt_rect = rect_pump(pt_rect, dot_width+1);
 
       if (!rect_intersect(pt_rect, dRect(image.range())).empty()){
         /* // debug

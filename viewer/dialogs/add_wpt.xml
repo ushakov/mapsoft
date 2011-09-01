@@ -132,6 +132,7 @@
               <object class="GtkSpinButton" id="font_size">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="max_length">2</property>
                 <property name="invisible_char">&#x2022;</property>
                 <property name="adjustment">font_size_adj</property>
               </object>
@@ -168,10 +169,32 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkLabel" id="label7">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="xpad">3</property>
+                <property name="label" translatable="yes">Point size:</property>
+              </object>
+              <packing>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+              </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkSpinButton" id="size">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">&#x2022;</property>
+                <property name="adjustment">size_adj</property>
+              </object>
+              <packing>
+                <property name="left_attach">3</property>
+                <property name="right_attach">4</property>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+              </packing>
             </child>
           </object>
           <packing>
@@ -227,7 +250,15 @@
       <action-widget response="0">cancel</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkAdjustment" id="size_adj">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
   <object class="GtkAdjustment" id="font_size_adj">
+    <property name="lower">1</property>
     <property name="upper">100</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
