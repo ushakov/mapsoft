@@ -35,7 +35,7 @@ CoordBox::init(){
     sigc::mem_fun(this, &CoordBox::on_change));
 
   Gtk::Button *jb = manage(new Gtk::Button);
-  Gtk::IconSize isize=Gtk::ICON_SIZE_BUTTON;
+  Gtk::IconSize isize=Gtk::ICON_SIZE_MENU;
   jb->set_relief(Gtk::RELIEF_NONE);
   jb->set_image(*manage(new Gtk::Image(Gtk::Stock::JUMP_TO, isize)));
   jb->signal_clicked().connect( sigc::mem_fun(this, &CoordBox::on_jump));
@@ -185,7 +185,7 @@ NomBox::init(){
      Gtk::Stock::GO_BACK, Gtk::Stock::GO_FORWARD, Gtk::Stock::JUMP_TO};
   int dx[but_num] = {0,0,-1,1,0};
   int dy[but_num] = {1,-1,0,0,0};
-  Gtk::IconSize isize=Gtk::ICON_SIZE_BUTTON;
+  Gtk::IconSize isize=Gtk::ICON_SIZE_MENU;
 
   for (int i=0; i<but_num; i++){
     bu[i] = manage(new Gtk::Button);
@@ -209,8 +209,6 @@ NomBox::init(){
 void
 NomBox::set_nom(const std::string &n){
   nom.set_text(n);
-  pt=convs::nom_to_range(n).CNT();
-  cnv.bck(pt);
 }
 
 std::string
@@ -237,6 +235,18 @@ NomBox::on_change_rscale(){
 
 void
 NomBox::move(int dx, int dy){
+  // reset pt and rscale
+  int rs;
+  pt=convs::nom_to_range(nom.get_text(), rs).CNT();
+  cnv.bck(pt);
+  std::map<std::string, int>::const_iterator mi;
+  for (mi = rscales.begin(); mi!=rscales.end(); mi++){
+    if (mi->second==rs){
+      rscale.set_active_text(mi->first);
+      break;
+    }
+  }
+
   if ((dx!=0) || (dy!=0))
     set_nom(convs::nom_shift(get_nom(), iPoint(dx,dy)));
   else
