@@ -84,6 +84,7 @@ private:
         if (mapview->workplane.get_layer_active(layer)) {
           layer->get_world()->wpts[0].push_back(wpt);
           mapview->workplane.refresh_layer(layer);
+          abort();
           return;
         }
       }
