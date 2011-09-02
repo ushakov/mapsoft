@@ -70,7 +70,7 @@ public:
 	    // Add new layer for waypoints
 	    boost::shared_ptr<geo_data> wpt_world (new geo_data);
             wpt_world->wpts.push_back(wpt_list);
-            mapview->add_world(wpt_world, "track marks");
+            mapview->add_world(wpt_world, "track marks", false);
 	}
     }
 };
