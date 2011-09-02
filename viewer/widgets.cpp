@@ -73,11 +73,24 @@ CoordBox::set_ll(const dPoint &p){
   ws.setf(std::ios::fixed);
   ws << std::setprecision(prec) <<pc.x << ", " << pc.y;
   coords.set_text(ws.str());
+  old_pt = p;
 }
 
 dPoint
-CoordBox::get_ll() const{
-  dPoint ret = boost::lexical_cast<dPoint>(coords.get_text());
+CoordBox::get_xy(){
+  dPoint ret;
+  try {
+    ret = boost::lexical_cast<dPoint>(coords.get_text());
+  } catch (std::exception){
+    set_ll(old_pt);
+    return old_pt;
+  }
+  return ret;
+}
+
+dPoint
+CoordBox::get_ll(){
+  dPoint ret = get_xy();
   Options O;
   if (proj == Proj("tmerc")){
     O.put("lon0", convs::lon_pref2lon0(ret.x));
@@ -93,7 +106,7 @@ void
 CoordBox::on_conv(){
   Datum new_datum(datum_cb.get_active_text());
   Proj new_proj(proj_cb.get_active_text());
-  dPoint pt = boost::lexical_cast<dPoint>(coords.get_text());
+  dPoint pt = get_xy();
 
   Options O;
   double lon0;

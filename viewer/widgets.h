@@ -10,7 +10,7 @@ public:
   CoordBox(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder);
 
   void set_ll(const dPoint &p);
-  dPoint get_ll() const;
+  dPoint get_ll();
   sigc::signal<void> & signal_changed();
   sigc::signal<void, dPoint> & signal_jump();
 
@@ -21,7 +21,9 @@ private:
   Gtk::ComboBoxText proj_cb, datum_cb;
   sigc::signal<void> signal_changed_;
   sigc::signal<void, dPoint> signal_jump_;
+  dPoint old_pt; // to fix incorrect values
 
+  dPoint get_xy();
   void init();
   void on_conv();
   void on_change();
