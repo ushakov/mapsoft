@@ -2,8 +2,7 @@
 #define AM_ADD_WPT_H
 
 #include "action_mode.h"
-#include <sstream>
-#include <iomanip>
+#include "../widgets.h"
 
 class AddWaypoint : public ActionMode {
 public:
@@ -13,13 +12,17 @@ public:
       GETW("add_wpt", dlg)
       GETW("name", name)
       GETW("comm", comm)
-      GETW("lonlat", lonlat)
       GETW("font_size", font_size)
       GETW("size", size)
       GETW("fg", fg)
       GETW("bg", bg)
       GETW("ok", ok)
       GETW("cancel", cancel)
+      GETWD("coord", coord);
+
+      coord->signal_jump().connect(
+          sigc::mem_fun (this, &AddWaypoint::on_jump));
+
       ok->signal_clicked().connect(
           sigc::mem_fun (this, &AddWaypoint::on_ok));
       cancel->signal_clicked().connect(
@@ -53,9 +56,9 @@ public:
         g_map map = mapview->reference;
         convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
         wpt.x = p.x; wpt.y=p.y;
-	cnv.frw(wpt);
+        cnv.frw(wpt);
         wpt2dlg();
-        dlg->show();
+        dlg->show_all();
         mapview->rubber.clear();
         mapview->rubber.add_src_mark(p);
     }
@@ -68,6 +71,7 @@ private:
     Gtk::Entry *name, *comm, *lonlat;
     Gtk::SpinButton *font_size, *size;
     Gtk::Button *ok, *cancel;
+    CoordBox *coord;
     g_waypoint wpt;
 
     void on_ok(){
@@ -92,8 +96,17 @@ private:
       abort();
     }
 
+    void on_jump(dPoint p){
+      convs::map2pt cnv(mapview->reference,
+        Datum("wgs84"), Proj("lonlat"), Options());
+      cnv.bck(p);
+      mapview->rubber.clear();
+      mapview->viewer.set_center(p);
+      mapview->rubber.add_src_mark(p);
+    }
+
     void dlg2wpt(){
-      dPoint p = boost::lexical_cast<dPoint>(lonlat->get_text());
+      dPoint p = coord->get_ll();
       wpt.x=p.x; wpt.y=p.y;
       wpt.name = name->get_text();
       wpt.comm = comm->get_text();
@@ -111,10 +124,7 @@ private:
         (((unsigned)c.get_blue()  & 0xFF00) << 8);
     }
     void wpt2dlg(){
-      std::ostringstream ws;
-      ws.setf(std::ios::fixed);
-      ws << std::setprecision(6) <<wpt.x << ", " << wpt.y;
-      lonlat->set_text(ws.str());
+      coord->set_ll(wpt);
       name->set_text(wpt.name);
       comm->set_text(wpt.comm);
       font_size->set_value(wpt.font_size);
