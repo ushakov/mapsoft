@@ -13,7 +13,6 @@
 #include "actions/am_add_track.h"
 #include "actions/am_mark_trk.h"
 #include "actions/am_make_tiles.h"
-#include "actions/am_goto_ll.h"
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
 #include "actions/am_download.h"
@@ -40,7 +39,6 @@ ActionManager::ActionManager (Mapview * mapview_)
     AddAction(new ActionModeNone(mapview),  "Misc");
     AddAction(new SaveImage(mapview),       "Misc");
     AddAction(new MakeTiles(mapview),       "Misc");
-    AddAction(new GotoLL(mapview),          "Misc");
     AddAction(new ShowPt(mapview),          "Misc");
 
     mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));

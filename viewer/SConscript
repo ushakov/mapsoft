@@ -6,7 +6,7 @@ e.UseLibs('gred geo_io mp')
 e.Library("viewer", Split ("""
         generic_dialog.cpp
 	action_manager.cpp
-	workplane.cpp
+	workplane.cpp widgets.cpp
         """))
 e.Prepend(LIBS=["viewer"])
 e.Prepend(CPPFLAGS="-export-dynamic")

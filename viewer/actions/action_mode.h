@@ -6,6 +6,8 @@
 
 #define GETW(x,y)\
   y=0; builder->get_widget(Glib::ustring(x), y); assert (y);
+#define GETWD(x,y)\
+  y=0; builder->get_widget_derived(Glib::ustring(x), y); assert (y);
 
 // Interface.
 class ActionMode {
