@@ -19,13 +19,21 @@ CoordBox::init(){
   set_label("Coordinates:");
   set_shadow_type(Gtk::SHADOW_ETCHED_IN);
 
-  proj_cb.append("lonlat" /*, "Lon, Lat"*/);
-  proj_cb.append("tmerc"  /*, "Gauss-Kruger"*/);
-  proj_cb.set_active_text("lonlat");
 
-  datum_cb.append("wgs84"   /*, "WGS84"*/);
-  datum_cb.append("pulkovo" /*, "Pulkovo 1942"*/);
-  datum_cb.set_active_text("wgs84");
+  const int p_num=2;
+  std::pair<Proj, std::string> p_list[p_num] = {
+    std::pair<Proj, std::string>(Proj("lonlat"), "Lon, Lat"),
+    std::pair<Proj, std::string>(Proj("tmerc"),  "Gauss-Kruger"),
+  };
+  const int d_num=2;
+  std::pair<Datum, std::string> d_list[d_num] = {
+    std::pair<Datum, std::string>(Datum("wgs84"), "WGS84"),
+    std::pair<Datum, std::string>(Datum("pulk"),  "Pulkovo 1942"),
+  };
+  proj_cb.set_values(p_list, p_list+p_num);
+  datum_cb.set_values(d_list, d_list+d_num);
+  proj=proj_cb.get_active_id();
+  datum=datum_cb.get_active_id();
 
   datum_cb.signal_changed().connect(
     sigc::mem_fun(this, &CoordBox::on_conv));
@@ -104,8 +112,8 @@ CoordBox::get_ll(){
 
 void
 CoordBox::on_conv(){
-  Datum new_datum(datum_cb.get_active_text());
-  Proj new_proj(proj_cb.get_active_text());
+  Datum new_datum(datum_cb.get_active_id());
+  Proj new_proj(proj_cb.get_active_id());
   dPoint pt = get_xy();
 
   Options O;
@@ -176,18 +184,15 @@ NomBox::init(){
   set_shadow_type(Gtk::SHADOW_ETCHED_IN);
 
   const int rscale_num=4;
-  std::pair<std::string, int> pa[rscale_num] = {
-        std::pair<std::string,int>(" 1:50'000",  50000),
-        std::pair<std::string,int>("1:100'000", 100000),
-        std::pair<std::string,int>("1:200'000", 200000),
-        std::pair<std::string,int>("1:500'000", 500000)
+  std::pair<int, std::string> pa[rscale_num] = {
+        std::pair<int, std::string>( 50000, " 1:50'000"),
+        std::pair<int, std::string>(100000, "1:100'000"),
+        std::pair<int, std::string>(200000, "1:200'000"),
+        std::pair<int, std::string>(500000, "1:500'000")
   };
+  rscale.set_values(pa, pa + rscale_num);
 
-  rscales.insert(&pa[0], &pa[rscale_num]);
-  for (int i=0; i<rscale_num; i++) rscale.append(pa[i].first);
-  rscale.set_active_text(pa[0].first);
-
-  Gtk::Table * table = manage(new Gtk::Table(5,3));
+  Gtk::Table * table = manage(new Gtk::Table(5,4));
 
   rscale.signal_changed().connect(
     sigc::mem_fun(this, &NomBox::on_change_rscale));
@@ -252,13 +257,7 @@ NomBox::move(int dx, int dy){
   int rs;
   pt=convs::nom_to_range(nom.get_text(), rs).CNT();
   cnv.bck(pt);
-  std::map<std::string, int>::const_iterator mi;
-  for (mi = rscales.begin(); mi!=rscales.end(); mi++){
-    if (mi->second==rs){
-      rscale.set_active_text(mi->first);
-      break;
-    }
-  }
+  rscale.set_active_id(rs);
 
   if ((dx!=0) || (dy!=0))
     set_nom(convs::nom_shift(get_nom(), iPoint(dx,dy)));
@@ -268,11 +267,7 @@ NomBox::move(int dx, int dy){
 
 int
 NomBox::get_rscale(){
-  std::map<std::string, int>::const_iterator mi =
-    rscales.find(rscale.get_active_text());
-
-  if (mi!=rscales.end()) return mi->second;
-  else return 0;
+  return rscale.get_active_id();
 }
 
 sigc::signal<void, dPoint> &
