@@ -61,11 +61,14 @@ LayerTRK::draw(const iPoint origin, iImage & image){
   if (rect_intersect(myrange, rect_pump(src_rect,110)).empty()) return;
 
   CairoWrapper cr(image);
+  cr->set_line_cap(Cairo::LINE_CAP_ROUND);
 
   for (vector<g_track>::const_iterator it = world->trks.begin();
                                      it!= world->trks.end(); it++){
 
     int w = it->width;
+    int arr_w = w * 1.5;
+    int circ_r = w * 0.75;
     Color color = it->color;
 
     cr->set_color(color.value);
@@ -81,12 +84,19 @@ LayerTRK::draw(const iPoint origin, iImage & image){
 
       if (!rect_intersect(r, image.range()).empty()){
         if ((pt == it->begin()) || pt->start){
-          cr->circle(p, 0.75*w);
+          cr->circle(p, circ_r);
         }
         else {
+          dPoint dp = pnorm(po-p) * arr_w;
+          dPoint p1 = p + dp + dPoint(dp.y, -dp.x) * 0.5;
+          dPoint p2 = p + dp - dPoint(dp.y, -dp.x) * 0.5;
+
           cr->move_to(po);
           cr->line_to(p);
-          cr->circle(p, 0.75*w);
+          cr->move_to(p);
+          cr->line_to(p1);
+          cr->line_to(p2);
+          cr->line_to(p);
         }
       }
       po=p;
