@@ -2,6 +2,7 @@
 #define AM_ADD_TRACK_H
 
 #include <sstream>
+#include <iomanip>
 #include "action_mode.h"
 
 class AddTrack : public ActionMode {
@@ -14,6 +15,7 @@ public:
       GETW("width", width)
       GETW("fg", fg)
       GETW("ok", ok)
+      GETW("info", info)
       GETW("cancel", cancel)
       ok->signal_clicked().connect(
           sigc::mem_fun (this, &AddTrack::on_ok));
@@ -79,10 +81,11 @@ public:
         }
 
 	std::ostringstream st;
-	st << "Add track: "
-           << new_track.size() << " points, "
-           << new_track.length()/1000 << " km";
-	mapview->statusbar.push(st.str(),0);
+	st << "Points: <b>"
+           << new_track.size() << "</b>, Length: <b>"
+           << std::setprecision(2) << std::fixed
+           << new_track.length()/1000 << "</b> km";
+        info->set_markup(st.str());
     }
 
 private:
@@ -93,6 +96,7 @@ private:
     Gtk::Entry *comm;
     Gtk::SpinButton *width;
     Gtk::ColorButton *fg;
+    Gtk::Label *info;
     Gtk::Button *ok, *cancel;
 
     void on_ok(){
