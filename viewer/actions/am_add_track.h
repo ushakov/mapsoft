@@ -33,7 +33,6 @@ public:
     std::string get_name() { return "Add Track"; }
     void activate() { abort(); }
     void abort() {
-      mapview->statusbar.push("",0);
       new_track.clear();
       new_track.comm="";
       mapview->rubber.clear();

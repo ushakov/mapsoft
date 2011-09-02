@@ -42,7 +42,6 @@ public:
     }
 
     void abort() {
-      mapview->statusbar.push("",0);
       mapview->rubber.clear();
       dlg->hide();
       wpt.name=wpt.comm="";

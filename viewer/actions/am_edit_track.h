@@ -56,7 +56,6 @@ private:
 	    } else {
 		// do nothing
 	    }
-	    mapview->statusbar.push("",0);
 	    current_track = 0;
 	}
     }
