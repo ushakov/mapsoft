@@ -88,7 +88,7 @@ SimpleViewer::scale_obj(const double k){
 
 void
 SimpleViewer::set_scale(const double k){
-  signal_on_rescale_.emit(k);
+  signal_on_rescale_.emit(k/sc);
   scale_obj(k);
   dPoint wsize(get_width(), get_height());
   dPoint wcenter = dPoint(get_origin()) + wsize/2.0;
