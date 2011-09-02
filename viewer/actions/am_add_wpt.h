@@ -30,6 +30,7 @@ public:
       dlg->signal_delete_event().connect_notify(
          sigc::hide(sigc::mem_fun(this, &AddWaypoint::abort)));
       dlg->set_title(get_name());
+      wpt2dlg();
     }
     ~AddWaypoint(){
       delete dlg;
@@ -41,10 +42,11 @@ public:
     }
 
     void abort() {
-      wpt.name=wpt.comm="";
       mapview->statusbar.push("",0);
       mapview->rubber.clear();
       dlg->hide();
+      wpt.name=wpt.comm="";
+      wpt2dlg();
     }
 
     // Sends user click. Coordinates are in workplane's discrete system.
@@ -57,7 +59,7 @@ public:
         convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
         wpt.x = p.x; wpt.y=p.y;
         cnv.frw(wpt);
-        wpt2dlg();
+        coord->set_ll(wpt);
         dlg->show_all();
         mapview->rubber.clear();
         mapview->rubber.add_src_mark(p);
