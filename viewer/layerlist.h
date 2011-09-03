@@ -30,6 +30,7 @@ public:
 	append_column_editable("Layer", columns.text);
 	store->set_sort_column(columns.depth, Gtk::SORT_ASCENDING);
 	set_enable_search(false);
+        set_headers_visible(false);
     }
 
     void add_layer (LayerGeo * layer, int depth, Glib::ustring name) {

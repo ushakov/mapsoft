@@ -30,7 +30,7 @@ public:
     Rubber        rubber;
     Workplane     workplane;
 
-    LayerList   layer_list; /// Gtk::TreeView for layers
+    LayerList   ll_wpt, ll_trk, ll_map; /// Gtk::TreeView for layers
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
     Gtk::RadioAction::Group mode_group;
@@ -93,9 +93,13 @@ public:
         signal_key_press_event().connect (
           sigc::mem_fun (this, &Mapview::on_key_press));
 
-	/// events from layer list
-	layer_list.store->signal_row_changed().connect (
-	  sigc::mem_fun (this, &Mapview::layer_edited));
+	/// events from layer lists
+	ll_wpt.store->signal_row_changed().connect (
+	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_wpt));
+	ll_trk.store->signal_row_changed().connect (
+	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_trk));
+	ll_map.store->signal_row_changed().connect (
+	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_map));
 
 	/// events from workplane
 	workplane.signal_refresh.connect (
@@ -144,9 +148,22 @@ public:
 	paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
 
 	Gtk::ScrolledWindow * scrw = manage(new Gtk::ScrolledWindow);
-	scrw->add(layer_list);
+	Gtk::VBox * right_vbox = manage(new Gtk::VBox);
+        Gtk::Expander * exp_wpt = manage(new Gtk::Expander);
+        Gtk::Expander * exp_trk = manage(new Gtk::Expander);
+        Gtk::Expander * exp_map = manage(new Gtk::Expander);
+        exp_wpt->set_label("Waypoints:");
+        exp_trk->set_label("Tracks:");
+        exp_map->set_label("Maps:");
+	right_vbox->pack_start(* exp_wpt, false, true, 0);
+	right_vbox->pack_start(* exp_trk, false, true, 0);
+	right_vbox->pack_start(* exp_map, false, true, 0);
+	scrw->add(*right_vbox);
 	scrw->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 	scrw->set_size_request(128,-1);
+	exp_wpt->add(ll_wpt);
+	exp_trk->add(ll_trk);
+	exp_map->add(ll_map);
 	paned->pack2(*scrw, Gtk::FILL);
 
 	vbox->pack_start(*paned, true, true, drawing_padding);
@@ -161,20 +178,22 @@ public:
 
     virtual ~Mapview() { }
 
-    void layer_edited (const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter) {
+    void layer_edited (const Gtk::TreeModel::Path& path,
+                       const Gtk::TreeModel::iterator& iter,
+                       LayerList * layer_list) {
 	VLOG(2) << "layer_edited at " << path.to_string();
 	Gtk::TreeModel::Row row = *iter;
 	bool need_refresh = false;
 
-	LayerGeo * layer = row[layer_list.columns.layer];
+	LayerGeo * layer = row[layer_list->columns.layer];
 	if (!layer) return;
-	int new_depth = row[layer_list.columns.depth];
+	int new_depth = row[layer_list->columns.depth];
 	if (workplane.get_layer_depth (layer) != new_depth) {
 	    workplane.set_layer_depth (layer, new_depth);
 	    need_refresh = true;
 	}
 
-	int new_active = row[layer_list.columns.checked];
+	int new_active = row[layer_list->columns.checked];
 	if (new_active != workplane.get_layer_active (layer)) {
 	    workplane.set_layer_active (layer, new_active);
 	    need_refresh = true;
@@ -204,7 +223,8 @@ public:
 
 	boost::shared_ptr<geo_data> world(new geo_data);
 	io::in(selected_filename, *(world.get()), Options());
-        add_world(world, selected_filename);
+        int pos = selected_filename.rfind('/');
+        add_world(world, selected_filename.substr(pos+1));
 	LOG() << "Loaded " << selected_filename << " to world at " << world.get();
     }
 
@@ -216,7 +236,8 @@ public:
 	    boost::shared_ptr<LayerGeoMap> map_layer(new LayerGeoMap(world.get()));
 	    new_ref = map_layer->get_myref();
 	    map_layers.push_back(map_layer);
-	    add_layer(map_layer.get(), 300, "map: " + name);
+            workplane.add_layer(map_layer.get(), 300);
+            ll_map.add_layer(map_layer.get(), 300, name);
 	}
 	if (world->trks.size() > 0) {
 	    // we are loading tracks: if we already have reference, use it
@@ -224,7 +245,8 @@ public:
             if (!have_reference) new_ref = trk_layer->get_myref();
             else trk_layer->set_ref(reference);
 	    trk_layers.push_back(trk_layer);
-	    add_layer(trk_layer.get(), 200, "trk: " + name);
+            workplane.add_layer(trk_layer.get(), 200);
+            ll_trk.add_layer(trk_layer.get(), 200, name);
 	}
 	if (world->wpts.size() > 0) {
 	    // we are loading waypoints: if we already have reference, use it
@@ -232,7 +254,8 @@ public:
             if (!have_reference) new_ref = wpt_layer->get_myref();
             else wpt_layer->set_ref(reference);
 	    wpt_layers.push_back(wpt_layer);
-	    add_layer(wpt_layer.get(), 100, "wpt: " + name);
+            workplane.add_layer(wpt_layer.get(), 100);
+            ll_wpt.add_layer(wpt_layer.get(), 100, name);
 	}
 
         if (new_ref.size()){
@@ -303,11 +326,6 @@ public:
       Gtk::AccelMap::save(std::string(getenv("HOME")) + "/" + ACCEL_FILE);
       g_print ("Exiting...\n");
       hide_all();
-    }
-
-    void add_layer (LayerGeo * layer, int depth, Glib::ustring name) {
-       workplane.add_layer(layer, depth);
-       layer_list.add_layer(layer, depth, name);
     }
 
     void refresh () {
