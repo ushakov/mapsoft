@@ -149,36 +149,33 @@ public:
 
 	/***************************************/
 
-        /// expanders with trk,wpt,map layerlists
-        Gtk::Expander * exp_wpt = manage(new Gtk::Expander);
-        Gtk::Expander * exp_trk = manage(new Gtk::Expander);
-        Gtk::Expander * exp_map = manage(new Gtk::Expander);
-        exp_wpt->set_label("Waypoints:");
-        exp_trk->set_label("Tracks:");
-        exp_map->set_label("Maps:");
+        /// Layerlists
         ll_wpt.set_dep_base(1000);
         ll_trk.set_dep_base(2000);
         ll_map.set_dep_base(3000);
-	exp_wpt->add(ll_wpt);
-	exp_trk->add(ll_trk);
-	exp_map->add(ll_map);
 
-        /// right_vbox with trk,wpt,map expanders
-	Gtk::VBox * right_vbox = manage(new Gtk::VBox);
-	right_vbox->pack_start(* exp_wpt, false, true, 0);
-	right_vbox->pack_start(* exp_trk, false, true, 0);
-	right_vbox->pack_start(* exp_map, false, true, 0);
+        /// scrollwindows with layerlists
+	Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
+	Gtk::ScrolledWindow * scr_trk = manage(new Gtk::ScrolledWindow);
+	Gtk::ScrolledWindow * scr_map = manage(new Gtk::ScrolledWindow);
+	scr_wpt->add(ll_wpt);
+	scr_trk->add(ll_trk);
+	scr_map->add(ll_map);
+	scr_wpt->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+	scr_trk->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+	scr_map->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 
-        /// ScrolledWindow with right_vbox
-	Gtk::ScrolledWindow * scrw = manage(new Gtk::ScrolledWindow);
-	scrw->add(*right_vbox);
-	scrw->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-	scrw->set_size_request(128,-1);
+        /// Notebook with scrollwindows
+        Gtk::Notebook * nb = manage(new Gtk::Notebook);
+        nb->append_page(*scr_wpt, "WPT");
+        nb->append_page(*scr_trk, "TRK");
+        nb->append_page(*scr_map, "MAP");
+        nb->set_scrollable(false);
 
-        /// Main pand: Viewer + ScrolledWindow
+        /// Main pand: Viewer + Notebook
 	Gtk::HPaned * paned = manage(new Gtk::HPaned);
 	paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
-	paned->pack2(*scrw, Gtk::FILL);
+	paned->pack2(*nb, Gtk::FILL);
 
         /// Main vbox: menu + main pand + statusbar
 	guint drawing_padding = 5;
