@@ -19,7 +19,7 @@ CoordBox::init(){
   set_label("Coordinates:");
   set_shadow_type(Gtk::SHADOW_ETCHED_IN);
 
-
+  // Comboboxes
   const int p_num=2;
   std::pair<Proj, std::string> p_list[p_num] = {
     std::pair<Proj, std::string>(Proj("lonlat"), "Lon, Lat"),
@@ -42,6 +42,7 @@ CoordBox::init(){
   coords.signal_changed().connect(
     sigc::mem_fun(this, &CoordBox::on_change));
 
+  // Jump button
   Gtk::Button *jb = manage(new Gtk::Button);
   Gtk::IconSize isize=Gtk::ICON_SIZE_MENU;
   jb->set_relief(Gtk::RELIEF_NONE);
@@ -49,12 +50,16 @@ CoordBox::init(){
   jb->signal_clicked().connect( sigc::mem_fun(this, &CoordBox::on_jump));
   jb->set_tooltip_text("Jump to coordinates");
 
-  // pack widgets
-  Gtk::Table * table = manage(new Gtk::Table(5,2)); // table 4x2
+  // Labels
   Gtk::Label * ldatum = manage(new Gtk::Label);
   Gtk::Label * lproj = manage(new Gtk::Label);
   ldatum->set_text("Datum:");
   lproj->set_text("Proj:");
+  ldatum->set_alignment(Gtk::ALIGN_RIGHT);
+  lproj->set_alignment(Gtk::ALIGN_RIGHT);
+
+  // Main table
+  Gtk::Table * table = manage(new Gtk::Table(5,2));
             //  widget    l  r  t  b  x       y
   table->attach(coords,   0, 4, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*ldatum,  0, 1, 1, 2, Gtk::SHRINK, Gtk::SHRINK, 3, 3);
@@ -184,6 +189,7 @@ NomBox::init(){
   set_label("Map name:");
   set_shadow_type(Gtk::SHADOW_ETCHED_IN);
 
+  // Scale Combobox
   const int rscale_num=4;
   std::pair<int, std::string> pa[rscale_num] = {
         std::pair<int, std::string>( 50000, " 1:50'000"),
@@ -192,12 +198,10 @@ NomBox::init(){
         std::pair<int, std::string>(500000, "1:500'000")
   };
   rscale.set_values(pa, pa + rscale_num);
-
-  Gtk::Table * table = manage(new Gtk::Table(5,4));
-
   rscale.signal_changed().connect(
     sigc::mem_fun(this, &NomBox::on_change_rscale));
 
+  // Buttons
   const int but_num=5;
   Gtk::Button *bu[but_num];
   Gtk::StockID bu_st[but_num] = {Gtk::Stock::GO_UP, Gtk::Stock::GO_DOWN,
@@ -215,14 +219,23 @@ NomBox::init(){
   }
   bu[4]->set_tooltip_text("Jump to the map center");
 
+  // Label
+  Gtk::Label * lscale = manage(new Gtk::Label);
+  lscale->set_text("Scale:");
+  lscale->set_alignment(Gtk::ALIGN_RIGHT);
+  lscale->set_padding(3,0);
+
+  // Main table
+  Gtk::Table * table = manage(new Gtk::Table(6,3));
             //  widget    l  r  t  b  x       y
-  table->attach(rscale,   0, 1, 0, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(nom,      1, 2, 0, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*bu[2],   2, 3, 1, 2, Gtk::SHRINK, Gtk::SHRINK, 0, 0);
+  table->attach(nom,      0, 2, 0, 1, Gtk::EXPAND|Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*lscale,  0, 1, 1, 2, Gtk::EXPAND|Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(rscale,   1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*bu[2],   2, 3, 0, 2, Gtk::SHRINK, Gtk::SHRINK, 0, 0);
   table->attach(*bu[0],   3, 4, 0, 1, Gtk::SHRINK, Gtk::SHRINK, 0, 0);
-  table->attach(*bu[4],   3, 4, 1, 2, Gtk::SHRINK, Gtk::SHRINK, 0, 0);
-  table->attach(*bu[1],   3, 4, 2, 3, Gtk::SHRINK, Gtk::SHRINK, 0, 0);
-  table->attach(*bu[3],   4, 5, 1, 2, Gtk::SHRINK, Gtk::SHRINK, 0, 0);
+  table->attach(*bu[1],   3, 4, 1, 2, Gtk::SHRINK, Gtk::SHRINK, 0, 0);
+  table->attach(*bu[3],   4, 5, 0, 2, Gtk::SHRINK, Gtk::SHRINK, 0, 0);
+  table->attach(*bu[4],   5, 6, 0, 1, Gtk::SHRINK, Gtk::SHRINK, 0, 0);
   add(*table);
 }
 
