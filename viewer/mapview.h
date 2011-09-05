@@ -85,13 +85,18 @@ public:
 	file_sel_save.get_cancel_button()->signal_clicked().connect (
 	  sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
 
-        /// keypress and mouse button press events
+
+        /// global keypress event
+        signal_key_press_event().connect (
+          sigc::mem_fun (this, &Mapview::on_key_press));
+        /// viewer mouse button events
         viewer.signal_button_press_event().connect (
           sigc::mem_fun (this, &Mapview::on_button_press));
         viewer.signal_button_release_event().connect (
           sigc::mem_fun (this, &Mapview::on_button_release));
-        signal_key_press_event().connect (
-          sigc::mem_fun (this, &Mapview::on_key_press));
+        /// events from workplane -> move to viewer?
+        workplane.signal_refresh.connect (
+        sigc::mem_fun (viewer, &DThreadViewer::redraw));
 
 	/// events from layer lists
 	ll_wpt.store->signal_row_changed().connect (
@@ -100,7 +105,7 @@ public:
 	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), (int *)0, &ll_trk));
 	ll_map.store->signal_row_changed().connect (
 	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), (int *)0, &ll_map));
-
+        /// works incorrectly?
 	ll_wpt.store->signal_rows_reordered().connect (
 	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_wpt));
 	ll_trk.store->signal_rows_reordered().connect (
@@ -108,12 +113,10 @@ public:
 	ll_map.store->signal_rows_reordered().connect (
 	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_map));
 
-	/// events from workplane
-	workplane.signal_refresh.connect (
-	  sigc::mem_fun (viewer, &DThreadViewer::redraw));
+        viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
 
 	/***************************************/
-	//start building menus
+	/// Menues
 	actions = Gtk::ActionGroup::create();
 	actions->add(Gtk::Action::create("MenuFile", "_File"));
 
@@ -141,46 +144,49 @@ public:
 	    "  </menubar>"
 	    "</ui>"
 	);
-
         // create actions + build menu
 	action_manager.reset (new ActionManager(this));
 
-        /// pack widgets
-	guint drawing_padding = 5;
+	/***************************************/
 
-	Gtk::VBox * vbox = manage(new Gtk::VBox);
-	vbox->pack_start(* ui_manager->get_widget("/MenuBar"), false, true, 0);
-
-	Gtk::HPaned * paned = manage(new Gtk::HPaned);
-	paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
-
-	Gtk::ScrolledWindow * scrw = manage(new Gtk::ScrolledWindow);
-	Gtk::VBox * right_vbox = manage(new Gtk::VBox);
+        /// expanders with trk,wpt,map layerlists
         Gtk::Expander * exp_wpt = manage(new Gtk::Expander);
         Gtk::Expander * exp_trk = manage(new Gtk::Expander);
         Gtk::Expander * exp_map = manage(new Gtk::Expander);
         exp_wpt->set_label("Waypoints:");
         exp_trk->set_label("Tracks:");
         exp_map->set_label("Maps:");
-	right_vbox->pack_start(* exp_wpt, false, true, 0);
-	right_vbox->pack_start(* exp_trk, false, true, 0);
-	right_vbox->pack_start(* exp_map, false, true, 0);
-	scrw->add(*right_vbox);
-	scrw->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-	scrw->set_size_request(128,-1);
-       ll_wpt.set_dep_base(1000);
-       ll_trk.set_dep_base(2000);
-       ll_map.set_dep_base(3000);
+        ll_wpt.set_dep_base(1000);
+        ll_trk.set_dep_base(2000);
+        ll_map.set_dep_base(3000);
 	exp_wpt->add(ll_wpt);
 	exp_trk->add(ll_trk);
 	exp_map->add(ll_map);
+
+        /// right_vbox with trk,wpt,map expanders
+	Gtk::VBox * right_vbox = manage(new Gtk::VBox);
+	right_vbox->pack_start(* exp_wpt, false, true, 0);
+	right_vbox->pack_start(* exp_trk, false, true, 0);
+	right_vbox->pack_start(* exp_map, false, true, 0);
+
+        /// ScrolledWindow with right_vbox
+	Gtk::ScrolledWindow * scrw = manage(new Gtk::ScrolledWindow);
+	scrw->add(*right_vbox);
+	scrw->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+	scrw->set_size_request(128,-1);
+
+        /// Main pand: Viewer + ScrolledWindow
+	Gtk::HPaned * paned = manage(new Gtk::HPaned);
+	paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
 	paned->pack2(*scrw, Gtk::FILL);
 
+        /// Main vbox: menu + main pand + statusbar
+	guint drawing_padding = 5;
+	Gtk::VBox * vbox = manage(new Gtk::VBox);
+	vbox->pack_start(* ui_manager->get_widget("/MenuBar"), false, true, 0);
 	vbox->pack_start(*paned, true, true, drawing_padding);
 	vbox->pack_start(statusbar, false, true, 0);
 	add (*vbox);
-
-        viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
 
 	statusbar.push("Welcome to mapsoft viewer!",0);
 	show_all();
