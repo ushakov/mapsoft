@@ -61,6 +61,8 @@ private:
   Glib::RefPtr<Gtk::ListStore> list;
 };
 
+/********************************************************************/
+
 class CoordBox : public Gtk::Frame {
 public:
   CoordBox();
@@ -89,6 +91,8 @@ private:
 
 };
 
+/********************************************************************/
+
 class NomBox :  public Gtk::Frame {
 public:
   NomBox();
@@ -113,6 +117,14 @@ private:
   SimpleCombo<int> rscale;
   convs::pt2pt cnv;
   sigc::signal<void, dPoint> signal_jump_;
+};
+
+/********************************************************************/
+
+class LayerListButtons : public Gtk::HBox {
+public:
+  LayerListButtons();
+  Gtk::Button *up, *down, *save, *del, *jump;
 };
 
 #endif
