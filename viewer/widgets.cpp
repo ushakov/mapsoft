@@ -47,6 +47,7 @@ CoordBox::init(){
   jb->set_relief(Gtk::RELIEF_NONE);
   jb->set_image(*manage(new Gtk::Image(Gtk::Stock::JUMP_TO, isize)));
   jb->signal_clicked().connect( sigc::mem_fun(this, &CoordBox::on_jump));
+  jb->set_tooltip_text("Jump to coordinates");
 
   // pack widgets
   Gtk::Table * table = manage(new Gtk::Table(5,2)); // table 4x2
@@ -212,6 +213,7 @@ NomBox::init(){
     bu[i]->signal_clicked().connect(
       sigc::bind(sigc::mem_fun(this, &NomBox::move), dx[i],dy[i]));
   }
+  bu[4]->set_tooltip_text("Jump to the map center");
 
             //  widget    l  r  t  b  x       y
   table->attach(rscale,   0, 1, 0, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
