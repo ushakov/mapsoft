@@ -29,6 +29,8 @@ public:
     }
 
     std::string get_name() { return "Download from GPS"; }
+    bool is_radio() { return false; }
+
     void activate() { dlg->show(); }
 
     void on_ok(){

@@ -48,18 +48,12 @@ public:
     bool have_reference;
 
 private:
-    Gtk::FileSelection file_sel_load;
-    Gtk::FileSelection file_sel_save;
-
     boost::shared_ptr<ActionManager> action_manager;
-
     iPoint click_start;
 
 public:
 
     Mapview () :
-	file_sel_load ("Load file:"),
-	file_sel_save ("Save as:"),
 	have_reference(false),
         viewer(&workplane),
 	rubber(&viewer)
@@ -69,23 +63,6 @@ public:
 	signal_delete_event().connect_notify (
 	  sigc::hide(sigc::mem_fun (this, &Mapview::exit)));
 	set_default_size(640,480);
-
-	/// events from load file selector
-	file_sel_load.get_ok_button()->signal_clicked().connect (
-	  sigc::mem_fun (this, &Mapview::load_file_sel));
-	file_sel_load.get_ok_button()->signal_clicked().connect (
-	  sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
-	file_sel_load.get_cancel_button()->signal_clicked().connect (
-	  sigc::mem_fun (file_sel_load, &Gtk::Widget::hide));
-
-	/// events from save file selector
-	file_sel_save.get_ok_button()->signal_clicked().connect (
-	  sigc::mem_fun (this, &Mapview::save_file_sel));
-	file_sel_save.get_ok_button()->signal_clicked().connect (
-	  sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
-	file_sel_save.get_cancel_button()->signal_clicked().connect (
-	  sigc::mem_fun (file_sel_save, &Gtk::Widget::hide));
-
 
         /// global keypress event
         signal_key_press_event().connect (
@@ -121,30 +98,12 @@ public:
 	actions = Gtk::ActionGroup::create();
 	actions->add(Gtk::Action::create("MenuFile", "_File"));
 
-	actions->add(Gtk::Action::create("Add", Gtk::Stock::ADD),
-          sigc::mem_fun(file_sel_load, &Gtk::Widget::show));
-	actions->add(Gtk::Action::create("Save", Gtk::Stock::SAVE),
-          sigc::mem_fun(file_sel_save, &Gtk::Widget::show));
-	actions->add(Gtk::Action::create("Quit", Gtk::Stock::QUIT),
-          sigc::mem_fun(this, &Mapview::exit));
-
 	ui_manager = Gtk::UIManager::create();
 	ui_manager->insert_action_group(actions);
 
 	add_accel_group(ui_manager->get_accel_group());
         Gtk::AccelMap::load(std::string(getenv("HOME")) + "/" + ACCEL_FILE);
 
-	ui_manager->add_ui_from_string(
-	    "<ui>"
-	    "  <menubar name='MenuBar'>"
-	    "    <menu action='MenuFile'>"
-	    "      <menuitem action='Add'/>"
-	    "      <menuitem action='Save'/>"
-	    "      <menuitem action='Quit'/>"
-	    "    </menu>"
-	    "  </menubar>"
-	    "</ui>"
-	);
         // create actions + build menu
 	action_manager.reset (new ActionManager(this));
 
@@ -172,6 +131,16 @@ public:
         wpt_vbox->pack_end(*wpt_bu, false, false);
         trk_vbox->pack_end(*trk_bu, false, false);
         map_vbox->pack_end(*map_bu, false, false);
+
+        trk_bu->save->set_tooltip_text("Save selected tracks");
+        wpt_bu->save->set_tooltip_text("Save selected waypoints");
+        map_bu->save->set_tooltip_text("Save selected maps");
+        trk_bu->del->set_tooltip_text("Delete selected tracks");
+        wpt_bu->del->set_tooltip_text("Delete selected waypoints");
+        map_bu->del->set_tooltip_text("Delete selected maps");
+        trk_bu->jump->set_tooltip_text("Jump to selected track");
+        wpt_bu->jump->set_tooltip_text("Jump to selected waypoints");
+        map_bu->jump->set_tooltip_text("Jump to selected map");
 
         /// scrollwindows with vboxes
 	Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
@@ -216,8 +185,6 @@ public:
                        int new_order[],
                        LayerList * layer_list) {
 
-//std::cerr << "LE " << path.front() << "\n";
-
         int dep=layer_list->get_dep_base();
         // note: there is an extra row in the layer when reordering occurs
         for (int n = 0; n<layer_list->size(); n++){
@@ -231,7 +198,6 @@ public:
           int active = (*i)[layer_list->columns.checked];
           Gtk::TreeModel::Path path(i);
 
-//if (layer) std::cerr << ">>> " << (int)layer << " " << path.front() << "\n";
           if (!layer) continue;
           workplane.set_layer_depth (layer, dep++);
           workplane.set_layer_active (layer, active);
@@ -244,12 +210,6 @@ public:
 	rubber.clear();
         statusbar.push(action_manager->get_mode_name(m),0);
 	action_manager->set_mode(m);
-    }
-
-    void load_file_sel() {
-	std::string selected_filename;
-	selected_filename = file_sel_load.get_filename();
-	add_file(selected_filename);
     }
 
     void add_file(std::string selected_filename) {
@@ -332,30 +292,7 @@ public:
           cnv.bck(new_orig);
           viewer.set_center(new_orig);
         }
-
-//	refresh();
-//	statusbar.pop();
     }
-
-
-     void save_file_sel() {
- 	std::string selected_filename;
- 	selected_filename = file_sel_save.get_filename();
- 	g_print ("Saving file: %s\n", selected_filename.c_str());
- 	statusbar.push("Saving...", 0);
-
-        geo_data world;
-
-        if (data.size()<1) return;
-
-        for (int i=0; i<data.size(); i++){
-          world.wpts.insert( world.wpts.end(), data[i].get()->wpts.begin(), data[i].get()->wpts.end());
-          world.trks.insert( world.trks.end(), data[i].get()->trks.begin(), data[i].get()->trks.end());
-          world.maps.insert( world.maps.end(), data[i].get()->maps.begin(), data[i].get()->maps.end());
-        }
-
- 	io::out(selected_filename, world, Options());
-     }
 
     void exit() {
       Gtk::AccelMap::save(std::string(getenv("HOME")) + "/" + ACCEL_FILE);
