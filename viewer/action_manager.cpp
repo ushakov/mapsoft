@@ -23,32 +23,36 @@
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
 
+#define ADD_ACT(name, group) AddAction(new name(mapview),\
+   std::string("Mode") + #name, group);
+
+
 ActionManager::ActionManager (Mapview * mapview_)
     : mapview(mapview_)
 {
     current_mode = 0;
 
-    AddAction(new AddFile(mapview),         "File");
-    AddAction(new SaveAll(mapview),         "File");
-    AddAction(new Download(mapview),        "File");
-    AddAction(new Quit(mapview),            "File");
+    ADD_ACT(AddFile,         "File")
+    ADD_ACT(SaveAll,         "File")
+    ADD_ACT(Download,        "File")
+    ADD_ACT(Quit,            "File")
 
-    AddAction(new AddWaypoint(mapview),     "Waypoints");
-    AddAction(new EditWaypoint(mapview),    "Waypoints");
-    AddAction(new MoveWaypoint(mapview),    "Waypoints");
-    AddAction(new DeleteWaypoint(mapview),  "Waypoints");
+    ADD_ACT(AddWaypoint,     "Waypoints")
+    ADD_ACT(EditWaypoint,    "Waypoints")
+    ADD_ACT(MoveWaypoint,    "Waypoints")
+    ADD_ACT(DeleteWaypoint,  "Waypoints")
 
-    AddAction(new AddTrack(mapview),        "Tracks");
-    AddAction(new EditTrack(mapview),       "Tracks");
-    AddAction(new EditTrackpoint(mapview),  "Tracks");
-    AddAction(new MoveTrackpoint(mapview),  "Tracks");
-    AddAction(new DeleteTrackpoint(mapview),"Tracks");
-    AddAction(new MarkTrack(mapview),       "Tracks");
+    ADD_ACT(AddTrack,        "Tracks")
+    ADD_ACT(EditTrack,       "Tracks")
+    ADD_ACT(EditTrackpoint,  "Tracks")
+    ADD_ACT(MoveTrackpoint,  "Tracks")
+    ADD_ACT(DeleteTrackpoint,"Tracks")
+    ADD_ACT(MarkTrack,       "Tracks")
 
-    AddAction(new ActionModeNone(mapview),  "Misc");
-    AddAction(new SaveImage(mapview),       "Misc");
-    AddAction(new MakeTiles(mapview),       "Misc");
-    AddAction(new ShowPt(mapview),          "Misc");
+    ADD_ACT(ActionModeNone,  "Misc")
+    ADD_ACT(SaveImage,       "Misc")
+    ADD_ACT(MakeTiles,       "Misc")
+    ADD_ACT(ShowPt,          "Misc")
 
     mapview->actions->add(Gtk::Action::create("MenuFile", "_File"));
     mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));
@@ -59,22 +63,22 @@ ActionManager::ActionManager (Mapview * mapview_)
 }
 
 void
-ActionManager::AddAction(ActionMode *action, const std::string & menu){
+ActionManager::AddAction(ActionMode *action,
+                         const std::string & id, const std::string & menu){
   modes.push_back(boost::shared_ptr<ActionMode>(action));
   int m = modes.size()-1;
-  std::string  mid     = "Mode" + boost::lexical_cast<std::string>(m);
   std::string  mname   = action->get_name();
   Gtk::StockID stockid = action->get_stockid();
   Gtk::AccelKey acckey = action->get_acckey();
 
   if (action->is_radio()) {
     mapview->actions->add(
-      Gtk::RadioAction::create(mapview->mode_group, mid, stockid, mname),
+      Gtk::RadioAction::create(mapview->mode_group, id, stockid, mname),
       acckey, sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
   }
   else {
     mapview->actions->add(
-      Gtk::Action::create(mid, stockid, mname),
+      Gtk::Action::create(id, stockid, mname),
       acckey, sigc::mem_fun(action, &ActionMode::activate));
   }
 
@@ -82,7 +86,7 @@ ActionManager::AddAction(ActionMode *action, const std::string & menu){
     "<ui>"
     "  <menubar name='MenuBar'>"
     "    <menu action='Menu" + menu + "'>"
-    "      <menuitem action='" + mid + "'/>"
+    "      <menuitem action='" + id + "'/>"
     "    </menu>"
     "  </menubar>"
     "</ui>"

@@ -206,7 +206,7 @@ public:
 	io::in(selected_filename, *(world.get()), Options());
         int pos = selected_filename.rfind('/');
         add_world(world, selected_filename.substr(pos+1));
-	LOG() << "Loaded " << selected_filename << " to world at " << world.get();
+//	LOG() << "Loaded " << selected_filename << " to world at " << world.get();
     }
 
     void add_world(const boost::shared_ptr<geo_data> world, const std::string & name, bool scroll=true) {
