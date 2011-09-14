@@ -78,17 +78,10 @@ public:
 
 	/// events from layer lists
 	ll_wpt.store->signal_row_changed().connect (
-	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), (int *)0, &ll_wpt));
-	ll_trk.store->signal_row_changed().connect (
-	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), (int *)0, &ll_trk));
-	ll_map.store->signal_row_changed().connect (
-	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), (int *)0, &ll_map));
-        /// works incorrectly?
-	ll_wpt.store->signal_rows_reordered().connect (
 	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_wpt));
-	ll_trk.store->signal_rows_reordered().connect (
+	ll_trk.store->signal_row_changed().connect (
 	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_trk));
-	ll_map.store->signal_rows_reordered().connect (
+	ll_map.store->signal_row_changed().connect (
 	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_map));
 
         viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
@@ -96,7 +89,6 @@ public:
 	/***************************************/
 	/// Menues
 	actions = Gtk::ActionGroup::create();
-	actions->add(Gtk::Action::create("MenuFile", "_File"));
 
 	ui_manager = Gtk::UIManager::create();
 	ui_manager->insert_action_group(actions);
@@ -182,21 +174,15 @@ public:
 
     void layer_edited (const Gtk::TreeModel::Path& path,
                        const Gtk::TreeModel::iterator& iter,
-                       int new_order[],
                        LayerList * layer_list) {
 
         int dep=layer_list->get_dep_base();
-        // note: there is an extra row in the layer when reordering occurs
-        for (int n = 0; n<layer_list->size(); n++){
-          if (new_order!= NULL) std::cerr << "O: " << new_order[n] << "\n";
-        }
 
         Gtk::TreeNodeChildren::const_iterator i;
         for (i  = layer_list->store->children().begin();
              i != layer_list->store->children().end(); i++){
           LayerGeo * layer = (*i)[layer_list->columns.layer];
           int active = (*i)[layer_list->columns.checked];
-          Gtk::TreeModel::Path path(i);
 
           if (!layer) continue;
           workplane.set_layer_depth (layer, dep++);

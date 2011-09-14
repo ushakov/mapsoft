@@ -50,6 +50,7 @@ ActionManager::ActionManager (Mapview * mapview_)
     AddAction(new MakeTiles(mapview),       "Misc");
     AddAction(new ShowPt(mapview),          "Misc");
 
+    mapview->actions->add(Gtk::Action::create("MenuFile", "_File"));
     mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));
     mapview->actions->add(Gtk::Action::create("MenuTracks", "_Tracks"));
     mapview->actions->add(Gtk::Action::create("MenuMisc", "_Misc"));
