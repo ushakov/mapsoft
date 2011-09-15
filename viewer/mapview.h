@@ -9,6 +9,7 @@
 
 #include "workplane.h"
 #include "layerlist.h"
+#include "dataview.h"
 #include "widgets.h"
 #include "generic_dialog.h"
 #include "action_manager.h"
@@ -101,62 +102,16 @@ public:
 
 	/***************************************/
 
-        /// Layerlists
+        /// Layerlists and DataView
         ll_wpt.set_dep_base(1000);
         ll_trk.set_dep_base(2000);
         ll_map.set_dep_base(3000);
+        DataView * dw = manage(new DataView(this));
 
-        /// button sets
-	LayerListButtons * wpt_bu   = manage(new LayerListButtons);
-	LayerListButtons * trk_bu   = manage(new LayerListButtons);
-	LayerListButtons * map_bu   = manage(new LayerListButtons);
-
-        /// Vboxes with layerlists and buttons
-        Gtk::VBox * wpt_vbox = manage(new Gtk::VBox);
-        Gtk::VBox * trk_vbox = manage(new Gtk::VBox);
-        Gtk::VBox * map_vbox = manage(new Gtk::VBox);
-
-        wpt_vbox->pack_start(ll_wpt, true, true);
-        trk_vbox->pack_start(ll_trk, true, true);
-        map_vbox->pack_start(ll_map, true, true);
-
-        wpt_vbox->pack_end(*wpt_bu, false, false);
-        trk_vbox->pack_end(*trk_bu, false, false);
-        map_vbox->pack_end(*map_bu, false, false);
-
-        trk_bu->save->set_tooltip_text("Save selected tracks");
-        wpt_bu->save->set_tooltip_text("Save selected waypoints");
-        map_bu->save->set_tooltip_text("Save selected maps");
-        trk_bu->del->set_tooltip_text("Delete selected tracks");
-        wpt_bu->del->set_tooltip_text("Delete selected waypoints");
-        map_bu->del->set_tooltip_text("Delete selected maps");
-        trk_bu->jump->set_tooltip_text("Jump to selected track");
-        wpt_bu->jump->set_tooltip_text("Jump to selected waypoints");
-        map_bu->jump->set_tooltip_text("Jump to selected map");
-
-        /// scrollwindows with vboxes
-	Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
-	Gtk::ScrolledWindow * scr_trk = manage(new Gtk::ScrolledWindow);
-	Gtk::ScrolledWindow * scr_map = manage(new Gtk::ScrolledWindow);
-	scr_wpt->add(*wpt_vbox);
-	scr_trk->add(*trk_vbox);
-	scr_map->add(*map_vbox);
-	scr_wpt->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-	scr_trk->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-	scr_map->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-
-        /// Notebook with scrollwindows
-        Gtk::Notebook * nb = manage(new Gtk::Notebook);
-        nb->append_page(*scr_wpt, "WPT");
-        nb->append_page(*scr_trk, "TRK");
-        nb->append_page(*scr_map, "MAP");
-        nb->set_scrollable(false);
-        nb->set_size_request(150,-1);
-
-        /// Main pand: Viewer + Notebook
+        /// Main pand: Viewer + DataView
 	Gtk::HPaned * paned = manage(new Gtk::HPaned);
 	paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
-	paned->pack2(*nb, Gtk::FILL);
+	paned->pack2(*dw, Gtk::FILL);
 
         /// Main vbox: menu + main pand + statusbar
 	guint drawing_padding = 5;

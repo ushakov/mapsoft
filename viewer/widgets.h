@@ -121,10 +121,4 @@ private:
 
 /********************************************************************/
 
-class LayerListButtons : public Gtk::HBox {
-public:
-  LayerListButtons();
-  Gtk::Button *up, *down, *save, *del, *jump;
-};
-
 #endif

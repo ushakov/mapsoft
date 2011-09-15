@@ -289,31 +289,3 @@ NomBox::signal_jump(){
   return signal_jump_;
 }
 
-/********************************************************************/
-
-LayerListButtons::LayerListButtons(){
-  up   = manage(new Gtk::Button);
-  down = manage(new Gtk::Button);
-  save = manage(new Gtk::Button);
-  del  = manage(new Gtk::Button);
-  jump = manage(new Gtk::Button);
-
-  Gtk::IconSize isize=Gtk::ICON_SIZE_MENU;
-  up->set_image(*manage(new Gtk::Image(Gtk::Stock::GO_UP, isize)));
-  down->set_image(*manage(new Gtk::Image(Gtk::Stock::GO_DOWN, isize)));
-  save->set_image(*manage(new Gtk::Image(Gtk::Stock::SAVE, isize)));
-  del->set_image(*manage(new Gtk::Image(Gtk::Stock::DELETE, isize)));
-  jump->set_image(*manage(new Gtk::Image(Gtk::Stock::JUMP_TO, isize)));
-
-  up->set_tooltip_text("Move up");
-  down->set_tooltip_text("Move down");
-  save->set_tooltip_text("Save selected data");
-  del->set_tooltip_text("Delete selected data");
-  jump->set_tooltip_text("Jump to selected data");
-
-  add(*up);
-  add(*down);
-  add(*save);
-  add(*del);
-  add(*jump);
-}
