@@ -72,14 +72,26 @@ ActionManager::AddAction(ActionMode *action,
   Gtk::AccelKey acckey = action->get_acckey();
 
   if (action->is_radio()) {
-    mapview->actions->add(
-      Gtk::RadioAction::create(mapview->mode_group, id, stockid, mname),
-      acckey, sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
+    // I do not know how to create empty editable AccelKey. So i use
+    // these stupid ifs...
+    if (acckey.is_null())
+      mapview->actions->add(
+        Gtk::RadioAction::create(mapview->mode_group, id, stockid, mname),
+        sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
+    else
+      mapview->actions->add(
+        Gtk::RadioAction::create(mapview->mode_group, id, stockid, mname),
+        acckey, sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
   }
   else {
-    mapview->actions->add(
-      Gtk::Action::create(id, stockid, mname),
-      acckey, sigc::mem_fun(action, &ActionMode::activate));
+    if (acckey.is_null())
+      mapview->actions->add(
+        Gtk::Action::create(id, stockid, mname),
+        sigc::mem_fun(action, &ActionMode::activate));
+    else
+      mapview->actions->add(
+        Gtk::Action::create(id, stockid, mname),
+        acckey, sigc::mem_fun(action, &ActionMode::activate));
   }
 
   mapview->ui_manager->add_ui_from_string(
