@@ -4,6 +4,7 @@
 #include "actions/action_mode.h"
 #include "actions/am_add_file.h"
 #include "actions/am_save_all.h"
+#include "actions/am_save_vis.h"
 #include "actions/am_download.h"
 #include "actions/am_quit.h"
 
@@ -34,6 +35,7 @@ ActionManager::ActionManager (Mapview * mapview_)
 
     ADD_ACT(AddFile,         "File")
     ADD_ACT(SaveAll,         "File")
+    ADD_ACT(SaveVis,         "File")
     ADD_ACT(Download,        "File")
     ADD_ACT(Quit,            "File")
 

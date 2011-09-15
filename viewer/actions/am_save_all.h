@@ -26,7 +26,6 @@ public:
       g_print ("Saving to file: %s\n", selected_filename.c_str());
 
       geo_data world;
-      if (mapview->data.size()<1) return;
       for (int i=0; i<mapview->data.size(); i++){
         world.wpts.insert( world.wpts.end(),
            mapview->data[i].get()->wpts.begin(),

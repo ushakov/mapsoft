@@ -218,7 +218,7 @@ public:
 	    new_ref = map_layer->get_myref();
 	    map_layers.push_back(map_layer);
             workplane.add_layer(map_layer.get(), 1);
-            ll_map.add_layer(map_layer.get(), name);
+            ll_map.add_layer(map_layer.get(), world.get(), name);
 	}
 	if (world->trks.size() > 0) {
 	    // we are loading tracks: if we already have reference, use it
@@ -227,7 +227,7 @@ public:
             else trk_layer->set_ref(reference);
 	    trk_layers.push_back(trk_layer);
             workplane.add_layer(trk_layer.get(), 1);
-            ll_trk.add_layer(trk_layer.get(), name);
+            ll_trk.add_layer(trk_layer.get(), world.get(), name);
 	}
 	if (world->wpts.size() > 0) {
 	    // we are loading waypoints: if we already have reference, use it
@@ -236,7 +236,7 @@ public:
             else wpt_layer->set_ref(reference);
 	    wpt_layers.push_back(wpt_layer);
             workplane.add_layer(wpt_layer.get(), 1);
-            ll_wpt.add_layer(wpt_layer.get(), name);
+            ll_wpt.add_layer(wpt_layer.get(), world.get(), name);
 	}
 
         if (new_ref.size()){

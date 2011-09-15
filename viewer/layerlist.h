@@ -10,11 +10,13 @@ public:
 	add(checked);
 	add(text);
 	add(layer);
+	add(world);
     }
 
     Gtk::TreeModelColumn<bool> checked;
     Gtk::TreeModelColumn<Glib::ustring> text;
     Gtk::TreeModelColumn<LayerGeo *> layer;
+    Gtk::TreeModelColumn<geo_data *> world;
 };
 
 
@@ -24,18 +26,19 @@ public:
 	store = Gtk::ListStore::create(columns);
 	set_model(store);
 	append_column_editable("V", columns.checked);
-	append_column("Layer", columns.text);
+	append_column_editable("Layer", columns.text);
 	set_enable_search(false);
         set_headers_visible(false);
         set_reorderable(true);
         dep_base=1;
     }
 
-    void add_layer (LayerGeo * layer, Glib::ustring name) {
+    void add_layer (LayerGeo * layer, geo_data * world, Glib::ustring name) {
 	Gtk::TreeModel::iterator it = store->append();
 	Gtk::TreeModel::Row row = *it;
         // note: signal_row_changed() is emitted three times from here:
 	row[columns.layer] = layer;
+	row[columns.world] = world;
 	row[columns.checked] = true;
 	row[columns.text] = name;
     }
