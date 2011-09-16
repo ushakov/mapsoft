@@ -234,7 +234,6 @@ public:
           cnv.bck(new_orig);
           viewer.set_center(new_orig);
         }
-        refresh();
     }
 
     void exit() {
