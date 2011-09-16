@@ -220,6 +220,8 @@ using namespace boost::spirit::classic;
   void get_maps(const fig_world & w, const g_map & m, geo_data & d){
     convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"));
     fig_world::const_iterator i;
+    g_map_list maplist;
+
     for (i=w.begin();i!=w.end();i++){
       if ((i->type!=2)||(i->sub_type!=5)) continue;
       if (i->size()<3) continue;
@@ -281,9 +283,10 @@ using namespace boost::spirit::classic;
           map.border.push_back(dPoint(0,WH.y));
         }
 
-        d.maps.push_back(map);
+        maplist.push_back(map);
       }
     }
+    d.maps.push_back(maplist);
   }
 
   // Добавить точки и треки в fig_world в соотв. с привязкой

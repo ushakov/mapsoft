@@ -64,39 +64,44 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
   cr->set_line_width(1);
   cr->set_color(0x0000FF);
 
-  for (int i=0; i<world->maps.size(); i++){
-    string file = world->maps[i].file;
-    if (!m2ms[i].tst_frw.test_range(src_rect)) continue;
+  int i=0;
+  for (std::vector<g_map_list>::const_iterator mi=world->maps.begin();
+           mi!=world->maps.end(); mi++){
+    for (int n=0; n < mi->size(); n++){
+      string file = (*mi)[i].file;
+      if (!m2ms[i].tst_frw.test_range(src_rect)) continue;
 
-    int scale = int(scales[i]+0.05);
-    if (scale <=0) scale = 1;
+      int scale = int(scales[i]+0.05);
+      if (scale <=0) scale = 1;
 
-    if (scale<=32){
-      if (!image_cache.contains(i) || (iscales[i] > scale)) {
+      if (scale<=32){
+        if (!image_cache.contains(i) || (iscales[i] > scale)) {
 #ifdef DEBUG_LAYER_GEOMAP
-        cerr  << "LayerMap: Loading Image " << file
-	           << " at scale " << scale << "\n";
+          cerr  << "LayerMap: Loading Image " << file
+ 	        << " at scale " << scale << "\n";
 #endif
-        image_cache.add(i, image_r::load(file.c_str(), scale));
-        iscales[i] = scale;
-      }
+          image_cache.add(i, image_r::load(file.c_str(), scale));
+          iscales[i] = scale;
+        }
 #ifdef DEBUG_LAYER_GEOMAP
-      cerr  << "LayerMap: Using Image " << file
+        cerr  << "LayerMap: Using Image " << file
 		 << " at scale " << scale << " (loaded at scale " << iscales[i] <<", scales[i]: " << scales[i] << ")\n";
 #endif
-      iImage im = image_cache.get(i);
-      m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
-    }
-
-    if (drawborder){
-      for (dLine::iterator p=m2ms[i].border_dst.begin();
-                           p!=m2ms[i].border_dst.end(); p++){
-        if (p==m2ms[i].border_dst.begin())
-          cr->move_to((*p)-dPoint(src_rect.TLC()));
-        else
-          cr->line_to((*p)-dPoint(src_rect.TLC()));
+        iImage im = image_cache.get(i);
+        m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
       }
-      cr->close_path();
+
+      if (drawborder){
+        for (dLine::iterator p=m2ms[i].border_dst.begin();
+                             p!=m2ms[i].border_dst.end(); p++){
+          if (p==m2ms[i].border_dst.begin())
+            cr->move_to((*p)-dPoint(src_rect.TLC()));
+          else
+            cr->line_to((*p)-dPoint(src_rect.TLC()));
+        }
+        cr->close_path();
+      }
+      i++;
     }
   }
   cr->stroke();
@@ -159,22 +164,27 @@ LayerGeoMap::make_m2ms(){
   m2ms.clear();
   scales.clear();
 
-  for (int i=0; i< world->maps.size(); i++){
-    convs::map2map c(world->maps[i], mymap);
-    m2ms.push_back(c);
+  int i=0;
+  for (std::vector<g_map_list>::const_iterator mi=world->maps.begin();
+           mi!=world->maps.end(); mi++){
+    for (int n=0; n< mi->size(); n++){
+      convs::map2map c((*mi)[i], mymap);
+      m2ms.push_back(c);
 
-    dPoint p1(0,0), p2(1000,0), p3(0,1000);
-    c.frw(p1); c.frw(p2); c.frw(p3);
-    double sc_x = 1000/pdist(p1,p2);
-    double sc_y = 1000/pdist(p1,p3);
+      dPoint p1(0,0), p2(1000,0), p3(0,1000);
+      c.frw(p1); c.frw(p2); c.frw(p3);
+      double sc_x = 1000/pdist(p1,p2);
+      double sc_y = 1000/pdist(p1,p3);
 
-    scales.push_back(sc_x<sc_y ? sc_x:sc_y); // каков масштаб карты в соотв.с проекцией
+      scales.push_back(sc_x<sc_y ? sc_x:sc_y); // каков масштаб карты в соотв.с проекцией
 
-    if ((i==0) && (c.border_dst.size()!=0)){
-      myrange=iRect(c.border_dst[0], c.border_dst[0]);
-    }
-    for (int j=0; j<c.border_dst.size(); j++){
-      myrange = rect_pump(myrange, iPoint(c.border_dst[j]));
+      if ((i==0) && (c.border_dst.size()!=0)){
+        myrange=iRect(c.border_dst[0], c.border_dst[0]);
+      }
+      for (int j=0; j<c.border_dst.size(); j++){
+        myrange = rect_pump(myrange, iPoint(c.border_dst[j]));
+      }
+      i++;
     }
   }
   // старые данные нам тоже интересны (мы можем использовать уже загруженные картинки)

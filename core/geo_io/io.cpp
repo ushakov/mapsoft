@@ -261,24 +261,29 @@ namespace io {
 				}
 			}
 
-			for (size_t n = 0; n != world.maps.size(); ++n)
-			{
+			for (size_t nn = 0; nn != world.maps.size(); ++nn) {
+
+			  int mmn = world.maps[nn].size(); // map count in this maplist
+			  int mmw=0;
+			  if (mmn > 1) mmw = (int) floor (log (1.0 * mmn) / log (10.0)) + 1;
+
+			  for (size_t n = 0; n != world.maps[nn].size(); ++n) {
 				ostringstream oef;
-				if (mw > 0)
-					oef << base << setw(mw) << setfill('0') << n+1 << ".map";
-				else
-					oef << base << ".map";
+                                oef << base;
+				if (mmw > 0)  oef << setw(mmw) << setfill('0') << nn+1;
+				if ((mmw > 0) && (mw > 0))  oef << "_";
+				if (mw > 0)  oef << setw(mw) << setfill('0') << n+1;
+				oef << ".map";
 
 				ofstream f(oef.str().c_str());
-				if (!oe::write_map_file (f, world.maps[n], opt))
-				{
+				if (!oe::write_map_file (f, world.maps[nn][n], opt)){
 					cerr << "! " << oef.str() << " FAILURE\n";
 				}
-				else
-				{
+				else {
 					cerr << "  " << oef.str() << " -- " << world.maps[n].size() << " reference points\n";
 					files += " " + oef.str();
 				}
+			  }
 			}
 
 			if (testext (outfile, ".zip")){

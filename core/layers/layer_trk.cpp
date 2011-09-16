@@ -3,12 +3,13 @@
 
 #include "layer_trk.h"
 #include "utils/cairo_wrapper.h"
+#include "2d/line_utils.h"
 
 using namespace std;
 
 LayerTRK::LayerTRK(geo_data * _world):
-      world(_world), mymap(convs::mymap(*world)),
-      cnv(convs::mymap(*world), Datum("wgs84"), Proj("lonlat")),
+      world(_world), mymap(get_myref()),
+      cnv(get_myref(), Datum("wgs84"), Proj("lonlat")),
       myrange(rect_pump(cnv.bb_bck(world->range_geodata()), 1.0)){
 
 #ifdef DEBUG_LAYER_TRK
@@ -28,7 +29,14 @@ LayerTRK::get_ref() const {
 
 g_map
 LayerTRK::get_myref() const {
-  return convs::mymap(*world);
+  g_map ret;
+  ret.map_proj = Proj("lonlat");
+
+  ret.push_back(g_refpoint(0,  45, 0, 45*3600));
+  ret.push_back(g_refpoint(180, 0, 180*3600,0));
+  ret.push_back(g_refpoint(0,   0, 0, 90*3600));
+  ret.border=rect2line(world->range_geodata());
+  return ret;
 }
 
 void

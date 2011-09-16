@@ -249,6 +249,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   oe_waypoint_list w;
   oe_track         t;
   oe_map           m;
+  g_map_list      ml;
   geo_data ret;
 
   // get file prefix to keep correct path for image files
@@ -396,7 +397,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
   rule_t main_rule = (wpt_head >> *(wpt_point))[push_back_a(ret.wpts, w)] ||
                      (trk_head >> *(trk_point))[push_back_a(ret.trks, t)] ||
-                      map_rule[push_back_a(ret.maps, m)];
+                      map_rule[push_back_a(ml, m)];
+
 
   if (!parse_file("oe::read", filename, main_rule)) return false;
 
@@ -413,9 +415,11 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
     l->comm = cnv.to_utf8(l->comm);
   }
   // convert map comments to UTF8
-  for (vector<g_map>::iterator l=ret.maps.begin(); l!=ret.maps.end(); l++){
+  for (vector<g_map>::iterator l=ml.begin(); l!=ml.end(); l++){
     l->comm = cnv.to_utf8(l->comm);
   }
+
+  if (ml.size()>0) ret.maps.push_back(ml);
 
   world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
   world.trks.insert(world.trks.end(), ret.trks.begin(), ret.trks.end());

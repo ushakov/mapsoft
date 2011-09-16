@@ -160,7 +160,8 @@ public:
 	boost::shared_ptr<geo_data> world(new geo_data);
 	io::in(selected_filename, *(world.get()), Options());
         int pos = selected_filename.rfind('/');
-        add_world(world, selected_filename.substr(pos+1));
+        std::string shortname=selected_filename.substr(pos+1);
+        add_world(world, shortname);
 //	LOG() << "Loaded " << selected_filename << " to world at " << world.get();
     }
 
@@ -204,10 +205,10 @@ public:
           // scroll to the first trackpoint or waypoint or map center
           dPoint new_orig;
 
-          std::vector<g_map>::const_iterator mli = world->maps.begin();
+          std::vector<g_map_list>::const_iterator mli = world->maps.begin();
           while (mli!=world->maps.end()){
             if (mli->size() > 0){
-              new_orig = mli->center();
+              new_orig = (*mli)[0].center();
               break;
             }
             mli++;

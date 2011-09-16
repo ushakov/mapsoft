@@ -11,25 +11,28 @@ namespace filters{
 using namespace std;
 
 void map_nom_brd(geo_data & world){
+  vector<g_map_list>::iterator ml_i;
   vector<g_map>::iterator i;
-  for (i = world.maps.begin(); i!=world.maps.end(); i++){
+  for (ml_i = world.maps.begin(); ml_i!=world.maps.end(); ml_i++){
+    for (i = ml_i->begin(); i!=ml_i->end(); i++){
 
-    dRect r = convs::nom_to_range(i->comm);
-    if (r.empty()) return;
-    double lon1 = r.x;
-    double lat1 = r.y;
-    double lon2 = lon1 + r.w;
-    double lat2 = lat1 + r.h;
+      dRect r = convs::nom_to_range(i->comm);
+      if (r.empty()) return;
+      double lon1 = r.x;
+      double lat1 = r.y;
+      double lon2 = lon1 + r.w;
+      double lat2 = lat1 + r.h;
 
-    convs::map2pt conv(*i, Datum("pulk42"), Proj("lonlat"));
+      convs::map2pt conv(*i, Datum("pulk42"), Proj("lonlat"));
 
-    dLine brd;
-    brd.push_back(dPoint(lon1,lat2));
-    brd.push_back(dPoint(lon2,lat2));
-    brd.push_back(dPoint(lon2,lat1));
-    brd.push_back(dPoint(lon1,lat1));
-    brd.push_back(dPoint(lon1,lat2));
-    i->border = conv.line_bck(brd);
+      dLine brd;
+      brd.push_back(dPoint(lon1,lat2));
+      brd.push_back(dPoint(lon2,lat2));
+      brd.push_back(dPoint(lon2,lat1));
+      brd.push_back(dPoint(lon1,lat1));
+      brd.push_back(dPoint(lon1,lat2));
+      i->border = conv.line_bck(brd);
+    }
   }
 }
 

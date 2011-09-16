@@ -137,6 +137,7 @@ struct g_map : std::vector<g_refpoint>
 
     /// get range of map (lon-lat) using refpoints and borders
     dRect range() const;
+    dRect range_correct() const;
     /// get central point of map (lon-lat) using reference points
     dPoint center() const;
 
@@ -154,6 +155,15 @@ struct g_map : std::vector<g_refpoint>
 #endif  // SWIG
 };
 
+/// g_map_list : std::vecor<g_map>
+struct g_map_list : std::vector<g_map>{
+    std::string comm;
+    Options to_options () const;
+    void parse_from_options (Options const & opt);
+    dRect range() const;
+    dRect range_correct() const;
+};
+
 /*********************************/
 // geo_data
 /*********************************/
@@ -162,16 +172,15 @@ struct g_map : std::vector<g_refpoint>
 struct geo_data {
   std::vector<g_waypoint_list> wpts;
   std::vector<g_track> trks;
-  std::vector<g_map> maps;
+  std::vector<g_map_list> maps;
 
   /// clear all data
   void clear();
 
   /// get range of all maps in lon-lat coords, fast
   dRect range_map() const;
-  /// get range of all maps in lon-lat coords, correct (try to compute
-  /// borders)
-  dRect range_map_correct();
+  /// get range of all maps in lon-lat coords using file size
+  dRect range_map_correct() const;
   /// get range of all tracks and waypoints in lon-lat coords
   dRect range_geodata() const;
   /// get range of all data in lon-lat coords

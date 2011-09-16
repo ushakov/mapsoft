@@ -30,7 +30,12 @@ main(int argc, char **argv){
     Y2    = atof(argv[7]);
 
     geo_data world;
-    LayerGeoMap     ml(&world, false);
+    // put all maps into one map_list
+    g_map_list maps;
+    for (std::vector<g_map_list>::const_iterator ml = world.maps.begin();
+      ml!=world.maps.end(); ml++) maps.insert(maps.end(), ml->begin(), ml->end());
+
+    LayerGeoMap     ml(&maps, false);
     //чтение файлов из командной строки:
     for(int i=8;i<argc;i++){
       io::in(std::string(argv[i]), world, Options());

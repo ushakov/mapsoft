@@ -54,6 +54,7 @@ main(int argc, char **argv){
   Options opts;
   geo_data world;
   g_map map;
+  g_map_list maplist;
  
   fstream in(infile.c_str());
 
@@ -109,9 +110,9 @@ main(int argc, char **argv){
     map.push_back(g_refpoint(p2.x,p2.y,n[2],n[3]));
     map.push_back(g_refpoint(p2.x,p1.y,n[4],n[5]));
     map.push_back(g_refpoint(p1.x,p1.y,n[6],n[7]));
-    world.maps.push_back(map);
-
+    maplist.push_back(map);
   } while (!in.eof());
+  world.maps.push_back(maplist);
   filters::map_nom_brd(world);
   io::out(outfile, world, opts);
 }

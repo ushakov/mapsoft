@@ -91,9 +91,15 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   if (scale==0) scale=1e-5;
 
   if (k==0){
-    if (!world.maps.empty()){
-      g_map orig_ref=convs::mymap(world);
-      k=1.0/convs::map_mpp(orig_ref, ref.map_proj);
+    if (world.maps.size()>0){
+      for (vector<g_map_list>::const_iterator i = world.maps.begin();
+           i!=world.maps.end(); i++){
+        if (i->size()>0){
+          g_map orig_ref=convs::mymap(*i);
+          k=1.0/convs::map_mpp(orig_ref, ref.map_proj);
+          break;
+        }
+      }
     }
     else if (gg_zoom>0){
       double mpp = 6380000.0 * 2*M_PI /256.0/(2 << (gg_zoom-1));
@@ -185,14 +191,17 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
       <<      "height=\"" << geom.h << "\" " 
       <<      "usemap=\"#m\">\n"
       << "<map name=\"m\">\n";
-    for (vector<g_map>::const_iterator i=world.maps.begin(); i!=world.maps.end(); i++){
-      convs::map2map cnv(*i, ref);
-      dLine brd=cnv.line_frw(i->border);
-      f << "<area shape=\"poly\" " 
-        <<       "href=\""   << i->file << "\" "
-        <<       "alt=\""    << i->comm << "\" "
-        <<       "title=\""  << i->comm << "\" "
-        <<       "coords=\"" << iLine(brd) << "\">\n";
+    for (vector<g_map_list>::const_iterator li=world.maps.begin();
+                                            li!=world.maps.end(); li++){
+      for (g_map_list::const_iterator i=li->begin(); i!=li->end(); i++){
+        convs::map2map cnv(*i, ref);
+        dLine brd=cnv.line_frw(i->border);
+        f << "<area shape=\"poly\" " 
+          <<       "href=\""   << i->file << "\" "
+          <<       "alt=\""    << i->comm << "\" "
+          <<       "title=\""  << i->comm << "\" "
+          <<       "coords=\"" << iLine(brd) << "\">\n";
+      }
     }
     f << "</map>\n"
       << "</body></html>";

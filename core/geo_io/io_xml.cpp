@@ -29,6 +29,8 @@ namespace xml {
 
 		xml_point pt;
 		xml_point_list pt_list;
+                xml_map_list map_list, top_map_list;
+
                 geo_data ret;
 
 		// prefix -- директория, в которой лежит map-файл, на случай,
@@ -70,13 +72,24 @@ namespace xml {
 		rule_t map_object = str_p("<map")[clear_a(pt_list)][insert_at_a(pt_list, "prefix", prefix)][clear_a(pt_list.points)]
 			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
 			>> *(*space_p >> point_object) >> *space_p 
-			>> str_p("</map>")[push_back_a(ret.maps, pt_list)];
+			>> str_p("</map>")[push_back_a(map_list.maps, pt_list)];
+                // topmap_object is for top-level maps in old-style files
+		rule_t topmap_object = str_p("<map")[clear_a(pt_list)][insert_at_a(pt_list, "prefix", prefix)][clear_a(pt_list.points)]
+			>> *attr[insert_at_a(pt_list, aname, aval)] >> ">" 
+			>> *(*space_p >> point_object) >> *space_p 
+			>> str_p("</map>")[push_back_a(top_map_list.maps, pt_list)];
 
-		rule_t main_rule = *(*space_p >> (wpt_object | trk_object | map_object)) >> *space_p;
+		rule_t maps_object = str_p("<maps")[clear_a(map_list)]
+			>> *attr[insert_at_a(map_list, aname, aval)] >> ">" 
+			>> *(*space_p >> map_object) >> *space_p 
+			>> str_p("</maps>")[push_back_a(ret.maps, map_list)];
+
+		rule_t main_rule = *(*space_p >> (wpt_object | trk_object | topmap_object | maps_object)) >> *space_p;
 
 		if (!parse_file("fig::read", filename, main_rule)) return false;
+                if (top_map_list.maps.size()>0) ret.maps.push_back(top_map_list);
 
-		//преобразование комментариев и названий точек в UTF-8
+		// convert wpt names and comments to UTF-8
 		IConv cnv(default_charset);
 		for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
 		  for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
@@ -84,13 +97,16 @@ namespace xml {
 		    p->comm = cnv.to_utf8(p->comm);
 		  }
 		}
-		//преобразование комментариев к трекам в UTF-8
+		// convert track comments to UTF-8
 		for (vector<g_track>::iterator l=ret.trks.begin(); l!=ret.trks.end(); l++){
 		  l->comm = cnv.to_utf8(l->comm);
 		}
-		//преобразование комментариев к картам в UTF-8
-		for (vector<g_map>::iterator l=ret.maps.begin(); l!=ret.maps.end(); l++){
-		  l->comm = cnv.to_utf8(l->comm);
+		// convert map comments to UTF-8
+		for (vector<g_map_list>::iterator ll=ret.maps.begin(); ll!=ret.maps.end(); ll++){
+		  ll->comm = cnv.to_utf8(ll->comm);
+		  for (vector<g_map>::iterator l=ll->begin(); l!=ll->end(); l++){
+		    l->comm = cnv.to_utf8(l->comm);
+		  }
 		}
 
                 world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
@@ -177,7 +193,7 @@ namespace xml {
 
 		g_refpoint def_pt;
 		g_map def_m;
-		f << "<map points=" << m.size();
+		f << "  <map points=" << m.size();
                 if (m.comm != def_m.comm) f << " comm=\""   << cnv.from_utf8(m.comm) << "\"";
                 if (m.file != def_m.file) f << " file=\""   << m.file << "\"";
                 if (m.map_proj != def_m.map_proj) f << " map_proj=" << m.map_proj;
@@ -192,14 +208,29 @@ namespace xml {
 		f << ">\n";
 		vector<g_refpoint>::const_iterator p, b=m.begin(), e=m.end();
 		for (p = b; p!=e; p++){
-			f << "  <pt";
+			f << "    <pt";
                         if (p->x    != def_pt.y)    f << " x="  << fixed << setprecision(6) << p->x;
                         if (p->y    != def_pt.x)    f << " y="  << fixed << setprecision(6) << p->y;
                         if (p->xr   != def_pt.xr)   f << " xr=" << fixed << setprecision(1) << p->xr;
                         if (p->yr   != def_pt.yr)   f << " yr=" << fixed << setprecision(1) << p->yr; 
 			f << "/>\n";
 		}
-		f << "</map>\n";
+		f << "  </map>\n";
+	}
+
+	bool write_map_list(ofstream & f, const g_map_list & m, const Options & opt){
+
+                if (!f.good()) return false;
+                IConv cnv(default_charset);
+
+		g_map_list def_m;
+		f << "<maps";
+                if (m.comm != def_m.comm) f << " comm=\""   << cnv.from_utf8(m.comm) << "\"";
+		f << ">\n";
+
+		g_map_list::const_iterator map, b=m.begin(), e=m.end();
+		for (map = b; map!=e; map++) write_map (f, *map, opt);
+		f << "</maps>\n";
 	}
 
 
@@ -211,8 +242,8 @@ namespace xml {
 			write_waypoint_list(f, *i, opt);
 		for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++)
 			write_track(f, *i, opt);
-		for (vector<g_map>::const_iterator i = world.maps.begin(); i!=world.maps.end(); i++)
-			write_map(f, *i, opt);
+		for (vector<g_map_list>::const_iterator i = world.maps.begin(); i!=world.maps.end(); i++)
+			write_map_list(f, *i, opt);
 		return true;
 	}
 
@@ -252,4 +283,10 @@ namespace xml {
           return ret;
         }
 
+	xml_map_list::operator g_map_list () const {
+	  g_map_list ret;
+          ret.vector<g_map>::operator=(maps);
+	  ret.parse_from_options(*this);
+	  return ret;
+	}
 }

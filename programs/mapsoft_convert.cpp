@@ -108,15 +108,19 @@ int main(int argc, char *argv[]) {
 
   dPoint shift_maps = opts.get("shift_maps", dPoint(0,0));
   if (shift_maps !=1){
-    for (vector<g_map>::iterator m=world.maps.begin(); m!=world.maps.end(); m++){
-      *m+=shift_maps;
+    for (vector<g_map_list>::iterator ml=world.maps.begin(); ml!=world.maps.end(); ml++){
+      for (vector<g_map>::iterator m=ml->begin(); m!=ml->end(); m++){
+        *m+=shift_maps;
+      }
     }
   }
 
   double rescale_maps = opts.get("rescale_maps", 1.0);
   if (rescale_maps !=1){
-    for (vector<g_map>::iterator m=world.maps.begin(); m!=world.maps.end(); m++){
-      *m*=rescale_maps;
+    for (vector<g_map_list>::iterator ml=world.maps.begin(); ml!=world.maps.end(); ml++){
+      for (vector<g_map>::iterator m=ml->begin(); m!=ml->end(); m++){
+        *m*=rescale_maps;
+      }
     }
   }
 

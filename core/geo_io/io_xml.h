@@ -33,5 +33,9 @@ namespace xml {
 	operator g_track () const;
 	operator g_map () const;
     };
+    struct xml_map_list : Options {
+	std::vector<g_map> maps;
+	operator g_map_list () const;
+    };
 }
 #endif

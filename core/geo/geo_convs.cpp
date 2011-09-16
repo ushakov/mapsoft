@@ -459,30 +459,31 @@ map_popts(const g_map & M, Options O){
   return O;
 }
 
+
 g_map
-mymap(const geo_data & world){
+mymap(const g_map_list & maplist){
   g_map ret;
   Options O;
-  if (world.maps.size()>0){
-    ret.map_proj=world.maps[0].map_proj;
-    O=map_popts(world.maps[0]);
-  } else ret.map_proj=Proj("lonlat");
 
-  dRect rd=world.range_geodata();
-  dRect rm=world.range_map();
-  double lon0 = rm.x+rm.w/2;
-  if (!rd.empty()) lon0=rd.x+rd.w/2;
-  O.put("lon0", lon2lon0(lon0)); // todo - use map_popts here?
+  ret.map_proj=Proj("lonlat");
+  if (maplist.size()>0){
+    ret.map_proj=maplist[0].map_proj;
+    O=map_popts(maplist[0]);
+  }
+
+  dRect rm=maplist.range();
+  double lon0 = lon2lon0(rm.x+rm.w/2);
+  O.put("lon0", lon0); // todo - use map_popts here?
 
   // масштаб -- соответствующий минимальному масштабу карт, если они есть,
   // или 1/3600 градуса на точку, если карт нет
   double mpp=1e99;
-  for (int i=0;i<world.maps.size();i++){ 
-    double tmp=map_mpp(world.maps[i], world.maps[i].map_proj);
+  g_map_list::const_iterator it;
+  for (it = maplist.begin(); it != maplist.end(); it++){
+    double tmp=map_mpp(*it, it->map_proj);
     if (mpp>tmp) mpp=tmp;
   }
   if ((mpp>1e90)||(mpp<1e-90)) mpp=1/3600.0;
-
 
   // точки привязки
   pt2pt cnv(Datum("WGS84"), ret.map_proj, O, Datum("WGS84"), Proj("lonlat"), O);
@@ -496,6 +497,22 @@ mymap(const geo_data & world){
   ret.push_back(g_refpoint(p2.x,p2.y, 0,0));
   return ret;
 }
+
+g_map
+mymap(const geo_data & world){
+  g_map ret;
+  Options O;
+
+  // put all maps into one map_list
+  g_map_list maps;
+  for (vector<g_map_list>::const_iterator ml = world.maps.begin();
+       ml!=world.maps.end(); ml++){
+    maps.insert(maps.end(), ml->begin(), ml->end());
+  }
+
+  return mymap(maps);
+}
+
 
 double
 map_mpp(const g_map &map, Proj P){

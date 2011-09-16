@@ -118,6 +118,13 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
   double k=0; // scale for our ref
   if ((scale!=0) && (dpi!=0)) k = scale/2.54e-2*dpi;
 
+  // put all maps into one map_list
+  g_map_list maps;
+  for (vector<g_map_list>::const_iterator ml = world.maps.begin();
+       ml!=world.maps.end(); ml++){
+    maps.insert(maps.end(), ml->begin(), ml->end());
+  }
+
   // fallbacks
   if (dpi==0) dpi=200;
   if (scale==0) scale=1e-5;
@@ -134,7 +141,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
       k=1.0/upp;
     }
     else {
-      g_map orig_ref=convs::mymap(world);
+      g_map orig_ref=convs::mymap(maps);
       k=1.0/convs::map_mpp(orig_ref, ref.map_proj);
     }
   }
@@ -144,6 +151,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
   // rescale reference
   ref  *= k;  // ref maps to the pixel plane in dest projection
   geom *= k;  // geom is now in pixel coordinates in dest projection
+
 
   bool draw_borders = opt.get("draw_borders", false);
   LayerGeoMap layer(&world, draw_borders);

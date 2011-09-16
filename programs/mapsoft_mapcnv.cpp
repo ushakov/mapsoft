@@ -112,8 +112,13 @@ main(int argc, char **argv){
     for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
       io::in(*i, world, opts);
 
+    // put all maps into one map_list
+    g_map_list maps;
+    for (std::vector<g_map_list>::const_iterator ml = world.maps.begin();
+      ml!=world.maps.end(); ml++) maps.insert(maps.end(), ml->begin(), ml->end());
+
     bool draw_borders = opts.get("draw_borders", false);
-    LayerGeoMap ml(&world, draw_borders);
+    LayerGeoMap ml(&maps, draw_borders);
     g_map orig_ref=ml.get_ref();
 
     g_map map=ml.get_ref();
@@ -137,7 +142,7 @@ main(int argc, char **argv){
         <<      "height=\"" << int(rint(geom.h*k*factor)) << "\" " 
         <<      "usemap=\"#m\">\n"
         << "<map name=\"m\">\n";
-      for (vector<g_map>::const_iterator i=world.maps.begin(); i!=world.maps.end(); i++){
+      for (g_map_list::const_iterator i = maps.begin(); i!=maps.end(); i++){
         convs::map2map cnv(*i, ref*k*factor);
         dLine brd=cnv.line_frw(i->border) - geom.TLC()*k*factor;
         f << "<area shape=\"poly\" " 

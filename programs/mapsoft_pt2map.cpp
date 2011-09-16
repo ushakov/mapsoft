@@ -31,7 +31,13 @@ int main(int argc, char** argv){
   while (!cin.eof()){
     dPoint p;
     cin >> p.y >> p.x;
-    for (vector<g_map>::iterator m=world.maps.begin(); m!=world.maps.end(); m++){
+
+   // put all maps into one map_list
+    g_map_list maps;
+    for (std::vector<g_map_list>::const_iterator ml = world.maps.begin();
+      ml!=world.maps.end(); ml++) maps.insert(maps.end(), ml->begin(), ml->end());
+
+    for (vector<g_map>::iterator m=maps.begin(); m!=maps.end(); m++){
       if (! point_in_rect (p, m->range())) continue;
       convs::map2pt cnv(*m, Datum("wgs84"), Proj("lonlat"), Options());
       cnv.bck(p);

@@ -31,15 +31,24 @@ int main(int argc, char** argv){
   if (argc != 5) usage();
   geo_data W;
   io::in(argv[1],W,Options());
-  if (W.maps.size()<1){
+
+  g_map *map = NULL;
+  int count = 0;
+  for (vector<g_map_list>::iterator i=W.maps.begin();
+       i!=W.maps.end(); i++){
+    count+=i->size();
+    if ((i->size()>0) && (map == NULL)) map = &(*i)[0];
+  }
+
+  if (map == NULL){
     cerr << "Can't find any map in " << argv[1] << "\n";
     exit(1);
   }
-  if (W.maps.size()>1)
+  if (count>1)
     cerr << W.maps.size() << " maps found. Using first one\n";
 
   map2pt cnv(
-    W.maps[0],
+    *map,
     boost::lexical_cast<Datum>(argv[2]),
     boost::lexical_cast<Proj>(argv[3]),
     boost::lexical_cast<Options>(argv[4])

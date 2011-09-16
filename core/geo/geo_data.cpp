@@ -69,6 +69,8 @@ void g_waypoint::parse_from_options (Options const & opt){
     opt.warn_unused(used);
 }
 
+/*********************************************************************/
+
 g_trackpoint::g_trackpoint(){
     x   = 0; 
     y   = 0; 
@@ -105,6 +107,8 @@ void g_trackpoint::parse_from_options(Options const & opt){
     };
     opt.warn_unused(used);
 }
+
+/*********************************************************************/
 
 g_refpoint::g_refpoint(double _x, double _y, double _xr, double _yr){
     x=_x; y=_y;
@@ -182,6 +186,8 @@ void g_waypoint_list::parse_from_options (Options const & opt){
     opt.warn_unused(used);
 }
 
+/*********************************************************************/
+
 g_track::g_track(){
     width = 2;
     displ = 1;
@@ -256,6 +262,7 @@ g_track::operator dLine(void) const{
   return ret;
 }
 
+/*********************************************************************/
 
 Options g_map::to_options () const {
     Options opt;
@@ -361,6 +368,15 @@ dRect g_map::range() const {
   return dRect(minx, miny, maxx-minx, maxy-miny);
 }
 
+dRect g_map::range_correct() const {
+  if (file == "") range();
+  dRect file_range(dPoint(), image_r::size(file.c_str()));
+  if (border.size() < 3 ) return file_range;
+  dLine brd(border);
+  rect_crop(file_range, brd, true);
+  return brd.range();
+}
+
 /// get central point of map (lon-lat) using reference points
 dPoint g_map::center() const {
   double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
@@ -419,6 +435,45 @@ void g_map::create_from_options(const Options & opt){
   }
 }
 
+/*********************************************************************/
+
+Options
+g_map_list::to_options() const{
+  Options opt;
+  opt.put("comm", comm);
+  return opt;
+}
+
+void
+g_map_list::parse_from_options (Options const & opt){
+  comm = opt.get("comm", comm);
+  const std::string used[] = {"comm", ""};
+  opt.warn_unused(used);
+}
+
+dRect
+g_map_list::range() const{
+  dRect ret(0,0,0,0);
+  if (size()>0) ret=begin()->range();
+  else return ret;
+
+  for (std::vector<g_map>::const_iterator i = begin(); i!=end();i++)
+    ret = rect_bounding_box(ret, i->range());
+  return ret;
+}
+
+dRect
+g_map_list::range_correct() const{
+  dRect ret(0,0,0,0);
+  if (size()>0) ret=begin()->range_correct();
+  else return ret;
+
+  for (std::vector<g_map>::const_iterator i = begin(); i!=end();i++)
+    ret = rect_bounding_box(ret, i->range_correct());
+  return ret;
+}
+
+/*********************************************************************/
 
 /// clear all data
 void geo_data::clear(){ 
@@ -432,7 +487,7 @@ dRect geo_data::range_map() const {
   dRect ret(0,0,0,0);
   if (maps.size()>0) ret=maps[0].range();
   else return ret;
-  for (std::vector<g_map>::const_iterator i = maps.begin();
+  for (std::vector<g_map_list>::const_iterator i = maps.begin();
     i!=maps.end();i++) ret = rect_bounding_box(ret, i->range());
   return ret;
 }
@@ -440,16 +495,12 @@ dRect geo_data::range_map() const {
 /// get range of all maps in lon-lat coords
 /// то же самое, но сначала делается попытка узнать границы из
 /// графического файла, если их нет
-dRect geo_data::range_map_correct() {
+dRect geo_data::range_map_correct() const {
   dRect ret(0,0,0,0);
-  if (maps.size()>0) ret=maps[0].range();
+  if (maps.size()>0) ret=maps[0].range_correct();
   else return ret;
-  for (std::vector<g_map>::iterator i = maps.begin();
-       i != maps.end();
-       ++i) {
-    i->ensure_border();
-    ret = rect_bounding_box(ret, i->range());
-  }
+  for (std::vector<g_map_list>::const_iterator i = maps.begin();
+    i != maps.end(); ++i) ret = rect_bounding_box(ret, i->range_correct());
   return ret;
 }
 
