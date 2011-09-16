@@ -175,14 +175,16 @@ Options g_waypoint_list::to_options () const {
     Options opt;
     opt.put("symbset", symbset);
     opt.put("points",  size());
+    opt.put("comm",    comm);
     return opt;
 }
 
 /// set waypoint_list values from Options object
 void g_waypoint_list::parse_from_options (Options const & opt){
     symbset = opt.get("symbset", symbset);
+    comm    = opt.get("comm", comm);
     const std::string used[] = {
-      "symbset","points",""};
+      "symbset","points","comm",""};
     opt.warn_unused(used);
 }
 

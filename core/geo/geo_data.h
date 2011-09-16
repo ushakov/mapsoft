@@ -75,6 +75,7 @@ struct g_refpoint : dPoint {
 struct g_waypoint_list : std::vector<g_waypoint>{
 
     std::string symbset; /// garmin symbol set -- not used now
+    std::string comm;
 
     g_waypoint_list();
 
