@@ -39,9 +39,9 @@ DataView::DataView (Mapview * M) : mapview(M) {
   Gtk::VBox * trk_vbox = manage(new Gtk::VBox);
   Gtk::VBox * map_vbox = manage(new Gtk::VBox);
 
-  wpt_vbox->pack_start(M->ll_wpt, true, true);
-  trk_vbox->pack_start(M->ll_trk, true, true);
-  map_vbox->pack_start(M->ll_map, true, true);
+  wpt_vbox->pack_start(M->wpt_ll, true, true);
+  trk_vbox->pack_start(M->trk_ll, true, true);
+  map_vbox->pack_start(M->map_ll, true, true);
 
   wpt_vbox->pack_end(*wpt_bu, false, false);
   trk_vbox->pack_end(*trk_bu, false, false);

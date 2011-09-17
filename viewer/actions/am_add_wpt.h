@@ -79,22 +79,19 @@ private:
       dlg2wpt();
 
       // try to find active wpt layer
-      for (int i=0; i<mapview->wpt_layers.size(); i++){
-        LayerWPT * layer = dynamic_cast<LayerWPT *>
-           (mapview->wpt_layers[i].get());
-        if (mapview->workplane.get_layer_active(layer)) {
-          layer->get_world()->wpts[0].push_back(wpt);
-          mapview->workplane.refresh_layer(layer);
-          abort();
-          return;
-        }
+      LayerWPT * layer = find_wpt_layer();
+      if (layer){
+        g_waypoint_list * wpts = layer->get_data();
+        wpts->push_back(wpt);
+        mapview->workplane.refresh_layer(layer);
+        abort();
+        return;
       }
-     // if there is no active wpt layer
-      boost::shared_ptr<geo_data> world(new geo_data);
-      g_waypoint_list wpts;
-      wpts.push_back(wpt);
-      world->wpts.push_back(wpts);
-      mapview->add_world(world, "new", false);
+     // if there is no active wpt layer add one
+      boost::shared_ptr<g_waypoint_list> data(new g_waypoint_list);
+      data->push_back(wpt);
+      data->comm="NEW";
+      mapview->add_wpts(data);
       abort();
     }
 

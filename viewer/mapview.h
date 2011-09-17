@@ -32,18 +32,15 @@ public:
     Rubber        rubber;
     Workplane     workplane;
 
-    LayerList   ll_wpt, ll_trk, ll_map; /// Gtk::TreeView for layers
+    WptLL wpt_ll;
+    TrkLL trk_ll;
+    MapLL map_ll;
+
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
     Gtk::RadioAction::Group mode_group;
     Gtk::Statusbar  statusbar;
     GenericDialog   gend;
-
-    std::vector<boost::shared_ptr<LayerGeoMap> > map_layers;
-    std::vector<boost::shared_ptr<LayerTRK> > trk_layers;
-    std::vector<boost::shared_ptr<LayerWPT> > wpt_layers;
-
-    std::vector<boost::shared_ptr<geo_data> > data;
 
     g_map reference;
     bool have_reference;
@@ -77,13 +74,14 @@ public:
         workplane.signal_refresh.connect (
         sigc::mem_fun (viewer, &DThreadViewer::redraw));
 
+
 	/// events from layer lists
-	ll_wpt.store->signal_row_changed().connect (
-	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_wpt));
-	ll_trk.store->signal_row_changed().connect (
-	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_trk));
-	ll_map.store->signal_row_changed().connect (
-	  sigc::bind(sigc::mem_fun (this, &Mapview::layer_edited), &ll_map));
+	wpt_ll.store->signal_row_changed().connect (
+	  sigc::mem_fun (this, &Mapview::layer_edited));
+	trk_ll.store->signal_row_changed().connect (
+	  sigc::mem_fun (this, &Mapview::layer_edited));
+	map_ll.store->signal_row_changed().connect (
+	  sigc::mem_fun (this, &Mapview::layer_edited));
 
         viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
 
@@ -102,10 +100,6 @@ public:
 
 	/***************************************/
 
-        /// Layerlists and DataView
-        ll_wpt.set_dep_base(1000);
-        ll_trk.set_dep_base(2000);
-        ll_map.set_dep_base(3000);
         DataView * dw = manage(new DataView(this));
 
         /// Main pand: Viewer + DataView
@@ -127,113 +121,150 @@ public:
 
     virtual ~Mapview() { }
 
+
     void layer_edited (const Gtk::TreeModel::Path& path,
-                       const Gtk::TreeModel::iterator& iter,
-                       LayerList * layer_list) {
+                       const Gtk::TreeModel::iterator& iter) {
 
-        int dep=layer_list->get_dep_base();
+      Gtk::TreeNodeChildren::const_iterator i;
+      bool need_refresh = false;
 
-        Gtk::TreeNodeChildren::const_iterator i;
-        for (i  = layer_list->store->children().begin();
-             i != layer_list->store->children().end(); i++){
-          LayerGeo * layer = (*i)[layer_list->columns.layer];
-          int active = (*i)[layer_list->columns.checked];
+      int d=1000;
+      for (i  = wpt_ll.store->children().begin();
+           i != wpt_ll.store->children().end(); i++){
 
-          if (!layer) continue;
-          workplane.set_layer_depth (layer, dep++);
-          workplane.set_layer_active (layer, active);
+        boost::shared_ptr<LayerWPT> layer = (*i)[wpt_ll.columns.layer];
+        if (!layer) continue;
+        bool act = (*i)[wpt_ll.columns.checked];
+        if (workplane.get_layer_active(layer.get()) != act){
+          workplane.set_layer_active(layer.get(), act);
+          need_refresh=true;
         }
-        refresh();
+        if (workplane.get_layer_depth(layer.get()) != d){
+          workplane.set_layer_depth(layer.get(), d);
+          need_refresh=true;
+        }
+        d++;
+      }
+
+      d=2000;
+      for (i  = trk_ll.store->children().begin();
+           i != trk_ll.store->children().end(); i++){
+
+        boost::shared_ptr<LayerTRK> layer = (*i)[trk_ll.columns.layer];
+        if (!layer) continue;
+        bool act = (*i)[trk_ll.columns.checked];
+        if (workplane.get_layer_active(layer.get()) != act){
+          workplane.set_layer_active(layer.get(), act);
+          need_refresh=true;
+        }
+        if (workplane.get_layer_depth(layer.get()) != d){
+          workplane.set_layer_depth(layer.get(), d);
+          need_refresh=true;
+        }
+        d++;
+      }
+
+      d=3000;
+      for (i  = map_ll.store->children().begin();
+           i != map_ll.store->children().end(); i++){
+
+        boost::shared_ptr<LayerGeoMap> layer = (*i)[map_ll.columns.layer];
+        if (!layer) continue;
+        bool act = (*i)[map_ll.columns.checked];
+        if (workplane.get_layer_active(layer.get()) != act){
+          workplane.set_layer_active(layer.get(), act);
+          need_refresh=true;
+        }
+        if (workplane.get_layer_depth(layer.get()) != d){
+          workplane.set_layer_depth(layer.get(), d);
+          need_refresh=true;
+        }
+        d++;
+      }
+      if (need_refresh) refresh();
     }
 
     void on_mode_change (int m) {
-	gend.deactivate();
-	rubber.clear();
-        statusbar.push(action_manager->get_mode_name(m),0);
-	action_manager->set_mode(m);
+      gend.deactivate();
+      rubber.clear();
+      statusbar.push(action_manager->get_mode_name(m),0);
+      action_manager->set_mode(m);
     }
 
-    void add_file(std::string selected_filename) {
-	g_print ("Loading: %s\n", selected_filename.c_str());
-	statusbar.push("Loading...", 0);
-
-	boost::shared_ptr<geo_data> world(new geo_data);
-	io::in(selected_filename, *(world.get()), Options());
-        int pos = selected_filename.rfind('/');
-        std::string shortname=selected_filename.substr(pos+1);
-        add_world(world, shortname);
-//	LOG() << "Loaded " << selected_filename << " to world at " << world.get();
+    void add_file(std::string file) {
+      g_print ("Loading: %s\n", file.c_str());
+      geo_data world;
+      io::in(file, world, Options());
+      add_world(world, true);
     }
 
-    void add_world(const boost::shared_ptr<geo_data> world, const std::string & name, bool scroll=true) {
-	data.push_back(world);
-        g_map new_ref;
-	if (world->maps.size() > 0) {
-	    // we are loading maps: if we already have reference, use it
-	    boost::shared_ptr<LayerGeoMap> map_layer(new LayerGeoMap(world.get()));
-	    new_ref = map_layer->get_myref();
-	    map_layers.push_back(map_layer);
-            workplane.add_layer(map_layer.get(), 1);
-            ll_map.add_layer(map_layer.get(), world.get(), name);
-	}
-	if (world->trks.size() > 0) {
-	    // we are loading tracks: if we already have reference, use it
-	    boost::shared_ptr<LayerTRK> trk_layer(new LayerTRK(world.get()));
-            if (!have_reference) new_ref = trk_layer->get_myref();
-            else trk_layer->set_ref(reference);
-	    trk_layers.push_back(trk_layer);
-            workplane.add_layer(trk_layer.get(), 1);
-            ll_trk.add_layer(trk_layer.get(), world.get(), name);
-	}
-	if (world->wpts.size() > 0) {
-	    // we are loading waypoints: if we already have reference, use it
-	    boost::shared_ptr<LayerWPT> wpt_layer(new LayerWPT(world.get()));
-            if (!have_reference) new_ref = wpt_layer->get_myref();
-            else wpt_layer->set_ref(reference);
-	    wpt_layers.push_back(wpt_layer);
-            workplane.add_layer(wpt_layer.get(), 1);
-            ll_wpt.add_layer(wpt_layer.get(), world.get(), name);
-	}
+    void add_wpts(const boost::shared_ptr<g_waypoint_list> data, bool scroll=false) {
+      // note correct order:
+      // - put layer to the workplane
+      // - set layer/or mapview ref (layer ref is set through workplane)
+      // - put layer to LayerList (+layer_edited coll, +workplane is refresh)
+      boost::shared_ptr<LayerWPT> layer(new LayerWPT(data.get()));
+      workplane.add_layer(layer.get(), 1000);
+      // if we already have reference, use it
+      if (!have_reference) set_ref(layer->get_myref());
+      else layer->set_ref(reference);
+      wpt_ll.add_layer(layer, data);
+      if (scroll && (data->size()>0)) goto_wgs((*data)[0]);
+//      refresh();
+    }
+    void add_trks(const boost::shared_ptr<g_track> data, bool scroll=false) {
+      boost::shared_ptr<LayerTRK> layer(new LayerTRK(data.get()));
+      workplane.add_layer(layer.get(), 2000);
+      // if we already have reference, use it
+      if (!have_reference) set_ref(layer->get_myref());
+      else layer->set_ref(reference);
+      trk_ll.add_layer(layer, data);
+      if (scroll && (data->size()>0)) goto_wgs((*data)[0]);
+//      refresh();
+    }
+    void add_maps(const boost::shared_ptr<g_map_list> data, bool scroll=false) {
+      boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get()));
+      workplane.add_layer(layer.get(), 3000);
+      // for maps always reset reference
+      set_ref(layer->get_myref());
+      map_ll.add_layer(layer, data);
+      if (scroll && (data->size()>0)) goto_wgs((*data)[0].center());
+//      refresh();
+    }
+    void add_world(const geo_data & world, bool scroll=false) {
+      dPoint p(2e3,2e3);
+      for (std::vector<g_map_list>::const_iterator i=world.maps.begin();
+           i!=world.maps.end(); i++){
+        boost::shared_ptr<g_map_list> data(new g_map_list(*i));
+        add_maps(data, false);
+        if (i->size() > 0) p=(*i)[0].center();
+      }
+      for (std::vector<g_waypoint_list>::const_iterator i=world.wpts.begin();
+           i!=world.wpts.end(); i++){
+        boost::shared_ptr<g_waypoint_list> data(new g_waypoint_list(*i));
+        add_wpts(data, false);
+        if (i->size() > 0) p=(*i)[0];
+      }
+      for (std::vector<g_track>::const_iterator i=world.trks.begin();
+           i!=world.trks.end(); i++){
+        boost::shared_ptr<g_track> data(new g_track(*i));
+        add_trks(data, false);
+        if (i->size() > 0) p=(*i)[0];
+      }
+      if (scroll && (p.x<1e3)) goto_wgs(p);
+    }
 
-        if (new_ref.size()){
-           workplane.set_ref(new_ref);
-           reference=new_ref;
-           have_reference=true;
-        }
-
-	if (scroll && have_reference){
-          // scroll to the first trackpoint or waypoint or map center
-          dPoint new_orig;
-
-          std::vector<g_map_list>::const_iterator mli = world->maps.begin();
-          while (mli!=world->maps.end()){
-            if (mli->size() > 0){
-              new_orig = (*mli)[0].center();
-              break;
-            }
-            mli++;
-          }
-
-          std::vector<g_waypoint_list>::const_iterator wli = world->wpts.begin();
-          while (wli!=world->wpts.end()){
-            if (wli->size() > 0){
-              new_orig = (*wli)[0];
-              break;
-            }
-            wli++;
-          }
-          std::vector<g_track>::const_iterator tli = world->trks.begin();
-          while (tli!=world->trks.end()){
-            if (tli->size() > 0){
-              new_orig = (*tli)[0];
-              break;
-            }
-            tli++;
-          }
-          convs::map2pt cnv(reference, Datum("wgs84"), Proj("lonlat"));
-          cnv.bck(new_orig);
-          viewer.set_center(new_orig);
-        }
+    void set_ref(const g_map & ref){
+      if (ref.size()==0) return;
+      workplane.set_ref(ref);
+      reference=ref;
+      have_reference=true;
+    }
+    void goto_wgs(dPoint p){
+      if (!have_reference) return;
+      convs::map2pt cnv(reference, Datum("wgs84"), Proj("lonlat"));
+      cnv.bck(p);
+      viewer.set_center(p);
     }
 
     void exit() {
@@ -243,6 +274,7 @@ public:
     }
 
     void refresh () {
+std::cerr << "REFRESH\n";
        viewer.redraw();
     }
 
@@ -269,7 +301,6 @@ public:
         return false;
     }
 
-
     bool on_button_press (GdkEventButton * event) {
       if (event->button == 1) {
         click_start = viewer.get_origin();
@@ -287,7 +318,7 @@ public:
       }
       if (event->button == 1) {
         iPoint p;
-	Gdk::ModifierType state;
+        Gdk::ModifierType state;
         viewer.get_window()->get_pointer(p.x,p.y,state);
         if (pdist(click_start, viewer.get_origin()) > 5) return true;
         p += viewer.get_origin();

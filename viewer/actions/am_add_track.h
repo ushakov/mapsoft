@@ -74,7 +74,7 @@ public:
           convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
 
           g_trackpoint pt;
-          pt.x = p.x; pt.y=p.y;
+          pt.dPoint::operator=(p);
 	  cnv.frw(pt);
 	  new_track.push_back(pt);
         }
@@ -88,7 +88,7 @@ public:
     }
 
 private:
-    g_track  new_track;
+    g_track new_track;
 
     Glib::RefPtr<Gtk::Builder> builder;
     Gtk::Dialog *dlg;
@@ -100,9 +100,8 @@ private:
 
     void on_ok(){
       dlg2trk();
-      boost::shared_ptr<geo_data> world(new geo_data);
-      world->trks.push_back(new_track);
-      mapview->add_world(world, new_track.comm, false);
+      boost::shared_ptr<g_track> track(new g_track(new_track));
+      mapview->add_trks(track, false);
       abort();
     }
 

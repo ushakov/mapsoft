@@ -26,17 +26,30 @@ public:
       g_print ("Saving to file: %s\n", selected_filename.c_str());
 
       geo_data world;
-      for (int i=0; i<mapview->data.size(); i++){
-        world.wpts.insert( world.wpts.end(),
-           mapview->data[i].get()->wpts.begin(),
-           mapview->data[i].get()->wpts.end());
-        world.trks.insert( world.trks.end(),
-           mapview->data[i].get()->trks.begin(),
-           mapview->data[i].get()->trks.end());
-        world.maps.insert( world.maps.end(),
-           mapview->data[i].get()->maps.begin(),
-           mapview->data[i].get()->maps.end());
+
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = mapview->wpt_ll.store->children().begin();
+           i != mapview->wpt_ll.store->children().end(); i++){
+         boost::shared_ptr<g_waypoint_list> w =
+           (*i)[mapview->wpt_ll.columns.data];
+         w->comm=(*i)[mapview->wpt_ll.columns.comm];
+         world.wpts.push_back(*w);
       }
+      for (i  = mapview->trk_ll.store->children().begin();
+           i != mapview->trk_ll.store->children().end(); i++){
+         boost::shared_ptr<g_track> w =
+           (*i)[mapview->trk_ll.columns.data];
+         w->comm=(*i)[mapview->trk_ll.columns.comm];
+         world.trks.push_back(*w);
+      }
+      for (i  = mapview->map_ll.store->children().begin();
+           i != mapview->map_ll.store->children().end(); i++){
+         boost::shared_ptr<g_map_list> w =
+           (*i)[mapview->map_ll.columns.data];
+         w->comm=(*i)[mapview->map_ll.columns.comm];
+         world.maps.push_back(*w);
+      }
+
       io::out(selected_filename, world, Options());
       hide();
     }

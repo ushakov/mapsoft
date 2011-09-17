@@ -8,56 +8,35 @@
 
 class EditTrack : public ActionMode {
 public:
-    EditTrack (Mapview * mapview) : ActionMode(mapview) {
-	current_track = 0;
-    }
+    EditTrack (Mapview * mapview) : ActionMode(mapview) { }
 
-    // Returns name of the mode as string.
-    virtual std::string get_name() {
-	return "Edit Track";
-    }
+    std::string get_name() { return "Edit Track"; }
 
-    // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
-	std::cout << "EDITTRACK: " << p << std::endl;
-	for (int i = 0; i < mapview->trk_layers.size(); ++i) {
-	    current_layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
-            if (!mapview->workplane.get_layer_active(current_layer)) continue;
-	    assert (current_layer);
-	    std::pair<int, int> d = current_layer->find_track(p);
-	    if (d.first >= 0) {
-		std::cout << "EDITTRACK: found at " << current_layer << std::endl;
-		current_track = &(current_layer->get_world()->trks[d.first]);
-		Options opt = current_track->to_options();
+    void handle_click(iPoint p, const Gdk::ModifierType & state) {
+      track = 0;
+      LayerTRK * layer;
+      int d = find_tpt(p, &layer, true);
+      if (d < 0) return;
+      track = layer->get_data();
 
-		std::ostringstream st;
-		st << "Editing track... "
-		   << current_track->size() << " points, "
-                   << current_track->length()/1000 << " km";
-		mapview->statusbar.push(st.str(),0);
+      std::ostringstream st;
+      st << "Editing track... "
+         << track->size() << " points, "
+         << track->length()/1000 << " km";
+      mapview->statusbar.push(st.str(),0);
 
-		mapview->gend.activate(get_name(), opt,
-		  sigc::mem_fun(this, &EditTrack::on_result));
-		break;
-	    }
-	}
+      mapview->gend.activate(get_name(), track->to_options(),
+        sigc::mem_fun(this, &EditTrack::on_result));
     }
 
 private:
-    g_track       * current_track;
-    LayerTRK      * current_layer;
+    g_track       * track;
+    LayerTRK      * layer;
 
     void on_result(int r, const Options & o) {
-	if (current_track) {
-	    if (r == 0) { // OK
-		current_track->parse_from_options(o);
-                mapview->workplane.refresh_layer(current_layer);
- 		std::cout << "EDITTRACK: " << current_track->comm << std::endl;
-	    } else {
-		// do nothing
-	    }
-	    current_track = 0;
-	}
+      if ((track==0) || (r!=0)) return;
+      track->parse_from_options(o);
+      mapview->workplane.refresh_layer(layer);
     }
 };
 

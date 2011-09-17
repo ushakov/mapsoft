@@ -4,7 +4,7 @@
 #include "layer_geo.h"
 #include "geo/geo_convs.h"
 
-/// Растровый слой для показа точек и треков
+/// Растровый слой для показа треков
 
 class LayerTRK
 #ifndef SWIG
@@ -12,19 +12,22 @@ class LayerTRK
 #endif  // SWIG
 {
 private:
-  geo_data * world; // указатель на геоданные
+  g_track * data; // указатель на геоданные
   convs::map2pt cnv;
   g_map mymap;
   iRect myrange;
 
 public:
-  LayerTRK (geo_data * _world);
+  LayerTRK (g_track * _data);
 
   /// Refresh layer.
   void refresh();
 
   /// Get layer reference.
   g_map get_ref() const;
+
+  /// Get layer conversion to wgs84 latlon.
+  convs::map2pt get_cnv() const;
 
   /// Get some reasonable reference.
   g_map get_myref() const;
@@ -38,15 +41,17 @@ public:
   /// Draw on image.
   void draw(const iPoint origin, iImage & image);
 
-  std::pair<int, int> find_trackpoint (iPoint pt, int radius = 3);
+  int find_trackpoint (iPoint pt, int radius = 3);
 
   // поиск трека. Находится сегмент, в которые тыкают, возвращается
   // первая точка сегмента (0..size-2).
-  // если тыкают в первую точку - возвращается -2, если в последнюю -- -3.
-  std::pair<int, int> find_track (iPoint pt, int radius = 3);
+  int find_track (iPoint pt, int radius = 3);
 
-  /// Get pointer to the world object.
-  geo_data * get_world() const;
+  /// Get pointer to the data object.
+  g_track * get_data() const;
+
+  /// Get pointer to the n-th point.
+  g_trackpoint * get_pt(const int n) const;
 
   /// Get layer range.
   iRect range() const;

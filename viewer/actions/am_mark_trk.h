@@ -10,68 +10,49 @@
 
 class MarkTrack : public ActionMode {
 public:
-     MarkTrack (Mapview * mapview) : ActionMode(mapview) {
-    }
+     MarkTrack (Mapview * mapview) : ActionMode(mapview) { }
 
     // Returns name of the mode as string.
-    virtual std::string get_name() {
-	return "Mark Track's length";
-    }
+    std::string get_name() {return "Mark Track's length"; }
 
-    void add_wpt (g_waypoint_list & wpt_list, dPoint where, double what) {
+    void add_wpt (g_waypoint_list * wpt_list, dPoint where, double what) {
 	std::ostringstream ss;
 	g_waypoint wpt;
 	wpt.bgcolor=0xFF00FFFF;
 	ss << std::fixed << std::setprecision(1) << what/1000 << "km";
 	wpt.name = ss.str();
-	wpt.x = where.x;
-	wpt.y = where.y;
-	wpt_list.push_back(wpt);
+	wpt.dPoint::operator=(where);
+	wpt_list->push_back(wpt);
     }
 
-    // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
-	for (int i = 0; i < mapview->trk_layers.size(); ++i) {
-            LayerTRK * current_layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
-            if (!mapview->workplane.get_layer_active(current_layer)) continue;
-	    assert (current_layer);
-	    std::pair<int, int> d = current_layer->find_trackpoint(p);
+    void handle_click(iPoint p, const Gdk::ModifierType & state) {
+      LayerTRK * layer;
+      int d = find_tpt(p, &layer, true);
+      if (d < 0) return;
+      g_track * track = layer->get_data();
 
-	    if (d.first < 0) continue;
+      bool go_back = 2*d > track->size();
 
-	    g_track * track = & (current_layer->get_world()->trks[d.first]);
+      Options o;
+      o.put("lon0", convs::lon2lon0((*track)[0].x));
+      convs::pt2pt cnv(Datum("wgs84"), Proj("tmerc"), o,
+                       Datum("wgs84"), Proj("lonlat"), Options());
 
-	    bool go_back = d.second * 2 > track->size();
+      boost::shared_ptr<g_waypoint_list> wpt_list(new g_waypoint_list);
+      wpt_list->comm="track marks";
 
-	    int b;
-	    if (go_back) b = track->size()-1;
-	    else b = 0;
+      dLine gk_track=(dLine)(*track);
+      if (go_back) gk_track = gk_track.inv();
+      cnv.line_bck_p2p(gk_track);
 
-            Options o;
-            o.put("lon0", convs::lon2lon0((*track)[b].x));
-	    convs::pt2pt cnv(Datum("wgs84"), Proj("tmerc"), o,
-                             Datum("wgs84"), Proj("lonlat"), Options());
-
-	    g_waypoint_list wpt_list;
-
-            dLine gk_track=(dLine)(*track);
-            if (go_back) gk_track = gk_track.inv();
-            cnv.line_bck_p2p(gk_track);
-
-	    add_wpt (wpt_list, (*track)[b], 0);
-
-    	    LineDist ld(gk_track);
-    	    while (!ld.is_end()){
-	      ld.move_frw(1000);
-              dPoint p=ld.pt(); cnv.frw(p);
-	      add_wpt (wpt_list, p, ld.dist());
-	    }
-
-	    // Add new layer for waypoints
-	    boost::shared_ptr<geo_data> wpt_world (new geo_data);
-            wpt_world->wpts.push_back(wpt_list);
-            mapview->add_world(wpt_world, "track marks", false);
-	}
+      LineDist ld(gk_track);
+      while (1){
+        dPoint p=ld.pt(); cnv.frw(p);
+        add_wpt (wpt_list.get(), p, ld.dist());
+        if (ld.is_end()) break;
+        ld.move_frw(1000);
+      }
+      mapview->add_wpts(wpt_list);
     }
 };
 

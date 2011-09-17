@@ -154,7 +154,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
 
 
   bool draw_borders = opt.get("draw_borders", false);
-  LayerGeoMap layer(&world, draw_borders);
+  LayerGeoMap layer(&maps, draw_borders);
 
   iRect tile;
   tile.w = 256;

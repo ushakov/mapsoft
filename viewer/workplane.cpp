@@ -37,7 +37,7 @@ Workplane::find_layer (LayerGeo * layer) {
 
 void
 Workplane::add_layer (LayerGeo * layer, int depth) {
-//	std::cout << "Adding layer " << layer << " at depth " << depth << std::endl;
+//      std::cout << "Adding layer " << layer << " at depth " << depth << std::endl;
 	if (find_layer(layer) != layers.end()) {
 	    std::cout << "Already have this layer!" << std::endl;
 	    set_layer_depth (layer, depth);

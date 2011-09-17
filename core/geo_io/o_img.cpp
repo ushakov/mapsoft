@@ -154,25 +154,26 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
 
-  if (!world.maps.empty()){
-    bool draw_borders = opt.get("draw_borders", false);
-    LayerGeoMap  l(&world, draw_borders);
+  bool draw_borders = opt.get("draw_borders", false);
+  for (int i=0; i<world.maps.size(); i++){
+    g_map_list d(world.maps[i]);
+    LayerGeoMap l(&d, draw_borders);
     l.set_ref(ref);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
 
-  if (!world.trks.empty()){
-    geo_data world1=world; // LayerTRK can't get const world
-    LayerTRK l(&world1);
+  for (int i=0; i<world.trks.size(); i++){
+    g_track d(world.trks[i]);
+    LayerTRK l(&d);
     l.set_ref(ref);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
 
-  if (!world.wpts.empty()){
-    geo_data world1=world; // LayerWPT can't get const world
-    LayerWPT l(&world1);
+  for (int i=0; i<world.wpts.size(); i++){
+    g_waypoint_list d(world.wpts[i]);
+    LayerWPT l(&d);
     l.set_ref(ref);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);

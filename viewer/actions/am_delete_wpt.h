@@ -8,40 +8,23 @@ class DeleteWaypoint : public ActionMode {
 public:
     DeleteWaypoint (Mapview * mapview) : ActionMode(mapview) {}
 
-    // Returns name of the mode as string.
-    virtual std::string get_name() {
-	return "Delete Waypoint";
-    }
+    std::string get_name() { return "Delete Waypoint"; }
 
-    // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
-	std::cout << "DELETEWPT: " << p << std::endl;
-
-        for (int i = 0; i < mapview->wpt_layers.size(); ++i) {
-            current_layer = dynamic_cast<LayerWPT *> (mapview->wpt_layers[i].get());
-	    if (!mapview->workplane.get_layer_active(current_layer)) continue;
-            assert (current_layer);
-            point_addr = current_layer->find_waypoint(p);
-            if (point_addr.first >= 0) {
-                std::cout << "DELETEWPT: found at " << current_layer << std::endl;
-
-                mapview->gend.activate("Delete Waypoint?", Options(),
-                  sigc::mem_fun(this, &DeleteWaypoint::on_result));
-                break;
-            }
-        }
+    void handle_click(iPoint p, const Gdk::ModifierType & state) {
+      pt_num=find_wpt(p, &layer);
+      if (pt_num < 0) return;
+      mapview->gend.activate("Delete Waypoint?", Options(),
+        sigc::mem_fun(this, &DeleteWaypoint::on_result));
     }
 
 private:
-    std::pair<int, int> point_addr;
-    LayerWPT      * current_layer;
+    int pt_num;
+    LayerWPT * layer;
 
     void on_result(int r, const Options & o) {
-	if (r == 0) { // OK
-          current_layer->get_world()->wpts[point_addr.first].erase(
-            current_layer->get_world()->wpts[point_addr.first].begin()+point_addr.second);
-          mapview->workplane.refresh_layer(current_layer);
-	}
+      if ((r != 0) || (pt_num<0)) return;
+      layer->get_data()->erase(layer->get_data()->begin() + pt_num);
+      mapview->workplane.refresh_layer(layer);
     }
 };
 

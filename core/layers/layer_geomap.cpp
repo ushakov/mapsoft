@@ -9,10 +9,10 @@
 
 using namespace std;
 
-LayerGeoMap::LayerGeoMap(const geo_data *_world, bool _drawborder) :
-      world(_world),
+LayerGeoMap::LayerGeoMap(g_map_list *_data, bool _drawborder) :
+      data(_data),
       image_cache(4),
-      mymap(convs::mymap(*_world)),
+      mymap(convs::mymap(*_data)),
       drawborder(_drawborder){
   make_m2ms();
 }
@@ -22,9 +22,15 @@ LayerGeoMap::get_ref() const {
   return mymap;
 }
 
+convs::map2pt
+LayerGeoMap::get_cnv() const{
+  return convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"));
+}
+
+
 g_map
 LayerGeoMap::get_myref() const {
-  return convs::mymap(*world);
+  return convs::mymap(*data);
 }
 
 void
@@ -33,9 +39,14 @@ LayerGeoMap::set_ref(const g_map & map){
   make_m2ms();
 }
 
-const geo_data *
-LayerGeoMap::get_world() const{
-  return world;
+g_map_list *
+LayerGeoMap::get_data() const{
+  return data;
+}
+
+g_map *
+LayerGeoMap::get_map(const int n) const{
+  return &(*data)[n];
 }
 
 void
@@ -59,16 +70,13 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
   cerr  << "LayerMap: draw " << src_rect << " my: " << myrange << endl;
 #endif
   if (rect_intersect(myrange, src_rect).empty()) return;
-  if ((world == NULL)||(world->maps.size()==0)) return;
+  if ((data == NULL)||(data->size()==0)) return;
   CairoWrapper cr(image);
   cr->set_line_width(1);
   cr->set_color(0x0000FF);
 
-  int i=0;
-  for (std::vector<g_map_list>::const_iterator mi=world->maps.begin();
-           mi!=world->maps.end(); mi++){
-    for (int n=0; n < mi->size(); n++){
-      string file = (*mi)[i].file;
+  for (int i=0; i < data->size(); i++){
+      string file = (*data)[i].file;
       if (!m2ms[i].tst_frw.test_range(src_rect)) continue;
 
       int scale = int(scales[i]+0.05);
@@ -101,8 +109,6 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
         }
         cr->close_path();
       }
-      i++;
-    }
   }
   cr->stroke();
 }
@@ -142,10 +148,10 @@ LayerGeoMap::dump_maps(const char *file){
     double letth=400;
     string s1;
     int n=0, l=0;
-    while (n<world->maps[i].comm.size()>0){
-      s1+=world->maps[i].comm[n];
+    while (n<(*data)[i].comm.size()>0){
+      s1+=(*data)[i].comm[n];
       n++;
-      if ((n==world->maps[i].comm.size()) || (s1.size()*lettw > maxx-minx)){
+      if ((n==(*data)[i].comm.size()) || (s1.size()*lettw > maxx-minx)){
       f << "4 0 4 6 -1 18 20 0.0000 4 225 630 " 
         << int(m2ms[i].border_dst[0].x+100) << " " 
         << int(m2ms[i].border_dst[0].y+500 + l*letth) << " " 
@@ -159,16 +165,13 @@ LayerGeoMap::dump_maps(const char *file){
 
 void
 LayerGeoMap::make_m2ms(){
-  if ((world == NULL)||(world->maps.size()==0)) return;
+  if ((data == NULL)||(data->size()==0)) return;
 
   m2ms.clear();
   scales.clear();
 
-  int i=0;
-  for (std::vector<g_map_list>::const_iterator mi=world->maps.begin();
-           mi!=world->maps.end(); mi++){
-    for (int n=0; n< mi->size(); n++){
-      convs::map2map c((*mi)[i], mymap);
+  for (int i=0; i< data->size(); i++){
+      convs::map2map c((*data)[i], mymap);
       m2ms.push_back(c);
 
       dPoint p1(0,0), p2(1000,0), p3(0,1000);
@@ -184,12 +187,10 @@ LayerGeoMap::make_m2ms(){
       for (int j=0; j<c.border_dst.size(); j++){
         myrange = rect_pump(myrange, iPoint(c.border_dst[j]));
       }
-      i++;
-    }
   }
   // старые данные нам тоже интересны (мы можем использовать уже загруженные картинки)
-  if (iscales.size() != world->maps.size())
-    iscales.resize(world->maps.size(),1);
+  if (iscales.size() != data->size())
+    iscales.resize(data->size(),1);
 #ifdef DEBUG_LAYER_GEOMAP
   cerr << "LayerMap: Setting map conversions. Range: " << myrange << "\n";
 #endif

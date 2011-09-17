@@ -6,50 +6,28 @@
 
 class EditWaypoint : public ActionMode {
 public:
-    EditWaypoint (Mapview * mapview) : ActionMode(mapview) {
-	current_wpt = 0;
-    }
+    EditWaypoint (Mapview * mapview) : ActionMode(mapview) { }
 
-    // Returns name of the mode as string.
-    virtual std::string get_name() {
-	return "Edit Waypoint";
-    }
+    std::string get_name() { return "Edit Waypoint"; }
 
-    // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
-	std::cout << "EDITWPT: " << p << std::endl;
-	for (int i = 0; i < mapview->wpt_layers.size(); ++i) {
-	    current_layer = dynamic_cast<LayerWPT *> (mapview->wpt_layers[i].get());
-            if (!mapview->workplane.get_layer_active(current_layer)) continue;
-	    assert (current_layer);
-	    std::pair<int, int> d = current_layer->find_waypoint(p);
-	    if (d.first >= 0) {
-		std::cout << "EDITWPT: found at " << current_layer << std::endl;
-		current_wpt = &(current_layer->get_world()->wpts[d.first][d.second]);
-		Options opt = current_wpt->to_options();
+    void handle_click(iPoint p, const Gdk::ModifierType & state) {
+      pt_num=find_wpt(p, &layer);
+      if (pt_num < 0) return;
 
-		mapview->gend.activate(get_name(), opt,
-		   sigc::mem_fun(this, &EditWaypoint::on_result));
-		break;
-	    }
-	}
+      g_waypoint * wpt = &(* layer->get_data())[pt_num];
+      mapview->gend.activate(get_name(), wpt->to_options(),
+        sigc::mem_fun(this, &EditWaypoint::on_result));
     }
 
 private:
-    g_waypoint    * current_wpt;
-    LayerWPT      * current_layer;
+    int pt_num;
+    LayerWPT * layer;
 
     void on_result(int r, const Options & o) {
-	if (current_wpt) {
-	    if (r == 0) { // OK
-		current_wpt->parse_from_options(o);
-                mapview->workplane.refresh_layer(current_layer);
- 		std::cout << "EDITWPT: " << current_wpt->name << std::endl;
-	    } else {
-		// do nothing
-	    }
-	    current_wpt = 0;
-	}
+      if ((pt_num<0) || (r!=0)) return;
+      g_waypoint * wpt = layer->get_pt(pt_num);
+      wpt->parse_from_options(o);
+      mapview->workplane.refresh_layer(layer);
     }
 };
 

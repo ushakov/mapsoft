@@ -34,30 +34,30 @@ public:
     void activate() { dlg->show(); }
 
     void on_ok(){
-      boost::shared_ptr<geo_data> world (new geo_data);
+      geo_data world;
 
       std::string dev = e_dev->get_text();
 
       if (cb_w->get_active()){
-        if (!gps::get_waypoints (dev.c_str(), *world, Options()))
+        if (!gps::get_waypoints (dev.c_str(), world, Options()))
           mapview->statusbar.push("Error while waypoint downloading",0);
       }
 
       if (cb_a->get_active() || cb_o->get_active()){
-        if (!gps::get_tracks (dev.c_str(), *world, Options()))
+        if (!gps::get_tracks (dev.c_str(), world, Options()))
           mapview->statusbar.push("Error while track downloading",0);
 
-        std::vector<g_track>::iterator i = world->trks.begin();
-        while (i!=world->trks.end()){
+        std::vector<g_track>::iterator i = world.trks.begin();
+        while (i!=world.trks.end()){
           if ((!cb_a->get_active() && (i->comm=="ACTIVE LOG")) ||
               (!cb_o->get_active() && (i->comm!="ACTIVE LOG")))
-            i=world->trks.erase(i);
+            i=world.trks.erase(i);
           else i++;
         }
       }
 
-      if (world->trks.size() || world->wpts.size())
-        mapview->add_world(world, "from GPS");
+      if (world.trks.size() || world.wpts.size())
+        mapview->add_world(world);
 
       if (cb_off->get_active())
         gps::turn_off(dev.c_str());

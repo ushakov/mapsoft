@@ -28,26 +28,29 @@ public:
       geo_data world;
 
       Gtk::TreeNodeChildren::const_iterator i;
-      for (i  = mapview->ll_wpt.store->children().begin();
-           i != mapview->ll_wpt.store->children().end(); i++){
-         if (!(*i)[mapview->ll_wpt.columns.checked]) continue;
-         geo_data * w = (*i)[mapview->ll_wpt.columns.world];
-         assert(w);
-         world.wpts.insert( world.wpts.end(), w->wpts.begin(), w->wpts.end());
+      for (i  = mapview->wpt_ll.store->children().begin();
+           i != mapview->wpt_ll.store->children().end(); i++){
+         if (!(*i)[mapview->wpt_ll.columns.checked]) continue;
+         boost::shared_ptr<g_waypoint_list> w =
+           (*i)[mapview->wpt_ll.columns.data];
+         w->comm=(*i)[mapview->wpt_ll.columns.comm];
+         world.wpts.push_back(*w);
       }
-      for (i  = mapview->ll_trk.store->children().begin();
-           i != mapview->ll_trk.store->children().end(); i++){
-         if (!(*i)[mapview->ll_trk.columns.checked]) continue;
-         geo_data * w = (*i)[mapview->ll_trk.columns.world];
-         assert(w);
-         world.trks.insert( world.trks.end(), w->trks.begin(), w->trks.end());
+      for (i  = mapview->trk_ll.store->children().begin();
+           i != mapview->trk_ll.store->children().end(); i++){
+         if (!(*i)[mapview->trk_ll.columns.checked]) continue;
+         boost::shared_ptr<g_track> w =
+           (*i)[mapview->trk_ll.columns.data];
+         w->comm=(*i)[mapview->trk_ll.columns.comm];
+         world.trks.push_back(*w);
       }
-      for (i  = mapview->ll_map.store->children().begin();
-           i != mapview->ll_map.store->children().end(); i++){
-         if (!(*i)[mapview->ll_map.columns.checked]) continue;
-         geo_data * w = (*i)[mapview->ll_map.columns.world];
-         assert(w);
-         world.maps.insert( world.maps.end(), w->maps.begin(), w->maps.end());
+      for (i  = mapview->map_ll.store->children().begin();
+           i != mapview->map_ll.store->children().end(); i++){
+         if (!(*i)[mapview->map_ll.columns.checked]) continue;
+         boost::shared_ptr<g_map_list> w =
+           (*i)[mapview->map_ll.columns.data];
+         w->comm=(*i)[mapview->map_ll.columns.comm];
+         world.maps.push_back(*w);
       }
       io::out(selected_filename, world, Options());
       hide();

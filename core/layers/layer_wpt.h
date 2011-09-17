@@ -5,7 +5,7 @@
 #include "geo/geo_convs.h"
 
 
-/// Растровый слой для показа точек и треков
+/// Растровый слой для показа точек
 
 class LayerWPT
 #ifndef SWIG
@@ -13,20 +13,23 @@ class LayerWPT
 #endif  // SWIG
 {
 private:
-  geo_data * world; // указатель на геоданные
+  g_waypoint_list * data; // указатель на геоданные
   convs::map2pt cnv;
   g_map mymap;
   iRect myrange;
 
 public:
 
-  LayerWPT (geo_data * _world);
+  LayerWPT (g_waypoint_list * _data);
 
   /// Refresh layer.
   void refresh();
 
   /// Get layer reference.
   g_map get_ref() const;
+
+  /// Get layer conversion to wgs84 latlon.
+  convs::map2pt get_cnv() const;
 
   /// Set some reasonable reference.
   g_map get_myref() const;
@@ -40,10 +43,13 @@ public:
   /// Draw on image.
   void draw(const iPoint origin, iImage & image);
 
-  std::pair<int, int> find_waypoint (iPoint pt, int radius = 3);
+  int find_waypoint (iPoint pt, int radius = 3);
 
-  /// Get pointer to the world object.
-  geo_data * get_world() const;
+  /// Get pointer to the data object.
+  g_waypoint_list * get_data() const;
+
+  /// Get pointer to the n-th point.
+  g_waypoint * get_pt(const int n) const;
 
   /// Get layer range.
   iRect range () const;

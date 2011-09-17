@@ -18,7 +18,7 @@ class LayerGeoMap
 #endif  // SWIG
 {
 private:
-  const geo_data *world;             // привязки карт
+  g_map_list *data;                  // привязки карт
   std::vector<convs::map2map> m2ms;  // преобразования из каждой карты в mymap
   std::vector<double> scales;        // во сколько раз мы сжимаем карты при загрузке
   std::vector<int>    iscales;       // во сколько раз мы сжимаем карты при загрузке
@@ -29,7 +29,7 @@ private:
 
 public:
 
-  LayerGeoMap (const geo_data *_world, bool _drawborder=true);
+  LayerGeoMap (g_map_list *_data, bool _drawborder=true);
 
   /// Get layer reference.
   g_map get_ref() const;
@@ -37,11 +37,17 @@ public:
   /// Get some reasonable reference.
   g_map get_myref() const;
 
+  /// Get layer conversion to wgs84 latlon.
+  convs::map2pt get_cnv() const;
+
   /// Set layer reference.
   void set_ref(const g_map & map);
 
-  /// Get pointer to the world object.
-  const geo_data * get_world() const;
+  /// Get pointer to the data.
+  g_map_list * get_data() const;
+
+  /// Get pointer to the n-th map.
+  g_map * get_map(const int n) const;
 
   /// Refresh layer.
   void refresh();

@@ -28,24 +28,18 @@ public:
 
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
-	std::cout << "MAKETILES: " << p << " points: " << have_points << std::endl;
 	if (have_points == 0) {
-	    dPoint geo = p;
-	    if (!get_geo_point(geo)) return;
-	    one = geo;
+	    one = p;
 	    have_points = 1;
-	    // make rubber
 	    mapview->rubber.clear();
 	    mapview->rubber.add_rect(p);
 	} else if (have_points == 1) {
-	    dPoint geo = p;
-	    if (!get_geo_point(geo)) return;
-	    two = geo;
+	    two = p;
 	    have_points = 2;
 	    Options opt;
 	    dRect bb(one, two);
 	    opt.put("geom", bb);
-	    opt.put("google", 17);
+	    opt.put("google", 13);
 	    opt.put("dirname", "tiles");
 	    mapview->rubber.clear();
 	    mapview->gend.activate(get_name(), opt,
@@ -53,36 +47,29 @@ public:
 	}
     }
 
-    bool get_geo_point(dPoint& p) {
-	LayerGeoMap * layer;
-	current_layer = NULL;
-	for (int i = 0; i < mapview->map_layers.size(); i++){
-	    layer = mapview->map_layers[i].get();
-	    if (mapview->workplane.get_layer_active(layer)) {
-		current_layer = layer;
-		break;
-	    }
-        }
-        if (current_layer == 0) return false;
-        g_map map = current_layer->get_ref();
-        convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
-	cnv.frw(p);
-	return true;
-    }
-
 private:
-    LayerGeoMap   * current_layer;
     int have_points;
 
     dPoint one, two;
 
     void on_result(int r, const Options & o) {
-	have_points = 0;
-        if (r == 0) { // OK
-	  std::string filename = o.get("dirname", std::string("tiles"));
-	  filename += ".tiles";
-	  tiles::write_file(filename.c_str(), *current_layer->get_world(), o);
-	}
+      have_points = 0;
+      if (r != 0) return;
+
+      LayerGeoMap * layer = find_map_layer();
+      if (!layer) return;
+
+      convs::map2pt cnv(layer->get_cnv());
+      cnv.frw(one);
+      cnv.frw(two);
+
+/// !!!! one, two not used!
+      std::string filename =
+        o.get("dirname", std::string("tiles"));
+      filename += ".tiles";
+      geo_data world;
+      world.maps.push_back(*layer->get_data());
+      tiles::write_file(filename.c_str(), world, o);
     }
 };
 

@@ -6,50 +6,26 @@
 
 class EditTrackpoint : public ActionMode {
 public:
-    EditTrackpoint (Mapview * mapview) : ActionMode(mapview) {
-	current_tpt = 0;
-    }
+    EditTrackpoint (Mapview * mapview) : ActionMode(mapview) { }
 
-    // Returns name of the mode as string.
-    virtual std::string get_name() {
-	return "Edit Trackpoint";
-    }
+    std::string get_name() { return "Edit Trackpoint"; }
 
-    // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
-	std::cout << "EDITTPT: " << p << std::endl;
-	for (int i = 0; i < mapview->trk_layers.size(); ++i) {
-	    current_layer = dynamic_cast<LayerTRK *> (mapview->trk_layers[i].get());
-            if (!mapview->workplane.get_layer_active(current_layer)) continue;
-	    assert (current_layer);
-	    std::pair<int, int> d = current_layer->find_trackpoint(p);
-	    if (d.first >= 0) {
-		std::cout << "EDITTPT: found at " << current_layer << std::endl;
-		current_tpt = &(current_layer->get_world()->trks[d.first][d.second]);
-		Options opt = current_tpt->to_options();
-
-		mapview->gend.activate(get_name(), opt,
-		  sigc::mem_fun(this, &EditTrackpoint::on_result));
-                break;
-	    }
-	}
+    void handle_click(iPoint p, const Gdk::ModifierType & state) {
+      int pt_num = find_tpt(p, &layer);
+      if (pt_num < 0) return;
+      tpt = layer->get_pt(pt_num);
+      mapview->gend.activate(get_name(), tpt->to_options(),
+        sigc::mem_fun(this, &EditTrackpoint::on_result));
     }
 
 private:
-    g_trackpoint  * current_tpt;
-    LayerTRK      * current_layer;
+    g_trackpoint * tpt;
+    LayerTRK * layer;
 
     void on_result(int r, const Options & o) {
-	if (current_tpt) {
-	    if (r == 0) { // OK
-		current_tpt->parse_from_options(o);
-                mapview->workplane.refresh_layer(current_layer);
- 		std::cout << "EDITWPT: OK\n";
-	    } else {
-		// do nothing
-	    }
-	    current_tpt = 0;
-	}
+      if ((!tpt) || (r!=0)) return;
+      tpt->parse_from_options(o);
+      mapview->workplane.refresh_layer(layer);
     }
 };
 
