@@ -128,7 +128,7 @@ public:
       Gtk::TreeNodeChildren::const_iterator i;
       bool need_refresh = false;
 
-      int d=1000;
+      int d=2;
       for (i  = wpt_ll.store->children().begin();
            i != wpt_ll.store->children().end(); i++){
 
@@ -146,7 +146,6 @@ public:
         d++;
       }
 
-      d=2000;
       for (i  = trk_ll.store->children().begin();
            i != trk_ll.store->children().end(); i++){
 
@@ -164,7 +163,6 @@ public:
         d++;
       }
 
-      d=3000;
       for (i  = map_ll.store->children().begin();
            i != map_ll.store->children().end(); i++){
 
@@ -203,33 +201,31 @@ public:
       // - put layer to the workplane
       // - set layer/or mapview ref (layer ref is set through workplane)
       // - put layer to LayerList (+layer_edited coll, +workplane is refresh)
+      // depth is set to 1 to evoke refresh!
       boost::shared_ptr<LayerWPT> layer(new LayerWPT(data.get()));
-      workplane.add_layer(layer.get(), 1000);
+      workplane.add_layer(layer.get(), 1);
       // if we already have reference, use it
       if (!have_reference) set_ref(layer->get_myref());
       else layer->set_ref(reference);
       wpt_ll.add_layer(layer, data);
       if (scroll && (data->size()>0)) goto_wgs((*data)[0]);
-//      refresh();
     }
     void add_trks(const boost::shared_ptr<g_track> data, bool scroll=false) {
       boost::shared_ptr<LayerTRK> layer(new LayerTRK(data.get()));
-      workplane.add_layer(layer.get(), 2000);
+      workplane.add_layer(layer.get(), 1);
       // if we already have reference, use it
       if (!have_reference) set_ref(layer->get_myref());
       else layer->set_ref(reference);
       trk_ll.add_layer(layer, data);
       if (scroll && (data->size()>0)) goto_wgs((*data)[0]);
-//      refresh();
     }
     void add_maps(const boost::shared_ptr<g_map_list> data, bool scroll=false) {
       boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get()));
-      workplane.add_layer(layer.get(), 3000);
+      workplane.add_layer(layer.get(), 1);
       // for maps always reset reference
       set_ref(layer->get_myref());
       map_ll.add_layer(layer, data);
       if (scroll && (data->size()>0)) goto_wgs((*data)[0].center());
-//      refresh();
     }
     void add_world(const geo_data & world, bool scroll=false) {
       dPoint p(2e3,2e3);
