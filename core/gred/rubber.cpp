@@ -157,7 +157,7 @@ Rubber::add(const int x1, const int y1,
 /// remove the last segment from the rubber and get it
 RubberSegment
 Rubber::pop(void){
-  if (rubber.size()<1) return RubberSegment(0,0,0);
+  if (rubber.size()<1) return RubberSegment(iPoint(),iPoint(),0);
   RubberSegment s = *rubber.rbegin();
   if (s.flags & RUBBFL_DRAWN) draw_segment(s); // erase segment
   rubber.pop_back();
@@ -167,7 +167,7 @@ Rubber::pop(void){
 /// get the last segment from the rubber
 RubberSegment
 Rubber::get(void){
-  if (rubber.size()<1) return RubberSegment(0,0,0);
+  if (rubber.size()<1) return RubberSegment(iPoint(),iPoint(),0);
   return *rubber.rbegin();
 }
 

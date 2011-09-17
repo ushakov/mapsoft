@@ -24,10 +24,10 @@ struct Point
   T x; ///< x coordinate
   T y; ///< y coordinate
 
-  /// Constructor.
-  Point(T _x=0, T _y=0)
-	: x(_x), y(_y)
-  { }
+  /// Constructors
+  Point(T _x, T _y): x(_x), y(_y) { }
+
+  Point(): x(0), y(0) { }
 
   /// Swap point with other one.
   void
