@@ -419,7 +419,10 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
     l->comm = cnv.to_utf8(l->comm);
   }
 
-  if (ml.size()>0) ret.maps.push_back(ml);
+  if (ml.size()>0){
+     ml.comm=ml[0].comm;
+     ret.maps.push_back(ml);
+  }
 
   world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
   world.trks.insert(world.trks.end(), ret.trks.begin(), ret.trks.end());
