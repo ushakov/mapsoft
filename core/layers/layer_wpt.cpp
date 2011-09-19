@@ -118,7 +118,7 @@ LayerWPT::find_waypoint (iPoint pt, int radius) {
   for (int wpt = 0; wpt < data->size(); ++wpt) {
     dPoint p((*data)[wpt]);
     cnv.bck(p);
-    if (pdist(dPoint(pt),p)) return wpt;
+    if (pdist(dPoint(pt),p)<radius) return wpt;
   }
   return -1;
 }
