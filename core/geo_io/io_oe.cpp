@@ -68,7 +68,7 @@ using namespace boost::spirit::classic;
                         ret.size       = size;
                         ret.font_size  = font_size;
                         ret.font_style = font_style;
-			if (alt == -777) ret.z=1e24;
+			if (alt == -777) ret.clear_alt();
 			else ret.z      = alt*0.3048;
 			ret.prox_dist   = prox_dist;
                         return ret;
@@ -90,7 +90,7 @@ using namespace boost::spirit::classic;
                         ret.start = start;
 			if (time==0) ret.t = Time(0);
 			else ret.t     = Time(int(time* 3600.0 * 24.0 - 2209161600.0));
-			if (alt == -777) ret.z=1e24;
+			if (alt == -777) ret.clear_alt();
 			else ret.z   = alt*0.3048;
                         return ret;
                 } // здесь еще нет преобразования СК!
@@ -459,7 +459,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << setw(11)<< p->x << ','
 			  << ((p->start)? '1':'0') << ','
 			  << setprecision(1) << setw(6) 
-			  << (p->z >= 1e20 ? -777: p->z/0.3048) << ','
+			  << (p->have_alt() ? p->z/0.3048 : -777) << ','
 			  << setprecision(7) << setw(13)
 			  << (p->t.value+2209161600.0)/3600.0/24.0 << ','
 			  << setfill('0') << p->t << "\r\n";
@@ -497,7 +497,7 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << p->pt_dir.val << ','
 			  << p->displ      << ','
 			  << p->prox_dist  << ','
-			  << (p->z >= 1e20 ? -777: p->z/0.3048) << ','
+			  << (p->have_alt() ?  p->z/0.3048 : -777) << ','
 			  << setprecision(2) << setw(5)<< p->font_size  << ','
 			  << p->font_style << ','
 			  << p->size       << "\r\n";

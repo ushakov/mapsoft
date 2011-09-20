@@ -4,10 +4,13 @@
 #include "2d/line_utils.h"
 #include "2d/line_rectcrop.h"
 
+#define ALT_UNDEF 1e27
+#define ALT_CHECK 1e26
+
 g_waypoint::g_waypoint (){
     x          = 0.0;
     y          = 0.0;
-    z          = 1e24;
+    z          = ALT_UNDEF;
     prox_dist  = 0.0;
     t          = Time(0);
     displ      = 0;
@@ -24,7 +27,8 @@ Options g_waypoint::to_options () const{
     Options opt;
     opt.put("lon", x);
     opt.put("lat", y);
-    opt.put("alt", z);
+    if (have_alt()) opt.put("alt", z);
+    else opt.put<std::string>("alt", "");
     opt.put("prox_dist", prox_dist);
     opt.put("time", t);
     opt.put("symb", symb);
@@ -48,7 +52,9 @@ void g_waypoint::parse_from_options (Options const & opt){
     x = opt.get("lon", x);
     y = opt.get("y", y);
     y = opt.get("lat", y);
-    z = opt.get("alt", z);
+    if ((opt.get<std::string>("alt") == "") ||
+        (opt.get("alt", z)>ALT_CHECK)) clear_alt();
+    else z = opt.get("alt", z);
     prox_dist = opt.get("prox_dist", prox_dist);
     t = opt.get("time", t);
     symb = opt.get("symb", symb);
@@ -69,13 +75,23 @@ void g_waypoint::parse_from_options (Options const & opt){
     opt.warn_unused(used);
 }
 
+bool
+g_waypoint::have_alt() const{
+  return z<ALT_CHECK;
+}
+void
+g_waypoint::clear_alt(){
+  z=ALT_UNDEF;
+}
+
+
 /*********************************************************************/
 
 g_trackpoint::g_trackpoint(){
     x   = 0; 
     y   = 0; 
-    z   = 1e24; 
-    depth = 1e24;
+    z   = ALT_UNDEF; 
+    depth = ALT_UNDEF;
     start = false;
     t     = 0;
 }
@@ -84,8 +100,10 @@ Options g_trackpoint::to_options() const{
     Options opt;
     opt.put("lon", x);
     opt.put("lat", y);
-    opt.put("alt", z);
-    opt.put("depth", depth);
+    if (have_alt()) opt.put("alt", z);
+    else opt.put<std::string>("alt", "");
+    if (have_depth()) opt.put("depth", depth);
+    else opt.put<std::string>("depth", "");
     opt.put("start", start);
     opt.put("time", t);
     return opt;
@@ -98,7 +116,12 @@ void g_trackpoint::parse_from_options(Options const & opt){
     x = opt.get("lon", x);
     y = opt.get("y", y);
     y = opt.get("lat", y);
-    z = opt.get("alt", z);
+    if ((opt.get<std::string>("alt") == "") ||
+        (opt.get("alt", z)>ALT_CHECK)) clear_alt();
+    else z = opt.get("alt", z);
+    if ((opt.get<std::string>("depth") == "") ||
+        (opt.get("depth", z)>ALT_CHECK)) clear_depth();
+    else depth = opt.get("depth", z);
     depth = opt.get("depth", depth);
     start = opt.get("start", start);
     t = opt.get("time", t);
@@ -106,6 +129,23 @@ void g_trackpoint::parse_from_options(Options const & opt){
       "lon", "lat", "alt", "depth", "start", "time", "x", "y", ""
     };
     opt.warn_unused(used);
+}
+
+bool
+g_trackpoint::have_alt() const{
+  return z<ALT_CHECK;
+}
+void
+g_trackpoint::clear_alt(){
+  z=ALT_UNDEF;
+}
+bool
+g_trackpoint::have_depth() const{
+  return depth<ALT_CHECK;
+}
+void
+g_trackpoint::clear_depth(){
+  depth=ALT_UNDEF;
 }
 
 /*********************************************************************/

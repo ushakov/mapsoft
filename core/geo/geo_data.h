@@ -36,6 +36,9 @@ struct g_waypoint : dPoint {
     g_waypoint();
     Options to_options() const;
     void parse_from_options(Options const & opt);
+
+    bool have_alt() const;
+    void clear_alt();
 };
 
 /// single trackpoint
@@ -48,6 +51,11 @@ struct g_trackpoint : dPoint {
     g_trackpoint();
     Options to_options () const;
     void parse_from_options (Options const & opt);
+
+    bool have_alt() const;
+    void clear_alt();
+    bool have_depth() const;
+    void clear_depth();
 };
 
 /// reference point
@@ -87,6 +95,7 @@ struct g_waypoint_list : std::vector<g_waypoint>{
 
     /// get range in lon-lat coords
     dRect range() const;
+
 };
 
 /// track

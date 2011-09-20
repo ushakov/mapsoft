@@ -141,8 +141,8 @@ namespace xml {
 			f << "  <pt";
                         if (p->y != def_pt.y) f << " lat=" << fixed << setprecision(6) << p->y;
                         if (p->x != def_pt.x) f << " lon=" << fixed << setprecision(6) << p->x;
-                        if (p->z   < 1e20)    f << " alt=" << fixed << setprecision(1) << p->z;
-                        if (p->depth < 1e20)  f << " depth=" << fixed << setprecision(1) << p->depth;
+                        if (p->have_alt())    f << " alt=" << fixed << setprecision(1) << p->z;
+                        if (p->have_depth())  f << " depth=" << fixed << setprecision(1) << p->depth;
 			if (p->t != def_pt.t) f << " time=\"" << p->t << "\"";
                         if (p->start)         f << " start";
 			f << "/>\n";
@@ -166,7 +166,7 @@ namespace xml {
 			f << "  <pt";
                         if (p->y != def_pt.y)       f << " lat=" << fixed << setprecision(6) << p->y;
                         if (p->x != def_pt.x)       f << " lon=" << fixed << setprecision(6) << p->x;
-                        if (p->z   < 1e20)          f << " alt=" << fixed << setprecision(1) << p->z;
+                        if (p->have_alt())          f << " alt=" << fixed << setprecision(1) << p->z;
 			if (p->t != def_pt.t)       f << " time=\"" << p->t << "\"";
                         if (p->name != def_pt.name) f << " name=\"" << cnv.from_utf8(p->name) << "\"";
                         if (p->comm != def_pt.comm)             f << " comm=\"" << cnv.from_utf8(p->comm) << "\"";

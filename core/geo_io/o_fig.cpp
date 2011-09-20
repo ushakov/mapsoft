@@ -210,7 +210,7 @@ bool write(std::ostream & out, const geo_data & world, const Options & opt){
       int tx=int((p.x-minx)*kf), ty=int((maxy-p.y)*kf);
 
       out << "# WPT " << w->name << "\n";
-      if (w->z   < 1e20)                      out << "# alt:        " << fixed << setprecision(1) << w->z << "\n";
+      if (w->have_alt())                      out << "# alt:        " << fixed << setprecision(1) << w->z << "\n";
       if (w->t != def_pt.t)                   out << "# time:       " << w->t << "\n";
       if (w->comm != def_pt.comm)             out << "# comm:       " << w->comm << "\n";
       if (w->prox_dist != def_pt.prox_dist)   out << "# prox_dist:  " << fixed << setprecision(1) << w->prox_dist << "\n";
