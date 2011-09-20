@@ -160,4 +160,19 @@ class DlgTrk : public Gtk::Dialog{
 
 /********************************************************************/
 
+// dialog for Add/Edit Track actions
+class DlgShowPt : public Gtk::Dialog{
+    CoordBox *coord;
+    NomBox   *nom;
+
+    void jump(const dPoint p);
+    sigc::signal<void, dPoint> signal_jump_;
+
+  public:
+    DlgShowPt();
+
+    sigc::signal<void, dPoint> & signal_jump();
+    void show_all(dPoint & pt);
+};
+
 #endif

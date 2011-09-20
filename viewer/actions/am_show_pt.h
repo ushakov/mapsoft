@@ -8,61 +8,29 @@
 class ShowPt : public ActionMode {
 public:
     ShowPt (Mapview * mapview) : ActionMode(mapview) {
-      builder = Gtk::Builder::create_from_file(
-        "/usr/share/mapsoft/dialogs/show_pt.xml");
-      GETW("show_pt", dlg)
-      GETW("cancel", cancel)
-      GETWD("coord_box", coord);
-      GETWD("nom_box", nom);
 
-      coord->signal_jump().connect(
+      dlg.signal_jump().connect(
           sigc::mem_fun (this, &ShowPt::on_jump));
-      nom->signal_jump().connect(
-          sigc::mem_fun (this, &ShowPt::on_jump_to_map));
-      cancel->signal_clicked().connect(
-          sigc::mem_fun(this, &ShowPt::abort));
-      dlg->signal_delete_event().connect_notify(
-         sigc::hide(sigc::mem_fun(this, &ShowPt::abort)));
-      dlg->set_title(get_name());
-    }
-    ~ShowPt(){
-      delete dlg;
+      dlg.set_title(get_name());
     }
 
-    // Returns name of the mode as string.
-    virtual std::string get_name() {
-	return "Show point information";
-    }
+    std::string get_name() { return "Show point information"; }
 
-    // Activates this mode.
-    virtual void activate() { }
+    void abort() {dlg.hide_all();}
 
-    // Abandons any action in progress and deactivates mode.
-    virtual void abort() {dlg->hide();}
-
-    // Sends user click. Coordinates are in workplane's discrete system.
-    virtual void handle_click(iPoint p, const Gdk::ModifierType & state) {
+    void handle_click(iPoint p, const Gdk::ModifierType & state) {
       if (!mapview->have_reference){
         mapview->statusbar.push("No geo-reference", 0);
         return;
       }
+      mapview->rubber.clear();
+      mapview->rubber.add_src_mark(p);
 
       convs::map2pt cnv(mapview->reference,
         Datum("wgs84"), Proj("lonlat"), Options());
-
       dPoint pt(p);
       cnv.frw(pt);
-
-      mapview->rubber.clear();
-      mapview->rubber.add_src_mark(p);
-      dlg->show_all();
-      coord->set_ll(dPoint(pt));
-      nom->set_ll(dPoint(pt));
-    }
-
-    void on_jump_to_map(dPoint p){
-      coord->set_ll(p);
-      on_jump(p);
+      dlg.show_all(pt);
     }
 
     void on_jump(dPoint p){
@@ -76,11 +44,7 @@ public:
 
 
 private:
-    Glib::RefPtr<Gtk::Builder> builder;
-    Gtk::Dialog *dlg;
-    CoordBox *coord;
-    NomBox   *nom;
-    Gtk::Button *cancel;
+    DlgShowPt dlg;
 };
 
 #endif /* AM_SHOW_PTH */

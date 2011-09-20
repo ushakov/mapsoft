@@ -16,6 +16,8 @@ public:
 
     std::string get_name() { return "Edit Waypoint"; }
 
+    void abort() {dlg.hide_all();}
+
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       pt_num=find_wpt(p, &layer);
       if (pt_num < 0) return;
