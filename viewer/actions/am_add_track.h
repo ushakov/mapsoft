@@ -1,42 +1,26 @@
 #ifndef AM_ADD_TRACK_H
 #define AM_ADD_TRACK_H
 
-#include <sstream>
-#include <iomanip>
 #include "action_mode.h"
+#include "../widgets.h"
 
 class AddTrack : public ActionMode {
 public:
     AddTrack (Mapview * mapview) : ActionMode(mapview) {
-      builder = Gtk::Builder::create_from_file(
-        "/usr/share/mapsoft/dialogs/add_trk.xml");
-      GETW("add_trk", dlg)
-      GETW("comm", comm)
-      GETW("width", width)
-      GETW("fg", fg)
-      GETW("ok", ok)
-      GETW("info", info)
-      GETW("cancel", cancel)
-      ok->signal_clicked().connect(
-          sigc::mem_fun (this, &AddTrack::on_ok));
-      cancel->signal_clicked().connect(
-          sigc::mem_fun(this, &AddTrack::abort));
-      dlg->signal_delete_event().connect_notify(
-          sigc::hide(sigc::mem_fun(this, &AddTrack::abort)));
-      dlg->set_title(get_name());
+      dlg.signal_response().connect(
+        sigc::mem_fun (this, &AddTrack::on_result));
+      dlg.set_title(get_name());
     }
-    ~AddTrack(){
-      delete dlg;
-    }
-
 
     std::string get_name() { return "Add Track"; }
+
     void activate() { abort(); }
+
     void abort() {
-      new_track.clear();
-      new_track.comm="";
+      trk.clear();
+      trk.comm="";
       mapview->rubber.clear();
-      dlg->hide();
+      dlg.hide_all();
     }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
@@ -45,13 +29,13 @@ public:
            return;
          }
 
-         if (new_track.size() == 0){
-           trk2dlg();
-           dlg->show();
+         if (trk.size() == 0){
+           dlg.trk2dlg(&trk);
+           dlg.show_all();
          }
 
         if (state&Gdk::CONTROL_MASK){ // remove point
-          if (new_track.size()>0) new_track.pop_back();
+          if (trk.size()>0) trk.pop_back();
           if (mapview->rubber.size()>0){
             mapview->rubber.pop();
           }
@@ -76,52 +60,23 @@ public:
           g_trackpoint pt;
           pt.dPoint::operator=(p);
 	  cnv.frw(pt);
-	  new_track.push_back(pt);
+	  trk.push_back(pt);
         }
 
-	std::ostringstream st;
-	st << "Points: <b>"
-           << new_track.size() << "</b>, Length: <b>"
-           << std::setprecision(2) << std::fixed
-           << new_track.length()/1000 << "</b> km";
-        info->set_markup(st.str());
+        dlg.set_info(&trk);
     }
 
 private:
-    g_track new_track;
+    g_track trk;
+    DlgTrk dlg;
 
-    Glib::RefPtr<Gtk::Builder> builder;
-    Gtk::Dialog *dlg;
-    Gtk::Entry *comm;
-    Gtk::SpinButton *width;
-    Gtk::ColorButton *fg;
-    Gtk::Label *info;
-    Gtk::Button *ok, *cancel;
-
-    void on_ok(){
-      dlg2trk();
-      boost::shared_ptr<g_track> track(new g_track(new_track));
-      mapview->add_trks(track, false);
+    void on_result(int r){
+      if (r == Gtk::RESPONSE_OK){
+        dlg.dlg2trk(&trk);
+        boost::shared_ptr<g_track> track(new g_track(trk));
+        mapview->add_trks(track, false);
+      }
       abort();
-    }
-
-    void dlg2trk(){
-      new_track.comm = comm->get_text();
-      new_track.width = (int)width->get_value();
-      Gdk::Color c = fg->get_color();
-      new_track.color.value=
-        (((unsigned)c.get_red()   & 0xFF00) >> 8) +
-         ((unsigned)c.get_green() & 0xFF00) +
-        (((unsigned)c.get_blue()  & 0xFF00) << 8);
-    }
-    void trk2dlg(){
-      comm->set_text(new_track.comm);
-      width->set_value(new_track.width);
-      Gdk::Color c;
-      c.set_rgb((new_track.color.value & 0xFF)<<8,
-                (new_track.color.value & 0xFF00),
-                (new_track.color.value & 0xFF0000)>>8);
-      fg->set_color(c);
     }
 };
 

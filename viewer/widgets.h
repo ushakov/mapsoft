@@ -122,7 +122,7 @@ private:
 };
 
 /********************************************************************/
-
+// dialog for Add/Edit Waypoint actions
 class DlgWpt : public Gtk::Dialog{
     CoordBox * coord;
     Gtk::ColorButton *fg, *bg;
@@ -139,6 +139,23 @@ class DlgWpt : public Gtk::Dialog{
     sigc::signal<void, dPoint> signal_jump();
 
     void set_ll(dPoint p);
+};
+
+/********************************************************************/
+// dialog for Add/Edit Track actions
+class DlgTrk : public Gtk::Dialog{
+    Gtk::ColorButton *fg;
+    Gtk::Entry *comm;
+    Gtk::SpinButton *width;
+    Gtk::Label *info;
+    Gtk::Adjustment width_adj;
+
+  public:
+    DlgTrk();
+
+    void dlg2trk(g_track * trk) const;
+    void trk2dlg(const g_track * trk);
+    void set_info(const g_track * trk);
 };
 
 /********************************************************************/

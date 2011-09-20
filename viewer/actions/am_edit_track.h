@@ -1,41 +1,36 @@
 #ifndef AM_EDIT_TRACK_H
 #define AM_EDIT_TRACK_H
 
-#include <sstream>
-
 #include "action_mode.h"
-#include "../generic_dialog.h"
+#include "../widgets.h"
 
 class EditTrack : public ActionMode {
 public:
-    EditTrack (Mapview * mapview) : ActionMode(mapview) { }
+    EditTrack (Mapview * mapview) : ActionMode(mapview) {
+      dlg.signal_response().connect(
+        sigc::mem_fun (this, &EditTrack::on_result));
+      dlg.set_title(get_name());
+    }
 
     std::string get_name() { return "Edit Track"; }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      track = 0;
-      LayerTRK * layer;
       int d = find_tpt(p, &layer, true);
       if (d < 0) return;
-      track = layer->get_data();
+      g_track * track = layer->get_data();
 
-      std::ostringstream st;
-      st << "Editing track... "
-         << track->size() << " points, "
-         << track->length()/1000 << " km";
-      mapview->statusbar.push(st.str(),0);
-
-      mapview->gend.activate(get_name(), track->to_options(),
-        sigc::mem_fun(this, &EditTrack::on_result));
+      dlg.trk2dlg(track);
+      dlg.show_all();
     }
 
 private:
-    g_track       * track;
     LayerTRK      * layer;
+    DlgTrk        dlg;
 
-    void on_result(int r, const Options & o) {
-      if ((track==0) || (r!=0)) return;
-      track->parse_from_options(o);
+    void on_result(int r) {
+      dlg.hide_all();
+      if (r!=Gtk::RESPONSE_OK) return;
+      dlg.dlg2trk(layer->get_data());
       mapview->workplane.refresh_layer(layer);
     }
 };
