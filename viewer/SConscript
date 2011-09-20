@@ -9,7 +9,6 @@ e.Library("viewer", Split ("""
 	workplane.cpp widgets.cpp dataview.cpp actions/action_mode.cpp
         """))
 e.Prepend(LIBS=["viewer"])
-e.Prepend(CPPFLAGS="-export-dynamic")
 e.Program("mapsoft_mapview.cpp")
 
 #le.Program('mapsoft_googleview', "mapsoft_googleview.cpp")
@@ -18,5 +17,3 @@ e.Program("mapsoft_mapview.cpp")
 env.Install(env.bindir, Split("""
   mapsoft_mapview
 """))
-
-env.Install(env.datadir, "dialogs/")

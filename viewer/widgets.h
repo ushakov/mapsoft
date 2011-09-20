@@ -175,4 +175,16 @@ class DlgShowPt : public Gtk::Dialog{
     void show_all(dPoint & pt);
 };
 
+/********************************************************************/
+
+class DlgDownload : public Gtk::Dialog{
+  public:
+
+  Gtk::CheckButton *cb_w, *cb_a, *cb_o, *cb_off;
+  Gtk::Entry * e_dev;
+
+  DlgDownload();
+};
+
+
 #endif
