@@ -34,14 +34,25 @@ DataView::DataView (Mapview * M) : mapview(M) {
   LayerListButtons * trk_bu   = manage(new LayerListButtons);
   LayerListButtons * map_bu   = manage(new LayerListButtons);
 
-  /// Vboxes with layerlists and buttons
+  /// scrollwindows with layerlists
+  Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
+  Gtk::ScrolledWindow * scr_trk = manage(new Gtk::ScrolledWindow);
+  Gtk::ScrolledWindow * scr_map = manage(new Gtk::ScrolledWindow);
+  scr_wpt->add(M->wpt_ll);
+  scr_trk->add(M->trk_ll);
+  scr_map->add(M->map_ll);
+  scr_wpt->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+  scr_trk->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+  scr_map->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+
+  /// Vboxes with scrollwindows and buttons
   Gtk::VBox * wpt_vbox = manage(new Gtk::VBox);
   Gtk::VBox * trk_vbox = manage(new Gtk::VBox);
   Gtk::VBox * map_vbox = manage(new Gtk::VBox);
 
-  wpt_vbox->pack_start(M->wpt_ll, true, true);
-  trk_vbox->pack_start(M->trk_ll, true, true);
-  map_vbox->pack_start(M->map_ll, true, true);
+  wpt_vbox->pack_start(*scr_wpt, true, true);
+  trk_vbox->pack_start(*scr_trk, true, true);
+  map_vbox->pack_start(*scr_map, true, true);
 
   wpt_vbox->pack_end(*wpt_bu, false, false);
   trk_vbox->pack_end(*trk_bu, false, false);
@@ -57,21 +68,10 @@ DataView::DataView (Mapview * M) : mapview(M) {
   wpt_bu->jump->set_tooltip_text("Jump to selected waypoints");
   map_bu->jump->set_tooltip_text("Jump to selected map");
 
-  /// scrollwindows with vboxes
-  Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
-  Gtk::ScrolledWindow * scr_trk = manage(new Gtk::ScrolledWindow);
-  Gtk::ScrolledWindow * scr_map = manage(new Gtk::ScrolledWindow);
-  scr_wpt->add(*wpt_vbox);
-  scr_trk->add(*trk_vbox);
-  scr_map->add(*map_vbox);
-  scr_wpt->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-  scr_trk->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-  scr_map->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-
-  /// append scrollwindows to the Notebook
-  append_page(*scr_wpt, "WPT");
-  append_page(*scr_trk, "TRK");
-  append_page(*scr_map, "MAP");
+  /// append vboxes to the Notebook
+  append_page(*wpt_vbox, "WPT");
+  append_page(*trk_vbox, "TRK");
+  append_page(*map_vbox, "MAP");
   set_scrollable(false);
   set_size_request(150,-1);
 }
