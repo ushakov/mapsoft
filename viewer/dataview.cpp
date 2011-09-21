@@ -34,6 +34,20 @@ DataView::DataView (Mapview * M) : mapview(M) {
   LayerListButtons * trk_bu   = manage(new LayerListButtons);
   LayerListButtons * map_bu   = manage(new LayerListButtons);
 
+  wpt_bu->del->signal_clicked().connect(
+    sigc::mem_fun(this, &DataView::layer_del));
+  trk_bu->del->signal_clicked().connect(
+    sigc::mem_fun(this, &DataView::layer_del));
+  map_bu->del->signal_clicked().connect(
+    sigc::mem_fun(this, &DataView::layer_del));
+
+  wpt_bu->jump->signal_clicked().connect(
+    sigc::mem_fun(this, &DataView::layer_jump));
+  trk_bu->jump->signal_clicked().connect(
+    sigc::mem_fun(this, &DataView::layer_jump));
+  map_bu->jump->signal_clicked().connect(
+    sigc::mem_fun(this, &DataView::layer_jump));
+
   /// scrollwindows with layerlists
   Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
   Gtk::ScrolledWindow * scr_trk = manage(new Gtk::ScrolledWindow);
@@ -74,4 +88,56 @@ DataView::DataView (Mapview * M) : mapview(M) {
   append_page(*map_vbox, "MAP");
   set_scrollable(false);
   set_size_request(150,-1);
+}
+
+void
+DataView::layer_del(){
+  Gtk::TreeModel::iterator it;
+  switch (get_current_page()){
+    case 0: // WPT
+      it = mapview->wpt_ll.get_selection()->get_selected();
+      if (!it) break;
+      mapview->workplane.remove_layer(
+        it->get_value(mapview->wpt_ll.columns.layer).get());
+      mapview->wpt_ll.store->erase(it);
+      break;
+    case 1: // TRK
+      it = mapview->trk_ll.get_selection()->get_selected();
+      if (!it) break;
+      mapview->workplane.remove_layer(
+        it->get_value(mapview->trk_ll.columns.layer).get());
+      mapview->trk_ll.store->erase(it);
+    break;
+    case 2: // MAP
+      it = mapview->map_ll.get_selection()->get_selected();
+      if (!it) break;
+      mapview->workplane.remove_layer(
+        it->get_value(mapview->map_ll.columns.layer).get());
+      mapview->map_ll.store->erase(it);
+    break;
+  }
+  mapview->refresh();
+}
+
+void
+DataView::layer_jump(){
+  Gtk::TreeModel::iterator it;
+  switch (get_current_page()){
+    case 0: // WPT
+      it = mapview->wpt_ll.get_selection()->get_selected();
+      if (it) mapview->goto_wgs(
+        (*it->get_value(mapview->wpt_ll.columns.layer)->get_data())[0]);
+      break;
+    case 1: // TRK
+      it = mapview->trk_ll.get_selection()->get_selected();
+      if (it) mapview->goto_wgs(
+        (*it->get_value(mapview->trk_ll.columns.layer)->get_data())[0]);
+    break;
+    case 2: // MAP
+      it = mapview->map_ll.get_selection()->get_selected();
+      if (it) mapview->goto_wgs(
+        (*it->get_value(mapview->map_ll.columns.layer)->get_data())[0].center());
+    break;
+  }
+  mapview->refresh();
 }
