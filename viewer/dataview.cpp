@@ -48,6 +48,20 @@ DataView::DataView (Mapview * M) : mapview(M) {
   map_bu->jump->signal_clicked().connect(
     sigc::mem_fun(this, &DataView::layer_jump));
 
+  wpt_bu->up->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), true));
+  trk_bu->up->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), true));
+  map_bu->up->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), true));
+
+  wpt_bu->down->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), false));
+  trk_bu->down->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), false));
+  map_bu->down->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), false));
+
   /// scrollwindows with layerlists
   Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
   Gtk::ScrolledWindow * scr_trk = manage(new Gtk::ScrolledWindow);
@@ -140,4 +154,23 @@ DataView::layer_jump(){
     break;
   }
   mapview->refresh();
+}
+
+void
+DataView::layer_move(bool up){
+  Gtk::TreeModel::iterator it1, it2;
+  Gtk::TreeView * tree;
+  Glib::RefPtr<Gtk::ListStore> store;
+  switch (get_current_page()){
+    case 0: tree = &mapview->wpt_ll; store = mapview->wpt_ll.store; break;
+    case 1: tree = &mapview->trk_ll; store = mapview->trk_ll.store; break;
+    case 2: tree = &mapview->map_ll; store = mapview->map_ll.store; break;
+  }
+  it1 = it2 = tree->get_selection()->get_selected();
+  if (!it1) return;
+  if (up && (it1==store->children().begin())) return;
+  if (up) it2--; else it2++;
+  if (!it2) return;
+  store->iter_swap(it1, it2);
+  mapview->update_layers();
 }

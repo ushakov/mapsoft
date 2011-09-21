@@ -15,6 +15,8 @@ class DataView : public Gtk::Notebook {
     Mapview * mapview;
     void layer_del();
     void layer_jump();
+    void layer_move(bool up);
+
   public:
 
     DataView (Mapview * M);

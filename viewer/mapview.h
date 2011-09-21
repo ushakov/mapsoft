@@ -124,7 +124,10 @@ public:
 
     void layer_edited (const Gtk::TreeModel::Path& path,
                        const Gtk::TreeModel::iterator& iter) {
+      update_layers();
+    }
 
+    void update_layers() {
       Gtk::TreeNodeChildren::const_iterator i;
       bool need_refresh = false;
 
