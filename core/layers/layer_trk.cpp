@@ -74,7 +74,7 @@ LayerTRK::draw(const iPoint origin, iImage & image){
   int w = data->width;
   int arr_w = w * 2.0;
   int dot_w = w * 0.5;
-  int arr_dist = w * 10; // distance between arrows
+  int arr_dist = w * 10; // minimal segment with arrow
   Color color = data->color;
 
   cr->set_color(color.value);
@@ -82,7 +82,6 @@ LayerTRK::draw(const iPoint origin, iImage & image){
 
   dPoint po;
   vector<g_trackpoint>::const_iterator pt;
-  double len_cnt;
   for (pt = data->begin(); pt!= data->end(); pt++){
     dPoint p(*pt); cnv.bck(p);  p-=origin;
     if (pt == data->begin()) po=p;
@@ -92,25 +91,21 @@ LayerTRK::draw(const iPoint origin, iImage & image){
     if (!rect_intersect(r, image.range()).empty()){
       if ((pt == data->begin()) || pt->start){
         cr->circle(p, dot_w);
-        len_cnt=0;
       }
       else {
         cr->move_to(po);
         cr->line_to(p);
+        cr->circle(p, dot_w); // draw dot
 
-        if (len_cnt < arr_dist){ // draw dot
-          cr->circle(p, dot_w);
-          len_cnt+=pdist(po-p);
-        }
-        else { // draw arrow
+        if (pdist(po-p) > arr_dist){ // draw arrow
+          dPoint p0=(p+po)/2;
           dPoint dp = pnorm(po-p) * arr_w;
-          dPoint p1 = p + dp + dPoint(dp.y, -dp.x) * 0.5;
-          dPoint p2 = p + dp - dPoint(dp.y, -dp.x) * 0.5;
-          cr->move_to(p);
+          dPoint p1 = p0 + dp + dPoint(dp.y, -dp.x) * 0.5;
+          dPoint p2 = p0 + dp - dPoint(dp.y, -dp.x) * 0.5;
+          cr->move_to(p0);
           cr->line_to(p1);
           cr->line_to(p2);
-          cr->line_to(p);
-          len_cnt=0;
+          cr->line_to(p0);
         }
       }
     }
