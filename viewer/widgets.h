@@ -176,7 +176,6 @@ class DlgShowPt : public Gtk::Dialog{
 };
 
 /********************************************************************/
-
 class DlgDownload : public Gtk::Dialog{
   public:
 
@@ -185,6 +184,15 @@ class DlgDownload : public Gtk::Dialog{
 
   DlgDownload();
 };
+
+/********************************************************************/
+class DlgDeleteWpt : public Gtk::Dialog{
+    Gtk::Label * label;
+  public:
+    DlgDeleteWpt();
+    void set_name(const std::string & name);
+};
+
 
 
 #endif

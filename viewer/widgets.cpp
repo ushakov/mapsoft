@@ -294,6 +294,8 @@ NomBox::signal_jump(){
 DlgWpt::DlgWpt(): fs_adj(0,0,100), ps_adj(0,0,100){
   add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
   add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  signal_response().connect(
+      sigc::hide(sigc::mem_fun(this, &DlgWpt::hide_all)));
 
   // Labels
   Gtk::Label *l_name = manage(new Gtk::Label("Name:",        Gtk::ALIGN_RIGHT));
@@ -412,6 +414,8 @@ DlgWpt::set_ll(dPoint p){
 DlgTrk::DlgTrk(): width_adj(0,0,100){
   add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
   add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  signal_response().connect(
+      sigc::hide(sigc::mem_fun(this, &DlgTrk::hide_all)));
 
   // Labels
   Gtk::Label *l_comm  = manage(new Gtk::Label("Name:",       Gtk::ALIGN_RIGHT));
@@ -480,6 +484,8 @@ DlgTrk::set_info(const g_track * trk){
 
 DlgShowPt::DlgShowPt(){
   add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  signal_response().connect(
+      sigc::hide(sigc::mem_fun(this, &DlgShowPt::hide_all)));
 
   coord = manage(new CoordBox);
   nom = manage(new NomBox);
@@ -491,8 +497,6 @@ DlgShowPt::DlgShowPt(){
       sigc::mem_fun (this, &DlgShowPt::jump));
   nom->signal_jump().connect(
       sigc::mem_fun (this, &DlgShowPt::jump));
-  signal_response().connect(
-      sigc::hide(sigc::mem_fun(this, &DlgShowPt::hide_all)));
 }
 
 sigc::signal<void, dPoint> &
@@ -518,6 +522,8 @@ DlgShowPt::show_all(dPoint & p){
 DlgDownload::DlgDownload(){
   add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
   add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  signal_response().connect(
+      sigc::hide(sigc::mem_fun(this, &DlgDownload::hide_all)));
 
   cb_w   = manage(new Gtk::CheckButton("Waypoints"));
   cb_a   = manage(new Gtk::CheckButton("Active log"));
@@ -543,4 +549,26 @@ DlgDownload::DlgDownload(){
   table->attach(*cb_off, 0,2, 2,3, Gtk::FILL, Gtk::SHRINK, 3,3);
 
   get_vbox()->add(*table);
+}
+
+/********************************************************************/
+
+DlgDeleteWpt::DlgDeleteWpt(){
+  add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
+  add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  signal_response().connect(
+      sigc::hide(sigc::mem_fun(this, &DlgDeleteWpt::hide_all)));
+  set_title("Delete Waypoint");
+  label = manage(new Gtk::Label("", 0.0, 0.5));
+  label->set_padding(15,10);
+  label->set_alignment(Gtk::ALIGN_LEFT);
+  get_vbox()->add(*label);
+}
+
+void
+DlgDeleteWpt::set_name(const std::string & name){
+  assert(label);
+  std::ostringstream s;
+  s << "Delete waypoint <b>" << name << "</b>?";
+  label->set_markup(s.str());
 }

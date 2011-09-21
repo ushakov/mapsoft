@@ -19,7 +19,7 @@ public:
 
     void abort() {
       mapview->rubber.clear();
-      dlg.hide();
+      dlg.hide_all();
       wpt.name=wpt.comm="";
       wpt.clear_alt();
       dlg.wpt2dlg(&wpt);

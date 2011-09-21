@@ -30,7 +30,6 @@ private:
     DlgTrk        dlg;
 
     void on_result(int r) {
-      dlg.hide_all();
       if (r!=Gtk::RESPONSE_OK) return;
       dlg.dlg2trk(layer->get_data());
       mapview->workplane.refresh_layer(layer);

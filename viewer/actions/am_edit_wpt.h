@@ -16,7 +16,7 @@ public:
 
     std::string get_name() { return "Edit Waypoint"; }
 
-    void abort() {dlg.hide_all();}
+    void abort() { dlg.hide_all(); }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       pt_num=find_wpt(p, &layer);
@@ -33,7 +33,6 @@ private:
     LayerWPT * layer;
 
     void on_result(int r) {
-      dlg.hide_all();
       mapview->rubber.clear();
       if ((pt_num<0) || (r!=Gtk::RESPONSE_OK)) return;
       dlg.dlg2wpt(layer->get_pt(pt_num));

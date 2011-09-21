@@ -4,28 +4,6 @@
 #include "action_mode.h"
 #include <sstream>
 
-class DeleteDialog : public Gtk::Dialog{
-    Gtk::Label * label;
-  public:
-    DeleteDialog(){
-      add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
-      add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-      set_title("Delete Waypoint");
-
-      label = manage(new Gtk::Label("", 0.0, 0.5));
-      label->set_padding(15,10);
-      label->set_alignment(Gtk::ALIGN_LEFT);
-      get_vbox()->add(*label);
-    }
-
-    void set_name(const std::string & name){
-      assert(label);
-      std::ostringstream s;
-      s << "Delete waypoint <b>" << name << "</b>?";
-      label->set_markup(s.str());
-    }
-};
-
 class DeleteWaypoint : public ActionMode {
 public:
     DeleteWaypoint (Mapview * mapview) : ActionMode(mapview) {
@@ -45,10 +23,9 @@ public:
 private:
     int pt_num;
     LayerWPT * layer;
-    DeleteDialog dlg;
+    DlgDeleteWpt dlg;
 
     void on_result(int r) {
-      dlg.hide_all();
       if ((r != Gtk::RESPONSE_OK) || (pt_num<0)) return;
       layer->get_data()->erase(layer->get_data()->begin() + pt_num);
       mapview->workplane.refresh_layer(layer);

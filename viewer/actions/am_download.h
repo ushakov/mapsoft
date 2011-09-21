@@ -25,7 +25,6 @@ public:
 
     void on_response(int r){
 
-      dlg.hide_all();
       if (r!=Gtk::RESPONSE_OK) return;
 
       geo_data world;
