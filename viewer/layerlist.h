@@ -124,7 +124,8 @@ public:
 	Gtk::TreeModel::Row row = *it;
         // note: signal_row_changed() is emitted three times from here:
 	row[columns.checked] = true;
-	row[columns.comm]    = data->comm;
+	if (data->size() == 1) row[columns.comm] = (*data)[0].comm;
+	else row[columns.comm] = data->comm;
 	row[columns.layer]   = layer;
 	row[columns.data]    = data;
     }

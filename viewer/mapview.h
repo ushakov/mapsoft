@@ -146,6 +146,9 @@ public:
           workplane.set_layer_depth(layer.get(), d);
           need_refresh=true;
         }
+        std::string comm = (*i)[wpt_ll.columns.comm];
+        if (comm!=layer->get_data()->comm)
+          layer->get_data()->comm = comm;
         d++;
       }
 
@@ -163,6 +166,9 @@ public:
           workplane.set_layer_depth(layer.get(), d);
           need_refresh=true;
         }
+        std::string comm = (*i)[trk_ll.columns.comm];
+        if (comm!=layer->get_data()->comm)
+          layer->get_data()->comm = comm;
         d++;
       }
 
@@ -180,6 +186,15 @@ public:
           workplane.set_layer_depth(layer.get(), d);
           need_refresh=true;
         }
+        std::string comm = (*i)[map_ll.columns.comm];
+        g_map_list * ml = layer->get_data();
+        if (ml->size()==1){
+          if (comm!=(*ml)[0].comm) (*ml)[0].comm = comm;
+        }
+        else {
+          if (comm!=ml->comm) ml->comm = comm;
+        }
+
         d++;
       }
       if (need_refresh) refresh();
