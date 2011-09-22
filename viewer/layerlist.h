@@ -41,11 +41,13 @@ public:
     MapLLCols() {
 	add(checked);
 	add(comm);
+	add(weight);
 	add(layer);
 	add(data);
     }
     Gtk::TreeModelColumn<bool> checked;
     Gtk::TreeModelColumn<std::string> comm;
+    Gtk::TreeModelColumn<Pango::Weight> weight;
     Gtk::TreeModelColumn<boost::shared_ptr<LayerGeoMap> > layer;
     Gtk::TreeModelColumn<boost::shared_ptr<g_map_list> > data;
 };
@@ -112,7 +114,14 @@ public:
 	store = Gtk::ListStore::create(columns);
 	set_model(store);
 	append_column_editable("V", columns.checked);
-	append_column_editable("Layer", columns.comm);
+	int comm_cell_n = append_column_editable("V", columns.comm);
+
+        Gtk::TreeViewColumn* comm_column = get_column(comm_cell_n - 1);
+        Gtk::CellRendererText* comm_cell =
+          (Gtk::CellRendererText*)get_column_cell_renderer(comm_cell_n - 1);
+        if (comm_column && comm_cell)
+          comm_column->add_attribute(comm_cell->property_weight(), columns.weight);
+
 	set_enable_search(false);
         set_headers_visible(false);
         set_reorderable(false);
@@ -122,10 +131,15 @@ public:
                     const boost::shared_ptr<g_map_list> data) {
 	Gtk::TreeModel::iterator it = store->append();
 	Gtk::TreeModel::Row row = *it;
-        // note: signal_row_changed() is emitted three times from here:
 	row[columns.checked] = true;
-	if (data->size() == 1) row[columns.comm] = (*data)[0].comm;
-	else row[columns.comm] = data->comm;
+	if (data->size() == 1){
+          row[columns.comm] = (*data)[0].comm;
+          row[columns.weight] = Pango::WEIGHT_NORMAL;
+        }
+	else{
+          row[columns.comm] = data->comm;
+          row[columns.weight] = Pango::WEIGHT_BOLD;
+        }
 	row[columns.layer]   = layer;
 	row[columns.data]    = data;
     }
