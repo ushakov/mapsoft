@@ -34,6 +34,27 @@ DataView::DataView (Mapview * M) : mapview(M) {
   LayerListButtons * trk_bu   = manage(new LayerListButtons);
   LayerListButtons * map_bu   = manage(new LayerListButtons);
 
+  wpt_bu->up->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), true));
+  trk_bu->up->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), true));
+  map_bu->up->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), true));
+
+  wpt_bu->down->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), false));
+  trk_bu->down->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), false));
+  map_bu->down->signal_clicked().connect(
+    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), false));
+
+  wpt_bu->save->signal_clicked().connect(
+    sigc::mem_fun(this, &DataView::layer_save));
+  trk_bu->save->signal_clicked().connect(
+    sigc::mem_fun(this, &DataView::layer_save));
+  map_bu->save->signal_clicked().connect(
+    sigc::mem_fun(this, &DataView::layer_save));
+
   wpt_bu->del->signal_clicked().connect(
     sigc::mem_fun(this, &DataView::layer_del));
   trk_bu->del->signal_clicked().connect(
@@ -48,19 +69,8 @@ DataView::DataView (Mapview * M) : mapview(M) {
   map_bu->jump->signal_clicked().connect(
     sigc::mem_fun(this, &DataView::layer_jump));
 
-  wpt_bu->up->signal_clicked().connect(
-    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), true));
-  trk_bu->up->signal_clicked().connect(
-    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), true));
-  map_bu->up->signal_clicked().connect(
-    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), true));
-
-  wpt_bu->down->signal_clicked().connect(
-    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), false));
-  trk_bu->down->signal_clicked().connect(
-    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), false));
-  map_bu->down->signal_clicked().connect(
-    sigc::bind(sigc::mem_fun(this, &DataView::layer_move), false));
+  save_dlg.signal_response().connect(
+    sigc::mem_fun(this, &DataView::on_layer_save));
 
   /// scrollwindows with layerlists
   Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
@@ -163,4 +173,38 @@ DataView::layer_move(bool up){
   if (!it2) return;
   store->iter_swap(it1, it2);
   mapview->update_layers();
+}
+
+void
+DataView::layer_save(){
+  save_dlg.show_all();
+}
+
+void
+DataView::on_layer_save(int r){
+  save_dlg.hide_all();
+
+  if (r!=Gtk::RESPONSE_OK) return;
+  std::string fname=save_dlg.get_filename();
+  geo_data world;
+
+  Gtk::TreeModel::iterator it;
+  switch (get_current_page()){
+    case 0: // WPT
+      it = mapview->wpt_ll.get_selection()->get_selected();
+      if (it) world.wpts.push_back(
+        *it->get_value(mapview->wpt_ll.columns.layer)->get_data());
+      break;
+    case 1: // TRK
+      it = mapview->trk_ll.get_selection()->get_selected();
+      if (it) world.trks.push_back(
+        *it->get_value(mapview->trk_ll.columns.layer)->get_data());
+    break;
+    case 2: // MAP
+      it = mapview->map_ll.get_selection()->get_selected();
+      if (it) world.maps.push_back(
+        *it->get_value(mapview->map_ll.columns.layer)->get_data());
+    break;
+  }
+  io::out(fname, world, Options());
 }
