@@ -288,7 +288,7 @@ public:
     }
 
     void refresh () {
-std::cerr << "REFRESH\n";
+//std::cerr << "REFRESH\n";
        viewer.redraw();
     }
 
