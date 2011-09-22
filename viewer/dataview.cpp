@@ -16,9 +16,9 @@ LayerListButtons::LayerListButtons(){
 
   up->set_tooltip_text("Move up");
   down->set_tooltip_text("Move down");
-  save->set_tooltip_text("Save selected data");
-  del->set_tooltip_text("Delete selected data");
-  jump->set_tooltip_text("Jump to selected data");
+  save->set_tooltip_text("Save");
+  del->set_tooltip_text("Delete");
+  jump->set_tooltip_text("Jump to");
 
   add(*up);
   add(*down);
@@ -85,16 +85,6 @@ DataView::DataView (Mapview * M) : mapview(M) {
   wpt_vbox->pack_end(*wpt_bu, false, false);
   trk_vbox->pack_end(*trk_bu, false, false);
   map_vbox->pack_end(*map_bu, false, false);
-
-  trk_bu->save->set_tooltip_text("Save selected tracks");
-  wpt_bu->save->set_tooltip_text("Save selected waypoints");
-  map_bu->save->set_tooltip_text("Save selected maps");
-  trk_bu->del->set_tooltip_text("Delete selected tracks");
-  wpt_bu->del->set_tooltip_text("Delete selected waypoints");
-  map_bu->del->set_tooltip_text("Delete selected maps");
-  trk_bu->jump->set_tooltip_text("Jump to selected track");
-  wpt_bu->jump->set_tooltip_text("Jump to selected waypoints");
-  map_bu->jump->set_tooltip_text("Jump to selected map");
 
   /// append vboxes to the Notebook
   append_page(*wpt_vbox, "WPT");
