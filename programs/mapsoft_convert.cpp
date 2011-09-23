@@ -106,8 +106,8 @@ int main(int argc, char *argv[]) {
 // all these things -> io::filters ?
   io::skip(world, opts);
 
-  dPoint shift_maps = opts.get("shift_maps", dPoint(0,0));
-  if (shift_maps !=1){
+  if (opts.exists("shift_maps")){
+    dPoint shift_maps = opts.get("shift_maps", dPoint(0,0));
     for (vector<g_map_list>::iterator ml=world.maps.begin(); ml!=world.maps.end(); ml++){
       for (vector<g_map>::iterator m=ml->begin(); m!=ml->end(); m++){
         *m+=shift_maps;
