@@ -2,11 +2,17 @@
 #define AM_EDIT_TPT_H
 
 #include "action_mode.h"
-#include "../generic_dialog.h"
+#include "../widgets.h"
 
 class EditTrackpoint : public ActionMode {
 public:
-    EditTrackpoint (Mapview * mapview) : ActionMode(mapview) { }
+    EditTrackpoint (Mapview * mapview) : ActionMode(mapview) {
+      dlg.signal_jump().connect(
+          sigc::mem_fun (this, &EditTrackpoint::on_jump));
+      dlg.signal_response().connect(
+        sigc::mem_fun (this, &EditTrackpoint::on_result));
+      dlg.set_title(get_name());
+    }
 
     std::string get_name() { return "Edit Trackpoint"; }
 
@@ -14,18 +20,27 @@ public:
       int pt_num = find_tpt(p, &layer);
       if (pt_num < 0) return;
       tpt = layer->get_pt(pt_num);
-      mapview->gend.activate(get_name(), tpt->to_options(),
-        sigc::mem_fun(this, &EditTrackpoint::on_result));
+      dlg.show_all();
+      dlg.tpt2dlg(tpt);
     }
 
 private:
     g_trackpoint * tpt;
     LayerTRK * layer;
+    DlgTrkPt dlg;
 
-    void on_result(int r, const Options & o) {
-      if ((!tpt) || (r!=0)) return;
-      tpt->parse_from_options(o);
+    void on_result(int r) {
+      if (r!=Gtk::RESPONSE_OK) return;
+      dlg.dlg2tpt(tpt);
       mapview->workplane.refresh_layer(layer);
+    }
+    void on_jump(dPoint p){
+      convs::map2pt cnv(mapview->reference,
+        Datum("wgs84"), Proj("lonlat"), Options());
+      cnv.bck(p);
+      mapview->rubber.clear();
+      mapview->viewer.set_center(p);
+      mapview->rubber.add_src_mark(p);
     }
 };
 
