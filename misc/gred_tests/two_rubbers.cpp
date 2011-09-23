@@ -18,7 +18,7 @@ int main(int argc, char **argv){
     rubber1.add_src_sq(p, 3);
     rubber1.add_dst_sq(3);
     rubber1.add_rect(p);
-    rubber1.add_diag(p);
+    rubber1.add_line(p);
 
     ActionManager AM(&viewer);
     ActionTestLine A(&rubber2);

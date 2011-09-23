@@ -81,10 +81,10 @@ public:
   /// add segment to a rubber
   void add(const RubberSegment & s);
   void add(const iPoint & p1, const iPoint & p2,
-           const rubbfl_t flags);
+           const rubbfl_t flags = RUBBFL_PLANE);
   void add(const int x1, const int y1,
            const int x2, const int y2,
-           const rubbfl_t flags);
+           const rubbfl_t flags = RUBBFL_PLANE);
 
   /// remove the last segment from the rubber and get it
   RubberSegment pop(void);
@@ -105,9 +105,11 @@ public:
   void add_src_sq(const iPoint & p, int size=5);    // square mark on the plane
   void add_src_mark(const iPoint & p, int size=5);  // mark with cross and circle on the plane
   void add_dst_sq(int size=5);                 // square mark around the mouse
-  void add_diag(const iPoint & p);             // line from the plane point p to the mouse
-  void add_rect(const iPoint & p);             // rectangle from the plane point p to the mouse
-  void add_ell(const iPoint & p);              // ellip
+  void add_line(const iPoint & p);                     // line from p to mouse
+  void add_line(const iPoint & p1, const iPoint & p2); // line from p1 to p2
+  void add_rect(const iPoint & p);                     // rectangle from p to mouse
+  void add_rect(const iPoint & p1, const iPoint & p2); // rectangle from p1 to p2
+  void add_ell(const iPoint & p);                      // ellip
   void add_ellc(const iPoint & p);
   void add_circ(const iPoint & p);
   void add_circc(const iPoint & p);

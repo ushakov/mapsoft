@@ -236,8 +236,13 @@ Rubber::add_dst_sq(int size){
 }
 
 void
-Rubber::add_diag(const iPoint & p){
+Rubber::add_line(const iPoint & p){
   add(p, iPoint(0,0), RUBBFL_MOUSE_P2);
+}
+
+void
+Rubber::add_line(const iPoint & p1, const iPoint & p2){
+  add(p1, p2);
 }
 
 void
@@ -246,6 +251,14 @@ Rubber::add_rect(const iPoint & p){
   add(iPoint(p.x,0), iPoint(0,0), RUBBFL_MOUSE_P1Y | RUBBFL_MOUSE_P2);
   add(iPoint(0,p.y), p, RUBBFL_MOUSE_P1X);
   add(iPoint(p.x,0), p, RUBBFL_MOUSE_P1Y);
+}
+
+void
+Rubber::add_rect(const iPoint & p1, const iPoint & p2){
+  add(p1, iPoint(p1.x,p2.y));
+  add(iPoint(p1.x,p2.y), p2);
+  add(p2, iPoint(p2.x,p1.y));
+  add(iPoint(p2.x,p1.y), p1);
 }
 
 void

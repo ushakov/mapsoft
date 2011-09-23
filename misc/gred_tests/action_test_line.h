@@ -47,7 +47,7 @@ class ActionTestLine : public Action{
           s.p2 = p;
           rubber->add(s);
         }
-        rubber->add_diag(p);
+        rubber->add_line(p);
         data.push_back(p);
       }
     }

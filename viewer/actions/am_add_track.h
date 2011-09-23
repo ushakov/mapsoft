@@ -52,7 +52,7 @@ public:
             s.p2 = p;
             mapview->rubber.add(s);
           }
-          mapview->rubber.add_diag(p);
+          mapview->rubber.add_line(p);
           g_map map = mapview->reference;
           convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
 

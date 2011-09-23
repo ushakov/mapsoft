@@ -27,7 +27,7 @@ public:
           wpt = layer->get_pt(pt_num);
           mapview->rubber.add_src_sq(p, 2);
           mapview->rubber.add_dst_sq(2);
-          mapview->rubber.add_diag(p);
+          mapview->rubber.add_line(p);
           mystate=1;
         } else { // move point
           convs::map2pt cnv(layer->get_cnv());

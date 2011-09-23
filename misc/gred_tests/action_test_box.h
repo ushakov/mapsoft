@@ -21,7 +21,7 @@ class ActionTestBox : public Action{
       rubber->add_src_sq(p, 3);
       rubber->add_dst_sq(3);
       rubber->add_rect(p);
-      rubber->add_diag(p);
+      rubber->add_line(p);
     } else {
       rubber->clear();
     }

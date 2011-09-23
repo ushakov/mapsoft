@@ -32,16 +32,16 @@ public:
           if ((pt_num > 0)&&(!tpt->start)){
             dPoint p1 = *layer->get_pt(pt_num-1);
             cnv.bck(p1);
-            mapview->rubber.add_diag(p1);
+            mapview->rubber.add_line(p1);
           }
           if ((pt_num < layer->get_data()->size() - 1)&&
               (!layer->get_pt(pt_num+1)->start)){
             dPoint p1 = *layer->get_pt(pt_num+1);
             cnv.bck(p1);
-            mapview->rubber.add_diag(p1);
+            mapview->rubber.add_line(p1);
           }
           if (mapview->rubber.size()==0){
-            mapview->rubber.add_diag(p);
+            mapview->rubber.add_line(p);
           }
           mystate=1;
         } else { // move point
