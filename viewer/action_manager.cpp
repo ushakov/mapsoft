@@ -20,7 +20,6 @@
 #include "actions/am_add_track.h"
 #include "actions/am_mark_trk.h"
 
-#include "actions/am_make_tiles.h"
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
 
@@ -53,7 +52,6 @@ ActionManager::ActionManager (Mapview * mapview_)
 
     ADD_ACT(ActionModeNone,  "Misc")
     ADD_ACT(SaveImage,       "Misc")
-    ADD_ACT(MakeTiles,       "Misc")
     ADD_ACT(ShowPt,          "Misc")
 
     mapview->actions->add(Gtk::Action::create("MenuFile", "_File"));
