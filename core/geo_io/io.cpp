@@ -62,35 +62,39 @@ namespace io {
 			return true;
 		}
 
-		ifstream in(name.c_str());
-		char c;
-		// определяем формат файла. Очень просто - берем
-		// первый не-пробел и смотрим
-		do {in >> c;} while ((c==' ')||(c=='\t')||
-							 (c=='\r')||(c=='\n'));
-		switch (c){
-		case '<':
+		if (testext(name, ".xml")){
 			cerr << "Reading data from XML file " << name << "\n";
 			if (!xml::read_file (name.c_str(), world, opt)){
 				cerr << "Error.\n";
 				return false;
 			}
 			return true;
-		case '[':
+		}
+		if (testext(name, ".gpx")){
+			cerr << "Reading data from GPX file " << name << "\n";
+			if (!gpx::read_file (name.c_str(), world, opt)){
+				cerr << "Error.\n";
+				return false;
+			}
+			return true;
+		}
+		if (testext(name, ".gu")){
 			cerr << "Reading data from Garmin-utils file " << name << "\n";
 			if (!gu::read_file (name.c_str(), world, opt)){
 				cerr << "Error.\n";
 				return false;
 			}
 			return true;
-		case 'O':
-			cerr << "Reading data from OziExplorer file " << name << "\n";
+		}
+		if ((testext(name, ".plt")) || (testext(name, ".wpt")) || (testext(name, ".map"))){
+			cerr << "Reading data from Ozi file " << name << "\n";
 			if (!oe::read_file (name.c_str(), world, opt)){
 				cerr << "Error.\n";
 				return false;
 			}
 			return true;
-		case '#': {
+		}
+		if (testext(name, ".fig")){
 			cerr << "Reading data from Fig file " << name << "\n";
                         fig::fig_world F;
                         fig::read(name.c_str(), F);
@@ -98,11 +102,10 @@ namespace io {
                         fig::get_wpts(F, m, world);
                         fig::get_trks(F, m, world);
                         fig::get_maps(F, m, world);
-			return true; }
-		default:
-			cerr << "Unknown format in file " << name << "\n";
-			return false;
-		}
+			return true;
+                }
+		cerr << "Unknown format in file " << name << "\n";
+		return false;
 	}
 
 	void in(list<string> const & names, geo_data & world, const Options & opt)
@@ -146,6 +149,13 @@ namespace io {
 		
 			cerr << "Writing to XML file " << outfile << "\n";
 			xml::write_file (outfile.c_str(), world, opt);
+			return;
+		}
+
+		// Запись GPX-файла
+		if (testext(outfile, ".gpx")){
+			cerr << "Writing to GPX file " << outfile << "\n";
+			gpx::write_file (outfile.c_str(), world, opt);
 			return;
 		}
 		

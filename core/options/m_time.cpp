@@ -48,6 +48,8 @@ Time::Time(const std::string & str){
   //               "yy-mm-dd HH:MM:SS"
   //               "yyyy-mm-dd HH:MM"
   //               "yyyy-mm-dd"
+  //               "yyyy-mm-ddThh:mm:ssZ -- gpx format
+
   using namespace boost::spirit::classic;
   struct tm ts;
   ts.tm_hour=0;
@@ -58,11 +60,11 @@ Time::Time(const std::string & str){
       uint_p[assign_a(ts.tm_year)] >> '-' >>
       uint_p[assign_a(ts.tm_mon)]  >> '-' >>
       uint_p[assign_a(ts.tm_mday)] >>
-      !(+blank_p >>
+      !((+blank_p | 'T') >>
         uint_p[assign_a(ts.tm_hour)] >> ':' >>
         uint_p[assign_a(ts.tm_min)]  >>
         !(':' >> uint_p[assign_a(ts.tm_sec)])
-       ) >> *space_p
+       ) >> !ch_p('Z') >> *space_p
       ).full){
     ts.tm_mon-=1;
     if (ts.tm_year>1900) ts.tm_year-=1900;
