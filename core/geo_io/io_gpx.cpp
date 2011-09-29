@@ -82,6 +82,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
 #define TYPE_ELEM      1
 #define TYPE_ELEM_END 15
 #define TYPE_TEXT      3
+#define TYPE_SWS      14
 
 #define NAMECMP(x) (xmlStrcasecmp(name,(const xmlChar *)x)==0)
 #define GETATTR(x) (const char *)xmlTextReaderGetAttribute(reader, (const xmlChar *)x)
@@ -103,7 +104,8 @@ read_wpt_node(xmlTextReaderPtr reader, geo_data & world){
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
 
-    if (NAMECMP("ele")){
+    if (type == TYPE_SWS) continue;
+    else if (NAMECMP("ele")){
       if (type == TYPE_ELEM) is_ele = true;
       if (type == TYPE_ELEM_END) is_ele = false;
     }
@@ -129,7 +131,7 @@ read_wpt_node(xmlTextReaderPtr reader, geo_data & world){
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in wpt (type: " << type << ")\n";
     }
   }
   if (world.wpts.size()<1) world.wpts.push_back(g_waypoint_list());
@@ -154,7 +156,8 @@ read_trkpt_node(xmlTextReaderPtr reader, g_track & trk, bool start){
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
 
-    if (NAMECMP("ele")){
+    if (type == TYPE_SWS) continue;
+    else if (NAMECMP("ele")){
       if (type == TYPE_ELEM) is_ele = true;
       if (type == TYPE_ELEM_END) is_ele = false;
     }
@@ -173,7 +176,7 @@ read_trkpt_node(xmlTextReaderPtr reader, g_track & trk, bool start){
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in trkpt (type: " << type << ")\n";
     }
   }
   pt.start = start;
@@ -194,7 +197,8 @@ read_trkseg_node(xmlTextReaderPtr reader, g_track & trk){
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
 
-    if (NAMECMP("trkpt") && (type == TYPE_ELEM)){
+    if (type == TYPE_SWS) continue;
+    else if (NAMECMP("trkpt") && (type == TYPE_ELEM)){
       read_trkpt_node(reader, trk, start);
       start=false;
     }
@@ -202,7 +206,7 @@ read_trkseg_node(xmlTextReaderPtr reader, g_track & trk){
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in trkseg (type: " << type << ")\n";
     }
   }
   return 1;
@@ -211,6 +215,7 @@ read_trkseg_node(xmlTextReaderPtr reader, g_track & trk){
 int
 read_trk_node(xmlTextReaderPtr reader, geo_data & world){
   g_track trk;
+  bool is_name=false;
 
   while(1){
     int ret =xmlTextReaderRead(reader);
@@ -221,14 +226,22 @@ read_trk_node(xmlTextReaderPtr reader, geo_data & world){
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
 
-    if (NAMECMP("trkseg") && (type == TYPE_ELEM)){
+    if (type == TYPE_SWS) continue;
+    else if (NAMECMP("trkseg") && (type == TYPE_ELEM)){
       read_trkseg_node(reader, trk);
+    }
+    else if (NAMECMP("name")){
+     if (type == TYPE_ELEM) is_name = true;
+     if (type == TYPE_ELEM_END) is_name = false;
+    }
+    else if (type == TYPE_TEXT){
+      if (is_name) trk.comm = GETVAL;
     }
     else if (NAMECMP("trk") && (type == TYPE_ELEM_END)){
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in trk (type: " << type << ")\n";
     }
   }
   world.trks.push_back(trk);
@@ -237,6 +250,7 @@ read_trk_node(xmlTextReaderPtr reader, geo_data & world){
 
 int
 read_gpx_node(xmlTextReaderPtr reader, geo_data & world){
+  bool is_meta=false;
   while(1){
     int ret =xmlTextReaderRead(reader);
     if (ret != 1){
@@ -246,7 +260,13 @@ read_gpx_node(xmlTextReaderPtr reader, geo_data & world){
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
 
-    if (NAMECMP("wpt") && (type == TYPE_ELEM)){
+    if (type == TYPE_SWS) continue;
+    else if (NAMECMP("metadata")){
+      if (type == TYPE_ELEM) is_meta=true;
+      if (type == TYPE_ELEM_END) is_meta=false;
+    }
+    else if (is_meta) continue;
+    else if (NAMECMP("wpt") && (type == TYPE_ELEM)){
       read_wpt_node(reader, world);
     }
     else if (NAMECMP("trk") && (type == TYPE_ELEM)){
@@ -256,7 +276,7 @@ read_gpx_node(xmlTextReaderPtr reader, geo_data & world){
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in gpx (type: " << type << ")\n";
     }
   }
   return 1;
@@ -279,8 +299,6 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
   // parse file
   while (1){
     ret = xmlTextReaderRead(reader);
-
-cerr << xmlTextReaderConstName(reader) << "\n";
     if (ret!=1) break;
 
     const xmlChar *name = xmlTextReaderConstName(reader);
