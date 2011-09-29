@@ -19,6 +19,7 @@
 #include "actions/am_edit_track.h"
 #include "actions/am_add_track.h"
 #include "actions/am_mark_trk.h"
+#include "actions/am_trk_filter.h"
 
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
@@ -49,6 +50,7 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(MoveTrackpoint,  "Tracks")
     ADD_ACT(DeleteTrackpoint,"Tracks")
     ADD_ACT(MarkTrack,       "Tracks")
+    ADD_ACT(FilterTrack,       "Tracks")
 
     ADD_ACT(ActionModeNone,  "Misc")
     ADD_ACT(SaveImage,       "Misc")

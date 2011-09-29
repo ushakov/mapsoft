@@ -209,5 +209,27 @@ class DlgTrkPt : public Gtk::Dialog{
     sigc::signal<void, dPoint> signal_jump();
 };
 
+/********************************************************************/
+// dialog for Filter track action
+class DlgTrkFilter : public Gtk::Dialog{
+    Gtk::CheckButton *cb_acc, *cb_num;
+    Gtk::SpinButton *acc, *num;
+    Gtk::Adjustment acc_adj, num_adj;
+    Gtk::Label *info;
+    void   toggle_acc();
+    void   toggle_num();
+
+  public:
+    DlgTrkFilter();
+
+    double get_acc() const;
+    int    get_num() const;
+    void set_info(const g_track * trk);
+
+};
+
+
+
+
 
 #endif

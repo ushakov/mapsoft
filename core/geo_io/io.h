@@ -42,6 +42,10 @@ namespace io {
 namespace filters {
   // добавить границу в соответствии с названием номенклатурного листа
   void map_nom_brd(geo_data & world);
+
+  // уменьшить число точек трека
+  void generalize(g_track * line, double e, int np);
+
 }
 
 #endif
