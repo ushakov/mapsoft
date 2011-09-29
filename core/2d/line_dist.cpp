@@ -9,8 +9,7 @@ LineDist::LineDist(const dLine & _line): line(_line){
   for (int j=1; j<_line.size(); j++){
     dPoint p1 (_line[j-1]);
     dPoint p2 (_line[j]);
-    if (p1 == p2) continue;
-    l+=pdist(p1,p2); 
+    if (p1 != p2) l+=pdist(p1,p2);
     ls.push_back(l);
   }
 }
