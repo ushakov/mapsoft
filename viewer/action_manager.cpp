@@ -14,6 +14,7 @@
 
 #include "actions/am_delete_wpt.h"
 #include "actions/am_delete_tpt.h"
+#include "actions/am_add_tpt.h"
 #include "actions/am_edit_tpt.h"
 #include "actions/am_move_tpt.h"
 #include "actions/am_edit_track.h"
@@ -46,11 +47,12 @@ ActionManager::ActionManager (Mapview * mapview_)
 
     ADD_ACT(AddTrack,        "Tracks")
     ADD_ACT(EditTrack,       "Tracks")
+    ADD_ACT(AddTrackpoint,   "Tracks")
     ADD_ACT(EditTrackpoint,  "Tracks")
     ADD_ACT(MoveTrackpoint,  "Tracks")
     ADD_ACT(DeleteTrackpoint,"Tracks")
     ADD_ACT(MarkTrack,       "Tracks")
-    ADD_ACT(FilterTrack,       "Tracks")
+    ADD_ACT(FilterTrack,     "Tracks")
 
     ADD_ACT(ActionModeNone,  "Misc")
     ADD_ACT(SaveImage,       "Misc")
