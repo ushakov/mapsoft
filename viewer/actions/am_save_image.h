@@ -49,7 +49,7 @@ private:
 
     void on_result(int r, const Options & o) {
         mapview->rubber.clear();
-        if (r != Gtk::RESPONSE_OK) return;
+        if (r != 0) return;
         iRect bb = o.get("geom", iRect(one,two));
         std::string fname=o.get("filename", std::string("image.jpg"));
         if (fname == "") fname = "image.jpg";
