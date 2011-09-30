@@ -38,7 +38,7 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %files
 %_bindir/mapsoft_convert
 %_bindir/mapsoft_mapview
-%_mandir/man1/mapsoft_convert.1
+%_mandir/man1/mapsoft_convert.1.gz
 
 %files vmap
 %_bindir/vmap_copy
