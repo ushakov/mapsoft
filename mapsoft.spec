@@ -10,10 +10,11 @@ Packager: Vladislav Zavjalov <slazav@altlinux.org>
 Source: %name-%version.tar
 
 BuildRequires: boost-devel gcc-c++ libcurl-devel
-BuildRequires: libcairomm-devel libgtkmm2-devel
+BuildRequires: libcairomm-devel libpixman-devel libgtkmm2-devel
 BuildRequires: libpng-devel libjpeg-devel libtiff-devel
 BuildRequires: libusb-devel libyaml-devel libxml2-devel proj-devel
-BuildRequires: python-devel scons swig transfig ImageMagick-tools
+BuildRequires: python-devel scons swig
+BuildRequires: /usr/bin/gs netpbm transfig ImageMagick-tools
 
 %package tools
 Summary: mapsoft-tools - rarely-used tools from mapsoft package
