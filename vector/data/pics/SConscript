@@ -4,18 +4,30 @@ import os
 
 env1 = env.Clone()
 
+### Numbers are vertical positions of the image center in % counted from top
+
+pics = Split("""
+  avt kladb cross cerkov pam ohotn:88 bash:77 shaht:57 razv dom trig trig_hr kan
+  ldp per per1a per1b per2a per2b per3a per3b pernk kladb pupyr yama skala
+  bol_l:63 bol_h:62 redk vyr_n vyr_o ledn zd ur_vod por vdp
+""")
+
 #### Method for pic 2 png mystery conversion
 def pic2png(env, task):
    """Setup command for pic2png conversion by <name>:<cnt> argument"""
    name, sep, cnt = task.partition(':')
    env.Command(name+'.png', name+'.fig', "./make_pics %s.fig %s.png %s" % (name, name, cnt), chdir = 1)
 env1.AddMethod(pic2png, 'Pic2Png')
+
+def install_pic(env, task):
+   """Setup command for installing mapsoft pics"""
+   name, sep, cnt = task.partition(':')
+   env.Install(env.datadir+'/pics', name+'.fig')
+   env.Install(env.datadir+'/pics', name+'.png')
+env1.AddMethod(install_pic, 'InstallPic')
 ####
 
-map (lambda(s): env1.Pic2Png(s), Split("""
-  avt kladb cross cerkov pam ohotn:88 bash:77 shaht:57 razv dom trig trig_hr kan
-  ldp per per1a per1b per2a per2b per3a per3b pernk kladb pupyr yama skala
-  bol_l:63 bol_h:62 redk vyr_n vyr_o ledn zd ur_vod por vdp
-"""))
+map (lambda(s): env1.Pic2Png(s), pics)
+map (lambda(s): env1.InstallPic(s), pics)
 
 # vim: ft=python tw=0

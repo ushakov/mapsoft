@@ -84,6 +84,5 @@ e.SymLink("mmb.ocd9", "default.ocd9", e.datadir)
 e.SymLink("mmb.cmap.pnm", "default.cmap.pnm", e.datadir)
 
 SConscript("pics/SConscript")
-e.Install(e.datadir, "pics/")
 
 # vim: ft=python tw=0
