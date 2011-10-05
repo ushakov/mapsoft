@@ -1,0 +1,80 @@
+#!/bin/sh -efu
+
+# directory with source vmap files
+vmap_dir=/home/sla/MYMAP3/_podm/vmap
+nom_rscale=50000
+
+# tile scales
+ts=13
+big_ts=9
+
+# big tiles to create
+x1=309
+x2=311
+y1=160
+y2=162
+
+k=20037508.3 # mapsoft google proj units (equator meters) per scale=1 tile
+
+######################################################################
+
+update_big_tile(){
+  local x=$1;
+  local y=$2;
+
+  echo "tile: $x $y"
+  local x1 x2 y1 y2 dx dy
+
+  x1="$(dc -e "10k $x 2 $big_ts 1 - ^ / 1 - $k * p")"
+  x2="$(dc -e "10k $x 1 +  2 $big_ts 1 - ^ / 1 - $k * p")"
+
+  y1="$(dc -e "10k 1 $y 1 + 2 $big_ts 1 - ^ / - $k * p")"
+  y2="$(dc -e "10k 1 $y 2 $big_ts 1 - ^ / - $k * p")"
+
+  dx="$(dc -e "10k $x2 $x1 - p")"
+  dy="$(dc -e "10k $y2 $y1 - p")"
+
+  geom="${dx}x${dy}+$x1+$y1"
+
+  # geom in Pulkovo LonLat:
+  geom_pll="$(echo "bb_frw $geom 1" |
+    convs_pt2pt "wgs84" "google" "" "pulkovo" "lonlat" "")"
+
+#  echo "geom: $geom_pll"
+
+  nom_list="$(convs_nom -r "$geom_pll" "$nom_rscale")"
+  src=
+  for i in $nom_list; do
+    f=$vmap_dir/$i.vmap
+    [ ! -f "$f" ] || src="$src $f";
+  done
+
+#  echo "src maps: $src"
+
+
+  # create fig files if needed
+  fig="t$x-$y.fig"
+  if [ ! -f "$fig" ]; then
+    mapsoft_convert --geom="$geom" --proj=google --datum=wgs84\
+      --rscale=50000 --dpi=1 --out="$fig".jpg --fig="$fig"
+    rm -f -- "$fig".jpg
+    sed -i -e '/# MAP/,$d' "$fig"
+  fi
+
+### TODO: problem with Longitude in fig reference!
+
+
+### TODO: update only out of date tiles!
+### TODO: update labels correctly!
+
+  # copy vmaps
+  vmap_copy $src -o "$fig"
+}
+
+######################################################################
+
+for x in $(seq $x1 $x2); do
+  for y in $(seq $y1 $y2); do
+    update_big_tile "$x" "$y"
+  done
+done
