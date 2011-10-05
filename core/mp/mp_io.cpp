@@ -188,7 +188,7 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
     out << "\r\n[" << i->Class << "]"
         << "\r\nType=0x"     << setbase(16) << i->Type << setbase(10);
     if (i->Label != "") out << "\r\nLabel=" << cnv.from_utf8(i->Label);
-    if (i->EL != 0)     out << "\r\nLevels=" << i->EL;
+    if (i->EL != 0)     out << "\r\nEndLevel=" << i->EL;
 
     for (Options::const_iterator o=i->Opts.begin(); o!=i->Opts.end(); o++){
       out << "\r\n" << o->first << "=" << cnv.from_utf8(o->second);
