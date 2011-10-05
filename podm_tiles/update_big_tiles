@@ -3,16 +3,17 @@
 # directory with source vmap files
 vmap_dir=/home/sla/MYMAP3/_podm/vmap
 nom_rscale=50000
+fig_rscale=100000
 
 # tile scales
 ts=13
 big_ts=9
 
 # big tiles to create
-x1=309
-x2=311
+x1=310
+x2=310
 y1=160
-y2=162
+y2=161
 
 k=20037508.3 # mapsoft google proj units (equator meters) per scale=1 tile
 
@@ -40,7 +41,8 @@ update_big_tile(){
   geom_pll="$(echo "bb_frw $geom 1" |
     convs_pt2pt "wgs84" "google" "" "pulkovo" "lonlat" "")"
 
-#  echo "geom: $geom_pll"
+#  echo "geom: $geom"
+#  echo "geom_ll: $geom_pll"
 
   nom_list="$(convs_nom -r "$geom_pll" "$nom_rscale")"
   src=
@@ -51,24 +53,29 @@ update_big_tile(){
 
 #  echo "src maps: $src"
 
-
   # create fig files if needed
   fig="t$x-$y.fig"
   if [ ! -f "$fig" ]; then
     mapsoft_convert --geom="$geom" --proj=google --datum=wgs84\
-      --rscale=50000 --dpi=1 --out="$fig".jpg --fig="$fig"
+      --rscale="$fig_rscale" --dpi=1 --out="$fig".jpg --fig="$fig"
     rm -f -- "$fig".jpg
     sed -i -e '/# MAP/,$d' "$fig"
+    my_src="$src"
+  else
+    # use old labels if fig file exists:
+    my_src="--skip_labels $src $fig --read_labels --skip_all"
   fi
 
-### TODO: problem with Longitude in fig reference!
-
-
 ### TODO: update only out of date tiles!
-### TODO: update labels correctly!
 
   # copy vmaps
-  vmap_copy $src -o "$fig"
+  # join_objects is very slow - i turn it off for tests
+  # TODO: problem with range setting!
+  vmap_copy -v $my_src --out $fig\
+
+#    --range_datum=wgs84 --range_proj=google --range="$geom"\
+#    --set_brd_from_range --range_action=crop_spl # --join_objects 1e-4
+
 }
 
 ######################################################################
