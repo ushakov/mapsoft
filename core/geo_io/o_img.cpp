@@ -21,18 +21,20 @@ namespace img{
 
 bool write_file (const char* filename, const geo_data & world, Options opt){
 
+  Proj  proj(opt.get<string>("proj", "tmerc"));
+  Datum datum(opt.get<string>("datum", "pulkovo"));
+
   dRect geom;
   if (opt.exists("geom")){
     geom = opt.get<dRect>("geom");
 
-    if (geom.x>1e6){
+
+    if ((proj==Proj("tmerc"))&&(geom.x>1e6)){
       opt.put("lon0", convs::lon_pref2lon0(geom.x));
       geom.x=convs::lon_delprefix(geom.x);
     }
   }
 
-  Proj  proj(opt.get<string>("proj", "tmerc"));
-  Datum datum(opt.get<string>("datum", "pulkovo"));
 
   if (!opt.exists("lon0"))
     opt.put<double>("lon0", convs::lon2lon0(world.range().CNT().x));
