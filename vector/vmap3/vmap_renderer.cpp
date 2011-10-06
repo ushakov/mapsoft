@@ -8,9 +8,7 @@ using namespace std;
 
 VMAPRenderer::VMAPRenderer(vmap::world * _W, int dpi_,
     int lm, int tm, int rm, int bm, bool use_aa,
-    label_style_t _label_style, contour_style_t _contour_style):
-      dpi(dpi_), W(_W), label_style(_label_style),
-      contour_style(_contour_style){
+    label_style_t _label_style): dpi(dpi_), W(_W), label_style(_label_style){
 
 
   ref = vmap::mk_tmerc_ref(*W, dpi/2.54, true);
@@ -41,12 +39,6 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int dpi_,
   // dark points under labels
   if (!use_aa) cr->set_antialias(Cairo::ANTIALIAS_NONE); 
 
-
-  if (label_style==LABEL_STYLE3){
-    cr_e.reset_surface(rng.w, rng.h);
-    cr_e->set_antialias(Cairo::ANTIALIAS_NONE);
-    cr_e->set_color(0xFFFFFF); cr_e->paint();
-  }
 
   // draw border, set clipping region
   cr->set_color(0xFFFFFF); cr->paint();
@@ -157,17 +149,16 @@ VMAPRenderer::mkptpath(const dMultiLine & o){
 
 
 void
-VMAPRenderer::render_polygons(int type, int col, double curve_l, bool erase){
-  CairoWrapper c = erase? cr_e:cr;
-  if (!c) return;
-  c->save();
-  c->set_color(col);
+VMAPRenderer::render_polygons(int type, int col, double curve_l){
+  if (!cr) return;
+  cr->save();
+  cr->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
-    c->mkpath_smline(*o, 1, curve_l*lw1);
-    c->fill();
+    cr->mkpath_smline(*o, 1, curve_l*lw1);
+    cr->fill();
   }
-  c->restore();
+  cr->restore();
 }
 
 // contoured polygons
@@ -208,21 +199,17 @@ VMAPRenderer::render_img_polygons(int type, const char * fname, double curve_l){
 
 
 void
-VMAPRenderer::render_line(int type, int col, double th, double curve_l,
-                          bool erase){
-
-  CairoWrapper c = erase? cr_e:cr;
-  if (!c) return;
-
-  c->save();
-  c->set_line_width(th*lw1);
-  c->set_color(col);
+VMAPRenderer::render_line(int type, int col, double th, double curve_l){
+  if (!cr) return;
+  cr->save();
+  cr->set_line_width(th*lw1);
+  cr->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
-    c->mkpath_smline(*o, 0, curve_l*lw1);
+    cr->mkpath_smline(*o, 0, curve_l*lw1);
   }
-  c->stroke();
-  c->restore();
+  cr->stroke();
+  cr->restore();
 }
 
 void
@@ -567,7 +554,7 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
 }
 
 void
-VMAPRenderer::render_objects(){
+VMAPRenderer::render_objects(const bool draw_contours){
     bool hr = (W->style == "hr");
 
   //*******************************
@@ -578,7 +565,7 @@ VMAPRenderer::render_objects(){
   render_polygons(0x15, 0xAAFFAA); // остров леса
 
   list<iPoint> cnt;
-  if (contour_style==CONTOUR_STYLE1)
+  if (draw_contours)
     cnt = make_cnt(0xAAFFAA, 2);     // контуры леса
 
   render_img_polygons(0x4f, "vyr_n.png");
@@ -587,7 +574,7 @@ VMAPRenderer::render_objects(){
 
   render_polygons(0x15, 0xAAFFAA); // остров леса поверх вырубок
 
-  if (contour_style==CONTOUR_STYLE1){
+  if (draw_contours){
     filter_cnt(cnt, 0xAAFFAA); // убираем контуры, оказавшеся поверх вырубок
     draw_cnt(cnt, 0x009000, 1); // рисуем контуры
   }
@@ -598,16 +585,6 @@ VMAPRenderer::render_objects(){
 
   render_polygons(0x4d, 0xC3E6FF,20.0); // ледник
 
-  if (label_style==LABEL_STYLE3){
-    render_polygons(0x16, 0xAAFFAA, 0.0, true); // лес
-    render_polygons(0x52, 0xFFFFFF, 0.0, true); // поле
-    render_polygons(0x4f, 0xFFFFFF, 0.0, true);
-    render_polygons(0x50, 0xAAFFAA, 0.0, true);
-    render_polygons(0x14, 0xFFFFFF, 0.0, true);
-    render_polygons(0x15, 0xAAFFAA, 0.0, true); // остров леса
-    render_polygons(0x4d, 0xC3E6FF, 0.0, true); // ледник
-  }
-
   //*******************************
 
   render_cnt_polygons(0x4,  0xB0B0B0, 0x000000, 0.7); // закрытые территории
@@ -615,14 +592,6 @@ VMAPRenderer::render_objects(){
   render_cnt_polygons(0x1,  0xB05959, 0x000000, 0.7); // города
   render_cnt_polygons(0x4E, 0x557F55, 0x000000, 0.7); // дачи
   render_cnt_polygons(0x1A, 0x557F55, 0x000000, 0.7); // кладбища
-
-  if (label_style==LABEL_STYLE3){
-    render_polygons(0x4,  0xB0B0B0, 0.0, true); // закрытые территории
-    render_polygons(0xE,  0xFF8080, 0.0, true); // деревни
-    render_polygons(0x1,  0xFF8080, 0.0, true); // города
-    render_polygons(0x4E, 0x557F55, 0.0, true); // дачи
-    render_polygons(0x1A, 0x557F55, 0.0, true); // кладбища
-  }
 
   //*******************************
 
@@ -642,17 +611,6 @@ VMAPRenderer::render_objects(){
   int hreb_col = 0x803000;
   if (hr) hreb_col = 0xC06000;
   render_line(0xC,  hreb_col, 2, 20); // хребет
-
-  if ((label_style==LABEL_STYLE3) && hr){
-    vector<double> d;
-    d.push_back(8*lw1);
-    d.push_back(3*lw1);
-    cr_e->set_dash(d, 0);
-    render_line(0x20, hor_col, 1, 20, true); // пунктирные горизонтали
-    cr_e->unset_dash();
-    render_line(0x21, hor_col, 1, 20, true); // горизонтали
-    render_line(0x22, hor_col, 1.6, 20, true); // жирные горизонтали
-  }
 
   //*******************************
 
@@ -689,25 +647,12 @@ VMAPRenderer::render_objects(){
 
   render_line(0x1F, water_col, 1, 10); // середина реки-3
 
-  if (label_style==LABEL_STYLE3){
-    render_polygons(0x29, water_col, 0.0, true); // водоемы
-    render_polygons(0x3B, water_col, 0.0, true); // большие водоемы
-    render_polygons(0x53, 0xFFFFFF, 0.0, true); // острова
-    render_line(0x1F, water_col, 3, 10, true); // середина реки-3
-  }
-
   //*******************************
 
   set_cap_butt(); set_join_miter();
   render_line_el(0x1A, 0x888888, 2); // маленькая ЛЭП
   render_line_el(0x29, 0x888888, 3); // большая ЛЭП
   render_line_gaz(0x28, 0x888888, 3); // газопровод
-
-  if (label_style==LABEL_STYLE3){
-    render_line(0x1A, 0x888888, 2, 0, true); // маленькая ЛЭП
-    render_line(0x29, 0x888888, 3, 0, true); // большая ЛЭП
-    render_line(0x28, 0x888888, 3, 0, true); // газопровод
-  }
 
   //*******************************
 
@@ -753,20 +698,6 @@ VMAPRenderer::render_objects(){
   render_bridge(0x09, 3, 1, 2); // мост-2
   render_bridge(0x0E, 6, 1, 2); // мост-5
 
-  if (label_style==LABEL_STYLE3){
-    render_line(0x4,  0xFFFFFF, 3, 10, true); // проезжий грейдер
-    render_line(0x7,  0xFFFFFF, 3, 10, true); // непроезжий грейдер
-    render_line(0x2,  0xFF8080, 4, 10, true); // асфальт
-    render_line(0xB,  0xFF8080, 5, 10, true); // большой асфальт
-    render_line(0x1,  0xFF8080, 7, 10, true); // автомагистраль
-
-    render_line(0x1B, 0xFFFFFF, 1, 0, true); // туннель
-    render_line(0x08, 0xFFFFFF, 1, 0, true); // мост-1
-    render_line(0x09, 0xFFFFFF, 2, 0, true); // мост-2
-    render_line(0x0E, 0xFFFFFF, 5, 0, true); // мост-5
-  }
-
-
   int pt_col = 0;
   if (hr) pt_col = 0x803000;
 
@@ -808,3 +739,64 @@ VMAPRenderer::render_objects(){
 
 }
 
+
+void
+VMAPRenderer::render_holes(){
+  if (label_style!=LABEL_STYLE2) return;
+
+  cr->save();
+  cr->set_operator(Cairo::OPERATOR_DEST_OVER);
+
+  bool hr = (W->style == "hr");
+
+  // reversed order becouse of OPERATOR_DEST_OVER
+
+  render_line(0x1B, 0xFFFFFF, 1); // туннель
+  render_line(0x08, 0xFFFFFF, 1); // мост-1
+  render_line(0x09, 0xFFFFFF, 2); // мост-2
+  render_line(0x0E, 0xFFFFFF, 5); // мост-5
+
+  render_line(0x1,  0xFF8080, 7, 10); // автомагистраль
+  render_line(0xB,  0xFF8080, 5, 10); // большой асфальт
+  render_line(0x2,  0xFF8080, 4, 10); // асфальт
+  render_line(0x4,  0xFFFFFF, 3, 10); // проезжий грейдер
+  render_line(0x7,  0xFFFFFF, 3, 10); // непроезжий грейдер
+
+  int water_col = 0x00FFFF;
+  if (hr) water_col = 0x87CEFF;
+
+  render_line(0x1F, water_col, 3, 10); // середина реки-3
+  render_polygons(0x53, 0xFFFFFF); // острова
+  render_polygons(0x3B, water_col); // большие водоемы
+  render_polygons(0x29, water_col); // водоемы
+
+  int hor_col = 0xC06000;
+  if (hr) hor_col = 0xD0B090;
+
+  if (hr){
+    vector<double> d;
+    d.push_back(8*lw1);
+    d.push_back(3*lw1);
+    cr->set_dash(d, 0);
+    render_line(0x20, hor_col, 1, 20); // пунктирные горизонтали
+    cr->unset_dash();
+    render_line(0x21, hor_col, 1, 20); // горизонтали
+    render_line(0x22, hor_col, 1.6, 20); // жирные горизонтали
+  }
+
+  render_polygons(0x1A, 0x557F55); // кладбища
+  render_polygons(0x4E, 0x557F55); // дачи
+  render_polygons(0x1,  0xFF8080); // города
+  render_polygons(0xE,  0xFF8080); // деревни
+  render_polygons(0x4,  0xB0B0B0); // закрытые территории
+
+  render_polygons(0x4d, 0xC3E6FF); // ледник
+  render_polygons(0x15, 0xAAFFAA); // остров леса
+  render_polygons(0x14, 0xFFFFFF);
+  render_polygons(0x50, 0xAAFFAA);
+  render_polygons(0x4f, 0xFFFFFF);
+  render_polygons(0x52, 0xFFFFFF); // поле
+  render_polygons(0x16, 0xAAFFAA); // лес
+
+  cr->restore();
+}

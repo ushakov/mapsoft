@@ -19,20 +19,16 @@ void usage(){
      << "    -N  --draw_name         -- draw map name\n"
      << "    -D  --draw_date         -- draw date stamp\n"
      << "    -T  --draw_text <text>  -- draw text\n"
-     << "        --antialiasing <0|1>  -- set antialiasing (default 1)\n"
-     << "        --contour_style <0|1> -- set contour style (default 1)\n"
-     << "        --label_style <int>   -- set label style 0..3 (default 1)\n"
+     << "        --antialiasing <0|1>  -- do antialiasing (default 1)\n"
+     << "        --contours <0|1>      -- auto contours (default 1)\n"
+     << "        --label_style <int>   -- set label style 0..2 (default 2)\n"
      << "\n"
-     << "label styles:\n"
+     << "label styles (0 is fast and 2 is best):\n"
      << " 0 -- don't erase objects under text\n"
-     << " 1 -- lighten all objects under text [default]\n"
-     << " 2 -- erase dark objects by adjesent light color\n"
-     << "      - do not use this mode with antialiasing\n"
-     << "      - can be inaccurate on large dark objects\n"
-     << " 3 -- the best erasing (needs ~x2 more memory to run)\n"
-     << "      - todo: make smooth edges\n"
+     << " 1 -- lighten all objects under text\n"
+     << " 2 -- the best erasing [default] \n"
      << "\n"
-     << "contour styles:\n"
+     << "contours:\n"
      << " 0 -- no auto contours around forests\n"
      << " 1 -- draw contours (needs slightly more memory and time) [default]\n"
      << "\n"
@@ -52,9 +48,9 @@ static struct option options[] = {
   {"draw_name",     0, 0, 'N'},
   {"draw_date",     0, 0, 'D'},
   {"draw_text",     1, 0, 'T'},
-  {"antialiasing",   1, 0, 0},
-  {"contour_style",  1, 0, 0},
-  {"label_style",    1, 0, 0},
+  {"antialiasing",  1, 0, 0},
+  {"contours",      1, 0, 0},
+  {"label_style",   1, 0, 0},
   {0,0,0,0}
 };
 
@@ -88,22 +84,11 @@ main(int argc, char* argv[]){
 
   bool use_aa = O.get<bool>("antialiasing", true);
 
-  contour_style_t cs;
-  switch(O.get<int>("contour_style", 1)){
-    case 0: cs=CONTOUR_STYLE0; break;
-    case 1: cs=CONTOUR_STYLE1; break;
-    default:
-      cerr << "Error: unknowl contour style: "
-           << O.get<int>("contour_style", 0) << " (must be 0..1)\n";
-      exit(1);
-  }
-
   label_style_t ls;
-  switch(O.get<int>("label_style", 1)){
+  switch(O.get<int>("label_style", 2)){
     case 0: ls=LABEL_STYLE0; break;
     case 1: ls=LABEL_STYLE1; break;
     case 2: ls=LABEL_STYLE2; break;
-    case 3: ls=LABEL_STYLE3; break;
     default:
       cerr << "Error: unknowl label style: "
            << O.get<int>("label_style", 0) << " (must be 0..3)\n";
@@ -124,14 +109,16 @@ main(int argc, char* argv[]){
     W.brd = nom_cnv.line_bck(rect2line(nom_range));
   }
 
-  VMAPRenderer R(&W, dpi, lm, tm, rm, bm, use_aa, ls, cs);
+  VMAPRenderer R(&W, dpi, lm, tm, rm, bm, use_aa, ls);
 
-  R.render_objects();
+  R.render_objects(O.get<bool>("contours", true));
 
   double grid_step = O.get<double>("grid", 0);
   if (grid_step>0) R.render_pulk_grid(grid_step, grid_step, false);
 
   R.render_labels();
+
+  R.render_holes();
 
   // draw grid labels after labels
   if ((grid_step>0) && grid_labels) 

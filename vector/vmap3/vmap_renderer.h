@@ -20,13 +20,7 @@ typedef enum {
   LABEL_STYLE0,
   LABEL_STYLE1,
   LABEL_STYLE2,
-  LABEL_STYLE3
 } label_style_t;
-
-typedef enum {
-  CONTOUR_STYLE0,
-  CONTOUR_STYLE1
-} contour_style_t;
 
 
 struct VMAPRenderer{
@@ -34,9 +28,8 @@ struct VMAPRenderer{
   const static double pics_dpi;
   const static char * pics_dir;
   const label_style_t label_style;
-  const contour_style_t contour_style;
 
-  CairoWrapper cr, cr_e;
+  CairoWrapper cr;
   vmap::world * W;
   double dpi, lw1, fs1;
   g_map ref;
@@ -46,9 +39,7 @@ struct VMAPRenderer{
 
   VMAPRenderer(vmap::world * _W,
     int dpi_=300, int lm=0, int tm=0, int rm=0, int bm=0,
-    bool use_aa=true,
-    label_style_t   _label_style=LABEL_STYLE0,
-    contour_style_t _contour_style=CONTOUR_STYLE0);
+    bool use_aa=true, label_style_t _label_style=LABEL_STYLE0);
 
   void unset_dash();
   void set_dash(double d1, double d2);
@@ -60,7 +51,8 @@ struct VMAPRenderer{
   void set_join_round();
 
 
-  void render_objects();
+  void render_objects(const bool draw_contours=true);
+  void render_holes();
 
   // picture-related functions (see vmap_rend_pic.cpp)
 
@@ -84,16 +76,14 @@ struct VMAPRenderer{
   // path for drawing points
   void mkptpath(const dMultiLine & o);
 
-  void  render_polygons(int type, int col, double curve_l=0,
-                        bool erase = false);
+  void  render_polygons(int type, int col, double curve_l=0);
   // contoured polygons
   void  render_cnt_polygons(int type, int fill_col, int cnt_col,
                         double cnt_th, double curve_l=0);
   // polygons filled with image pattern
   void render_img_polygons(int type, const char * fname, double curve_l=0);
 
-  void  render_line(int type, int col, double th, double curve_l,
-                        bool erase = false);
+  void  render_line(int type, int col, double th, double curve_l=0);
   void  render_points(int type, int col, double th);
 
 
