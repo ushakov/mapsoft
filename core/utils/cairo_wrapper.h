@@ -26,6 +26,8 @@ struct CairoExtra : public Cairo::Context {
   void circle(const dPoint &p, const double r);
   dPoint get_current_point();
   dRect  get_text_extents(const std::string & utf8);
+
+  unsigned char *get_data();
 };
 
 struct CairoWrapper: Cairo::RefPtr<CairoExtra> {
@@ -34,6 +36,8 @@ private:
   // for increasing refcounter of the original image
   iImage image;
   const static Cairo::Format format;
+  Cairo::RefPtr<Cairo::ImageSurface> surface;
+
 public:
 
   void reset_surface();
@@ -43,5 +47,7 @@ public:
   CairoWrapper();
   CairoWrapper(int w, int h);
   CairoWrapper(const iImage & img);
+
+  Cairo::RefPtr<Cairo::ImageSurface> get_im_surface();
 };
 #endif

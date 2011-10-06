@@ -60,9 +60,13 @@ dRect CairoExtra::get_text_extents(const std::string & utf8){
                extents.width, extents.height);
 }
 
+
+
+
 void
 CairoWrapper::reset_surface(){
   image=Image<int>();
+  surface=Cairo::RefPtr<Cairo::ImageSurface>();
   Cairo::RefPtr<CairoExtra>::operator=(Cairo::RefPtr<CairoExtra>());
 }
 
@@ -73,8 +77,7 @@ CairoWrapper::reset_surface(int w, int h){
   assert(Cairo::ImageSurface::format_stride_for_width(format, w) == w*4);
 
   // create surface
-  Cairo::RefPtr<Cairo::ImageSurface> surface =
-    Cairo::ImageSurface::create(format, w, h);
+  surface = Cairo::ImageSurface::create(format, w, h);
 
   Cairo::RefPtr<CairoExtra>::operator=
     (cast_static(Cairo::Context::create(surface)));
@@ -87,8 +90,7 @@ CairoWrapper::reset_surface(const iImage & img){
   assert(Cairo::ImageSurface::format_stride_for_width(format, img.w) == img.w*4);
 
   // create surface
-  Cairo::RefPtr<Cairo::ImageSurface> surface =
-    Cairo::ImageSurface::create((unsigned char*)img.data,
+  surface = Cairo::ImageSurface::create((unsigned char*)img.data,
       format, img.w, img.h, img.w*4);
 
   Cairo::RefPtr<CairoExtra>::operator=
@@ -106,4 +108,10 @@ CairoWrapper::CairoWrapper(const iImage & img){
   reset_surface(img);
 }
 
+Cairo::RefPtr<Cairo::ImageSurface>
+CairoWrapper::get_im_surface() {
+  return surface;
+}
+
 const Cairo::Format CairoWrapper::format = Cairo::FORMAT_ARGB32;
+
