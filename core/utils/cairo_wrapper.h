@@ -30,11 +30,17 @@ struct CairoExtra : public Cairo::Context {
 
 struct CairoWrapper: Cairo::RefPtr<CairoExtra> {
 private:
-  // this is used only in CairoWrapper(img) constructor
+  // image is used only in reset_surface(img)
   // for increasing refcounter of the original image
   iImage image;
   const static Cairo::Format format;
 public:
+
+  void reset_surface();
+  void reset_surface(int w, int h);
+  void reset_surface(const iImage & img);
+
+  CairoWrapper();
   CairoWrapper(int w, int h);
   CairoWrapper(const iImage & img);
 };
