@@ -123,7 +123,7 @@ void
 VMAPRenderer::render_labels(double bound, int dark_th, int search_dist){
   cr->save();
 
-  zn::zn_conv zc(W.style);
+  zn::zn_conv zc(W->style);
 
   Cairo::RefPtr<Cairo::ImageSurface> bw_surface = Cairo::ImageSurface::create(
     Cairo::FORMAT_A1, surface->get_width(), surface->get_height());
@@ -132,7 +132,7 @@ VMAPRenderer::render_labels(double bound, int dark_th, int search_dist){
   bw_cr->set_line_join(Cairo::LINE_JOIN_ROUND);
 
   for (int pass=1; pass<=2; pass++){
-    for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+    for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
       std::map<int, zn::zn>::const_iterator z = zc.find_type(o->type);
       if (z==zc.znaki.end()) continue;
       if (!z->second.label_type) continue;

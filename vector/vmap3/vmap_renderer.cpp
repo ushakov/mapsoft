@@ -6,24 +6,11 @@
 
 using namespace std;
 
-VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
-    int lm, int tm, int rm, int bm): dpi(dpi_){
+VMAPRenderer::VMAPRenderer(vmap::world * _W, int dpi_,
+    int lm, int tm, int rm, int bm): dpi(dpi_), W(_W){
 
-  W=vmap::read(in_file);
-  if (W.size()==0) exit(1);
 
-  // try to detect border from nom_name
-  // todo - use option set from vmap_filt.cpp
-  dRect nom_range=convs::nom_to_range(W.name);
-  if (nom_range.empty())  nom_range=convs::nom_to_range(in_file);
-  if (!nom_range.empty()){
-    convs::pt2pt nom_cnv(
-      Datum("wgs84"), Proj("lonlat"), Options(),
-      Datum("pulkovo"), Proj("lonlat"), Options());
-    W.brd = nom_cnv.line_bck(rect2line(nom_range));
-  }
-
-  ref = vmap::mk_tmerc_ref(W, dpi/2.54, true);
+  ref = vmap::mk_tmerc_ref(*W, dpi/2.54, true);
 
   lw1 = dpi/105.0; // standard line width (1/105in?)
   fs1 = dpi/89.0;  // standard font size
@@ -39,7 +26,7 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
 
 
   cerr
-     << "  scale  = 1:" << int(W.rscale) << "\n"
+     << "  scale  = 1:" << int(W->rscale) << "\n"
      << "  dpi    = " << dpi << "\n"
      << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
 
@@ -73,11 +60,11 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
   cr->restore();
 
   // modify vmap
-  vmap::join_labels(W);
-  vmap::move_pics(W);
+  vmap::join_labels(*W);
+  vmap::move_pics(*W);
 
   // convert coordinates to px
-  for (vmap::world::iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::iterator o=W->begin(); o!=W->end(); o++){
     // convert object angles: deg (latlon) -> rad (raster)
     if (o->opts.exists("Angle")){
       double a = o->opts.get<double>("Angle",0);
@@ -97,13 +84,13 @@ VMAPRenderer::VMAPRenderer(const char * in_file, int dpi_,
     }
   }
   // convert border
-  for (dLine::iterator p=W.brd.begin(); p!=W.brd.end(); p++){
+  for (dLine::iterator p=W->brd.begin(); p!=W->brd.end(); p++){
     cnv.bck(*p);
   }
-  if (W.size() == 0){
+  if (W->size() == 0){
     cerr << "warning: no objects\n";
   }
-  if (rect_intersect(W.range(), ref.border.range()).empty()){
+  if (rect_intersect(W->range(), ref.border.range()).empty()){
     cerr << "warning: map outside its border\n";
   }
 }
@@ -217,7 +204,7 @@ void
 VMAPRenderer::render_polygons(int type, int col, double curve_l){
   cr->save();
   set_color(col);
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
     mkpath(*o, 1, curve_l);
     cr->fill();
@@ -231,7 +218,7 @@ VMAPRenderer::render_polygons(int type, int fill_col, int cnt_col,
                               double cnt_th, double curve_l){
   cr->save();
   set_color(fill_col);
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!= (type | zn::area_mask)) continue;
     mkpath(*o, 1, curve_l);
     cr->fill_preserve();
@@ -252,7 +239,7 @@ VMAPRenderer::render_polygons(int type, const char * fname, double curve_l){
     get_patt_from_png(fname);
   patt->set_extend(Cairo::EXTEND_REPEAT);
   cr->set_source(patt);
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
     mkpath(*o, 1, curve_l);
     cr->fill();
@@ -266,7 +253,7 @@ VMAPRenderer::render_line(int type, int col, double th, double curve_l){
   cr->save();
   set_th(th);
   set_color(col);
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     mkpath(*o, 0, curve_l);
   }
@@ -279,7 +266,7 @@ VMAPRenderer::render_points(int type, int col, double th){
   cr->save();
   set_th(th);
   set_color(col);
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=type) continue;
     mkptpath(*o);
   }
@@ -328,7 +315,7 @@ VMAPRenderer::render_bridge(int type, double th1, double th2, double side){
   if (th1!=0){
     set_th(th1);
     set_color(0xFFFFFF);
-    for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+    for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
       if (o->type!=(type | zn::line_mask)) continue;
       mkbrpath1(*o);
     }
@@ -337,7 +324,7 @@ VMAPRenderer::render_bridge(int type, double th1, double th2, double side){
   }
   set_th(th2);
   set_color(0x0);
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     mkbrpath2(*o, th1, side);
   }
@@ -356,7 +343,7 @@ VMAPRenderer::render_line_el(int type, int col, double th, double step){
   set_cap_round();
   set_th(1.8);
   set_color(col);
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       LineDist ld(*l);
@@ -395,7 +382,7 @@ VMAPRenderer::render_line_obr(int type, int col, double th){
   set_th(th);
   set_color(col);
 
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     int k=1;
     if (o->dir==2) k=-1;
@@ -427,7 +414,7 @@ VMAPRenderer::render_line_zab(int type, int col, double th){
   set_th(th);
   set_color(col);
 
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     int k=1;
     if (o->dir==2) k=-1;
@@ -458,7 +445,7 @@ VMAPRenderer::render_line_gaz(int type, int col, double th, double step){
 
   cr->save();
   set_th(1);
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       LineDist ld(*l);
@@ -576,8 +563,8 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
     rng_m.x+rng_m.w,
     rng_m.y+rng_m.h
   );
-  dx *= W.rscale/100;
-  dy *= W.rscale/100;
+  dx *= W->rscale/100;
+  dy *= W->rscale/100;
   double m=dy/10; // skip labels at distance m from horizontal edges
 
   dPoint p(
@@ -616,7 +603,7 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
 
 void
 VMAPRenderer::render_objects(){
-    bool hr = (W.style == "hr");
+    bool hr = (W->style == "hr");
 
   //*******************************
 

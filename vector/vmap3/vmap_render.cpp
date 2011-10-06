@@ -47,6 +47,7 @@ main(int argc, char* argv[]){
 
   int dpi=O.get<int>("dpi", 300);
 
+  // set margins
   int tm=0, bm=0, lm=0, rm=0;
   if (O.get<int>("draw_name", 0) ||
       O.get<int>("draw_date", 0) ||
@@ -54,7 +55,6 @@ main(int argc, char* argv[]){
     tm=dpi/3;
     bm=lm=rm=dpi/6;
   }
-
   int grid_labels = O.get<int>("grid_labels", 0);
   if (grid_labels){
     bm+=dpi/6;
@@ -63,7 +63,22 @@ main(int argc, char* argv[]){
     lm+=dpi/6;
   }
 
-  VMAPRenderer R(ifile, dpi, lm, tm, rm, bm);
+
+  vmap::world W=vmap::read(ifile);
+  if (W.size()==0) exit(1);
+
+  // try to detect border from nom_name
+  // todo - use option set from vmap_filt.cpp
+  dRect nom_range=convs::nom_to_range(W.name);
+  if (nom_range.empty())  nom_range=convs::nom_to_range(ifile);
+  if (!nom_range.empty()){
+    convs::pt2pt nom_cnv(
+      Datum("wgs84"), Proj("lonlat"), Options(),
+      Datum("pulkovo"), Proj("lonlat"), Options());
+    W.brd = nom_cnv.line_bck(rect2line(nom_range));
+  }
+
+  VMAPRenderer R(&W, dpi, lm, tm, rm, bm);
 
   R.render_objects();
 
@@ -77,7 +92,7 @@ main(int argc, char* argv[]){
     R.render_pulk_grid(grid_step, grid_step, true);
 
   if (O.get<int>("draw_name", 0))
-    R.render_text(R.W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, 0, 2);
+    R.render_text(W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, 0, 2);
 
   if (O.get<int>("draw_date", 0)){
     Time t; t.set_current();

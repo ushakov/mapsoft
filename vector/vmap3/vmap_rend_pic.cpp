@@ -49,7 +49,7 @@ VMAPRenderer::render_im_in_polygons(int type, const char * fname){
   cr->save();
   Cairo::RefPtr<Cairo::SurfacePattern> patt =
     get_patt_from_png(fname);
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
     paintim(*o, patt);
   }
@@ -62,7 +62,7 @@ VMAPRenderer::render_im_in_points(int type, const char * fname){
 
   Cairo::RefPtr<Cairo::SurfacePattern> patt =
     get_patt_from_png(fname);
-  for (vmap::world::const_iterator o=W.begin(); o!=W.end(); o++){
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=type) continue;
 
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){

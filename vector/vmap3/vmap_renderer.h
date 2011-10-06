@@ -27,14 +27,14 @@ struct VMAPRenderer{
   Cairo::RefPtr<Cairo::ImageSurface> surface;
   Cairo::RefPtr<Cairo::ImageSurface> surface_e; // for erasing lines under text
   Cairo::RefPtr<Cairo::Context> cr;
-  vmap::world W;
+  vmap::world * W;
   double dpi, lw1, fs1;
   g_map ref;
 
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
 
-  VMAPRenderer(const char * in_file, int dpi_=300, int lm=0, int tm=0, int rm=0, int bm=0);
+  VMAPRenderer(vmap::world * _W, int dpi_=300, int lm=0, int tm=0, int rm=0, int bm=0);
 
   void set_color(int c);
   void set_th(double th);
