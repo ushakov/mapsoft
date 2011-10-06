@@ -88,17 +88,13 @@ VMAPRenderer::erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
 
 #define IS_TEXT(x,y)  ((bw_data[bws*(y) + (x)/8] >> ((x)%8))&1)\
 
-  // walk through all points
-  for (int y=0; y<h; y++){
-    for (int x=0; x<w; x++){
-      if (!IS_TEXT(x,y)) continue;
 
-      if (label_style==LABEL_STYLE1)
-        for (int i=0; i<3; i++){
-           int ii=s*y + 4*x + i;
-           data[ii] = 255- (255-data[ii])/2;
-        }
-      else if (label_style==LABEL_STYLE2){
+  if (label_style==LABEL_STYLE2){
+    // walk through all points
+    for (int y=0; y<h; y++){
+      for (int x=0; x<w; x++){
+        if (!IS_TEXT(x,y)) continue;
+
         if (!IS_DARK(x,y)) continue;
         // find nearest point with light color:
         int r = search_dist;
@@ -118,11 +114,17 @@ VMAPRenderer::erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
         else
           memcpy(data + s*y + 4*x, data + s*yym + 4*xxm, 3);
       }
-      else if (label_style==LABEL_STYLE3){
-        memcpy(data + s*y + 4*x, data_e + s*y + 4*x, 3);
-      }
-
     }
+  }
+  else if (label_style==LABEL_STYLE1){
+    cr->set_source_rgba(1,1,1,0.5);
+    cr->mask(bw_surface,0,0);
+  }
+  else if (label_style==LABEL_STYLE3){
+    Cairo::RefPtr<Cairo::SurfacePattern> patt =
+      Cairo::SurfacePattern::create(cr_e.get_im_surface());
+    cr->set_source(patt);
+    cr->mask(bw_surface,0,0);
   }
 }
 
