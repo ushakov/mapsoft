@@ -1,15 +1,14 @@
 #!/bin/sh -efu
 
 # directory with source vmap files
-vmap_dir=/home/sla/MYMAP3/_podm/vmap
+vmap_dir=./map_podm
 nom_rscale=50000
 fig_rscale=100000
 
-# tile scales
-ts=13
-big_ts=9
+# google scale
+sc=9
 
-# big tiles to create
+# tiles to create
 x1=310
 x2=310
 y1=160
@@ -19,18 +18,18 @@ k=20037508.3 # mapsoft google proj units (equator meters) per scale=1 tile
 
 ######################################################################
 
-update_big_tile(){
+update_tile(){
   local x=$1;
   local y=$2;
 
   echo "tile: $x $y"
   local x1 x2 y1 y2 dx dy
 
-  x1="$(dc -e "10k $x 2 $big_ts 1 - ^ / 1 - $k * p")"
-  x2="$(dc -e "10k $x 1 +  2 $big_ts 1 - ^ / 1 - $k * p")"
+  x1="$(dc -e "10k $x 2 $sc 1 - ^ / 1 - $k * p")"
+  x2="$(dc -e "10k $x 1 +  2 $sc 1 - ^ / 1 - $k * p")"
 
-  y1="$(dc -e "10k 1 $y 1 + 2 $big_ts 1 - ^ / - $k * p")"
-  y2="$(dc -e "10k 1 $y 2 $big_ts 1 - ^ / - $k * p")"
+  y1="$(dc -e "10k 1 $y 1 + 2 $sc 1 - ^ / - $k * p")"
+  y2="$(dc -e "10k 1 $y 2 $sc 1 - ^ / - $k * p")"
 
   dx="$(dc -e "10k $x2 $x1 - p")"
   dy="$(dc -e "10k $y2 $y1 - p")"
@@ -44,17 +43,22 @@ update_big_tile(){
 #  echo "geom: $geom"
 #  echo "geom_ll: $geom_pll"
 
+  fig="t$x-$y.fig"
+
   nom_list="$(convs_nom -r "$geom_pll" "$nom_rscale")"
   src=
+  need_update=
   for i in $nom_list; do
     f=$vmap_dir/$i.vmap
-    [ ! -f "$f" ] || src="$src $f";
+    [ -f "$f" ] || continue
+    src="$src $f";
+    [ -f "$fig" -a "$f" -ot "$fig" ] || need_update=1
   done
+  [ -n "$need_update" ] || return 0
 
 #  echo "src maps: $src"
 
   # create fig files if needed
-  fig="t$x-$y.fig"
   if [ ! -f "$fig" ]; then
     mapsoft_convert --geom="$geom" --proj=google --datum=wgs84\
       --rscale="$fig_rscale" --dpi=1 --out="$fig".jpg --fig="$fig"
@@ -70,11 +74,9 @@ update_big_tile(){
 
   # copy vmaps
   # join_objects is very slow - i turn it off for tests
-  # TODO: problem with range setting!
   vmap_copy -v $my_src --out $fig\
-
-#    --range_datum=wgs84 --range_proj=google --range="$geom"\
-#    --set_brd_from_range --range_action=crop_spl # --join_objects 1e-4
+    --range_datum=wgs84 --range_proj=google --range="$geom"\
+    --set_brd_from_range --range_action=crop_spl # --join_objects 1e-4
 
 }
 
@@ -82,6 +84,6 @@ update_big_tile(){
 
 for x in $(seq $x1 $x2); do
   for y in $(seq $y1 $y2); do
-    update_big_tile "$x" "$y"
+    update_tile "$x" "$y"
   done
 done
