@@ -6,9 +6,7 @@
 #include <fstream>
 #include <list>
 #include <cstring>
-//#include <cairomm/cairommconfig.h>
-#include <cairomm/context.h>
-#include <cairomm/surface.h>
+#include <utils/cairo_wrapper.h>
 
 #include <2d/line_utils.h>
 #include "2d/line_dist.h"
@@ -18,15 +16,27 @@
 #include "vmap/zn.h"
 #include "vmap/vmap.h"
 
+typedef enum {
+  LABEL_STYLE0,
+  LABEL_STYLE1,
+  LABEL_STYLE2,
+  LABEL_STYLE3
+} label_style_t;
+
+typedef enum {
+  CONTOUR_STYLE0,
+  CONTOUR_STYLE1
+} contour_style_t;
+
 
 struct VMAPRenderer{
 
   const static double pics_dpi;
   const static char * pics_dir;
+  const label_style_t label_style;
+  const contour_style_t contour_style;
 
-  Cairo::RefPtr<Cairo::ImageSurface> surface;
-  Cairo::RefPtr<Cairo::ImageSurface> surface_e; // for erasing lines under text
-  Cairo::RefPtr<Cairo::Context> cr;
+  CairoWrapper cr, cr_e;
   vmap::world * W;
   double dpi, lw1, fs1;
   g_map ref;
@@ -34,10 +44,12 @@ struct VMAPRenderer{
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
 
-  VMAPRenderer(vmap::world * _W, int dpi_=300, int lm=0, int tm=0, int rm=0, int bm=0);
+  VMAPRenderer(vmap::world * _W,
+    int dpi_=300, int lm=0, int tm=0, int rm=0, int bm=0,
+    bool use_aa=true,
+    label_style_t   _label_style=LABEL_STYLE0,
+    contour_style_t _contour_style=CONTOUR_STYLE0);
 
-  void set_color(int c);
-  void set_th(double th);
   void unset_dash();
   void set_dash(double d1, double d2);
   void set_dash(double d1, double d2, double d3, double d4);
@@ -69,19 +81,21 @@ struct VMAPRenderer{
   // place image in points
   void render_im_in_points(int type, const char * fname);
 
-  void mkpath(const vmap::object & o, const int close, double curve_l=0);
-
   // path for drawing points
-  void mkptpath(const vmap::object & o);
+  void mkptpath(const dMultiLine & o);
 
-  void  render_polygons(int type, int col, double curve_l=0);
+  void  render_polygons(int type, int col, double curve_l=0,
+                        bool erase = false);
   // contoured polygons
-  void  render_polygons(int type, int fill_col, int cnt_col,
+  void  render_cnt_polygons(int type, int fill_col, int cnt_col,
                         double cnt_th, double curve_l=0);
   // polygons filled with image pattern
-  void render_polygons(int type, const char * fname, double curve_l=0);
-  void  render_line(int type, int col, double th, double curve_l);
+  void render_img_polygons(int type, const char * fname, double curve_l=0);
+
+  void  render_line(int type, int col, double th, double curve_l,
+                        bool erase = false);
   void  render_points(int type, int col, double th);
+
 
 
 

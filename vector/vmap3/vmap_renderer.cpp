@@ -7,7 +7,10 @@
 using namespace std;
 
 VMAPRenderer::VMAPRenderer(vmap::world * _W, int dpi_,
-    int lm, int tm, int rm, int bm): dpi(dpi_), W(_W){
+    int lm, int tm, int rm, int bm, bool use_aa,
+    label_style_t _label_style, contour_style_t _contour_style):
+      dpi(dpi_), W(_W), label_style(_label_style),
+      contour_style(_contour_style){
 
 
   ref = vmap::mk_tmerc_ref(*W, dpi/2.54, true);
@@ -32,19 +35,24 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int dpi_,
 
 
   // create Cairo surface and context
-  surface = Cairo::ImageSurface::create(
-    Cairo::FORMAT_ARGB32, rng.w, rng.h);
-  cr = Cairo::Context::create(surface);
+  cr.reset_surface(rng.w, rng.h);
 
   // antialiasing is not compatable with erasing
   // dark points under labels
-  cr->set_antialias(Cairo::ANTIALIAS_NONE); 
+  if (!use_aa) cr->set_antialias(Cairo::ANTIALIAS_NONE); 
+
+
+  if (label_style==LABEL_STYLE3){
+    cr_e.reset_surface(rng.w, rng.h);
+    cr_e->set_antialias(Cairo::ANTIALIAS_NONE);
+    cr_e->set_color(0xFFFFFF); cr_e->paint();
+  }
 
   // draw border, set clipping region
-  set_color(0xFFFFFF); cr->paint();
+  cr->set_color(0xFFFFFF); cr->paint();
   for (dLine::const_iterator p=ref.border.begin(); p!=ref.border.end(); p++){
-    if (p==ref.border.begin()) cr->move_to(p->x,p->y);
-    else cr->line_to(p->x,p->y);
+    if (p==ref.border.begin()) cr->move_to(*p);
+    else cr->line_to(*p);
   }
   cr->close_path();
   cr->save();
@@ -96,18 +104,6 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int dpi_,
 }
 
 void
-VMAPRenderer::set_color(int c){
-  cr->set_source_rgb(
-    ((c&0xFF0000)>>16)/256.0,
-    ((c&0xFF00)>>8)/256.0,
-    (c&0xFF)/256.0
-  );
-}
-void
-VMAPRenderer::set_th(double th){
-  cr->set_line_width(th*lw1);;
-}
-void
 VMAPRenderer::unset_dash(){
   cr->unset_dash();
 }
@@ -148,83 +144,45 @@ VMAPRenderer::set_join_round(){
   cr->set_line_join(Cairo::LINE_JOIN_ROUND);
 }
 
-void
-VMAPRenderer::mkpath(const vmap::object & o, const int close, double curve_l){
-  curve_l*=lw1;
-  for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
-    if (l->size()<1) continue;
-    dPoint old;
-    bool first = true;
-    for (dLine::const_iterator p=l->begin(); p!=l->end(); p++){
-      if (p==l->begin()){
-        cr->move_to(p->x, p->y);
-        old=*p;
-        continue;
-      }
-      if (curve_l==0){
-        cr->line_to(p->x, p->y);
-      }
-      else {
-        dPoint p1,p2;
-        if (pdist(*p - old) > 2*curve_l){
-          p1 = old + pnorm(*p - old)*curve_l;
-          p2 = *p - pnorm(*p - old)*curve_l;
-        }
-        else {
-          p1=p2=(*p+old)/2.0;
-        }
-        if (!first){
-          cr->curve_to(old.x, old.y, old.x, old.y, p1.x, p1.y);
-        }
-        else {
-          first=false;
-        }
-        cr->line_to(p2.x, p2.y);
-      }
-      old=*p;
-    }
-    if (curve_l!=0)  cr->line_to(old.x, old.y);
-    if (close) cr->close_path();
-  }
-}
-
 // path for drawing points
 void
-VMAPRenderer::mkptpath(const vmap::object & o){
+VMAPRenderer::mkptpath(const dMultiLine & o){
   for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
     if (l->size()<1) continue;
     dPoint p = *l->begin();
-    cr->move_to(p.x, p.y);
-    cr->rel_line_to(0,0);
+    cr->move_to(p);
+    cr->rel_line_to(dPoint());
   }
 }
 
 
 void
-VMAPRenderer::render_polygons(int type, int col, double curve_l){
-  cr->save();
-  set_color(col);
+VMAPRenderer::render_polygons(int type, int col, double curve_l, bool erase){
+  CairoWrapper c = erase? cr_e:cr;
+  if (!c) return;
+  c->save();
+  c->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
-    mkpath(*o, 1, curve_l);
-    cr->fill();
+    c->mkpath_smline(*o, 1, curve_l*lw1);
+    c->fill();
   }
-  cr->restore();
+  c->restore();
 }
 
 // contoured polygons
 void
-VMAPRenderer::render_polygons(int type, int fill_col, int cnt_col,
+VMAPRenderer::render_cnt_polygons(int type, int fill_col, int cnt_col,
                               double cnt_th, double curve_l){
   cr->save();
-  set_color(fill_col);
+  cr->set_color(fill_col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!= (type | zn::area_mask)) continue;
-    mkpath(*o, 1, curve_l);
+    cr->mkpath_smline(*o, 1, curve_l*lw1);
     cr->fill_preserve();
     cr->save();
-    set_color(cnt_col);
-    set_th(cnt_th);
+    cr->set_color(cnt_col);
+    cr->set_line_width(cnt_th*lw1);
     cr->stroke();
     cr->restore();
   }
@@ -233,7 +191,8 @@ VMAPRenderer::render_polygons(int type, int fill_col, int cnt_col,
 
 // polygons filled with image pattern
 void
-VMAPRenderer::render_polygons(int type, const char * fname, double curve_l){
+VMAPRenderer::render_img_polygons(int type, const char * fname, double curve_l){
+  if (!cr) return;
   cr->save();
   Cairo::RefPtr<Cairo::SurfacePattern> patt =
     get_patt_from_png(fname);
@@ -241,7 +200,7 @@ VMAPRenderer::render_polygons(int type, const char * fname, double curve_l){
   cr->set_source(patt);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
-    mkpath(*o, 1, curve_l);
+    cr->mkpath_smline(*o, 1, curve_l*lw1);
     cr->fill();
   }
   cr->restore();
@@ -249,23 +208,29 @@ VMAPRenderer::render_polygons(int type, const char * fname, double curve_l){
 
 
 void
-VMAPRenderer::render_line(int type, int col, double th, double curve_l){
-  cr->save();
-  set_th(th);
-  set_color(col);
+VMAPRenderer::render_line(int type, int col, double th, double curve_l,
+                          bool erase){
+
+  CairoWrapper c = erase? cr_e:cr;
+  if (!c) return;
+
+  c->save();
+  c->set_line_width(th*lw1);
+  c->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
-    mkpath(*o, 0, curve_l);
+    c->mkpath_smline(*o, 0, curve_l*lw1);
   }
-  cr->stroke();
-  cr->restore();
+  c->stroke();
+  c->restore();
 }
 
 void
 VMAPRenderer::render_points(int type, int col, double th){
+  if (!cr) return;
   cr->save();
-  set_th(th);
-  set_color(col);
+  cr->set_line_width(th*lw1);
+  cr->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=type) continue;
     mkptpath(*o);
@@ -282,8 +247,8 @@ VMAPRenderer::mkbrpath1(const vmap::object & o){
   for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
     if (l->size()<2) continue;
     dPoint p1 = (*l)[0], p2 = (*l)[1];
-    cr->move_to(p1.x, p1.y);
-    cr->line_to(p2.x, p2.y);
+    cr->move_to(p1);
+    cr->line_to(p2);
   }
 }
 void
@@ -296,15 +261,15 @@ VMAPRenderer::mkbrpath2(const vmap::object & o, double th, double side){
     dPoint t = pnorm(p2-p1);
     dPoint n(-t.y, t.x);
     dPoint P;
-    P = p1 + th*n + side*(n-t); cr->move_to(P.x, P.y);
-    P = p1 + th*n;              cr->line_to(P.x, P.y);
-    P = p2 + th*n;              cr->line_to(P.x, P.y);
-    P = p2 + th*n + side*(n+t); cr->line_to(P.x, P.y);
+    P = p1 + th*n + side*(n-t); cr->move_to(P);
+    P = p1 + th*n;              cr->line_to(P);
+    P = p2 + th*n;              cr->line_to(P);
+    P = p2 + th*n + side*(n+t); cr->line_to(P);
 
-    P = p1 - th*n - side*(n+t); cr->move_to(P.x, P.y);
-    P = p1 - th*n;              cr->line_to(P.x, P.y);
-    P = p2 - th*n;              cr->line_to(P.x, P.y);
-    P = p2 - th*n - side*(n-t); cr->line_to(P.x, P.y);
+    P = p1 - th*n - side*(n+t); cr->move_to(P);
+    P = p1 - th*n;              cr->line_to(P);
+    P = p2 - th*n;              cr->line_to(P);
+    P = p2 - th*n - side*(n-t); cr->line_to(P);
   }
 }
 void
@@ -313,8 +278,8 @@ VMAPRenderer::render_bridge(int type, double th1, double th2, double side){
   cr->set_line_cap(Cairo::LINE_CAP_BUTT);
   cr->set_line_join(Cairo::LINE_JOIN_ROUND);
   if (th1!=0){
-    set_th(th1);
-    set_color(0xFFFFFF);
+    cr->set_line_width(th1*lw1);
+    cr->set_color(0xFFFFFF);
     for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
       if (o->type!=(type | zn::line_mask)) continue;
       mkbrpath1(*o);
@@ -322,8 +287,8 @@ VMAPRenderer::render_bridge(int type, double th1, double th2, double side){
     cr->stroke();
     th1+=th2;
   }
-  set_th(th2);
-  set_color(0x0);
+  cr->set_line_width(th2*lw1);
+  cr->set_color(0x0);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     mkbrpath2(*o, th1, side);
@@ -341,8 +306,8 @@ VMAPRenderer::render_line_el(int type, int col, double th, double step){
 
   cr->save();
   set_cap_round();
-  set_th(1.8);
-  set_color(col);
+  cr->set_line_width(1.8*lw1);
+  cr->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
@@ -359,9 +324,9 @@ VMAPRenderer::render_line_el(int type, int col, double th, double step){
         p1+=vn; p3-=vn;
         if (n%4 == 1){ p1+=vt; p3+=vt;}
         if (n%4 == 3){ p1-=vt; p3-=vt;}
-        cr->move_to(p1.x, p1.y);
-        cr->line_to(p2.x, p2.y);
-        cr->line_to(p3.x, p3.y);
+        cr->move_to(p1);
+        cr->line_to(p2);
+        cr->line_to(p3);
         n++;
         ld.move_frw(fstep);
       }
@@ -379,8 +344,8 @@ VMAPRenderer::render_line_obr(int type, int col, double th){
 
   cr->save();
   set_cap_round();
-  set_th(th);
-  set_color(col);
+  cr->set_line_width(th*lw1);
+  cr->set_color(col);
 
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
@@ -393,8 +358,8 @@ VMAPRenderer::render_line_obr(int type, int col, double th){
       ld.move_frw(fstep/2);
       while (ld.dist() < ld.length()){
        dPoint p=ld.pt(), vn=ld.norm()*width*k;
-        cr->move_to(p.x, p.y);
-        cr->line_to(p.x+vn.x, p.y+vn.y);
+        cr->move_to(p);
+        cr->line_to(p+vn);
         ld.move_frw(fstep);
       }
     }
@@ -411,8 +376,8 @@ VMAPRenderer::render_line_zab(int type, int col, double th){
 
   cr->save();
   set_cap_round();
-  set_th(th);
-  set_color(col);
+  cr->set_line_width(th*lw1);
+  cr->set_color(col);
 
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
@@ -426,8 +391,8 @@ VMAPRenderer::render_line_zab(int type, int col, double th){
       int n=0;
       while (ld.dist() < ld.length()){
        dPoint p=ld.pt(), v=(ld.norm()-ld.tang())*width*k;
-        cr->move_to(p.x, p.y);
-        cr->line_to(p.x+v.x, p.y+v.y);
+        cr->move_to(p);
+        cr->line_to(p+v);
         ld.move_frw((n%2==0)?width:fstep-width);
         n++;
       }
@@ -444,7 +409,7 @@ VMAPRenderer::render_line_gaz(int type, int col, double th, double step){
   step*=lw1;
 
   cr->save();
-  set_th(1);
+  cr->set_line_width(lw1);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
@@ -460,16 +425,16 @@ VMAPRenderer::render_line_gaz(int type, int col, double th, double step){
       }
     }
   }
-  set_color(0xFFFFFF);
+  cr->set_color(0xFFFFFF);
   cr->fill_preserve();
-  set_color(col);
+  cr->set_color(col);
   cr->stroke();
   cr->restore();
 }
 
 void
 VMAPRenderer::save_image(const char * png, const char * map){
-  if (png) surface->write_to_png(png);
+  if (png) cr.get_im_surface()->write_to_png(png);
   if (!map) return;
   g_map M = ref;
   M.file = png;
@@ -582,8 +547,8 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
     dPoint pc(p); cnv.bck(pc);
     if (labels) render_grid_label(pc.x, p.x, true);
     else {
-      cr->move_to(pc.x, pbc.y);
-      cr->line_to(pc.x, pec.y);
+      cr->Cairo::Context::move_to(pc.x, pbc.y);
+      cr->Cairo::Context::line_to(pc.x, pec.y);
     }
     p.x+=dx;
   }
@@ -592,8 +557,8 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
     if (labels && (p.y > pb.y+m) && (p.y<pe.y-m))
       render_grid_label(pc.y, p.y, false);
     else {
-      cr->move_to(pbc.x, pc.y);
-      cr->line_to(pec.x, pc.y);
+      cr->Cairo::Context::move_to(pbc.x, pc.y);
+      cr->Cairo::Context::line_to(pec.x, pc.y);
     }
     p.y+=dy;
   }
@@ -608,33 +573,56 @@ VMAPRenderer::render_objects(){
   //*******************************
 
   render_polygons(0x16, 0xAAFFAA); // лес
+
   render_polygons(0x52, 0xFFFFFF); // поле
   render_polygons(0x15, 0xAAFFAA); // остров леса
 
-  list<iPoint> cnt = make_cnt(0xAAFFAA, 2);     // контуры леса
+  list<iPoint> cnt;
+  if (contour_style==CONTOUR_STYLE1)
+    cnt = make_cnt(0xAAFFAA, 2);     // контуры леса
 
-  render_polygons(0x4f, "vyr_n.png");
-  render_polygons(0x50, "vyr_o.png");
-  render_polygons(0x14, "redk.png");
+  render_img_polygons(0x4f, "vyr_n.png");
+  render_img_polygons(0x50, "vyr_o.png");
+  render_img_polygons(0x14, "redk.png");
 
   render_polygons(0x15, 0xAAFFAA); // остров леса поверх вырубок
 
-  filter_cnt(cnt, 0xAAFFAA); // убираем контуры, оказавшеся поверх вырубок
-  draw_cnt(cnt, 0x009000, 1); // рисуем контуры
+  if (contour_style==CONTOUR_STYLE1){
+    filter_cnt(cnt, 0xAAFFAA); // убираем контуры, оказавшеся поверх вырубок
+    draw_cnt(cnt, 0x009000, 1); // рисуем контуры
+  }
 
   set_cap_round(); set_join_round(); set_dash(0, 2);
   render_line(0x23, 0x009000, 1, 0); // контуры, нарисованные вручную
   unset_dash();
 
-  render_polygons(0x4d, 0xC3E6FF,0,0,20); // ледник
+  render_polygons(0x4d, 0xC3E6FF,20.0); // ледник
+
+  if (label_style==LABEL_STYLE3){
+    render_polygons(0x16, 0xAAFFAA, 0.0, true); // лес
+    render_polygons(0x52, 0xFFFFFF, 0.0, true); // поле
+    render_polygons(0x4f, 0xFFFFFF, 0.0, true);
+    render_polygons(0x50, 0xAAFFAA, 0.0, true);
+    render_polygons(0x14, 0xFFFFFF, 0.0, true);
+    render_polygons(0x15, 0xAAFFAA, 0.0, true); // остров леса
+    render_polygons(0x4d, 0xC3E6FF, 0.0, true); // ледник
+  }
 
   //*******************************
 
-  render_polygons(0x4,  0xB0B0B0, 0x000000, 0.7); // закрытые территории
-  render_polygons(0xE,  0xFF8080, 0x000000, 0.7); // деревни
-  render_polygons(0x1,  0xB05959, 0x000000, 0.7); // города
-  render_polygons(0x4E, 0x557F55, 0x000000, 0.7); // дачи
-  render_polygons(0x1A, 0x557F55, 0x000000, 0.7); // кладбища
+  render_cnt_polygons(0x4,  0xB0B0B0, 0x000000, 0.7); // закрытые территории
+  render_cnt_polygons(0xE,  0xFF8080, 0x000000, 0.7); // деревни
+  render_cnt_polygons(0x1,  0xB05959, 0x000000, 0.7); // города
+  render_cnt_polygons(0x4E, 0x557F55, 0x000000, 0.7); // дачи
+  render_cnt_polygons(0x1A, 0x557F55, 0x000000, 0.7); // кладбища
+
+  if (label_style==LABEL_STYLE3){
+    render_polygons(0x4,  0xB0B0B0, 0.0, true); // закрытые территории
+    render_polygons(0xE,  0xFF8080, 0.0, true); // деревни
+    render_polygons(0x1,  0xFF8080, 0.0, true); // города
+    render_polygons(0x4E, 0x557F55, 0.0, true); // дачи
+    render_polygons(0x1A, 0x557F55, 0.0, true); // кладбища
+  }
 
   //*******************************
 
@@ -655,6 +643,17 @@ VMAPRenderer::render_objects(){
   if (hr) hreb_col = 0xC06000;
   render_line(0xC,  hreb_col, 2, 20); // хребет
 
+  if ((label_style==LABEL_STYLE3) && hr){
+    vector<double> d;
+    d.push_back(8*lw1);
+    d.push_back(3*lw1);
+    cr_e->set_dash(d, 0);
+    render_line(0x20, hor_col, 1, 20, true); // пунктирные горизонтали
+    cr_e->unset_dash();
+    render_line(0x21, hor_col, 1, 20, true); // горизонтали
+    render_line(0x22, hor_col, 1.6, 20, true); // жирные горизонтали
+  }
+
   //*******************************
 
   set_cap_butt();
@@ -667,8 +666,8 @@ VMAPRenderer::render_objects(){
 
   //*******************************
 
-  render_polygons(0x51, "bol_l.png"); // болота
-  render_polygons(0x4C, "bol_h.png"); // болота труднопроходимые
+  render_img_polygons(0x51, "bol_l.png"); // болота
+  render_img_polygons(0x4C, "bol_h.png"); // болота труднопроходимые
   render_line(0x24, 0x5066FF, 1, 0); // старые болота
 
   //*******************************
@@ -684,11 +683,18 @@ VMAPRenderer::render_objects(){
   render_line(0x18, 0x5066FF, 2, 10); // река-2
   render_line(0x1F, 0x5066FF, 3, 10); // река-3
 
-  render_polygons(0x29, water_col, 0x5066FF, 1, 20); // водоемы
-  render_polygons(0x3B, water_col, 0x5066FF, 1, 20); // большие водоемы
-  render_polygons(0x53, 0xFFFFFF, 0x5066FF, 1, 20); // острова
+  render_cnt_polygons(0x29, water_col, 0x5066FF, 1, 20); // водоемы
+  render_cnt_polygons(0x3B, water_col, 0x5066FF, 1, 20); // большие водоемы
+  render_cnt_polygons(0x53, 0xFFFFFF, 0x5066FF, 1, 20); // острова
 
   render_line(0x1F, water_col, 1, 10); // середина реки-3
+
+  if (label_style==LABEL_STYLE3){
+    render_polygons(0x29, water_col, 0.0, true); // водоемы
+    render_polygons(0x3B, water_col, 0.0, true); // большие водоемы
+    render_polygons(0x53, 0xFFFFFF, 0.0, true); // острова
+    render_line(0x1F, water_col, 3, 10, true); // середина реки-3
+  }
 
   //*******************************
 
@@ -696,6 +702,12 @@ VMAPRenderer::render_objects(){
   render_line_el(0x1A, 0x888888, 2); // маленькая ЛЭП
   render_line_el(0x29, 0x888888, 3); // большая ЛЭП
   render_line_gaz(0x28, 0x888888, 3); // газопровод
+
+  if (label_style==LABEL_STYLE3){
+    render_line(0x1A, 0x888888, 2, 0, true); // маленькая ЛЭП
+    render_line(0x29, 0x888888, 3, 0, true); // большая ЛЭП
+    render_line(0x28, 0x888888, 3, 0, true); // газопровод
+  }
 
   //*******************************
 
@@ -741,6 +753,20 @@ VMAPRenderer::render_objects(){
   render_bridge(0x09, 3, 1, 2); // мост-2
   render_bridge(0x0E, 6, 1, 2); // мост-5
 
+  if (label_style==LABEL_STYLE3){
+    render_line(0x4,  0xFFFFFF, 3, 10, true); // проезжий грейдер
+    render_line(0x7,  0xFFFFFF, 3, 10, true); // непроезжий грейдер
+    render_line(0x2,  0xFF8080, 4, 10, true); // асфальт
+    render_line(0xB,  0xFF8080, 5, 10, true); // большой асфальт
+    render_line(0x1,  0xFF8080, 7, 10, true); // автомагистраль
+
+    render_line(0x1B, 0xFFFFFF, 1, 0, true); // туннель
+    render_line(0x08, 0xFFFFFF, 1, 0, true); // мост-1
+    render_line(0x09, 0xFFFFFF, 2, 0, true); // мост-2
+    render_line(0x0E, 0xFFFFFF, 5, 0, true); // мост-5
+  }
+
+
   int pt_col = 0;
   if (hr) pt_col = 0x803000;
 
@@ -752,15 +778,15 @@ VMAPRenderer::render_objects(){
 
   render_im_in_points(0x6402, "dom.png"); // дом
   render_im_in_points(0x1000, "ur_vod.png"); // отметка уреза воды
-  render_im_in_points(0x6508, "popng"); // порог
+  render_im_in_points(0x6508, "por.png"); // порог
   render_im_in_points(0x650E, "vdp.png"); // водопад
-  if (hr) render_im_in_points(0x0F00, "trig_hpng");
+  if (hr) render_im_in_points(0x0F00, "trig_hr.png");
   else render_im_in_points(0x0F00, "trig.png");
   render_im_in_points(0x2C04, "pam.png");
   render_im_in_points(0x2C0B, "cerkov.png");
   render_im_in_points(0x2F08, "avt.png");
   render_im_in_points(0x5905, "zd.png");
-  render_im_in_points(0x6406, "pepng");
+  render_im_in_points(0x6406, "per.png");
   render_im_in_points(0x6620, "pernk.png");
   render_im_in_points(0x6621, "per1a.png");
   render_im_in_points(0x6622, "per1b.png");
@@ -776,7 +802,7 @@ VMAPRenderer::render_objects(){
   render_im_in_points(0x640C, "shaht.png");
   render_im_in_points(0x6603, "yama.png");
   render_im_in_points(0x6606, "ohotn.png");
-  render_im_in_points(0x6613, "pupypng");
+  render_im_in_points(0x6613, "pupyr.png");
   render_im_in_points(0x6616, "skala.png");
   render_im_in_polygons(0x1A, "cross.png"); // крестики на кладбищах
 

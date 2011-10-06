@@ -19,6 +19,26 @@ void usage(){
      << "    -N  --draw_name         -- draw map name\n"
      << "    -D  --draw_date         -- draw date stamp\n"
      << "    -T  --draw_text <text>  -- draw text\n"
+     << "        --antialiasing <0|1>  -- set antialiasing (default 1)\n"
+     << "        --contour_style <0|1> -- set contour style (default 1)\n"
+     << "        --label_style <int>   -- set label style 0..3 (default 1)\n"
+     << "\n"
+     << "label styles:\n"
+     << " 0 -- don't erase objects under text\n"
+     << " 1 -- lighten all objects under text [default]\n"
+     << " 2 -- erase dark objects by adjesent light color\n"
+     << "      - do not use this mode with antialiasing\n"
+     << "      - can be inaccurate on large dark objects\n"
+     << " 3 -- the best erasing (needs ~x2 more memory to run)\n"
+     << "      - todo: make smooth edges\n"
+     << "\n"
+     << "contour styles:\n"
+     << " 0 -- no auto contours around forests\n"
+     << " 1 -- draw contours (needs slightly more memory and time) [default]\n"
+     << "\n"
+     << "antialiasing:\n"
+     << " 0 -- don't do antialiasing (needs 2x time (!))\n"
+     << " 1 -- do antialiasing (needs slightly more memory) [default]\n"
   ;
   exit(1);
 }
@@ -32,6 +52,9 @@ static struct option options[] = {
   {"draw_name",     0, 0, 'N'},
   {"draw_date",     0, 0, 'D'},
   {"draw_text",     1, 0, 'T'},
+  {"antialiasing",   1, 0, 0},
+  {"contour_style",  1, 0, 0},
+  {"label_style",    1, 0, 0},
   {0,0,0,0}
 };
 
@@ -63,6 +86,29 @@ main(int argc, char* argv[]){
     lm+=dpi/6;
   }
 
+  bool use_aa = O.get<bool>("antialiasing", true);
+
+  contour_style_t cs;
+  switch(O.get<int>("contour_style", 1)){
+    case 0: cs=CONTOUR_STYLE0; break;
+    case 1: cs=CONTOUR_STYLE1; break;
+    default:
+      cerr << "Error: unknowl contour style: "
+           << O.get<int>("contour_style", 0) << " (must be 0..1)\n";
+      exit(1);
+  }
+
+  label_style_t ls;
+  switch(O.get<int>("label_style", 1)){
+    case 0: ls=LABEL_STYLE0; break;
+    case 1: ls=LABEL_STYLE1; break;
+    case 2: ls=LABEL_STYLE2; break;
+    case 3: ls=LABEL_STYLE3; break;
+    default:
+      cerr << "Error: unknowl label style: "
+           << O.get<int>("label_style", 0) << " (must be 0..3)\n";
+      exit(1);
+  }
 
   vmap::world W=vmap::read(ifile);
   if (W.size()==0) exit(1);
@@ -78,7 +124,7 @@ main(int argc, char* argv[]){
     W.brd = nom_cnv.line_bck(rect2line(nom_range));
   }
 
-  VMAPRenderer R(&W, dpi, lm, tm, rm, bm);
+  VMAPRenderer R(&W, dpi, lm, tm, rm, bm, use_aa, ls, cs);
 
   R.render_objects();
 

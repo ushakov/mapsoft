@@ -8,6 +8,7 @@
 
 #include "2d/image.h"
 #include "2d/point.h"
+#include "2d/line.h"
 #include "2d/rect.h"
 
 /// This class contains functions
@@ -26,8 +27,10 @@ struct CairoExtra : public Cairo::Context {
   void circle(const dPoint &p, const double r);
   dPoint get_current_point();
   dRect  get_text_extents(const std::string & utf8);
+  // make path for smoothed line
+  void mkpath_smline(const dMultiLine & o, const int close, double curve_l=0);
+  void mkpath_smline(const dLine & o, const int close, double curve_l=0);
 
-  unsigned char *get_data();
 };
 
 struct CairoWrapper: Cairo::RefPtr<CairoExtra> {

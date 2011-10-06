@@ -63,10 +63,10 @@ VMAPRenderer::erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
                                int dark_th, int search_dist){
 
   // data and s indentifiers used in COL macro!
-  unsigned char *data=surface->get_data();
-  int w=surface->get_width();
-  int h=surface->get_height();
-  int s=surface->get_stride();
+  unsigned char *data=cr.get_im_surface()->get_data();
+  int w=cr.get_im_surface()->get_width();
+  int h=cr.get_im_surface()->get_height();
+  int s=cr.get_im_surface()->get_stride();
 #define COL(x,y)  ((data[s*(y) + 4*(x) + 2] << 16)\
                  + (data[s*(y) + 4*(x) + 1] << 8)\
                  +  data[s*(y) + 4*(x) + 0])
@@ -82,6 +82,10 @@ VMAPRenderer::erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
   unsigned char *bw_data=bw_surface->get_data();
   int bws=bw_surface->get_stride();
 
+  unsigned char *data_e=NULL;
+  if (label_style==LABEL_STYLE3)
+    data_e=cr_e.get_im_surface()->get_data();
+
 #define IS_TEXT(x,y)  ((bw_data[bws*(y) + (x)/8] >> ((x)%8))&1)\
 
   // walk through all points
@@ -89,32 +93,35 @@ VMAPRenderer::erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
     for (int x=0; x<w; x++){
       if (!IS_TEXT(x,y)) continue;
 
-      if (!IS_DARK(x,y)) continue;
-
-#ifdef ERASE_MODE_SMOOTH
-      for (int i=0; i<3; i++){
-         int ii=s*y + 4*x + i;
-         data[ii] = 255- (255-data[ii])/2;
-      }
-#else
-      // find nearest point with light color:
-      int r = search_dist;
-      int dd = 2*search_dist*search_dist+1;
-      int yym=y, xxm=x;
-      for (int yy = MAX(0, y-r); yy < MIN(h, y+r+1); yy++){
-        for (int xx = MAX(0, x-r); xx < MIN(w, x+r+1); xx++){
-          if (IS_DARK(xx,yy)) continue;
-          if ((y-yy)*(y-yy) + (x-xx)*(x-xx) < dd){
-            dd = (y-yy)*(y-yy) + (x-xx)*(x-xx);
-            yym=yy; xxm=xx;
+      if (label_style==LABEL_STYLE1)
+        for (int i=0; i<3; i++){
+           int ii=s*y + 4*x + i;
+           data[ii] = 255- (255-data[ii])/2;
+        }
+      else if (label_style==LABEL_STYLE2){
+        if (!IS_DARK(x,y)) continue;
+        // find nearest point with light color:
+        int r = search_dist;
+        int dd = 2*search_dist*search_dist+1;
+        int yym=y, xxm=x;
+        for (int yy = MAX(0, y-r); yy < MIN(h, y+r+1); yy++){
+          for (int xx = MAX(0, x-r); xx < MIN(w, x+r+1); xx++){
+            if (IS_DARK(xx,yy)) continue;
+            if ((y-yy)*(y-yy) + (x-xx)*(x-xx) < dd){
+              dd = (y-yy)*(y-yy) + (x-xx)*(x-xx);
+              yym=yy; xxm=xx;
+            }
           }
         }
+        if ((xxm==x) && (yym==y))
+          memset(data + s*y + 4*x, 0xFF, 3);
+        else
+          memcpy(data + s*y + 4*x, data + s*yym + 4*xxm, 3);
       }
-      if ((xxm==x) && (yym==y))
-        memset(data + s*y + 4*x, 0xFF, 3);
-      else
-        memcpy(data + s*y + 4*x, data + s*yym + 4*xxm, 3);
-#endif
+      else if (label_style==LABEL_STYLE3){
+        memcpy(data + s*y + 4*x, data_e + s*y + 4*x, 3);
+      }
+
     }
   }
 }
@@ -125,11 +132,19 @@ VMAPRenderer::render_labels(double bound, int dark_th, int search_dist){
 
   zn::zn_conv zc(W->style);
 
-  Cairo::RefPtr<Cairo::ImageSurface> bw_surface = Cairo::ImageSurface::create(
-    Cairo::FORMAT_A1, surface->get_width(), surface->get_height());
-  Cairo::RefPtr<Cairo::Context> bw_cr = Cairo::Context::create(bw_surface);
-  bw_cr->set_line_width(bound*lw1);
-  bw_cr->set_line_join(Cairo::LINE_JOIN_ROUND);
+  Cairo::RefPtr<Cairo::ImageSurface> bw_surface;
+  Cairo::RefPtr<Cairo::Context> bw_cr;
+
+  if ((label_style==LABEL_STYLE1) ||
+      (label_style==LABEL_STYLE2) ||
+      (label_style==LABEL_STYLE3)){
+    bw_surface = Cairo::ImageSurface::create(
+      Cairo::FORMAT_A1, cr.get_im_surface()->get_width(),
+                        cr.get_im_surface()->get_height());
+    bw_cr = Cairo::Context::create(bw_surface);
+    bw_cr->set_line_width(bound*lw1);
+    bw_cr->set_line_join(Cairo::LINE_JOIN_ROUND);
+  }
 
   for (int pass=1; pass<=2; pass++){
     for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
@@ -137,9 +152,10 @@ VMAPRenderer::render_labels(double bound, int dark_th, int search_dist){
       if (z==zc.znaki.end()) continue;
       if (!z->second.label_type) continue;
 
-      set_color(z->second.txt.pen_color);
+      if (pass==2) cr->set_color(z->second.txt.pen_color);
 
       Cairo::RefPtr<Cairo::Context> cur_cr = (pass==1)? bw_cr:cr;
+      if (!cur_cr) continue;
 
       set_fig_font(z->second.txt.font, z->second.txt.font_size, cur_cr);
 
@@ -163,7 +179,8 @@ VMAPRenderer::render_labels(double bound, int dark_th, int search_dist){
         cur_cr->restore();
       }
     }
-    if (pass==1) erase_under_text(bw_surface, dark_th, search_dist);
+    if ((pass==1)&&(bw_surface))
+      erase_under_text(bw_surface, dark_th, search_dist);
   }
   cr->restore();
 }
@@ -172,20 +189,19 @@ void
 VMAPRenderer::render_text(const char *text, dPoint pos, double ang,
        int color, int fig_font, int font_size, int hdir, int vdir){
   cr->save();
-  set_color(color);
+  cr->set_color(color);
   set_fig_font(fig_font, font_size, cr);
 
-  Cairo::TextExtents ext;
-  cr->get_text_extents(text, ext);
+  dRect ext = cr->get_text_extents(text);
 
-  if (pos.x<0) pos.x=surface->get_width()+pos.x;
-  if (pos.y<0) pos.y=surface->get_height()+pos.y;
-  cr->move_to(pos.x, pos.y);
+  if (pos.x<0) pos.x=cr.get_im_surface()->get_width()+pos.x;
+  if (pos.y<0) pos.y=cr.get_im_surface()->get_height()+pos.y;
+  cr->move_to(pos);
   cr->rotate(ang);
-  if (hdir == 1) cr->rel_move_to(-ext.width/2, 0);
-  if (hdir == 2) cr->rel_move_to(-ext.width, 0);
-  if (vdir == 1) cr->rel_move_to(0, ext.height/2);
-  if (vdir == 2) cr->rel_move_to(0, ext.height);
+  if (hdir == 1) cr->Cairo::Context::rel_move_to(-ext.w/2, 0.0);
+  if (hdir == 2) cr->Cairo::Context::rel_move_to(-ext.w, 0.0);
+  if (vdir == 1) cr->Cairo::Context::rel_move_to(0.0, ext.h/2);
+  if (vdir == 2) cr->Cairo::Context::rel_move_to(0.0, ext.h);
 
   cr->reset_clip();
 

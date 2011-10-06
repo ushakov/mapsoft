@@ -16,10 +16,10 @@ VMAPRenderer::make_cnt(int col, double dist){
                        (p).y + ((i==2)?1:0) - ((i==0)?1:0))
 
   // data and s indentifires used in COL macro!
-  unsigned char *data=surface->get_data();
-  int w=surface->get_width();
-  int h=surface->get_height();
-  int s=surface->get_stride();
+  unsigned char *data=cr.get_im_surface()->get_data();
+  int w=cr.get_im_surface()->get_width();
+  int h=cr.get_im_surface()->get_height();
+  int s=cr.get_im_surface()->get_stride();
   std::list<iPoint> points;
   std::list<iPoint> ret;
 
@@ -65,10 +65,10 @@ VMAPRenderer::make_cnt(int col, double dist){
 void
 VMAPRenderer::filter_cnt(std::list<iPoint> & cnt, int col){
   // data and s indentifires used in COL macro!
-  unsigned char *data=surface->get_data();
-  int w=surface->get_width();
-  int h=surface->get_height();
-  int s=surface->get_stride();
+  unsigned char *data=cr.get_im_surface()->get_data();
+  int w=cr.get_im_surface()->get_width();
+  int h=cr.get_im_surface()->get_height();
+  int s=cr.get_im_surface()->get_stride();
   std::list<iPoint>::iterator p=cnt.begin();
   while (p != cnt.end()){
     if (p->x >= w || p->x < 0 || p->y >= h || p->y < 0) {
@@ -86,13 +86,13 @@ void
 VMAPRenderer::draw_cnt(const std::list<iPoint> & cnt, int c, double th){
   cr->save();
   cr->begin_new_path();
-  set_th(th);
-  set_color(c);
+  cr->set_line_width(th*lw1);
+  cr->set_color(c);
   cr->set_line_cap(Cairo::LINE_CAP_ROUND);
 
   for ( std::list<iPoint>::const_iterator p=cnt.begin(); p!=cnt.end(); p++){
-    cr->move_to(p->x, p->y);
-    cr->rel_line_to(0, 0);
+    cr->move_to(*p);
+    cr->rel_line_to(dPoint());
   }
   cr->stroke();
   cr->restore();
