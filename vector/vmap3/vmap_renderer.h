@@ -48,6 +48,8 @@ struct VMAPRenderer{
   void set_join_round();
 
 
+  void render_objects();
+
   // picture-related functions (see vmap_rend_pic.cpp)
 
   // create pattern from png-file, rescaled

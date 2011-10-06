@@ -613,3 +613,185 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
   cr->stroke();
   cr->restore();
 }
+
+void
+VMAPRenderer::render_objects(){
+    bool hr = (W.style == "hr");
+
+  //*******************************
+
+  render_polygons(0x16, 0xAAFFAA); // лес
+  render_polygons(0x52, 0xFFFFFF); // поле
+  render_polygons(0x15, 0xAAFFAA); // остров леса
+
+  list<iPoint> cnt = make_cnt(0xAAFFAA, 2);     // контуры леса
+
+  render_polygons(0x4f, "vyr_n.png");
+  render_polygons(0x50, "vyr_o.png");
+  render_polygons(0x14, "redk.png");
+
+  render_polygons(0x15, 0xAAFFAA); // остров леса поверх вырубок
+
+  filter_cnt(cnt, 0xAAFFAA); // убираем контуры, оказавшеся поверх вырубок
+  draw_cnt(cnt, 0x009000, 1); // рисуем контуры
+
+  set_cap_round(); set_join_round(); set_dash(0, 2);
+  render_line(0x23, 0x009000, 1, 0); // контуры, нарисованные вручную
+  unset_dash();
+
+  render_polygons(0x4d, 0xC3E6FF,0,0,20); // ледник
+
+  //*******************************
+
+  render_polygons(0x4,  0xB0B0B0, 0x000000, 0.7); // закрытые территории
+  render_polygons(0xE,  0xFF8080, 0x000000, 0.7); // деревни
+  render_polygons(0x1,  0xB05959, 0x000000, 0.7); // города
+  render_polygons(0x4E, 0x557F55, 0x000000, 0.7); // дачи
+  render_polygons(0x1A, 0x557F55, 0x000000, 0.7); // кладбища
+
+  //*******************************
+
+  int hor_col = 0xC06000;
+  if (hr) hor_col = 0xD0B090;
+
+  set_dash(8, 3);
+  render_line(0x20, hor_col, 1, 20); // пунктирные горизонтали
+  set_dash(2, 2);
+  render_line(0x2B, 0xC06000, 1, 0); // сухая канава
+  unset_dash();
+  render_line(0x21, hor_col, 1, 20); // горизонтали
+  render_line(0x22, hor_col, 1.6, 20); // жирные горизонтали
+
+  render_line(0x25, 0xA04000, 2, 20); // овраг
+
+  int hreb_col = 0x803000;
+  if (hr) hreb_col = 0xC06000;
+  render_line(0xC,  hreb_col, 2, 20); // хребет
+
+  //*******************************
+
+  set_cap_butt();
+  render_line(0x32, 0x00B400, 3, 10); // плохой путь
+  set_dash(1, 1);
+  render_line(0x33, 0x00B400, 3, 10); // удовлетворительный путь
+  render_line(0x34, 0xFFD800, 3, 10); // хороший путь
+  unset_dash();
+  render_line(0x35, 0xFFD800, 3, 10); // отличный путь
+
+  //*******************************
+
+  render_polygons(0x51, "bol_l.png"); // болота
+  render_polygons(0x4C, "bol_h.png"); // болота труднопроходимые
+  render_line(0x24, 0x5066FF, 1, 0); // старые болота
+
+  //*******************************
+
+  int water_col = 0x00FFFF;
+  if (hr) water_col = 0x87CEFF;
+
+  set_cap_round();
+  set_dash(4, 3);
+  render_line(0x26, 0x5066FF, 1, 10); // пересыхающая река
+  unset_dash();
+  render_line(0x15, 0x5066FF, 1, 10); // река-1
+  render_line(0x18, 0x5066FF, 2, 10); // река-2
+  render_line(0x1F, 0x5066FF, 3, 10); // река-3
+
+  render_polygons(0x29, water_col, 0x5066FF, 1, 20); // водоемы
+  render_polygons(0x3B, water_col, 0x5066FF, 1, 20); // большие водоемы
+  render_polygons(0x53, 0xFFFFFF, 0x5066FF, 1, 20); // острова
+
+  render_line(0x1F, water_col, 1, 10); // середина реки-3
+
+  //*******************************
+
+  set_cap_butt(); set_join_miter();
+  render_line_el(0x1A, 0x888888, 2); // маленькая ЛЭП
+  render_line_el(0x29, 0x888888, 3); // большая ЛЭП
+  render_line_gaz(0x28, 0x888888, 3); // газопровод
+
+  //*******************************
+
+  render_line(0x5, 0, 3, 0); // дома (перенести выше?)
+
+  set_join_round();
+  set_cap_round();
+  set_dash(0, 2.5);
+  render_line(0x2C, hor_col, 3, 10); // вал
+  unset_dash();
+
+  //*******************************
+  set_cap_butt();
+  render_line(0x7, 0xFFFFFF, 3, 10); // непроезжий грейдер - белая подложка
+  set_dash(5, 4); render_line(0x16, 0x0, 0.7, 0); // просека
+  set_dash(8, 5); render_line(0x1C, 0x0, 1.4, 0); // просека широкая
+  set_dash(6, 2); render_line(0xA,  0x0, 1, 10); // непроезжая грунтовка
+  set_dash(2, 2); render_line(0x2A, 0x0, 1, 10); // тропа
+  set_dash(6, 1); render_line(0x7,  0x0, 3, 10); // непроезжий грейдер - пун
+  unset_dash();
+  render_line(0x6,  0x0, 1, 10); // прозжая грунтовка
+  render_line(0x4,  0x0, 3, 10); // проезжий грейдер
+  render_line(0x2,  0x0, 4, 10); // асфальт
+  render_line(0xB,  0x0, 5, 10); // большой асфальт
+  render_line(0x1,  0x0, 7, 10); // автомагистраль
+  render_line(0x4,  0xFFFFFF, 1, 10); // проезжий грейдер - белая середина
+  render_line(0x7,  0xFFFFFF, 1, 10); // непроезжий грейдер - белая середина
+  render_line(0x2,  0xFF8080, 2, 10); // асфальт - середина
+  render_line(0xB,  0xFF8080, 3, 10); // большой асфальт - середина
+  render_line(0x1,  0xFF8080, 5, 10); // автомагистраль - середина
+  render_line(0x1,  0x0,      1, 10); // автомагистраль - черная середина
+  render_line(0xD,  0x0, 3, 10); // маленькая Ж/Д
+  render_line(0x27, 0x0, 4, 10); // Ж/Д
+  set_cap_round();
+  set_dash(4, 2, 0, 2);   render_line(0x1D, 0x900000, 1, 0); // граница
+
+  set_dash(2, 2); render_line(0x1E, 0x900000, 1, 0); // нижний край обрыва
+  unset_dash();   render_line_obr(0x03, 0x900000, 1); // верхний край обрыва
+  render_line_zab(0x19, 0x900000, 1); // забор
+
+  render_bridge(0x1B, 0, 1, 2); // туннель
+  render_bridge(0x08, 1, 1, 2); // мост-1
+  render_bridge(0x09, 3, 1, 2); // мост-2
+  render_bridge(0x0E, 6, 1, 2); // мост-5
+
+  int pt_col = 0;
+  if (hr) pt_col = 0x803000;
+
+// точечные объекты
+  set_cap_round();
+  render_points(0x1100, pt_col, 4); // отметка высоты
+  render_points(0xD00,  pt_col, 3); // маленькая отметка высоты
+  render_points(0x6414, 0x5066FF, 4); // родник
+
+  render_im_in_points(0x6402, "dom.png"); // дом
+  render_im_in_points(0x1000, "ur_vod.png"); // отметка уреза воды
+  render_im_in_points(0x6508, "popng"); // порог
+  render_im_in_points(0x650E, "vdp.png"); // водопад
+  if (hr) render_im_in_points(0x0F00, "trig_hpng");
+  else render_im_in_points(0x0F00, "trig.png");
+  render_im_in_points(0x2C04, "pam.png");
+  render_im_in_points(0x2C0B, "cerkov.png");
+  render_im_in_points(0x2F08, "avt.png");
+  render_im_in_points(0x5905, "zd.png");
+  render_im_in_points(0x6406, "pepng");
+  render_im_in_points(0x6620, "pernk.png");
+  render_im_in_points(0x6621, "per1a.png");
+  render_im_in_points(0x6622, "per1b.png");
+  render_im_in_points(0x6623, "per2a.png");
+  render_im_in_points(0x6624, "per2b.png");
+  render_im_in_points(0x6625, "per3a.png");
+  render_im_in_points(0x6626, "per3b.png");
+  render_im_in_points(0x660B, "kan.png");
+  render_im_in_points(0x650A, "ldp.png");
+  render_im_in_points(0x6403, "kladb.png");
+  render_im_in_points(0x6411, "bash.png");
+  render_im_in_points(0x6415, "razv.png");
+  render_im_in_points(0x640C, "shaht.png");
+  render_im_in_points(0x6603, "yama.png");
+  render_im_in_points(0x6606, "ohotn.png");
+  render_im_in_points(0x6613, "pupypng");
+  render_im_in_points(0x6616, "skala.png");
+  render_im_in_polygons(0x1A, "cross.png"); // крестики на кладбищах
+
+}
+
