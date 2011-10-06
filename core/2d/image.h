@@ -77,6 +77,10 @@ struct Image{
     }
 
   public:
+    /// Create empty image
+    Image(){
+      create(0,0);
+    }
     /// Create image with uninitialized data
     Image(int _w, int _h){
       create(_w, _h);
