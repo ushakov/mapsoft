@@ -431,7 +431,7 @@ struct RangeCutter{
     else {
       Options ProjO;
       ProjO.put<double>("lon0", lon0);
-      if (range.x>=1e6){
+      if ((P == Proj("tmerc")) && (range.x>=1e6)){
         double lon0p = convs::lon_pref2lon0(range.x);
         range.x = convs::lon_delprefix(range.x);
         ProjO.put<double>("lon0", lon0p);;
