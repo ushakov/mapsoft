@@ -7,7 +7,7 @@
 using namespace std;
 
 VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
-    const g_map & ref_, int dpi_, bool use_aa): dpi(dpi_), W(_W), ref(ref_){
+    const g_map & ref_, double dpi_, bool use_aa): dpi(dpi_), W(_W), ref(ref_){
 
   lw1 = dpi/105.0; // standard line width (1/105in?)
   fs1 = dpi/89.0;  // standard font size

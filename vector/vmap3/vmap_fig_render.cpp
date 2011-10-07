@@ -64,7 +64,7 @@ main(int argc, char* argv[]){
   const char * ifile = argv[0];
   const char * ofile = argv[1];
 
-  int dpi=O.get<int>("dpi", 300);
+  double dpi=O.get<double>("dpi", 300);
 
   // set margins
   int tm=0, bm=0, lm=0, rm=0;
