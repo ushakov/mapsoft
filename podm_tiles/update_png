@@ -1,0 +1,25 @@
+#!/bin/sh -efu
+
+. settings.sh
+
+######################################################################
+
+update_png_tile(){
+  local x=$1;
+  local y=$2;
+  echo "tile: $x $y"
+
+  local fig="$fig_dir/t$x-$y.fig"
+  local png="$png_dir/t$x-$y.png"
+
+  [ "$fig" -ot "$png" ] || vmap_fig_render -d "$tile_dpi" "$fig" "$png"
+}
+
+######################################################################
+
+mkdir -p -- "$png_dir"
+for x in $(seq $x1 $x2); do
+  for y in $(seq $y1 $y2); do
+    update_png_tile "$x" "$y"
+  done
+done
