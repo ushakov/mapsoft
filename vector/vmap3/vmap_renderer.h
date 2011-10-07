@@ -36,9 +36,8 @@ struct VMAPRenderer{
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
 
-  VMAPRenderer(vmap::world * _W,
-    int dpi_=300, int lm=0, int tm=0, int rm=0, int bm=0,
-    bool use_aa=true);
+  VMAPRenderer(vmap::world * _W, int w, int h,
+    const g_map & ref, int dpi_=300, bool use_aa=true);
 
   void unset_dash();
   void set_dash(double d1, double d2);

@@ -6,33 +6,17 @@
 
 using namespace std;
 
-VMAPRenderer::VMAPRenderer(vmap::world * _W, int dpi_,
-    int lm, int tm, int rm, int bm, bool use_aa): dpi(dpi_), W(_W){
-
-
-  ref = vmap::mk_tmerc_ref(*W, dpi/2.54, true);
+VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
+    const g_map & ref_, int dpi_, bool use_aa): dpi(dpi_), W(_W), ref(ref_){
 
   lw1 = dpi/105.0; // standard line width (1/105in?)
   fs1 = dpi/89.0;  // standard font size
 
-  dRect rng = ref.border.range();
-
-  ref+=dPoint(lm,tm);
-  convs::map2pt cnv = convs::map2pt(ref, Datum("WGS84"), Proj("lonlat"), Options());
-
-  rng.x = rng.y = 0;
-  rng.w+=lm+rm; if (rng.w<0) rng.w=0;
-  rng.h+=tm+bm; if (rng.h<0) rng.h=0;
-
-
-  cerr
-     << "  scale  = 1:" << int(W->rscale) << "\n"
-     << "  dpi    = " << dpi << "\n"
-     << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
-
+  convs::map2pt cnv = convs::map2pt(
+    ref, Datum("WGS84"), Proj("lonlat"), Options());
 
   // create Cairo surface and context
-  cr.reset_surface(rng.w, rng.h);
+  cr.reset_surface(w, h);
 
   // antialiasing is not compatable with erasing
   // dark points under labels
@@ -501,6 +485,10 @@ VMAPRenderer::render_grid_label(double c, double val, bool horiz){
 
 void
 VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
+
+  if (ref.map_proj != Proj("tmerc")){
+    cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
+  }
 
   convs::map2pt cnv(ref, Datum("pulkovo"), Proj("tmerc"), convs::map_popts(ref));
 

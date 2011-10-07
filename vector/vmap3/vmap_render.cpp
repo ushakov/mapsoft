@@ -109,7 +109,19 @@ main(int argc, char* argv[]){
     W.brd = nom_cnv.line_bck(rect2line(nom_range));
   }
 
-  VMAPRenderer R(&W, dpi, lm, tm, rm, bm, use_aa);
+  g_map ref = vmap::mk_tmerc_ref(W, dpi/2.54, true);
+
+  dRect rng = ref.border.range();
+  rng.x = rng.y = 0;
+  rng.w+=lm+rm; if (rng.w<0) rng.w=0;
+  rng.h+=tm+bm; if (rng.h<0) rng.h=0;
+  ref+=dPoint(lm,tm);
+  cerr
+     << "  scale  = 1:" << int(W.rscale) << "\n"
+     << "  dpi    = " << dpi << "\n"
+     << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
+
+  VMAPRenderer R(&W, rng.w, rng.h, ref, dpi, use_aa);
 
   R.render_objects(O.get<bool>("contours", true));
 
