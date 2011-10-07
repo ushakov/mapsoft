@@ -736,6 +736,7 @@ VMAPRenderer::render_holes(){
 
   // reversed order becouse of OPERATOR_DEST_OVER
 
+/*
   render_line(0x1B, 0xFFFFFF, 1); // туннель
   render_line(0x08, 0xFFFFFF, 1); // мост-1
   render_line(0x09, 0xFFFFFF, 2); // мост-2
@@ -746,6 +747,7 @@ VMAPRenderer::render_holes(){
   render_line(0x2,  0xFF8080, 4, 10); // асфальт
   render_line(0x4,  0xFFFFFF, 3, 10); // проезжий грейдер
   render_line(0x7,  0xFFFFFF, 3, 10); // непроезжий грейдер
+*/
 
   int water_col = 0x00FFFF;
   if (hr) water_col = 0x87CEFF;
