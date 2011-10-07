@@ -12,12 +12,45 @@ update_png_tile(){
   local fig="$fig_dir/t$x-$y.fig"
   local png="$png_dir/t$x-$y.png"
 
-  [ "$fig" -ot "$png" ] || vmap_fig_render -d "$tile_dpi" "$fig" "$png"
+  [ "$fig" -nt "$png" ] || return 0
+
+  vmap_fig_render -d "$tile_dpi" "$fig" "$png"
+  make_tiles "$x" "$y"
 }
+
+make_tiles(){ # make 256x256 tiles
+  local x=$1;
+  local y=$2;
+
+  echo "create 256x256 tiles..."
+
+  local src="$png_dir/t$x-$y.png"
+  local tile_count="$(($tile_size_px/256))"
+
+  local tiles="$(mktemp -u tileXXXXXX)"
+
+  convert "$src" +gravity -crop 256x256  "$tiles-%d.png"
+
+  for xx in $(seq 1 $tile_count); do
+    for yy in $(seq 1 $tile_count); do
+      # name of converted tile
+      local n="$(($xx-1 + ($yy-1)*$tile_count))"
+      local png="$tiles-$n.png"
+      # absolute.
+      local ax="$(($x * $tile_count + $xx - 1))"
+      local ay="$(($y * $tile_count + $yy - 1))"
+
+      [ -f "$png" ] || echo "Error: can't find $n-th tile!"
+      mv -f -- "$png" "$tile_dir/$ax-$ay.png"
+    done
+  done
+
+}
+
 
 ######################################################################
 
-mkdir -p -- "$png_dir"
+mkdir -p -- "$png_dir" "$tile_dir"
 for x in $(seq $x1 $x2); do
   for y in $(seq $y1 $y2); do
     update_png_tile "$x" "$y"
