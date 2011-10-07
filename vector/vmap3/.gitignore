@@ -1,4 +1,6 @@
 vmap_copy
 vmap_join
 vmap_render
+vmap_fig_render
 vmap_mmb_filter
+vmap_fix_diff
