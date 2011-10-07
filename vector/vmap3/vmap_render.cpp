@@ -109,16 +109,14 @@ main(int argc, char* argv[]){
     W.brd = nom_cnv.line_bck(rect2line(nom_range));
   }
 
-  VMAPRenderer R(&W, dpi, lm, tm, rm, bm, use_aa, ls);
+  VMAPRenderer R(&W, dpi, lm, tm, rm, bm, use_aa);
 
   R.render_objects(O.get<bool>("contours", true));
 
   double grid_step = O.get<double>("grid", 0);
   if (grid_step>0) R.render_pulk_grid(grid_step, grid_step, false);
 
-  R.render_labels();
-
-  R.render_holes();
+  R.render_labels(ls);
 
   // draw grid labels after labels
   if ((grid_step>0) && grid_labels) 

@@ -60,7 +60,7 @@ VMAPRenderer::set_fig_font(int font, double fs, Cairo::RefPtr<Cairo::Context> C)
 
 
 void
-VMAPRenderer::render_labels(double bound, int dark_th, int search_dist){
+VMAPRenderer::render_labels(label_style_t label_style, double bound){
   cr->save();
 
   zn::zn_conv zc(W->style);
@@ -114,6 +114,7 @@ VMAPRenderer::render_labels(double bound, int dark_th, int search_dist){
     }
   }
   cr->restore();
+  if (label_style==LABEL_STYLE2) render_holes();
 }
 
 void

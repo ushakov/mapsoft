@@ -27,7 +27,6 @@ struct VMAPRenderer{
 
   const static double pics_dpi;
   const static char * pics_dir;
-  const label_style_t label_style;
 
   CairoWrapper cr;
   vmap::world * W;
@@ -39,7 +38,7 @@ struct VMAPRenderer{
 
   VMAPRenderer(vmap::world * _W,
     int dpi_=300, int lm=0, int tm=0, int rm=0, int bm=0,
-    bool use_aa=true, label_style_t _label_style=LABEL_STYLE0);
+    bool use_aa=true);
 
   void unset_dash();
   void set_dash(double d1, double d2);
@@ -126,7 +125,7 @@ struct VMAPRenderer{
   void erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
                    int dark_th, int search_dist);
 
-  void render_labels(double bound=2.5, int dark_th = 170, int search_dist=6);
+  void render_labels(label_style_t label_style, double bound=2.5);
 
   void render_text(const char *text, dPoint pos, double ang=0,
          int color=0, int fig_font=18, int font_size=10, int hdir=0, int vdir=0);

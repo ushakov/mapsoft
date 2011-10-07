@@ -7,8 +7,7 @@
 using namespace std;
 
 VMAPRenderer::VMAPRenderer(vmap::world * _W, int dpi_,
-    int lm, int tm, int rm, int bm, bool use_aa,
-    label_style_t _label_style): dpi(dpi_), W(_W), label_style(_label_style){
+    int lm, int tm, int rm, int bm, bool use_aa): dpi(dpi_), W(_W){
 
 
   ref = vmap::mk_tmerc_ref(*W, dpi/2.54, true);
@@ -742,8 +741,6 @@ VMAPRenderer::render_objects(const bool draw_contours){
 
 void
 VMAPRenderer::render_holes(){
-  if (label_style!=LABEL_STYLE2) return;
-
   cr->save();
   cr->set_operator(Cairo::OPERATOR_DEST_OVER);
 
