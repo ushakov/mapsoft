@@ -783,5 +783,8 @@ VMAPRenderer::render_holes(){
   render_polygons(0x52, 0xFFFFFF); // поле
   render_polygons(0x16, 0xAAFFAA); // лес
 
+  cr->set_color(0xFFFFFF);
+  cr->paint();
+
   cr->restore();
 }
