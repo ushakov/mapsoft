@@ -124,7 +124,7 @@ struct Image{
     /// with transparency
     void fill_a(const T value){
       for (int j=0; j<h; j++)
-        for (int i=0; i<w; i++) set_a(i,j);
+        for (int i=0; i<w; i++) set_a(i,j,value);
     }
     /// Is image empty
     bool empty() const{
