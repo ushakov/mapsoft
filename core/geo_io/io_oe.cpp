@@ -336,8 +336,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
              ch_p('N')[assign_a(mpt.lat_h,+1)]) >>
     scs >> !(uint_p[assign_a(mpt.lon_d)]) >>
     scs >> !(ureal_p[assign_a(mpt.lon_m)]) >>
-    scs >> !(ch_p('W')[assign_a(mpt.lat_h,-1)] ||
-             ch_p('E')[assign_a(mpt.lat_h,+1)]) >>
+    scs >> !(ch_p('W')[assign_a(mpt.lon_h,-1)] ||
+             ch_p('E')[assign_a(mpt.lon_h,+1)]) >>
     scs >> "grid" >> scs >> *pr >>
     scs >> !(uint_p[assign_a(mpt.grid_x)]) >>
     scs >> !(uint_p[assign_a(mpt.grid_y)]) >>
