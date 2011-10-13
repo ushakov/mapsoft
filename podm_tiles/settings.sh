@@ -22,9 +22,14 @@ y2=161
 
 k=20037508.3 # mapsoft google proj units (equator meters) per scale=1 tile
 
+
+calc(){
+  var=$1; shift
+  eval "$var=\"\$(printf \"%s\n\" \"$*\" | bc -l)\""
+}
+
 # size of map, cm
-map_size_cm="$(dc -e "10k $k 2 $sc 1 - ^ / $fig_rscale / 100 * p")"
+calc map_size_cm "100.0/$fig_rscale * $k/2^($sc-1)"
 
 # dpi to get tile_size_px
-tile_dpi="$(dc -e "10k $tile_size_px 1 + $map_size_cm 2.54 / / p")"
-
+calc tile_dpi "($tile_size_px+1) / $map_size_cm * 2.54"

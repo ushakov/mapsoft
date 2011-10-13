@@ -11,14 +11,14 @@ update_fig_tile(){
   echo "tile: $x $y"
   local x1 x2 y1 y2 dx dy
 
-  x1="$(dc -e "10k $x 2 $sc 1 - ^ / 1 - $k * p")"
-  x2="$(dc -e "10k $x 1 +  2 $sc 1 - ^ / 1 - $k * p")"
+  calc x1 "( $x   / 2^($sc-1) - 1)*$k"
+  calc x2 "(($x+1)/ 2^($sc-1) - 1)*$k"
 
-  y1="$(dc -e "10k 1 $y 1 + 2 $sc 1 - ^ / - $k * p")"
-  y2="$(dc -e "10k 1 $y 2 $sc 1 - ^ / - $k * p")"
+  calc y1 "(1 - ($y+1)/ 2^($sc-1))*$k"
+  calc y2 "(1 -  $y   / 2^($sc-1))*$k"
 
-  dx="$(dc -e "10k $x2 $x1 - p")"
-  dy="$(dc -e "10k $y2 $y1 - p")"
+  calc dx "$x2 - $x1"
+  calc dy "$y2 - $y1"
 
   geom="${dx}x${dy}+$x1+$y1"
 
