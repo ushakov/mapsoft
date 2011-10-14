@@ -1,0 +1,9 @@
+Import('env')
+e=env.Clone()
+
+e.UseLibs('loaders')
+
+map (lambda(f): e.Program(f+'.cpp'),\
+  Split("""
+    google_test
+    """))

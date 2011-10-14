@@ -9,6 +9,7 @@ subdirs = Split ("""
   srtm_pics
   tim
   vmap2
+  tests_loaders
   """)
 
 SConscript (map (lambda(s): s+"/SConscript", subdirs))
