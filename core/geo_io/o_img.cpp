@@ -35,8 +35,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     }
   }
 
-
-  if (!opt.exists("lon0"))
+  if ((proj==Proj("tmerc")) && (!opt.exists("lon0")))
     opt.put<double>("lon0", convs::lon2lon0(world.range().CNT().x));
 
   double scale  = opt.get("scale",  0.0);
