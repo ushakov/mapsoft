@@ -24,7 +24,7 @@ update_fig_tile(){
 
   # geom in Pulkovo LonLat:
   geom_pll="$(echo "bb_frw $geom 1" |
-    convs_pt2pt "wgs84" "google" "" "pulkovo" "lonlat" "")"
+    convs_pt2pt "sphere" "merc" "" "pulkovo" "lonlat" "")"
 
 #  echo "geom: $geom"
 #  echo "geom_ll: $geom_pll"
@@ -46,8 +46,8 @@ update_fig_tile(){
 
   # create fig files if needed
   if [ ! -f "$fig" ]; then
-    mapsoft_convert --geom="$geom" --proj=google --datum=wgs84\
-      --rscale="$fig_rscale" --dpi=1 --out="$fig".jpg --fig="$fig"
+    mapsoft_convert --geom="$geom" --proj=merc --datum=sphere\
+      --rscale="$fig_rscale" --dpi=1 --out="$fig".jpg --fig="$fig" --map="$fig.map"
     rm -f -- "$fig".jpg
     sed -i -e '/# MAP/,$d' "$fig"
     my_src="$src"
@@ -60,7 +60,7 @@ update_fig_tile(){
   # join_objects is very slow - i turn it off for tests
   vmap_copy -v $my_src --out $fig\
     --name "$(basename "$fig" .fig)"\
-    --range_datum=wgs84 --range_proj=google --range="$geom"\
+    --range_datum=sphere --range_proj=merc --range="$geom"\
     --set_brd_from_range --range_action=crop_spl # --join_objects 1e-4
 
 }

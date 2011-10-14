@@ -1,4 +1,4 @@
-PATH="../vector/vmap3:$PATH"
+PATH="../vector/vmap3:../programs:$PATH"
 
 # directory with source vmap files
 vmap_dir=./map_podm
@@ -20,8 +20,10 @@ x2=310
 y1=160
 y2=161
 
-k=20037508.3 # mapsoft google proj units (equator meters) per scale=1 tile
-
+# merc units (equator meters) per scale=1 tile
+k="$(echo "frw 180,0" |\
+  convs_pt2pt "sphere" "lonlat" "" "sphere" "merc" ""|\
+  head -c 11)"
 
 calc(){
   var=$1; shift
