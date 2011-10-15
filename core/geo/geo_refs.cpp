@@ -63,17 +63,12 @@ g_map ref_google(int scale){
    if (scale>google::google_scale_max) scale=google::google_scale_max;
 
    double maxlat = 360/M_PI*atan(exp(M_PI)) - 90;
-   double width = 256*(1<<(scale-1));
+   double width = 1<<(8+scale-1);
 
    ret.push_back(g_refpoint(-180,maxlat,  0,0));
    ret.push_back(g_refpoint( 180,maxlat,  width,0));
    ret.push_back(g_refpoint( 180,-maxlat, width,width));
    ret.push_back(g_refpoint(-180,-maxlat, 0,width));
-
-   convs::pt2pt c(Datum("wgs84"), Proj("lonlat"), Options(),
-                  Datum("sphere"), Proj("lonlat"), Options());
-
-   for (g_map::iterator i = ret.begin(); i!=ret.end(); i++) c.bck(*i);
 
    ret.border.push_back(dPoint(0,0));
    ret.border.push_back(dPoint(width,0));

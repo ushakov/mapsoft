@@ -9,9 +9,9 @@ static char curl_error[CURL_ERROR_SIZE];
 std::string tile2addr(int google_scale, int xt, int yt){
 
   std::string addr="t";
-  int h = (int)pow(2,google_scale-1);
+  int h = 1<<(google_scale-1);
   for (int i=google_scale-1; i>0; i--){
-    char a=0;	
+    char a=0;
     h /= 2; // half of picture width
     if (xt>=h) {a|=1; xt-=h;}
     if (yt>=h) {a|=2; yt-=h;}
@@ -86,7 +86,7 @@ int load(
 	  if (!f) return 1;
 	  int n = rand() % 4;
 	  std::ostringstream urls;
-	  urls << "http://khm" << n << ".google.com/kh?&v=61" 
+	  urls << "http://khm" << n << ".google.com/kh?v=94" 
                << "&x=" << xt << "&y=" << yt << "&z=" << google_scale-1 << "&s=";
           urls.write("Galileo", (xt*3+yt)%8);
 	  std::string url = urls.str();
