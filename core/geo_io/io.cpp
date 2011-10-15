@@ -179,6 +179,7 @@ namespace io {
 		// Запись растровой картинки
 		if ((testext(outfile, ".tiff")) ||
 		    (testext(outfile, ".tif")) ||
+		    (testext(outfile, ".png")) ||
 		    (testext(outfile, ".jpeg")) ||
 		    (testext(outfile, ".jpg")) ){
 		

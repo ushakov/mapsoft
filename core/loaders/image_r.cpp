@@ -84,8 +84,7 @@ int save(const iImage & im, const iRect & src_rect,
     }
     if (!strncmp(file + (l-4), ".png", 4)||
         !strncmp(file + (l-4), ".PNG", 4)){
-      std::cerr << "Save to PNG not supported! Fixme!\n";
-//      return image_png::save(im, src_rect, fale);
+      return image_png::save(im, src_rect, file);
     }
     return 2;
 }
