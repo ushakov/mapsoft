@@ -125,7 +125,7 @@ int save(const iImage & im, const iRect & src_rect,
       if ((row+src_rect.y <0)||(row+src_rect.y>=im.h)){
 	for (int col = 0; col < src_rect.w*bpp; col++) cbuf[col] = 0;
       } else {
-        for (int col = 0; col < src_rect.h; col++){
+        for (int col = 0; col < src_rect.w; col++){
 	  int c = 0;
           if ((col+src_rect.x >=0)&&(col+src_rect.x<im.w))
              c = im.get(src_rect.x+col,src_rect.y+row);
