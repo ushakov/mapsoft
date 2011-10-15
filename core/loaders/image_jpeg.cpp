@@ -47,7 +47,7 @@ struct ImageSourceJPEG : iImageSource {
   struct jpeg_error_mgr jerr;
   FILE * infile;
 
-  ImageSourceJPEG(const char *file, int denom): row(0) {
+  ImageSourceJPEG(const char *file, int denom): row(0),col(0) {
     // open file, get image size
     cinfo.err = jpeg_std_error(&jerr);
     jerr.error_exit = my_error_exit;
@@ -89,20 +89,22 @@ struct ImageSourceJPEG : iImageSource {
 
   bool skip(const int n){
     for (int i=row; i<row+n; i++){
-      if (row>=cinfo.image_height) break;
+      if (row>cinfo.image_height) break;
       jpeg_read_scanlines(&cinfo, (JSAMPLE**)&buf, 1);
     }
     row+=n;
-    return (row < cinfo.image_height) && (buf);
+    return (row <= cinfo.image_height) && (buf);
   }
 
   bool read_data(int x, int len){
     col=x;
+    if (len+x > cinfo.image_width) return false;
     return skip(1); // go to the next line
   };
 
   int get_value(int x) const{
-    return buf[3*x] + (buf[3*x+1]<<8) + (buf[3*x+2]<<16) + (0xFF<<24);
+    return buf[3*(x+col)] + (buf[3*(x+col)+1]<<8) +
+           (buf[3*(x+col)+2]<<16) + (0xFF<<24);
   }
 
 };
