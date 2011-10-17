@@ -167,11 +167,11 @@ if [ -n "$dW" -a -n "$dH" -a -n "$dX" -a -n "$dY" ]; then
   cmd="$cmd | pnmcut $dX $dY $dW $dH"
 fi
 
-if [ "$scale" != "1" ]; then
+if [ "$(echo "$scale != 1" | bc)" = 1 ]; then
   cmd="$cmd | pnmscale $scale"
 fi
 
-if [ -z "${img##*.png}" -a -n "$(dc -e "[1 p]sa $scale 1 >a")" ]; then
+if [ -z "${img##*.png}" ]; then
   cmd="$cmd | pnmremap -mapfile=$cmap"
   [ -n "$verbose" ] || cmd="$cmd 2> /dev/null"
 fi
