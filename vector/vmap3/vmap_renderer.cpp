@@ -654,10 +654,11 @@ VMAPRenderer::render_objects(const bool draw_contours){
   //*******************************
   set_cap_butt();
   render_line(0x7, 0xFFFFFF, 3, 10); // непроезжий грейдер - белая подложка
-  set_dash(5, 4); render_line(0x16, 0x0, 0.7, 0); // просека
+  set_dash(5, 4); render_line(0x16, 0x0, 0.6, 0); // просека
   set_dash(8, 5); render_line(0x1C, 0x0, 1.4, 0); // просека широкая
   set_dash(6, 2); render_line(0xA,  0x0, 1, 10); // непроезжая грунтовка
   set_dash(2, 2); render_line(0x2A, 0x0, 1, 10); // тропа
+  set_dash(2,1,2,3); render_line(0x2D, 0x0, 0.6, 10); // заросшая дорога
   set_dash(6, 1); render_line(0x7,  0x0, 3, 10); // непроезжий грейдер - пун
   unset_dash();
   render_line(0x6,  0x0, 1, 10); // прозжая грунтовка
