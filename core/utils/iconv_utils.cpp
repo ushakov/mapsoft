@@ -14,23 +14,23 @@ IConv::IConv(const std::string & enc, const std::string & def_enc){
   std::string def = def_enc;
   if (def.size() == 0) def = enc;
 
-  cd_to_utf8 = iconv_open(IConv_UTF8.c_str(), enc.c_str());
+  cd_to_utf8 = iconv_open("UTF-8", enc.c_str());
   if (cd_to_utf8 == (iconv_t)-1){
-    print_cnv_err(enc, IConv_UTF8);
+    print_cnv_err(enc, "UTF-8");
     std::cerr << "Trying default charset \"" << def << "\"\n";
-    cd_to_utf8 = iconv_open(IConv_UTF8.c_str(), def.c_str());
+    cd_to_utf8 = iconv_open("UTF-8", def.c_str());
     if (cd_to_utf8 == (iconv_t)-1){
-      print_cnv_err(def, IConv_UTF8);
+      print_cnv_err(def, "UTF-8");
       std::cerr << "Skipping conversion\n";
     }
   }
-  cd_from_utf8 = iconv_open(enc.c_str(), IConv_UTF8.c_str());
+  cd_from_utf8 = iconv_open(enc.c_str(), "UTF-8");
   if (cd_from_utf8 == (iconv_t)-1){
-    print_cnv_err(IConv_UTF8, enc);
+    print_cnv_err("UTF-8", enc);
     std::cerr << "Trying default charset \"" << def << "\"\n";
-    cd_from_utf8 = iconv_open(def.c_str(), IConv_UTF8.c_str());
+    cd_from_utf8 = iconv_open(def.c_str(), "UTF-8");
     if (cd_from_utf8 == (iconv_t)-1){
-      print_cnv_err(IConv_UTF8, def);
+      print_cnv_err("UTF-8", def);
       std::cerr << "Skipping conversion\n";
     }
   }
