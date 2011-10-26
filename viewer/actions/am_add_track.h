@@ -20,6 +20,7 @@ public:
       trk.clear();
       trk.comm="";
       mapview->rubber.clear();
+      dlg.hide_all();
     }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
