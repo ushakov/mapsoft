@@ -149,6 +149,7 @@ class DlgTrk : public Gtk::Dialog{
     Gtk::SpinButton *width;
     Gtk::Label *info;
     Gtk::Adjustment width_adj;
+    Gtk::Label *hint;
 
   public:
     DlgTrk();
@@ -156,6 +157,7 @@ class DlgTrk : public Gtk::Dialog{
     void dlg2trk(g_track * trk) const;
     void trk2dlg(const g_track * trk);
     void set_info(const g_track * trk);
+    void set_hint(const char * str);
 };
 
 /********************************************************************/

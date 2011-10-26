@@ -31,6 +31,10 @@ public:
 
          if (trk.size() == 0){
            dlg.trk2dlg(&trk);
+           dlg.set_hint("<b>Hints:</b> Draw track on the map. "
+                        "Use left-button click to add point, "
+                        "Ctrl-click to remove last point. "
+                        "Use right button to reset drawing.");
            dlg.show_all();
          }
 

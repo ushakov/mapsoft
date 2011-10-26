@@ -430,9 +430,11 @@ DlgTrk::DlgTrk(): width_adj(0,0,100){
   comm  = manage(new Gtk::Entry);
   width = manage(new Gtk::SpinButton(width_adj));
   info  = manage(new Gtk::Label);
+  hint  = manage(new Gtk::Label);
+  hint->set_line_wrap();
 
   // Table
-  Gtk::Table *table = manage(new Gtk::Table(4,3));
+  Gtk::Table *table = manage(new Gtk::Table(4,4));
             //  widget    l  r  t  b  x       y
   table->attach(*l_comm,  0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*comm,    1, 4, 0, 1, Gtk::EXPAND|Gtk::FILL, Gtk::SHRINK, 3, 3);
@@ -440,7 +442,8 @@ DlgTrk::DlgTrk(): width_adj(0,0,100){
   table->attach(*width,   1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*l_fg,    2, 3, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*fg,      3, 4, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*info,    1, 4, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*info,    1, 4, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*hint,    0, 4, 4, 5, Gtk::FILL, Gtk::SHRINK, 3, 3);
 
   get_vbox()->add(*table);
 }
@@ -478,6 +481,11 @@ DlgTrk::set_info(const g_track * trk){
      << std::setprecision(2) << std::fixed
      << trk->length()/1000 << "</b> km";
         info->set_markup(st.str());
+}
+
+void
+DlgTrk::set_hint(const char * str){
+  hint->set_markup(str);
 }
 
 /********************************************************************/
