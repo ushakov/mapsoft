@@ -31,10 +31,13 @@ public:
 
          if (trk.size() == 0){
            dlg.trk2dlg(&trk);
-           dlg.set_hint("<b>Hints:</b> Draw track on the map. "
-                        "Use left-button click to add point, "
-                        "Ctrl-click to remove last point. "
-                        "Use right button to reset drawing.");
+           dlg.set_hint("<u>Use mouse buttons to draw track:</u>\n"
+                        "* <b>1.</b> Add point.\n"
+                        "* <b>Ctrl-1.</b> Remove last point.\n"
+                        "* <b>Shift-1.</b> Start new segment.\n"
+                        "* <b>2.</b> Scroll map.\n"
+                        "* <b>3.</b> Abort drawing.\n"
+                        );
            dlg.show_all();
          }
 
@@ -51,20 +54,22 @@ public:
           }
         }
         else{ // add point
-          if (mapview->rubber.size()>0){
-            RubberSegment s = mapview->rubber.pop();
-            s.flags &= ~RUBBFL_MOUSE;
-            s.p2 = p;
-            mapview->rubber.add(s);
-          }
-          mapview->rubber.add_line(p);
           g_map map = mapview->reference;
           convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
 
           g_trackpoint pt;
           pt.dPoint::operator=(p);
 	  cnv.frw(pt);
+          pt.start = (state&Gdk::SHIFT_MASK) || (trk.size()==0);
 	  trk.push_back(pt);
+
+          if (mapview->rubber.size()>0){
+            RubberSegment s = mapview->rubber.pop();
+            s.flags &= ~RUBBFL_MOUSE;
+            s.p2 = pt.start ? s.p1 : p;
+            mapview->rubber.add(s);
+          }
+          mapview->rubber.add_line(p);
         }
 
         dlg.set_info(&trk);
