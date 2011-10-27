@@ -200,6 +200,44 @@ public:
       if (need_refresh) refresh();
     }
 
+
+    void update_ll_comm(LayerWPT * layer) {
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = wpt_ll.store->children().begin();
+           i != wpt_ll.store->children().end(); i++){
+        boost::shared_ptr<LayerWPT> l = (*i)[wpt_ll.columns.layer];
+        if (layer != l.get())  continue;
+        (*i)[wpt_ll.columns.comm] = l->get_data()->comm;
+      }
+    }
+
+    void update_ll_comm(LayerTRK * layer) {
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = trk_ll.store->children().begin();
+           i != trk_ll.store->children().end(); i++){
+        boost::shared_ptr<LayerTRK> l = (*i)[trk_ll.columns.layer];
+        if (layer != l.get())  continue;
+        (*i)[trk_ll.columns.comm] = l->get_data()->comm;
+      }
+    }
+
+    void update_ll_comm(LayerGeoMap * layer) {
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = map_ll.store->children().begin();
+           i != map_ll.store->children().end(); i++){
+        boost::shared_ptr<LayerGeoMap> l = (*i)[map_ll.columns.layer];
+        if (layer != l.get())  continue;
+        g_map_list * ml = layer->get_data();
+        if (ml->size()==1){
+          (*i)[map_ll.columns.comm] = (*ml)[0].comm;
+        }
+        else {
+          (*i)[map_ll.columns.comm] = ml->comm;
+        }
+      }
+    }
+
+
     void on_mode_change (int m) {
       gend.deactivate();
       rubber.clear();

@@ -32,6 +32,7 @@ private:
       if ((map_num<0) || (r!=Gtk::RESPONSE_OK)) return;
       dlg.dlg2map(layer->get_map(map_num));
       mapview->workplane.refresh_layer(layer);
+      mapview->update_ll_comm(layer);
     }
 
 };

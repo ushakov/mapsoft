@@ -33,6 +33,7 @@ private:
       if (r!=Gtk::RESPONSE_OK) return;
       dlg.dlg2trk(layer->get_data());
       mapview->workplane.refresh_layer(layer);
+      mapview->update_ll_comm(layer);
     }
 };
 
