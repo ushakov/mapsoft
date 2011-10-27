@@ -11,7 +11,6 @@
 #include "layerlist.h"
 #include "dataview.h"
 #include "widgets.h"
-#include "generic_dialog.h"
 #include "action_manager.h"
 #include "geo_io/io.h"
 #include "layers/layer_geomap.h"
@@ -40,7 +39,6 @@ public:
     Glib::RefPtr<Gtk::UIManager> ui_manager;
     Gtk::RadioAction::Group mode_group;
     Gtk::Statusbar  statusbar;
-    GenericDialog   gend;
 
     g_map reference;
     bool have_reference;
@@ -239,7 +237,6 @@ public:
 
 
     void on_mode_change (int m) {
-      gend.deactivate();
       rubber.clear();
       statusbar.push(action_manager->get_mode_name(m),0);
       action_manager->set_mode(m);
@@ -363,7 +360,6 @@ public:
 
     bool on_button_release (GdkEventButton * event) {
       if (event->button == 3) {
-        gend.deactivate();
         rubber.clear();
         action_manager->clear_state();
         return true;

@@ -4,7 +4,6 @@ e=env.Clone()
 e.UseLibs('gred geo_io mp')
 
 e.Library("viewer", Split ("""
-        generic_dialog.cpp
 	action_manager.cpp
 	workplane.cpp widgets.cpp dataview.cpp actions/action_mode.cpp
         """))

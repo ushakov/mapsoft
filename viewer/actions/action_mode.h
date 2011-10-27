@@ -32,7 +32,7 @@ public:
     virtual void activate() { };
 
     // Abandons any action in progress and deactivates mode.
-    // no need to reset rubber and generic_dialog
+    // no need to reset rubber
     virtual void abort() { };
 
     // Sends user click. Coordinates are in workplane's discrete system.
