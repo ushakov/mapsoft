@@ -823,13 +823,17 @@ DlgSaveImg::DlgSaveImg(){
   file = manage(new Gtk::Entry);
   size = manage(new Gtk::Label("",  Gtk::ALIGN_LEFT));
 
+  map = manage(new Gtk::CheckButton("write Ozi map file"));
+  map->set_active();
+
   // Table
-  Gtk::Table *table = manage(new Gtk::Table(2,2));
+  Gtk::Table *table = manage(new Gtk::Table(2,3));
             //  widget    l  r  t  b  x       y
   table->attach(*l_file,  0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*file,    1, 2, 0, 1, Gtk::EXPAND|Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*l_size,  0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*size,    1, 2, 1, 2, Gtk::EXPAND|Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*size,    1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*map,     0, 2, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
 
   get_vbox()->add(*table);
 }
@@ -849,4 +853,9 @@ DlgSaveImg::set_size(const int w, const int h){
   std::ostringstream st;
   st << "<b>" << w << "</b> x <b>" << h << "</b> px";
   size->set_markup(st.str());
+}
+
+bool
+DlgSaveImg::get_map() const{
+  return map->get_active();
 }

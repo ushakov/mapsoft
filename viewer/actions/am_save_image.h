@@ -51,7 +51,7 @@ private:
 
     void on_result(int r) {
       mapview->rubber.clear();
-      if (r != 0) return;
+      if (r != Gtk::RESPONSE_OK) return;
 
       std::string fname=dlg.get_file();
       if (fname=="") return;
@@ -61,22 +61,26 @@ private:
       mapview->workplane.draw(image, rect.TLC());
       image_r::save(image, fname.c_str(), Options());
 
-      g_map ref;
-      ref.map_proj  = mapview->reference.map_proj;
-      ref.file=fname;
-      ref.comm="created by mapsoft_mapview";
 
-      convs::map2pt cnv(mapview->reference, Datum("wgs84"), Proj("lonlat"));
-      dLine pts = rect2line(rect);
-      dLine pts_c(pts);
-      cnv.line_frw_p2p(pts_c);
-      pts-=rect.TLC();
-      for (int i=0; i<pts.size(); i++){
-        ref.push_back(g_refpoint(pts_c[i], pts[i]));
-        ref.border.push_back(pts[i]);
+      if (dlg.get_map()){
+        g_map ref;
+        ref.map_proj  = mapview->reference.map_proj;
+        ref.file=fname;
+        ref.comm="created by mapsoft_mapview";
+
+        convs::map2pt cnv(mapview->reference, Datum("wgs84"), Proj("lonlat"));
+        dLine pts = rect2line(rect);
+        dLine pts_c(pts);
+        cnv.line_frw_p2p(pts_c);
+        pts-=rect.TLC();
+        for (int i=0; i<pts.size(); i++){
+          ref.push_back(g_refpoint(pts_c[i], pts[i]));
+          ref.border.push_back(pts[i]);
+        }
+        std::ofstream f((fname + ".map").c_str());
+        oe::write_map_file(f, ref, Options());
       }
-      std::ofstream f((fname + ".map").c_str());
-      oe::write_map_file(f, ref, Options());
+
     }
 };
 
