@@ -22,7 +22,7 @@ public:
       pt_num=find_wpt(p, &layer);
       if (pt_num < 0) return;
 
-      g_waypoint * wpt = &(* layer->get_data())[pt_num];
+      g_waypoint * wpt = layer->get_pt(pt_num);
       dlg.wpt2dlg(wpt);
       dlg.show_all();
     }

@@ -49,6 +49,10 @@ public:
   /// Get pointer to the n-th map.
   g_map * get_map(const int n) const;
 
+  /// Find map
+  int find_map(const iPoint & pt) const;
+  int find_map(const iRect & r) const;
+
   /// Refresh layer.
   void refresh();
 

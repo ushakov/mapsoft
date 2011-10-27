@@ -245,6 +245,15 @@ class DlgMarkTrk : public Gtk::Dialog{
     double  get_dist() const;
 };
 
+/********************************************************************/
+// dialog for Map actions
+class DlgMap : public Gtk::Dialog{
+    Gtk::Entry *comm, *file;
+  public:
+    DlgMap();
+    void dlg2map(g_map * map) const;
+    void map2dlg(const g_map * map);
+};
 
 
 

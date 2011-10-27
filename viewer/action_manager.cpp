@@ -11,16 +11,18 @@
 #include "actions/am_add_wpt.h"
 #include "actions/am_edit_wpt.h"
 #include "actions/am_move_wpt.h"
-
 #include "actions/am_delete_wpt.h"
-#include "actions/am_delete_tpt.h"
+
+#include "actions/am_add_track.h"
+#include "actions/am_edit_track.h"
 #include "actions/am_add_tpt.h"
 #include "actions/am_edit_tpt.h"
 #include "actions/am_move_tpt.h"
-#include "actions/am_edit_track.h"
-#include "actions/am_add_track.h"
+#include "actions/am_delete_tpt.h"
 #include "actions/am_mark_trk.h"
 #include "actions/am_trk_filter.h"
+
+#include "actions/am_edit_map.h"
 
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
@@ -54,6 +56,8 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(MarkTrack,       "Tracks")
     ADD_ACT(FilterTrack,     "Tracks")
 
+    ADD_ACT(EditMap,         "Maps")
+
     ADD_ACT(ActionModeNone,  "Misc")
     ADD_ACT(SaveImage,       "Misc")
     ADD_ACT(ShowPt,          "Misc")
@@ -61,7 +65,8 @@ ActionManager::ActionManager (Mapview * mapview_)
     mapview->actions->add(Gtk::Action::create("MenuFile", "_File"));
     mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));
     mapview->actions->add(Gtk::Action::create("MenuTracks", "_Tracks"));
-    mapview->actions->add(Gtk::Action::create("MenuMisc", "_Misc"));
+    mapview->actions->add(Gtk::Action::create("MenuMaps", "_Maps"));
+    mapview->actions->add(Gtk::Action::create("MenuMisc", "Mi_sc"));
 
     modes.push_back(boost::shared_ptr<ActionMode>(new ActionModeNone(mapview)));
 }

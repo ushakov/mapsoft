@@ -49,6 +49,22 @@ LayerGeoMap::get_map(const int n) const{
   return &(*data)[n];
 }
 
+int
+LayerGeoMap::find_map(const iPoint & pt) const{
+  for (int i=0; i< m2ms.size(); i++){
+    if (m2ms[i].tst_frw.test(pt.x, pt.y)) return i;
+  }
+  return -1;
+}
+int
+LayerGeoMap::find_map(const iRect & r) const{
+  for (int i=0; i< m2ms.size(); i++){
+    if (m2ms[i].tst_frw.test_range(r)) return i;
+  }
+  return -1;
+}
+
+
 void
 LayerGeoMap::refresh(){
   image_cache.clear();

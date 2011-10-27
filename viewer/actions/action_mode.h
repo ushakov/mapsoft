@@ -46,7 +46,7 @@ public:
     //               first point 0..size()-2
     int find_tpt(const iPoint & p, LayerTRK ** layer,
                  const bool segment = false, int radius=3) const;
-//    int find_map(const iPoint & p, LayerGeoMap ** layer) const;
+    int find_map(const iPoint & p, LayerGeoMap ** layer) const;
 
     // find first active layer
     LayerWPT * find_wpt_layer() const;
