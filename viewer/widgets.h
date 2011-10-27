@@ -255,6 +255,18 @@ class DlgMap : public Gtk::Dialog{
     void map2dlg(const g_map * map);
 };
 
+/********************************************************************/
+// dialog for SaveImage action
+class DlgSaveImg : public Gtk::Dialog{
+    Gtk::Entry *file;
+    Gtk::Label *size;
+  public:
+    DlgSaveImg();
+    std::string get_file() const;
+    void set_file(const std::string & f);
+    void set_size(const int w, const int h);
+};
+
 
 
 

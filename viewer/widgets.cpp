@@ -804,3 +804,49 @@ DlgMap::map2dlg(const g_map * map){
   comm->set_text(map->comm);
   file->set_text(map->file);
 }
+
+/********************************************************************/
+
+DlgSaveImg::DlgSaveImg(){
+  add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
+  add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  signal_response().connect(
+      sigc::hide(sigc::mem_fun(this, &DlgSaveImg::hide_all)));
+
+  // Labels
+  Gtk::Label *l_file = manage(new Gtk::Label("File name (jpg, tiff or png):",  Gtk::ALIGN_RIGHT));
+  Gtk::Label *l_size = manage(new Gtk::Label("Image Size:", Gtk::ALIGN_RIGHT));
+  l_file->set_padding(3,0);
+  l_size->set_padding(3,0);
+
+  // Entries
+  file = manage(new Gtk::Entry);
+  size = manage(new Gtk::Label("",  Gtk::ALIGN_LEFT));
+
+  // Table
+  Gtk::Table *table = manage(new Gtk::Table(2,2));
+            //  widget    l  r  t  b  x       y
+  table->attach(*l_file,  0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*file,    1, 2, 0, 1, Gtk::EXPAND|Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*l_size,  0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*size,    1, 2, 1, 2, Gtk::EXPAND|Gtk::FILL, Gtk::SHRINK, 3, 3);
+
+  get_vbox()->add(*table);
+}
+
+std::string
+DlgSaveImg::get_file() const{
+  return file->get_text();
+}
+
+void
+DlgSaveImg::set_file(const std::string & f){
+  file->set_text(f);
+}
+
+void
+DlgSaveImg::set_size(const int w, const int h){
+  std::ostringstream st;
+  st << "<b>" << w << "</b> x <b>" << h << "</b> px";
+  size->set_markup(st.str());
+}
