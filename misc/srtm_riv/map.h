@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "srtm.h"
+#include <utils/srtm3.h>
 #include "point.h"
 
 // построение хребтовки-речевки

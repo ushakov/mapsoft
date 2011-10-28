@@ -1,5 +1,5 @@
-#ifndef POINT_H
-#define POINT_H
+#ifndef SRTM_POINT_H
+#define SRTM_POINT_H
 
 #include <vector>
 #include <set>

@@ -1,5 +1,5 @@
-#ifndef FONT_H
-#define FONT_H
+#ifndef SRTM_FONT_H
+#define SRTM_FONT_H
 
 #include "point.h"
 

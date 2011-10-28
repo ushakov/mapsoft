@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "srtm.h"
+#include <utils/srtm3.h>
 #include "color.h"
 #include "map.h"
 
@@ -21,7 +21,6 @@ inline int dms(int d) {return d*3600;}
 main(){ 
 try {
 
-//  map m("/home/sla/TUR/SRTM/data/", lat1, lon1, lat2, lon2);
   map m("/d3/SRTMv2/", lat1, lon1, lat2, lon2);
   m.set_dirs(100000,100000);
   m.set_areas();

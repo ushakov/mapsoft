@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "srtm.h"
+#include <utils/srtm3.h>
 #include "color.h"
 #include "map.h"
 
@@ -34,7 +34,6 @@ main(){
 try {
 
   map m("/d3/SRTMv2/", lat1, lon1, lat2, lon2);
-//  map m("/d2/SRTM/hgt/", lat1, lon1, lat2, lon2);
   m.set_dirs(100,100);
 
 //  m.mtrace(point(lon1+160,lat1+120),1000);

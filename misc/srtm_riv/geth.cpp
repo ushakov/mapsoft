@@ -3,14 +3,15 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "srtm.h"
+#include <utils/srtm3.h>
 
 // получение координат точек
 
 main(){ 
 try {
 
-  srtm s("/d2/SRTM/hgt/", 4, mode_interp); // директория с hgt-файлами
+  srtm3 s("/d3/SRTMv2/", 4, interp_mode_on);
+  // директория с hgt-файлами
 
   double lat,lon;
 

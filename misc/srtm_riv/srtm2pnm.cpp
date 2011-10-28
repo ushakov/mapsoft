@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "srtm.h"
+#include <utils/srtm3.h>
 #include "color.h"
 
 //#include "point.h"
@@ -25,9 +25,8 @@ inline void swap(int x, int y){ int z=x; x=y; y=z;}
 main(){ 
 try {
 
-  srtm s("/d2/SRTM/hgt/", 10, mode_interp); 
-//  srtm s("/home/sla/TUR/SRTM/data/", 10, mode_interp);
-    // директория с hgt-файлами, кэш из 10 файлов, интерполяция
+  srtm3 s("/d3/SRTMv2/", 10, interp_mode_on); 
+  // директория с hgt-файлами, кэш из 10 файлов, интерполяция
 
   if (lat2<lat1) swap(lat2,lat1);
   if (lon2<lon1) swap(lon2,lon1);

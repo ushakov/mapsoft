@@ -1,5 +1,5 @@
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef SRTM_COLOR_H
+#define SRTM_COLOR_H
 
 struct color{
   unsigned char r,g,b;
