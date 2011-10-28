@@ -7,6 +7,7 @@ subdirs = Split ("""
   mp_bboxes
   ps
   srtm_pics
+  srtm_riv
   tim
   vmap2
   tests_loaders
