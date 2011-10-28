@@ -26,8 +26,8 @@ color y_r(unsigned char x) {return color(255,255-x,0);}
 color r_m(unsigned char x) {return color(255,0,x);}
 color m_b(unsigned char x) {return color(255-x,0,255);}
 
-// mingrade - чему соответствует n=0:
-//  0 - blue, 1 - сyan, 2 - green etc.
+// mingrade - я┤п╣п╪я┐ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐п╣я┌ n=0:
+//  0 - blue, 1 - я│yan, 2 - green etc.
 color rainbow(int n, unsigned short mingrade) {
   switch ( (mingrade + n/256)%6 ){ 
     case 0: return b_c(n % 256);

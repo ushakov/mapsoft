@@ -54,7 +54,7 @@ bool isinlist(std::list<point>& L, const point& p){
 }
 
 void add_pb(const point& p, std::list<point>& plist, std::set<point>& bord){
-  if (isinlist(plist,p)) return; // ‘œﬁÀ¡ ’÷≈ ≈”‘ÿ
+  if (isinlist(plist,p)) return; // —Ç–æ—á–∫–∞ —É–∂–µ –µ—Å—Ç—å
   plist.push_back(p);
   bord.erase(p);
   for (int i=0; i<point_adjs; i++){
@@ -64,7 +64,7 @@ void add_pb(const point& p, std::list<point>& plist, std::set<point>& bord){
 }
 
 void add_pb(const point& p, std::set<point>& pset, std::set<point>& bord){
-  if (pset.find(p)!=pset.end()) return; // ‘œﬁÀ¡ ’÷≈ ≈”‘ÿ
+  if (pset.find(p)!=pset.end()) return; // —Ç–æ—á–∫–∞ —É–∂–µ –µ—Å—Ç—å
   pset.insert(p);
   bord.erase(p);
   for (int i=0; i<point_adjs; i++){

@@ -5,12 +5,12 @@
 
 #include "srtm.h"
 
-// получение координат точек
+// п©п╬п╩я┐я┤п╣п╫п╦п╣ п╨п╬п╬я─п╢п╦п╫п╟я┌ я┌п╬я┤п╣п╨
 
 main(){ 
 try {
 
-  srtm s("/d2/SRTM/hgt/", 4, mode_interp); // директория с hgt-файлами
+  srtm s("/d2/SRTM/hgt/", 4, mode_interp); // п╢п╦я─п╣п╨я┌п╬я─п╦я▐ я│ hgt-я└п╟п╧п╩п╟п╪п╦
 
   double lat,lon;
 
@@ -41,7 +41,7 @@ try {
     double Sr  = 0;
 
     const double ptsize_rad = 1.0/180.0/srtm_width*M_PI;
-    // квадраты размеров одной точки, м:
+    // п╨п╡п╟п╢я─п╟я┌я▀ я─п╟п╥п╪п╣я─п╬п╡ п╬п╢п╫п╬п╧ я┌п╬я┤п╨п╦, п╪:
     const double dx2 = pow(6380000.0 * ptsize_rad * cos(ptsize_rad*y), 2);
     const double dy2 = pow(6380000.0 * ptsize_rad, 2);
 

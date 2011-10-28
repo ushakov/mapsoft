@@ -7,15 +7,15 @@
 
 //#include "point.h"
 
-// вывод красивой картинки в PNM-файл
+// п╡я▀п╡п╬п╢ п╨я─п╟я│п╦п╡п╬п╧ п╨п╟я─я┌п╦п╫п╨п╦ п╡ PNM-я└п╟п╧п╩
 
-// координаты углов:
+// п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ я┐пЁп╩п╬п╡:
 inline int dms(int d, int m, int s) {return d*3600+m*60+s;}
 inline int dms(int d, int m) {return d*3600+m*60;}
 inline int dms(int d) {return d*3600;}
 inline void swap(int x, int y){ int z=x; x=y; y=z;}
 
-  const int lat1 = dms(53,30,00)/3; // данные задаем в секундах, деленных на три
+  const int lat1 = dms(53,30,00)/3; // п╢п╟п╫п╫я▀п╣ п╥п╟п╢п╟п╣п╪ п╡ я│п╣п╨я┐п╫п╢п╟я┘, п╢п╣п╩п╣п╫п╫я▀я┘ п╫п╟ я┌я─п╦
   const int lat2 = dms(54,30,00)/3;
   const int lon1 = dms(95,00,00)/3;
   const int lon2 = dms(97,00,00)/3;
@@ -27,7 +27,7 @@ try {
 
   srtm s("/d2/SRTM/hgt/", 10, mode_interp); 
 //  srtm s("/home/sla/TUR/SRTM/data/", 10, mode_interp);
-    // директория с hgt-файлами, кэш из 10 файлов, интерполяция
+    // п╢п╦я─п╣п╨я┌п╬я─п╦я▐ я│ hgt-я└п╟п╧п╩п╟п╪п╦, п╨я█я┬ п╦п╥ 10 я└п╟п╧п╩п╬п╡, п╦п╫я┌п╣я─п©п╬п╩я▐я├п╦я▐
 
   if (lat2<lat1) swap(lat2,lat1);
   if (lon2<lon1) swap(lon2,lon1);
@@ -50,7 +50,7 @@ try {
       if ((h > srtm_min) && (hx > srtm_min) && (hy > srtm_min)){
 
         const double ptsize_rad = 1.0/180.0/srtm_width*M_PI;
-        // квадраты размеров одной точки, (м/угл.сек)^2:
+        // п╨п╡п╟п╢я─п╟я┌я▀ я─п╟п╥п╪п╣я─п╬п╡ п╬п╢п╫п╬п╧ я┌п╬я┤п╨п╦, (п╪/я┐пЁп╩.я│п╣п╨)^2:
         const double dx2 = pow(6380000.0 * ptsize_rad * cos(ptsize_rad*lat), 2);
         const double dy2 = pow(6380000.0 * ptsize_rad, 2);
         const double  U = sqrt(1.0*pow(h-hx ,2)/dx2 + 1.0*pow(h-hy ,2)/dy2);

@@ -7,19 +7,19 @@
 
 #include "point.h"
 
-// Получение высоты любой точки из директории с srtm-данными
-// Кэширование кусочков
+// п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╡я▀я│п╬я┌я▀ п╩я▌п╠п╬п╧ я┌п╬я┤п╨п╦ п╦п╥ п╢п╦я─п╣п╨я┌п╬я─п╦п╦ я│ srtm-п╢п╟п╫п╫я▀п╪п╦
+// п я█я┬п╦я─п╬п╡п╟п╫п╦п╣ п╨я┐я│п╬я┤п╨п╬п╡
 
-// srtm-данные надо скачивать с ftp://e0mss21u.ecs.nasa.gov/srtm/
+// srtm-п╢п╟п╫п╫я▀п╣ п╫п╟п╢п╬ я│п╨п╟я┤п╦п╡п╟я┌я▄ я│ ftp://e0mss21u.ecs.nasa.gov/srtm/
 
-// Специальные значения для высоты
-const short srtm_min      = -32000; // для проверки
-const short srtm_nofile   = -32767; // нет такого файла
-const short srtm_undef    = -32768; // Дырка.
-const short srtm_zer_interp   = 15000; // добавлено к интерполированным значениям
-const short srtm_min_interp   = 10000; // для проверки
+// п║п©п╣я├п╦п╟п╩я▄п╫я▀п╣ п╥п╫п╟я┤п╣п╫п╦я▐ п╢п╩я▐ п╡я▀я│п╬я┌я▀
+const short srtm_min      = -32000; // п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦
+const short srtm_nofile   = -32767; // п╫п╣я┌ я┌п╟п╨п╬пЁп╬ я└п╟п╧п╩п╟
+const short srtm_undef    = -32768; // п■я▀я─п╨п╟.
+const short srtm_zer_interp   = 15000; // п╢п╬п╠п╟п╡п╩п╣п╫п╬ п╨ п╦п╫я┌п╣я─п©п╬п╩п╦я─п╬п╡п╟п╫п╫я▀п╪ п╥п╫п╟я┤п╣п╫п╦я▐п╪
+const short srtm_min_interp   = 10000; // п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦
 
-const int srtm_width = 1200; // файлы 1201х1201
+const int srtm_width = 1200; // я└п╟п╧п╩я▀ 1201я┘1201
 
 const unsigned mode_interp = 1;
 const unsigned mode_noint  = 0;

@@ -8,13 +8,13 @@
 
 //#include "point.h"
 
-// построение хребтовки-речевки
+// п©п╬я│я┌я─п╬п╣п╫п╦п╣ я┘я─п╣п╠я┌п╬п╡п╨п╦-я─п╣я┤п╣п╡п╨п╦
 
 inline int dms(int d, int m, int s) {return d*3600+m*60+s;}
 inline int dms(int d, int m) {return d*3600+m*60;}
 inline int dms(int d) {return d*3600;}
-                                    // координаты углов
-const int lat1 = dms(55,00,00)/3; // данные задаем в секундах, деленных на три
+                                    // п╨п╬п╬я─п╢п╦п╫п╟я┌я▀ я┐пЁп╩п╬п╡
+const int lat1 = dms(55,00,00)/3; // п╢п╟п╫п╫я▀п╣ п╥п╟п╢п╟п╣п╪ п╡ я│п╣п╨я┐п╫п╢п╟я┘, п╢п╣п╩п╣п╫п╫я▀я┘ п╫п╟ я┌я─п╦
 const int lat2 = dms(56,00,00)/3;
 const int lon1 = dms(111,00,00)/3;
 const int lon2 = dms(112,00,00)/3;
