@@ -25,7 +25,7 @@ inline void swap(int x, int y){ int z=x; x=y; y=z;}
 main(){ 
 try {
 
-  srtm3 s("/d3/SRTMv2/", 10, interp_mode_on); 
+  srtm3 s("/d3/SRTMv2/", 10, interp_mode_add); 
   // директория с hgt-файлами, кэш из 10 файлов, интерполяция
 
   if (lat2<lat1) swap(lat2,lat1);
@@ -36,9 +36,9 @@ try {
   for (int lat=lat2-1; lat>=lat1; lat--){
     for (int lon=lon1; lon<lon2; lon++){
 
-      short h  = s.geth(lat,lon);
-      short hx = s.geth(lat+1,lon);
-      short hy = s.geth(lat,lon+1);
+      short h  = s.geth(lon, lat);
+      short hx = s.geth(lon, lat+1);
+      short hy = s.geth(lon+1, lat);
 
       if (h >srtm_min_interp) h -=srtm_zer_interp;
       if (hx>srtm_min_interp) hx-=srtm_zer_interp;

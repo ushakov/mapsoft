@@ -10,14 +10,14 @@ map::map(char *dir, int Lat1,int Lon1, int Lat2, int Lon2){
   w = lon2-lon1;
   h = lat2-lat1;
   // директория с hgt-файлами, размер кэша, интерполяция
-  srtm3 s(dir, w/1200+2, interp_mode_on);
+  srtm3 s(dir, w/1200+2, interp_mode_add);
   // w/1200+2, так как приятно, когда не нужно перегружать картинки при проходе
   // каждой строки. Соседние могут пригодится при интерполяции
 
   for (int lat=lat1; lat<lat2; lat++){
     for (int lon=lon1; lon<lon2; lon++){
       map_pt p; 
-      p.alt = s.geth(lat, lon);
+      p.alt = s.geth(lon, lat);
       if (p.alt >srtm_min_interp) p.alt -=srtm_zer_interp;
       data.push_back(p);
     }

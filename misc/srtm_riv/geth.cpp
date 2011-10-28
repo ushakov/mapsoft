@@ -10,7 +10,7 @@
 main(){ 
 try {
 
-  srtm3 s("/d3/SRTMv2/", 4, interp_mode_on);
+  srtm3 s("/d3/SRTMv2/", 4, interp_mode_add);
   // директория с hgt-файлами
 
   double lat,lon;
@@ -26,7 +26,7 @@ try {
     int h;
 
     if ((lat == y )&&(lon == x )){
-      h = s.geth(x,y);
+      h = s.geth(y,x);
       if (h==srtm_nofile){
         std::cerr << "can't find file " << y/1200 << ' ' << x/1200 << '\n';
         exit(0);
@@ -49,7 +49,7 @@ try {
 
     for (j=0;j<2;j++){
       for (i=0;i<2;i++){
-        h = s.geth(x+i,y+j);
+        h = s.geth(y+j,x+i);
         if (h==srtm_nofile){
           std::cerr << "can't find file " << (y+j)/1200 << ' ' << (x+i)/1200 << '\n';
           exit(0);
