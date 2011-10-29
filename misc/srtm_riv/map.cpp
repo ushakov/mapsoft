@@ -56,7 +56,7 @@ short map::geth(int lat, int lon){
 обратное и боковое затопление! (см. one_river.cpp)
 */
 
-void map::rtrace(iPoint p0, int rmax){
+void map::trace(iPoint p0, bool up, int rmax){
 
   int h0=geth(p0); // h0 - высота на последнем шаге
                    // (шаг происхоит строго вверх либо строго вниз)
@@ -75,89 +75,45 @@ void map::rtrace(iPoint p0, int rmax){
   iPoint p;     // текущая точка
   iPoint pe=p0; // точка последнего шага
 
-  int min;
+  int extr; // min for rivers, max for mountains
   do {
     // найдем минимум на границе и добавим его в список
-    min = -srtm_min;
+    extr = up?srtm_min:-srtm_min;
     for (std::set<iPoint>::iterator b = B.begin(); b!=B.end(); b++){
       int h = geth(*b);
-      if (min > h){ min=h; p=*b;}
+      if ((up && (extr < h)) ||
+         (!up && (extr > h))) { extr=h; p=*b;}
     }
     add_pb(p, P,B);
     L.push_back(p);
 
     // если мы нашли более низкую точку, чем прошлая - делаем шаг:
-    if ((min> srtm_min)&&(min<h0)) {pe=p; h0=min; n=0;}
+    if (extr> srtm_min){
+      if ((up && (extr > h0)) ||
+         (!up && (extr < h0))) {pe=p; h0=extr; n=0;}
+    }
 
     n++;
     // если мы уже ушли далеко, а шаг не сделали, то точка последнего 
     if (n>rmax) {pt(pe)->rdir = 8; p=pe; break;} // шага - бессточная
 
-  } while ((min>srtm_min)&&(pt(p)->rdir==-1)); // пока не нашли сток (м.б. край карты)
+  } while ((extr>srtm_min)&&(pt(p)->rdir==-1)); // пока не нашли сток (м.б. край карты)
 
   //теперь p - точка стока
   //делаем обратный проход:
   while (p!=p0){
     for (std::vector<iPoint>::const_iterator b = L.begin(); b!=L.end(); b++){
       int dir = isadjacent(*b, p);
-      if (dir != -1) { p=*b; pt(p)->rdir=dir; break;}
+      if (dir != -1) {
+        p=*b;
+        if (up) pt(p)->mdir=dir;
+        else    pt(p)->rdir=dir;
+        break;
+      }
     }
   }
   return;
 }
-
-
-void map::mtrace(iPoint p0, int mmax){
-
-  int h0=geth(p0); // h0 - высота на последнем шаге
-                   // (шаг происхоит строго вверх либо строго вниз)
-
-  if (h0 < srtm_min) return; // мы вне карты
-  if (pt(p0)->mdir != -1) return; // мы на уже обработаной территории
-
-  std::vector<iPoint> L;            // список просмотренных точек
-  std::set<iPoint> P;
-  L.push_back(p0);
-  P.insert(p0);
-  std::set<iPoint> B = border(P); // его граница
-
-  int n=0; // счетчик бессточных территорий
-
-  iPoint p;     // текущая точка
-  iPoint pe=p0; // точка последнего шага
-
-  int max;
-  do {
-    // найдем максимум на границе и добавим его в список
-    max = srtm_min;
-    for (std::set<iPoint>::iterator b = B.begin(); b!=B.end(); b++){
-      int h = geth(*b);
-      if (max < h){ max=h; p=*b;}
-      if (h < srtm_min){ max=-srtm_min; p=*b;} // заграница считается стоком
-    }
-    add_pb(p, P,B);
-    L.push_back(p);
-
-    // если мы нашли более высокую точку, чем прошлая - делаем шаг:
-    if ((max< -srtm_min)&&(max>h0)) {pe=p; h0=max; n=0;}
-
-    n++;
-    // если мы уже ушли далеко, а шаг не сделали, то точка последнего 
-    if (n>mmax) {pt(pe)->mdir = 8; p=pe; break;} // шага - бессточная
-
-  } while ((max < -srtm_min)&&(pt(p)->mdir==-1)); // пока не нашли сток (м.б. край карты)
-
-  //теперь p - точка стока
-  //делаем обратный проход:
-  while (p!=p0){
-    for (std::vector<iPoint>::const_iterator b = L.begin(); b!=L.end(); b++){
-      int dir = isadjacent(*b, p);
-      if (dir != -1) { p=*b; pt(p)->mdir=dir; break;}
-    }
-  }
-  return;
-}
-
 
 // Определение направлений для всех точек карты
 
@@ -166,8 +122,8 @@ void map::set_dirs(int rmax, int mmax){
   for (int lat=lat1; lat<lat2; lat+=1){
     std::cerr << lat-lat1  << "\n";
     for (int lon=lon1; lon<lon2; lon+=1){
-      rtrace(iPoint(lon,lat), rmax);
-      mtrace(iPoint(lon,lat), mmax);
+      trace(iPoint(lon,lat), false, rmax);
+      trace(iPoint(lon,lat), true,  mmax);
     }
   }
 }

@@ -39,8 +39,7 @@ struct map{
   short   geth(iPoint p){ return geth(p.y, p.x);}
 
 
-  void rtrace(iPoint p, int rmax);
-  void mtrace(iPoint p, int mmax);
+  void trace(iPoint p, bool up=false, int rmax=1000);
   void set_dirs(int rmax=1000, int mmax=1000);
   void set_areas(void);
 

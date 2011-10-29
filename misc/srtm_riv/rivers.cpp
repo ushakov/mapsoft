@@ -10,10 +10,10 @@ inline int dms(int d, int m) {return d*3600+m*60;}
 inline int dms(int d) {return d*3600;}
                                     // координаты углов
 
-  const int lat1 = dms(53,30,00)/3; // данные задаем в секундах, деленных на три
-  const int lat2 = dms(54,30,00)/3;
+  const int lat1 = dms(53,50,00)/3; // данные задаем в секундах, деленных на три
+  const int lat2 = dms(54,10,00)/3;
   const int lon1 = dms(95,00,00)/3;
-  const int lon2 = dms(97,00,00)/3;
+  const int lon2 = dms(95,30,00)/3;
 
 
 

@@ -27,25 +27,21 @@ try {
 
   std::cout << "P6\n" << m.w << " " << m.h << "\n255\n";
 
-  m.rtrace(iPoint(lon1+1100, lat1+200), 1000);
-  m.mtrace(iPoint(lon1+600, lat1+200), 1000);
+  m.trace(iPoint(lon1+1100, lat1+200), false, 1000);
+  m.trace(iPoint(lon1+600, lat1+200), true, 1000);
 
   for (int lat=m.lat2-1; lat>=m.lat1; lat--){
     for (int lon=m.lon1; lon<m.lon2; lon++){
 
       short h  = m.geth(lat,lon);
-      color c = color(0,0,0);
+      color c = color(255,255,255);
 
       if (h > srtm_min){
         c = rainbow(h, 500, 3000, 5, 0);
       }
 
-      if (m.pt(lat,lon)->rdir != -1) { 
-        c= color(m.pt(lat,lon)->rdir*20,0,0);
-      }
-      if (m.pt(lat,lon)->mdir != -1) { 
-        c= color(0,m.pt(lat,lon)->mdir*20,0);
-      }
+      if (m.pt(lat,lon)->rdir != -1) c= color(0,0,0x7f);
+      if (m.pt(lat,lon)->mdir != -1) c= color(0x7f,0,0);
 
       std::cout << c.r << c.g << c.b;
     }
