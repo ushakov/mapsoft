@@ -1,17 +1,18 @@
 #ifndef SRTM_FONT_H
 #define SRTM_FONT_H
 
-#include "point.h"
-
 #define FONT_4x6D 1
+
+#include <set>
+#include <2d/point.h>
 
 struct font{
   int width;
   int height;
-  char *letters;
-  char *images;
+  const char *letters;
+  const char *images;
   font(int fontid);
-  std::set<point> print(int lat, int lon, const char * text);
+  std::set<iPoint> print(int lat, int lon, const char * text);
 };
 
 #endif

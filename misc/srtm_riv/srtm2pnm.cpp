@@ -2,10 +2,8 @@
 #include <iostream>
 #include <cmath>
 
-#include "srtm/srtm"
+#include "srtm/srtm3.h"
 #include "color.h"
-
-//#include "point.h"
 
 // вывод красивой картинки в PNM-файл
 

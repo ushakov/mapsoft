@@ -27,7 +27,7 @@ try {
 
   std::cout << "P6\n" << m.w << " " << m.h << "\n255\n";
 
-  point p = point(lon1+100, lat1+100);
+  iPoint p = iPoint(lon1+100, lat1+100);
 
   for (int lat=m.lat2-1; lat>=m.lat1; lat--){
     for (int lon=m.lon1; lon<m.lon2; lon++){

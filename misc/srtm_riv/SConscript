@@ -4,10 +4,11 @@ e.UseLibs('srtm options')
 
 e.Program("srtm_riv.cpp")
 
-e.Program("one_river", Split("one_river.cpp point.cpp map.cpp"))
-e.Program("arrows",    Split("arrows.cpp point.cpp map.cpp"))
-e.Program("rivers",    Split("rivers.cpp point.cpp map.cpp"))
-e.Program("rtext",     Split("rtext.cpp font.cpp point.cpp map.cpp"))
+e.Program("one_river", Split("one_river.cpp map.cpp"))
+e.Program("arrows",    Split("arrows.cpp map.cpp"))
+e.Program("rivers",    Split("rivers.cpp map.cpp"))
+e.Program("rtext",     Split("rtext.cpp font.cpp map.cpp"))
+e.Program("srtm2pnm.cpp")
 
 
 

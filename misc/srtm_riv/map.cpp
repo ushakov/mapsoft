@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include "map.h"
+#include <2d/point_int.h>
 
 map::map(int Lat1,int Lon1, int Lat2, int Lon2, const char *dir){
   lat1 = (Lat1<Lat2)? Lat1:Lat2;
@@ -55,7 +56,7 @@ short map::geth(int lat, int lon){
 обратное и боковое затопление! (см. one_river.cpp)
 */
 
-void map::rtrace(point p0, int rmax){
+void map::rtrace(iPoint p0, int rmax){
 
   int h0=geth(p0); // h0 - высота на последнем шаге
                    // (шаг происхоит строго вверх либо строго вниз)
@@ -63,24 +64,27 @@ void map::rtrace(point p0, int rmax){
   if (h0 < srtm_min) return; // мы вне карты
   if (pt(p0)->rdir != -1) return; // мы на уже обработаной территории
 
-  std::list<point> L;            // список просмотренных точек
+  std::vector<iPoint> L;            // список просмотренных точек
+  std::set<iPoint> P;
   L.push_back(p0);
-  std::set<point> B = border(L); // его граница
+  P.insert(p0);
+  std::set<iPoint> B = border(P); // его граница
 
   int n=0; // счетчик бессточных территорий
 
-  point p;     // текущая точка
-  point pe=p0; // точка последнего шага
+  iPoint p;     // текущая точка
+  iPoint pe=p0; // точка последнего шага
 
   int min;
   do {
     // найдем минимум на границе и добавим его в список
     min = -srtm_min;
-    for (std::set<point>::iterator b = B.begin(); b!=B.end(); b++){
+    for (std::set<iPoint>::iterator b = B.begin(); b!=B.end(); b++){
       int h = geth(*b);
       if (min > h){ min=h; p=*b;}
     }
-    add_pb(p, L,B);
+    add_pb(p, P,B);
+    L.push_back(p);
 
     // если мы нашли более низкую точку, чем прошлая - делаем шаг:
     if ((min> srtm_min)&&(min<h0)) {pe=p; h0=min; n=0;}
@@ -94,8 +98,8 @@ void map::rtrace(point p0, int rmax){
   //теперь p - точка стока
   //делаем обратный проход:
   while (p!=p0){
-    for (std::list<point>::iterator b = L.begin(); b!=L.end(); b++){
-      int dir = b->isadjacent(p);
+    for (std::vector<iPoint>::const_iterator b = L.begin(); b!=L.end(); b++){
+      int dir = isadjacent(*b, p);
       if (dir != -1) { p=*b; pt(p)->rdir=dir; break;}
     }
   }
@@ -103,7 +107,7 @@ void map::rtrace(point p0, int rmax){
 }
 
 
-void map::mtrace(point p0, int mmax){
+void map::mtrace(iPoint p0, int mmax){
 
   int h0=geth(p0); // h0 - высота на последнем шаге
                    // (шаг происхоит строго вверх либо строго вниз)
@@ -111,25 +115,28 @@ void map::mtrace(point p0, int mmax){
   if (h0 < srtm_min) return; // мы вне карты
   if (pt(p0)->mdir != -1) return; // мы на уже обработаной территории
 
-  std::list<point> L;            // список просмотренных точек
+  std::vector<iPoint> L;            // список просмотренных точек
+  std::set<iPoint> P;
   L.push_back(p0);
-  std::set<point> B = border(L); // его граница
+  P.insert(p0);
+  std::set<iPoint> B = border(P); // его граница
 
   int n=0; // счетчик бессточных территорий
 
-  point p;     // текущая точка
-  point pe=p0; // точка последнего шага
+  iPoint p;     // текущая точка
+  iPoint pe=p0; // точка последнего шага
 
   int max;
   do {
     // найдем максимум на границе и добавим его в список
     max = srtm_min;
-    for (std::set<point>::iterator b = B.begin(); b!=B.end(); b++){
+    for (std::set<iPoint>::iterator b = B.begin(); b!=B.end(); b++){
       int h = geth(*b);
       if (max < h){ max=h; p=*b;}
       if (h < srtm_min){ max=-srtm_min; p=*b;} // заграница считается стоком
     }
-    add_pb(p, L,B);
+    add_pb(p, P,B);
+    L.push_back(p);
 
     // если мы нашли более высокую точку, чем прошлая - делаем шаг:
     if ((max< -srtm_min)&&(max>h0)) {pe=p; h0=max; n=0;}
@@ -143,8 +150,8 @@ void map::mtrace(point p0, int mmax){
   //теперь p - точка стока
   //делаем обратный проход:
   while (p!=p0){
-    for (std::list<point>::iterator b = L.begin(); b!=L.end(); b++){
-      int dir = b->isadjacent(p);
+    for (std::vector<iPoint>::const_iterator b = L.begin(); b!=L.end(); b++){
+      int dir = isadjacent(*b, p);
       if (dir != -1) { p=*b; pt(p)->mdir=dir; break;}
     }
   }
@@ -159,8 +166,8 @@ void map::set_dirs(int rmax, int mmax){
   for (int lat=lat1; lat<lat2; lat+=1){
     std::cerr << lat-lat1  << "\n";
     for (int lon=lon1; lon<lon2; lon+=1){
-      rtrace(point(lon,lat), rmax);
-      mtrace(point(lon,lat), mmax);
+      rtrace(iPoint(lon,lat), rmax);
+      mtrace(iPoint(lon,lat), mmax);
     }
   }
 }
@@ -173,20 +180,20 @@ void map::set_areas(void){
     std::cerr << lat-lat1  << "\n";
 
     for (int lon=lon1; lon<lon2; lon++){
-      point p  = point(lon, lat);
+      iPoint p  = iPoint(lon, lat);
 
       pt(p)->marea+=area;
       int dir = pt(p)->mdir;
       while ((dir > -1)&&(dir < 8)){ 
-        p = p.adjacent(dir);
+        p = adjacent(p, dir);
         pt(p)->marea+=area;
         dir = pt(p)->mdir;
       }
-      p  = point(lon, lat);
+      p  = iPoint(lon, lat);
       pt(p)->rarea+=area;
       dir = pt(p)->rdir;
       while ((dir > -1)&&(dir < 8)){ 
-        p = p.adjacent(dir);
+        p = adjacent(p, dir);
         pt(p)->rarea+=area;
         dir = pt(p)->rdir;
       }

@@ -3,5 +3,7 @@ one_river
 rivers
 rtext
 srtm_riv
+srtm2pnm
 *.pnm
 *.png
+

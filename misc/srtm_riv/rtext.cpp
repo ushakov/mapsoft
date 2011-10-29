@@ -26,11 +26,11 @@ try {
 //  m.set_areas();
  
   font f(FONT_4x6D);
-  std::set<point> S = f.print(lat1+20, lon1+20, "123 456.789.0asd");
+  std::set<iPoint> S = f.print(lat1+20, lon1+20, "123 456.789.0asd");
 
   std::cout << "P6\n" << m.w << " " << m.h << "\n255\n";
 
-  point p = point(lat1+100, lon1+100);
+  iPoint p = iPoint(lat1+100, lon1+100);
 
   for (int lat=m.lat2-1; lat>=m.lat1; lat--){
     for (int lon=m.lon1; lon<m.lon2; lon++){
@@ -43,7 +43,7 @@ try {
 
 //      if (m.pt(lat,lon)->marea > 0.5) c=color(0,0,0);
 //      if (m.pt(lat,lon)->rarea > 0.5) c=color(0,0,255);
-      if (S.find(point(lat,lon))!=S.end()) c=color(255,0,0);
+      if (S.count(iPoint(lat,lon))) c=color(255,0,0);
 
       std::cout << c.r << c.g << c.b;
     }

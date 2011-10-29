@@ -6,7 +6,7 @@
 #include <cmath>
 
 #include <srtm/srtm3.h>
-#include "point.h"
+#include <2d/point.h>
 
 // построение хребтовки-речевки
 
@@ -33,14 +33,14 @@ struct map{
   map(int Lat1,int Lon1, int Lat2, int Lon2, const char *dir=def_srtm_dir.c_str());
 
   map_pt* pt(int lat, int lon);
-  map_pt* pt(point p){ return pt(p.y, p.x);}
+  map_pt* pt(iPoint p){ return pt(p.y, p.x);}
 
   short   geth(int lat, int lon);
-  short   geth(point p){ return geth(p.y, p.x);}
+  short   geth(iPoint p){ return geth(p.y, p.x);}
 
 
-  void rtrace(point p, int rmax);
-  void mtrace(point p, int mmax);
+  void rtrace(iPoint p, int rmax);
+  void mtrace(iPoint p, int mmax);
   void set_dirs(int rmax=1000, int mmax=1000);
   void set_areas(void);
 

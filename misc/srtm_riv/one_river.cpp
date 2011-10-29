@@ -27,8 +27,8 @@ try {
 
   std::cout << "P6\n" << m.w << " " << m.h << "\n255\n";
 
-  m.rtrace(point(lon1+1100, lat1+200), 1000);
-  m.mtrace(point(lon1+600, lat1+200), 1000);
+  m.rtrace(iPoint(lon1+1100, lat1+200), 1000);
+  m.mtrace(iPoint(lon1+600, lat1+200), 1000);
 
   for (int lat=m.lat2-1; lat>=m.lat1; lat--){
     for (int lon=m.lon1; lon<m.lon2; lon++){
