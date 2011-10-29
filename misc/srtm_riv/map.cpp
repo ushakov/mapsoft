@@ -62,7 +62,8 @@ void map::trace(iPoint p0, bool up, int rmax){
                    // (шаг происхоит строго вверх либо строго вниз)
 
   if (h0 < srtm_min) return; // мы вне карты
-  if (pt(p0)->rdir != -1) return; // мы на уже обработаной территории
+  if ((up && (pt(p0)->mdir != -1)) ||
+     (!up && (pt(p0)->rdir != -1))) return; // мы на уже обработаной территории
 
   std::vector<iPoint> L;            // список просмотренных точек
   std::set<iPoint> P;
@@ -94,9 +95,14 @@ void map::trace(iPoint p0, bool up, int rmax){
 
     n++;
     // если мы уже ушли далеко, а шаг не сделали, то точка последнего 
-    if (n>rmax) {pt(pe)->rdir = 8; p=pe; break;} // шага - бессточная
+    if (n>rmax) {
+      if (up) pt(pe)->mdir = 8;
+      else    pt(pe)->rdir = 8;
+      p=pe; break;
+    } // шага - бессточная
 
-  } while (pt(p)->rdir==-1); // пока не нашли сток (м.б. край карты)
+  } while ((up && (pt(p)->mdir==-1)) ||
+          (!up && (pt(p)->rdir==-1))); // пока не нашли сток (м.б. край карты)
 
   //теперь p - точка стока
   //делаем обратный проход:

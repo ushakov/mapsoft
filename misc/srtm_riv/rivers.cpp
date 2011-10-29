@@ -13,7 +13,7 @@ inline int dms(int d, int m, int s) {return d*3600+m*60+s;}
 main(){
 
   map m(lat1, lon1, lat2, lon2);
-  m.set_dirs(100000,100000);
+  m.set_dirs(1000,1000);
   m.set_areas();
 
   print_pnm_head(m.w, m.h);
@@ -28,8 +28,8 @@ main(){
       int c = 0;
       if (h > srtm_min) c = R.get(h);
 
-      if (m.pt(lat,lon)->marea > 0.5) c=0;
-      if (m.pt(lat,lon)->rarea > 0.5) c=0xff;
+      if (m.pt(lat,lon)->marea > 0.5) c=0x7f0000;
+      if (m.pt(lat,lon)->rarea > 0.5) c=0x7f;
 
       print_pnm_col(c);
     }

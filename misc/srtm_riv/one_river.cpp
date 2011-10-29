@@ -17,8 +17,8 @@ main(){
 
   print_pnm_head(m.w, m.h);
 
-  m.trace(iPoint(lon1+1100, lat1+200), false, 1000);
-  m.trace(iPoint(lon1+600, lat1+200), true, 1000);
+  m.trace(iPoint(lon1+1100, lat1+200), false, 100);
+  m.trace(iPoint(lon1+600, lat1+200), true, 100);
 
   simple_rainbow R(500,3000);
 
