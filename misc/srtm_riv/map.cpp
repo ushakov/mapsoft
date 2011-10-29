@@ -81,6 +81,7 @@ void map::trace(iPoint p0, bool up, int rmax){
     extr = up?srtm_min:-srtm_min;
     for (std::set<iPoint>::iterator b = B.begin(); b!=B.end(); b++){
       int h = geth(*b);
+      if (h < srtm_min) continue;
       if ((up && (extr < h)) ||
          (!up && (extr > h))) { extr=h; p=*b;}
     }
@@ -88,16 +89,14 @@ void map::trace(iPoint p0, bool up, int rmax){
     L.push_back(p);
 
     // если мы нашли более низкую точку, чем прошлая - делаем шаг:
-    if (extr> srtm_min){
-      if ((up && (extr > h0)) ||
-         (!up && (extr < h0))) {pe=p; h0=extr; n=0;}
-    }
+    if ((up && (extr > h0)) ||
+       (!up && (extr < h0))) {pe=p; h0=extr; n=0;}
 
     n++;
     // если мы уже ушли далеко, а шаг не сделали, то точка последнего 
     if (n>rmax) {pt(pe)->rdir = 8; p=pe; break;} // шага - бессточная
 
-  } while ((extr>srtm_min)&&(pt(p)->rdir==-1)); // пока не нашли сток (м.б. край карты)
+  } while (pt(p)->rdir==-1); // пока не нашли сток (м.б. край карты)
 
   //теперь p - точка стока
   //делаем обратный проход:

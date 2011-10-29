@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -8,7 +7,6 @@
 // получение координат точек
 
 main(){ 
-try {
 
   srtm3 s(def_srtm_dir, 4);
   // директория с hgt-файлами
@@ -64,7 +62,5 @@ try {
     if (Sr==0) std::cout << "undef\n";
     else std::cout << Srh/Sr << '\n';
   }
-
-} catch(std::domain_error e){ std::cerr << e.what(); }
 }
 
