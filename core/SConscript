@@ -16,6 +16,7 @@ subdirs = Split ("""
     options
     utils
     vmap
+    srtm
 """)
 
 # add CPPPATH and PKG_CONFIG_PATH to global env

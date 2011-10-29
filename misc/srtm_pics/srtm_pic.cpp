@@ -4,21 +4,20 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "utils/srtm3.h"
-#include "geo/geo_data.h"
+#include "srtm/srtm3.h"
 #include "geo/geo_convs.h"
 #include "geo_io/io_oe.h"
 #include "2d/line_utils.h"
 #include "2d/rainbow.h"
 
-#define GETH geth16
+#define GETH geth4
 
 // построение растровых горизонталей и выделение крутых уклонов цветами
 // (СК Пулково, координаты Г-К)
 
 // todo -- стандартные параметры --geom --lon0 ...
 
-const char* srtm_dir = "/d/MAPS/SRTMv2/"; 
+std::string srtm_dir = def_srtm_dir;
 
 struct rainbow_data RD_podm[]={
   {5.0,  0xFFFFFF},
@@ -71,7 +70,7 @@ try{
     int H = (int)((Y2-Y1)*k);
     std::cerr << W << "x" << H << "\n";
 
-    srtm3 s(srtm_dir, 10, interp_mode_off); 
+    srtm3 s(srtm_dir, 10); 
 
     std::cout << "P6\n" << W << " " << H << "\n255\n";
 
@@ -133,7 +132,7 @@ try{
         { // sstep contours
           double d1 = (h/sstep - hoo);
 	  double d2 = (hy/sstep - hoo);
-	  hoo = (abs(d1)>abs(d2))? hy/sstep:h/sstep;
+	  hoo = (abs(d1)<abs(d2))? hy/sstep:h/sstep;
 	  if ((d1!=0)||(d2!=0)) { c=0; goto print_colors; }
         }
 

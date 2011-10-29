@@ -2,7 +2,7 @@
 #include <map>
 #include "map.h"
 
-map::map(char *dir, int Lat1,int Lon1, int Lat2, int Lon2){
+map::map(int Lat1,int Lon1, int Lat2, int Lon2, const char *dir){
   lat1 = (Lat1<Lat2)? Lat1:Lat2;
   lat2 = (Lat1<Lat2)? Lat2:Lat1;
   lon1 = (Lon1<Lon2)? Lon1:Lon2;
@@ -10,14 +10,14 @@ map::map(char *dir, int Lat1,int Lon1, int Lat2, int Lon2){
   w = lon2-lon1;
   h = lat2-lat1;
   // директория с hgt-файлами, размер кэша, интерполяция
-  srtm3 s(dir, w/1200+2, interp_mode_add);
+  srtm3 s(dir, w/1200+2);
   // w/1200+2, так как приятно, когда не нужно перегружать картинки при проходе
   // каждой строки. Соседние могут пригодится при интерполяции
 
   for (int lat=lat1; lat<lat2; lat++){
     for (int lon=lon1; lon<lon2; lon++){
       map_pt p; 
-      p.alt = s.geth(lon, lat);
+      p.alt = s.geth(lon, lat, true);
       if (p.alt >srtm_min_interp) p.alt -=srtm_zer_interp;
       data.push_back(p);
     }

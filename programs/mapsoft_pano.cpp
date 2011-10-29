@@ -5,7 +5,7 @@
 #include <list>
 #include <vector>
 
-#include "utils/srtm3.h"
+#include "srtm/srtm3.h"
 #include "jeeps/gpsmath.h"
 
 #include "geo_io/io.h"
@@ -18,7 +18,7 @@
 
 using namespace std;
 
-const char* srtm_dir = "/d/MAPS/SRTMv2/";
+const char* srtm_dir = def_srtm_dir.c_str();
 
 const int max_r = 60000; // m
 const int min_r = 100;    // m
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
   int height    = (max_b-min_b)*rad2pt;
 
 
-  srtm3 s(srtm_dir, 10, interp_mode_off);
+  srtm3 s(srtm_dir, 10);
 
   iImage data(width, height);
 
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
       int r = i*dr;
 
       dPoint p = fast_rcnv(lon0, dPoint(r*cos(a)+x0, r*sin(a)+y0)) * (180.0/M_PI);
-      double alt = (double)s.geth(p);
+      double alt = (double)s.geth4(p);
       if (alt > srtm_min_interp) alt-=srtm_zer_interp;
 
       int zn = int((atan((alt-alt0)/double(r)) - min_b)*rad2pt);
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
       double a = atan2(pw.y-p0.y, pw.x-p0.x);
       if ((a > max_a)||(a<min_a)) continue;
 
-      double z = (double)s.geth((*l)[0]);
+      double z = (double)s.geth4((*l)[0]);
       if (z > srtm_min_interp) z-=srtm_zer_interp;
       if (z < srtm_min) continue;
 
@@ -203,7 +203,7 @@ int main(int argc, char *argv[]) {
       double a = atan2(pw.y-p0.y, pw.x-p0.x);
       if ((a > max_a)||(a<min_a)) continue;
 
-      double z = (double)s.geth(world.wpts[i][j]);
+      double z = (double)s.geth4(world.wpts[i][j]);
       if (z > srtm_min_interp) z-=srtm_zer_interp;
       if (z < srtm_min) continue;
 

@@ -5,7 +5,7 @@
 #include <iostream>
 #include <cmath>
 
-#include <utils/srtm3.h>
+#include <srtm/srtm3.h>
 #include "point.h"
 
 // построение хребтовки-речевки
@@ -30,7 +30,7 @@ struct map{
   int h;
   map_pt p0; // точка по умолчанию.
 
-  map(char *dir, int Lat1,int Lon1, int Lat2, int Lon2);
+  map(int Lat1,int Lon1, int Lat2, int Lon2, const char *dir=def_srtm_dir.c_str());
 
   map_pt* pt(int lat, int lon);
   map_pt* pt(point p){ return pt(p.y, p.x);}

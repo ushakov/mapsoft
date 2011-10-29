@@ -2,7 +2,6 @@
 #include <iostream>
 #include <cmath>
 
-#include <utils/srtm3.h>
 #include "color.h"
 #include "map.h"
 
@@ -24,7 +23,7 @@ const int lon2 = dms(112,00,00)/3;
 main(){ 
 try {
 
-  map m("/d3/SRTMv2/", lat1, lon1, lat2, lon2);
+  map m(lat1, lon1, lat2, lon2);
 
   std::cout << "P6\n" << m.w << " " << m.h << "\n255\n";
 

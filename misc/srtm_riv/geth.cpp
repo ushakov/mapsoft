@@ -3,14 +3,14 @@
 #include <cmath>
 #include <cstdlib>
 
-#include <utils/srtm3.h>
+#include <srtm/srtm3.h>
 
 // получение координат точек
 
 main(){ 
 try {
 
-  srtm3 s("/d3/SRTMv2/", 4, interp_mode_add);
+  srtm3 s(def_srtm_dir, 4);
   // директория с hgt-файлами
 
   double lat,lon;
@@ -26,7 +26,7 @@ try {
     int h;
 
     if ((lat == y )&&(lon == x )){
-      h = s.geth(y,x);
+      h = s.geth(y,x,true);
       if (h==srtm_nofile){
         std::cerr << "can't find file " << y/1200 << ' ' << x/1200 << '\n';
         exit(0);
@@ -49,7 +49,7 @@ try {
 
     for (j=0;j<2;j++){
       for (i=0;i<2;i++){
-        h = s.geth(y+j,x+i);
+        h = s.geth(y+j,x+i, true);
         if (h==srtm_nofile){
           std::cerr << "can't find file " << (y+j)/1200 << ' ' << (x+i)/1200 << '\n';
           exit(0);

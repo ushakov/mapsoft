@@ -47,8 +47,8 @@ main(int argc, char **argv){
 
       // put all maps into one map_list
       g_map_list maps;
-      for (std::vector<g_map_list>::const_iterator ml = world->maps.begin();
-         ml!=world->maps.end(); ml++) maps.insert(maps.end(), ml->begin(), ml->end());
+      for (std::vector<g_map_list>::const_iterator mi = world->maps.begin();
+         mi!=world->maps.end(); mi++) maps.insert(maps.end(), mi->begin(), mi->end());
       ml = new LayerGeoMap(&maps);
     }
     else if (source == "ks") {

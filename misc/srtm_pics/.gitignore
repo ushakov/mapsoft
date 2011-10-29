@@ -1,1 +1,5 @@
 srtm_pic
+srtm_pic_data.txt
+*.map
+*.pnm
+*.png

@@ -5,7 +5,7 @@
 #include <cmath>
 #include <cstring>
 
-#include "utils/srtm3.h"
+#include "srtm/srtm3.h"
 #include "2d/line.h"
 
 #include "2d/line_utils.h"
@@ -56,7 +56,7 @@ main(int argc, char** argv){
   infiles.erase(infiles.begin(), infiles.begin()+1);
 
   ofstream out(outfile.c_str()); 
-  srtm3 s(srtm_dir, 10, interp_mode_off);
+  srtm3 s(srtm_dir, 10);
 
   geo_data world;
   StrVec::const_iterator i;
@@ -88,7 +88,7 @@ main(int argc, char** argv){
          }
       }
 
-      short h = s.geth(*p);
+      short h = s.geth4(*p);
 
       out << n << "|" << tp.t.date_str() << " " << tp.t.time_str() << "|";
       if (h>0) out << h;

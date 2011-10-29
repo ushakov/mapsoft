@@ -7,11 +7,12 @@
 #include <stdexcept>
 #include <cmath>
 
-#include "utils/srtm3.h"
+#include "srtm/srtm3.h"
 #include "2d/line.h"
 
 #include "2d/line_utils.h"
 #include "2d/line_polycrop.h"
+#include "2d/point_int.h"
 
 #include "geo_io/geofig.h"
 #include "geo/geo_data.h"
@@ -47,7 +48,7 @@ main(int argc, char** argv){
   std::string cmd      = argv[2];
   std::string srtm_dir = argv[3];
 
-  srtm3 s(srtm_dir, 10, interp_mode_off);
+  srtm3 s(srtm_dir, 10);
 
   // читаем fig
   fig::fig_world F;

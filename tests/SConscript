@@ -11,6 +11,7 @@ subdirs = Split ("""
     types_io
     geo_nom
     options
+    srtm
   """)
 
 SConscript (map (lambda(s): s+"/SConscript", subdirs))

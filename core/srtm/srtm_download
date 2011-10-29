@@ -1,0 +1,30 @@
+#!/bin/sh -efu
+
+srtm_addr=http://dds.cr.usgs.gov/srtm/version2_1/SRTM3
+srtm_part=Eurasia
+
+srtm_local=~/.srtm_data
+mkdir -p -- "$srtm_local"
+
+# Africa
+# Australia
+# Eurasia
+# Islands
+# North_America
+# South_America
+
+for code in "$@"; do
+  if [ "$(printf "%s" "$code" | tr SW0-9 NE0)" != "N00E000" ]; then
+    echo "Example of usage: $0 N55E033"
+    exit 1
+  fi
+  srtm_file=$code.hgt.zip
+  [ ! -f "$srtm_local/${srtm_file%.zip}.gz" ] || continue
+
+  cd "$srtm_local"
+  wget "$srtm_addr/$srtm_part/$srtm_file" -O "$srtm_file"
+  unzip "$srtm_file"
+  rm -f "$srtm_file"
+  gzip "${srtm_file%.zip}"
+  cd -
+done

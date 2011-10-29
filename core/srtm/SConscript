@@ -1,0 +1,9 @@
+Import ('env')
+e=env.Clone()
+e.UseLibs('2d')
+
+e.Library('srtm', \
+  Split("""
+    srtm3.cpp
+  """))
+
