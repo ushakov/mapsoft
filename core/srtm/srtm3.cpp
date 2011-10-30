@@ -14,7 +14,8 @@ using namespace std;
 const string def_srtm_dir = string(getenv("HOME")) + "/.srtm_data";
 
 srtm3::srtm3(const string _srtm_dir, const unsigned cache_size) :
-     srtm_cache(cache_size), srtm_dir(_srtm_dir){
+     srtm_cache(cache_size), srtm_dir(_srtm_dir),
+     area0(pow(6380.0 * M_PI/srtm_width/180, 2)){
 }
 
 
@@ -150,6 +151,34 @@ srtm3::plane(const iPoint& p, int max){
     if ((max!=0)&&(ret.size()>max)) break;
   }
   return ret;
+}
+
+void
+srtm3::move_to_extr(iPoint & p0, bool max){
+  iPoint p1 = p0;
+  do {
+    short h = geth(p0, true);
+    for (int i=0; i<8; i++){
+      iPoint p=adjacent(p0,i);
+      if ((max && (geth(p,true) > geth(p1,true))) ||
+         (!max && (geth(p,true) < geth(p1,true)))) p1=p;
+    }
+    if (p1==p0) break;
+    p0=p1;
+  } while (1);
+}
+
+void
+srtm3::move_to_min(iPoint & p0){
+  move_to_extr(p0, false);
+}
+void
+srtm3::move_to_max(iPoint & p0){
+  move_to_extr(p0, true);
+}
+double
+srtm3::area(const iPoint &p) const{
+  return area0 * cos((double)p.y *M_PI/180.0/srtm_width);
 }
 
 /*

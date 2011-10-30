@@ -49,6 +49,16 @@ public:
   // найти множество соседних точек одной высоты (не более max точек)
   std::set<iPoint> plane(const iPoint& p, int max=1000);
 
+  // move p0 to the local extremum (interpolation is always on)
+  void move_to_extr(iPoint & p0, bool max);
+  void move_to_min(iPoint & p0);
+  void move_to_max(iPoint & p0);
+
+  // area (km2) of 3x3 sec cell at the given point
+  double area(const iPoint &p) const;
+
+  const double area0; // area of 3x3 sec cell on equator
+
 private:
   // директория с srtm-файлами
   std::string srtm_dir;
@@ -60,6 +70,7 @@ private:
   // (проверку, что он уже есть, здесь не производим)
   bool load(iPoint key);
 
+/*
   // interpolate function between 4 points
   // for use in int16()
   short int4(int x1, int x2, int x3, int x4,
@@ -67,10 +78,11 @@ private:
 
   // the same with fixed distance between points
   short int4(int x1, int f1, int f2, int f3, int f4, double x);
-
+*/
   short cubic_interp(const double h[4], const double x) const;
 
   void int_holes(double h[4]) const;
+
 };
 
 #endif

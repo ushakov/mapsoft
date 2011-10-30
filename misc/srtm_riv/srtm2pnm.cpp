@@ -6,12 +6,19 @@
 
 // координаты углов:
 inline int dms(int d, int m, int s) {return d*3600+m*60+s;}
+inline int dms(double d) {return d*3600;}
 inline void swap(int x, int y){ int z=x; x=y; y=z;}
 
+/*
 const int lat1 = dms(53,30,00)/3; // данные задаем в секундах, деленных на три
 const int lat2 = dms(54,30,00)/3;
 const int lon1 = dms(95,00,00)/3;
 const int lon2 = dms(97,00,00)/3;
+*/
+const int lat1 = dms(53.87)/3;
+const int lat2 = dms(54.04)/3;
+const int lon1 = dms(95.92)/3;
+const int lon2 = dms(96.18)/3;
 
 int shade(int c, double k){
   unsigned char r=(c>>16)&0xff, g=(c>>8)&0xff,  b=c&0xff;

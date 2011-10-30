@@ -5,5 +5,6 @@ e.UseLibs('2d')
 e.Library('srtm', \
   Split("""
     srtm3.cpp
+    tracer.cpp
   """))
 
