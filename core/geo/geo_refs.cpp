@@ -6,16 +6,19 @@
 #include "loaders/image_ks.h"
 #include "2d/line_utils.h"
 
-g_map mk_tmerc_ref(const dLine points, double u_per_m, bool yswap){
+g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap){
   g_map ref;
 
-  // Get border.
-  dLine brd = convex_border(points);
-
-  // Reduce border to 5 points, remove last one to get ref points.
-  // Note: after convex_border() last point = first point.
-  dLine refs = generalize(brd, -1, 5);
-  if (refs.size()>4) refs.resize(4);
+  if (points.size()<3){
+    std::cerr << "error in mk_tmerc_ref: number of points < 3\n";
+    return g_map();
+  }
+  // Get refs.
+  // Reduce border to 5 points, remove last one.
+  dLine refs = points;
+  refs.push_back(*refs.begin()); // to assure last=first
+  refs = generalize(refs, -1, 5);
+  refs.resize(4);
 
   // Create lonlat -> tmerc conversion with wanted lon0,
   // convert refs to our map coordinates.
@@ -47,9 +50,12 @@ g_map mk_tmerc_ref(const dLine points, double u_per_m, bool yswap){
   // this is unnecessary duplicating of non-trivial code.
   // So we constract map2pt conversion from our map.
 
-  // Set ref.border to brd converted to map units.
+  // Set map border
   convs::map2pt brd_cnv(ref, Datum("wgs84"), Proj("lonlat"));
-  ref.border = generalize(brd_cnv.line_bck(brd), 1, -1); // 1 unit accuracy
+  ref.border = brd_cnv.line_bck(points);
+  ref.border.push_back(*ref.border.begin()); // to assure last=first
+  ref.border = generalize(ref.border, 1, -1); // 1 unit accuracy
+  ref.border.resize(ref.border.size()-1);
 
   return ref;
 }
