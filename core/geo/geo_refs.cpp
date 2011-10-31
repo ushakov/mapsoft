@@ -54,7 +54,7 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap){
   convs::map2pt brd_cnv(ref, Datum("wgs84"), Proj("lonlat"));
   ref.border = brd_cnv.line_bck(points);
   ref.border.push_back(*ref.border.begin()); // to assure last=first
-  ref.border = generalize(ref.border, 1, -1); // 1 unit accuracy
+  ref.border = generalize(ref.border, 1000, -1); // 1 unit accuracy
   ref.border.resize(ref.border.size()-1);
 
   return ref;

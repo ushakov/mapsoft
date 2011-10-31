@@ -184,7 +184,11 @@ write(fig::fig_world & F, const world & W, const Options & O){
   if (W.brd.size()>0){
     fig::fig_object brd_o = zconverter.get_fig_template(border_type);
     // convert and reduce point number
-    brd_o.set_points(generalize(cnv.line_bck(W.brd), brd_fig_acc, -1));
+    dLine brd=cnv.line_bck(W.brd);
+    brd.push_back(*brd.begin());
+    brd=generalize(brd, brd_fig_acc, -1);
+    brd.resize(brd.size()-1);
+    brd_o.set_points(brd);
     brd_o.close();
     brd_o.comment.push_back("BRD " + W.name);
     if (W.brd.size()!=0) F.push_back(brd_o);
