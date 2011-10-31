@@ -1,5 +1,5 @@
 #include <2d/rainbow.h>
-#include "map.h"
+#include <srtm/map_tracer.h>
 #include "pnm.h"
 
 // рисование стрелочек
@@ -25,7 +25,7 @@ const int lon2 = dms(111,10,00)/3;
 
 main(){
 
-  map m(lat1, lon1, lat2, lon2);
+  map_tracer m(lat1, lon1, lat2, lon2);
   m.set_dirs(100,100);
 
   const int arr_size=4;

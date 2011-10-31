@@ -1,9 +1,9 @@
 #include <iostream>
 #include <map>
-#include "map.h"
+#include "map_tracer.h"
 #include <2d/point_int.h>
 
-map::map(int Lat1,int Lon1, int Lat2, int Lon2, const char *dir){
+map_tracer::map_tracer(int Lat1,int Lon1, int Lat2, int Lon2, const char *dir){
   lat1 = (Lat1<Lat2)? Lat1:Lat2;
   lat2 = (Lat1<Lat2)? Lat2:Lat1;
   lon1 = (Lon1<Lon2)? Lon1:Lon2;
@@ -25,12 +25,12 @@ map::map(int Lat1,int Lon1, int Lat2, int Lon2, const char *dir){
   }
 }
 
-map_pt* map::pt(int lat, int lon){
+map_pt* map_tracer::pt(int lat, int lon){
   if ((lat<lat1)||(lat>=lat2)||(lon<lon1)||(lon>=lon2)) return &p0;
   return &data[(lon-lon1)+(lat-lat1)*w];
 }
 
-short map::geth(int lat, int lon){
+short map_tracer::geth(int lat, int lon){
   if ((lat<lat1)||(lat>=lat2)||(lon<lon1)||(lon>=lon2)) return srtm_undef;
   return data[(lon-lon1)+(lat-lat1)*w].alt;
 }
@@ -56,7 +56,7 @@ short map::geth(int lat, int lon){
 обратное и боковое затопление! (см. one_river.cpp)
 */
 
-void map::trace(iPoint p0, bool up, int rmax){
+void map_tracer::trace(iPoint p0, bool up, int rmax){
 
   int h0=geth(p0); // h0 - высота на последнем шаге
                    // (шаг происхоит строго вверх либо строго вниз)
@@ -122,7 +122,7 @@ void map::trace(iPoint p0, bool up, int rmax){
 
 // Определение направлений для всех точек карты
 
-void map::set_dirs(int rmax, int mmax){
+void map_tracer::set_dirs(int rmax, int mmax){
 
   for (int lat=lat1; lat<lat2; lat+=1){
     std::cerr << lat-lat1  << "\n";
@@ -134,7 +134,7 @@ void map::set_dirs(int rmax, int mmax){
 }
 
 // определение площадей для всех точек карты
-void map::set_areas(void){
+void map_tracer::set_areas(void){
   for (int lat=lat1; lat<lat2; lat++){
     double area = pow(6380.0 * M_PI/srtm_width/180, 2)*
       cos((1.0*lat)/srtm_width * M_PI/180.0);

@@ -6,5 +6,6 @@ e.Library('srtm', \
   Split("""
     srtm3.cpp
     tracer.cpp
+    map_tracer.cpp
   """))
 

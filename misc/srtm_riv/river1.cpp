@@ -1,7 +1,6 @@
 #include <map>
 #include <2d/rainbow.h>
 #include <srtm/tracer.h>
-#include "map.h"
 #include "pnm.h"
 
 // построение водосбора одной реки

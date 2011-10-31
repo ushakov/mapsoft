@@ -1,5 +1,5 @@
 #include <2d/rainbow.h>
-#include "map.h"
+#include <srtm/srtm3.h>
 #include "pnm.h"
 #include "font.h"
 
@@ -14,7 +14,7 @@ inline int dms(int d, int m, int s) {return d*3600+m*60+s;}
 
 main(){
 
-  map m(lat1, lon1, lat2, lon2);
+  srtm3 s(def_srtm_dir);
 
   font f(FONT_4x6D);
   std::set<iPoint> S = f.print(lat1+20, lon1+20, "123 456.789.0asd");
@@ -22,12 +22,12 @@ main(){
   iPoint p = iPoint(lat1+100, lon1+100);
 
   simple_rainbow R(500,3000);
-  print_pnm_head(m.w, m.h);
+  print_pnm_head(lon2-lon1, lat2-lat1);
 
-  for (int lat=m.lat2-1; lat>=m.lat1; lat--){
-    for (int lon=m.lon1; lon<m.lon2; lon++){
+  for (int lat=lat2-1; lat>=lat1; lat--){
+    for (int lon=lon1; lon<lon2; lon++){
 
-      short h  = m.geth(lat,lon);
+      short h  = s.geth(lat,lon);
       int c = 0;
       if (h > srtm_min) c = R.get(h);
 

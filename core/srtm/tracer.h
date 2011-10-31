@@ -21,12 +21,13 @@ public:
   int max_height_mt;
   double min_area;
   bool river;
+  iPoint start_pt;
 
   tracer(const char *dir = "./", int cache_size=10);
 
   void trace_river(const dPoint & p);
   void trace_mount(const dPoint & p);
-  void trace(const iPoint & ip);
+  void trace();
 
   // есть ли сток из направления dir в данную точку?
   bool is_flow(const iPoint &p, int dir);

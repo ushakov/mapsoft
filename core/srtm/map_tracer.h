@@ -1,11 +1,9 @@
-#ifndef MAP_H
-#define MAP_H
+#ifndef MAP_TRACER_H
+#define MAP_TRACER_H
 
-#include <stdexcept>
-#include <iostream>
-#include <cmath>
+#include <vector>
 
-#include <srtm/srtm3.h>
+#include "srtm3.h"
 #include <2d/point.h>
 
 // построение хребтовки-речевки
@@ -23,14 +21,14 @@ struct map_pt{ // точка на карте
   }
 };
 
-struct map{
+struct map_tracer{
   std::vector<map_pt> data; // точки 
   int lat1,lat2,lon1,lon2;  // координаты углов в 3-х секундах
   int w;
   int h;
   map_pt p0; // точка по умолчанию.
 
-  map(int Lat1,int Lon1, int Lat2, int Lon2, const char *dir=def_srtm_dir.c_str());
+  map_tracer(int Lat1,int Lon1, int Lat2, int Lon2, const char *dir=def_srtm_dir.c_str());
 
   map_pt* pt(int lat, int lon);
   map_pt* pt(iPoint p){ return pt(p.y, p.x);}

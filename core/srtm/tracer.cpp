@@ -13,23 +13,23 @@ tracer::tracer(const char *dir, int cache_size):
 void
 tracer::trace_river(const dPoint & p){
   river=true;
-  iPoint ip = p*3600/3; // 3-sec srtm units
-  S.move_to_min(ip);
-  trace(ip);
+  start_pt = p*3600/3; // 3-sec srtm units
+  S.move_to_min(start_pt);
+  trace();
 }
 void
 tracer::trace_mount(const dPoint & p){
   river=false;
-  iPoint ip = p*3600/3; // 3-sec srtm units
-  S.move_to_max(ip);
-  trace(ip);
+  start_pt = p*3600/3; // 3-sec srtm units
+  S.move_to_max(start_pt);
+  trace();
 }
 
 void
-tracer::trace(const iPoint & ip){
+tracer::trace(){
   done.clear();
   res.clear();
-  get_a(ip);
+  get_a(start_pt);
 }
 
 // есть ли сток из направления dir в данную точку?

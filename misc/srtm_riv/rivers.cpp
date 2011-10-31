@@ -1,5 +1,5 @@
 #include <2d/rainbow.h>
-#include "map.h"
+#include <srtm/map_tracer.h>
 #include "pnm.h"
 
 inline int dms(int d, int m, int s) {return d*3600+m*60+s;}
@@ -12,7 +12,7 @@ inline int dms(int d, int m, int s) {return d*3600+m*60+s;}
 
 main(){
 
-  map m(lat1, lon1, lat2, lon2);
+  map_tracer m(lat1, lon1, lat2, lon2);
   m.set_dirs(1000,1000);
   m.set_areas();
 

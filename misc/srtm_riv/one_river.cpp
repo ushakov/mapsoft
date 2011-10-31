@@ -1,5 +1,5 @@
 #include <2d/rainbow.h>
-#include "map.h"
+#include <srtm/map_tracer.h>
 #include "pnm.h"
 
 // построение хребтовки-речевки
@@ -13,7 +13,7 @@ const int lon1 = dms(111,00,00)/3;
 const int lon2 = dms(112,00,00)/3;
 
 main(){
-  map m(lat1, lon1, lat2, lon2);
+  map_tracer m(lat1, lon1, lat2, lon2);
 
   print_pnm_head(m.w, m.h);
 
