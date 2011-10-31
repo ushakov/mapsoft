@@ -63,8 +63,8 @@ generalize(g_track * line, double e, int np){
       n++; // count point we doesn't plan to skip
       int ip, in; // previous and next indexes
       // skip[0] and skip[line.size()-1] are always false
-      for (ip=i-1; ip>=0; ip--)            if (!skip[ip]) break;
-      for (in=i+1; in<gk_line.size()-1; in++) if (!skip[in]) break;
+      for (ip=i-1; ip>=0; ip--)             if (!skip[ip]) break;
+      for (in=i+1; in<gk_line.size(); in++) if (!skip[in]) break;
       Point<double> p1 = gk_line[ip];
       Point<double> p2 = gk_line[i];
       Point<double> p3 = gk_line[in];
@@ -77,7 +77,7 @@ generalize(g_track * line, double e, int np){
       else              dp = pdist(p2-p1-v*prj);
       if ((min<0) || (min>dp)) {min = dp; mini=i;}
     }
-    if (n<=2) break;
+    if (n==0) break;
     // если этот минимум меньше e или точек в линии больше np - выкинем точку
     if ( ((e>0) && (min<e)) ||
          ((np>0) && (n>np))) skip[mini]=true;
