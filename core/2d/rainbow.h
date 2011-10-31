@@ -38,11 +38,11 @@ class simple_rainbow{
 
 public:
   simple_rainbow(double min, double max){
-    RD[0].c = 0x0000ff;
-    RD[1].c = 0x00ffff;
+    RD[0].c = 0xff0000;
+    RD[1].c = 0xffff00;
     RD[2].c = 0x00ff00;
-    RD[3].c = 0xffff00;
-    RD[4].c = 0xff0000;
+    RD[3].c = 0x00ffff;
+    RD[4].c = 0x0000ff;
     RD[5].c = 0xff00ff;
 
     for (int i=0; i<rd_size; i++)
@@ -52,6 +52,13 @@ public:
   int get(double val) const{
     return get_rainbow(val, RD, rd_size);
   }
+
+  int get_bnd(double val, int low_c=0, int high_c=0) const{
+    if (val<RD[0].v) return low_c;
+    if (val>RD[rd_size-1].v) return high_c;
+    return get_rainbow(val, RD, rd_size);
+  }
+
 };
 
 #endif

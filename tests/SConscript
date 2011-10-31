@@ -6,6 +6,7 @@ subdirs = Split ("""
     2d_nearest_pt
     2d_angles
     2d_cache
+    2d_rainbow
     generic_accessor
     margin_classifier
     types_io
