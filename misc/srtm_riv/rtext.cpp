@@ -14,7 +14,7 @@ inline int dms(int d, int m, int s) {return d*3600+m*60+s;}
 
 main(){
 
-  srtm3 s(def_srtm_dir);
+  srtm3 s;
 
   font f(FONT_4x6D);
   std::set<iPoint> S = f.print(lat1+20, lon1+20, "123 456.789.0asd");

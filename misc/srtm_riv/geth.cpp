@@ -8,7 +8,7 @@
 
 main(){ 
 
-  srtm3 s(def_srtm_dir, 4);
+  srtm3 s;
   // директория с hgt-файлами
 
   double lat,lon;

@@ -13,7 +13,7 @@ using namespace std;
 
 const string def_srtm_dir = string(getenv("HOME")) + "/.srtm_data";
 
-srtm3::srtm3(const string _srtm_dir, const unsigned cache_size) :
+srtm3::srtm3(const string & _srtm_dir, const unsigned cache_size) :
      srtm_cache(cache_size), srtm_dir(_srtm_dir),
      area0(pow(6380.0 * M_PI/srtm_width/180, 2)){
 }

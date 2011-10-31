@@ -2,6 +2,7 @@
 #define MAP_TRACER_H
 
 #include <vector>
+#include <string>
 
 #include "srtm3.h"
 #include <2d/point.h>
@@ -28,7 +29,8 @@ struct map_tracer{
   int h;
   map_pt p0; // точка по умолчанию.
 
-  map_tracer(int Lat1,int Lon1, int Lat2, int Lon2, const char *dir=def_srtm_dir.c_str());
+  map_tracer(int Lat1,int Lon1, int Lat2, int Lon2,
+             const std::string & dir=def_srtm_dir);
 
   map_pt* pt(int lat, int lon);
   map_pt* pt(iPoint p){ return pt(p.y, p.x);}

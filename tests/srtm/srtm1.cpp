@@ -27,13 +27,16 @@ struct rainbow_data RD2[]={
   {2800.0, 0xFFFFFF}
 };
 
+int RD1S = sizeof(RD1)/sizeof(rainbow_data);
+int RD2S = sizeof(RD2)/sizeof(rainbow_data);
+
 #define DMS(x,y,z) ((x)*3600+(y)*60+z)/3
 
 int
 main(){
 
   int lon1,lon2, lat1,lat2;
-  srtm3 S( def_srtm_dir, 4);
+  srtm3 S;
 
   /// test1.png -- picture with tile boundaries
 
@@ -48,7 +51,7 @@ main(){
     for (int y=lat1; y<lat2; y++){
       i1.set(x-lon1, lat2-y-1,
         get_rainbow(S.geth(x,y),
-          RD1, sizeof(RD1)/sizeof(rainbow_data)));
+          RD1, RD1S));
     }
   }
   image_png::save(i1, "test1.png");
@@ -68,10 +71,10 @@ main(){
     for (int y=lat1; y<lat2; y++){
       i2a.set(x-lon1, lat2-y-1,
         get_rainbow(S.geth(x,y,true),
-          RD1, sizeof(RD1)/sizeof(rainbow_data)));
+          RD1, RD1S));
       i2b.set(x-lon1, lat2-y-1,
         get_rainbow(S.geth(x,y),
-          RD1, sizeof(RD1)/sizeof(rainbow_data)));
+          RD1, RD1S));
     }
   }
   image_png::save(i2a, "test2a.png");
@@ -97,22 +100,22 @@ main(){
       short h2=S.geth4(dPoint(x,y)/10.0/3600*3);
       short h3=S.geth16(dPoint(x,y)/10.0/3600*3);
       i3a.set(x-lon1, lat2-y-1,
-        get_rainbow(h1, RD2, sizeof(RD2)/sizeof(rainbow_data)));
+        get_rainbow(h1, RD2, RD2S));
       i3b.set(x-lon1, lat2-y-1,
-        get_rainbow(h2, RD2, sizeof(RD2)/sizeof(rainbow_data)));
+        get_rainbow(h2, RD2, RD2S));
       i3c.set(x-lon1, lat2-y-1,
-        get_rainbow(h3, RD2, sizeof(RD2)/sizeof(rainbow_data)));
+        get_rainbow(h3, RD2, RD2S));
 
       h1=S.geth(round(x/10.0), round(y/10.0), true);
       h2=S.geth4(dPoint(x,y)/10.0/3600*3, true);
       h3=S.geth16(dPoint(x,y)/10.0/3600*3, true);
 
       i3d.set(x-lon1, lat2-y-1,
-        get_rainbow(h1, RD2, sizeof(RD2)/sizeof(rainbow_data)));
+        get_rainbow(h1, RD2, RD2S));
       i3e.set(x-lon1, lat2-y-1,
-        get_rainbow(h2, RD2, sizeof(RD2)/sizeof(rainbow_data)));
+        get_rainbow(h2, RD2, RD2S));
       i3f.set(x-lon1, lat2-y-1,
-        get_rainbow(h3, RD2, sizeof(RD2)/sizeof(rainbow_data)));
+        get_rainbow(h3, RD2, RD2S));
     }
   }
 
@@ -153,9 +156,9 @@ main(){
       short h3x=S.geth16(dPoint(x+1,y)/10.0/3600*3, true);
 
       i4b.set(x-lon1, lat2-y-1,
-        get_rainbow(h2, RD2, sizeof(RD2)/sizeof(rainbow_data)));
+        get_rainbow(h2, RD2, RD2S));
       i4c.set(x-lon1, lat2-y-1,
-        get_rainbow(h3, RD2, sizeof(RD2)/sizeof(rainbow_data)));
+        get_rainbow(h3, RD2, RD2S));
 
       int d1,d2;
 

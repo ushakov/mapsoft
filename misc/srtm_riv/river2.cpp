@@ -7,7 +7,7 @@
 
 main(){
 
-  tracer T(def_srtm_dir.c_str());
+  tracer T;
   T.trace_mount(dPoint(96.0076861, 53.8938806));
 
   iRect r=T.get_range(); r = rect_pump(r,1);

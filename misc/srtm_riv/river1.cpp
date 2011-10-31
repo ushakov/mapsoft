@@ -7,7 +7,7 @@
 
 main(){
 
-  tracer T(def_srtm_dir.c_str());
+  tracer T;
   T.trace_river(dPoint(95.9389167, 53.9771778));
 //  T.trace_river(dPoint(95.1750444, 54.1042528));
 

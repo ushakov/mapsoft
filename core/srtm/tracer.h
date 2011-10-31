@@ -6,6 +6,7 @@
 #include <2d/rect.h>
 #include <map>
 #include <set>
+#include <string>
 
 // Трассирование речек для водосбора некоторой заданной точки. То же для хребтов.
 
@@ -23,7 +24,7 @@ public:
   bool river;
   iPoint start_pt;
 
-  tracer(const char *dir = "./", int cache_size=10);
+  tracer(const std::string & dir = def_srtm_dir, int cache_size=10);
 
   void trace_river(const dPoint & p);
   void trace_mount(const dPoint & p);

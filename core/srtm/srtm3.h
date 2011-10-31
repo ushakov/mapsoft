@@ -29,7 +29,8 @@ extern const std::string def_srtm_dir;
 class srtm3 {
 public:
 
-  srtm3(const std::string _srtm_dir="./", const unsigned cache_size=10 );
+  srtm3(const std::string & _srtm_dir=def_srtm_dir,
+        const unsigned cache_size=4 );
 
   // вернуть высоту точки
   short geth(const iPoint & p, const bool interp=false);

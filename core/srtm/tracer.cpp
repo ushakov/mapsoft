@@ -1,7 +1,7 @@
 #include "tracer.h"
 #include <2d/point_int.h>
 
-tracer::tracer(const char *dir, int cache_size):
+tracer::tracer(const std::string & dir, int cache_size):
     S(dir, cache_size){
   max_points=1000;
   max_height_rv=200;

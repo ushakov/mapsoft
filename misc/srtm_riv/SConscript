@@ -1,6 +1,6 @@
 Import('env')
 e=env.Clone()
-e.UseLibs('srtm options')
+e.UseLibs('srtm options loaders')
 
 e.Program("srtm_riv.cpp")
 
