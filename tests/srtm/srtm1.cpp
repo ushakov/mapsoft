@@ -2,33 +2,7 @@
 #include <loaders/image_png.h>
 #include <2d/rainbow.h>
 
-/* srtm3 test: use geth to draw picture
-*/
-
-struct rainbow_data RD1[]={
-  {   0.0, 0x000000},
-  {   0.0, 0xFF0000},
-  { 500.0, 0xFFFF00},
-  {1000.0, 0x00FF00},
-  {1500.0, 0x00FFFF},
-  {2000.0, 0x0000FF},
-  {2500.0, 0xFF00FF},
-  {3000.0, 0xFFFFFF}
-};
-
-struct rainbow_data RD2[]={
-  {1600.0, 0x000000},
-  {1600.0, 0xFF0000},
-  {1800.0, 0xFFFF00},
-  {2000.0, 0x00FF00},
-  {2200.0, 0x00FFFF},
-  {2400.0, 0x0000FF},
-  {2600.0, 0xFF00FF},
-  {2800.0, 0xFFFFFF}
-};
-
-int RD1S = sizeof(RD1)/sizeof(rainbow_data);
-int RD2S = sizeof(RD2)/sizeof(rainbow_data);
+/* srtm3 examples */
 
 #define DMS(x,y,z) ((x)*3600+(y)*60+z)/3
 
@@ -37,6 +11,8 @@ main(){
 
   int lon1,lon2, lat1,lat2;
   srtm3 S;
+  simple_rainbow R1(500,3000);
+  simple_rainbow R2(1600,2800);
 
   /// test1.png -- picture with tile boundaries
 
@@ -49,9 +25,7 @@ main(){
 
   for (int x=lon1; x<lon2; x++){
     for (int y=lat1; y<lat2; y++){
-      i1.set(x-lon1, lat2-y-1,
-        get_rainbow(S.geth(x,y),
-          RD1, RD1S));
+      i1.set(x-lon1, lat2-y-1, R1.get_bnd(S.geth(x,y)));
     }
   }
   image_png::save(i1, "test1.png");
@@ -69,12 +43,8 @@ main(){
 
   for (int x=lon1; x<lon2; x++){
     for (int y=lat1; y<lat2; y++){
-      i2a.set(x-lon1, lat2-y-1,
-        get_rainbow(S.geth(x,y,true),
-          RD1, RD1S));
-      i2b.set(x-lon1, lat2-y-1,
-        get_rainbow(S.geth(x,y),
-          RD1, RD1S));
+      i2a.set(x-lon1, lat2-y-1, R1.get_bnd(S.geth(x,y,true)));
+      i2b.set(x-lon1, lat2-y-1, R1.get_bnd(S.geth(x,y)));
     }
   }
   image_png::save(i2a, "test2a.png");
@@ -99,23 +69,17 @@ main(){
       short h1=S.geth(round(x/10.0), round(y/10.0));
       short h2=S.geth4(dPoint(x,y)/10.0/3600*3);
       short h3=S.geth16(dPoint(x,y)/10.0/3600*3);
-      i3a.set(x-lon1, lat2-y-1,
-        get_rainbow(h1, RD2, RD2S));
-      i3b.set(x-lon1, lat2-y-1,
-        get_rainbow(h2, RD2, RD2S));
-      i3c.set(x-lon1, lat2-y-1,
-        get_rainbow(h3, RD2, RD2S));
+      i3a.set(x-lon1, lat2-y-1, R2.get_bnd(h1));
+      i3b.set(x-lon1, lat2-y-1, R2.get_bnd(h2));
+      i3c.set(x-lon1, lat2-y-1, R2.get_bnd(h3));
 
       h1=S.geth(round(x/10.0), round(y/10.0), true);
       h2=S.geth4(dPoint(x,y)/10.0/3600*3, true);
       h3=S.geth16(dPoint(x,y)/10.0/3600*3, true);
 
-      i3d.set(x-lon1, lat2-y-1,
-        get_rainbow(h1, RD2, RD2S));
-      i3e.set(x-lon1, lat2-y-1,
-        get_rainbow(h2, RD2, RD2S));
-      i3f.set(x-lon1, lat2-y-1,
-        get_rainbow(h3, RD2, RD2S));
+      i3d.set(x-lon1, lat2-y-1, R2.get_bnd(h1));
+      i3e.set(x-lon1, lat2-y-1, R2.get_bnd(h2));
+      i3f.set(x-lon1, lat2-y-1, R2.get_bnd(h3));
     }
   }
 
@@ -155,10 +119,8 @@ main(){
       short h3=S.geth16(dPoint(x,y)/10.0/3600*3, true);
       short h3x=S.geth16(dPoint(x+1,y)/10.0/3600*3, true);
 
-      i4b.set(x-lon1, lat2-y-1,
-        get_rainbow(h2, RD2, RD2S));
-      i4c.set(x-lon1, lat2-y-1,
-        get_rainbow(h3, RD2, RD2S));
+      i4b.set(x-lon1, lat2-y-1, R2.get_bnd(h2));
+      i4c.set(x-lon1, lat2-y-1, R2.get_bnd(h3));
 
       int d1,d2;
 

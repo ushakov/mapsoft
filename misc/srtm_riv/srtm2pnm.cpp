@@ -38,10 +38,6 @@ main(){
       short hx = s.geth(lon, lat+1, true);
       short hy = s.geth(lon+1, lat, true);
 
-      if (h >srtm_min_interp) h -=srtm_zer_interp;
-      if (hx>srtm_min_interp) hx-=srtm_zer_interp;
-      if (hy>srtm_min_interp) hy-=srtm_zer_interp;
-
       double a=180;
 
       if ((h > srtm_min) && (hx > srtm_min) && (hy > srtm_min)){
