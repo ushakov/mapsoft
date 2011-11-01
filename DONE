@@ -6,7 +6,34 @@ TODO:
     * разобраться с lib2d/crop.h
     * у неизвестных объектов с многими точками выставлять тип в POLYLINE
     * защищать запрещенные символы при записи геоданных (',' в OE, '"' в XML, ' ' в GU)
-
+====================================
+01.11.2011
+* srtm 
+ - add and cleanup old programs for river tracing
+ - resurrect srtm hole interpolation code
+ - allow .gz srtm files
+ - add default srtm directory: ~/.srtm_data
+* 2d
+ - move rainbow.h code from srtm programs
+ - fix error in generalize()
+* utils
+ - fix build problem with iconv_utils
+* vmap
+ - fix rectangular map border and reference for fig vmaps
+ - add missing signs data
+* scripts
+ - fix map_rescale
+ - add srtm_download script
+* viewer
+ - add dialog for the MarkTrack action
+ - add EditMap action which is not very useful yet
+ - rewrite dialog for the SaveImage action
+   (and remove generic_dialog code)
+ - fix error with layer names in layerlist after
+   track and map editing
+ - allow multiple segments on AddTrack action
+ - add hint to the AddTrack dialog
+ - hide add track dialog on abort()
 ====================================
 15.10.2011
  * mapsoft_convert и основные библиотеки
