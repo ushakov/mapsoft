@@ -15,7 +15,8 @@ const string def_srtm_dir = string(getenv("HOME")) + "/.srtm_data";
 
 srtm3::srtm3(const string & _srtm_dir, const unsigned cache_size) :
      srtm_cache(cache_size), srtm_dir(_srtm_dir),
-     area0(pow(6380.0 * M_PI/srtm_width/180, 2)){
+     size0(6380e3 * M_PI/srtm_width/180),
+     area0(size0*size0){
 }
 
 
@@ -179,6 +180,22 @@ srtm3::move_to_max(iPoint & p0){
 double
 srtm3::area(const iPoint &p) const{
   return area0 * cos((double)p.y *M_PI/180.0/srtm_width);
+}
+
+double
+srtm3::slope(const iPoint &p){
+  short h  = geth(p, true);
+  short hx = geth(p.x, p.y+1, true);
+  short hy = geth(p.x+1, p.y, true);
+  double a=0;
+  if ((h > srtm_min) && (hx > srtm_min) && (hy > srtm_min)){
+    // sqares of cell dimensions (km/sec)^2:
+    const double dx2 = area0 * pow(cos(M_PI*p.y/180/srtm_width),2);
+    const double dy2 = area0;
+    const double  U = sqrt(pow(h-hx ,2)/dx2 + pow(h-hy ,2)/dy2);
+    a = atan(U)*180.0/M_PI;
+  }
+  return a;
 }
 
 /*

@@ -4,14 +4,10 @@ e.UseLibs('srtm options loaders')
 
 e.Program("srtm_riv.cpp")
 
-e.Program("one_river.cpp")
 e.Program("arrows.cpp")
-e.Program("rivers.cpp")
 e.Program("rtext", Split("rtext.cpp font.cpp"))
 
-e.Program("river1.cpp")
 e.Program("river2.cpp")
-e.Program("srtm2pnm.cpp")
 
 
 

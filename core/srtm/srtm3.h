@@ -55,10 +55,15 @@ public:
   void move_to_min(iPoint & p0);
   void move_to_max(iPoint & p0);
 
+  const double size0; // size (m) of 3 sec lat bow
+
+  const double area0; // area (m^2) of 3x3 sec cell on equator
+
   // area (km2) of 3x3 sec cell at the given point
   double area(const iPoint &p) const;
 
-  const double area0; // area of 3x3 sec cell on equator
+  // slope (degrees) at a given point (holes are interpolated)
+  double slope(const iPoint &p);
 
 private:
   // директория с srtm-файлами

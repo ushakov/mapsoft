@@ -71,7 +71,7 @@ tracer::is_flow(const iPoint &p, int dir){
 // recursively get area
 double
 tracer::get_a(iPoint p0){
-  double a=S.area(p0);
+  double a=S.area(p0) * 1e-6;
   done.insert(p0);
   for (int i=0; i<8; i++){
     if (done.count(adjacent(p0,i))) continue;

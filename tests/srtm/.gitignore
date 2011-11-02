@@ -1,2 +1,5 @@
-srtm1
 *.png
+map_trace
+srtm_interp
+srtm_pic
+trace_river
