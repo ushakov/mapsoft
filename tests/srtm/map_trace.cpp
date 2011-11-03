@@ -32,7 +32,7 @@ main(){
       if (m.pt(lat,lon)->marea > 0.5) c=0;
       if (m.pt(lat,lon)->rarea > 0.5) c=0xff0000;
 
-      img.set(lon-lon1, lat-lat1, c);
+      img.set(lon-lon1, lat2-lat-1, c);
     }
   }
   image_png::save(img, "map_trace.png");

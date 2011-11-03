@@ -35,7 +35,7 @@ main(){
       if ((h > srtm_min) && (a<45))
         c = shade(R.get(h), (1-a/45.0));
 
-      img.set(p.x-lon1, p.y-lat1, c);
+      img.set(p.x-lon1, lat2-p.y-1, c);
     }
   }
   image_png::save(img, "srtm_pic.png");

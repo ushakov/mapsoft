@@ -31,7 +31,7 @@ main(){
          if (T.res.count(p))  c = 0xff0000;
       }
 
-      img.set(lon-r.x, lat-r.y, c);
+      img.set(lon-r.x, r.y+r.h-lat-1, c);
     }
   }
   image_png::save(img, "trace_river.png");
