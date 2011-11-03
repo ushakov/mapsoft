@@ -3,7 +3,9 @@ e=env.Clone()
 e.UseLibs('srtm loaders')
 
 e.Program('srtm_pic.cpp')
+e.Program('srtm_pic1.cpp')
 e.Program('srtm_interp.cpp')
 e.Program('map_trace.cpp')
 e.Program('trace_river.cpp')
+e.Program('srtm_pano.cpp')
 

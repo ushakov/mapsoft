@@ -60,6 +60,22 @@ main(){
     i6.set(x-lon1, lat2-y-1, 0x000000);
     i6.safe_set(y-lat1-100, lat2-lat1-h, 0x000000);
   }
+
+  x=lon1 + 300;
+  for (double y=lat1+150; y<lat1+300; y++){
+    short h;
+    int y1;
+    h = (S.geth(round(x/10.0), round(y/10.0), true)-1000)/10;
+    i4.set(x-lon1, lat2-y-1, 0x000000);
+    i4.safe_set(y-lat1+200, lat2-lat1-h, 0x000000);
+    h = (S.geth4(dPoint(x,y)/10.0/3600*3, true)-1000)/10;
+    i5.set(x-lon1, lat2-y-1, 0x000000);
+    i5.safe_set(y-lat1+200, lat2-lat1-h, 0x000000);
+    h = (S.geth16(dPoint(x,y)/10.0/3600*3, true)-1000)/10;
+    i6.set(x-lon1, lat2-y-1, 0x000000);
+    i6.safe_set(y-lat1+200, lat2-lat1-h, 0x000000);
+  }
+
   image_png::save(i1, "srtm_interp1.png"); // nearest point
   image_png::save(i2, "srtm_interp2.png"); // bilinear
   image_png::save(i3, "srtm_interp3.png"); // bicubic
