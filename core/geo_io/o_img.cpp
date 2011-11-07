@@ -47,18 +47,17 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   // Conversion to target coordiates
   convs::pt2pt c(Datum("wgs84"), Proj("lonlat"), Options(), datum, proj, opt);
 
-  // setting default geometry from geodata
+  // geom fallback 1: geodata range
   if (geom.empty()){
-    if (! world.range_geodata().empty()){
-      geom=c.bb_frw(world.range_geodata(), world.range_geodata().w/1000);
-    }
-    if (! world.range().empty()){
-      geom=c.bb_frw(world.range(), world.range().w/1000);
-    }
-    else {
+    geom=c.bb_frw(world.range_geodata(), world.range_geodata().w/1000);
+  }
+  // geom fallback 2: map range
+  if (geom.empty()){
+    geom=c.bb_frw(world.range_map(), world.range_map().w/1000);
+  }
+  if (geom.empty()){
       cerr << "Empty geometry! Use -g option.\n";
       exit(1);
-    }
   }
 
   int ks_zoom = opt.get("ks",     -1);
