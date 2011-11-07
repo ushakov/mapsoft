@@ -772,10 +772,10 @@ VMAPRenderer::render_holes(){
     render_line(0x22, hor_col, 1.6, 20); // жирные горизонтали
   }
 
-  render_polygons(0x1A, 0x557F55); // кладбища
-  render_polygons(0x4E, 0x557F55); // дачи
-  render_polygons(0x1,  0xFF8080); // города
-  render_polygons(0xE,  0xFF8080); // деревни
+  render_polygons(0x1A, 0xAAFFAA); // кладбища
+  render_polygons(0x4E, 0xAAFFAA); // дачи
+  render_polygons(0x1,  0xFFFFFF); // города
+  render_polygons(0xE,  0xFFFFFF); // деревни
   render_polygons(0x4,  0xB0B0B0); // закрытые территории
 
   render_polygons(0x4d, 0xC3E6FF); // ледник
