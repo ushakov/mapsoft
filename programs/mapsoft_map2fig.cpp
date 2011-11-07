@@ -37,16 +37,14 @@ main(int argc, char **argv){
     std::string depth = argv[3];
 
     LayerGeo *ml;
-
+    g_map_list maps;
 
     if (source == "map") {
       // read data
       geo_data *world = new geo_data;
       for(int i=4;i<argc;i++)
         io::in(std::string(argv[i]), *world, Options());
-
       // put all maps into one map_list
-      g_map_list maps;
       for (std::vector<g_map_list>::const_iterator mi = world->maps.begin();
          mi!=world->maps.end(); mi++) maps.insert(maps.end(), mi->begin(), mi->end());
       ml = new LayerGeoMap(&maps);
