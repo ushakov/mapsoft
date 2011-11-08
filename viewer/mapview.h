@@ -42,6 +42,7 @@ public:
 
     g_map reference;
     bool have_reference;
+    bool divert_refresh;
 
 private:
     boost::shared_ptr<ActionManager> action_manager;
@@ -51,6 +52,7 @@ public:
 
     Mapview () :
 	have_reference(false),
+	divert_refresh(false),
         viewer(&workplane),
 	rubber(&viewer)
     {
@@ -126,6 +128,7 @@ public:
     }
 
     void update_layers() {
+      if (divert_refresh) return;
       Gtk::TreeNodeChildren::const_iterator i;
       bool need_refresh = false;
 
@@ -281,6 +284,7 @@ public:
       if (scroll && (data->size()>0)) goto_wgs((*data)[0].center());
     }
     void add_world(const geo_data & world, bool scroll=false) {
+      divert_refresh=true;
       dPoint p(2e3,2e3);
       for (std::vector<g_map_list>::const_iterator i=world.maps.begin();
            i!=world.maps.end(); i++){
@@ -301,11 +305,15 @@ public:
         if (i->size() > 0) p=(*i)[0];
       }
       if (scroll && (p.x<1e3)) goto_wgs(p);
+      workplane.set_ref(reference);
+      update_layers();
+      divert_refresh=false;
     }
 
     void set_ref(const g_map & ref){
       if (ref.size()==0) return;
-      workplane.set_ref(ref);
+      if (!divert_refresh)
+        workplane.set_ref(ref);
       reference=ref;
       have_reference=true;
     }
@@ -323,7 +331,6 @@ public:
     }
 
     void refresh () {
-//std::cerr << "REFRESH\n";
        viewer.redraw();
     }
 
