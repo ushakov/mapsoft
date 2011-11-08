@@ -252,11 +252,11 @@ public:
       add_world(world, true);
     }
 
-    void add_wpts(const boost::shared_ptr<g_waypoint_list> data, bool scroll=false) {
+    void add_wpts(const boost::shared_ptr<g_waypoint_list> data) {
       // note correct order:
       // - put layer to the workplane
       // - set layer/or mapview ref (layer ref is set through workplane)
-      // - put layer to LayerList (+layer_edited coll, +workplane is refresh)
+      // - put layer to LayerList (layer_edited call, workplane refresh)
       // depth is set to 1 to evoke refresh!
       boost::shared_ptr<LayerWPT> layer(new LayerWPT(data.get()));
       workplane.add_layer(layer.get(), 1);
@@ -264,44 +264,42 @@ public:
       if (!have_reference) set_ref(layer->get_myref());
       else layer->set_ref(reference);
       wpt_ll.add_layer(layer, data);
-      if (scroll && (data->size()>0)) goto_wgs((*data)[0]);
     }
-    void add_trks(const boost::shared_ptr<g_track> data, bool scroll=false) {
+    void add_trks(const boost::shared_ptr<g_track> data) {
       boost::shared_ptr<LayerTRK> layer(new LayerTRK(data.get()));
       workplane.add_layer(layer.get(), 1);
       // if we already have reference, use it
       if (!have_reference) set_ref(layer->get_myref());
       else layer->set_ref(reference);
       trk_ll.add_layer(layer, data);
-      if (scroll && (data->size()>0)) goto_wgs((*data)[0]);
     }
-    void add_maps(const boost::shared_ptr<g_map_list> data, bool scroll=false) {
+    void add_maps(const boost::shared_ptr<g_map_list> data) {
       boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get()));
       workplane.add_layer(layer.get(), 1);
       // for maps always reset reference
       set_ref(layer->get_myref());
       map_ll.add_layer(layer, data);
-      if (scroll && (data->size()>0)) goto_wgs((*data)[0].center());
     }
+
     void add_world(const geo_data & world, bool scroll=false) {
       divert_refresh=true;
       dPoint p(2e3,2e3);
       for (std::vector<g_map_list>::const_iterator i=world.maps.begin();
            i!=world.maps.end(); i++){
         boost::shared_ptr<g_map_list> data(new g_map_list(*i));
-        add_maps(data, false);
+        add_maps(data);
         if (i->size() > 0) p=(*i)[0].center();
       }
       for (std::vector<g_waypoint_list>::const_iterator i=world.wpts.begin();
            i!=world.wpts.end(); i++){
         boost::shared_ptr<g_waypoint_list> data(new g_waypoint_list(*i));
-        add_wpts(data, false);
+        add_wpts(data);
         if (i->size() > 0) p=(*i)[0];
       }
       for (std::vector<g_track>::const_iterator i=world.trks.begin();
            i!=world.trks.end(); i++){
         boost::shared_ptr<g_track> data(new g_track(*i));
-        add_trks(data, false);
+        add_trks(data);
         if (i->size() > 0) p=(*i)[0];
       }
       if (scroll && (p.x<1e3)) goto_wgs(p);

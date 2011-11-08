@@ -83,7 +83,7 @@ private:
       if (r == Gtk::RESPONSE_OK){
         dlg.dlg2trk(&trk);
         boost::shared_ptr<g_track> track(new g_track(trk));
-        mapview->add_trks(track, false);
+        mapview->add_trks(track);
       }
       abort();
     }
