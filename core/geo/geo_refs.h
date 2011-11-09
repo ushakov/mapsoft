@@ -65,12 +65,6 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap);
 Параметры устанавливаются в указанном порядке. То есть, параметр nom имеет
 приоритет над range_datum, range_proj и range, а rscale меняет масштаб,
 заданный параметром nom.
-
-Посмотреть:
-  что-то похожее есть в map::create_from_options(),
-  geofig.h ref_from_options()
-  а также в vmap_filt.cpp
-
 */
 g_map mk_ref(const Options & o);
 

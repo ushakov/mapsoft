@@ -352,15 +352,4 @@ using namespace boost::spirit::classic;
     }
   }
 
-  g_map ref_from_options(Options o){
-    g_map ref;
-    o.put("dpi",    2.54*fig::cm2fig);
-    ref.create_from_options(o);
-    return ref;
-  }
-
-  void set_ref(fig_world & w, Options o){
-    fig::set_ref(w, ref_from_options(o), o);
-  }
-
 }

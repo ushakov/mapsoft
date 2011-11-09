@@ -433,50 +433,6 @@ dPoint g_map::center() const {
   return dPoint((maxx+minx)/2, (maxy+miny)/2);
 }
 
-/// create g_map with borders from 
-/// (using geom, scale/rscale, dpi, factor, proj, datum options)
-void g_map::create_from_options(const Options & opt){
-  comm     = opt.get("comm",     comm);
-  file     = opt.get("file",     file);
-  map_proj = opt.get("map_proj", map_proj);
-
-  dRect geom = opt.get<dRect>("geom");
-  Proj  proj(opt.get("proj", std::string("tmerc")));
-  Datum datum(opt.get("datum", std::string("pulkovo")));
-
-  double scale  = opt.get("scale",  1e-5);
-  double rscale = opt.get("rscale", 0.0);
-  double dpi    = opt.get("dpi",    200.0);
-  double factor = opt.get("factor", 1.0);
-  if (rscale!=0) scale=1.0/rscale; // rscale is prefered
-  double k = scale/2.54e-2*dpi*factor;
-
-  if (geom.empty()){
-    std::cerr << "geo_data::g_map::create_from_options: "
-         << "Error: empty geometry, use --geom option\n";
-    exit(1);
-  }
-
-  // Conversion to target coordiates
-  convs::pt2pt c(Datum("wgs84"), Proj("lonlat"), Options(),
-                 datum, proj, opt);
-  dLine brd;
-  brd.push_back(geom.BLC());
-  brd.push_back(geom.BRC());
-  brd.push_back(geom.TRC());
-  brd.push_back(geom.TLC());
-  for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
-    dPoint pg=*p;
-    dPoint pr=*p;
-    c.bck(pg);
-    pr-=geom.TLC();
-    pr.y=geom.h-pr.y;
-    pr*=k;
-    push_back(g_refpoint(pg, pr));
-    border.push_back(pr);
-  }
-}
-
 /*********************************************************************/
 
 Options

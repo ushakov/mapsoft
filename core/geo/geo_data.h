@@ -136,10 +136,6 @@ struct g_map : std::vector<g_refpoint>
     Options to_options () const;
     void parse_from_options (Options const & opt);
 
-    /// create g_map with borders from.
-    /// (using geom, scale/rscale, dpi, factor, proj, datum options)
-    void create_from_options(const Options & opt);
-
     g_map & operator/= (double k);
     g_map & operator*= (double k);
     g_map & operator-= (dPoint k);
