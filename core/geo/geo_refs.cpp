@@ -2,15 +2,21 @@
 
 #include "geo_refs.h"
 #include "geo_convs.h"
+#include "geo_nom.h"
 #include "loaders/image_google.h"
 #include "loaders/image_ks.h"
 #include "2d/line_utils.h"
+#include <sstream>
+#include <iomanip>
 
-g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap){
+using namespace std;
+
+g_map
+mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap){
   g_map ref;
 
   if (points.size()<3){
-    std::cerr << "error in mk_tmerc_ref: number of points < 3\n";
+    cerr << "error in mk_tmerc_ref: number of points < 3\n";
     return g_map();
   }
   // Get refs.
@@ -60,7 +66,210 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap){
   return ref;
 }
 
-g_map ref_google(int scale){
+void
+incompat_warning(const Options & o, const string & o1, const string & o2){
+  if (o.exists(o2))
+    cerr << "make reference warning: "
+      << "skipping option --" << o2 << "\n"
+      <<" which is incompatable with --" << o1 << "\n";
+}
+
+vector<int>
+read_int_vec(const string & str){
+  istringstream s(str);
+  char sep;
+  int x;
+  vector<int> ret;
+
+  while (1){
+    s >> ws >> x;
+    if (!s.fail()){
+      ret.push_back(x);
+      s >> ws;
+    }
+
+    if (s.eof()) return ret;
+
+    s >> ws >> sep;
+    if (sep!=','){
+      cerr << "error while reading comma separated values\n";
+      return ret;
+    }
+  }
+}
+
+g_map
+mk_ref(const Options & o){
+  g_map ret;
+
+  // default values
+  double dpi=300;
+  double google_dpi=-1;
+  double rscale=100000;
+  Datum datum("wgs84");
+  Proj  proj("tmerc");
+  bool verbose=o.exists("verbose");
+
+  // first step: process geom, nom, google options
+  // -- create border and 4 refpoints in wgs84 lonlat
+  // -- set map_proj and proj options
+  // -- change defauld dpi and rscale if needed
+  dRect geom;
+  dLine refs;
+  Options proj_opts;
+
+  // rectangular map
+  if (o.exists("geom")){
+    incompat_warning (o, "geom", "nom");
+    incompat_warning (o, "geom", "google");\
+
+    dRect geom = o.get<dRect>("geom");
+    if (geom.empty()){
+     cerr << "error: empty geometry; use --geom option\n";
+      exit(1);
+    }
+
+    datum = o.get<Datum>("datum", Datum("pulkovo"));
+    proj = o.get<Proj>("proj", Proj("tmerc"));
+
+    if ((proj == Proj("tmerc")) && (geom.x>=1e6)){
+      double lon0 = convs::lon_pref2lon0(geom.x);
+      geom.x = convs::lon_delprefix(geom.x);
+      proj_opts.put<double>("lon0", lon0);
+    }
+    if (o.exists("lon0"))
+      proj_opts.put("lon0", o.get<double>("lon0"));
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
+                     datum, proj, proj_opts);
+
+    if (verbose) cerr << "mk_ref: geom = " << geom << "\n";
+    refs = rect2line(geom);
+    ret.border = cnv.line_bck(refs, 1e-6);
+    refs.resize(4);
+    cnv.line_bck_p2p(refs);
+  }
+  // nom map
+  else if (o.exists("nom")){
+    incompat_warning (o, "nom", "geom");
+    incompat_warning (o, "nom", "google");
+
+    proj=Proj("tmerc");
+    datum=Datum("pulkovo");
+
+    int rs;
+    string name=o.get<string>("nom", string());
+    dRect geom = convs::nom_to_range(name, rs);
+    if (geom.empty()){
+      cerr << "error: can't get geometry for map name \"" << name << "\"\n";
+      exit(1);
+    }
+    rscale = rs;
+    double lon0 = convs::lon2lon0(geom.x+geom.w/2.0);
+    proj_opts.put("lon0", lon0);
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
+                     datum, Proj("lonlat"), proj_opts);
+
+    if (verbose) cerr << "mk_ref: geom = " << geom << "\n";
+    refs = rect2line(geom);
+    ret.border = cnv.line_bck(refs, 1e-6);
+    refs.resize(4);
+    cnv.line_bck_p2p(refs);
+  }
+  // google tile
+  else if (o.exists("google")){
+    incompat_warning (o, "google", "geom");
+    incompat_warning (o, "google", "nom");
+
+    proj=Proj("merc");
+    datum=Datum("sphere");
+
+    vector<int> crd = read_int_vec(o.get<string>("google"));
+    if (crd.size()!=3){
+      cerr << "error: wrong --google coordinates\n";
+      exit(1);
+    }
+    int x=crd[0];
+    int y=crd[1];
+    int z=crd[2];
+    //
+
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
+                     datum, proj, Options());
+    dPoint p(180,0);
+    cnv.frw(p);
+    double sc1 = 1.0/(2<<(z-1));
+    double sc2 = p.x; // merc units (equator meters) per z=1 tile
+    int x1 = (x * sc1 - 1)*sc2;
+    int x2 = ((x+1) * sc1 - 1)*sc2;
+    int y1 = (1 - (y+1) * sc1)*sc2;
+    int y2 = (1 - y * sc1)*sc2;
+    dRect geom(dPoint(x1,y1), dPoint(x2,y2));
+    if (geom.empty()){
+      cerr << "error: empty geometry\n";
+      exit(1);
+    }
+
+    if (verbose) cerr << "mk_ref: geom = " << geom << "\n";
+    refs = rect2line(geom);
+    ret.border = cnv.line_bck(refs, 1e-6);
+    refs.resize(4);
+    cnv.line_bck_p2p(refs);
+
+    rscale=o.get<double>("rscale", rscale);
+    dpi = 256 * 2.54 * rscale / 100.0 / geom.w;
+  }
+  else {
+    cerr << "error: can't make map reference without\n"
+         << "--geom or --nom or --google setting\n";
+    exit(1);
+  }
+  ret.map_proj=proj;
+
+  // step 2: calculate conversion coeff between map proj units and
+  // output map points
+
+  rscale=o.get<double>("rscale", rscale);
+  if (o.get<string>("dpi", "") == "fig") dpi= 1200/1.05;
+  else dpi=o.get<double>("dpi", dpi);
+
+  double k = 100.0 * dpi / rscale / 2.54;
+  k*=o.get<double>("scale", 1.0);
+
+  if (verbose) cerr << "mk_ref: rscale = " << rscale
+    << ", dpi = " << dpi << ", k = " << k << "\n";
+
+  // step 3:  setting refpoints
+
+  convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
+                   datum, proj, proj_opts);
+  dLine refs_r(refs);
+  cnv.line_frw_p2p(refs_r);
+
+  refs_r *= k; // to out units
+  refs_r -= refs_r.range().TLC();
+  double h = refs_r.range().h;
+
+  // swap y if needed
+  if (!o.exists("swap_y"))
+    for (int i=0;i<refs_r.size();i++)
+      refs_r[i].y = h - refs_r[i].y;
+
+  // add refpoints to our map
+  for (int i=0;i<refs.size();i++)
+    ret.push_back(g_refpoint(refs[i], refs_r[i]));
+
+  // step 3:  converting border
+  convs::map2pt brd_cnv(ret, Datum("wgs84"), Proj("lonlat"));
+  ret.border = brd_cnv.line_bck(ret.border);
+  ret.border = generalize(ret.border, 1, -1); // 1 unit accuracy
+  ret.border.resize(ret.border.size()-1);
+
+  return ret;
+}
+
+
+g_map
+ref_google(int scale){
    g_map ret;
    ret.map_proj = Proj("google");
    ret.comm = "maps.google.com";
@@ -113,7 +322,8 @@ g_map ref_ks_old(int scale){
    return ret;
 }
 
-g_map ref_ks(int scale){
+g_map
+ref_ks(int scale){
    g_map ret;
    ret.map_proj = Proj("ks");
    ret.comm = "new.kosmosnimki.ru";
