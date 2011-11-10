@@ -46,10 +46,7 @@ update_fig_tile(){
 
   # create fig files if needed
   if [ ! -f "$fig" ]; then
-    mapsoft_convert --geom="$geom" --proj=merc --datum=sphere\
-      --rscale="$fig_rscale" --dpi=1 --out="$fig".jpg --fig="$fig" --map="$fig.map"
-    rm -f -- "$fig".jpg
-    sed -i -e '/# MAP/,$d' "$fig"
+    mapsoft_geofig create -v --rscale 50000 --google "$x,$y,$sc" -o "$fig"
     my_src="$src"
   else
     # use old labels if fig file exists:
