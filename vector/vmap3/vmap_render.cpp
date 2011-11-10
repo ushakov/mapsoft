@@ -1,6 +1,7 @@
 #include "vmap_renderer.h"
 #include "options/m_getopt.h"
 #include "options/m_time.h"
+#include "geo/geo_refs.h"
 
 using namespace std;
 
@@ -9,11 +10,10 @@ void usage(){
 
   cerr
      << prog << " -- convert vector maps to raster.\n"
-     << "  usage: " << prog << " [<options>] <in_file> <out_file>\n"
+     << "  Usage: " << prog << " [<options>] <in_file> <out_file>\n"
      << "\n"
-     << "  options:\n"
-     << "    -m, --map <map file>    -- write OziExplorer map file\n"
-     << "    -d, --dpi <dpi>         -- set map dpi (default 300)\n"
+     << "  Options:\n"
+     << "    -m  --map <map file>    -- write OziExplorer map file\n"
      << "    -g  --grid <step>       -- draw step x step cm grid\n"
      << "    -l  --grid_labels       -- draw grid labels\n"
      << "    -N  --draw_name         -- draw map name\n"
@@ -23,18 +23,37 @@ void usage(){
      << "        --contours <0|1>      -- auto contours (default 1)\n"
      << "        --label_style <int>   -- set label style 0..2 (default 2)\n"
      << "\n"
-     << "label styles (0 is fast and 2 is best):\n"
+     << "  Label styles (0 is fast and 2 is best):\n"
      << " 0 -- don't erase objects under text\n"
      << " 1 -- lighten all objects under text\n"
      << " 2 -- the best erasing [default] \n"
      << "\n"
-     << "contours:\n"
+     << "  Contours:\n"
      << " 0 -- no auto contours around forests\n"
      << " 1 -- draw contours (needs slightly more memory and time) [default]\n"
      << "\n"
-     << "antialiasing:\n"
+     << "  Antialiasing:\n"
      << " 0 -- don't do antialiasing (needs 2x time (!))\n"
      << " 1 -- do antialiasing (needs slightly more memory) [default]\n"
+     << "\n"
+     << "  Options to specify map range and projection\n"
+     << "      --geom <geom>\n"
+     << "      --datum <datum>\n"
+     << "      --proj <proj>\n"
+     << "      --lon0 <lon0>  -- rectangular map in a given projection\n"
+     << "                    default datum -- pulkovo, default proj -- tmerc\n"
+     << "                    lon 0 can be given through --lon0 or geom prefix\n"
+     << "      --wgs_geom <geom>     -- \n"
+     << "      --nom <name>          -- \n"
+     << "      --google <x>,<y>,<z>  -- \n"
+     << "      --rscale <rscale>     -- reversed scale (10000 for 1:10000 map)\n"
+     << "   -d --dpi <dpi>           -- resolution, dots per inch\n"
+     << "      --mag <factor>        -- additional magnification\n"
+     << "      --swap_y              -- \n"
+     << "      --verbose             -- be more verbose\n"
+     << "Default projection is tmerc, default range is a map border bounding box.\n"
+     << "\n"
+
   ;
   exit(1);
 }
@@ -42,15 +61,29 @@ void usage(){
 
 static struct option options[] = {
   {"map",           1, 0, 'm'},
-  {"dpi",           1, 0, 'd'},
   {"grid",          1, 0, 'g'},
   {"grid_labels",   0, 0, 'l'},
   {"draw_name",     0, 0, 'N'},
   {"draw_date",     0, 0, 'D'},
   {"draw_text",     1, 0, 'T'},
+
   {"antialiasing",  1, 0, 0},
   {"contours",      1, 0, 0},
   {"label_style",   1, 0, 0},
+
+  {"geom",          1, 0, 0},
+  {"datum",         1, 0, 0},
+  {"proj",          1, 0, 0},
+  {"lon0",          1, 0, 0},
+  {"wgs_geom",      1, 0, 0},
+  {"nom",           1, 0, 0},
+  {"google",        1, 0, 0},
+  {"rscale",        1, 0, 0},
+  {"dpi",           1, 0, 'd'},
+  {"mag",           1, 0, 0},
+  {"swap_y",        0, 0, 0},
+  {"verbose",       0, 0, 0},
+
   {0,0,0,0}
 };
 
@@ -64,7 +97,24 @@ main(int argc, char* argv[]){
   const char * ifile = argv[0];
   const char * ofile = argv[1];
 
-  double dpi=O.get<int>("dpi", 300);
+  // create map
+
+  vmap::world W=vmap::read(ifile);
+  if (W.size()==0) exit(1);
+
+  // set geometry if no --wgs_geom, --geom, --nom, --google option exists
+  if (!O.exists("geom") && !O.exists("wgs_geom") &&
+      !O.exists("nom") && !O.exists("google")){
+    O.put("wgs_geom", W.brd.range());
+  }
+
+  if (!O.exists("rscale")) O.put("rscale", W.rscale);
+
+  g_map ref = mk_ref(O);
+
+  // process other options
+
+  double dpi=O.get<double>("dpi", 300);
 
   // set margins
   int tm=0, bm=0, lm=0, rm=0;
@@ -94,22 +144,6 @@ main(int argc, char* argv[]){
            << O.get<int>("label_style", 0) << " (must be 0..3)\n";
       exit(1);
   }
-
-  vmap::world W=vmap::read(ifile);
-  if (W.size()==0) exit(1);
-
-  // try to detect border from nom_name
-  // todo - use option set from vmap_filt.cpp
-  dRect nom_range=convs::nom_to_range(W.name);
-  if (nom_range.empty())  nom_range=convs::nom_to_range(ifile);
-  if (!nom_range.empty()){
-    convs::pt2pt nom_cnv(
-      Datum("wgs84"), Proj("lonlat"), Options(),
-      Datum("pulkovo"), Proj("lonlat"), Options());
-    W.brd = nom_cnv.line_bck(rect2line(nom_range));
-  }
-
-  g_map ref = vmap::mk_tmerc_ref(W, dpi/2.54, true);
 
   dRect rng = ref.border.range();
   rng.x = rng.y = 0;
