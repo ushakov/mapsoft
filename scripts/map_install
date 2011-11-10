@@ -135,7 +135,8 @@ rm -f -- "$datadir/$name.fig" "$datadir/$name.mp"
 cat > "$datadir/index.htm" <<EOF
 <html>
 <head>
-<title>slazav maps: $comm_koi</title>
+  <title>slazav maps: $comm_koi</title>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=koi8-r">
 </head>
 <body>
 <h3>$comm_koi</h3>
