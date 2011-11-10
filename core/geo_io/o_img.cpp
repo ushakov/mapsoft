@@ -21,106 +21,50 @@ namespace img{
 
 bool write_file (const char* filename, const geo_data & world, Options opt){
 
-  Proj  proj(opt.get<string>("proj", "tmerc"));
-  Datum datum(opt.get<string>("datum", "pulkovo"));
-
-  dRect geom;
-  if (opt.exists("geom")){
-    geom = opt.get<dRect>("geom");
-
-
-    if ((proj==Proj("tmerc"))&&(geom.x>1e6)){
-      opt.put("lon0", convs::lon_pref2lon0(geom.x));
-      geom.x=convs::lon_delprefix(geom.x);
-    }
-  }
-
-  if ((proj==Proj("tmerc")) && (!opt.exists("lon0")))
-    opt.put<double>("lon0", convs::lon2lon0(world.range().CNT().x));
-
-  double scale  = opt.get("scale",  0.0);
-  double rscale = opt.get("rscale", 0.0);
-  double dpi    = opt.get("dpi",    0.0);
-  double factor = opt.get("factor", 1.0);
-  if (rscale!=0) scale=1.0/rscale;
-
-  // Conversion to target coordiates
-  convs::pt2pt c(Datum("wgs84"), Proj("lonlat"), Options(), datum, proj, opt);
-
-  // geom fallback 1: geodata range
-  if (geom.empty()){
-    geom=c.bb_frw(world.range_geodata(), world.range_geodata().w/1000);
-  }
-  // geom fallback 2: map range
-  if (geom.empty()){
-    geom=c.bb_frw(world.range_map(), world.range_map().w/1000);
-  }
-  if (geom.empty()){
-      cerr << "Empty geometry! Use -g option.\n";
-      exit(1);
-  }
-
   int ks_zoom = opt.get("ks",     -1);
   int gg_zoom = opt.get("google", -1);
 
-  // creating initial map reference with borders
-  g_map ref; // unscaled ref
-  dLine brd;
-  brd.push_back(geom.BLC());
-  brd.push_back(geom.BRC());
-  brd.push_back(geom.TRC());
-  brd.push_back(geom.TLC());
-  for (dLine::const_iterator p=brd.begin(); p!=brd.end(); p++){
-    dPoint pg=*p;
-    dPoint pr=*p;
-    c.bck(pg);
-    pr.y=(geom.y+geom.h)-(pr.y-geom.y);
-    ref.push_back(g_refpoint(pg, pr));
-    ref.border.push_back(pr);
-  }
-  ref.map_proj=boost::lexical_cast<string>(proj);
-  ref.file=filename;
 
+  // set default dpi according to raster source resolutions
+  double rscale=opt.get("rscale", 100000.0);
 
-  // calculating rescale factor for reference
-  double k=0; // scale for our ref
-  if ((scale!=0) && (dpi!=0)) k = scale/2.54e-2*dpi;
-
-  // fallbacks
-  if (dpi==0) dpi=200;
-  if (scale==0) scale=1e-5;
-
-  if (k==0){
+  if (!opt.exists("dpi")){
+    double mpp=-1; // size of raster point, m
     if (world.maps.size()>0){
       for (vector<g_map_list>::const_iterator i = world.maps.begin();
            i!=world.maps.end(); i++){
         if (i->size()>0){
           g_map orig_ref=convs::mymap(*i);
-          k=1.0/convs::map_mpp(orig_ref, ref.map_proj);
+          mpp=convs::map_mpp(orig_ref, Proj("tmerc"));
           break;
         }
       }
     }
     else if (gg_zoom>0){
-      double mpp = 6380000.0 * 2*M_PI /256.0/(2 << (gg_zoom-1));
-      k=1.0/mpp;
+      mpp = 6380000.0 * 2*M_PI /256.0/(2 << (gg_zoom-1));
     }
     else if (ks_zoom>0){
       double width = 4 * 256*(1<<(ks_zoom-2));
       double deg_per_pt = 180.0/width; // ~188
-      double mpp   = deg_per_pt * M_PI/180 * 6378137.0;
-      k=1.0/mpp;
+      mpp = deg_per_pt * M_PI/180 * 6378137.0;
     }
-    else {
-      k=scale/2.54e-2*dpi;
+    if (mpp>0){
+      opt.put("dpi", rscale/mpp / 100.0 * 2.54);
     }
   }
 
-  // rescale reference
-  ref  *= k*factor;
-  geom *= k*factor;
-  ref  -= geom.TLC();
-  geom -= geom.TLC();
+  // set geometry if no --wgs_geom, --geom, --nom, --google options
+  if (!opt.exists("geom") && !opt.exists("wgs_geom") &&
+      !opt.exists("nom") && !opt.exists("google")){
+    dRect geom = world.range_geodata();
+    // fallback: map range
+    if (geom.empty()) geom=world.range_map();
+    opt.put("wgs_geom", geom);
+  }
+
+  // create g_map
+  g_map ref = mk_ref(opt);
+  dRect geom = ref.border.range();
 
   // is output image not too large
   iPoint max_image = opt.get("max_image", Point<int>(10000,10000));
@@ -213,6 +157,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   string figfile = opt.get<string>("fig");
   if (figfile != ""){
     fig::fig_world W;
+    double dpi=opt.get<double>("dpi");
     g_map fig_ref= ref * 2.54 / dpi * fig::cm2fig;
     fig::set_ref(W, fig_ref, Options());
 
