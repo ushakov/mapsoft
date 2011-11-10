@@ -64,8 +64,10 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap);
 
 --swap_y
     Поменять направление координаты y на картинке.
+
+После вызова в Options выставляются правильные значения dpi и rscale.
 */
-g_map mk_ref(const Options & o);
+g_map mk_ref(Options & o);
 
 g_map ref_google(int scale);
 g_map ref_ks_old(int scale);

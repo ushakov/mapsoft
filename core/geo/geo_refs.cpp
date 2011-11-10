@@ -99,7 +99,7 @@ read_int_vec(const string & str){
 }
 
 g_map
-mk_ref(const Options & o){
+mk_ref(Options & o){
   g_map ret;
 
   // default values
@@ -262,7 +262,13 @@ mk_ref(const Options & o){
   if (o.get<string>("dpi", "") == "fig") dpi= 1200/1.05;
   else dpi=o.get<double>("dpi", dpi);
 
-  double k = 100.0/2.54 * dpi / rscale / rs_factor * o.get<double>("mag", 1.0);
+  dpi*=o.get<double>("mag", 1.0);
+
+  // put real dpi and rscale back to options
+  o.put("dpi", dpi);
+  o.put("rscale", rscale);
+
+  double k = 100.0/2.54 * dpi / rscale / rs_factor;
 
   if (verbose) cerr << "mk_ref: rscale = " << rscale
     << ", dpi = " << dpi << ", k = " << k << "\n";
