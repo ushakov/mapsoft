@@ -152,6 +152,9 @@ write(fig::fig_world & F, const world & W, const Options & O){
   int append          = O.get<int>("append", 0);          // OPTION append 0
   int fig_text_labels = O.get<int>("fig_text_labels", 1); // OPTION fig_text_labels 1
 
+  int keep_labels = O.get<int>("keep_labels", 0);          // OPTION keep_labels 0
+  int keep_border = O.get<int>("keep_border", 0);          // OPTION keep_border 0
+
   zn::zn_conv zconverter(W.style);
 
   g_map ref = fig::get_ref(F);
@@ -166,10 +169,17 @@ write(fig::fig_world & F, const world & W, const Options & O){
   if (!append){
     fig::fig_world::iterator i = F.begin();
     while (i!=F.end()){
-      if ((i->type==6) || (i->type==-6) ||
-           zn::is_to_skip(*i) ||
-           (i->opts.get<string>("MapType") == "label") ||
-           zconverter.is_map_depth(*i)) i=F.erase(i);
+      if ((i->type==6) || (i->type==-6))  // compounds
+        i=F.erase(i);
+      else if (zn::is_to_skip(*i)) // inessential sign parts
+        i=F.erase(i);
+      else if (!keep_labels && (i->opts.get<string>("MapType") == "label")) // labels
+        i=F.erase(i);
+      else if (!keep_border && (zconverter.get_type(*i) == border_type)) // border
+        i=F.erase(i);
+      else if ((zconverter.get_type(*i) != border_type) &&
+               zconverter.is_map_depth(*i)) // other objects
+        i=F.erase(i);
       else i++;
     }
   }
@@ -181,7 +191,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
   F.opts.put("mp_id",  W.mp_id);
 
   // add border
-  if (W.brd.size()>0){
+  if (!keep_border && (W.brd.size()>0)){
     fig::fig_object brd_o = zconverter.get_fig_template(border_type);
     // convert and reduce point number
     dLine brd=cnv.line_bck(W.brd);
@@ -231,7 +241,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
       }
     }
     // labels
-    if (o->text == "") continue;
+    if (keep_labels || (o->text == "")) continue;
     std::list<lpos>::const_iterator l;
     for (l=o->labels.begin(); l!=o->labels.end(); l++){
       dPoint ref;  dist_pt_l(l->pos, *o, ref);

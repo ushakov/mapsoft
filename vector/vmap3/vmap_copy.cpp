@@ -27,6 +27,8 @@ void usage(){
      << "  output options:\n"
      << "\n"
      << "    -a, --append                -- don't remove map from output file\n"
+     << "        --keep border           -- (fig only) use border from the old file\n"
+     << "        --keep labels           -- (fig only) use labels from the old file\n"
      << "    <any filter options>\n"
      << "\n"
      << "  filter options:\n"
@@ -149,6 +151,8 @@ static struct option out_options[] = {
   {"style",       1, 0 , 's'},
 
   {"append",      0, 0 , 'a'},
+  {"keep_border", 0, 0 , 0},
+  {"keep_labels", 0, 0 , 0},
   {0,0,0,0}
 };
 
