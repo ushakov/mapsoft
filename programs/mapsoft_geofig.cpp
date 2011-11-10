@@ -21,7 +21,7 @@ void usage(){
      << "  -w --wgs_geom <geom>     -- \n"
      << "  -N --nom <name>          -- \n"
      << "  -G --google <x>,<y>,<z>  -- \n"
-     << "  -r --rscale <rscale>     -- projection units / m\n"
+     << "  -r --rscale <rscale>     -- reversed scale (10000 for 1:10000 map)\n"
      << "  -m --mag <factor>        -- additional magnification\n"
      << "  -y --swap_y              -- \n"
      << "  -v --verbose             -- be more verbose\n"
