@@ -86,7 +86,7 @@ void usage(const char *fname){
 }
 
 int main(int argc, char *argv[]) {
-
+try{
   Options opts;
 
   if (!read_conf(argc, argv, opts)) usage(argv[0]);
@@ -129,5 +129,11 @@ int main(int argc, char *argv[]) {
   }*/
 
   io::out(outfile, world, opts);
+
+} catch (const char *err){
+  cerr << "ERROR: " << err << "\n";
+  exit(1);
+}
+
 }
 
