@@ -14,7 +14,7 @@ update_png_tile(){
 
   [ "$fig" -nt "$png" ] || return 0
 
-  vmap_fig_render -d "$tile_dpi" "$fig" "$png"
+  vmap_render --rscale=50000 --mag 16 --google "$x,$y,$sc" "$fig" "$png"
   make_tiles "$x" "$y"
 }
 

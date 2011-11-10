@@ -12,7 +12,7 @@ fig_rscale=89415 # scale in google proj units / m = 50000/cos(56d)
 
 # scale and size of "big" google tile
 sc=9
-tile_size_px=4096 # 256 * 8
+tile_size_px=4096 # 256 * 16
 
 # tiles to create
 x1=310
