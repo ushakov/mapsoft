@@ -19,7 +19,8 @@ void usage(){
      << "    -N  --draw_name         -- draw map name\n"
      << "    -D  --draw_date         -- draw date stamp\n"
      << "    -T  --draw_text <text>  -- draw text\n"
-     << "        --antialiasing <0|1>  -- do antialiasing (default 1)\n"
+     << "        --antialiasing <0|1>   -- do antialiasing (default 1)\n"
+     << "        --transp_margins <0|1> -- transparent margins (default 0)\n"
      << "        --contours <0|1>      -- auto contours (default 1)\n"
      << "        --label_style <int>   -- set label style 0..2 (default 2)\n"
      << "\n"
@@ -68,6 +69,7 @@ static struct option options[] = {
   {"draw_text",     1, 0, 'T'},
 
   {"antialiasing",  1, 0, 0},
+  {"transp_margins",1, 0, 0},
   {"contours",      1, 0, 0},
   {"label_style",   1, 0, 0},
 
@@ -133,6 +135,7 @@ main(int argc, char* argv[]){
   }
 
   bool use_aa = O.get<bool>("antialiasing", true);
+  bool transp = O.get<bool>("transp_margins", false);
 
   label_style_t ls;
   switch(O.get<int>("label_style", 2)){
@@ -155,7 +158,7 @@ main(int argc, char* argv[]){
      << "  dpi    = " << dpi << "\n"
      << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
 
-  VMAPRenderer R(&W, rng.w, rng.h, ref, dpi, use_aa);
+  VMAPRenderer R(&W, rng.w, rng.h, ref, dpi, use_aa, transp);
 
   R.render_objects(O.get<bool>("contours", true));
 

@@ -7,7 +7,8 @@
 using namespace std;
 
 VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
-    const g_map & ref_, double dpi_, bool use_aa): dpi(dpi_), W(_W), ref(ref_){
+    const g_map & ref_, double dpi_, bool use_aa, bool transp):
+      dpi(dpi_), W(_W), ref(ref_){
 
   lw1 = dpi/105.0; // standard line width (1/105in?)
   fs1 = dpi/89.0;  // standard font size
@@ -26,7 +27,10 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
   if (W->brd.size()>2) border = cnv.line_bck(W->brd);
 
   // draw border, set clipping region
-  cr->set_color(0xFFFFFF); cr->paint();
+  if (!transp) {
+    cr->set_color(0xFFFFFF);
+    cr->paint();
+  }
   for (dLine::const_iterator p=border.begin(); p!=border.end(); p++){
     if (p==ref.border.begin()) cr->move_to(*p);
     else cr->line_to(*p);
