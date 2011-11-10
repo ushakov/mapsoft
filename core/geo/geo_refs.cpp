@@ -360,7 +360,7 @@ g_map ref_ks_old(int scale){
 g_map
 ref_ks(int scale){
    g_map ret;
-   ret.map_proj = Proj("ks");
+   ret.map_proj = Proj("merc");
    ret.comm = "new.kosmosnimki.ru";
 
    if (scale<ks::ks_scale_min) scale=ks::ks_scale_min;

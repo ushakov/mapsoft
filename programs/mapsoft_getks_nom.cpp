@@ -83,7 +83,7 @@ main(int argc, char **argv){
     convs::map2pt cnv_f(ref, Datum("wgs84"), Proj("lonlat"));
     ref.border = cnv_f.line_bck(border_ll);
 
-    LayerKS     ml("/d/MAPS/KS", zoom);
+    LayerKS     ml("/d3/KS", zoom);
     ml.set_downloading(true);
     ml.set_ref(ref);
 

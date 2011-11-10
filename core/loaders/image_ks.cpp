@@ -76,10 +76,11 @@ int load(
 
           std::ostringstream tile_url_s;
 
-	  tile_url_s << "http://images.new.kosmosnimki.ru/printtilesrescaled/?t=image_&zt=n&x=" 
-                     << int((2*xt + 1) * (1 << (24-ks_scale))*1.194329)
-                     << "&y="
-                     << int((src_width/128 - 2*yt - 1) * (1 << (24-ks_scale))*1.194329)
+	  tile_url_s << "http://maps.kosmosnimki.ru/TileSender.ashx?ModeKey=tile"
+                     << "&MapName=1D30C72D02914C5FB90D1D448159CAB6"
+                     << "&LayerName=C9458F2DCB754CEEACC54216C7D1EB0A"
+                     << "&x=" << xt
+                     << "&y=" << yt
                      << "&z=" << ks_scale;
 
 	  std::string tile_url = tile_url_s.str();

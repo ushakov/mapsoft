@@ -6,4 +6,5 @@ e.UseLibs('loaders')
 map (lambda(f): e.Program(f+'.cpp'),\
   Split("""
     google_test
+    ks_test
     """))
