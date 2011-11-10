@@ -22,10 +22,12 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
   // dark points under labels
   if (!use_aa) cr->set_antialias(Cairo::ANTIALIAS_NONE); 
 
+  dLine border=ref.border;
+  if (W->brd.size()>2) border = cnv.line_bck(W->brd);
 
   // draw border, set clipping region
   cr->set_color(0xFFFFFF); cr->paint();
-  for (dLine::const_iterator p=ref.border.begin(); p!=ref.border.end(); p++){
+  for (dLine::const_iterator p=border.begin(); p!=border.end(); p++){
     if (p==ref.border.begin()) cr->move_to(*p);
     else cr->line_to(*p);
   }
