@@ -18,6 +18,7 @@ void usage(){
      << "  -l --lon0 <lon0>  -- create rectangular map in given projection\n"
      << "                   default datum -- pulkovo, default proj -- tmerc\n"
      << "                   lon 0 can be given through --lon0 or geom prefix\n"
+     << "  -w --wgs_geom <geom>     -- \n"
      << "  -N --nom <name>          -- \n"
      << "  -G --google <x>,<y>,<z>  -- \n"
      << "  -r --rscale <rscale>     -- projection units / m\n"
@@ -34,6 +35,7 @@ static struct option create_options[] = {
   {"datum",          1, 0, 'd'},
   {"proj",           1, 0, 'p'},
   {"lon0",           1, 0, 'l'},
+  {"wgs_geom",       1, 0, 'w'},
   {"nom",            1, 0, 'N'},
   {"google",         1, 0, 'G'},
   {"rscale",         1, 0, 'r'},

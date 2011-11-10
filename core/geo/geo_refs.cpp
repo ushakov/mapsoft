@@ -106,6 +106,7 @@ mk_ref(const Options & o){
   double dpi=300;
   double google_dpi=-1;
   double rscale=100000;
+  double rs_factor=1.0; // proj units/m
   Datum datum("wgs84");
   Proj  proj("tmerc");
   bool verbose=o.exists("verbose");
@@ -120,12 +121,13 @@ mk_ref(const Options & o){
 
   // rectangular map
   if (o.exists("geom")){
+    incompat_warning (o, "geom", "wgs_geom");
     incompat_warning (o, "geom", "nom");
     incompat_warning (o, "geom", "google");\
 
     dRect geom = o.get<dRect>("geom");
     if (geom.empty()){
-     cerr << "error: empty geometry; use --geom option\n";
+     cerr << "error: bad geometry\n";
       exit(1);
     }
 
@@ -138,7 +140,7 @@ mk_ref(const Options & o){
       proj_opts.put<double>("lon0", lon0);
     }
     if (o.exists("lon0"))
-      proj_opts.put("lon0", o.get<double>("lon0"));
+    proj_opts.put("lon0", o.get<double>("lon0"));
     convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
                      datum, proj, proj_opts);
 
@@ -148,8 +150,33 @@ mk_ref(const Options & o){
     refs.resize(4);
     cnv.line_bck_p2p(refs);
   }
+  else if (o.exists("wgs_geom")){
+    incompat_warning (o, "wgs_geom", "geom");
+    incompat_warning (o, "wgs_geom", "nom");
+    incompat_warning (o, "wgs_geom", "google");\
+
+    dRect geom = o.get<dRect>("wgs_geom");
+    if (geom.empty()){
+     cerr << "error: bad geometry\n";
+      exit(1);
+    }
+
+    proj = o.get<Proj>("proj", Proj("tmerc"));
+    proj_opts.put<double>("lon0", convs::lon2lon0(geom.x+geom.w/2));
+
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
+                     Datum("wgs84"), proj, proj_opts);
+
+    if (verbose) cerr << "mk_ref: geom = " << geom << "\n";
+    refs = rect2line(geom);
+    refs.resize(4);
+    // border is set to be rectanglar in proj:
+    ret.border =
+      cnv.line_bck(rect2line(cnv.bb_frw(geom, 1e-6)), 1e-6);
+  }
   // nom map
   else if (o.exists("nom")){
+    incompat_warning (o, "nom", "wgs_geom");
     incompat_warning (o, "nom", "geom");
     incompat_warning (o, "nom", "google");
 
@@ -177,6 +204,7 @@ mk_ref(const Options & o){
   }
   // google tile
   else if (o.exists("google")){
+    incompat_warning (o, "googlr", "wgs_geom");
     incompat_warning (o, "google", "geom");
     incompat_warning (o, "google", "nom");
 
@@ -192,12 +220,11 @@ mk_ref(const Options & o){
     int y=crd[1];
     int z=crd[2];
     //
-
     convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
                      datum, proj, Options());
     dPoint p(180,0);
     cnv.frw(p);
-    double sc1 = 1.0/(2<<(z-1));
+    double sc1 = 1.0/(2<<(z-2));
     double sc2 = p.x; // merc units (equator meters) per z=1 tile
     int x1 = (x * sc1 - 1)*sc2;
     int x2 = ((x+1) * sc1 - 1)*sc2;
@@ -216,7 +243,10 @@ mk_ref(const Options & o){
     cnv.line_bck_p2p(refs);
 
     rscale=o.get<double>("rscale", rscale);
-    dpi = 256 * 2.54 * rscale / 100.0 / geom.w;
+
+    double lat=refs.range().CNT().y;
+    rs_factor = 1/cos(M_PI*lat/180.0);
+    dpi = 256 * 2.54/100.0 * rscale * rs_factor / geom.w;
   }
   else {
     cerr << "error: can't make map reference without\n"
@@ -232,8 +262,7 @@ mk_ref(const Options & o){
   if (o.get<string>("dpi", "") == "fig") dpi= 1200/1.05;
   else dpi=o.get<double>("dpi", dpi);
 
-  double k = 100.0 * dpi / rscale / 2.54;
-  k*=o.get<double>("scale", 1.0);
+  double k = 100.0/2.54 * dpi / rscale / rs_factor * o.get<double>("mag", 1.0);
 
   if (verbose) cerr << "mk_ref: rscale = " << rscale
     << ", dpi = " << dpi << ", k = " << k << "\n";
