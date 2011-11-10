@@ -44,13 +44,16 @@ update_fig_tile(){
 
 #  echo "src maps: $src"
 
+  brd=
   # create fig files if needed
   if [ ! -f "$fig" ]; then
-    mapsoft_geofig create -v --rscale 50000 --google "$x,$y,$sc" -o "$fig"
+    mapsoft_geofig create --rscale 50000 --google "$x,$y,$sc" -o "$fig"
     my_src="$src"
+    brd="--set_brd_from_range"
   else
     # use old labels if fig file exists:
     my_src="--skip_labels $src $fig --read_labels --skip_all"
+    keep_brd="--keep_border"
   fi
 
   # copy vmaps
@@ -58,7 +61,7 @@ update_fig_tile(){
   vmap_copy -v $my_src --out $fig\
     --name "$(basename "$fig" .fig)"\
     --range_datum=sphere --range_proj=merc --range="$geom"\
-    --set_brd_from_range --range_action=crop_spl # --join_objects 1e-4
+    --range_action=crop_spl $brd  # --join_objects 1e-4
 
 }
 
