@@ -13,6 +13,8 @@
 #include "geo_io/geofig.h"
 #include "2d/line_utils.h"
 
+#include "utils/cairo_wrapper.h"
+
 #include "io_oe.h"
 
 using namespace std;
@@ -123,6 +125,16 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
+
+  // clear image outside border
+  CairoWrapper cr(im);
+  cr->set_operator(Cairo::OPERATOR_DEST_ATOP);
+  cr->set_color_a(0xFFFFFFFF);
+  if (ref.border.size()>0) cr->move_to(ref.border[0]);
+  for (dLine::iterator i = ref.border.begin(); i!=ref.border.end(); i++)
+    cr->line_to(*i);
+  cr->close_path();
+  cr->fill();
 
   image_r::save(im, filename, opt);
 
