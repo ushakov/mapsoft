@@ -65,6 +65,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   // create g_map
   g_map ref = mk_ref(opt);
   dRect geom = ref.border.range();
+  ref.file=filename;
 
   // is output image not too large
   iPoint max_image = opt.get("max_image", Point<int>(10000,10000));
