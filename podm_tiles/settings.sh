@@ -7,7 +7,7 @@ png_dir=./png
 tile_dir=./tiles
 
 
-nom_rscale=50000 # just to get correct map names
+nom_rscale=100000 # just to get source map names
 fig_rscale=89415 # scale in google proj units / m = 50000/cos(56d)
 
 # scale and size of "big" google tile
