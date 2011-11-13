@@ -1,0 +1,5 @@
+Name: libzip
+Description: libzip
+Requires:
+Version: 1
+Libs: -lzip

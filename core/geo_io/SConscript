@@ -13,6 +13,7 @@ e.Library('geo_io', \
     io_gpx.cpp
     io_oe.cpp
     io_xml.cpp
+    io_zip.cpp
     o_img.cpp
     o_tiles.cpp
     geofig.cpp

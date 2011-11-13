@@ -13,6 +13,7 @@
 #include "io_kml.h"
 #include "io_gpx.h"
 #include "io_oe.h"
+#include "io_zip.h"
 #include "o_img.h"
 #include "o_tiles.h"
 

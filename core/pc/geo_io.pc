@@ -1,5 +1,5 @@
 Name: geo_io
 Description: Mapsoft geo_io library
-Requires: libxml-2.0 fig geo jeeps layers loaders utils options 2d
+Requires: libxml-2.0 fig geo jeeps layers loaders utils options 2d libzip
 Version: 1
 Libs: -L\#core/geo_io -lgeo_io
