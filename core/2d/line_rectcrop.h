@@ -20,7 +20,8 @@ rect_split_cropped()).
 */
 
 template <typename T>
-bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
+bool rect_crop(const Rect<T> & cutter, Line<T> & line,
+               bool closed=false){
 
   T xl=cutter.x;
   T xh=cutter.x+cutter.w;
@@ -148,7 +149,8 @@ bool rect_crop(const Rect<T> & cutter, Line<T> & line, bool closed){
   района обрезки точки (необходимые, чтоб обойти угол).
 */
 template <typename T>
-bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line, bool closed){
+bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line,
+                     bool closed=false){
 
   T xl=cutter.x;
   T xh=cutter.x+cutter.w;
@@ -224,7 +226,8 @@ bool rect_crop_noadd(const Rect<T> & cutter, Line<T> & line, bool closed){
   с длиной больше 1, не лежащие на сторонах прямоугольника cutter.
 */
 template <typename T>
-MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped, bool closed=false){
+MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped,
+                                bool closed=false){
   MultiLine<T> ret;
   Line<T> rl;
 
@@ -319,11 +322,12 @@ MultiLine<T> rect_split_cropped(const Rect<T> & cutter, const Line<T> & cropped,
   Произвести rect_crop(), а затем rect_split_cropped()
 */
 template <typename T>
-MultiLine<T> rect_crop_ml(const Rect<T> & cutter, const Line<T> & line){
+MultiLine<T> rect_crop_ml(const Rect<T> & cutter, const Line<T> & line,
+                          bool closed=false){
 
   Line<T> cropped(line);
-  rect_crop(cutter, cropped, false);
-  return rect_split_cropped(cutter, cropped);
+  rect_crop(cutter, cropped, closed);
+  return rect_split_cropped(cutter, cropped, closed);
 }
 
 

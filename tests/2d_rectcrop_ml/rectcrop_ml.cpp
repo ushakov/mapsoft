@@ -34,14 +34,15 @@ main(int argc, char **argv){
   fig::fig_world::const_reverse_iterator f=F.rbegin();
   if (f!=F.rend()) l=*f;
 
-  iMultiLine ml   = rect_crop_ml(cutter, l);
-  dMultiLine ml_d = rect_crop_ml(dRect(cutter), dLine(l));
+  iMultiLine ml   = rect_crop_ml(cutter, l, f->is_closed());
+  dMultiLine ml_d = rect_crop_ml(dRect(cutter), dLine(l), f->is_closed());
 
   fig::fig_object o=fig::make_object("2 1 0 1 4 7 20 -1 -1 0.000 1 0 0 0 0 0");
 
   for (iMultiLine::const_iterator i=ml.begin(); i!=ml.end(); i++){
     o.clear();
     o.iLine::operator=(*i);
+    if (f->is_closed()) o.close();
     F.push_back(o);
   }
 
