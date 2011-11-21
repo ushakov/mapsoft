@@ -112,7 +112,7 @@ if [ -z "$nopng" ]; then
   ####### make 300dpi name.png + name.map
 
   vmap_render -g4 -lND \
-   -m "$datadir/$name.map" "$datadir/$name.fig" "$datadir/$name.png"
+   -d200 --map "$datadir/$name.map" "$datadir/$name.fig" "$datadir/$name.png"
 
   ####### make resized and cropped images
   IFS=','
