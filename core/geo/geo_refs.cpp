@@ -177,30 +177,27 @@ mk_ref(Options & o){
       cnv.line_bck(rect2line(cnv.bb_frw(geom, 1e-6)), 1e-6);
   }
   else if (o.exists("wgs_brd")){
-    incompat_warning (o, "wgs_geom", "wgs_geom");
-    incompat_warning (o, "wgs_geom", "geom");
-    incompat_warning (o, "wgs_geom", "nom");
-    incompat_warning (o, "wgs_geom", "google");\
+    incompat_warning (o, "wgs_brd", "wgs_geom");
+    incompat_warning (o, "wgs_brd", "geom");
+    incompat_warning (o, "wgs_brd", "nom");
+    incompat_warning (o, "wgs_brd", "google");\
 
-    dLine brd = o.get<dLine>("wgs_brd");
-    if (brd.size()<3){
+    ret.border = o.get<dLine>("wgs_brd");
+    if (ret.border.size()<3){
      cerr << "error: bad border line\n";
       exit(1);
     }
-    brd.push_back(brd[0]);
+    ret.border.push_back(ret.border[0]);
 
     proj = o.get<Proj>("proj", Proj("tmerc"));
-    proj_opts.put<double>("lon0", convs::lon2lon0(brd.range().CNT().x));
+    proj_opts.put<double>("lon0", convs::lon2lon0(ret.border.range().CNT().x));
 
     convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
                      Datum("wgs84"), proj, proj_opts);
 
-    if (verbose) cerr << "mk_ref: brd = " << brd << "\n";
-    refs = brd;
+    if (verbose) cerr << "mk_ref: brd = " << ret.border << "\n";
+    refs = generalize(ret.border, -1, 5); // 5pt
     refs.resize(4);
-    // border is set to be rectanglar in proj:
-    ret.border =
-      cnv.line_bck(cnv.line_frw(brd, 1e-6), 1e-6);
   }
   // nom map
   else if (o.exists("nom")){
@@ -328,7 +325,6 @@ mk_ref(Options & o){
   ret.border = brd_cnv.line_bck(ret.border);
   ret.border = generalize(ret.border, 1, -1); // 1 unit accuracy
   ret.border.resize(ret.border.size()-1);
-
   return ret;
 }
 
