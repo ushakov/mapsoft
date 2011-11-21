@@ -138,16 +138,11 @@ void range_action(world & W, string action, const dRect & cutter, Conv * cnv){
         *l = cnv? cnv->line_bck(lc) : lc;
       }
       else if (action == "crop_spl"){
-        if (o->get_class()==POLYLINE){
-          dMultiLine ML = rect_split_cropped(cutter, lc);
-          for (dMultiLine::const_iterator i=ML.begin(); i!=ML.end(); i++){
-            l = o->insert(l, cnv? cnv->line_bck(*i) : *i) + 1;
-          }
-          l->clear();
+        dMultiLine ML = rect_split_cropped(cutter, lc, o->get_class()==POLYGON);
+        for (dMultiLine::const_iterator i=ML.begin(); i!=ML.end(); i++){
+          l = o->insert(l, cnv? cnv->line_bck(*i) : *i) + 1;
         }
-        else{
-           *l = cnv? cnv->line_bck(lc) : lc;
-        }
+        l->clear();
       }
     }
   }
