@@ -121,6 +121,7 @@ mk_ref(Options & o){
 
   // rectangular map
   if (o.exists("geom")){
+    incompat_warning (o, "geom", "wgs_brd");
     incompat_warning (o, "geom", "wgs_geom");
     incompat_warning (o, "geom", "nom");
     incompat_warning (o, "geom", "google");\
@@ -151,6 +152,7 @@ mk_ref(Options & o){
     cnv.line_bck_p2p(refs);
   }
   else if (o.exists("wgs_geom")){
+    incompat_warning (o, "wgs_geom", "wgs_brd");
     incompat_warning (o, "wgs_geom", "geom");
     incompat_warning (o, "wgs_geom", "nom");
     incompat_warning (o, "wgs_geom", "google");\
@@ -174,8 +176,35 @@ mk_ref(Options & o){
     ret.border =
       cnv.line_bck(rect2line(cnv.bb_frw(geom, 1e-6)), 1e-6);
   }
+  else if (o.exists("wgs_brd")){
+    incompat_warning (o, "wgs_geom", "wgs_geom");
+    incompat_warning (o, "wgs_geom", "geom");
+    incompat_warning (o, "wgs_geom", "nom");
+    incompat_warning (o, "wgs_geom", "google");\
+
+    dLine brd = o.get<dLine>("wgs_brd");
+    if (brd.size()<3){
+     cerr << "error: bad border line\n";
+      exit(1);
+    }
+    brd.push_back(brd[0]);
+
+    proj = o.get<Proj>("proj", Proj("tmerc"));
+    proj_opts.put<double>("lon0", convs::lon2lon0(brd.range().CNT().x));
+
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
+                     Datum("wgs84"), proj, proj_opts);
+
+    if (verbose) cerr << "mk_ref: brd = " << brd << "\n";
+    refs = brd;
+    refs.resize(4);
+    // border is set to be rectanglar in proj:
+    ret.border =
+      cnv.line_bck(cnv.line_frw(brd, 1e-6), 1e-6);
+  }
   // nom map
   else if (o.exists("nom")){
+    incompat_warning (o, "nom", "wgs_brd");
     incompat_warning (o, "nom", "wgs_geom");
     incompat_warning (o, "nom", "geom");
     incompat_warning (o, "nom", "google");
@@ -204,6 +233,7 @@ mk_ref(Options & o){
   }
   // google tile
   else if (o.exists("google")){
+    incompat_warning (o, "googlr", "wgs_brd");
     incompat_warning (o, "googlr", "wgs_geom");
     incompat_warning (o, "google", "geom");
     incompat_warning (o, "google", "nom");

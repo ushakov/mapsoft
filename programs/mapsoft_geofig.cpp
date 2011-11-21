@@ -19,6 +19,7 @@ void usage(){
      << "                   default datum -- pulkovo, default proj -- tmerc\n"
      << "                   lon 0 can be given through --lon0 or geom prefix\n"
      << "  -w --wgs_geom <geom>     -- \n"
+     << "  -b --wgs_brd <line>      -- \n"
      << "  -N --nom <name>          -- \n"
      << "  -G --google <x>,<y>,<z>  -- \n"
      << "  -r --rscale <rscale>     -- reversed scale (10000 for 1:10000 map)\n"
@@ -36,6 +37,7 @@ static struct option create_options[] = {
   {"proj",           1, 0, 'p'},
   {"lon0",           1, 0, 'l'},
   {"wgs_geom",       1, 0, 'w'},
+  {"wgs_brd",        1, 0, 'b'},
   {"nom",            1, 0, 'N'},
   {"google",         1, 0, 'G'},
   {"rscale",         1, 0, 'r'},

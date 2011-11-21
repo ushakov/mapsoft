@@ -45,6 +45,7 @@ void usage(){
      << "                    default datum -- pulkovo, default proj -- tmerc\n"
      << "                    lon 0 can be given through --lon0 or geom prefix\n"
      << "      --wgs_geom <geom>     -- \n"
+     << "      --wgs_brd <line>      -- \n"
      << "      --nom <name>          -- \n"
      << "      --google <x>,<y>,<z>  -- \n"
      << "      --rscale <rscale>     -- reversed scale (10000 for 1:10000 map)\n"
@@ -78,6 +79,7 @@ static struct option options[] = {
   {"proj",          1, 0, 0},
   {"lon0",          1, 0, 0},
   {"wgs_geom",      1, 0, 0},
+  {"wgs_brd",       1, 0, 0},
   {"nom",           1, 0, 0},
   {"google",        1, 0, 0},
   {"rscale",        1, 0, 0},
@@ -104,10 +106,12 @@ main(int argc, char* argv[]){
   vmap::world W=vmap::read(ifile);
   if (W.size()==0) exit(1);
 
-  // set geometry if no --wgs_geom, --geom, --nom, --google option exists
+  // set geometry if no --wgs_geom, --wgs_brd, --geom,
+  //  --nom, --google option exists
   if (!O.exists("geom") && !O.exists("wgs_geom") &&
-      !O.exists("nom") && !O.exists("google")){
-    O.put("wgs_geom", W.brd.range());
+      !O.exists("nom") && !O.exists("google") &&
+      !O.exists("wgs_brd")){
+    O.put("wgs_brd", W.brd);
   }
 
   if (!O.exists("rscale")) O.put("rscale", W.rscale);

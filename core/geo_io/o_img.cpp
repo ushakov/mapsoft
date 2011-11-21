@@ -55,9 +55,10 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     }
   }
 
-  // set geometry if no --wgs_geom, --geom, --nom, --google options
+  // set geometry if no --wgs_geom, --wgs_brd, --geom, --nom, --google options
   if (!opt.exists("geom") && !opt.exists("wgs_geom") &&
-      !opt.exists("nom") && !opt.exists("google")){
+      !opt.exists("nom") && !opt.exists("google") &&
+      !opt.exists("wgs_brd")){
     dRect geom = world.range_geodata();
     // fallback: map range
     if (geom.empty()) geom=world.range_map();
