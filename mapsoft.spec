@@ -1,5 +1,5 @@
 Name: mapsoft
-Version: 20091119
+Version: 20111122
 Release: alt1
 License: GPL
 Summary: mapsoft - programs for working with maps and geodata
@@ -63,6 +63,9 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_datadir/xfig/Libraries/*
 
 %changelog
+* Tue Nov 22 2011 Vladislav Zavjalov <slazav@altlinux.org> 20111122-alt1
+- build current snapshot
+
 * Thu Nov 19 2009 Vladislav Zavjalov <slazav@altlinux.org> 20091119-alt1
 - first build for altlinux
 
