@@ -38,7 +38,7 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
   cr->close_path();
   cr->save();
   cr->set_source_rgb(0,0,0);
-  cr->set_line_width(6); // draw border
+  cr->set_line_width(4); // draw border
   cr->stroke_preserve();
   cr->restore();
   cr->clip_preserve();   // set clipping region
