@@ -124,6 +124,18 @@ LayerTRK::find_trackpoint (iPoint pt, int radius){
   return -1;
 }
 
+vector<int>
+LayerTRK::find_trackpoints (const iRect & r){
+  vector<int> ret;
+  for (int n = 0; n < data->size(); ++n) {
+    dPoint p((*data)[n]);
+    cnv.bck(p);
+    if (point_in_rect(p, dRect(r))) ret.push_back(n);
+  }
+  return ret;
+}
+
+
 int
 LayerTRK::find_track (iPoint pt, int radius){
   int ts=data->size();

@@ -1,6 +1,7 @@
 #include "action_mode.h"
 #include "../mapview.h"
 
+using namespace std;
 int
 ActionMode::find_wpt(const iPoint & p, LayerWPT ** layer,
                      int radius) const{
@@ -17,6 +18,24 @@ ActionMode::find_wpt(const iPoint & p, LayerWPT ** layer,
   *layer = NULL;
   return -1;
 }
+
+map<LayerWPT*, vector<int> >
+ActionMode::find_wpts(const iRect & r){
+  map<LayerWPT*, vector<int> > ret;
+  Gtk::TreeNodeChildren::const_iterator i;
+  for (i  = mapview->wpt_ll.store->children().begin();
+       i != mapview->wpt_ll.store->children().end(); i++){
+    if (!(*i)[mapview->wpt_ll.columns.checked]) continue;
+    boost::shared_ptr<LayerWPT> current_layer=
+      (*i)[mapview->wpt_ll.columns.layer];
+
+    vector<int> pts = current_layer->find_waypoints(r);
+    if (pts.size()>0)
+      ret.insert(pair<LayerWPT*, vector<int> >(current_layer.get(), pts));
+  }
+  return ret;
+}
+
 
 int
 ActionMode::find_tpt(const iPoint & p, LayerTRK ** layer,
@@ -36,6 +55,24 @@ ActionMode::find_tpt(const iPoint & p, LayerTRK ** layer,
   *layer = NULL;
   return -1;
 }
+
+map<LayerTRK*, vector<int> >
+ActionMode::find_tpts(const iRect & r){
+  map<LayerTRK*, vector<int> > ret;
+  Gtk::TreeNodeChildren::const_iterator i;
+  for (i  = mapview->trk_ll.store->children().begin();
+       i != mapview->trk_ll.store->children().end(); i++){
+    if (!(*i)[mapview->trk_ll.columns.checked]) continue;
+    boost::shared_ptr<LayerTRK> current_layer=
+      (*i)[mapview->trk_ll.columns.layer];
+
+    vector<int> pts = current_layer->find_trackpoints(r);
+    if (pts.size()>0)
+      ret.insert(pair<LayerTRK*, vector<int> >(current_layer.get(), pts));
+  }
+  return ret;
+}
+
 
 int
 ActionMode::find_map(const iPoint & p, LayerGeoMap ** layer) const{

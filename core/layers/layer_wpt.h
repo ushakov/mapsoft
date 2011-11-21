@@ -45,6 +45,8 @@ public:
 
   int find_waypoint (iPoint pt, int radius = 3);
 
+  std::vector<int> find_waypoints (const iRect & r);
+
   /// Get pointer to the data object.
   g_waypoint_list * get_data() const;
 
