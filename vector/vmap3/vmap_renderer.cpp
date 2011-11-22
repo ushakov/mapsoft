@@ -43,8 +43,9 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
   cr->restore();
   cr->clip_preserve();   // set clipping region
   cr->save();
-  cr->set_color(0xFFFFFF);
-  cr->paint();
+  cr->set_source_rgb(1,1,1); // erase border inside clip region
+  cr->set_line_width(10);
+  cr->stroke();
   cr->restore();
 
   // modify vmap
