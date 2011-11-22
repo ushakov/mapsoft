@@ -9,7 +9,7 @@ Packager: Vladislav Zavjalov <slazav@altlinux.org>
 
 Source: %name-%version.tar
 
-BuildRequires: boost-devel gcc-c++ libcurl-devel
+BuildRequires: boost-devel gcc-c++ libcurl-devel libzip-devel
 BuildRequires: libcairomm-devel libpixman-devel libgtkmm2-devel
 BuildRequires: libpng-devel libjpeg-devel libtiff-devel
 BuildRequires: libusb-devel libyaml-devel libxml2-devel proj-devel
