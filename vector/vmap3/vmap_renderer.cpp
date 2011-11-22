@@ -782,7 +782,7 @@ VMAPRenderer::render_holes(){
   render_polygons(0x4E, 0xAAFFAA); // дачи
   render_polygons(0x1,  0xFFFFFF); // города
   render_polygons(0xE,  0xFFFFFF); // деревни
-  render_polygons(0x4,  0xB0B0B0); // закрытые территории
+  render_polygons(0x4,  0xFFFFFF); // закрытые территории
 
   render_polygons(0x4d, 0xC3E6FF); // ледник
   render_polygons(0x15, 0xAAFFAA); // остров леса
