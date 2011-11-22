@@ -131,9 +131,9 @@ main(int argc, char **argv){
        i->labels.clear();
     }
     if ((sc>1) && (i->type == (0x18 | zn::line_mask))) // река-2
-      i->type = 0x15 | zn::line_mask
+      i->type = 0x15 | zn::line_mask;
     if ((sc>1) && (i->type == (0x1F | zn::line_mask))) // река-3
-      i->type = 0x18 | zn::line_mask
+      i->type = 0x18 | zn::line_mask;
 
 
     i++;
