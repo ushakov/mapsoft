@@ -10,6 +10,7 @@
 
 #include <sys/stat.h>
 #include <math.h>
+#include <zip.h>
 
 #include "io.h"
 #include "geofig.h"
@@ -102,6 +103,14 @@ namespace io {
                         fig::get_wpts(F, m, world);
                         fig::get_trks(F, m, world);
                         fig::get_maps(F, m, world);
+			return true;
+                }
+		if (testext(name, ".zip")) {
+			cerr << "Reading data from zip archive " << name << "\n";
+			if(!io_zip::read_file (name.c_str(), world, opt)){
+				cerr << "Error.\n";
+				return false;
+			}
 			return true;
                 }
 		cerr << "Unknown format in file " << name << "\n";
