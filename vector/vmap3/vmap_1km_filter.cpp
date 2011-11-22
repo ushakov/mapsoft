@@ -3,21 +3,23 @@
 #include "options/m_getopt.h"
 #include "vmap/vmap.h"
 #include "fig/fig.h"
+#include "2d/line_utils.h"
 
 using namespace std;
 
 // filter some things for 1km maps
 
 void usage(){
-  std::cerr << "usage: vmap_1km_filter <in> <out>\n";
+  std::cerr << "usage: vmap_1km_filter (1|2) <in> <out>\n";
   exit(1);
 }
 
 main(int argc, char **argv){
 
-  if (argc!=3) usage();
-  const char * ifile = argv[1];
-  const char * ofile = argv[2];
+  if (argc!=4) usage();
+  int sc = atoi(argv[1]);
+  const char * ifile = argv[2];
+  const char * ofile = argv[3];
 
   vmap::world V = vmap::read(ifile);;
 
@@ -27,6 +29,7 @@ main(int argc, char **argv){
   create_labels(V);
 
 /************************/
+
 
   vmap::world::iterator i=V.begin();
   while (i!=V.end()){
@@ -73,8 +76,36 @@ main(int argc, char **argv){
       i=V.erase(i);
       continue;
     }
+
+    if ((sc>1) && (
+      (i->type == 0x6414) || // родник
+      (i->type == 0x6415) || // развалины
+      (i->type == (0x0A | zn::line_mask)) || // непроезжая грунтовка
+      (i->type == (0x26 | zn::line_mask)) || // пересыхающий ручей
+      (i->type == (0x16 | zn::line_mask)) || // просека
+      (i->type == (0x19 | zn::line_mask)) || // забор
+      (i->type == (0x21 | zn::line_mask)) || // горизонтали, бергштрихи
+      (i->type == (0x22 | zn::line_mask)) || // жирная горизонталь
+      (i->type == (0x25 | zn::line_mask)) || // овраг
+      (i->type == (0x28 | zn::line_mask)) || // газопровод
+      (i->type == (0x29 | zn::line_mask)) || // ЛЭП
+      (i->type == (0x2A | zn::line_mask)) || // тропа
+      (i->type == (0x2C | zn::line_mask)) || // вал
+      (i->type == (0x2D | zn::line_mask)) || // заросшая дорога
+      (i->type == (0x08 | zn::line_mask)) || // мост-1
+      (i->type == (0x09 | zn::line_mask)) || // мост-2
+      (i->type == (0x0E | zn::line_mask)) || // мост-5
+
+        false)){
+      i=V.erase(i);
+      continue;
+    }
+
+    generalize(*i, 1e-4); // ~11м accuracy
+
     if (
       (i->type == 0x2C0B) || // церковь
+      (i->type == 0x6414) || // родник
       (i->type == (0x4F | zn::area_mask)) || // свежая вырубка
       (i->type == (0x50 | zn::area_mask)) || // стар.вырубка
       (i->type == (0x14 | zn::area_mask)) || // редколесье
@@ -84,10 +115,27 @@ main(int argc, char **argv){
       (i->type == (0x29 | zn::area_mask)) || // водоемы
       (i->type == (0x53 | zn::area_mask)) || // остров
       (i->type == (0x26 | zn::line_mask)) || // пересыхающий ручей
+      (i->type == (0x08 | zn::line_mask)) || // мост-1
+      (i->type == (0x09 | zn::line_mask)) || // мост-2
+      (i->type == (0x0E | zn::line_mask)) || // мост-5
         false){
        i->text="";
        i->labels.clear();
     }
+
+    if ((sc>1) && (
+//      (i->type == 0x700) || // деревня
+      (i->type == (0x15 | zn::line_mask)) || // река-1
+        false)){
+       i->text="";
+       i->labels.clear();
+    }
+    if ((sc>1) && (i->type == (0x18 | zn::line_mask))) // река-2
+      i->type = 0x15 | zn::line_mask
+    if ((sc>1) && (i->type == (0x1F | zn::line_mask))) // река-3
+      i->type = 0x18 | zn::line_mask
+
+
     i++;
   }
 
