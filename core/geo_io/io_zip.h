@@ -1,5 +1,5 @@
 #ifndef IO_ZIP_H
-#define IO_GU_H
+#define IO_ZIP_H
 
 #include <zip.h>
 #include "geo/geo_data.h" 
