@@ -7,7 +7,6 @@ TODO:
  * geo_refs: убрать mk_tmerc_ref()
  * vmap_copy
    - склейка линий только под углом ~180
-   - исправить резку многоугольников
  * mapsoft_convert
    - переписать c использованием m_getopt.h
  * srtm:
@@ -24,6 +23,39 @@ TODO:
    - просмотр srtm-панорам
 
 ====================================
+22.11.2011
+* core, mapsoft_convert:
+  - Add geo/geo_refs/mk_ref() function to create g_map from option. Remove unused code.
+  - o_img: use mk_ref() to create images
+  - o_img: fix error in range selection
+  - io_zip: read zip files (thanks to A.A)
+  - 2d: rect_crop_ml: cutting polygons, add tests
+* other programs:.
+  - add mapsoft_geofig program
+  - fix fatal error in mapsoft_map2fig
+* viewer:
+  - load all files from command line into one geo_data object
+  - divert layers refresh to the end of geo_data loading
+  - allow removing multiple waypoints or trackpoints by ctrl + 1st mouse btn
+* vmap_render:
+  - change label style
+  - use mk_ref, allow various map projection and range settings
+  - clip map by vmap border
+  - transp_margins option
+  - remove obsolete vmap_fig_render program
+* vmap3, vmap_copy:
+  - keep_labels, keep_border options
+  - fix poligon cropping
+  - add vmap_1km_filter program
+* map_install script:
+  - add koi8-r charset setting into html header
+* podm_tiles scripts:
+  - use mapsoft_geofig and vmap_render
+  - keep border, transparent margins
+  - fit to 1:100000 map source
+* srtm: some cleanups of srtm lib and examples
+* misc: remove old vmap2 code
+
 01.11.2011
 * srtm
  - add and cleanup old programs for river tracing
