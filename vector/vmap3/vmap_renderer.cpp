@@ -415,6 +415,9 @@ VMAPRenderer::save_image(const char * png, const char * map){
   g_map M = ref;
   M.file = png;
   if (W->brd.size()>2) M.border=W->brd;
+  M.border.push_back(*M.border.begin());
+  M.border=generalize(M.border,1,-1); // 1pt accuracy
+  M.border.resize(M.border.size()-1);
   ofstream f(map);
   oe::write_map_file(f, M, Options());
 }
