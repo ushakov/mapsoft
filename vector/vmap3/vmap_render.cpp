@@ -117,6 +117,7 @@ main(int argc, char* argv[]){
   if (!O.exists("rscale")) O.put("rscale", W.rscale);
 
   g_map ref = mk_ref(O);
+  ref.comm=W.name;
 
   // process other options
 
