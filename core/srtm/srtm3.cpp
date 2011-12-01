@@ -11,7 +11,8 @@
 
 using namespace std;
 
-const string def_srtm_dir = string(getenv("HOME")) + "/.srtm_data";
+const string def_srtm_dir = string(getenv("HOME")? getenv("HOME"):"") +
+  "/.srtm_data";
 
 srtm3::srtm3(const string & _srtm_dir, const unsigned cache_size) :
      srtm_cache(cache_size), srtm_dir(_srtm_dir),

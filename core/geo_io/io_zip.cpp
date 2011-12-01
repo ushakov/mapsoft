@@ -19,9 +19,9 @@ namespace io_zip{
 		if ( dir != string::npos ) {
 		        s= s.substr(dir+1);
 		}
-		string tmpdir = getenv("TMPDIR");
-		if (tmpdir=="") tmpdir = "/tmp";
-		return tmpdir + "/" + s;
+		const char *tmpdir = getenv("TMPDIR");
+		if (tmpdir) return string(tmpdir) + "/" + s;
+                return string("/tmp/") + s;
 	}
 
 	bool read_file(const char* filename, geo_data & world, const Options & opt) {
