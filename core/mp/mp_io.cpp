@@ -35,11 +35,11 @@ bool read(const char* filename, mp_world & world, const Options & opts){
 
   rule_t header =
       *(comment[push_back_a(ret.Comment, comm)] | space_p)  >>
-      ("[IMG ID]") >> eol_p >> *(
-      ( "ID="              >> !uint_p[assign_a(ret.ID)]            >> eol_p) |
-      ( "Name="            >> (*ch)[assign_a(ret.Name)]            >> eol_p) |
+      ("[IMG ID]") >> +eol_p >> *(
+      ( "ID="              >> !uint_p[assign_a(ret.ID)]            >> +eol_p) |
+      ( "Name="            >> (*ch)[assign_a(ret.Name)]            >> +eol_p) |
       ( option[erase_a(ret.Opts, key)][insert_at_a(ret.Opts, key, val)] )
-    ) >> "[END-IMG ID]" >> eol_p;
+    ) >> "[END-IMG ID]" >> +eol_p;
 
     rule_t pt_r = ch_p('(') 
 		  >> real_p[assign_a(pt.y)] >> ',' 
@@ -53,18 +53,18 @@ bool read(const char* filename, mp_world & world, const Options & opts){
         (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] |
         (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")]
        ) >>
-      ch_p(']') >> eol_p >>
+      ch_p(']') >> +eol_p >>
 
-      *(( "Type=0x"   >> hex_p[assign_a(o.Type)]  >> eol_p) |
-        ( "Label="    >> (*ch)[assign_a(o.Label)] >> eol_p) |
-        ( "EndLevel=" >> uint_p[assign_a(o.EL)]   >> eol_p) |
-        ( "Endlevel=" >> uint_p[assign_a(o.EL)]   >> eol_p) |
-        ( "Levels="   >> uint_p[assign_a(o.EL)]   >> eol_p) |
+      *(( "Type=0x"   >> hex_p[assign_a(o.Type)]  >> +eol_p) |
+        ( "Label="    >> (*ch)[assign_a(o.Label)] >> +eol_p) |
+        ( "EndLevel=" >> uint_p[assign_a(o.EL)]   >> +eol_p) |
+        ( "Endlevel=" >> uint_p[assign_a(o.EL)]   >> +eol_p) |
+        ( "Levels="   >> uint_p[assign_a(o.EL)]   >> +eol_p) |
 
         ((str_p("Data") | "Origin") >> uint_p[assign_a(o.BL)][clear_a(line)] >> "=" >>
-           (eol_p |
+           (+eol_p |
            (pt_r[push_back_a(line, pt)] >>
-             *(',' >> pt_r[push_back_a(line, pt)]) >> eol_p) [push_back_a(o,line)]
+             *(',' >> pt_r[push_back_a(line, pt)]) >> +eol_p) [push_back_a(o,line)]
            )
         ) |
 
