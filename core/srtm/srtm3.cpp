@@ -52,7 +52,7 @@ srtm3::geth(const iPoint & p, const bool interp){
 
         if (bh>srtm_min){
           double k = cos(double(pi->y)/srtm_width/180.0*M_PI);
-          double r = 1.0/(pow(k*(bi->x - pi->x),2) + pow(bi->y - pi->y,2));
+          double r = 1.0/(pow(k*(bi->x - pi->x),2) + pow(double(bi->y - pi->y),2));
           Sr += r;
           Srh+= bh * r;
         }
