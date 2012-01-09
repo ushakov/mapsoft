@@ -214,7 +214,7 @@ class DlgTrkPt : public Gtk::Dialog{
 /********************************************************************/
 // dialog for Filter track action
 class DlgTrkFilter : public Gtk::Dialog{
-    Gtk::CheckButton *cb_acc, *cb_num;
+    Gtk::CheckButton *cb_acc, *cb_num, *cb_rg;
     Gtk::SpinButton *acc, *num;
     Gtk::Adjustment acc_adj, num_adj;
     Gtk::Label *info;
@@ -226,6 +226,7 @@ class DlgTrkFilter : public Gtk::Dialog{
 
     double get_acc() const;
     int    get_num() const;
+    bool    get_rg() const;
     void set_info(const g_track * trk);
 
 };

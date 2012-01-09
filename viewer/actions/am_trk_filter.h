@@ -31,6 +31,10 @@ private:
     void on_result(int r) {
       if (r!=Gtk::RESPONSE_OK) return;
       filters::generalize(layer->get_data(), dlg.get_acc(), dlg.get_num());
+      if (dlg.get_rg()){
+        g_track::iterator i = layer->get_data()->begin();
+        for (i++; i!= layer->get_data()->end(); i++) i->start=false;
+      }
       mapview->workplane.refresh_layer(layer);
     }
 };
