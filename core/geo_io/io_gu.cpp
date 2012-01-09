@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <cstring>
 
 #include "io_gu.h"
 #include "utils/iconv_utils.h"
@@ -149,7 +150,9 @@ namespace gu {
 
                 //преобразование комментариев и названий точек в UTF-8
                 IConv cnv(default_charset);
+                const char *fn_start=rindex(filename, '/');
                 for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
+                  l->comm=fn_start ? fn_start+1 : "";
                   for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
                     p->name = cnv.to_utf8(p->name);
                     p->comm = cnv.to_utf8(p->comm);
