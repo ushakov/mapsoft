@@ -5,7 +5,7 @@ e.UseLibs('gred geo_io mp')
 
 e.Library("viewer", Split ("""
 	action_manager.cpp
-	workplane.cpp widgets.cpp dataview.cpp actions/action_mode.cpp
+	workplane.cpp widgets.cpp dataview.cpp actions/action_mode.cpp mapview.cpp
         """))
 e.Prepend(LIBS=["viewer"])
 e.Program("mapsoft_mapview.cpp")
