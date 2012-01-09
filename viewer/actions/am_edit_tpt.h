@@ -16,6 +16,8 @@ public:
 
     std::string get_name() { return "Edit Trackpoint"; }
 
+    void abort() {dlg.hide_all();}
+
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       int pt_num = find_tpt(p, &layer);
       if (pt_num < 0) return;
