@@ -129,6 +129,7 @@ public:
 
     void update_layers() {
       if (divert_refresh) return;
+
       Gtk::TreeNodeChildren::const_iterator i;
       bool need_refresh = false;
 
@@ -304,8 +305,8 @@ public:
       }
       if (scroll && (p.x<1e3)) goto_wgs(p);
       workplane.set_ref(reference);
-      update_layers();
       divert_refresh=false;
+      update_layers();
     }
 
     void set_ref(const g_map & ref){
