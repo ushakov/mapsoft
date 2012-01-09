@@ -17,7 +17,7 @@ public:
     void abort() {dlg.hide_all();}
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      int d = find_tpt(p, &layer, true);
+      int d = mapview->find_tpt(p, &layer, true);
       if (d < 0) return;
 
       dlg.set_info(layer->get_data());

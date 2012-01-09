@@ -4,6 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <gtkmm.h>
 #include <gtkmm/accelmap.h>
+#include <map>
 
 #include "gred/dthread_viewer.h"
 #include "gred/rubber.h"
@@ -13,12 +14,12 @@
 #include "widgets.h"
 #include "action_manager.h"
 #include "geo_io/io.h"
+#include "2d/rect.h"
 
 #define ACCEL_FILE ".mapsoft/accel"
 
 class Mapview : public Gtk::Window {
 public:
-
     DThreadViewer viewer;
     Rubber        rubber;
     Workplane     workplane;
@@ -71,6 +72,25 @@ public:
     bool on_key_press(GdkEventKey * event);
     bool on_button_press (GdkEventButton * event);
     bool on_button_release (GdkEventButton * event);
+
+    // find waypoint, returns its number 0..size()-1
+    int find_wpt(const iPoint & p, LayerWPT ** layer,  int radius=3) const;
+
+    // segment=true: find track point, returns its number 0..size()-1
+    // segment=true: find track segment, return its
+    //               first point 0..size()-2
+    int find_tpt(const iPoint & p, LayerTRK ** layer,
+                 const bool segment = false, int radius=3) const;
+    int find_map(const iPoint & p, LayerGeoMap ** layer) const;
+
+    // find all visible waypoints in the range
+    std::map<LayerWPT*, std::vector<int> > find_wpts(const iRect & r);
+    // find all visible trackpoints in the range
+    std::map<LayerTRK*, std::vector<int> > find_tpts(const iRect & r);
+
+    // find first active layer
+    LayerWPT * find_wpt_layer() const;
+    LayerGeoMap * find_map_layer() const;
 };
 
 

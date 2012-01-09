@@ -25,7 +25,7 @@ public:
 
         if (mystate==0){ // select point
 
-          pt_num = find_tpt(p, &layer, true);
+          pt_num = mapview->find_tpt(p, &layer, true);
           if (pt_num < 0) return;
 
           // we need point after insert place 0..size()
@@ -33,7 +33,7 @@ public:
 
           // check for edge points
           LayerTRK * layer1 = NULL;
-          int pt_num1 = find_tpt(p, &layer1, false);
+          int pt_num1 = mapview->find_tpt(p, &layer1, false);
           edge = 0;
           if (layer == layer1){
             if (pt_num1 == 0){

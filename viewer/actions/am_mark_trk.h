@@ -22,7 +22,7 @@ public:
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       LayerTRK * layer;
-      int d = find_tpt(p, &layer, true);
+      int d = mapview->find_tpt(p, &layer, true);
       if (d < 0) return;
       track = layer->get_data();
 

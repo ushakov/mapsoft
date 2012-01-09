@@ -17,7 +17,7 @@ public:
     void abort() { dlg.hide_all(); }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      map_num=find_map(p, &layer);
+      map_num=mapview->find_map(p, &layer);
       if (map_num < 0){ abort(); return; }
       dlg.map2dlg(layer->get_map(map_num));
       dlg.show_all();

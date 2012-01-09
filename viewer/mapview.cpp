@@ -2,6 +2,8 @@
 #include "mapview.h"
 #include "utils/log.h"
 
+using namespace std;
+
 Mapview::Mapview () :
     have_reference(false),
     divert_refresh(false),
@@ -45,7 +47,7 @@ Mapview::Mapview () :
     ui_manager->insert_action_group(actions);
 
     add_accel_group(ui_manager->get_accel_group());
-    Gtk::AccelMap::load(std::string(getenv("HOME")) + "/" + ACCEL_FILE);
+    Gtk::AccelMap::load(string(getenv("HOME")) + "/" + ACCEL_FILE);
 
     // create actions + build menu
     action_manager.reset (new ActionManager(this));
@@ -99,7 +101,7 @@ Mapview::update_layers() {
       workplane.set_layer_depth(layer.get(), d);
       need_refresh=true;
     }
-    std::string comm = (*i)[wpt_ll.columns.comm];
+    string comm = (*i)[wpt_ll.columns.comm];
     if (comm!=layer->get_data()->comm)
       layer->get_data()->comm = comm;
     d++;
@@ -119,7 +121,7 @@ Mapview::update_layers() {
       workplane.set_layer_depth(layer.get(), d);
       need_refresh=true;
     }
-    std::string comm = (*i)[trk_ll.columns.comm];
+    string comm = (*i)[trk_ll.columns.comm];
     if (comm!=layer->get_data()->comm)
       layer->get_data()->comm = comm;
     d++;
@@ -139,7 +141,7 @@ Mapview::update_layers() {
       workplane.set_layer_depth(layer.get(), d);
       need_refresh=true;
     }
-    std::string comm = (*i)[map_ll.columns.comm];
+    string comm = (*i)[map_ll.columns.comm];
     g_map_list * ml = layer->get_data();
     if (ml->size()==1){
       if (comm!=(*ml)[0].comm) (*ml)[0].comm = comm;
@@ -202,7 +204,7 @@ Mapview::on_mode_change (int m) {
 }
 
 void
-Mapview::add_file(std::string file) {
+Mapview::add_file(string file) {
   g_print ("Loading: %s\n", file.c_str());
   geo_data world;
   io::in(file, world, Options());
@@ -245,19 +247,19 @@ void
 Mapview::add_world(const geo_data & world, bool scroll) {
   divert_refresh=true;
   dPoint p(2e3,2e3);
-  for (std::vector<g_map_list>::const_iterator i=world.maps.begin();
+  for (vector<g_map_list>::const_iterator i=world.maps.begin();
        i!=world.maps.end(); i++){
     boost::shared_ptr<g_map_list> data(new g_map_list(*i));
     add_maps(data);
     if (i->size() > 0) p=(*i)[0].center();
   }
-  for (std::vector<g_waypoint_list>::const_iterator i=world.wpts.begin();
+  for (vector<g_waypoint_list>::const_iterator i=world.wpts.begin();
        i!=world.wpts.end(); i++){
     boost::shared_ptr<g_waypoint_list> data(new g_waypoint_list(*i));
     add_wpts(data);
     if (i->size() > 0) p=(*i)[0];
   }
-  for (std::vector<g_track>::const_iterator i=world.trks.begin();
+  for (vector<g_track>::const_iterator i=world.trks.begin();
        i!=world.trks.end(); i++){
     boost::shared_ptr<g_track> data(new g_track(*i));
     add_trks(data);
@@ -320,7 +322,7 @@ Mapview::goto_wgs(dPoint p){
 
 void
 Mapview::exit() {
-  Gtk::AccelMap::save(std::string(getenv("HOME")) + "/" + ACCEL_FILE);
+  Gtk::AccelMap::save(string(getenv("HOME")) + "/" + ACCEL_FILE);
   g_print ("Exiting...\n");
   hide_all();
 }
@@ -380,5 +382,120 @@ Mapview::on_button_release (GdkEventButton * event) {
     return true;
   }
   return false;
+}
+
+
+
+
+int
+Mapview::find_wpt(const iPoint & p, LayerWPT ** layer,
+                     int radius) const{
+  Gtk::TreeNodeChildren::const_iterator i;
+  for (i  = wpt_ll.store->children().begin();
+       i != wpt_ll.store->children().end(); i++){
+    if (!(*i)[wpt_ll.columns.checked]) continue;
+    boost::shared_ptr<LayerWPT> current_layer=
+      (*i)[wpt_ll.columns.layer];
+    *layer = current_layer.get();
+    int d = current_layer->find_waypoint(p, radius);
+    if (d >= 0) return d;
+  }
+  *layer = NULL;
+  return -1;
+}
+
+int
+Mapview::find_tpt(const iPoint & p, LayerTRK ** layer,
+                     const bool segment, int radius) const{
+  Gtk::TreeNodeChildren::const_iterator i;
+  for (i  = trk_ll.store->children().begin();
+       i != trk_ll.store->children().end(); i++){
+    if (!(*i)[trk_ll.columns.checked]) continue;
+    boost::shared_ptr<LayerTRK> current_layer=
+      (*i)[trk_ll.columns.layer];
+    *layer = current_layer.get();
+    int d;
+    if (segment) d = current_layer->find_track(p, radius);
+    else d = current_layer->find_trackpoint(p, radius);
+    if (d >= 0) return d;
+  }
+  *layer = NULL;
+  return -1;
+}
+
+int
+Mapview::find_map(const iPoint & p, LayerGeoMap ** layer) const{
+  Gtk::TreeNodeChildren::const_iterator i;
+  for (i  = map_ll.store->children().begin();
+       i != map_ll.store->children().end(); i++){
+    if (!(*i)[map_ll.columns.checked]) continue;
+    boost::shared_ptr<LayerGeoMap> current_layer=
+      (*i)[map_ll.columns.layer];
+    *layer = current_layer.get();
+    int d = current_layer->find_map(p);
+    if (d >= 0) return d;
+  }
+  *layer = NULL;
+  return -1;
+}
+
+map<LayerWPT*, vector<int> >
+Mapview::find_wpts(const iRect & r){
+  std::map<LayerWPT*, std::vector<int> > ret;
+  Gtk::TreeNodeChildren::const_iterator i;
+  for (i  = wpt_ll.store->children().begin();
+       i != wpt_ll.store->children().end(); i++){
+    if (!(*i)[wpt_ll.columns.checked]) continue;
+    boost::shared_ptr<LayerWPT> current_layer=
+      (*i)[wpt_ll.columns.layer];
+
+    vector<int> pts = current_layer->find_waypoints(r);
+    if (pts.size()>0)
+      ret.insert(pair<LayerWPT*, vector<int> >(current_layer.get(), pts));
+  }
+  return ret;
+}
+
+map<LayerTRK*, vector<int> >
+Mapview::find_tpts(const iRect & r){
+  std::map<LayerTRK*, std::vector<int> > ret;
+  Gtk::TreeNodeChildren::const_iterator i;
+  for (i  = trk_ll.store->children().begin();
+       i != trk_ll.store->children().end(); i++){
+    if (!(*i)[trk_ll.columns.checked]) continue;
+    boost::shared_ptr<LayerTRK> current_layer=
+      (*i)[trk_ll.columns.layer];
+
+    vector<int> pts = current_layer->find_trackpoints(r);
+    if (pts.size()>0)
+      ret.insert(pair<LayerTRK*, vector<int> >(current_layer.get(), pts));
+  }
+  return ret;
+}
+
+LayerWPT *
+Mapview::find_wpt_layer() const{
+  Gtk::TreeNodeChildren::const_iterator i;
+  for (i  = wpt_ll.store->children().begin();
+       i != wpt_ll.store->children().end(); i++){
+    if (!(*i)[wpt_ll.columns.checked]) continue;
+    boost::shared_ptr<LayerWPT> current_layer=
+      (*i)[wpt_ll.columns.layer];
+    return current_layer.get();
+  }
+  return NULL;
+}
+
+LayerGeoMap *
+Mapview::find_map_layer() const{
+  Gtk::TreeNodeChildren::const_iterator i;
+  for (i  = map_ll.store->children().begin();
+       i != map_ll.store->children().end(); i++){
+    if (!(*i)[map_ll.columns.checked]) continue;
+    boost::shared_ptr<LayerGeoMap> current_layer=
+      (*i)[map_ll.columns.layer];
+    return current_layer.get();
+  }
+  return NULL;
 }
 

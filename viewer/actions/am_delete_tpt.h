@@ -22,7 +22,7 @@ public:
 
     void del_pt(const iPoint & p){
       LayerTRK * layer;
-      int n = find_tpt(p, &layer);
+      int n = mapview->find_tpt(p, &layer);
       if (n < 0) return;
       del_pt(layer->get_data(), n);
       if (layer->get_data()->size()==0)
@@ -32,7 +32,7 @@ public:
     }
 
     void del_pt(const iRect & r){
-      std::map<LayerTRK*, std::vector<int> > pts=find_tpts(r);
+      std::map<LayerTRK*, std::vector<int> > pts=mapview->find_tpts(r);
       std::map<LayerTRK*, std::vector<int> >::iterator i;
       for (i=pts.begin(); i!=pts.end(); i++){
         std::vector<int> & nn = i->second;
