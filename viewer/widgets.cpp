@@ -807,7 +807,7 @@ DlgMap::map2dlg(const g_map * map){
 
 /********************************************************************/
 
-DlgSaveImg::DlgSaveImg(){
+DlgSaveImg::DlgSaveImg(): file_d("Save image to file") {
   add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
   add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
   signal_response().connect(
@@ -820,17 +820,31 @@ DlgSaveImg::DlgSaveImg(){
   l_size->set_padding(3,0);
 
   // Entries
-  file = manage(new Gtk::Entry);
-  size = manage(new Gtk::Label("",  Gtk::ALIGN_LEFT));
+  file = manage(new Gtk::Entry());
+  file->set_text("image.jpg");
+  size = manage(new Gtk::Label("", Gtk::ALIGN_LEFT));
 
+  // File selection button
+  file_d.signal_response().connect(
+        sigc::mem_fun (this, &DlgSaveImg::on_file_ch));
+  file_d.set_filename(get_file());
+
+  Gtk::Button *file_b= manage(new Gtk::Button("Select..."));
+  file_b->signal_clicked().connect(
+    sigc::mem_fun (&file_d, &Gtk::FileSelection::show));
+  file_b->signal_hide().connect(
+    sigc::mem_fun (&file_d, &Gtk::FileSelection::hide));
+
+  // Map checkbutton
   map = manage(new Gtk::CheckButton("write Ozi map file"));
   map->set_active();
 
   // Table
-  Gtk::Table *table = manage(new Gtk::Table(2,3));
+  Gtk::Table *table = manage(new Gtk::Table(3,3));
             //  widget    l  r  t  b  x       y
   table->attach(*l_file,  0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*file,    1, 2, 0, 1, Gtk::EXPAND|Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*file_b,  2, 3, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*l_size,  0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*size,    1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*map,     0, 2, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
@@ -846,6 +860,13 @@ DlgSaveImg::get_file() const{
 void
 DlgSaveImg::set_file(const std::string & f){
   file->set_text(f);
+}
+
+void
+DlgSaveImg::on_file_ch(int response){
+  if (response==Gtk::RESPONSE_OK)
+    file->set_text(file_d.get_filename());
+  file_d.hide();
 }
 
 void

@@ -261,10 +261,12 @@ class DlgSaveImg : public Gtk::Dialog{
     Gtk::Entry *file;
     Gtk::Label *size;
     Gtk::CheckButton *map;
+    Gtk::FileSelection file_d;
   public:
     DlgSaveImg();
     std::string get_file() const;
     void set_file(const std::string & f);
+    void on_file_ch(int response);
     void set_size(const int w, const int h);
     bool get_map() const;
 };

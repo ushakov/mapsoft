@@ -36,7 +36,6 @@ public:
         have_points = 1;
       } else if (have_points == 1) {
         rect=iRect(one, p);
-        dlg.set_file("image.jpg");
         dlg.set_size(rect.w, rect.h);
         dlg.show_all();
 
