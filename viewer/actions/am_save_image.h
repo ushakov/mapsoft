@@ -24,6 +24,10 @@ public:
     void abort() { activate(); }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
+      if (!mapview->have_reference){
+        mapview->statusbar.push("No geo-reference", 0);
+        return;
+      }
       if (have_points == 0) {
         // make rubber
         one = p;
@@ -64,6 +68,10 @@ private:
 
       if (dlg.get_map()){
         g_map ref;
+        if (!mapview->have_reference){
+          mapview->statusbar.push("No geo-reference", 0);
+          return;
+        }
         ref.map_proj  = mapview->reference.map_proj;
         ref.file=fname;
         ref.comm="created by mapsoft_mapview";
