@@ -275,7 +275,7 @@ public:
       trk_ll.add_layer(layer, data);
     }
     void add_maps(const boost::shared_ptr<g_map_list> data) {
-      boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get()));
+      boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get(), false));
       workplane.add_layer(layer.get(), 1);
       // for maps always reset reference
       set_ref(layer->get_myref());
