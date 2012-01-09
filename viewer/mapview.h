@@ -309,6 +309,39 @@ public:
       update_layers();
     }
 
+    // build geo_data object with all/visible data
+    geo_data get_world(bool visible=true){
+      geo_data world;
+
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = wpt_ll.store->children().begin();
+           i != wpt_ll.store->children().end(); i++){
+         if (visible && !(*i)[wpt_ll.columns.checked]) continue;
+         boost::shared_ptr<g_waypoint_list> w =
+           (*i)[wpt_ll.columns.data];
+         w->comm=(*i)[wpt_ll.columns.comm];
+         world.wpts.push_back(*w);
+      }
+      for (i  = trk_ll.store->children().begin();
+           i != trk_ll.store->children().end(); i++){
+         if (visible && !(*i)[trk_ll.columns.checked]) continue;
+         boost::shared_ptr<g_track> w =
+           (*i)[trk_ll.columns.data];
+         w->comm=(*i)[trk_ll.columns.comm];
+         world.trks.push_back(*w);
+      }
+      for (i  = map_ll.store->children().begin();
+           i != map_ll.store->children().end(); i++){
+         if (visible && !(*i)[map_ll.columns.checked]) continue;
+         boost::shared_ptr<g_map_list> w =
+           (*i)[map_ll.columns.data];
+         w->comm=(*i)[map_ll.columns.comm];
+         world.maps.push_back(*w);
+          }
+      return world;
+    }
+
+
     void set_ref(const g_map & ref){
       if (ref.size()==0) return;
       if (!divert_refresh)
