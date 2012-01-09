@@ -6,7 +6,7 @@
 class LayerListButtons : public Gtk::HBox {
 public:
   LayerListButtons();
-  Gtk::Button *up, *down, *save, *del, *jump;
+  Gtk::Button *up, *down, *save, *del, *jump, *join;
 };
 
 class Mapview;
@@ -15,6 +15,7 @@ class DataView : public Gtk::Notebook {
     Mapview * mapview;
     void layer_del();
     void layer_jump();
+    void layer_join();
     void layer_move(bool up);
     void layer_save();
     void on_layer_save(int r);
