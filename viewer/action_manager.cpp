@@ -27,6 +27,10 @@
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
 
+#include "actions/am_join_w.h"
+#include "actions/am_join_t.h"
+#include "actions/am_join_m.h"
+
 #define ADD_ACT(name, group) AddAction(new name(mapview),\
    std::string("Mode") + #name, group);
 
@@ -61,6 +65,9 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(ActionModeNone,  "Misc")
     ADD_ACT(SaveImage,       "Misc")
     ADD_ACT(ShowPt,          "Misc")
+    ADD_ACT(JoinVisWpt,      "Misc")
+    ADD_ACT(JoinVisTrk,      "Misc")
+    ADD_ACT(JoinVisMap,      "Misc")
 
     mapview->actions->add(Gtk::Action::create("MenuFile", "_File"));
     mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));
