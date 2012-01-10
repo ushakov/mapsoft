@@ -92,11 +92,11 @@ ActionManager::AddAction(ActionMode *action,
     // these stupid ifs...
     if (acckey.is_null())
       mapview->actions->add(
-        Gtk::RadioAction::create(mapview->mode_group, id, stockid, mname),
+        Gtk::Action::create(id, stockid, mname),
         sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
     else
       mapview->actions->add(
-        Gtk::RadioAction::create(mapview->mode_group, id, stockid, mname),
+        Gtk::Action::create(id, stockid, mname),
         acckey, sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
   }
   else {

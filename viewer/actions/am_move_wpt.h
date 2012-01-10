@@ -8,6 +8,7 @@ public:
     MoveWaypoint (Mapview * mapview_) : ActionMode(mapview_) { }
 
     std::string get_name() { return "Move Waypoint"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::GO_FORWARD; }
 
     void activate() {
       abort();

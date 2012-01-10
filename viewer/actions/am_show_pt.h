@@ -15,6 +15,7 @@ public:
     }
 
     std::string get_name() { return "Show point information"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::INFO; }
 
     void abort() {dlg.hide_all();}
 

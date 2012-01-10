@@ -15,7 +15,7 @@ public:
     }
 
     std::string get_name() { return "Save All"; }
-    Gtk::StockID get_stockid() { return Gtk::Stock::SAVE; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::SAVE_AS; }
     Gtk::AccelKey get_acckey() { return Gtk::AccelKey("<control>s"); }
     bool is_radio() { return false; }
 

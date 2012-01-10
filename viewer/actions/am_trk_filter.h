@@ -13,6 +13,7 @@ public:
     }
 
     std::string get_name() { return "Filter Track"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::CONVERT; }
 
     void abort() {dlg.hide_all();}
 

@@ -9,6 +9,7 @@ public:
     DeleteWaypoint (Mapview * mapview) : ActionMode(mapview) {  }
 
     std::string get_name() { return "Delete Waypoint"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::DELETE; }
 
     void activate() { selection = false;}
 

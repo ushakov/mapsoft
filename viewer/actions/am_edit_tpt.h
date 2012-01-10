@@ -15,6 +15,7 @@ public:
     }
 
     std::string get_name() { return "Edit Trackpoint"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::EDIT; }
 
     void abort() {dlg.hide_all();}
 

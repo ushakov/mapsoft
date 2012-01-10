@@ -30,7 +30,6 @@ public:
 
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
-    Gtk::RadioAction::Group mode_group;
     Gtk::Statusbar  statusbar;
 
     g_map reference;

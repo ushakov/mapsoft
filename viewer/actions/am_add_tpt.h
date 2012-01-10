@@ -9,6 +9,7 @@ public:
     AddTrackpoint (Mapview * mapview) : ActionMode(mapview) { }
 
     std::string get_name() { return "Add Trackpoint"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::ADD; }
 
     void activate() {
       abort();

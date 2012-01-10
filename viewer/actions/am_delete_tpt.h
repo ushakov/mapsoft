@@ -8,6 +8,7 @@ public:
     DeleteTrackpoint (Mapview * mapview) : ActionMode(mapview) { }
 
     std::string get_name() { return "Delete Trackpoint"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::DELETE; }
 
     void activate() { selection = false;}
 

@@ -16,6 +16,7 @@ public:
     }
 
     std::string get_name() { return "Add Waypoint"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::ADD; }
 
     void abort() {
       mapview->rubber.clear();

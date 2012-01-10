@@ -8,6 +8,7 @@ public:
     MoveTrackpoint (Mapview * mapview) : ActionMode(mapview) { }
 
     std::string get_name() { return "Move Trackpoint"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::GO_FORWARD; }
 
     void activate() {
       abort();
