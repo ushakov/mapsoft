@@ -1,5 +1,7 @@
 Import ('env')
 
+SConscript("images/SConscript")
+
 e=env.Clone()
 e.UseLibs('gred geo_io mp')
 

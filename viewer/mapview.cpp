@@ -2,6 +2,9 @@
 #include "mapview.h"
 #include "utils/log.h"
 
+#include "images/gps_download.h"
+#include "images/gps_upload.h"
+
 using namespace std;
 
 Mapview::Mapview () :
@@ -38,6 +41,24 @@ Mapview::Mapview () :
       sigc::mem_fun (this, &Mapview::layer_edited));
 
     viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
+
+    /***************************************/
+    // Add my icons 
+    Glib::RefPtr<Gtk::IconFactory> icon_factory = Gtk::IconFactory::create();
+    icon_factory->add_default();
+
+    icon_factory->add(
+      Gtk::StockID("gps_download"),
+      Gtk::IconSet(
+        Gdk::Pixbuf::create_from_data (idata_gps_download, Gdk::COLORSPACE_RGB,
+        true /*alpha*/, 8 /*bps*/, 16 /*w*/, 16 /*h*/, 16*4 /*rowstride*/))
+    );
+    icon_factory->add(
+      Gtk::StockID("gps_upload"),
+      Gtk::IconSet(
+        Gdk::Pixbuf::create_from_data (idata_gps_upload, Gdk::COLORSPACE_RGB,
+        true /*alpha*/, 8 /*bps*/, 16 /*w*/, 16 /*h*/, 16*4 /*rowstride*/))
+    );
 
     /***************************************/
     /// Menues
