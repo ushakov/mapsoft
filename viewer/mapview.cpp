@@ -29,7 +29,7 @@ Mapview::Mapview () :
       sigc::mem_fun (this, &Mapview::on_button_release));
     /// events from workplane -> move to viewer?
     workplane.signal_refresh.connect (
-    sigc::mem_fun (viewer, &DThreadViewer::redraw));
+      sigc::mem_fun (this, &Mapview::refresh));
 
 
     /// events from layer lists
@@ -327,8 +327,7 @@ Mapview::get_world(bool visible){
 void
 Mapview::set_ref(const g_map & ref){
   if (ref.size()==0) return;
-  if (!divert_refresh)
-    workplane.set_ref(ref);
+  workplane.set_ref(ref);
   reference=ref;
   have_reference=true;
 }
@@ -349,7 +348,7 @@ Mapview::exit() {
 
 void
 Mapview::refresh() {
-   viewer.redraw();
+  if (!divert_refresh) viewer.redraw();
 }
 
 bool
