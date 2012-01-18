@@ -1,6 +1,7 @@
 #ifndef WORKPLANE_H
 #define WORKPLANE_H
 
+#include <glibmm.h>
 #include <sigc++/sigc++.h>
 #include <boost/shared_ptr.hpp>
 
@@ -51,6 +52,8 @@ private:
     typedef Cache<iRect,iImage> LayerCache;
     std::map<LayerGeo *, boost::shared_ptr<LayerCache> > tile_cache;
     double sc;
+
+    Glib::Mutex draw_mutex;
 };
 
 

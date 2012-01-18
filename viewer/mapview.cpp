@@ -103,7 +103,6 @@ Mapview::layer_edited (const Gtk::TreeModel::Path& path,
 void
 Mapview::update_layers() {
   if (divert_refresh) return;
-
   Gtk::TreeNodeChildren::const_iterator i;
   bool need_refresh = false;
 
@@ -287,7 +286,7 @@ Mapview::add_world(const geo_data & world, bool scroll) {
     if (i->size() > 0) p=(*i)[0];
   }
   if (scroll && (p.x<1e3)) goto_wgs(p);
-  workplane.set_ref(reference);
+  set_ref(reference);
   divert_refresh=false;
   update_layers();
 }
