@@ -24,10 +24,10 @@ update_fig_tile(){
 
   # geom in Pulkovo LonLat:
   geom_pll="$(echo "bb_frw $geom 1" |
-    convs_pt2pt "sphere" "merc" "" "pulkovo" "lonlat" "")"
+    convs_pt2pt "google_sphere" "merc" "" "pulkovo" "lonlat" "")"
 
-#  echo "geom: $geom"
-#  echo "geom_ll: $geom_pll"
+  echo "geom: $geom"
+  echo "geom_ll: $geom_pll"
 
   fig="$fig_dir/t$x-$y.fig"
 

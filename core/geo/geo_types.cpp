@@ -81,6 +81,7 @@ void Datum::create_table(){
   names["pulk42"]           = 92;
   names["krass"]            = 92 | Enum::proj_fmt;
   names["sphere"]        = 10001 | Enum::proj_fmt | Enum::xml_fmt;
+  names["google_sphere"] = 10002 | Enum::xml_fmt;
 }
 
 /***********************************************************/

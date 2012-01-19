@@ -22,7 +22,7 @@ y2=161
 
 # merc units (equator meters) per scale=1 tile
 k="$(echo "frw 180,0" |\
-  convs_pt2pt "sphere" "lonlat" "" "sphere" "merc" ""|\
+  convs_pt2pt "google_sphere" "lonlat" "" "google_sphere" "merc" ""|\
   head -c 11)"
 
 calc(){

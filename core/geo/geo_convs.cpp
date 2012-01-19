@@ -30,6 +30,8 @@ mkproj(const Datum & D, const Proj & P, const Options & o){
        projpar << " +ellps=krass +towgs84=+28,-130,-95";
     else if (D==Datum("sphere"))
        projpar << " +ellps=sphere";
+    else if (D==Datum("google_sphere"))
+       projpar << " +a=6378137 +b=6378137 +no_defs";
     else projpar << " +datum=" << D;
 
     Enum::output_fmt = old_enum_fmt;
