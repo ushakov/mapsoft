@@ -16,6 +16,7 @@ public:
     }
 
     std::string get_name() { return "Add Waypoint"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::ADD; }
 
     void abort() {
       mapview->rubber.clear();
@@ -49,7 +50,7 @@ private:
       if (r == Gtk::RESPONSE_OK){
         dlg.dlg2wpt(&wpt);
         // try to find active wpt layer
-        LayerWPT * layer = find_wpt_layer();
+        LayerWPT * layer = mapview->find_wpt_layer();
         if (layer){
           g_waypoint_list * wpts = layer->get_data();
           wpts->push_back(wpt);

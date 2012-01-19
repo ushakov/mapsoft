@@ -8,6 +8,7 @@ public:
     AddFile (Mapview * mapview) :
            ActionMode(mapview), Gtk::FileSelection("Add file"){
 
+      set_select_multiple();
       get_ok_button()->signal_clicked().connect(
           sigc::mem_fun (this, &AddFile::on_ok));
       get_cancel_button()->signal_clicked().connect(
@@ -22,7 +23,11 @@ public:
     void activate() { show(); }
 
     void on_ok(){
-      mapview->add_file(get_filename());
+      std::list<std::string> l = get_selections();
+      geo_data world;
+      for (std::list<std::string>::const_iterator i=l.begin(); i!=l.end(); i++)
+        io::in(*i, world, Options());
+      mapview->add_world(world, true);
       hide();
     }
 };

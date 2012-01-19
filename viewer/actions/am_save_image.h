@@ -18,6 +18,7 @@ public:
     }
 
     std::string get_name() { return "Save Image"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::SAVE_AS; }
 
     void activate() { dlg.hide_all(); have_points = 0; }
 

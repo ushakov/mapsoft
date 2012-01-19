@@ -27,6 +27,10 @@
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
 
+#include "actions/am_join_w.h"
+#include "actions/am_join_t.h"
+#include "actions/am_join_m.h"
+
 #define ADD_ACT(name, group) AddAction(new name(mapview),\
    std::string("Mode") + #name, group);
 
@@ -49,18 +53,22 @@ ActionManager::ActionManager (Mapview * mapview_)
 
     ADD_ACT(AddTrack,        "Tracks")
     ADD_ACT(EditTrack,       "Tracks")
+    AddSep("Tracks");
     ADD_ACT(AddTrackpoint,   "Tracks")
     ADD_ACT(EditTrackpoint,  "Tracks")
     ADD_ACT(MoveTrackpoint,  "Tracks")
     ADD_ACT(DeleteTrackpoint,"Tracks")
+    AddSep("Tracks");
     ADD_ACT(MarkTrack,       "Tracks")
     ADD_ACT(FilterTrack,     "Tracks")
 
     ADD_ACT(EditMap,         "Maps")
 
-    ADD_ACT(ActionModeNone,  "Misc")
     ADD_ACT(SaveImage,       "Misc")
     ADD_ACT(ShowPt,          "Misc")
+    ADD_ACT(JoinVisWpt,      "Misc")
+    ADD_ACT(JoinVisTrk,      "Misc")
+    ADD_ACT(JoinVisMap,      "Misc")
 
     mapview->actions->add(Gtk::Action::create("MenuFile", "_File"));
     mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));
@@ -69,6 +77,20 @@ ActionManager::ActionManager (Mapview * mapview_)
     mapview->actions->add(Gtk::Action::create("MenuMisc", "Mi_sc"));
 
     modes.push_back(boost::shared_ptr<ActionMode>(new ActionModeNone(mapview)));
+}
+
+
+void
+ActionManager::AddSep(const std::string & menu){
+  mapview->ui_manager->add_ui_from_string(
+    "<ui>"
+    "  <menubar name='MenuBar'>"
+    "    <menu action='Menu" + menu + "'>"
+    "      <separator/>"
+    "    </menu>"
+    "  </menubar>"
+    "</ui>"
+  );
 }
 
 void
@@ -85,11 +107,11 @@ ActionManager::AddAction(ActionMode *action,
     // these stupid ifs...
     if (acckey.is_null())
       mapview->actions->add(
-        Gtk::RadioAction::create(mapview->mode_group, id, stockid, mname),
+        Gtk::Action::create(id, stockid, mname),
         sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
     else
       mapview->actions->add(
-        Gtk::RadioAction::create(mapview->mode_group, id, stockid, mname),
+        Gtk::Action::create(id, stockid, mname),
         acckey, sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
   }
   else {

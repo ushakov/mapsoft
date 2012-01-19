@@ -15,11 +15,12 @@ public:
     }
 
     std::string get_name() { return "Edit Waypoint"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::EDIT; }
 
     void abort() { dlg.hide_all(); }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      pt_num=find_wpt(p, &layer);
+      pt_num=mapview->find_wpt(p, &layer);
       if (pt_num < 0) return;
 
       g_waypoint * wpt = layer->get_pt(pt_num);

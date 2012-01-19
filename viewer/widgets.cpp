@@ -662,8 +662,10 @@ DlgTrkFilter::DlgTrkFilter():  acc_adj(10,0,9999), num_adj(500,2,9999){
   // CheckButtons
   cb_acc  = manage(new Gtk::CheckButton("accuracy, m:"));
   cb_num  = manage(new Gtk::CheckButton("max number of points:"));
+  cb_rg   = manage(new Gtk::CheckButton("remove gaps"));
   cb_acc->set_active();
   cb_num->set_active();
+  cb_rg->set_active(false);
 
   // Entries
   acc   = manage(new Gtk::SpinButton(acc_adj));
@@ -679,7 +681,7 @@ DlgTrkFilter::DlgTrkFilter():  acc_adj(10,0,9999), num_adj(500,2,9999){
   info  = manage(new Gtk::Label);
 
   // Table
-  Gtk::Table *table = manage(new Gtk::Table(1,6));
+  Gtk::Table *table = manage(new Gtk::Table(1,7));
 
             //  widget    l  r  t  b  x       y
   table->attach(*cb_acc,  0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
@@ -688,6 +690,7 @@ DlgTrkFilter::DlgTrkFilter():  acc_adj(10,0,9999), num_adj(500,2,9999){
   table->attach(*cb_num,  0, 1, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*num,     0, 1, 4, 5, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*info,    0, 1, 5, 6, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*cb_rg,   0, 1, 6, 7, Gtk::FILL, Gtk::SHRINK, 3, 3);
 
   get_vbox()->add(*table);
 }
@@ -702,6 +705,11 @@ int
 DlgTrkFilter::get_num() const{
   if (cb_num->get_active()) return int(num->get_value());
   else return 0;
+}
+
+bool
+DlgTrkFilter::get_rg() const{
+  return cb_rg->get_active();
 }
 
 void

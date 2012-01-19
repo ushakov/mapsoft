@@ -39,28 +39,6 @@ public:
 
     // Sends user click. Coordinates are in workplane's discrete system.
     virtual void handle_click(iPoint p, const Gdk::ModifierType & state) { };
-
-    // find waypoint, returns its number 0..size()-1
-    int find_wpt(const iPoint & p, LayerWPT ** layer,
-                 int radius=3) const;
-
-    // find all visible waypoints in the range
-    std::map<LayerWPT*, std::vector<int> > find_wpts(const iRect & r);
-
-    // segment=true: find track point, returns its number 0..size()-1
-    // segment=true: find track segment, return its
-    //               first point 0..size()-2
-    int find_tpt(const iPoint & p, LayerTRK ** layer,
-                 const bool segment = false, int radius=3) const;
-    int find_map(const iPoint & p, LayerGeoMap ** layer) const;
-
-    // find all visible trackpoints in the range
-    std::map<LayerTRK*, std::vector<int> > find_tpts(const iRect & r);
-
-    // find first active layer
-    LayerWPT * find_wpt_layer() const;
-    LayerGeoMap * find_map_layer() const;
-
 };
 
 

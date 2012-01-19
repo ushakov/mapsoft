@@ -421,6 +421,10 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
   if (ml.size()>0) ret.maps.push_back(ml);
 
+  const char *fn_start=rindex(filename, '/');
+  for (vector<g_waypoint_list>::iterator i = ret.wpts.begin();
+       i!= ret.wpts.end(); i++) i->comm=fn_start ? fn_start+1 : "";
+
   world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
   world.trks.insert(world.trks.end(), ret.trks.begin(), ret.trks.end());
   world.maps.insert(world.maps.end(), ret.maps.begin(), ret.maps.end());

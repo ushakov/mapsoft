@@ -7,6 +7,7 @@ Workplane::Workplane(void) : sc(1.0) { }
 int
 Workplane::draw(iImage &img, const iPoint &origin){
 
+        draw_mutex.lock();
         iRect tile(origin.x, origin.y, img.w, img.h );
 	for (std::multimap<int, LayerGeo *>::reverse_iterator
                 itl = layers.rbegin(); itl != layers.rend();  ++itl){
@@ -16,11 +17,12 @@ Workplane::draw(iImage &img, const iPoint &origin){
 		    tile_cache[layer]->add(tile, layer->get_image(tile));
 		}
 		iImage& tile_img = tile_cache[layer]->get(tile);
-		if (tile_img.w != 0) {
-		    img.render(0,0,tile_img);
-		}
+                draw_mutex.unlock();
+		if (tile_img.w != 0) img.render(0,0,tile_img);
+                draw_mutex.lock();
 	    }
 	}
+        draw_mutex.unlock();
         // кажется, что когда будет нечто, использующее код возврата,
         // workplane можно будет им заменить! Так что не смотрим, нарисовали ли мы что-нибудь.
 	return GOBJ_FILL_PART;
@@ -44,9 +46,11 @@ Workplane::add_layer (LayerGeo * layer, int depth) {
 	    assert(0);
 	    return;
 	}
+        draw_mutex.lock();
 	layers.insert (std::make_pair (depth, layer));
 	layers_active[layer] = true;
 	tile_cache[layer].reset(new LayerCache(CacheCapacity));
+        draw_mutex.unlock();
 }
 
 void
@@ -58,9 +62,11 @@ Workplane::remove_layer (LayerGeo * layer){
 	    assert(0);
 	    return;
 	}
+        draw_mutex.lock();
 	layers_active.erase(layer);
 	layers.erase(itl);
 	tile_cache.erase(layer);
+        draw_mutex.unlock();
 }
 
 void
@@ -71,8 +77,10 @@ Workplane::set_layer_depth (LayerGeo * layer, int newdepth){
 	    assert(0);
 	    return;
 	}
+        draw_mutex.lock();
 	layers.erase(itl);
 	layers.insert(std::make_pair(newdepth, layer));
+        draw_mutex.unlock();
 }
 
 int
@@ -113,12 +121,14 @@ bool Workplane::get_layer_active (LayerGeo * layer) {
 }
 
 void Workplane::set_scale(const double k){
+        draw_mutex.lock();
 	for (std::multimap<int, LayerGeo *>::iterator itl = layers.begin();
     					itl != layers.end(); ++itl) {
 		(*itl->second)*=k/sc;
 		tile_cache[itl->second]->clear();
 	}
 	sc=k;
+        draw_mutex.unlock();
 }
 
 inline void
@@ -131,10 +141,12 @@ Workplane::clear_tile_cache() {
 
 void
 Workplane::set_ref(const g_map & reference) {
+  draw_mutex.lock();
   for (std::multimap<int, LayerGeo *>::iterator itl = layers.begin();
     itl != layers.end(); ++itl) {
     itl->second->set_ref(reference);
     refresh_layer(itl->second);
   }
+  draw_mutex.unlock();
 }
 

@@ -13,6 +13,7 @@ public:
     }
 
     std::string get_name() { return "Add Track"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::ADD; }
 
     void activate() { abort(); }
 

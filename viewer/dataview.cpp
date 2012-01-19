@@ -6,7 +6,6 @@ LayerListButtons::LayerListButtons(){
   save = manage(new Gtk::Button);
   del  = manage(new Gtk::Button);
   jump = manage(new Gtk::Button);
-  join = manage(new Gtk::Button);
 
   Gtk::IconSize isize=Gtk::ICON_SIZE_MENU;
   up->set_image(*manage(new Gtk::Image(Gtk::Stock::GO_UP, isize)));
@@ -14,21 +13,18 @@ LayerListButtons::LayerListButtons(){
   save->set_image(*manage(new Gtk::Image(Gtk::Stock::SAVE, isize)));
   del->set_image(*manage(new Gtk::Image(Gtk::Stock::DELETE, isize)));
   jump->set_image(*manage(new Gtk::Image(Gtk::Stock::JUMP_TO, isize)));
-  join->set_label("J");
 
   up->set_tooltip_text("Move up");
   down->set_tooltip_text("Move down");
   save->set_tooltip_text("Save");
   del->set_tooltip_text("Delete");
   jump->set_tooltip_text("Jump to");
-  join->set_tooltip_text("Join visible");
 
   add(*up);
   add(*down);
   add(*save);
   add(*del);
   add(*jump);
-  add(*join);
 }
 
 DataView::DataView (Mapview * M) : mapview(M) {
@@ -72,13 +68,6 @@ DataView::DataView (Mapview * M) : mapview(M) {
     sigc::mem_fun(this, &DataView::layer_jump));
   map_bu->jump->signal_clicked().connect(
     sigc::mem_fun(this, &DataView::layer_jump));
-
-  wpt_bu->join->signal_clicked().connect(
-    sigc::mem_fun(this, &DataView::layer_join));
-  trk_bu->join->signal_clicked().connect(
-    sigc::mem_fun(this, &DataView::layer_join));
-  map_bu->join->signal_clicked().connect(
-    sigc::mem_fun(this, &DataView::layer_join));
 
   save_dlg.signal_response().connect(
     sigc::mem_fun(this, &DataView::on_layer_save));
@@ -142,91 +131,6 @@ DataView::layer_del(){
     break;
   }
   mapview->refresh();
-}
-
-void
-DataView::layer_join(){
-//  Gtk::TreeModel::iterator it;
-  Gtk::TreeNodeChildren::const_iterator i;
-
-  switch (get_current_page()){
-    case 0: { // WPT
-      boost::shared_ptr<g_waypoint_list> newd(new g_waypoint_list);
-      i = mapview->wpt_ll.store->children().begin();
-      while (i != mapview->wpt_ll.store->children().end()){
-        if (!(*i)[mapview->wpt_ll.columns.checked]) {
-          i++;
-          continue;
-        }
-        boost::shared_ptr<LayerWPT> current_layer =
-          (*i)[mapview->wpt_ll.columns.layer];
-        g_waypoint_list * curr = current_layer->get_data();
-        if (!curr){
-          i++;
-          continue;
-        }
-        newd->insert(newd->end(), curr->begin(), curr->end());
-        if (newd->size()) newd->comm = "JOIN";
-        else newd->comm = curr->comm;
-        mapview->workplane.remove_layer(
-          i->get_value(mapview->wpt_ll.columns.layer).get());
-        i = mapview->wpt_ll.store->erase(i);
-      }
-      if (newd->size()) mapview->add_wpts(newd);
-      break;
-    }
-    case 1: { // TRK
-      boost::shared_ptr<g_track> newd(new g_track);
-      i = mapview->trk_ll.store->children().begin();
-      while (i != mapview->trk_ll.store->children().end()){
-        if (!(*i)[mapview->trk_ll.columns.checked]) {
-          i++;
-          continue;
-        }
-        boost::shared_ptr<LayerTRK> current_layer =
-          (*i)[mapview->trk_ll.columns.layer];
-        g_track * curr = current_layer->get_data();
-        if (!curr){
-          i++;
-          continue;
-        }
-        newd->insert(newd->end(), curr->begin(), curr->end());
-        if (newd->size()) newd->comm = "JOIN";
-        else newd->comm = curr->comm;
-        mapview->workplane.remove_layer(
-          i->get_value(mapview->trk_ll.columns.layer).get());
-        i = mapview->trk_ll.store->erase(i);
-      }
-      if (newd->size()) mapview->add_trks(newd);
-      break;
-    }
-
-    case 2: { // MAP
-      boost::shared_ptr<g_map_list> newd(new g_map_list);
-      i = mapview->map_ll.store->children().begin();
-      while (i != mapview->map_ll.store->children().end()){
-        if (!(*i)[mapview->map_ll.columns.checked]) {
-          i++;
-          continue;
-        }
-        boost::shared_ptr<LayerGeoMap> current_layer =
-          (*i)[mapview->map_ll.columns.layer];
-        g_map_list * curr = current_layer->get_data();
-        if (!curr){
-          i++;
-          continue;
-        }
-        newd->insert(newd->end(), curr->begin(), curr->end());
-        if (newd->size()) newd->comm = "JOIN";
-        else newd->comm = curr->comm;
-        mapview->workplane.remove_layer(
-          i->get_value(mapview->map_ll.columns.layer).get());
-        i = mapview->map_ll.store->erase(i);
-      }
-      if (newd->size()) mapview->add_maps(newd);
-      break;
-    }
-  }
 }
 
 void

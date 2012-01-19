@@ -1,0 +1,20 @@
+Import ('env')
+import os
+
+e = env.Clone()
+
+#### Method for png 2 h conversion
+def Png2H(env, name):
+   """Setup command for png2h conversion by <name> argument"""
+
+   cmd = env.Command(name+'.h', name+'.png', "\
+     n=%s;\
+     echo \"static unsigned char idata_$$n[] = {\" > $$n.h;\
+     convert \"$$n.png\" rgba:- | od -tu1 -An -w16 -v |\
+       sed -r -e 's/([^ ]) /\\1, /g; $!s/$/,/' >> $$n.h;\
+     echo \"};\" >> $$n.h\
+     " % (name), chdir = 1)
+e.AddMethod(Png2H)
+
+e.Png2H('gps_download')
+e.Png2H('gps_upload')

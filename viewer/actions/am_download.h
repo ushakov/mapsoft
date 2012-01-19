@@ -18,6 +18,8 @@ public:
     }
 
     std::string get_name() { return "Download from GPS"; }
+    Gtk::StockID get_stockid() { return Gtk::StockID("gps_download"); }
+
 
     bool is_radio() { return false; }
 

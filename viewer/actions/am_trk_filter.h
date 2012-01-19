@@ -13,11 +13,12 @@ public:
     }
 
     std::string get_name() { return "Filter Track"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::CONVERT; }
 
     void abort() {dlg.hide_all();}
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      int d = find_tpt(p, &layer, true);
+      int d = mapview->find_tpt(p, &layer, true);
       if (d < 0) return;
 
       dlg.set_info(layer->get_data());
@@ -31,6 +32,10 @@ private:
     void on_result(int r) {
       if (r!=Gtk::RESPONSE_OK) return;
       filters::generalize(layer->get_data(), dlg.get_acc(), dlg.get_num());
+      if (dlg.get_rg()){
+        g_track::iterator i = layer->get_data()->begin();
+        for (i++; i!= layer->get_data()->end(); i++) i->start=false;
+      }
       mapview->workplane.refresh_layer(layer);
     }
 };
