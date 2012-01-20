@@ -16,7 +16,7 @@ void read_conf_usage(){
 
    -o file	--out=<file>    // file for output
    -c file	--local_conf=<file>  // local config (default "/etc/mapsoft.conf")
-   -C file	--global_conf=<file> // global config (default "~/.mapsoft")
+   -C file	--global_conf=<file> // global config (default "~/.mapsoft/options")
    -s <tow>	--skip=<tow>         // 
       // skip maps [m], tracks [t], waypoints [w], 
       // or old (not "active log") tracks [o]
@@ -133,7 +133,9 @@ bool read_conf(int argc, char **argv, Options & opts){
 
   /***** reading local config file *****/
 
-  string local_conf = "~/.mapsoft";
+  char *home = getenv("HOME");
+  string local_conf = home? string(getenv("HOME")) + "/.mapsoft/options" : "";
+
   local_conf = opts.get("local_conf", local_conf);          // try value from global_conf
   local_conf = cmdline_opts.get("local_conf", local_conf);  // owerwrite by cmdline parameters
 
