@@ -55,17 +55,14 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     }
   }
 
+  bool need_marg=false;
   // set geometry if no --wgs_geom, --wgs_brd, --geom, --nom, --google options
   if (!opt.exists("geom") && !opt.exists("wgs_geom") &&
       !opt.exists("nom") && !opt.exists("google") &&
       !opt.exists("wgs_brd")){
     dRect geom = world.range_geodata();
 
-    if (opt.exists("data_marg")){
-      double my=opt.get("data_marg", 0.0)/111352; // m->deg
-      double mx=my/cos(geom.CNT().x/180*M_PI);
-      geom = rect_pump(geom, mx,my);
-    }
+    if (!geom.empty() && opt.exists("data_marg")) need_marg=true;
 
     // fallback: map range
     if (geom.empty()) geom=world.range_map();
@@ -76,6 +73,11 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   g_map ref = mk_ref(opt);
   dRect geom = ref.border.range();
   ref.file=filename;
+
+  if (need_marg){
+    geom = rect_pump(geom, opt.get("data_marg", 0.0));
+    ref.border=rect2line(geom);
+  }
 
   // is output image not too large
   iPoint max_image = opt.get("max_image", Point<int>(10000,10000));
