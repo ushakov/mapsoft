@@ -104,7 +104,7 @@ write referenced geofig file for image
 write OziExplorer map file for image
 .TP 
 \fB\-\-htm=<file>\fR
-write HTML map. Useful for creating.
+write HTML map.
 .TP 
 \fB\-\-scale <v>\fR
 map scale (1e\-5 means 1km per 1cm).
@@ -126,6 +126,10 @@ rewrite it by dpi and scale (or rscale) parameters
 Note: using rscale=100000, dpi=300 and rscale=50000, dpi=150
 gave same images but different geofig files.
 Note: rscale value overwrites scale.
+
+.TP 
+\fB\-\-data_marg=<m>\fR
+When detecting geometry of geodata ddd margings around it (in meters).
 
 .TP 
 \fB\-\-draw_borders=(1|0)\fR

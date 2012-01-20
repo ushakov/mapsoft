@@ -202,6 +202,13 @@ Rect<T> rect_pump (Rect<T> const & R, T val) {
 }
 
 /// \relates Rect
+/// \brief Pump rectangle by vx and vy values.
+template <typename T>
+Rect<T> rect_pump (Rect<T> const & R, T vx, T vy) {
+    return Rect<T> (R.x-vx, R.y-vy, R.w+2*vx, R.h+2*vy);
+}
+
+/// \relates Rect
 /// \brief Pump rectangle to cover point p.
 /** Better name is rect_bounding_box(R,p)?
   * Used only in layer_geomap.h and layer_wpt.h; 

@@ -60,6 +60,13 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
       !opt.exists("nom") && !opt.exists("google") &&
       !opt.exists("wgs_brd")){
     dRect geom = world.range_geodata();
+
+    if (opt.exists("data_marg")){
+      double my=opt.get("data_marg", 0.0)/111352; // m->deg
+      double mx=my/cos(geom.CNT().x/180*M_PI);
+      geom = rect_pump(geom, mx,my);
+    }
+
     // fallback: map range
     if (geom.empty()) geom=world.range_map();
     opt.put("wgs_geom", geom);
