@@ -68,7 +68,8 @@ Mapview::Mapview () :
     ui_manager->insert_action_group(actions);
 
     add_accel_group(ui_manager->get_accel_group());
-    Gtk::AccelMap::load(string(getenv("HOME")) + "/" + ACCEL_FILE);
+    char *home=getenv("HOME");
+    if (home) Gtk::AccelMap::load(string(home) + "/" + ACCEL_FILE);
 
     // create actions + build menu
     action_manager.reset (new ActionManager(this));
@@ -341,7 +342,8 @@ Mapview::goto_wgs(dPoint p){
 
 void
 Mapview::exit() {
-  Gtk::AccelMap::save(string(getenv("HOME")) + "/" + ACCEL_FILE);
+  char *home=getenv("HOME");
+  if (home) Gtk::AccelMap::save(string(home) + "/" + ACCEL_FILE);
   g_print ("Exiting...\n");
   hide_all();
 }
