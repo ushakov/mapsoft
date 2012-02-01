@@ -21,13 +21,19 @@ main(int argc, char **argv)
 
     Mapview mapview;
 
-    geo_data world;
 
-    for (int i = 1; i < argc; ++i) {
-      g_print ("Loading: %s\n", argv[i]);
-      io::in(argv[i], world, Options());
-    }
-    mapview.add_world(world, true);
+//    if ((argc==2) && (io::testext(argv[1], ".xml"))){
+//      mapview.load_file(argv[1]);
+//    }
+//    else {
+      geo_data world;
+      for (int i = 1; i < argc; ++i) {
+        g_print ("Loading: %s\n", argv[i]);
+        io::in(argv[i], world, Options());
+      }
+      mapview.add_world(world, true);
+//    }
+
     kit.run(mapview);
 }
 

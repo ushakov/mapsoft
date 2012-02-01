@@ -91,6 +91,7 @@ Mapview::Mapview () :
     vbox->pack_start(statusbar, false, true, 0);
     add (*vbox);
 
+    filename="";
     statusbar.push("Welcome to mapsoft viewer!",0);
     show_all();
 }
@@ -226,7 +227,18 @@ Mapview::on_mode_change (int m) {
 
 void
 Mapview::add_file(string file) {
-  g_print ("Loading: %s\n", file.c_str());
+  g_print ("Add data from: %s\n", file.c_str());
+  geo_data world;
+  io::in(file, world, Options());
+  add_world(world, true);
+}
+
+void
+Mapview::load_file(string file) {
+  filename = file;
+  changed = false;
+
+  g_print ("Load file: %s\n", file.c_str());
   geo_data world;
   io::in(file, world, Options());
   add_world(world, true);
@@ -288,6 +300,18 @@ Mapview::add_world(const geo_data & world, bool scroll) {
   }
   if (scroll && (p.x<1e3)) goto_wgs(p);
   set_ref(reference);
+  divert_refresh=false;
+  update_layers();
+}
+
+void
+Mapview::clear_world() {
+  divert_refresh=true;
+  map_ll.store.clear();
+  wpt_ll.store.clear();
+  trk_ll.store.clear();
+  workplane.clear();
+  have_reference = false;
   divert_refresh=false;
   update_layers();
 }

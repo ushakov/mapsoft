@@ -29,6 +29,8 @@ public:
 
     void remove_layer (LayerGeo * layer);
 
+    void clear();
+
     void set_layer_depth (LayerGeo * layer, int newdepth);
 
     int get_layer_depth (LayerGeo * layer);

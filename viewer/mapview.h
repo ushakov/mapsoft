@@ -36,6 +36,9 @@ public:
     bool have_reference;
     bool divert_refresh;
 
+    std::string filename; // project filename
+    bool changed;         // true if project was changed since
+                          // last saving/loading
 private:
     boost::shared_ptr<ActionManager> action_manager;
     iPoint click_start;
@@ -55,12 +58,14 @@ public:
 
     void on_mode_change (int m);
 
-    void add_file(std::string file);
+    void add_file(std::string file);  // add data from file
+    void load_file(std::string file); // load new data from file
 
     void add_wpts(const boost::shared_ptr<g_waypoint_list> data);
     void add_trks(const boost::shared_ptr<g_track> data);
     void add_maps(const boost::shared_ptr<g_map_list> data);
     void add_world(const geo_data & world, bool scroll=false);
+    void clear_world();
     // build geo_data object with all/visible data
     geo_data get_world(bool visible=true);
 

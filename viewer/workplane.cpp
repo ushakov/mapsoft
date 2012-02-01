@@ -70,6 +70,15 @@ Workplane::remove_layer (LayerGeo * layer){
 }
 
 void
+Workplane::clear(){
+        draw_mutex.lock();
+	layers_active.clear();
+	layers.clear();
+	tile_cache.clear();
+        draw_mutex.unlock();
+}
+
+void
 Workplane::set_layer_depth (LayerGeo * layer, int newdepth){
 	std::multimap<int, LayerGeo *>::iterator itl = find_layer(layer);
 	if (itl == layers.end()) {
