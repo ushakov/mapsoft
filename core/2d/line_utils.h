@@ -14,14 +14,24 @@
 // добавлением новых точек, то разумно сделать ее с closed=true,
 // а уже потом удалить последнюю точку.
 template<typename T>
-Line<T> rect2line(const Rect<T> & r, bool closed=true){
+Line<T> rect2line(const Rect<T> & r, bool closed=true, bool swap=false){
   Line<T> ret;
-  ret.push_back(r.TLC());
-  ret.push_back(r.TRC());
-  ret.push_back(r.BRC());
-  ret.push_back(r.BLC());
-  if (closed)
+  if (swap){
+    ret.push_back(r.BLC());
+    ret.push_back(r.BRC());
+    ret.push_back(r.TRC());
     ret.push_back(r.TLC());
+    if (closed)
+      ret.push_back(r.BLC());
+  }
+  else{
+    ret.push_back(r.TLC());
+    ret.push_back(r.TRC());
+    ret.push_back(r.BRC());
+    ret.push_back(r.BLC());
+    if (closed)
+      ret.push_back(r.TLC());
+  }
   return  ret;
 }
 

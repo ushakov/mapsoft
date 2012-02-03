@@ -110,6 +110,7 @@ mk_ref(Options & o){
   Datum datum("wgs84");
   Proj  proj("tmerc");
   bool verbose=o.exists("verbose");
+  bool sw=!o.exists("swap_y");
 
   // first step: process geom, nom, google options
   // -- create border and 4 refpoints in wgs84 lonlat
@@ -146,7 +147,7 @@ mk_ref(Options & o){
                      datum, proj, proj_opts);
 
     if (verbose) cerr << "mk_ref: geom = " << geom << "\n";
-    refs = rect2line(geom);
+    refs = rect2line(geom, true, sw);
     ret.border = cnv.line_bck(refs, 1e-6);
     refs.resize(4);
     cnv.line_bck_p2p(refs);
@@ -170,11 +171,11 @@ mk_ref(Options & o){
                      Datum("wgs84"), proj, proj_opts);
 
     if (verbose) cerr << "mk_ref: geom = " << geom << "\n";
-    refs = rect2line(geom);
+    refs = rect2line(geom, true, sw);
     refs.resize(4);
     // border is set to be rectanglar in proj:
     ret.border =
-      cnv.line_bck(rect2line(cnv.bb_frw(geom, 1e-6)), 1e-6);
+      cnv.line_bck(rect2line(cnv.bb_frw(geom, 1e-6), true, sw), 1e-6);
   }
   else if (o.exists("wgs_brd")){
     incompat_warning (o, "wgs_brd", "wgs_geom");
@@ -223,7 +224,7 @@ mk_ref(Options & o){
                      datum, Proj("lonlat"), proj_opts);
 
     if (verbose) cerr << "mk_ref: geom = " << geom << "\n";
-    refs = rect2line(geom);
+    refs = rect2line(geom, true, sw);
     ret.border = cnv.line_bck(refs, 1e-6);
     refs.resize(4);
     cnv.line_bck_p2p(refs);
@@ -264,7 +265,7 @@ mk_ref(Options & o){
     }
 
     if (verbose) cerr << "mk_ref: geom = " << geom << "\n";
-    refs = rect2line(geom);
+    refs = rect2line(geom, true,sw);
     ret.border = cnv.line_bck(refs, 1e-6);
     refs.resize(4);
     cnv.line_bck_p2p(refs);
@@ -312,7 +313,7 @@ mk_ref(Options & o){
   double h = refs_r.range().h;
 
   // swap y if needed
-  if (!o.exists("swap_y"))
+  if (sw)
     for (int i=0;i<refs_r.size();i++)
       refs_r[i].y = h - refs_r[i].y;
 

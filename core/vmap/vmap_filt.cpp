@@ -442,7 +442,7 @@ struct RangeCutter{
     }
 
     if (O.get<int>("set_brd_from_range", 0) && cnv && !range.empty()){
-      newbrd=cnv->line_bck(rect2line(range), 1e-6);
+      newbrd=cnv->line_bck(rect2line(range, true, true), 1e-6);
       newbrd.resize(newbrd.size()-1);
     }
 
