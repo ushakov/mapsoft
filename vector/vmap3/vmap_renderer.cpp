@@ -379,6 +379,41 @@ VMAPRenderer::render_line_zab(int type, int col, double th){
 }
 
 void
+VMAPRenderer::render_line_val(int type, int col, double th,
+                              double width, double step){
+  width*=lw1/2;
+  step*=lw1;
+
+  cr->save();
+  set_cap_round();
+  cr->set_line_width(th*lw1);
+  cr->set_color(col);
+
+  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
+    if (o->type!=(type | zn::line_mask)) continue;
+    for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
+      LineDist ld(*l);
+      if (ld.length()<=step) continue;
+      double fstep = ld.length()/ceil(ld.length()/step);
+      int n=0;
+      while (ld.dist() < ld.length()){
+       dPoint p=ld.pt(), v=ld.norm()*width, t=ld.tang()*step/2;
+        cr->move_to(p+v);
+        cr->line_to(p+v);
+        cr->move_to(p-v);
+        cr->line_to(p-v);
+//        cr->move_to(p-v);
+//        cr->line_to(p+v);
+        ld.move_frw(fstep);
+        n++;
+      }
+    }
+  }
+  cr->stroke();
+  cr->restore();
+}
+
+void
 VMAPRenderer::render_line_gaz(int type, int col, double th, double step){
   render_line(type, col, th, 0);
   double width=th*0.8*lw1;
@@ -584,6 +619,21 @@ VMAPRenderer::render_objects(const bool draw_contours){
 
   //*******************************
 
+  // извращение с линиями проходимости:
+  // сперва вырезаем место для них в подложке
+  cr->save();
+  cr->set_operator(Cairo::OPERATOR_CLEAR);
+  set_cap_butt();
+  render_line(0x32, 0x00B400, 3, 10); // плохой путь
+  set_dash(1, 1);
+  render_line(0x33, 0x00B400, 3, 10); // удовлетворительный путь
+  render_line(0x34, 0xFFD800, 3, 10); // хороший путь
+  unset_dash();
+  render_line(0x35, 0xFFD800, 3, 10); // отличный путь
+  cr->restore();
+
+  //*******************************
+
   render_cnt_polygons(0x4,  0xB0B0B0, 0x000000, 0.7); // закрытые территории
   render_cnt_polygons(0xE,  0xFF8080, 0x000000, 0.7); // деревни
   render_cnt_polygons(0x1,  0xB05959, 0x000000, 0.7); // города
@@ -597,33 +647,33 @@ VMAPRenderer::render_objects(const bool draw_contours){
 
   set_dash(8, 3);
   render_line(0x20, hor_col, 1, 20); // пунктирные горизонтали
-  set_dash(2, 2);
-  render_line(0x2B, 0xC06000, 1, 0); // сухая канава
   unset_dash();
   render_line(0x21, hor_col, 1, 20); // горизонтали
   render_line(0x22, hor_col, 1.6, 20); // жирные горизонтали
-
-  render_line(0x25, 0xA04000, 2, 20); // овраг
-
-  int hreb_col = 0x803000;
-  if (hr) hreb_col = 0xC06000;
-  render_line(0xC,  hreb_col, 2, 20); // хребет
-
-  //*******************************
-
-  set_cap_butt();
-  render_line(0x32, 0x00B400, 3, 10); // плохой путь
-  set_dash(1, 1);
-  render_line(0x33, 0x00B400, 3, 10); // удовлетворительный путь
-  render_line(0x34, 0xFFD800, 3, 10); // хороший путь
-  unset_dash();
-  render_line(0x35, 0xFFD800, 3, 10); // отличный путь
 
   //*******************************
 
   render_img_polygons(0x51, "bol_l.png"); // болота
   render_img_polygons(0x4C, "bol_h.png"); // болота труднопроходимые
   render_line(0x24, 0x5066FF, 1, 0); // старые болота
+
+  //*******************************
+
+  set_join_round();
+  set_cap_round();
+
+  set_dash(0, 2.5);
+  render_line(0x2B, 0xC06000, 1.6, 0); // сухая канава
+  unset_dash();
+  render_line(0x25, 0xA04000, 2, 20); // овраг
+
+  int hreb_col = 0x803000;
+  if (hr) hreb_col = 0xC06000;
+  render_line(0xC,  hreb_col, 2, 20); // хребет
+
+  set_dash(0, 2.5);
+  render_line(0x2C, hor_col, 2.5, 0); // вал
+  unset_dash();
 
   //*******************************
 
@@ -646,30 +696,52 @@ VMAPRenderer::render_objects(const bool draw_contours){
 
   //*******************************
 
+  // непроезжий грейдер - два ряда коричневых точек на белом фоне
+  // при этом белый на самом деле вырезаем, чтоб в него попали
+  // линии проходимости
+  cr->save();
+  cr->set_operator(Cairo::OPERATOR_CLEAR);
+  render_line(0x7, 0xFFFFFF, 3, 0); // белое
+  cr->restore();
+
+  render_line_val(0x7, hor_col, 1.6, 3, 2.5);
+
+  cr->save();
+  cr->set_operator(Cairo::OPERATOR_CLEAR);
+  render_line(0x7, 0xFFFFFF, 1, 0); // белое сверху
+  cr->restore();
+
+  //*******************************
+
+  // теперь зарисовываем то, что вырезали раньше: линии проходимости,
+  // остальное - белым
+  cr->save();
+  cr->set_operator(Cairo::OPERATOR_DEST_OVER);
+  set_cap_butt();
+  render_line(0x32, 0x00B400, 3, 10); // плохой путь
+  set_dash(1, 1);
+  render_line(0x33, 0x00B400, 3, 10); // удовлетворительный путь
+  render_line(0x34, 0xFFD800, 3, 10); // хороший путь
+  unset_dash();
+  render_line(0x35, 0xFFD800, 3, 10); // отличный путь
+  cr->set_color(0xFFFFFF);
+  cr->paint();
+  cr->restore();
+
+  //*******************************
+
   set_cap_butt(); set_join_miter();
   render_line_el(0x1A, 0x888888, 2); // маленькая ЛЭП
   render_line_el(0x29, 0x888888, 3); // большая ЛЭП
   render_line_gaz(0x28, 0x888888, 3); // газопровод
 
   //*******************************
-
-  render_line(0x5, 0, 3, 0); // дома (перенести выше?)
-
-  set_join_round();
-  set_cap_round();
-  set_dash(0, 2.5);
-  render_line(0x2C, hor_col, 3, 10); // вал
-  unset_dash();
-
-  //*******************************
   set_cap_butt();
-  render_line(0x7, 0xFFFFFF, 3, 10); // непроезжий грейдер - белая подложка
   set_dash(5, 4); render_line(0x16, 0x0, 0.6, 0); // просека
   set_dash(8, 5); render_line(0x1C, 0x0, 1.4, 0); // просека широкая
   set_dash(6, 2); render_line(0xA,  0x0, 1, 10); // непроезжая грунтовка
-  set_dash(2, 2); render_line(0x2A, 0x0, 1, 10); // тропа
-  set_dash(2,1,2,3); render_line(0x2D, 0x0, 0.6, 10); // заросшая дорога
-  set_dash(6, 1); render_line(0x7,  0x0, 3, 10); // непроезжий грейдер - пун
+  set_dash(2, 1.5); render_line(0x2A, 0x0, 1, 10); // тропа
+  set_dash(2,1,2,3); render_line(0x2D, 0x0, 0.8, 10); // заросшая дорога
   unset_dash();
   render_line(0x6,  0x0, 1, 10); // прозжая грунтовка
   render_line(0x4,  0x0, 3, 10); // проезжий грейдер
@@ -677,7 +749,6 @@ VMAPRenderer::render_objects(const bool draw_contours){
   render_line(0xB,  0x0, 5, 10); // большой асфальт
   render_line(0x1,  0x0, 7, 10); // автомагистраль
   render_line(0x4,  0xFFFFFF, 1, 10); // проезжий грейдер - белая середина
-  render_line(0x7,  0xFFFFFF, 1, 10); // непроезжий грейдер - белая середина
   render_line(0x2,  0xFF8080, 2, 10); // асфальт - середина
   render_line(0xB,  0xFF8080, 3, 10); // большой асфальт - середина
   render_line(0x1,  0xFF8080, 5, 10); // автомагистраль - середина
@@ -695,6 +766,8 @@ VMAPRenderer::render_objects(const bool draw_contours){
   render_bridge(0x08, 1, 1, 2); // мост-1
   render_bridge(0x09, 3, 1, 2); // мост-2
   render_bridge(0x0E, 6, 1, 2); // мост-5
+
+  render_line(0x5, 0, 3, 0); // линейные дома
 
   int pt_col = 0;
   if (hr) pt_col = 0x803000;
@@ -747,19 +820,6 @@ VMAPRenderer::render_holes(){
 
   // reversed order becouse of OPERATOR_DEST_OVER
 
-/*
-  render_line(0x1B, 0xFFFFFF, 1); // туннель
-  render_line(0x08, 0xFFFFFF, 1); // мост-1
-  render_line(0x09, 0xFFFFFF, 2); // мост-2
-  render_line(0x0E, 0xFFFFFF, 5); // мост-5
-
-  render_line(0x1,  0xFF8080, 7, 10); // автомагистраль
-  render_line(0xB,  0xFF8080, 5, 10); // большой асфальт
-  render_line(0x2,  0xFF8080, 4, 10); // асфальт
-  render_line(0x4,  0xFFFFFF, 3, 10); // проезжий грейдер
-  render_line(0x7,  0xFFFFFF, 3, 10); // непроезжий грейдер
-*/
-
   int water_col = 0x00FFFF;
   if (hr) water_col = 0x87CEFF;
 
@@ -801,3 +861,8 @@ VMAPRenderer::render_holes(){
 
   cr->restore();
 }
+
+
+
+
+

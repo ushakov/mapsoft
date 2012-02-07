@@ -104,6 +104,10 @@ struct VMAPRenderer{
   // заборы
   void render_line_zab(int type, int col, double th);
 
+  // вал
+  void render_line_val(int type, int col, double th, 
+                       double width, double step);
+
   // газопроводы
   void render_line_gaz(int type, int col, double th, double step=40);
 
