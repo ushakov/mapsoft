@@ -7,7 +7,7 @@
 using namespace std;
 
 void usage(){
-  const char * prog = "vmap_copy";
+  const char * prog = "mapsoft_vmap";
 
   cerr
      << prog << " -- convert vector maps in mp, fig, vmap or ocad formats.\n"

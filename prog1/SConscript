@@ -1,0 +1,12 @@
+Import ('env')
+
+env_vmap = env.Clone()
+env_vmap.UseLibs('vmap')
+env_vmap.Program("mapsoft_vmap.cpp")
+
+env_conv = env.Clone()
+env_conve.UseLibs('geo_io')
+env_vmap.Program("mapsoft_convert.cpp")
+env_vmap.Program("mapsoft_geofig.cpp")
+env_vmap.Program("mapsoft_rmap.cpp")
+
