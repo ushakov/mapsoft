@@ -14,7 +14,7 @@ BuildRequires: libcairomm-devel libpixman-devel libgtkmm2-devel
 BuildRequires: libpng-devel libjpeg-devel libtiff-devel
 BuildRequires: libusb-devel libyaml-devel libxml2-devel proj-devel
 BuildRequires: python-devel scons swig
-BuildRequires: /usr/bin/gs netpbm transfig ImageMagick-tools
+BuildRequires: /usr/bin/gs netpbm transfig ImageMagick-tools /usr/bin/pod2man
 
 %package tools
 Summary: mapsoft-tools - rarely-used tools from mapsoft package
