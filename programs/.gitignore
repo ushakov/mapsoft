@@ -2,15 +2,10 @@ convs_map2pt
 convs_nom
 convs_pt2pt
 mapsoft_add2fig
-mapsoft_calc_nom2ll
 mapsoft_convert
 mapsoft_fig2fig
 mapsoft_gen
 mapsoft_geofig
-mapsoft_getgoogle
-mapsoft_getks
-mapsoft_getks_ll
-mapsoft_getks_nom
 mapsoft_map2fig
 mapsoft_mapcnv
 mapsoft_mapcnv1
