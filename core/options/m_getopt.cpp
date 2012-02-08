@@ -12,9 +12,14 @@ parse_options(int * argc, char ***argv,
   string optstring="+"; // note "+" in optstring
   int i = 0;
     while (long_options[i].name){
-    if (long_options[i].val != 0) optstring+=long_options[i].val;
-    if (long_options[i].has_arg==1)  optstring+=":";
-    if (long_options[i].has_arg==2)  optstring+=";";
+    if (long_options[i].val != 0){ optstring+=long_options[i].val;
+      if (long_options[i].has_arg==1)  optstring+=":";
+      if (long_options[i].has_arg==2)  optstring+="::";
+    }
+    if (long_options[i].flag){
+      cerr << "error: non-zero flag in option structure\n";
+      exit(1);
+    }
     i++;
   }
 
