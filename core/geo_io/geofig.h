@@ -16,15 +16,19 @@ namespace fig {
   /// add geo reference to fig_world object
   void set_ref(fig_world & w, const g_map & m, const Options & o);
 
-  /// get waypoints from w and put them to d
+  /// get waypoints, tracks, map refrences from fig
   void get_wpts(const fig_world & w, const g_map & m, geo_data & d);
-  /// get tracks from w and put them to d
   void get_trks(const fig_world & w, const g_map & m, geo_data & d);
-  /// get refrences for raster images from w and put them to d
   void get_maps(const fig_world & w, const g_map & m, geo_data & d);
-  /// add waypoints from d to w
+
+  /// remove waypoins, tracks, maps, or map borders:
+  void rem_wpts(fig_world & w);
+  void rem_trks(fig_world & w);
+  void rem_maps(fig_world & w);
+  void rem_brds(fig_world & w);
+
+  /// add waypoints or tracks from to fig
   void put_wpts(fig_world & w, const g_map & m, const geo_data & d);
-  /// add tracks from d to w
   void put_trks(fig_world & w, const g_map & m, const geo_data & d);
 }
 #endif
