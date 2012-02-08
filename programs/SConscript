@@ -10,8 +10,6 @@ map (lambda(f): e.Program(f+'.cpp'),\
     mapsoft_convert
     mapsoft_gen
     mapsoft_pt2map
-    mapsoft_mapcnv
-    mapsoft_mapcnv1
     mapsoft_mkmap
     mapsoft_ref
     mapsoft_toxyz
