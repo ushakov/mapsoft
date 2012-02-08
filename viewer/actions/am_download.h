@@ -11,7 +11,7 @@ public:
       dlg.signal_response().connect(
         sigc::mem_fun (this, &Download::on_response));
 
-      dlg.e_dev->set_text("/dev/ttyUSB0");
+      dlg.e_dev->set_text(io::gps_detect());
       dlg.cb_w->set_active();
       dlg.cb_a->set_active();
       dlg.set_title(get_name());
@@ -23,7 +23,11 @@ public:
 
     bool is_radio() { return false; }
 
-    void activate() { dlg.show_all(); }
+    void activate() {
+      if (dlg.e_dev->get_text()=="")
+        dlg.e_dev->set_text(io::gps_detect());
+      dlg.show_all();
+    }
 
     void on_response(int r){
 
