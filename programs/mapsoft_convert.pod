@@ -1,0 +1,185 @@
+=head1 NAME
+
+mapsoft_convert -- convert geodata to various formats
+
+
+=head1 SYNTAX
+
+	mapsoft_convert <options> <input files> -o <output file>
+
+
+=head1 MAIN OPTIONS
+
+B<< --help, -h >> -- show help message
+
+B<< --out=<file>, -o <file> >> -- specify output file (required)
+
+B<< --skip=<string>, -s <string> >> -- skip some types of data (see below)
+
+B<< --rescale_maps <factor> >> -- rescale map references
+
+B<< --shift_maps <x>,<y> >> -- shift map references
+
+
+=head1 INPUT FILES
+
+format is determined by file extension:
+
+B<<  *.xml >> -- mapsoft native XML-like format
+
+B<<  *.fig >> -- mapsoft geofig format
+
+B<<  *.wpt, *.plt, *.map >> -- OziExplorer format
+
+B<<  *.zip >> -- zipped OziExplorer files
+
+B<<  *.gpx >> -- GPX format /partial support, tracks and waypoints
+
+B<<  *.gu >> -- old garmin-utils format (tracks and waypoints only)
+
+B<<  gps: >> -- read data from Garmin GPS via autodetected serial device
+
+B<<  <character device> >> -- read data from Garmin GPS via serial device
+
+
+=head1 OUTPUT FILE
+
+Format is determined by file extension:
+
+B<<  *.xml >> -- mapsoft native XML-like format
+
+B<<  *.wpt, *.plt, *.map, *.oe  >> -- OziExplorer format (Each track,
+waypoint set or map reference will be written in a separate .plt, .wpt
+or .map file)
+
+B<<  *.zip >> -- zipped OziExplorer files
+
+B<<  *.gpx >> -- GPX format /partial support, tracks and waypoints/
+
+B<<  *.kml >> -- Google KML format /partial support, tracks and waypoints/
+
+B<<  *.kmz >> -- zipped kml
+
+B<<  *.gu  >> -- old garmin-utils format (tracks and waypoints only)
+
+B<<  *.tif, .tiff, .jpg, .jpeg >> -- raster image (see below)
+
+B<<  gps: >> -- send data to Garmin GPS via autodetected serial device
+
+B<<  <character device> >> -- send data to Garmin GPS via serial device
+
+
+=head1 SKIPPING DATA
+
+You can use B<< -s <string> >> or B<< --skip=<string> >> option to skip some data.
+String may contain letter:
+
+B<"m"> -- skip maps
+
+B<"w"> -- skip waypoints
+
+B<"t"> -- skip tracks
+
+B<"a"> -- skip ACTIVE LOG track
+
+B<"o"> -- skip all tracks excluding ACTIVE LOG
+
+For example downloadind only Active log track from gps:
+
+	mapsoft_convert gps: -s ow -o file.plt
+
+
+=head1 OPTIONS FOR RASTER IMAGE OUTPUT
+
+B<< -d <name>,--datum=<name> >> -- datum (pulkovo, wgs84, ...)
+
+B<< -p <name>,--proj=<name> >> -- projection (lonlat, tmerc, ...)
+
+B<< -g <AxB+C+D>,--geom=<AxB+C+D> >> -- geometry (in projection units)
+
+Default datum is pulkovo, default projection is tmerc..
+Default geiometry is calculated from geodata (not map) range.
+
+B<< --fig=<file> >> -- write referenced geofig file for image
+
+B<< --map=<file> >> -- write OziExplorer map file for image
+
+B<< --htm=<file> >> -- write HTML map.
+
+B<< --scale <v> >> -- map scale (1e-5 means 1km per 1cm).
+
+B<< --rscale <v> >> -- reversed map scale, 1/scale
+
+B<< --dpi <v> >> -- dots per inch
+
+B<< --factor <v> >> -- rescale factor (default: 1)
+
+By default the scale of resulting map is the same as one of the first.
+input map. If there is no maps on input scale=1e-5,dpi=200. You may
+change default value using factor parameter or rewrite it by dpi and
+scale (or rscale) parameters
+
+Note: using rscale=100000, dpi=300 and rscale=50000, dpi=150 gave same
+images but different geofig files.
+
+Note: rscale value overwrites scale.
+
+[B<< --data_marg=<m> >> -- When detecting geometry of geodata add
+margings around it (in pixels).
+
+
+B<< --draw_borders=(1|0) >> -- draw map borders
+
+B<< --jpeg_quality=<n> >> -- jpeg quality
+
+B<< --max_image=<W,H> >> -- maximum image size (default: 5000,5000)
+
+B<< --google=<scale> >> -- add google image of specified scale
+
+B<< --ks=<scale> >> -- add ks image of specified scale
+
+B<< --google_dir=<dir> >> -- directory for google images
+
+B<< --ks_dir=<dir> >> -- directory for ks images
+
+B<< --download=(1|0) >> -- turn on downloading of ks and google images
+
+
+=head1 EXAMPLES
+
+Convert Ozi map files to a single xml:
+
+	mapsoft_convert /maps/*.map -o maps.xml
+
+Download waypoints and active log from GPS device and write them down in
+Ozi format files data.plt and data.wpt:
+
+	mapsoft_convert /dev/ttyUSB0 -s o -o data.plt
+
+Convert waypoints and track to packed kml format:
+
+	mapsoft_convert data.plt data.wpt -o data.kmz
+
+Create jpeg image with map from maps.xml and data from data.plt. Create also a map-file for this image
+
+	mapsoft_convert maps.xml data.plt -o mymap.jpg --map=mymap.map
+
+Create jpeg image with KS image and your dataand map-file for it. ./KS directory must exist.
+
+	mapsoft_convert --ks=14 --ks_dir=~/KS --download=1 data.plt -o mymap.jpg
+
+
+=head1 AUTHORS
+
+Vladislav Zavjalov <slazav@altlinux.org>, Max Ushakov, Tim Alexeevsky
+
+
+=head1 SEE ALSO
+
+L<Homepage (rus) |http://slazav.mccme.ru/prog/mapsoft.htm>
+
+L<Source code |http://github.com/ushakov/mapsoft>
+
+L<Bugtracer |http://mapsoft.lighthouseapp.com/projects/24601-mapsoft/tickets>
+
+L<LJ community |http://community.livejournal.com/mapsoft/>

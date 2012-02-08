@@ -31,6 +31,8 @@ map (lambda(f): e.Program(f+'.cpp'),\
     convs_nom
     """))
 
+env.pod2man('mapsoft_convert', '1')
+
 env.Install(env.man1dir, Split("""
   mapsoft_convert.1
 """))
