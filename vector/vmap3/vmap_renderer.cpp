@@ -699,17 +699,17 @@ VMAPRenderer::render_objects(const bool draw_contours){
   // непроезжий грейдер - два ряда коричневых точек на белом фоне
   // при этом белый на самом деле вырезаем, чтоб в него попали
   // линии проходимости
-  cr->save();
-  cr->set_operator(Cairo::OPERATOR_CLEAR);
-  render_line(0x7, 0xFFFFFF, 3, 0); // белое
-  cr->restore();
+//  cr->save();
+//  cr->set_operator(Cairo::OPERATOR_CLEAR);
+//  render_line(0x7, 0xFFFFFF, 3, 0); // белое
+//  cr->restore();
 
-  render_line_val(0x7, hor_col, 1.6, 3, 2.5);
+  render_line_val(0x7, hor_col, 1.6, 4, 2.5);
 
-  cr->save();
-  cr->set_operator(Cairo::OPERATOR_CLEAR);
-  render_line(0x7, 0xFFFFFF, 1, 0); // белое сверху
-  cr->restore();
+//  cr->save();
+//  cr->set_operator(Cairo::OPERATOR_CLEAR);
+//  render_line(0x7, 0xFFFFFF, 1, 0); // белое сверху
+//  cr->restore();
 
   //*******************************
 
