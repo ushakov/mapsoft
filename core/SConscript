@@ -21,8 +21,11 @@ subdirs = Split ("""
 
 # add CPPPATH and PKG_CONFIG_PATH to global env
 env.Append (CPPPATH = "#core")
-env.Append (ENV = {'PKG_CONFIG_PATH':
-  [os.getcwd()+'/pc', os.getenv('PKG_CONFIG_PATH')] })
+
+env.Append (ENV = {'PKG_CONFIG_PATH': os.getcwd()+'/pc'})
+if os.getenv('PKG_CONFIG_PATH'):
+  env.Append (ENV = {'PKG_CONFIG_PATH':
+    [ os.getcwd()+'/pc', os.getenv('PKG_CONFIG_PATH')]})
 
 #swig = env.Clone()
 #swig.Append(CPPPATH = [distutils.sysconfig.get_python_inc()])
