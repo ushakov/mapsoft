@@ -767,6 +767,7 @@ VMAPRenderer::render_objects(const bool draw_contours){
   render_bridge(0x09, 3, 1, 2); // мост-2
   render_bridge(0x0E, 6, 1, 2); // мост-5
 
+  set_cap_butt();
   render_line(0x5, 0, 3, 0); // линейные дома
 
   int pt_col = 0;
