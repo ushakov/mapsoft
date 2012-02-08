@@ -46,41 +46,71 @@ If string contains letter:
 "a" \-\- skip ACTIVE LOG track 
 .TP 
 "o" \-\- skip all tracks excluding ACTIVE LOG
-.SH "OUTPUT FILE"
-.LP 
-You must provide name for output file (\-o or \-\-out option).
-File format is determined by its extension:
-.TP 
-\fB.xml\fR
-mapsoft XML\-like format (all data will be written to one file)
-.TP 
-\fB.gu\fR
-old garmin\-utils format (tracks and waypoints only)
-.TP 
-\fB.wpt,.plt,.map,.oe\fR
-OziExplorer format. (Each track, waypoint set or map reference will be written in a separate .plt, .wpt or .map file)
-.TP 
-\fB.zip\fR
+
+.SH "INPUT FILES"
+.LP
+format is determined by file extension:
+.TP
+\fB *.xml\fR
+mapsoft native XML-like format
+.TP
+\fB *.fig\fR
+mapsoft geofig format
+.TP
+\fB *.wpt, *.plt, *.map\fR
+OziExplorer format
+.TP
+\fB *.zip\fR
 zipped OziExplorer files
-.TP 
-\fB.kml\fR
-Google KML format (tracks and waypoint only, lat,lon,alt,name data only)
-.TP 
-\fB.kmz\fR
+.TP
+\fB *.gpx\fR
+GPX format /partial support, tracks and waypoints
+.TP
+\fB *.gu\fR
+old garmin-utils format (tracks and waypoints only)
+.TP
+\fB gps:\fR
+read data from Garmin GPS via autodetected serial device
+.TP
+\fB <character device>\fR
+read data from Garmin GPS via serial device
+
+.SH "OUTPUT FILE"
+.LP
+Format is determined by file extension:
+.TP
+\fB *.xml\fR
+mapsoft native XML-like format
+.TP
+\fB *.wpt, *.plt, *.map, *.oe \fR
+OziExplorer format (Each track, waypoint set or map reference will be written in a
+separate .plt, .wpt or .map file)
+.TP
+\fB *.zip\fR
+zipped OziExplorer files
+.TP
+\fB *.gpx\fR
+GPX format /partial support, tracks and waypoints/
+.TP
+\fB *.kml\fR
+Google KML format /partial support, tracks and waypoints/
+.TP
+\fB *.kmz\fR
 zipped kml
-.TP 
-\fB.tif,.tiff,.jpg,.jpeg\fR
-raster image (see below for additional options)
-.TP 
-\fB.fi g\fR
-unstable now
-.TP 
-\fB.htm,.html\fR
-unstable now
-.LP 
-If output file is "usb:" data will be sent to Garmin GPS
-device via libusb. If output file is a character device
-data will be sent to Garmin GPS via serial port.
+.TP
+\fB *.gu \fR
+old garmin-utils format (tracks and waypoints only)
+.TP
+\fB *.tif, .tiff, .jpg, .jpeg\fR
+raster image (see below)
+.TP
+\fB gps:\fR
+send data to Garmin GPS via autodetected serial device
+.TP
+\fB <character device>\fR
+send data to Garmin GPS via serial device
+
+
 .SH "OPTIONS FOR RASTER IMAGE OUTPUT"
 .TP 
 \fB\-d <name>,\-\-datum=<name>\fR

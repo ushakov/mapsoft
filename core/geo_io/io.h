@@ -29,15 +29,22 @@ void geo_write(const std::string & file, const geo_data & world, const Options &
 
 namespace io {
         // read data from file
-	bool in(const std::string & name, geo_data & world, const Options & opt);
+	bool in(const std::string & in_name, geo_data & world, const Options & opt);
 
         // write data to file
-        void out(const std::string & outfile, const geo_data & world, const Options & opt);
+        void out(const std::string & out_name, const geo_data & world, const Options & opt);
 
         bool testext(const std::string & nstr, char *ext);
 
         // erase some data according to "skip" option
 	void skip(geo_data & world, const Options & opt);
+
+        // audodetect garmin_gps device
+        std::string gps_detect();
+
+       // -1 -- can't access file; 0 - regular, 1 - character device
+       int check_file(const std::string & name);
+
 }
 
 namespace filters {

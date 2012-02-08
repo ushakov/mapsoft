@@ -4,6 +4,7 @@
 #include <iomanip>
 
 #include <cstring>
+#include <dirent.h>
 #include <string>
 #include <vector>
 #include <list>
@@ -36,7 +37,30 @@ namespace io {
 		return ((pos>0)&&(pos == nstr.length()-strlen(ext)));
 	}
 
-	bool in(const string & name, geo_data & world, const Options & opt){
+        // -1 -- can't access file; 0 - regular, 1 - character device
+	int check_file(const string & name){
+	  struct stat st_buf;
+	  if (stat(name.c_str(), &st_buf) != 0) return -1;
+	  if (S_ISREG(st_buf.st_mode)) return 0;
+	  if (S_ISCHR(st_buf.st_mode)) return 1;
+        }
+
+        std::string gps_detect(){
+          DIR *D = opendir("/sys/module/garmin_gps/drivers/usb-serial:garmin_gps");
+          if (!D) return "";
+          dirent * de;
+          while (de = readdir(D)){
+            string fname = string("/dev/") + string(de->d_name);
+            if (check_file(fname) == 1) return fname;
+          }
+          return "";
+        }
+
+	bool in(const string & in_name, geo_data & world, const Options & opt){
+
+                string name(in_name);
+
+/*
 		if (name == "usb:"){
 			cerr << "Reading data from GPS via libusb\n";
 			if (!gps::get_all ("usb:", world, opt)) {
@@ -45,22 +69,30 @@ namespace io {
 			}
 			return true;
 		}
+*/
 
-		struct stat st_buf;
-		if (stat(name.c_str(), &st_buf) != 0)
-		{
+		if (name == "gps:"){
+                   name = gps_detect();
+                   if (name == ""){
+                     cerr << "Can't detect gps device\n";
+                     return false;
+                   }
+                }
+
+                int c = check_file(name);
+                if (c < 0){
 			cerr << "Can't access file " << name << "\n";
 			return false;
 		}
-		if (S_ISCHR(st_buf.st_mode))
-		{
-			cerr << "Reading data from GPS via serial port "
-				 << name << "\n";
-			if (!gps::get_all(name.c_str(), world, opt)){
-				cerr << "Error.\n";
-				return false;
-			}
-			return true;
+
+		if (c == 1){
+		  cerr << "Reading data from GPS via serial port "
+		    << name << "\n";
+		  if (!gps::get_all(name.c_str(), world, opt)){
+		    cerr << "Error.\n";
+		    return false;
+		  }
+		  return true;
 		}
 
 		if (testext(name, ".xml")){
@@ -129,22 +161,34 @@ namespace io {
 
 // запись в файл
 
-	void out(const string & outfile, geo_data const & world, const Options & opt){
+	void out(const string & out_name, geo_data const & world, const Options & opt){
 
-		if (outfile == "usb:"){
+                string name(out_name);
+
+/*
+		if (name == "usb:"){
 			cerr << "Sending data to GPS via libusb\n";
-			gps::put_all (outfile.c_str(), world, opt);
+			gps::put_all (name.c_str(), world, opt);
                         return;
 		}
-	
-		struct stat st_buf;
-		if (stat(outfile.c_str(), &st_buf) == 0) {
-			if (S_ISCHR(st_buf.st_mode)){
-				cerr << "Sending data to GPS via serial port "
-				     << outfile << "\n";	
-				gps::put_all (outfile.c_str(), world, opt);
-				return;
-			}
+*/
+
+
+		if (name == "gps:"){
+                   name = gps_detect();
+                   if (name == ""){
+                     cerr << "Can't detect gps device\n";
+                     return;
+                   }
+                }
+
+		if (check_file(name) == 1){
+		  cerr << "Sending data to GPS via serial port " << name << "\n";
+		  if (!gps::put_all (name.c_str(), world, opt)){
+		    cerr << "Error.\n";
+		    return;
+		  }
+		  return;
 		}
 
 // Исследование расширения
@@ -154,83 +198,83 @@ namespace io {
 
   
 		// Запись XML-файла
-		if (testext(outfile, ".xml")){
+		if (testext(name, ".xml")){
 		
-			cerr << "Writing to XML file " << outfile << "\n";
-			xml::write_file (outfile.c_str(), world, opt);
+			cerr << "Writing to XML file " << name << "\n";
+			xml::write_file (name.c_str(), world, opt);
 			return;
 		}
 
 		// Запись GPX-файла
-		if (testext(outfile, ".gpx")){
-			cerr << "Writing to GPX file " << outfile << "\n";
-			gpx::write_file (outfile.c_str(), world, opt);
+		if (testext(name, ".gpx")){
+			cerr << "Writing to GPX file " << name << "\n";
+			gpx::write_file (name.c_str(), world, opt);
 			return;
 		}
 		
 		// Запись KML-файла
-		if (testext(outfile, ".kml") || testext(outfile, ".kmz")){
-			string base(outfile.begin(), outfile.begin()+outfile.rfind('.'));
+		if (testext(name, ".kml") || testext(name, ".kmz")){
+			string base(name.begin(), name.begin()+name.rfind('.'));
 			string kml=base+".kml";
 			cerr << "Writing to Google KML file " << kml << "\n";
 			kml::write_file (kml.c_str(), world, opt);
 
-			if (testext (outfile, ".kmz")){
+			if (testext (name, ".kmz")){
 				cerr << "Zipping "<< kml << "\n";
 				string zipcmd = "zip " + base + ".kmz " + kml;
 				string rmcmd =  "rm " + kml;
-				if (! system (zipcmd.c_str())) cerr << "Error: can't do zip\n";
-				if (! system (rmcmd.c_str()))  cerr << "Error: can't do rm\n";
+				if (system (zipcmd.c_str())==-1) cerr << "Error: can't do zip\n";
+				if (system (rmcmd.c_str())==-1)  cerr << "Error: can't do rm\n";
 			}
 			return;
 		}
 
 		// Запись растровой картинки
-		if ((testext(outfile, ".tiff")) ||
-		    (testext(outfile, ".tif")) ||
-		    (testext(outfile, ".png")) ||
-		    (testext(outfile, ".jpeg")) ||
-		    (testext(outfile, ".jpg")) ){
+		if ((testext(name, ".tiff")) ||
+		    (testext(name, ".tif")) ||
+		    (testext(name, ".png")) ||
+		    (testext(name, ".jpeg")) ||
+		    (testext(name, ".jpg")) ){
 		
-			cerr << "Writing image " << outfile << "\n";
-			img::write_file(outfile.c_str(), world, opt);
+			cerr << "Writing image " << name << "\n";
+			img::write_file(name.c_str(), world, opt);
 			return;
 		}
 
 		// Запись плиток
-		if (testext(outfile, ".tiles")) {
-			cerr << "Writing tiles to " << outfile << "\n";
-			tiles::write_file(outfile.c_str(), world, opt);
+		if (testext(name, ".tiles")) {
+			cerr << "Writing tiles to " << name << "\n";
+			tiles::write_file(name.c_str(), world, opt);
 			return;
 		}
 
 		// Запись файла Garmin-Utils
-		if (testext(outfile, ".gu")){
-			cerr << "Writing to Garmin-utils file " << outfile << "\n";
-			gu::write_file (outfile.c_str(), world, opt);
+		if (testext(name, ".gu")){
+			cerr << "Writing to Garmin-utils file " << name << "\n";
+			gu::write_file (name.c_str(), world, opt);
 			return;
 		}
 //		// Запись файла FIG
-//		if (testext(outfile, ".fig")){
-//			cerr << "Writing to FIG file " << outfile << "\n";
-//			fig::write (outfile, world, opt);
+//		if (testext(name, ".fig")){
+//			cerr << "Writing to FIG file " << name << "\n";
+//			fig::write (name, world, opt);
 //			return;
 //		}
 		// Запись файла HTML
-//		if (testext(outfile, ".html") || testext(outfile, ".htm")){
-//			cerr << "Writing to HTML file " << outfile << "\n";
-//			std::ofstream f(outfile.c_str());
+//		if (testext(name, ".html") || testext(name, ".htm")){
+//			cerr << "Writing to HTML file " << name << "\n";
+//			std::ofstream f(name.c_str());
 //			html::write (f, world, opt);
 //			return;
 //		}
 
 		// Запись файла OziExplorer
-		if ((testext(outfile, ".wpt"))||
-			(testext(outfile, ".plt"))||
-			(testext(outfile, ".map"))||
-			(testext(outfile, ".zip"))||
-			(testext(outfile, ".oe"))){
-			string base(outfile.begin(), outfile.begin()+outfile.rfind('.'));
+		if ((testext(name, ".wpt"))||
+			(testext(name, ".plt"))||
+			(testext(name, ".map"))||
+			(testext(name, ".zip"))||
+			(testext(name, ".oe"))){
+			string base(name.begin(), name.begin()+name.rfind('.'));
 			cerr << "Writing to OziExplorer files: \n";
 			string files;
 			// подсчитаем, сколько треков и сколько точек нам надо записать
@@ -306,12 +350,12 @@ namespace io {
 			  }
 			}
 
-			if (testext (outfile, ".zip")){
+			if (testext (name, ".zip")){
 				cerr << "Zipping "<< files << "\n";
 				string zipcmd = "zip " + base + ".zip " + files;
 				string rmcmd =  "rm " + files;
-				if (! system (zipcmd.c_str())) cerr << "Error: can't do zip\n";
-				if (! system (rmcmd.c_str()))  cerr << "Error: can't do rm\n";
+				if (system (zipcmd.c_str())==-1) cerr << "Error: can't do zip\n";
+				if (system (rmcmd.c_str())==-1)  cerr << "Error: can't do rm\n";
 			}
 
 			return;

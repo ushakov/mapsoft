@@ -28,22 +28,33 @@ void usage(const char *fname){
        << "  --shift_maps <x>,<y>          Shift map references\n"
        << "\n";
 
-  cerr << "Output file. You must provide name for output file (-o, --out option).\n"
-       << "File format is determined by its extension:\n"
-       << "  .xml -- mapsoft XML-like format (all data will be written to one file)\n"
-       << "  .gu  -- old garmin-utils format (tracks and waypoints only)\n"
-       << "  .wpt, .plt, .map, .oe  -- OziExplorer format.\n"
+  cerr << "Input files (format is determined by file extension):\n"
+       << "  *.xml -- mapsoft native XML-like format\n"
+       << "  *.fig -- mapsoft geofig format\n"
+       << "  *.wpt, *.plt, *.map -- OziExplorer format\n"
+       << "  *.zip -- zipped OziExplorer files\n"
+       << "  *.gpx -- GPX format /partial support, tracks and waypoints/\n"
+       << "  *.gu  -- old garmin-utils format (tracks and waypoints only)\n"
+//       << " usb: --  read data from Garmin GPS via libusb /doesn't work/\n"
+       << " gps: --  read data from Garmin GPS via autodetected serial device\n"
+       << " <character device> -- read data from Garmin GPS via serial device\n"
+       << "\n";
+
+  cerr << "Output file (format is determined by file extension):\n"
+       << "Format is determined by file extension:\n"
+       << "  *.xml -- mapsoft native XML-like format\n"
+       << "  *.wpt, *.plt, *.map, *.oe  -- OziExplorer format\n"
        << "      (Each track, waypoint set or map reference will be written in a\n"
        << "       separate .plt, .wpt or .map file)\n"
-       << "  .zip -- zipped OziExplorer files\n"
-       << "  .kml -- Google KML format (tracks and waypoint only, lat,lon,alt,name data only)\n"
-       << "  .kmz -- zipped kml\n"
-       << "  .tif, .tiff, .jpg, .jpeg -- raster image (map, fig, or html wrap can be made)\n"
-       << "  .fig           -- ???\n"
-       << "  .htm,.html     -- ???\n"
-       << "If output file is \"usb:\" data will be sent to Garmin GPS\n"
-       << "device via libusb. If output file is a character device\n"
-       << "data will be sent to Garmin GPS via serial port.\n"
+       << "  *.zip -- zipped OziExplorer files\n"
+       << "  *.gpx -- GPX format /partial support, tracks and waypoints/\n"
+       << "  *.kml -- Google KML format /partial support, tracks and waypoints/\n"
+       << "  *.kmz -- zipped kml\n"
+       << "  *.gu  -- old garmin-utils format (tracks and waypoints only)\n"
+       << "  *.tif, .tiff, .jpg, .jpeg -- raster image (map, fig, or html wrap can be made)\n"
+//       << " usb: --  send data to Garmin GPS via libusb /doesn't work/\n"
+       << " gps: --  send data to Garmin GPS via autodetected serial device\n"
+       << " <character device> -- send data to Garmin GPS via serial device\n"
        << "\n";
 
 /* " Options for image output
@@ -65,14 +76,6 @@ void usage(const char *fname){
 "                    -- Datum (pulkovo)\n" <<
 */
 
-  cerr << "Input files. Following formats are supported:\n"
-       << "  -- mapsoft XML-like format\n"
-       << "  -- old garmin-utils format (for tracks and waypoints)\n"
-       << "  -- OziExplorer format (for tracks, waypoints, map references)\n"
-       << "  -- geofig format\n"
-       << "  -- Garmin GPS device via libusb or serial port\n"
-       << "     (use \"usb:\" or serial device name as a input file name)\n"
-       << "\n";
 
   cerr << "Skipping data. If --skip parameter string contains letter:\n"
        << "  \"m\" -- skip maps\n"
@@ -87,6 +90,7 @@ void usage(const char *fname){
 
 int main(int argc, char *argv[]) {
 try{
+
   Options opts;
 
   if (!read_conf(argc, argv, opts)) usage(argv[0]);
