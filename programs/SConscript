@@ -18,7 +18,6 @@ map (lambda(f): e.Program(f+'.cpp'),\
     mapsoft_map2fig
     mapsoft_srtm2fig
     mapsoft_fig2fig
-    mapsoft_calc_nom2ll
     mapsoft_pano
     mapsoft_geofig
 
