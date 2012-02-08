@@ -28,14 +28,7 @@ parse_options(int * argc, char ***argv,
 
     c = getopt_long(*argc, *argv, optstring.c_str(), long_options, &option_index);
     if (c == -1) break;
-    if (c == '?'){
-      cerr << "error: bad option: " << (*argv)[optind-1] << "\n";
-      exit(1);
-    }
-    if (c == ':'){
-      cerr << "error: missing argument for " << (*argv)[optind-1] << " option\n";
-      exit(1);
-    }
+    if ((c == '?') || (c == ':'))  exit(1);
 
     if (last_opt && O.exists(last_opt)){
       cerr << "error: wrong position of --" << last_opt << " special option\n";
