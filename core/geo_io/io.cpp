@@ -276,7 +276,7 @@ namespace io {
 			(testext(name, ".oe"))){
 			string base(name.begin(), name.begin()+name.rfind('.'));
 			cerr << "Writing to OziExplorer files: \n";
-			string files;
+			vector<string> files;
 			// подсчитаем, сколько треков и сколько точек нам надо записать
 			int wn = world.wpts.size();
 			int tn = world.trks.size();
@@ -302,7 +302,7 @@ namespace io {
 				else
 				{
 					cerr << "  " << oef.str() << " -- " << world.wpts[n].size() << " waypoints\n";
-					files += " " + oef.str();
+					files.push_back(oef.str());
 				}
 			}
 			for (size_t n = 0; n != world.trks.size(); ++n)
@@ -321,7 +321,7 @@ namespace io {
 				else
 				{
 					cerr << "  " << oef.str() << " -- " << world.trks[n].size() << " points\n";
-					files += " " + oef.str();
+					files.push_back(oef.str());
 				}
 			}
 
@@ -345,17 +345,14 @@ namespace io {
 				}
 				else {
 					cerr << "  " << oef.str() << " -- " << world.maps[n].size() << " reference points\n";
-					files += " " + oef.str();
+					files.push_back(oef.str());
 				}
 			  }
 			}
 
 			if (testext (name, ".zip")){
-				cerr << "Zipping "<< files << "\n";
-				string zipcmd = "zip " + base + ".zip " + files;
-				string rmcmd =  "rm " + files;
-				if (system (zipcmd.c_str())==-1) cerr << "Error: can't do zip\n";
-				if (system (rmcmd.c_str())==-1)  cerr << "Error: can't do rm\n";
+			  cerr << "Zipping files to " << name << "\n";
+                          io_zip::write_file(name.c_str(), files);
 			}
 
 			return;

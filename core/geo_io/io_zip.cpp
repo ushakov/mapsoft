@@ -65,4 +65,34 @@ namespace io_zip{
 		zip_close(zip_file);
 		return true;
 	}
+
+	bool write_file (const char* filename, const std::vector<std::string> & files){
+		struct zip *Z;
+		int err;
+                remove(filename);
+                Z = zip_open(filename, ZIP_CREATE, &err);
+		if (!Z) {
+                  cerr << "Error: can't open file " << filename << endl;
+                  return false;
+                }
+                std::vector<std::string>::const_iterator f;
+                for (f = files.begin(); f!=files.end();  f++){
+                  struct zip_source *s = zip_source_file(Z, f->c_str(),0,0);
+                  if ((s == NULL) || (zip_add(Z, f->c_str(), s) < 0)) {
+                    std::cerr << "Error adding file: " << zip_strerror(Z) << endl;
+                    zip_source_free(s);
+                  }
+                }
+                if (zip_close(Z)!=0){
+                  std::cerr << "Error writing archive: " << zip_strerror(Z) << endl;
+                  return false;
+                }
+
+                for (f = files.begin(); f!=files.end();  f++){
+                  if (remove(f->c_str()))
+                    cerr << "Error: can't delete file "<< *f << endl;
+                }
+
+                return true;
+        }
 }
