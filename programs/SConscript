@@ -12,10 +12,6 @@ map (lambda(f): e.Program(f+'.cpp'),\
     mapsoft_pt2map
     mapsoft_mapcnv
     mapsoft_mapcnv1
-    mapsoft_getks
-    mapsoft_getks_ll
-    mapsoft_getks_nom
-    mapsoft_getgoogle
     mapsoft_mkmap
     mapsoft_ref
     mapsoft_toxyz
