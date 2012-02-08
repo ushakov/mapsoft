@@ -79,7 +79,7 @@ namespace xml {
 			>> *(*space_p >> point_object) >> *space_p 
 			>> str_p("</map>")[push_back_a(top_map_list.maps, pt_list)];
 
-		rule_t maps_object = str_p("<maps")[clear_a(map_list)]
+		rule_t maps_object = str_p("<maps")[clear_a(map_list.maps)]
 			>> *attr[insert_at_a(map_list, aname, aval)] >> ">" 
 			>> *(*space_p >> map_object) >> *space_p 
 			>> str_p("</maps>")[push_back_a(ret.maps, map_list)];
