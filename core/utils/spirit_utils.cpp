@@ -8,7 +8,7 @@ bool parse_file(const char * name, const char *file, const rule_t & rule){
 
     fit_t first(file);
     if (!first) {
-      std::cerr << name << ": can't find file " << file << '\n'; 
+      std::cerr << name << ": can't read file " << file << '\n'; 
       return false;
     }
     fit_t last = first.make_end();
