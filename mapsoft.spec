@@ -1,5 +1,5 @@
 Name: mapsoft
-Version: 20120110
+Version: 20120220
 Release: alt1
 License: GPL
 Summary: mapsoft - programs for working with maps and geodata
@@ -63,6 +63,9 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_datadir/xfig/Libraries/*
 
 %changelog
+* Wed Feb 08 2012 Vladislav Zavjalov <slazav@altlinux.org> 20120220-alt1
+- build current snapshot
+
 * Tue Jan 10 2012 Vladislav Zavjalov <slazav@altlinux.org> 20120110-alt1
 - build current snapshot
 
