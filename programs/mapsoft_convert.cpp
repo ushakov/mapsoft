@@ -32,10 +32,9 @@ void usage(const char *fname){
        << "  *.xml -- mapsoft native XML-like format\n"
        << "  *.fig -- mapsoft geofig format\n"
        << "  *.wpt, *.plt, *.map -- OziExplorer format\n"
-       << "  *.zip -- zipped OziExplorer files\n"
        << "  *.gpx -- GPX format /partial support, tracks and waypoints/\n"
        << "  *.gu  -- old garmin-utils format (tracks and waypoints only)\n"
-//       << " usb: --  read data from Garmin GPS via libusb /doesn't work/\n"
+       << "  *.zip -- zipped files\n"
        << " gps: --  read data from Garmin GPS via autodetected serial device\n"
        << " <character device> -- read data from Garmin GPS via serial device\n"
        << "\n";
@@ -52,30 +51,9 @@ void usage(const char *fname){
        << "  *.kmz -- zipped kml\n"
        << "  *.gu  -- old garmin-utils format (tracks and waypoints only)\n"
        << "  *.tif, .tiff, .jpg, .jpeg -- raster image (map, fig, or html wrap can be made)\n"
-//       << " usb: --  send data to Garmin GPS via libusb /doesn't work/\n"
        << " gps: --  send data to Garmin GPS via autodetected serial device\n"
        << " <character device> -- send data to Garmin GPS via serial device\n"
        << "\n";
-
-/* " Options for image output
-"  -s <string>\n" <<
-"  --skip=<string>\n" <<
-"  -O skip=<string>\n" <<
-"                    -- Skipping data\n" <<
-"  -g <rect>\n"
-"  --geom=<rect>\n"
-"  -O geom=<rect>\n"
-"                    -- Geometry\n" <<
-"  -p <proj>\n"
-"  --proj=<proj>\n"
-"  -O proj=<proj>\n"
-"                    -- Projection (tmerc)\n" <<
-"  -d <datum>\n"
-"  --datum=<datum>\n"
-"  -O datum=<datum>\n"
-"                    -- Datum (pulkovo)\n" <<
-*/
-
 
   cerr << "Skipping data. If --skip parameter string contains letter:\n"
        << "  \"m\" -- skip maps\n"

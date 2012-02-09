@@ -31,11 +31,11 @@ B<<  *.fig >> -- mapsoft geofig format
 
 B<<  *.wpt, *.plt, *.map >> -- OziExplorer format
 
-B<<  *.zip >> -- zipped OziExplorer files
-
 B<<  *.gpx >> -- GPX format /partial support, tracks and waypoints
 
 B<<  *.gu >> -- old garmin-utils format (tracks and waypoints only)
+
+B<<  *.zip >> -- zipped files
 
 B<<  gps: >> -- read data from Garmin GPS via autodetected serial device
 
