@@ -191,6 +191,9 @@ struct geo_data {
   dRect range_geodata() const;
   /// get range of all data in lon-lat coords
   dRect range() const;
+
+  // add data from another geo_data object
+  void add(const geo_data & w);
 };
 
 template <typename T>

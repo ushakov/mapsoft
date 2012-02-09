@@ -521,3 +521,10 @@ dRect geo_data::range() const{
   return rect_bounding_box(range_map(), range_geodata());
 }
 
+void
+geo_data::add(const geo_data & w){
+  wpts.insert(wpts.end(), w.wpts.begin(), w.wpts.end());
+  trks.insert(trks.end(), w.trks.begin(), w.trks.end());
+  maps.insert(maps.end(), w.maps.begin(), w.maps.end());
+}
+
