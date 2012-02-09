@@ -17,16 +17,6 @@
 #include "o_img.h"
 #include "o_tiles.h"
 
-
-/** Reading data from file into geo_data object. */
-void geo_read(const std::string & file, geo_data & world, const Options & opts=Options());
-
-/** Applying filters to geo_data. */
-void geo_filter(const geo_data & world, const Options & opts=Options());
-
-/** Writing geo_data object to file. */
-void geo_write(const std::string & file, const geo_data & world, const Options & opts=Options());
-
 namespace io {
         // read data from file
 	bool in(const std::string & in_name, geo_data & world, const Options & opt);
