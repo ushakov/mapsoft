@@ -65,7 +65,7 @@ static struct option create_options[] = {
 
 static struct option add_options[] = {
   {"verbose",        0, 0, 'v'},
-  {"out",            0, 0, 'o'},
+  {"out",            1, 0, 'o'},
   {0,0,0,0}
 };
 
@@ -114,11 +114,10 @@ main(int argc, char **argv){
         O.insert(GO.begin(), GO.end());
         if (O.get<int>("verbose",0))
           cerr << "reading: " << ifile  << endl;
-        io::in(ifile, world, O);
-//        geo_data world1;
-//        io::in(ifile, world1, O);
-//        io::filter(world1);
-//        world.add(world1);
+        geo_data world1;
+        io::in(ifile, world1, O);
+//        io::filter(world1, O);
+        world.add(world1);
       }
 
       if (argc<1){
@@ -127,7 +126,7 @@ main(int argc, char **argv){
         exit(1);
       }
 
-      const char * ofile = argv[0];
+      const char * ofile = O.get<string>("out").c_str();
 
       if (GO.get<int>("verbose",0))
         cerr << "writing to: " << ofile << endl;
