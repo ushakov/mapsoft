@@ -78,4 +78,23 @@ $ ./convs_nom -n n33-001
 $ ./convs_nom -s n33-001 -1 +1
 o32-144
 
+Исправить границу карты в соответствии с ее номенклатурным названием:
+$ mapsoft_convert n37-001.map --map_nom_brd -o n37-001.map
+
+======================================================
+
+Перемасштабировать растровую карту, не испортив привязку и границу:
+
+scale=0.5
+
+djpeg orig.jpg |\
+  pnmscale "$scale" |\
+  cjpeg > new.jpg
+
+mapsoft_convert \
+  --rescale_maps="$scale"\
+  orig.map -o new.map
+
+sed -i "3s/.*/new.jpg\r/" new.map
+
 

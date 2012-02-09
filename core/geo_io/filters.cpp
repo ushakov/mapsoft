@@ -153,6 +153,13 @@ filter(geo_data & world, const Options & opt){
     }
   }
 
+  //join maps by default:
+  vector<g_map_list>::iterator ml0 = world.maps.begin(), ml=ml0+1;
+  while (ml!=world.maps.end()){
+    ml0->insert(ml0->begin(), ml->begin(), ml->end());
+    ml=world.maps.erase(ml);
+  }
+
 }
 
 
