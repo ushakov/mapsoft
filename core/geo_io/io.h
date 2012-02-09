@@ -18,32 +18,43 @@
 #include "o_tiles.h"
 
 namespace io {
-        // read data from file
-	bool in(const std::string & in_name, geo_data & world, const Options & opt);
+  // read data from file
+  bool in(const std::string & in_name, geo_data & world, const Options & opt);
 
-        // write data to file
-        void out(const std::string & out_name, const geo_data & world, const Options & opt);
+  // write data to file
+  void out(const std::string & out_name, const geo_data & world, const Options & opt);
 
-        bool testext(const std::string & nstr, char *ext);
+  // check file extension
+  bool testext(const std::string & nstr, char *ext);
 
-        // erase some data according to "skip" option
-	void skip(geo_data & world, const Options & opt);
+  // audodetect garmin_gps device
+  std::string gps_detect();
 
-        // audodetect garmin_gps device
-        std::string gps_detect();
+  // -1 -- can't access file; 0 - regular, 1 - character device
+  int check_file(const std::string & name);
 
-       // -1 -- can't access file; 0 - regular, 1 - character device
-       int check_file(const std::string & name);
+  // filters
 
-}
-
-namespace filters {
   // добавить границу в соответствии с названием номенклатурного листа
   void map_nom_brd(geo_data & world);
 
   // уменьшить число точек трека
   void generalize(g_track * line, double e, int np);
 
+  // erase some data according to "skip" option
+  void skip(geo_data & world, const std::string & sk);
+
+  // filter geodata according to options:
+  // --shift_maps x,y  -- shift map references
+  // --rescale_maps k  -- rescale map references
+  // --map_nom_brd     -- set map borders according to map name
+  // --skip wmtao      -- skip data (w - waypoints, m - maps, t - tracks,
+  //                      a - active log, o - save tracks)
+  // --gen_n           -- reduce track points to n
+  // --gen_e           -- reduce track points up to accuracy e [meters]
+  //   (when gen_n and gen_e both used it means: "remove points while
+  //   number of points > n OR accuracy < e")
+  void filter(geo_data & world, const Options & opt);
 }
 
 #endif

@@ -116,7 +116,7 @@ main(int argc, char **argv){
           cerr << "reading: " << ifile  << endl;
         geo_data world1;
         io::in(ifile, world1, O);
-//        io::filter(world1, O);
+        io::filter(world1, O);
         world.add(world1);
       }
 

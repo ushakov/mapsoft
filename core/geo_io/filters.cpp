@@ -6,7 +6,7 @@
 #include <boost/spirit/include/classic_assign_actor.hpp>
 
 
-namespace filters{
+namespace io{
 
 using namespace std;
 
@@ -91,5 +91,70 @@ generalize(g_track * line, double e, int np){
     j++;
   }
 }
+
+void
+skip(geo_data & world, const string & sk){
+    if (sk == "") return;
+    bool m = (sk.find("m")!=string::npos) || (sk.find("M")!=string::npos);
+    bool w = (sk.find("w")!=string::npos) || (sk.find("W")!=string::npos);
+    bool t = (sk.find("t")!=string::npos) || (sk.find("T")!=string::npos);
+    bool o = (sk.find("o")!=string::npos) || (sk.find("O")!=string::npos);
+    bool a = (sk.find("a")!=string::npos) || (sk.find("A")!=string::npos);
+
+    if (m) world.maps.clear();
+    if (w) world.wpts.clear();
+
+    if (t) world.trks.clear();
+    else if (o || a){
+      vector<g_track>::iterator t=world.trks.begin();
+      while (t!=world.trks.end()){
+        if      (o && (t->comm != "ACTIVE LOG")) t=world.trks.erase(t);
+        else if (a && (t->comm == "ACTIVE LOG")) t=world.trks.erase(t);
+        else t++;
+      }
+    }
+  }
+
+
+void
+filter(geo_data & world, const Options & opt){
+
+  if (opt.exists("shift_maps")){
+    dPoint shift_maps = opt.get("shift_maps", dPoint(0,0));
+    for (vector<g_map_list>::iterator ml=world.maps.begin(); ml!=world.maps.end(); ml++){
+      for (vector<g_map>::iterator m=ml->begin(); m!=ml->end(); m++){
+        *m+=shift_maps;
+      }
+    }
+  }
+
+  if (opt.exists("rescale_maps")){
+    double rescale_maps = opt.get("rescale_maps", 1.0);
+    for (vector<g_map_list>::iterator ml=world.maps.begin(); ml!=world.maps.end(); ml++){
+      for (vector<g_map>::iterator m=ml->begin(); m!=ml->end(); m++){
+        *m*=rescale_maps;
+      }
+    }
+  }
+
+  if (opt.exists("map_nom_brd")){
+    io::map_nom_brd(world);
+  }
+
+  if (opt.exists("skip")){
+    skip(world, opt.get<string>("skip"));
+  }
+
+  if (opt.exists("gen_n") || opt.exists("gen_e")){
+    int n =  opt.get<int>("gen_n", 0);
+    int e =  opt.get<double>("gen_e", 0.0);
+    for (vector<g_track>::iterator tr=world.trks.begin(); tr!=world.trks.end(); tr++){
+      generalize(&(*tr), e, n);
+    }
+  }
+
+}
+
+
 
 }//namespace

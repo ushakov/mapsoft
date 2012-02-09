@@ -34,15 +34,11 @@ int main(int argc, char *argv[]) {
     io::in(*i, world, opts);
 
 // all these things -> io::filters ?
-  io::skip(world, opts);
+  io::filter(world, opts);
 
   for (vector<g_track>::iterator m=world.trks.begin(); m!=world.trks.end(); m++){
-    filters::generalize(&(*m), 10, 500);
+    io::generalize(&(*m), 10, 500);
   }
-
-/*  for(i=filters.begin(); i!=filters.end(); i++){
-    if (*i == "map_nom_brd") filters::map_nom_brd(world);
-  }*/
 
   io::out(outfile, world, opts);
 }

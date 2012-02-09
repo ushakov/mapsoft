@@ -352,31 +352,6 @@ namespace io {
 			 << " or \"usb:\" for using libusb\n";
 	}
 
-  void skip(geo_data & world, const Options & opt){
-    string sk = opt.get<string>("skip");
-    if (sk == "") return;
-    bool m = (sk.find("m")!=string::npos) || (sk.find("M")!=string::npos);
-    bool w = (sk.find("w")!=string::npos) || (sk.find("W")!=string::npos);
-    bool t = (sk.find("t")!=string::npos) || (sk.find("T")!=string::npos);
-    bool o = (sk.find("o")!=string::npos) || (sk.find("O")!=string::npos);
-    bool a = (sk.find("a")!=string::npos) || (sk.find("A")!=string::npos);
-
-    if (m) world.maps.clear();
-
-    if (w) world.wpts.clear();
-
-    if (t) world.trks.clear();
-    else if (o || a){
-      vector<g_track>::iterator t=world.trks.begin();
-      while (t!=world.trks.end()){
-        if      (o && (t->comm != "ACTIVE LOG")) t=world.trks.erase(t);
-        else if (a && (t->comm == "ACTIVE LOG")) t=world.trks.erase(t);
-        else t++;
-      }
-    }
-  }
-
-
 }  // namespace io
 
 

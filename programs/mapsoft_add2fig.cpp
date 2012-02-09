@@ -51,11 +51,7 @@ int main(int argc, char *argv[]) {
   for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
     io::in(*i, world, opts);
 
-/*  for(i=filters.begin(); i!=filters.end(); i++){
-    if (*i == "map_nom_brd") filters::map_nom_brd(world);
-  }*/
-
-  io::skip(world, opts);
+  io::filter(world, opts);
 
   put_wpts(F, ref, world);
   put_trks(F, ref, world);

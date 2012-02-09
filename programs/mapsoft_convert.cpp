@@ -107,31 +107,7 @@ try{
   for(StrVec::const_iterator i=infiles.begin(); i!=infiles.end(); i++)
     io::in(*i, world, opts);
 
-// all these things -> io::filters ?
-  io::skip(world, opts);
-
-  if (opts.exists("shift_maps")){
-    dPoint shift_maps = opts.get("shift_maps", dPoint(0,0));
-    for (vector<g_map_list>::iterator ml=world.maps.begin(); ml!=world.maps.end(); ml++){
-      for (vector<g_map>::iterator m=ml->begin(); m!=ml->end(); m++){
-        *m+=shift_maps;
-      }
-    }
-  }
-
-  double rescale_maps = opts.get("rescale_maps", 1.0);
-  if (rescale_maps !=1){
-    for (vector<g_map_list>::iterator ml=world.maps.begin(); ml!=world.maps.end(); ml++){
-      for (vector<g_map>::iterator m=ml->begin(); m!=ml->end(); m++){
-        *m*=rescale_maps;
-      }
-    }
-  }
-
-/*  for(i=filters.begin(); i!=filters.end(); i++){
-    if (*i == "map_nom_brd") filters::map_nom_brd(world);
-  }*/
-
+  io::filter(world, opts);
   io::out(outfile, world, opts);
 
 } catch (const char *err){

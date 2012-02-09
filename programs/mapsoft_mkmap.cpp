@@ -113,7 +113,7 @@ main(int argc, char **argv){
     maplist.push_back(map);
   } while (!in.eof());
   world.maps.push_back(maplist);
-  filters::map_nom_brd(world);
+  io::map_nom_brd(world);
   io::out(outfile, world, opts);
 }
 
