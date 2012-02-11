@@ -6,6 +6,60 @@
 
 using namespace std;
 
+#define OPT_INP  1  // input-only options
+#define OPT_FLT  2  // filter options (used both as input and output)
+#define OPT_OUT  4  // output-only options
+#define OPT_STP  8  // special option -o/--out
+
+#define MASK_INP  (OPT_INP | OPT_FLT | OPT_STP) // mask to select input options
+#define MASK_OUT  (OPT_OUT | OPT_FLT | OPT_STP) // mask to select output options
+
+static struct ext_option options[] = {
+  {"out",                   0,'o', OPT_STP, ""},
+  {"verbose",               0,'v', OPT_INP, "be verbose"},
+
+  {"skip_labels",           0,  0, OPT_FLT, "don't read labels"},
+  {"read_labels",           0,  0, OPT_FLT, "do read labels\n(used to override global --skip_labels)"},
+  {"split_labels",          0,  0, OPT_FLT, "split labels from object (be careful when using --split_labels in write options: fig, mp, and ocad does not support writing of splitted labels yet)\n"},
+
+  {"set_source",            1,  0, OPT_FLT, "set source parameter"},
+  {"set_source_from_name",  0,  0, OPT_FLT, "set source parameter from map name"},
+  {"set_source_from_fname", 0,  0, OPT_FLT, "set source parameter from file name"},
+  {"select_source",         1,  0, OPT_FLT, "copy only objects with given source"},
+  {"skip_source",           1,  0, OPT_FLT, "copy all objects but ones with given source (select_source and skip_source options are processed before set_source_*)\n"},
+
+  {"select_type",           1,  0, OPT_FLT, "copy only objects with given type (int value)"},
+  {"skip_type",             1,  0, OPT_FLT, "copy all objects but ones with given type"},
+  {"skip_all",              0,  0, OPT_FLT, "don't read any objects, only labels\n"},
+
+  {"range_datum",           1,  0, OPT_FLT, "set datum for range setting (wgs84, pulkovo, ...)"},
+  {"range_proj",            1,  0, OPT_FLT, "set proj for range setting (lonlat, tmerc, ...)"},
+  {"range_lon0",            1,  0, OPT_FLT, "set lon0 for tmerc proj in range settings"},
+  {"range",                 1,  0, OPT_FLT, "set range geometry (prefix in x coord overrides lon0)"},
+  {"range_nom",             1,  0, OPT_FLT, "set nomenclature range\n(overrides range, range_datum, range_proj)"},
+  {"range_action",          1,  0, OPT_FLT, "select actions to do with range\n(crop, select, skip, crop_spl, help)\n"},
+
+  {"set_brd_from_range",    0,  0, OPT_FLT, "set map border from range/range_nom options (border from last input only goes to the output)"},
+  {"set_brd",               1,  0, OPT_FLT, "set map border from wgs84 points"},
+  {"remove_tails",          1,  0, OPT_FLT, "remove object tails (lines which is close to border and to other object of the same type) (range must be set)\n"},
+
+  {"name",                  1,'n', OPT_FLT, "set map name"},
+  {"mp_id",                 1,'i', OPT_FLT, "set mp id"},
+  {"rscale",                1,'m', OPT_FLT, "set reversed scale (50000 for 1:50000 map)"},
+  {"style",                 1,'s', OPT_FLT, "set map style"},
+
+  {"append",                0,'a', OPT_OUT, "don't remove map from output file"},
+  {"keep_border",           0,  0, OPT_OUT, "(fig only) use border from the old file"},
+  {"keep_labels",           0,  0, OPT_OUT, "(fig only) use labels from the old file\n"},
+
+  {"remove_dups",           1,  0, OPT_OUT, "remove repeated points with given accuracy\n(before adding labels)"},
+  {"remove_empty",          0,  0, OPT_OUT, "remove empty objects and lines (remove_tails and range_action do remove_empty) (before adding labels)"},
+  {"join_objects",          1,  0, OPT_OUT, "join objects (before adding labels)"},
+
+  {0,0,0,0}
+};
+
+
 void usage(){
   const char * prog = "vmap_copy";
 
@@ -19,142 +73,17 @@ void usage(){
      << "and appended to previous ones. After all files have beed read labels\n"
      << "are attached to map objects. After that output filtering is applied\n"
      << "and map is wrote to the output file.\n"
-     << "\n"
-     << "  input options:\n"
-     << "    -v, --verbose               -- be verbose\n"
-     << "    <any filter options>\n"
-     << "\n"
-     << "  output options:\n"
-     << "\n"
-     << "    -a, --append                -- don't remove map from output file\n"
-     << "        --keep border           -- (fig only) use border from the old file\n"
-     << "        --keep labels           -- (fig only) use labels from the old file\n"
-     << "    <any filter options>\n"
-     << "\n"
-     << "  filter options:\n"
-     << "\n"
-     << "    --skip_labels               -- don't read labels\n"
-     << "    --read_labels               -- do read labels\n"
-     << "      (--read_labels options is intendent to override global --skip_labels option)\n"
-     << "      (if you skip labels in input options - they will be created before output)\n"
-     << "    --split_labels              -- split labels from object\n"
-     << "      (be careful when using --split_labels in write options: fig, mp, and ocad\n"
-     << "       does not support writing of splitted labels yet)\n"
-     << "\n"
-     << "    --set_source <string>       -- set source parameter\n"
-     << "    --set_source_from_name      -- set source parameter from map name\n"
-     << "    --set_source_from_fname     -- set source parameter from file name\n"
-     << "    --select_source <string>    -- copy only objects with given source\n"
-     << "    --skip_source <string>      -- copy all objects but ones with given source\n"
-     << "    (select_source and skip_source options are processed before set_source_*)\n"
-     << "\n"
-     << "    --select_type <int value>   -- copy only objects with given type\n"
-     << "    --skip_type <int value>     -- copy all objects but ones with given type\n"
-     << "    --skip_all                  -- don't read any objects, only labels\n"
-     << "\n"
-     << "    --range_datum <string>      -- set datum for range setting (wgs84, pulkovo, ...)\n"
-     << "    --range_proj <string>       -- set proj for range setting (lonlat, tmerc, ...)\n"
-     << "    --range_lon0 <double>       -- set lon0 for tmerc proj in range settings\n"
-     << "    --range <geometry>          -- set range\n"
-     << "                                   (prefix in x coord can override lon0)\n"
-     << "    --range_nom <name>          -- set nomenclature range\n"
-     << "                                   (overrides range, range_datum, range_proj)\n"
-     << "    --range_action <action>     -- select actions to do with range\n"
-     << "                                   (crop, select, skip, crop_spl, help)\n"
-     << "    --set_brd_from_range        -- set map border from range/range_nom options\n"
-     << "                        (border from last input only goes to the output)\n"
-     << "    --set_brd <line>            -- set map border from wgs84 points\n"
-     << "    --remove_tails <dist>       -- remove object tails (lines which is close to\n"
-     << "                                   border and to other object of the same type)\n"
-     << "                                   (range must be set)\n"
-     << "\n"
-     << " these options applyed before adding labels:\n"
-     << "    --remove_dups <accuracy>    -- remove repeated points\n"
-     << "    --remove_empty              -- remove empty objects and lines\n"
-     << "                                   (remove_tails and range_action do remove_empty)\n"
-     << "    --join_objects <accuracy>   -- join objects\n"
-     << "\n"
-     << "    -n, --name <string>         -- set map name\n"
-     << "    -i, --mp_id <int>           -- set mp id\n"
-     << "    -m, --rscale <double>       -- set reversed scale (50000 for 1:50000 map)\n"
-     << "    -s, --style <string>        -- set map style\n"
-     << "                        (values from last input only goes to the output)\n"
-     << "\n"
   ;
+
+  cerr << "\nFilter Options (can be used as input and output options):\n";
+  print_options(options, OPT_FLT, cerr);
+  cerr << "\nInput Options:\n";
+  print_options(options, OPT_INP, cerr);
+  cerr << "\nOutput Options:\n";
+  print_options(options, OPT_OUT, cerr);
   exit(1);
 }
 
-static struct option in_options[] = {
-  {"skip_labels",           0, 0, 0},
-  {"read_labels",           0, 0, 0},
-  {"split_labels",          0, 0 , 0},
-
-  {"set_source",            1, 0, 0},
-  {"set_source_from_name",  0, 0, 0},
-  {"set_source_from_fname", 0, 0, 0},
-  {"select_source",         1, 0, 0},
-  {"skip_source",           1, 0, 0},
-  {"select_type",           1, 0, 0},
-  {"skip_type",             1, 0, 0},
-  {"skip_all",              0, 0, 0},
-
-  {"range_datum",           1, 0, 0},
-  {"range_proj",            1, 0, 0},
-  {"range_lon0",            1, 0, 0},
-  {"range",                 1, 0, 0},
-  {"range_nom",             1, 0, 0},
-  {"range_action",          1, 0, 0},
-  {"set_brd_from_range",    0, 0, 0},
-  {"set_brd",               1, 0, 0},
-  {"remove_tails",          1, 0, 0},
-
-  {"name",        1, 0 , 'n'},
-  {"mp_id",       1, 0 , 'i'},
-  {"rscale",      1, 0 , 'm'},
-  {"style",       1, 0 , 's'},
-
-  {"out",         0, 0 , 'o'},
-  {"verbose",     0, 0 , 'v'},
-  {0,0,0,0}
-};
-
-static struct option out_options[] = {
-  {"skip_labels",           0, 0, 0},
-  {"read_labels",           0, 0, 0},
-  {"split_labels",          0, 0 , 0},
-
-  {"set_source",            1, 0 , 0},
-  {"set_source_from_name",  0, 0 , 0},
-  {"set_source_from_fname", 0, 0 , 0},
-  {"select_source",         1, 0 , 0},
-  {"skip_source",           1, 0 , 0},
-  {"select_type",           1, 0 , 0},
-  {"skip_type",             1, 0 , 0},
-  {"skip_all",              0, 0 , 0},
-
-  {"range_datum",           1, 0, 0},
-  {"range_proj",            1, 0, 0},
-  {"range_lon0",            1, 0, 0},
-  {"range",                 1, 0, 0},
-  {"range_nom",             1, 0, 0},
-  {"range_action",          1, 0, 0},
-  {"set_brd_from_range",    0, 0, 0},
-  {"set_brd",               1, 0, 0},
-  {"remove_tails",          1, 0, 0},
-  {"remove_dups",           1, 0, 0},
-  {"remove_empty",          0, 0, 0},
-  {"join_objects",          1, 0, 0},
-
-  {"name",        1, 0 , 'n'},
-  {"mp_id",       1, 0 , 'i'},
-  {"rscale",      1, 0 , 'm'},
-  {"style",       1, 0 , 's'},
-
-  {"append",      0, 0 , 'a'},
-  {"keep_border", 0, 0 , 0},
-  {"keep_labels", 0, 0 , 0},
-  {0,0,0,0}
-};
 
 
 main(int argc, char **argv){
@@ -162,9 +91,8 @@ main(int argc, char **argv){
 
   if (argc==1) usage();
 
-  Options O = parse_options(&argc, &argv, in_options, "out");
+  Options O = parse_options(&argc, &argv, options, MASK_INP, "out");
   Options GO(O); // global options
-
   vmap::world V;
 
   while (!O.exists("out")) {
@@ -176,7 +104,7 @@ main(int argc, char **argv){
     const char * ifile = argv[0];
 
     // parse options for this file and append global options
-    O = parse_options(&argc, &argv, in_options, "out");
+    O = parse_options(&argc, &argv, options, MASK_INP, "out");
     O.insert(GO.begin(), GO.end());
 
     if (O.exists("set_source_from_fname"))
@@ -200,7 +128,7 @@ main(int argc, char **argv){
   else ofile = argv[0];
 
   // parse output options
-  O = parse_options(&argc, &argv, out_options);
+  O = parse_options(&argc, &argv, options, MASK_OUT);
 
   /***************** write file ****************/
 

@@ -13,4 +13,23 @@ Options
 parse_options(int *argc, char ***argv,
               struct option long_options[], const char * last_opt = NULL);
 
+
+struct ext_option {
+  const char *name;    // see man getopt_long
+  int         has_arg; // see man getopt_long
+  int         val;     // see man getopt_long
+  int         group;   // this setting is used to select group of options
+  const char *desc;    // description, used in print_options()
+};
+
+Options
+parse_options(int *argc, char ***argv,
+              struct ext_option ext_options[],
+              int mask,
+              const char * last_opt = NULL);
+
+void
+print_options(struct ext_option ext_options[],
+              int mask, std::ostream & s);
+
 #endif
