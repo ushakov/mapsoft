@@ -10,13 +10,20 @@ namespace io{
 
 using namespace std;
 
-void map_nom_brd(geo_data & world){
+void map_nom_brd(geo_data & world, const Options & O){
+  if (O.exists("verbose")) cerr << "map_nom_brd filter" << endl;
   vector<g_map_list>::iterator ml_i;
   vector<g_map>::iterator i;
   for (ml_i = world.maps.begin(); ml_i!=world.maps.end(); ml_i++){
     for (i = ml_i->begin(); i!=ml_i->end(); i++){
 
       dRect r = convs::nom_to_range(i->comm);
+
+      if (O.exists("verbose")){
+        if (!r.empty()) cerr << " - setting border for the nom map " << i->comm << endl;
+        else cerr << " - skipping non-nomenclature map " << i->comm << endl;
+      }
+
       if (r.empty()) return;
       double lon1 = r.x;
       double lat1 = r.y;
@@ -38,7 +45,7 @@ void map_nom_brd(geo_data & world){
 
 
 void
-generalize(g_track * line, double e, int np){
+generalize(g_track * line, double e, int np, const Options & O){
   // какие точки мы хотим исключить:
   std::vector<bool> skip(line->size(), false);
 
@@ -50,7 +57,11 @@ generalize(g_track * line, double e, int np){
   dLine gk_line=(dLine)(*line);
   cnv.line_bck_p2p(gk_line);
 
+  if (O.exists("verbose"))
+    cerr << "generalize track: <" << line->comm <<  ">,  points: " << line->size();
+
   np-=2; // end points are not counted
+  double err = 0.0;
   while (1){
     // для каждой точки найдем расстояние от нее до
     // прямой, соединяющей две соседние (не пропущенные) точки.
@@ -80,7 +91,7 @@ generalize(g_track * line, double e, int np){
     if (n==0) break;
     // если этот минимум меньше e или точек в линии больше np - выкинем точку
     if ( ((e>0) && (min<e)) ||
-         ((np>0) && (n>np))) skip[mini]=true;
+         ((np>0) && (n>np))) { skip[mini]=true; err=min; }
     else break;
   }
   g_track::iterator i = line->begin();
@@ -90,11 +101,14 @@ generalize(g_track * line, double e, int np){
     else i++;
     j++;
   }
+  if (O.exists("verbose")) cerr << " -> " << line->size() << " error: " << err << endl;
+
 }
 
 void
-skip(geo_data & world, const string & sk){
+skip(geo_data & world, const string & sk, const Options & O){
     if (sk == "") return;
+    if (O.exists("verbose")) cerr << "skip data filter: " << sk << endl;
     bool m = (sk.find("m")!=string::npos) || (sk.find("M")!=string::npos);
     bool w = (sk.find("w")!=string::npos) || (sk.find("W")!=string::npos);
     bool t = (sk.find("t")!=string::npos) || (sk.find("T")!=string::npos);
@@ -138,18 +152,18 @@ filter(geo_data & world, const Options & opt){
   }
 
   if (opt.exists("map_nom_brd")){
-    io::map_nom_brd(world);
+    io::map_nom_brd(world, opt);
   }
 
   if (opt.exists("skip")){
-    skip(world, opt.get<string>("skip"));
+    skip(world, opt.get<string>("skip"), opt);
   }
 
   if (opt.exists("gen_n") || opt.exists("gen_e")){
     int n =  opt.get<int>("gen_n", 0);
     int e =  opt.get<double>("gen_e", 0.0);
     for (vector<g_track>::iterator tr=world.trks.begin(); tr!=world.trks.end(); tr++){
-      generalize(&(*tr), e, n);
+      generalize(&(*tr), e, n, opt);
     }
   }
 

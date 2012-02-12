@@ -5,10 +5,9 @@ TODO:
  * libfig -- квотирование \ в тексте
  * libmp -- поддержка Routes ???
  * geo_refs: убрать mk_tmerc_ref()
+ * options: убрать read_conf.h
  * vmap_copy
    - склейка линий только под углом ~180
- * mapsoft_convert
-   - переписать c использованием m_getopt.h
  * srtm:
    - найти и восстановить код для построения каталога рек
  * mapsoft_mapview:

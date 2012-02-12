@@ -36,13 +36,13 @@ namespace io {
   // filters
 
   // добавить границу в соответствии с названием номенклатурного листа
-  void map_nom_brd(geo_data & world);
+  void map_nom_brd(geo_data & world, const Options & opt = Options());
 
   // уменьшить число точек трека
-  void generalize(g_track * line, double e, int np);
+  void generalize(g_track * line, double e, int np, const Options & opt = Options());
 
   // erase some data according to "skip" option
-  void skip(geo_data & world, const std::string & sk);
+  void skip(geo_data & world, const std::string & sk, const Options & opt = Options());
 
 /**
 ### MANPAGE TEXT
