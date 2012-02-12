@@ -14,7 +14,6 @@ e.AddMethod(pod2man)
 map (lambda(f): e.Program(f+'.cpp'),\
   Split("""
     mapsoft_convert
-    mapsoft_pt2map
     mapsoft_mkmap
     mapsoft_ref
     mapsoft_toxyz
