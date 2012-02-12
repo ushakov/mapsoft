@@ -13,7 +13,6 @@ e.AddMethod(pod2man)
 
 map (lambda(f): e.Program(f+'.cpp'),\
   Split("""
-    mapsoft_add2fig
     mapsoft_convert
     mapsoft_pt2map
     mapsoft_mkmap
@@ -45,9 +44,8 @@ env.Install(env.man1dir, Split("""
 """))
 
 env.Install(env.bindir, Split("""
-  mapsoft_convert mapsoft_add2fig
+  mapsoft_convert mapsoft_vmap mapsoft_geofig
   convs_pt2pt convs_map2pt convs_nom
-  mapsoft_vmap
 """))
 
 env.SymLink("mapsoft_vmap", "vmap_copy", env.bindir)

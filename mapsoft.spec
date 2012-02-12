@@ -46,9 +46,10 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 
 %files
 %_bindir/mapsoft_convert
-%_bindir/mapsoft_add2fig
+%_bindir/mapsoft_geofig
 %_bindir/mapsoft_mapview
 %_mandir/man1/mapsoft_convert.1.gz
+%_mandir/man1/mapsoft_geofig.1.gz
 
 %files tools
 %_bindir/catfig
@@ -56,11 +57,13 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_bindir/convs_*
 
 %files vmap
+%_bindir/mapsoft_vmap
 %_bindir/vmap_copy
 %_bindir/vmap_render
 %dir %_datadir/mapsoft
 %_datadir/mapsoft/*
 %_datadir/xfig/Libraries/*
+%_mandir/man1/mapsoft_vmap.1.gz
 
 %changelog
 * Wed Feb 08 2012 Vladislav Zavjalov <slazav@altlinux.org> 20120220-alt1
