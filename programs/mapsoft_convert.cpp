@@ -22,8 +22,9 @@ using namespace std;
 #define OPT_ALL  (OPT1 | OPT2 | OPT3 | OPT4)
 
 static struct ext_option options[] = {
-  {"out",                   1,'o', OPT1, ""},
+  {"out",                   1,'o', OPT1, "output file name"},
   {"help",                  0,'h', OPT1, "show this message"},
+  {"pod",                   0,  0, OPT1, "show this message as POD template"},
   {"verbose",               0,'v', OPT1, "be verbose\n"},
 
   {"shift_maps",            1,  0, OPT1, "shift map references, \"x,y\""},
@@ -51,7 +52,8 @@ static struct ext_option options[] = {
   {"map",           1,'m', OPT3, "write map-file"},
   {"draw_borders",  0,  0, OPT3, "draw map borders"},
   {"max_image",     1,  0, OPT3, "don't write images larger then this, \"x,y\", default 1000,1000"},
-  {"data_marg",     1,  0, OPT3, "margins around data (works only if no geometry set)"},
+  {"data_marg",     1,  0, OPT3, "margins around data (works only if no geometry set), pixels"},
+  {"jpeg_quality",  1,  0, OPT3, "set jpeg quality"},
 
   {"ks_zoom",      0,  0, OPT4, ""},
   {"google_zoom",  0,  0, OPT4, ""},
@@ -62,13 +64,15 @@ static struct ext_option options[] = {
   {0,0,0,0}
 };
 
-void usage(){
+void usage(bool pod=false){
+
+  string head = pod? "\n=head1 ":"\n";
 
   const char * fname = "mapsoft_convert";
   cerr << fname << " -- convert geodata between different formats\n"
-       << "Usage: "<< fname << " <options> <input files> -o <output file>\n"
-       << "\n"
-       << "Input files (format is determined by file extension):\n"
+       << head << "Usage:\n"
+       << "\t"<< fname << " <options> <input files> -o <output file>\n"
+       << head << "Input files (format is determined by file extension):\n"
        << "  *.xml -- mapsoft native XML-like format\n"
        << "  *.fig -- mapsoft geofig format\n"
        << "  *.wpt, *.plt, *.map -- OziExplorer format\n"
@@ -77,9 +81,7 @@ void usage(){
        << "  *.zip -- zipped files\n"
        << " gps: --  read data from Garmin GPS via autodetected serial device\n"
        << " <character device> -- read data from Garmin GPS via serial device\n"
-       << "\n"
-       << "Output file (format is determined by file extension):\n"
-       << "Format is determined by file extension:\n"
+       << head << "Output file (format is determined by file extension):\n"
        << "  *.xml -- mapsoft native XML-like format\n"
        << "  *.wpt, *.plt, *.map, *.oe  -- OziExplorer format\n"
        << "      (Each track, waypoint set or map reference will be written in a\n"
@@ -92,16 +94,15 @@ void usage(){
        << "  *.tif, .tiff, .jpg, .jpeg -- raster image (map, fig, or html wrap can be made)\n"
        << " gps: --  send data to Garmin GPS via autodetected serial device\n"
        << " <character device> -- send data to Garmin GPS via serial device\n"
-       << "\n"
-       << "Options:"
   ;
-  print_options(options, OPT1, cerr);
-  cerr << "\nOptions for rendering images:\n";
-  print_options(options, OPT3, cerr);
-  cerr << "\nOptions for rendering images, geometry settings:\n";
-  print_options(options, OPT2, cerr);
-  cerr << "\nOptions for rendering images, google/kosmosnimki input:\n";
-  print_options(options, OPT4, cerr);
+  cerr << head << "Options:\n";
+  print_options(options, OPT1, cerr, pod);
+  cerr << head << "Options for rendering images:\n";
+  print_options(options, OPT3, cerr, pod);
+  cerr << head << "Options for rendering images, geometry settings:\n";
+  print_options(options, OPT2, cerr, pod);
+  cerr << head << "Options for rendering images, google/kosmosnimki input:\n";
+  print_options(options, OPT4, cerr, pod);
 
   exit(1);
 }
@@ -113,6 +114,7 @@ try{
 
   Options O = parse_options(&argc, &argv, options, OPT_ALL);
   if (O.exists("help")) usage();
+  if (O.exists("pod")) usage(true);
 
   geo_data world;
   vector<string> infiles;
@@ -124,6 +126,7 @@ try{
   }
 
   if (O.exists("help")) usage();
+  if (O.exists("pod")) usage(true);
 
   if (!O.exists("out")){
     cerr << "no output files.\n";

@@ -8,19 +8,6 @@ mapsoft_convert -- convert geodata to various formats
 	mapsoft_convert <options> <input files> -o <output file>
 
 
-=head1 MAIN OPTIONS
-
-B<< --help, -h >> -- show help message
-
-B<< --out=<file>, -o <file> >> -- specify output file (required)
-
-B<< --skip=<string>, -s <string> >> -- skip some types of data (see below)
-
-B<< --rescale_maps <factor> >> -- rescale map references
-
-B<< --shift_maps <x>,<y> >> -- shift map references
-
-
 =head1 INPUT FILES
 
 format is determined by file extension:
@@ -69,80 +56,90 @@ B<<  gps: >> -- send data to Garmin GPS via autodetected serial device
 B<<  <character device> >> -- send data to Garmin GPS via serial device
 
 
-=head1 SKIPPING DATA
+=head1 OPTIONS
 
-You can use B<< -s <string> >> or B<< --skip=<string> >> option to skip some data.
-String may contain letter:
+B<<  -o, --out <arg> >> -- output file name
 
-B<"m"> -- skip maps
+B<<  -h, --help >> -- show this message
 
-B<"w"> -- skip waypoints
+B<<  --pod >> -- show this message as POD template
 
-B<"t"> -- skip tracks
-
-B<"a"> -- skip ACTIVE LOG track
-
-B<"o"> -- skip all tracks excluding ACTIVE LOG
-
-For example downloadind only Active log track from gps:
-
-	mapsoft_convert gps: -s ow -o file.plt
+B<<  -v, --verbose >> -- be verbose
 
 
-=head1 OPTIONS FOR RASTER IMAGE OUTPUT
+B<<  --shift_maps <X,Y> >> -- shift map references
 
-B<< -d <name>,--datum=<name> >> -- datum (pulkovo, wgs84, ...)
+B<<  --rescale_maps <arg> >> -- rescale map references
 
-B<< -p <name>,--proj=<name> >> -- projection (lonlat, tmerc, ...)
+B<<  --map_nom_brd >> -- set map borders according to map name
 
-B<< -g <AxB+C+D>,--geom=<AxB+C+D> >> -- geometry (in projection units)
+B<<  -s, --skip <wmtao> >> -- skip data, "wmtao" (w - waypoints, m - maps, t - tracks, a - active log, o - save tracks)
 
-Default datum is pulkovo, default projection is tmerc..
-Default geiometry is calculated from geodata (not map) range.
+B<<  --gen_n <n> >> -- reduce track points to n
 
-B<< --fig=<file> >> -- write referenced geofig file for image
+B<<  --gen_e <e> >> -- reduce track points up to accuracy e [meters] (when gen_n and gen_e both used it means: "remove points while number of points > n OR accuracy < e"
 
-B<< --map=<file> >> -- write OziExplorer map file for image
 
-B<< --htm=<file> >> -- write HTML map.
+=head1 OPTIONS FOR RENDERING IMAGES
 
-B<< --scale <v> >> -- map scale (1e-5 means 1km per 1cm).
+B<<  --htm <file> >> -- write html map into file
 
-B<< --rscale <v> >> -- reversed map scale, 1/scale
+B<<  -f, --fig <file> >> -- write fig-file
 
-B<< --dpi <v> >> -- dots per inch
+B<<  -m, --map <file> >> -- write map-file
 
-B<< --factor <v> >> -- rescale factor (default: 1)
+B<<  --draw_borders >> -- draw map borders
+
+B<<  --max_image <W,H> >> -- don't write images larger then this, default 1000,1000
+
+B<<  --data_marg <arg> >> -- margins around data (works only if no geometry set), pixels
+
+B<< --jpeg_quality <arg> >> -- set jpeg quality
+
+
+=head1 OPTIONS FOR RENDERING IMAGES, GEOMETRY SETTINGS
+
+B<<  --geom <WxH+X+Y> >>, B<<  --datum <arg> >>, B<<  --proj <arg> >>, B<<  --lon0 <arg> >> -- set rectangular geometry in a given datum/proj
+
+B<<  --wgs_geom <WxH+X+Y> >>, B<<  --proj <arg> >> -- set rectalgular geometry in WGS lon-lat coordinates and convert it to the given projection
+
+B<<  --wgs_brd <X1,Y1,X2,Y2...> >> -- set border of area in WGS lon-lat coordinates and convert it to the given projection
+
+B<<  --nom <arg> >>
+
+B<<  --google <X,Y,Z> >> -- set area as google tile
+
+geom, wgs_geom, wgs_brd, nom and google options are incompatible with each other.
+
+B<<  --rscale <arg> >> -- reversed scale (10000 for 1:10000 map)
+
+B<<  -d, --dpi <arg> >> -- resolution, dots per inch
+
+B<<  --mag <arg> >> -- additional magnification
+
+B<<  --swap_y >>
 
 By default the scale of resulting map is the same as one of the first.
 input map. If there is no maps on input scale=1e-5,dpi=200. You may
-change default value using factor parameter or rewrite it by dpi and
+change default value using mag --option or rewrite it by dpi and
 scale (or rscale) parameters
 
 Note: using rscale=100000, dpi=300 and rscale=50000, dpi=150 gave same
 images but different geofig files.
 
-Note: rscale value overwrites scale.
+=head1 OPTIONS FOR RENDERING IMAGES, GOOGLE/KOSMOSNIMKI INPUT:
 
-[B<< --data_marg=<m> >> -- When detecting geometry of geodata add
-margings around it (in pixels).
+B<<  --ks_zoom >> -- 
 
+B<<  --google_zoom >> -- 
 
-B<< --draw_borders=(1|0) >> -- draw map borders
+B<<  --google_dir >> -- 
 
-B<< --jpeg_quality=<n> >> -- jpeg quality
+B<<  --ks_dir >> -- 
 
-B<< --max_image=<W,H> >> -- maximum image size (default: 5000,5000)
+B<<  --download >> -- turn on auto downloading
 
-B<< --google=<scale> >> -- add google image of specified scale
-
-B<< --ks=<scale> >> -- add ks image of specified scale
-
-B<< --google_dir=<dir> >> -- directory for google images
-
-B<< --ks_dir=<dir> >> -- directory for ks images
-
-B<< --download=(1|0) >> -- turn on downloading of ks and google images
+Now kosmosnimki downloading is broken.
 
 
 =head1 EXAMPLES

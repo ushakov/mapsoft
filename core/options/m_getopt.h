@@ -30,6 +30,6 @@ parse_options(int *argc, char ***argv,
 
 void
 print_options(struct ext_option ext_options[],
-              int mask, std::ostream & s);
+              int mask, std::ostream & s, bool pod=false);
 
 #endif
