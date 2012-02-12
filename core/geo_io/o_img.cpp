@@ -23,8 +23,8 @@ namespace img{
 
 bool write_file (const char* filename, const geo_data & world, Options opt){
 
-  int ks_zoom = opt.get("ks_in",     -1);
-  int gg_zoom = opt.get("google_in", -1);
+  int ks_zoom = opt.get("ks_zoom",     -1);
+  int gg_zoom = opt.get("google_zomm", -1);
 
 
   // set default dpi according to raster source resolutions

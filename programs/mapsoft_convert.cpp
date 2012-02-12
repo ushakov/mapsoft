@@ -16,7 +16,10 @@
 using namespace std;
 
 #define OPT1  1  //
-#define OPT2  2  // raster-options
+#define OPT2  2  // geometry options 
+#define OPT3  4  // other raster options
+#define OPT4  8  // google/ks options
+#define OPT_ALL  (OPT1 | OPT2 | OPT3 | OPT4)
 
 static struct ext_option options[] = {
   {"out",                   1,'o', OPT1, ""},
@@ -29,6 +32,32 @@ static struct ext_option options[] = {
   {"skip",                  1,'s', OPT1, "skip data, \"wmtao\" (w - waypoints, m - maps, t - tracks, a - active log, o - save tracks)"},
   {"gen_n",                 1,  0, OPT1, "reduce track points to n"},
   {"gen_e",                 1,  0, OPT1, "reduce track points up to accuracy e [meters] (when gen_n and gen_e both used it means: \"remove points while number of points > n OR accuracy < e\""},
+
+  {"geom",          1,  0, OPT2, ""},
+  {"datum",         1,  0, OPT2, ""},
+  {"proj",          1,  0, OPT2, ""},
+  {"lon0",          1,  0, OPT2, ""},
+  {"wgs_geom",      1,  0, OPT2, ""},
+  {"wgs_brd",       1,  0, OPT2, ""},
+  {"nom",           1,  0, OPT2, ""},
+  {"google",        1,  0, OPT2, "google tile, \"x,y,z\""},
+  {"rscale",        1,  0, OPT2, "reversed scale (10000 for 1:10000 map)"},
+  {"dpi",           1,'d', OPT2, "resolution, dots per inch"},
+  {"mag",           1,  0, OPT2, "additional magnification"},
+  {"swap_y",        0,  0, OPT2, ""},
+
+  {"htm",           1,  0, OPT3, "write html map into file"},
+  {"fig",           1,'f', OPT3, "write fig-file"},
+  {"map",           1,'m', OPT3, "write map-file"},
+  {"draw_borders",  0,  0, OPT3, "draw map borders"},
+  {"max_image",     1,  0, OPT3, "don't write images larger then this, \"x,y\", default 1000,1000"},
+  {"data_marg",     1,  0, OPT3, "margins around data (works only if no geometry set)"},
+
+  {"ks_zoom",      0,  0, OPT4, ""},
+  {"google_zoom",  0,  0, OPT4, ""},
+  {"google_dir",   0,  0, OPT4, ""},
+  {"ks_dir",       0,  0, OPT4, ""},
+  {"download",     0,  0, OPT4, ""},
 
   {0,0,0,0}
 };
@@ -66,7 +95,14 @@ void usage(){
        << "\n"
        << "Options:"
   ;
-  print_options(options, 3, cerr);
+  print_options(options, OPT1, cerr);
+  cerr << "\nOptions for rendering images:\n";
+  print_options(options, OPT3, cerr);
+  cerr << "\nOptions for rendering images, geometry settings:\n";
+  print_options(options, OPT2, cerr);
+  cerr << "\nOptions for rendering images, google/kosmosnimki input:\n";
+  print_options(options, OPT4, cerr);
+
   exit(1);
 }
 
@@ -75,7 +111,7 @@ try{
 
   if (argc==1) usage();
 
-  Options O = parse_options(&argc, &argv, options, 3);
+  Options O = parse_options(&argc, &argv, options, OPT_ALL);
   if (O.exists("help")) usage();
 
   geo_data world;
@@ -83,9 +119,11 @@ try{
 
   while (argc>0) {
     infiles.push_back(argv[0]);
-    Options O1 = parse_options(&argc, &argv, options, 3);
+    Options O1 = parse_options(&argc, &argv, options, OPT_ALL);
     O.insert(O1.begin(), O1.end());
   }
+
+  if (O.exists("help")) usage();
 
   if (!O.exists("out")){
     cerr << "no output files.\n";
