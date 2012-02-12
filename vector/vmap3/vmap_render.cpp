@@ -5,54 +5,68 @@
 
 using namespace std;
 
+static struct ext_option options[] = {
+  {"verbose",       0,  0, 1, "be more verbose"},
+  {"help",          0,'h', 1, "show this message"},
+  {"map",           1,'m', 1, "write OziExplorer map file"},
+  {"grid",          1,'g', 1, "draw grid with given step [cm]"},
+  {"grid_labels",   0,'l', 1, "draw grid labels"},
+  {"draw_name",     0,'N', 1, "draw map name"},
+  {"draw_date",     0,'D', 1, "draw date stamp"},
+  {"draw_text",     1,'T', 1, "draw text\n"},
+
+  {"antialiasing",  1,  0, 1, "do antialiasing (0|1, default 1)"},
+  {"transp_margins",1,  0, 1, "transparent margins (0|1, default 0)"},
+  {"contours",      1,  0, 1, "auto contours (0|1, default 1)"},
+  {"label_style",   1,  0, 1, "set label style 0..2 (default 2)\n"},
+
+  {"geom",          1,  0, 2, ""},
+  {"datum",         1,  0, 2, ""},
+  {"proj",          1,  0, 2, ""},
+  {"lon0",          1,  0, 2, ""},
+  {"wgs_geom",      1,  0, 2, ""},
+  {"wgs_brd",       1,  0, 2, ""},
+  {"nom",           1,  0, 2, ""},
+  {"google",        1,  0, 2, "google tile, \"x,y,z\""},
+  {"rscale",        1,  0, 2, "reversed scale (10000 for 1:10000 map)"},
+  {"dpi",           1,'d', 2, "resolution, dots per inch"},
+  {"mag",           1,  0, 2, "additional magnification"},
+  {"swap_y",        0,  0, 2, "\n"},
+
+  {0,0,0,0}
+};
+
 void usage(){
   const char * prog = "vmap_render";
 
   cerr
      << prog << " -- convert vector maps to raster.\n"
-     << "  Usage: " << prog << " [<options>] <in_file> <out_file>\n"
+     << "Usage: " << prog << " [<options>] <in_file> <out_file>\n"
      << "\n"
-     << "  Options:\n"
-     << "    -m  --map <map file>    -- write OziExplorer map file\n"
-     << "    -g  --grid <step>       -- draw step x step cm grid\n"
-     << "    -l  --grid_labels       -- draw grid labels\n"
-     << "    -N  --draw_name         -- draw map name\n"
-     << "    -D  --draw_date         -- draw date stamp\n"
-     << "    -T  --draw_text <text>  -- draw text\n"
-     << "        --antialiasing <0|1>   -- do antialiasing (default 1)\n"
-     << "        --transp_margins <0|1> -- transparent margins (default 0)\n"
-     << "        --contours <0|1>      -- auto contours (default 1)\n"
-     << "        --label_style <int>   -- set label style 0..2 (default 2)\n"
+     << "Options:\n"
+  ;
+  print_options(options, 1, cerr);
+
+  cerr 
      << "\n"
-     << "  Label styles (0 is fast and 2 is best):\n"
-     << " 0 -- don't erase objects under text\n"
-     << " 1 -- lighten all objects under text\n"
-     << " 2 -- the best erasing [default] \n"
+     << "Label styles (0 is fast and 2 is best):\n"
+     << "  0 -- don't erase objects under text\n"
+     << "  1 -- lighten all objects under text\n"
+     << "  2 -- the best erasing [default] \n"
      << "\n"
-     << "  Contours:\n"
-     << " 0 -- no auto contours around forests\n"
-     << " 1 -- draw contours (needs slightly more memory and time) [default]\n"
+     << "Contours:\n"
+     << "  0 -- no auto contours around forests\n"
+     << "  1 -- draw contours (needs slightly more memory and time) [default]\n"
      << "\n"
-     << "  Antialiasing:\n"
-     << " 0 -- don't do antialiasing (needs 2x time (!))\n"
-     << " 1 -- do antialiasing (needs slightly more memory) [default]\n"
+     << "Antialiasing:\n"
+     << "  0 -- don't do antialiasing (needs 2x time (!))\n"
+     << "  1 -- do antialiasing (needs slightly more memory) [default]\n"
      << "\n"
-     << "  Options to specify map range and projection\n"
-     << "      --geom <geom>\n"
-     << "      --datum <datum>\n"
-     << "      --proj <proj>\n"
-     << "      --lon0 <lon0>  -- rectangular map in a given projection\n"
-     << "                    default datum -- pulkovo, default proj -- tmerc\n"
-     << "                    lon 0 can be given through --lon0 or geom prefix\n"
-     << "      --wgs_geom <geom>     -- \n"
-     << "      --wgs_brd <line>      -- \n"
-     << "      --nom <name>          -- \n"
-     << "      --google <x>,<y>,<z>  -- \n"
-     << "      --rscale <rscale>     -- reversed scale (10000 for 1:10000 map)\n"
-     << "   -d --dpi <dpi>           -- resolution, dots per inch\n"
-     << "      --mag <factor>        -- additional magnification\n"
-     << "      --swap_y              -- \n"
-     << "      --verbose             -- be more verbose\n"
+     << "Options to specify map range and projection:\n"
+  ;
+  print_options(options, 2, cerr);
+  cerr
+     << "\n"
      << "Default projection is tmerc, default range is a map border bounding box.\n"
      << "\n"
 
@@ -60,42 +74,11 @@ void usage(){
   exit(1);
 }
 
-
-static struct option options[] = {
-  {"map",           1, 0, 'm'},
-  {"grid",          1, 0, 'g'},
-  {"grid_labels",   0, 0, 'l'},
-  {"draw_name",     0, 0, 'N'},
-  {"draw_date",     0, 0, 'D'},
-  {"draw_text",     1, 0, 'T'},
-
-  {"antialiasing",  1, 0, 0},
-  {"transp_margins",1, 0, 0},
-  {"contours",      1, 0, 0},
-  {"label_style",   1, 0, 0},
-
-  {"geom",          1, 0, 0},
-  {"datum",         1, 0, 0},
-  {"proj",          1, 0, 0},
-  {"lon0",          1, 0, 0},
-  {"wgs_geom",      1, 0, 0},
-  {"wgs_brd",       1, 0, 0},
-  {"nom",           1, 0, 0},
-  {"google",        1, 0, 0},
-  {"rscale",        1, 0, 0},
-  {"dpi",           1, 0, 'd'},
-  {"mag",           1, 0, 0},
-  {"swap_y",        0, 0, 0},
-  {"verbose",       0, 0, 0},
-
-  {0,0,0,0}
-};
-
 main(int argc, char* argv[]){
 
   if (argc==1) usage();
-
-  Options O = parse_options(&argc, &argv, options);
+  Options O = parse_options(&argc, &argv, options, 3);
+  if (O.exists("help")) usage();
 
   if (argc<2) usage();
   const char * ifile = argv[0];

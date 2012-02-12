@@ -26,6 +26,13 @@ objects. In VMAP format labels can be joined with oblects. You may use
 - Save into file. In case of FIG, MP, OCAD formats labels are splitted back from objects.
 
 
+=head1 INPUT OPTIONS
+
+B<< -v, --verbose >> -- be verbose
+
+B<< --help, -h >> -- show help message
+
+
 =head1 INPUT/OUTPUT OPTIONS
 
 B<< --skip_labels >> -- don't read labels
@@ -82,10 +89,6 @@ B<< -m, --rscale <arg> >> -- set reversed scale (50000 for 1:50000 map)
 
 B<< -s, --style <arg> >> -- set map style
 
-
-=head1 INPUT OPTIONS
-
-B<< -v, --verbose >> -- be verbose
 
 
 =head1 OUTPUT OPTIONS

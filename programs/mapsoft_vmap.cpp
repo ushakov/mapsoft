@@ -16,6 +16,7 @@ using namespace std;
 
 static struct ext_option options[] = {
   {"out",                   0,'o', OPT_STP, ""},
+  {"help",                  0,'h', OPT_INP, "show this message"},
   {"verbose",               0,'v', OPT_INP, "be verbose"},
 
   {"skip_labels",           0,  0, OPT_FLT, "don't read labels"},
@@ -90,8 +91,9 @@ main(int argc, char **argv){
   try {
 
   if (argc==1) usage();
-
   Options O = parse_options(&argc, &argv, options, MASK_INP, "out");
+  if (O.exists("help")) usage();
+
   Options GO(O); // global options
   vmap::world V;
 
