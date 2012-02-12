@@ -193,7 +193,7 @@ srtm3::slope(const iPoint &p){
     // sqares of cell dimensions (km/sec)^2:
     const double dx2 = area0 * pow(cos(M_PI*p.y/180/srtm_width),2);
     const double dy2 = area0;
-    const double  U = sqrt(pow(h-hx ,2)/dx2 + pow(h-hy ,2)/dy2);
+    const double  U = sqrt(pow(double(h-hx) ,2)/dx2 + pow(double(h-hy) ,2)/dy2);
     a = atan(U)*180.0/M_PI;
   }
   return a;
