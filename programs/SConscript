@@ -36,9 +36,12 @@ env_vmap.Program('mapsoft_vmap.cpp')
 
 e.pod2man('mapsoft_convert', '1')
 e.pod2man('mapsoft_vmap',    '1')
+e.pod2man('mapsoft_geofig',  '1')
 
 env.Install(env.man1dir, Split("""
   mapsoft_convert.1
+  mapsoft_vmap.1
+  mapsoft_geofig.1
 """))
 
 env.Install(env.bindir, Split("""

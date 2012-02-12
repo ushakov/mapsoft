@@ -5,80 +5,57 @@
 
 using namespace std;
 
-void usage(){
+#define OPT_CRE 1
+#define OPT_ADD 2
+#define OPT_DEL 4
+
+static struct ext_option options[] = {
+  {"geom",           1, 'g', OPT_CRE, ""},
+  {"datum",          1, 'd', OPT_CRE, ""},
+  {"proj",           1, 'p', OPT_CRE, ""},
+  {"lon0",           1, 'l', OPT_CRE, ""},
+  {"wgs_geom",       1, 'w', OPT_CRE, ""},
+  {"wgs_brd",        1, 'b', OPT_CRE, ""},
+  {"nom",            1, 'N', OPT_CRE, ""},
+  {"google",         1, 'G', OPT_CRE, ""},
+  {"rscale",         1, 'r', OPT_CRE, ""},
+  {"mag",            1, 'm', OPT_CRE, ""},
+  {"swap_y",         0, 'y', OPT_CRE, "\n"},
+
+  {"verbose",        0, 'v', OPT_CRE | OPT_ADD | OPT_DEL, "be more verbose"},
+  {"out",            1, 'o', OPT_CRE | OPT_ADD | OPT_DEL, "set output file name"},
+  {"help",           0, 'h', OPT_CRE | OPT_ADD | OPT_DEL, "show help message"},
+  {"pod",            0,  0, OPT_CRE | OPT_ADD | OPT_DEL, "show help message as pod template"},
+
+  {"wpts",           0, 'w', OPT_DEL, "delete waypoints"},
+  {"trks",           0, 't', OPT_DEL, "delete tracks"},
+  {"maps",           0, 'm', OPT_DEL, "delete maps"},
+  {"brds",           0, 'b', OPT_DEL, "delete map borders"},
+  {"ref",            0, 'r', OPT_DEL, "delete fig reference"},
+  {0,0,0,0}
+};
+
+void usage(bool pod=false){
+  string head = pod? "\n=head1 ":"\n";
   const char * prog = "mapsoft_geofig";
 
   cerr
-     << prog << " -- actions with geo-referenced FIG.\n"
-     << "  Usage:\n"
-     << prog << " create [<options>]  (--out|-o) <output_file>\n"
-     << prog << " add [<options>] <file1> ... <fileN>  (--out|-o) <output_file>\n"
-     << prog << " del [<options>] (--out|-o) <output_file>\n"
-     << "\n"
-     << "Options for create action:\n"
-     << "  -g --geom <geom>\n"
-     << "  -d --datum <datum>\n"
-     << "  -p --proj <proj>\n"
-     << "  -l --lon0 <lon0>  -- create rectangular map in given projection\n"
-     << "                   default datum -- pulkovo, default proj -- tmerc\n"
-     << "                   lon 0 can be given through --lon0 or geom prefix\n"
-     << "  -w --wgs_geom <geom>     -- \n"
-     << "  -b --wgs_brd <line>      -- \n"
-     << "  -N --nom <name>          -- \n"
-     << "  -G --google <x>,<y>,<z>  -- \n"
-     << "  -r --rscale <rscale>     -- reversed scale (10000 for 1:10000 map)\n"
-     << "  -m --mag <factor>        -- additional magnification\n"
-     << "  -y --swap_y              -- \n"
-     << "  -v --verbose             -- be more verbose\n"
-     << "\n"
-     << "Options for add action:\n"
-     << "  -v --verbose             -- be more verbose\n"
-     << "\n"
-     << "Options for add action:\n"
-     << "  -w --wpts                -- remove waypoints\n"
-     << "  -t --trks                -- remove tracks\n"
-     << "  -m --maps                -- remove maps\n"
-     << "  -b --brds                -- remove map borders\n"
-     << "  -r --ref                 -- remove fig reference\n"
-     << "  -v --verbose             -- be more verbose\n"
-     << "\n"
+     << prog << " -- actions with geo-referenced FIG\n"
+     << head << "Usage:\n"
+     << "\t" << prog << " create [<options>]  (--out|-o) <output_file>\n"
+     << "\t" << prog << " add [<options>] <file1> ... <fileN>  (--out|-o) <output_file>\n"
+     << "\t" << prog << " del [<options>] (--out|-o) <output_file>\n"
   ;
+  cerr << head << "Options for create action:\n";
+  print_options(options, OPT_CRE, cerr, pod);
+  cerr << head << "Options for add action:\n";
+  print_options(options, OPT_ADD, cerr, pod);
+  cerr << head << "Options for del action:\n";
+  print_options(options, OPT_DEL, cerr, pod);
+
   exit(1);
 }
 
-static struct option create_options[] = {
-  {"geom",           1, 0, 'g'},
-  {"datum",          1, 0, 'd'},
-  {"proj",           1, 0, 'p'},
-  {"lon0",           1, 0, 'l'},
-  {"wgs_geom",       1, 0, 'w'},
-  {"wgs_brd",        1, 0, 'b'},
-  {"nom",            1, 0, 'N'},
-  {"google",         1, 0, 'G'},
-  {"rscale",         1, 0, 'r'},
-  {"mag",            1, 0, 'm'},
-  {"swap_y",         0, 0, 'y'},
-  {"verbose",        0, 0, 'v'},
-  {"out",            1, 0, 'o'},
-  {0,0,0,0}
-};
-
-static struct option add_options[] = {
-  {"verbose",        0, 0, 'v'},
-  {"out",            1, 0, 'o'},
-  {0,0,0,0}
-};
-
-static struct option del_options[] = {
-  {"wpts",           0, 0, 'w'},
-  {"trks",           0, 0, 't'},
-  {"maps",           0, 0, 'm'},
-  {"brds",           0, 0, 'b'},
-  {"ref",            0, 0, 'r'},
-  {"verbose",        0, 0, 'v'},
-  {"out",            1, 0, 'o'},
-  {0,0,0,0}
-};
 
 main(int argc, char **argv){
   try {
@@ -89,7 +66,13 @@ main(int argc, char **argv){
 
     /*****************************************/
     if (action == "create"){
-      Options O = parse_options(&argc, &argv, create_options, "out");
+      Options O = parse_options(&argc, &argv, options, OPT_CRE);
+      if (O.exists("help")) usage();
+      if (O.exists("pod")) usage(true);
+      if (argc>0){
+        cerr << "error: wrong argument: " << argv[0] << endl;
+        exit(1);
+      }
       if (!O.exists("out")){
         cerr << "error: no output files" << endl;
         exit(1);
@@ -101,35 +84,27 @@ main(int argc, char **argv){
     }
     /*****************************************/
     else if (action == "add"){
-      Options O = parse_options(&argc, &argv, add_options, "out");
-      Options GO(O);
-      geo_data world;
-      while (!O.exists("out")) {
-        if (argc<1){
-          cerr << "error: no output files\n";
-          exit(1);
-        }
-        const char * ifile = argv[0];
-        O = parse_options(&argc, &argv, add_options, "out");
-        O.insert(GO.begin(), GO.end());
-        if (O.get<int>("verbose",0))
-          cerr << "reading: " << ifile  << endl;
-        geo_data world1;
-        io::in(ifile, world1, O);
-        io::filter(world1, O);
-        world.add(world1);
-      }
-
-      if (argc<1){
-        if (GO.get<int>("verbose",0))
-        cerr << "error: no output files" << endl;
+      vector<string> infiles;
+      Options O = parse_options_all(&argc, &argv, options, OPT_ADD, infiles);
+      if (O.exists("help")) usage();
+      if (O.exists("pod")) usage(true);
+      if (!O.exists("out")){
+        cerr << "no output files.\n";
         exit(1);
       }
 
-      const char * ofile = O.get<string>("out").c_str();
+      if (O.exists("verbose")) cerr << "Reading data...\n";
+      geo_data world;
+      for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++)
+        io::in(*i, world, O);
 
-      if (GO.get<int>("verbose",0))
-        cerr << "writing to: " << ofile << endl;
+      if (O.exists("verbose")){
+        cerr << ",  Waypoint lists: " << world.wpts.size()
+             << ",  Tracks: " << world.trks.size() << "\n";
+      }
+
+      const char * ofile = O.get<string>("out").c_str();
+      if (O.exists("verbose")) cerr << "Writing data to " << ofile << "\n";
 
       fig::fig_world F;
       if (!fig::read(ofile, F)) {
@@ -144,12 +119,19 @@ main(int argc, char **argv){
     }
     /*****************************************/
     else if (action == "del"){
-      Options O = parse_options(&argc, &argv, del_options, "out");
+      Options O = parse_options(&argc, &argv, options, OPT_DEL);
+      if (O.exists("help")) usage();
+      if (O.exists("pod")) usage(true);
+      if (argc>0){
+        cerr << "error: wrong argument: " << argv[0] << endl;
+        exit(1);
+      }
       if (!O.exists("out")){
         cerr << "error: no output files" << endl;
         exit(1);
       }
       const char * ofile = O.get<string>("out").c_str();
+
       fig::fig_world F;
       if (!fig::read(ofile, F)) {
         cerr << "error: can't read file: " << ofile << endl;

@@ -1,0 +1,74 @@
+=head1 NAME
+
+mapsoft_geofig -- actions with geo-referenced FIG
+
+=head1 SYNTAX
+
+        mapsoft_geofig create [<options>]  (--out|-o) <output_file>
+
+        mapsoft_geofig add [<options>] <file1> ... <fileN>  (--out|-o) <output_file>
+
+        mapsoft_geofig del [<options>] (--out|-o) <output_file>
+
+=head1 CREATE OPTIONS
+
+B<<  --geom <WxH+X+Y> >>, B<<  --datum <arg> >>, B<<  --proj <arg> >>, B<<  --lon0 <arg> >> -- set rectangular geometry in a given datum/proj
+
+B<<  --wgs_geom <WxH+X+Y> >>, B<<  --proj <arg> >> -- set rectalgular geometry in WGS lon-lat coordinates and convert it to the given projection
+
+B<<  --wgs_brd <X1,Y1,X2,Y2...> >> -- set border of area in WGS lon-lat coordinates and convert it to the given projection
+
+B<<  --nom <arg> >>
+
+B<<  --google <X,Y,Z> >> -- set area as google tile
+
+geom, wgs_geom, wgs_brd, nom and google options are incompatible with each other.
+
+B<<  --rscale <arg> >> -- reversed scale (10000 for 1:10000 map)
+
+B<<  -d, --dpi <arg> >> -- resolution, dots per inch
+
+B<<  --mag <arg> >> -- additional magnification
+
+B<<  --swap_y >>
+
+
+B<<  -v, --verbose >> -- be more verbose
+
+B<<  -o, --out <arg> >> -- set output file name
+
+B<<  -h, --help >> -- show help message
+
+B<<  --pod >> -- show help message as pod template
+
+
+=head1 ADD OPTIONS:
+
+B<<  -v, --verbose >> -- be more verbose
+
+B<<  -o, --out <arg> >> -- set output file name
+
+B<<  -h, --help >> -- show help message
+
+B<<  --pod >> -- show help message as pod template
+
+
+=head1 DEL OPTIONS:
+
+B<<  -v, --verbose >> -- be more verbose
+
+B<<  -o, --out <arg> >> -- set output file name
+
+B<<  -h, --help >> -- show help message
+
+B<<  --pod >> -- show help message as pod template
+
+B<<  -w, --wpts >> -- delete waypoints
+
+B<<  -t, --trks >> -- delete tracks
+
+B<<  -m, --maps >> -- delete maps
+
+B<<  -b, --brds >> -- delete map borders
+
+B<<  -r, --ref >> -- delete fig reference

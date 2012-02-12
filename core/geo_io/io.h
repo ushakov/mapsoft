@@ -44,16 +44,34 @@ namespace io {
   // erase some data according to "skip" option
   void skip(geo_data & world, const std::string & sk);
 
-  // filter geodata according to options:
-  // --shift_maps x,y  -- shift map references
-  // --rescale_maps k  -- rescale map references
-  // --map_nom_brd     -- set map borders according to map name
-  // --skip wmtao      -- skip data (w - waypoints, m - maps, t - tracks,
-  //                      a - active log, o - save tracks)
-  // --gen_n           -- reduce track points to n
-  // --gen_e           -- reduce track points up to accuracy e [meters]
-  //   (when gen_n and gen_e both used it means: "remove points while
-  //   number of points > n OR accuracy < e")
+/**
+### MANPAGE TEXT
+
+B<<  --shift_maps <X,Y> >> -- shift map references
+
+B<<  --rescale_maps <k> >> -- rescale map references
+
+B<<  --map_nom_brd >> -- set map borders according to map name
+
+B<<  -s, --skip <wmtao> >> -- skip data, "wmtao" (w - waypoints, m -
+maps, t - tracks, a - active log, o - save tracks)
+
+B<<  --gen_n <n> >> -- reduce track points to n
+
+B<<  --gen_e <e> >> -- reduce track points up to accuracy e [meters]
+(when gen_n and gen_e both used it means: "remove points while number of
+points > n OR accuracy < e"
+
+### OPTIONS
+  {"shift_maps",            1,  0, OPT1, "shift map references, \"x,y\""},
+  {"rescale_maps",          1,  0, OPT1, "rescale map references"},
+  {"map_nom_brd",           0,  0, OPT1, "set map borders according to map name"},
+  {"skip",                  1,'s', OPT1, "skip data, \"wmtao\" (w - waypoints, m - maps, t - tracks, a - active log, o - save tracks)"},
+  {"gen_n",                 1,  0, OPT1, "reduce track points to n"},
+  {"gen_e",                 1,  0, OPT1, "reduce track points up to accuracy e [meters] (when gen_n and gen_e both used it means: \"remove points while number of points > n OR accuracy < e\""},
+###
+*/
+
   void filter(geo_data & world, const Options & opt);
 }
 

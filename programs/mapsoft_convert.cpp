@@ -112,19 +112,8 @@ try{
 
   if (argc==1) usage();
 
-  Options O = parse_options(&argc, &argv, options, OPT_ALL);
-  if (O.exists("help")) usage();
-  if (O.exists("pod")) usage(true);
-
-  geo_data world;
   vector<string> infiles;
-
-  while (argc>0) {
-    infiles.push_back(argv[0]);
-    Options O1 = parse_options(&argc, &argv, options, OPT_ALL);
-    O.insert(O1.begin(), O1.end());
-  }
-
+  Options O = parse_options_all(&argc, &argv, options, OPT_ALL, infiles);
   if (O.exists("help")) usage();
   if (O.exists("pod")) usage(true);
 
@@ -135,9 +124,9 @@ try{
 
   if (O.exists("verbose")) cerr << "Reading data...\n";
 
-  for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
+  geo_data world;
+  for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++)
     io::in(*i, world, O);
-  }
 
   if (O.exists("verbose")){
     cerr << "Map lists: " << world.maps.size()

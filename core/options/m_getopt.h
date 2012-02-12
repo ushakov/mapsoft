@@ -2,6 +2,8 @@
 #define M_GETOPT_H
 
 #include <getopt.h>
+#include <vector>
+#include <string>
 #include "options.h"
 
 // Parse cmdline options up to the first non-option argument.
@@ -27,6 +29,13 @@ parse_options(int *argc, char ***argv,
               struct ext_option ext_options[],
               int mask,
               const char * last_opt = NULL);
+
+//parse all options and non-option arguments
+Options
+parse_options_all(int *argc, char ***argv,
+              struct ext_option ext_options[],
+              int mask, std::vector<std::string> & non_opts);
+
 
 void
 print_options(struct ext_option ext_options[],

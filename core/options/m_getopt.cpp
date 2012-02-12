@@ -136,3 +136,20 @@ print_options(struct ext_option ext_options[],
 
   }
 }
+
+Options
+parse_options_all(int *argc, char ***argv,
+              struct ext_option ext_options[],
+              int mask, vector<string> & non_opts){
+
+      Options O = parse_options(argc, argv, ext_options, mask);
+
+      while (*argc>0) {
+        non_opts.push_back(*argv[0]);
+        Options O1 = parse_options(argc, argv, ext_options, mask);
+        O.insert(O1.begin(), O1.end());
+      }
+
+     return O;
+}
+
