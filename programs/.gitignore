@@ -12,5 +12,6 @@ mapsoft_pt2map
 mapsoft_ref
 mapsoft_srtm2fig
 mapsoft_toxyz
+mapsoft_vmap
 test
 *.1

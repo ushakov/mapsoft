@@ -168,18 +168,3 @@ Create jpeg image with KS image and your dataand map-file for it. ./KS directory
 
 	mapsoft_convert --ks=14 --ks_dir=~/KS --download=1 data.plt -o mymap.jpg
 
-
-=head1 AUTHORS
-
-Vladislav Zavjalov <slazav@altlinux.org>, Max Ushakov, Tim Alexeevsky
-
-
-=head1 SEE ALSO
-
-L<Homepage (rus) |http://slazav.mccme.ru/prog/mapsoft.htm>
-
-L<Source code |http://github.com/ushakov/mapsoft>
-
-L<Bugtracer |http://mapsoft.lighthouseapp.com/projects/24601-mapsoft/tickets>
-
-L<LJ community |http://community.livejournal.com/mapsoft/>

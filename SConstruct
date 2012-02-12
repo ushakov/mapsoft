@@ -54,14 +54,6 @@ if ARGUMENTS.get('gheapcheck', 0):
 
 env.Prepend(LIBPATH=".")
 
-
-def pod2man(env, name, ext):
-   """Setup command for pod2man conversion by <name> argument"""
-   cmd = env.Command(name+'.'+ext, name+'.pod',
-     "pod2man -c mapsoft -r mapsoft %s.pod > %s.%s" % (name, name, ext), chdir = 1)
-env.AddMethod(pod2man)
-
-
 Export('env')
 
 if ARGUMENTS.get('minimal', 0):
