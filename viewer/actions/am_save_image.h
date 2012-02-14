@@ -15,34 +15,41 @@ public:
       dlg.signal_response().connect(
         sigc::mem_fun (this, &SaveImage::on_result));
       dlg.set_title(get_name());
+      dlg.signal_changed().connect(
+        sigc::mem_fun(this, &SaveImage::on_ch_size));
     }
 
     std::string get_name() { return "Save Image"; }
     Gtk::StockID get_stockid() { return Gtk::Stock::SAVE_AS; }
 
-    void activate() { dlg.hide_all(); have_points = 0; }
+    void activate() { dlg.show_all(); have_points = 0; }
 
-    void abort() { activate(); }
+    void abort() { dlg.hide_all(); }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       if (!mapview->have_reference){
         mapview->statusbar.push("No geo-reference", 0);
         return;
       }
-      if (have_points == 0) {
-        // make rubber
-        one = p;
-        mapview->rubber.clear();
-        mapview->rubber.add_rect(p);
-        have_points = 1;
-      } else if (have_points == 1) {
-        rect=iRect(one, p);
-        dlg.set_size(rect.w, rect.h);
-        dlg.show_all();
 
-        mapview->rubber.clear();
-        mapview->rubber.add_rect(one,p);
-        have_points = 0;
+      mapview->rubber.clear();
+
+      if (state&Gdk::CONTROL_MASK && (have_points == 0)){ // start 2pt area
+        one = p;
+        mapview->rubber.add_rect(one);
+        have_points=1;
+      }
+      else{
+        if (have_points == 1){
+          iPoint wh = pabs(p-one);
+          one=(p+one-wh)/2.0;
+          dlg.set_px(wh);
+          have_points=0;
+        }
+        else{
+          one = p;
+          mapview->rubber.add_rect(one, one+dlg.get_px());
+        }
       }
     }
 
@@ -52,6 +59,11 @@ private:
 
     iPoint one;
     iRect rect;
+
+    void on_ch_size(void) {
+      mapview->rubber.clear();
+      mapview->rubber.add_rect(one, one+dlg.get_px());
+    }
 
     void on_result(int r) {
       mapview->rubber.clear();

@@ -18,11 +18,15 @@ class PageBox : public Gtk::Frame{
   void ch_value(); // on x,y value change
 
   int old_mu, old_u;
+  bool no_ch;
+  sigc::signal<void> signal_changed_;
 
   public:
     PageBox();
     dPoint get_px();
     void set_px(const dPoint & p);
+    sigc::signal<void> & signal_changed();
+
 };
 
 

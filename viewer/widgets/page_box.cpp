@@ -6,6 +6,7 @@ double u2mm(int u, double d){
     case 1: return 10.0;   // cm
     case 2: return 25.4;   // in
   }
+  return 1;
 }
 
 double u2px(int u, double d){
@@ -13,6 +14,7 @@ double u2px(int u, double d){
     case 1: return d/2.54; // cm
     case 2: return d;      // in
   }
+  return 1;
 }
 
 double digs(int u){
@@ -21,6 +23,7 @@ double digs(int u){
     case 1: return 2;      // cm
     case 2: return 2;      // in
   }
+  return 0;
 }
 
 PageBox::PageBox(): marg_adj(0, 0, 99),
@@ -95,6 +98,7 @@ PageBox::PageBox(): marg_adj(0, 0, 99),
   dpi->set_value(300.0);
 
   /*** signals ***/
+  no_ch=false;
   x->signal_changed().connect(
     sigc::mem_fun(this, &PageBox::ch_value));
   y->signal_changed().connect(
@@ -126,6 +130,7 @@ PageBox::ch_units(){
   int u = units->get_active_id();
   double d = dpi->get_value();
   iPoint pi = page->get_active_id();
+  no_ch=true;
   if (u!=old_u){
     double f = u2mm(old_u,d) / u2mm(u,d);
     x->set_value( x->get_value() * f);
@@ -140,14 +145,14 @@ PageBox::ch_units(){
   }
   old_mu = mu;
   old_u = u;
-  page->set_active_id(pi);
+  no_ch=false;
 }
 
 void
 PageBox::ch_page(){
-  iPoint pi = page->get_active_id();
-  dPoint p(pi);
-  if (p.x==0) { ch_units(); return; }
+  if (no_ch) return;
+  dPoint p = page->get_active_id();
+  if (p.x==0) { signal_changed_.emit(); return; }
 
   double d = dpi->get_value();
 
@@ -162,14 +167,18 @@ PageBox::ch_page(){
   p/=u2mm(units->get_active_id(),d);
 
   bool sw = landsc->get_active();
+  no_ch=true;
   x->set_value(sw? p.y:p.x);
   y->set_value(sw? p.x:p.y);
-  page->set_active_id(pi);
+  no_ch=false;
+  signal_changed_.emit();
 }
 
 void
 PageBox::ch_value(){
+  if (no_ch) return;
   page->set_active_id(iPoint(0,0));
+  signal_changed_.emit();
 }
 
 dPoint
@@ -181,7 +190,14 @@ PageBox::get_px(){
 void
 PageBox::set_px(const dPoint & p){
   double f = u2px(units->get_active_id(), dpi->get_value());
+  no_ch=true;
   x->set_value(p.x / f);
   y->set_value(p.y / f);
+  no_ch=false;
+  ch_value();
 }
 
+sigc::signal<void> &
+PageBox::signal_changed(){
+  return signal_changed_;
+}
