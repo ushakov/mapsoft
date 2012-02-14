@@ -84,10 +84,9 @@ Mapview::Mapview () :
     paned->pack2(*dataview, Gtk::FILL);
 
     /// Main vbox: menu + main pand + statusbar
-    guint drawing_padding = 5;
     Gtk::VBox * vbox = manage(new Gtk::VBox);
     vbox->pack_start(* ui_manager->get_widget("/MenuBar"), false, true, 0);
-    vbox->pack_start(*paned, true, true, drawing_padding);
+    vbox->pack_start(*paned, true, true, 0);
     vbox->pack_start(statusbar, false, true, 0);
     add (*vbox);
 
