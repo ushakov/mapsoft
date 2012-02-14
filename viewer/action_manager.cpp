@@ -31,6 +31,9 @@
 #include "actions/am_join_t.h"
 #include "actions/am_join_m.h"
 
+#include "actions/am_fullscreen.h"
+#include "actions/am_hide_panels.h"
+
 #define ADD_ACT(name, group) AddAction(new name(mapview),\
    std::string("Mode") + #name, group);
 
@@ -66,9 +69,13 @@ ActionManager::ActionManager (Mapview * mapview_)
 
     ADD_ACT(SaveImage,       "Misc")
     ADD_ACT(ShowPt,          "Misc")
+    AddSep("Misc");
     ADD_ACT(JoinVisWpt,      "Misc")
     ADD_ACT(JoinVisTrk,      "Misc")
     ADD_ACT(JoinVisMap,      "Misc")
+    AddSep("Misc");
+    ADD_ACT(FullScreen,      "Misc")
+    ADD_ACT(HidePanels,      "Misc")
 
     mapview->actions->add(Gtk::Action::create("MenuFile", "_File"));
     mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));

@@ -30,7 +30,8 @@ public:
 
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
-    Gtk::Statusbar  statusbar;
+    Gtk::Statusbar statusbar;
+    DataView * dataview;
 
     g_map reference;
     bool have_reference;

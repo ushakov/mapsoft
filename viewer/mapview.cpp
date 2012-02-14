@@ -76,12 +76,12 @@ Mapview::Mapview () :
 
     /***************************************/
 
-    DataView * dw = manage(new DataView(this));
+    dataview = manage(new DataView(this));
 
     /// Main pand: Viewer + DataView
     Gtk::HPaned * paned = manage(new Gtk::HPaned);
     paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
-    paned->pack2(*dw, Gtk::FILL);
+    paned->pack2(*dataview, Gtk::FILL);
 
     /// Main vbox: menu + main pand + statusbar
     guint drawing_padding = 5;
