@@ -2,7 +2,7 @@
 #define AM_EDIT_MAP_H
 
 #include "action_mode.h"
-#include "../widgets.h"
+#include "../dialogs/map.h"
 
 class EditMap : public ActionMode {
 public:

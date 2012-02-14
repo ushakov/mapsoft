@@ -7,6 +7,7 @@
 
 #include "action_mode.h"
 #include "2d/line_dist.h"
+#include "../dialogs/trk_mark.h"
 
 class MarkTrack : public ActionMode {
 public:

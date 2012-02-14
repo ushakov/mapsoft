@@ -2,7 +2,7 @@
 #define AM_DOWNLOAD
 
 #include "action_mode.h"
-#include "../widgets.h"
+#include "../dialogs/download.h"
 
 class Download : public ActionMode {
 public:

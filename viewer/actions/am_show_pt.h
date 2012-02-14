@@ -3,7 +3,7 @@
 
 #include "action_mode.h"
 #include <geo/geo_nom.h>
-#include "../widgets.h"
+#include "../dialogs/show_pt.h"
 
 class ShowPt : public ActionMode {
 public:

@@ -2,7 +2,7 @@
 #define AM_EDIT_TRACK_H
 
 #include "action_mode.h"
-#include "../widgets.h"
+#include "../dialogs/trk.h"
 
 class EditTrack : public ActionMode {
 public:

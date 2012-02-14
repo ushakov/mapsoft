@@ -2,7 +2,7 @@
 #define AM_ADD_WPT_H
 
 #include "action_mode.h"
-#include "../widgets.h"
+#include "../dialogs/wpt.h"
 
 class AddWaypoint : public ActionMode {
 public:

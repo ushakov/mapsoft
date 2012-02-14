@@ -5,7 +5,7 @@
 #include "2d/line_utils.h"
 
 #include "action_mode.h"
-#include "../widgets.h"
+#include "../dialogs/save_img.h"
 
 #include "../../core/loaders/image_r.h"
 
