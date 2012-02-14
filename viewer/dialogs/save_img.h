@@ -3,7 +3,7 @@
 
 #include <gtkmm.h>
 #include <2d/point.h>
-#include "../widgets/simple_combo.h"
+#include "../widgets/comboboxes.h"
 
 // dialog for SaveImage action
 class DlgSaveImg : public Gtk::Dialog{
@@ -16,7 +16,7 @@ class DlgSaveImg : public Gtk::Dialog{
                       *rb_size_int, *rb_size_man, *rb_size_page;
     Gtk::Entry        *e_res_dpi, *e_res_scale, *e_res_mpp,
                       *e_size_x, *e_size_y;
-    SimpleCombo<dPoint> cb_page;
+    CBPage cb_page;
     Gtk::CheckButton *page_landsc;
     Gtk::SpinButton *page_marg;
     Gtk::Adjustment page_marg_adj;

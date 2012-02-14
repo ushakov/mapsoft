@@ -18,24 +18,14 @@ CoordBox::init(){
   set_shadow_type(Gtk::SHADOW_ETCHED_IN);
 
   // Comboboxes
-  const int p_num=2;
-  std::pair<Proj, std::string> p_list[p_num] = {
-    std::pair<Proj, std::string>(Proj("lonlat"), "Lon, Lat"),
-    std::pair<Proj, std::string>(Proj("tmerc"),  "Gauss-Kruger"),
-  };
-  const int d_num=2;
-  std::pair<Datum, std::string> d_list[d_num] = {
-    std::pair<Datum, std::string>(Datum("wgs84"), "WGS84"),
-    std::pair<Datum, std::string>(Datum("pulk"),  "Pulkovo 1942"),
-  };
-  proj_cb.set_values(p_list, p_list+p_num);
-  datum_cb.set_values(d_list, d_list+d_num);
-  proj=proj_cb.get_active_id();
-  datum=datum_cb.get_active_id();
+  proj_cb  = manage(new CBProj());
+  datum_cb = manage(new CBDatum());
+  proj  = proj_cb->get_active_id();
+  datum = datum_cb->get_active_id();
 
-  datum_cb.signal_changed().connect(
+  datum_cb->signal_changed().connect(
     sigc::mem_fun(this, &CoordBox::on_conv));
-  proj_cb.signal_changed().connect(
+  proj_cb->signal_changed().connect(
     sigc::mem_fun(this, &CoordBox::on_conv));
   coords.signal_changed().connect(
     sigc::mem_fun(this, &CoordBox::on_change));
@@ -61,9 +51,9 @@ CoordBox::init(){
             //  widget    l  r  t  b  x       y
   table->attach(coords,   0, 4, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*ldatum,  0, 1, 1, 2, Gtk::SHRINK, Gtk::SHRINK, 3, 3);
-  table->attach(datum_cb, 1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*datum_cb,1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*lproj,   2, 3, 1, 2, Gtk::SHRINK, Gtk::SHRINK, 3, 3);
-  table->attach(proj_cb,  3, 4, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*proj_cb, 3, 4, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*jb,      4, 5, 0, 1, Gtk::SHRINK, Gtk::SHRINK, 0, 0);
   add(*table);
 }
@@ -115,8 +105,8 @@ CoordBox::get_ll(){
 
 void
 CoordBox::on_conv(){
-  Datum new_datum(datum_cb.get_active_id());
-  Proj new_proj(proj_cb.get_active_id());
+  Datum new_datum(datum_cb->get_active_id());
+  Proj new_proj(proj_cb->get_active_id());
   dPoint pt = get_xy();
 
   Options O;

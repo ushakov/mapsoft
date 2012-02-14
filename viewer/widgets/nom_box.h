@@ -1,7 +1,7 @@
 #ifndef WIDGETS_NOM_BOX_H
 #define WIDGETS_NOM_BOX_H
 
-#include "simple_combo.h"
+#include "comboboxes.h"
 #include <geo/geo_convs.h>
 
 /*
@@ -30,7 +30,7 @@ private:
 
   Gtk::Entry nom;
   dPoint pt;
-  SimpleCombo<int> rscale;
+  CBScale rscale;
   convs::pt2pt cnv;
   sigc::signal<void, dPoint> signal_jump_;
 };

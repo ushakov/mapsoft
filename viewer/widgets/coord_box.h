@@ -1,7 +1,7 @@
 #ifndef WIDGETS_COORD_BOX_H
 #define WIDGETS_COORD_BOX_H
 
-#include "simple_combo.h"
+#include "comboboxes.h"
 #include <geo/geo_convs.h>
 
 /*
@@ -24,8 +24,8 @@ private:
   Gtk::Entry coords;
   Datum datum;
   Proj proj;
-  SimpleCombo<Proj>  proj_cb;
-  SimpleCombo<Datum> datum_cb;
+  CBProj  * proj_cb;
+  CBDatum * datum_cb;
   sigc::signal<void> signal_changed_;
   sigc::signal<void, dPoint> signal_jump_;
   dPoint old_pt; // to fix incorrect values

@@ -103,22 +103,7 @@ DlgSaveImg::DlgSaveImg(): file_d("Save image to file"),
   e_size_y = manage(new Gtk::Entry());
 
   // Page combobox
-  const int p_num=3;
-  std::pair<dPoint, std::string> p_list[p_num] = {
-//    std::pair<dPoint, std::string>(dPoint(841,1189), "A0"),
-//    std::pair<dPoint, std::string>(dPoint(594,841), "A1"),
-//    std::pair<dPoint, std::string>(dPoint(420,594), "A2"),
-    std::pair<dPoint, std::string>(dPoint(297,420), "A3"),
-    std::pair<dPoint, std::string>(dPoint(210,297), "A4"),
-    std::pair<dPoint, std::string>(dPoint(148,210), "A5")
-//    std::pair<dPoint, std::string>(dPoint(105,148), "A6"),
-//    std::pair<dPoint, std::string>(dPoint(74,105), "A7"),
-//    std::pair<dPoint, std::string>(dPoint(52,74), "A8"),
-//    std::pair<dPoint, std::string>(dPoint(37,52), "A9"),
-//    std::pair<dPoint, std::string>(dPoint(26,37), "A10")
-  };
-  cb_page.set_values(p_list, p_list+p_num);
-  cb_page.set_active_id(dPoint(210,297));
+  cb_page.set_active_id(iPoint(210,297));
   page_landsc = manage(new Gtk::CheckButton("Landscape"));
   page_marg = manage(new Gtk::SpinButton(page_marg_adj,0,1));
 

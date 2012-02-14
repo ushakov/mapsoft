@@ -23,14 +23,15 @@ public:
 template <typename ID>
 class SimpleCombo : public Gtk::ComboBox {
 public:
+  typedef std::pair<ID, std::string> pair_t;
   SimpleCombo(){ }
   SimpleCombo(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& builder) :
     Gtk::ComboBox(cobject){ }
 
   void
-  set_values(std::pair<ID, std::string> *ib, std::pair<ID, std::string> *ie){
+  set_values(const pair_t *ib, const pair_t *ie){
     list = Gtk::ListStore::create(columns);
-    std::pair<ID, std::string> *i;
+    const pair_t *i;
     for (i=ib; i!=ie; i++){
       Gtk::TreeModel::Row row = *(list->append());
       row[columns.id]   = i->first;

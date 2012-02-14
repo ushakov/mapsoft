@@ -11,6 +11,7 @@ e.Library("viewer", Split ("""
 	dataview.cpp
 	mapview.cpp
 
+	widgets/comboboxes.cpp
 	widgets/coord_box.cpp
 	widgets/nom_box.cpp
 	widgets/page_box.cpp

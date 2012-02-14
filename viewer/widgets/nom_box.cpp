@@ -24,14 +24,6 @@ NomBox::init(){
   set_shadow_type(Gtk::SHADOW_ETCHED_IN);
 
   // Scale Combobox
-  const int rscale_num=4;
-  std::pair<int, std::string> pa[rscale_num] = {
-        std::pair<int, std::string>( 50000, " 1:50'000"),
-        std::pair<int, std::string>(100000, "1:100'000"),
-        std::pair<int, std::string>(200000, "1:200'000"),
-        std::pair<int, std::string>(500000, "1:500'000")
-  };
-  rscale.set_values(pa, pa + rscale_num);
   rscale.signal_changed().connect(
     sigc::mem_fun(this, &NomBox::on_change_rscale));
 
