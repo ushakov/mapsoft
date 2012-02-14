@@ -43,7 +43,7 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap);
     Масштаб карты (rscale) и осевой меридиан (lon0) устанавливается в
     соответствии с названием.
 --google <x>,<y>,<z>
-    плитка google. Устанавливается datum=sphere, proj=merc. Параметр
+    плитка google. Устанавливается datum=google_sphere, proj=merc. Параметр
     dpi устанавливается так, чтобы размер плитки был равен 256 точкам
     при заданном параметре rscale.
 
