@@ -246,6 +246,7 @@ class DlgMarkTrk : public Gtk::Dialog{
     double  get_dist() const;
 };
 
+
 /********************************************************************/
 // dialog for Map actions
 class DlgMap : public Gtk::Dialog{
@@ -263,6 +264,16 @@ class DlgSaveImg : public Gtk::Dialog{
     Gtk::Label *size;
     Gtk::CheckButton *map;
     Gtk::FileSelection file_d;
+
+    Gtk::RadioButton  *rb_res_screen, *rb_res_dpi, *rb_res_mpp,
+                      *rb_size_int, *rb_size_man, *rb_size_page;
+    Gtk::Entry        *e_res_dpi, *e_res_scale, *e_res_mpp,
+                      *e_size_x, *e_size_y;
+    SimpleCombo<dPoint> cb_page;
+    Gtk::CheckButton *page_landsc;
+    Gtk::SpinButton *page_marg;
+    Gtk::Adjustment page_marg_adj;
+
   public:
     DlgSaveImg();
     std::string get_file() const;
@@ -271,12 +282,5 @@ class DlgSaveImg : public Gtk::Dialog{
     void set_size(const int w, const int h);
     bool get_map() const;
 };
-
-
-
-
-
-
-
 
 #endif
