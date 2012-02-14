@@ -13,6 +13,7 @@ e.Library("viewer", Split ("""
 
 	widgets/coord_box.cpp
 	widgets/nom_box.cpp
+	widgets/page_box.cpp
 
 	dialogs/map.cpp
 	dialogs/wpt.cpp
@@ -26,6 +27,8 @@ e.Library("viewer", Split ("""
         """))
 e.Prepend(LIBS=["viewer"])
 e.Program("mapsoft_mapview.cpp")
+
+e.Program("test_widgets.cpp")
 
 #le.Program('mapsoft_googleview', "mapsoft_googleview.cpp")
 #le.Program('mapsoft_ksview', "mapsoft_ksview.cpp")
