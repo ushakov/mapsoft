@@ -37,3 +37,9 @@ e.Program("test_widgets.cpp")
 env.Install(env.bindir, Split("""
   mapsoft_mapview
 """))
+
+
+e1=env.Clone()
+e1.UseLibs('gtkmm-2.4 gutenprintui2 2d')
+e1.Program("test_gp.cpp")
+
