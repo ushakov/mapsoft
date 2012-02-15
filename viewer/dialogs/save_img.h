@@ -34,6 +34,7 @@ class DlgSaveImg : public Gtk::Dialog{
 
     void set_px(const iPoint & p);
     iPoint get_px();
+    int get_dpi();
 
     double get_mpp();
     int get_mpp_style();

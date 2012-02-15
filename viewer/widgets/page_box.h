@@ -23,6 +23,7 @@ class PageBox : public Gtk::Frame{
 
   public:
     PageBox();
+    int get_dpi();
     dPoint get_px();
     void set_px(const dPoint & p);
     sigc::signal<void> & signal_changed();

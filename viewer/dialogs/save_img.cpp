@@ -2,10 +2,9 @@
 
 DlgSaveImg::DlgSaveImg(): file_d("Save image to file"),
                           dpi_adj(300, 0, 9999, 50){
-  add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
-  add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-  signal_response().connect(
-      sigc::hide(sigc::mem_fun(this, &DlgSaveImg::hide_all)));
+  add_button (Gtk::Stock::PRINT, Gtk::RESPONSE_APPLY);
+  add_button (Gtk::Stock::SAVE,     Gtk::RESPONSE_OK);
+  add_button (Gtk::Stock::CLOSE, Gtk::RESPONSE_CANCEL);
 
   /**** 1st table - file settings ****/
 
@@ -124,6 +123,11 @@ DlgSaveImg::set_px(const iPoint & p){
 iPoint
 DlgSaveImg::get_px(){
   return pagebox->get_px();
+}
+
+int
+DlgSaveImg::get_dpi(){
+  return pagebox->get_dpi();
 }
 
 bool

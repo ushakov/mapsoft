@@ -6,6 +6,7 @@
 
 #include "action_mode.h"
 #include "../dialogs/save_img.h"
+#include "../dialogs/print.h"
 
 #include "../../core/loaders/image_r.h"
 
@@ -16,9 +17,8 @@ public:
         sigc::mem_fun (this, &SaveImage::on_result));
       dlg.set_title(get_name());
       dlg.signal_changed().connect(
-
-      sigc::mem_fun(this, &SaveImage::on_ch_size));
-       dlg.set_hint(
+        sigc::mem_fun(this, &SaveImage::on_ch_size));
+      dlg.set_hint(
          "Use <b>Image Size</b> settings to set/inspect pixel size of the image."
          " Use <b>1st mouse button</b> to set image top-left corner or"
          " <b>Ctrl + 1st mouse button</b> to set image area.");
@@ -108,8 +108,13 @@ private:
     }
 
     void on_result(int r) {
-      mapview->rubber.clear();
-      if (r != Gtk::RESPONSE_OK) return;
+
+      if (r == Gtk::RESPONSE_CANCEL){
+         mapview->rubber.clear();
+         dlg.hide_all();
+         return;
+      }
+
 
       if (!mapview->have_reference){
         mapview->statusbar.push("No geo-reference", 0);
@@ -137,6 +142,11 @@ private:
         mapview->workplane.set_scale(old_scale/mpp_scale);
         mapview->workplane.draw(image, mytlc);
         mapview->workplane.set_scale(old_scale);
+      }
+
+      if (r == Gtk::RESPONSE_APPLY){
+        print_image(image, dlg.get_dpi());
+        return;
       }
 
       image_r::save(image, fname.c_str(), Options());

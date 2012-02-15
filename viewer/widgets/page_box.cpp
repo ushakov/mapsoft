@@ -94,7 +94,7 @@ PageBox::PageBox(): marg_adj(0, 0, 99),
   x->set_digits(digs(old_u));
   y->set_digits(digs(old_u));
   marg->set_digits(digs(old_mu));
-  marg->set_value(0.5);
+  marg->set_value(0.65);
   dpi->set_value(300.0);
 
   /*** signals ***/
@@ -179,6 +179,11 @@ PageBox::ch_value(){
   if (no_ch) return;
   page->set_active_id(iPoint(0,0));
   signal_changed_.emit();
+}
+
+int
+PageBox::get_dpi(){
+  return dpi->get_value();
 }
 
 dPoint
