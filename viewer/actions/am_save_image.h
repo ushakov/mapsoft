@@ -16,7 +16,12 @@ public:
         sigc::mem_fun (this, &SaveImage::on_result));
       dlg.set_title(get_name());
       dlg.signal_changed().connect(
-        sigc::mem_fun(this, &SaveImage::on_ch_size));
+
+      sigc::mem_fun(this, &SaveImage::on_ch_size));
+       dlg.set_hint(
+         "Use <b>Image Size</b> settings to set/inspect pixel size of the image."
+         " Use <b>1st mouse button</b> to set image top-left corner or"
+         " <b>Ctrl + 1st mouse button</b> to set image area.");
     }
 
     std::string get_name() { return "Save Image"; }
@@ -27,15 +32,15 @@ public:
     void abort() { dlg.hide_all(); }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
+      dlg.show_all();
       if (!mapview->have_reference){
         mapview->statusbar.push("No geo-reference", 0);
         return;
       }
 
-      mapview->rubber.clear();
-
       if (state&Gdk::CONTROL_MASK && (have_points == 0)){ // start 2pt area
         one = p;
+        mapview->rubber.clear();
         mapview->rubber.add_rect(one);
         have_points=1;
       }
@@ -43,12 +48,12 @@ public:
         if (have_points == 1){
           iPoint wh = pabs(p-one);
           one=(p+one-wh)/2.0;
-          dlg.set_px(wh);
+          dlg.set_px(dPoint(wh)/get_mpp_scale());
           have_points=0;
         }
         else{
           one = p;
-          mapview->rubber.add_rect(one, one+dlg.get_px());
+          on_ch_size();
         }
       }
     }
@@ -58,41 +63,96 @@ private:
     int have_points;
 
     iPoint one;
-    iRect rect;
 
     void on_ch_size(void) {
       mapview->rubber.clear();
-      mapview->rubber.add_rect(one, one+dlg.get_px());
+      dPoint wh = dPoint(dlg.get_px())*get_mpp_scale();
+      mapview->rubber.add_rect(one, one+iPoint(wh));
+    }
+
+    double get_mpp_scale(){
+      switch (dlg.get_mpp_style()){
+        case MPP_SCREEN:
+          return 1.0;
+        case MPP_AUTO: {
+          //search top-level maps on 4x4 points on the screen
+          // for max mpp
+          iPoint p1=mapview->viewer.get_origin();
+          iPoint p2=mapview->viewer.get_center();
+          int w = 2*(p2.x-p1.x), h = 2*(p2.y-p1.y);
+          LayerGeoMap *L;
+          double scr_mpp = convs::map_mpp(
+             mapview->reference, mapview->reference.map_proj);
+          double max_mpp = 0;
+
+          iPoint p;
+          for (p.y=p1.y; p.y<=p1.y+h; p.y+=h/3.0){
+            for (p.x=p1.x; p.x<=p1.x+w; p.x+=w/3.0){
+              int i = mapview->find_map(p, &L);
+              if (L==NULL) continue;
+              g_map * m = L->get_map(i);
+              double mpp=convs::map_mpp(*m, m->map_proj);
+              if (mpp>max_mpp) max_mpp = mpp;
+            }
+          }
+          if (max_mpp==0) return 1.0;
+          return max_mpp/scr_mpp;
+        }
+        case MPP_MANUAL:{
+          double scr_mpp = convs::map_mpp(
+             mapview->reference, mapview->reference.map_proj);
+          return dlg.get_mpp()/scr_mpp;
+        }
+      }
+      return 1.0;
     }
 
     void on_result(int r) {
       mapview->rubber.clear();
       if (r != Gtk::RESPONSE_OK) return;
 
+      if (!mapview->have_reference){
+        mapview->statusbar.push("No geo-reference", 0);
+        return;
+      }
+
       std::string fname=dlg.get_file();
       if (fname=="") return;
 
-      // iImage image = mapview->viewer.get_image(rect);
-      iImage image(rect.w, rect.h, 0xFF000000);
-      mapview->workplane.draw(image, rect.TLC());
+
+      g_map mymap = mapview->reference;
+      dPoint mytlc(one);
+      iPoint wh = dlg.get_px();
+      double mpp_scale=get_mpp_scale();
+
+      iImage image(wh.x, wh.y, 0xFFFFFFFF);
+
+      if (mpp_scale == 1.0){
+        mapview->workplane.draw(image, one);
+      }
+      else{
+        mytlc/=mpp_scale;
+        mymap/=mpp_scale;
+        double old_scale = mapview->workplane.get_scale();
+        mapview->workplane.set_scale(old_scale/mpp_scale);
+        mapview->workplane.draw(image, mytlc);
+        mapview->workplane.set_scale(old_scale);
+      }
+
       image_r::save(image, fname.c_str(), Options());
 
-
+      g_map ref;
       if (dlg.get_map()){
-        g_map ref;
-        if (!mapview->have_reference){
-          mapview->statusbar.push("No geo-reference", 0);
-          return;
-        }
         ref.map_proj  = mapview->reference.map_proj;
         ref.file=fname;
         ref.comm="created by mapsoft_mapview";
 
-        convs::map2pt cnv(mapview->reference, Datum("wgs84"), Proj("lonlat"));
-        dLine pts = rect2line(rect);
+        convs::map2pt cnv(mymap,
+                          Datum("wgs84"), Proj("lonlat"));
+        dLine pts = rect2line(iRect(mytlc, iPoint(mytlc)+wh));
         dLine pts_c(pts);
         cnv.line_frw_p2p(pts_c);
-        pts-=rect.TLC();
+        pts-=mytlc;
         for (int i=0; i<pts.size(); i++){
           ref.push_back(g_refpoint(pts_c[i], pts[i]));
           ref.border.push_back(pts[i]);

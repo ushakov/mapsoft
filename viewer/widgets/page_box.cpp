@@ -87,7 +87,7 @@ PageBox::PageBox(): marg_adj(0, 0, 99),
   add(*vb);
 
   /*** default units ***/
-  units->set_active_id(1);
+  units->set_active_id(0);
   m_units->set_active_id(1);
   old_u = units->get_active_id();
   old_mu = m_units->get_active_id();
