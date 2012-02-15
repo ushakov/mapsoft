@@ -2,7 +2,7 @@
 
 DlgSaveImg::DlgSaveImg(): file_d("Save image to file"),
                           dpi_adj(300, 0, 9999, 50){
-  add_button (Gtk::Stock::PRINT, Gtk::RESPONSE_APPLY);
+//  add_button (Gtk::Stock::PRINT, Gtk::RESPONSE_APPLY);
   add_button (Gtk::Stock::SAVE,     Gtk::RESPONSE_OK);
   add_button (Gtk::Stock::CLOSE, Gtk::RESPONSE_CANCEL);
 
