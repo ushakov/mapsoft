@@ -85,31 +85,41 @@ private:
       mapview->rubber.add_rect(one, one+iPoint(wh));
     }
 
+    // find visible map in a given point and return mpp
+    double get_mpp(const iPoint & p){
+      LayerGeoMap *L;
+      int i = mapview->find_map(p, &L);
+      if (L==NULL) return -1;
+      g_map * m = L->get_map(i);
+      return  convs::map_mpp(*m, m->map_proj);
+    }
+
     double get_mpp_scale(){
       switch (dlg.get_mpp_style()){
         case MPP_SCREEN:
           return 1.0;
         case MPP_AUTO: {
-          //search top-level maps on 4x4 points on the screen
+          //search top-level maps on 5x5 points on the screen and in point one
           // for max mpp
           iPoint p1=mapview->viewer.get_origin();
           iPoint p2=mapview->viewer.get_center();
           int w = 2*(p2.x-p1.x), h = 2*(p2.y-p1.y);
-          LayerGeoMap *L;
           double scr_mpp = convs::map_mpp(
              mapview->reference, mapview->reference.map_proj);
           double max_mpp = 0;
 
           iPoint p;
-          for (p.y=p1.y; p.y<=p1.y+h; p.y+=h/3.0){
-            for (p.x=p1.x; p.x<=p1.x+w; p.x+=w/3.0){
-              int i = mapview->find_map(p, &L);
-              if (L==NULL) continue;
-              g_map * m = L->get_map(i);
-              double mpp=convs::map_mpp(*m, m->map_proj);
+          for (p.y=p1.y; p.y<=p1.y+h; p.y+=h/4){
+            for (p.x=p1.x; p.x<=p1.x+w; p.x+=w/4){
+              double mpp = get_mpp(p);
               if (mpp>max_mpp) max_mpp = mpp;
             }
           }
+          {
+             double mpp = get_mpp(one);
+             if (mpp>max_mpp) max_mpp = mpp;
+          }
+
           if (max_mpp==0) return 1.0;
           return max_mpp/scr_mpp;
         }
