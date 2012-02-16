@@ -116,6 +116,11 @@ private:
 
     void on_result(int r) {
 
+      if (!mapview->have_reference){
+        mapview->statusbar.push("No geo-reference", 0);
+        return;
+      }
+
       if (r == Gtk::RESPONSE_CANCEL){
         mapview->rubber.clear();
         dlg.hide_all();
@@ -129,19 +134,16 @@ private:
         on_fresult(r);
         return;
       }
-  
+
     }
 
     void on_fresult(int r) {
-
-      fdlg.hide_all();
-      if (!mapview->have_reference){
-        mapview->statusbar.push("No geo-reference", 0);
+      if (r == Gtk::RESPONSE_CANCEL){
+        fdlg.hide_all();
         return;
       }
 
       std::string fname=fdlg.get_filename();
-      if (fname=="") return;
 
       g_map mymap = mapview->reference;
       dPoint mytlc(one);
@@ -167,7 +169,7 @@ private:
         return;
       }
 
-      image_r::save(image, fname.c_str(), Options());
+      if (image_r::save(image, fname.c_str(), Options())) return;
 
       g_map ref;
       if (dlg.get_map()){
@@ -188,6 +190,8 @@ private:
         std::ofstream f((fname + ".map").c_str());
         oe::write_map_file(f, ref, Options());
       }
+
+      fdlg.hide_all();
 
     }
 };
