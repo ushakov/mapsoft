@@ -6,7 +6,7 @@
 
 #include "action_mode.h"
 #include "../dialogs/save_img.h"
-#include "../dialogs/print.h"
+//#include "../dialogs/print.h"
 
 #include "../../core/loaders/image_r.h"
 
@@ -164,10 +164,10 @@ private:
         mapview->workplane.set_scale(old_scale);
       }
 
-      if (r == Gtk::RESPONSE_APPLY){
-        print_image(image, dlg.get_dpi());
-        return;
-      }
+//      if (r == Gtk::RESPONSE_APPLY){
+//        print_image(image, dlg.get_dpi());
+//        return;
+//      }
 
       if (image_r::save(image, fname.c_str(), Options())) return;
 

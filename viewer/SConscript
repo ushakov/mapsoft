@@ -3,7 +3,7 @@ Import ('env')
 SConscript("images/SConscript")
 
 e=env.Clone()
-e.UseLibs('gred geo_io mp gutenprintui2')
+e.UseLibs('gred geo_io mp')
 
 e.Library("viewer", Split ("""
 	action_manager.cpp
@@ -25,12 +25,11 @@ e.Library("viewer", Split ("""
 	dialogs/trk_filter.cpp
 	dialogs/trk_mark.cpp
 	dialogs/save_img.cpp
-	dialogs/print.cpp
         """))
 e.Prepend(LIBS=["viewer"])
 e.Program("mapsoft_mapview.cpp")
 
-e.Program("test_widgets.cpp")
+# e.Program("test_widgets.cpp")
 
 #le.Program('mapsoft_googleview', "mapsoft_googleview.cpp")
 #le.Program('mapsoft_ksview', "mapsoft_ksview.cpp")
@@ -40,5 +39,5 @@ env.Install(env.bindir, Split("""
 """))
 
 
-e.Program("test_gp.cpp")
+# e.Program("test_gp.cpp")
 
