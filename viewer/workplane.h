@@ -43,6 +43,8 @@ public:
 
     void set_scale(const double k);
 
+    double get_scale() const;
+
     inline void clear_tile_cache();
 
     void set_ref(const g_map & reference);

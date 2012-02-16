@@ -11,7 +11,6 @@
 #include "workplane.h"
 #include "layerlist.h"
 #include "dataview.h"
-#include "widgets.h"
 #include "action_manager.h"
 #include "geo_io/io.h"
 #include "2d/rect.h"
@@ -30,7 +29,8 @@ public:
 
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
-    Gtk::Statusbar  statusbar;
+    Gtk::Statusbar statusbar;
+    DataView * dataview;
 
     g_map reference;
     bool have_reference;

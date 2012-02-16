@@ -171,6 +171,16 @@ Point<double> pnorm(const Point<T> & p){
   double l = pdist(p);
   return Point<double>(double(p.x)/l, double(p.y/l));
 }
+/// \relates Point
+/// \brief Absolute value.
+/// \todo move to Point class?
+template <typename T>
+Point<T> pabs(const Point<T> & p){
+  return Point<T>(
+    p.x>0?p.x:-p.x,
+    p.y>0?p.y:-p.y
+  );
+}
 
 /// \relates Point
 /// \brief Point with double coordinates

@@ -2,7 +2,7 @@
 #define AM_ADD_TPT_H
 
 #include "action_mode.h"
-#include "../widgets.h"
+#include "../dialogs/trk_pt.h"
 
 class AddTrackpoint : public ActionMode {
 public:

@@ -2,7 +2,7 @@
 #define AM_EDIT_WPT_H
 
 #include "action_mode.h"
-#include "../widgets.h"
+#include "../dialogs/wpt.h"
 
 class EditWaypoint : public ActionMode {
 public:

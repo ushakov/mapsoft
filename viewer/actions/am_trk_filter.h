@@ -2,7 +2,7 @@
 #define AM_FILTER_TRACK_H
 
 #include "action_mode.h"
-#include "../widgets.h"
+#include "../dialogs/trk_filter.h"
 
 class FilterTrack : public ActionMode {
 public:

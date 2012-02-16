@@ -140,6 +140,10 @@ void Workplane::set_scale(const double k){
         draw_mutex.unlock();
 }
 
+double Workplane::get_scale() const{
+        return sc;
+}
+
 inline void
 Workplane::clear_tile_cache() {
 	for (std::multimap<int, LayerGeo *>::iterator itl = layers.begin();

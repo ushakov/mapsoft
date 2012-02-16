@@ -7,10 +7,29 @@ e.UseLibs('gred geo_io mp')
 
 e.Library("viewer", Split ("""
 	action_manager.cpp
-	workplane.cpp widgets.cpp dataview.cpp mapview.cpp
+	workplane.cpp
+	dataview.cpp
+	mapview.cpp
+
+	widgets/comboboxes.cpp
+	widgets/coord_box.cpp
+	widgets/nom_box.cpp
+	widgets/page_box.cpp
+
+	dialogs/map.cpp
+	dialogs/wpt.cpp
+	dialogs/trk.cpp
+	dialogs/trk_pt.cpp
+	dialogs/show_pt.cpp
+	dialogs/download.cpp
+	dialogs/trk_filter.cpp
+	dialogs/trk_mark.cpp
+	dialogs/save_img.cpp
         """))
 e.Prepend(LIBS=["viewer"])
 e.Program("mapsoft_mapview.cpp")
+
+# e.Program("test_widgets.cpp")
 
 #le.Program('mapsoft_googleview', "mapsoft_googleview.cpp")
 #le.Program('mapsoft_ksview', "mapsoft_ksview.cpp")
@@ -18,3 +37,7 @@ e.Program("mapsoft_mapview.cpp")
 env.Install(env.bindir, Split("""
   mapsoft_mapview
 """))
+
+
+# e.Program("test_gp.cpp")
+

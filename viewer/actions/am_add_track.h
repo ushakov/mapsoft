@@ -2,7 +2,7 @@
 #define AM_ADD_TRACK_H
 
 #include "action_mode.h"
-#include "../widgets.h"
+#include "../dialogs/trk.h"
 
 class AddTrack : public ActionMode {
 public:
