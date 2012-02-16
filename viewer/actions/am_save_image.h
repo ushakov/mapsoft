@@ -28,14 +28,22 @@ public:
          "Use <b>Image Size</b> settings to set/inspect pixel size of the image."
          " Use <b>1st mouse button</b> to set image top-left corner or"
          " <b>Ctrl + 1st mouse button</b> to set image area.");
+      have_points = -1;
     }
 
     std::string get_name() { return "Save Image"; }
     Gtk::StockID get_stockid() { return Gtk::Stock::SAVE_AS; }
 
-    void activate() { dlg.show_all(); have_points = 0; }
+    void activate() {
+      dlg.show_all();
+      if (have_points < 0) one = mapview->viewer.get_center();
+      have_points = 0;
+      on_ch_size();
+    }
 
-    void abort() { dlg.hide_all(); }
+    void abort() {
+      dlg.hide_all();
+    }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       dlg.show_all();

@@ -18,6 +18,7 @@ DlgSaveImg::DlgSaveImg(): dpi_adj(300, 0, 9999, 50){
   Gtk::RadioButtonGroup gr1 = rb_mpp_screen->get_group();
   rb_mpp_auto   =  manage(new Gtk::RadioButton(gr1,"Auto detect"));
   rb_mpp_dpi =  manage(new Gtk::RadioButton(gr1,"Set resolution: "));
+  rb_mpp_auto->set_active();
 
   mpp_dpi   = manage(new Gtk::SpinButton(dpi_adj));
   mpp_scale = manage(new CBScale);
