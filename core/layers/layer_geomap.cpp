@@ -87,9 +87,9 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
 #endif
   if (rect_intersect(myrange, src_rect).empty()) return;
   if ((data == NULL)||(data->size()==0)) return;
+  int maxscale=32;
   CairoWrapper cr(image);
   cr->set_line_width(1);
-  cr->set_color(0x0000FF);
 
   for (int i=0; i < data->size(); i++){
       string file = (*data)[i].file;
@@ -98,7 +98,7 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
       int scale = int(scales[i]+0.05);
       if (scale <=0) scale = 1;
 
-      if (scale<=32){
+      if (scale<=maxscale){
         if (!image_cache.contains(i) || (iscales[i] > scale)) {
 #ifdef DEBUG_LAYER_GEOMAP
           cerr  << "LayerMap: Loading Image " << file
@@ -115,7 +115,8 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
         m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
       }
 
-      if (drawborder){
+
+      if (drawborder || (scale > maxscale)){
         for (dLine::iterator p=m2ms[i].border_dst.begin();
                              p!=m2ms[i].border_dst.end(); p++){
           if (p==m2ms[i].border_dst.begin())
@@ -124,9 +125,14 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
             cr->line_to((*p)-dPoint(src_rect.TLC()));
         }
         cr->close_path();
+        if (scale > maxscale){ // fill map area
+          cr->set_color_a(0x800000FF);
+          cr->fill_preserve();
+        }
+        cr->set_color(0x0000FF);
+        cr->stroke();
       }
   }
-  cr->stroke();
 }
 
 iRect
