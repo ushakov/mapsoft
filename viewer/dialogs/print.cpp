@@ -1,4 +1,5 @@
 #include "print.h"
+#include <iostream>
 #include <gutenprintui2/gutenprintui.h>
 
 struct ext_iImage:iImage{
@@ -15,12 +16,10 @@ struct ext_iImage:iImage{
   }
 };
 
-void
-cb_init(struct stp_image *image){
-}
 
 void
 cb_reset(struct stp_image *image){
+//  std::cerr << "CB_RESET\n";
   ext_iImage *i = (ext_iImage *)(image->rep);
   i->transp = i->hflip = false;
   i->inc = 1;
@@ -29,15 +28,23 @@ cb_reset(struct stp_image *image){
   i->hc = i->h;
 }
 
+void
+cb_init(struct stp_image *image){
+//  std::cerr << "CB_INIT\n";
+  cb_reset(image);
+}
+
 int
 cb_width(struct stp_image *image){
   ext_iImage *i = (ext_iImage *)(image->rep);
+//  std::cerr << "CB_WIDTH: " << i->wc << "\n";
   return i->wc;
 }
 
 int
 cb_height(struct stp_image *image){
   ext_iImage *i = (ext_iImage *)(image->rep);
+//  std::cerr << "CB_HEIGHT: " << i->hc << "\n";
   return i->hc;
 }
 
@@ -45,6 +52,7 @@ stp_image_status_t
 cb_get_row(struct stp_image *image,
            unsigned char *data, size_t byte_limit, int row){
   ext_iImage *i = (ext_iImage *)(image->rep);
+//  std::cerr << "CB_GET_ROW: " << row << "\n";
 
   guchar *inter;
   inter = data;
@@ -87,11 +95,13 @@ cb_get_row(struct stp_image *image,
 
 const char *
 cb_get_appname(struct stp_image *image){
+//  std::cerr << "CB_APPNAME\n";
   return "Mapsoft";
 }
 
 void
 cb_conclude(struct stp_image *image){
+//  std::cerr << "CB_CONCLUDE\n";
 }
 
 // wrap image into stp_image_t object for gutenprint
@@ -112,6 +122,7 @@ Image2gp(ext_iImage *img){
 
 void
 cb_transpose(struct stpui_image *image){
+//  std::cerr << "CB_TRANSPOSE\n";
   ext_iImage *i = (ext_iImage *)(image->im.rep);
   int tmp;
 
@@ -136,34 +147,40 @@ cb_transpose(struct stpui_image *image){
 
 void
 cb_hflip(struct stpui_image *image){
+//  std::cerr << "CB_HFLIP\n";
   ext_iImage *i = (ext_iImage *)(image->im.rep);
   i->hflip = !i->hflip;
 }
 void
 cb_vflip(struct stpui_image *image){
+//  std::cerr << "CB_VFLIP\n";
   ext_iImage *i = (ext_iImage *)(image->im.rep);
   i->yc += (i->hc-1) * i->inc;
   i->inc = -i->inc;
 }
 void
 cb_rotate_ccw(struct stpui_image *image){
+//  std::cerr << "CB_ROTATE_CCW\n";
   cb_transpose(image);
   cb_vflip(image);
 }
 
 void
 cb_rotate_cw(struct stpui_image *image){
+//  std::cerr << "CB_ROTATE_CW\n";
   cb_transpose(image);
   cb_hflip(image);
 }
 void
 cb_rotate_180(struct stpui_image *image){
+//  std::cerr << "CB_ROTATE_180\n";
   cb_vflip(image);
   cb_hflip(image);
 }
 void
 cb_crop(struct stpui_image *image, int left, int top,
                int right, int bottom){
+//  std::cerr << "CB_CROP: " << left << " " << top << " "  << right << " " << bottom << "\n";
   ext_iImage *i = (ext_iImage *)(image->im.rep);
   int xmax = (i->transp ? i->h : i->w) - 1;
   int ymax = (i->transp ? i->w : i->h) - 1;
@@ -220,16 +237,21 @@ stpui_get_thumbnail_data_function(void *IMG, gint *width, gint *height,
   *width  = i->w;
   *height = i->h;
   *bpp = 4;
+//  std::cerr << "GET_THUMBNAIL_DATA\n";
 
   return (guchar *)i->data;
 }
 
+static stpui_plist_t print_vars;
+
 int
 print_image(const iImage & img, int res){
+  stpui_printer_initialize(&print_vars);
+
   stp_init();  // Initialise libgutenprint
   stpui_set_image_filename("Mapsoft map");
 
-  // stpui_printer_initialize(&gimp_vars);
+  // stpui_printer_initialize(&print_vars);
 
   char *home=getenv("HOME");
   if (home){
@@ -246,10 +268,14 @@ print_image(const iImage & img, int res){
   stpui_set_thumbnail_data((void *) &img);
 
   if (!stpui_do_print_dialog()) return 1;
-//  stpui_plist_copy(&gimp_vars, stpui_get_current_printer());
+  stpui_plist_copy(&print_vars, stpui_get_current_printer());
+
+//  stpui_plist_copy(&print_vars, stpui_get_current_printer());
 
   ext_iImage img_e(img);
   stpui_image_t img_gp = Image2gpui(&img_e);
-  return stpui_print(stpui_get_current_printer(), &img_gp);
+  int ret = stpui_print(&print_vars, &img_gp);
+  stp_vars_destroy(print_vars.v);
+  return ret;
 }
 

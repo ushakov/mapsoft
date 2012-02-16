@@ -11,10 +11,7 @@
 
 // dialog for SaveImage action
 class DlgSaveImg : public Gtk::Dialog{
-    Gtk::Entry *file;
     Gtk::CheckButton *map;
-    Gtk::FileSelection file_d;
-
     Gtk::RadioButton  *rb_mpp_screen, *rb_mpp_auto, *rb_mpp_dpi;
     Gtk::SpinButton *mpp_dpi;
     Gtk::Adjustment dpi_adj;
@@ -22,14 +19,11 @@ class DlgSaveImg : public Gtk::Dialog{
     Gtk::Label *hint;
 
     PageBox *pagebox;
-    void on_file_ch(int response);
     void on_ch(); 
     sigc::signal<void> signal_changed_;
 
   public:
     DlgSaveImg();
-    std::string get_file() const;
-    void set_file(const std::string & f);
     bool get_map() const;
 
     void set_px(const iPoint & p);

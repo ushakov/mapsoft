@@ -16,6 +16,12 @@ public:
       dlg.signal_response().connect(
         sigc::mem_fun (this, &SaveImage::on_result));
       dlg.set_title(get_name());
+
+      fdlg.signal_response().connect(
+        sigc::mem_fun (this, &SaveImage::on_fresult));
+      fdlg.set_title(get_name());
+      fdlg.set_filename("image.jpg");
+
       dlg.signal_changed().connect(
         sigc::mem_fun(this, &SaveImage::on_ch_size));
       dlg.set_hint(
@@ -60,6 +66,7 @@ public:
 
 private:
     DlgSaveImg dlg;
+    Gtk::FileSelection fdlg;
     int have_points;
 
     iPoint one;
@@ -110,20 +117,31 @@ private:
     void on_result(int r) {
 
       if (r == Gtk::RESPONSE_CANCEL){
-         mapview->rubber.clear();
-         dlg.hide_all();
-         return;
+        mapview->rubber.clear();
+        dlg.hide_all();
+        return;
       }
+      if (r == Gtk::RESPONSE_OK){
+        fdlg.show_all();
+        return;
+      }
+      if (r == Gtk::RESPONSE_APPLY){
+        on_fresult(r);
+        return;
+      }
+  
+    }
 
+    void on_fresult(int r) {
 
+      fdlg.hide_all();
       if (!mapview->have_reference){
         mapview->statusbar.push("No geo-reference", 0);
         return;
       }
 
-      std::string fname=dlg.get_file();
+      std::string fname=fdlg.get_filename();
       if (fname=="") return;
-
 
       g_map mymap = mapview->reference;
       dPoint mytlc(one);

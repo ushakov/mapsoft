@@ -1,37 +1,9 @@
 #include "save_img.h"
 
-DlgSaveImg::DlgSaveImg(): file_d("Save image to file"),
-                          dpi_adj(300, 0, 9999, 50){
+DlgSaveImg::DlgSaveImg(): dpi_adj(300, 0, 9999, 50){
 //  add_button (Gtk::Stock::PRINT, Gtk::RESPONSE_APPLY);
   add_button (Gtk::Stock::SAVE,     Gtk::RESPONSE_OK);
   add_button (Gtk::Stock::CLOSE, Gtk::RESPONSE_CANCEL);
-
-  /**** 1st table - file settings ****/
-
-  // file label
-  Gtk::Label *l_file = manage(
-    new Gtk::Label("File name (jpg, tiff or png):",  Gtk::ALIGN_RIGHT));
-  l_file->set_padding(3,0);
-
-  // file entry
-  file = manage(new Gtk::Entry());
-  file->set_text("image.jpg");
-
-  // File selection dialog
-  file_d.signal_response().connect(
-        sigc::mem_fun (this, &DlgSaveImg::on_file_ch));
-  file_d.set_filename(get_file());
-
-  // File selection button
-  Gtk::Button *file_b= manage(new Gtk::Button("Select..."));
-  file_b->signal_clicked().connect(
-    sigc::mem_fun (&file_d, &Gtk::FileSelection::show));
-  file_b->signal_hide().connect(
-    sigc::mem_fun (&file_d, &Gtk::FileSelection::hide));
-
-  // Map checkbutton
-  map = manage(new Gtk::CheckButton("write Ozi map file"));
-  map->set_active();
 
   /****  size ****/
 
@@ -67,20 +39,24 @@ DlgSaveImg::DlgSaveImg(): file_d("Save image to file"),
   t1->attach(*l_scale,       4, 5, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
   res_frame->add(*t1);
 
+  /**** Map checkbutton ****/
+
+  map = manage(new Gtk::CheckButton("write Ozi map file"));
+  map->set_active();
+
   /*** hint ***/
+
   hint  = manage(new Gtk::Label);
   hint->set_line_wrap();
 
   /**** Main table ****/
-  Gtk::Table *table = manage(new Gtk::Table(3,5));
+
+  Gtk::Table *table = manage(new Gtk::Table(3,4));
             //  widget    l  r  t  b  x       y
-  table->attach(*l_file,  0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*file,    1, 2, 0, 1, Gtk::EXPAND|Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*file_b,  2, 3, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*map,     0, 3, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*pagebox,   0, 3, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*res_frame, 0, 3, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*hint,    0, 3, 4, 5, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*pagebox,   0, 3, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*res_frame, 0, 3, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*map,       0, 3, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*hint,      0, 3, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
 
   get_vbox()->add(*table);
 
@@ -96,24 +72,6 @@ DlgSaveImg::DlgSaveImg(): file_d("Save image to file"),
       sigc::mem_fun(this, &DlgSaveImg::on_ch));
 
 }
-
-std::string
-DlgSaveImg::get_file() const{
-  return file->get_text();
-}
-
-void
-DlgSaveImg::set_file(const std::string & f){
-  file->set_text(f);
-}
-
-void
-DlgSaveImg::on_file_ch(int response){
-  if (response==Gtk::RESPONSE_OK)
-    file->set_text(file_d.get_filename());
-  file_d.hide();
-}
-
 
 void
 DlgSaveImg::set_px(const iPoint & p){
