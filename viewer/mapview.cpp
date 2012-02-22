@@ -107,7 +107,7 @@ Mapview::update_layers() {
   Gtk::TreeNodeChildren::const_iterator i;
   bool need_refresh = false;
 
-  int d=2;
+  int d=101;
   for (i  = wpt_ll.store->children().begin();
        i != wpt_ll.store->children().end(); i++){
 
@@ -251,7 +251,7 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> data) {
   // - put layer to LayerList (layer_edited call, workplane refresh)
   // depth is set to 1 to evoke refresh!
   boost::shared_ptr<LayerWPT> layer(new LayerWPT(data.get()));
-  workplane.add_layer(layer.get(), 1);
+  workplane.add_layer(layer.get(), 100);
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
   else layer->set_ref(reference);
@@ -260,7 +260,7 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> data) {
 void
 Mapview::add_trks(const boost::shared_ptr<g_track> data) {
   boost::shared_ptr<LayerTRK> layer(new LayerTRK(data.get()));
-  workplane.add_layer(layer.get(), 1);
+  workplane.add_layer(layer.get(), 100);
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
   else layer->set_ref(reference);
@@ -269,7 +269,7 @@ Mapview::add_trks(const boost::shared_ptr<g_track> data) {
 void
 Mapview::add_maps(const boost::shared_ptr<g_map_list> data) {
   boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get(), false));
-  workplane.add_layer(layer.get(), 1);
+  workplane.add_layer(layer.get(), 100);
   // for maps always reset reference
   set_ref(layer->get_myref());
   map_ll.add_layer(layer, data);
