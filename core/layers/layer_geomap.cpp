@@ -9,6 +9,10 @@
 
 using namespace std;
 
+#define SHOW_MAP 1
+#define SHOW_BRD 2
+#define SHOW_REF 4
+
 LayerGeoMap::LayerGeoMap(g_map_list *_data, bool _drawborder) :
       data(_data),
       image_cache(4),
@@ -64,6 +68,35 @@ LayerGeoMap::find_map(const iRect & r) const{
   return -1;
 }
 
+void
+LayerGeoMap::status_set(int mask, bool val, const g_map * m){
+  if (!m){
+    map<const g_map*, int>::iterator i;
+    for (i=status.begin(); i!=status.end(); i++){
+      if (val) i->second |= mask;
+      else     i->second &= ~mask;
+    }
+  }
+  else{
+    if (!status.count(m)) return;
+    if (val) status[m] |= mask;
+    else     status[m] &= ~mask;
+  }
+}
+
+void
+LayerGeoMap::show_ref(const g_map * m){ status_set(SHOW_REF, true,  m); }
+void
+LayerGeoMap::hide_ref(const g_map * m){ status_set(SHOW_REF, false, m); }
+void
+LayerGeoMap::show_brd(const g_map * m){ status_set(SHOW_BRD, true,  m); }
+void
+LayerGeoMap::hide_brd(const g_map * m){ status_set(SHOW_BRD, false, m); }
+void
+LayerGeoMap::show_map(const g_map * m){ status_set(SHOW_MAP, true,  m); }
+void
+LayerGeoMap::hide_map(const g_map * m){ status_set(SHOW_MAP, false, m); }
+
 
 void
 LayerGeoMap::refresh(){
@@ -81,6 +114,7 @@ LayerGeoMap::get_image (iRect src){
 void
 LayerGeoMap::draw(const iPoint origin, iImage & image){
   iRect src_rect = image.range() + origin;
+  dPoint dorigin(origin);
 
 #ifdef DEBUG_LAYER_GEOMAP
   cerr  << "LayerMap: draw " << src_rect << " my: " << myrange << endl;
@@ -98,7 +132,9 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
       int scale = int(scales[i]+0.05);
       if (scale <=0) scale = 1;
 
-      if (scale<=maxscale){
+      const g_map * m = &(*data)[i];
+
+      if ((scale<=maxscale) && (status[m]&SHOW_MAP)){
         if (!image_cache.contains(i) || (iscales[i] > scale)) {
 #ifdef DEBUG_LAYER_GEOMAP
           cerr  << "LayerMap: Loading Image " << file
@@ -115,22 +151,54 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
         m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
       }
 
-
-      if (drawborder || (scale > maxscale)){
-        for (dLine::iterator p=m2ms[i].border_dst.begin();
+      //draw border
+      if (drawborder || (status[m]&SHOW_BRD) || (scale > maxscale)){
+        for (dLine::const_iterator p=m2ms[i].border_dst.begin();
                              p!=m2ms[i].border_dst.end(); p++){
           if (p==m2ms[i].border_dst.begin())
-            cr->move_to((*p)-dPoint(src_rect.TLC()));
+            cr->move_to((*p)-dorigin);
           else
-            cr->line_to((*p)-dPoint(src_rect.TLC()));
+            cr->line_to((*p)-dorigin);
         }
         cr->close_path();
         if (scale > maxscale){ // fill map area
           cr->set_color_a(0x800000FF);
           cr->fill_preserve();
         }
+        cr->set_line_width(3);
         cr->set_color(0x0000FF);
         cr->stroke();
+      }
+
+      // draw refpoints
+      double dr=10, dg=5;
+      if (status[m]&SHOW_REF){
+        convs::map2pt c1(mymap, Datum("wgs84"), Proj("lonlat"), Options());
+        for (g_map::const_iterator p=(*data)[i].begin();
+                             p!=(*data)[i].end(); p++){
+          dPoint pr(p->xr, p->yr); // raster coords
+          m2ms[i].frw(pr);
+          pr-=dorigin;
+          cr->move_to(pr + dPoint(-1,0)*dr);
+          cr->line_to(pr + dPoint(1,0)*dr);
+          cr->move_to(pr + dPoint(0,-1)*dr);
+          cr->line_to(pr + dPoint(0,1)*dr);
+          cr->set_line_width(3);
+          cr->set_color(0xFF0000);
+          cr->stroke();
+
+          dPoint pg(p->x, p->y);   // geo coords
+          c1.bck(pg);
+          pg-=dorigin;
+          cr->move_to(pg + dPoint(-1,-1)*dg);
+          cr->line_to(pg + dPoint(1,1)*dg);
+          cr->move_to(pg + dPoint(1,-1)*dg);
+          cr->line_to(pg + dPoint(-1,1)*dg);
+          cr->set_line_width(3);
+          cr->set_color(0x00FF00);
+          cr->stroke();
+        }
+
       }
   }
 }
@@ -191,11 +259,12 @@ LayerGeoMap::make_m2ms(){
 
   m2ms.clear();
   scales.clear();
+  map<const g_map *, int> nstatus;
 
   for (int i=0; i< data->size(); i++){
-      convs::map2map c((*data)[i], mymap);
+      g_map * m = &(*data)[i];
+      convs::map2map c(*m, mymap);
       m2ms.push_back(c);
-
       dPoint p1(0,0), p2(1000,0), p3(0,1000);
       c.frw(p1); c.frw(p2); c.frw(p3);
       double sc_x = 1000/pdist(p1,p2);
@@ -206,10 +275,23 @@ LayerGeoMap::make_m2ms(){
       if ((i==0) && (c.border_dst.size()!=0)){
         myrange=iRect(c.border_dst[0], c.border_dst[0]);
       }
+      // pump range to include all border points
       for (int j=0; j<c.border_dst.size(); j++){
         myrange = rect_pump(myrange, iPoint(c.border_dst[j]));
       }
+      // pump range to include all ref points
+      for (int j=0; j<m->size(); j++){
+        dPoint pr((*m)[j].xr, (*m)[j].yr);
+        c.frw(pr);
+        const iPoint rr(10,10);
+        myrange = rect_bounding_box(myrange,
+           iRect(iPoint(pr)-rr, iPoint(pr)+rr));
+      }
+      if (status.count(m)) nstatus[m] = status[m];
+      else nstatus[m] = SHOW_MAP;
   }
+  status=nstatus;
+
   // старые данные нам тоже интересны (мы можем использовать уже загруженные картинки)
   if (iscales.size() != data->size())
     iscales.resize(data->size(),1);

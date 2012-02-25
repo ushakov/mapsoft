@@ -2,6 +2,7 @@
 #define LAYER_GEOMAP_H
 
 #include <vector>
+#include <map>
 #include "layer_geo.h"
 #include "geo/geo_convs.h"
 #include "2d/cache.h"
@@ -26,6 +27,7 @@ private:
   Cache<int, iImage> image_cache;    // кэш изображений
   g_map mymap;
   bool drawborder;
+  std::map<const g_map*, int> status; // visibility of refpoints, border, map image
 
 public:
 
@@ -52,6 +54,16 @@ public:
   /// Find map
   int find_map(const iPoint & pt) const;
   int find_map(const iRect & r) const;
+
+  /// Show/hide reference points and border for a n-th map
+  /// (n=-1 for all maps)
+  void status_set(int mask, bool val=true, const g_map * m = NULL);
+  void show_ref(const g_map * m = NULL);
+  void hide_ref(const g_map * m = NULL);
+  void show_brd(const g_map * m = NULL);
+  void hide_brd(const g_map * m = NULL);
+  void show_map(const g_map * m = NULL);
+  void hide_map(const g_map * m = NULL);
 
   /// Refresh layer.
   void refresh();
