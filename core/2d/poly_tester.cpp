@@ -3,15 +3,15 @@
 
 using namespace std;
 
-poly_tester::poly_tester(const dLine & brd) : border(brd){
+poly_tester::poly_tester(const iLine & brd) : border(brd){
   sides.clear();
   int n = border.size();
   for (int i = 0; i < n; i++){
     side S;
-    S.x1 = int(border[i%n].x);
-    S.y1 = int(border[i%n].y);
-    S.x2 = int(border[(i+1)%n].x);
-    S.y2 = int(border[(i+1)%n].y);
+    S.x1 = border[i%n].x;
+    S.y1 = border[i%n].y;
+    S.x2 = border[(i+1)%n].x;
+    S.y2 = border[(i+1)%n].y;
     if (S.y1==S.y2) continue; // no need for horisontal sides
     S.k = double(S.x2-S.x1)/double(S.y2-S.y1); // side slope
     sides.push_back(S);
@@ -67,7 +67,7 @@ poly_tester::test(const iRect & r) const{
   int rx = 0; int ry=0;
   iPoint p1 = r.TLC();
   iPoint p2 = r.BRC();
-  dLine::const_iterator p;
+  iLine::const_iterator p;
   for (p = border.begin(); p !=border.end(); p++){
     if (p->x < p1.x) lx++;
     if (p->x > p2.x) rx++;

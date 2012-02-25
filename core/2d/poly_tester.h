@@ -13,9 +13,9 @@ private:
    double k;
   };
   std::vector<side> sides;
-  dLine border;
+  iLine border;
 public:
-  poly_tester(const dLine & brd);
+  poly_tester(const iLine & brd);
 
   /// Is point inside polygon?
   bool test(const iPoint & p) const;
