@@ -15,12 +15,41 @@ public:
     std::string get_name() { return "Edit Map"; }
     Gtk::StockID get_stockid() { return Gtk::Stock::EDIT; }
 
-    void abort() { dlg.hide_all(); }
+    void abort() { reset(true); }
+
+    void reset(bool redraw) {
+      if (redraw)
+        dlg.hide_all();
+      if (mark_layer){
+        mapview->workplane.remove_layer(mark_layer.get());
+        if (redraw) mapview->viewer.redraw();
+      }
+      mark_layer.reset();
+      mark_data.reset();
+    }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
+
+      // find map
       map_num=mapview->find_map(p, &layer);
-      if (map_num < 0){ abort(); return; }
-      dlg.map2dlg(layer->get_map(map_num));
+      if (map_num < 0) return;
+      g_map * m = layer->get_map(map_num); 
+      reset(false);
+
+      // create layer with marks
+      mark_data = boost::shared_ptr<g_map_list>(new g_map_list);
+      mark_data->push_back(*m);
+      mark_layer = boost::shared_ptr<LayerGeoMap>(
+          new LayerGeoMap(mark_data.get(), false));
+      mark_layer->show_brd();
+      mark_layer->show_ref();
+      mark_layer->hide_map();
+      mark_layer->set_ref(layer->get_ref());
+      mapview->workplane.add_layer(mark_layer.get(), 50);
+      mapview->viewer.redraw();
+
+      // show dialog
+      dlg.map2dlg(m);
       dlg.show_all();
     }
 
@@ -28,8 +57,11 @@ private:
     DlgMap dlg;
     int map_num;
     LayerGeoMap * layer;
+    boost::shared_ptr<g_map_list> mark_data;
+    boost::shared_ptr<LayerGeoMap> mark_layer;
 
     void on_result(int r) {
+      reset(true);
       if ((map_num<0) || (r!=Gtk::RESPONSE_OK)) return;
       dlg.dlg2map(layer->get_map(map_num));
       mapview->workplane.refresh_layer(layer);
