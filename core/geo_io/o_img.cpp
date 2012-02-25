@@ -114,7 +114,8 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   bool draw_borders = opt.get("draw_borders", false);
   for (int i=0; i<world.maps.size(); i++){
     g_map_list d(world.maps[i]);
-    LayerGeoMap l(&d, draw_borders);
+    LayerGeoMap l(&d);
+    if (draw_borders) l.show_brd();
     l.set_ref(ref);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);

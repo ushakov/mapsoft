@@ -13,11 +13,10 @@ using namespace std;
 #define SHOW_BRD 2
 #define SHOW_REF 4
 
-LayerGeoMap::LayerGeoMap(g_map_list *_data, bool _drawborder) :
+LayerGeoMap::LayerGeoMap(g_map_list *_data) :
       data(_data),
       image_cache(4),
-      mymap(convs::mymap(*_data)),
-      drawborder(_drawborder){
+      mymap(convs::mymap(*_data)){
   make_m2ms();
 }
 
@@ -152,7 +151,7 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
       }
 
       //draw border
-      if (drawborder || (status[m]&SHOW_BRD) || (scale > maxscale)){
+      if ((status[m]&SHOW_BRD) || (scale > maxscale)){
         for (dLine::const_iterator p=m2ms[i].border_dst.begin();
                              p!=m2ms[i].border_dst.end(); p++){
           if (p==m2ms[i].border_dst.begin())

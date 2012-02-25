@@ -26,12 +26,11 @@ private:
   iRect myrange;                     // габариты карты
   Cache<int, iImage> image_cache;    // кэш изображений
   g_map mymap;
-  bool drawborder;
   std::map<const g_map*, int> status; // visibility of refpoints, border, map image
 
 public:
 
-  LayerGeoMap (g_map_list *_data, bool _drawborder=true);
+  LayerGeoMap (g_map_list *_data);
 
   /// Get layer reference.
   g_map get_ref() const;

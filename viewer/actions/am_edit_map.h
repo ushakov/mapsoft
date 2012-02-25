@@ -40,7 +40,7 @@ public:
       mark_data = boost::shared_ptr<g_map_list>(new g_map_list);
       mark_data->push_back(*m);
       mark_layer = boost::shared_ptr<LayerGeoMap>(
-          new LayerGeoMap(mark_data.get(), false));
+          new LayerGeoMap(mark_data.get()));
       mark_layer->show_brd();
       mark_layer->show_ref();
       mark_layer->hide_map();

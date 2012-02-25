@@ -268,7 +268,7 @@ Mapview::add_trks(const boost::shared_ptr<g_track> data) {
 }
 void
 Mapview::add_maps(const boost::shared_ptr<g_map_list> data) {
-  boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get(), false));
+  boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get()));
   workplane.add_layer(layer.get(), 100);
   // for maps always reset reference
   set_ref(layer->get_myref());
