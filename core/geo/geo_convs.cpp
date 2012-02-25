@@ -265,10 +265,10 @@ map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
   M.ensure_border();
   border_src = M.border;
 
-  tst_bck = border_tester(border_src);
+  tst_bck = poly_tester(border_src);
   if (test_brd){
     border_dst = line_frw(border_src);
-    tst_frw = border_tester(border_dst);
+    tst_frw = poly_tester(border_dst);
   }
 }
 
@@ -300,7 +300,7 @@ map2map::image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
         x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
 	dPoint p(x,y);
         bck(p);
-        if (test_brd && !tst_bck.test(int(p.x), int(p.y))) continue;
+        if (test_brd && !tst_bck.test(p)) continue;
 	p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
 	if (c != 0){
@@ -333,7 +333,7 @@ map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect,
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
         x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
         dPoint p(x,y);
-        if (test_brd && !tst_bck.test(int(p.x), int(p.y))) continue;
+        if (test_brd && !tst_bck.test(p)) continue;
         bck(p); p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
 	if (c != 0){
@@ -346,88 +346,6 @@ map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect,
       }
     }
     return 0;
-}
-
-/*******************************************************************/
-
-border_tester::border_tester(const dLine & brd) : border(brd){
-  sides.clear();
-  int n = border.size();
-  for (int i = 0; i < n; i++){
-    side S;
-    S.x1 = int(border[i%n].x);
-    S.y1 = int(border[i%n].y);
-    S.x2 = int(border[(i+1)%n].x);
-    S.y2 = int(border[(i+1)%n].y);
-    if (S.y1==S.y2) continue; // горизонтальные стороны не интересны
-    S.k = double(S.x2-S.x1)/double(S.y2-S.y1);
-    sides.push_back(S);
-  }
-}
-
-bool
-border_tester::test(const int x, const int y) const{
-  int k=0; // считаем число k пересечений сторон лучем (x,y) - (inf,y)
-  int e = sides.size();
-  for (int i = 0; i < e; ++i){
-      side const & S = sides[i];
-      if ((S.y1 > y)&&(S.y2 > y)) continue; // сторона выше луча
-      if ((S.y1 < y)&&(S.y2 < y)) continue; // сторона ниже луча
-      if ((S.x2 < x)&&(S.x1 < x)) continue; // вся сторона левее луча
-      int x0 = int(S.k * double(y - S.y1)) + S.x1;
-      if (x0 < x) continue; // сторона левее нашей точки
-
-	// тут есть проблемы во-первых со стыками сторон, которые учитываются дважды,
-      // а во вторых с нижней точкой v-образной границы, которая должна учитываться дважды.
-      // решение такое: у сторон, идущих вниз не учитываем первую точку, 
-      // а у сторон, идущих вверх - последнюю! 
-      if (((S.y2<y)&&(S.y1==y)) || 
-          ((S.y1<y)&&(S.y2==y))) continue;
-      k++;
-  }
-  return k%2==1;
-}
-
-int
-border_tester::nearest_border (const int x, const int y) const {
-  int dist=0xFFFFFF;
-  int k=0;
-
-  int e = sides.size();
-  for (int i = 0; i < e; ++i){
-      side const & S = sides[i];
-      if ((S.y1 > y)&&(S.y2 > y)) continue; // сторона выше луча
-      if ((S.y1 < y)&&(S.y2 < y)) continue; // сторона ниже луча
-      if ((S.x2 < x)&&(S.x1 < x)) continue; // вся сторона левее луча
-      int x0 = int(S.k * double(y - S.y1)) + S.x1;
-
-      if (x0 < x) continue; // сторона левее нашей точки
-      if (((S.y2<y)&&(S.y1==y)) || 
-          ((S.y1<y)&&(S.y2==y))) continue;
-      k++;
-      if (dist > x0 - x) dist = x0 - x;
-  }
-  return k%2==1 ? dist:-dist;
-}
-
-bool
-border_tester::test_range(iRect range) const{
-  int lx = 0; int ly=0;
-  int rx = 0; int ry=0;
-  iPoint p1 = range.TLC();
-  iPoint p2 = range.BRC();
-  dLine::const_iterator p;
-  for (p = border.begin(); p !=border.end(); p++){
-    if (p->x < p1.x) lx++;
-    if (p->x > p2.x) rx++;
-    if (p->y < p1.y) ly++;
-    if (p->y > p2.y) ry++;
-  }
-  int s = border.size();
-  return !((lx == s) ||
-           (ly == s) ||
-           (rx == s) ||
-           (ry == s));
 }
 
 /*******************************************************************/

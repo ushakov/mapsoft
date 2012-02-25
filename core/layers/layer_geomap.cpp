@@ -55,14 +55,14 @@ LayerGeoMap::get_map(const int n) const{
 int
 LayerGeoMap::find_map(const iPoint & pt) const{
   for (int i=0; i< m2ms.size(); i++){
-    if (m2ms[i].tst_frw.test(pt.x, pt.y)) return i;
+    if (m2ms[i].tst_frw.test(pt)) return i;
   }
   return -1;
 }
 int
 LayerGeoMap::find_map(const iRect & r) const{
   for (int i=0; i< m2ms.size(); i++){
-    if (m2ms[i].tst_frw.test_range(r)) return i;
+    if (m2ms[i].tst_frw.test(r)) return i;
   }
   return -1;
 }
@@ -126,7 +126,7 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
 
   for (int i=0; i < data->size(); i++){
       string file = (*data)[i].file;
-      if (!m2ms[i].tst_frw.test_range(src_rect)) continue;
+      if (!m2ms[i].tst_frw.test(src_rect)) continue;
 
       int scale = int(scales[i]+0.05);
       if (scale <=0) scale = 1;

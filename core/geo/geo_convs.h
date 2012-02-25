@@ -8,6 +8,7 @@
 #include "options/options.h"
 #include "2d/image.h"
 #include "2d/point_conv.h"
+#include "2d/poly_tester.h"
 #include <proj_api.h>
 
 namespace convs{
@@ -53,25 +54,6 @@ private:
   int * refcounter;
 };
 
-/// Быстрая проверка границ.
-struct border_tester{
-private:
-  struct side{
-   int x1,x2,y1,y2;
-   double k;
-  };
-  std::vector<side> sides;
-  dLine border;
-public:
-  border_tester(const dLine & brd);
-  /// попадает ли точка в пределы границы
-  bool test(const int x, const int y) const;
-  /// расстояние до ближайшей границы справа
-  int nearest_border (const int x, const int y) const;
-  /// "задевает" ли карта данный район
-  bool test_range(iRect range) const;
-};
-
 /// Преобразование из карты в карту.
 /// Здесь может быть суровое разбиение карты на куски и аппроксимация линейными преобразованиями...
 /// Здесь же - преобразование картинок (с интерфейсом как у image loader'a).
@@ -92,7 +74,7 @@ struct map2map : Conv{
   dLine border_src; // граница sM
   dLine border_dst; // это след от границы sM на dM! 
   bool test_brd;
-  border_tester tst_frw, tst_bck;
+  poly_tester tst_frw, tst_bck;
 };
 
 
