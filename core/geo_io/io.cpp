@@ -5,7 +5,6 @@
 
 #include <cstring>
 #include <dirent.h>
-#include <string>
 #include <vector>
 #include <list>
 
@@ -14,6 +13,13 @@
 #include <zip.h>
 
 #include "io.h"
+#include "io_gps.h"
+#include "io_gu.h"
+#include "io_xml.h"
+#include "io_kml.h"
+#include "io_gpx.h"
+#include "io_oe.h"
+#include "io_zip.h"
 #include "geofig.h"
 
 namespace io {
@@ -153,15 +159,6 @@ namespace io {
 
                 string name(out_name);
 
-/*
-		if (name == "usb:"){
-			cerr << "Sending data to GPS via libusb\n";
-			gps::put_all (name.c_str(), world, opt);
-                        return;
-		}
-*/
-
-
 		if (name == "gps:"){
                    name = gps_detect();
                    if (name == ""){
@@ -179,12 +176,6 @@ namespace io {
 		  return;
 		}
 
-// Исследование расширения
-//  file.gu file.xml -- вывод в соответствующий файл
-//  file.oe file.wpt file.plt file.map -- вывод в Ozi-файлы 
-//    file1.wpt, file2.wpt, file1.plt, file2.plt и т.д.
-
-  
 		// Запись XML-файла
 		if (testext(name, ".xml")){
 		
@@ -217,44 +208,12 @@ namespace io {
 			return;
 		}
 
-		// Запись растровой картинки
-		if ((testext(name, ".tiff")) ||
-		    (testext(name, ".tif")) ||
-		    (testext(name, ".png")) ||
-		    (testext(name, ".jpeg")) ||
-		    (testext(name, ".jpg")) ){
-		
-			cerr << "Writing image " << name << "\n";
-			img::write_file(name.c_str(), world, opt);
-			return;
-		}
-
-		// Запись плиток
-		if (testext(name, ".tiles")) {
-			cerr << "Writing tiles to " << name << "\n";
-			tiles::write_file(name.c_str(), world, opt);
-			return;
-		}
-
 		// Запись файла Garmin-Utils
 		if (testext(name, ".gu")){
 			cerr << "Writing to Garmin-utils file " << name << "\n";
 			gu::write_file (name.c_str(), world, opt);
 			return;
 		}
-//		// Запись файла FIG
-//		if (testext(name, ".fig")){
-//			cerr << "Writing to FIG file " << name << "\n";
-//			fig::write (name, world, opt);
-//			return;
-//		}
-		// Запись файла HTML
-//		if (testext(name, ".html") || testext(name, ".htm")){
-//			cerr << "Writing to HTML file " << name << "\n";
-//			std::ofstream f(name.c_str());
-//			html::write (f, world, opt);
-//			return;
-//		}
 
 		// Запись файла OziExplorer
 		if ((testext(name, ".wpt"))||
@@ -346,10 +305,10 @@ namespace io {
 			return;
 		}
 
-		cerr << "Can't determine output format. Please use filename with \n"
-			 << " extensions (.fig), .xml, .gu, (.bmp, .png, .jpg), .wpt, .plt, .oe or .zip\n"
-			 << " or name of serial port device (for example /dev/ttyS0),\n"
-			 << " or \"usb:\" for using libusb\n";
+		cerr << "Can't write geodata to file " << name << "\n"
+		     << "Use .xml, .gu, .wpt, .plt, .oe or .zip extension\n"
+		     << "or name of serial port device (for example /dev/ttyS0)\n"
+		     << " or \"gps:\" for garmin gps.\n";
 	}
 
 }  // namespace io

@@ -11,6 +11,7 @@
 #include <math.h>
 
 #include "geo_io/io.h"
+#include "img_io/io.h"
 #include "options/m_getopt.h"
 
 using namespace std;
@@ -137,7 +138,20 @@ try{
   if (O.exists("verbose")) cerr << "Applying filters...\n";
   io::filter(world, O);
   if (O.exists("verbose")) cerr << "Writing data to " << O.get("out", string()) << "\n";
-  io::out(O.get("out", string()), world, O);
+
+  string name=O.get("out", string());
+  if ((io::testext(name, ".tiff")) ||
+      (io::testext(name, ".tif")) ||
+      (io::testext(name, ".png")) ||
+      (io::testext(name, ".jpeg")) ||
+      (io::testext(name, ".jpg")) ||
+      (io::testext(name, ".tiles")) 
+     ){
+    io::out_img(name, world, O);
+  }
+  else {
+    io::out(name, world, O);
+  }
 
 } catch (const char *err){
   cerr << "ERROR: " << err << "\n";

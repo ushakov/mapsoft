@@ -17,8 +17,6 @@
 #include "geo_io/geofig.h"
 #include "2d/line_utils.h"
 
-#include "io_oe.h"
-
 using namespace std;
 
 namespace tiles {

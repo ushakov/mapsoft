@@ -10,12 +10,12 @@
 
 #include "geo/geo_convs.h"
 #include "geo/geo_refs.h"
-#include "geo_io/geofig.h"
 #include "2d/line_utils.h"
 
 #include "utils/cairo_wrapper.h"
 
-#include "io_oe.h"
+#include "geo_io/geofig.h"
+#include "geo_io/io_oe.h"
 
 using namespace std;
 

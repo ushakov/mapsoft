@@ -1,0 +1,10 @@
+Import ('env')
+e=env.Clone()
+e.UseLibs('utils')
+
+e.Library('img_io', \
+    Split ("""
+    io.cpp
+    o_img.cpp
+    o_tiles.cpp
+     """))

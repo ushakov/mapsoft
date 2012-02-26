@@ -7,6 +7,7 @@ subdirs = Split ("""
     fig
     geo
     geo_io
+    img_io
     gred
     jeeps
     layers

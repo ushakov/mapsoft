@@ -7,31 +7,23 @@
 #include "geo/geo_data.h"
 #include "options/options.h"
 
-#include "io_gps.h"
-#include "io_gu.h"
-#include "io_xml.h"
-#include "io_kml.h"
-#include "io_gpx.h"
-#include "io_oe.h"
-#include "io_zip.h"
-#include "o_img.h"
-#include "o_tiles.h"
-
 namespace io {
-  // read data from file
-  bool in(const std::string & in_name, geo_data & world, const Options & opt);
-
-  // write data to file
-  void out(const std::string & out_name, const geo_data & world, const Options & opt);
-
   // check file extension
-  bool testext(const std::string & nstr, char *ext);
+  bool testext(const std::string & nstr, const char *ext);
 
   // audodetect garmin_gps device
   std::string gps_detect();
 
   // -1 -- can't access file; 0 - regular, 1 - character device
   int check_file(const std::string & name);
+
+
+  // read data from file
+  bool in(const std::string & in_name, geo_data & world, const Options & opt);
+
+  // write data to file
+  void out(const std::string & out_name, const geo_data & world, const Options & opt);
+
 
   // filters
 
