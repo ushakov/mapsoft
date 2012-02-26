@@ -55,14 +55,14 @@ LayerGeoMap::get_map(const int n) const{
 int
 LayerGeoMap::find_map(const iPoint & pt) const{
   for (int i=0; i< m2ms.size(); i++){
-    if (m2ms[i].tst_frw.test(pt)) return i;
+    if (point_in_line(pt, borders[i])) return i;
   }
   return -1;
 }
 int
 LayerGeoMap::find_map(const iRect & r) const{
   for (int i=0; i< m2ms.size(); i++){
-    if (m2ms[i].tst_frw.test(r)) return i;
+    if (rect_in_line(r, borders[i])) return i;
   }
   return -1;
 }
@@ -126,7 +126,7 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
 
   for (int i=0; i < data->size(); i++){
       string file = (*data)[i].file;
-      if (!m2ms[i].tst_frw.test(src_rect)) continue;
+      if (!rect_in_line(src_rect, borders[i])) continue;
 
       int scale = int(scales[i]+0.05);
       if (scale <=0) scale = 1;
@@ -260,34 +260,35 @@ LayerGeoMap::make_m2ms(){
 
   m2ms.clear();
   scales.clear();
+  borders.clear();
   map<const g_map *, int> nstatus;
 
   for (int i=0; i< data->size(); i++){
+      // map -> layer conversion
       g_map * m = &(*data)[i];
       convs::map2map c(*m, mymap);
       m2ms.push_back(c);
+
+      // converted border
+      dLine brd = c.line_frw(m->border);
+      borders.push_back(brd);
+
+      // map scaling factor
       dPoint p1(0,0), p2(1000,0), p3(0,1000);
       c.frw(p1); c.frw(p2); c.frw(p3);
-      double sc_x = 1000/pdist(p1,p2);
-      double sc_y = 1000/pdist(p1,p3);
+      double sc = min(1000/pdist(p1,p2), 1000/pdist(p1,p3));
+      scales.push_back(sc);
 
-      scales.push_back(sc_x<sc_y ? sc_x:sc_y); // каков масштаб карты в соотв.с проекцией
-
-      if ((i==0) && (c.border_dst.size()!=0)){
-        myrange=iRect(c.border_dst[0], c.border_dst[0]);
-      }
-      // pump range to include all border points
-      for (int j=0; j<c.border_dst.size(); j++){
-        myrange = rect_pump(myrange, iPoint(c.border_dst[j]));
-      }
-      // pump range to include all ref points
+      myrange = brd.range();
+      // pump range to include all ref points with some radius
+      const iPoint rr(10,10);
       for (int j=0; j<m->size(); j++){
         dPoint pr((*m)[j].xr, (*m)[j].yr);
         c.frw(pr);
-        const iPoint rr(10,10);
         myrange = rect_bounding_box(myrange,
            iRect(iPoint(pr)-rr, iPoint(pr)+rr));
       }
+      // check old status for this map
       if (status.count(m)) nstatus[m] = status[m];
       else nstatus[m] = SHOW_MAP;
   }

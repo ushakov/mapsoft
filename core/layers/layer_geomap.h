@@ -23,6 +23,7 @@ private:
   std::vector<convs::map2map> m2ms;  // преобразования из каждой карты в mymap
   std::vector<double> scales;        // во сколько раз мы сжимаем карты при загрузке
   std::vector<int>    iscales;       // во сколько раз мы сжимаем карты при загрузке
+  std::vector<iLine>  borders;       // границы (в координатах слоя)
   iRect myrange;                     // габариты карты
   Cache<int, iImage> image_cache;    // кэш изображений
   g_map mymap;
