@@ -2,10 +2,9 @@
 #define IMAGE_H
 
 #include "point.h"
-#include "line.h"
+#include "line_tests.h"
 #include "rect.h"
 #include <cassert>
-#include <algorithm>
 
 #ifdef DEBUG_IMAGE
 #include <iostream>
@@ -235,34 +234,18 @@ struct Image{
     // If border line is empty, remove transparancy on the whole image.
     // (Only useful for Image<int>)
     void set_border(const iLine & brd = iLine()){
-      // collect border sides info: start and end points, slopes.
-      std::vector<iPoint> sb,se;
-      std::vector<double> ss;
-      int pts = brd.size();
-      for (int i = 0; i < pts; i++){
-        iPoint b(brd[i%pts].x, brd[i%pts].y),
-               e(brd[(i+1)%pts].x, brd[(i+1)%pts].y);
-        if (b.y == e.y) continue; // no need for horisontal sides
-        sb.push_back(b);
-        se.push_back(e);
-        ss.push_back(double(e.x-b.x)/double(e.y-b.y)); // side slope
-      }
+      iLineTester  lt(brd);
 
       //process image rows
       for (int j = 0; j < h; j++){
         // remove transparency if border is empty
-        if (pts == 0){
+        if (brd.size() == 0){
           for (int i=0; i<w; i++) data[j*w+i] = data[j*w+i] | 0xFF000000;
           continue;
         }
-        // find sorted border crossings for each row
-        std::vector<int> cr;
-        for (int k = 0; k < sb.size(); k++){
-          if ((sb[k].y > j)&&(se[k].y > j)) continue; // side is above the row
-          if ((sb[k].y <= j)&&(se[k].y <= j)) continue; // side is below the row
-          cr.push_back( int(ss[k] * double(j - sb[k].y)) + sb[k].x );
-        }
-        sort(cr.begin(), cr.end());
+        // get sorted border crossings for each row
+        std::vector<int> cr = lt.get(j);
+
         // set/remove tranparency
         int i=0;
         for (int k = 0; k < cr.size()+1; k++){
