@@ -300,13 +300,12 @@ map2map::image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
         x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
 	dPoint p(x,y);
         bck(p);
-        if (test_brd && !tst_bck.test(p)) continue;
 	p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
 	if (c != 0){
 	  for (int jj=0;jj<yscale;jj++){
 	    for (int ii=0;ii<xscale;ii++){
-   	      dst_img.set_na(dst_x+ii, dst_y+jj, c);
+	      dst_img.set(dst_x+ii, dst_y+jj, c);
             }
           }
 	}

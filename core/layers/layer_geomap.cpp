@@ -139,7 +139,9 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
           cerr  << "LayerMap: Loading Image " << file
  	        << " at scale " << scale << "\n";
 #endif
-          image_cache.add(i, image_r::load(file.c_str(), scale));
+          iImage img = image_r::load(file.c_str(), scale);
+          img.set_border((*data)[i].border/scale);
+          image_cache.add(i, img);
           iscales[i] = scale;
         }
 #ifdef DEBUG_LAYER_GEOMAP

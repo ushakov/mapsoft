@@ -2,8 +2,10 @@
 #define IMAGE_H
 
 #include "point.h"
+#include "line.h"
 #include "rect.h"
 #include <cassert>
+#include <algorithm>
 
 #ifdef DEBUG_IMAGE
 #include <iostream>
@@ -167,6 +169,7 @@ struct Image{
     }
 
 
+    // (Only useful for Image<int>)
     inline T get_na(int x, int y, T c) const {
       return data[y*w+x] | 0xFF000000;
     }
@@ -228,17 +231,64 @@ struct Image{
 	safe_set_a(p.x, p.y, c);
     }
 
+    // Set full transparency outside border line, remove transparency inside it.
+    // If border line is empty, remove transparancy on the whole image.
+    // (Only useful for Image<int>)
+    void set_border(const iLine & brd = iLine()){
+      // collect border sides info: start and end points, slopes.
+      std::vector<iPoint> sb,se;
+      std::vector<double> ss;
+      int pts = brd.size();
+      for (int i = 0; i < pts; i++){
+        iPoint b(brd[i%pts].x, brd[i%pts].y),
+               e(brd[(i+1)%pts].x, brd[(i+1)%pts].y);
+        if (b.y == e.y) continue; // no need for horisontal sides
+        sb.push_back(b);
+        se.push_back(e);
+        ss.push_back(double(e.x-b.x)/double(e.y-b.y)); // side slope
+      }
+
+      //process image rows
+      for (int j = 0; j < h; j++){
+        // remove transparency if border is empty
+        if (pts == 0){
+          for (int i=0; i<w; i++) data[j*w+i] = data[j*w+i] | 0xFF000000;
+          continue;
+        }
+        // find sorted border crossings for each row
+        std::vector<int> cr;
+        for (int k = 0; k < sb.size(); k++){
+          if ((sb[k].y > j)&&(se[k].y > j)) continue; // side is above the row
+          if ((sb[k].y <= j)&&(se[k].y <= j)) continue; // side is below the row
+          cr.push_back( int(ss[k] * double(j - sb[k].y)) + sb[k].x );
+        }
+        sort(cr.begin(), cr.end());
+        // set/remove tranparency
+        int i=0;
+        for (int k = 0; k < cr.size()+1; k++){
+          int ic = (k<cr.size())?std::min(cr[k], w) : w;
+          if (ic < 0) continue;
+          for (int ii=i; ii<ic; ii++){
+            data[j*w+ii] = (k%2)?
+               data[j*w+ii] | 0xFF000000 :
+               data[j*w+ii] & 0x00FFFFFF ;
+          }
+          i=ic;
+          if (i>=w) break;
+        }
+      }
+    }
 
     inline void render (iPoint offset, Image<T> const & other) {
-	iRect r = rect_intersect(range(), other.range()+offset);
-	for (int y = 0; y < r.h; ++y) {
-	    for (int x = 0; x < r.w; ++x) {
-		set_a(x+offset.x, y+offset.y, other.get(x,y));
-	    }
-	}
+      iRect r = rect_intersect(range(), other.range()+offset);
+      for (int y = 0; y < r.h; ++y) {
+        for (int x = 0; x < r.w; ++x) {
+          set_a(x+offset.x, y+offset.y, other.get(x,y));
+        }
+      }
     }
     inline void render (int x, int y, Image<T> const & other) {
-	render(iPoint(x,y), other);
+      render(iPoint(x,y), other);
     }
 #ifdef SWIG
   %extend {
