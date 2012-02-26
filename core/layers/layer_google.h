@@ -33,7 +33,7 @@ public:
     g_map get_ref() const {return mymap;}
     g_map get_myref() const {return mymap0;}
 
-    void set_ref(const g_map & map){mymap=map; cnv = convs::map2map(mymap0,mymap,false);}
+    void set_ref(const g_map & map){mymap=map; cnv = convs::map2map(mymap0,mymap);}
 
     virtual void refresh() {}
 
@@ -57,7 +57,7 @@ public:
         // мы загружаем часть картинки - поэтому сбивается привязка
         g_map new_map(mymap0);
         new_map-=src_rect.TLC();
-        convs::map2map new_cnv(new_map, mymap, true);
+        convs::map2map new_cnv(new_map, mymap);
 
         iImage im0 = google::load(dir, scale, src_rect, sc, do_download);
         new_cnv.image_frw(im0, sc, dst_rect, image, image.range());

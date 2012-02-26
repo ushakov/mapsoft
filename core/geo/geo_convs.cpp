@@ -248,27 +248,13 @@ map2pt::bck(dPoint & p) const{
 // здесь может быть суровое разбиение карты на куски и аппроксимация линейными преобразованиями...
 // здесь же - преобразование картинок (с интерфейсом как у image loader'a)
 
-map2map::map2map(const g_map & sM, const g_map & dM, bool test_brd_) :
+map2map::map2map(const g_map & sM, const g_map & dM) :
     c1(sM, Datum("wgs84"), dM.map_proj, map_popts(dM)),
-    c2(dM, Datum("wgs84"), dM.map_proj, map_popts(dM)),
-    tst_frw(sM.border),
-    tst_bck(sM.border),
-    test_brd(test_brd_)
+    c2(dM, Datum("wgs84"), dM.map_proj, map_popts(dM))
 {
-
   if (sM.map_proj == Proj("google")){
-    c1=map2pt(sM, Datum("sphere"), Proj("lonlat"), Options());
+    c1=map2pt(sM, Datum("google_sphere"), Proj("lonlat"), Options());
     c2=map2pt(dM, Datum("wgs84"), Proj("lonlat"), Options());
-  }
-
-  g_map M(sM);
-  M.ensure_border();
-  border_src = M.border;
-
-  tst_bck = poly_tester(border_src);
-  if (test_brd){
-    border_dst = line_frw(border_src);
-    tst_frw = poly_tester(border_dst);
   }
 }
 
@@ -332,7 +318,6 @@ map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect,
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
         x = cnv_rect.x + ((dst_x-dst_rect.x)*cnv_rect.w)/dst_rect.w;
         dPoint p(x,y);
-        if (test_brd && !tst_bck.test(p)) continue;
         bck(p); p/=src_scale;
 	unsigned int c = src_img.safe_get(int(p.x),int(p.y));
 	if (c != 0){

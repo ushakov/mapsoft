@@ -154,12 +154,12 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
 
       //draw border
       if ((status[m]&SHOW_BRD) || (scale > maxscale)){
-        for (dLine::const_iterator p=m2ms[i].border_dst.begin();
-                             p!=m2ms[i].border_dst.end(); p++){
-          if (p==m2ms[i].border_dst.begin())
-            cr->move_to((*p)-dorigin);
+        for (iLine::const_iterator p=borders[i].begin();
+                                   p!=borders[i].end(); p++){
+          if (p==borders[i].begin())
+            cr->move_to((*p)-origin);
           else
-            cr->line_to((*p)-dorigin);
+            cr->line_to((*p)-origin);
         }
         cr->close_path();
         if (scale > maxscale){ // fill map area
@@ -222,13 +222,13 @@ LayerGeoMap::dump_maps(const char *file){
    << "-2\n"
    << "1200 2\n";
   for (int i=0;i<m2ms.size();i++){
-    int bs = m2ms[i].border_dst.size();
+    int bs = borders[i].size();
     f << "2 3 0 1 4 29 8 -1 20 0.000 0 0 -1 0 0 "
       << bs << "\n\t";
     double minx=1e99, maxx=-1e99;
 	for (int j=0; j<bs; j++){
-      double x=m2ms[i].border_dst[j].x;
-      double y=m2ms[i].border_dst[j].y;
+      double x=borders[i][j].x;
+      double y=borders[i][j].y;
       if (x<minx) minx=x;
       if (x>maxx) maxx=x;
       f << " " << int(x) << " " << int(y);
@@ -244,8 +244,8 @@ LayerGeoMap::dump_maps(const char *file){
       n++;
       if ((n==(*data)[i].comm.size()) || (s1.size()*lettw > maxx-minx)){
       f << "4 0 4 6 -1 18 20 0.0000 4 225 630 " 
-        << int(m2ms[i].border_dst[0].x+100) << " " 
-        << int(m2ms[i].border_dst[0].y+500 + l*letth) << " " 
+        << int(borders[i][0].x+100) << " " 
+        << int(borders[i][0].y+500 + l*letth) << " " 
         << s1 << "\\001\n";
         s1=""; l++;
       }

@@ -8,7 +8,6 @@
 #include "options/options.h"
 #include "2d/image.h"
 #include "2d/point_conv.h"
-#include "2d/poly_tester.h"
 #include <proj_api.h>
 
 namespace convs{
@@ -58,7 +57,7 @@ private:
 /// Здесь может быть суровое разбиение карты на куски и аппроксимация линейными преобразованиями...
 /// Здесь же - преобразование картинок (с интерфейсом как у image loader'a).
 struct map2map : Conv{
-  map2map(const g_map & sM, const g_map & dM, bool test_brd_ = true);
+  map2map(const g_map & sM, const g_map & dM);
   void frw(dPoint & p) const;
   void bck(dPoint & p) const;
 
@@ -70,11 +69,6 @@ struct map2map : Conv{
                 iImage & dst_img, iRect dst_rect) const;
 
   map2pt c1,c2;
-
-  dLine border_src; // граница sM
-  dLine border_dst; // это след от границы sM на dM! 
-  bool test_brd;
-  poly_tester tst_frw, tst_bck;
 };
 
 
