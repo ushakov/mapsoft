@@ -7,8 +7,6 @@
 
 #include "2d/line_utils.h"
 
-#include "loaders/image_r.h" // определение размеров картинки (image_r::size)
-
 namespace convs{
 using namespace std;
 
