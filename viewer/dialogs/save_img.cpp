@@ -1,6 +1,6 @@
 #include "save_img.h"
 
-DlgSaveImg::DlgSaveImg(): dpi_adj(300, 0, 9999, 50){
+DlgSaveImg::DlgSaveImg(): dpi_adj(300, 1, 9999, 50){
 //  add_button (Gtk::Stock::PRINT, Gtk::RESPONSE_APPLY);
   add_button (Gtk::Stock::SAVE,     Gtk::RESPONSE_OK);
   add_button (Gtk::Stock::CLOSE, Gtk::RESPONSE_CANCEL);
@@ -20,7 +20,7 @@ DlgSaveImg::DlgSaveImg(): dpi_adj(300, 0, 9999, 50){
   rb_mpp_dpi =  manage(new Gtk::RadioButton(gr1,"Set resolution: "));
   rb_mpp_auto->set_active();
 
-  mpp_dpi   = manage(new Gtk::SpinButton(dpi_adj));
+  mpp_dpi   = manage(new Gtk::SpinButton(dpi_adj,0,1));
   mpp_scale = manage(new CBScale);
 
   Gtk::Label *l_dpi = manage(

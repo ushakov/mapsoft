@@ -26,10 +26,10 @@ double digs(int u){
   return 0;
 }
 
-PageBox::PageBox(): marg_adj(0, 0, 99),
-                    x_adj(0,0,99999),
-                    y_adj(0,0,99999),
-                    dpi_adj(0, 0, 9999, 50) {
+PageBox::PageBox(): marg_adj(0, 0, 99999),
+                    x_adj(1,1,99999),
+                    y_adj(1,1,99999),
+                    dpi_adj(300, 1, 9999, 50) {
 
   /*** 1st hbox ***/
   Gtk::HBox * hb1 = manage(new Gtk::HBox);
@@ -46,7 +46,7 @@ PageBox::PageBox(): marg_adj(0, 0, 99),
 
   x   = manage(new Gtk::SpinButton(x_adj));
   y   = manage(new Gtk::SpinButton(y_adj));
-  dpi = manage(new Gtk::SpinButton(dpi_adj));
+  dpi = manage(new Gtk::SpinButton(dpi_adj,0,1));
   units = manage(new CBUnit());
 
   //                  expand, fill, padding
