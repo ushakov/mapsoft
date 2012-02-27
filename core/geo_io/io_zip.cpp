@@ -36,13 +36,13 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
 
   zip_file = zip_open(filename, 0, &err);
   if (!zip_file){
-    cerr << "Error: can't open file " << filename << endl;
+    cerr << "Can't open " << filename << endl;
     return false;
   }
 
   files_total = zip_get_num_files(zip_file);
   if (!files_total) {
-    cerr << "Error: can't read file " << filename << endl;
+    cerr << "Can't read " << filename << endl;
     zip_close(zip_file);
     return false;
   }
@@ -50,7 +50,7 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
   for (i = 0; i < files_total; i++) {
     file_in_zip = zip_fopen_index(zip_file, i, 0);
     if (!file_in_zip) {
-      cerr << "Error: can't read file " << fzip_name
+      cerr << "Can't read file " << fzip_name
            << " from a zip archive" << endl;
       continue;
     }
@@ -65,7 +65,7 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
     io::in(tmp,world,opt);
 
     if (remove(tmp.c_str())) {
-      cerr << "Error: can't delete temp file "<< tmp << endl;
+      cerr << "Can't delete temp file "<< tmp << endl;
     }
   }
   zip_close(zip_file);
@@ -78,24 +78,24 @@ bool write_file (const char* filename, const std::vector<std::string> & files){
   remove(filename);
   Z = zip_open(filename, ZIP_CREATE, &err);
   if (!Z) {
-    cerr << "Error: can't open file " << filename << endl;
+    cerr << "Can't open " << filename << endl;
     return false;
   }
   std::vector<std::string>::const_iterator f;
   for (f = files.begin(); f!=files.end();  f++){
     struct zip_source *s = zip_source_file(Z, f->c_str(),0,0);
     if ((s == NULL) || (zip_add(Z, f->c_str(), s) < 0)) {
-      std::cerr << "Error adding file: " << zip_strerror(Z) << endl;
+      std::cerr << "Can't add " << zip_strerror(Z) << " to zip archive" << endl;
       zip_source_free(s);
     }
   }
   if (zip_close(Z)!=0){
-    std::cerr << "Error writing archive: " << zip_strerror(Z) << endl;
+    std::cerr << "Can't write " << zip_strerror(Z) << endl;
     return false;
   }
   for (f = files.begin(); f!=files.end();  f++){
     if (remove(f->c_str()))
-      cerr << "Error: can't delete file "<< *f << endl;
+      cerr << "Can't delete "<< *f << endl;
   }
   return true;
 }

@@ -123,8 +123,6 @@ try{
     exit(1);
   }
 
-  if (O.exists("verbose")) cerr << "Reading data...\n";
-
   geo_data world;
   for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++)
     io::in(*i, world, O);
@@ -137,7 +135,6 @@ try{
 
   if (O.exists("verbose")) cerr << "Applying filters...\n";
   io::filter(world, O);
-  if (O.exists("verbose")) cerr << "Writing data to " << O.get("out", string()) << "\n";
 
   string name=O.get("out", string());
   if ((io::testext(name, ".tiff")) ||

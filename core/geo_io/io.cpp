@@ -54,6 +54,7 @@ gps_detect(){
 bool
 in(const string & in_name, geo_data & world, const Options & opt){
   string name(in_name);
+  bool v = opt.exists("verbose");
 
   if (name == "gps:"){
     name = gps_detect();
@@ -65,54 +66,38 @@ in(const string & in_name, geo_data & world, const Options & opt){
 
   int c = check_file(name);
   if (c < 0){
-    cerr << "Can't access file " << name << "\n";
+    cerr << "Can't access " << name << endl;
     return false;
   }
 
   if (c == 1){
-    cerr << "Reading data from GPS via serial port "
-         << name << "\n";
+    if (v) cerr << "Reading data from GPS via serial port "
+                << name << endl;
     if (!gps::get_all(name.c_str(), world, opt)){
-      cerr << "Error.\n";
+      cerr << "Can't get data from " << name << endl;
       return false;
     }
     return true;
   }
 
   if (testext(name, ".xml")){
-    cerr << "Reading data from XML file " << name << "\n";
-    if (!xml::read_file (name.c_str(), world, opt)){
-      cerr << "Error.\n";
-      return false;
-    }
-    return true;
+    if (v) cerr << "Reading data from XML file " << name << endl;
+    return xml::read_file (name.c_str(), world, opt);
   }
   if (testext(name, ".gpx")){
-    cerr << "Reading data from GPX file " << name << "\n";
-    if (!gpx::read_file (name.c_str(), world, opt)){
-      cerr << "Error.\n";
-      return false;
-    }
-    return true;
+    if (v) cerr << "Reading data from GPX file " << name << endl;
+    return gpx::read_file (name.c_str(), world, opt);
   }
   if (testext(name, ".gu")){
-    cerr << "Reading data from Garmin-utils file " << name << "\n";
-    if (!gu::read_file (name.c_str(), world, opt)){
-      cerr << "Error.\n";
-      return false;
-    }
-    return true;
+    if (v) cerr << "Reading data from Garmin-utils file " << name << endl;
+    return gu::read_file (name.c_str(), world, opt);
   }
   if ((testext(name, ".plt")) || (testext(name, ".wpt")) || (testext(name, ".map"))){
-    cerr << "Reading data from Ozi file " << name << "\n";
-    if (!oe::read_file (name.c_str(), world, opt)){
-      cerr << "Error.\n";
-      return false;
-    }
-    return true;
+    if (v) cerr << "Reading data from Ozi file " << name << endl;
+    return oe::read_file (name.c_str(), world, opt);
   }
   if (testext(name, ".fig")){
-    cerr << "Reading data from Fig file " << name << "\n";
+    if (v) cerr << "Reading data from Fig file " << name << endl;
     fig::fig_world F;
     fig::read(name.c_str(), F);
     g_map m=fig::get_ref(F);
@@ -122,48 +107,45 @@ in(const string & in_name, geo_data & world, const Options & opt){
     return true;
   }
   if (testext(name, ".zip")) {
-    cerr << "Reading data from zip archive " << name << "\n";
-    if (!io_zip::read_file (name.c_str(), world, opt)){
-      cerr << "Error.\n";
-      return false;
-    }
-    return true;
+    if (v) cerr << "Reading data from zip archive " << name << endl;
+    return io_zip::read_file (name.c_str(), world, opt);
   }
-  cerr << "Unknown format in file " << name << "\n";
+  cerr << "Unknown extension: " << name << endl;
   return false;
 }
 
 void out(const string & out_name, geo_data const & world, const Options & opt){
   string name(out_name);
+  bool v = opt.exists("verbose");
 
   if (name == "gps:"){
     name = gps_detect();
     if (name == ""){
-      cerr << "Can't detect gps device\n";
+      cerr << "Can't detect gps device" << endl;
       return;
     }
   }
 
   if (check_file(name) == 1){
-    cerr << "Sending data to GPS via serial port " << name << "\n";
-    if (!gps::put_all (name.c_str(), world, opt)){
-      cerr << "Error.\n";
-      return;
-    }
+    if (v) cerr << "Sending data to GPS via serial port " << name << endl;
+    if (!gps::put_all (name.c_str(), world, opt))
+      cerr << "Can't send data to " << name << endl;
     return;
   }
 
   // mapsoft XML format
   if (testext(name, ".xml")){
-    cerr << "Writing to XML file " << name << "\n";
-    xml::write_file (name.c_str(), world, opt);
+    if (v) cerr << "Writing to XML file " << name << endl;
+    if (!xml::write_file (name.c_str(), world, opt))
+      cerr << "Can't write " << name << endl;
     return;
   }
 
   // GPX format
   if (testext(name, ".gpx")){
-    cerr << "Writing to GPX file " << name << "\n";
-    gpx::write_file (name.c_str(), world, opt);
+    if (v) cerr << "Writing to GPX file " << name << endl;
+    if (!gpx::write_file (name.c_str(), world, opt))
+      cerr << "Can't write " << name << endl;
     return;
   }
 
@@ -171,22 +153,25 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
   if (testext(name, ".kml") || testext(name, ".kmz")){
     string base(name.begin(), name.begin()+name.rfind('.'));
     string kml=base+".kml";
-    cerr << "Writing to Google KML file " << kml << "\n";
-    kml::write_file (kml.c_str(), world, opt);
+    if (v) cerr << "Writing to Google KML file " << kml << endl;
+    if (!kml::write_file (kml.c_str(), world, opt))
+      cerr << "Can't write " << name << endl;
 
     if (testext (name, ".kmz")){
       vector<string> files;
       files.push_back(kml);
-      cerr << "Zipping file to " << name << "\n";
-      io_zip::write_file(name.c_str(), files);
+      if (v) cerr << "Zipping to " << name << endl;
+      if (!io_zip::write_file(name.c_str(), files))
+        cerr << "Can't make zip-file " << name << endl;
     }
     return;
   }
 
   // Garmin-Utils format
   if (testext(name, ".gu")){
-    cerr << "Writing to Garmin-utils file " << name << "\n";
-    gu::write_file (name.c_str(), world, opt);
+    if (v) cerr << "Writing to Garmin-utils file " << name << endl;
+    if (!gu::write_file (name.c_str(), world, opt))
+      cerr << "Can't write to " << name << endl;
     return;
   }
 
@@ -197,7 +182,7 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
       (testext(name, ".zip"))||
       (testext(name, ".oe"))){
     string base(name.begin(), name.begin()+name.rfind('.'));
-    cerr << "Writing to OziExplorer files: \n";
+    if (v) cerr << "Writing to OziExplorer files: \n";
     vector<string> files;
 
     // number of files with tracks, waypoints and maps
@@ -218,11 +203,11 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
         oef << base << ".wpt";
 
       ofstream f(oef.str().c_str());
-      if (!oe::write_wpt_file (f, world.wpts[n], opt)){
-        cerr << "! " << oef.str() << " FAILURE\n";
-      }
+      if (!oe::write_wpt_file (f, world.wpts[n], opt))
+        cerr << "Can't write " << oef.str() << endl;
       else{
-        cerr << "  " << oef.str() << " -- " << world.wpts[n].size() << " waypoints\n";
+        if (v) cerr << "  " << oef.str() << " -- "
+                    << world.wpts[n].size() << " waypoints\n";
         files.push_back(oef.str());
       }
     }
@@ -235,11 +220,11 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
         oef << base << ".plt";
 
       ofstream f(oef.str().c_str());
-      if (!oe::write_plt_file (f, world.trks[n], opt)){
-        cerr << "! " << oef.str() << " FAILURE\n";
-      }
+      if (!oe::write_plt_file (f, world.trks[n], opt))
+        cerr << "Can't write " << oef.str() << endl;
       else{
-        cerr << "  " << oef.str() << " -- " << world.trks[n].size() << " points\n";
+        if (v) cerr << "  " << oef.str() << " -- "
+                    << world.trks[n].size() << " points\n";
         files.push_back(oef.str());
       }
     }
@@ -258,28 +243,29 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
         oef << ".map";
 
         ofstream f(oef.str().c_str());
-        if (!oe::write_map_file (f, world.maps[nn][n], opt)){
-          cerr << "! " << oef.str() << " FAILURE\n";
-        }
+        if (!oe::write_map_file (f, world.maps[nn][n], opt))
+          cerr << "Can't write " << oef.str() << endl;
+
         else {
-          cerr << "  " << oef.str() << " -- " << world.maps[n].size() << " reference points\n";
+          if (v) cerr << "  " << oef.str() << " -- "
+                      << world.maps[n].size() << " reference points" << endl;
           files.push_back(oef.str());
         }
       }
     }
 
     if (testext (name, ".zip")){
-      cerr << "Zipping files to " << name << "\n";
+      if (v) cerr << "Zipping files to " << name << endl;
       io_zip::write_file(name.c_str(), files);
     }
 
     return;
   }
 
-  cerr << "Can't write geodata to file " << name << "\n"
-       << "Use .xml, .gu, .wpt, .plt, .oe or .zip extension\n"
-       << "or name of serial port device (for example /dev/ttyS0)\n"
-       << " or \"gps:\" for garmin gps.\n";
+  cerr << "Can't write geodata to file " << name << endl
+       << "Use .xml, .gu, .wpt, .plt, .oe or .zip extension" << endl
+       << "or name of serial port device (for example /dev/ttyS0)" << endl
+       << " or \"gps:\" for garmin gps." << endl;
 }
 }  // namespace io
 

@@ -8,7 +8,7 @@ bool parse_file(const char * name, const char *file, const rule_t & rule){
 
     fit_t first(file);
     if (!first) {
-      std::cerr << name << ": can't read file " << file << '\n'; 
+      std::cerr << name << ": can't read " << file << '\n'; 
       return false;
     }
     fit_t last = first.make_end();
@@ -23,7 +23,7 @@ bool parse_file(const char * name, const char *file, const rule_t & rule){
       pit_t it=res.stop;
       file_position fpos=it.get_position();
 
-      std::cerr << name << ": can't parse file: " << fpos.file <<
+      std::cerr << name << ": can't parse: " << fpos.file <<
         " at line: " << fpos.line <<
         " column: " << fpos.column << "\n";
       int i,j;

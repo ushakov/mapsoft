@@ -311,7 +311,7 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
   xmlFreeTextReader(reader);
 
   if (ret != 0) {
-    cerr << "Error: failed to parse " << filename << "\n";
+    cerr << "io_gps: can't read " << filename << "\n";
     return false;
   }
 

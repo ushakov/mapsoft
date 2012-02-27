@@ -86,7 +86,7 @@ namespace xml {
 
 		rule_t main_rule = *(*space_p >> (wpt_object | trk_object | topmap_object | maps_object)) >> *space_p;
 
-		if (!parse_file("fig::read", filename, main_rule)) return false;
+		if (!parse_file("xml::read", filename, main_rule)) return false;
                 if (top_map_list.maps.size()>0) ret.maps.push_back(top_map_list);
 
 		// convert wpt names and comments to UTF-8
