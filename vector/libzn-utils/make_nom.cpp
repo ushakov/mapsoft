@@ -4,7 +4,7 @@
 #include "geo/geo_convs.h"
 #include "geo/geo_nom.h"
 #include "geo_io/geofig.h"
-#include "geo_io/io.h"
+#include "geo_io/io_oe.h"
 
 #include "2d/line_utils.h"
 #include "options/m_getopt.h"

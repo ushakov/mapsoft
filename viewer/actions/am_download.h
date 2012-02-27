@@ -3,6 +3,7 @@
 
 #include "action_mode.h"
 #include "../dialogs/download.h"
+#include "geo_io/io_gps.h"
 
 class Download : public ActionMode {
 public:

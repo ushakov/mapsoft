@@ -2,13 +2,14 @@
 #define AM_SAVE_IMAGE_H
 
 #include <sstream>
-#include "2d/line_utils.h"
-
 #include "action_mode.h"
 #include "../dialogs/save_img.h"
-//#include "../dialogs/print.h"
 
-#include "../../core/loaders/image_r.h"
+#include "2d/line_utils.h"
+#include "geo_io/io_oe.h"
+#include "loaders/image_r.h"
+
+
 
 class SaveImage : public ActionMode {
 public:
