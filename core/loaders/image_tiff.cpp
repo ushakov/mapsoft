@@ -1,13 +1,15 @@
 #include "image_tiff.h"
+#include <tiffio.h>
 
 namespace image_tiff{
+using namespace std;
 
 // getting file dimensions
 iPoint size(const char *file){
     TIFF* tif = TIFFOpen(file, "rb");
 
     if (!tif){
-//      std::cerr << "Can't read TIFF file!\n";
+//      cerr << "image_tiff: can't read " << file << endl;
       return iPoint(0,0);
     }
 
@@ -18,11 +20,13 @@ iPoint size(const char *file){
     return iPoint(w,h);
 }
 
-// loading from Rect in jpeg-file to Rect in image
 int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect){
 
     TIFF* tif = TIFFOpen(file, "rb");
-    if (!tif) return 2;
+    if (!tif){
+       cerr << "image_tiff: can't read " << file << endl;
+       return 2;
+    }
 
     int tiff_w, tiff_h;
 
@@ -50,7 +54,7 @@ int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect){
     if ((compression_type==COMPRESSION_NONE)||(rows_per_strip==1)) can_skip_lines = true;
 
 #ifdef DEBUG_TIFF
-      std::cerr << "tiff: can we skip lines: " << can_skip_lines << "\n";
+      cerr << "tiff: can we skip lines: " << can_skip_lines << "\n";
 #endif
 
 
@@ -98,7 +102,7 @@ int save(const iImage & im, const iRect & src_rect,
     TIFF* tif = TIFFOpen(file, "wb");
 
     if (!tif){
-      std::cerr << "Can't write TIFF-file!\n";
+      cerr << "image_tiff: can't write " << file << endl;
       return 1;
     }
     int bpp = usealpha?4:3;

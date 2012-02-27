@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include <loaders/image_r.h>
-
+#include <cstdio>
 #include "libbm.h"
 
 main(int argc, char **argv){

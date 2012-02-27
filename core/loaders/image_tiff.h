@@ -3,8 +3,6 @@
 
 #include "2d/image.h"
 
-#include <tiffio.h>
-
 namespace image_tiff{
 
 // getting file dimensions
