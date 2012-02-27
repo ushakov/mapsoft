@@ -175,11 +175,10 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
     kml::write_file (kml.c_str(), world, opt);
 
     if (testext (name, ".kmz")){
-      cerr << "Zipping "<< kml << "\n";
-      string zipcmd = "zip " + base + ".kmz " + kml;
-      string rmcmd =  "rm " + kml;
-      if (system (zipcmd.c_str())==-1) cerr << "Error: can't do zip\n";
-      if (system (rmcmd.c_str())==-1)  cerr << "Error: can't do rm\n";
+      vector<string> files;
+      files.push_back(kml);
+      cerr << "Zipping file to " << name << "\n";
+      io_zip::write_file(name.c_str(), files);
     }
     return;
   }
