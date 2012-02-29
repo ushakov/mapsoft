@@ -92,6 +92,7 @@ namespace xml {
 		// convert wpt names and comments to UTF-8
 		IConv cnv(default_charset);
 		for (vector<g_waypoint_list>::iterator l=ret.wpts.begin(); l!=ret.wpts.end(); l++){
+                  l->comm = cnv.to_utf8(l->comm);
 		  for (g_waypoint_list::iterator p=l->begin(); p!=l->end(); p++){
 		    p->name = cnv.to_utf8(p->name);
 		    p->comm = cnv.to_utf8(p->comm);
@@ -160,6 +161,7 @@ namespace xml {
 		g_waypoint_list def_w;
 		f << "<waypoints points=" << wp.size();
 		if (wp.symbset != def_w.symbset) f << " symbset=" << wp.symbset;
+		if (wp.comm    != def_w.comm)    f << " comm=\""   << cnv.from_utf8(wp.comm) << "\"";
 		f << ">\n";
 		vector<g_waypoint>::const_iterator p, b=wp.begin(), e=wp.end();
 		for (p = b; p!=e; p++){
