@@ -58,6 +58,7 @@ private:
     double sc;
 
     Glib::Mutex draw_mutex;
+    bool stop_drawing;
 };
 
 

@@ -2,7 +2,7 @@
 #include "workplane.h"
 
 
-Workplane::Workplane(void) : sc(1.0) { }
+Workplane::Workplane(void) : sc(1.0), stop_drawing(false) { }
 
 int
 Workplane::draw(iImage &img, const iPoint &origin){
@@ -13,13 +13,22 @@ Workplane::draw(iImage &img, const iPoint &origin){
                 itl = layers.rbegin(); itl != layers.rend();  ++itl){
 	    LayerGeo * layer = itl->second;
 	    if (layers_active[layer]) {
-		if (!tile_cache[layer]->contains(tile)) {
-		    tile_cache[layer]->add(tile, layer->get_image(tile));
+                // copy to prevent deleting from another thread
+                boost::shared_ptr<LayerCache> cache = tile_cache[layer];
+		if (!cache->contains(tile)) {
+		    cache->add(tile, layer->get_image(tile));
 		}
-		iImage& tile_img = tile_cache[layer]->get(tile);
                 draw_mutex.unlock();
+		iImage& tile_img = cache->get(tile);
 		if (tile_img.w != 0) img.render(0,0,tile_img);
+
                 draw_mutex.lock();
+                // in this moment layers can be change, so we need this:
+                if (stop_drawing){
+                  stop_drawing=false;
+                  draw_mutex.unlock();
+                  return GOBJ_FILL_NONE;
+                }
 	    }
 	}
         draw_mutex.unlock();
@@ -47,6 +56,7 @@ Workplane::add_layer (LayerGeo * layer, int depth) {
 	    return;
 	}
         draw_mutex.lock();
+        stop_drawing=true;
 	layers.insert (std::make_pair (depth, layer));
 	layers_active[layer] = true;
 	tile_cache[layer].reset(new LayerCache(CacheCapacity));
@@ -56,13 +66,14 @@ Workplane::add_layer (LayerGeo * layer, int depth) {
 void
 Workplane::remove_layer (LayerGeo * layer){
 //	std::cout << "Removing layer " << layer << std::endl;
-	std::multimap<int, LayerGeo *>::iterator itl = find_layer(layer);	
+	std::multimap<int, LayerGeo *>::iterator itl = find_layer(layer);
 	if (itl == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
 	    return;
 	}
         draw_mutex.lock();
+        stop_drawing=true;
 	layers_active.erase(layer);
 	layers.erase(itl);
 	tile_cache.erase(layer);
@@ -72,6 +83,7 @@ Workplane::remove_layer (LayerGeo * layer){
 void
 Workplane::clear(){
         draw_mutex.lock();
+        stop_drawing=true;
 	layers_active.clear();
 	layers.clear();
 	tile_cache.clear();
@@ -87,6 +99,7 @@ Workplane::set_layer_depth (LayerGeo * layer, int newdepth){
 	    return;
 	}
         draw_mutex.lock();
+        stop_drawing=true;
 	layers.erase(itl);
 	layers.insert(std::make_pair(newdepth, layer));
         draw_mutex.unlock();
