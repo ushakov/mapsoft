@@ -15,6 +15,7 @@
 #include "action_manager.h"
 #include "geo_io/io.h"
 #include "2d/rect.h"
+#include "dialogs/ch_conf.h"
 
 #define ACCEL_FILE ".mapsoft/accel"
 
@@ -43,6 +44,7 @@ private:
     std::string filename; // project filename
     bool changed;         // true if project was changed since
                           // last saving/loading
+    DlgChConf dlg_ch_conf;
 public:
 
     Mapview ();
@@ -65,8 +67,8 @@ public:
     bool get_changed() const;
     void set_changed(const bool c=true);
     void add_file(std::string file);  // add data from file
-    void load_file(std::string file); // load new data from file
-    void new_file();                  // start new project
+    void load_file(std::string file, bool force=false); // load new data from file
+    void new_file(bool force=false);                    // start new project
 
     void add_wpts(const boost::shared_ptr<g_waypoint_list> data);
     void add_trks(const boost::shared_ptr<g_track> data);
@@ -78,7 +80,7 @@ public:
 
     void set_ref(const g_map & ref);
     void goto_wgs(dPoint p);
-    void exit();
+    void exit(bool force=false);
     void refresh();
     bool on_key_press(GdkEventKey * event);
     bool on_button_press (GdkEventButton * event);

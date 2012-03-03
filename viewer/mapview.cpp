@@ -11,12 +11,13 @@ Mapview::Mapview () :
     have_reference(false),
     divert_refresh(false),
     viewer(&workplane),
-    rubber(&viewer)
+    rubber(&viewer),
+    dlg_ch_conf()
 {
 
     /// window initialization
     signal_delete_event().connect_notify (
-      sigc::hide(sigc::mem_fun (this, &Mapview::exit)));
+      sigc::bind(sigc::hide(sigc::mem_fun (this, &Mapview::exit)),false));
     set_default_size(640,480);
 
     /// global keypress event
@@ -91,6 +92,7 @@ Mapview::Mapview () :
     add (*vbox);
 
     filename="";
+    set_changed(false);
     statusbar.push("Welcome to mapsoft viewer!",0);
     show_all();
 }
@@ -264,11 +266,14 @@ Mapview::add_file(string file) {
 }
 
 void
-Mapview::load_file(string file) {
+Mapview::load_file(string file, bool force) {
 
-  if (get_changed()){
-    // TODO ...
+  if (!force && get_changed()){
+    dlg_ch_conf.call(
+      sigc::bind(sigc::mem_fun(this, &Mapview::load_file), file, true));
+    return;
   }
+
   filename = file;
   clear_world();
   g_print ("Load file: %s\n", file.c_str());
@@ -279,11 +284,14 @@ Mapview::load_file(string file) {
 }
 
 void
-Mapview::new_file() {
+Mapview::new_file(bool force) {
 
-  if (get_changed()){
-    // TODO ...
+  if (!force && get_changed()){
+    dlg_ch_conf.call(
+      sigc::bind(sigc::mem_fun (this, &Mapview::new_file), true));
+    return;
   }
+
   filename = "";
   clear_world();
   g_print ("New file\n");
@@ -415,9 +423,12 @@ Mapview::goto_wgs(dPoint p){
 }
 
 void
-Mapview::exit() {
-  if (get_changed()){
-    // TODO ...
+Mapview::exit(bool force) {
+
+  if (!force && get_changed()){
+    dlg_ch_conf.call(
+      sigc::bind(sigc::mem_fun (this, &Mapview::exit), true));
+    return;
   }
   char *home=getenv("HOME");
   if (home) Gtk::AccelMap::save(string(home) + "/" + ACCEL_FILE);
