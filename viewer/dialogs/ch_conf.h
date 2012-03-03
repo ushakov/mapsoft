@@ -4,7 +4,7 @@
 #include <gtkmm.h>
 
 // dialog for file changed confirmation
-class DlgChConf : public Gtk::Dialog{
+class DlgChConf : public Gtk::MessageDialog{
   public:
     DlgChConf();
     void call(const sigc::slot<void> & slot);
