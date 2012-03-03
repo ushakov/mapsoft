@@ -71,7 +71,7 @@ public:
           }
           mystate=1;
 
-        } else { // move point
+        } else { // add point
           if (!layer) return;
           convs::map2pt cnv(layer->get_cnv());
           dPoint pt(p);
@@ -86,6 +86,7 @@ public:
             layer->get_pt(pt_num)->start = false;
           }
           layer->get_data()->insert(layer->get_data()->begin()+pt_num, tpt);
+          mapview->set_changed();
           mapview->workplane.refresh_layer(layer);
           abort();
         }

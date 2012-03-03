@@ -36,6 +36,7 @@ private:
         g_track::iterator i = layer->get_data()->begin();
         for (i++; i!= layer->get_data()->end(); i++) i->start=false;
       }
+      mapview->set_changed();
       mapview->workplane.refresh_layer(layer);
     }
 };

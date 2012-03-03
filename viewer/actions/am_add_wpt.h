@@ -54,6 +54,7 @@ private:
         if (layer){
           g_waypoint_list * wpts = layer->get_data();
           wpts->push_back(wpt);
+          mapview->set_changed();
           mapview->workplane.refresh_layer(layer);
           abort();
           return;

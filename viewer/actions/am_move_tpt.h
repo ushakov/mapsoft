@@ -51,6 +51,7 @@ public:
           dPoint pt(p);
           cnv.frw(pt);
           tpt->dPoint::operator=(pt);
+          mapview->set_changed();
           mapview->workplane.refresh_layer(layer);
           abort();
         }

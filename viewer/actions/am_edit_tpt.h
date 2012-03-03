@@ -23,8 +23,8 @@ public:
       int pt_num = mapview->find_tpt(p, &layer);
       if (pt_num < 0) return;
       tpt = layer->get_pt(pt_num);
-      dlg.show_all();
       dlg.tpt2dlg(tpt);
+      dlg.show_all();
     }
 
 private:
@@ -35,6 +35,7 @@ private:
     void on_result(int r) {
       if (r!=Gtk::RESPONSE_OK) return;
       dlg.dlg2tpt(tpt);
+      mapview->set_changed();
       mapview->workplane.refresh_layer(layer);
     }
     void on_jump(dPoint p){

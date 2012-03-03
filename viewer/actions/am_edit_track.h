@@ -33,6 +33,7 @@ private:
     void on_result(int r) {
       if (r!=Gtk::RESPONSE_OK) return;
       dlg.dlg2trk(layer->get_data());
+      mapview->set_changed();
       mapview->workplane.refresh_layer(layer);
       mapview->update_ll_comm(layer);
     }

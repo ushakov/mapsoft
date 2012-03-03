@@ -6,7 +6,7 @@
 class SaveVis : public ActionMode, public Gtk::FileSelection{
 public:
     SaveVis (Mapview * mapview) :
-           ActionMode(mapview), Gtk::FileSelection("Save Visible"){
+           ActionMode(mapview), Gtk::FileSelection(get_name()){
 
       get_ok_button()->signal_clicked().connect(
           sigc::mem_fun (this, &SaveVis::on_ok));
@@ -14,7 +14,7 @@ public:
           sigc::mem_fun(this, &Gtk::Window::hide));
     }
 
-    std::string get_name() { return "Save Visible"; }
+    std::string get_name() { return "Save Visible As"; }
     Gtk::StockID get_stockid() { return Gtk::Stock::SAVE_AS; }
     Gtk::AccelKey get_acckey() { return Gtk::AccelKey("<shift><control>s"); }
     bool is_radio() { return false; }

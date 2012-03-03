@@ -2,7 +2,10 @@
 #include "mapview.h"
 
 #include "actions/action_mode.h"
+#include "actions/am_new.h"
+#include "actions/am_open.h"
 #include "actions/am_add_file.h"
+#include "actions/am_save.h"
 #include "actions/am_save_all.h"
 #include "actions/am_save_vis.h"
 #include "actions/am_download.h"
@@ -43,10 +46,15 @@ ActionManager::ActionManager (Mapview * mapview_)
 {
     current_mode = 0;
 
+    ADD_ACT(New,             "File")
+    ADD_ACT(Open,            "File")
     ADD_ACT(AddFile,         "File")
+    ADD_ACT(Download,        "File")
+    AddSep("File");
+    ADD_ACT(Save,            "File")
     ADD_ACT(SaveAll,         "File")
     ADD_ACT(SaveVis,         "File")
-    ADD_ACT(Download,        "File")
+    AddSep("File");
     ADD_ACT(Quit,            "File")
 
     ADD_ACT(AddWaypoint,     "Waypoints")

@@ -6,7 +6,7 @@
 class SaveAll : public ActionMode, public Gtk::FileSelection{
 public:
     SaveAll (Mapview * mapview) :
-           ActionMode(mapview), Gtk::FileSelection("Save All"){
+           ActionMode(mapview), Gtk::FileSelection(get_name()){
 
       get_ok_button()->signal_clicked().connect(
           sigc::mem_fun (this, &SaveAll::on_ok));
@@ -14,18 +14,22 @@ public:
           sigc::mem_fun(this, &Gtk::Window::hide));
     }
 
-    std::string get_name() { return "Save All"; }
+    std::string get_name() { return "Save As/Export"; }
     Gtk::StockID get_stockid() { return Gtk::Stock::SAVE_AS; }
-    Gtk::AccelKey get_acckey() { return Gtk::AccelKey("<control>s"); }
+//    Gtk::AccelKey get_acckey() { return Gtk::AccelKey("<control>s"); }
     bool is_radio() { return false; }
 
     void activate() { show(); }
 
     void on_ok(){
-      std::string selected_filename = get_filename();
-      g_print ("Saving to file: %s\n", selected_filename.c_str());
+      std::string f = get_filename();
+      g_print ("Saving to file: %s\n", f.c_str());
 
-      io::out(selected_filename, mapview->get_world(false), Options());
+      io::out(f, mapview->get_world(false), Options());
+      if (io::testext(f, ".xml")){
+        mapview->set_filename(f);
+        mapview->set_changed(false);
+      }
       hide();
     }
 };

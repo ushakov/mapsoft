@@ -5,6 +5,7 @@
 #include <gtkmm.h>
 #include <gtkmm/accelmap.h>
 #include <map>
+#include <string>
 
 #include "gred/dthread_viewer.h"
 #include "gred/rubber.h"
@@ -36,16 +37,17 @@ public:
     bool have_reference;
     bool divert_refresh;
 
-    std::string filename; // project filename
-    bool changed;         // true if project was changed since
-                          // last saving/loading
 private:
     boost::shared_ptr<ActionManager> action_manager;
     iPoint click_start;
-
+    std::string filename; // project filename
+    bool changed;         // true if project was changed since
+                          // last saving/loading
 public:
 
     Mapview ();
+
+
 
     void layer_edited (const Gtk::TreeModel::Path& path,
                        const Gtk::TreeModel::iterator& iter);
@@ -57,9 +59,14 @@ public:
     void update_ll_comm(LayerGeoMap * layer);
 
     void on_mode_change (int m);
+    std::string get_filename() const;
+    void set_filename(const std::string & f);
 
+    bool get_changed() const;
+    void set_changed(const bool c=true);
     void add_file(std::string file);  // add data from file
     void load_file(std::string file); // load new data from file
+    void new_file();                  // start new project
 
     void add_wpts(const boost::shared_ptr<g_waypoint_list> data);
     void add_trks(const boost::shared_ptr<g_track> data);
@@ -76,6 +83,8 @@ public:
     bool on_key_press(GdkEventKey * event);
     bool on_button_press (GdkEventButton * event);
     bool on_button_release (GdkEventButton * event);
+
+/*** finding layers and data ***/
 
     // find waypoint, returns its number 0..size()-1
     int find_wpt(const iPoint & p, LayerWPT ** layer,  int radius=3) const;

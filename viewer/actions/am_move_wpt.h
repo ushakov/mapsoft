@@ -35,6 +35,7 @@ public:
           dPoint pt(p);
           cnv.frw(pt);
           wpt->dPoint::operator=(pt);
+          mapview->set_changed();
           mapview->workplane.refresh_layer(layer);
           mapview->rubber.clear();
           abort();

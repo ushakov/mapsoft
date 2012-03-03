@@ -105,7 +105,7 @@ void
 Mapview::update_layers() {
   if (divert_refresh) return;
   Gtk::TreeNodeChildren::const_iterator i;
-  bool need_refresh = false;
+  int ch = 0; // 1 - non visible change, 2 - redraw needed
 
   int d=101;
   for (i  = wpt_ll.store->children().begin();
@@ -116,15 +116,17 @@ Mapview::update_layers() {
     bool act = (*i)[wpt_ll.columns.checked];
     if (workplane.get_layer_active(layer.get()) != act){
       workplane.set_layer_active(layer.get(), act);
-      need_refresh=true;
+      ch = 2;
     }
     if (workplane.get_layer_depth(layer.get()) != d){
       workplane.set_layer_depth(layer.get(), d);
-      need_refresh=true;
+      ch = 2;
     }
     string comm = (*i)[wpt_ll.columns.comm];
-    if (comm!=layer->get_data()->comm)
+    if (comm!=layer->get_data()->comm){
       layer->get_data()->comm = comm;
+      ch = 1;
+    }
     d++;
   }
 
@@ -136,15 +138,17 @@ Mapview::update_layers() {
     bool act = (*i)[trk_ll.columns.checked];
     if (workplane.get_layer_active(layer.get()) != act){
       workplane.set_layer_active(layer.get(), act);
-      need_refresh=true;
+      ch = 2;
     }
     if (workplane.get_layer_depth(layer.get()) != d){
       workplane.set_layer_depth(layer.get(), d);
-      need_refresh=true;
+      ch = 2;
     }
     string comm = (*i)[trk_ll.columns.comm];
-    if (comm!=layer->get_data()->comm)
+    if (comm!=layer->get_data()->comm){
       layer->get_data()->comm = comm;
+      ch = 1;
+    }
     d++;
   }
 
@@ -156,24 +160,31 @@ Mapview::update_layers() {
     bool act = (*i)[map_ll.columns.checked];
     if (workplane.get_layer_active(layer.get()) != act){
       workplane.set_layer_active(layer.get(), act);
-      need_refresh=true;
+      ch = 2;
     }
     if (workplane.get_layer_depth(layer.get()) != d){
       workplane.set_layer_depth(layer.get(), d);
-      need_refresh=true;
+      ch = 2;
     }
     string comm = (*i)[map_ll.columns.comm];
     g_map_list * ml = layer->get_data();
     if (ml->size()==1){
-      if (comm!=(*ml)[0].comm) (*ml)[0].comm = comm;
+      if (comm!=(*ml)[0].comm){
+        (*ml)[0].comm = comm;
+        ch = 1;
+      }
     }
     else {
-      if (comm!=ml->comm) ml->comm = comm;
+      if (comm!=ml->comm){
+        ml->comm = comm;
+        ch = 1;
+      }
     }
 
     d++;
   }
-  if (need_refresh) refresh();
+  if (ch>0) set_changed();
+  if (ch>1) refresh();
 }
 
 
@@ -224,6 +235,26 @@ Mapview::on_mode_change (int m) {
   action_manager->set_mode(m);
 }
 
+bool
+Mapview::get_changed() const{
+  return changed;
+}
+void
+Mapview::set_changed(const bool c){
+  changed=c;
+  set_title((c?"*":"") + filename);
+}
+string
+Mapview::get_filename() const{
+  return filename;
+}
+
+void
+Mapview::set_filename(const string & f){
+  filename=f;
+  set_changed(false);
+}
+
 void
 Mapview::add_file(string file) {
   g_print ("Add data from: %s\n", file.c_str());
@@ -234,13 +265,30 @@ Mapview::add_file(string file) {
 
 void
 Mapview::load_file(string file) {
-  filename = file;
-  changed = false;
 
+  if (get_changed()){
+    // TODO ...
+  }
+  filename = file;
+  clear_world();
   g_print ("Load file: %s\n", file.c_str());
   geo_data world;
   io::in(file, world, Options());
   add_world(world, true);
+  set_changed(false);
+}
+
+void
+Mapview::new_file() {
+
+  if (get_changed()){
+    // TODO ...
+  }
+  filename = "";
+  clear_world();
+  g_print ("New file\n");
+  set_changed(false);
+  refresh();
 }
 
 void
@@ -252,6 +300,7 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> data) {
   // depth is set to 1 to evoke refresh!
   boost::shared_ptr<LayerWPT> layer(new LayerWPT(data.get()));
   workplane.add_layer(layer.get(), 100);
+  set_changed();
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
   else layer->set_ref(reference);
@@ -261,6 +310,7 @@ void
 Mapview::add_trks(const boost::shared_ptr<g_track> data) {
   boost::shared_ptr<LayerTRK> layer(new LayerTRK(data.get()));
   workplane.add_layer(layer.get(), 100);
+  set_changed();
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
   else layer->set_ref(reference);
@@ -270,6 +320,7 @@ void
 Mapview::add_maps(const boost::shared_ptr<g_map_list> data) {
   boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get()));
   workplane.add_layer(layer.get(), 100);
+  set_changed();
   // for maps always reset reference
   set_ref(layer->get_myref());
   map_ll.add_layer(layer, data);
@@ -306,10 +357,10 @@ Mapview::add_world(const geo_data & world, bool scroll) {
 void
 Mapview::clear_world() {
   divert_refresh=true;
-  map_ll.store.clear();
-  wpt_ll.store.clear();
-  trk_ll.store.clear();
   workplane.clear();
+  map_ll.store->clear();
+  wpt_ll.store->clear();
+  trk_ll.store->clear();
   have_reference = false;
   divert_refresh=false;
   update_layers();
@@ -365,6 +416,9 @@ Mapview::goto_wgs(dPoint p){
 
 void
 Mapview::exit() {
+  if (get_changed()){
+    // TODO ...
+  }
   char *home=getenv("HOME");
   if (home) Gtk::AccelMap::save(string(home) + "/" + ACCEL_FILE);
   g_print ("Exiting...\n");

@@ -37,6 +37,7 @@ private:
       mapview->rubber.clear();
       if ((pt_num<0) || (r!=Gtk::RESPONSE_OK)) return;
       dlg.dlg2wpt(layer->get_pt(pt_num));
+      mapview->set_changed();
       mapview->workplane.refresh_layer(layer);
     }
 

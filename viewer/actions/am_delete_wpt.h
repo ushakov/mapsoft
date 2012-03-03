@@ -46,6 +46,7 @@ public:
       if (!selection){
         if (!(state&Gdk::CONTROL_MASK)){ // delete one point
           del_pt(p);
+          mapview->set_changed();
         }
         else { // start selection
           mapview->rubber.clear();
@@ -57,6 +58,7 @@ public:
       else { // delete region
         mapview->rubber.clear();
         del_pt(iRect(p1,p));
+        mapview->set_changed();
         selection=false;
       }
     }
