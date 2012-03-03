@@ -5,6 +5,8 @@ const char * ch_conf_text = "Some data may be lost. Continue?";
 DlgChConf::DlgChConf():
      Gtk::MessageDialog(ch_conf_text, false,
                         Gtk::MESSAGE_WARNING, Gtk::BUTTONS_OK_CANCEL){
+  signal_response().connect(
+      sigc::hide(sigc::mem_fun(this, &DlgChConf::hide_all)));
 
   Gtk::Button * b = static_cast<Gtk::Button*>(
     get_widget_for_response(Gtk::RESPONSE_OK));
