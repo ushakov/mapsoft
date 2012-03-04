@@ -18,8 +18,8 @@ Workplane::draw(iImage &img, const iPoint &origin){
 		if (!cache->contains(tile)) {
 		    cache->add(tile, layer->get_image(tile));
 		}
-                draw_mutex.unlock();
 		iImage& tile_img = cache->get(tile);
+                draw_mutex.unlock();
 		if (tile_img.w != 0) img.render(0,0,tile_img);
 
                 draw_mutex.lock();
