@@ -39,7 +39,6 @@ public:
         warn_dlg.show_all();
         return;
       }
-      mapview->statusbar.push("Loading " + f);
       mapview->load_file(f);
       hide();
     }

@@ -66,13 +66,14 @@ public:
 
     bool get_changed() const;
     void set_changed(const bool c=true);
-    void add_file(std::string file);  // add data from file
-    void load_file(std::string file, bool force=false); // load new data from file
-    void new_file(bool force=false);                    // start new project
+    void add_files(const std::list<std::string> & files);       // add data from files
+    void load_file(const std::string & file, bool force=false); // load new data from file
+    void new_file(bool force=false);                            // start new project
 
     void add_wpts(const boost::shared_ptr<g_waypoint_list> data);
     void add_trks(const boost::shared_ptr<g_track> data);
     void add_maps(const boost::shared_ptr<g_map_list> data);
+
     void add_world(const geo_data & world, bool scroll=false);
     void clear_world();
     // build geo_data object with all/visible data

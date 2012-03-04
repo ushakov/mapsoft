@@ -44,7 +44,7 @@ public:
          warn_dlg.show_all();
          return;
       }
-      mapview->statusbar.push("Saving to " + f);
+      mapview->statusbar.push("Save to " + f);
       io::out(f, mapview->get_world(false), Options());
       mapview->set_filename(f);
       hide();

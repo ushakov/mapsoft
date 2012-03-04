@@ -258,24 +258,25 @@ Mapview::set_filename(const string & f){
 }
 
 void
-Mapview::add_file(string file) {
-  g_print ("Add data from: %s\n", file.c_str());
+Mapview::add_files(const list<string> & files) {
   geo_data world;
-  io::in(file, world, Options());
+  list<string>::const_iterator i;
+  for (i=files.begin(); i!=files.end(); i++){
+    statusbar.push("Load " + *i);
+    io::in(*i, world, Options());
+  }
   add_world(world, true);
 }
 
 void
-Mapview::load_file(string file, bool force) {
-
+Mapview::load_file(const string & file, bool force) {
   if (!force && get_changed()){
     dlg_ch_conf.call(
       sigc::bind(sigc::mem_fun(this, &Mapview::load_file), file, true));
     return;
   }
-
   clear_world();
-  g_print ("Load file: %s\n", file.c_str());
+  statusbar.push("Open " + file);
   geo_data world;
   io::in(file, world, Options());
   add_world(world, true);
@@ -285,16 +286,14 @@ Mapview::load_file(string file, bool force) {
 
 void
 Mapview::new_file(bool force) {
-
   if (!force && get_changed()){
     dlg_ch_conf.call(
       sigc::bind(sigc::mem_fun (this, &Mapview::new_file), true));
     return;
   }
-
   filename = "";
+  statusbar.push("New file");
   clear_world();
-  g_print ("New file\n");
   set_changed(false);
   refresh();
 }
@@ -305,7 +304,7 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> data) {
   // - put layer to the workplane
   // - set layer/or mapview ref (layer ref is set through workplane)
   // - put layer to LayerList (layer_edited call, workplane refresh)
-  // depth is set to 1 to evoke refresh!
+  // depth is set to 100 to evoke refresh!
   boost::shared_ptr<LayerWPT> layer(new LayerWPT(data.get()));
   workplane.add_layer(layer.get(), 100);
   set_changed();
@@ -357,7 +356,7 @@ Mapview::add_world(const geo_data & world, bool scroll) {
     if (i->size() > 0) p=(*i)[0];
   }
   if (scroll && (p.x<1e3)) goto_wgs(p);
-  set_ref(reference);
+  set_ref(reference); //?
   divert_refresh=false;
   update_layers();
 }
