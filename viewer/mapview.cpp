@@ -274,12 +274,12 @@ Mapview::load_file(string file, bool force) {
     return;
   }
 
-  filename = file;
   clear_world();
   g_print ("Load file: %s\n", file.c_str());
   geo_data world;
   io::in(file, world, Options());
   add_world(world, true);
+  if (io::testext(file, ".xml")) filename = file;
   set_changed(false);
 }
 

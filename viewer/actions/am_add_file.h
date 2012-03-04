@@ -35,8 +35,10 @@ public:
     void on_ok(){
       std::list<std::string> l = get_selections();
       geo_data world;
-      for (std::list<std::string>::const_iterator i=l.begin(); i!=l.end(); i++)
+      for (std::list<std::string>::const_iterator i=l.begin(); i!=l.end(); i++){
+        mapview->statusbar.push("Loading " + *i);
         io::in(*i, world, Options());
+      }
       mapview->add_world(world, true);
       hide();
     }

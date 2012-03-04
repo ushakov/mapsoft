@@ -23,8 +23,7 @@ public:
 
     void on_ok(){
       std::string f = get_filename();
-      g_print ("Saving to file: %s\n", f.c_str());
-
+      mapview->statusbar.push("Saving to " + f);
       io::out(f, mapview->get_world(false), Options());
       if (io::testext(f, ".xml")){
         mapview->set_filename(f);

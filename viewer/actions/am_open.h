@@ -6,7 +6,14 @@
 class Open : public ActionMode, public Gtk::FileSelection{
 public:
     Open (Mapview * mapview) :
-           ActionMode(mapview), Gtk::FileSelection("Open"){
+           ActionMode(mapview),
+           Gtk::FileSelection("Open"),
+           warn_dlg("Only mapview xml files can be opened. Use Add/Import to"
+                    " load other geodata formats.", false,
+                    Gtk::MESSAGE_WARNING, Gtk::BUTTONS_CLOSE){
+
+      warn_dlg.signal_response().connect(
+        sigc::hide(sigc::mem_fun(warn_dlg, &Gtk::MessageDialog::hide_all)));
 
       Glib::RefPtr<Gtk::FileFilter> filter(new Gtk::FileFilter);
       filter->add_pattern("*.xml");
@@ -21,16 +28,22 @@ public:
     std::string get_name() { return "Open"; }
     Gtk::StockID get_stockid() { return Gtk::Stock::OPEN; }
     Gtk::AccelKey get_acckey() { return Gtk::AccelKey("<control>o"); }
+
     bool is_radio() { return false; }
 
     void activate() { show(); }
 
     void on_ok(){
       std::string f = get_filename();
-      if (!io::testext(f, ".xml")) return;
+      if (!io::testext(f, ".xml")){
+        warn_dlg.show_all();
+        return;
+      }
+      mapview->statusbar.push("Loading " + f);
       mapview->load_file(f);
       hide();
     }
+    Gtk::MessageDialog warn_dlg;
 };
 
-#endif /* AM_ADD_FILE */
+#endif
