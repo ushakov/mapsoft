@@ -12,7 +12,7 @@ class DlgChConf : public Gtk::MessageDialog{
   private:
     sigc::signal<void> signal_ok_;
     sigc::slot<void> current_slot;
-    void on_ok();
+    void on_result(int r);
 };
 
 #endif

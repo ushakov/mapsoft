@@ -6,12 +6,7 @@ DlgChConf::DlgChConf():
      Gtk::MessageDialog(ch_conf_text, false,
                         Gtk::MESSAGE_WARNING, Gtk::BUTTONS_OK_CANCEL){
   signal_response().connect(
-      sigc::hide(sigc::mem_fun(this, &DlgChConf::hide_all)));
-
-  Gtk::Button * b = static_cast<Gtk::Button*>(
-    get_widget_for_response(Gtk::RESPONSE_OK));
-  b->signal_clicked().connect(
-          sigc::mem_fun (this, &DlgChConf::on_ok));
+      sigc::mem_fun(this, &DlgChConf::on_result));
 }
 
 void
@@ -24,6 +19,7 @@ DlgChConf::call(const sigc::slot<void> & slot){
 }
 
 void
-DlgChConf::on_ok(){
-  signal_ok_.emit();
+DlgChConf::on_result(int r){
+  if (r == Gtk::RESPONSE_OK) signal_ok_.emit();
+  hide_all();
 }
