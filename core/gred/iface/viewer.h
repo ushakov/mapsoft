@@ -19,6 +19,12 @@ class Viewer : public Gtk::DrawingArea {
     /// actual drawings on Gtk::DrawingArea.
     virtual sigc::signal<void> & signal_before_draw() = 0;
     virtual sigc::signal<void> & signal_after_draw() = 0;
+
+    /// These signals can be used to monitor viewer activity.
+    /// They emited before drowing starts and after all tiles have been drawn
+    virtual sigc::signal<void> & signal_busy() = 0;
+    virtual sigc::signal<void> & signal_idle() = 0;
+
     virtual sigc::signal<void, double> & signal_on_rescale() = 0;
 };
 

@@ -45,6 +45,8 @@ private:
     bool changed;         // true if project was changed since
                           // last saving/loading
     DlgChConf dlg_ch_conf;
+
+    Gtk::Image *busy_icon;
 public:
 
     Mapview ();
@@ -86,6 +88,8 @@ public:
     bool on_key_press(GdkEventKey * event);
     bool on_button_press (GdkEventButton * event);
     bool on_button_release (GdkEventButton * event);
+    void show_busy_mark();
+    void hide_busy_mark();
 
 /*** finding layers and data ***/
 

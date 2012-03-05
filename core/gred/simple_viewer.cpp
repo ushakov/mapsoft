@@ -110,9 +110,11 @@ SimpleViewer::rescale(const double k){
 void
 SimpleViewer::draw(const iRect & r){
   if (r.empty()) return;
+  signal_busy_.emit();
   iImage img(r.w, r.h, 0xFF000000 | bgcolor);
   if (obj) obj->draw(img, r.TLC()+origin);
   draw_image(img, r.TLC());
+  signal_idle_.emit();
 }
 
 void
@@ -202,6 +204,12 @@ SimpleViewer::signal_before_draw(){ return signal_before_draw_;}
 
 sigc::signal<void> &
 SimpleViewer::signal_after_draw(){ return signal_after_draw_;}
+
+sigc::signal<void> &
+SimpleViewer::signal_busy(){ return signal_busy_;}
+
+sigc::signal<void> &
+SimpleViewer::signal_idle(){ return signal_idle_;}
 
 sigc::signal<void, double> &
 SimpleViewer::signal_on_rescale(){ return signal_on_rescale_;}

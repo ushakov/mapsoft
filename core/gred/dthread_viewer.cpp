@@ -119,6 +119,7 @@ void DThreadViewer::on_done_signal(){
     tiles_done.pop();
     updater_mutex->unlock();
   }
+  if (tiles_todo.empty()) signal_idle().emit();
 }
 
 
@@ -126,6 +127,7 @@ void DThreadViewer::draw(const iRect & r){
   if (r.empty()) return;
   iRect tiles = tiles_on_rect(r + get_origin(), TILE_SIZE);
   iPoint key;
+  if (tiles_todo.empty()) signal_busy().emit();
 
   for (key.y = tiles.y; key.y<tiles.y+tiles.h; key.y++){
     for (key.x = tiles.x; key.x<tiles.x+tiles.w; key.x++){
@@ -150,5 +152,6 @@ void DThreadViewer::draw(const iRect & r){
       }
     }
   }
+  if (tiles_todo.empty()) signal_idle().emit();
 }
 

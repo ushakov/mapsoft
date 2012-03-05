@@ -41,6 +41,12 @@ Mapview::Mapview () :
     map_ll.store->signal_row_changed().connect (
       sigc::mem_fun (this, &Mapview::layer_edited));
 
+    /// events from workplane
+    viewer.signal_busy().connect(
+      sigc::mem_fun (this, &Mapview::show_busy_mark));
+    viewer.signal_idle().connect(
+      sigc::mem_fun (this, &Mapview::hide_busy_mark));
+
     viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
 
     /***************************************/
@@ -48,18 +54,16 @@ Mapview::Mapview () :
     Glib::RefPtr<Gtk::IconFactory> icon_factory = Gtk::IconFactory::create();
     icon_factory->add_default();
 
-    icon_factory->add(
-      Gtk::StockID("gps_download"),
-      Gtk::IconSet(
-        Gdk::Pixbuf::create_from_data (idata_gps_download, Gdk::COLORSPACE_RGB,
-        true /*alpha*/, 8 /*bps*/, 16 /*w*/, 16 /*h*/, 16*4 /*rowstride*/))
+#define ADD_ICON(size, name) \
+    icon_factory->add(\
+      Gtk::StockID(#name),\
+      Gtk::IconSet(\
+        Gdk::Pixbuf::create_from_data (idata_##name, Gdk::COLORSPACE_RGB,\
+        true /*alpha*/, 8 /*bps*/, size /*w*/, size /*h*/, (size)*4 /*rowstride*/))\
     );
-    icon_factory->add(
-      Gtk::StockID("gps_upload"),
-      Gtk::IconSet(
-        Gdk::Pixbuf::create_from_data (idata_gps_upload, Gdk::COLORSPACE_RGB,
-        true /*alpha*/, 8 /*bps*/, 16 /*w*/, 16 /*h*/, 16*4 /*rowstride*/))
-    );
+
+    ADD_ICON(16, gps_download);
+    ADD_ICON(16, gps_upload);
 
     /***************************************/
     /// Menues
@@ -84,11 +88,19 @@ Mapview::Mapview () :
     paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
     paned->pack2(*dataview, Gtk::FILL);
 
+    /// Status hbox: busy_icon + statusbar
+    busy_icon = manage(new Gtk::Image());
+    busy_icon->set_tooltip_text("Viewer acivity");
+    busy_icon->set_size_request(20,16);
+    Gtk::HBox * st_box = manage(new Gtk::HBox);
+    st_box->pack_start(*busy_icon, false, true, 0);
+    st_box->pack_start(statusbar, true, true, 0);
+
     /// Main vbox: menu + main pand + statusbar
     Gtk::VBox * vbox = manage(new Gtk::VBox);
-    vbox->pack_start(* ui_manager->get_widget("/MenuBar"), false, true, 0);
+    vbox->pack_start(*ui_manager->get_widget("/MenuBar"), false, true, 0);
     vbox->pack_start(*paned, true, true, 0);
-    vbox->pack_start(statusbar, false, true, 0);
+    vbox->pack_start(*st_box, false, true, 0);
     add (*vbox);
 
     filename="";
@@ -492,8 +504,15 @@ Mapview::on_button_release (GdkEventButton * event) {
   return false;
 }
 
+void
+Mapview::show_busy_mark(void){
+  busy_icon->set(Gtk::Stock::MEDIA_RECORD,Gtk::ICON_SIZE_MENU);
+}
 
-
+void
+Mapview::hide_busy_mark(void){
+  busy_icon->clear();
+}
 
 int
 Mapview::find_wpt(const iPoint & p, LayerWPT ** layer,
