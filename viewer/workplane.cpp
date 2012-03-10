@@ -8,6 +8,7 @@ int
 Workplane::draw(iImage &img, const iPoint &origin){
 
         draw_mutex.lock();
+        stop_drawing=false;
         iRect tile(origin.x, origin.y, img.w, img.h );
 	for (std::multimap<int, LayerGeo *>::reverse_iterator
                 itl = layers.rbegin(); itl != layers.rend();  ++itl){
