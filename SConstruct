@@ -14,7 +14,7 @@ def SymLink(env, target, linkname, wd=None):
    else:
       env.Command(linkname, target, "ln -s %s %s" % (target, linkname))
 
-subdirs_min = Split("core programs viewer vector")
+subdirs_min = Split("core programs viewer vector man")
 subdirs_max = subdirs_min + Split("tests misc")
 
 #SetOption('implicit_cache', 1)

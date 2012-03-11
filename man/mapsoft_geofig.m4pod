@@ -72,3 +72,5 @@ B<<  -m, --maps >> -- delete maps
 B<<  -b, --brds >> -- delete map borders
 
 B<<  -r, --ref >> -- delete fig reference
+
+include(`inc/foot.m4')

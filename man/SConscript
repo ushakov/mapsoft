@@ -1,0 +1,24 @@
+Import ('env')
+
+e=env.Clone()
+
+def m4pod2man(env, name, ext, deps):
+   """Setup command for pod2man conversion by <name> argument"""
+   cmd = env.Command(name+'.'+ext, name+'.m4pod',
+     "m4 %s.m4pod | pod2man -n %s -c mapsoft -r mapsoft > %s.%s"
+      % (name, name, name, ext), chdir = 1)
+   env.Depends(cmd, map (lambda(s): "inc/"+s+".m4", Split(deps)))
+e.AddMethod(m4pod2man)
+
+
+e.m4pod2man('mapsoft_convert', '1', 'foot geo_io_filters geo_refs')
+e.m4pod2man('mapsoft_vmap',    '1', 'foot')
+e.m4pod2man('mapsoft_geofig',  '1', 'foot')
+
+env.Install(env.man1dir, Split("""
+  mapsoft_convert.1
+  mapsoft_vmap.1
+  mapsoft_geofig.1
+"""))
+
+

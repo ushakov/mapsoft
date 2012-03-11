@@ -3,14 +3,6 @@ Import ('env')
 e=env.Clone()
 e.UseLibs('geo_io img_io mp srtm')
 
-def pod2man(env, name, ext):
-   """Setup command for pod2man conversion by <name> argument"""
-   cmd = env.Command(name+'.'+ext, name+'.pod',
-     "cat %s.pod common.pod | pod2man -n %s -c mapsoft -r mapsoft > %s.%s"
-      % (name, name, name, ext), chdir = 1)
-   env.Depends(cmd, 'common.pod')
-e.AddMethod(pod2man)
-
 map (lambda(f): e.Program(f+'.cpp'),\
   Split("""
     mapsoft_convert
@@ -31,16 +23,6 @@ map (lambda(f): e.Program(f+'.cpp'),\
 env_vmap=env.Clone()
 env_vmap.UseLibs('vmap')
 env_vmap.Program('mapsoft_vmap.cpp')
-
-e.pod2man('mapsoft_convert', '1')
-e.pod2man('mapsoft_vmap',    '1')
-e.pod2man('mapsoft_geofig',  '1')
-
-env.Install(env.man1dir, Split("""
-  mapsoft_convert.1
-  mapsoft_vmap.1
-  mapsoft_geofig.1
-"""))
 
 env.Install(env.bindir, Split("""
   mapsoft_convert mapsoft_vmap mapsoft_geofig

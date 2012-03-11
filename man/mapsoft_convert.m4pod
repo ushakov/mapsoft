@@ -66,19 +66,9 @@ B<<  --pod >> -- show this message as POD template
 
 B<<  -v, --verbose >> -- be verbose
 
+=head1 OPTIONS FOR GEODATA FILTERING
 
-B<<  --shift_maps <X,Y> >> -- shift map references
-
-B<<  --rescale_maps <arg> >> -- rescale map references
-
-B<<  --map_nom_brd >> -- set map borders according to map name
-
-B<<  -s, --skip <wmtao> >> -- skip data, "wmtao" (w - waypoints, m - maps, t - tracks, a - active log, o - save tracks)
-
-B<<  --gen_n <n> >> -- reduce track points to n
-
-B<<  --gen_e <e> >> -- reduce track points up to accuracy e [meters] (when gen_n and gen_e both used it means: "remove points while number of points > n OR accuracy < e"
-
+include(`inc/geo_io_filters.m4')
 
 =head1 OPTIONS FOR RENDERING IMAGES
 
@@ -90,34 +80,17 @@ B<<  -m, --map <file> >> -- write map-file
 
 B<<  --draw_borders >> -- draw map borders
 
-B<<  --max_image <W,H> >> -- don't write images larger then this, default 1000,1000
+B<<  --max_image <W,H> >> -- don't write images larger then this,.
+default 1000,1000
 
-B<<  --data_marg <arg> >> -- margins around data (works only if no geometry set), pixels
+B<<  --data_marg <arg> >> -- margins around data (works only if no.
+geometry set), pixels
 
 B<< --jpeg_quality <arg> >> -- set jpeg quality
 
-
 =head1 OPTIONS FOR RENDERING IMAGES, GEOMETRY SETTINGS
 
-B<<  --geom <WxH+X+Y> >>, B<<  --datum <arg> >>, B<<  --proj <arg> >>, B<<  --lon0 <arg> >> -- set rectangular geometry in a given datum/proj
-
-B<<  --wgs_geom <WxH+X+Y> >>, B<<  --proj <arg> >> -- set rectalgular geometry in WGS lon-lat coordinates and convert it to the given projection
-
-B<<  --wgs_brd <X1,Y1,X2,Y2...> >> -- set border of area in WGS lon-lat coordinates and convert it to the given projection
-
-B<<  --nom <arg> >>
-
-B<<  --google <X,Y,Z> >> -- set area as google tile
-
-geom, wgs_geom, wgs_brd, nom and google options are incompatible with each other.
-
-B<<  --rscale <arg> >> -- reversed scale (10000 for 1:10000 map)
-
-B<<  -d, --dpi <arg> >> -- resolution, dots per inch
-
-B<<  --mag <arg> >> -- additional magnification
-
-B<<  --swap_y >>
+include(`inc/geo_refs.m4')
 
 By default the scale of resulting map is the same as one of the first.
 input map. If there is no maps on input scale=1e-5,dpi=200. You may
@@ -165,3 +138,4 @@ Create jpeg image with KS image and your dataand map-file for it. ./KS directory
 
 	mapsoft_convert --ks=14 --ks_dir=~/KS --download=1 data.plt -o mymap.jpg
 
+include(`inc/foot.m4')

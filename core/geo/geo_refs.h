@@ -70,32 +70,6 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap);
 
 После вызова в Options выставляются правильные значения dpi и rscale.
 
-
-### MANPAGE TEXT (you can use "sed -n '/^### MANPAGE/, /^###/{/^###/!p}' geo_refs.h" to extract it)
-
-=head1 OPTIONS FOR RENDERING IMAGES, GEOMETRY SETTINGS
-
-B<<  --geom <WxH+X+Y> >>, B<<  --datum <arg> >>, B<<  --proj <arg> >>, B<<  --lon0 <arg> >> -- set rectangular geometry in a given datum/proj
-
-B<<  --wgs_geom <WxH+X+Y> >>, B<<  --proj <arg> >> -- set rectalgular geometry in WGS lon-lat coordinates and convert it to the given projection
-
-B<<  --wgs_brd <X1,Y1,X2,Y2...> >> -- set border of area in WGS lon-lat coordinates and convert it to the given projection
-
-B<<  --nom <arg> >>
-
-B<<  --google <X,Y,Z> >> -- set area as google tile
-
-geom, wgs_geom, wgs_brd, nom and google options are incompatible with each other.
-
-B<<  --rscale <arg> >> -- reversed scale (10000 for 1:10000 map)
-
-B<<  -d, --dpi <arg> >> -- resolution, dots per inch
-
-B<<  --mag <arg> >> -- additional magnification
-
-B<<  --swap_y >>
-
-
 ### OPTIONS
 
   {"geom",          1,  0, OPT2, ""},
