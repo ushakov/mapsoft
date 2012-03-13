@@ -38,7 +38,7 @@ public:
       std::string dev = dlg.e_dev->get_text();
 
       try {gps::init_gps(dev.c_str());}
-      catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+      catch (MapsoftErr e) {mapview->dlg_err.call(e); return;}
 
       if (dlg.cb_w->get_active()){
         try{gps::get_waypoints (dev.c_str(), world);}
