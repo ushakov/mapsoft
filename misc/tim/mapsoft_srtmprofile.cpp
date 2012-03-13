@@ -16,6 +16,7 @@
 #include "geo/geo_convs.h"
 
 #include "options/read_conf.h"
+#include "utils/err.h"
 
 // Перенесение данных srtm в привязанный fig-файл.
 

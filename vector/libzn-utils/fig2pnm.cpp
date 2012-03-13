@@ -7,6 +7,7 @@
 #include "2d/point.h"
 #include "geo_io/geofig.h"
 #include "geo_io/io.h"
+#include "utils/err.h"
 
 #include <iostream>
 #include <vector>
@@ -22,6 +23,7 @@
 #define DARK_THR 170
 #define BGCOLOR "#FDFDFD"
 
+using namespace std;
 /****************************************************************/
 // Execute fig2dev for a selected object depths.
 // Return fd for reading data.
@@ -42,10 +44,10 @@ int open_fig2dev(const char *depth_range, const char *infile){
   char *args[8] = {(char*)name, par_L, par_j, par_m, par_D, par_g, par_i, NULL};
 
 
-  if (pipe(out_pipe)!=0){ std::cerr << "Error: can't open pipe\n"; exit(-1); }
+  if (pipe(out_pipe)!=0){ cerr << "Error: can't open pipe\n"; exit(-1); }
 
   pid = fork();
-  if      (pid==-1) { std::cerr << "Error: can't do fork\n"; exit(-1); }
+  if      (pid==-1) { cerr << "Error: can't do fork\n"; exit(-1); }
   else if (pid==0)  {
     dup2( out_pipe[1], STDOUT_FILENO);
     close(out_pipe[0]);
@@ -53,9 +55,9 @@ int open_fig2dev(const char *depth_range, const char *infile){
   }
   close(out_pipe[1]);
 
-  std::cerr << "Executing: ";
-  for (int i=0; args[i]!=NULL; i++) std::cerr << args[i] << " ";
-  std::cerr << " > &" << out_pipe[0] << "\n";
+  cerr << "Executing: ";
+  for (int i=0; args[i]!=NULL; i++) cerr << args[i] << " ";
+  cerr << " > &" << out_pipe[0] << "\n";
 
   return out_pipe[0];
 }
@@ -76,13 +78,13 @@ struct cnt_data{
   // контур цвета с3 между цветами с1 и с2
   int c1,c2,c3;
   int dots; //расстояние между точками в пунктире
-  std::set<iPoint> pts;
+  set<iPoint> pts;
   cnt_data(const int _c1, const int _c2, const int _c3, const int _dots = 0):
     c1(_c1), c2(_c2), c3(_c3), dots(_dots){}
 };
 
 void usage(){
-    std::cerr << "usage: fig2pnm <options> <file.fig> > out.pnm\n"
+    cerr << "usage: fig2pnm <options> <file.fig> > out.pnm\n"
               << "options:\n"
               << "  --help   help\n"
               << "  --no_thinrem - don't remove thin lines\n"
@@ -125,18 +127,18 @@ bool is_dark(const unsigned int c){
 #define DIST2(x,y) ((x)*(x) + (y)*(y))
 
 
-int create_map(std::string figfile, std::string mapfile){
-  std::cerr << "* Creating map for fig: " << figfile <<"\n";
+int create_map(string figfile, string mapfile){
+  cerr << "* Creating map for fig: " << figfile <<"\n";
   fig::fig_world F;
 
   if (!fig::read(figfile.c_str(), F)) {
-    std::cerr << "Error: Bad fig file " << figfile << "\n";
+    cerr << "Error: Bad fig file " << figfile << "\n";
     return 1;
   }
 
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
-    std::cerr << "Error: Bad reference in fig file " << figfile << "\n";
+    cerr << "Error: Bad reference in fig file " << figfile << "\n";
     return 1;
   }
 
@@ -153,7 +155,7 @@ int create_map(std::string figfile, std::string mapfile){
   char templ[]="fig2pnm-XXXXXX";
   char * tmp = mktemp(templ);
   if (tmp == NULL){
-    std::cerr << "Error: Can't create tmp file\n";
+    cerr << "Error: Can't create tmp file\n";
     return 1;
   }
 
@@ -162,7 +164,7 @@ int create_map(std::string figfile, std::string mapfile){
   fig2dev_shifter ref_map(REF_DEPTH, tmp, 2);
   unlink(tmp);
 
-  std::cerr << "* " << ref_map.w << "x" << ref_map.h << "\n";
+  cerr << "* " << ref_map.w << "x" << ref_map.h << "\n";
 
   int xmin=ref_map.w, xmax=0, ymin=ref_map.h,ymax=0;
   for (int y=0; y<ref_map.h; y++){
@@ -179,7 +181,7 @@ int create_map(std::string figfile, std::string mapfile){
     ref_map.data_shift();
   }
   if ((xmin>xmax) || (ymin>ymax)){
-    std::cerr << "Error: Can't find ref point\n";
+    cerr << "Error: Can't find ref point\n";
     return 1;
   }
 
@@ -189,7 +191,7 @@ int create_map(std::string figfile, std::string mapfile){
 
   ref += sh;
   ref *= sc;
-  ref.comm = F.opts.get("name",std::string());
+  ref.comm = F.opts.get("name",string());
   geo_data w;
   g_map_list maplist;
   maplist.push_back(ref);
@@ -202,8 +204,8 @@ int create_map(std::string figfile, std::string mapfile){
 main(int argc, char **argv){
 
   bool thinrem=true, cntrs=true;
-  std::string infile  = "";
-  std::string mapfile = "";
+  string infile  = "";
+  string mapfile = "";
 
   // разбор командной строки
   for (int i=1; i<argc; i++){
@@ -231,7 +233,7 @@ main(int argc, char **argv){
   // правила для построения контуров
   //-1 -- all colors
   //-2 -- lite colors
-  std::vector<cnt_data> cnts;
+  vector<cnt_data> cnts;
   cnts.push_back(cnt_data(0x00ffff, 0xAAFFAA, 0x5066FF, 0));
   cnts.push_back(cnt_data(0x00ffff, 0xFFFFFF, 0x5066FF, 0));
   cnts.push_back(cnt_data(0x00ffff, 0xc06000, 0x5066FF, 0));
@@ -265,12 +267,12 @@ main(int argc, char **argv){
 
   if ((lgnd.w!=grid.w)||(lgnd.w!=text.w)||(lgnd.w!=map.w)||
       (lgnd.h!=grid.h)||(lgnd.h!=text.h)||(lgnd.h!=map.h)){
-    std::cerr << "different image sizes\n";
+    cerr << "different image sizes\n";
     exit(0);
   }
 
 
-  std::cout << "P6\n" << map.w << " " << map.h << "\n255\n";
+  cout << "P6\n" << map.w << " " << map.h << "\n255\n";
 
   for (int i = 0; i<map.h+dw; i++){
 
@@ -292,7 +294,7 @@ main(int argc, char **argv){
     if ((map.data[d0a]!=NULL) && (map.data[d0a-1]!=NULL) && (map.data[d0a+1]!=NULL) && cntrs){
       for (int j = 0; j < map.w; j++){
 
-        for (std::vector<cnt_data>::iterator cnt=cnts.begin(); cnt!=cnts.end(); cnt++){
+        for (vector<cnt_data>::iterator cnt=cnts.begin(); cnt!=cnts.end(); cnt++){
 
           if ((i+d0a-1<0)||(i+d0a+1>=map.h)) continue;
           if ((j-1<0)||(j+1>=map.w)) continue;
@@ -310,7 +312,7 @@ main(int argc, char **argv){
             }
 
 
-            std::set<iPoint>::iterator pt = cnt->pts.begin();
+            set<iPoint>::iterator pt = cnt->pts.begin();
 
             while (pt!=cnt->pts.end()){
               if ((cnt->dots > 0) && (DIST2(pt->x - j, pt->y - i - d0a) < cnt->dots*cnt->dots)) {make_pt = false; break;}
@@ -390,7 +392,7 @@ main(int argc, char **argv){
         }
         // наложение легенды
         if (is_color(rl,gl,bl)) {rm=rl; gm=gl; bm=bl;}
-        std::cout << rm << gm << bm;
+        cout << rm << gm << bm;
       }
     }
     map.data_shift();

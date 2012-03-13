@@ -9,6 +9,7 @@
 #include "2d/line_utils.h"
 #include "options/m_getopt.h"
 #include "2d/line_polycrop.h"
+#include "utils/err.h"
 
 #include "loaders/image_r.h" // определение размеров картинки (image_r::size)
 

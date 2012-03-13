@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <boost/lexical_cast.hpp>
+#include "utils/err.h"
 
 using namespace std;
 

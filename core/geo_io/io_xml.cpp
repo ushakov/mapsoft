@@ -14,7 +14,7 @@
 #include "io_xml.h"
 #include "options/options.h"
 #include "utils/iconv_utils.h"
-#include "err.h"
+#include "utils/err.h"
 
 namespace xml {
 

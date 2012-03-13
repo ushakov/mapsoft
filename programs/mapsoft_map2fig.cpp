@@ -12,6 +12,9 @@
 #include "loaders/image_r.h"
 
 #include "geo_io/geofig.h"
+#include "utils/err.h"
+
+using namespace std;
 
 // добавление растровой карты в fig-файл.
 // диапазон карты - по объекту с комментарием BRD или по диапазону точек привязки...
@@ -21,7 +24,7 @@
 const int tsize = 1024;
 
 void usage(){
-  std::cerr << "usage: \n"
+  cerr << "usage: \n"
     " mapsoft_map2fig <fig> map <depth> <map file 1> [<map file 2> ...]\n"
     " mapsoft_map2fig <fig> google <depth> <scale> <google_dir>\n"
     " mapsoft_map2fig <fig> ks <depth> <scale> <ks_dir>\n";
@@ -32,9 +35,9 @@ int
 main(int argc, char **argv){
     if (argc<5) usage();
 
-    std::string fig_name = argv[1];
-    std::string source   = argv[2];
-    std::string depth = argv[3];
+    string fig_name = argv[1];
+    string source   = argv[2];
+    string depth = argv[3];
 
     LayerGeo *ml;
     g_map_list maps;
@@ -43,11 +46,11 @@ main(int argc, char **argv){
       // read data
       geo_data *world = new geo_data;
       for(int i=4;i<argc;i++){
-        try {io::in(std::string(argv[i]), *world);}
-        catch (MapsoftErr e) {std::cerr << e.str() << endl;}
+        try {io::in(string(argv[i]), *world);}
+        catch (MapsoftErr e) {cerr << e.str() << endl;}
       }
       // put all maps into one map_list
-      for (std::vector<g_map_list>::const_iterator mi = world->maps.begin();
+      for (vector<g_map_list>::const_iterator mi = world->maps.begin();
          mi!=world->maps.end(); mi++) maps.insert(maps.end(), mi->begin(), mi->end());
       ml = new LayerGeoMap(&maps);
     }
@@ -67,7 +70,7 @@ main(int argc, char **argv){
     // читаем fig
     fig::fig_world F;
     if (!fig::read(fig_name.c_str(), F)) {
-      std::cerr << "File is not modified, exiting.\n";
+      cerr << "File is not modified, exiting.\n";
       exit(1);
     }
 
@@ -100,13 +103,13 @@ convs::map2pt c2(map_ref, Datum("WGS84"), Proj("tmerc"), o);
         c.bck(p1); c.bck(p2);
         l1+=pdist(p1,p2);
         l2+=pdist(dPoint(fig_ref[i].xr, fig_ref[i].yr), dPoint(fig_ref[i-1].xr, fig_ref[i-1].yr));
-std::cerr << "fig->g: " << fig_ref[i].xr << " " << fig_ref[i].yr << " -> "
+cerr << "fig->g: " << fig_ref[i].xr << " " << fig_ref[i].yr << " -> "
                         << p2 << "\n";
 p2=dPoint(fig_ref[i].xr,  fig_ref[i].yr);
 c1.frw(p2);
-std::cerr << ": " << p2 << "\n";
+cerr << ": " << p2 << "\n";
 c2.bck(p2);
-std::cerr << ": " << p2 << "\n";
+cerr << ": " << p2 << "\n";
       }
       rescale = l2/l1;
     }
@@ -120,17 +123,17 @@ std::cerr << ": " << p2 << "\n";
     dRect range = fig_ref.border.range();
 
     // создадим директорию для картинок
-    std::string dir_name = fig_name + ".img";
+    string dir_name = fig_name + ".img";
 
     struct stat st;
     if (stat(dir_name.c_str(), &st)!=0){
       if (mkdir(dir_name.c_str(), 0755)!=0){
-        std::cerr << "can't mkdir " << dir_name << "\n";
+        cerr << "can't mkdir " << dir_name << "\n";
         exit(0);
       }
     }
     else if (!S_ISDIR(st.st_mode)){
-      std::cerr << dir_name << " is not a directory\n";
+      cerr << dir_name << " is not a directory\n";
       exit(0);
     }
 
@@ -139,10 +142,10 @@ std::cerr << ": " << p2 << "\n";
     double dx = range.w / double(nx);  // размер плиток
     double dy = range.h / double(ny);
 
-std::cerr << " rescale: " << rescale << "\n";
-std::cerr << " range: " << range << "\n";
-std::cerr << nx << " x " << ny << " tiles\n";
-std::cerr << dx << " x " << dy << " tile_size\n";
+cerr << " rescale: " << rescale << "\n";
+cerr << " range: " << range << "\n";
+cerr << nx << " x " << ny << " tiles\n";
+cerr << dx << " x " << dy << " tile_size\n";
 
     for (int j = 0; j<ny; j++){
     for (int i = 0; i<nx; i++){
@@ -150,7 +153,7 @@ std::cerr << dx << " x " << dy << " tile_size\n";
 
       iImage im = ml->get_image(iRect(tlc, tlc+dPoint(dx,dy)));
       if (im.empty()) continue;
-      std::ostringstream fname; fname << dir_name << "/" << source[0] << depth << "-" << i << "-" << j << ".jpg"; 
+      ostringstream fname; fname << dir_name << "/" << source[0] << depth << "-" << i << "-" << j << ".jpg"; 
       image_r::save(im, fname.str().c_str(), Options());
 
       fig::fig_object o = fig::make_object("2 5 0 1 0 -1 "+depth+" -1 -1 0.000 0 0 -1 0 0 *");

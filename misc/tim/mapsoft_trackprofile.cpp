@@ -16,6 +16,8 @@
 #include "geo_io/io.h"
 #include "geo/geo_data.h"
 #include "geo/geo_convs.h"
+#include "utils/err.h"
+
 
 using namespace std;
 

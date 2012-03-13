@@ -9,6 +9,7 @@
 #include "geo_io/io_oe.h"
 #include "2d/line_utils.h"
 #include "2d/rainbow.h"
+#include "utils/err.h"
 
 #define GETH geth4
 

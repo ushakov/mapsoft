@@ -3,16 +3,18 @@
 
 #include "geo_io/io.h"
 #include "geo/geo_convs.h"
+#include "utils/err.h"
 
+using namespace std;
 int main (int argc, char **argv) {
     geo_data world;
     for(int i = 1; i < argc; i++) {
-      try {io::in(std::string(argv[i]), world);}
-      catch (MapsoftErr e) {std::cerr << e.str() << endl;}
+      try {io::in(string(argv[i]), world);}
+      catch (MapsoftErr e) {cerr << e.str() << endl;}
     }
 
     double speed, distance = 0;
-    std::queue<std::pair<double, double> > timedist;
+    queue<pair<double, double> > timedist;
 
     g_trackpoint pp;
     int k = 0;
@@ -30,7 +32,7 @@ int main (int argc, char **argv) {
 		// update values:
 		// distance
 		distance += hypot(tp.x - pp.x, tp.y - pp.y);
-		timedist.push(std::make_pair(tp.t.value, distance));
+		timedist.push(make_pair(tp.t.value, distance));
 		while (timedist.front().first < tp.t.value - window && timedist.size() > 2) {
 		    timedist.pop();
 		}
@@ -41,7 +43,7 @@ int main (int argc, char **argv) {
 		distance = 0;
 		speed = 0;
 	    }
-	    std::cout << (int)tp.x << " " << (int)tp.y << " " << (int)tp.z << " " << tp.t << " " << distance << " " << speed << std::endl;
+	    cout << (int)tp.x << " " << (int)tp.y << " " << (int)tp.z << " " << tp.t << " " << distance << " " << speed << endl;
 	    pp = tp;
 	    ++k;
 	}

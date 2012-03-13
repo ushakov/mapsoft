@@ -22,7 +22,7 @@
 
 #include "jeeps/gpsmath.h"
 #include "jeeps/gpsdatum.h"
-#include "err.h"
+#include "utils/err.h"
 
 namespace oe{
 

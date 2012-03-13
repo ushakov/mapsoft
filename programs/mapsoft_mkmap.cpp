@@ -14,7 +14,7 @@
 #include "geo_io/io.h"
 #include "geo/geo_convs.h"
 #include "geo/geo_nom.h"
-
+#include "utils/err.h"
 
 using namespace std;
 using namespace boost::spirit::classic;

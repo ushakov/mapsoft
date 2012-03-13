@@ -13,6 +13,7 @@
 #include "geo_io/io.h"
 #include "img_io/io.h"
 #include "options/m_getopt.h"
+#include "utils/err.h"
 
 using namespace std;
 

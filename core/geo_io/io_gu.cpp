@@ -10,9 +10,7 @@
 #include "io_gu.h"
 #include "utils/iconv_utils.h"
 #include "utils/spirit_utils.h"
-#include "err.h"
-
-
+#include "utils/err.h"
 
 namespace gu {
 

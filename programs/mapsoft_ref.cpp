@@ -13,6 +13,7 @@
 
 #include "geo_io/io.h"
 #include "fig/fig.h"
+#include "utils/err.h"
 
 using namespace std;
 

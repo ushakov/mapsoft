@@ -13,6 +13,7 @@
 #include "loaders/image_r.h"
 #include "mp/mp.h"
 #include "fig/fig.h"
+#include "utils/err.h"
 
 // панорама по srtm с геоданными. 
 

@@ -23,7 +23,7 @@
 #include "io_zip.h"
 #include "geofig.h"
 
-#include "err.h"
+#include "utils/err.h"
 
 namespace io {
 using namespace std;

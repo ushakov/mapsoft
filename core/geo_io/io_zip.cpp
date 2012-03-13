@@ -6,7 +6,7 @@
 
 #include "io.h"
 #include "io_zip.h"
-#include "err.h"
+#include "utils/err.h"
 
 
 namespace io_zip{

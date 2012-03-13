@@ -2,6 +2,7 @@
 #include "geo_io/geofig.h"
 #include "geo/geo_refs.h"
 #include "geo_io/io.h"
+#include "utils/err.h"
 
 using namespace std;
 

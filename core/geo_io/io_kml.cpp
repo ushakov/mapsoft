@@ -15,9 +15,7 @@
 
 #include <math.h>
 
-//#include "jeeps/gpsmath.h"
-//#include "jeeps/gpsdatum.h"
-#include "err.h"
+#include "utils/err.h"
 
 namespace kml {
     using namespace std;

@@ -5,10 +5,9 @@
 #include "io_gpx.h"
 #include <libxml/xmlreader.h>
 #include <cstring>
-#include "err.h"
+#include "utils/err.h"
 
 namespace gpx {
-
 
 using namespace std;
 

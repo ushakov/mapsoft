@@ -16,6 +16,7 @@
 
 #include "geo_io/geofig.h"
 #include "geo_io/io_oe.h"
+#include "utils/err.h"
 
 using namespace std;
 

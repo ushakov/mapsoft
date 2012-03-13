@@ -7,7 +7,7 @@
 #include "io_gps.h"
 #include "jeeps/gps.h"
 #include "utils/iconv_utils.h"
-#include "err.h"
+#include "utils/err.h"
 
 namespace gps {
 	using namespace std;
