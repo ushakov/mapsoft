@@ -22,12 +22,12 @@
 
 #include "jeeps/gpsmath.h"
 #include "jeeps/gpsdatum.h"
-
+#include "err.h"
 
 namespace oe{
 
 const char *default_charset = "WINDOWS-1251";
- 
+
 using namespace std;
 using namespace boost::spirit::classic;
 
@@ -240,7 +240,7 @@ using namespace boost::spirit::classic;
 
 
 // function for reading objects from Ozi file into the world object
-bool read_file(const char* filename, geo_data & world, const Options & opt){
+void read_file(const char* filename, geo_data & world, const Options & opt){
 
   oe_waypoint    wpt, wpt0; // wawpoint
   oe_trackpoint  tpt, tpt0; // trackpoint
@@ -252,13 +252,16 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   g_map_list      ml;
   geo_data ret;
 
+  if (opt.exists("verbose")) cerr <<
+    "Reading data from OziExplorer file " << filename << endl;
+
   // get file prefix to keep correct path for image files
   char *sl = strrchr((char *)filename, '/');
 
   if (sl!=NULL){
     int pos = sl-filename;
-    std::string fn1(filename);
-    m.prefix = std::string(fn1.begin(),fn1.begin()+pos) + "/";
+    string fn1(filename);
+    m.prefix = string(fn1.begin(),fn1.begin()+pos) + "/";
   }
   else m.prefix="";
 
@@ -400,7 +403,9 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
                       map_rule[push_back_a(ml, m)];
 
 
-  if (!parse_file("oe::read", filename, main_rule)) return false;
+  if (!parse_file("oe::read", filename, main_rule))
+    throw MapsoftErr("GEO_IO_OE_READ")
+      << "Can't parse OziExplorer file " << filename;
 
   // convert waypoint names and comments to UTF8
   IConv cnv(default_charset);
@@ -428,17 +433,21 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
   world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
   world.trks.insert(world.trks.end(), ret.trks.begin(), ret.trks.end());
   world.maps.insert(world.maps.end(), ret.maps.begin(), ret.maps.end());
-
-  return true;
 }
 
 /***********************************************************/
 
-	bool write_plt_file (ostream & f, const g_track & trk, const Options & opt){
+	void write_plt_file (const char *filename, const g_track & trk, const Options & opt){
 
-		if (!f.good()) return false;
+                if (opt.exists("verbose")) cerr <<
+                  "Writing data to OziExplorer file " << filename << endl;
+
+                ofstream f(filename);
+		if (!f.good()) throw MapsoftErr("GEO_IO_OE_OPENW")
+                  << "Can't open OziExplorer file " << filename << " for writing";
+
 		IConv cnv(default_charset);
-                
+
 		int num = trk.size();
 		f << "OziExplorer Track Point File Version 2.0\r\n"
 		  << "WGS 84\r\n"
@@ -465,12 +474,19 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << (p->t.value+2209161600.0)/3600.0/24.0 << ','
 			  << setfill('0') << p->t << "\r\n";
 		}
-		return f.good();
+		if (!f.good()) throw MapsoftErr("GEO_IO_OE_WRITE")
+                  << "Can't write data to OziExplorer file " << filename << " for writing";
 	}
 
-	bool write_wpt_file (ostream & f, const g_waypoint_list & wpt, const Options & opt){
+	void write_wpt_file (const char *filename, const g_waypoint_list & wpt, const Options & opt){
 
-		if (!f.good ()) return false;
+                if (opt.exists("verbose")) cerr <<
+                  "Writing data to OziExplorer file " << filename << endl;
+
+                ofstream f(filename);
+		if (!f.good()) throw MapsoftErr("GEO_IO_OE_OPENW")
+                  << "Can't open OziExplorer file " << filename << " for writing";
+
 		IConv cnv(default_charset);
 
 		int num = wpt.size();
@@ -503,12 +519,19 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 			  << p->font_style << ','
 			  << p->size       << "\r\n";
 		}
-		return f.good();
+		if (!f.good()) throw MapsoftErr("GEO_IO_OE_WRITE")
+                  << "Can't write data to OziExplorer file " << filename << " for writing";
 	}
 
-	bool write_map_file (ostream & f, const g_map & m, const Options & opt){
+	void write_map_file (const char *filename, const g_map & m, const Options & opt){
 
-		if (!f.good()) return false;
+                if (opt.exists("verbose")) cerr <<
+                  "Writing data to OziExplorer file " << filename << endl;
+
+                ofstream f(filename);
+		if (!f.good()) throw MapsoftErr("GEO_IO_OE_OPENW")
+                  << "Can't open OziExplorer file " << filename << " for writing";
+
 		IConv cnv(default_charset);
 
 		Enum::output_fmt=Enum::oe_fmt;
@@ -592,7 +615,8 @@ bool read_file(const char* filename, geo_data & world, const Options & opt){
 
 			f << "MM1B," << convs::map_mpp(m, m.map_proj) << "\r\n";
 		}
-		return f.good();
+		if (!f.good()) throw MapsoftErr("GEO_IO_OE_WRITE")
+                  << "Can't write data to OziExplorer file " << filename << " for writing";
 	}
-}
+} // namespace
 

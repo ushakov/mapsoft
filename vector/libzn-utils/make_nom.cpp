@@ -269,6 +269,8 @@ main(int argc, char** argv){
     dPoint wh = image_r::size(map_name.c_str());
     ref -= (f_max-f_min-wh)/2.0;
 
-    oe::write_map_file(cout, ref, Options());
+    try {oe::write_map_file("out.map", ref);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
+
   }
 }

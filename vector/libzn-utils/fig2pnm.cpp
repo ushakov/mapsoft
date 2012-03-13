@@ -194,7 +194,8 @@ int create_map(std::string figfile, std::string mapfile){
   g_map_list maplist;
   maplist.push_back(ref);
   w.maps.push_back(maplist);
-  io::out(mapfile, w, Options());
+  try {io::out(mapfile, w);}
+  catch (MapsoftErr e) {cerr << e.str() << endl;}
 }
 
 

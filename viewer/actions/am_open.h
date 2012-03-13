@@ -7,13 +7,7 @@ class Open : public ActionMode, public Gtk::FileSelection{
 public:
     Open (Mapview * mapview) :
            ActionMode(mapview),
-           Gtk::FileSelection("Open"),
-           warn_dlg("Only mapview xml files can be opened. Use Add/Import to"
-                    " load other geodata formats.", false,
-                    Gtk::MESSAGE_WARNING, Gtk::BUTTONS_CLOSE){
-
-      warn_dlg.signal_response().connect(
-        sigc::hide(sigc::mem_fun(warn_dlg, &Gtk::MessageDialog::hide_all)));
+           Gtk::FileSelection("Open"){
 
       Glib::RefPtr<Gtk::FileFilter> filter(new Gtk::FileFilter);
       filter->add_pattern("*.xml");
@@ -36,13 +30,14 @@ public:
     void on_ok(){
       std::string f = get_filename();
       if (!io::testext(f, ".xml")){
-        warn_dlg.show_all();
+        mapview->dlg_err.call(
+          MapsoftErr() << "Only mapsoft xml files can be opened."
+            " Use Add/Import to load other geodata formats.");
         return;
       }
       mapview->load_file(f);
       hide();
     }
-    Gtk::MessageDialog warn_dlg;
 };
 
 #endif

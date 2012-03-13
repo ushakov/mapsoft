@@ -7,7 +7,8 @@
 int main (int argc, char **argv) {
     geo_data world;
     for(int i = 1; i < argc; i++) {
-	io::in(std::string(argv[i]), world, Options());
+      try {io::in(std::string(argv[i]), world);}
+      catch (MapsoftErr e) {std::cerr << e.str() << endl;}
     }
 
     double speed, distance = 0;

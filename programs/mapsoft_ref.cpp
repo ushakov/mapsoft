@@ -48,7 +48,10 @@ int main(int argc, char *argv[]) {
 
   geo_data d;
   list<string>::const_iterator i;
-  for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, d, Options());
+  for(i=infiles.begin(); i!=infiles.end(); i++){
+    try {io::in(*i, d);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
+  }
 
   // читаем fig
   fig::fig_world F;

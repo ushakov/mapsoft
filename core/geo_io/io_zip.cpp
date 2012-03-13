@@ -6,10 +6,11 @@
 
 #include "io.h"
 #include "io_zip.h"
+#include "err.h"
 
-using namespace std;
 
 namespace io_zip{
+using namespace std;
 
 string
 modfname(string s) {
@@ -22,7 +23,7 @@ modfname(string s) {
     return string("/tmp/") + s;
 }
 
-bool
+void
 read_file(const char* filename, geo_data & world, const Options & opt) {
   struct zip *zip_file;
   struct zip_file *file_in_zip; 
@@ -34,26 +35,29 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
   char buffer[1];
   string tmp;
 
+  if (opt.exists("verbose")) cerr <<
+    "Reading ZIP file " << filename << endl;
+
   zip_file = zip_open(filename, 0, &err);
-  if (!zip_file){
-    cerr << "Can't open " << filename << endl;
-    return false;
-  }
+  if (!zip_file) throw MapsoftErr("GEO_IO_ZIP_OPEN")
+    << "Can't open ZIP file " << filename << ": " << zip_strerror(zip_file);
 
   files_total = zip_get_num_files(zip_file);
   if (!files_total) {
-    cerr << "Can't read " << filename << endl;
     zip_close(zip_file);
-    return false;
+    throw MapsoftErr("GEO_IO_ZIP_READ")
+      << "Can't read ZIP file " << filename << ": " << zip_strerror(zip_file);
   }
 
   for (i = 0; i < files_total; i++) {
     file_in_zip = zip_fopen_index(zip_file, i, 0);
-    if (!file_in_zip) {
-      cerr << "Can't read file " << fzip_name
-           << " from a zip archive" << endl;
-      continue;
+    if (!file_in_zip){
+      zip_close(zip_file);
+      throw MapsoftErr("GEO_IO_ZIP_READ1")
+        << "Can't read file " << fzip_name << " from ZIP file "
+        << filename << ": " << zip_strerror(zip_file);
     }
+
     fzip_name=zip_get_name(zip_file,i,0);
     tmp = modfname(fzip_name);
     ofstream out(tmp.c_str());
@@ -65,39 +69,48 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
     io::in(tmp,world,opt);
 
     if (remove(tmp.c_str())) {
-      cerr << "Can't delete temp file "<< tmp << endl;
+      zip_close(zip_file);
+      throw MapsoftErr("GEO_IO_ZIP_RM")
+        << "Can't delete temp file "<< tmp;
     }
   }
-  zip_close(zip_file);
-  return true;
+  if (zip_close(zip_file)!=0)
+    throw MapsoftErr("GEO_IO_ZIP_CLOSE")
+      << "Can't write data to ZIP file: " << zip_strerror(zip_file);
 }
 
-bool write_file (const char* filename, const std::vector<std::string> & files){
+void write_file (const char* filename, const std::vector<std::string> & files, const Options & opt){
   struct zip *Z;
   int err;
+
+  if (opt.exists("verbose")) cerr <<
+    "Writing ZIP file " << filename << endl;
+
   remove(filename);
   Z = zip_open(filename, ZIP_CREATE, &err);
-  if (!Z) {
-    cerr << "Can't open " << filename << endl;
-    return false;
-  }
+  if (!Z) throw MapsoftErr("GEO_IO_ZIP_OPENW")
+    << "Can't open ZIP file " << filename << " for writing";
+
   std::vector<std::string>::const_iterator f;
   for (f = files.begin(); f!=files.end();  f++){
     struct zip_source *s = zip_source_file(Z, f->c_str(),0,0);
     if ((s == NULL) || (zip_add(Z, f->c_str(), s) < 0)) {
-      std::cerr << "Can't add " << zip_strerror(Z) << " to zip archive" << endl;
       zip_source_free(s);
+      zip_close(Z);
+      throw MapsoftErr("GEO_IO_ZIP_ADD")
+        << "Can't write data to ZIP file: " << zip_strerror(Z);
     }
   }
-  if (zip_close(Z)!=0){
-    std::cerr << "Can't write " << zip_strerror(Z) << endl;
-    return false;
-  }
+  if (zip_close(Z)!=0)
+    throw MapsoftErr("GEO_IO_ZIP_CLOSE")
+      << "Can't write data to ZIP file: " << zip_strerror(Z);
+
   for (f = files.begin(); f!=files.end();  f++){
-    if (remove(f->c_str()))
-      cerr << "Can't delete "<< *f << endl;
+    if (remove(f->c_str())){
+      throw MapsoftErr("GEO_IO_ZIP_CLOSE")
+        << "Can't delete temp file " << *f;
+    }
   }
-  return true;
 }
 
 }//namespace

@@ -7,29 +7,34 @@
 #include "io_gps.h"
 #include "jeeps/gps.h"
 #include "utils/iconv_utils.h"
+#include "err.h"
 
 namespace gps {
 	using namespace std;
 
 // function for reading objects from gps into the world object
 
-        bool init_gps(const char* port){
+        void init_gps(const char* port, const Options &opt){
 		// почему-то только такая процедура позволяет подключить usb-gps с первого раза
+                if (opt.exists("verbose"))
+                  cerr << "initialize GPS device " << port << endl;
                 GPS_Init(port);
 		sleep(1);
-		if (GPS_Init(port) < 0) return false;
-		return true;
+		if (GPS_Init(port) < 0)
+                  throw MapsoftErr("GEO_IO_GPS_INIT")
+                    << "Can't open GPS device";
         }
 
-	bool get_waypoints (const char* port, geo_data & world, const Options &opt){
+	void get_waypoints (const char* port, geo_data & world, const Options &opt){
 		GPS_PWay   *wpt;
-                if (!init_gps(port)) return false;
 
-		int n;
-		if ((n = GPS_Command_Get_Waypoint (port, &wpt, NULL)) <= 0) {
-                  std::cerr << "can't get waypoints\n"; 
-                  return false;
-                }
+                if (opt.exists("verbose"))
+                  cerr << "get waypoints from GPS device " << port << endl;
+
+		int n = GPS_Command_Get_Waypoint (port, &wpt, NULL);
+                if (n<0)
+                  throw MapsoftErr("GEO_IO_GPS_WPT_GET")
+                     << "Can't get waypoints from GPS device"; 
 
 		g_waypoint_list new_w;
 
@@ -49,24 +54,24 @@ namespace gps {
 			new_w.push_back(new_w_pt);
 		}
 		world.wpts.push_back(new_w);
-		return true;
 	}
 
-	bool get_tracks (const char* port, geo_data & world, const Options &opt)
+	void get_tracks (const char* port, geo_data & world, const Options &opt)
 	{
 		GPS_PTrack *trk;
-                if (!init_gps(port)) return false;
-                int n;
-		if((n = GPS_Command_Get_Track (port, &trk, 0)) < 0) {
-                  std::cerr << "can't get track\n"; 
-                  return false;
-                }
+
+                if (opt.exists("verbose"))
+                  cerr << "get tracks from GPS device " << port << endl;
+
+                int n = GPS_Command_Get_Track (port, &trk, 0);
+                if (n<0)
+                  throw MapsoftErr("GEO_IO_GPS_TRK_GET")
+                    << "Can't get tracks from GPS device"; 
 
 		g_track new_t;
 		bool begin=true;
 
 		for (int i=0; i<n; i++){
-
 			if (trk[i]->ishdr){
 				if (begin){
 					begin = false;
@@ -90,12 +95,13 @@ namespace gps {
 			}
 		}
 		world.trks.push_back(new_t);
-		return true;
 	}
 
-	bool put_waypoints (const char * port, const g_waypoint_list & wp, const Options & opt){
+	void put_waypoints (const char * port, const g_waypoint_list & wp, const Options & opt){
 		int num = wp.size();
-                if (!init_gps(port)) return false;
+
+                if (opt.exists("verbose"))
+                  cerr << "put waypoints to GPS device " << port << endl;
 
 		GPS_PWay *wpts = (GPS_PWay *) calloc(num, sizeof(GPS_PWay));
 
@@ -118,13 +124,16 @@ namespace gps {
 			wpts[n]->time = i->t.value;
 			n++;
 		}
-		GPS_Command_Send_Waypoint(port, wpts, n, NULL);
-		return true;
+		if (!GPS_Command_Send_Waypoint(port, wpts, n, NULL))
+                  throw MapsoftErr("GEO_IO_GPS_WPT_SEND")
+                    << "Can't send waypoints to GPS device";
 	}
 
-	bool put_track (const char * port, const g_track & tr, const Options & opt){
+	void put_track (const char * port, const g_track & tr, const Options & opt){
 		int num = tr.size()+1;
-                if (!init_gps(port)) return false;
+
+                if (opt.exists("verbose"))
+                  cerr << "put tracks to GPS device " << port << endl;
 
 		GPS_PTrack *trks = (GPS_PTrack *) calloc(num, sizeof(GPS_PTrack));
 
@@ -149,32 +158,33 @@ namespace gps {
 			trks[n]->tnew = i->start ? 1:0;
 			n++;
 		}
-		GPS_Command_Send_Track(port, trks, num);
-		return true;
+		if (!GPS_Command_Send_Track(port, trks, num))
+                  throw MapsoftErr("GEO_IO_GPS_TRK_SEND")
+                    << "Can't send tracks to GPS device";
 	}
 
-	bool put_all (const char * port, const geo_data & world, const Options & opt)
-	{
-		int num=0;
-
-		for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++){
-			if (!put_waypoints (port, *i, opt)) return false;
-		}
-		for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++){
-			if (!put_track (port, *i, opt)) return false;
-		}
-		if (opt.find("gps_off")!=opt.end()) GPS_Command_Off(port);
-		return true;
-	}
-
-        void turn_off (const char* port){
-          GPS_Command_Off(port);
+        void turn_off (const char* port, const Options &opt){
+          if (opt.exists("verbose"))
+            cerr << "turn off GPS device " << port << endl;
+          if (!GPS_Command_Off(port))
+            throw MapsoftErr("GEO_IO_GPS_OFF")
+              << "Can't turn off GPS device";
         }
 
-	bool get_all (const char* port, geo_data & world, const Options &opt){
+	void put_all (const char * port, const geo_data & world, const Options & opt)
+	{
+                init_gps(port);
+		for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++)
+		  put_waypoints (port, *i, opt);
+		for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++)
+		  put_track (port, *i, opt);
+		if (opt.find("gps_off")!=opt.end()) turn_off(port, opt);
+	}
+
+	void get_all (const char* port, geo_data & world, const Options &opt){
+            init_gps(port, opt);
 	    get_waypoints(port, world, opt);
 	    get_tracks(port, world, opt);
-	    if (opt.find("gps_off")!=opt.end()) GPS_Command_Off(port);
-	    return true;
+	    if (opt.find("gps_off")!=opt.end()) turn_off(port, opt);
 	}
 }

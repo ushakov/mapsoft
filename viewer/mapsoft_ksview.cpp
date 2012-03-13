@@ -54,7 +54,8 @@ void load_file(Gtk::FileSelection * file_selector, Viewer1 * v) {
    selected_filename = file_selector->get_filename();
    g_print ("Loading: %s\n", selected_filename.c_str());
    status_bar->push("Loading...", 0);
-   io::in(selected_filename, world, Options());
+   try {io::in(selected_filename, world);}
+   catch (MapsoftErr e) {cerr << e.str() << endl;}
    wl.set_ref(gl.get_ref());
    tl.set_ref(gl.get_ref());
    v->refresh();
@@ -65,7 +66,8 @@ void save_file(Gtk::FileSelection * file_selector) {
    selected_filename = file_selector->get_filename();
    g_print ("Saving file: %s\n", selected_filename.c_str());
    status_bar->push("Saving...", 0);
-   io::out(selected_filename, world, Options());
+   try {io::out(selected_filename, world);}
+   catch (MapsoftErr e) {cerr << e.str() << endl;}
 }
 
 gboolean on_delete (GdkEventAny * e, Gtk::Window * win){
@@ -137,7 +139,8 @@ main(int argc, char **argv)
 
     //чтение файлов из командной строки:
     for(int i=1;i<argc;i++){
-      io::in(std::string(argv[i]), world, Options());
+      try {io::in(std::string(argv[i]), world);}
+      catch (MapsoftErr e) {cerr << e.str() << endl;}
     }
     wl.set_ref(gl.get_ref());
     tl.set_ref(gl.get_ref());

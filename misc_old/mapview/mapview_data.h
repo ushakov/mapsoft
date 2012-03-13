@@ -57,10 +57,8 @@ class MapviewData : public std::list<MapviewDataFile>{
       }
       MapviewDataFile file;
       file.name = name;
-      if (!io::in(name, file, Options())){
-        std::cerr << "can't read file " << name << "\n";
-        return;
-      }
+      try {io::in(name, file);}
+      catch (MapsoftErr e) {cerr << e.str() << endl; return;}
 
       file.wpts_v.resize(file.wpts.size(), true);
       file.trks_v.resize(file.trks.size(), true);

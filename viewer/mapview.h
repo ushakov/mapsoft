@@ -16,6 +16,7 @@
 #include "geo_io/io.h"
 #include "2d/rect.h"
 #include "dialogs/ch_conf.h"
+#include "dialogs/err.h"
 
 #define ACCEL_FILE ".mapsoft/accel"
 
@@ -38,20 +39,20 @@ public:
     bool have_reference;
     bool divert_refresh;
 
+    DlgChConf dlg_ch_conf;
+    DlgErr dlg_err;
+
 private:
     boost::shared_ptr<ActionManager> action_manager;
     iPoint click_start;
     std::string filename; // project filename
     bool changed;         // true if project was changed since
                           // last saving/loading
-    DlgChConf dlg_ch_conf;
 
     Gtk::Image *busy_icon;
 public:
 
     Mapview ();
-
-
 
     void layer_edited (const Gtk::TreeModel::Path& path,
                        const Gtk::TreeModel::iterator& iter);

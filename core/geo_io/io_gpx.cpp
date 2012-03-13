@@ -5,6 +5,7 @@
 #include "io_gpx.h"
 #include <libxml/xmlreader.h>
 #include <cstring>
+#include "err.h"
 
 namespace gpx {
 
@@ -32,10 +33,15 @@ time_s2gpx(const Time & t){
   return s.str();
 }
 
-bool
+void
 write_file (const char* filename, const geo_data & world, const Options & opt){
   ofstream f(filename);
-  if (!f.good()) return false;
+
+  if (opt.exists("verbose")) cerr <<
+    "Writing data to GPX file " << filename << endl;
+
+  if (!f.good()) throw MapsoftErr("GEO_IO_GPX_OPENW") <<
+    "Can't open file " << filename << " for writing";
 
   f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
   f << "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\">" << endl;
@@ -75,7 +81,9 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
     f << "  </trk>" << endl;
   }
   f << "</gpx>" << endl;
-  return f.good();
+
+  if (!f.good()) throw MapsoftErr("GEO_IO_GPX_WRITE") <<
+    "Can't write to file " << filename;
 }
 
 
@@ -97,10 +105,8 @@ read_wpt_node(xmlTextReaderPtr reader, geo_data & world){
 
   while(1){
     int ret =xmlTextReaderRead(reader);
-    if (ret != 1){
-      fprintf(stderr, "Error: can't parse XML\n");
-      return ret;
-    }
+    if (ret != 1) return ret;
+
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
 
@@ -149,10 +155,8 @@ read_trkpt_node(xmlTextReaderPtr reader, g_track & trk, bool start){
 
   while(1){
     int ret =xmlTextReaderRead(reader);
-    if (ret != 1){
-      fprintf(stderr, "Error: can't parse XML\n");
-      return ret;
-    }
+    if (ret != 1) return ret;
+
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
 
@@ -190,16 +194,15 @@ read_trkseg_node(xmlTextReaderPtr reader, g_track & trk){
   bool start=true;
   while(1){
     int ret =xmlTextReaderRead(reader);
-    if (ret != 1){
-      fprintf(stderr, "Error: can't parse XML\n");
-      return ret;
-    }
+    if (ret != 1) return ret;
+
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
 
     if (type == TYPE_SWS) continue;
     else if (NAMECMP("trkpt") && (type == TYPE_ELEM)){
-      read_trkpt_node(reader, trk, start);
+      ret = read_trkpt_node(reader, trk, start);
+      if (ret != 1) return ret;
       start=false;
     }
     else if (NAMECMP("trkseg") && (type == TYPE_ELEM_END)){
@@ -219,16 +222,15 @@ read_trk_node(xmlTextReaderPtr reader, geo_data & world){
 
   while(1){
     int ret =xmlTextReaderRead(reader);
-    if (ret != 1){
-      fprintf(stderr, "Error: can't parse XML\n");
-      return ret;
-    }
+    if (ret != 1) return ret;
+
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
 
     if (type == TYPE_SWS) continue;
     else if (NAMECMP("trkseg") && (type == TYPE_ELEM)){
-      read_trkseg_node(reader, trk);
+      ret=read_trkseg_node(reader, trk);
+      if (ret != 1) return ret;
     }
     else if (NAMECMP("name")){
      if (type == TYPE_ELEM) is_name = true;
@@ -253,10 +255,8 @@ read_gpx_node(xmlTextReaderPtr reader, geo_data & world){
   bool is_meta=false;
   while(1){
     int ret =xmlTextReaderRead(reader);
-    if (ret != 1){
-      fprintf(stderr, "Error: can't parse XML\n");
-      return ret;
-    }
+    if (ret != 1) return ret;
+
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
 
@@ -267,10 +267,12 @@ read_gpx_node(xmlTextReaderPtr reader, geo_data & world){
     }
     else if (is_meta) continue;
     else if (NAMECMP("wpt") && (type == TYPE_ELEM)){
-      read_wpt_node(reader, world);
+      ret=read_wpt_node(reader, world);
+      if (ret != 1) return ret;
     }
     else if (NAMECMP("trk") && (type == TYPE_ELEM)){
-      read_trk_node(reader, world);
+      ret=read_trk_node(reader, world);
+      if (ret != 1) return ret;
     }
     else if (NAMECMP("gpx") && (type == TYPE_ELEM_END)){
       break;
@@ -282,19 +284,20 @@ read_gpx_node(xmlTextReaderPtr reader, geo_data & world){
   return 1;
 }
 
-bool
+void
 read_file(const char* filename, geo_data & world, const Options & opt) {
 
   LIBXML_TEST_VERSION
+
+  if (opt.exists("verbose")) cerr <<
+    "Reading data from GPX file " << filename << endl;
 
   xmlTextReaderPtr reader;
   int ret;
 
   reader = xmlReaderForFile(filename, NULL, 0);
-  if (reader == NULL){
-     cerr << "Error: Unable to open " << filename << "\n";
-     return false;
-  }
+  if (reader == NULL) throw MapsoftErr("GEO_IO_GPX_OPENR") <<
+    "Can't open file " << filename << " for reading";
 
   // parse file
   while (1){
@@ -303,21 +306,19 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
 
     const xmlChar *name = xmlTextReaderConstName(reader);
     int type = xmlTextReaderNodeType(reader);
-    if (NAMECMP("gpx") && (type == TYPE_ELEM)) ret = read_gpx_node(reader, world);
+    if (NAMECMP("gpx") && (type == TYPE_ELEM))
+      ret = read_gpx_node(reader, world);
     if (ret!=1) break;
   }
 
   // free resources
   xmlFreeTextReader(reader);
 
-  if (ret != 0) {
-    cerr << "io_gps: can't read " << filename << "\n";
-    return false;
-  }
+  if (ret != 0) throw MapsoftErr("GEO_IO_GPX_READ") <<
+    "Can't parse GPX file " << filename;
 
   xmlCleanupParser();
   xmlMemoryDump();
-  return true;
 }
 
 } // namespace

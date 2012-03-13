@@ -54,7 +54,10 @@ int main(int argc, char *argv[]) {
 
   geo_data world, result;
   StrVec::const_iterator i;
-  for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, world, opts);
+  for(i=infiles.begin(); i!=infiles.end(); i++){
+    try {io::in(*i, world, opts);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
+  }
 
 
   vector<g_track>::const_iterator t;
@@ -96,5 +99,6 @@ int main(int argc, char *argv[]) {
     result.wpts.push_back(wp_list);
   }
 
-  io::out(outfile, result, opts);
+  try{io::out(outfile, result, opts);}
+  catch (MapsoftErr e) {cerr << e.str() << endl;}
 }

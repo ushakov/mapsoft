@@ -11,8 +11,7 @@ Mapview::Mapview () :
     have_reference(false),
     divert_refresh(false),
     viewer(&workplane),
-    rubber(&viewer),
-    dlg_ch_conf()
+    rubber(&viewer)
 {
 
     /// window initialization
@@ -275,7 +274,8 @@ Mapview::add_files(const list<string> & files) {
   list<string>::const_iterator i;
   for (i=files.begin(); i!=files.end(); i++){
     statusbar.push("Load " + *i);
-    io::in(*i, world, Options());
+    try {io::in(*i, world);}
+    catch (MapsoftErr e) {dlg_err.call(e);}
   }
   add_world(world, true);
 }
@@ -290,7 +290,8 @@ Mapview::load_file(const string & file, bool force) {
   clear_world();
   statusbar.push("Open " + file);
   geo_data world;
-  io::in(file, world, Options());
+  try {io::in(file, world);}
+  catch (MapsoftErr e) {dlg_err.call(e);}
   add_world(world, true);
   if (io::testext(file, ".xml")) filename = file;
   set_changed(false);

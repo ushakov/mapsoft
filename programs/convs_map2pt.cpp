@@ -30,7 +30,8 @@ void usage(){
 int main(int argc, char** argv){
   if (argc != 5) usage();
   geo_data W;
-  io::in(argv[1],W,Options());
+  try {io::in(argv[1],W,Options());}
+  catch (MapsoftErr e) {cerr << e.str() << endl;}
 
   g_map *map = NULL;
   int count = 0;

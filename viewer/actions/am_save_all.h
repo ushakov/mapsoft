@@ -24,7 +24,8 @@ public:
     void on_ok(){
       std::string f = get_filename();
       mapview->statusbar.push("Save to " + f);
-      io::out(f, mapview->get_world(false), Options());
+      try {io::out(f, mapview->get_world(false));}
+      catch (MapsoftErr e) {mapview->dlg_err.call(e);}
       if (io::testext(f, ".xml")){
         mapview->set_filename(f);
         mapview->set_changed(false);

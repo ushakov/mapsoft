@@ -10,6 +10,7 @@
 #include "io_gu.h"
 #include "utils/iconv_utils.h"
 #include "utils/spirit_utils.h"
+#include "err.h"
 
 
 
@@ -93,7 +94,10 @@ namespace gu {
 
 // function for reading objects from garmin-utils file
 // into the world object
-	bool read_file(const char* filename, geo_data & world, const Options & opt){
+	void read_file(const char* filename, geo_data & world, const Options & opt){
+
+                if (opt.exists("verbose")) cerr <<
+                  "Reading data from Garmin-utils file " << filename << endl;
 
 		// нам здесь не требуется инициализация объектов, так как 
 		// мы обязательно заполняем все поля
@@ -146,7 +150,9 @@ namespace gu {
 
 		rule_t main_rule = header >> +( wpt_block | trk_block ) >> *space_p;
 
-                if (!parse_file("gu::read", filename, main_rule)) return false;
+                if (!parse_file("gu::read", filename, main_rule))
+                  throw MapsoftErr("GEO_IO_GU_READ")
+                    << "Can't parse Garmin-utils file " << filename;
 
                 //преобразование комментариев и названий точек в UTF-8
                 IConv cnv(default_charset);
@@ -161,8 +167,6 @@ namespace gu {
 
                 world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
                 world.trks.insert(world.trks.end(), ret.trks.begin(), ret.trks.end());
-
-                return true;
 	}
 
 /********************************************/
@@ -182,6 +186,7 @@ namespace gu {
 			  << ((p->start)? " start":"") << "\n";
 		}
 		f << "[end transfer, " << num << "/" << num << " records]\n";
+                return f.good();
 	}
 
 	bool write_waypoint_list(ofstream & f, const g_waypoint_list & wp, const Options & opt){
@@ -201,15 +206,23 @@ namespace gu {
 			  << cnv.from_utf8(p->comm)  << "\n";
 		}
 		f << "[end transfer, " << num << "/" << num << " records]\n";
+                return f.good();
 	}
 
-	bool write_file(const char* filename, const geo_data & world, const Options & opt){
+	void write_file(const char* filename, const geo_data & world, const Options & opt){
+                if (opt.exists("verbose")) cerr <<
+                  "Writing data to Garmin-utils file " << filename << endl;
 		ofstream f(filename);
 		f << "[product 00, version 000: MAPSOFT]\n";
-		for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++)
-			write_waypoint_list(f, *i, opt);
-		for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++)
-			write_track(f, *i, opt);
-		return true;
+		for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++){
+		  if (!write_waypoint_list(f, *i, opt))
+                    throw MapsoftErr("GEO_IO_GU_WRITE")
+                      << "Can't write data to garmin-utils file " << filename;
+                }
+		for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++){
+		  if (!write_track(f, *i, opt))
+                    throw MapsoftErr("GEO_IO_GU_WRITE")
+                      << "Can't write data to garmin-utils file " << filename;
+		}
 	}
 }

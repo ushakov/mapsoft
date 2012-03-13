@@ -453,8 +453,9 @@ VMAPRenderer::save_image(const char * png, const char * map){
   M.border.push_back(*M.border.begin());
   M.border=generalize(M.border,1,-1); // 1pt accuracy
   M.border.resize(M.border.size()-1);
-  ofstream f(map);
-  oe::write_map_file(f, M, Options());
+
+  try {oe::write_map_file(map, M);}
+  catch (MapsoftErr e) {cerr << e.str() << endl;}
 }
 
 void

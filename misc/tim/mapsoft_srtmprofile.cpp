@@ -60,7 +60,10 @@ main(int argc, char** argv){
 
   geo_data world;
   StrVec::const_iterator i;
-  for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, world, opts);
+  for(i=infiles.begin(); i!=infiles.end(); i++){
+    try {io::in(*i, world, opts);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
+  }
 
   int n = 0;
   double len = 0; 

@@ -6,14 +6,14 @@
 
 namespace gps {
 
-    bool init_gps(const char* port);
-    bool get_tracks (const char* port, geo_data & world, const Options & opt);
-    bool get_waypoints (const char* port, geo_data & world, const Options & opt);
-    bool get_all (const char* port, geo_data & world, const Options & opt);
-    bool put_track (const char* port, const g_track & tr, const Options & opt);
-    bool put_waypoints (const char* port, const g_waypoint_list & wp, const Options & opt);
-    void turn_off (const char* port);
-    bool put_all (const char* port, const geo_data & world, const Options & opt);
+    void init_gps(const char* port, const Options &opt = Options());
+    void get_tracks (const char* port, geo_data & world, const Options & opt = Options());
+    void get_waypoints (const char* port, geo_data & world, const Options & opt = Options());
+    void get_all (const char* port, geo_data & world, const Options & opt = Options());
+    void put_track (const char* port, const g_track & tr, const Options & opt = Options());
+    void put_waypoints (const char* port, const g_waypoint_list & wp, const Options & opt = Options());
+    void turn_off (const char* port, const Options &opt = Options());
+    void put_all (const char* port, const geo_data & world, const Options & opt = Options());
 
 // options:
 //   --gps_off     -- turn off gps device after use

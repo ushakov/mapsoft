@@ -113,8 +113,12 @@ main(int argc, char **argv){
     maplist.push_back(map);
   } while (!in.eof());
   world.maps.push_back(maplist);
-  io::map_nom_brd(world);
-  io::out(outfile, world, opts);
+
+  try {io::map_nom_brd(world);}
+  catch (MapsoftErr e) {std::cerr << e.str() << endl;}
+
+  try {io::out(outfile, world, opts);}
+  catch (MapsoftErr e) {std::cerr << e.str() << endl;}
 }
 
 

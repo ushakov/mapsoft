@@ -15,65 +15,73 @@
 
 #include <math.h>
 
-#include "jeeps/gpsmath.h"
-#include "jeeps/gpsdatum.h"
-
+//#include "jeeps/gpsmath.h"
+//#include "jeeps/gpsdatum.h"
+#include "err.h"
 
 namespace kml {
+    using namespace std;
     using namespace boost::spirit::classic;
-    
+
     // Записывает в KML-файл треки и точки
     // Не записывает карты! (хм, а может, надо?)
-    bool write_file (const char* filename, const geo_data & world, const Options & opt){
-	std::ofstream f(filename);
-	if (!f.good()) return false;
+    void write_file (const char* filename, const geo_data & world, const Options & opt){
 
-	f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
-	f << "<kml xmlns=\"http://earth.google.com/kml/2.1\">" << std::endl;
-	f << "  <Document>" << std::endl;
+        if (opt.exists("verbose")) cerr <<
+          "Writing data to KML file " << filename << endl;
+
+	ofstream f(filename);
+	if (!f.good()) throw MapsoftErr("GEO_IO_KML_OPENW")
+                    << "Can't open KML file " << filename << " for writing";
+
+
+	f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
+	f << "<kml xmlns=\"http://earth.google.com/kml/2.1\">" << endl;
+	f << "  <Document>" << endl;
 
 	for (int i = 0; i < world.wpts.size(); i++) {
-	    f << "  <Folder>" << std::endl;
-	    f << "    <name>WPTS_" << i << "</name>" << std::endl;
+	    f << "  <Folder>" << endl;
+	    f << "    <name>WPTS_" << i << "</name>" << endl;
 	    for (g_waypoint_list::const_iterator wp = world.wpts[i].begin();
 		 wp != world.wpts[i].end(); ++wp) {
-		f << "    <Placemark>" << std::endl;
-		f << "      <name><![CDATA[" << wp->name << "]]></name>" << std::endl;
-		f << "      <description><![CDATA[" << wp->comm << "]]></description>" << std::endl;
-		f << "      <Point>" << std::endl;
-		f << "        <coordinates>" << wp->x << "," << wp->y << "," << wp->z << "</coordinates>" << std::endl;
-		f << "      </Point>" << std::endl;
-		f << "    </Placemark>" << std::endl;
+		f << "    <Placemark>" << endl;
+		f << "      <name><![CDATA[" << wp->name << "]]></name>" << endl;
+		f << "      <description><![CDATA[" << wp->comm << "]]></description>" << endl;
+		f << "      <Point>" << endl;
+		f << "        <coordinates>" << wp->x << "," << wp->y << "," << wp->z << "</coordinates>" << endl;
+		f << "      </Point>" << endl;
+		f << "    </Placemark>" << endl;
 	    }
-	    f << "  </Folder>" << std::endl;
+	    f << "  </Folder>" << endl;
 	}
 
 	for (int i = 0; i < world.trks.size(); ++i) {
-	    f << "  <Placemark>" << std::endl;
-	    f << "    <description><![CDATA[" << world.trks[i].comm << "]]></description>" << std::endl;
-	    f << "    <MultiGeometry>" << std::endl;
+	    f << "  <Placemark>" << endl;
+	    f << "    <description><![CDATA[" << world.trks[i].comm << "]]></description>" << endl;
+	    f << "    <MultiGeometry>" << endl;
 	    for (g_track::const_iterator tp = world.trks[i].begin(); tp != world.trks[i].end(); ++tp) {
 		if (tp->start || tp == world.trks[i].begin()) {
 		    if (tp != world.trks[i].begin()) {
-			f << "        </coordinates>" << std::endl;
-			f << "      </LineString>" << std::endl;
+			f << "        </coordinates>" << endl;
+			f << "      </LineString>" << endl;
 		    }
-		    f << "      <LineString>" << std::endl;
-		    f << "        <tesselate>1</tesselate>" << std::endl;
-		    f << "        <coordinates>" << std::endl;
+		    f << "      <LineString>" << endl;
+		    f << "        <tesselate>1</tesselate>" << endl;
+		    f << "        <coordinates>" << endl;
 		}	
-		f << "          " << tp->x << "," << tp->y << "," << tp->z << std::endl;
+		f << "          " << tp->x << "," << tp->y << "," << tp->z << endl;
 	    }
-	    f << "        </coordinates>" << std::endl;
-	    f << "      </LineString>" << std::endl;
-	    f << "    </MultiGeometry>" << std::endl;
-	    f << "  </Placemark>" << std::endl;
+	    f << "        </coordinates>" << endl;
+	    f << "      </LineString>" << endl;
+	    f << "    </MultiGeometry>" << endl;
+	    f << "  </Placemark>" << endl;
 	}
 	
-	f << "  </Document>" << std::endl;
-	f << "</kml>" << std::endl;
-	
-	return f.good();
+	f << "  </Document>" << endl;
+	f << "</kml>" << endl;
+
+	if (!f.good()) throw MapsoftErr("GEO_IO_KML_WRITE")
+                    << "Can't write data to KML file " << filename;
     }
 /*
     struct kml_point : public Options {
@@ -85,7 +93,7 @@ namespace kml {
 	    get("lon",  ret.x);
 	    get("lat",  ret.y);
 	    get("alt",  ret.z);
-	    const std::string used[] = {
+	    const string used[] = {
                 "name", "comm", "lon", "lat", "alt", ""};
 	    warn_unused(used);
 	    return ret;
@@ -97,7 +105,7 @@ namespace kml {
 	    get("lon",  ret.x);
 	    get("lat",  ret.y);
 	    get("alt",  ret.z);
-	    const std::string used[] = {
+	    const string used[] = {
                 "lon", "lat", "alt", ""};
 	    warn_unused(used);
 	    return ret;
@@ -105,13 +113,13 @@ namespace kml {
     };
 
     struct kml_point_list : public Options {
-	std::vector<kml_point> points;
+	vector<kml_point> points;
 
 	operator g_waypoint_list () const {
 	    g_waypoint_list ret;
-	    const std::string used[] = {"points",""}; //points - только записывается, не читается.
+	    const string used[] = {"points",""}; //points - только записывается, не читается.
 	    warn_unused(used);
-	    for (std::vector<kml_point>::const_iterator i=points.begin(); i!=points.end();i++)
+	    for (vector<kml_point>::const_iterator i=points.begin(); i!=points.end();i++)
 		ret.push_back(*i);
 	    return ret;
 	}
@@ -119,9 +127,9 @@ namespace kml {
 	operator g_track () const {
 	    g_track ret;
 	    ret.comm  = get_string("comm",  ret.comm);
-	    const std::string used[] = {"comm", "points", ""};
+	    const string used[] = {"comm", "points", ""};
 	    warn_unused(used);
-	    for (std::vector<kml_point>::const_iterator i=points.begin(); i!=points.end();i++)
+	    for (vector<kml_point>::const_iterator i=points.begin(); i!=points.end();i++)
 		ret.push_back(*i);
 	    return ret;
 	}

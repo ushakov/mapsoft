@@ -9,10 +9,10 @@
 
 namespace io_zip {
     // read zipped files (any format)
-    bool read_file (const char* filename, geo_data & world, const Options & opt);
+    void read_file (const char* filename, geo_data & world, const Options & opt = Options());
 
     // write zipped files (ozi format)
-    bool write_file (const char* filename, const std::vector<std::string> & files);
+    void write_file (const char* filename, const std::vector<std::string> & files, const Options & opt = Options());
 }
 
 #endif

@@ -34,7 +34,10 @@ int main(int argc, char *argv[]) {
 
   geo_data world;
   StrVec::const_iterator i;
-  for(i=infiles.begin(); i!=infiles.end(); i++) io::in(*i, world, opts);
+  for(i=infiles.begin(); i!=infiles.end(); i++){
+    try {io::in(*i, world, opts);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
+  }
 
 // Распечатка комментариев точек
 //  vector<g_waypoint_list>::const_iterator t;

@@ -6,15 +6,7 @@
 class Save : public ActionMode, public Gtk::FileSelection{
 public:
     Save (Mapview * mapview) :
-
-           ActionMode(mapview), Gtk::FileSelection("Save"),
-           warn_dlg("Only mapview xml files can be saved. Save As/Export to"
-                    " save other geodata formats. ", false,
-                    Gtk::MESSAGE_WARNING, Gtk::BUTTONS_CLOSE){
-
-      warn_dlg.signal_response().connect(
-        sigc::hide(sigc::mem_fun(warn_dlg, &Gtk::MessageDialog::hide_all)));
-
+           ActionMode(mapview), Gtk::FileSelection("Save"){
       get_ok_button()->signal_clicked().connect(
           sigc::mem_fun (this, &Save::on_ok));
       get_cancel_button()->signal_clicked().connect(
@@ -41,15 +33,17 @@ public:
     void on_ok(){
       std::string f = get_filename();
       if (!io::testext(f, ".xml")){
-         warn_dlg.show_all();
+         mapview->dlg_err.call(
+            MapsoftErr() << "Only mapsoft xml files can be saved."
+                " Use Save As/Export to save other geodata formats.");
          return;
       }
       mapview->statusbar.push("Save to " + f);
-      io::out(f, mapview->get_world(false), Options());
+      try{ io::out(f, mapview->get_world(false));}
+      catch (MapsoftErr e) {mapview->dlg_err.call(e);}
       mapview->set_filename(f);
       hide();
     }
-    Gtk::MessageDialog warn_dlg;
 };
 
 #endif /* AM_SAVE_ALL */

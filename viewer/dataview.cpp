@@ -206,5 +206,6 @@ DataView::on_layer_save(int r){
         *it->get_value(mapview->map_ll.columns.layer)->get_data());
     break;
   }
-  io::out(fname, world, Options());
+  try { io::out(fname, world);}
+  catch (MapsoftErr e) {mapview->dlg_err.call(e);}
 }

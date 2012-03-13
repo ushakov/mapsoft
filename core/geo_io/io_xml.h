@@ -9,13 +9,13 @@
 
 namespace xml {
 
-    bool read_file (const char* filename, geo_data & world, const Options & opt);
+    void read_file (const char* filename, geo_data & world, const Options & opt = Options());
 
     bool write_map(std::ofstream & f, const g_map & m, const Options & opt);
     bool write_track(std::ofstream & f, const g_track & m, const Options & opt);
     bool write_waypoint_list(std::ofstream & f, const g_waypoint_list & m, const Options & opt);
 
-    bool write_file (const char* filename, const geo_data & world, const Options & opt);
+    void write_file (const char* filename, const geo_data & world, const Options & opt = Options());
 
 // Для всех типов точек - один map<string,string>, но разные преобразования
 // Это все вынесено в отдельный h-файл, поскольку используется и при чтении точек из fig

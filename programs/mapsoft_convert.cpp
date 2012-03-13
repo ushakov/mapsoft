@@ -124,8 +124,10 @@ try{
   }
 
   geo_data world;
-  for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++)
-    io::in(*i, world, O);
+  for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
+    try { io::in(*i, world, O);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
+  }
 
   if (O.exists("verbose")){
     cerr << "Map lists: " << world.maps.size()
@@ -134,7 +136,9 @@ try{
   }
 
   if (O.exists("verbose")) cerr << "Applying filters...\n";
-  io::filter(world, O);
+
+  try{ io::filter(world, O);}
+  catch (MapsoftErr e) {cerr << e.str() << endl;}
 
   string name=O.get("out", string());
   if ((io::testext(name, ".tiff")) ||
@@ -144,10 +148,12 @@ try{
       (io::testext(name, ".jpg")) ||
       (io::testext(name, ".tiles")) 
      ){
-    io::out_img(name, world, O);
+    try {io::out_img(name, world, O);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
   }
   else {
-    io::out(name, world, O);
+    try {io::out(name, world, O);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
   }
 
 } catch (const char *err){

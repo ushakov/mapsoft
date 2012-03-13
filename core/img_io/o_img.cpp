@@ -202,8 +202,8 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   // writing map if needed
   string mapfile = opt.get<string>("map");
   if (mapfile != ""){
-    ofstream f(mapfile.c_str());
-    oe::write_map_file(f, ref, Options());
+    try {oe::write_map_file(mapfile.c_str(), ref);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
   }
 }
 } //namespace

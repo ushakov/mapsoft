@@ -189,7 +189,10 @@ int main(int argc, char *argv[]) {
 
   for (int i=5; i<argc; i++) infiles.push_back(argv[i]);
   list<string>::const_iterator fb=infiles.begin(), fe=infiles.end(), f;
-  for(f=fb; f!=fe; f++) io::in(*f, world, Options());
+  for(f=fb; f!=fe; f++){
+    try{io::in(*f, world);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
+  }
 
   for (int i = 0; i<world.wpts.size(); i++){
     fig << "6 0 0 " << int(width*kk) << " " << int(height*kk) << "\n";

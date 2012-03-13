@@ -14,7 +14,7 @@
 #include "io_xml.h"
 #include "options/options.h"
 #include "utils/iconv_utils.h"
-
+#include "err.h"
 
 namespace xml {
 
@@ -25,7 +25,7 @@ namespace xml {
 
 // function for reading objects from XML file
 // into the world object
-	bool read_file(const char* filename, geo_data & world, const Options & opt){
+	void read_file(const char* filename, geo_data & world, const Options & opt){
 
 		xml_point pt;
 		xml_point_list pt_list;
@@ -43,6 +43,9 @@ namespace xml {
 		    std::string fn1(filename);
   	            prefix=std::string(fn1.begin(),fn1.begin()+pos) + "/";
 		}
+
+                if (opt.exists("verbose")) cerr <<
+                  "Reading data from Mapsoft XML file " << filename << endl;
 
 		string aname, aval;
 
@@ -86,7 +89,10 @@ namespace xml {
 
 		rule_t main_rule = *(*space_p >> (wpt_object | trk_object | topmap_object | maps_object)) >> *space_p;
 
-		if (!parse_file("xml::read", filename, main_rule)) return false;
+		if (!parse_file("xml::read", filename, main_rule))
+                  throw MapsoftErr("GEO_IO_XML_READ")
+                    << "Can't parse mapsoft XML file " << filename;
+
                 if (top_map_list.maps.size()>0) ret.maps.push_back(top_map_list);
 
 		// convert wpt names and comments to UTF-8
@@ -113,8 +119,6 @@ namespace xml {
                 world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
                 world.trks.insert(world.trks.end(), ret.trks.begin(), ret.trks.end());
                 world.maps.insert(world.maps.end(), ret.maps.begin(), ret.maps.end());
-
-                return true;
 	}
 
 /********************************************/
@@ -237,16 +241,27 @@ namespace xml {
 
 
 
-	bool write_file(const char* filename, const geo_data & world, const Options & opt){
-		ofstream f(filename);
+	void write_file(const char* filename, const geo_data & world, const Options & opt){
+	  if (opt.exists("verbose")) cerr <<
+	   "Writing data to Mapsoft XML file " << filename << endl;
 
-		for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++)
-			write_waypoint_list(f, *i, opt);
-		for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++)
-			write_track(f, *i, opt);
-		for (vector<g_map_list>::const_iterator i = world.maps.begin(); i!=world.maps.end(); i++)
-			write_map_list(f, *i, opt);
-		return true;
+	  ofstream f(filename);
+
+	  for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++){
+	    if (!write_waypoint_list(f, *i, opt))
+	      throw MapsoftErr("GEO_IO_XML_WRITE")
+	        << "Can't write data to Mapsoft XML file " << filename;
+	  }
+	  for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++){
+	    if (write_track(f, *i, opt))
+	      throw MapsoftErr("GEO_IO_XML_WRITE")
+	        << "Can't write data to Mapsoft XML file " << filename;
+	  }
+	  for (vector<g_map_list>::const_iterator i = world.maps.begin(); i!=world.maps.end(); i++){
+	    if (write_map_list(f, *i, opt))
+	      throw MapsoftErr("GEO_IO_XML_WRITE")
+	        << "Can't write data to Mapsoft XML file " << filename;
+	  }
 	}
 
 /********************************************/

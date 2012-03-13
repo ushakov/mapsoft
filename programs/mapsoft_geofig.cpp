@@ -95,8 +95,10 @@ main(int argc, char **argv){
 
       if (O.exists("verbose")) cerr << "Reading data...\n";
       geo_data world;
-      for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++)
-        io::in(*i, world, O);
+      for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
+        try {io::in(*i, world, O);}
+        catch (MapsoftErr e) {cerr << e.str() << endl;}
+      }
 
       if (O.exists("verbose")){
         cerr << ",  Waypoint lists: " << world.wpts.size()

@@ -19,10 +19,10 @@ namespace io {
 
 
   // read data from file
-  bool in(const std::string & in_name, geo_data & world, const Options & opt);
+  void in(const std::string & in_name, geo_data & world, const Options & opt = Options());
 
   // write data to file
-  void out(const std::string & out_name, const geo_data & world, const Options & opt);
+  void out(const std::string & out_name, const geo_data & world, const Options & opt = Options());
 
 
   // filters

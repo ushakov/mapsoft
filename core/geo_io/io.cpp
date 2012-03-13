@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <vector>
 #include <list>
+#include <map>
 
 #include <sys/stat.h>
 #include <math.h>
@@ -21,6 +22,8 @@
 #include "io_oe.h"
 #include "io_zip.h"
 #include "geofig.h"
+
+#include "err.h"
 
 namespace io {
 using namespace std;
@@ -51,50 +54,40 @@ gps_detect(){
   return "";
 }
 
-bool
+void
 in(const string & in_name, geo_data & world, const Options & opt){
   string name(in_name);
   bool v = opt.exists("verbose");
 
   if (name == "gps:"){
     name = gps_detect();
-    if (name == ""){
-      cerr << "Can't detect gps device\n";
-      return false;
-    }
+    if (name == "")
+      throw MapsoftErr("GEO_IO_GPS_AUTO") << "Can't detect gps device";
   }
 
   int c = check_file(name);
-  if (c < 0){
-    cerr << "Can't access " << name << endl;
-    return false;
-  }
+  if (c < 0)
+    throw MapsoftErr("GEO_IO_FILE") << "Can't access file " << name;
 
   if (c == 1){
-    if (v) cerr << "Reading data from GPS via serial port "
-                << name << endl;
-    if (!gps::get_all(name.c_str(), world, opt)){
-      cerr << "Can't get data from " << name << endl;
-      return false;
-    }
-    return true;
+    gps::get_all(name.c_str(), world, opt);
+    return;
   }
-
   if (testext(name, ".xml")){
-    if (v) cerr << "Reading data from XML file " << name << endl;
-    return xml::read_file (name.c_str(), world, opt);
+    xml::read_file (name.c_str(), world, opt);
+    return;
   }
   if (testext(name, ".gpx")){
-    if (v) cerr << "Reading data from GPX file " << name << endl;
-    return gpx::read_file (name.c_str(), world, opt);
+    gpx::read_file (name.c_str(), world, opt);
+    return;
   }
   if (testext(name, ".gu")){
-    if (v) cerr << "Reading data from Garmin-utils file " << name << endl;
-    return gu::read_file (name.c_str(), world, opt);
+    gu::read_file (name.c_str(), world, opt);
+    return;
   }
   if ((testext(name, ".plt")) || (testext(name, ".wpt")) || (testext(name, ".map"))){
-    if (v) cerr << "Reading data from Ozi file " << name << endl;
-    return oe::read_file (name.c_str(), world, opt);
+    oe::read_file (name.c_str(), world, opt);
+    return;
   }
   if (testext(name, ".fig")){
     if (v) cerr << "Reading data from Fig file " << name << endl;
@@ -104,48 +97,40 @@ in(const string & in_name, geo_data & world, const Options & opt){
     fig::get_wpts(F, m, world);
     fig::get_trks(F, m, world);
     fig::get_maps(F, m, world);
-    return true;
+    return;
   }
   if (testext(name, ".zip")) {
-    if (v) cerr << "Reading data from zip archive " << name << endl;
-    return io_zip::read_file (name.c_str(), world, opt);
+    io_zip::read_file (name.c_str(), world, opt);
+    return;
   }
-  cerr << "Unknown extension: " << name << endl;
-  return false;
+  throw MapsoftErr("GEO_IO_IFMT") << "Can't determine input format for file " << name;
+  return;
 }
 
-void out(const string & out_name, geo_data const & world, const Options & opt){
+void
+out(const string & out_name, geo_data const & world, const Options & opt){
   string name(out_name);
   bool v = opt.exists("verbose");
 
   if (name == "gps:"){
     name = gps_detect();
-    if (name == ""){
-      cerr << "Can't detect gps device" << endl;
-      return;
-    }
+    if (name == "") throw MapsoftErr("GEO_IO_AUTOGPS") <<
+        "Can't detect gps device";
   }
 
+  // GPS device
   if (check_file(name) == 1){
-    if (v) cerr << "Sending data to GPS via serial port " << name << endl;
-    if (!gps::put_all (name.c_str(), world, opt))
-      cerr << "Can't send data to " << name << endl;
+    gps::put_all (name.c_str(), world, opt);
     return;
   }
-
   // mapsoft XML format
   if (testext(name, ".xml")){
-    if (v) cerr << "Writing to XML file " << name << endl;
-    if (!xml::write_file (name.c_str(), world, opt))
-      cerr << "Can't write " << name << endl;
+    xml::write_file (name.c_str(), world, opt);
     return;
   }
-
   // GPX format
   if (testext(name, ".gpx")){
-    if (v) cerr << "Writing to GPX file " << name << endl;
-    if (!gpx::write_file (name.c_str(), world, opt))
-      cerr << "Can't write " << name << endl;
+    gpx::write_file (name.c_str(), world, opt);
     return;
   }
 
@@ -153,28 +138,20 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
   if (testext(name, ".kml") || testext(name, ".kmz")){
     string base(name.begin(), name.begin()+name.rfind('.'));
     string kml=base+".kml";
-    if (v) cerr << "Writing to Google KML file " << kml << endl;
-    if (!kml::write_file (kml.c_str(), world, opt))
-      cerr << "Can't write " << name << endl;
+    kml::write_file (kml.c_str(), world, opt);
 
     if (testext (name, ".kmz")){
       vector<string> files;
       files.push_back(kml);
-      if (v) cerr << "Zipping to " << name << endl;
-      if (!io_zip::write_file(name.c_str(), files))
-        cerr << "Can't make zip-file " << name << endl;
+      io_zip::write_file(name.c_str(), files);
     }
     return;
   }
-
   // Garmin-Utils format
   if (testext(name, ".gu")){
-    if (v) cerr << "Writing to Garmin-utils file " << name << endl;
-    if (!gu::write_file (name.c_str(), world, opt))
-      cerr << "Can't write to " << name << endl;
+    gu::write_file (name.c_str(), world, opt);
     return;
   }
-
   // OziExplorer format
   if ((testext(name, ".wpt"))||
       (testext(name, ".plt"))||
@@ -182,7 +159,6 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
       (testext(name, ".zip"))||
       (testext(name, ".oe"))){
     string base(name.begin(), name.begin()+name.rfind('.'));
-    if (v) cerr << "Writing to OziExplorer files: \n";
     vector<string> files;
 
     // number of files with tracks, waypoints and maps
@@ -202,14 +178,10 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
       else
         oef << base << ".wpt";
 
-      ofstream f(oef.str().c_str());
-      if (!oe::write_wpt_file (f, world.wpts[n], opt))
-        cerr << "Can't write " << oef.str() << endl;
-      else{
-        if (v) cerr << "  " << oef.str() << " -- "
-                    << world.wpts[n].size() << " waypoints\n";
-        files.push_back(oef.str());
-      }
+      oe::write_wpt_file (oef.str().c_str(), world.wpts[n], opt);
+      if (v) cerr << "  " << oef.str() << " -- "
+                  << world.wpts[n].size() << " waypoints\n";
+      files.push_back(oef.str());
     }
 
     for (size_t n = 0; n < tn; ++n){
@@ -219,14 +191,10 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
       else
         oef << base << ".plt";
 
-      ofstream f(oef.str().c_str());
-      if (!oe::write_plt_file (f, world.trks[n], opt))
-        cerr << "Can't write " << oef.str() << endl;
-      else{
-        if (v) cerr << "  " << oef.str() << " -- "
-                    << world.trks[n].size() << " points\n";
-        files.push_back(oef.str());
-      }
+      oe::write_plt_file (oef.str().c_str(), world.trks[n], opt);
+      if (v) cerr << "  " << oef.str() << " -- "
+                  << world.trks[n].size() << " points\n";
+      files.push_back(oef.str());
     }
 
     for (size_t nn = 0; nn < mn; ++nn){
@@ -242,30 +210,20 @@ void out(const string & out_name, geo_data const & world, const Options & opt){
         if (mw > 0)  oef << setw(mw) << setfill('0') << n+1;
         oef << ".map";
 
-        ofstream f(oef.str().c_str());
-        if (!oe::write_map_file (f, world.maps[nn][n], opt))
-          cerr << "Can't write " << oef.str() << endl;
-
-        else {
-          if (v) cerr << "  " << oef.str() << " -- "
-                      << world.maps[n].size() << " reference points" << endl;
-          files.push_back(oef.str());
-        }
+        oe::write_map_file (oef.str().c_str(), world.maps[nn][n], opt);
+        if (v) cerr << "  " << oef.str() << " -- "
+                    << world.maps[n].size() << " reference points" << endl;
+        files.push_back(oef.str());
       }
-    }
+      if (testext (name, ".zip"))
+        io_zip::write_file(name.c_str(), files);
 
-    if (testext (name, ".zip")){
-      if (v) cerr << "Zipping files to " << name << endl;
-      io_zip::write_file(name.c_str(), files);
+      return;
     }
 
     return;
   }
-
-  cerr << "Can't write geodata to file " << name << endl
-       << "Use .xml, .gu, .wpt, .plt, .oe or .zip extension" << endl
-       << "or name of serial port device (for example /dev/ttyS0)" << endl
-       << " or \"gps:\" for garmin gps." << endl;
+  throw MapsoftErr("GEO_IO_OFMT") << "Can't determine output format for file " << name;
 }
 }  // namespace io
 

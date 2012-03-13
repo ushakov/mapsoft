@@ -206,8 +206,9 @@ private:
           ref.push_back(g_refpoint(pts_c[i], pts[i]));
           ref.border.push_back(pts[i]);
         }
-        std::ofstream f((fname + ".map").c_str());
-        oe::write_map_file(f, ref, Options());
+
+        try {oe::write_map_file((fname + ".map").c_str(), ref);}
+        catch (MapsoftErr e) {mapview->dlg_err.call(e);}
       }
 
       fdlg.hide_all();

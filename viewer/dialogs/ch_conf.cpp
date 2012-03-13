@@ -4,7 +4,7 @@ const char * ch_conf_text = "Some data may be lost. Continue?";
 
 DlgChConf::DlgChConf():
      Gtk::MessageDialog(ch_conf_text, false,
-                        Gtk::MESSAGE_WARNING, Gtk::BUTTONS_OK_CANCEL){
+                        Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_OK_CANCEL){
   signal_response().connect(
       sigc::mem_fun(this, &DlgChConf::on_result));
 }

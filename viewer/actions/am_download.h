@@ -37,14 +37,17 @@ public:
       geo_data world;
       std::string dev = dlg.e_dev->get_text();
 
+      try {gps::init_gps(dev.c_str());}
+      catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+
       if (dlg.cb_w->get_active()){
-        if (!gps::get_waypoints (dev.c_str(), world, Options()))
-          mapview->statusbar.push("Error while waypoint downloading",0);
+        try{gps::get_waypoints (dev.c_str(), world);}
+        catch (MapsoftErr e) {mapview->dlg_err.call(e);}
       }
 
       if (dlg.cb_a->get_active() || dlg.cb_o->get_active()){
-        if (!gps::get_tracks (dev.c_str(), world, Options()))
-          mapview->statusbar.push("Error while track downloading",0);
+        try{gps::get_tracks (dev.c_str(), world);}
+        catch (MapsoftErr e) {mapview->dlg_err.call(e);}
 
         std::vector<g_track>::iterator i = world.trks.begin();
         while (i!=world.trks.end()){
@@ -59,7 +62,8 @@ public:
         mapview->add_world(world);
 
       if (dlg.cb_off->get_active())
-        gps::turn_off(dev.c_str());
+        try{ gps::turn_off(dev.c_str());}
+        catch (MapsoftErr e) {mapview->dlg_err.call(e);}
     }
 
 private:

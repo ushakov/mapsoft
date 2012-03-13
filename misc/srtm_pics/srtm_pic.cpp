@@ -163,8 +163,8 @@ try{
 
       }
     }
-    ofstream mf("srtm_pic_out.map");
-    oe::write_map_file(mf, m, Options());
+    try {oe::write_map_file("srtm_pic_out.map", m);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
 
 } catch(std::domain_error e){ std::cerr << e.what(); }
 }

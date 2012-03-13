@@ -42,8 +42,10 @@ main(int argc, char **argv){
     if (source == "map") {
       // read data
       geo_data *world = new geo_data;
-      for(int i=4;i<argc;i++)
-        io::in(std::string(argv[i]), *world, Options());
+      for(int i=4;i<argc;i++){
+        try {io::in(std::string(argv[i]), *world);}
+        catch (MapsoftErr e) {std::cerr << e.str() << endl;}
+      }
       // put all maps into one map_list
       for (std::vector<g_map_list>::const_iterator mi = world->maps.begin();
          mi!=world->maps.end(); mi++) maps.insert(maps.end(), mi->begin(), mi->end());
