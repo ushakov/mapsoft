@@ -13,8 +13,6 @@
 #include "image_jpeg.h"
 #include "image_tiff.h"
 
-#include <string.h>
-
 namespace image_r{
 
 iPoint size(const char *file);

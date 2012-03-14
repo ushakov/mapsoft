@@ -1,24 +1,25 @@
 #include "image_r.h"
+#include <cstring>
 
 namespace image_r{
 
+bool testext(const char *file, const char *ext){
+  int lf=strlen(file);
+  int le=strlen(ext);
+  return (lf>=le) && (strncmp(file + (lf-le), ext, le)==0);
+}
+
 iPoint size(const char *file){
     // Поглядим на расширение:
-    int l = strlen(file);
-    if ((l>=4 && (!strncmp(file + (l-4), ".jpg", 4)||
-                  !strncmp(file + (l-4), ".JPG", 4)))||
-        (l>=5 && (!strncmp(file + (l-5), ".jpeg", 5)||
-                  !strncmp(file + (l-5), ".JPEG", 5)))){
+    if (testext(file, ".jpg") || testext(file, ".jpeg") ||
+        testext(file, ".JPG") || testext(file, ".JPEG")){
       return image_jpeg::size(file);
     }
-    if ((l>=4 && (!strncmp(file + (l-4), ".tif", 4)||
-                  !strncmp(file + (l-4), ".TIF", 4)))||
-        (l>=5 && (!strncmp(file + (l-5), ".tiff", 5)||
-                  !strncmp(file + (l-5), ".TIFF", 5)))){
+    if (testext(file, ".tif") || testext(file, ".tiff") ||
+        testext(file, ".TIF") || testext(file, ".TIFF")){
       return image_tiff::size(file);
     }
-    if (l>=4 && (!strncmp(file + (l-4), ".png", 4)||
-                 !strncmp(file + (l-4), ".PNG", 4))){
+    if (testext(file, ".png") || testext(file, ".PNG")){
       return image_png::size(file);
     }
     std::cerr << "Can't determine file format by extension in " << file << "\n"
@@ -31,21 +32,15 @@ int load(const char *file, iRect src_rect,
          iImage & image, iRect dst_rect){
 
     // Поглядим на расширение:
-    int l = strlen(file);
-    if (!strncmp(file + (l-4), ".jpg", 4)||
-        !strncmp(file + (l-4), ".JPG", 4)||
-        !strncmp(file + (l-5), ".jpeg", 5)||
-        !strncmp(file + (l-5), ".JPEG", 5)){
+    if (testext(file, ".jpg") || testext(file, ".jpeg") ||
+        testext(file, ".JPG") || testext(file, ".JPEG")){
       return image_jpeg::load(file, src_rect, image, dst_rect);
     }
-    if (!strncmp(file + (l-4), ".tif", 4)||
-        !strncmp(file + (l-4), ".TIF", 4)||
-        !strncmp(file + (l-5), ".tiff", 5)||
-        !strncmp(file + (l-5), ".TIFF", 5)){
+    if (testext(file, ".tif") || testext(file, ".tiff") ||
+        testext(file, ".TIF") || testext(file, ".TIFF")){
       return image_tiff::load(file, src_rect, image, dst_rect);
     }
-    if (!strncmp(file + (l-4), ".png", 4)||
-        !strncmp(file + (l-4), ".PNG", 4)){
+    if (testext(file, ".png") || testext(file, ".PNG")){
       return image_png::load(file, src_rect, image, dst_rect);
     }
     return 2;
@@ -69,21 +64,17 @@ int save(const iImage & im, const iRect & src_rect,
          const char *file, const Options & opts){
 
     // Поглядим на расширение:
-    int l = strlen(file);
-    if (!strncmp(file + (l-4), ".jpg", 4)||
-        !strncmp(file + (l-4), ".JPG", 4)||
-        !strncmp(file + (l-5), ".jpeg", 5)||
-        !strncmp(file + (l-5), ".JPEG", 5)){
-      return image_jpeg::save(im, src_rect, file, opts.get("jpeg_quality",75));
+    if (testext(file, ".jpg") || testext(file, ".jpeg") ||
+        testext(file, ".JPG") || testext(file, ".JPEG")){
+      return image_jpeg::save(
+        im, src_rect, file, opts.get("jpeg_quality",75));
     }
-    if (!strncmp(file + (l-4), ".tif", 4)||
-        !strncmp(file + (l-4), ".TIF", 4)||
-        !strncmp(file + (l-5), ".tiff", 5)||
-        !strncmp(file + (l-5), ".TIFF", 5)){
-      return image_tiff::save(im, src_rect, file, opts.exists("tiff_usealpha"));
+    if (testext(file, ".tif") || testext(file, ".tiff") ||
+        testext(file, ".TIF") || testext(file, ".TIFF")){
+      return image_tiff::save(im, src_rect, file,
+        opts.exists("tiff_usealpha"));
     }
-    if (!strncmp(file + (l-4), ".png", 4)||
-        !strncmp(file + (l-4), ".PNG", 4)){
+    if (testext(file, ".png") || testext(file, ".PNG")){
       return image_png::save(im, src_rect, file);
     }
     return 2;
