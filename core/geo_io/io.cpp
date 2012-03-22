@@ -197,29 +197,28 @@ out(const string & out_name, geo_data const & world, const Options & opt){
       files.push_back(oef.str());
     }
 
-    for (size_t nn = 0; nn < mn; ++nn){
-      int mmn = world.maps[nn].size(); // map count in this maplist
+    for (size_t n = 0; n < mn; ++n){
+      int mmn = world.maps[n].size(); // map count in this maplist
       int mmw=0;
       if (mmn > 1) mmw = (int) floor (log (1.0 * mmn) / log (10.0)) + 1;
 
-      for (size_t n = 0; n != world.maps[nn].size(); ++n) {
+      for (size_t nn = 0; nn != mmn; ++nn) {
         ostringstream oef;
         oef << base;
-        if (mmw > 0)  oef << setw(mmw) << setfill('0') << nn+1;
-        if ((mmw > 0) && (mw > 0))  oef << "_";
         if (mw > 0)  oef << setw(mw) << setfill('0') << n+1;
+        if ((mmw > 0) && (mw > 0))  oef << "_";
+        if (mmw > 0)  oef << setw(mmw) << setfill('0') << nn+1;
         oef << ".map";
 
-        oe::write_map_file (oef.str().c_str(), world.maps[nn][n], opt);
+        oe::write_map_file (oef.str().c_str(), world.maps[n][nn], opt);
         if (v) cerr << "  " << oef.str() << " -- "
-                    << world.maps[n].size() << " reference points" << endl;
+                    << world.maps[n][nn].size() << " reference points" << endl;
         files.push_back(oef.str());
       }
-      if (testext (name, ".zip"))
-        io_zip::write_file(name.c_str(), files);
-
-      return;
     }
+
+    if (testext (name, ".zip"))
+      io_zip::write_file(name.c_str(), files);
 
     return;
   }
