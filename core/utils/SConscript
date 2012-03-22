@@ -5,7 +5,7 @@ e.UseLibs('cairomm-1.0 pixman-1 freetype2')
 e.Library('utils', \
   Split("""
     log.cpp
-    err.h
+    err.cpp
     iconv_utils.cpp spirit_utils.cpp
     pnm_shifter.cpp
     cairo_wrapper.cpp

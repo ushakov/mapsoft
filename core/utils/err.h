@@ -24,19 +24,10 @@ class MapsoftErr{
   std::ostringstream s;
 
 public:
-  MapsoftErr(const std::string & id = std::string()):i(id){}
-
-  MapsoftErr(const MapsoftErr & o):i(o.i){
-    s << o.s.str();
-  }
-
-  std::string str() const {
-    return s.str();
-  }
-
-  std::string id() const {
-    return i;
-  }
+  MapsoftErr(const std::string & id = std::string());
+  MapsoftErr(const MapsoftErr & o);
+  std::string str() const;
+  std::string id() const;
 
   template <typename T>
   MapsoftErr & operator<<(const T & o){
