@@ -16,14 +16,72 @@
 #include "geo_io/io.h"
 #include "geo/geo_data.h"
 #include "geo/geo_convs.h"
-#include "utils/err.h"
 
+#include "options/m_getopt.h"
+#include "utils/err.h"
 
 using namespace std;
 
-void usage(const char *fname){
-    cerr << "Usage: " << fname << " <in1.plt> <in2.plt> ... -o <out.csv>\n";
-    exit(0);
+#define OPT1  1  // common options
+#define OPT2  2  // common mapsoft options
+#define OPT3  4  // program options
+#define OPT_ALL  (OPT1 | OPT2 | OPT3)
+
+static struct ext_option options[] = {
+  {"help",                  0,'h', OPT1, "show this message"},
+  {"pod",                   0,  0, OPT1, "show this message as POD template"},
+  {"verbose",               0,'v', OPT1, "be verbose\n"},
+
+  {"geom",          1,  0, OPT2, ""},
+  {"datum",         1,  0, OPT2, ""},
+  {"proj",          1,  0, OPT2, ""},
+  {"lon0",          1,  0, OPT2, ""},
+  {"wgs_geom",      1,  0, OPT2, ""},
+  {"wgs_brd",       1,  0, OPT2, ""},
+  {"nom",           1,  0, OPT2, ""},
+
+  {"out",                   1,'o', OPT3, "output file name"},
+
+  {0,0,0,0}
+};
+
+void usage(const char *fname, bool pod=false){
+
+  string head = pod? "\n=head1 ":"\n";
+  string bl = pod? "B<" : "";
+  string br = pod? ">" : "";
+
+  cerr << fname <<  " -- generate height profile for a set of tracks\n"
+       << head << "Usage:\n"
+       << "\t"<< fname << " <options> <track files> -o <output csv file>\n"
+       << head << "Track input (format is determined by file extension):\n"
+       << "  *.xml -- mapsoft native XML-like format\n"
+       << "  *.plt -- OziExplorer\n"
+       << "  *.gpx -- GPX format\n"
+       << "  *.gu  -- old garmin-utils format\n"
+       << "  *.zip -- zipped files\n"
+       << "  gps: --  read data from Garmin GPS via autodetected serial device\n"
+       << "  <character device> -- read data from Garmin GPS via serial device\n"
+       << "Look at " << bl << "mapsoft_convert" << br << " help for up-to-date list\n"
+       << head << "CSV output format\n"
+       << "  - trackpoint number\n"
+       << "  - date time\n"
+       << "  - height\n"
+       << "  - x coordinate\n"
+       << "  - y coordinate\n"
+       << "  - distance from start of track\n"
+       << "  - track comment\n"
+  ;
+
+  cerr << head << "Program options:\n";
+  print_options(options, OPT3, cerr, pod);
+  cerr << head << "Common options:\n";
+  print_options(options, OPT1, cerr, pod);
+  cerr << head << "Common mapsoft options:\n";
+  print_options(options, OPT2, cerr, pod);
+  cerr << "Look at " << bl << "mapsoft_convert" << br << " help for up-to-date list\n";
+
+  exit(1);
 }
 
 //координаты угла единичного квадрата по его номеру
@@ -38,42 +96,33 @@ iPoint dir (int k){
 
 
 main(int argc, char** argv){
-  if (argc < 4) usage(argv[0]);
+  const char *program_name = argv[0];
 
-  Options opts;
-  list<string> infiles;
-  string outfile = "";
+  // разбор командной строки
+  if (argc==1) usage(program_name);
 
-// разбор командной строки
-  for (int i=1; i<argc; i++){ 
+  vector<string> infiles;
+  Options opts = parse_options_all(&argc, &argv, options, OPT_ALL, infiles);
 
-    if ((strcmp(argv[i], "-h")==0)||
-        (strcmp(argv[i], "-help")==0)||
-        (strcmp(argv[i], "--help")==0)) usage(argv[0]);
+  if (opts.exists("help")) usage(program_name);
+  if (opts.exists("pod")) usage(program_name, true);
 
-    if (strcmp(argv[i], "-o")==0){
-      if (i==argc-1) usage(argv[0]);
-      i+=1;
-      outfile = argv[i];
-      continue;
-    }
-
-//    if (strcmp(argv[i], "-O")==0){
-//      if (i==argc-1) usage(argv[0]);
-//      i+=1;
-//      opts.put_string(argv[i]);
-//      continue;
-//    }
-
-    infiles.push_back(argv[i]);
+  if (infiles.empty()) {
+    cerr << "No track files specified\n";
+    exit(1);
   }
 
-  if (outfile == "") usage(argv[0]);
+  if (!opts.exists("out")){
+    cerr << "No output files specified\n";
+    exit(1);
+  }
+
+  string outfile = opts.get("out", string());
 
   ofstream out(outfile.c_str()); 
 
   geo_data world;
-  list<string>::const_iterator i;
+  vector<string>::const_iterator i;
   for(i=infiles.begin(); i!=infiles.end(); i++){
     try{io::in(*i, world, opts);}
     catch (MapsoftErr e) {cerr << e.str() << endl;}
@@ -83,8 +132,8 @@ main(int argc, char** argv){
   double len = 0; 
   vector<g_track>::const_iterator t;
 
-  convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), Options(),
-                  Datum("wgs84"), Proj("lonlat"), Options());
+  convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), opts,
+                  Datum("wgs84"), Proj("lonlat"), opts);
 
   for(t=world.trks.begin(); t!=world.trks.end(); t++) {
     double active_len = 0;
