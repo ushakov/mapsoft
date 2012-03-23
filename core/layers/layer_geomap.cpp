@@ -279,7 +279,11 @@ LayerGeoMap::make_m2ms(){
       double sc = min(1000/pdist(p1,p2), 1000/pdist(p1,p3));
       scales.push_back(sc);
 
-      myrange = brd.range();
+      if ( i == 0 )
+         myrange = brd.range();
+      else
+         myrange = rect_bounding_box(myrange, iRect(brd.range()));
+
       // pump range to include all ref points with some radius
       const iPoint rr(10,10);
       for (int j=0; j<m->size(); j++){
