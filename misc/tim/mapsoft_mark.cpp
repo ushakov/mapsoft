@@ -118,7 +118,6 @@ int main(int argc, char *argv[]) {
   string outfile = opts.get("out", string());
 
   // чтение файлов
-
   geo_data world, result;
   vector<string>::const_iterator i;
   for(i=infiles.begin(); i!=infiles.end(); i++){
