@@ -273,9 +273,10 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
   rule_t wpt_head = 
     str_p("OziExplorer Waypoint File Version ") >>
     str_p("1.1") >> eol_p >>
-    (+ch)[assign_a(w.datum)] >> eol_p >>  // Datum
-    +ch >> eol_p >>                      // Reserved for future use
-    (+ch)[assign_a(w.symbset)] >> +eol_p; // Symbol set (unused)
+    (+ch)[assign_a(w.datum)] >> eol_p >>     // Datum
+    !(str_p("Altitude") >> +ch >> eol_p) >>  // in old or broken files?
+    +ch >> eol_p >>                          // Reserved for future use
+    (+ch)[assign_a(w.symbset)] >> +eol_p;    // Symbol set (unused)
 
   rule_t trk_head = 
     str_p("OziExplorer Track Point File Version ") >>
