@@ -24,7 +24,7 @@ rscale="$(get_map_par "$name" "rscale" "")"
   rscale="100000"
 }
 
-./vmap_copy \
+mapsoft_vmap \
   -o "$name.fig"\
   --name "$comm" --rscale "$rscale" --style "$style"\
   --range "$geom" --range_datum "pulkovo" --range_proj "tmerc"\
