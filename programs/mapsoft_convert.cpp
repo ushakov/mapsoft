@@ -53,8 +53,15 @@ static struct ext_option options[] = {
   {"fig",           1,'f', OPT3, "write fig-file"},
   {"map",           1,'m', OPT3, "write map-file"},
   {"draw_borders",  0,  0, OPT3, "draw map borders"},
-  {"trk_draw_dots", 0,  0, OPT3, "draw dots on tracks"},
+
+  {"trk_draw_mode" ,1,  0, OPT3, "draw mode: normal, speed, height"},
+  {"trk_draw_dots" ,0,  0, OPT3, "draw dots on tracks"},
   {"trk_draw_arrows",0, 0, OPT3, "draw arrows on tracks"},
+  {"trk_draw_v1"   ,1,  0, OPT3, "low value for speed draw mode"},
+  {"trk_draw_v2"   ,1,  0, OPT3, "high value for speed draw mode"},
+  {"trk_draw_h1"   ,1,  0, OPT3, "low value for height draw mode"},
+  {"trk_draw_h2"   ,1,  0, OPT3, "high value for height draw mode"},
+
   {"max_image",     1,  0, OPT3, "don't write images larger then this, \"x,y\", default 1000,1000"},
   {"data_marg",     1,  0, OPT3, "margins around data (works only if no geometry set), pixels"},
   {"jpeg_quality",  1,  0, OPT3, "set jpeg quality"},

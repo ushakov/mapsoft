@@ -80,9 +80,21 @@ B<<  -m, --map <file> >> -- write map-file
 
 B<<  --draw_borders >> -- draw map borders
 
+
+B<<  --trk_draw_mode <mode> >> -- draw mode: normal, speed, height.
+
 B<<  --trk_draw_dots >> -- draw dots on tracks
 
 B<<  --trk_draw_arrows >> -- draw arrows on tracks.
+
+B<<  --trk_draw_v1 <v1> >> -- low value for speed draw mode
+
+B<<  --trk_draw_v2 <v2> >> -- high value for speed draw mode
+
+B<<  --trk_draw_h1 <h1> >> -- low value for height draw mode
+
+B<<  --trk_draw_h2 <h2> >> -- high value for height draw mode
+
 
 B<<  --max_image <W,H> >> -- don't write images larger then this,.
 default 1000,1000

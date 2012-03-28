@@ -16,10 +16,13 @@ private:
   convs::map2pt cnv;
   g_map mymap;
   iRect myrange;
-  bool draw_dots, draw_arrows;
+  Options opt;
 
 public:
-  LayerTRK (g_track * _data, const Options & opt = Options());
+  LayerTRK (g_track * _data, const Options & o = Options());
+
+  void set_opt(const Options & o);
+  Options get_opt(void) const;
 
   /// Refresh layer.
   void refresh();

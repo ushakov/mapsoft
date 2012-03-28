@@ -19,9 +19,19 @@ B<<  -m, --map <file> >> -- write map-file
 
 B<<  --draw_borders >> -- draw map borders
 
+B<<  --trk_draw_mode <mode> >> -- draw mode: normal, speed, height 
+
 B<<  --trk_draw_dots >> -- draw dots on tracks
 
 B<<  --trk_draw_arrows >> -- draw arrows on tracks 
+
+B<<  --trk_draw_v1 <v1> >> -- low value for speed draw mode
+
+B<<  --trk_draw_v2 <v2> >> -- high value for speed draw mode
+
+B<<  --trk_draw_h1 <h1> >> -- low value for height draw mode
+
+B<<  --trk_draw_h2 <h2> >> -- high value for height draw mode
 
 B<<  --max_image <W,H> >> -- don't write images larger then this, default 1000,1000
 
@@ -35,8 +45,14 @@ B<< --jpeg_quality <arg> >> -- set jpeg quality
   {"fig",            1,'f', OPT3, "write fig-file"},
   {"map",            1,'m', OPT3, "write map-file"},
   {"draw_borders",   0,  0, OPT3, "draw map borders"},
+  {"trk_draw_mode"  ,1,  0, OPT3, "draw mode: normal, speed, height"},
   {"trk_draw_dots",  0,  0, OPT3, "draw dots on tracks"},
   {"trk_draw_arrows",0,  0, OPT3, "draw arrows on tracks"},
+  {"trk_draw_v1"    ,1,  0, OPT3, "low value for speed draw mode"},
+  {"trk_draw_v2"    ,1,  0, OPT3, "high value for speed draw mode"},
+  {"trk_draw_h1"    ,1,  0, OPT3, "low value for height draw mode"},
+  {"trk_draw_h2"    ,1,  0, OPT3, "high value for height draw mode"},
+
   {"max_image",      1,  0, OPT3, "don't write images larger then this, \"x,y\", default 1000,1000"},
   {"data_marg",      1,  0, OPT3, "margins around data (works only if no geometry set), pixels"},
   {"jpeg_quality",   1,  0, OPT3, "set jpeg quality"},
