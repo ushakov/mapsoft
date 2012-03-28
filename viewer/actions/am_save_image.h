@@ -83,7 +83,12 @@ private:
     void on_ch_size(void) {
       mapview->rubber.clear();
       dPoint wh = dPoint(dlg.get_px())*get_mpp_scale();
-      mapview->rubber.add_rect(one, one+iPoint(wh));
+      int c=dlg.get_corner();
+
+      iPoint tlc = one;
+      if ((c==1) || (c==2)) tlc.x -=wh.x;
+      if ((c==2) || (c==3)) tlc.y -=wh.y;
+      mapview->rubber.add_rect(tlc, tlc+iPoint(wh));
     }
 
     // find visible map in a given point and return mpp
@@ -165,14 +170,19 @@ private:
       std::string fname=fdlg.get_filename();
 
       g_map mymap = mapview->reference;
-      dPoint mytlc(one);
+
       iPoint wh = dlg.get_px();
       double mpp_scale=get_mpp_scale();
+
+      dPoint mytlc(one);
+      int c = dlg.get_corner();
+      if ((c==1) || (c==2)) mytlc.x -=wh.x;
+      if ((c==2) || (c==3)) mytlc.y -=wh.y;
 
       iImage image(wh.x, wh.y, 0xFFFFFFFF);
 
       if (mpp_scale == 1.0){
-        mapview->workplane.draw(image, one);
+        mapview->workplane.draw(image, mytlc);
       }
       else{
         mytlc/=mpp_scale;
@@ -188,7 +198,10 @@ private:
 //        return;
 //      }
 
-      if (image_r::save(image, fname.c_str(), Options())) return;
+      if (image_r::save(image, fname.c_str(), Options())>0){
+        mapview->dlg_err.call(MapsoftErr() << "Can't save file: " << fname);
+        return;
+      }
 
       g_map ref;
       if (dlg.get_map()){

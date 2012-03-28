@@ -57,3 +57,14 @@ CBPage::CBPage(){
   set_values(data_list,
     data_list+sizeof(data_list)/sizeof(pair_t));
 }
+
+CBCorner::CBCorner(){
+  const pair_t data_list[] = {
+    pair_t(0, "top-left"),
+    pair_t(1, "top-right"),
+    pair_t(2, "bottom-right"),
+    pair_t(3, "bottom-left")
+  };
+  set_values(data_list,
+    data_list+sizeof(data_list)/sizeof(pair_t));
+}

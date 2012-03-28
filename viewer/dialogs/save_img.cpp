@@ -45,6 +45,11 @@ DlgSaveImg::DlgSaveImg(): dpi_adj(300, 1, 9999, 50){
   map = manage(new Gtk::CheckButton("write Ozi map file"));
   map->set_active();
 
+  /**** Corner combobox ****/
+  Gtk::Label *l_c = manage(
+    new Gtk::Label("Select corner: ",  Gtk::ALIGN_RIGHT));
+  corner = manage(new CBCorner());
+
   /*** hint ***/
 
   hint  = manage(new Gtk::Label);
@@ -52,12 +57,14 @@ DlgSaveImg::DlgSaveImg(): dpi_adj(300, 1, 9999, 50){
 
   /**** Main table ****/
 
-  Gtk::Table *table = manage(new Gtk::Table(3,4));
+  Gtk::Table *table = manage(new Gtk::Table(3,5));
             //  widget    l  r  t  b  x       y
   table->attach(*pagebox,   0, 3, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*res_frame, 0, 3, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*map,       0, 3, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*hint,      0, 3, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*l_c,       0, 1, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*corner,    1, 3, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*hint,      0, 3, 4, 5, Gtk::FILL, Gtk::SHRINK, 3, 3);
 
   get_vbox()->add(*table);
 
@@ -68,6 +75,8 @@ DlgSaveImg::DlgSaveImg(): dpi_adj(300, 1, 9999, 50){
   mpp_dpi->signal_changed().connect(
       sigc::mem_fun(this, &DlgSaveImg::on_ch));
   mpp_scale->signal_changed().connect(
+      sigc::mem_fun(this, &DlgSaveImg::on_ch));
+  corner->signal_changed().connect(
       sigc::mem_fun(this, &DlgSaveImg::on_ch));
   pagebox->signal_changed().connect(
       sigc::mem_fun(this, &DlgSaveImg::on_ch));
@@ -100,6 +109,11 @@ DlgSaveImg::get_mpp(){
            mpp_dpi->get_value() / 100;
 
   return 1;
+}
+
+int
+DlgSaveImg::get_corner() const{
+  return corner->get_active_id();
 }
 
 int

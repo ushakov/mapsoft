@@ -15,7 +15,8 @@ class DlgSaveImg : public Gtk::Dialog{
     Gtk::RadioButton  *rb_mpp_screen, *rb_mpp_auto, *rb_mpp_dpi;
     Gtk::SpinButton *mpp_dpi;
     Gtk::Adjustment dpi_adj;
-    CBScale * mpp_scale;
+    CBScale  *mpp_scale;
+    CBCorner *corner;
     Gtk::Label *hint;
 
     PageBox *pagebox;
@@ -32,6 +33,8 @@ class DlgSaveImg : public Gtk::Dialog{
 
     double get_mpp();
     int get_mpp_style();
+
+    int get_corner() const;
 
     void set_hint(const char * str);
 
