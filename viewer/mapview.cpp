@@ -14,6 +14,10 @@ Mapview::Mapview () :
     rubber(&viewer)
 {
 
+    /// layer drawing options (set before Action constructors)
+    layer_options.put("trk_draw_dots", "");
+    layer_options.put("trk_draw_arrows", "");
+
     /// window initialization
     signal_delete_event().connect_notify (
       sigc::bind(sigc::hide(sigc::mem_fun (this, &Mapview::exit)),false));
@@ -101,9 +105,6 @@ Mapview::Mapview () :
     vbox->pack_start(*paned, true, true, 0);
     vbox->pack_start(*st_box, false, true, 0);
     add (*vbox);
-
-    layer_options.put("trk_draw_dots", "");
-    layer_options.put("trk_draw_arrows", "");
 
     filename="";
     set_changed(false);

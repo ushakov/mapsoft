@@ -89,12 +89,11 @@ LayerTRK::draw(const iPoint origin, iImage & image){
   int dot_w = w * 0.5;
   int arr_dist = w * 10; // minimal segment with arrow
 
-  bool draw_dots   = opt.exists("trk_draw_dots");
-  bool draw_arrows = opt.exists("trk_draw_arrows");
-
   string trk_draw_mode = opt.get<string>("trk_draw_mode", "normal");
 
   if (trk_draw_mode == "normal"){
+    bool draw_dots   = opt.exists("trk_draw_dots");
+    bool draw_arrows = opt.exists("trk_draw_arrows");
     cr->set_color(data->color.value);
     cr->set_line_width(w);
     for (int i=1; i<data->size(); i++){
@@ -166,7 +165,7 @@ LayerTRK::draw(const iPoint origin, iImage & image){
   if (trk_draw_mode == "height"){
     double trk_height1 = opt.get<double>("trk_draw_h1", -200);
     double trk_height2 = opt.get<double>("trk_draw_h2", 8000);
-    cr->set_line_width(w);
+    cr->set_line_width(2*w);
     simple_rainbow sr(trk_height1, trk_height2);
     for (int i=1; i<data->size(); i++){
       g_trackpoint p1((*data)[i-1]);
@@ -178,25 +177,23 @@ LayerTRK::draw(const iPoint origin, iImage & image){
       cnv.bck(p1);  p1-=origin;
       cnv.bck(p2);  p2-=origin;
 
-      if (p1.have_alt() && p2.have_alt())
-        cr->set_color(sr.get( (p1.z + p2.z)/2 ));
-      else
-        cr->set_color(0);
-      cr->move_to(p1);
-      cr->line_to(p2);
-      cr->stroke();
 
-      if (draw_dots){
-        if (i==1){
-          if (p1.have_alt()) cr->set_color(sr.get(p1.z));
-          else               cr->set_color(0);
-          cr->circle(p1, dot_w);
+      if (!p1.have_alt() || !p2.have_alt()){
+        cr->set_color(0);
+        cr->move_to(p1);
+        cr->line_to(p2);
+        cr->stroke();
+      }
+      else {
+        dPoint dp = pnorm(p2-p1)*2*w;
+        int n = ceil(pdist(p2-p1)/2/w);
+
+        for(int j=0; j< n; j++){
+          cr->move_to(p1 + j*dp);
+          cr->line_to(p1 + (j+1)*dp);
+          cr->set_color(sr.get( p1.z + double(j*(p2.z - p1.z))/n ));
           cr->stroke();
         }
-        if (p2.have_alt()) cr->set_color(sr.get(p2.z));
-        else               cr->set_color(0);
-        cr->circle(p2, dot_w);
-        cr->stroke();
       }
     }
   }

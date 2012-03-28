@@ -29,6 +29,7 @@
 
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
+#include "actions/am_draw_opt.h"
 
 #include "actions/am_join_w.h"
 #include "actions/am_join_t.h"
@@ -77,6 +78,7 @@ ActionManager::ActionManager (Mapview * mapview_)
 
     ADD_ACT(SaveImage,       "Misc")
     ADD_ACT(ShowPt,          "Misc")
+    ADD_ACT(DrawOpt,         "Misc")
     AddSep("Misc");
     ADD_ACT(JoinVisWpt,      "Misc")
     ADD_ACT(JoinVisTrk,      "Misc")

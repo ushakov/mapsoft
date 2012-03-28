@@ -26,6 +26,7 @@ e.Library("viewer", Split ("""
 	dialogs/download.cpp
 	dialogs/trk_filter.cpp
 	dialogs/trk_mark.cpp
+	dialogs/draw_opt.cpp
 	dialogs/save_img.cpp
         """))
 e.Prepend(LIBS=["viewer"])
