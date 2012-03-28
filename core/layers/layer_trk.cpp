@@ -7,10 +7,13 @@
 
 using namespace std;
 
-LayerTRK::LayerTRK(g_track * _data):
+LayerTRK::LayerTRK(g_track * _data, const Options & opt):
       data(_data), mymap(get_myref()),
       cnv(get_myref(), Datum("wgs84"), Proj("lonlat")),
-      myrange(rect_pump(cnv.bb_bck(data->range()), 1.0)){
+      myrange(rect_pump(cnv.bb_bck(data->range()), 1.0)) {
+  draw_dots   = opt.exists("trk_draw_dots");
+  draw_arrows = opt.exists("trk_draw_arrows");
+
 #ifdef DEBUG_LAYER_TRK
   cerr  << "LayerTRK: set_ref range: " << myrange << "\n";
 #endif
@@ -81,6 +84,7 @@ LayerTRK::draw(const iPoint origin, iImage & image){
   cr->set_line_width(w);
 
   dPoint po;
+
   vector<g_trackpoint>::const_iterator pt;
   for (pt = data->begin(); pt!= data->end(); pt++){
     dPoint p(*pt); cnv.bck(p);  p-=origin;
@@ -89,15 +93,15 @@ LayerTRK::draw(const iPoint origin, iImage & image){
     iRect r = rect_pump(iRect(p,po), w);
 
     if (!rect_intersect(r, image.range()).empty()){
+
       if ((pt == data->begin()) || pt->start){
-        cr->circle(p, dot_w);
+        if (draw_dots) cr->circle(p, dot_w);
       }
       else {
         cr->move_to(po);
         cr->line_to(p);
-        cr->circle(p, dot_w); // draw dot
-
-        if (pdist(po-p) > arr_dist){ // draw arrow
+        if (draw_dots) cr->circle(p, dot_w);
+        if (draw_arrows && (pdist(po-p) > arr_dist)){
           dPoint p0=(p+po)/2;
           dPoint dp = pnorm(po-p) * arr_w;
           dPoint p1 = p0 + dp + dPoint(dp.y, -dp.x) * 0.5;
@@ -108,6 +112,7 @@ LayerTRK::draw(const iPoint origin, iImage & image){
           cr->line_to(p0);
         }
       }
+
     }
     po=p;
   }

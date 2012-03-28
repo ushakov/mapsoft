@@ -42,6 +42,8 @@ public:
     DlgChConf dlg_ch_conf;
     DlgErr dlg_err;
 
+    Options layer_options;
+
 private:
     boost::shared_ptr<ActionManager> action_manager;
     iPoint click_start;

@@ -80,6 +80,10 @@ B<<  -m, --map <file> >> -- write map-file
 
 B<<  --draw_borders >> -- draw map borders
 
+B<<  --trk_draw_dots >> -- draw dots on tracks
+
+B<<  --trk_draw_arrows >> -- draw arrows on tracks.
+
 B<<  --max_image <W,H> >> -- don't write images larger then this,.
 default 1000,1000
 

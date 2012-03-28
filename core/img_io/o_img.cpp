@@ -112,11 +112,9 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
 
-  bool draw_borders = opt.get("draw_borders", false);
   for (int i=0; i<world.maps.size(); i++){
     g_map_list d(world.maps[i]);
-    LayerGeoMap l(&d);
-    if (draw_borders) l.show_brd();
+    LayerGeoMap l(&d, opt);
     l.set_ref(ref);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
@@ -124,7 +122,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
 
   for (int i=0; i<world.trks.size(); i++){
     g_track d(world.trks[i]);
-    LayerTRK l(&d);
+    LayerTRK l(&d, opt);
     l.set_ref(ref);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);

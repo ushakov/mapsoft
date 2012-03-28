@@ -13,11 +13,12 @@ using namespace std;
 #define SHOW_BRD 2
 #define SHOW_REF 4
 
-LayerGeoMap::LayerGeoMap(g_map_list *_data) :
+LayerGeoMap::LayerGeoMap(g_map_list *_data, const Options & opt) :
       data(_data),
       image_cache(4),
       mymap(convs::mymap(*_data)){
   make_m2ms();
+  status_set(SHOW_BRD, opt.exists("map_show_brd"));
 }
 
 g_map

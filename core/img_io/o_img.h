@@ -19,6 +19,10 @@ B<<  -m, --map <file> >> -- write map-file
 
 B<<  --draw_borders >> -- draw map borders
 
+B<<  --trk_draw_dots >> -- draw dots on tracks
+
+B<<  --trk_draw_arrows >> -- draw arrows on tracks 
+
 B<<  --max_image <W,H> >> -- don't write images larger then this, default 1000,1000
 
 B<<  --data_marg <arg> >> -- margins around data (works only if no geometry set), pixels
@@ -27,13 +31,15 @@ B<< --jpeg_quality <arg> >> -- set jpeg quality
 
 ### OPTIONS
 
-  {"htm",           1,  0, OPT3, "write html map into file"},
-  {"fig",           1,'f', OPT3, "write fig-file"},
-  {"map",           1,'m', OPT3, "write map-file"},
-  {"draw_borders",  0,  0, OPT3, "draw map borders"},
-  {"max_image",     1,  0, OPT3, "don't write images larger then this, \"x,y\", default 1000,1000"},
-  {"data_marg",     1,  0, OPT3, "margins around data (works only if no geometry set), pixels"},
-  {"jpeg_quality",  1,  0, OPT3, "set jpeg quality"},
+  {"htm",            1,  0, OPT3, "write html map into file"},
+  {"fig",            1,'f', OPT3, "write fig-file"},
+  {"map",            1,'m', OPT3, "write map-file"},
+  {"draw_borders",   0,  0, OPT3, "draw map borders"},
+  {"trk_draw_dots",  0,  0, OPT3, "draw dots on tracks"},
+  {"trk_draw_arrows",0,  0, OPT3, "draw arrows on tracks"},
+  {"max_image",      1,  0, OPT3, "don't write images larger then this, \"x,y\", default 1000,1000"},
+  {"data_marg",      1,  0, OPT3, "margins around data (works only if no geometry set), pixels"},
+  {"jpeg_quality",   1,  0, OPT3, "set jpeg quality"},
 
   {"ks_zoom",      0,  0, OPT4, ""},
   {"google_zoom",  0,  0, OPT4, ""},

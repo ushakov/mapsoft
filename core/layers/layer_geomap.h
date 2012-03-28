@@ -31,7 +31,7 @@ private:
 
 public:
 
-  LayerGeoMap (g_map_list *_data);
+  LayerGeoMap (g_map_list *_data, const Options & opt = Options());
 
   /// Get layer reference.
   g_map get_ref() const;

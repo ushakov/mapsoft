@@ -102,6 +102,9 @@ Mapview::Mapview () :
     vbox->pack_start(*st_box, false, true, 0);
     add (*vbox);
 
+    layer_options.put("trk_draw_dots", "");
+    layer_options.put("trk_draw_arrows", "");
+
     filename="";
     set_changed(false);
     statusbar.push("Welcome to mapsoft viewer!",0);
@@ -328,7 +331,7 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> data) {
 }
 void
 Mapview::add_trks(const boost::shared_ptr<g_track> data) {
-  boost::shared_ptr<LayerTRK> layer(new LayerTRK(data.get()));
+  boost::shared_ptr<LayerTRK> layer(new LayerTRK(data.get(), layer_options));
   workplane.add_layer(layer.get(), 100);
   set_changed();
   // if we already have reference, use it
@@ -338,7 +341,7 @@ Mapview::add_trks(const boost::shared_ptr<g_track> data) {
 }
 void
 Mapview::add_maps(const boost::shared_ptr<g_map_list> data) {
-  boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get()));
+  boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get(), layer_options));
   workplane.add_layer(layer.get(), 100);
   set_changed();
   // for maps always reset reference
@@ -436,7 +439,6 @@ Mapview::goto_wgs(dPoint p){
 
 void
 Mapview::exit(bool force) {
-
   if (!force && get_changed()){
     dlg_ch_conf.call(
       sigc::bind(sigc::mem_fun (this, &Mapview::exit), true));

@@ -15,8 +15,8 @@
 #include "geo_io/io.h"
 
 int
-main(int argc, char **argv)
-{
+main(int argc, char **argv){
+
     Gtk::Main kit (argc, argv);
 
     Mapview mapview;
