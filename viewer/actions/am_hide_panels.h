@@ -21,6 +21,7 @@ public:
       }
       else if (state==1){
         mapview->statusbar.hide();
+        mapview->busy_icon->hide();
         mapview->dataview->hide();
       }
     }

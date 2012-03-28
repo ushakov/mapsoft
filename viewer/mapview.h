@@ -33,6 +33,7 @@ public:
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
     Gtk::Statusbar statusbar;
+    Gtk::Image *busy_icon;
     DataView * dataview;
 
     g_map reference;
@@ -50,8 +51,6 @@ private:
     std::string filename; // project filename
     bool changed;         // true if project was changed since
                           // last saving/loading
-
-    Gtk::Image *busy_icon;
 public:
 
     Mapview ();
