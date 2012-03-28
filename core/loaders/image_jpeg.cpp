@@ -190,6 +190,7 @@ int save(const iImage & im, const iRect & src_rect,
     jpeg_finish_compress(&cinfo);
     jpeg_destroy_compress(&cinfo);
     fclose(outfile);
+    return 0;
 }
 
 // load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h

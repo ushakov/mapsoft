@@ -252,6 +252,7 @@ int save(const iImage & im, const iRect & src_rect,
     png_write_end(png_ptr, info_ptr);
     png_destroy_write_struct(&png_ptr, &info_ptr);
     fclose(outfile);
+    return 0;
 }
 
 // load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
