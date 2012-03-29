@@ -37,8 +37,9 @@ public:
         boost::shared_ptr<LayerTRK> layer=
           (*i)[mapview->trk_ll.columns.layer];
         layer->set_opt(o);
-        mapview->workplane.refresh_layer(layer.get());
+        mapview->workplane.refresh_layer(layer.get(), false);
       }
+      mapview->workplane.signal_refresh.emit();
       if (r<0) dlg.hide_all();
     }
 

@@ -35,7 +35,7 @@ public:
 
     int get_layer_depth (LayerGeo * layer);
 
-    void refresh_layer (LayerGeo * layer);
+    void refresh_layer (LayerGeo * layer, bool redraw = true);
 
     void set_layer_active (LayerGeo * layer, bool active);
 

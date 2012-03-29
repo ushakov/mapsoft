@@ -515,12 +515,14 @@ Mapview::on_button_release (GdkEventButton * event) {
 
 void
 Mapview::show_busy_mark(void){
-  busy_icon->set(Gtk::Stock::MEDIA_RECORD,Gtk::ICON_SIZE_MENU);
+  if (is_realized())
+    busy_icon->set(Gtk::Stock::MEDIA_RECORD,Gtk::ICON_SIZE_MENU);
 }
 
 void
 Mapview::hide_busy_mark(void){
-  busy_icon->clear();
+  if (is_realized())
+    busy_icon->clear();
 }
 
 int

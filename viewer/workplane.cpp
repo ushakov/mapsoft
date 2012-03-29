@@ -118,10 +118,10 @@ Workplane::get_layer_depth (LayerGeo * layer){
 }
 
 void
-Workplane::refresh_layer (LayerGeo * layer){
+Workplane::refresh_layer (LayerGeo * layer, bool redraw){
 	layer->refresh();
 	tile_cache[layer]->clear();
-        signal_refresh.emit();
+        if (redraw) signal_refresh.emit();
 }
 
 void
@@ -175,5 +175,6 @@ Workplane::set_ref(const g_map & reference) {
     refresh_layer(itl->second);
   }
   draw_mutex.unlock();
+  signal_refresh.emit();
 }
 
