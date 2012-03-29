@@ -97,11 +97,12 @@ LayerTRK::draw(const iPoint origin, iImage & image){
     cr->set_color(data->color.value);
     cr->set_line_width(w);
     for (int i=1; i<data->size(); i++){
-      dPoint p1((*data)[i-1]);
-      dPoint p2((*data)[i]);
+      g_trackpoint p1((*data)[i-1]);
+      g_trackpoint p2((*data)[i]);
       if (rect_intersect(
              rect_pump(iRect(p1,p2), w),
              image.range()).empty()) continue;
+      if (p2.start) continue;
 
       cnv.bck(p1);  p1-=origin;
       cnv.bck(p2);  p2-=origin;
@@ -110,7 +111,7 @@ LayerTRK::draw(const iPoint origin, iImage & image){
       cr->line_to(p2);
 
       if (draw_dots){
-        if (i==1) cr->circle(p1, dot_w);
+        if ((i==1) || p1.start) cr->circle(p1, dot_w);
         cr->circle(p2, dot_w);
       }
 
@@ -141,6 +142,7 @@ LayerTRK::draw(const iPoint origin, iImage & image){
       if (rect_intersect(
              rect_pump(iRect(p1,p2), w),
              image.range()).empty()) continue;
+      if (p2.start) continue;
 
       double cc = cos((p1.y + p2.y)/2.0/180.0*M_PI);
       double dx = (p2.x - p1.x)*cc;
@@ -173,6 +175,7 @@ LayerTRK::draw(const iPoint origin, iImage & image){
       if (rect_intersect(
              rect_pump(iRect(p1,p2), w),
              image.range()).empty()) continue;
+      if (p2.start) continue;
 
       cnv.bck(p1);  p1-=origin;
       cnv.bck(p2);  p2-=origin;
