@@ -17,6 +17,11 @@ Mapview::Mapview () :
     /// layer drawing options (set before Action constructors)
     layer_options.put("trk_draw_dots", "");
     layer_options.put("trk_draw_arrows", "");
+    layer_options.put("trk_draw_v1", 0);
+    layer_options.put("trk_draw_v2", 10);
+    layer_options.put("trk_draw_h1", 0);
+    layer_options.put("trk_draw_h2", 1000);
+
 
     /// window initialization
     signal_delete_event().connect_notify (

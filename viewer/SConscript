@@ -15,6 +15,7 @@ e.Library("viewer", Split ("""
 	widgets/coord_box.cpp
 	widgets/nom_box.cpp
 	widgets/page_box.cpp
+	widgets/rainbow.cpp
 
 	dialogs/ch_conf.cpp
 	dialogs/err.cpp

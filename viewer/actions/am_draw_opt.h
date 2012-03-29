@@ -10,7 +10,7 @@ public:
 
       dlg.signal_response().connect(
         sigc::mem_fun (this, &DrawOpt::on_response));
-      dlg.signal_change().connect(
+      dlg.signal_changed().connect(
         sigc::bind(sigc::mem_fun (this, &DrawOpt::on_response),1));
 
       dlg.set_title(get_name());

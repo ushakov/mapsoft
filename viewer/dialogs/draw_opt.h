@@ -3,22 +3,22 @@
 
 #include <gtkmm.h>
 #include "options/options.h"
+#include "../widgets/rainbow.h"
 
 class DlgDrawOpt : public Gtk::Dialog{
 
     Gtk::CheckButton  *dots, *arrows;
     Gtk::RadioButton  *m_normal, *m_speed, *m_height;
-    Gtk::SpinButton *v1, *v2, *h1, *h2;
+    Rainbow *rv, *rh;
+    sigc::signal<void> signal_changed_;
 
-    Gtk::Adjustment v1a, v2a, h1a, h2a;
-    sigc::signal<void> signal_change_;
+    void on_ch(int mode);
 
   public:
     DlgDrawOpt();
     Options get_opt() const;
     void set_opt(const Options & o = Options());
-    void on_ch();
-    sigc::signal<void> & signal_change();
+    sigc::signal<void> & signal_changed();
 
 };
 

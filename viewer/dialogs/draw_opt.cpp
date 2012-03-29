@@ -10,10 +10,10 @@ DlgDrawOpt::get_opt() const{
   if (m_height->get_active()) o.put<string>("trk_draw_mode", "height");
   if (dots->get_active())   o.put<bool>("trk_draw_dots", "");
   if (arrows->get_active()) o.put<bool>("trk_draw_arrows", "");
-  o.put<int>("trk_draw_v1", v1->get_value());
-  o.put<int>("trk_draw_v2", v2->get_value());
-  o.put<int>("trk_draw_h1", h1->get_value());
-  o.put<int>("trk_draw_h2", h2->get_value());
+  o.put<int>("trk_draw_v1", rv->get_v1());
+  o.put<int>("trk_draw_v2", rv->get_v2());
+  o.put<int>("trk_draw_h1", rh->get_v1());
+  o.put<int>("trk_draw_h2", rh->get_v2());
   return o;
 }
 
@@ -26,28 +26,37 @@ DlgDrawOpt::set_opt(const Options & o){
 
   if (o.exists("trk_draw_dots")) dots->set_active();
   if (o.exists("trk_draw_arrows")) arrows->set_active();
-  v1->set_value(o.get<int>("trk_draw_v1", 0));
-  v2->set_value(o.get<int>("trk_draw_v2", 10));
-  h1->set_value(o.get<int>("trk_draw_v1", 0));
-  h2->set_value(o.get<int>("trk_draw_v2", 1000));
+  rv->set(
+    o.get<int>("trk_draw_v1", 0),
+    o.get<int>("trk_draw_v2", 0)
+  );
+  rh->set(
+    o.get<int>("trk_draw_h1", 0),
+    o.get<int>("trk_draw_h2", 0)
+  );
 }
 
 void
-DlgDrawOpt::on_ch(void){
-  signal_change_.emit();
+DlgDrawOpt::on_ch(int mode){
+  // No need to emit signal if changes does not
+  // affect the current mode.
+  // We get mode for which signal must be emitted:
+  // 0 - all modes, 1 - normal, 2 - speed, 3 - height
+  if ( ((mode == 1) && !m_normal->get_active()) ||
+       ((mode == 2) && !m_speed->get_active()) ||
+       ((mode == 3) && !m_height->get_active()) ) return;
+  signal_changed_.emit();
 }
 
 sigc::signal<void> &
-DlgDrawOpt::signal_change(){
-  return signal_change_;
+DlgDrawOpt::signal_changed(){
+  return signal_changed_;
 }
 
 
-DlgDrawOpt::DlgDrawOpt():
-    v1a(0,0,999), v2a(10,0,999), h1a(0,-999,9999), h2a(1000,-999,9999){
+DlgDrawOpt::DlgDrawOpt(){
   add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
   add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-
 
   Gtk::Frame *trk_frame = manage(new Gtk::Frame("Track options"));
   m_normal =  manage(new Gtk::RadioButton("Normal"));
@@ -58,52 +67,41 @@ DlgDrawOpt::DlgDrawOpt():
 
   dots   = manage(new Gtk::CheckButton("draw dots"));
   arrows = manage(new Gtk::CheckButton("draw arrows"));
-  v1 = manage(new Gtk::SpinButton(v1a, 0,1));
-  v2 = manage(new Gtk::SpinButton(v2a, 0,1));
-  h1 = manage(new Gtk::SpinButton(h1a, 0,0));
-  h2 = manage(new Gtk::SpinButton(h2a, 0,0));
-  Gtk::Label * v1l = manage(new Gtk::Label("lower value:"));
-  Gtk::Label * v2l = manage(new Gtk::Label("upper value:"));
-  Gtk::Label * h1l = manage(new Gtk::Label("lower value:"));
-  Gtk::Label * h2l = manage(new Gtk::Label("upper value:"));
 
-  Gtk::Table *t = manage(new Gtk::Table(4,3));
+  simple_rainbow rb(0,1);
+  rv =  manage(
+    new Rainbow(256, rb.get_data(), rb.get_size(), 0, 999, 1, 1));
+  rh =  manage(
+    new Rainbow(256, rb.get_data(), rb.get_size(), -999, 9999, 10, 0));
+
+  Gtk::Table *t = manage(new Gtk::Table(3,3));
   t->attach(*m_normal, 0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*dots,     1, 2, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*arrows,   2, 3, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*m_speed,  0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*v1l,      1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*v1,       2, 3, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*v2l,      3, 4, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*v2,       4, 5, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*m_height, 0, 1, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*h1l,      1, 2, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*h1,       2, 3, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*h2l,      3, 4, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*h2,       4, 5, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*rv,       1, 3, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*m_height, 0, 1, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*rh,       1, 3, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
   trk_frame->add(*t);
   get_vbox()->add(*trk_frame);
 
   m_normal->signal_toggled().connect(
-      sigc::mem_fun(this, &DlgDrawOpt::on_ch));
+      sigc::bind(sigc::mem_fun(this, &DlgDrawOpt::on_ch), 0));
   m_speed->signal_toggled().connect(
-      sigc::mem_fun(this, &DlgDrawOpt::on_ch));
+      sigc::bind(sigc::mem_fun(this, &DlgDrawOpt::on_ch), 0));
   m_height->signal_toggled().connect(
-      sigc::mem_fun(this, &DlgDrawOpt::on_ch));
-
-  v1->signal_value_changed().connect(
-      sigc::mem_fun(this, &DlgDrawOpt::on_ch));
-  v2->signal_value_changed().connect(
-      sigc::mem_fun(this, &DlgDrawOpt::on_ch));
-  h1->signal_value_changed().connect(
-      sigc::mem_fun(this, &DlgDrawOpt::on_ch));
-  h2->signal_value_changed().connect(
-      sigc::mem_fun(this, &DlgDrawOpt::on_ch));
+      sigc::bind(sigc::mem_fun(this, &DlgDrawOpt::on_ch), 0));
 
   dots->signal_toggled().connect(
-      sigc::mem_fun(this, &DlgDrawOpt::on_ch));
+      sigc::bind(sigc::mem_fun(this, &DlgDrawOpt::on_ch), 1));
   arrows->signal_toggled().connect(
-      sigc::mem_fun(this, &DlgDrawOpt::on_ch));
+      sigc::bind(sigc::mem_fun(this, &DlgDrawOpt::on_ch), 1));
+
+  rv->signal_changed().connect(
+      sigc::bind(sigc::mem_fun(this, &DlgDrawOpt::on_ch), 2));
+  rh->signal_changed().connect(
+      sigc::bind(sigc::mem_fun(this, &DlgDrawOpt::on_ch), 3));
+
 }
 
 
