@@ -18,6 +18,7 @@
 
 #include "actions/am_add_track.h"
 #include "actions/am_edit_track.h"
+#include "actions/am_del_trk.h"
 #include "actions/am_add_tpt.h"
 #include "actions/am_edit_tpt.h"
 #include "actions/am_move_tpt.h"
@@ -65,6 +66,7 @@ ActionManager::ActionManager (Mapview * mapview_)
 
     ADD_ACT(AddTrack,        "Tracks")
     ADD_ACT(EditTrack,       "Tracks")
+    ADD_ACT(DelTrk,          "Tracks")
     AddSep("Tracks");
     ADD_ACT(AddTrackpoint,   "Tracks")
     ADD_ACT(EditTrackpoint,  "Tracks")
