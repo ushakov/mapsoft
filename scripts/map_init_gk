@@ -1,0 +1,26 @@
+#!/bin/sh -efu
+
+[ "$#" = 3 ] || {
+  echo "usage: $0 <map name> <style> <rscale>"
+  echo "  map_name: name.vmap, name.fig ... (maps.txt file is needed)"
+  echo "  style: hr, mmb"
+  echo "  rscale: 50000, 100000 ..."
+  exit 1
+}
+
+name="$1"
+style="$2"
+rscale="$3"
+
+base=$(basename ${name%.*})
+
+. mapsoft_map.sh
+
+geom="$(map_data geom "$base")"
+title="$(map_data title "$base")"
+
+mapsoft_vmap \
+  -o "$name"\
+  --name "$title" --rscale "$rscale" --style "$style"\
+  --range "$geom" --range_datum "pulkovo" --range_proj "tmerc"\
+  --set_brd_from_range
