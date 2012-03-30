@@ -203,6 +203,7 @@ range_to_nomlist(const dRect & range, int rscale){
     bool first_column=true;
     while (far.x < range.BRC().x){
       string name=pt_to_nom(cnt, rscale);
+      if (name == "") return ret;
       ret.push_back(name);
       if (first_column){ // map widths can be different in different rows
         r = nom_to_range(name);
