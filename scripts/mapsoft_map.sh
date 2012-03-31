@@ -2,21 +2,31 @@
 
 MAPSOFT_MAP=1
 
+datafile="maps.txt"
+
+get_line(){
+  ## get line from datafile,
+  ## remove duplicated spaces (for cut program)
+  base="$1"
+  file="$2"
+  sed -n "/^[[:space:]]*$base[[:space:]]/{s/[[:space:]]\+/ /g; p}" "$2"
+}
+
 # Geometry or title information is read from maps.txt file:
 # <base name> <geometry> <title>
 map_data(){
   field="$1"  # geom | title
   base="$2"
 
-  if [ ! -f "maps.txt" ]; then
-    echo "ERROR: can't find maps.txt file" > /dev/stderr
+  if [ ! -f "$datafile" ]; then
+    echo "ERROR: can't find $datafile file" > /dev/stderr
     exit 1
   fi
 
-  dat="$(grep "^$base[[:space:]]" "maps.txt" ||:)"
+  dat="$(get_line "$base" "maps.txt")"
 
   if [ -z "$dat" ]; then
-    echo "ERROR: can't find map in maps.txt: $base" > /dev/stderr
+    echo "ERROR: can't find map in $datafile: $base" > /dev/stderr
     exit 1
   fi
 
