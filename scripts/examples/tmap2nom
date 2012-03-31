@@ -1,0 +1,24 @@
+#!/bin/sh -eu
+
+# склейка листов tmap в номенклатурные.
+# похоже, больше не нужно, так как карт tmap не осталось
+# tmap - это просто небольшие карты-плитки в формате vmap.
+
+# читаем список номенклатурных названий из файла ./list
+for name in `cat list`; do
+  # если уже есть такой - пропускаем
+  [ ! -f "$name.vmap" ] || continue
+  echo "<$name>";
+
+  # копируем все tmap в один файл, обрезаем по границе
+  # номенклатурного листа
+  mapsoft_vmap \
+    t.*.vmap -o $name.vmap \
+      --range_nom $name --range_action=crop_spl --set_brd_from_range
+
+  # объединяем объекты - отдельным вызовом получается быстрее,
+  # так как карта уже обрезана. Устанавливаем название карты.
+  mapsoft_vmap $name.vmap -o $name.vmap \
+   --name $name --join_objects 1e-4
+
+done

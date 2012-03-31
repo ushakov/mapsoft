@@ -1,0 +1,13 @@
+#!/bin/sh -efu
+
+# добавление srtm-данных в fig-файлы
+
+srtm=/home/sla/MAPS/SRTMv2/
+
+for i in "$@"; do
+  cp $i $i.bak
+  mapsoft_srtm2fig $i hor $srtm 100 500
+  mapsoft_srtm2fig $i holes $srtm
+  mapsoft_srtm2fig $i ver $srtm
+done
+
