@@ -57,11 +57,11 @@ B<< --jpeg_quality <arg> >> -- set jpeg quality
   {"data_marg",      1,  0, OPT3, "margins around data (works only if no geometry set), pixels"},
   {"jpeg_quality",   1,  0, OPT3, "set jpeg quality"},
 
-  {"ks_zoom",      0,  0, OPT4, ""},
-  {"google_zoom",  0,  0, OPT4, ""},
-  {"google_dir",   0,  0, OPT4, ""},
-  {"ks_dir",       0,  0, OPT4, ""},
-  {"download",     0,  0, OPT4, ""},
+  {"ks_zoom",      1,  0, OPT4, ""},
+  {"google_zoom",  1,  0, OPT4, ""},
+  {"google_dir",   1,  0, OPT4, ""},
+  {"ks_dir",       1,  0, OPT4, ""},
+  {"download",     1,  0, OPT4, ""},
 
 ### END
 */
