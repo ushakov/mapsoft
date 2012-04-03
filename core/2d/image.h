@@ -205,6 +205,9 @@ struct Image{
 	} else if (a == 0) {
 	    // do nothing
 	} else {
+            int ao = data[y*w+x] >> 24;
+	    int an = ao + (255-ao) * a / 255;
+
 	    int r = (((color >> 16) & 0xff) * a +
                      ((data[y*w+x] >> 16) & 0xff) * (255-a)) / 255;
 	    int g = (((color >> 8) & 0xff) * a +
@@ -212,7 +215,7 @@ struct Image{
 	    int b = ((color & 0xff) * a +
                      (data[y*w+x] & 0xff) * (255-a)) / 255;
 	    data[y*w+x] =
-              (data[y*w+x] & 0xff000000) +
+              (an << 24) +
 	      (r << 16) +
 	      (g << 8) +
 	      b;

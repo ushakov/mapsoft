@@ -321,7 +321,7 @@ map2map::image_bck(iImage & src_img, int src_scale, iRect cnv_rect,
 	if (c != 0){
 	  for (int jj=0;jj<yscale;jj++){
 	    for (int ii=0;ii<xscale;ii++){
-   	      dst_img.set_na(dst_x+ii, dst_y+jj, c);
+   	      dst_img.set_a(dst_x+ii, dst_y+jj, c);
             }
           }
         }
