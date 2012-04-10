@@ -18,8 +18,6 @@
 
 // todo -- стандартные параметры --geom --lon0 ...
 
-std::string srtm_dir = def_srtm_dir;
-
 struct rainbow_data RD_podm[]={
   {5.0,  0xFFFFFF},
   {10.0, 0xFFFF00},
@@ -71,7 +69,7 @@ try{
     int H = (int)((Y2-Y1)*k);
     std::cerr << W << "x" << H << "\n";
 
-    srtm3 s(srtm_dir, 10); 
+    srtm3 s("", 10); 
 
     std::cout << "P6\n" << W << " " << H << "\n255\n";
 

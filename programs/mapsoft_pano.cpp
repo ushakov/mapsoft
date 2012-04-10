@@ -19,7 +19,6 @@
 
 using namespace std;
 
-const char* srtm_dir = def_srtm_dir.c_str();
 
 const int max_r = 60000; // m
 const int min_r = 100;    // m
@@ -68,7 +67,7 @@ int main(int argc, char *argv[]) {
   int height    = (max_b-min_b)*rad2pt;
 
 
-  srtm3 s(srtm_dir, 10);
+  srtm3 s("", 10);
 
   iImage data(width, height);
 

@@ -6,15 +6,21 @@
 #include <2d/image.h>
 #include <2d/cache.h>
 
-// Получение высоты любой точки из директории с srtm-данными
-// Кэширование кусочков
+/*
+ SRTM3 data
+ Original data can be downloaded from ftp://e0mss21u.ecs.nasa.gov/srtm/
+ Fixed data can be downloaded from http://www.viewfinderpanoramas.org/dem3.html
 
-// srtm-данные надо скачивать с ftp://e0mss21u.ecs.nasa.gov/srtm/
+ Default data directory is DIR=$HOME/.srtm_data
+ Files are searched in
+   $DIR/fixed/$file.gz, $DIR/fixed/$file, $DIR/$file.gz, $DIR/$file,
+ so you can keep original data in $HOME/.srtm_data and fixed data
+ in $HOME/.srtm_data/fixed
+*/
 
-// Специальные значения для высоты
-const short srtm_min      = -32000; // для проверки
-const short srtm_nofile   = -32767; // нет такого файла
-const short srtm_undef    = -32768; // Дырка.
+const short srtm_min      = -32000; // value for testing
+const short srtm_nofile   = -32767; // file not found
+const short srtm_undef    = -32768; // hole in srtm data
 const short srtm_zer_interp   = 15000; // добавлено к интерполированным значениям
 const short srtm_min_interp   = 10000; // для проверки
 
@@ -23,20 +29,23 @@ const int srtm_width = 1201; // файлы 1201х1201
 const int max_lat = 90;
 const int max_lon = 180;
 
-extern const std::string def_srtm_dir;
-
-
 class srtm3 {
 public:
 
-  srtm3(const std::string & _srtm_dir=def_srtm_dir,
-        const unsigned cache_size=4 );
+  srtm3(
+    const std::string & _srtm_dir=std::string(), // data directory ($HOME/.srtm_data)
+    const unsigned cache_size=4
+  );
+
+  void set_dir(const std::string & str);
+  const std::string & get_dir(void) const;
+
 
   // вернуть высоту точки
   short geth(const iPoint & p, const bool interp=false);
   short geth(const int x, const int y, const bool interp=false);
 
-  // поменять высоту точки (только в кэше!)
+  // change data (in cache only!)
   short seth(const iPoint & p, const short h);
 
   // вернуть высоту точки (вещественные координаты,
@@ -46,6 +55,7 @@ public:
   // вернуть высоту точки (вещественные координаты,
   // интерполяция по 16 соседним точкам)
   short geth16(const dPoint & p, const bool interp=false);
+
 
   // найти множество соседних точек одной высоты (не более max точек)
   std::set<iPoint> plane(const iPoint& p, int max=1000);
@@ -65,26 +75,17 @@ public:
   // slope (degrees) at a given point (holes are interpolated)
   double slope(const iPoint &p);
 
+
 private:
-  // директория с srtm-файлами
+  // data directories
   std::string srtm_dir;
 
-  // Ключ - широта в градусах, долгота в градусах
+  // data cache. key is lon,lat in degrees
   Cache<iPoint, Image<short> > srtm_cache;
 
-  // загрузить в кэш нужный файл 
-  // (проверку, что он уже есть, здесь не производим)
-  bool load(iPoint key);
+  // load data into cache
+  bool load(const iPoint & key);
 
-/*
-  // interpolate function between 4 points
-  // for use in int16()
-  short int4(int x1, int x2, int x3, int x4,
-              int f1, int f2, int f3, int f4, double x);
-
-  // the same with fixed distance between points
-  short int4(int x1, int f1, int f2, int f3, int f4, double x);
-*/
   short cubic_interp(const double h[4], const double x) const;
 
   void int_holes(double h[4]) const;

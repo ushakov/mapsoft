@@ -24,7 +24,7 @@ public:
   bool river;
   iPoint start_pt;
 
-  tracer(const std::string & dir = def_srtm_dir, int cache_size=10);
+  tracer(const std::string & dir = std::string(), int cache_size=10);
 
   void trace_river(const dPoint & p);
   void trace_mount(const dPoint & p);

@@ -30,7 +30,7 @@ struct map_tracer{
   map_pt p0; // точка по умолчанию.
 
   map_tracer(int Lat1,int Lon1, int Lat2, int Lon2,
-             const std::string & dir=def_srtm_dir);
+             const std::string & dir=std::string());
 
   map_pt* pt(int lat, int lon);
   map_pt* pt(iPoint p){ return pt(p.y, p.x);}

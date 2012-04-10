@@ -2,8 +2,9 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-
 #include <queue>
+
+#include <cstdio>
 
 #include <2d/point_int.h>
 #include "srtm3.h"
@@ -11,13 +12,23 @@
 
 using namespace std;
 
-const string def_srtm_dir = string(getenv("HOME")? getenv("HOME"):"") +
-  "/.srtm_data";
-
 srtm3::srtm3(const string & _srtm_dir, const unsigned cache_size) :
-     srtm_cache(cache_size), srtm_dir(_srtm_dir),
+     srtm_cache(cache_size),
+     srtm_dir(_srtm_dir),
      size0(6380e3 * M_PI/srtm_width/180),
      area0(size0*size0){
+  if (srtm_dir == "") srtm_dir =
+    string(getenv("HOME")? getenv("HOME"):"") + "/.srtm_data";
+}
+
+void
+srtm3::set_dir(const string & str){
+  srtm_dir = str;
+}
+
+const string &
+srtm3::get_dir(void) const{
+  return srtm_dir;
 }
 
 
@@ -74,7 +85,6 @@ srtm3::geth(const int x, const int y, const bool interp){
   return geth(iPoint(x,y), interp);
 }
 
-// поменять высоту точки (только в кэше!)
 short
 srtm3::seth(const iPoint & p, const short h){
   iPoint key = p/(srtm_width-1);
@@ -199,56 +209,85 @@ srtm3::slope(const iPoint &p){
   return a;
 }
 
-/*
-// interpolate function between 4 points
-// for use in get16()
-short
-srtm3::int4(int x1, int x2, int x3, int x4,
-            int f1, int f2, int f3, int f4, double x){
+/**********************************************************/
 
-  x-=x1; x2-=x1; x3-=x1; x4-=x1; x1=0;
+Image<short>
+read_zfile(const string & file){
+  gzFile F = gzopen(file.c_str(), "rb");
+  if (!F) return Image<short>(0,0);
 
-  double k2=double(f2-f1)/double(x2-x1);
-  double k3=double(f3-f2)/double(x3-x2);
-  double k4=double(f4-f3)/double(x4-x3);
+  Image<short> im(srtm_width,srtm_width);
+  int length = srtm_width*srtm_width*sizeof(short);
 
-  double m3=(k3-k2)/double(x3-x1);
-  double m4=(k4-k3)/double(x4-x2);
-
-  double a = (m4-m3)/double(x4-x1);
-  double b = m3 - a*(x1+x2+x3);
-  double c = k2 - (x1*x1+x2*x2+x1*x2)*a - (x1+x2)*b;
-  double d = f1 - a*x1*x1*x1 - b*x1*x1 - c*x1;
-
-  return short(a*x*x*x + b*x*x + c*x + d);
+  if (length != gzread(F, im.data, length)){
+    cerr << "bad file: " << file << '\n';
+    return Image<short>(0,0);
+  }
+  for (int i=0; i<length/2; i++){ // swap bytes
+    int tmp=(unsigned short)im.data[i];
+    im.data[i] = (tmp >> 8) + (tmp << 8);
+  }
+  gzclose(F);
 }
 
-// the same with fixed distance between points
-short
-srtm3::int4(int x1, int f1, int f2, int f3, int f4, double x){
-  x-=x1;
-  x1=0;
-  int x2=1;
-  int x3=2;
-  int x4=3;
+Image<short>
+read_file(const string & file){
+  FILE *F = fopen(file.c_str(), "rb");
+  if (!F) return Image<short>(0,0);
 
-  double k2=f2-f1;
-  double k3=f3-f2;
-  double k4=f4-f3;
+  Image<short> im(srtm_width,srtm_width);
+  int length = srtm_width*srtm_width*sizeof(short);
 
-  double m3=(k3-k2)/2.0;
-  double m4=(k4-k3)/2.0;
-
-  double a = (m4-m3)/3.0;
-  double b = m3 - a*(x1+x2+x3);
-  double c = k2 - (x1*x1+x2*x2+x1*x2)*a - (x1+x2)*b;
-  double d = f1 - a*x1*x1*x1 - b*x1*x1 - c*x1;
-
-  return short(a*x*x*x + b*x*x + c*x + d);
+  if (length != fread(im.data, 1, length, F)){
+    cerr << "bad file: " << file << '\n';
+    return Image<short>(0,0);
+  }
+  for (int i=0; i<length/2; i++){ // swap bytes
+    int tmp=(unsigned short)im.data[i];
+    im.data[i] = (tmp >> 8) + (tmp << 8);
+  }
+  fclose(F);
 }
-*/
 
-// the same
+bool
+srtm3::load(const iPoint & key){
+
+  if ((key.x < -max_lon) ||
+      (key.x >= max_lon) ||
+      (key.y < -max_lat) ||
+      (key.y >= max_lat)) return false;
+
+  char NS='N';
+  char EW='E';
+  if (key.y<0) {NS='S';}
+  if (key.x<0) {EW='W';}
+
+  ostringstream file;
+  file << NS << setfill('0') << setw(2) << abs(key.y)
+       << EW << setw(3) << abs(key.x) << ".hgt";
+
+  // try f2.gz, f2, f1.gz, f1
+  Image<short> im;
+
+  im = read_zfile(srtm_dir + "/fixed/" + file.str() + ".gz");
+  if (!im.empty()) goto read_ok;
+  im = read_file(srtm_dir + "/fixed/" + file.str());
+  if (!im.empty()) goto read_ok;
+
+  im = read_zfile(srtm_dir + "/" + file.str() + ".gz");
+  if (!im.empty()) goto read_ok;
+  im = read_file(srtm_dir + "/" + file.str());
+  if (!im.empty()) goto read_ok;
+
+  cerr << "can't find file " << file.str() << '\n';
+  read_ok:
+
+  srtm_cache.add(key, im);
+  return !im.empty();
+}
+
+
+
 // see http://www.paulinternet.nl/?page=bicubic
 short
 srtm3::cubic_interp(const double h[4], const double x) const{
@@ -274,54 +313,4 @@ srtm3::int_holes(double h[4]) const{
     h[1]=(2*h[0] + h[3])/3;
     h[2]=(h[0] + 2*h[3])/3;
   }
-}
-
-
-
-
-
-bool
-srtm3::load(iPoint key){
-
-  while (key.x < -max_lon) key.x+=2*max_lon;
-  while (key.x >= max_lon) key.x-=2*max_lon;
-  if ((key.y<-max_lat)||(key.y>=max_lat)) return false;
-
-  char NS='N';
-  char EW='E';
-  if (key.y<0) {NS='S';}
-  if (key.x<0) {EW='W';}
-  // название файла
-  ostringstream file;
-  file << srtm_dir << "/" 
-       << NS << setfill('0') << setw(2) << abs(key.y)
-       << EW << setw(3) << abs(key.x) << ".hgt";
-
-  // try to read file
-  gzFile F = gzopen(file.str().c_str(), "rb");
-  if (!F){
-    file << ".gz";
-    F = gzopen(file.str().c_str(), "rb");
-  }
-  if (!F){
-    cerr << "can't find file " << file.str() << '\n';
-    srtm_cache.add(key, Image<short>(0,0));
-    return false;
-  }
-
-  Image<short> im(srtm_width,srtm_width);
-  int length = srtm_width*srtm_width*sizeof(short);
-
-  if (length != gzread(F, im.data, length)){
-    cerr << "error while reading from file " << file.str() << '\n';
-    srtm_cache.add(key, Image<short>(0,0));
-    return false;
-  }
-
-  for (int i=0; i<length/2; i++){ // swap bytes
-    int tmp=(unsigned short)im.data[i];
-    im.data[i] = (tmp >> 8) + (tmp << 8);
-  }
-  srtm_cache.add(key, im);
-  return true;
 }
