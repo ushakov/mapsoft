@@ -7,7 +7,7 @@ int main(){
 
   iImage i2(256,256,0); // transparent images
 
-  for (uint32_t i=0; i<256; i++){
+  for (int i=0; i<256; i++){
     for (unsigned int j=0; j<256; j++){
       i1.set_a(i,j, (i<<24) + 0xFF0000);
       i1.set_a(i,j, (j<<24) + 0x0000FF);
