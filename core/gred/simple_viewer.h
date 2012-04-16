@@ -43,6 +43,7 @@ class SimpleViewer : public Viewer {
 
     sigc::signal<void> & signal_before_draw();
     sigc::signal<void> & signal_after_draw();
+    sigc::signal<void> & signal_draw_error();
     sigc::signal<void> & signal_busy();
     sigc::signal<void> & signal_idle();
     sigc::signal<void, double> & signal_on_rescale();
