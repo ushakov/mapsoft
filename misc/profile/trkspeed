@@ -1,0 +1,225 @@
+#!/usr/bin/perl -w
+use strict;
+use fig_grid;
+
+die "usage: $0 <track.plt>" if $#ARGV<0;
+
+my $MAXDT=120;
+
+my $TZONE=+8;
+
+# cleanup track and get some statistics
+
+my @data;
+my @wpt_data;
+
+my $R=6378000;
+
+my $minlat=90;
+my $maxlat=-90;
+my $minlon=180;
+my $maxlon=-180;
+my $minalt=10000;
+my $maxalt=-1000;
+my $mint=1e20;
+my $maxt=0;
+
+foreach (<>){
+  my @d = split /,/;
+  if (($#d==5)||($#d==6)){
+    next if $d[2] == 1; # filter first points
+    my $lat = $d[0];
+    my $lon = $d[1];
+    my $alt = $d[3]*0.3048;
+    my $t   = int($d[4]*24*3600 - 2209161600 + $TZONE*3600);
+
+    $minlat=$lat if $minlat>$lat;
+    $maxlat=$lat if $maxlat<$lat;
+    $minlon=$lon if $minlon>$lon;
+    $maxlon=$lon if $maxlon<$lon;
+    $minalt=$alt if $minalt>$alt;
+    $maxalt=$alt if $maxalt<$alt;
+    $mint=$t if $mint>$t;
+    $maxt=$t if $maxt<$t;
+    push @data, {lat=>$lat, lon=>$lon, a=>$alt, t=>$t};
+  }
+  if ($#d>=14){
+    my $name = $d[1];
+    my $lat = $d[2];
+    my $lon = $d[3];
+    my $alt = $d[14]*0.3048;
+    my $t   = 0;
+    if ($d[10]=~/(\d+-[A-Z]+-\d+\s+\d+:\d+:\d+)/){
+      $t=`date -d "$1" +%s`+$TZONE*3600;
+    } else {next;}
+    push @wpt_data, {name=>$name, lat=>$lat, lon=>$lon, a=>$alt, t=>$t};
+  }
+}
+
+my $lon0=($maxlon+$minlon)/2.0;
+my $dist=0;
+my $D2R=3.1415926/180.0;
+
+for ( my $i = 0; $i<=$#data; $i++){
+  my $d=$data[$i];
+  $d->{y} = $R*sin($d->{lat}*$D2R);
+  $d->{x} = $R*sin(($d->{lon}-$lon0)*$D2R)*cos($d->{lat}*$D2R);
+  $d->{f_d} = 0;
+  $d->{f_a} = 0;
+  if ($i==0){
+    $d->{dd}=0;
+    $d->{dt}=0;
+    $d->{dh}=0;
+    $d->{d}=0;
+  } else {
+    my $dp=$data[$i-1];
+    $d->{dd}=sqrt(($d->{x} - $dp->{x})**2 + ($d->{y} - $dp->{y})**2);
+    $d->{dt}=$d->{t} - $dp->{t};
+    $d->{dh}=$d->{a} - $dp->{a};
+    $d->{d}=$dp->{d} + $d->{dd};
+  }
+#  print "$d->{lat} $d->{lon}  $d->{t} $d->{a} $d->{d}\n";
+}
+
+
+sub filter{
+  my $data=shift;
+  my $in_x=shift;
+  my $in_y=shift;
+  my $in_dx=shift;
+  my $out_f=shift;
+  # начальный диапазон
+  my $b1=0;
+  my $b2=$#{$data};
+  my $cnt=2;
+  # Номера узлов, которые мы оставляем. Для начала - начало и конец
+  ${$data}[$b1]->{$out_f}=1;
+  ${$data}[$b2]->{$out_f}=1;
+
+  while ($b1!=$b2){
+    # Задан некий диапазон b1..b2.
+    # Из точек диапазона найдем ту, которая по времени дальше всего от линии, 
+    # соединяющей концы
+    my $maxb=$b1;
+    my $maxdx=0;
+
+    for (my $b=$b1+1; $b<$b2; $b++){
+
+      my $dx=0;
+      $dx = abs(
+        ${$data}[$b]->{$in_x} -
+        ${$data}[$b1]->{$in_x} -
+        (${$data}[$b]->{$in_y} - ${$data}[$b1]->{$in_y}) *
+        (${$data}[$b2]->{$in_x} - ${$data}[$b1]->{$in_x}) /
+        (${$data}[$b2]->{$in_y} - ${$data}[$b1]->{$in_y}))
+         if (${$data}[$b2]->{$in_y} != ${$data}[$b1]->{$in_y});
+
+      if ($dx > $maxdx){
+        $maxdx=$dx;
+        $maxb=$b;
+      }
+    }
+    # если расстояние попадает в допуск - перейдем к следующему диапазону
+    # иначе добавим найденную точку в @indexes и перейдем к первой части 
+    # текущего диапазона
+    if ($maxdx < $in_dx){
+      last if ($b2==$#{$data});
+      $b1=$b2;
+      do {++$b2;} while (${$data}[$b2]->{f_d} != 1);
+    }
+    else {
+      ${$data}[$maxb]->{$out_f} = 1;
+      $cnt++;
+      $b2=$maxb;
+    }
+  }
+  return $cnt;
+}
+
+my $c1=filter(\@data, 't', 'd', $MAXDT, 'f_d');
+my $c2=filter(\@data, 't', 'a', $MAXDT, 'f_a');
+
+
+my @filtered;
+for ( my $i = 0; $i<=$#data; $i++){
+  my $d=$data[$i];
+#  next if ($d->{f_d} != 1) || ($d->{f_d} != 1);
+  next if ($d->{f_d} != 1);
+  my ($S, $M, $H) = gmtime $d->{t};
+  $d->{sec} = $S + $M*60 + $H*3600;
+  $d->{day} = ($d->{t} - $d->{sec})/24/3600;
+  push @filtered, $d;
+}
+
+
+my $fday=$filtered[0]->{day};
+my $lday=$filtered[$#filtered]->{day};
+my %grid = (maxx=>24, dx=>1, dxb=>6, maxy => $lday-$fday+1);
+
+my @boxes;
+
+sub calc_col{
+  my $d=shift;
+  my $i=shift;
+  return 7 if ($i<0) || ($i>=$#{$d});
+  my $d1 = ${$d}[$i];
+  my $d2 = ${$d}[$i+1];
+
+  my $dt = $d2->{t} - $d1->{t};
+  my $dd = $d2->{d} - $d1->{d};
+  my $da = $d2->{a} - $d1->{a};
+  my $vd = 3.6*$dd/$dt;
+  my $va = 3.6*$da/$dt;
+
+  return 31 if ($vd>0.3);
+  return 6  if (abs($va)>0.05);#&&(abs($da)>50);
+  return 7;
+}
+
+my $day_t=0;
+my $i=0;
+for ( my $day = $fday; $day<=$lday; $day++){
+  while (($i<$#filtered) &&
+      (($filtered[$i]->{day}==$day) ||($filtered[$i+1]->{day}==$day))){
+    my $c=calc_col(\@filtered, $i);
+
+    my $t1= ($filtered[$i]->{day}!=$day) ? 0 : $filtered[$i]->{t}/3600.0 - $day*24;
+    my $t2= ($filtered[$i+1]->{day}!=$day) ? 24 : $filtered[$i+1]->{t}/3600.0 - $day*24;
+    if ($c!=7) {$day_t+=$t2-$t1};
+    $i++;
+    push @boxes, {type=>"box", color=>$c, x=>$t1, w=>$t2-$t1, y=>$day-$fday, h=>1, depth=>70} if $c!=7;
+  }
+  my $h = int($day_t);
+  my $m = int(($day_t-$h)*60);
+  push @boxes, {type=>"text", color=>15, x=>20, y=>$day-$fday+0.2, text=>sprintf("%d:%02d", $h, $m)};
+
+print STDERR "DAY: $day $day_t\n";
+  $i--;
+  $day_t=0;
+}
+
+for ($i=0; $i<=$#wpt_data; $i++){
+  my $d=$wpt_data[$i];
+  my ($S, $M, $H) = gmtime $d->{t};
+  my $sec = $S + $M*60 + $H*3600;
+  my $day = ($d->{t} - $sec)/24/3600;
+
+print STDERR "DAY: $day $d->{name}\n";
+
+  next if ($day<$fday) || ($day>$lday);
+  push @boxes, {type=>"pt",   color=>1, size=>3, x=>$sec/3600.0, y=>$day-$fday};
+  push @boxes, {type=>"text", color=>1, size=>8, x=>$sec/3600.0, y=>$day-$fday+0.02, text=>$d->{name}, a=>1.0};
+
+}
+
+
+print fig_grid::create(\%grid, @boxes);
+
+print STDERR "filter: $c1/$#data\n";
+#print STDERR "filter: $c2/$#data\n";
+print STDERR "lat: $minlat .. $maxlat\n";
+print STDERR "lon: $minlon .. $maxlon\n";
+print STDERR "alt: $minalt .. $maxalt\n";
+print STDERR "t:   $mint .. $maxt\n";
+
+

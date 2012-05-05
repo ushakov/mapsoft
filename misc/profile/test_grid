@@ -1,0 +1,8 @@
+#!/usr/bin/perl -w
+use strict;
+use fig_grid;
+
+my %grid = (maxx=>24, dx=>1, dxb=>6);
+my %box  = (type=>"box", color=>2, x=>3, y=>4, w=>1, h=>1);
+
+print fig_grid::create(\%grid, \%box);
