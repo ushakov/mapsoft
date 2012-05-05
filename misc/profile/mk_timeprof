@@ -6,7 +6,7 @@ die "usage: $0 <track.plt>" if $#ARGV<0;
 
 my $MAXDT=120;
 
-my $TZONE=+8;
+my $TZONE=+5;
 
 # cleanup track and get some statistics
 

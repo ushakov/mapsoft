@@ -1,23 +1,35 @@
 #!/usr/bin/perl -w
+
 use strict;
 
 # изготовление fig - картинки из файла статистики:
 # x - y - высота по srtm - высота по gps - время,с
 
-open O, "> out.fig" or die "can't open fig";
+if ($#ARGV<1){
+  print "Usage: $0 <track files> <out.fig>";
+  exit 1;
+}
+
+my $out = $ARGV[$#ARGV];
+open O, "> $out" or die "can't open $out";
+
+my $infiles=join(' ', @ARGV[0..$#ARGV-1]);
+open I, "mapsoft_toxyz --break day --fmt \"%x %y %z %z %t\" $infiles |"
+  or die "can't run mapsoft_toxyz";
 
 ##################
 
 #my $x_scale = 2.5;   # километров в сантиметре
 #my $y_scale = 200;   # метров в сантиметре
 
-my $x_scale = 5;   # километров в сантиметре
-my $y_scale = 200;   # метров в сантиметре
+# масштаб сетки
+my $x_scale = 5;   # горизонтальный: километров в сантиметре
+my $y_scale = 200; # вертикальный: метров в сантиметре
 
 my $fig_dx = 4;    # шаг линий сетки, см
 my $fig_dy = 1;    #
-my $fig_dx_b = 20; # шаг жирных линий сетки, см 
-my $fig_dy_b = 5;  # см
+my $fig_dx_b = 20; # шаг жирных линий сетки, см
+my $fig_dy_b = 5;  #
 
 my $tr_size = 0.2;        # размер треугольника (длина стороны), см
 my $txt_size = 10;        # размер шрифта
@@ -34,18 +46,18 @@ my $cm2fig = 449.943757;
 
 
 ## разбираем параметры -- определяем, когда нам разбивать трек
-foreach (@ARGV){
-  if (/^dates$/)    {$br_dates  = 1; next;}
-  if (/^nodates$/)  {$br_dates  = 0; next;}
-  if (/^breaks$/)   {$br_breaks = 1; next;}
-  if (/^nobreaks$/) {$br_breaks = 0; next;}
-  if (/^tracks$/)   {$br_tracks = 1; next;}
-  if (/^notracks$/) {$br_tracks = 0; next;}
-  my $t = `date +%s '$_' 2> /dev/null`;
-
-  if ($t=~ /^\s*$/) {print STDERR "плохая дата: $_\n"; next;}
-  push @br_time, $t;
-}
+#foreach ($ARGV){
+#  if (/^dates$/)    {$br_dates  = 1; next;}
+#  if (/^nodates$/)  {$br_dates  = 0; next;}
+#  if (/^breaks$/)   {$br_breaks = 1; next;}
+#  if (/^nobreaks$/) {$br_breaks = 0; next;}
+#  if (/^tracks$/)   {$br_tracks = 1; next;}
+#  if (/^notracks$/) {$br_tracks = 0; next;}
+#  my $t = `date +%s '$_' 2> /dev/null`;
+#
+#  if ($t=~ /^\s*$/) {print STDERR "плохая дата: $_\n"; next;}
+#  push @br_time, $t;
+#}
 
 
 #################
@@ -59,7 +71,7 @@ my $br_name=0;
 my $date="";
 my $br=1;
 
-foreach  (<STDIN>){
+foreach  (<I>){
   if (/^\s*$/){
     $br=1;
     next;
@@ -77,8 +89,8 @@ foreach  (<STDIN>){
   $year+=1900;
   my $date = "$year-$mon-$mday";
 
-  if ($br==1){ 
-    $br=0; $br_name++; 
+  if ($br==1){
+    $br=0; $br_name++;
     next; # первую точку куска всегда выкидываем!
   }
 
@@ -92,9 +104,18 @@ foreach  (<STDIN>){
   my $h = $ht;
   $h = $hs if ($h<-10000) || ($h>10000);
 
-  push @data, {x=>$x/1000.0, y=>$y/1000.0, hs=>$hs, ht=>$ht, h=>$h, t=>$t, name=>$name, date=>$date};
+  push @data, {
+    x=>$x/1000.0,
+    y=>$y/1000.0,
+    hs=>$hs,
+    ht=>$ht,
+    h=>$h,
+    t=>$t,
+    name=>$name,
+    date=>$date
+  };
 #  printf "%7d %7d %4d %4d %9d %10s\n", $x, $y, $hs, $ht, $t, $name;
-}  
+}
 
 #############
 # подсчет расстояния
@@ -108,7 +129,6 @@ for (my $i = 1; $i<=$#data; $i++){
 
 #############
 # найдем параметры кусков
-
 my @parts;
 my @part_of_data;
 my $oname = ${$data[0]}{name};
@@ -120,7 +140,7 @@ for (my $i = 0; $i<= $#data; $i++){
     push @parts, get_part_info(\@part_of_data);
     ${$parts[$#parts]}{name} = $oname;
 
-    # хочу, чтобы промежуток между кусками включался 
+    # хочу, чтобы промежуток между кусками включался
     # в следующий кусок...
     my $last = pop @part_of_data;
     @part_of_data=($last);
@@ -128,13 +148,13 @@ for (my $i = 0; $i<= $#data; $i++){
   push @part_of_data, $data[$i];
   $oname = $name;
 }
+
 push @parts, get_part_info(\@part_of_data);
 ${$parts[$#parts]}{name} = $oname;
 
 
 ###########
 # функция для определения параметров куска
-
 sub get_part_info{
   my $data = $_[0];
 
@@ -164,10 +184,10 @@ sub get_part_info{
       if (($i>0) && ($hso > -10000) && ($hso<10000)){
         # если набор высоты того же знака, что и $dhs или недостаточно велик -- накапливаем набор
         if ((($hs-$hso)*$dhs>=0)||(abs($dhs)<$min_dh)) {$dhs+=$hs-$hso;}
-        else { 
+        else {
           if (abs($dhs) > abs($dht)) {$dh = $dhs;} else {$dh = $dht;}
           if ($dh < 0) {$hm+=$dh;} else {$hp+=$dh;}
-    	  $dht=0; $dhs=0;
+          $dht=0; $dhs=0;
         }
       }
     }
@@ -180,23 +200,23 @@ sub get_part_info{
         else {
           if (abs($dhs) > abs($dht)) {$dh = $dhs;} else {$dh = $dht;}
           if ($dh < 0) {$hm+=$dh;} else {$hp+=$dh;}
-    	  $dhs=0; $dht=0;
+          $dhs=0; $dht=0;
         }
       }
     }
 
-    $i++; 
+    $i++;
     $hto=$ht; $hso=$hs;
   }
   my $min_h = ($min_hs < $min_ht)? $min_hs : $min_ht;
   my $max_h = ($max_hs > $max_ht)? $max_hs : $max_ht;
   my $d = ${$data}[$#{$data}]->{d} - ${$data}[0]->{d};
   return {
-    d=>$d, 
-    min_h=>$min_h, 
-    max_h=>$max_h, 
-    hp=>$hp, 
-    hm=>$hm, 
+    d=>$d,
+    min_h=>$min_h,
+    max_h=>$max_h,
+    hp=>$hp,
+    hm=>$hm,
   };
 }
 
@@ -216,7 +236,14 @@ foreach (@parts){
   $min_h = ${$_}{min_h} if ($min_h > ${$_}{min_h});
   $max_h = ${$_}{max_h} if ($max_h < ${$_}{max_h});
 }
-push @parts, {name=>'всего', d=>$data[$#data]->{d}, min_h=>$min_h, max_h=>$max_h, hp=>$hp, hm=>$hm};
+push @parts, {
+  name=>'total',
+  d=>$data[$#data]->{d},
+  min_h=>$min_h,
+  max_h=>$max_h,
+  hp=>$hp,
+  hm=>$hm
+};
 
 foreach (@parts){
   print "${$_}{name} ${$_}{d} ${$_}{min_h}-${$_}{max_h}  ${$_}{hp} ${$_}{hm}\n";
@@ -246,23 +273,22 @@ Single
 *;
 
 # рисуем сетку
-
 for (my $x = $min_x; $x <=$max_x; $x+=$fig_dx){
   my $d =1;
   if ($x%$fig_dx_b==0) {$d=2;}
   print O "2 1 0 $d 11 11 80 -1 -1 0.000 0 0 7 0 0 2\n";
-  printf O "  %d %d %d %d\n", int($x*$cm2fig), -int($max_y*$cm2fig), 
+  printf O "  %d %d %d %d\n", int($x*$cm2fig), -int($max_y*$cm2fig),
     int($x*$cm2fig), -int($min_y*$cm2fig);
-  printf O "4 1 1 80 -1 18 $txt_size 0.0000 4 105 300 %d %d %d\\001\n", 
+  printf O "4 1 1 80 -1 18 $txt_size 0.0000 4 105 300 %d %d %d\\001\n",
     int($x*$cm2fig), -int(($min_y-$txt_dist)*$cm2fig), int($x*$x_scale);
 }
 for (my $y = $min_y; $y <=$max_y; $y+=$fig_dy){
   my $d =1;
   if ($y%$fig_dy_b==0) {$d=2;}
   print O "2 1 0 $d 11 11 80 -1 -1 0.000 0 0 7 0 0 2\n";
-  printf O "  %d %d %d %d\n", int($max_x*$cm2fig), -int($y*$cm2fig), 
+  printf O "  %d %d %d %d\n", int($max_x*$cm2fig), -int($y*$cm2fig),
     int($min_x*$cm2fig), -int($y*$cm2fig);
-  printf O "4 2 1 80 -1 18 $txt_size 0.0000 4 105 300 %d %d %d\\001\n", 
+  printf O "4 2 1 80 -1 18 $txt_size 0.0000 4 105 300 %d %d %d\\001\n",
     int(($min_x-$txt_dist/3)*$cm2fig), -int(($y-$txt_dist/3)*$cm2fig), int($y*$y_scale);
 }
 
@@ -290,8 +316,8 @@ foreach (@data){
     my $fig_y = -int($h / $y_scale * $cm2fig);
     $fig_points3 .= "   $fig_x $fig_y\n"; $fn3++;
   }
-
 }
+
 print O "2 1 0 2 1 11 51 -1 -1 0.000 1 0 -1 0 0 $fn1\n";
 print O $fig_points1;
 print O "2 1 0 2 4 11 50 -1 -1 0.000 1 0 -1 0 0 $fn2\n";
@@ -302,31 +328,32 @@ print O $fig_points3;
 # данные по дням
 my $txt_y = -$txt_dist;
 foreach (@parts){
-  printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %s\\001\n", 
+  printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %s\\001\n",
     ($max_x-7)*$cm2fig,   -int(($max_y+$txt_y)*$cm2fig), $_->{name};
-  printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %.1fkm\\001\n", 
+  printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %.1fkm\\001\n",
     ($max_x-4.5)*$cm2fig, -int(($max_y+$txt_y)*$cm2fig), $_->{d};
-  printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %+.0fm\\001\n", 
+  printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %+.0fm\\001\n",
     ($max_x-2.5)*$cm2fig, -int(($max_y+$txt_y)*$cm2fig), $_->{hp};
-  printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %+.0fm\\001\n", 
+  printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %+.0fm\\001\n",
     ($max_x-0.5)*$cm2fig, -int(($max_y+$txt_y)*$cm2fig), $_->{hm};
   $txt_y -= $txt_dist;
 }
+
 # рамка
 print O "2 2 0 1 0 7 70 -1 20 0.000 1 0 7 0 0 5\n";
 printf O "  %d %d  %d %d  %d %d  %d %d  %d %d\n",
-  ($max_x-9.5)*$cm2fig, -int($max_y*$cm2fig), 
+  ($max_x-9.5)*$cm2fig, -int($max_y*$cm2fig),
   $max_x*$cm2fig, -int($max_y*$cm2fig),
   $max_x*$cm2fig, -int(($max_y+$txt_y)*$cm2fig),
   ($max_x-9.5)*$cm2fig, -int(($max_y+$txt_y)*$cm2fig),
   ($max_x-9.5)*$cm2fig, -int($max_y*$cm2fig);
 
 # левая рамка
-printf O "4 0 0 60 -1 18 12 0.0000 4 105 300 %d %d Название похода\\001\n", 
+printf O "4 0 0 60 -1 18 12 0.0000 4 105 300 %d %d title\\001\n",
   (0.3)*$cm2fig, -int(($max_y-0.6)*$cm2fig);
 print O "2 2 0 1 0 7 70 -1 20 0.000 1 0 7 0 0 5\n";
 printf O "  %d %d  %d %d  %d %d  %d %d  %d %d\n",
-  0, -int($max_y*$cm2fig), 
+  0, -int($max_y*$cm2fig),
   8.5*$cm2fig, -int($max_y*$cm2fig),
   8.5*$cm2fig, -int(($max_y-0.9)*$cm2fig),
   0, -int(($max_y-0.9)*$cm2fig),
@@ -339,13 +366,13 @@ my $dateo='';
 foreach(@data){
   if ($_->{name} ne $nameo){
     # название куска
-    printf O "4 2 4 60 -1 18 $txt_size 1.5708 4 105 300 %d %d %s\\001\n", 
+    printf O "4 2 4 60 -1 18 $txt_size 1.5708 4 105 300 %d %d %s\\001\n",
       int(($_->{d}/$x_scale+$txt_dist)*$cm2fig), -int(($_->{h}/$y_scale-0.6)*$cm2fig), $_->{name};
     # вертикальная черточка
     print O "2 1 0 1 4 11 50 -1 -1 0.000 1 0 -1 0 0 2\n";
     printf O "  %d %d  %d %d\n",
       int($_->{d}/$x_scale*$cm2fig), -int(($_->{h}/$y_scale+1)*$cm2fig),
-      int($_->{d}/$x_scale*$cm2fig), -int(($_->{h}/$y_scale-1)*$cm2fig);	
+      int($_->{d}/$x_scale*$cm2fig), -int(($_->{h}/$y_scale-1)*$cm2fig);
   }
   if (($_->{date} ne $dateo)&&($dateo ne '')) {
     # треугольник -- место ночевки
@@ -358,178 +385,4 @@ foreach(@data){
   }
   $nameo=$_->{name};
   $dateo=$_->{date};
-}
-
-__END__
-  # дата  
-
-    print O "2 1 0 1 4 11 50 -1 -1 0.000 1 0 -1 0 0 2\n";
-    printf O "  %d %d  %d %d\n",
-      int($d/$x_scale*$cm2fig), -int(($h/$y_scale+1)*$cm2fig),
-      int($d/$x_scale*$cm2fig), -int(($h/$y_scale-1)*$cm2fig);	
-
-
-
-__END__
-
-
-#################
-
-my $odate="";
-my $dd0 = 0;
-my $dhp  = 0;
-my $dhm  = 0;
-
-my $txt_y = -$txt_dist;
-
-my $dhp_a  = 0;
-my $dhm_a  = 0;
-
-my $fig_points1 = "";
-my $fig_points2 = "";
-my $fig_n1 =0;
-my $fig_n2 =0;
-
-my $h;
-my $ho=-32000;
-foreach  (@data){
-  ($d, $h1, $h2, $t) = (${$_}{d}, ${$_}{h1}, ${$_}{h2}, ${$_}{t});
-
-  $h=$h2;
-
-  if ($ho > -1000) {
-    if ($h>$ho) {$dhp += $h-$ho;}
-    if ($h<$ho) {$dhm += $h-$ho;}
-  }
-
-  my $fig_x =  int($d / $x_scale * $cm2fig);
-
-  if ($h1>-1000){
-    my $fig_y1 = -int($h1 / $y_scale * $cm2fig); 
-    $fig_points1 .= "   $fig_x $fig_y1\n";
-    $fig_n1++;
-  }
-  if ($h2>-1000){
-    my $fig_y2 = -int($h2 / $y_scale * $cm2fig); 
-    $fig_points2 .= "   $fig_x $fig_y2\n";
-    $fig_n2++;
-  }
-
-  my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($t);
-  $mon++;
-  $year+=1900;
-  my $date = "$year-$mon-$mday";
-
-  # дата  
-  if ($date ne $odate) {
-    printf O "4 2 4 60 -1 18 $txt_size 1.5708 4 105 300 %d %d %s\\001\n", 
-      int(($d/$x_scale+$txt_dist)*$cm2fig), -int(($h/$y_scale-0.6)*$cm2fig), $date;
-  }
-
-  if (($date ne $odate) && ($odate ne "")){
-    my $dd = $d-$dd0;
-    printf "%10s %6.2f %4.0f %5.0f\n",
-     $odate, $dd, $dhp, $dhm;
-
-    # треугольник -- место ночевки
-    print O "2 3 0 1 0 0 40 -1 20 0.000 1 0 7 0 0 4\n";
-    printf O "  %d %d  %d %d  %d %d  %d %d\n",
-      int(($d / $x_scale - $tr_size/2)*$cm2fig), -int(($h / $y_scale - $tr_size/2/sqrt(3))*$cm2fig),
-      int(($d / $x_scale + $tr_size/2)*$cm2fig), -int(($h / $y_scale - $tr_size/2/sqrt(3))*$cm2fig),
-      int(($d / $x_scale)*$cm2fig),              -int(($h / $y_scale + $tr_size/sqrt(3))*$cm2fig),
-      int(($d / $x_scale - $tr_size/2)*$cm2fig), -int(($h / $y_scale - $tr_size/2/sqrt(3))*$cm2fig);
-    print O "2 1 0 1 4 11 50 -1 -1 0.000 1 0 -1 0 0 2\n";
-    printf O "  %d %d  %d %d\n",
-      int($d/$x_scale*$cm2fig), -int(($h/$y_scale+1)*$cm2fig),
-      int($d/$x_scale*$cm2fig), -int(($h/$y_scale-1)*$cm2fig);	
-
-    # данные по дням
-    printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %s\\001\n", 
-      ($max_x-7)*$cm2fig, -int(($max_y+$txt_y)*$cm2fig), $odate;
-    printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %.1fkm\\001\n", 
-      ($max_x-4.5)*$cm2fig, -int(($max_y+$txt_y)*$cm2fig), $dd;
-    printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %+.0fm\\001\n", 
-      ($max_x-2.5)*$cm2fig,   -int(($max_y+$txt_y)*$cm2fig), $dhp;
-    printf O "4 2 0 60 -1 18 $txt_size 0.0000 4 105 300 %d %d %+.0fm\\001\n", 
-      ($max_x-0.5)*$cm2fig, -int(($max_y+$txt_y)*$cm2fig), $dhm;
-    $txt_y -= $txt_dist;
-
-
-    $dhp_a +=$dhp;
-    $dhm_a +=$dhm;
-    $dd0=$d;
-    $dhp=0;
-    $dhm=0;
-  }
-  $odate = $date;
-  $ho = $h;
-}
-
-# запись данных по последнему дню
-my $dd = $d-$dd0;
-printf "%10s %6.2f %4.0f %5.0f\n",
-   $odate, $dd, $dhp, $dhm;
-$dhp_a +=$dhp;
-$dhm_a +=$dhm;
-
-
-
-
-################ фильтр для "спрямления" горизонталей
-
-sub filter{
-  my $data = $_[0];
-  my $D = $_[1]; # параметр фильтра
-  my @X;
-  my @Y;
-  foreach (@{$data}){
-    push @X, ${$_}{d}*1000;
-    push @Y, ${$_}{h2};
-  }
-
-  return if $#X < 1;
-
-  my @K; # какие точки оставлять
-  $K[0] = 1;
-  $K[$#X] = 1;
-
-  # берем ломаную с вершинами в точках с K[i]==1
-  # ищем самую дальнюю от этой ломаной точку и добавляем ее,
-  # если она дальше, чем величина D
-
-  my $add;
-  do{
-    $add = 0;
-    my $i1 = 0;
-    do{
-      my $i2 = $i1+1;
-      while (!defined($K[$i2])) {$i2++;}
-      my $vv = ($X[$i2] - $X[$i1])**2 + ($Y[$i2] - $Y[$i1])**2;
-      if ($vv==0) {
-        if ($i2-$i1 > 1) {$K[($i2+$i1)/2] = 1; $add++;}
-      }
-      else {
-        my $max = 0;
-        my $maxi = $i1;
-        for (my $i=$i1+1; $i<$i2; $i++){
-          my $vx = ($X[$i] - $X[$i1]) -
-          (($X[$i] - $X[$i1])*($X[$i2] - $X[$i1]) + ($Y[$i] - $Y[$i1])*($Y[$i2] - $Y[$i1]))/
-          $vv * ($X[$i2] - $X[$i1]);
-          my $vy = ($Y[$i] - $Y[$i1]) -
-          (($X[$i] - $X[$i1])*($X[$i2] - $X[$i1]) + ($Y[$i] - $Y[$i1])*($Y[$i2] - $Y[$i1]))/
-          $vv * ($Y[$i2] - $Y[$i1]);
-          my $vd = sqrt($vx**2 + $vy**2);
-          if ($vd > $max){ $max = $vd; $maxi = $i;}
-        }
-        if ($max > $D) {$K[$maxi] = 1; $add++;}
-      }
-      $i1=$i2;
-    } while ($i1!=$#X);
-  } while ($add>0);
-
-  for (my $i = 0; $i<=$#X; $i++){
-    if (!defined($K[$i])){
-      ${${$data}[$i]}{h2} = -32000;
-    }
-  }
 }
