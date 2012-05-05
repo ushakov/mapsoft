@@ -4,26 +4,50 @@
 #include "geo_io/io.h"
 #include "geo/geo_convs.h"
 #include "utils/err.h"
+#include "options/m_getopt.h"
 
 using namespace std;
+
+static struct ext_option options[] = {
+  {"lon0",         1,'o', 1, "set lon0 (default: auto)"},
+  {0,0,0,0}
+};
+
+void usage(bool pod=false){
+  const char * fname = "mapsoft_toxyz";
+  cerr << fname << " -- write track data in text form\n"
+       << "Usage: " << fname << " <options> <input files>\n";
+  cerr << "Options:\n";
+  print_options(options, 1, cerr);
+  exit(1);
+}
+
 int main (int argc, char **argv) {
-    geo_data world;
-    for(int i = 1; i < argc; i++) {
-      try {io::in(string(argv[i]), world);}
-      catch (MapsoftErr e) {cerr << e.str() << endl;}
-    }
 
-    double speed, distance = 0;
-    queue<pair<double, double> > timedist;
+  if (argc==1) usage();
+  vector<string> infiles;
+  Options O = parse_options_all(&argc, &argv, options, 1, infiles);
+  if (O.exists("help")) usage();
 
-    g_trackpoint pp;
-    int k = 0;
+  geo_data world;
+  for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
+    try { io::in(*i, world, O);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
+  }
 
-    double window = 120;
+  double speed, distance = 0;
+  queue<pair<double, double> > timedist;
 
-    Options o;
-    o.put("lon0", convs::lon2lon0(world.range().CNT().x));
-    convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), o,
+  g_trackpoint pp;
+  int k = 0;
+
+  double window = 120;
+
+  double lon0 = O.get("lon0", convs::lon2lon0(world.range().CNT().x));
+
+  Options geo_opts;
+  geo_opts.put("lon0", lon0);
+  convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), geo_opts,
                     Datum("wgs84"), Proj("lonlat"), Options());
 
     for (int i = 0; i < world.trks.size(); ++i) {
