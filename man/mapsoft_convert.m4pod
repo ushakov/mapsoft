@@ -8,52 +8,9 @@ mapsoft_convert -- convert geodata to various formats
 	mapsoft_convert <options> <input files> -o <output file>
 
 
-=head1 INPUT FILES
+include(`inc/formats_in.m4')
 
-format is determined by file extension:
-
-B<<  *.xml >> -- mapsoft native XML-like format
-
-B<<  *.fig >> -- mapsoft geofig format
-
-B<<  *.wpt, *.plt, *.map >> -- OziExplorer format
-
-B<<  *.gpx >> -- GPX format /partial support, tracks and waypoints
-
-B<<  *.gu >> -- old garmin-utils format (tracks and waypoints only)
-
-B<<  *.zip >> -- zipped files
-
-B<<  gps: >> -- read data from Garmin GPS via autodetected serial device
-
-B<<  <character device> >> -- read data from Garmin GPS via serial device
-
-
-=head1 OUTPUT FILE
-
-Format is determined by file extension:
-
-B<<  *.xml >> -- mapsoft native XML-like format
-
-B<<  *.wpt, *.plt, *.map, *.oe  >> -- OziExplorer format (Each track,
-waypoint set or map reference will be written in a separate .plt, .wpt
-or .map file)
-
-B<<  *.zip >> -- zipped OziExplorer files
-
-B<<  *.gpx >> -- GPX format /partial support, tracks and waypoints/
-
-B<<  *.kml >> -- Google KML format /partial support, tracks and waypoints/
-
-B<<  *.kmz >> -- zipped kml
-
-B<<  *.gu  >> -- old garmin-utils format (tracks and waypoints only)
-
-B<<  *.tif, .tiff, .jpg, .jpeg >> -- raster image (see below)
-
-B<<  gps: >> -- send data to Garmin GPS via autodetected serial device
-
-B<<  <character device> >> -- send data to Garmin GPS via serial device
+include(`inc/formats_out.m4')
 
 
 =head1 OPTIONS

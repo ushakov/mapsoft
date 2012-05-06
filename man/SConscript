@@ -11,12 +11,14 @@ def m4pod2man(env, name, ext, deps):
 e.AddMethod(m4pod2man)
 
 
-e.m4pod2man('mapsoft_convert', '1', 'foot geo_io_filters geo_refs')
+e.m4pod2man('mapsoft_convert', '1', 'foot geo_io_filters geo_refs fmt_in fmt_out')
+e.m4pod2man('mapsoft_mapview', '1', 'foot fmt_in')
 e.m4pod2man('mapsoft_vmap',    '1', 'foot')
 e.m4pod2man('mapsoft_geofig',  '1', 'foot')
 
 env.Install(env.man1dir, Split("""
   mapsoft_convert.1
+  mapsoft_mapview.1
   mapsoft_vmap.1
   mapsoft_geofig.1
 """))

@@ -1,0 +1,11 @@
+=head1 NAME
+
+mapsoft_mapview -- view and edit maps and geodata
+
+=head1 SYNTAX
+
+	mapsoft_mapview <files>
+
+include(`inc/fmt_in.m4') 
+
+include(`inc/foot.m4')
