@@ -25,8 +25,13 @@ env_vmap.UseLibs('vmap')
 env_vmap.Program('mapsoft_vmap.cpp')
 
 env.Install(env.bindir, Split("""
-  mapsoft_convert mapsoft_vmap mapsoft_geofig
-  convs_pt2pt convs_map2pt convs_nom
+  mapsoft_convert
+  mapsoft_vmap
+  mapsoft_geofig
+  mapsoft_toxyz
+  convs_pt2pt
+  convs_map2pt
+  convs_nom
 """))
 
 env.SymLink("mapsoft_vmap", "vmap_copy", env.bindir)
