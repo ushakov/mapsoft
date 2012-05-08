@@ -97,21 +97,23 @@ int main (int argc, char **argv) {
       int    dt=0;
       if (nn != 0) {
         // update values:
-        dd = hypot(tp.x - pp.x, tp.y - pp.y);
+        dd = pdist(tp,pp);
         dt = tp.t.value - pp.t.value;
         dist +=dd;
         Dist +=dd;
-        timedist.push(make_pair(tp.t.value, Dist));
-        while (timedist.front().first < tp.t.value - window &&
-               timedist.size() > 2) timedist.pop();
-
-        double traveled = timedist.back().second - timedist.front().second;
-        double time = timedist.back().first - timedist.front().first;
-        speed = traveled/time * 3.6;
       } else {
         dist = 0;
-        speed = 0;
       }
+
+      timedist.push(make_pair(tp.t.value, Dist));
+      while (timedist.front().first < tp.t.value - window &&
+             timedist.size() > 2) timedist.pop();
+
+      double traveled = timedist.back().second - timedist.front().second;
+      double time = timedist.back().first - timedist.front().first;
+      if (time==0) speed=0;
+      else speed = traveled/time * 3.6;
+
       pp = tp;
       ++nn;
       ++NN;
