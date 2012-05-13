@@ -79,6 +79,8 @@ e.Install(e.datadir, "hr.png")
 e.Install(e.datadir, "hr.cmap.pnm")
 e.Install(e.figlibdir, "hr_fig")
 
+e.Install(e.datadir, "slazav.typ")
+
 e.SymLink("mmb.cnf", "default.cnf", e.datadir)
 e.SymLink("mmb.ocd9", "default.ocd9", e.datadir)
 e.SymLink("mmb.cmap.pnm", "default.cmap.pnm", e.datadir)
