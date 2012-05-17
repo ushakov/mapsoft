@@ -10,6 +10,8 @@
 #include "vmap/zn.h"
 #include "vmap.h"
 
+#define CUR_VER 3.1
+
 namespace vmap {
 
 const int point_scale = 1000000;
@@ -44,19 +46,50 @@ int get_kv(const string &s, string &key, string &val){
   return 0;
 }
 
-lpos get_lpos(const string & s){
+// Read label parameters: align, horizontality or angle
+// v<3.1:  <align:0|1|2> <hor:0|1> <ang>
+// v>=3.1: L|C|R H|<ang>
+
+void get_l_pars(istream & IN, lpos & l, double ver){
+  if (ver<3.1){
+    IN >> l.dir >> l.hor >> l.ang;
+  }
+  else {
+    char c;
+    IN >> c;
+    switch (c){
+      case 0: case 'l': case 'L': l.dir=0; break;
+      case 1: case 'c': case 'C': l.dir=1; break;
+      case 2: case 'r': case 'R': l.dir=2; break;
+    }
+    string s;
+    IN >> s;
+    if (s.size() && s[0]=='H' || s[0]=='h'){
+      l.hor=1;
+      l.ang=0.0;
+    }
+    else{
+      l.hor=0;
+      l.ang=atof(s.c_str());
+    }
+  }
+}
+
+lpos get_lpos(const string & s, double ver){
   lpos ret;
   istringstream IN1(s);
-  IN1 >> ret.pos >> ret.dir >> ret.hor >> ret.ang;
+  IN1 >> ret.pos;
+  get_l_pars(IN1, ret, ver);
   point_read_cnv(ret.pos);
   return ret;
 }
 
-lpos_full get_lbuf(const string & s){
+lpos_full get_lbuf(const string & s, double ver){
   lpos_full ret;
   istringstream IN1(s);
-  IN1 >> ret.pos >> ret.dir >> ret.hor >> ret.ang
-      >> ret.ref;
+  IN1 >> ret.pos;
+  get_l_pars(IN1, ret, ver);
+  IN1 >> ret.ref;
   getline(IN1, ret.text);
   point_read_cnv(ret.pos);
   point_read_cnv(ret.ref);
@@ -88,7 +121,7 @@ read_points(istream & IN, string & s){
 
 
 object
-read_object(istream & IN, string & s){
+read_object(istream & IN, string & s, double ver){
   object ret;
   string key,val;
   bool read_ahead=false;
@@ -99,14 +132,15 @@ read_object(istream & IN, string & s){
   }
 
   istringstream IN1(val);
-  IN1 >> setbase(16) >> ret.type;
+  IN1 >> setbase(16) >> ret.type >> ws;
+  getline(IN1,ret.text);
 
   while (!IN.eof() || read_ahead){
     if (!read_ahead) getline(IN, s);
     else read_ahead=false;
     if (get_kv(s, key, val)!=0) continue;
 
-    if (key=="TEXT"){
+    if (ver<3.1 && key=="TEXT"){  // backward comp
       ret.text=val;
       continue;
     }
@@ -128,7 +162,7 @@ read_object(istream & IN, string & s){
       continue;
     }
     if (key=="LABEL"){
-      ret.labels.push_back(get_lpos(val));
+      ret.labels.push_back(get_lpos(val, ver));
       continue;
     }
     if (key=="DATA"){
@@ -148,10 +182,19 @@ read(istream & IN){
   string s, key, val;
   bool read_ahead=false;
 
-  getline(IN, s);
-  if (s!="VMAP 3.0"){
-    cerr << "error: not a VMAP 3.0 file\n";
+  double ver;
+  IN >> s >> ver;
+  if (s!="VMAP"){
+    cerr << "error: not a VMAP file\n";
     return ret;
+  }
+  if (ver>CUR_VER){
+    cerr << "error: Too new VMAP format. Update mapsoft package.\n";
+    return ret;
+  }
+  if (ver<CUR_VER){
+    cerr << "note: reading old VMAP format version: "
+         << fixed << setprecision(1) << ver << " < " << CUR_VER << "\n";
   }
 
   while (!IN.eof() || read_ahead){
@@ -181,11 +224,11 @@ read(istream & IN){
       continue;
     }
     if (key=="LBUF"){
-      ret.lbuf.push_back(get_lbuf(val));
+      ret.lbuf.push_back(get_lbuf(val, ver));
       continue;
     }
     if (key=="OBJECT"){
-      ret.push_back(read_object(IN, s));
+      ret.push_back(read_object(IN, s, ver));
       read_ahead=true;
       continue;
     }
@@ -207,8 +250,14 @@ void print_line(ostream & OUT, const dLine & L){
   }
 }
 void print_lpos(ostream & OUT, const lpos & L){
-  OUT << iPoint(L.pos) << " " << L.dir << " " << L.hor << " " 
-      << setprecision(5) << round(L.ang*100)/100;
+  OUT << iPoint(L.pos) << " ";
+  switch (L.dir){
+    case 0: OUT << 'L'; break;
+    case 1: OUT << 'C'; break;
+    case 2: OUT << 'R'; break;
+  }
+  if (L.hor) OUT << " H";
+  else  OUT << " " << setprecision(2) << round(L.ang*100)/100;
 }
 
 
@@ -243,10 +292,8 @@ write(ostream & OUT, const world & W){
   WS.sort();
   WS.lbuf.sort();
 
-  OUT << "VMAP 3.0\n";
-  if (WS.name!=""){
-    OUT << "NAME\t" << WS.name << "\n";
-  }
+  OUT << "VMAP " << fixed << setprecision(1) << CUR_VER << "\n";
+  if (WS.name!="") OUT << "NAME\t" << WS.name << "\n";
   OUT << "RSCALE\t" << int(WS.rscale) << "\n";
   OUT << "STYLE\t" << WS.style << "\n";
   OUT << "MP_ID\t" << WS.mp_id << "\n";
@@ -257,13 +304,16 @@ write(ostream & OUT, const world & W){
   // lbuf
   for (list<lpos_full>::const_iterator l=WS.lbuf.begin(); l!=WS.lbuf.end(); l++){
     OUT << "LBUF\t"; print_lpos(OUT, *l);
-    OUT << " " << iPoint(l->ref) << " " << l->text << "\n";
+    OUT << " " << iPoint(l->ref);
+    if (l->text.size()) OUT << " " << l->text;
+    OUT << "\n";
   }
 
   for (list<object>::iterator o=WS.begin(); o!=WS.end(); o++){
-    OUT << "OBJECT\t" << "0x" << setbase(16) << o->type << setbase(10) << "\n";
-    if (o->text != "")
-      OUT << "  TEXT\t" << o->text << "\n";
+    OUT << "OBJECT\t" << "0x" << setbase(16) << o->type << setbase(10);
+    if (o->text != "") OUT << " " << o->text;
+    OUT << "\n";
+
     if (o->dir != 0) 
       OUT << "  DIR\t" << o->dir << "\n";
     for (Options::const_iterator i=o->opts.begin(); i!=o->opts.end(); i++){
