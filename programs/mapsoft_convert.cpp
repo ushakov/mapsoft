@@ -52,7 +52,7 @@ static struct ext_option options[] = {
   {"htm",           1,  0, OPT3, "write html map into file"},
   {"fig",           1,'f', OPT3, "write fig-file"},
   {"map",           1,'m', OPT3, "write map-file"},
-  {"draw_borders",  0,  0, OPT3, "draw map borders"},
+  {"map_show_brd",  0,  0, OPT3, "draw map borders"},
 
   {"trk_draw_mode" ,1,  0, OPT3, "draw mode: normal, speed, height"},
   {"trk_draw_dots" ,0,  0, OPT3, "draw dots on tracks"},
