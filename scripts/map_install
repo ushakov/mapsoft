@@ -117,7 +117,7 @@ if [ -z "$nopng" ]; then
   ####### make resized and cropped images
   IFS=','
   for dpi in $dpi_list; do
-    scale="$(echo "$dpi/300" | bc -l)"
+    scale="$(echo "$dpi/200" | bc -l)"
     map_rescale -r "$scale" -s "$style" -o "$name.$dpi" "$datadir/$name.map"
   done
   IFS=' '
