@@ -228,6 +228,7 @@ read_zfile(const string & file){
     im.data[i] = (tmp >> 8) + (tmp << 8);
   }
   gzclose(F);
+  return im;
 }
 
 Image<short>
