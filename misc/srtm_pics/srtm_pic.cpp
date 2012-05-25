@@ -18,6 +18,8 @@
 
 // todo -- стандартные параметры --geom --lon0 ...
 
+bool interp=false;
+
 struct rainbow_data RD_podm[]={
   {5.0,  0xFFFFFF},
   {10.0, 0xFFFF00},
@@ -97,14 +99,14 @@ try{
 	dPoint p  = p_tmerc;
         cnv.bck(p);
 
-        int h = s.GETH(p);
+        int h = s.GETH(p, interp);
         dPoint px = p_tmerc - dPoint(1/k, 0);
         cnv.bck(px);
-        int hx=s.GETH(px);
+        int hx=s.GETH(px, interp);
 
         dPoint py = p_tmerc - dPoint(0, 1/k);
         cnv.bck(py);
-        int hy=s.GETH(py);
+        int hy=s.GETH(py, interp);
 
         int c=0xFFFFFF;
 
