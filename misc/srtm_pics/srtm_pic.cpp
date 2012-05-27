@@ -92,7 +92,6 @@ try{
 
     for (int j = H; j > 0; j--){
       std::cerr << j << " ";
-      int ho=srtm_undef, hoo=srtm_undef;
       for (int i = 0; i < W; i++){
 
         dPoint p_tmerc((double)i/k + X1, (double)j/k + Y1);
@@ -111,30 +110,23 @@ try{
         int c=0xFFFFFF;
 
         // g_map
-	if (((i==0)||(i==W-1))&&((j==H)||(j==1))){
+        if (((i==0)||(i==W-1))&&((j==H)||(j==1))){
           m.push_back(g_refpoint(p.x, p.y, i, H-j));
         }
 
         // holes
-	if ((h < srtm_min) || (hx < srtm_min) || (hy < srtm_min) ||
-            (ho < srtm_min) || (hoo < srtm_min)) { //hole
-	  c=0xC8C8C8;
-	  if (h>srtm_min) { ho=h/step; hoo=h/sstep; }
-          goto print_colors;
+        if ((h < srtm_min) || (hx < srtm_min) || (hy < srtm_min)){
+          c=0xC8C8C8; goto print_colors;
 	}
 
-/*        { // step contours
-     	  double d1 = (h/step - ho);
-	  double d2 = (hy/step - ho);
-	  ho = (abs(d1)>abs(d2))? hy/step:h/step;
-	  if ((d1!=0)||(d2!=0)) { c=0x808080; goto print_colors; }
-        }
+/*        // step contours
+          if ((hx/step - h/step)||(hy/step - h/step)){
+            c=0x808080; goto print_colors;
+          }
 */
-        { // sstep contours
-          double d1 = (h/sstep - hoo);
-	  double d2 = (hy/sstep - hoo);
-	  hoo = (abs(d1)<abs(d2))? hy/sstep:h/sstep;
-	  if ((d1!=0)||(d2!=0)) { c=0; goto print_colors; }
+        // sstep contours
+        if ((hx/sstep - h/sstep)||(hy/sstep - h/sstep)){
+          c=0; goto print_colors;
         }
 
         { // greed
