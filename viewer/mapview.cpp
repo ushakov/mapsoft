@@ -22,7 +22,6 @@ Mapview::Mapview () :
     layer_options.put("trk_draw_h1", 0);
     layer_options.put("trk_draw_h2", 1000);
 
-
     /// window initialization
     signal_delete_event().connect_notify (
       sigc::bind(sigc::hide(sigc::mem_fun (this, &Mapview::exit)),false));

@@ -24,7 +24,7 @@ public:
     }
 
     virtual iRect range () const = 0;
-    virtual void refresh() = 0;
+    virtual void refresh() { };
 
     virtual Layer & operator/= (double k) = 0;
     virtual Layer & operator*= (double k) = 0;

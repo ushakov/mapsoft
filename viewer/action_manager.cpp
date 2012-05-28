@@ -38,6 +38,7 @@
 
 #include "actions/am_fullscreen.h"
 #include "actions/am_hide_panels.h"
+#include "actions/am_srtm.h"
 
 #define ADD_ACT(name, group) AddAction(new name(mapview),\
    std::string("Mode") + #name, group);
@@ -81,6 +82,7 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(SaveImage,       "Misc")
     ADD_ACT(ShowPt,          "Misc")
     ADD_ACT(DrawOpt,         "Misc")
+    ADD_ACT(UseSrtm,         "Misc")
     AddSep("Misc");
     ADD_ACT(JoinVisWpt,      "Misc")
     ADD_ACT(JoinVisTrk,      "Misc")

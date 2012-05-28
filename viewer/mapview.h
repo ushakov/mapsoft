@@ -11,6 +11,7 @@
 #include "gred/rubber.h"
 #include "workplane.h"
 #include "layerlist.h"
+#include "layers/layer_srtm.h"
 #include "dataview.h"
 #include "action_manager.h"
 #include "geo_io/io.h"
@@ -29,6 +30,8 @@ public:
     WptLL wpt_ll;
     TrkLL trk_ll;
     MapLL map_ll;
+
+    LayerSRTM layer_srtm;
 
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
