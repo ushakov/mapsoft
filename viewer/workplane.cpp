@@ -143,6 +143,10 @@ bool Workplane::get_layer_active (LayerGeo * layer) {
 	return layers_active[layer];
 }
 
+bool Workplane::exists(LayerGeo * layer) {
+  return find_layer(layer) != layers.end();
+}
+
 void Workplane::set_scale(const double k){
         draw_mutex.lock();
 	for (std::multimap<int, LayerGeo *>::iterator itl = layers.begin();

@@ -23,11 +23,11 @@ public:
     // functions for gred/gobj interface
     int draw(iImage &img, const iPoint &origin);
 
-    std::multimap<int, LayerGeo *>::iterator find_layer (LayerGeo * layer);
-
     void add_layer (LayerGeo * layer, int depth);
 
     void remove_layer (LayerGeo * layer);
+
+    bool exists (LayerGeo * layer);
 
     void clear();
 
@@ -50,6 +50,8 @@ public:
     void set_ref(const g_map & reference);
 
 private:
+    std::multimap<int, LayerGeo *>::iterator find_layer (LayerGeo * layer);
+
     std::multimap <int, LayerGeo *> layers;
     std::map <LayerGeo *, bool> layers_active;
 
