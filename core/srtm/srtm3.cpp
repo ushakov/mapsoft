@@ -269,6 +269,7 @@ read_file(const string & file){
     im.data[i] = (tmp >> 8) + (tmp << 8);
   }
   fclose(F);
+  return im;
 }
 
 bool
