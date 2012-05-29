@@ -71,16 +71,16 @@ DThreadViewer::updater(){
         iRect(get_origin().x, get_origin().y,  get_width(), get_height()), TILE_SIZE);
 
     std::set<iPoint>::iterator qit=tiles_todo.begin(), qit1;
+    updater_mutex->lock();
     while (qit!=tiles_todo.end()) {
       if (point_in_rect(*qit, tiles_to_keep)) qit++;
       else {
         qit1=qit; qit1++;
-        updater_mutex->lock();
         tiles_todo.erase(qit);
-        updater_mutex->unlock();
         qit=qit1;
       }
     }
+    updater_mutex->unlock();
 
     // cleanup cache
     tiles_to_keep = rect_pump(tiles_to_keep, TILE_MARG);
@@ -127,7 +127,10 @@ void DThreadViewer::draw(const iRect & r){
   if (r.empty()) return;
   iRect tiles = tiles_on_rect(r + get_origin(), TILE_SIZE);
   iPoint key;
+
+  updater_mutex->lock();
   if (tiles_todo.empty()) signal_busy().emit();
+  updater_mutex->unlock();
 
   for (key.y = tiles.y; key.y<tiles.y+tiles.h; key.y++){
     for (key.x = tiles.x; key.x<tiles.x+tiles.w; key.x++){
@@ -152,6 +155,8 @@ void DThreadViewer::draw(const iRect & r){
       }
     }
   }
+  updater_mutex->lock();
   if (tiles_todo.empty()) signal_idle().emit();
+  updater_mutex->unlock();
 }
 
