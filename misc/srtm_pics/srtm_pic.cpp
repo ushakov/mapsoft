@@ -129,22 +129,17 @@ try{
           c=0; goto print_colors;
         }
 
-        { // greed
+        { // grid
 	  double d1 = ((int)(p_tmerc.x+1/k)/grid_step - (int)(p_tmerc.x)/grid_step);
 	  double d2 = ((int)(p_tmerc.y+1/k)/grid_step - (int)(p_tmerc.y)/grid_step);
           if ((d1>0)||(d2>0)) {c=0x808080; goto print_colors; }
         }
 
         { // slopes
-          double dhx = (h - hx)*k;
-          double dhy = (h - hy)*k;
-          double ngrad = sqrt(dhx*dhx + dhy*dhy);
-          double deg = 180/M_PI*atan(ngrad);
-
           if (style == "podm")
-            c=get_rainbow(deg, RD_podm, RDS_podm);
+            c=get_rainbow(s.slope4(p), RD_podm, RDS_podm);
           else
-            c=get_rainbow(deg, RD_hr, RDS_hr);
+            c=get_rainbow(s.slope4(p), RD_hr, RDS_hr);
         }
 
         print_colors:

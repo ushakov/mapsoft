@@ -54,11 +54,7 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
     {55.0, 0x404040}
   };
   const int RDS=sizeof(RD)/sizeof(rainbow_data);
-  const int step=20;
-
-dPoint a(origin);
-cnv.frw(a);
-std::cerr << ">>>> srtm draw " << a << "\n";
+  const int step=50;
 
   for (int j=0; j<image.h; j++){
     for (int i=0; i<image.w; i++){
@@ -85,16 +81,8 @@ std::cerr << ">>>> srtm draw " << a << "\n";
       }
 
       { // slopes
-        double dx2 = ((px.x-p0.x)*(px.x-p0.x)*cos(M_PI/180.0*p0.y) +
-                      (px.y-p0.y)*(px.y-p0.y));
-        double dy2 = ((py.x-p0.x)*(py.x-p0.x)*cos(M_PI/180.0*p0.y) +
-                      (py.y-p0.y)*(py.y-p0.y));
-
-        double  U = sqrt( pow(double(h0-hx),2)/dx2 +
-                          pow(double(h0-hy),2)/dy2 ) / (M_PI/180.0 * 6380000);
-        double deg = atan(U)*180.0/M_PI;
-
-        c=get_rainbow(deg, RD, RDS);
+        c=get_rainbow(S.slope4(p0), RD, RDS);
+        goto print_colors;
       }
 
       print_colors:

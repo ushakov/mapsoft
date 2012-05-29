@@ -80,9 +80,30 @@ srtm3::geth(const iPoint & p, const bool interp){
   return srtm_cache.get(key).get(crd);
 }
 
+double
+srtm3::slope(const iPoint &p){
+  short h  = geth(p, true);
+  short hx = geth(p.x, p.y+1, true);
+  short hy = geth(p.x+1, p.y, true);
+  double a=0;
+  if ((h > srtm_min) && (hx > srtm_min) && (hy > srtm_min)){
+    // sqares of cell dimensions (km/sec)^2:
+    const double dx2 = area0 * pow(cos(M_PI*p.y/180/srtm_width),2);
+    const double dy2 = area0;
+    const double  U = sqrt(pow(double(h-hx) ,2)/dx2 + pow(double(h-hy) ,2)/dy2);
+    a = atan(U)*180.0/M_PI;
+  }
+  return a;
+}
+
 short
 srtm3::geth(const int x, const int y, const bool interp){
   return geth(iPoint(x,y), interp);
+}
+
+double
+srtm3::slope(const int x, const int y){
+  return slope(iPoint(x,y));
 }
 
 short
@@ -105,10 +126,8 @@ short
 srtm3::geth4(const dPoint & p, const bool interp){
   double x = p.x*1200;
   double y = p.y*1200;
-  int x1 = floor(x);
-  int x2 = x1+1;
-  int y1 = floor(y);
-  int y2 = y1+1;
+  int x1 = floor(x), x2 = x1+1;
+  int y1 = floor(y), y2 = y1+1;
 
   short h1=geth(x1,y1,interp);
   short h2=geth(x1,y2,interp);
@@ -122,6 +141,23 @@ srtm3::geth4(const dPoint & p, const bool interp){
   short h34 = (int)( h3 + (h4-h3)*(y-y1) );
 
   return (short)( h12 + (h34-h12)*(x-x1) );
+}
+
+double
+srtm3::slope4(const dPoint & p){
+  double x = p.x*1200 - 0.5;
+  double y = p.y*1200 - 0.5;
+  int x1 = floor(x), x2 = x1+1;
+  int y1 = floor(y), y2 = y1+1;
+
+  double h1=slope(x1,y1);
+  double h2=slope(x1,y2);
+  double h3=slope(x2,y1);
+  double h4=slope(x2,y2);
+
+  double h12 = h1+ (h2-h1)*(y-y1);
+  double h34 = h3 + (h4-h3)*(y-y1);
+  return h12 + (h34-h12)*(x-x1);
 }
 
 short
@@ -193,21 +229,6 @@ srtm3::area(const iPoint &p) const{
   return area0 * cos((double)p.y *M_PI/180.0/srtm_width);
 }
 
-double
-srtm3::slope(const iPoint &p){
-  short h  = geth(p, true);
-  short hx = geth(p.x, p.y+1, true);
-  short hy = geth(p.x+1, p.y, true);
-  double a=0;
-  if ((h > srtm_min) && (hx > srtm_min) && (hy > srtm_min)){
-    // sqares of cell dimensions (km/sec)^2:
-    const double dx2 = area0 * pow(cos(M_PI*p.y/180/srtm_width),2);
-    const double dy2 = area0;
-    const double  U = sqrt(pow(double(h-hx) ,2)/dx2 + pow(double(h-hy) ,2)/dy2);
-    a = atan(U)*180.0/M_PI;
-  }
-  return a;
-}
 
 /**********************************************************/
 
