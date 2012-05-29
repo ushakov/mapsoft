@@ -11,13 +11,18 @@ public:
 
       dlg.signal_jump().connect(
           sigc::mem_fun (this, &ShowPt::on_jump));
+      dlg.signal_response().connect(
+        sigc::hide(sigc::mem_fun (this, &ShowPt::abort)));
       dlg.set_title(get_name());
     }
 
     std::string get_name() { return "Show point information"; }
     Gtk::StockID get_stockid() { return Gtk::Stock::INFO; }
 
-    void abort() {dlg.hide_all();}
+    void abort() {
+      dlg.hide_all();
+      mapview->rubber.clear();
+    }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       if (!mapview->have_reference){
