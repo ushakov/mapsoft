@@ -17,11 +17,13 @@ public:
       if (mapview->workplane.exists(&mapview->layer_srtm)){
         std::cerr << "SRTM off\n";
         mapview->workplane.remove_layer(&mapview->layer_srtm);
+        mapview->refresh();
       }
       else{
         std::cerr << "SRTM on\n";
         mapview->workplane.add_layer(&mapview->layer_srtm, 1000);
         mapview->layer_srtm.set_ref(mapview->reference);
+        mapview->workplane.refresh_layer(&mapview->layer_srtm);
       }
     }
 };
