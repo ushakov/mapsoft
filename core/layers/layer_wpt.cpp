@@ -34,9 +34,9 @@ g_map
 LayerWPT::get_myref() const {
   g_map ret;
   ret.map_proj = Proj("lonlat");
-  ret.push_back(g_refpoint(0,   0,   0,0));
+  ret.push_back(g_refpoint(0,  45, 0, 45*3600));
   ret.push_back(g_refpoint(180, 0, 180*3600,0));
-  ret.push_back(g_refpoint(0,  90, 0, 90*3600));
+  ret.push_back(g_refpoint(0,   0, 0, 90*3600));
   return ret;
 }
 
