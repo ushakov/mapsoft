@@ -80,8 +80,8 @@ DlgDrawOpt::DlgDrawOpt(){
   t->attach(*arrows,   2, 3, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*m_speed,  0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*rv,       1, 3, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*m_height, 0, 1, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*rh,       1, 3, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*m_height, 0, 1, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*rh,       1, 3, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
   trk_frame->add(*t);
   get_vbox()->add(*trk_frame);
 
