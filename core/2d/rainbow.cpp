@@ -27,16 +27,35 @@ get_rainbow(double val, const rainbow_data RD[], int rd_size){
   return (r << 16) + (g << 8) + b;
 }
 
-simple_rainbow::simple_rainbow(double min, double max){
-  RD[0].c = 0xff0000;
-  RD[1].c = 0xffff00;
-  RD[2].c = 0x00ff00;
-  RD[3].c = 0x00ffff;
-  RD[4].c = 0x0000ff;
-  RD[5].c = 0xff00ff;
-
+simple_rainbow::simple_rainbow(double min, double max, rainbow_type type){
+  switch (type){
+    case RAINBOW_NORMAL:
+    RD[0].c = 0xff0000;
+    RD[1].c = 0xffff00;
+    RD[2].c = 0x00ff00;
+    RD[3].c = 0x00ffff;
+    RD[4].c = 0x0000ff;
+    RD[5].c = 0xff00ff;
+    rd_size=6;
+    break;
+    case RAINBOW_BURNING:
+    RD[0].c = 0xffffff;
+    RD[1].c = 0x00ffff;
+    RD[2].c = 0x0000ff;
+    RD[3].c = 0xff00ff;
+    RD[4].c = 0xff0000;
+    RD[5].c = 0x400000;
+    rd_size=6;
+    break;
+  }
   for (int i=0; i<rd_size; i++)
     RD[i].v = min + (max-min)/(rd_size-1)*i;
+}
+
+simple_rainbow::simple_rainbow(double min, double max, int cmin, int cmax){
+  rd_size=2;
+  RD[0].c = cmin; RD[0].v = min;
+  RD[1].c = cmax; RD[0].v = max;
 }
 
 int
