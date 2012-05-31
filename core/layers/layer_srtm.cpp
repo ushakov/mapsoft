@@ -6,7 +6,7 @@
 
 using namespace std;
 
-LayerSRTM::LayerSRTM():S("", 20){
+LayerSRTM::LayerSRTM(srtm3 *srtm):S(srtm){
   mymap=get_myref();
   opt.put<string>("srtm_mode", "normal");
   opt.put<bool>("srtm_on",  "false");
@@ -38,7 +38,7 @@ LayerSRTM::get_myref() const {
   g_map ret;
   ret.map_proj = Proj("lonlat");
   ret.push_back(g_refpoint(0,  45, 0, 45*1200));
-  ret.push_back(g_refpoint(180, 0, 180*1200,0));
+  ret.push_back(g_refpoint(180, 0, 180*1200,90*1200));
   ret.push_back(g_refpoint(0,   0, 0, 90*1200));
   return ret;
 }
@@ -65,6 +65,7 @@ shade(int c, double k){
 
 void
 LayerSRTM::draw(const iPoint origin, iImage & image){
+  if (S==NULL) return;
   iRect src_rect = image.range() + origin;
 
   string mode  = opt.get<string>("srtm_mode", "normal");
@@ -95,9 +96,9 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
       cnv.frw(p0);
       cnv.frw(px);
       cnv.frw(py);
-      int h0 = S.geth4(p0);
-      int hx = S.geth4(px);
-      int hy = S.geth4(py);
+      int h0 = S->geth4(p0);
+      int hx = S->geth4(px);
+      int hy = S->geth4(py);
 
       // holes
       if ((h0 < srtm_min) || (hx < srtm_min) || (hy < srtm_min)){
@@ -110,7 +111,7 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
       }
 
       if (mode == "normal"){
-        double a = S.slope4(p0);
+        double a = S->slope4(p0);
         if (a>90.0) a=90.0;
         c = R.get(h0);
         c = shade(c, 1-a/90.0);
@@ -118,7 +119,7 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
       }
 
       if (mode == "slopes"){ // slopes
-        c=R.get(S.slope4(p0));
+        c=R.get(S->slope4(p0));
         goto print_colors;
       }
 

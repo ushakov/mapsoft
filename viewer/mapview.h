@@ -31,6 +31,7 @@ public:
     TrkLL trk_ll;
     MapLL map_ll;
 
+    srtm3 S;
     LayerSRTM layer_srtm;
 
     Glib::RefPtr<Gtk::ActionGroup> actions;

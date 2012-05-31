@@ -19,12 +19,12 @@ class LayerSRTM
 #endif  // SWIG
 {
 private:
-  srtm3 S;
+  srtm3 *S;
   g_map mymap;
   Options opt;
 public:
 
-  LayerSRTM();
+  LayerSRTM(srtm3* srtm);
 
   void set_opt(const Options & o);
   Options get_opt(void) const;
