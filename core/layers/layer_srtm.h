@@ -9,7 +9,7 @@
 
 #include "srtm/srtm3.h"
 #include "2d/rainbow.h"
-
+#include "options/options.h"
 
 /// SRTM3 data layer.
 
@@ -21,9 +21,13 @@ class LayerSRTM
 private:
   srtm3 S;
   g_map mymap;
+  Options opt;
 public:
 
   LayerSRTM();
+
+  void set_opt(const Options & o);
+  Options get_opt(void) const;
 
   /// Get layer reference.
   g_map get_ref() const;

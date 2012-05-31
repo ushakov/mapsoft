@@ -8,6 +8,23 @@ using namespace std;
 
 LayerSRTM::LayerSRTM(){
   mymap=get_myref();
+  opt.put<string>("srtm_mode", "normal");
+  opt.put<bool>("srtm_on",  "false");
+  opt.put<double>("srtm_cnt_step", 50);
+  opt.put<double>("srtm_hmin", 0.0);
+  opt.put<double>("srtm_hmax", 5000.0);
+  opt.put<double>("srtm_smin", 30.0);
+  opt.put<double>("srtm_smax", 55.0);
+}
+
+void
+LayerSRTM::set_opt(const Options & o){
+  opt = o;
+}
+
+Options
+LayerSRTM::get_opt(void) const{
+  return opt;
 }
 
 g_map
@@ -39,22 +56,34 @@ LayerSRTM::set_ref(const g_map & map){
 //  return ret;
 //}
 
+int
+shade(int c, double k){
+  unsigned char r=(c>>16)&0xff, g=(c>>8)&0xff,  b=c&0xff;
+  r*=k; g*=k; b*=k;
+  return (r << 16) + (g << 8) + b;
+}
+
 void
 LayerSRTM::draw(const iPoint origin, iImage & image){
   iRect src_rect = image.range() + origin;
 
-  convs::map2pt cnv(mymap, Datum("wgs84"),Proj("lonlat"),Options());
+  string mode  = opt.get<string>("srtm_mode", "normal");
+  int cnt_step = opt.get<int>("srtm_cnt_step",  50);
 
-  const struct rainbow_data RD[]={
-    {30.0, 0xFFFFFF},
-    {35.0, 0x00FFFF},
-    {40.0, 0x0000FF},
-    {45.0, 0xFF00FF},
-    {50.0, 0xFF0000},
-    {55.0, 0x404040}
-  };
-  const int RDS=sizeof(RD)/sizeof(rainbow_data);
-  const int step=50;
+  double min=0, max=0;
+  rainbow_type type = RAINBOW_NORMAL;
+  if (mode == "normal"){
+    min = opt.get<double>("srtm_hmin", 0.0);
+    max = opt.get<double>("srtm_hmax", 5000.0);
+  }
+  else if (mode == "slopes"){
+    type=RAINBOW_BURNING;
+    min = opt.get<double>("srtm_smin", 30.0);
+    max = opt.get<double>("srtm_smax", 55.0);
+  }
+
+  simple_rainbow R(min,max,type), RG(0,90,0xffffff,0x00000);
+  convs::map2pt cnv(mymap, Datum("wgs84"),Proj("lonlat"),Options());
 
   for (int j=0; j<image.h; j++){
     for (int i=0; i<image.w; i++){
@@ -76,12 +105,20 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
       }
 
       // contours
-      if ((hx/step - h0/step)||(hy/step - h0/step)){
+      if ((cnt_step>0) && ((hx/cnt_step - h0/cnt_step) ||(hy/cnt_step - h0/cnt_step))){
         c=0; goto print_colors;
       }
 
-      { // slopes
-        c=get_rainbow(S.slope4(p0), RD, RDS);
+      if (mode == "normal"){
+        double a = S.slope4(p0);
+        if (a>90.0) a=90.0;
+        c = R.get(h0);
+        c = shade(c, 1-a/90.0);
+        goto print_colors;
+      }
+
+      if (mode == "slopes"){ // slopes
+        c=R.get(S.slope4(p0));
         goto print_colors;
       }
 
