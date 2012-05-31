@@ -9,6 +9,7 @@
 class DlgShowPt : public Gtk::Dialog{
     CoordBox *coord;
     NomBox   *nom;
+    Gtk::Label *srtm_h;
 
     void jump(const dPoint p);
     sigc::signal<void, dPoint> signal_jump_;
@@ -17,7 +18,7 @@ class DlgShowPt : public Gtk::Dialog{
     DlgShowPt();
 
     sigc::signal<void, dPoint> & signal_jump();
-    void show_all(dPoint & pt);
+    void show_all(dPoint & pt, double alt);
 };
 
 #endif

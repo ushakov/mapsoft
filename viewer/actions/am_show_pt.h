@@ -36,7 +36,7 @@ public:
         Datum("wgs84"), Proj("lonlat"), Options());
       dPoint pt(p);
       cnv.frw(pt);
-      dlg.show_all(pt);
+      dlg.show_all(pt, mapview->srtm.geth4(pt));
     }
 
     void on_jump(dPoint p){

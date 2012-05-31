@@ -12,8 +12,8 @@ Mapview::Mapview () :
     divert_refresh(false),
     viewer(&workplane),
     rubber(&viewer),
-    S("",20),
-    layer_srtm(&S)
+    srtm("",20),
+    layer_srtm(&srtm)
 {
 
     /// layer drawing options (set before Action constructors)
