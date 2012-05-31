@@ -6,7 +6,7 @@
 
 using namespace std;
 
-LayerSRTM::LayerSRTM(){
+LayerSRTM::LayerSRTM():S("", 20){
   mymap=get_myref();
   opt.put<string>("srtm_mode", "normal");
   opt.put<bool>("srtm_on",  "false");
@@ -130,7 +130,6 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
 
 iRect
 LayerSRTM::range() const{
-std::cerr << ">>>> " << get_myref().range() << "\n";
   return iRect(
     iPoint(INT_MIN, INT_MIN),
     iPoint(INT_MAX, INT_MAX));
