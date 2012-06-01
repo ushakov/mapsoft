@@ -1,5 +1,5 @@
-#ifndef AM_SHOW_PTH
-#define AM_SHOW_PTH
+#ifndef AM_SHOW_PT_H
+#define AM_SHOW_PT_H
 
 #include "action_mode.h"
 #include <geo/geo_nom.h>

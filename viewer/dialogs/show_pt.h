@@ -18,7 +18,7 @@ class DlgShowPt : public Gtk::Dialog{
     DlgShowPt();
 
     sigc::signal<void, dPoint> & signal_jump();
-    void show_all(dPoint & pt, double alt);
+    void show_all(const dPoint & pt, double alt);
 };
 
 #endif

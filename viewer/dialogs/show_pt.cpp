@@ -37,7 +37,7 @@ DlgShowPt::jump(const dPoint p){
 }
 
 void
-DlgShowPt::show_all(dPoint & p, double alt){
+DlgShowPt::show_all(const dPoint & p, double alt){
   Gtk::Dialog::show_all();
   coord->set_ll(p);
   nom->set_ll(p);
