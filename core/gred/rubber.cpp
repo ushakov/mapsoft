@@ -171,6 +171,18 @@ Rubber::get(void){
   return *rubber.rbegin();
 }
 
+/// fix mouse points at point p
+void
+Rubber::fix(const iPoint & p){
+  for (std::list<RubberSegment>::iterator i = rubber.begin(); i != rubber.end(); ++i){
+    if (i->flags & RUBBFL_MOUSE_P1X) i->p1.x*=p.x;
+    if (i->flags & RUBBFL_MOUSE_P1Y) i->p1.y*=p.y;
+    if (i->flags & RUBBFL_MOUSE_P2X) i->p2.x*=p.x;
+    if (i->flags & RUBBFL_MOUSE_P2Y) i->p2.y*=p.y;
+    i->flags &= ~RUBBFL_MOUSE;
+  }
+}
+
 /// cleanup rubber
 void
 Rubber::clear(){

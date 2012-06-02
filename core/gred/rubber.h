@@ -90,7 +90,8 @@ public:
   RubberSegment pop(void);
   /// get the last segment from the rubber
   RubberSegment get(void);
-
+  /// fix mouse points at point p
+  void fix(const iPoint & p);
   /// cleanup rubber
   void clear();
   /// count segments
