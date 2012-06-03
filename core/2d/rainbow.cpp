@@ -3,6 +3,9 @@
 int
 get_rainbow(double val, const rainbow_data RD[], int rd_size){
   int r=0, g=0, b=0;
+  if (rd_size<1) return 0;
+  int dir = RD[rd_size-1].v-RD[0].v > 0 ? 1:-1;
+
   for (int i=0; i<rd_size; i++){
 
     r  = (RD[i].c >> 16) & 0xFF;
@@ -10,9 +13,9 @@ get_rainbow(double val, const rainbow_data RD[], int rd_size){
     b  = RD[i].c & 0xFF;
 
     int ip = (i==0)? i : i-1;
-    if (val <= RD[ip].v) break;
+    if (dir*(val - RD[ip].v) <= 0) break;
 
-    if (val <= RD[i].v){
+    if (dir*(val - RD[i].v) <= 0){
       int rp = (RD[ip].c >> 16) & 0xFF;
       int gp = (RD[ip].c >> 8) & 0xFF;
       int bp = RD[ip].c & 0xFF;
