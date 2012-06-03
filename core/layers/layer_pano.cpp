@@ -20,6 +20,12 @@ LayerPano::range() const {
 }
 
 void
+LayerPano::set_scale(const double k){
+  opt.put<int>("pano_width", 3600*k);
+}
+
+
+void
 LayerPano::set_opt(const Options & o){ opt = o; }
 
 Options

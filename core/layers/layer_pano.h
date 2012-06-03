@@ -20,6 +20,8 @@ public:
   // Vertical range is 90, -width/8..width/8
   iRect range() const;
 
+  void set_scale(const double k);
+
   void set_opt(const Options & o);
   Options get_opt(void) const;
 
