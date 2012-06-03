@@ -8,7 +8,6 @@
 #include "2d/image.h"
 
 #include "srtm/srtm3.h"
-#include "2d/rainbow.h"
 #include "options/options.h"
 
 /// SRTM3 data layer.

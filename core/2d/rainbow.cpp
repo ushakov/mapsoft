@@ -30,6 +30,13 @@ get_rainbow(double val, const rainbow_data RD[], int rd_size){
   return (r << 16) + (g << 8) + b;
 }
 
+int
+color_shade(int c, double k){
+  unsigned char r=(c>>16)&0xff, g=(c>>8)&0xff,  b=c&0xff;
+  r*=k; g*=k; b*=k;
+  return (r << 16) + (g << 8) + b;
+}
+
 simple_rainbow::simple_rainbow(double min, double max, rainbow_type type){
   switch (type){
     case RAINBOW_NORMAL:

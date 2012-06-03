@@ -17,7 +17,7 @@ public:
   LayerPano(srtm3 * s);
 
   // Horizontal range is 720deg, -width..width
-  // Vertical range is 90, -width/8..width/8
+  // Vertical range is 90, 0..width/4
   iRect range() const;
 
   void set_scale(const double k);

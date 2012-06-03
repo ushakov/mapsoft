@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "geo/geo_refs.h"
+#include "2d/rainbow.h"
 
 using namespace std;
 
@@ -56,13 +57,6 @@ LayerSRTM::set_ref(const g_map & map){
 //  return ret;
 //}
 
-int
-shade(int c, double k){
-  unsigned char r=(c>>16)&0xff, g=(c>>8)&0xff,  b=c&0xff;
-  r*=k; g*=k; b*=k;
-  return (r << 16) + (g << 8) + b;
-}
-
 void
 LayerSRTM::draw(const iPoint origin, iImage & image){
   if (S==NULL) return;
@@ -114,7 +108,7 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
         double a = S->slope4(p0);
         if (a>90.0) a=90.0;
         c = R.get(h0);
-        c = shade(c, 1-a/90.0);
+        c = color_shade(c, 1-a/90.0);
         goto print_colors;
       }
 

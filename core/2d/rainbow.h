@@ -12,6 +12,7 @@ enum rainbow_type{
 };
 
 int get_rainbow(double val, const rainbow_data RD[], int rd_size);
+int color_shade(int c, double k);
 
 /*******************/
 

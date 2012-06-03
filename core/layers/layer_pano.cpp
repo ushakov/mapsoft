@@ -31,10 +31,6 @@ LayerPano::set_opt(const Options & o){ opt = o; }
 Options
 LayerPano::get_opt(void) const{ return opt; }
 
-
-int
-shade(int c, double k);
-
 int
 LayerPano::draw(iImage & image, const iPoint & origin){
   if (!srtm) return GOBJ_FILL_NONE;
@@ -86,7 +82,7 @@ LayerPano::draw(iImage & image, const iPoint & origin){
 
       // if you use layer_pano and layer_srtm from different threads
       // you can't use interpolation in both places!
-      int color = shade(
+      int color = color_shade(
         rb.get(alt), (1-r/max_r)*(1-srtm->slope4(p, false)/90.0));
 
       if (yn<0) {yn=0; r=max_r;}
