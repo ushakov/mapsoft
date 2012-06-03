@@ -83,17 +83,22 @@ srtm3::geth(const iPoint & p, const bool interp){
 double
 srtm3::slope(const iPoint &p, const bool interp){
   short h  = geth(p, interp);
-  short hx = geth(p.x, p.y+1, interp);
-  short hy = geth(p.x+1, p.y, interp);
-  double a=0;
-  if ((h > srtm_min) && (hx > srtm_min) && (hy > srtm_min)){
-    // sqares of cell dimensions (km/sec)^2:
-    const double dx2 = area0 * pow(cos(M_PI*p.y/180/srtm_width),2);
-    const double dy2 = area0;
-    const double  U = sqrt(pow(double(h-hx) ,2)/dx2 + pow(double(h-hy) ,2)/dy2);
-    a = atan(U)*180.0/M_PI;
+  short h1 = geth(p.x-1, p.y, interp);
+  short h2 = geth(p.x+1, p.y, interp);
+  if (h1 < srtm_min && h > srtm_min && h2 > srtm_min) h1 = 2*h - h2;
+  if (h2 < srtm_min && h > srtm_min && h1 > srtm_min) h1 = 2*h - h2;
+
+  short h3 = geth(p.x, p.y-1, interp);
+  short h4 = geth(p.x, p.y+1, interp);
+  if (h3 < srtm_min && h > srtm_min && h4 > srtm_min) h3 = 2*h - h4;
+  if (h4 < srtm_min && h > srtm_min && h3 > srtm_min) h4 = 2*h - h3;
+
+  if (h1 > srtm_min && h2 > srtm_min && h3 > srtm_min && h4 > srtm_min){
+    const double kx =  cos(M_PI*p.y/180/srtm_width);
+    const double  U = hypot((h2-h1)/kx, h4-h3)/size0/2.0;
+    return atan(U)*180.0/M_PI;
   }
-  return a;
+  return 0;
 }
 
 short
@@ -145,8 +150,8 @@ srtm3::geth4(const dPoint & p, const bool interp){
 
 double
 srtm3::slope4(const dPoint & p, const bool interp){
-  double x = p.x*1200 - 0.5;
-  double y = p.y*1200 - 0.5;
+  double x = p.x*1200;
+  double y = p.y*1200;
   int x1 = floor(x), x2 = x1+1;
   int y1 = floor(y), y2 = y1+1;
 
