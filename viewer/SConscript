@@ -30,6 +30,7 @@ e.Library("viewer", Split ("""
 	dialogs/draw_opt.cpp
 	dialogs/save_img.cpp
 	dialogs/srtm_opt.cpp
+	dialogs/pano.cpp
         """))
 e.Prepend(LIBS=["viewer"])
 e.Program("mapsoft_mapview.cpp")

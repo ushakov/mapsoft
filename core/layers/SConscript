@@ -8,4 +8,5 @@ e.Library('layers', \
         layer_trk.cpp
         layer_wpt.cpp
         layer_srtm.cpp
+        layer_pano.cpp
      """))
