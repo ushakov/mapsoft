@@ -34,11 +34,10 @@ public:
       convs::map2pt cnv(mapview->reference,
         Datum("wgs84"), Proj("lonlat"), Options());
 
-      if (state==0){ // first click
+      if (state==0 || mod&Gdk::CONTROL_MASK){ // first click
         p0=p; state=1;
         mapview->rubber.clear();
         mapview->rubber.add_src_mark(p);
-//        mapview->rubber.add_line(p);
         dPoint pt0(p);
         cnv.frw(pt0);
         dlg.show_all(pt0);
