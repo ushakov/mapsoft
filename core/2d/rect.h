@@ -3,7 +3,8 @@
 
 #include <boost/operators.hpp>
 #include <ios>
-#include <iostream> // for std::cerr << warning 
+#include <iostream>
+#include <iomanip>
 #include "point.h"
 
 ///\addtogroup lib2d
@@ -160,7 +161,8 @@ typedef Rect<int>    iRect;
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Rect<T> & r){
   // std::showpos don't add + to zeros :(
-  s << r.w << "x" << r.h << ((r.x>=0)? "+":"") << r.x << ((r.y>=0)? "+":"") << r.y;
+  const char *sx = (r.x>=0)? "+":"", *sy = (r.y>=0)? "+":"";
+  s << r.w << "x" << r.h << sx << r.x << sy << r.y;
   return s;
 }
 
@@ -198,6 +200,9 @@ std::istream & operator>> (std::istream & s, Rect<T> & r){
       case 'm': r/=1000; break;
       case 'u': r/=1000000; break;
       case 'p': r/=1000000000; break;
+      case ' ':
+      case '\t':
+      case '\n': break;
       default:
       s.setstate(std::ios::failbit);
       return s;
