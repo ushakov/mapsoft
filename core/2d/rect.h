@@ -156,7 +156,7 @@ typedef Rect<int>    iRect;
 
 
 /// \relates Rect
-/// \brief Output operator: print Rect as a geometry string: wxh+x+y
+/// \brief Output operator: print Rect as a geometry string: WxH+X+Y
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Rect<T> & r){
   // std::showpos don't add + to zeros :(
@@ -189,7 +189,20 @@ std::istream & operator>> (std::istream & s, Rect<T> & r){
     s.setstate(std::ios::failbit);
     return s;
   }
-
+  if (!s.eof()){
+    char c=s.get();
+    switch(c){
+      case 'G': r*=1000000000; break;
+      case 'M': r*=1000000; break;
+      case 'k': r*=1000; break;
+      case 'm': r/=1000; break;
+      case 'u': r/=1000000; break;
+      case 'p': r/=1000000000; break;
+      default:
+      s.setstate(std::ios::failbit);
+      return s;
+    }
+  }
   s.setstate(std::ios::goodbit);
   return s;
 }

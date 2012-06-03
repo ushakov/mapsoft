@@ -79,6 +79,12 @@ std::cerr << " * Rects\n";
   cast_test("12x23+-100+-120,", r2, false);
   cast_test("12x23?100", r1, false);
 
+  cast_test("12x23+100+110",   r1, true);
+  cast_test("12x23-100-120m",   r2/1000, true);
+  cast_test("12x23+-100+-120k", r2*1000, true);
+  cast_test("12x23+-100+-120, ", r2, false);
+  cast_test("12x23?100 ", r1, false);
+
   cast_test(dPoint(1.1,2.2), l1, true);
 
 std::cerr << " * Datum\n";
