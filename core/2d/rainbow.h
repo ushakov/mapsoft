@@ -24,6 +24,10 @@ public:
   simple_rainbow(double min, double max, rainbow_type type=RAINBOW_NORMAL);
   simple_rainbow(double min, double max, int cmin, int cmax);
 
+  void set_range(double min, double max);
+  double get_min() const;
+  double get_max() const;
+
   int get(double val) const;
   int get_bnd(double val, int low_c=0, int high_c=0) const;
 

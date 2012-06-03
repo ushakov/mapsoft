@@ -48,8 +48,7 @@ simple_rainbow::simple_rainbow(double min, double max, rainbow_type type){
     rd_size=6;
     break;
   }
-  for (int i=0; i<rd_size; i++)
-    RD[i].v = min + (max-min)/(rd_size-1)*i;
+  set_range(min,max);
 }
 
 simple_rainbow::simple_rainbow(double min, double max, int cmin, int cmax){
@@ -57,6 +56,23 @@ simple_rainbow::simple_rainbow(double min, double max, int cmin, int cmax){
   RD[0].c = cmin; RD[0].v = min;
   RD[1].c = cmax; RD[0].v = max;
 }
+
+void
+simple_rainbow::set_range(double min, double max){
+  for (int i=0; i<rd_size; i++)
+    RD[i].v = min + (max-min)/(rd_size-1)*i;
+}
+
+double
+simple_rainbow::get_min() const{
+  return RD[0].v;
+}
+
+double
+simple_rainbow::get_max() const{
+  return RD[rd_size-1].v;
+}
+
 
 int
 simple_rainbow::get(double val) const{
