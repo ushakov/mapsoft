@@ -45,10 +45,10 @@ public:
   short geth(const iPoint & p, const bool interp=false);
   short geth(const int x, const int y, const bool interp=false);
 
-  // Slope (degrees) at a given point (holes are interpolated)
+  // Slope (degrees) at a given point
   // Slope is calculated for p+(1/2,1/2)
-  double slope(const iPoint &p);
-  double slope(const int x, const int y);
+  double slope(const iPoint &p, const bool interp=true);
+  double slope(const int x, const int y, const bool interp=true);
 
   // change data (in cache only!)
   short seth(const iPoint & p, const short h);
@@ -57,8 +57,8 @@ public:
   // простая интерполяция по четырем соседним точкам)
   short geth4(const dPoint & p, const bool interp=false);
 
-  // Slope (degrees) at a given point (holes are interpolated)
-  double slope4(const dPoint &p);
+  // Slope (degrees) at a given point
+  double slope4(const dPoint &p, const bool interp=true);
 
   // вернуть высоту точки (вещественные координаты,
   // интерполяция по 16 соседним точкам)

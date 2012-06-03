@@ -81,10 +81,10 @@ srtm3::geth(const iPoint & p, const bool interp){
 }
 
 double
-srtm3::slope(const iPoint &p){
-  short h  = geth(p, true);
-  short hx = geth(p.x, p.y+1, true);
-  short hy = geth(p.x+1, p.y, true);
+srtm3::slope(const iPoint &p, const bool interp){
+  short h  = geth(p, interp);
+  short hx = geth(p.x, p.y+1, interp);
+  short hy = geth(p.x+1, p.y, interp);
   double a=0;
   if ((h > srtm_min) && (hx > srtm_min) && (hy > srtm_min)){
     // sqares of cell dimensions (km/sec)^2:
@@ -102,8 +102,8 @@ srtm3::geth(const int x, const int y, const bool interp){
 }
 
 double
-srtm3::slope(const int x, const int y){
-  return slope(iPoint(x,y));
+srtm3::slope(const int x, const int y, const bool interp){
+  return slope(iPoint(x,y), interp);
 }
 
 short
@@ -144,16 +144,16 @@ srtm3::geth4(const dPoint & p, const bool interp){
 }
 
 double
-srtm3::slope4(const dPoint & p){
+srtm3::slope4(const dPoint & p, const bool interp){
   double x = p.x*1200 - 0.5;
   double y = p.y*1200 - 0.5;
   int x1 = floor(x), x2 = x1+1;
   int y1 = floor(y), y2 = y1+1;
 
-  double h1=slope(x1,y1);
-  double h2=slope(x1,y2);
-  double h3=slope(x2,y1);
-  double h4=slope(x2,y2);
+  double h1=slope(x1,y1, interp);
+  double h2=slope(x1,y2, interp);
+  double h3=slope(x2,y1, interp);
+  double h4=slope(x2,y2, interp);
 
   double h12 = h1+ (h2-h1)*(y-y1);
   double h34 = h3 + (h4-h3)*(y-y1);
