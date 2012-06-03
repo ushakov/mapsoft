@@ -23,11 +23,13 @@ public:
     bool is_radio() { return false; }
 
     void activate() {
-      oldopts=mapview->layer_srtm.get_opt();
-      oldopts.put<bool>("srtm_on",
-        mapview->workplane.exists(&mapview->layer_srtm));
-      dlg.set_opt(oldopts);
+      if (!mapview->have_reference){
+        mapview->statusbar.push("No geo-reference", 0);
+        return;
+      }
+      dlg.set_opt(mapview->layer_srtm.get_opt());
       dlg.show_all();
+      mapview->show_srtm();
     }
 
     void on_response(int r){
@@ -37,35 +39,19 @@ public:
         return;
       }
 
-      Options o = dlg.get_opt();
-      if (r==Gtk::RESPONSE_OK) oldopts = o;
-      if (r==Gtk::RESPONSE_CANCEL) o = oldopts;
-      mapview->layer_srtm.set_opt(o);
-
-      bool islayer = mapview->workplane.exists(&mapview->layer_srtm);
-      bool isactive = o.get<bool>("srtm_on");
-
-      if (islayer && !isactive){
-        mapview->statusbar.push("SRTM OFF", 0);
-        mapview->workplane.remove_layer(&mapview->layer_srtm);
-        mapview->refresh();
+      if (r<0){
+        if (r==Gtk::RESPONSE_CANCEL) mapview->show_srtm(false);
+        dlg.hide_all();
       }
-      else if (!islayer && isactive){
-        mapview->statusbar.push("SRTM ON", 0);
-        mapview->workplane.add_layer(&mapview->layer_srtm, 1000);
-        mapview->layer_srtm.set_ref(mapview->reference);
-        mapview->workplane.refresh_layer(&mapview->layer_srtm);
-      }
-      else if (islayer){
-        mapview->workplane.refresh_layer(&mapview->layer_srtm);
+      else if (mapview->workplane.exists(&mapview->layer_srtm)){
+         mapview->layer_srtm.set_opt(dlg.get_opt());
+         mapview->workplane.refresh_layer(&mapview->layer_srtm);
       }
 
-      if (r<0) dlg.hide_all();
     }
 
 private:
     DlgSrtmOpt dlg;
-    Options oldopts;
 };
 
 #endif

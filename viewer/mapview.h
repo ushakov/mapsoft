@@ -97,6 +97,8 @@ public:
     void show_busy_mark();
     void hide_busy_mark();
 
+    void show_srtm(bool show=true);
+
 /*** finding layers and data ***/
 
     // find waypoint, returns its number 0..size()-1

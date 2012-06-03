@@ -6,8 +6,6 @@ Options
 DlgSrtmOpt::get_opt() const{
   Options o;
 
-  o.put<bool>("srtm_on", active->get_active());
-
   if (m_normal->get_active()) o.put<string>("srtm_mode", "normal");
   if (m_slopes->get_active()) o.put<string>("srtm_mode", "slopes");
 
@@ -25,8 +23,6 @@ DlgSrtmOpt::get_opt() const{
 
 void
 DlgSrtmOpt::set_opt(const Options & o){
-
-  if (o.get<bool>("srtm_on")) active->set_active();
 
   double step=o.get<double>("srtm_cnt_step", 0);
   if (step>0){
@@ -57,8 +53,7 @@ DlgSrtmOpt::on_ch(int mode){
   // affect the current mode.
   // We get mode for which signal must be emitted:
   // 0 - all modes, 1 - normal, 2 - slopes
-  if ( ((mode >= 0) && !active->get_active()) ||
-       ((mode == 1) && !m_normal->get_active()) ||
+  if ( ((mode == 1) && !m_normal->get_active()) ||
        ((mode == 2) && !m_slopes->get_active()) ) return;
   signal_changed_.emit();
 }
@@ -73,7 +68,6 @@ DlgSrtmOpt::DlgSrtmOpt(): cnt_val_adj(50,0,9999){
   add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
   add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 
-  active  = manage(new Gtk::CheckButton("Draw SRTM data"));
   cnt     = manage(new Gtk::CheckButton("Draw contours"));
   cnt_val = manage(new Gtk::SpinButton(cnt_val_adj));
 
@@ -81,7 +75,6 @@ DlgSrtmOpt::DlgSrtmOpt(): cnt_val_adj(50,0,9999){
   Gtk::RadioButtonGroup gr = m_normal->get_group();
   m_slopes =  manage(new Gtk::RadioButton(gr, "Slopes"));
   m_normal->set_active();
-
 
   simple_rainbow rb1(0,1,RAINBOW_NORMAL);
   simple_rainbow rb2(0,1,RAINBOW_BURNING);
@@ -91,18 +84,13 @@ DlgSrtmOpt::DlgSrtmOpt(): cnt_val_adj(50,0,9999){
     new Rainbow(256, rb2.get_data(), rb2.get_size(), 0, 90, 1, 1));
 
   Gtk::Table *t = manage(new Gtk::Table(2,4));
-  t->attach(*active,   0, 2, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*cnt,      0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*cnt_val,  1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-
-  t->attach(*m_normal, 0, 1, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*rh,       1, 2, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*m_slopes, 0, 1, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*rs,       1, 2, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*cnt,      0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*cnt_val,  1, 2, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*m_normal, 0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*rh,       1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*m_slopes, 0, 1, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*rs,       1, 2, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
   get_vbox()->add(*t);
-
-  active->signal_toggled().connect(
-      sigc::bind(sigc::mem_fun(this, &DlgSrtmOpt::on_ch), -1));
 
   m_normal->signal_toggled().connect(
       sigc::bind(sigc::mem_fun(this, &DlgSrtmOpt::on_ch), 0));

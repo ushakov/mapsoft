@@ -5,6 +5,9 @@
 #include "images/gps_download.h"
 #include "images/gps_upload.h"
 
+#define DEPTH_SRTM 1000
+#define DEPTH_DATA0 100
+
 using namespace std;
 
 Mapview::Mapview () :
@@ -130,7 +133,7 @@ Mapview::update_layers() {
   Gtk::TreeNodeChildren::const_iterator i;
   int ch = 0; // 1 - non visible change, 2 - redraw needed
 
-  int d=101;
+  int d=DEPTH_DATA0;
   for (i  = wpt_ll.store->children().begin();
        i != wpt_ll.store->children().end(); i++){
 
@@ -327,9 +330,9 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> data) {
   // - put layer to the workplane
   // - set layer/or mapview ref (layer ref is set through workplane)
   // - put layer to LayerList (layer_edited call, workplane refresh)
-  // depth is set to 100 to evoke refresh!
+  // depth is set to DEPTH_DATA0 to evoke refresh!
   boost::shared_ptr<LayerWPT> layer(new LayerWPT(data.get()));
-  workplane.add_layer(layer.get(), 100);
+  workplane.add_layer(layer.get(), DEPTH_DATA0);
   set_changed();
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
@@ -339,7 +342,7 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> data) {
 void
 Mapview::add_trks(const boost::shared_ptr<g_track> data) {
   boost::shared_ptr<LayerTRK> layer(new LayerTRK(data.get(), layer_options));
-  workplane.add_layer(layer.get(), 100);
+  workplane.add_layer(layer.get(), DEPTH_DATA0);
   set_changed();
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
@@ -349,7 +352,7 @@ Mapview::add_trks(const boost::shared_ptr<g_track> data) {
 void
 Mapview::add_maps(const boost::shared_ptr<g_map_list> data) {
   boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get(), layer_options));
-  workplane.add_layer(layer.get(), 100);
+  workplane.add_layer(layer.get(), DEPTH_DATA0);
   set_changed();
   // for maps always reset reference
   set_ref(layer->get_myref());
@@ -525,6 +528,25 @@ Mapview::hide_busy_mark(void){
   if (is_realized())
     busy_icon->clear();
 }
+
+void
+Mapview::show_srtm(bool show){
+  bool state = workplane.exists(&layer_srtm);
+
+  if (state && !show){
+    statusbar.push("SRTM OFF", 0);
+    workplane.remove_layer(&layer_srtm);
+    refresh();
+  }
+  else if (!state && show){
+    statusbar.push("SRTM ON", 0);
+    workplane.add_layer(&layer_srtm, DEPTH_SRTM);
+    layer_srtm.set_ref(reference);
+    workplane.refresh_layer(&layer_srtm);
+  }
+}
+
+/**********************************************************/
 
 int
 Mapview::find_wpt(const iPoint & p, LayerWPT ** layer,

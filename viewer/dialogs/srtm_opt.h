@@ -7,7 +7,7 @@
 
 class DlgSrtmOpt : public Gtk::Dialog{
 
-    Gtk::CheckButton  *active, *cnt;
+    Gtk::CheckButton  *cnt;
     Gtk::RadioButton  *m_normal, *m_slopes;
     Gtk::SpinButton   *cnt_val;
     Gtk::Adjustment   cnt_val_adj;
