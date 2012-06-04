@@ -52,7 +52,8 @@ LayerPano::get_ray(dPoint pt, int x, double max_r){
 
   double sa=sin(a), ca=cos(a), cx=cos(pt.y * M_PI/180.0);
   pt*=1200; // srtm units
-  max_r*=srtm_width * 180/M_PI/ 6380000;
+  double m2srtm=srtm_width * 180/M_PI/ 6380000;
+  max_r*=m2srtm;
 
   // Intersections or ray with x and y lines of srtm grid goes
   // with constant steps. But we need to sort them by r.
@@ -75,21 +76,22 @@ LayerPano::get_ray(dPoint pt, int x, double max_r){
       // Interpolate altitude and slope between two points:
       int y1 = floor(y);
       int y2 = ceil(y);
-      double h,s;
+      double h=srtm_undef,s;
       if (y1!=y2){
-        int h1 = srtm->geth(x,y1);
-        int h2 = srtm->geth(x,y2);
-        double s1 = srtm->slope(x,y1);
-        double s2 = srtm->slope(x,y2);
-        h = h1 + (h2-h1)*(y-y1)/(y2-y1);
+        int h1 = srtm->geth(x,y1, false);
+        int h2 = srtm->geth(x,y2, false);
+        double s1 = srtm->slope(x,y1, false);
+        double s2 = srtm->slope(x,y2, false);
+        if ((h1>srtm_min) && (h2>srtm_min))
+          h = h1 + (h2-h1)*(y-y1)/(y2-y1);
         s = s1 + (s2-s1)*(y-y1)/(y2-y1);
       }
       else {
-        h = srtm->geth(x,y1);
-        s = srtm->slope(x,y1);
+        h = srtm->geth(x,y1, false);
+        s = srtm->slope(x,y1, false);
       }
       // Save data and do step:
-      ret.push_back(ray_data(rx, h, s));
+      if  (h>srtm_min) ret.push_back(ray_data(rx/m2srtm, h, s));
       rx+=drx;
     }
     while (ry <= rx){ // step in y; the same but rx->ry, y is on the grid
@@ -99,20 +101,21 @@ LayerPano::get_ray(dPoint pt, int x, double max_r){
 
       int x1 = floor(x);
       int x2 = ceil(x);
-      double h,s;
+      double h=srtm_undef,s;
       if (x1!=x2){
-        int h1 = srtm->geth(x1,y);
-        int h2 = srtm->geth(x2,y);
-        double s1 = srtm->slope(x1,y);
-        double s2 = srtm->slope(x2,y);
-        h = h1 + (h2-h1)*(x-x1)/(x2-x1);
+        int h1 = srtm->geth(x1,y, false);
+        int h2 = srtm->geth(x2,y, false);
+        double s1 = srtm->slope(x1,y, false);
+        double s2 = srtm->slope(x2,y, false);
+        if ((h1>srtm_min) && (h2>srtm_min))
+          h = h1 + (h2-h1)*(x-x1)/(x2-x1);
         s = s1 + (s2-s1)*(x-x1)/(x2-x1);
       }
       else {
-        h = srtm->geth(x1,y);
-        s = srtm->slope(x1,y);
+        h = srtm->geth(x1,y, false);
+        s = srtm->slope(x1,y, false);
       }
-      ret.push_back(ray_data(ry, h, s));
+      if  (h>srtm_min) ret.push_back(ray_data(ry/m2srtm, h, s));
       ry+=dry;
     }
   }
@@ -151,7 +154,7 @@ LayerPano::draw(iImage & image, const iPoint & origin){
       double sp=ray[i-1].s;
       double hn=ray[i].h;
       double sn=ray[i].s;
-      double r=ray[i].r /=1200 * 180/M_PI/ 6380000; // convert distance srtm units -> m
+      double r=ray[i].r;
 
       double b = atan((hn-h0)/r); // vertical angle
       int yn = (1/2.0 - 2*b/M_PI) * w/4.0 - origin.y; // y-coord

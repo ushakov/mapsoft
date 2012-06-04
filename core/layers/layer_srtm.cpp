@@ -90,9 +90,9 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
       cnv.frw(p0);
       cnv.frw(px);
       cnv.frw(py);
-      int h0 = S->geth4(p0);
-      int hx = S->geth4(px);
-      int hy = S->geth4(py);
+      int h0 = S->geth4(p0, false);
+      int hx = S->geth4(px, false);
+      int hy = S->geth4(py, false);
 
       // holes
       if ((h0 < srtm_min) || (hx < srtm_min) || (hy < srtm_min)){
@@ -105,7 +105,7 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
       }
 
       if (mode == "normal"){
-        double a = S->slope4(p0);
+        double a = S->slope4(p0, false);
         if (a>90.0) a=90.0;
         c = R.get(h0);
         c = color_shade(c, 1-a/90.0);
@@ -113,7 +113,7 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
       }
 
       if (mode == "slopes"){ // slopes
-        c=R.get(S->slope4(p0));
+        c=R.get(S->slope4(p0, false));
         goto print_colors;
       }
 
