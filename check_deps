@@ -1,0 +1,66 @@
+#!/bin/sh -efu
+
+ret=0
+
+fail(){
+  echo "$1"
+  ret=1
+}
+
+needed_bin='
+  /usr/bin/pkg-config
+  /usr/bin/scons
+  /usr/bin/convert
+  /usr/bin/transfig
+  /usr/bin/gs
+  /usr/bin/pod2man
+  /usr/bin/g++
+  /usr/bin/pnmscale
+  /usr/bin/pnmcolormap
+'
+#libpixman-devel -- in old altlinux?
+#/usr/bin/swig
+#python-devel
+
+needed_pc='
+  libcurl
+  libpng
+  libzip
+  zlib
+  libusb-1.0
+  libxml-2.0
+  gtkmm-2.4
+  gthread-2.0
+  cairomm-1.0
+  freetype2
+'
+
+needed_inc='
+  boost/operators.hpp
+  boost/spirit.hpp
+  boost/lexical_cast.hpp
+  jpeglib.h
+  tiff.h
+  yaml.h
+  proj_api.h
+'
+
+for i in $needed_bin; do
+  test -x $i || fail "* Missing program: $i"
+done
+
+for i in $needed_inc; do
+  test -s "/usr/include/$i" || fail "* Missing include file: /usr/include/$i"
+done
+
+if ! test -x /usr/bin/pkg-config; then
+  fail "Error: pkg-config program missing! Can't check libraries";
+  exit 1
+fi
+
+for i in $needed_pc; do
+  pkg-config $i || fail "* Missing library: $i"
+done
+
+
+exit $ret
