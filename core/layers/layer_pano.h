@@ -4,14 +4,25 @@
 #include "gred/iface/gobj.h"
 #include "srtm/srtm3.h"
 #include "options/options.h"
+#include <vector>
 
 class LayerPano : public GObj{
 private:
-  int width;   // 360deg width in px.
-               // Vertical range is -45..45, height=width/4
+
   double alt;
   srtm3 *srtm;
   Options opt;
+
+  struct ray_data{
+    double r, h, s; // distance, height, slope
+    ray_data(double r_, double h_, double s_):r(r_),h(h_),s(s_){}
+  };
+
+  Cache<int, std::vector<ray_data> > ray_cache;
+
+  // find segments of the ray brocken by srtm grid
+  // these segments must have linear height and slope dependence
+  std::vector<ray_data> get_ray(dPoint pt, int x, double max_r);
 
 public:
   LayerPano(srtm3 * s);

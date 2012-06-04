@@ -25,7 +25,11 @@ DlgPano::DlgPano(srtm3 * s): layer_pano(s){
 //  viewer->signal_scroll_event().connect (
 //    sigc::mem_fun (this, &DlgPano::on_scroll));
 
-  on_ch();
+  Options o = layer_pano.get_opt();
+  o.put<double>("pano_alt", 20);
+  o.put<double>("pano_minh", rb->get_v1());
+  o.put<double>("pano_maxh", rb->get_v2());
+  layer_pano.set_opt(o);
 }
 
 void
@@ -54,6 +58,7 @@ DlgPano::set_dir(const dPoint & pt){
   dPoint pt0 = o.get<dPoint>("pano_pt");
   double width = o.get<double>("pano_width");
   double angle = atan2((pt.x-pt0.x)*cos(pt0.y*M_PI/180), pt.y-pt0.y);
+std::cerr << "AAA" << angle << "\n";
   viewer->set_center(iPoint( width*angle/2.0/M_PI, viewer->get_center().y));
 }
 
