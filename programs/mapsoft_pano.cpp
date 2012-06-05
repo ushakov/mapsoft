@@ -3,52 +3,24 @@
 #include <iomanip>
 #include <cmath>
 #include <list>
-#include <vector>
 
-#include "srtm/srtm3.h"
-#include "jeeps/gpsmath.h"
+#include "layers/layer_pano.h"
+//#include "jeeps/gpsmath.h"
 
 #include "geo_io/io.h"
 #include "geo/geo_convs.h"
-#include "loaders/image_r.h"
+//#include "loaders/image_r.h"
 #include "mp/mp.h"
 #include "fig/fig.h"
-#include "utils/err.h"
+//#include "utils/err.h"
 
 // панорама по srtm с геоданными. 
 
 using namespace std;
 
-
-const int max_r = 60000; // m
-const int min_r = 100;    // m
-
-const double min_b = -M_PI/4.0; // панорама от min_b до max_b по вертикали
-const double max_b =  M_PI/4.0; //
-const double min_a = -M_PI;   //
-const double max_a =  M_PI;   //
-
-const double Re=6380000;
-
-
 void usage(const char *fname){
   cerr << "Usage: "<< fname << " <width, px> <lat, deg> <lon, deg> <alt, m> [<geodata1>...<geodatan>]\n";
   exit(0);
-}
-
-dPoint fast_cnv(double lon0, dPoint p){
-  return dPoint((p.x-lon0)*Re*cos(p.y), p.y*Re);
-}
-dPoint fast_rcnv(double lon0, dPoint p){
-  return dPoint(lon0 + p.x/Re/cos(p.y/Re), p.y/Re);
-}
-
-int r2col(double r){
-  if (r>max_r) r=max_r;
-  int color = 255*(r-min_r)/(max_r-min_r);
-  color |= (color&0xFF) << 8;
-  color |= (color&0xFF) << 16;
-  return color;
 }
 
 int main(int argc, char *argv[]) {
@@ -61,57 +33,26 @@ int main(int argc, char *argv[]) {
   double lat0 = atof(argv[2])*M_PI/180.0;
   double lon0 = atof(argv[3])*M_PI/180.0;
   double alt0 = atof(argv[4]);
+  int height=width/4;
 
-  double rad2pt = double(width)/(max_a-min_a);
-  double pt2rad = 1.0/rad2pt;
-  int height    = (max_b-min_b)*rad2pt;
+  Options opt;
+  opt.put<int>("pano_width",   width);
+  opt.put<double>("pano_minh", 0.0);
+  opt.put<double>("pano_maxh", 6000.0);
+  opt.put<double>("pano_alt",  alt0);
+  opt.put<double>("pano_minr", 100.0);
+  opt.put<double>("pano_maxr", 60000.0);
+  opt.put<dPoint>("pano_pt",   dPoint(lon0,lat0));
 
+  cerr << "making pano " << width << " x " << height << " pix, ";
+  cerr << "lon,lat = " << lon0 << "," << lat0 << " alt= " << alt0 << "\n";
 
-  srtm3 s("", 10);
+  srtm3 s;
+  LayerPano layer(&s);
+  layer.set_opt(opt);
+  iImage img(width, height);
 
-  iImage data(width, height);
-
-  // примерный шаг srtm
-  int dr = int(1/1200.0 * Re *M_PI/90.0 *cos(lat0));
-
-  dPoint p0 = fast_cnv(lon0, dPoint(lon0, lat0));
-  double x0 = p0.x;
-  double y0 = p0.y;
-  double z0 = alt0;
-
-
-  cerr << "making pano " << width << " x " << height << " pix, " 
-       << int((max_a-min_a)*180/M_PI) << " x " << int((max_b-min_b)*180/M_PI) <<" deg\n";
-  cerr << "x0 = " << x0 << " y0 = " << y0 << " alt0= " << alt0 << "\n";
-
-  
-  for (int x=0; x<width; x++){
-    int zo=0;
-
-    double a = max_a - x*pt2rad;
-
-    cerr << "[" << x << "]";
-
-    for (int i = min_r/dr; i<max_r/dr; i++){
-      int r = i*dr;
-
-      dPoint p = fast_rcnv(lon0, dPoint(r*cos(a)+x0, r*sin(a)+y0)) * (180.0/M_PI);
-      double alt = (double)s.geth4(p);
-      if (alt > srtm_min_interp) alt-=srtm_zer_interp;
-
-      int zn = int((atan((alt-alt0)/double(r)) - min_b)*rad2pt);
-      if (zn<=zo) continue;
-      if (zn>=height) zn=height;
-
-      for (int z = zo; z<zn; z++ ) data.set(x,height-z-1, r2col(r));
-      zo=zn;
- 
-      double altx = alt0+r*tan(zn/rad2pt + min_b);
-      if ((altx > 10000) || (altx<-1000)) r=max_r;
-    }
-    for (int z = zo; z<height; z++ ) data.set(x,height-z-1,0xFF0000); 
-  }
-
+  layer.draw(img, iPoint());
 
   fig::fig_world F;
 
@@ -160,7 +101,7 @@ int main(int argc, char *argv[]) {
 
       // blue channel!
       int col = r2col(r+1000)>>16;
-      if ((data.get(px,py)>>16) < col) continue;
+      if ((img.get(px,py)>>16) < col) continue;
 
       iPoint fig_pt(int((max_a-a)/(max_a-min_a)*width*kk), int((max_b-b)/(max_b-min_b)*height*kk));    
       o2.clear();
@@ -217,7 +158,7 @@ int main(int argc, char *argv[]) {
       int py = (max_b-b)*rad2pt;
 
       int col = r2col(r+50) & 0xFF;
-      if ((data.get(px,py) & 0xFF) < col) continue;
+      if ((img.get(px,py) & 0xFF) < col) continue;
       
       fig << "# " << world.wpts[i][j].comm << "\n";
       fig << "2 1 0 5 8 7 50 -1 -1 0.000 0 1 7 0 0 1\n";
@@ -236,5 +177,5 @@ int main(int argc, char *argv[]) {
 */
 
   fig::write("out_pano.fig", F);
-  image_r::save(data,"out_pano.jpg",Options());
+  image_r::save(img,"out_pano.jpg",Options());
 }

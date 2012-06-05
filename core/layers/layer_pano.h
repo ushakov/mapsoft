@@ -18,6 +18,8 @@ private:
   simple_rainbow rb;
   int width, width0;
 
+  dPoint dest;
+
   struct ray_data{
     double r, h, s; // distance, height, slope
     ray_data(double r_, double h_, double s_):r(r_),h(h_),s(s_){}
@@ -60,6 +62,9 @@ public:
   // find segments of the ray brocken by srtm grid
   // these segments must have linear height and slope dependence
   std::vector<ray_data> get_ray(dPoint pt, int x, double max_r);
+  iPoint geo2xy(const dPoint & pt);
+  void set_dest(const dPoint & pt);
+
 
   int draw(iImage &img, const iPoint &origin);
 };

@@ -170,9 +170,52 @@ LayerPano::get_ray(dPoint pt, int x, double max_r){
 
 /***********************************************************/
 
+iPoint
+LayerPano::geo2xy(const dPoint & pt){
+  iPoint ret;
+  double cx=cos(p0.y*M_PI/180);
+  ret.x = width * atan2((pt.x-p0.x)*cx, pt.y-p0.y)/2.0/M_PI;
+  double r0 = hypot((pt.x-p0.x)*cx, pt.y-p0.y)*6380000/180.0*M_PI;
+
+  vector<ray_data> ray = get_ray(p0,ret.x,max_r);
+  if (!ray.size()) return iPoint();
+
+  int yp, yo;
+  yo=yp=width/4.0;
+  double h0 = ray[0].h+dh;
+  double rp = 0;
+
+  for (int i=0; i<ray.size(); i++){
+    double hn=ray[i].h;
+    double rn=ray[i].r;
+
+    double b = atan((hn-h0)/rn); // vertical angle
+    int yn = (1/2.0 - 2*b/M_PI) * width/4.0; // y-coord
+
+    if (rn>r0){
+      ret.y = yp + (yn-yp)*(rn-r0)/(rn-rp);
+      if (ret.y > yo) ret.y = -ret.y; //invisible
+      return ret;
+    }
+    if (yn<yo) yo=yn;
+    yp=yn;
+    rp=rn;
+  }
+
+  ret.y = 0;
+  return ret;
+}
+
+
+void
+LayerPano::set_dest(const dPoint & pt){ dest=pt;}
+
+/***********************************************************/
+
 int
 LayerPano::draw(iImage & image, const iPoint & origin){
   if (!srtm) return GOBJ_FILL_NONE;
+
 
   double h0 = (double)srtm->geth4(p0) + dh; // altitude of observation point
   for (int x=0; x < image.w; x++){
@@ -213,6 +256,11 @@ LayerPano::draw(iImage & image, const iPoint & origin){
     for (int y = 0; y < yo; y++) // dray sky points
       image.set_na(x,y,0xFFBBBB);
   }
+//  iPoint idest = geo2xy(dest) - origin;
+//  if (idest.x >=0 && idest.x < image.w && idest.y >=0 && idest.y < image.h)
+//    image.set_na(idest.x, idest.y, 0x0);
+
   return GOBJ_FILL_ALL;
 }
+
 

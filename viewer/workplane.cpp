@@ -120,8 +120,8 @@ Workplane::get_layer_depth (LayerGeo * layer){
 void
 Workplane::refresh_layer (LayerGeo * layer, bool redraw){
 	layer->refresh();
-	tile_cache[layer]->clear();
         if (redraw) signal_refresh.emit();
+	tile_cache[layer]->clear();
 }
 
 void
