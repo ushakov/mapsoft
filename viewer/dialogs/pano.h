@@ -12,6 +12,9 @@ class DlgPano : public Gtk::Dialog{
     LayerPano layer_pano;
     DThreadViewer *viewer;
     Rainbow *rb;
+    Gtk::SpinButton *az;
+    Gtk::SpinButton *dh;
+    Gtk::Adjustment dh_adj, az_adj;
 
     void on_ch();
     bool on_key_press(GdkEventKey * event);
@@ -20,8 +23,9 @@ class DlgPano : public Gtk::Dialog{
 
   public:
     DlgPano(srtm3 * s);
-    void show_all(const dPoint & pt);
+    void set_origin(const dPoint & pt);
     void set_dir(const dPoint & pt);
+    void set_az();
 };
 
 #endif

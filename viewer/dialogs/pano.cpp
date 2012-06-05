@@ -1,7 +1,8 @@
 #include "pano.h"
 
 
-DlgPano::DlgPano(srtm3 * s): layer_pano(s){
+DlgPano::DlgPano(srtm3 * s): layer_pano(s),
+                   dh_adj(20,0,9999,10), az_adj(0,-360,360,10){
   signal_response().connect(
       sigc::hide(sigc::mem_fun(this, &DlgPano::hide_all)));
 
@@ -9,15 +10,36 @@ DlgPano::DlgPano(srtm3 * s): layer_pano(s){
 
   simple_rainbow rb1(0,5000, RAINBOW_NORMAL);
   rb =  manage( new Rainbow(256, rb1.get_data(), rb1.get_size(),
-    -999, 9999, 10, 0));
+    -999, 9999, 100, 0));
+
+  az = manage(new Gtk::SpinButton(az_adj));
+  dh = manage(new Gtk::SpinButton(dh_adj));
+  Gtk::Label * azl = manage(new Gtk::Label("Azimuth:", Gtk::ALIGN_RIGHT));
+  Gtk::Label * dhl = manage(new Gtk::Label("Altitude:", Gtk::ALIGN_RIGHT));
+
+  Gtk::Table * t =   manage(new Gtk::Table(3,2));
+
+          //  widget    l  r  t  b  x       y
+  t->attach(*azl,   0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*az,    1, 2, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*dhl,   0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*dh,    1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*rb,    2, 3, 0, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
 
   get_vbox()->pack_start (*viewer, true, true);
-  get_vbox()->pack_start (*rb, false, true);
+  get_vbox()->pack_start (*t, false, true);
   add_button (Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-  set_default_size(360,480);
+  set_default_size(640,480);
+  viewer->set_can_focus();
+  viewer->grab_focus();
 
   rb->signal_changed().connect(
       sigc::mem_fun(this, &DlgPano::on_ch));
+  dh->signal_value_changed().connect(
+      sigc::mem_fun(this, &DlgPano::on_ch));
+  az->signal_value_changed().connect(
+      sigc::mem_fun(this, &DlgPano::set_az));
+
   signal_key_press_event().connect (
     sigc::mem_fun (this, &DlgPano::on_key_press));
 //  viewer->signal_button_press_event().connect (
@@ -25,41 +47,38 @@ DlgPano::DlgPano(srtm3 * s): layer_pano(s){
 //  viewer->signal_scroll_event().connect (
 //    sigc::mem_fun (this, &DlgPano::on_scroll));
 
-  Options o = layer_pano.get_opt();
-  o.put<double>("pano_alt", 20);
-  o.put<double>("pano_minh", rb->get_v1());
-  o.put<double>("pano_maxh", rb->get_v2());
-  layer_pano.set_opt(o);
+  layer_pano.set_colors(rb->get_v1(), rb->get_v2());
+  viewer->set_center(layer_pano.range().CNT());
 }
 
 void
 DlgPano::on_ch(){
-  Options o = layer_pano.get_opt();
-  o.put<double>("pano_alt", 20);
-  o.put<double>("pano_minh", rb->get_v1());
-  o.put<double>("pano_maxh", rb->get_v2());
-  layer_pano.set_opt(o);
+  layer_pano.set_alt(dh->get_value());
+  layer_pano.set_colors( rb->get_v1(), rb->get_v2());
   viewer->redraw();
 }
 
 void
-DlgPano::show_all(const dPoint & pt){
-  Options o = layer_pano.get_opt();
-  o.put("pano_pt", pt);
+DlgPano::set_origin(const dPoint & pt){
   Gtk::Dialog::show_all();
-  layer_pano.set_opt(o);
-  viewer->set_center(layer_pano.range().CNT());
+  layer_pano.set_origin(pt);
   viewer->redraw();
 }
 
 void
 DlgPano::set_dir(const dPoint & pt){
-  Options o = layer_pano.get_opt();
-  dPoint pt0 = o.get<dPoint>("pano_pt");
-  double width = o.get<double>("pano_width");
+  dPoint pt0 = layer_pano.get_origin();
+  double width = layer_pano.get_width();
   double angle = atan2((pt.x-pt0.x)*cos(pt0.y*M_PI/180), pt.y-pt0.y);
-std::cerr << "AAA" << angle << "\n";
+  az->set_value(angle * 180/M_PI + 180);
   viewer->set_center(iPoint( width*angle/2.0/M_PI, viewer->get_center().y));
+}
+
+void
+DlgPano::set_az(){
+  double width = layer_pano.get_width();
+  double angle = az->get_value() / 180.0*M_PI;
+  viewer->set_center(iPoint(width/180.0*(az->get_value()-180), viewer->get_center().y));
 }
 
 bool

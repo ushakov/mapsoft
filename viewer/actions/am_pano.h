@@ -40,7 +40,8 @@ public:
         mapview->rubber.add_src_mark(p);
         dPoint pt0(p);
         cnv.frw(pt0);
-        dlg.show_all(pt0);
+        dlg.show_all();
+        dlg.set_origin(pt0);
       }
       else{ // next click
         mapview->rubber.clear();

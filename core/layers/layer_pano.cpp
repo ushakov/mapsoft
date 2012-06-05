@@ -3,38 +3,84 @@
 
 using namespace std;
 
-LayerPano::LayerPano(srtm3 * s): srtm(s), ray_cache(512) {
-  opt.put<int>("pano_width",   3600); // 360deg width in px.
-  opt.put<double>("pano_minh", 0.0);
-  opt.put<double>("pano_maxh", 6000.0);
-  opt.put<double>("pano_alt",  20.0);
-  opt.put<double>("pano_maxr", 60000.0);
-  opt.put<dPoint>("pano_pt",   dPoint());
+LayerPano::LayerPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){
+  set_opt(Options()); // default values
 }
 
 iRect
 LayerPano::range() const {
-  int w=opt.get<int>("pano_width",0);
-  return iRect(-w,0, 2*w,w/4);
+  return iRect(-width,0, 2*width,width/4);
 }
+
+/***********************************************************/
+// GET/SET parameters
+void
+LayerPano::set_origin(const dPoint & p){
+  ray_cache.clear();
+  p0=p;
+}
+dPoint
+LayerPano::get_origin(void) const {return p0;}
 
 void
-LayerPano::set_scale(const double k){
-  opt.put<int>("pano_width", 3600*k);
-}
+LayerPano::set_alt(double h) { dh=h;}
+double
+LayerPano::get_alt(void) const{ return dh;}
 
+void
+LayerPano::set_colors(double min, double max){
+  rb.set_range(min,max);
+}
+double
+LayerPano::get_minh(void) const {return rb.get_min();}
+double
+LayerPano::get_maxh(void) const {return rb.get_max();}
+
+void
+LayerPano::set_maxr(double r){
+  max_r=r;
+  ray_cache.clear();
+}
+double
+LayerPano::get_maxr(void) const {return max_r;}
+
+void
+LayerPano::set_width0(int w){ width0=w; }
+int
+LayerPano::get_width0(void) const {return width0;}
+int
+LayerPano::get_width(void) const {return width;}
+
+void
+LayerPano::set_scale(const double k) {width = k*width0; }
+double
+LayerPano::get_scale(void) const {return double(width)/width0; }
 
 void
 LayerPano::set_opt(const Options & o){
-  // TODO -- separate setting for p0, h, colors...
-  // We need to clear ray_cache only if
-  //  pano_pt or pano_maxr changes
-  opt = o;
+  p0 = o.get<dPoint>("pano_pt");
+  dh = o.get<double>("pano_alt", 20.0);
+  rb.set_range(
+    o.get<double>("pano_minh", 0),
+    o.get<double>("pano_maxh", 5000));
+  max_r  = o.get<double>("pano_maxr", 60000);
+  width0 = o.get<int>("pano_width", 3600);
+  width = width0 * o.get<double>("pano_scale", 1.0);
   ray_cache.clear();
 }
 
 Options
-LayerPano::get_opt(void) const{ return opt; }
+LayerPano::get_opt(void) const{
+  Options o;
+  o.put<dPoint>("pano_pt", p0);
+  o.put<double>("pano_alt", dh);
+  o.put<double>("pano_minh", rb.get_min());
+  o.put<double>("pano_maxh", rb.get_max());
+  o.put<double>("pano_maxr", max_r);
+  o.put<int>("pano_width", width0);
+  o.put<double>("pano_scale", double(width)/width0);
+  return o;
+}
 
 /***********************************************************/
 
@@ -42,17 +88,16 @@ LayerPano::get_opt(void) const{ return opt; }
 // these segments must have linear height and slope dependence
 vector<LayerPano::ray_data>
 LayerPano::get_ray(dPoint pt, int x, double max_r){
-  double w = opt.get<double>("pano_width");;
-  while (x<0) x+=w;
-  while (x>=w) x-=w;
+  while (x<0) x+=width;
+  while (x>=width) x-=width;
   //a is counted clockwise from north in radians
-  double a = 2*M_PI*x/w;
+  double a = 2*M_PI*x/width;
   int key=round(a*1000000);
   if (ray_cache.contains(key)) return ray_cache.get(key);
 
   double sa=sin(a), ca=cos(a), cx=cos(pt.y * M_PI/180.0);
   pt*=1200; // srtm units
-  double m2srtm=srtm_width * 180/M_PI/ 6380000;
+  double m2srtm=1200 * 180/M_PI/ 6380000;
   max_r*=m2srtm;
 
   // Intersections or ray with x and y lines of srtm grid goes
@@ -129,14 +174,6 @@ int
 LayerPano::draw(iImage & image, const iPoint & origin){
   if (!srtm) return GOBJ_FILL_NONE;
 
-  double max_r = opt.get<double>("pano_maxr");
-  double w     = opt.get<double>("pano_width");
-  double dh    = opt.get<double>("pano_alt");
-  double min_h = opt.get<double>("pano_minh");
-  double max_h = opt.get<double>("pano_maxh");
-  dPoint p0    = opt.get<dPoint>("pano_pt");
-  simple_rainbow rb(min_h, max_h);
-
   double h0 = (double)srtm->geth4(p0) + dh; // altitude of observation point
   for (int x=0; x < image.w; x++){
     // get ray data -- r,h,s values for a giver x-coord
@@ -145,7 +182,7 @@ LayerPano::draw(iImage & image, const iPoint & origin){
 
     int yo = image.h;        // Old y-coord, previously painted point.
                              // It is used to skip hidden parts.
-    int yp = w/4.0-origin.y; // Previous value, differs from yo on hidden 
+    int yp = width/4.0-origin.y; // Previous value, differs from yo on hidden 
                              // and partially hydden segments.
                              // It is used to interpolate height and slope.
                              // Y axis goes from top to buttom!
@@ -157,7 +194,7 @@ LayerPano::draw(iImage & image, const iPoint & origin){
       double r=ray[i].r;
 
       double b = atan((hn-h0)/r); // vertical angle
-      int yn = (1/2.0 - 2*b/M_PI) * w/4.0 - origin.y; // y-coord
+      int yn = (1/2.0 - 2*b/M_PI) * width/4.0 - origin.y; // y-coord
 
       if (yn<0)  {i=ray.size();}     // above image -- draw the rest of segment and exit
       if (yn>=yo) {yp=yn; continue;} // point below image -- skip segment
