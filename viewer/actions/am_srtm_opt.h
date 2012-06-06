@@ -7,7 +7,7 @@
 class SrtmOpt : public ActionMode {
 public:
     SrtmOpt (Mapview * mapview) : ActionMode(mapview) {
-
+      dlg.set_transient_for(*mapview);
       dlg.signal_response().connect(
         sigc::mem_fun (this, &SrtmOpt::on_response));
       dlg.signal_changed().connect(

@@ -7,7 +7,7 @@ class SaveAll : public ActionMode, public Gtk::FileSelection{
 public:
     SaveAll (Mapview * mapview) :
            ActionMode(mapview), Gtk::FileSelection(get_name()){
-
+      set_transient_for(*mapview);
       get_ok_button()->signal_clicked().connect(
           sigc::mem_fun (this, &SaveAll::on_ok));
       get_cancel_button()->signal_clicked().connect(

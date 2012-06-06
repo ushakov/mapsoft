@@ -7,6 +7,7 @@
 class AddTrack : public ActionMode {
 public:
     AddTrack (Mapview * mapview) : ActionMode(mapview) {
+      dlg.set_transient_for(*mapview);
       dlg.signal_response().connect(
         sigc::mem_fun (this, &AddTrack::on_result));
       dlg.set_title(get_name());

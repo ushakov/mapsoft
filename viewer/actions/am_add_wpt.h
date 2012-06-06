@@ -7,6 +7,7 @@
 class AddWaypoint : public ActionMode {
 public:
     AddWaypoint (Mapview * mapview) : ActionMode(mapview) {
+      dlg.set_transient_for(*mapview);
       dlg.signal_jump().connect(
           sigc::mem_fun (this, &AddWaypoint::on_jump));
       dlg.signal_response().connect(

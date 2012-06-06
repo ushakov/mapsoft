@@ -8,7 +8,7 @@
 class ShowPt : public ActionMode {
 public:
     ShowPt (Mapview * mapview) : ActionMode(mapview) {
-
+      dlg.set_transient_for(*mapview);
       dlg.signal_jump().connect(
           sigc::mem_fun (this, &ShowPt::on_jump));
       dlg.signal_response().connect(

@@ -11,6 +11,7 @@ public:
       dlg(&mapview->srtm),
       state(0)
     {
+      dlg.set_transient_for(*mapview);
       dlg.signal_response().connect(
         sigc::hide(sigc::mem_fun (this, &Pano::abort)));
       dlg.set_title(get_name());

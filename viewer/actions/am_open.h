@@ -13,6 +13,7 @@ public:
       filter->add_pattern("*.xml");
 //      set_filter(filter);
 
+      set_transient_for(*mapview);
       get_ok_button()->signal_clicked().connect(
           sigc::mem_fun (this, &Open::on_ok));
       get_cancel_button()->signal_clicked().connect(

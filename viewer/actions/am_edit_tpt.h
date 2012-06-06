@@ -7,6 +7,7 @@
 class EditTrackpoint : public ActionMode {
 public:
     EditTrackpoint (Mapview * mapview) : ActionMode(mapview) {
+      dlg.set_transient_for(*mapview);
       dlg.signal_jump().connect(
           sigc::mem_fun (this, &EditTrackpoint::on_jump));
       dlg.signal_response().connect(

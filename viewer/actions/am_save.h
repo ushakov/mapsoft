@@ -7,6 +7,7 @@ class Save : public ActionMode, public Gtk::FileSelection{
 public:
     Save (Mapview * mapview) :
            ActionMode(mapview), Gtk::FileSelection("Save"){
+      set_transient_for(*mapview);
       get_ok_button()->signal_clicked().connect(
           sigc::mem_fun (this, &Save::on_ok));
       get_cancel_button()->signal_clicked().connect(
