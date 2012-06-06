@@ -41,10 +41,14 @@ srtm3::geth(const iPoint & p, const bool interp){
   if (key.y<0) {key.y--; crd.y+=srtm_width;}
   crd.y=srtm_width-crd.y-1;
 
-  if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
-  if (srtm_cache.get(key).empty()) return srtm_nofile;
 
-  int h = srtm_cache.get(key).get(crd);
+  int h;
+  {
+    Glib::Mutex::Lock lock(mutex);
+    if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
+    if (srtm_cache.get(key).empty()) return srtm_nofile;
+    h = srtm_cache.get(key).get(crd);
+  }
 
   if (interp){
     if (h>srtm_min_interp) return h - srtm_zer_interp;
@@ -77,7 +81,7 @@ srtm3::geth(const iPoint & p, const bool interp){
     else return h;
   }
 
-  return srtm_cache.get(key).get(crd);
+  return h;
 }
 
 double
@@ -120,10 +124,12 @@ srtm3::seth(const iPoint & p, const short h){
   if (key.y<0) {key.y--; crd.y+=srtm_width;}
   crd.y=srtm_width-crd.y-1;
 
-  if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
-  if (srtm_cache.get(key).empty()) return srtm_nofile;
-
-  srtm_cache.get(key).set(crd, h);
+  {
+    Glib::Mutex::Lock lock(mutex);
+    if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
+    if (srtm_cache.get(key).empty()) return srtm_nofile;
+    srtm_cache.get(key).set(crd, h);
+  }
   return h;
 }
 

@@ -2,6 +2,7 @@
 #define SRTM3_H
 
 #include <string>
+#include <glibmm.h>
 
 #include <2d/image.h>
 #include <2d/cache.h>
@@ -96,6 +97,7 @@ private:
 
   void int_holes(double h[4]) const;
 
+  Glib::Mutex mutex;
 };
 
 #endif

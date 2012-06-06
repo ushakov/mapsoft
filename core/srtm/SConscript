@@ -1,6 +1,6 @@
 Import ('env')
 e=env.Clone()
-e.UseLibs('2d')
+e.UseLibs('2d glibmm-2.4')
 
 e.Library('srtm', \
   Split("""
