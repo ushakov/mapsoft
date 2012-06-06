@@ -113,7 +113,7 @@ LayerPano::get_ray(dPoint pt, int x, double max_r){
   vector<LayerPano::ray_data> ret;
   while (rx<max_r || ry<max_r){ // Go from zero to max_r
 
-    while (rx <= ry){ // step in x
+    while (rx <= ry && rx<max_r){ // step in x
       int x = round(pt.x+rx*sa/cx); // x is a round number
       double y = pt.y+rx*ca;        // y is between two grid points.
       // assert(abs(pt.x+rx*sa/cx - x) < 1e-9); // check this
@@ -139,7 +139,7 @@ LayerPano::get_ray(dPoint pt, int x, double max_r){
       if  (h>srtm_min) ret.push_back(ray_data(rx/m2srtm, h, s));
       rx+=drx;
     }
-    while (ry <= rx){ // step in y; the same but rx->ry, y is on the grid
+    while (ry <= rx && ry<max_r){ // step in y; the same but rx->ry, y is on the grid
       double x = pt.x+ry*sa/cx;
       int y = round(pt.y+ry*ca);
       // assert(abs(pt.y+ry*ca - y) < 1e-9);
@@ -235,6 +235,7 @@ LayerPano::draw(iImage & image, const iPoint & origin){
       double hn=ray[i].h;
       double sn=ray[i].s;
       double r=ray[i].r;
+      if (r>max_r) break;
 
       double b = atan((hn-h0)/r); // vertical angle
       int yn = (1/2.0 - 2*b/M_PI) * width/4.0 - origin.y; // y-coord
