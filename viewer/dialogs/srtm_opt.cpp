@@ -53,8 +53,9 @@ DlgSrtmOpt::on_ch(int mode){
   // affect the current mode.
   // We get mode for which signal must be emitted:
   // 0 - all modes, 1 - normal, 2 - slopes
-  if ( ((mode == 1) && !m_normal->get_active()) ||
-       ((mode == 2) && !m_slopes->get_active()) ) return;
+  if ( ((mode == 1) && !cnt->get_active()) ||
+       ((mode == 2) && !m_normal->get_active()) ||
+       ((mode == 3) && !m_slopes->get_active()) ) return;
   signal_changed_.emit();
 }
 
@@ -62,7 +63,6 @@ sigc::signal<void> &
 DlgSrtmOpt::signal_changed(){
   return signal_changed_;
 }
-
 
 DlgSrtmOpt::DlgSrtmOpt(): cnt_val_adj(50,0,9999){
   add_button (Gtk::Stock::OK,     Gtk::RESPONSE_OK);
@@ -100,12 +100,12 @@ DlgSrtmOpt::DlgSrtmOpt(): cnt_val_adj(50,0,9999){
   cnt->signal_toggled().connect(
       sigc::bind(sigc::mem_fun(this, &DlgSrtmOpt::on_ch), 0));
   cnt_val->signal_value_changed().connect(
-      sigc::bind(sigc::mem_fun(this, &DlgSrtmOpt::on_ch), 0));
+      sigc::bind(sigc::mem_fun(this, &DlgSrtmOpt::on_ch), 1));
 
   rh->signal_changed().connect(
-      sigc::bind(sigc::mem_fun(this, &DlgSrtmOpt::on_ch), 1));
-  rs->signal_changed().connect(
       sigc::bind(sigc::mem_fun(this, &DlgSrtmOpt::on_ch), 2));
+  rs->signal_changed().connect(
+      sigc::bind(sigc::mem_fun(this, &DlgSrtmOpt::on_ch), 3));
 }
 
 

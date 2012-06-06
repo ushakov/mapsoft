@@ -26,9 +26,9 @@ DThreadViewer::~DThreadViewer(){
 void
 DThreadViewer::redraw (void){
   updater_mutex->lock();
+  inc_epoch();
   tiles_cache.clear();
   tiles_todo.clear();
-  inc_epoch();
   updater_mutex->unlock();
   draw(iRect(0, 0, get_width(), get_height()));
 }
