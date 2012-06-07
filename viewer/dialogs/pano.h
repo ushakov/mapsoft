@@ -26,6 +26,7 @@ class DlgPano : public Gtk::Dialog{
     void set_origin(const dPoint & pt);
     void set_dir(const dPoint & pt);
     void set_az();
+    void get_az(iPoint p); // update az value from viewer signal
 };
 
 #endif

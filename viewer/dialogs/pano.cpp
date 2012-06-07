@@ -40,6 +40,9 @@ DlgPano::DlgPano(srtm3 * s): layer_pano(s),
   az->signal_value_changed().connect(
       sigc::mem_fun(this, &DlgPano::set_az));
 
+  viewer->signal_scroll().connect(
+      sigc::mem_fun(this, &DlgPano::get_az));
+
   signal_key_press_event().connect (
     sigc::mem_fun (this, &DlgPano::on_key_press));
 //  viewer->signal_button_press_event().connect (
@@ -70,7 +73,7 @@ DlgPano::set_dir(const dPoint & pt){
   dPoint pt0 = layer_pano.get_origin();
   double width = layer_pano.get_width();
   double angle = atan2((pt.x-pt0.x)*cos(pt0.y*M_PI/180), pt.y-pt0.y);
-  az->set_value(angle * 180/M_PI + 180);
+  az->set_value(angle * 180/M_PI);
 
   viewer->set_center(iPoint( width*angle/2.0/M_PI, viewer->get_center().y));
 //  layer_pano.set_dest(pt);
@@ -79,10 +82,19 @@ DlgPano::set_dir(const dPoint & pt){
 
 void
 DlgPano::set_az(){
-  double width = layer_pano.get_width();
-  double angle = az->get_value() / 180.0*M_PI;
-  viewer->set_center(iPoint(width/180.0*(az->get_value()-180), viewer->get_center().y));
+  if (!viewer->is_on_drag())
+    viewer->set_center(iPoint(
+      layer_pano.get_width()/360.0*az->get_value(),
+      viewer->get_center().y));
 }
+
+void
+DlgPano::get_az(iPoint p){
+  if (viewer->is_on_drag())
+    az->set_value(
+      (p.x + viewer->get_width()/2.0) * 360.0/layer_pano.get_width());
+}
+
 
 bool
 DlgPano::on_key_press(GdkEventKey * event) {
