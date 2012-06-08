@@ -40,6 +40,9 @@ Mapview::Mapview () :
       sigc::mem_fun (this, &Mapview::on_button_press));
     viewer.signal_button_release_event().connect (
       sigc::mem_fun (this, &Mapview::on_button_release));
+    viewer.signal_scroll_event().connect(
+      sigc::mem_fun (this, &Mapview::on_scroll));
+
     /// events from workplane -> move to viewer?
     workplane.signal_refresh.connect (
       sigc::mem_fun (this, &Mapview::refresh));
@@ -515,6 +518,14 @@ Mapview::on_button_release (GdkEventButton * event) {
     return true;
   }
   return false;
+}
+
+bool
+Mapview::on_scroll(GdkEventScroll * event) {
+  double scale = event->direction ? 0.5:2.0;
+  viewer.rescale(scale);
+  reference*=scale;
+  return true;
 }
 
 void

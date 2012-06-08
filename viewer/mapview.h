@@ -94,6 +94,7 @@ public:
     bool on_key_press(GdkEventKey * event);
     bool on_button_press (GdkEventButton * event);
     bool on_button_release (GdkEventButton * event);
+    bool on_scroll (GdkEventScroll * event);
     void show_busy_mark();
     void hide_busy_mark();
 
