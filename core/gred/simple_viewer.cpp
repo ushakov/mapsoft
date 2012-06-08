@@ -37,6 +37,7 @@ SimpleViewer::set_origin (iPoint p) {
     get_window()->scroll(origin.x-p.x, origin.y-p.y);
   }
   origin = p;
+  signal_ch_origin_.emit(p);
 }
 
 void
@@ -179,7 +180,6 @@ SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
   if (on_drag){
     iPoint p((int)event->x, (int)event->y);
     set_origin(origin - p + drag_pos);
-    signal_scroll_.emit(origin - p + drag_pos);
     drag_pos = p;
   }
   return false;
@@ -216,4 +216,4 @@ sigc::signal<void, double> &
 SimpleViewer::signal_on_rescale(){ return signal_on_rescale_;}
 
 sigc::signal<void, iPoint> &
-SimpleViewer::signal_scroll(){ return signal_scroll_;}
+SimpleViewer::signal_ch_origin(){ return signal_ch_origin_;}

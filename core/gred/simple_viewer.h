@@ -47,7 +47,7 @@ class SimpleViewer : public Viewer {
     sigc::signal<void> & signal_busy();
     sigc::signal<void> & signal_idle();
     sigc::signal<void, double> & signal_on_rescale();
-    sigc::signal<void, iPoint> & signal_scroll();
+    sigc::signal<void, iPoint> & signal_ch_origin();
 
   private:
 
@@ -56,7 +56,7 @@ class SimpleViewer : public Viewer {
     sigc::signal<void> signal_busy_;
     sigc::signal<void> signal_idle_;
     sigc::signal<void, double> signal_on_rescale_;
-    sigc::signal<void, iPoint> signal_scroll_;
+    sigc::signal<void, iPoint> signal_ch_origin_;
 
     GObj * obj;
     iPoint origin;

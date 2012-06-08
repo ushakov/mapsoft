@@ -40,7 +40,7 @@ DlgPano::DlgPano(srtm3 * s): layer_pano(s),
   az->signal_value_changed().connect(
       sigc::mem_fun(this, &DlgPano::set_az));
 
-  viewer->signal_scroll().connect(
+  viewer->signal_ch_origin().connect(
       sigc::mem_fun(this, &DlgPano::get_az));
 
   signal_key_press_event().connect (
