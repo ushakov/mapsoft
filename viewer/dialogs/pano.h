@@ -3,6 +3,7 @@
 
 #include <gtkmm.h>
 #include "gred/dthread_viewer.h"
+#include "gred/rubber.h"
 #include "srtm/srtm3.h"
 #include "layers/layer_pano.h"
 #include "../widgets/rainbow.h"
@@ -10,7 +11,8 @@
 // dialog for show point action
 class DlgPano : public Gtk::Dialog{
     LayerPano layer_pano;
-    DThreadViewer *viewer;
+    DThreadViewer viewer;
+    Rubber rubber;
     Rainbow *rb;
     Gtk::SpinButton *az;
     Gtk::SpinButton *dh;

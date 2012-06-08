@@ -258,10 +258,6 @@ LayerPano::draw(iImage & image, const iPoint & origin){
       image.set_na(x,y,0xFFBBBB);
   }
 
-//	iPoint idest = geo2xy(dest) - origin;
-//	if (point_in_rect(idest, image.range()))
-//	  image.set_na(idest, 0x0000FF);
-
   return GOBJ_FILL_ALL;
 }
 
