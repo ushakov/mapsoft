@@ -9,7 +9,7 @@
 
 #include "geo_io/io.h"
 #include "geo/geo_convs.h"
-//#include "loaders/image_r.h"
+#include "loaders/image_r.h"
 #include "mp/mp.h"
 #include "fig/fig.h"
 //#include "utils/err.h"
@@ -30,8 +30,8 @@ int main(int argc, char *argv[]) {
 // разбор командной строки
   if (argc < 5) usage(argv[0]);
   int width   = atoi(argv[1]);
-  double lat0 = atof(argv[2])*M_PI/180.0;
-  double lon0 = atof(argv[3])*M_PI/180.0;
+  double lat0 = atof(argv[2]);
+  double lon0 = atof(argv[3]);
   double alt0 = atof(argv[4]);
   int height=width/4;
 
@@ -40,19 +40,20 @@ int main(int argc, char *argv[]) {
   opt.put<double>("pano_minh", 0.0);
   opt.put<double>("pano_maxh", 6000.0);
   opt.put<double>("pano_alt",  alt0);
-  opt.put<double>("pano_minr", 100.0);
   opt.put<double>("pano_maxr", 60000.0);
   opt.put<dPoint>("pano_pt",   dPoint(lon0,lat0));
 
   cerr << "making pano " << width << " x " << height << " pix, ";
   cerr << "lon,lat = " << lon0 << "," << lat0 << " alt= " << alt0 << "\n";
 
+  cerr << opt << "\n";
+
   srtm3 s;
   LayerPano layer(&s);
   layer.set_opt(opt);
   iImage img(width, height);
 
-  layer.draw(img, iPoint());
+  layer.draw(img, iPoint(-width/2,0));
 
   fig::fig_world F;
 
@@ -60,11 +61,11 @@ int main(int argc, char *argv[]) {
 
   fig::fig_object o1 = fig::make_object("2 5 0 1 17 -1 500 -1 -1 0.000 0 0 -1 0 0 5");
   o1.image_file="out_pano.jpg";
-  o1.push_back(iPoint(0,0));
-  o1.push_back(iPoint(int(width*kk), 0));
-  o1.push_back(iPoint(int(width*kk), int(height*kk)));
-  o1.push_back(iPoint(0, int(height*kk)));
-  o1.push_back(iPoint(0,0));
+  o1.push_back(iPoint(-width*kk/2, 0));
+  o1.push_back(iPoint(width*kk/2,  0));
+  o1.push_back(iPoint(width*kk/2,  height*kk));
+  o1.push_back(iPoint(-width*kk/2, height*kk));
+  o1.push_back(iPoint(-width*kk/2, 0));
   F.push_back(o1);
 
   fig::fig_object o2 = fig::make_object("2 1 0 5 0 7 50 -1 -1 0.000 0 1 7 0 0 1");
@@ -81,42 +82,20 @@ int main(int argc, char *argv[]) {
           (i->Type!=0x6406) && ((i->Type < 0x6620) || (i->Type > 0x6626))) // перевал
           continue;
       int c=(i->Type>0x6000)?0x009000:0x000090;
-      dPoint pw = fast_cnv(lon0, (*l)[0] * (M_PI/180.0));
 
-      double r = sqrt(pow(pw.x-p0.x,2)+pow(pw.y-p0.y,2));
-      if ((r > max_r)||(r<min_r)) continue;
+      iPoint fig_pt(dPoint(layer.geo2xy((*l)[0]))*kk);
 
-      double a = atan2(pw.y-p0.y, pw.x-p0.x);
-      if ((a > max_a)||(a<min_a)) continue;
-
+      if (fig_pt.y<=0) continue;
       double z = (double)s.geth4((*l)[0]);
-      if (z > srtm_min_interp) z-=srtm_zer_interp;
-      if (z < srtm_min) continue;
 
-      double b = atan2(z-z0, r);
-      if ((b > max_b)||(b<min_b)) continue;
-
-      int px = (max_a-a)*rad2pt;
-      int py = (max_b-b)*rad2pt;
-
-      // blue channel!
-      int col = r2col(r+1000)>>16;
-      if ((img.get(px,py)>>16) < col) continue;
-
-      iPoint fig_pt(int((max_a-a)/(max_a-min_a)*width*kk), int((max_b-b)/(max_b-min_b)*height*kk));    
-      o2.clear();
-      o3.clear();
-
-      o2.pen_color=c;
-      o3.pen_color=c;
+      o2.clear(); o3.clear();
+      o2.pen_color=o3.pen_color=c;
 
       o2.push_back(fig_pt);
       o3.push_back(fig_pt + iPoint(50,-100));
 
       ostringstream label_stream;
-      label_stream 
-           << i->Label << " "
-           << fixed << setprecision(2) << r/1000.0 << " "
+      label_stream << i->Label
            << fixed << setprecision(0) << z;
 
       o3.text=label_stream.str();

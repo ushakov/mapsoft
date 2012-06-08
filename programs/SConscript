@@ -1,7 +1,7 @@
 Import ('env')
 
 e=env.Clone()
-e.UseLibs('geo_io img_io mp srtm')
+e.UseLibs('geo_io img_io mp srtm gred')
 
 map (lambda(f): e.Program(f+'.cpp'),\
   Split("""
