@@ -61,8 +61,10 @@ public:
 
   // find segments of the ray brocken by srtm grid
   // these segments must have linear height and slope dependence
-  std::vector<ray_data> get_ray(dPoint pt, int x, double max_r);
+  std::vector<ray_data> get_ray(int x);
+
   iPoint geo2xy(const dPoint & pt);
+
   void set_dest(const dPoint & pt);
 
 

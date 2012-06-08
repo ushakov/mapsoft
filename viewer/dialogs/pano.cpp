@@ -45,10 +45,10 @@ DlgPano::DlgPano(srtm3 * s): layer_pano(s),
 
   signal_key_press_event().connect (
     sigc::mem_fun (this, &DlgPano::on_key_press));
-//  viewer->signal_button_press_event().connect (
-//    sigc::mem_fun (this, &DlgPano::on_button_press));
-//  viewer->signal_scroll_event().connect (
-//    sigc::mem_fun (this, &DlgPano::on_scroll));
+  viewer->signal_button_press_event().connect (
+    sigc::mem_fun (this, &DlgPano::on_button_press));
+  viewer->signal_scroll_event().connect (
+    sigc::mem_fun (this, &DlgPano::on_scroll));
 
   layer_pano.set_colors(rb->get_v1(), rb->get_v2());
   viewer->set_center(layer_pano.range().CNT());
@@ -74,10 +74,9 @@ DlgPano::set_dir(const dPoint & pt){
   double width = layer_pano.get_width();
   double angle = atan2((pt.x-pt0.x)*cos(pt0.y*M_PI/180), pt.y-pt0.y);
   az->set_value(angle * 180/M_PI);
-
   viewer->set_center(iPoint( width*angle/2.0/M_PI, viewer->get_center().y));
-//  layer_pano.set_dest(pt);
-//  viewer->redraw();
+//	layer_pano.set_dest(pt);
+//	viewer->redraw();
 }
 
 void
@@ -113,16 +112,15 @@ DlgPano::on_key_press(GdkEventKey * event) {
   return false;
 }
 
-//bool
-//DlgPano::on_button_press(GdkEventButton * event) {
-//  viewer->grab_focus();
-//  return false;
-//}
+bool
+DlgPano::on_button_press(GdkEventButton * event) {
+  viewer->grab_focus();
+  return false;
+}
 
-//bool
-//DlgPano::on_scroll(GdkEventScroll * event) {
-//  std::cerr << event->x << " " <<  event->x << " " << event->direction << "\n";
-//
-//  return false;
-//}
+bool
+DlgPano::on_scroll(GdkEventScroll * event) {
+  viewer->rescale(event->direction ? 0.5:2.0);
+  return true;
+}
 

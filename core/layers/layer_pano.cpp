@@ -87,33 +87,33 @@ LayerPano::get_opt(void) const{
 // find segments of the ray brocken by srtm grid
 // these segments must have linear height and slope dependence
 vector<LayerPano::ray_data>
-LayerPano::get_ray(dPoint pt, int x, double max_r){
+LayerPano::get_ray(int x){
   while (x<0) x+=width;
   while (x>=width) x-=width;
-  //a is counted clockwise from north in radians
-  double a = 2*M_PI*x/width;
+  double a = 2.0*M_PI*x/width;
+
   int key=round(a*1000000);
   if (ray_cache.contains(key)) return ray_cache.get(key);
 
-  double sa=sin(a), ca=cos(a), cx=cos(pt.y * M_PI/180.0);
-  pt*=1200; // srtm units
+  double sa=sin(a), ca=cos(a), cx=cos(p0.y * M_PI/180.0);
+  dPoint pt= p0*1200; // srtm units
   double m2srtm=1200 * 180/M_PI/ 6380000;
-  max_r*=m2srtm;
+  double rM=max_r*m2srtm;
 
   // Intersections or ray with x and y lines of srtm grid goes
   // with constant steps. But we need to sort them by r.
   double rx,drx,ry,dry; // Initial values and steps
-  if      (sa>1/max_r) { drx=cx/sa;  rx=(ceil(pt.x)-pt.x)*cx/sa;  }
-  else if (sa<-1/max_r){ drx=-cx/sa; rx=(floor(pt.x)-pt.x)*cx/sa; }
-  else                 { drx=rx=max_r; }
-  if      (ca>1/max_r) { dry=1/ca;  ry=(ceil(pt.y)-pt.y)/ca;  }
-  else if (ca<-1/max_r){ dry=-1/ca; ry=(floor(pt.y)-pt.y)/ca; }
-  else                 { dry=ry=max_r; }
+  if      (sa>1/rM) { drx=cx/sa;  rx=(ceil(pt.x)-pt.x)*cx/sa;  }
+  else if (sa<-1/rM){ drx=-cx/sa; rx=(floor(pt.x)-pt.x)*cx/sa; }
+  else              { drx=rx=rM; }
+  if      (ca>1/rM) { dry=1/ca;  ry=(ceil(pt.y)-pt.y)/ca;  }
+  else if (ca<-1/rM){ dry=-1/ca; ry=(floor(pt.y)-pt.y)/ca; }
+  else                 { dry=ry=rM; }
 
   vector<LayerPano::ray_data> ret;
-  while (rx<max_r || ry<max_r){ // Go from zero to max_r
+  while (rx<rM || ry<rM){ // Go from zero to rM
 
-    while (rx <= ry && rx<max_r){ // step in x
+    while (rx <= ry && rx<rM){ // step in x
       int x = round(pt.x+rx*sa/cx); // x is a round number
       double y = pt.y+rx*ca;        // y is between two grid points.
       // assert(abs(pt.x+rx*sa/cx - x) < 1e-9); // check this
@@ -139,7 +139,7 @@ LayerPano::get_ray(dPoint pt, int x, double max_r){
       if  (h>srtm_min) ret.push_back(ray_data(rx/m2srtm, h, s));
       rx+=drx;
     }
-    while (ry <= rx && ry<max_r){ // step in y; the same but rx->ry, y is on the grid
+    while (ry <= rx && ry<rM){ // step in y; the same but rx->ry, y is on the grid
       double x = pt.x+ry*sa/cx;
       int y = round(pt.y+ry*ca);
       // assert(abs(pt.y+ry*ca - y) < 1e-9);
@@ -177,7 +177,7 @@ LayerPano::geo2xy(const dPoint & pt){
   ret.x = width * atan2((pt.x-p0.x)*cx, pt.y-p0.y)/2.0/M_PI;
   double r0 = hypot((pt.x-p0.x)*cx, pt.y-p0.y)*6380000/180.0*M_PI;
 
-  vector<ray_data> ray = get_ray(p0,ret.x,max_r);
+  vector<ray_data> ray = get_ray(ret.x);
   if (!ray.size()) return iPoint();
 
   int yp, yo;
@@ -220,7 +220,7 @@ LayerPano::draw(iImage & image, const iPoint & origin){
   double h0 = (double)srtm->geth4(p0) + dh; // altitude of observation point
   for (int x=0; x < image.w; x++){
     // get ray data -- r,h,s values for a giver x-coord
-    vector<ray_data> ray = get_ray(p0,x+origin.x,max_r);
+    vector<ray_data> ray = get_ray(x+origin.x);
     if (!ray.size()) continue;
 
     int yo = image.h;        // Old y-coord, previously painted point.
@@ -257,9 +257,10 @@ LayerPano::draw(iImage & image, const iPoint & origin){
     for (int y = 0; y < yo; y++) // dray sky points
       image.set_na(x,y,0xFFBBBB);
   }
-//  iPoint idest = geo2xy(dest) - origin;
-//  if (idest.x >=0 && idest.x < image.w && idest.y >=0 && idest.y < image.h)
-//    image.set_na(idest.x, idest.y, 0x0);
+
+//	iPoint idest = geo2xy(dest) - origin;
+//	if (point_in_rect(idest, image.range()))
+//	  image.set_na(idest, 0x0000FF);
 
   return GOBJ_FILL_ALL;
 }

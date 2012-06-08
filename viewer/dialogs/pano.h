@@ -18,8 +18,8 @@ class DlgPano : public Gtk::Dialog{
 
     void on_ch();
     bool on_key_press(GdkEventKey * event);
-//    bool on_button_press (GdkEventButton * event);
-//    bool on_scroll (GdkEventScroll * event);
+    bool on_button_press (GdkEventButton * event);
+    bool on_scroll (GdkEventScroll * event);
 
   public:
     DlgPano(srtm3 * s);
