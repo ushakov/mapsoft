@@ -39,50 +39,48 @@ public:
         Datum("wgs84"), Proj("lonlat"), Options());
 
       if (state==0 || mod&Gdk::CONTROL_MASK){ // first click
-        p0=p; state=1;
+        p0=p; cnv.frw(p0); state=1;
         mapview->rubber.clear();
         mapview->rubber.add_src_mark(p);
-        dPoint pt0(p);
-        cnv.frw(pt0);
         dlg.show_all();
-        dlg.set_origin(pt0);
+        dlg.set_origin(p0);
       }
       else{ // next click
+        dPoint p0i(p0), p1(p);
+        cnv.bck(p0i); cnv.frw(p1);
         mapview->rubber.clear();
-        mapview->rubber.add_src_mark(p0);
+        mapview->rubber.add_src_mark(p0i);
         mapview->rubber.add_src_mark(p);
-        mapview->rubber.add_line(p,p0);
-        dPoint pt1(p);
-        cnv.frw(pt1);
-        dlg.set_dir(pt1);
+        mapview->rubber.add_line(p,p0i);
+        dlg.set_dir(p1);
       }
     }
 
     void on_point(dPoint p){
       convs::map2pt cnv(mapview->reference,
         Datum("wgs84"), Proj("lonlat"), Options());
-      cnv.bck(p);
+      dPoint p0i(p0);
+      cnv.bck(p); cnv.bck(p0i);
       mapview->rubber.clear();
-      mapview->rubber.add_src_mark(p0);
+      mapview->rubber.add_src_mark(p0i);
       mapview->rubber.add_src_mark(p);
-      mapview->rubber.add_line(p,p0);
+      mapview->rubber.add_line(p,p0i);
     }
 
     void on_go(dPoint p){
       dlg.set_origin(p);
       convs::map2pt cnv(mapview->reference,
         Datum("wgs84"), Proj("lonlat"), Options());
-      cnv.bck(p);
-      p0=p; state=1;
+      p0=p; cnv.bck(p); state=1;
       mapview->rubber.clear();
-      mapview->rubber.add_src_mark(p0);
-      mapview->viewer.set_center(p0);
+      mapview->rubber.add_src_mark(p);
+      mapview->viewer.set_center(p);
     }
 
 private:
     DlgPano dlg;
     int state; // first/next click;
-    iPoint p0;
+    dPoint p0;
 };
 
 #endif /* AM_SHOW_PTH */
