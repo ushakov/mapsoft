@@ -48,7 +48,7 @@ public:
 
   /// Get layer range.
   iRect range() const;
-
+  bool get_xloop() const;
 };
 
 

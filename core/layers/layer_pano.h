@@ -32,7 +32,7 @@ public:
   // Horizontal range is 720deg, -width..width
   // Vertical range is 90, 0..width/4
   iRect range() const;
-
+  bool get_xloop() const;
 
   void set_origin(const dPoint & p); // central point, wgs84 lonlat
   dPoint get_origin(void) const;

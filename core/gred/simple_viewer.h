@@ -16,8 +16,11 @@ class SimpleViewer : public Viewer {
     virtual iPoint get_center (void) const;
     virtual void   set_obj (GObj * o);
     virtual GObj * get_obj (void) const;
-    virtual void   set_bgcolor (int c);
-    virtual int    get_bgcolor (void) const;
+    virtual void   set_bgcolor(int c);
+    virtual int    get_bgcolor(void) const;
+    virtual bool  get_xloop() const;
+    virtual bool  get_yloop() const;
+    virtual iRect range() const;
 
     // draw image from the GObj on the screen
     virtual void draw(const iRect & r);
@@ -28,9 +31,8 @@ class SimpleViewer : public Viewer {
 
     virtual void redraw();
     virtual void scale_obj(const double k);
-    virtual void set_scale(const double k);  // scale object + change fild of view + redraw
+    virtual void set_scale(const double k); // scale object + change fild of view + redraw
     virtual void set_scale(const double k, const iPoint & cnt);
-
     virtual void rescale(const double k);
     virtual void rescale(const double k, const iPoint & cnt);
     virtual double get_scale(void) const;
@@ -69,7 +71,6 @@ class SimpleViewer : public Viewer {
 
     int epoch;
     int bgcolor;
-
     double sc;
 };
 

@@ -21,17 +21,29 @@ SimpleViewer::SimpleViewer(GObj * o) :
     Gdk::POINTER_MOTION_HINT_MASK );
 }
 
+/***********************************************************/
+
 void
 SimpleViewer::set_origin (iPoint p) {
-  iRect r = obj? obj->range(): GOBJ_MAX_RANGE;
-
+  iRect r = range();
   int w=get_width();
   int h=get_height();
 
-  if (p.x + w >= r.x + r.w) p.x = r.x + r.w - w - 1;
-  if (p.y + h >= r.y + r.h) p.y = r.y+ r.h - h - 1;
-  if (p.x < r.x) p.x=r.x;
-  if (p.y < r.y) p.y=r.y;
+  if (get_xloop()){
+    p.x = p.x % r.w;
+  }
+  else {
+    if (p.x + w >= r.x + r.w) p.x = r.x + r.w - w - 1;
+    if (p.x < r.x) p.x=r.x;
+  }
+
+  if (get_yloop()){
+    p.y = p.y % r.h;
+  }
+  else {
+    if (p.y + h >= r.y + r.h) p.y = r.y+ r.h - h - 1;
+    if (p.y < r.y) p.y=r.y;
+  }
 
   if (is_realized()){
     get_window()->scroll(origin.x-p.x, origin.y-p.y);
@@ -76,6 +88,62 @@ SimpleViewer::get_bgcolor (void) const{
   return bgcolor;
 }
 
+
+bool
+SimpleViewer::get_xloop() const{
+  return obj?obj->get_xloop():false;
+}
+
+bool
+SimpleViewer::get_yloop() const{
+  return obj?obj->get_yloop():false;
+}
+
+iRect
+SimpleViewer::range() const{
+  return obj?obj->range():GOBJ_MAX_RANGE;
+}
+
+/***********************************************************/
+
+void
+SimpleViewer::draw(const iRect & r){
+  if (r.empty()) return;
+  signal_busy_.emit();
+  iImage img(r.w, r.h, 0xFF000000 | bgcolor);
+  if (obj) obj->draw(img, r.TLC()+origin);
+  draw_image(img, r.TLC());
+  signal_idle_.emit();
+}
+
+void
+SimpleViewer::draw_image (const iImage & img, const iPoint & p){
+  if (!is_realized()) return;
+  Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
+  Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
+  Glib::RefPtr<Gdk::Window> widget = get_window();
+  signal_before_draw_.emit();
+  widget->draw_pixbuf(gc, pixbuf,
+          0,0,  p.x, p.y,  img.w, img.h,
+          Gdk::RGB_DITHER_NORMAL, 0, 0);
+  signal_after_draw_.emit();
+}
+
+void
+SimpleViewer::draw_image (const iImage & img, const iRect & part, const iPoint & p){
+  if (!is_realized()) return;
+  Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
+  Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
+  Glib::RefPtr<Gdk::Window> widget = get_window();
+  signal_before_draw_.emit();
+  widget->draw_pixbuf(gc, pixbuf,
+          part.x, part.y,  p.x, p.y,  part.w, part.h,
+          Gdk::RGB_DITHER_NORMAL, 0, 0);
+  signal_after_draw_.emit();
+}
+
+/***********************************************************/
+
 void
 SimpleViewer::redraw (void){
   epoch++;
@@ -119,41 +187,7 @@ SimpleViewer::rescale(const double k, const iPoint & cnt){
   set_scale(sc*k, cnt);
 }
 
-void
-SimpleViewer::draw(const iRect & r){
-  if (r.empty()) return;
-  signal_busy_.emit();
-  iImage img(r.w, r.h, 0xFF000000 | bgcolor);
-  if (obj) obj->draw(img, r.TLC()+origin);
-  draw_image(img, r.TLC());
-  signal_idle_.emit();
-}
-
-void
-SimpleViewer::draw_image (const iImage & img, const iPoint & p){
-  if (!is_realized()) return;
-  Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
-  Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
-  Glib::RefPtr<Gdk::Window> widget = get_window();
-  signal_before_draw_.emit();
-  widget->draw_pixbuf(gc, pixbuf,
-          0,0,  p.x, p.y,  img.w, img.h,
-          Gdk::RGB_DITHER_NORMAL, 0, 0);
-  signal_after_draw_.emit();
-}
-
-void
-SimpleViewer::draw_image (const iImage & img, const iRect & part, const iPoint & p){
-  if (!is_realized()) return;
-  Glib::RefPtr<Gdk::Pixbuf> pixbuf = make_pixbuf_from_image(img);
-  Glib::RefPtr<Gdk::GC> gc = get_style()->get_fg_gc (get_state());
-  Glib::RefPtr<Gdk::Window> widget = get_window();
-  signal_before_draw_.emit();
-  widget->draw_pixbuf(gc, pixbuf,
-          part.x, part.y,  p.x, p.y,  part.w, part.h,
-          Gdk::RGB_DITHER_NORMAL, 0, 0);
-  signal_after_draw_.emit();
-}
+/***********************************************************/
 
 bool
 SimpleViewer::on_expose_event (GdkEventExpose * event){
@@ -196,6 +230,8 @@ SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
   return false;
 }
 
+/***********************************************************/
+
 bool
 SimpleViewer::is_on_drag(){
   return on_drag;
@@ -210,6 +246,8 @@ void
 SimpleViewer::inc_epoch(){
   epoch++;
 }
+
+/***********************************************************/
 
 sigc::signal<void> &
 SimpleViewer::signal_before_draw(){ return signal_before_draw_;}

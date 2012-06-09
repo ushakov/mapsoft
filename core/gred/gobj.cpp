@@ -22,7 +22,7 @@ GObj::set_scale(const double k) {}
 //GObj::set_conv(const Conv & cnv){}
 
 bool
-GObj::is_gray(){return gray_mode;}
+GObj::is_gray() const {return gray_mode;}
 
 void
 GObj::gray_on(){gray_mode=true;}
@@ -30,3 +30,8 @@ GObj::gray_on(){gray_mode=true;}
 void
 GObj::gray_off(){gray_mode=false;}
 
+bool
+GObj::get_xloop() const {return false;}
+
+bool
+GObj::get_yloop() const {return false;}

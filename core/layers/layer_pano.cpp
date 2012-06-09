@@ -9,8 +9,11 @@ LayerPano::LayerPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){
 
 iRect
 LayerPano::range() const {
-  return iRect(-width,0, 2*width,width/4);
+  return iRect(0,0, width,width/2);
 }
+
+bool
+LayerPano::get_xloop() const {return true;}
 
 /***********************************************************/
 // GET/SET parameters
@@ -181,7 +184,7 @@ LayerPano::geo2xy(const dPoint & pt){
   if (!ray.size()) return iPoint();
 
   int yp, yo;
-  yo=yp=width/4.0;
+  yo=yp=width/2.0;
   double h0 = ray[0].h+dh;
   double rp = 0;
 
@@ -190,7 +193,7 @@ LayerPano::geo2xy(const dPoint & pt){
     double rn=ray[i].r;
 
     double b = atan2(hn-h0, rn); // vertical angle
-    int yn = (1/2.0 - 2*b/M_PI) * width/4.0; // y-coord
+    int yn = (1 - 2*b/M_PI) * width/4.0; // y-coord
 
     if (rn>r0){
       ret.y = yp + (yn-yp)*(rn-r0)/(rn-rp);
@@ -215,14 +218,14 @@ LayerPano::xy2geo(const iPoint & pt){
 
   double h0 = ray[0].h+dh;
   int yp, yo;
-  yo=yp=width/4.0;
+  yo=yp=width/2.0;
   double rp = 0;
   for (int i=0; i<ray.size(); i++){
     double hn=ray[i].h;
     double rn=ray[i].r;
 
     double b = atan2(hn-h0,rn); // vertical angle
-    int yn = (1/2.0 - 2*b/M_PI) * width/4.0; // y-coord
+    int yn = (1 - 2*b/M_PI) * width/4.0; // y-coord
 
     if (yn<pt.y){
       double r = rp + (rn-rp)*(pt.y-yn)/double(yp-yn);
@@ -253,7 +256,7 @@ LayerPano::draw(iImage & image, const iPoint & origin){
 
     int yo = image.h;        // Old y-coord, previously painted point.
                              // It is used to skip hidden parts.
-    int yp = width/4.0-origin.y; // Previous value, differs from yo on hidden 
+    int yp = width/2.0-origin.y; // Previous value, differs from yo on hidden 
                              // and partially hydden segments.
                              // It is used to interpolate height and slope.
                              // Y axis goes from top to buttom!
@@ -266,7 +269,7 @@ LayerPano::draw(iImage & image, const iPoint & origin){
       if (r>max_r) break;
 
       double b = atan2(hn-h0, r); // vertical angle
-      int yn = (1/2.0 - 2*b/M_PI) * width/4.0 - origin.y; // y-coord
+      int yn = (1 - 2*b/M_PI) * width/4.0 - origin.y; // y-coord
 
       if (yn<0)  {i=ray.size();}     // above image -- draw the rest of segment and exit
       if (yn>=yo) {yp=yn; continue;} // point below image -- skip segment

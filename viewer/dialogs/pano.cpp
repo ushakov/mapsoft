@@ -51,7 +51,8 @@ DlgPano::DlgPano(srtm3 * s): layer_pano(s),
     sigc::mem_fun (this, &DlgPano::on_scroll));
 
   layer_pano.set_colors(rb->get_v1(), rb->get_v2());
-  viewer.set_center(layer_pano.range().CNT()/2);
+  // viewer is not realized yet, we don't know its size..
+  viewer.set_origin(layer_pano.range().CNT()-iPoint(320,240));
 }
 
 void

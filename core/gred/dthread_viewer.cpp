@@ -136,8 +136,6 @@ void DThreadViewer::draw(const iRect & r){
     for (key.x = tiles.x; key.x<tiles.x+tiles.w; key.x++){
 
       iRect rect=tile_to_rect(key);
-      clip_rect_to_rect(rect,r + get_origin());
-      if (rect.empty()) continue;
 
       if (tiles_cache.count(key)==0){ // if there is no tile in cache
         iImage img(TILE_SIZE, TILE_SIZE, get_bgcolor());
