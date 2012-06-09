@@ -51,7 +51,7 @@ DlgPano::DlgPano(srtm3 * s): layer_pano(s),
     sigc::mem_fun (this, &DlgPano::on_scroll));
 
   layer_pano.set_colors(rb->get_v1(), rb->get_v2());
-  viewer.set_center(layer_pano.range().CNT());
+  viewer.set_center(layer_pano.range().CNT()/2);
 }
 
 void
@@ -116,6 +116,7 @@ DlgPano::on_key_press(GdkEventKey * event) {
 
 bool
 DlgPano::on_button_press(GdkEventButton * event) {
+  if (event->button != 1) return false;
   viewer.grab_focus();
   iPoint pi = iPoint(event->x, event->y) + viewer.get_origin();
   rubber.clear();
@@ -130,7 +131,7 @@ DlgPano::on_button_press(GdkEventButton * event) {
       signal_point_.emit(pg);
     }
   }
-  return false;
+  return true;
 }
 
 bool
