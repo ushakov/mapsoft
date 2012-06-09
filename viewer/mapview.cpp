@@ -523,7 +523,7 @@ Mapview::on_button_release (GdkEventButton * event) {
 bool
 Mapview::on_scroll(GdkEventScroll * event) {
   double scale = event->direction ? 0.5:2.0;
-  viewer.rescale(scale);
+  viewer.rescale(scale, iPoint(event->x, event->y));
   reference*=scale;
   return true;
 }

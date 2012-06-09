@@ -122,7 +122,7 @@ DlgPano::on_button_press(GdkEventButton * event) {
 
 bool
 DlgPano::on_scroll(GdkEventScroll * event) {
-  viewer.rescale(event->direction ? 0.5:2.0);
+  viewer.rescale(event->direction ? 0.5:2.0, iPoint(event->x, event->y));
   return true;
 }
 
