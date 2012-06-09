@@ -23,12 +23,19 @@ class DlgPano : public Gtk::Dialog{
     bool on_button_press (GdkEventButton * event);
     bool on_scroll (GdkEventScroll * event);
 
+    sigc::signal<void, dPoint> signal_go_;
+    sigc::signal<void, dPoint> signal_point_;
+
   public:
     DlgPano(srtm3 * s);
     void set_origin(const dPoint & pt);
     void set_dir(const dPoint & pt);
     void set_az();
     void get_az(iPoint p); // update az value from viewer signal
+
+    sigc::signal<void, dPoint> signal_go();
+    sigc::signal<void, dPoint> signal_point();
 };
+
 
 #endif

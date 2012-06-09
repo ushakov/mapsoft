@@ -18,8 +18,6 @@ private:
   simple_rainbow rb;
   int width, width0;
 
-  dPoint dest;
-
   struct ray_data{
     double r, h, s; // distance, height, slope
     ray_data(double r_, double h_, double s_):r(r_),h(h_),s(s_){}
@@ -64,9 +62,7 @@ public:
   std::vector<ray_data> get_ray(int x);
 
   iPoint geo2xy(const dPoint & pt);
-
-  void set_dest(const dPoint & pt);
-
+  dPoint xy2geo(const iPoint & pt);
 
   int draw(iImage &img, const iPoint &origin);
 };

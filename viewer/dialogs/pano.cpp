@@ -117,6 +117,19 @@ DlgPano::on_key_press(GdkEventKey * event) {
 bool
 DlgPano::on_button_press(GdkEventButton * event) {
   viewer.grab_focus();
+  iPoint pi = iPoint(event->x, event->y) + viewer.get_origin();
+  rubber.clear();
+  dPoint pg=layer_pano.xy2geo(pi);
+
+  if (pg.y<90){
+    rubber.add_src_mark(pi);
+    Gdk::ModifierType state;
+    viewer.get_window()->get_pointer(pi.x,pi.y,state);
+    if (state&Gdk::CONTROL_MASK) signal_go_.emit(pg);
+    else {
+      signal_point_.emit(pg);
+    }
+  }
   return false;
 }
 
@@ -126,3 +139,11 @@ DlgPano::on_scroll(GdkEventScroll * event) {
   return true;
 }
 
+sigc::signal<void, dPoint>
+DlgPano::signal_go(){
+  return signal_go_;
+}
+sigc::signal<void, dPoint>
+DlgPano::signal_point(){
+  return signal_point_;
+}

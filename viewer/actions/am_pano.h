@@ -13,6 +13,10 @@ public:
     {
       dlg.signal_response().connect(
         sigc::hide(sigc::mem_fun (this, &Pano::abort)));
+      dlg.signal_go().connect(
+        sigc::mem_fun (this, &Pano::on_go));
+      dlg.signal_point().connect(
+        sigc::mem_fun (this, &Pano::on_point));
       dlg.set_title(get_name());
     }
 
@@ -52,7 +56,27 @@ public:
         cnv.frw(pt1);
         dlg.set_dir(pt1);
       }
+    }
 
+    void on_point(dPoint p){
+      convs::map2pt cnv(mapview->reference,
+        Datum("wgs84"), Proj("lonlat"), Options());
+      cnv.bck(p);
+      mapview->rubber.clear();
+      mapview->rubber.add_src_mark(p0);
+      mapview->rubber.add_src_mark(p);
+      mapview->rubber.add_line(p,p0);
+    }
+
+    void on_go(dPoint p){
+      dlg.set_origin(p);
+      convs::map2pt cnv(mapview->reference,
+        Datum("wgs84"), Proj("lonlat"), Options());
+      cnv.bck(p);
+      p0=p; state=1;
+      mapview->rubber.clear();
+      mapview->rubber.add_src_mark(p0);
+      mapview->viewer.set_center(p0);
     }
 
 private:

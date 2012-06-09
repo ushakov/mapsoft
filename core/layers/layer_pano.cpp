@@ -189,7 +189,7 @@ LayerPano::geo2xy(const dPoint & pt){
     double hn=ray[i].h;
     double rn=ray[i].r;
 
-    double b = atan((hn-h0)/rn); // vertical angle
+    double b = atan2(hn-h0, rn); // vertical angle
     int yn = (1/2.0 - 2*b/M_PI) * width/4.0; // y-coord
 
     if (rn>r0){
@@ -207,8 +207,36 @@ LayerPano::geo2xy(const dPoint & pt){
 }
 
 
-void
-LayerPano::set_dest(const dPoint & pt){ dest=pt;}
+dPoint
+LayerPano::xy2geo(const iPoint & pt){
+
+  vector<ray_data> ray = get_ray(pt.x);
+  if (!ray.size()) return iPoint(0,180);
+
+  double h0 = ray[0].h+dh;
+  int yp, yo;
+  yo=yp=width/4.0;
+  double rp = 0;
+  for (int i=0; i<ray.size(); i++){
+    double hn=ray[i].h;
+    double rn=ray[i].r;
+
+    double b = atan2(hn-h0,rn); // vertical angle
+    int yn = (1/2.0 - 2*b/M_PI) * width/4.0; // y-coord
+
+    if (yn<pt.y){
+      double r = rp + (rn-rp)*(pt.y-yn)/double(yp-yn);
+      double a = pt.x/double(width)*2*M_PI;
+      double cx=cos(p0.y*M_PI/180.0);
+      return p0 + dPoint(sin(a)/cx, cos(a))*r / 6380000.0 / M_PI * 180.0;
+    }
+
+    if (yn<yo) yo=yn;
+    yp=yn;
+    rp=rn;
+  }
+  return dPoint(0,180);
+}
 
 /***********************************************************/
 
@@ -237,7 +265,7 @@ LayerPano::draw(iImage & image, const iPoint & origin){
       double r=ray[i].r;
       if (r>max_r) break;
 
-      double b = atan((hn-h0)/r); // vertical angle
+      double b = atan2(hn-h0, r); // vertical angle
       int yn = (1/2.0 - 2*b/M_PI) * width/4.0 - origin.y; // y-coord
 
       if (yn<0)  {i=ray.size();}     // above image -- draw the rest of segment and exit
