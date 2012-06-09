@@ -1,6 +1,6 @@
 Import ('env')
 e=env.Clone()
-e.UseLibs('2d loaders')
+e.UseLibs('2d loaders srtm')
 
 e.Program('rainbow.cpp')
 
