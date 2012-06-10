@@ -4,6 +4,7 @@
 #include "point.h"
 #include "line.h"
 #include "rect.h"
+#include "image.h"
 #include <map>
 
 ///\addtogroup lib2d
@@ -38,6 +39,14 @@ struct Conv{
   /// Degrees.
   virtual double angd_frw(dPoint p, double a, double dx) const;
   virtual double angd_bck(dPoint p, double a, double dx) const;
+
+  /// Fill dst_image from src_image
+  virtual int image_frw(const iImage & src_img, iImage & dst_img,
+                        const iPoint & shift = iPoint(0,0),
+                        const double scale = 1.0) const;
+  virtual int image_bck(const iImage & src_img, iImage & dst_img,
+                        const iPoint & shift = iPoint(0,0),
+                        const double scale = 1.0) const;
 
 };
 

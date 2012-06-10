@@ -120,6 +120,30 @@ Conv::angd_bck(dPoint p, double a, double dx) const{
   return 180.0/M_PI * ang_bck(p, M_PI/180.0*a, dx);
 }
 
+int
+Conv::image_frw(const iImage & src_img, iImage & dst_img,
+                const iPoint & shift, const double scale) const{
+  for (int y=0; y<dst_img.h; y++){
+    for (int x=0; x<dst_img.w; x++){
+      dPoint p(x,y); p+=shift; bck(p); p*=scale;
+      int c = src_img.safe_get(int(p.x),int(p.y));
+      dst_img.set_a(x,y,c);
+    }
+  }
+}
+
+int
+Conv::image_bck(const iImage & src_img, iImage & dst_img,
+                const iPoint & shift, const double scale) const{
+  for (int y=0; y<dst_img.h; y++){
+    for (int x=0; x<dst_img.w; x++){
+      dPoint p(x,y); p+=shift; frw(p); p*=scale;
+      int c = src_img.safe_get(int(p.x),int(p.y));
+      dst_img.set_a(x,y,c);
+    }
+  }
+}
+
 
 /*******************************************************************/
 

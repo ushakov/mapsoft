@@ -60,14 +60,6 @@ struct map2map : Conv{
   map2map(const g_map & sM, const g_map & dM);
   void frw(dPoint & p) const;
   void bck(dPoint & p) const;
-
-  // src_scale -- во сколько раз была уменьшена растровая картинка при загрузке
-  // cnv_rect - прямоугольник в плоскости _преобразованной картинки_!!!
-  int image_frw(iImage & src_img, int src_scale, iRect cnv_rect,
-                iImage & dst_img, iRect dst_rect) const;
-  int image_bck(iImage & src_img, int src_scale, iRect cnv_rect, 
-                iImage & dst_img, iRect dst_rect) const;
-
   map2pt c1,c2;
 };
 

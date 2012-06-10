@@ -149,8 +149,7 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
         cerr  << "LayerMap: Using Image " << file
 		 << " at scale " << scale << " (loaded at scale " << iscales[i] <<", scales[i]: " << scales[i] << ")\n";
 #endif
-        iImage im = image_cache.get(i);
-        m2ms[i].image_frw(im, iscales[i], src_rect, image, image.range());
+        m2ms[i].image_frw(image_cache.get(i), image, origin, 1.0/iscales[i]);
       }
 
       //draw border

@@ -60,9 +60,9 @@ public:
 	double sc_y = src_rect.h/dst_rect.h;
 	int sc = int(sc_x<sc_y? sc_x:sc_y);
 	if (sc <=0) sc = 1;
-        
+
 	iImage im0 = ks::load(dir, scale, src_rect, sc, do_download);
-        new_cnv.image_frw(im0, sc, dst_rect, image, image.range());
+        new_cnv.image_frw(im0, image, origin, 1/sc);
     }
 
 

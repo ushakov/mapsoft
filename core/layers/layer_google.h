@@ -60,7 +60,7 @@ public:
         convs::map2map new_cnv(new_map, mymap);
 
         iImage im0 = google::load(dir, scale, src_rect, sc, do_download);
-        new_cnv.image_frw(im0, sc, dst_rect, image, image.range());
+        new_cnv.image_frw(im0, image, origin, 1.0/sc);
     }
 
 
