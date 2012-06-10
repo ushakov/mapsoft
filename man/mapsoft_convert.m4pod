@@ -107,8 +107,10 @@ Create jpeg image with map from maps.xml and data from data.plt. Create also a m
 
 	mapsoft_convert maps.xml data.plt -o mymap.jpg --map=mymap.map
 
-Create jpeg image with KS image and your dataand map-file for it. ./KS directory must exist.
+Create n37-001-1 map with google image map-file for it. /GOOGLE directory
+must exist.
 
-	mapsoft_convert --ks=14 --ks_dir=~/KS --download=1 data.plt -o mymap.jpg
+	mapsoft_convert --google_zoom=14 --google_dir=/GOOGLE \
+	  --download=1 --nom n37-001-1 -m mymap.map -o mymap.jpg
 
 include(`inc/foot.m4')
