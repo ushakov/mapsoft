@@ -15,6 +15,8 @@
 /// Abstract point transformation.
 struct Conv{
 
+  Conv();
+
   virtual void frw(dPoint & p) const =0;
   virtual void bck(dPoint & p) const =0;
 
@@ -48,6 +50,11 @@ struct Conv{
                         const iPoint & shift = iPoint(0,0),
                         const double scale = 1.0) const;
 
+  /// rescale_dst() here only changes sc_dst parameter.
+  /// Childs can use this parameter in frw/bck or redefine rescale_dst()
+  virtual void rescale_src(const double s);
+  virtual void rescale_dst(const double s);
+  double sc_src, sc_dst;
 };
 
 /// Affine transformation
@@ -67,14 +74,18 @@ public:
   /// reset from g_ref
   void set_from_ref(const std::map<dPoint, dPoint> & ref);
 
+  void frw(dPoint & p) const;
+  void bck(dPoint & p) const;
+
   /// reset to trivial
   void reset();
 
   void shift(const dPoint & p);
   void scale(const double kx, const double ky);
 
-  void frw(dPoint & p) const;
-  void bck(dPoint & p) const;
+  void rescale_src(const double s);
+  void rescale_dst(const double s);
+
 };
 
 #endif /* POINT_CONV_H */

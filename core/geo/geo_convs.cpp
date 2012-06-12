@@ -36,10 +36,10 @@ mkproj(const Datum & D, const Proj & P, const Options & o){
 
     switch (P.val){
 
-	case 0: // lonlat
+        case 0: // lonlat
           break;
 
-	case 1: // tmerc
+        case 1: // tmerc
           if (o.count("lon0")==0){
             std::cerr << "mkproj: can't create proj: \""
                       << projpar.str() << "\" without lon0\n";
@@ -59,7 +59,7 @@ mkproj(const Datum & D, const Proj & P, const Options & o){
           projpar << " +y_0="    << o.get("N0",   0.0);
           break;
 
-	case 4: // google
+        case 4: // google
           break;
 
         default:
@@ -75,20 +75,16 @@ mkproj(const Datum & D, const Proj & P, const Options & o){
     return ret;
 }
 
-void
-pjconv(const projPJ P1, const projPJ P2, dPoint & p){
-  double z=0;
-  if (pj_is_latlong(P1)) p*=M_PI/180.0;
-  pj_transform(P1, P2, 1, 1, &p.x, &p.y, &z);
-  if (pj_is_latlong(P2)) p*=180.0/M_PI;
-}
-
 /*******************************************************************/
 
 pt2pt::pt2pt(const Datum & sD, const Proj & sP, const Options & sPo,
              const Datum & dD, const Proj & dP, const Options & dPo){
   pr_src = mkproj(sD, sP, sPo);
   pr_dst = mkproj(dD, dP, dPo);
+
+  if (pj_is_latlong(pr_src)) sc_src=180.0/M_PI;
+  if (pj_is_latlong(pr_dst)) sc_dst=180.0/M_PI;
+
   refcounter   = new int;
   *refcounter  = 1;
 }
@@ -131,12 +127,16 @@ pt2pt::destroy(void){
 
 void
 pt2pt::frw(dPoint & p) const{
-  pjconv(pr_src, pr_dst, p);
+  if (sc_src!=1.0) p/=sc_src;  // this if increases speed...
+  pj_transform(pr_src, pr_dst, 1, 1, &p.x, &p.y, NULL);
+  if (sc_dst!=1.0) p*=sc_dst;
 }
 
 void
 pt2pt::bck(dPoint & p) const{
-  pjconv(pr_dst, pr_src, p);
+  if (sc_dst!=1.0) p/=sc_dst;
+  pj_transform(pr_dst, pr_src, 1, 1, &p.x, &p.y, NULL);
+  if (sc_src!=1.0) p*=sc_src;
 }
 
 
@@ -160,7 +160,7 @@ map2pt::map2pt(const g_map & sM,
 // При этом в какой СК нарисована карта и какие параметры проекции
 // используются - нам не важно - это станет частью лин.преобразования!
 
-  // projection for reference points
+  // projection for reference points (coords in radians!)
   pr_ref = mkproj(Datum("WGS84"), Proj("lonlat"), Options()); // for ref points
 
   // destination projection
@@ -172,6 +172,8 @@ map2pt::map2pt(const g_map & sM,
   else
     pr_map = mkproj(dD, sM.map_proj, map_popts(sM));
 
+  if (pj_is_latlong(pr_dst)) sc_dst=180.0/M_PI;
+
   refcounter   = new int;
   *refcounter  = 1;
 
@@ -181,7 +183,8 @@ map2pt::map2pt(const g_map & sM,
   map<dPoint,dPoint> points;
   for (g_map::const_iterator i=sM.begin(); i!=sM.end(); i++){
     dPoint pr(i->xr, i->yr), pl(*i);
-    pjconv(pr_ref, pr_map, pl);
+    if (pj_is_latlong(pr_ref)) pl*=M_PI/180.0;
+    pj_transform(pr_ref, pr_map, 1, 1, &pl.x, &pl.y, NULL);
     points[pr] = pl;
   }
   lin_cnv.set_from_ref(points);
@@ -228,18 +231,24 @@ map2pt::destroy(void){
 
 void
 map2pt::frw(dPoint & p) const{
-  lin_cnv.frw(p);
-  if (pr_map!=pr_dst) pjconv(pr_map, pr_dst, p);
+  lin_cnv.frw(p); // src rescaling is inside lin_cnv
+  if (pr_map!=pr_dst) pj_transform(pr_map, pr_dst, 1, 1, &p.x, &p.y, NULL);
+  if (sc_dst!=1.0) p*=sc_dst;  // this if increases speed...
   return;
 }
 
 void
 map2pt::bck(dPoint & p) const{
-  if (pr_map!=pr_dst) pjconv(pr_dst, pr_map, p);
+  if (sc_dst!=1.0) p/=sc_dst;
+  if (pr_map!=pr_dst) pj_transform(pr_dst, pr_map, 1, 1, &p.x, &p.y, NULL);
   lin_cnv.bck(p);
   return;
 }
 
+void
+map2pt::rescale_src(const double s){
+  lin_cnv.rescale_src(s);
+}
 
 /*******************************************************************/
 // преобразование из карты в карту
@@ -261,6 +270,12 @@ map2map::frw(dPoint & p) const {c1.frw(p); c2.bck(p);}
 
 void
 map2map::bck(dPoint & p) const {c2.frw(p); c1.bck(p);}
+
+void
+map2map::rescale_src(const double s){ c1.rescale_src(s); }
+void
+map2map::rescale_dst(const double s){ c2.rescale_src(s); }
+
 
 /*******************************************************************/
 

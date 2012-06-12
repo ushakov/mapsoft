@@ -1,6 +1,8 @@
 #include "line_utils.h"
 #include "point_conv.h"
 
+Conv::Conv(){sc_dst=1; sc_src=1;}
+
 void
 Conv::line_frw_p2p(dLine & l) const {
   for (dLine::iterator i=l.begin(); i!=l.end(); i++) frw(*i);
@@ -144,6 +146,10 @@ Conv::image_bck(const iImage & src_img, iImage & dst_img,
   }
 }
 
+void
+Conv::rescale_src(const double s){ sc_src*=s; }
+void
+Conv::rescale_dst(const double s){ sc_dst*=s; }
 
 /*******************************************************************/
 
@@ -253,6 +259,21 @@ AffConv::set_from_ref(const std::map<dPoint, dPoint> & ref){
 }
 
 void
+AffConv::frw(dPoint & p) const{
+  double x = k_frw[0]*p.x + k_frw[1]*p.y + k_frw[2];
+  double y = k_frw[3]*p.x + k_frw[4]*p.y + k_frw[5];
+  p.x=x; p.y=y;
+}
+
+void
+AffConv::bck(dPoint & p) const{
+  double x = k_bck[0]*p.x + k_bck[1]*p.y + k_bck[2];
+  double y = k_bck[3]*p.x + k_bck[4]*p.y + k_bck[5];
+  p.x=x; p.y=y;
+}
+
+
+void
 AffConv::reset(){
   for (int i=0; i<6; i++) k_frw[i]=k_bck[i]=0;
   k_frw[0] = k_bck[0] = 1.0;
@@ -274,15 +295,15 @@ AffConv::scale(const double kx, const double ky){
 }
 
 void
-AffConv::frw(dPoint & p) const{
-  double x = k_frw[0]*p.x + k_frw[1]*p.y + k_frw[2];
-  double y = k_frw[3]*p.x + k_frw[4]*p.y + k_frw[5];
-  p.x=x; p.y=y;
+AffConv::rescale_src(const double s){
+  for (int i=0; i<5; i++){
+    if (i!=2) k_frw[i] /= s; // i!=2 && i!=5
+  }
+  bck_recalc();
 }
 
 void
-AffConv::bck(dPoint & p) const{
-  double x = k_bck[0]*p.x + k_bck[1]*p.y + k_bck[2];
-  double y = k_bck[3]*p.x + k_bck[4]*p.y + k_bck[5];
-  p.x=x; p.y=y;
+AffConv::rescale_dst(const double s){
+  for (int i=0;i<6;i++) k_frw[i] *= s;
+  bck_recalc();
 }

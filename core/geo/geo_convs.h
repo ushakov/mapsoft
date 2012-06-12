@@ -45,6 +45,8 @@ struct map2pt : Conv{
   void frw(dPoint & p) const;
   void bck(dPoint & p) const;
 
+  void rescale_src(const double s);
+
 private:
   projPJ pr_ref, pr_map, pr_dst;
   AffConv lin_cnv;
@@ -60,6 +62,10 @@ struct map2map : Conv{
   map2map(const g_map & sM, const g_map & dM);
   void frw(dPoint & p) const;
   void bck(dPoint & p) const;
+
+  void rescale_src(const double s);
+  void rescale_dst(const double s);
+private:
   map2pt c1,c2;
 };
 
