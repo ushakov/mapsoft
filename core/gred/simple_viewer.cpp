@@ -157,7 +157,7 @@ SimpleViewer::scale_obj(const double k){
 
 void
 SimpleViewer::set_scale(const double k){
-  set_scale(k,iPoint(get_width(), get_height()));
+  set_scale(k,iPoint(get_width(), get_height())/2);
 }
 
 void
