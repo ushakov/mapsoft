@@ -7,7 +7,7 @@
 #include "geo_data.h"
 #include "options/options.h"
 #include "2d/image.h"
-#include "2d/point_conv.h"
+#include "2d/conv_aff.h"
 #include <proj_api.h>
 
 namespace convs{
@@ -49,7 +49,7 @@ struct map2pt : Conv{
 
 private:
   projPJ pr_ref, pr_map, pr_dst;
-  AffConv lin_cnv;
+  ConvAff lin_cnv;
   void copy(const map2pt & other);
   void destroy(void);
   int * refcounter;

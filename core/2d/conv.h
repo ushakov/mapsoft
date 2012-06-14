@@ -1,15 +1,14 @@
-#ifndef POINT_CONV_H
-#define POINT_CONV_H
+#ifndef CONV_H
+#define CONV_H
 
 #include "point.h"
 #include "line.h"
 #include "rect.h"
 #include "image.h"
-#include <map>
 
 ///\addtogroup lib2d
 ///@{
-///\defgroup point_conv
+///\defgroup conv
 ///@{
 
 /// Abstract point transformation.
@@ -57,35 +56,4 @@ struct Conv{
   double sc_src, sc_dst;
 };
 
-/// Affine transformation
-struct AffConv : Conv {
-private:
-  std::vector<double> k_frw;
-  std::vector<double> k_bck;
-  void bck_recalc(); ///< recalculate k_bck matrix
-
-public:
-  /// constructor - trivial transformation
-  AffConv();
-
-  /// constructor - from g_ref
-  AffConv(const std::map<dPoint, dPoint> & ref);
-
-  /// reset from g_ref
-  void set_from_ref(const std::map<dPoint, dPoint> & ref);
-
-  void frw(dPoint & p) const;
-  void bck(dPoint & p) const;
-
-  /// reset to trivial
-  void reset();
-
-  void shift(const dPoint & p);
-  void scale(const double kx, const double ky);
-
-  void rescale_src(const double s);
-  void rescale_dst(const double s);
-
-};
-
-#endif /* POINT_CONV_H */
+#endif

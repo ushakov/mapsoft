@@ -4,7 +4,8 @@ env.Library('2d',
   Split ("""
     point_int.cpp
     rect.cpp
-    point_conv.cpp
+    conv.cpp
+    conv_aff.cpp
     line_dist.cpp
     rainbow.cpp
   """))
