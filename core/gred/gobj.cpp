@@ -10,25 +10,13 @@ const iRect GOBJ_MAX_RANGE(
   iPoint(INT_MIN/2, INT_MIN/2),
   iPoint(INT_MAX/2, INT_MAX/2));
 
-GObj::GObj(): gray_mode(false) {}
+GObj::GObj() {}
 
 iRect
 GObj::range(void) const { return GOBJ_MAX_RANGE; }
 
 void
 GObj::set_scale(const double k) {}
-
-//void
-//GObj::set_conv(const Conv & cnv){}
-
-bool
-GObj::is_gray() const {return gray_mode;}
-
-void
-GObj::gray_on(){gray_mode=true;}
-
-void
-GObj::gray_off(){gray_mode=false;}
 
 bool
 GObj::get_xloop() const {return false;}

@@ -21,20 +21,9 @@ public:
   virtual iRect range(void) const;
 
   virtual void set_scale(const double k);
-//  virtual void set_conv(const Conv & cnv);
 
   virtual bool get_xloop() const;
   virtual bool get_yloop() const;
-
-  // object can be drawn in "gray mode":
-  // gray colors, borders instead of images etc.
-  bool is_gray() const;
-  void gray_on();
-  void gray_off();
-
-
-private:
-  bool gray_mode;
 };
 
 #endif
