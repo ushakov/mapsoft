@@ -1,9 +1,9 @@
 #ifndef GRED_H
 #define GRED_H
 
-#include "iface/action.h"
-#include "iface/gobj.h"
-#include "iface/viewer.h"
+#include "action.h"
+#include "gobj.h"
+#include "viewer.h"
 
 #include "rubber.h"
 #include "action_manager.h"

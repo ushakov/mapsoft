@@ -9,7 +9,7 @@
 #include "2d/cache.h"
 #include "layers/layer_geo.h"
 
-#include "gred/iface/gobj.h"
+#include "gred/gobj.h"
 
 
 class Workplane : public GObj {

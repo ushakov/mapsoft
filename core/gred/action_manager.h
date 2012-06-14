@@ -4,8 +4,8 @@
 #include <sys/time.h>
 #include <map>
 #include <string>
-#include "iface/action.h"
-#include "iface/viewer.h"
+#include "action.h"
+#include "viewer.h"
 #include "2d/point.h"
 
 class ActionManager : public std::map<std::string, Action *> {

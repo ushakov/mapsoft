@@ -1,4 +1,4 @@
-#include "iface/gobj.h"
+#include "gobj.h"
 #include <limits.h>
 
 // return codes for draw function

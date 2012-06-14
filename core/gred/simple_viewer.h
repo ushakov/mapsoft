@@ -2,8 +2,8 @@
 #define SIMPLE_VIEWER
 
 #include <gtkmm.h>
-#include "iface/gobj.h"
-#include "iface/viewer.h"
+#include "gobj.h"
+#include "viewer.h"
 
 class SimpleViewer : public Viewer {
   public:

@@ -2,7 +2,7 @@
 #define RUBBER_VIEWER_H
 
 #include <list>
-#include "iface/viewer.h"
+#include "viewer.h"
 
 typedef unsigned int rubbfl_t;
 #define RUBBFL_PLANE     0

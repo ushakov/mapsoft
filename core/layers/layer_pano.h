@@ -2,7 +2,7 @@
 #define LAYER_PANO_H
 
 #include "2d/rainbow.h"
-#include "gred/iface/gobj.h"
+#include "gred/gobj.h"
 #include "srtm/srtm3.h"
 #include "options/options.h"
 #include <vector>

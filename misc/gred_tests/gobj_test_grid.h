@@ -1,7 +1,7 @@
 #ifndef GOBJ_TEST_GRID_H
 #define GOBJ_TEST_GRID_H
 
-#include "gred/iface/gobj.h"
+#include "gred/gobj.h"
 
 // Grid for test purposes
 class GObjTestGrid: public GObj{

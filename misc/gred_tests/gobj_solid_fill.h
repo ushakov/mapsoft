@@ -1,7 +1,7 @@
 #ifndef GOBJ_SOLID_FILL_H
 #define GOBJ_SOLID_FILL_H
 
-#include "gred/iface/gobj.h"
+#include "gred/gobj.h"
 
 class GObjSolidFill: public GObj{
   int color;
