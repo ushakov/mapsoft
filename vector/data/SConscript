@@ -51,7 +51,7 @@ e.AddMethod(Cnf2CM)
 def Figlib(env, name):
    """Setup command for figlib creation by <name> argument"""
    cmd = env.Command(name+'_fig/', name+'.cnf', "\
-     rm -f -- %s_fig;\
+     rm -fr -- %s_fig;\
      ./zn_figlib %s %s_fig" % (name, name, name), chdir = 1)
    env.Clean(cmd, name+'_fig')
    env.Depends(cmd, 'zn_figlib')
