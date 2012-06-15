@@ -160,6 +160,7 @@ map2pt::map2pt(const g_map & sM,
 // При этом в какой СК нарисована карта и какие параметры проекции
 // используются - нам не важно - это станет частью лин.преобразования!
 
+
   // projection for reference points (coords in radians!)
   pr_ref = mkproj(Datum("WGS84"), Proj("lonlat"), Options()); // for ref points
 
@@ -167,7 +168,10 @@ map2pt::map2pt(const g_map & sM,
   pr_dst = mkproj(dD, dP, dPo);
 
   // "map" projection
-  if (sM.map_proj == dP)
+  if (sM.map_proj == Proj("google")){
+    pr_map = mkproj(Datum("google_sphere"), Proj("lonlat"), Options());
+  }
+  else if (sM.map_proj == dP)
     pr_map = pr_dst;
   else
     pr_map = mkproj(dD, sM.map_proj, map_popts(sM));
@@ -257,13 +261,7 @@ map2pt::rescale_src(const double s){
 
 map2map::map2map(const g_map & sM, const g_map & dM) :
     c1(sM, Datum("wgs84"), dM.map_proj, map_popts(dM)),
-    c2(dM, Datum("wgs84"), dM.map_proj, map_popts(dM))
-{
-  if (sM.map_proj == Proj("google")){
-    c1=map2pt(sM, Datum("google_sphere"), Proj("lonlat"), Options());
-    c2=map2pt(dM, Datum("wgs84"), Proj("lonlat"), Options());
-  }
-}
+    c2(dM, Datum("wgs84"), dM.map_proj, map_popts(dM)){}
 
 void
 map2map::frw(dPoint & p) const {c1.frw(p); c2.bck(p);}
