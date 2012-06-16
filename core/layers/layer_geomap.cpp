@@ -21,7 +21,7 @@ LayerGeoMap::LayerGeoMap(g_map_list *_data, const Options & opt) :
 
 void
 LayerGeoMap::set_cnv(Conv * c, int hint){
-  LayerGeo::set_cnv(c, hint);
+  Layer::set_cnv(c, hint);
   make_m2ms();
 }
 

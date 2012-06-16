@@ -67,7 +67,7 @@ class MapviewData : public std::list<MapviewDataFile>{
       file.trks_l.resize(file.trks.size());
       file.maps_l.resize(file.maps.size());
 // надо завести layer's для точек, треков и карт...
-//      for (int i=0; i<file.wpts.size(); i++) wpts_l = new LayerGeoWPT(file);
+//      for (int i=0; i<file.wpts.size(); i++) wpts_l = new LayerWPT(file);
       boost::shared_ptr<Layer> ML, DL;
       ML.reset(new LayerGeoMap(&file));
       TL.reset(new LayerTRK(&file));

@@ -1,14 +1,14 @@
 #ifndef LAYER_WPT_H
 #define LAYER_WPT_H
 
-#include "layer_geo.h"
+#include "layer.h"
 #include "geo/geo_data.h"
 
 /// Растровый слой для показа точек
 
 class LayerWPT
 #ifndef SWIG
-  : public LayerGeo
+  : public Layer
 #endif  // SWIG
 {
 private:

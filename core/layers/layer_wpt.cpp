@@ -16,7 +16,7 @@ LayerWPT::refresh(){
 
 void
 LayerWPT::set_cnv(Conv * c, int hint){
-  LayerGeo::set_cnv(c, hint);
+  Layer::set_cnv(c, hint);
   refresh();
 }
 

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <math.h>
 
-#include "layer_geo.h"
+#include "layer.h"
 #include "geo/geo_convs.h"
 #include "geo/geo_refs.h"
 #include "2d/cache.h"
@@ -16,7 +16,7 @@
 
 /// Слой для показа снимков kosmosnimki.ru.
 
-class LayerKS : public LayerGeo {
+class LayerKS : public Layer {
 private:
   std::string dir;
   int scale;

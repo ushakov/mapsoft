@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <map>
-#include "layer_geo.h"
+#include "layer.h"
 #include "geo/geo_convs.h"
 #include "2d/cache.h"
 #include "2d/point.h"
@@ -15,7 +15,7 @@
 
 class LayerGeoMap
 #ifndef SWIG
-  : public LayerGeo
+  : public Layer
 #endif  // SWIG
 {
 private:

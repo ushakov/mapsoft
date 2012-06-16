@@ -39,8 +39,9 @@ main(int argc, char **argv){
     string source   = argv[2];
     string depth = argv[3];
 
-    LayerGeo *ml;
+    Layer *ml;
     g_map_list maps;
+    g_map map_ref;
 
     if (source == "map") {
       // read data
@@ -52,7 +53,9 @@ main(int argc, char **argv){
       // put all maps into one map_list
       for (vector<g_map_list>::const_iterator mi = world->maps.begin();
          mi!=world->maps.end(); mi++) maps.insert(maps.end(), mi->begin(), mi->end());
-      ml = new LayerGeoMap(&maps);
+      LayerGeoMap *l = new LayerGeoMap(&maps);
+      map_ref = l->get_myref();
+      ml=l;
     }
     else if (source == "ks") {
       if (argc!=6) usage();
@@ -64,6 +67,7 @@ main(int argc, char **argv){
       if (argc!=6) usage();
       LayerGoogle *l = new LayerGoogle(argv[5], atoi(argv[4]));
       l->set_downloading(true);
+      map_ref = l->get_myref();
       ml=l;
     } else usage();
 
@@ -77,7 +81,6 @@ main(int argc, char **argv){
     // нам нужно установить в layer привязку fig-файла, но перемаштабированную
     // нужным образом 
     g_map fig_ref = fig::get_ref(F);
-    g_map map_ref = ml->get_myref();
 
     // rescale > 1, если точки fig меньше точки растра
     double rescale;

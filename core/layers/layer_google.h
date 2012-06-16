@@ -6,7 +6,7 @@
 #include <fstream>
 #include <math.h>
 
-#include "layer_geo.h"
+#include "layer.h"
 #include "geo/geo_convs.h"
 #include "geo/geo_refs.h"
 #include "2d/cache.h"
@@ -15,7 +15,7 @@
 
 /// Растровый слой для показа снимков google.
 
-class LayerGoogle : public LayerGeo {
+class LayerGoogle : public Layer {
 private:
   std::string dir;
   int scale;

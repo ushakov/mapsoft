@@ -1,14 +1,14 @@
 #ifndef LAYER_TRK_H
 #define LAYER_TRK_H
 
-#include "layer_geo.h"
+#include "layer.h"
 #include "geo/geo_data.h"
 
 /// Растровый слой для показа треков
 
 class LayerTRK
 #ifndef SWIG
-  : public LayerGeo
+  : public Layer
 #endif  // SWIG
 {
 private:

@@ -1,7 +1,7 @@
 #ifndef LAYER_SRTM_H
 #define LAYER_SRTM_H
 
-#include "layer_geo.h"
+#include "layer.h"
 #include "geo/geo_convs.h"
 #include "2d/point.h"
 #include "2d/rect.h"
@@ -14,7 +14,7 @@
 
 class LayerSRTM
 #ifndef SWIG
-  : public LayerGeo
+  : public Layer
 #endif  // SWIG
 {
 private:
