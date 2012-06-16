@@ -6,7 +6,7 @@
 
 ///\addtogroup lib2d
 ///@{
-///\defgroup rectcrop
+///\defgroup line_rectcrop
 ///@{
 
 /**

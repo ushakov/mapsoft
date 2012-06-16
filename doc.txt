@@ -3,10 +3,46 @@ There is some global information for doxyden documentation.
 /**
 \mainpage Mapsoft tools and libraries
 
-\section libs libraries
-- \ref lib2d
-  - \ref point      "Класс Point<T>: точка с двумя координатами типа T."
-  - \ref line       "Класс Line<T>: массив точек."
-  - \ref line_dist  "Класс LineDist: хождение вперед и назад по линии, и получение ее параметров."
+\section lib2d
+- \ref point      "Класс Point<T>: точка с двумя координатами типа T."
+- \ref line       "Класс Line<T>: массив точек."
+- \ref rect       "Класс Rect<T>: прямоугольник."
+- \ref image      "Класс Image<T>: двумерный массив."
+- \ref cache      "Класс Cache<K, V>: кэш."
+
+- \ref rainbow    "Класс Rainbow: создание цветовых градиентов."
+
+- \ref conv       "Класс Conv: абстрактное преобразование 2d-точек."
+- \ref conv_triv  "Класс ConvTriv: тривиальное преобразование с масштабированием."
+- \ref conv_aff   "Класс ConvAff: афинное преобразование."
+
+- \ref line_dist      "Класс LineDist: хождение вперед и назад по линии, и получение ее параметров."
+- \ref line_tests     "Класс LineTester: быстрая проверка попадания точки в многоугольник."
+- \ref line_polycrop  "crop_lines - обрезание линий по многоугольнику (работает плохо)"
+- \ref line_rectcrop  "rect_crop -- обрезание линий по прямоугольнику"
+- \ref line_utils     "line_utils"
+- \ref point_int      "point_int: разные функции для целочисленных точек"
+
+- \ref image_source "Класс ImageSource: построчная загрузка картинок"
+
+- \ref map_ref     "map_ref (не используется?)"
+
+\section gred
+
+- \ref gobj              "abstract GObj: draw something on image tiles"
+
+- \ref viewer            "abstract Viewer: draw GObj on GTK::Widget"
+- \ref simple_viewer     "SimpleViewer, parent of other viewers"
+- \ref mthread_viewer    "MThreadViewer /not used now/"
+- \ref dthread_viewer    "DThreadViewer: double-thread viewer with square tiles"
+
+- \ref rubber            "Rubber: rubber lines on the top of viewer"
+
+- \ref action_manager    "ActionManager /not used now/"
+- \ref action            "Action interface /not used now/"
+
+\section options
+
+- \ref options_class     "Options class"
 
 */

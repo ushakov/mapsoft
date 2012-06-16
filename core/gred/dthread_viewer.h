@@ -6,8 +6,15 @@
 #include <set>
 #include <queue>
 
-// double-threaded viewer with square tiles
+///\addtogroup gred
+///@{
+///\defgroup dthread_viewer
+///Double-threaded viewer with square tiles.
+///@{
 
+/**
+Двухпотоковый вьюер с квадратными плитками.
+*/
 class DThreadViewer : public SimpleViewer {
   public:
 

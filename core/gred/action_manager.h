@@ -8,15 +8,22 @@
 #include "viewer.h"
 #include "2d/point.h"
 
+///\addtogroup gred
+///@{
+///\defgroup action_manager
+///@{
+
+/** Добавление "действий" ко вьюеру.
+*/
 class ActionManager : public std::map<std::string, Action *> {
 public:
 
   ActionManager(Viewer * v);
 
-  /// add action;/ if name=="" try to get it from action->get_name()
+  /// Add action. If name=="" try to get it from action->get_name().
   void add(Action * a, std::string name="");
 
-  /// select current action by name
+  /// Select current action by name
   void select(std::string name);
 
 private:

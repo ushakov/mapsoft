@@ -4,8 +4,13 @@
 #include <gtkmm.h>
 #include "2d/point.h"
 
-/// This is the abstract Viewer to be used with
-/// Actions and Rubber objects
+///\addtogroup gred
+///@{
+///\defgroup viewer
+///@{
+
+/** Abstract class to be used with ActionManager and Rubber objects.
+*/
 class Viewer : public Gtk::DrawingArea {
   public:
 

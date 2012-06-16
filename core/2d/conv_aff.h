@@ -6,7 +6,7 @@
 
 ///\addtogroup lib2d
 ///@{
-///\defgroup conv
+///\defgroup conv_aff
 ///@{
 
 /// Affine transformation

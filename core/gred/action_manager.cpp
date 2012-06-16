@@ -13,14 +13,12 @@ ActionManager::ActionManager(Viewer * v):
     sigc::mem_fun (*this, &ActionManager::click_end));
 }
 
-/// add action
 void
 ActionManager::add(Action * a, std::string name){
   if (name=="") name=a->get_name();
   (*this)[name]=a;
 }
 
-/// select current action by name
 void
 ActionManager::select (std::string name){
   if (current) current->reset();

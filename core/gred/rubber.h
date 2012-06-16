@@ -4,39 +4,70 @@
 #include <list>
 #include "viewer.h"
 
+///\addtogroup gred
+///@{
+/**\defgroup rubber
+"Резиновые линии", которые можно прицепить ко вьюеру.
+Резиновые линии рисуются поверх всех объектов. Они могут быть
+привязаны к объекту или к мыши.
+
+Несколько объектов типа Rubber хорошо уживаются на одном Viewer'е.
+*/
+///@{
+
 typedef unsigned int rubbfl_t;
-#define RUBBFL_PLANE     0
-#define RUBBFL_MOUSE_P1X 1
-#define RUBBFL_MOUSE_P1Y 2
-#define RUBBFL_MOUSE_P1  3
+#define RUBBFL_PLANE     0 ///< обе точки привязаны к объекту
+#define RUBBFL_MOUSE_P1X 1 ///< координата x первой точки привязана к мыши
+#define RUBBFL_MOUSE_P1Y 2 ///< координата y первой точки привязана к мыши
+#define RUBBFL_MOUSE_P1  3 ///< первая точка привязана к мыши
 #define RUBBFL_MOUSE_P2X 4
 #define RUBBFL_MOUSE_P2Y 8
-#define RUBBFL_MOUSE_P2  0xC
-#define RUBBFL_MOUSE     0xF
+#define RUBBFL_MOUSE_P2  0xC  ///< вторая точка привязана к мыши
+#define RUBBFL_MOUSE     0xF  ///< обе точки привязаны к мыши
 
 #define RUBBFL_TYPEMASK 0xF0
-#define RUBBFL_LINE  0x00
-#define RUBBFL_ELL   0x10
-#define RUBBFL_ELLC  0x20
-#define RUBBFL_CIRC  0x30
-#define RUBBFL_CIRCC 0x40
+#define RUBBFL_LINE  0x00    ///< сегмент -- отрезок
+#define RUBBFL_ELL   0x10    ///< сегмент -- эллипс, точки задают описывающий его прямоугольник
+#define RUBBFL_ELLC  0x20    ///< сегмент -- эллипс, первая точка -- центр
+#define RUBBFL_CIRC  0x30    ///< сегмент -- окружность, точки задают диаметр
+#define RUBBFL_CIRCC 0x40    ///< сегмент -- окружность, точки задают радиус
 
-#define RUBBFL_DRAWN 0x100
+#define RUBBFL_DRAWN 0x100   ///< флаг, показывающий, что сегмент в данный момент нарисован
 
-/// Class for the rubber segment -- two points with some flags
-/// flags bits (see definitions above):
-/// 0 - p1.x connected to mouse?
-/// 1 - p1.y connected to mouse?
-/// 2 - p2.x connected to mouse?
-/// 3 - p2.y connected to mouse?
-/// 4-7 - type of segment:
-///   0x00 -- line
-///   0x10 -- ellipse in a box with p1-p2 diagonal
-///   0x20 -- ellipse with center in p1
-///   0x30 -- circle with p1-p2 diameter
-///   0x40 -- circle with p1-p2 radius
-/// 8 - was segment drawn?
+/**
+ Class for the rubber segment -- two points with some flags
+ flags bits (see definitions above):
+ 0 - p1.x connected to mouse?
+ 1 - p1.y connected to mouse?
+ 2 - p2.x connected to mouse?
+ 3 - p2.y connected to mouse?
+ 4-7 - type of segment:
+   0x00 -- line
+   0x10 -- ellipse in a box with p1-p2 diagonal
+   0x20 -- ellipse with center in p1
+   0x30 -- circle with p1-p2 diameter
+   0x40 -- circle with p1-p2 radius
+ 8 - was segment drawn?
 
+Сегмент резиновой линии - это пара точек и флаги
+RUBBFL_PLANE     0x0 -- обе точки привязаны к плоскости
+RUBBFL_MOUSE_P1X 0x1 -- координата X точки 1 привязана к мыши
+RUBBFL_MOUSE_P1Y 0x2 -- координата Y точки 1 привязана к мыши
+RUBBFL_MOUSE_P2X 0x4 -- координата X точки 2 привязана к мыши
+RUBBFL_MOUSE_P2Y 0x8 -- координата Y точки 2 привязана к мыши
+RUBBFL_MOUSE_P1  0x3 -- точка 1 привязана к мыши
+RUBBFL_MOUSE_P2  0xC -- точка 2 привязана к мыши
+RUBBFL_MOUSE     0xF -- обе точки привязаны к мыши
+
+RUBBFL_TYPEMASK  0xF0 -- маска типа сегмента
+RUBBFL_LINE      0x00 -- сегмент является отрезком
+RUBBFL_ELL       0x10 -- эллипс, заданный диагональю описанного прямоугольника
+RUBBFL_ELLC      0x20 -- эллипс, заданный полудиагональю оп. прямоугольника
+RUBBFL_CIRC      0x30 -- окружность, заданная диаметром
+RUBBFL_CIRCC     0x40 -- окружность, заданная радиусом
+
+RUBBFL_DRAWN    0x100 -- сегмент нарисован
+*/
 struct RubberSegment{
   rubbfl_t flags;
   iPoint p1, p2;
@@ -49,7 +80,7 @@ struct RubberSegment{
   void fix(Point<int> mouse, Point<int> origin);
 };
 
-/// Class for drawing rubber lines on a viewer
+/// Rubber -- class for drawing rubber lines on a viewer
 class Rubber{
 private:
   std::list<RubberSegment> rubber;
@@ -72,9 +103,8 @@ private:
   /// Used by both draw() and erase()
   void draw_segment(const RubberSegment &s);
 
-  /// functions for drawing and erasing rubber
-  void draw(const bool all=true);
-  void erase(const bool all=true);
+  void draw(const bool all=true); ///<draw rubber
+  void erase(const bool all=true);///<erase rubber
 
 public:
 
@@ -96,21 +126,21 @@ public:
   void clear();
   /// count segments
   int size();
-  // dump rubber to stderr
+  /// dump rubber to stderr
   void dump(void) const;
 
-  // modify coordinates connected to plane
+  /// modify coordinates connected to plane
   void rescale(double k);
 
   /// High-level functions for adding some types of segments
-  void add_src_sq(const iPoint & p, int size=5);    // square mark on the plane
-  void add_src_mark(const iPoint & p, int size=5);  // mark with cross and circle on the plane
-  void add_dst_sq(int size=5);                 // square mark around the mouse
-  void add_line(const iPoint & p);                     // line from p to mouse
-  void add_line(const iPoint & p1, const iPoint & p2); // line from p1 to p2
-  void add_rect(const iPoint & p);                     // rectangle from p to mouse
-  void add_rect(const iPoint & p1, const iPoint & p2); // rectangle from p1 to p2
-  void add_ell(const iPoint & p);                      // ellip
+  void add_src_sq(const iPoint & p, int size=5);    ///< square mark on the plane
+  void add_src_mark(const iPoint & p, int size=5);  ///< mark with cross and circle on the plane
+  void add_dst_sq(int size=5);                      ///< square mark around the mouse
+  void add_line(const iPoint & p);                     ///< line from p to mouse
+  void add_line(const iPoint & p1, const iPoint & p2); ///< line from p1 to p2
+  void add_rect(const iPoint & p);                     ///< rectangle from p to mouse
+  void add_rect(const iPoint & p1, const iPoint & p2); ///< rectangle from p1 to p2
+  void add_ell(const iPoint & p);                      ///< ellipse
   void add_ellc(const iPoint & p);
   void add_circ(const iPoint & p);
   void add_circc(const iPoint & p);

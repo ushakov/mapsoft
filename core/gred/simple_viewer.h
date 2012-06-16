@@ -5,6 +5,18 @@
 #include "gobj.h"
 #include "viewer.h"
 
+///\addtogroup gred
+///@{
+///\defgroup simple_viewer
+///@{
+
+/**
+Простейший GTK-вьюер графического объекта.
+Позволяет таскать объект по экрану, перемасштабировать его...
+По expose_event необходимые части объекта перерисовываются.
+Этот вьюер подходит только для быстро рисующихся объектов!
+*/
+
 class SimpleViewer : public Viewer {
   public:
 
@@ -43,6 +55,7 @@ class SimpleViewer : public Viewer {
     virtual bool on_motion_notify_event (GdkEventMotion * event);
 
     virtual bool is_on_drag();
+    /// Epoch counter is used in multithread viewers to invalidate old tiles
     virtual int  get_epoch();
     virtual void inc_epoch();
 

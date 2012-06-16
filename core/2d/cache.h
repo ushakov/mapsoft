@@ -10,8 +10,7 @@
 ///\addtogroup lib2d
 ///@{
 ///\defgroup cache
-///\brief Cache class.
-///Full description of test class
+///Cache class.
 ///@{
 
 /** Кэш объектов типа V, упорядоченных по ключу типа K.
