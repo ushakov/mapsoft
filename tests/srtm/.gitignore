@@ -1,5 +1,7 @@
 *.png
 map_trace
 srtm_interp
+srtm_pano
 srtm_pic
+srtm_pic1
 trace_river
