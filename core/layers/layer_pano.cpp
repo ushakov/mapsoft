@@ -7,14 +7,6 @@ LayerPano::LayerPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){
   set_opt(Options()); // default values
 }
 
-iRect
-LayerPano::range() const {
-  return iRect(0,0, width,width/2);
-}
-
-bool
-LayerPano::get_xloop() const {return true;}
-
 /***********************************************************/
 // GET/SET parameters
 void

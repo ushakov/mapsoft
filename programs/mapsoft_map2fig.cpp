@@ -39,7 +39,7 @@ main(int argc, char **argv){
     string source   = argv[2];
     string depth = argv[3];
 
-    Layer *ml;
+    GObj *ml;
     g_map_list maps;
     g_map map_ref;
 

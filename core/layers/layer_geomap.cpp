@@ -19,12 +19,6 @@ LayerGeoMap::LayerGeoMap(g_map_list *_data, const Options & opt) :
   status_set(SHOW_BRD, opt.exists("map_show_brd"));
 }
 
-void
-LayerGeoMap::set_cnv(Conv * c, int hint){
-  Layer::set_cnv(c, hint);
-  make_m2ms();
-}
-
 g_map
 LayerGeoMap::get_myref() const {
   return convs::mymap(*data);
@@ -87,27 +81,20 @@ LayerGeoMap::hide_map(const g_map * m){ status_set(SHOW_MAP, false, m); }
 
 void
 LayerGeoMap::refresh(){
+  make_m2ms();
   image_cache.clear();
 }
 
-iImage
-LayerGeoMap::get_image (iRect src){
-  if (rect_intersect(myrange, src).empty()) return iImage(0,0);
-  iImage ret(src.w, src.h, 0);
-  draw(src.TLC(), ret);
-  return ret;
-}
-
-void
-LayerGeoMap::draw(const iPoint origin, iImage & image){
+int
+LayerGeoMap::draw(iImage & image, const iPoint & origin){
   iRect src_rect = image.range() + origin;
   dPoint dorigin(origin);
 
 #ifdef DEBUG_LAYER_GEOMAP
   cerr  << "LayerMap: draw " << src_rect << " my: " << myrange << endl;
 #endif
-  if (rect_intersect(myrange, src_rect).empty()) return;
-  if ((data == NULL)||(data->size()==0)) return;
+  if (rect_intersect(myrange, src_rect).empty()) return GOBJ_FILL_NONE;
+  if ((data == NULL)||(data->size()==0)) return GOBJ_FILL_NONE;
   int maxscale=32;
   CairoWrapper cr(image);
   cr->set_line_width(1);
@@ -188,6 +175,7 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
 
       }
   }
+  return GOBJ_FILL_PART;
 }
 
 iRect

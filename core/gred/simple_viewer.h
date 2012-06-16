@@ -42,12 +42,8 @@ class SimpleViewer : public Viewer {
     virtual void draw_image (const iImage & img, const iRect & part, const iPoint & p);
 
     virtual void redraw();
-    virtual void scale_obj(const double k);
-    virtual void set_scale(const double k); // scale object + change fild of view + redraw
-    virtual void set_scale(const double k, const iPoint & cnt);
     virtual void rescale(const double k);
     virtual void rescale(const double k, const iPoint & cnt);
-    virtual double get_scale(void) const;
 
     virtual bool on_expose_event (GdkEventExpose * event);
     virtual bool on_button_press_event (GdkEventButton * event);

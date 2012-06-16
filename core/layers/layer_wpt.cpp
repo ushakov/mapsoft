@@ -14,12 +14,6 @@ LayerWPT::refresh(){
                  iRect();
 }
 
-void
-LayerWPT::set_cnv(Conv * c, int hint){
-  Layer::set_cnv(c, hint);
-  refresh();
-}
-
 g_map
 LayerWPT::get_myref() const {
   g_map ret;
@@ -30,22 +24,14 @@ LayerWPT::get_myref() const {
   return ret;
 }
 
-
-iImage
-LayerWPT::get_image (iRect src){
-  if (rect_intersect(rect_pump(myrange,110), src).empty()) return iImage(0,0);
-  iImage ret(src.w, src.h, 0);
-  draw(src.TLC(), ret);
-  return ret;
-}
-
-void
-LayerWPT::draw(const iPoint origin, iImage & image){
+int
+LayerWPT::draw(iImage & image, const iPoint & origin){
   iRect src_rect = image.range() + origin;
 #ifdef DEBUG_LAYER_WPT
   cerr  << "LayerWPT: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
-  if (rect_intersect(rect_pump(myrange,110), src_rect).empty()) return;
+  if (rect_intersect(rect_pump(myrange,110), src_rect).empty())
+    return GOBJ_FILL_NONE;
   CairoWrapper cr(image);
 
   g_waypoint_list::const_iterator pt;
@@ -91,6 +77,7 @@ LayerWPT::draw(const iPoint origin, iImage & image){
       cr->show_text(pt->name);
     }
   }
+  return GOBJ_FILL_PART;
 }
 
 int

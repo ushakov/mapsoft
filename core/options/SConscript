@@ -3,8 +3,6 @@ Import ('env')
 env.Library('options', \
   Split("""
     options.cpp
-    read_conf.cpp
     m_time.cpp m_color.cpp
-    strvec.cpp
     m_getopt.cpp
   """))

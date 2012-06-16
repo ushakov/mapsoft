@@ -7,7 +7,6 @@
 
 #include "2d/image.h"
 #include "2d/cache.h"
-#include "layers/layer.h"
 
 #include "gred/gobj.h"
 
@@ -23,27 +22,25 @@ public:
     // functions for gred/gobj interface
     int draw(iImage &img, const iPoint &origin);
 
-    void add_layer (Layer * layer, int depth);
+    void add_layer (GObj * layer, int depth);
 
-    void remove_layer (Layer * layer);
+    void remove_layer (GObj * layer);
 
-    bool exists (Layer * layer);
+    bool exists (GObj * layer);
 
     void clear();
 
-    void set_layer_depth (Layer * layer, int newdepth);
+    void set_layer_depth (GObj * layer, int newdepth);
 
-    int get_layer_depth (Layer * layer);
+    int get_layer_depth (GObj * layer);
 
-    void refresh_layer (Layer * layer, bool redraw = true);
+    void refresh_layer (GObj * layer, bool redraw = true);
 
-    void set_layer_active (Layer * layer, bool active);
+    void set_layer_active (GObj * layer, bool active);
 
-    bool get_layer_active (Layer * layer);
+    bool get_layer_active (GObj * layer);
 
-    void set_scale(const double k);
-
-    double get_scale() const;
+    void rescale(double k);
 
     inline void clear_tile_cache();
 
@@ -52,17 +49,17 @@ public:
     Conv * get_cnv() const;
 
 private:
-    std::multimap<int, Layer *>::iterator find_layer (Layer * layer);
+    std::multimap<int, GObj *>::iterator find_layer (GObj * layer);
 
-    std::multimap <int, Layer *> layers;
-    std::map <Layer *, bool> layers_active;
+    std::multimap <int, GObj *> layers;
+    std::map <GObj *, bool> layers_active;
 
     typedef Cache<iRect,iImage> LayerCache;
-    std::map<Layer *, boost::shared_ptr<LayerCache> > tile_cache;
-    double sc;
+    std::map<GObj *, boost::shared_ptr<LayerCache> > tile_cache;
 
     Glib::Mutex draw_mutex;
     bool stop_drawing;
+
     Conv * cnv;
     int cnv_hint;
 };

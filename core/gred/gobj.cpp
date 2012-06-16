@@ -10,16 +10,4 @@ const iRect GOBJ_MAX_RANGE(
   iPoint(INT_MIN/2, INT_MIN/2),
   iPoint(INT_MAX/2, INT_MAX/2));
 
-GObj::GObj() {}
-
-iRect
-GObj::range(void) const { return GOBJ_MAX_RANGE; }
-
-void
-GObj::set_scale(const double k) {}
-
-bool
-GObj::get_xloop() const {return false;}
-
-bool
-GObj::get_yloop() const {return false;}
+ConvTriv GObj::trivial_cnv;

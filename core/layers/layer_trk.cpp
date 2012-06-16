@@ -27,12 +27,6 @@ LayerTRK::refresh(){
                  iRect();
 }
 
-void
-LayerTRK::set_cnv(Conv * c, int hint){
-  Layer::set_cnv(c, hint);
-  refresh();
-}
-
 g_map
 LayerTRK::get_myref() const {
   g_map ret;
@@ -43,22 +37,15 @@ LayerTRK::get_myref() const {
   return ret;
 }
 
-iImage
-LayerTRK::get_image (iRect src){
-  if (rect_intersect(myrange, src).empty()) return iImage(0,0);
-  iImage ret(src.w, src.h, 0);
-  draw(src.TLC(), ret);
-  return ret;
-}
-
-void
-LayerTRK::draw(const iPoint origin, iImage & image){
+int
+LayerTRK::draw(iImage & image, const iPoint & origin){
   iRect src_rect = image.range() + origin;
 #ifdef DEBUG_LAYER_TRK
   cerr  << "LayerTRK: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
   // FIXME - use correct range instead of +110
-  if (rect_intersect(myrange, rect_pump(src_rect,110)).empty()) return;
+  if (rect_intersect(myrange, rect_pump(src_rect,110)).empty())
+    return GOBJ_FILL_NONE;
 
   CairoWrapper cr(image);
   cr->set_line_cap(Cairo::LINE_CAP_ROUND);
@@ -179,7 +166,7 @@ LayerTRK::draw(const iPoint origin, iImage & image){
       }
     }
   }
-
+  return GOBJ_FILL_PART;
 }
 
 int

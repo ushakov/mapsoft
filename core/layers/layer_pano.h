@@ -31,8 +31,8 @@ public:
 
   // Horizontal range is 720deg, -width..width
   // Vertical range is 90, 0..width/4
-  iRect range() const;
-  bool get_xloop() const;
+  iRect range() const {return iRect(0,0, width,width/2);}
+  bool get_xloop() const {return true;}
 
   void set_origin(const dPoint & p); // central point, wgs84 lonlat
   dPoint get_origin(void) const;

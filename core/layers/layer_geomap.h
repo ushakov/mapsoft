@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <map>
-#include "layer.h"
+#include "gred/gobj.h"
 #include "geo/geo_convs.h"
 #include "2d/cache.h"
 #include "2d/point.h"
@@ -15,7 +15,7 @@
 
 class LayerGeoMap
 #ifndef SWIG
-  : public Layer
+  : public GObj
 #endif  // SWIG
 {
 private:
@@ -32,8 +32,6 @@ private:
 public:
 
   LayerGeoMap (g_map_list *_data, const Options & opt = Options());
-
-  void set_cnv(Conv * cnv, int hint = -1);
 
   /// Get some reasonable reference.
   g_map get_myref() const;
@@ -61,11 +59,8 @@ public:
   /// Refresh layer.
   void refresh();
 
-  // Optimized get_image to return empty image outside of bounds.
-  iImage get_image (iRect src);
-
   /// Draw on image.
-  void draw(const iPoint origin, iImage & image);
+  int draw(iImage & image, const iPoint & origin);
 
   /// Get layer range.
   iRect range() const;

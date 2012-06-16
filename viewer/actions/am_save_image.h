@@ -189,10 +189,9 @@ private:
       else{
         mytlc/=mpp_scale;
         mymap/=mpp_scale;
-        double old_scale = mapview->workplane.get_scale();
-        mapview->workplane.set_scale(old_scale/mpp_scale);
+        mapview->workplane.rescale(1/mpp_scale);
         mapview->workplane.draw(image, mytlc);
-        mapview->workplane.set_scale(old_scale);
+        mapview->workplane.rescale(mpp_scale);
       }
 
 //      if (r == Gtk::RESPONSE_APPLY){

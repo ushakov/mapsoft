@@ -37,17 +37,9 @@ LayerSRTM::get_myref() const {
   return ret;
 }
 
-//iImage
-//LayerSRTM::get_image (iRect src){
-//  if (rect_intersect(myrange, src).empty()) return iImage(0,0);
-//  iImage ret(src.w, src.h, 0);
-//  draw(src.TLC(), ret);
-//  return ret;
-//}
-
-void
-LayerSRTM::draw(const iPoint origin, iImage & image){
-  if (S==NULL) return;
+int
+LayerSRTM::draw(iImage & image, const iPoint & origin){
+  if (S==NULL) return GOBJ_FILL_NONE;
   iRect src_rect = image.range() + origin;
 
   string mode  = opt.get<string>("srtm_mode", "normal");
@@ -108,6 +100,7 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
       image.set_na(i,j, c);
     }
   }
+  return GOBJ_FILL_ALL;
 }
 
 iRect

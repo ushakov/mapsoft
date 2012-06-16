@@ -2,7 +2,7 @@
 #include "workplane.h"
 
 
-Workplane::Workplane(void) : sc(1.0), stop_drawing(false), cnv(NULL){ }
+Workplane::Workplane(void) : cnv(NULL),stop_drawing(false){ }
 
 int
 Workplane::draw(iImage &img, const iPoint &origin){
@@ -10,9 +10,9 @@ Workplane::draw(iImage &img, const iPoint &origin){
         draw_mutex.lock();
         stop_drawing=false;
         iRect tile(origin.x, origin.y, img.w, img.h );
-	for (std::multimap<int, Layer *>::reverse_iterator
+	for (std::multimap<int, GObj *>::reverse_iterator
                 itl = layers.rbegin(); itl != layers.rend();  ++itl){
-	    Layer * layer = itl->second;
+	    GObj * layer = itl->second;
 	    if (layers_active[layer]) {
                 // copy to prevent deleting from another thread
                 boost::shared_ptr<LayerCache> cache = tile_cache[layer];
@@ -38,9 +38,9 @@ Workplane::draw(iImage &img, const iPoint &origin){
 	return GOBJ_FILL_PART;
 }
 
-std::multimap<int, Layer *>::iterator
-Workplane::find_layer (Layer * layer) {
-	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+std::multimap<int, GObj *>::iterator
+Workplane::find_layer (GObj * layer) {
+	for (std::multimap<int, GObj *>::iterator itl = layers.begin();
 	     itl != layers.end(); ++itl) {
 	    if (itl->second == layer) { return itl; }
 	}
@@ -48,7 +48,7 @@ Workplane::find_layer (Layer * layer) {
 }
 
 void
-Workplane::add_layer (Layer * layer, int depth) {
+Workplane::add_layer (GObj * layer, int depth) {
 //      std::cout << "Adding layer " << layer << " at depth " << depth << std::endl;
 	if (find_layer(layer) != layers.end()) {
 	    std::cout << "Already have this layer!" << std::endl;
@@ -65,9 +65,9 @@ Workplane::add_layer (Layer * layer, int depth) {
 }
 
 void
-Workplane::remove_layer (Layer * layer){
+Workplane::remove_layer (GObj * layer){
 //	std::cout << "Removing layer " << layer << std::endl;
-	std::multimap<int, Layer *>::iterator itl = find_layer(layer);
+	std::multimap<int, GObj *>::iterator itl = find_layer(layer);
 	if (itl == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -90,8 +90,8 @@ Workplane::clear(){
 }
 
 void
-Workplane::set_layer_depth (Layer * layer, int newdepth){
-	std::multimap<int, Layer *>::iterator itl = find_layer(layer);
+Workplane::set_layer_depth (GObj * layer, int newdepth){
+	std::multimap<int, GObj *>::iterator itl = find_layer(layer);
 	if (itl == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -104,8 +104,8 @@ Workplane::set_layer_depth (Layer * layer, int newdepth){
 }
 
 int
-Workplane::get_layer_depth (Layer * layer){
-	std::multimap<int, Layer *>::iterator itl = find_layer(layer);	
+Workplane::get_layer_depth (GObj * layer){
+	std::multimap<int, GObj *>::iterator itl = find_layer(layer);
 	if (itl == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -115,14 +115,14 @@ Workplane::get_layer_depth (Layer * layer){
 }
 
 void
-Workplane::refresh_layer (Layer * layer, bool redraw){
+Workplane::refresh_layer (GObj * layer, bool redraw){
 	layer->refresh();
         tile_cache[layer]->clear();
         if (redraw) signal_refresh.emit();
 }
 
 void
-Workplane::set_layer_active (Layer * layer, bool active) {
+Workplane::set_layer_active (GObj * layer, bool active) {
 	if (find_layer(layer) == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -131,7 +131,7 @@ Workplane::set_layer_active (Layer * layer, bool active) {
 	layers_active[layer] = active;
 }
 
-bool Workplane::get_layer_active (Layer * layer) {
+bool Workplane::get_layer_active (GObj * layer) {
 	if (find_layer(layer) == layers.end()) {
 	    std::cout << "No such layer " << layer << std::endl;
 	    assert(0);
@@ -140,31 +140,27 @@ bool Workplane::get_layer_active (Layer * layer) {
 	return layers_active[layer];
 }
 
-bool Workplane::exists(Layer * layer) {
+bool Workplane::exists(GObj * layer) {
   return find_layer(layer) != layers.end();
 }
 
-void Workplane::set_scale(const double k){
-        Glib::Mutex::Lock lock(draw_mutex);
-        cnv->rescale_src(k/sc);
-	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
-    					itl != layers.end(); ++itl) {
-		itl->second->set_cnv(cnv, cnv_hint);
-		tile_cache[itl->second]->clear();
-	}
-	sc=k;
-}
-
-double Workplane::get_scale() const{
-        return sc;
+void
+Workplane::rescale(double k){
+  Glib::Mutex::Lock lock(draw_mutex);
+  cnv->rescale_src(k);
+  std::multimap<int, GObj *>::iterator itl;
+  for (itl = layers.begin(); itl != layers.end(); ++itl) {
+    //itl->second->rescale(k);
+    itl->second->refresh();
+    tile_cache[itl->second]->clear();
+  }
 }
 
 inline void
 Workplane::clear_tile_cache() {
-	for (std::multimap<int, Layer *>::iterator itl = layers.begin();
-	     itl != layers.end(); ++itl) {
-	    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
-	}
+  std::multimap<int, GObj *>::iterator itl;
+  for ( itl = layers.begin(); itl != layers.end(); ++itl)
+    tile_cache[itl->second].reset(new LayerCache(CacheCapacity));
 }
 
 void
@@ -173,7 +169,7 @@ Workplane::set_cnv(Conv * c, int hint) {
   cnv_hint=hint;
   {
     Glib::Mutex::Lock lock(draw_mutex);
-    for (std::multimap<int, Layer *>::iterator itl = layers.begin();
+    for (std::multimap<int, GObj *>::iterator itl = layers.begin();
       itl != layers.end(); ++itl) {
       itl->second->set_cnv(cnv, cnv_hint);
       refresh_layer(itl->second);

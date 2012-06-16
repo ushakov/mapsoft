@@ -6,7 +6,7 @@
 #include <fstream>
 #include <math.h>
 
-#include "layer.h"
+#include "gred/gobj.h"
 #include "geo/geo_convs.h"
 #include "geo/geo_refs.h"
 #include "2d/cache.h"
@@ -16,7 +16,7 @@
 
 /// Слой для показа снимков kosmosnimki.ru.
 
-class LayerKS : public Layer {
+class LayerKS : public GObj {
 private:
   std::string dir;
   int scale;
@@ -40,7 +40,7 @@ public:
 
     virtual void refresh(){}
 
-    virtual void draw (iPoint origin, iImage & image){
+    virtual int draw (iImage & image, const iPoint & origin){
         iRect dst_rect = image.range() + origin;
         iRect src_rect = rect_pump_to_int(cnv.bb_bck(dst_rect));
 
@@ -63,6 +63,7 @@ public:
 
 	iImage im0 = ks::load(dir, scale, src_rect, sc, do_download);
         new_cnv.image_frw(im0, image, origin, 1/sc);
+        return GOBJ_FILL_PART;
     }
 
 

@@ -98,7 +98,6 @@ public:
 
         iRect src = (src_rect - buf_rect.TLC())/buf_scale;
         image_i::load(buf, src, img, dst_rect);
-        
     }
 
     virtual iRect range (){

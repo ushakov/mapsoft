@@ -1,8 +1,9 @@
-#ifndef GOBJ_IFACE_H
-#define GOBJ_IFACE_H
+#ifndef GRED_GOBJ_H
+#define GRED_GOBJ_H
 
 #include "2d/rect.h"
 #include "2d/image.h"
+#include "2d/conv_triv.h"
 
 ///\addtogroup gred
 ///@{
@@ -19,15 +20,7 @@ extern const iRect GOBJ_MAX_RANGE;
 /**
 Объект, умеющий нарисоваться на растровой картинке.
 
-Получает картинку, ее координаты на растровой плоскости,
-и информацию о привязки и масштабе растровой плоскости.
-Рисует что-то на картинке. Что-то в таком духе:
-int GObject::draw(GImage & img, const GPoint & origin, const GObjInfo & info);
-
-GObjInfo -- информация о привязке и масштабе. Объект может использовать или
-не использовать ее по своему усмотрению.
-(jpeg-картинка может эффективно грузиться с уменьшением,
-иконка может вообще игнорировать масштаб/привязку...)
+TODO:
 
 Объект может (и должен) кэшировать информацию, нужную для рисования
 определенной области. Формат данных в кэше - на усмотрение объекта: это может
@@ -42,9 +35,11 @@ GObjInfo -- информация о привязке и масштабе. Объ
 объект или точку объекта, или сегмент объекта или т.п.).
 */
 class GObj{
+    static ConvTriv trivial_cnv;
 public:
 
-  GObj();
+  GObj():cnv(&trivial_cnv),cnv_hint(-1) {}
+
   /** Рисование на картинке img со смещением origin.
    \return одно из следующих значений:
    - GOBJ_FILL_NONE  -- ничего не было нариовано
@@ -53,12 +48,27 @@ public:
   */
   virtual int draw(iImage &img, const iPoint &origin) = 0;
 
-  virtual iRect range(void) const;
+  virtual iImage get_image (iRect src){
+    if (rect_intersect(range(), src).empty()) return iImage(0,0);
+    iImage ret(src.w, src.h, 0);
+    if (draw(ret, src.TLC()) == GOBJ_FILL_NONE) return iImage(0,0);
+    return ret;
+  }
 
-  virtual void set_scale(const double k);
+  virtual iRect range(void) const {return GOBJ_MAX_RANGE;}
+  virtual void refresh() {}
 
-  virtual bool get_xloop() const;
-  virtual bool get_yloop() const;
+  virtual bool get_xloop() const {return false;};
+  virtual bool get_yloop() const {return false;}
+
+  virtual void rescale(double k){ cnv->rescale_src(k); refresh();}
+
+  virtual Conv * get_cnv() const{ return cnv; }
+  virtual void set_cnv(Conv * c, int hint=-1){
+    cnv = c; cnv_hint=hint; refresh();}
+
+  Conv * cnv;
+  int cnv_hint;
 };
 
 #endif

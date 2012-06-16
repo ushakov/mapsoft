@@ -1,7 +1,7 @@
 #ifndef LAYER_SRTM_H
 #define LAYER_SRTM_H
 
-#include "layer.h"
+#include "gred/gobj.h"
 #include "geo/geo_convs.h"
 #include "2d/point.h"
 #include "2d/rect.h"
@@ -14,7 +14,7 @@
 
 class LayerSRTM
 #ifndef SWIG
-  : public Layer
+  : public GObj
 #endif  // SWIG
 {
 private:
@@ -30,15 +30,11 @@ public:
   /// Get some reasonable reference.
   g_map get_myref() const;
 
-  // Optimized get_image to return empty image outside of bounds.
-//  iImage get_image (iRect src);
-
   /// Draw on image.
-  void draw(const iPoint origin, iImage & image);
+  int draw(iImage & image, const iPoint & origin);
 
   /// Get layer range.
   iRect range() const;
-  bool get_xloop() const;
 };
 
 

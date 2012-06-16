@@ -477,13 +477,13 @@ Mapview::on_key_press(GdkEventKey * event) {
       case 61:
       case 65451: // + =
         viewer.rescale(2.0);
-        reference*=2;
+//        reference*=2;
         return true;
       case 45:
       case 95:
       case 65453: // _ -
         viewer.rescale(0.5);
-        reference/=2;
+//        reference/=2;
         return true;
       case 'r':
       case 'R': // refresh
