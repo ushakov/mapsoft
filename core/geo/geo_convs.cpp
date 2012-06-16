@@ -125,21 +125,6 @@ pt2pt::destroy(void){
   }
 }
 
-void
-pt2pt::frw(dPoint & p) const{
-  if (sc_src!=1.0) p/=sc_src;  // this if increases speed...
-  pj_transform(pr_src, pr_dst, 1, 1, &p.x, &p.y, NULL);
-  if (sc_dst!=1.0) p*=sc_dst;
-}
-
-void
-pt2pt::bck(dPoint & p) const{
-  if (sc_dst!=1.0) p/=sc_dst;
-  pj_transform(pr_dst, pr_src, 1, 1, &p.x, &p.y, NULL);
-  if (sc_src!=1.0) p*=sc_src;
-}
-
-
 /*******************************************************************/
 
 map2pt::map2pt(const g_map & sM,
@@ -234,22 +219,6 @@ map2pt::destroy(void){
 }
 
 void
-map2pt::frw(dPoint & p) const{
-  lin_cnv.frw(p); // src rescaling is inside lin_cnv
-  if (pr_map!=pr_dst) pj_transform(pr_map, pr_dst, 1, 1, &p.x, &p.y, NULL);
-  if (sc_dst!=1.0) p*=sc_dst;  // this if increases speed...
-  return;
-}
-
-void
-map2pt::bck(dPoint & p) const{
-  if (sc_dst!=1.0) p/=sc_dst;
-  if (pr_map!=pr_dst) pj_transform(pr_dst, pr_map, 1, 1, &p.x, &p.y, NULL);
-  lin_cnv.bck(p);
-  return;
-}
-
-void
 map2pt::rescale_src(const double s){
   lin_cnv.rescale_src(s);
 }
@@ -333,13 +302,6 @@ map2map::map2map(const g_map & sM, const g_map & dM):
   cnv1.set_from_ref(ref1);
   cnv3.set_from_ref(ref2);
 }
-
-
-void
-map2map::frw(dPoint & p) const { cnv1.frw(p); cnv2.frw(p); cnv3.bck(p); }
-
-void
-map2map::bck(dPoint & p) const { cnv3.frw(p); cnv2.bck(p); cnv1.bck(p);}
 
 void
 map2map::rescale_src(const double s){ cnv1.rescale_src(s); }

@@ -23,8 +23,17 @@ struct pt2pt : Conv{
   pt2pt & operator=(const pt2pt & other);
   ~pt2pt();
 
-  void frw(dPoint & p) const;
-  void bck(dPoint & p) const;
+  void frw(dPoint & p) const{
+    if (sc_src!=1.0) p/=sc_src;  // this if increases speed...
+    pj_transform(pr_src, pr_dst, 1, 1, &p.x, &p.y, NULL);
+    if (sc_dst!=1.0) p*=sc_dst;
+  }
+
+  void bck(dPoint & p) const{
+    if (sc_dst!=1.0) p/=sc_dst;
+    pj_transform(pr_dst, pr_src, 1, 1, &p.x, &p.y, NULL);
+    if (sc_src!=1.0) p*=sc_src;
+  }
 
 private:
   projPJ pr_src, pr_dst;
@@ -42,8 +51,18 @@ struct map2pt : Conv{
   map2pt & operator=(const map2pt & other);
   ~map2pt();
 
-  void frw(dPoint & p) const;
-  void bck(dPoint & p) const;
+  void frw(dPoint & p) const{
+    lin_cnv.frw(p); // src rescaling is inside lin_cnv
+    if (pr_map!=pr_dst) pj_transform(pr_map, pr_dst, 1, 1, &p.x, &p.y, NULL);
+    if (sc_dst!=1.0) p*=sc_dst;  // this if increases speed...
+  }
+
+  void bck(dPoint & p) const{
+    if (sc_dst!=1.0) p/=sc_dst;
+    if (pr_map!=pr_dst) pj_transform(pr_dst, pr_map, 1, 1, &p.x, &p.y, NULL);
+    lin_cnv.bck(p);
+  }
+
 
   void rescale_src(const double s);
 
@@ -73,8 +92,11 @@ struct map2map : Conv{
   /// the same assumptions
   map2map(const g_map & sM, const g_map & dM);
 
-  void frw(dPoint & p) const;
-  void bck(dPoint & p) const;
+  void frw(dPoint & p) const {
+    cnv1.frw(p); cnv2.frw(p); cnv3.bck(p); }
+
+  void bck(dPoint & p) const {
+    cnv3.frw(p); cnv2.bck(p); cnv1.bck(p);}
 
   void rescale_src(const double s);
   void rescale_dst(const double s);
