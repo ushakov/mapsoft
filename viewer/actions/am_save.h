@@ -6,7 +6,7 @@
 class Save : public ActionMode, public Gtk::FileSelection{
 public:
     Save (Mapview * mapview) :
-           ActionMode(mapview), Gtk::FileSelection("Save"){
+           ActionMode(mapview), Gtk::FileSelection(get_name()){
       set_transient_for(*mapview);
       get_ok_button()->signal_clicked().connect(
           sigc::mem_fun (this, &Save::on_ok));
@@ -14,7 +14,7 @@ public:
           sigc::mem_fun(this, &Gtk::Window::hide));
     }
 
-    std::string get_name() { return "Save"; }
+    std::string get_name() { return "Save mapsoft XML"; }
     Gtk::StockID get_stockid() { return Gtk::Stock::SAVE; }
     Gtk::AccelKey get_acckey() { return Gtk::AccelKey("<control>s"); }
     bool is_radio() { return false; }

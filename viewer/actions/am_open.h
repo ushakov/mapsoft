@@ -7,7 +7,7 @@ class Open : public ActionMode, public Gtk::FileSelection{
 public:
     Open (Mapview * mapview) :
            ActionMode(mapview),
-           Gtk::FileSelection("Open"){
+           Gtk::FileSelection(get_name()){
 
       Glib::RefPtr<Gtk::FileFilter> filter(new Gtk::FileFilter);
       filter->add_pattern("*.xml");
@@ -20,7 +20,7 @@ public:
           sigc::mem_fun(this, &Gtk::Window::hide));
     }
 
-    std::string get_name() { return "Open"; }
+    std::string get_name() { return "Open mapsoft XML"; }
     Gtk::StockID get_stockid() { return Gtk::Stock::OPEN; }
     Gtk::AccelKey get_acckey() { return Gtk::AccelKey("<control>o"); }
 
