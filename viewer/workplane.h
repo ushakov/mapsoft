@@ -47,7 +47,9 @@ public:
 
     inline void clear_tile_cache();
 
-    void set_ref(const g_map & reference);
+    void set_cnv(Conv * cnv, int hint=-1);
+
+    Conv * get_cnv() const;
 
 private:
     std::multimap<int, LayerGeo *>::iterator find_layer (LayerGeo * layer);
@@ -61,6 +63,8 @@ private:
 
     Glib::Mutex draw_mutex;
     bool stop_drawing;
+    Conv * cnv;
+    int cnv_hint;
 };
 
 

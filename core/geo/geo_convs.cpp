@@ -255,24 +255,96 @@ map2pt::rescale_src(const double s){
 }
 
 /*******************************************************************/
-// преобразование из карты в карту
-// здесь может быть суровое разбиение карты на куски и аппроксимация линейными преобразованиями...
-// здесь же - преобразование картинок (с интерфейсом как у image loader'a)
+/*
+input: M1(D1,P1,O1) --ref--> WGS
+       M2(D2,P2,O2) --ref--> WGS
 
-map2map::map2map(const g_map & sM, const g_map & dM) :
-    c1(sM, Datum("wgs84"), dM.map_proj, map_popts(dM)),
-    c2(dM, Datum("wgs84"), dM.map_proj, map_popts(dM)){}
+
+     ref1    c1                   c2      ref2
+  M1 --> WGS --> P1 --cnv2--> P2 <-- WGS <--- M2
+   \             /             \             /
+    -->cnv1(Aff)-               -cnv3(aff)<--
+
+*/
+map2map::map2map(const Datum & sD, const Proj & sP, const Options & sPo,
+                 const Datum & dD, const Proj & dP, const Options & dPo,
+                std::map<dPoint, dPoint> ref1,
+                std::map<dPoint, dPoint> ref2 ) :
+                   cnv2(sD, sP, sPo, dD, dP, dPo){
+
+  convs::pt2pt c1(Datum("wgs84"), Proj("lonlat"), Options(), sD, sP, sPo);
+  convs::pt2pt c2(Datum("wgs84"), Proj("lonlat"), Options(), dD, dP, dPo);
+  std::map<dPoint, dPoint>::iterator i;
+  for (i=ref1.begin(); i!=ref1.end(); i++) c1.frw(i->second);
+  for (i=ref2.begin(); i!=ref2.end(); i++) c2.frw(i->second);
+  cnv1.set_from_ref(ref1);
+  cnv3.set_from_ref(ref2);
+}
+
+Options ref2opt(const std::map<dPoint, dPoint> & ref){
+  double lon0=0;
+  std::map<dPoint, dPoint>::const_iterator i;
+  for (i=ref.begin(); i!=ref.end(); i++) lon0+=i->second.x;
+  if (ref.size()) lon0/=ref.size();
+  Options ret;
+  ret.put<double>("lon0", lon0);
+  return ret;
+}
+
+map2map::map2map(const Proj & sP, const Proj & dP,
+                 std::map<dPoint, dPoint> ref1,
+                 std::map<dPoint, dPoint> ref2 ):
+                   cnv2(Datum("wgs84"), sP, ref2opt(ref1),
+                        Datum("wgs84"), dP, ref2opt(ref2) ){
+
+  convs::pt2pt c1(Datum("wgs84"), Proj("lonlat"), Options(),
+                  Datum("wgs84"), sP, ref2opt(ref1));
+  convs::pt2pt c2(Datum("wgs84"), Proj("lonlat"), Options(),
+                  Datum("wgs84"), dP, ref2opt(ref2));
+  std::map<dPoint, dPoint>::iterator i;
+  for (i=ref1.begin(); i!=ref1.end(); i++) c1.frw(i->second);
+  for (i=ref2.begin(); i!=ref2.end(); i++) c2.frw(i->second);
+  cnv1.set_from_ref(ref1);
+  cnv3.set_from_ref(ref2);
+}
+
+map2map::map2map(const g_map & sM, const g_map & dM):
+     cnv2(Datum("wgs84"), sM.map_proj, map_popts(sM),
+          Datum("wgs84"), dM.map_proj, map_popts(dM)){
+
+  convs::pt2pt c1(Datum("wgs84"), Proj("lonlat"), Options(),
+                  Datum("wgs84"), sM.map_proj, map_popts(sM));
+  convs::pt2pt c2(Datum("wgs84"), Proj("lonlat"), Options(),
+                  Datum("wgs84"), dM.map_proj, map_popts(dM));
+  std::map<dPoint, dPoint> ref1, ref2;
+  g_map::const_iterator i;
+  for (i=sM.begin(); i!=sM.end(); i++){
+    dPoint p1(i->xr, i->yr);
+    dPoint p2(i->x, i->y);
+    c1.frw(p2);
+    ref1[p1]=p2;
+  }
+  for (i=dM.begin(); i!=dM.end(); i++){
+    dPoint p1(i->xr, i->yr);
+    dPoint p2(i->x, i->y);
+    c2.frw(p2);
+    ref2[p1]=p2;
+  }
+  cnv1.set_from_ref(ref1);
+  cnv3.set_from_ref(ref2);
+}
+
 
 void
-map2map::frw(dPoint & p) const {c1.frw(p); c2.bck(p);}
+map2map::frw(dPoint & p) const { cnv1.frw(p); cnv2.frw(p); cnv3.bck(p); }
 
 void
-map2map::bck(dPoint & p) const {c2.frw(p); c1.bck(p);}
+map2map::bck(dPoint & p) const { cnv3.frw(p); cnv2.bck(p); cnv1.bck(p);}
 
 void
-map2map::rescale_src(const double s){ c1.rescale_src(s); }
+map2map::rescale_src(const double s){ cnv1.rescale_src(s); }
 void
-map2map::rescale_dst(const double s){ c2.rescale_src(s); }
+map2map::rescale_dst(const double s){ cnv3.rescale_src(s); }
 
 
 /*******************************************************************/

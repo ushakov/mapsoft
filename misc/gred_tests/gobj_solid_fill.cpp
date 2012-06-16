@@ -5,7 +5,7 @@ GObjSolidFill::GObjSolidFill(const int c): color(c) {
 
 int
 GObjSolidFill::draw(iImage &img, const iPoint &origin){
-  if (is_gray() || (color>>24 == 0) ){
+  if (color>>24 == 0){
     return GOBJ_FILL_NONE;
   }
   if (color>>24 == 0xFF){

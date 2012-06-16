@@ -2,8 +2,7 @@
 #define LAYER_WPT_H
 
 #include "layer_geo.h"
-#include "geo/geo_convs.h"
-
+#include "geo/geo_data.h"
 
 /// Растровый слой для показа точек
 
@@ -14,8 +13,6 @@ class LayerWPT
 {
 private:
   g_waypoint_list * data; // указатель на геоданные
-  convs::map2pt cnv;
-  g_map mymap;
   iRect myrange;
 
 public:
@@ -25,17 +22,10 @@ public:
   /// Refresh layer.
   void refresh();
 
-  /// Get layer reference.
-  g_map get_ref() const;
-
-  /// Get layer conversion to wgs84 latlon.
-  convs::map2pt get_cnv() const;
+  void set_cnv(Conv * c, int hint=-1);
 
   /// Set some reasonable reference.
   g_map get_myref() const;
-
-  /// Set layer reference.
-  void set_ref(const g_map & map);
 
   /// Optimized get_image to return empty image outside of bounds.
   iImage get_image (iRect src);

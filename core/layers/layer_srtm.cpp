@@ -2,13 +2,11 @@
 #include <sstream>
 #include <fstream>
 
-#include "geo/geo_refs.h"
 #include "2d/rainbow.h"
 
 using namespace std;
 
 LayerSRTM::LayerSRTM(srtm3 *srtm):S(srtm){
-  mymap=get_myref();
   opt.put<string>("srtm_mode", "normal");
   opt.put<bool>("srtm_on",  "false");
   opt.put<double>("srtm_cnt_step", 50);
@@ -29,11 +27,6 @@ LayerSRTM::get_opt(void) const{
 }
 
 g_map
-LayerSRTM::get_ref() const {
-  return mymap;
-}
-
-g_map
 LayerSRTM::get_myref() const {
 //  return ref_ll(180*1200); // 1200pt/degree
   g_map ret;
@@ -42,11 +35,6 @@ LayerSRTM::get_myref() const {
   ret.push_back(g_refpoint(180, 0, 180*1200,90*1200));
   ret.push_back(g_refpoint(0,   0, 0, 90*1200));
   return ret;
-}
-
-void
-LayerSRTM::set_ref(const g_map & map){
-  mymap=map;
 }
 
 //iImage
@@ -78,7 +66,6 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
   }
 
   simple_rainbow R(min,max,type), RG(0,90,0xffffff,0x00000);
-  convs::map2pt cnv(mymap, Datum("wgs84"),Proj("lonlat"),Options());
 
   for (int j=0; j<image.h; j++){
     for (int i=0; i<image.w; i++){
@@ -87,9 +74,9 @@ LayerSRTM::draw(const iPoint origin, iImage & image){
       dPoint px=p0 + dPoint(1,0);
       dPoint py=p0 + dPoint(0,1);
 
-      cnv.frw(p0);
-      cnv.frw(px);
-      cnv.frw(py);
+      cnv->frw(p0);
+      cnv->frw(px);
+      cnv->frw(py);
       int h0 = S->geth4(p0, false);
       int hx = S->geth4(px, false);
       int hy = S->geth4(py, false);

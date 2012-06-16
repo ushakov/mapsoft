@@ -60,6 +60,11 @@ std::istream & operator>> (std::istream & s, Enum & e){
 
 geo_types_table Datum::names;
 
+Datum::Datum(const int v){
+  if (names.size()==0) create_table();
+  val = v;
+}
+
 Datum::Datum(const std::string & str){
   if (names.size()==0) create_table();
   set_from_string(str);
@@ -87,6 +92,11 @@ void Datum::create_table(){
 /***********************************************************/
 
 geo_types_table Proj::names;
+
+Proj::Proj(const int v){
+  if (names.size()==0) create_table();
+  val=v;
+}
 
 Proj::Proj(const std::string & str){
   if (names.size()==0) create_table();

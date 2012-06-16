@@ -14,33 +14,20 @@ using namespace std;
 #define SHOW_REF 4
 
 LayerGeoMap::LayerGeoMap(g_map_list *_data, const Options & opt) :
-      data(_data),
-      image_cache(4),
-      mymap(convs::mymap(*_data)){
+      data(_data), image_cache(4){
   make_m2ms();
   status_set(SHOW_BRD, opt.exists("map_show_brd"));
 }
 
-g_map
-LayerGeoMap::get_ref() const {
-  return mymap;
+void
+LayerGeoMap::set_cnv(Conv * c, int hint){
+  LayerGeo::set_cnv(c, hint);
+  make_m2ms();
 }
-
-convs::map2pt
-LayerGeoMap::get_cnv() const{
-  return convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"));
-}
-
 
 g_map
 LayerGeoMap::get_myref() const {
   return convs::mymap(*data);
-}
-
-void
-LayerGeoMap::set_ref(const g_map & map){
-  mymap=map;
-  make_m2ms();
 }
 
 g_map_list *
@@ -149,7 +136,7 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
         cerr  << "LayerMap: Using Image " << file
 		 << " at scale " << scale << " (loaded at scale " << iscales[i] <<", scales[i]: " << scales[i] << ")\n";
 #endif
-        m2ms[i].image_frw(image_cache.get(i), image, origin, 1.0/iscales[i]);
+        m2ms[i]->image_frw(image_cache.get(i), image, origin, 1.0/iscales[i]);
       }
 
       //draw border
@@ -174,11 +161,10 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
       // draw refpoints
       double dr=10, dg=5;
       if (status[m]&SHOW_REF){
-        convs::map2pt c1(mymap, Datum("wgs84"), Proj("lonlat"), Options());
         for (g_map::const_iterator p=(*data)[i].begin();
                              p!=(*data)[i].end(); p++){
           dPoint pr(p->xr, p->yr); // raster coords
-          m2ms[i].frw(pr);
+          m2ms[i]->frw(pr);
           pr-=dorigin;
           cr->move_to(pr + dPoint(-1,0)*dr);
           cr->line_to(pr + dPoint(1,0)*dr);
@@ -189,7 +175,7 @@ LayerGeoMap::draw(const iPoint origin, iImage & image){
           cr->stroke();
 
           dPoint pg(p->x, p->y);   // geo coords
-          c1.bck(pg);
+          cnv->bck(pg);
           pg-=dorigin;
           cr->move_to(pg + dPoint(-1,-1)*dg);
           cr->line_to(pg + dPoint(1,1)*dg);
@@ -256,7 +242,9 @@ LayerGeoMap::dump_maps(const char *file){
 
 void
 LayerGeoMap::make_m2ms(){
-  if ((data == NULL)||(data->size()==0)) return;
+  if (!data || !data->size() || !cnv) return;
+
+  if (cnv_hint<0) cnv_hint=0;
 
   m2ms.clear();
   scales.clear();
@@ -265,17 +253,40 @@ LayerGeoMap::make_m2ms(){
 
   for (int i=0; i< data->size(); i++){
       // map -> layer conversion
+
       g_map * m = &(*data)[i];
-      convs::map2map c(*m, mymap);
+      boost::shared_ptr<Conv> c;
+
+      if (cnv_hint == m->map_proj.val){ // the same proj!
+        map<dPoint,dPoint> points;
+        for (g_map::const_iterator i=m->begin(); i!=m->end(); i++){
+          dPoint pr(i->xr, i->yr), pl(*i);
+          cnv->bck(pl);
+          points[pr] = pl;
+        }
+        c.reset(new ConvAff(points));
+      }
+      else {
+        std::map<dPoint, dPoint> ref1, ref2;
+        for (g_map::const_iterator i=m->begin(); i!=m->end(); i++){
+          dPoint p1(i->xr, i->yr); // p1 - map point
+          dPoint p2(i->x, i->y);   // p2 - wgs point
+          dPoint p3(p2);
+          cnv->bck(p3); // p3 - screen point
+          ref1[p1]=p2;
+          ref2[p3]=p2;
+        }
+        c.reset(new convs::map2map(m->map_proj, Proj(cnv_hint), ref1, ref2));
+      }
       m2ms.push_back(c);
 
       // converted border
-      dLine brd = c.line_frw(m->border);
+      dLine brd = c->line_frw(m->border);
       borders.push_back(brd);
 
       // map scaling factor
       dPoint p1(0,0), p2(1000,0), p3(0,1000);
-      c.frw(p1); c.frw(p2); c.frw(p3);
+      c->frw(p1); c->frw(p2); c->frw(p3);
       double sc = min(1000/pdist(p1,p2), 1000/pdist(p1,p3));
       scales.push_back(sc);
 
@@ -288,7 +299,7 @@ LayerGeoMap::make_m2ms(){
       const iPoint rr(10,10);
       for (int j=0; j<m->size(); j++){
         dPoint pr((*m)[j].xr, (*m)[j].yr);
-        c.frw(pr);
+        c->frw(pr);
         myrange = rect_bounding_box(myrange,
            iRect(iPoint(pr)-rr, iPoint(pr)+rr));
       }

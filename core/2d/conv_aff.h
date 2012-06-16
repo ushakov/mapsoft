@@ -10,8 +10,8 @@
 ///@{
 
 /// Affine transformation
-struct ConvAff : Conv {
-private:
+class ConvAff : public Conv {
+
   std::vector<double> k_frw;
   std::vector<double> k_bck;
   void bck_recalc(); ///< recalculate k_bck matrix

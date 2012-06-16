@@ -91,12 +91,13 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   }
 
   iImage im(geom.w,geom.h,0x00FFFFFF);
+  convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"), Options());
 
   if (gg_zoom>=0){
     string dir    = opt.get<string>("google_dir");
     bool download = opt.get<bool>("download", false);
     LayerGoogle l(dir, gg_zoom);
-    l.set_ref(ref);
+    l.set_cnv(&cnv, ref.map_proj.val);
     l.set_downloading(download);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
@@ -106,7 +107,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     string dir    = opt.get<string>("ks_dir");
     bool download = opt.get("download", false);
     LayerKS l(dir, ks_zoom);
-    l.set_ref(ref);
+    l.set_cnv(&cnv, ref.map_proj.val);
     l.set_downloading(download);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
@@ -115,7 +116,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   for (int i=0; i<world.maps.size(); i++){
     g_map_list d(world.maps[i]);
     LayerGeoMap l(&d, opt);
-    l.set_ref(ref);
+    l.set_cnv(&cnv, ref.map_proj.val);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
@@ -123,7 +124,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   for (int i=0; i<world.trks.size(); i++){
     g_track d(world.trks[i]);
     LayerTRK l(&d, opt);
-    l.set_ref(ref);
+    l.set_cnv(&cnv);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
@@ -131,7 +132,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   for (int i=0; i<world.wpts.size(); i++){
     g_waypoint_list d(world.wpts[i]);
     LayerWPT l(&d);
-    l.set_ref(ref);
+    l.set_cnv(&cnv);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }

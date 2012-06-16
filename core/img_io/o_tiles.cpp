@@ -170,13 +170,14 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
     dRect zoom_geom = geom;
     zoom_ref /= scale;
     zoom_geom /= scale;
-    
+    convs::map2pt zoom_cnv(zoom_ref, Datum("wgs84"), Proj("lonlat"), Options());
+
     // tiles is in tile coordinates in dest projection
     iRect tiles = tile_covering(zoom_geom, 256);
     cout << "tiles@" << z << " = " << tiles << endl;
     cout << "geom=" << zoom_geom << endl;
 
-    layer.set_ref(zoom_ref);
+    layer.set_cnv(&zoom_cnv);
 
     vector<int> x_coords, y_coords, zooms, offsets;
     for(int x = tiles.x; x < tiles.x + tiles.w; ++x) {

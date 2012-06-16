@@ -4,6 +4,7 @@ e.UseLibs('utils srtm')
 
 e.Library('layers', \
     Split ("""
+        layer_geo.cpp
         layer_geomap.cpp
         layer_trk.cpp
         layer_wpt.cpp

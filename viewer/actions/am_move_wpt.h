@@ -31,9 +31,8 @@ public:
           mapview->rubber.add_line(p);
           mystate=1;
         } else { // move point
-          convs::map2pt cnv(layer->get_cnv());
           dPoint pt(p);
-          cnv.frw(pt);
+          layer->get_cnv()->frw(pt);
           wpt->dPoint::operator=(pt);
           mapview->set_changed();
           mapview->workplane.refresh_layer(layer);

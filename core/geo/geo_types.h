@@ -45,6 +45,7 @@ std::istream & operator>> (std::istream & s, Enum & e);
 
 struct Datum : Enum{
   static geo_types_table names;
+  Datum(const int v);
   Datum(const std::string & str = "");
   geo_types_table & get_table() const { return names;}
   void create_table();
@@ -57,6 +58,7 @@ struct Datum : Enum{
 
 struct Proj : Enum {
   static geo_types_table names;
+  Proj(const int v);
   Proj(const std::string & str = "");
   geo_types_table & get_table() const { return names;}
   void create_table();

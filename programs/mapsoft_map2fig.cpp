@@ -116,8 +116,9 @@ cerr << ": " << p2 << "\n";
 
 
     fig_ref/=rescale; // теперь fig_ref - в координатах растра
-
-    ml->set_ref(fig_ref);
+    convs::map2pt fig_cnv(
+      fig_ref, Datum("wgs84"), Proj("lonlat"), Options());
+    ml->set_cnv(&fig_cnv);
 
     // диапазон картинки в координатах растра
     dRect range = fig_ref.border.range();

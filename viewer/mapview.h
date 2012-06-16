@@ -40,6 +40,7 @@ public:
     Gtk::Image *busy_icon;
     DataView * dataview;
 
+    convs::map2pt cnv;
     g_map reference;
     bool have_reference;
     bool divert_refresh;
@@ -88,6 +89,7 @@ public:
     geo_data get_world(bool visible=true);
 
     void set_ref(const g_map & ref);
+    g_map get_myref() const;
     void goto_wgs(dPoint p);
     void exit(bool force=false);
     void refresh();

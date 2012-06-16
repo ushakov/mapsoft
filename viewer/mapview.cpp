@@ -16,7 +16,8 @@ Mapview::Mapview () :
     viewer(&workplane),
     rubber(&viewer),
     srtm("",20),
-    layer_srtm(&srtm)
+    layer_srtm(&srtm),
+    cnv(get_myref(), Datum("wgs84"), Proj("lonlat"), Options())
 {
 
     /// layer drawing options (set before Action constructors)
@@ -339,7 +340,7 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> data) {
   set_changed();
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
-  else layer->set_ref(reference);
+//  else layer->set_cnv(&cnv);
   wpt_ll.add_layer(layer, data);
 }
 void
@@ -349,7 +350,7 @@ Mapview::add_trks(const boost::shared_ptr<g_track> data) {
   set_changed();
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
-  else layer->set_ref(reference);
+//  else layer->set_cnv(&cnv);
   trk_ll.add_layer(layer, data);
 }
 void
@@ -438,14 +439,14 @@ Mapview::get_world(bool visible){
 void
 Mapview::set_ref(const g_map & ref){
   if (ref.size()==0) return;
-  workplane.set_ref(ref);
+  cnv = convs::map2pt(ref, Datum("wgs84"), Proj("lonlat"), Options());
+  workplane.set_cnv(&cnv, ref.map_proj.val);
   reference=ref;
   have_reference=true;
 }
 void
 Mapview::goto_wgs(dPoint p){
   if (!have_reference) return;
-  convs::map2pt cnv(reference, Datum("wgs84"), Proj("lonlat"));
   cnv.bck(p);
   viewer.set_center(p);
 }
@@ -552,7 +553,7 @@ Mapview::show_srtm(bool show){
   else if (!state && show){
     statusbar.push("SRTM ON", 0);
     workplane.add_layer(&layer_srtm, DEPTH_SRTM);
-    layer_srtm.set_ref(reference);
+    layer_srtm.set_cnv(&cnv);
     workplane.refresh_layer(&layer_srtm);
   }
 }
@@ -671,3 +672,13 @@ Mapview::find_map_layer() const{
   return NULL;
 }
 
+g_map
+Mapview::get_myref() const {
+//  return ref_ll(180*1200); // 1200pt/degree
+  g_map ret;
+  ret.map_proj = Proj("lonlat");
+  ret.push_back(g_refpoint(0,  45, 0, 45*1200));
+  ret.push_back(g_refpoint(180, 0, 180*1200,90*1200));
+  ret.push_back(g_refpoint(0,   0, 0, 90*1200));
+  return ret;
+}

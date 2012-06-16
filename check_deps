@@ -39,6 +39,7 @@ needed_inc='
   boost/operators.hpp
   boost/spirit.hpp
   boost/lexical_cast.hpp
+  boost/shared_ptr.hpp
   jpeglib.h
   tiff.h
   yaml.h

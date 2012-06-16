@@ -28,8 +28,8 @@ public:
 
     virtual Layer & operator/= (double k) = 0;
     virtual Layer & operator*= (double k) = 0;
-    virtual Layer & operator-= (dPoint k) = 0;
-    virtual Layer & operator+= (dPoint k) = 0;
+//    virtual Layer & operator-= (dPoint k) = 0;
+//    virtual Layer & operator+= (dPoint k) = 0;
 
     Layer() {}
     Layer (Layer const & other) { }

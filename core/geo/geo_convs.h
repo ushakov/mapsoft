@@ -55,18 +55,32 @@ private:
   int * refcounter;
 };
 
-/// Преобразование из карты в карту.
-/// Здесь может быть суровое разбиение карты на куски и аппроксимация линейными преобразованиями...
-/// Здесь же - преобразование картинок (с интерфейсом как у image loader'a).
+/// map->map transformation.
+/// ConvAff -> geo conv -> Conv Aff
 struct map2map : Conv{
+
+  /// accurate constructor
+  map2map(const Datum & sD, const Proj & sP, const Options & sPo,
+          const Datum & dD, const Proj & dP, const Options & dPo,
+          std::map<dPoint, dPoint> ref1,
+          std::map<dPoint, dPoint> ref2);
+
+  /// simple constructor (assume sD=dD, sPo=dPo)
+  map2map(const Proj & sP, const Proj & dP,
+          std::map<dPoint, dPoint> ref1,
+          std::map<dPoint, dPoint> ref2);
+
+  /// the same assumptions
   map2map(const g_map & sM, const g_map & dM);
+
   void frw(dPoint & p) const;
   void bck(dPoint & p) const;
 
   void rescale_src(const double s);
   void rescale_dst(const double s);
 private:
-  map2pt c1,c2;
+  ConvAff cnv1, cnv3;
+  pt2pt cnv2;
 };
 
 

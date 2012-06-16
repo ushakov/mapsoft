@@ -57,25 +57,22 @@ public:
           else if ((pt_num<layer->get_data()->size()) &&
                    (layer->get_pt(pt_num)->start)) return; // don't add points it track gaps
 
-          convs::map2pt cnv(layer->get_cnv());
-
           if (edge != 1){
             dPoint p1 = *layer->get_pt(pt_num-1);
-            cnv.bck(p1);
+            layer->get_cnv()->bck(p1);
             mapview->rubber.add_line(p1);
           }
           if (edge != 2){
             dPoint p1 = *layer->get_pt(pt_num);
-            cnv.bck(p1);
+            layer->get_cnv()->bck(p1);
             mapview->rubber.add_line(p1);
           }
           mystate=1;
 
         } else { // add point
           if (!layer) return;
-          convs::map2pt cnv(layer->get_cnv());
           dPoint pt(p);
-          cnv.frw(pt);
+          layer->get_cnv()->frw(pt);
 
           g_trackpoint tpt;
           tpt.start=false;

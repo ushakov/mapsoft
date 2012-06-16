@@ -9,7 +9,7 @@
 #include "2d/point.h"
 #include "2d/rect.h"
 #include "2d/image.h"
-
+#include <boost/shared_ptr.hpp>
 
 /// Растровый слой для показа привязанных карт.
 
@@ -20,30 +20,23 @@ class LayerGeoMap
 {
 private:
   g_map_list *data;                  // привязки карт
-  std::vector<convs::map2map> m2ms;  // преобразования из каждой карты в mymap
+  std::vector< boost::shared_ptr<Conv> > m2ms;
+                                     // преобразования из каждой карты
   std::vector<double> scales;        // во сколько раз мы сжимаем карты при загрузке
   std::vector<int>    iscales;       // во сколько раз мы сжимаем карты при загрузке
   std::vector<iLine>  borders;       // границы (в координатах слоя)
   iRect myrange;                     // габариты карты
   Cache<int, iImage> image_cache;    // кэш изображений
-  g_map mymap;
   std::map<const g_map*, int> status; // visibility of refpoints, border, map image
 
 public:
 
   LayerGeoMap (g_map_list *_data, const Options & opt = Options());
 
-  /// Get layer reference.
-  g_map get_ref() const;
+  void set_cnv(Conv * cnv, int hint = -1);
 
   /// Get some reasonable reference.
   g_map get_myref() const;
-
-  /// Get layer conversion to wgs84 latlon.
-  convs::map2pt get_cnv() const;
-
-  /// Set layer reference.
-  void set_ref(const g_map & map);
 
   /// Get pointer to the data.
   g_map_list * get_data() const;

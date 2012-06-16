@@ -2,7 +2,7 @@
 #include "workplane.h"
 
 
-Workplane::Workplane(void) : sc(1.0), stop_drawing(false) { }
+Workplane::Workplane(void) : sc(1.0), stop_drawing(false), cnv(NULL){ }
 
 int
 Workplane::draw(iImage &img, const iPoint &origin){
@@ -59,6 +59,7 @@ Workplane::add_layer (LayerGeo * layer, int depth) {
         Glib::Mutex::Lock lock(draw_mutex);
         stop_drawing=true;
 	layers.insert (std::make_pair (depth, layer));
+	layer->set_cnv(cnv, cnv_hint);
 	layers_active[layer] = true;
 	tile_cache[layer].reset(new LayerCache(CacheCapacity));
 }
@@ -145,9 +146,10 @@ bool Workplane::exists(LayerGeo * layer) {
 
 void Workplane::set_scale(const double k){
         Glib::Mutex::Lock lock(draw_mutex);
+        cnv->rescale_src(k/sc);
 	for (std::multimap<int, LayerGeo *>::iterator itl = layers.begin();
     					itl != layers.end(); ++itl) {
-		(*itl->second)*=k/sc;
+		itl->second->set_cnv(cnv, cnv_hint);
 		tile_cache[itl->second]->clear();
 	}
 	sc=k;
@@ -166,15 +168,21 @@ Workplane::clear_tile_cache() {
 }
 
 void
-Workplane::set_ref(const g_map & reference) {
+Workplane::set_cnv(Conv * c, int hint) {
+  cnv=c;
+  cnv_hint=hint;
   {
     Glib::Mutex::Lock lock(draw_mutex);
     for (std::multimap<int, LayerGeo *>::iterator itl = layers.begin();
       itl != layers.end(); ++itl) {
-      itl->second->set_ref(reference);
+      itl->second->set_cnv(cnv, cnv_hint);
       refresh_layer(itl->second);
     }
   }
   signal_refresh.emit();
 }
 
+Conv *
+Workplane::get_cnv() const{
+  return cnv;
+}

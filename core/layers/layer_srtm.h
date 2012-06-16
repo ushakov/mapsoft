@@ -19,7 +19,6 @@ class LayerSRTM
 {
 private:
   srtm3 *S;
-  g_map mymap;
   Options opt;
 public:
 
@@ -28,17 +27,8 @@ public:
   void set_opt(const Options & o);
   Options get_opt(void) const;
 
-  /// Get layer reference.
-  g_map get_ref() const;
-
   /// Get some reasonable reference.
   g_map get_myref() const;
-
-  /// Get layer conversion to wgs84 latlon.
-  convs::map2pt get_cnv() const;
-
-  /// Set layer reference.
-  void set_ref(const g_map & map);
 
   // Optimized get_image to return empty image outside of bounds.
 //  iImage get_image (iRect src);

@@ -6,28 +6,18 @@
 
 using namespace std;
 
-LayerWPT::LayerWPT (g_waypoint_list * _data) :
-      data(_data), mymap(get_myref()),
-      cnv(get_myref(), Datum("wgs84"), Proj("lonlat")),
-      myrange(rect_pump(cnv.bb_bck(data->range()), 1.0)){
-#ifdef DEBUG_LAYER_WPT
-  cerr  << "LayerWPT: set_ref range: " << myrange << "\n";
-#endif
-}
+LayerWPT::LayerWPT (g_waypoint_list * _data) : data(_data) {}
 
 void
 LayerWPT::refresh(){
-  myrange = rect_pump(cnv.bb_bck(data->range()), 1.0);
+  myrange = cnv? iRect(rect_pump(cnv->bb_bck(data->range()), 1.0)) :
+                 iRect();
 }
 
-g_map
-LayerWPT::get_ref() const {
-  return mymap;
-}
-
-convs::map2pt
-LayerWPT::get_cnv() const{
-  return cnv;
+void
+LayerWPT::set_cnv(Conv * c, int hint){
+  LayerGeo::set_cnv(c, hint);
+  refresh();
 }
 
 g_map
@@ -40,14 +30,6 @@ LayerWPT::get_myref() const {
   return ret;
 }
 
-void
-LayerWPT::set_ref(const g_map & map){
-  mymap=map; cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"));
-  refresh();
-#ifdef DEBUG_LAYER_WPT
-  cerr  << "LayerWPT: set_ref range: " << myrange << "\n";
-#endif
-}
 
 iImage
 LayerWPT::get_image (iRect src){
@@ -68,7 +50,7 @@ LayerWPT::draw(const iPoint origin, iImage & image){
 
   g_waypoint_list::const_iterator pt;
   for (pt=data->begin(); pt!= data->end(); pt++){
-    dPoint p(pt->x,pt->y); cnv.bck(p); p-=origin;
+    dPoint p(pt->x,pt->y); cnv->bck(p); p-=origin;
 
     Color color = pt->color;
     Color bgcolor = pt->bgcolor;
@@ -117,7 +99,7 @@ LayerWPT::find_waypoint (iPoint pt, int radius) {
   target_rect = rect_pump(target_rect, radius);
   for (int wpt = 0; wpt < data->size(); ++wpt) {
     dPoint p((*data)[wpt]);
-    cnv.bck(p);
+    cnv->bck(p);
     if (pdist(dPoint(pt),p)<radius) return wpt;
   }
   return -1;
@@ -128,7 +110,7 @@ LayerWPT::find_waypoints (const iRect & r){
   vector<int> ret;
   for (int n = 0; n < data->size(); ++n) {
     dPoint p((*data)[n]);
-    cnv.bck(p);
+    cnv->bck(p);
     if (point_in_rect(p, dRect(r))) ret.push_back(n);
   }
   return ret;

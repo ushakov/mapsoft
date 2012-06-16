@@ -6,6 +6,7 @@ env.Library('2d',
     rect.cpp
     conv.cpp
     conv_aff.cpp
+    conv_triv.cpp
     line_dist.cpp
     rainbow.cpp
   """))

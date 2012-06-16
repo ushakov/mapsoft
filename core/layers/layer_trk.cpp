@@ -9,15 +9,7 @@
 using namespace std;
 
 LayerTRK::LayerTRK(g_track * _data, const Options & o):
-      data(_data), mymap(get_myref()),
-      cnv(get_myref(), Datum("wgs84"), Proj("lonlat")),
-      myrange(rect_pump(cnv.bb_bck(data->range()), 1.0)),
-      opt(o) {
-
-#ifdef DEBUG_LAYER_TRK
-  cerr  << "LayerTRK: set_ref range: " << myrange << "\n";
-#endif
-}
+      data(_data), opt(o) { }
 
 void
 LayerTRK::set_opt(const Options & o){
@@ -31,17 +23,14 @@ LayerTRK::get_opt(void) const{
 
 void
 LayerTRK::refresh(){
-  myrange = rect_pump(cnv.bb_bck(data->range()), 1.0);
+  myrange = cnv? iRect(rect_pump(cnv->bb_bck(data->range()), 1.0)) :
+                 iRect();
 }
 
-g_map
-LayerTRK::get_ref() const {
-  return mymap;
-}
-
-convs::map2pt
-LayerTRK::get_cnv() const{
-  return cnv;
+void
+LayerTRK::set_cnv(Conv * c, int hint){
+  LayerGeo::set_cnv(c, hint);
+  refresh();
 }
 
 g_map
@@ -52,16 +41,6 @@ LayerTRK::get_myref() const {
   ret.push_back(g_refpoint(180, 0, 180*3600,90*3600));
   ret.push_back(g_refpoint(0,   0, 0, 90*3600));
   return ret;
-}
-
-void
-LayerTRK::set_ref(const g_map & map){
-  mymap=map;
-  cnv = convs::map2pt(mymap, Datum("wgs84"), Proj("lonlat"));
-  refresh();
-#ifdef DEBUG_LAYER_TRK
-  cerr  << "LayerTRK: set_ref range: " << myrange << "\n";
-#endif
 }
 
 iImage
@@ -104,8 +83,8 @@ LayerTRK::draw(const iPoint origin, iImage & image){
              image.range()).empty()) continue;
       if (p2.start) continue;
 
-      cnv.bck(p1);  p1-=origin;
-      cnv.bck(p2);  p2-=origin;
+      cnv->bck(p1);  p1-=origin;
+      cnv->bck(p2);  p2-=origin;
 
       cr->move_to(p1);
       cr->line_to(p2);
@@ -149,8 +128,8 @@ LayerTRK::draw(const iPoint origin, iImage & image){
       double dy = (p2.y - p1.y);
       double d = sqrt(dx*dx + dy*dy) * 6380e3 * M_PI/180;
 
-      cnv.bck(p1);  p1-=origin;
-      cnv.bck(p2);  p2-=origin;
+      cnv->bck(p1);  p1-=origin;
+      cnv->bck(p2);  p2-=origin;
       if (pdist(p2-p1) < 2*w) { k++; continue;} // skip points
 
       double t = p2.t.value - p1.t.value;
@@ -177,8 +156,8 @@ LayerTRK::draw(const iPoint origin, iImage & image){
              image.range()).empty()) continue;
       if (p2.start) continue;
 
-      cnv.bck(p1);  p1-=origin;
-      cnv.bck(p2);  p2-=origin;
+      cnv->bck(p1);  p1-=origin;
+      cnv->bck(p2);  p2-=origin;
 
 
       if (!p1.have_alt() || !p2.have_alt()){
@@ -207,7 +186,7 @@ int
 LayerTRK::find_trackpoint (iPoint pt, int radius){
   for (int n = 0; n < data->size(); ++n) {
     dPoint p((*data)[n]);
-    cnv.bck(p);
+    cnv->bck(p);
     if (pdist(p,dPoint(pt))<radius) return n;
   }
   return -1;
@@ -218,7 +197,7 @@ LayerTRK::find_trackpoints (const iRect & r){
   vector<int> ret;
   for (int n = 0; n < data->size(); ++n) {
     dPoint p((*data)[n]);
-    cnv.bck(p);
+    cnv->bck(p);
     if (point_in_rect(p, dRect(r))) ret.push_back(n);
   }
   return ret;
@@ -237,7 +216,7 @@ LayerTRK::find_track (iPoint pt, int radius){
 
   for (int n = 0; n < ts-1; ++n) {
     dPoint p1((*data)[n]), p2((*data)[n+1]);
-    cnv.bck(p1); cnv.bck(p2);
+    cnv->bck(p1); cnv->bck(p2);
     dPoint v1 = pnorm(p2-p1) * pscal(dPoint(pt)-p1, p2-p1)/pdist(p2-p1);
 
     if ((pdist(v1) < 0)||(pdist(v1)>pdist(p2-p1))) continue;
