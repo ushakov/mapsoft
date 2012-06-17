@@ -52,6 +52,9 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
       double deg_per_pt = 180.0/width; // ~188
       mpp = deg_per_pt * M_PI/180 * 6378137.0;
     }
+    else if (opt.exists("srtm_mode")){
+      mpp = 6380000.0 * M_PI /180/1200;
+    }
     if (mpp>0){
       opt.put("dpi", rscale/mpp / 100.0 * 2.54);
     }
