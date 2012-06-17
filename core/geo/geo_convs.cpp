@@ -21,15 +21,18 @@ mkproj(const Datum & D, const Proj & P, const Options & o){
 
     ostringstream projpar;
 
+    // proj setings
     if (P==Proj("google"))  projpar << " +proj=merc";
     else  projpar << " +proj=" << P;
 
-    if (D==Datum("pulkovo"))
+    // datum and ellps settings
+    // spetial google case, see http://trac.osgeo.org/proj/wiki/FAQ#ChangingEllipsoidWhycantIconvertfromWGS84toGoogleEarthVirtualGlobeMercator
+    if (P==Proj("google")) // use google_sphere instead of wgs
+       projpar << " +a=6378137 +b=6378137 +nadgrids=@null +no_defs";
+    else if (D==Datum("pulkovo"))
        projpar << " +ellps=krass +towgs84=+28,-130,-95";
     else if (D==Datum("sphere"))
        projpar << " +ellps=sphere";
-    else if (D==Datum("google_sphere"))
-       projpar << " +a=6378137 +b=6378137 +no_defs";
     else projpar << " +datum=" << D;
 
     Enum::output_fmt = old_enum_fmt;
@@ -153,10 +156,7 @@ map2pt::map2pt(const g_map & sM,
   pr_dst = mkproj(dD, dP, dPo);
 
   // "map" projection
-  if (sM.map_proj == Proj("google")){
-    pr_map = mkproj(Datum("google_sphere"), Proj("lonlat"), Options());
-  }
-  else if (sM.map_proj == dP)
+  if (sM.map_proj == dP)
     pr_map = pr_dst;
   else
     pr_map = mkproj(dD, sM.map_proj, map_popts(sM));
