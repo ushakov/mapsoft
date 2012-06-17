@@ -6,6 +6,7 @@
 #include "layers/layer_wpt.h"
 #include "layers/layer_google.h"
 #include "layers/layer_ks.h"
+#include "layers/layer_srtm.h"
 #include "loaders/image_r.h"
 
 #include "geo/geo_convs.h"
@@ -92,6 +93,15 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
 
   iImage im(geom.w,geom.h,0x00FFFFFF);
   convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"), Options());
+
+  if (opt.exists("srtm_mode")){
+    srtm3 s(opt.get<string>("srtm_dir"));
+    LayerSRTM l(&s);
+    l.set_opt(opt);
+    l.set_cnv(&cnv, ref.map_proj.val);
+    iImage tmp_im = l.get_image(geom);
+    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
+  }
 
   if (gg_zoom>=0){
     string dir    = opt.get<string>("google_dir");

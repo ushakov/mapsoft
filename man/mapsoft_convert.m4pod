@@ -87,6 +87,19 @@ B<<  --download >> -- turn on auto downloading
 
 Now kosmosnimki downloading is broken.
 
+=head1 OPTIONS FOR RENDERING IMAGES, SRTM INPUT:
+
+B<< --srtm_mode <mode> >> -- srtm mode: normal, slopes
+
+B<< --srtm_cnt_step >> -- contour step, m
+
+B<< --srtm_hmin     >> -- min height (blue color) for normal mode
+
+B<< --srtm_hmax     >> -- max height (magenta color) for normal mode
+
+B<< --srtm_smin     >> -- min slope for slopes mode (30)
+
+B<< --srtm_smax      >> -- max slope for slopes mode (55)
 
 =head1 EXAMPLES
 
