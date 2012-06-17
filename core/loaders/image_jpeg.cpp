@@ -42,7 +42,7 @@ iPoint size(const char *file){
 struct ImageSourceJPEG : iImageSource {
 
   int row,col;
-  char *buf;
+  unsigned char *buf;
   struct jpeg_decompress_struct cinfo;
   struct jpeg_error_mgr jerr;
   FILE * infile;
@@ -68,7 +68,7 @@ struct ImageSourceJPEG : iImageSource {
     cinfo.scale_denom = denom;
 
     jpeg_start_decompress(&cinfo);
-    buf  = new char[(cinfo.image_width+1) * 3];
+    buf  = new unsigned char[(cinfo.image_width+1) * 3];
   }
 
   ~ImageSourceJPEG(){
@@ -103,8 +103,8 @@ struct ImageSourceJPEG : iImageSource {
   };
 
   int get_value(int x) const{
-    return buf[3*(x+col)] + (buf[3*(x+col)+1]<<8) +
-           (buf[3*(x+col)+2]<<16) + (0xFF<<24);
+    return 0xFF000000 + buf[3*(x+col)] + (buf[3*(x+col)+1]<<8) +
+           (buf[3*(x+col)+2]<<16);
   }
 
 };
@@ -168,7 +168,7 @@ int save(const iImage & im, const iRect & src_rect,
     jpeg_set_quality (&cinfo, quality, true);
     jpeg_start_compress(&cinfo, TRUE);
 
-    char *buf  = new char[src_rect.w * 3];
+    unsigned char *buf  = new unsigned char[src_rect.w * 3];
 
     for (int y = src_rect.y; y < src_rect.y+src_rect.h; y++){
       if ((y<0)||(y>=im.h)){
