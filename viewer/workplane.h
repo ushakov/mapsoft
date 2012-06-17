@@ -44,9 +44,7 @@ public:
 
     inline void clear_tile_cache();
 
-    void set_cnv(Conv * cnv, int hint=-1);
-
-    Conv * get_cnv() const;
+    void set_cnv(Conv * c, int hint=-1);
 
 private:
     std::multimap<int, GObj *>::iterator find_layer (GObj * layer);
@@ -59,9 +57,6 @@ private:
 
     Glib::Mutex draw_mutex;
     bool stop_drawing;
-
-    Conv * cnv;
-    int cnv_hint;
 };
 
 

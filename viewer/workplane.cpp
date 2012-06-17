@@ -2,7 +2,7 @@
 #include "workplane.h"
 
 
-Workplane::Workplane(void) : cnv(NULL),stop_drawing(false){ }
+Workplane::Workplane(void): stop_drawing(false){ }
 
 int
 Workplane::draw(iImage &img, const iPoint &origin){
@@ -147,6 +147,7 @@ bool Workplane::exists(GObj * layer) {
 void
 Workplane::refresh(){
   Glib::Mutex::Lock lock(draw_mutex);
+  stop_drawing=true;
   std::multimap<int, GObj *>::iterator itl;
   for (itl = layers.begin(); itl != layers.end(); ++itl) {
     itl->second->refresh();
@@ -167,6 +168,7 @@ Workplane::set_cnv(Conv * c, int hint) {
   cnv_hint=hint;
   {
     Glib::Mutex::Lock lock(draw_mutex);
+    stop_drawing=true;
     for (std::multimap<int, GObj *>::iterator itl = layers.begin();
       itl != layers.end(); ++itl) {
       itl->second->set_cnv(cnv, cnv_hint);
@@ -174,9 +176,4 @@ Workplane::set_cnv(Conv * c, int hint) {
     }
   }
   signal_refresh.emit();
-}
-
-Conv *
-Workplane::get_cnv() const{
-  return cnv;
 }
