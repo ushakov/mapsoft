@@ -386,7 +386,6 @@ Mapview::add_world(const geo_data & world, bool scroll) {
     if (i->size() > 0) p=(*i)[0];
   }
   if (scroll && (p.x<1e3)) goto_wgs(p);
-  set_ref(reference); //?
   divert_refresh=false;
   update_layers();
 }
@@ -441,8 +440,8 @@ Mapview::set_ref(const g_map & ref){
   if (ref.size()==0) return;
   cnv = convs::map2pt(ref, Datum("wgs84"), Proj("lonlat"), Options());
   workplane.set_cnv(&cnv, ref.map_proj.val);
-  reference=ref;
   have_reference=true;
+  cnv_proj = ref.map_proj;
 }
 void
 Mapview::goto_wgs(dPoint p){
@@ -477,13 +476,11 @@ Mapview::on_key_press(GdkEventKey * event) {
       case 61:
       case 65451: // + =
         viewer.rescale(2.0);
-//        reference*=2;
         return true;
       case 45:
       case 95:
       case 65453: // _ -
         viewer.rescale(0.5);
-//        reference/=2;
         return true;
       case 'r':
       case 'R': // refresh
@@ -525,7 +522,6 @@ bool
 Mapview::on_scroll(GdkEventScroll * event) {
   double scale = event->direction ? 0.5:2.0;
   viewer.rescale(scale, iPoint(event->x, event->y));
-  reference*=scale;
   return true;
 }
 

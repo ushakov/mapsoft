@@ -32,17 +32,13 @@ public:
       mapview->rubber.clear();
       mapview->rubber.add_src_mark(p);
 
-      convs::map2pt cnv(mapview->reference,
-        Datum("wgs84"), Proj("lonlat"), Options());
       dPoint pt(p);
-      cnv.frw(pt);
+      mapview->cnv.frw(pt);
       dlg.show_all(pt, mapview->srtm.geth4(pt));
     }
 
     void on_jump(dPoint p){
-      convs::map2pt cnv(mapview->reference,
-        Datum("wgs84"), Proj("lonlat"), Options());
-      cnv.bck(p);
+      mapview->cnv.bck(p);
       mapview->rubber.clear();
       mapview->viewer.set_center(p);
       mapview->rubber.add_src_mark(p);

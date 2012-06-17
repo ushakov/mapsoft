@@ -40,7 +40,7 @@ public:
 
     bool get_layer_active (GObj * layer);
 
-    void rescale(double k);
+    void refresh();
 
     inline void clear_tile_cache();
 

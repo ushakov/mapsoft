@@ -61,8 +61,6 @@ public:
   virtual bool get_xloop() const {return false;};
   virtual bool get_yloop() const {return false;}
 
-  virtual void rescale(double k){ cnv->rescale_src(k); refresh();}
-
   virtual Conv * get_cnv() const{ return cnv; }
   virtual void set_cnv(Conv * c, int hint=-1){
     cnv = c; cnv_hint=hint; refresh();}

@@ -102,6 +102,16 @@ private:
       return  convs::map_mpp(*m, m->map_proj);
     }
 
+    double get_scr_mpp(const iPoint & p){
+      dPoint pp[3] = {p, p + iPoint(1000,0), p + iPoint(0,1000)};
+      for (int i=0; i<3; i++){
+        mapview->cnv.frw(pp[i]); // convert to wgs
+        pp[i].x *= cos(pp[i].y /180*M_PI);
+        pp[i] *= 6380000/180*M_PI;
+      }
+      return std::max(pdist(pp[1],pp[0]), pdist(pp[2],pp[0]))/1000;
+    }
+
     double get_mpp_scale(){
       switch (dlg.get_mpp_style()){
         case MPP_SCREEN:
@@ -112,8 +122,7 @@ private:
           iPoint p1=mapview->viewer.get_origin();
           iPoint p2=mapview->viewer.get_center();
           int w = 2*(p2.x-p1.x), h = 2*(p2.y-p1.y);
-          double scr_mpp = convs::map_mpp(
-             mapview->reference, mapview->reference.map_proj);
+
           double max_mpp = 0;
 
           iPoint p;
@@ -129,12 +138,10 @@ private:
           }
 
           if (max_mpp==0) return 1.0;
-          return max_mpp/scr_mpp;
+          return max_mpp/get_scr_mpp(one);
         }
         case MPP_MANUAL:{
-          double scr_mpp = convs::map_mpp(
-             mapview->reference, mapview->reference.map_proj);
-          return dlg.get_mpp()/scr_mpp;
+          return dlg.get_mpp()/get_scr_mpp(one);
         }
       }
       return 1.0;
@@ -171,11 +178,9 @@ private:
 
       std::string fname=fdlg.get_filename();
 
-      g_map mymap = mapview->reference;
-
       iPoint wh = dlg.get_px();
       double mpp_scale=get_mpp_scale();
-
+std::cerr << "MPP SCALE " << mpp_scale << "\n";
       dPoint mytlc(one);
       int c = dlg.get_corner();
       if ((c==1) || (c==2)) mytlc.x -=wh.x;
@@ -188,10 +193,11 @@ private:
       }
       else{
         mytlc/=mpp_scale;
-        mymap/=mpp_scale;
-        mapview->workplane.rescale(1/mpp_scale);
+        mapview->cnv.rescale_src(1/mpp_scale);
+        mapview->workplane.refresh();
         mapview->workplane.draw(image, mytlc);
-        mapview->workplane.rescale(mpp_scale);
+        mapview->cnv.rescale_src(mpp_scale);
+        mapview->workplane.refresh();
       }
 
 //      if (r == Gtk::RESPONSE_APPLY){
@@ -206,15 +212,14 @@ private:
 
       g_map ref;
       if (dlg.get_map()){
-        ref.map_proj  = mapview->reference.map_proj;
+        ref.map_proj  = mapview->cnv_proj;
         ref.file=fname;
         ref.comm="created by mapsoft_mapview";
 
-        convs::map2pt cnv(mymap,
-                          Datum("wgs84"), Proj("lonlat"));
         dLine pts = rect2line(iRect(mytlc, iPoint(mytlc)+wh));
         dLine pts_c(pts);
-        cnv.line_frw_p2p(pts_c);
+        pts_c*=mpp_scale;
+        mapview->cnv.line_frw_p2p(pts_c);
         pts-=mytlc;
         for (int i=0; i<pts.size(); i++){
           ref.push_back(g_refpoint(pts_c[i], pts[i]));

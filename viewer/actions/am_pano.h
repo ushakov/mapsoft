@@ -35,11 +35,8 @@ public:
         return;
       }
 
-      convs::map2pt cnv(mapview->reference,
-        Datum("wgs84"), Proj("lonlat"), Options());
-
       if (state==0 || mod&Gdk::CONTROL_MASK){ // first click
-        p0=p; cnv.frw(p0); state=1;
+        p0=p; mapview->cnv.frw(p0); state=1;
         mapview->rubber.clear();
         mapview->rubber.add_src_mark(p);
         dlg.show_all();
@@ -47,7 +44,7 @@ public:
       }
       else{ // next click
         dPoint p0i(p0), p1(p);
-        cnv.bck(p0i); cnv.frw(p1);
+        mapview->cnv.bck(p0i); mapview->cnv.frw(p1);
         mapview->rubber.clear();
         mapview->rubber.add_src_mark(p0i);
         mapview->rubber.add_src_mark(p);
@@ -57,10 +54,8 @@ public:
     }
 
     void on_point(dPoint p){
-      convs::map2pt cnv(mapview->reference,
-        Datum("wgs84"), Proj("lonlat"), Options());
       dPoint p0i(p0);
-      cnv.bck(p); cnv.bck(p0i);
+      mapview->cnv.bck(p); mapview->cnv.bck(p0i);
       mapview->rubber.clear();
       mapview->rubber.add_src_mark(p0i);
       mapview->rubber.add_src_mark(p);
@@ -69,9 +64,7 @@ public:
 
     void on_go(dPoint p){
       dlg.set_origin(p);
-      convs::map2pt cnv(mapview->reference,
-        Datum("wgs84"), Proj("lonlat"), Options());
-      p0=p; cnv.bck(p); state=1;
+      p0=p; mapview->cnv.bck(p); state=1;
       mapview->rubber.clear();
       mapview->rubber.add_src_mark(p);
       mapview->viewer.set_center(p);

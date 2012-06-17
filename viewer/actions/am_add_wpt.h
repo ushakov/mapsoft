@@ -33,10 +33,8 @@ public:
            mapview->statusbar.push("No geo-reference", 0);
            return;
          }
-        g_map map = mapview->reference;
-        convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
         wpt.dPoint::operator=(p);
-        cnv.frw(wpt);
+        mapview->cnv.frw(wpt);
         dlg.set_ll(wpt);
         dlg.show_all();
         mapview->rubber.clear();
@@ -70,9 +68,7 @@ private:
     }
 
     void on_jump(dPoint p){
-      convs::map2pt cnv(mapview->reference,
-        Datum("wgs84"), Proj("lonlat"), Options());
-      cnv.bck(p);
+      mapview->cnv.bck(p);
       mapview->rubber.clear();
       mapview->viewer.set_center(p);
       mapview->rubber.add_src_mark(p);

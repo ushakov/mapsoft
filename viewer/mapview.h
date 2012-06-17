@@ -41,7 +41,7 @@ public:
     DataView * dataview;
 
     convs::map2pt cnv;
-    g_map reference;
+    Proj cnv_proj;
     bool have_reference;
     bool divert_refresh;
 

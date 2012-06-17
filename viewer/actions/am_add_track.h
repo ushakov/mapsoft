@@ -56,14 +56,12 @@ public:
           }
         }
         else{ // add point
-          g_map map = mapview->reference;
-          convs::map2pt cnv(map, Datum("wgs84"), Proj("lonlat"));
 
           g_trackpoint pt;
           pt.dPoint::operator=(p);
-	  cnv.frw(pt);
+          mapview->cnv.frw(pt);
           pt.start = (state&Gdk::SHIFT_MASK) || (trk.size()==0);
-	  trk.push_back(pt);
+          trk.push_back(pt);
 
           if (mapview->rubber.size()>0){
             RubberSegment s = mapview->rubber.pop();

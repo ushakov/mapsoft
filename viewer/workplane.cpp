@@ -145,12 +145,10 @@ bool Workplane::exists(GObj * layer) {
 }
 
 void
-Workplane::rescale(double k){
+Workplane::refresh(){
   Glib::Mutex::Lock lock(draw_mutex);
-  cnv->rescale_src(k);
   std::multimap<int, GObj *>::iterator itl;
   for (itl = layers.begin(); itl != layers.end(); ++itl) {
-    //itl->second->rescale(k);
     itl->second->refresh();
     tile_cache[itl->second]->clear();
   }
