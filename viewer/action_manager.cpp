@@ -25,12 +25,12 @@
 #include "actions/am_delete_tpt.h"
 #include "actions/am_mark_trk.h"
 #include "actions/am_trk_filter.h"
+#include "actions/am_draw_opt.h"
 
 #include "actions/am_edit_map.h"
 
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
-#include "actions/am_draw_opt.h"
 #include "actions/am_srtm_opt.h"
 #include "actions/am_pano.h"
 
@@ -77,12 +77,12 @@ ActionManager::ActionManager (Mapview * mapview_)
     AddSep("Tracks");
     ADD_ACT(MarkTrack,       "Tracks")
     ADD_ACT(FilterTrack,     "Tracks")
+    ADD_ACT(DrawOpt,         "Tracks")
 
     ADD_ACT(EditMap,         "Maps")
 
     ADD_ACT(SaveImage,       "Misc")
     ADD_ACT(ShowPt,          "Misc")
-    ADD_ACT(DrawOpt,         "Misc")
     ADD_ACT(SrtmOpt,         "Misc")
     ADD_ACT(Pano,            "Misc")
     AddSep("Misc");

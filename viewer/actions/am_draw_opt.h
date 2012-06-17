@@ -17,7 +17,7 @@ public:
       dlg.set_opt(mapview->layer_options);
     }
 
-    std::string get_name() { return "Drawing options"; }
+    std::string get_name() { return "Track drawing options"; }
 //    Gtk::StockID get_stockid() { return Gtk::StockID(""); }
 
     bool is_radio() { return false; }
