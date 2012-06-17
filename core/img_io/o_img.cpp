@@ -107,7 +107,8 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     string dir    = opt.get<string>("google_dir");
     bool download = opt.get<bool>("download", false);
     LayerGoogle l(dir, gg_zoom);
-    l.set_cnv(&cnv, ref.map_proj.val);
+    l.set_ref(ref);
+//    l.set_cnv(&cnv, ref.map_proj.val);
     l.set_downloading(download);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
@@ -117,7 +118,8 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     string dir    = opt.get<string>("ks_dir");
     bool download = opt.get("download", false);
     LayerKS l(dir, ks_zoom);
-    l.set_cnv(&cnv, ref.map_proj.val);
+    l.set_ref(ref);
+//    l.set_cnv(&cnv, ref.map_proj.val);
     l.set_downloading(download);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
