@@ -16,7 +16,7 @@ private:
   double max_r;
   double dh;
   simple_rainbow rb;
-  int width, width0;
+  int width0;
 
   struct ray_data{
     double r, h, s; // distance, height, slope
@@ -25,13 +25,14 @@ private:
 
   Cache<int, std::vector<ray_data> > ray_cache;
 
+  double getw() const {dPoint p(width0,0); cnv->bck(p); return p.x;}
 
 public:
   LayerPano(srtm3 * s);
 
   // Horizontal range is 720deg, -width..width
   // Vertical range is 90, 0..width/4
-  iRect range() const {return iRect(0,0, width,width/2);}
+  iRect range() const {double w=getw(); return iRect(0,0,w,w/2);}
   bool get_xloop() const {return true;}
 
   void set_origin(const dPoint & p); // central point, wgs84 lonlat
@@ -47,12 +48,8 @@ public:
   void set_maxr(double r); // max distance
   double get_maxr(void) const;
 
-  void set_width0(int w); // 360deg width
-  int get_width0(void) const;
+  void set_width(int w); // 360deg width
   int get_width(void) const;
-
-  void set_scale(const double k);
-  double get_scale(void) const;
 
   void set_opt(const Options & o);
   Options get_opt(void) const;
