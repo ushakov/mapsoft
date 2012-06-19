@@ -153,6 +153,7 @@ namespace xml {
 			f << "/>\n";
 		}
 		f << "</track>\n";
+		return true;
 	}
 
 	bool write_waypoint_list(ofstream & f, const g_waypoint_list & wp, const Options & opt){
@@ -189,6 +190,7 @@ namespace xml {
 			f << "/>\n";
 		}
 		f << "</waypoints>\n";
+		return true;
 	}
 
 	bool write_map(ofstream & f, const g_map & m, const Options & opt){
@@ -222,6 +224,7 @@ namespace xml {
 			f << "/>\n";
 		}
 		f << "  </map>\n";
+		return true;
 	}
 
 	bool write_map_list(ofstream & f, const g_map_list & m, const Options & opt){
@@ -237,6 +240,7 @@ namespace xml {
 		g_map_list::const_iterator map, b=m.begin(), e=m.end();
 		for (map = b; map!=e; map++) write_map (f, *map, opt);
 		f << "</maps>\n";
+		return true;
 	}
 
 
@@ -248,7 +252,7 @@ namespace xml {
 	  ofstream f(filename);
 
 	  for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++){
-	    if (!write_waypoint_list(f, *i, opt))
+	    if (write_waypoint_list(f, *i, opt))
 	      throw MapsoftErr("GEO_IO_XML_WRITE")
 	        << "Can't write data to Mapsoft XML file " << filename;
 	  }
