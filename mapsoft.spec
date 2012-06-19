@@ -1,5 +1,5 @@
 Name: mapsoft
-Version: 20120617
+Version: 20120619
 Release: alt1
 License: GPL
 Summary: mapsoft - programs for working with maps and geodata
@@ -68,6 +68,9 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_mandir/man1/mapsoft_vmap.1.gz
 
 %changelog
+* Wed Jun 20 2012 Vladislav Zavjalov <slazav@altlinux.org> 20120619-alt1
+- build current snapshot (some bugs fixed)
+
 * Sun Jun 17 2012 Vladislav Zavjalov <slazav@altlinux.org> 20120617-alt1
 - build current snapshot
 
