@@ -9,7 +9,6 @@ e.Library('gred', \
       action_manager.cpp
       rubber.cpp
       simple_viewer.cpp
-      mthread_viewer.cpp
       dthread_viewer.cpp
      """))
 
