@@ -51,9 +51,6 @@ class SimpleViewer : public Viewer {
     virtual bool on_motion_notify_event (GdkEventMotion * event);
 
     virtual bool is_on_drag();
-    /// Epoch counter is used in multithread viewers to invalidate old tiles
-    virtual int  get_epoch();
-    virtual void inc_epoch();
 
     sigc::signal<void> & signal_before_draw();
     sigc::signal<void> & signal_after_draw();
@@ -78,7 +75,6 @@ class SimpleViewer : public Viewer {
     bool on_drag;
     iPoint drag_pos;
 
-    int epoch;
     int bgcolor;
     double sc;
 };

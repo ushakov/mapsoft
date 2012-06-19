@@ -13,14 +13,14 @@ MThreadViewer::~MThreadViewer(){
 }
 
 void MThreadViewer::updater(const iRect & r){
-  int e=get_epoch();
+  stop_drawing=false;
 
   iImage img(r.w, r.h, get_bgcolor());
   GObj * obj = get_obj();
   if (obj) obj->draw(img, r.TLC());
 
   std::pair<iPoint, iImage> p(r.TLC(), img);
-  if (e==get_epoch()){
+  if (stop_drawing){
     mutex->lock();
     done_cache.insert(p);
     mutex->unlock();
@@ -51,3 +51,8 @@ void MThreadViewer::draw(const iRect & r){
     false);
 }
 
+void
+MThreadViewer::redraw (void){
+  stop_drawing=true;
+  draw(iRect(0, 0, get_width(), get_height()));
+}

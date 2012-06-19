@@ -8,8 +8,6 @@
 SimpleViewer::SimpleViewer(GObj * o) :
     obj(o),
     origin(iPoint(0,0)),
-    on_drag(false),
-    epoch(0),
     bgcolor(0xFF000000),
     sc(1.0) {
   set_name("MapsoftViewer");
@@ -146,7 +144,6 @@ SimpleViewer::draw_image (const iImage & img, const iRect & part, const iPoint &
 
 void
 SimpleViewer::redraw (void){
-  epoch++;
   draw(iRect(0, 0, get_width(), get_height()));
 }
 
@@ -217,16 +214,6 @@ SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
 bool
 SimpleViewer::is_on_drag(){
   return on_drag;
-}
-
-int
-SimpleViewer::get_epoch(){
-  return epoch;
-}
-
-void
-SimpleViewer::inc_epoch(){
-  epoch++;
 }
 
 /***********************************************************/

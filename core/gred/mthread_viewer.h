@@ -33,11 +33,13 @@ class MThreadViewer : public SimpleViewer {
     void updater(const iRect & r);
     void on_done_signal();
     void draw(const iRect & r);
+    virtual void redraw();
 
   private:
     std::map<iPoint,iImage> done_cache;
     Glib::Dispatcher        done_signal;
     Glib::Mutex            *mutex;
+    bool stop_drawing;
 };
 
 #endif

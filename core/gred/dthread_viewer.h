@@ -41,7 +41,8 @@ class DThreadViewer : public SimpleViewer {
     Glib::Cond             *updater_cond;
     Glib::Dispatcher        done_signal;
 
-    bool updater_needed;
+    bool updater_needed; // to stop updater on exit
+    bool stop_drawing; // to avoid caching of old tiles
 };
 
 #endif
