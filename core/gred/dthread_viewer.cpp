@@ -26,9 +26,8 @@ DThreadViewer::~DThreadViewer(){
 void
 DThreadViewer::redraw (void){
   updater_mutex->lock();
-  inc_epoch();
+  stop_drawing=true;
   tiles_cache.clear();
-  tiles_todo.clear();
   updater_mutex->unlock();
   draw(iRect(0, 0, get_width(), get_height()));
 }
@@ -48,7 +47,7 @@ DThreadViewer::updater(){
 
       iPoint key = *tiles_todo.begin();
 
-      int e=get_epoch();
+      stop_drawing=false;
       updater_mutex->unlock();
 
       iImage tile(TILE_SIZE, TILE_SIZE, 0xFF000000 | get_bgcolor());
@@ -56,7 +55,7 @@ DThreadViewer::updater(){
       if (o) o->draw(tile, tile_to_rect(key).TLC());
 
       updater_mutex->lock();
-      if (e==get_epoch()){
+      if (!stop_drawing){
         if (tiles_cache.count(key)>0) tiles_cache.erase(key);
         tiles_cache.insert(std::pair<iPoint,iImage>(key, tile));
         tiles_done.push(key);

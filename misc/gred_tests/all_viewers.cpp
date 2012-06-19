@@ -10,13 +10,11 @@ class TestWin : public Gtk::Window{
 
   SimpleViewer *v;
   SimpleViewer *v1;
-  MThreadViewer *v2;
-  DThreadViewer *v3;
+  DThreadViewer *v2;
 
   TestWin(): o3(150000), o2(true){
     v1 = new SimpleViewer(&o1);
-    v2 = new MThreadViewer(&o2);
-    v3 = new DThreadViewer(&o2);
+    v2 = new DThreadViewer(&o2);
     signal_key_press_event().connect (sigc::mem_fun (this, &TestWin::on_key_press));
     v=(SimpleViewer *)v2;
 
@@ -25,8 +23,7 @@ class TestWin : public Gtk::Window{
     show_all();
     std::cerr << "Viewer Test\n"
               << " '1' - SimpleViewer\n"
-              << " '2' - MThreadViewer\n"
-              << " '3' - DThreadViewer\n"
+              << " '2' - DThreadViewer\n"
               << " '9' - Gradient object\n"
               << " '0' - Grid object\n"
               << " 'R' - Refresh\n"
@@ -49,9 +46,6 @@ class TestWin : public Gtk::Window{
        case '2':
          change_viewer(v2);
          return true;
-       case '3':
-         change_viewer(v3);
-         return true;
        case '9':
          v->set_obj(&o2);
          return true;
@@ -64,7 +58,7 @@ class TestWin : public Gtk::Window{
 
   void change_viewer(SimpleViewer *v1){
     if (!v1) return;
-    v->inc_epoch();
+    v->redraw();
     v=v1;
     remove();
     add(*v);

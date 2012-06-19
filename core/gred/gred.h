@@ -9,6 +9,5 @@
 #include "action_manager.h"
 #include "simple_viewer.h"
 #include "dthread_viewer.h"
-#include "mthread_viewer.h"
 
 #endif

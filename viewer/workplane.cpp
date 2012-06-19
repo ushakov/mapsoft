@@ -116,8 +116,12 @@ Workplane::get_layer_depth (GObj * layer){
 
 void
 Workplane::refresh_layer (GObj * layer, bool redraw){
-	layer->refresh();
-        tile_cache[layer]->clear();
+        {
+          Glib::Mutex::Lock lock(draw_mutex);
+          stop_drawing=true;
+          tile_cache[layer]->clear();
+          layer->refresh();
+        }
         if (redraw) signal_refresh.emit();
 }
 
@@ -172,7 +176,9 @@ Workplane::set_cnv(Conv * c, int hint) {
     for (std::multimap<int, GObj *>::iterator itl = layers.begin();
       itl != layers.end(); ++itl) {
       itl->second->set_cnv(cnv, cnv_hint);
-      refresh_layer(itl->second);
+      tile_cache[itl->second]->clear();
+      stop_drawing=true;
+      itl->second->refresh();
     }
   }
   signal_refresh.emit();

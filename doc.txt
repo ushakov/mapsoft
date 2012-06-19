@@ -33,7 +33,6 @@ There is some global information for doxyden documentation.
 
 - \ref viewer            "abstract Viewer: draw GObj on GTK::Widget"
 - \ref simple_viewer     "SimpleViewer, parent of other viewers"
-- \ref mthread_viewer    "MThreadViewer /not used now/"
 - \ref dthread_viewer    "DThreadViewer: double-thread viewer with square tiles"
 
 - \ref rubber            "Rubber: rubber lines on the top of viewer"

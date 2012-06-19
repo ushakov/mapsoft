@@ -40,16 +40,9 @@ double
 LayerPano::get_maxr(void) const {return max_r;}
 
 void
-LayerPano::set_width0(int w){ width0=w; }
+LayerPano::set_width(int w){ width0=w; }
 int
-LayerPano::get_width0(void) const {return width0;}
-int
-LayerPano::get_width(void) const {return width;}
-
-void
-LayerPano::set_scale(const double k) {width = k*width0; }
-double
-LayerPano::get_scale(void) const {return double(width)/width0; }
+LayerPano::get_width(void) const {return width0;}
 
 void
 LayerPano::set_opt(const Options & o){
@@ -60,7 +53,6 @@ LayerPano::set_opt(const Options & o){
     o.get<double>("pano_maxh", 5000));
   max_r  = o.get<double>("pano_maxr", 60000);
   width0 = o.get<int>("pano_width", 3600);
-  width = width0 * o.get<double>("pano_scale", 1.0);
   ray_cache.clear();
 }
 
@@ -73,7 +65,6 @@ LayerPano::get_opt(void) const{
   o.put<double>("pano_maxh", rb.get_max());
   o.put<double>("pano_maxr", max_r);
   o.put<int>("pano_width", width0);
-  o.put<double>("pano_scale", double(width)/width0);
   return o;
 }
 
@@ -83,6 +74,9 @@ LayerPano::get_opt(void) const{
 // these segments must have linear height and slope dependence
 vector<LayerPano::ray_data>
 LayerPano::get_ray(int x){
+
+  double width=getw();
+
   while (x<0) x+=width;
   while (x>=width) x-=width;
   double a = 2.0*M_PI*x/width;
@@ -167,6 +161,9 @@ LayerPano::get_ray(int x){
 
 iPoint
 LayerPano::geo2xy(const dPoint & pt){
+
+  double width=getw();
+
   iPoint ret;
   double cx=cos(p0.y*M_PI/180);
   ret.x = width * atan2((pt.x-p0.x)*cx, pt.y-p0.y)/2.0/M_PI;
@@ -205,6 +202,8 @@ LayerPano::geo2xy(const dPoint & pt){
 dPoint
 LayerPano::xy2geo(const iPoint & pt){
 
+  double width=getw();
+
   vector<ray_data> ray = get_ray(pt.x);
   if (!ray.size()) return iPoint(0,180);
 
@@ -239,6 +238,7 @@ int
 LayerPano::draw(iImage & image, const iPoint & origin){
   if (!srtm) return GOBJ_FILL_NONE;
 
+  double width=getw();
 
   double h0 = (double)srtm->geth4(p0) + dh; // altitude of observation point
   for (int x=0; x < image.w; x++){
