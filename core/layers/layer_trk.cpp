@@ -62,12 +62,17 @@ LayerTRK::draw(iImage & image, const iPoint & origin){
     bool draw_arrows = opt.exists("trk_draw_arrows");
     cr->set_color(data->color.value);
     cr->set_line_width(w);
+
+    if (data->size()==1){ // draw 1pt tracks even in non-draw_dots mode
+      g_trackpoint p1((*data)[0]);
+      cnv->bck(p1);  p1-=origin;
+      cr->move_to(p1);
+      cr->circle(p1, dot_w);
+    }
+
     for (int i=1; i<data->size(); i++){
       g_trackpoint p1((*data)[i-1]);
       g_trackpoint p2((*data)[i]);
-      if (rect_intersect(
-             rect_pump(iRect(p1,p2), w),
-             image.range()).empty()) continue;
       if (p2.start) continue;
 
       cnv->bck(p1);  p1-=origin;
@@ -102,12 +107,18 @@ LayerTRK::draw(iImage & image, const iPoint & origin){
     cr->set_line_width(2*w);
     simple_rainbow sr(trk_speed1, trk_speed2);
     int k = 1;
+
+    if (data->size()==1){ // draw 1pt tracks even in non-draw_dots mode
+      g_trackpoint p1((*data)[0]);
+      cnv->bck(p1);  p1-=origin;
+      cr->set_color(0);
+      cr->move_to(p1);
+      cr->circle(p1, dot_w);
+    }
+
     for (int i=1; i<data->size(); i++){
       g_trackpoint p1((*data)[i-k]);
       g_trackpoint p2((*data)[i]);
-      if (rect_intersect(
-             rect_pump(iRect(p1,p2), w),
-             image.range()).empty()) continue;
       if (p2.start) continue;
 
       double cc = cos((p1.y + p2.y)/2.0/180.0*M_PI);
@@ -135,12 +146,18 @@ LayerTRK::draw(iImage & image, const iPoint & origin){
     double trk_height2 = opt.get<double>("trk_draw_h2", 8000);
     cr->set_line_width(2*w);
     simple_rainbow sr(trk_height1, trk_height2);
+
+    if (data->size()==1){ // draw 1pt tracks even in non-draw_dots mode
+      g_trackpoint p1((*data)[0]);
+      cnv->bck(p1);  p1-=origin;
+      cr->set_color(0);
+      cr->move_to(p1);
+      cr->circle(p1, dot_w);
+    }
+
     for (int i=1; i<data->size(); i++){
       g_trackpoint p1((*data)[i-1]);
       g_trackpoint p2((*data)[i]);
-      if (rect_intersect(
-             rect_pump(iRect(p1,p2), w),
-             image.range()).empty()) continue;
       if (p2.start) continue;
 
       cnv->bck(p1);  p1-=origin;
