@@ -214,16 +214,19 @@ LayerTRK::find_track (iPoint pt, int radius){
 
   if (ts<1) return -1;
   if (ts<2){
-    if (pdist((*data)[0],dPoint(pt))<radius) return 0;
+    dPoint p((*data)[0]);
+    cnv->bck(p);
+    if (pdist(p,dPoint(pt))<radius) return 0;
     else return -1;
   }
 
   for (int n = 0; n < ts-1; ++n) {
     dPoint p1((*data)[n]), p2((*data)[n+1]);
     cnv->bck(p1); cnv->bck(p2);
-    dPoint v1 = pnorm(p2-p1) * pscal(dPoint(pt)-p1, p2-p1)/pdist(p2-p1);
+    double vn = pscal(dPoint(pt)-p1, p2-p1)/pdist(p2-p1);
+    dPoint v1 = pnorm(p2-p1) * vn;
 
-    if ((pdist(v1) < 0)||(pdist(v1)>pdist(p2-p1))) continue;
+    if (vn < -radius || vn > pdist(p2-p1) + radius) continue;
     if (pdist(dPoint(pt)-p1, v1) < radius) return n;
   }
   return -1;
