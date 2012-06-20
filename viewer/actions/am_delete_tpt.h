@@ -26,8 +26,11 @@ public:
       int n = mapview->find_tpt(p, &layer);
       if (n < 0) return;
       del_pt(layer->get_data(), n);
-      if (layer->get_data()->size()==0)
+      if (layer->get_data()->size()==0){
         mapview->workplane.remove_layer(layer);
+        mapview->trk_ll.del_layer(layer);
+        mapview->refresh();
+      }
       else
         mapview->workplane.refresh_layer(layer);
     }
@@ -39,8 +42,11 @@ public:
         std::vector<int> & nn = i->second;
         for (int j=nn.size()-1; j>=0; j--)
           del_pt(i->first->get_data(), nn[j]);
-        if (i->first->get_data()->size()==0)
+        if (i->first->get_data()->size()==0){
           mapview->workplane.remove_layer(i->first);
+          mapview->trk_ll.del_layer(i->first);
+          mapview->refresh();
+        }
         else
           mapview->workplane.refresh_layer(i->first);
       }

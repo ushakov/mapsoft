@@ -77,6 +77,17 @@ public:
 	row[columns.data]    = data;
     }
 
+    void del_layer (const LayerWPT * L){
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        boost::shared_ptr<LayerWPT> layer = (*i)[columns.layer];
+        if (layer.get() != L) continue;
+        store->erase(i);
+        break;
+      }
+    }
+
     Glib::RefPtr<Gtk::ListStore> store;
     WptLLCols columns;
 };
@@ -102,6 +113,17 @@ public:
 	row[columns.comm]    = data->comm;
 	row[columns.layer]   = layer;
 	row[columns.data]    = data;
+    }
+
+    void del_layer (const LayerTRK * L){
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        boost::shared_ptr<LayerTRK> layer = (*i)[columns.layer];
+        if (layer.get() != L) continue;
+        store->erase(i);
+        break;
+      }
     }
 
     Glib::RefPtr<Gtk::ListStore> store;
@@ -142,6 +164,17 @@ public:
         }
 	row[columns.layer]   = layer;
 	row[columns.data]    = data;
+    }
+
+    void del_layer (const LayerGeoMap * L){
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        boost::shared_ptr<LayerGeoMap> layer = (*i)[columns.layer];
+        if (layer.get() != L) continue;
+        store->erase(i);
+        break;
+      }
     }
 
     Glib::RefPtr<Gtk::ListStore> store;

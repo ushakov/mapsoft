@@ -21,8 +21,11 @@ public:
       if (n < 0) return;
       g_waypoint_list * wpts = layer->get_data();
       wpts->erase(wpts->begin()+n);
-      if (wpts->size()==0)
+      if (wpts->size()==0){
         mapview->workplane.remove_layer(layer);
+        mapview->wpt_ll.del_layer(layer);
+        mapview->refresh();
+      }
       else
         mapview->workplane.refresh_layer(layer);
     }
@@ -35,8 +38,11 @@ public:
         g_waypoint_list * wpts = i->first->get_data();
         for (int j=nn.size()-1; j>=0; j--)
           wpts->erase(wpts->begin()+nn[j]);
-        if (wpts->size()==0)
+        if (wpts->size()==0){
           mapview->workplane.remove_layer(i->first);
+          mapview->wpt_ll.del_layer(i->first);
+          mapview->refresh();
+        }
         else
           mapview->workplane.refresh_layer(i->first);
       }
