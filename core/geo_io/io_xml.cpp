@@ -252,17 +252,17 @@ namespace xml {
 	  ofstream f(filename);
 
 	  for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++){
-	    if (write_waypoint_list(f, *i, opt))
+	    if (!write_waypoint_list(f, *i, opt))
 	      throw MapsoftErr("GEO_IO_XML_WRITE")
 	        << "Can't write data to Mapsoft XML file " << filename;
 	  }
 	  for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++){
-	    if (write_track(f, *i, opt))
+	    if (!write_track(f, *i, opt))
 	      throw MapsoftErr("GEO_IO_XML_WRITE")
 	        << "Can't write data to Mapsoft XML file " << filename;
 	  }
 	  for (vector<g_map_list>::const_iterator i = world.maps.begin(); i!=world.maps.end(); i++){
-	    if (write_map_list(f, *i, opt))
+	    if (!write_map_list(f, *i, opt))
 	      throw MapsoftErr("GEO_IO_XML_WRITE")
 	        << "Can't write data to Mapsoft XML file " << filename;
 	  }
