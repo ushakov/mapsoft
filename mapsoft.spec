@@ -56,7 +56,9 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_bindir/convs_*
 %_bindir/mapsoft_toxyz
 %_bindir/mapsoft_geofig
+%_bindir/mapsoft_mkmap
 %_mandir/man1/mapsoft_geofig.1.gz
+%_libdir/gimp/2.0/plug-ins/map-helper.py
 
 %files vmap
 %_bindir/mapsoft_vmap

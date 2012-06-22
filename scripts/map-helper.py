@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# GIMP plug-in to create map references for soviet nomenclature maps
+
 import re
 from gimpfu import *
 

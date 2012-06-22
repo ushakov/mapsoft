@@ -29,6 +29,7 @@ env.Install(env.bindir, Split("""
   mapsoft_vmap
   mapsoft_geofig
   mapsoft_toxyz
+  mapsoft_mkmap
   convs_pt2pt
   convs_map2pt
   convs_nom

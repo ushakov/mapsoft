@@ -1,5 +1,5 @@
 import os
-
+import sysconfig
 
 def UseLibs(env, libs):
    if isinstance(libs, list):
@@ -14,7 +14,7 @@ def SymLink(env, target, linkname, wd=None):
    else:
       env.Command(linkname, target, "ln -s %s %s" % (target, linkname))
 
-subdirs_min = Split("core programs viewer vector man")
+subdirs_min = Split("core programs viewer vector man scripts")
 subdirs_max = subdirs_min + Split("tests misc")
 
 #SetOption('implicit_cache', 1)
@@ -29,8 +29,10 @@ env.bindir=env.PREFIX+'/usr/bin'
 env.datadir=env.PREFIX+'/usr/share/mapsoft'
 env.man1dir=env.PREFIX+'/usr/share/man/man1'
 env.figlibdir=env.PREFIX+'/usr/share/xfig/Libraries'
+env.libdir=env.PREFIX+ sysconfig.get_config_var('LIBDIR')
 
-env.Alias('install', [env.bindir, env.man1dir, env.datadir, env.figlibdir])
+env.Alias('install', [env.bindir, env.man1dir,
+  env.datadir, env.figlibdir, env.libdir])
 
 ######################################
 
@@ -69,5 +71,6 @@ You can build mapsoft with the following options:
   scons -Q minimal=1        // skip misc and tests dirs
   scons -Q prefix=<prefix>  // set installation prefix
 """)
+
 
 # vim: ft=python tw=0
