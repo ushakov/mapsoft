@@ -42,7 +42,7 @@ private:
     DlgNav dlg;
     Rubber R;
 
-//    g_track trk;
+    g_track trk;
 };
 
 #endif

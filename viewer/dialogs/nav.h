@@ -23,6 +23,7 @@ private:
   Gtk::CheckButton  *sw_upd, *sw_goto, *sw_trk;
   Gtk::Entry        *device;
   CoordBox          *crd;
+  Gtk::Image        *state_icon;
 
   GPS_OPvt_Data * pvt;
   gpsdevh * gh;
