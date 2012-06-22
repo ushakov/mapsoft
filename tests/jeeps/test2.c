@@ -1,4 +1,4 @@
-#include "../jeeps/gps.h"
+#include "gps.h"
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>

@@ -1,3 +1,4 @@
 Import ('env')
 
 env.Install(env.libdir + '/gimp/2.0/plug-ins', 'map-helper.py')
+
