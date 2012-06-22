@@ -272,7 +272,7 @@ Mapview::get_changed() const{
 void
 Mapview::set_changed(const bool c){
   changed=c;
-  set_title((c?"*":"") + filename);
+  set_title(string("mapsoft: ") + (c?"*":"") + filename);
 }
 string
 Mapview::get_filename() const{
