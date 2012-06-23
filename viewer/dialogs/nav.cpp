@@ -2,6 +2,9 @@
 #include "jeeps/gpscom.h"
 #include "geo_io/io.h"
 
+#include <sstream>
+#include <iomanip>
+
 using namespace std;
 
 DlgNav::DlgNav(): thread(NULL){
@@ -16,15 +19,25 @@ DlgNav::DlgNav(): thread(NULL){
   sw_goto = manage(new Gtk::CheckButton("Auto goto"));
   sw_trk  = manage(new Gtk::CheckButton("Write track"));
   device  = manage(new Gtk::Entry());
-  crd     = manage(new CoordBox);
   state_icon = manage(new Gtk::Image());
-
   state_icon->set_tooltip_text("Connection state");
   state_icon->set_size_request(20,16);
-
   Gtk::Label * devl = manage(new Gtk::Label("Device:", Gtk::ALIGN_RIGHT));
+  devl->set_padding(3,0);
 
-  Gtk::Table * t =   manage(new Gtk::Table(3,5));
+  Gtk::HSeparator * sep = manage(new Gtk::HSeparator());
+
+  alt   = manage(new Gtk::Entry);
+  time  = manage(new Gtk::Entry);
+  crd   = manage(new CoordBox);
+  Gtk::Label *altl  = manage(new Gtk::Label("Altitude:",      Gtk::ALIGN_RIGHT));
+  Gtk::Label *timel = manage(new Gtk::Label("Time (UTC):", Gtk::ALIGN_RIGHT));
+  altl->set_padding(3,0);
+  timel->set_padding(3,0);
+
+
+
+  Gtk::Table * t =   manage(new Gtk::Table(3,8));
 
           //  widget    l  r  t  b  x       y
   t->attach(*sw_upd,     0, 3, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
@@ -33,7 +46,12 @@ DlgNav::DlgNav(): thread(NULL){
   t->attach(*devl,       0, 1, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*device,     1, 2, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*state_icon, 2, 3, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*crd,        0, 3, 4, 5, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*sep,        0, 3, 4, 5, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*altl,       0, 1, 5, 6, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*alt,        1, 3, 5, 6, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*timel,      0, 1, 6, 7, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*time,       1, 3, 6, 7, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*crd,        0, 3, 7, 8, Gtk::FILL, Gtk::SHRINK, 3, 3);
 
   get_vbox()->pack_start (*t, false, true);
   add_button (Gtk::Stock::CLOSE, Gtk::RESPONSE_CLOSE);
@@ -104,6 +122,15 @@ void
 DlgNav::on_update(){
   dPoint p(pvt->lon, pvt->lat);
   crd->set_ll(p);
+
+  Time t(631051200 + pvt->wn_days*86400.0 + pvt->tow - pvt->leap_scnds);
+
+  time->set_text(boost::lexical_cast<std::string>(t));
+  std::ostringstream s;
+  s.setf(std::ios::fixed);
+  s << std::setprecision(1) << (pvt->alt - pvt->msl_hght) << " m";
+  alt->set_text(s.str());
+
   signal_changed_.emit(p);
   if (sw_goto->get_active()) signal_goto_.emit(p);
 }

@@ -22,8 +22,10 @@ public:
 private:
   Gtk::CheckButton  *sw_upd, *sw_goto, *sw_trk;
   Gtk::Entry        *device;
-  CoordBox          *crd;
   Gtk::Image        *state_icon;
+
+  Gtk::Entry *time, *alt;
+  CoordBox          *crd;
 
   GPS_OPvt_Data * pvt;
   gpsdevh * gh;
