@@ -52,13 +52,20 @@ void g_refpoint::parse_from_options (Options const & opt){
 
 /*********************************/
 
+g_map::g_map(){
+  tsize=256;
+  tfmt="%05dx%05d.jpg";
+}
+
 Options g_map::to_options () const {
     Options opt;
-    opt.put("comm",     comm);
-    opt.put("file",     file);
-    opt.put("map_proj", map_proj);
-    opt.put("border",   border);
-    opt.put("points",   size());
+    opt.put("comm",      comm);
+    opt.put("file",      file);
+    opt.put("map_proj",  map_proj);
+    opt.put("border",    border);
+    opt.put("tile_size", tsize);
+    opt.put("tile_fmt",  tfmt);
+    opt.put("points",    size());
     return opt;
 }
 
@@ -67,6 +74,8 @@ void g_map::parse_from_options (Options const & opt){
     file     = opt.get("file",     file);
     map_proj = opt.get("map_proj", map_proj);
     border   = opt.get("border",   border);
+    tsize    = opt.get("tile_size", tsize);
+    tfmt     = opt.get("tile_fmt",  tfmt);
 
     // Add value of the "prefix" option to image path
     // (non-absolute paths only)
@@ -75,7 +84,8 @@ void g_map::parse_from_options (Options const & opt){
         file=prefix+file;
 
     const string used[] = {
-      "comm", "file", "map_proj", "border", "points", "prefix", ""};
+      "comm", "file", "map_proj", "border", "points", "prefix",
+      "tile_size", "tile_fmt", ""};
     opt.warn_unused(used);
 }
 
