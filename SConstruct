@@ -1,5 +1,10 @@
 import os
-import sysconfig
+
+import platform
+if platform.python_version()<"2.7":
+    import distutils.sysconfig as sysconfig
+else:
+    import sysconfig
 
 def UseLibs(env, libs):
    if isinstance(libs, list):
