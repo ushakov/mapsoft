@@ -22,7 +22,7 @@ public:
 private:
   Gtk::CheckButton  *sw_upd, *sw_goto, *sw_trk;
   Gtk::Entry        *device;
-  Gtk::Image        *state_icon;
+  Gtk::Button       *state_btn;
 
   Gtk::Entry *time, *alt;
   CoordBox          *crd;
@@ -30,16 +30,19 @@ private:
   GPS_OPvt_Data * pvt;
   gpsdevh * gh;
 
-  void on_update();    // connected to signal_update:
-                       //   update coords, emit signal_changed
-  void on_sw_update(); // connected to sw_upd: start/stop updater thread
-  void updater();
+  void on_update(); // connected to signal_update:
+                    // update coords, emit signal_changed
 
-  Options opt;
+  void updater();         // updater thread
+  void restart_updater();
+  void stop_updater();
+  void auto_dev();        // device autodetection
+  void set_state(int v);  // set state icon
+
   Glib::Thread     *thread;
-  Glib::Mutex      mutex;
   Glib::Dispatcher  signal_update; // emited from thread when new data is available
   bool updater_needed;
+  int  updater_res; // result of updater thread: -1: err, 0: stopped, 1: ok
 
   sigc::signal<void, dPoint> signal_changed_;
   sigc::signal<void, dPoint> signal_goto_;
