@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sys/stat.h>
 
-#include "layers/layer_geomap.h"
+#include "layers/layer_map.h"
 #include "layers/layer_google.h"
 #include "layers/layer_ks.h"
 #include "geo_io/io.h"
@@ -53,7 +53,7 @@ main(int argc, char **argv){
       // put all maps into one map_list
       for (vector<g_map_list>::const_iterator mi = world->maps.begin();
          mi!=world->maps.end(); mi++) maps.insert(maps.end(), mi->begin(), mi->end());
-      LayerGeoMap *l = new LayerGeoMap(&maps);
+      LayerMAP *l = new LayerMAP(&maps);
       map_ref = l->get_myref();
       ml=l;
     }

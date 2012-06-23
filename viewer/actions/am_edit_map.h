@@ -40,8 +40,8 @@ public:
       // create layer with marks
       mark_data = boost::shared_ptr<g_map_list>(new g_map_list);
       mark_data->push_back(*m);
-      mark_layer = boost::shared_ptr<LayerGeoMap>(
-          new LayerGeoMap(mark_data.get()));
+      mark_layer = boost::shared_ptr<LayerMAP>(
+          new LayerMAP(mark_data.get()));
       mark_layer->show_brd();
       mark_layer->show_ref();
       mark_layer->hide_map();
@@ -57,9 +57,9 @@ public:
 private:
     DlgMap dlg;
     int map_num;
-    LayerGeoMap * layer;
+    LayerMAP * layer;
     boost::shared_ptr<g_map_list> mark_data;
-    boost::shared_ptr<LayerGeoMap> mark_layer;
+    boost::shared_ptr<LayerMAP> mark_layer;
 
     void on_result(int r) {
       reset(true);

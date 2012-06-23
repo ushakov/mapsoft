@@ -14,7 +14,7 @@
 class Mapview;
 class LayerTRK;
 class LayerWPT;
-class LayerGeoMap;
+class LayerMAP;
 
 // Interface.
 class ActionMode {

@@ -5,7 +5,7 @@
 
 #include <sys/stat.h>
 
-#include "layers/layer_geomap.h"
+#include "layers/layer_map.h"
 //#include "layers/layer_wpt.h"
 //#include "layers/layer_trk.h"
 #include "layers/layer_google.h"
@@ -152,7 +152,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
 
 
   bool draw_borders = opt.get("draw_borders", false);
-  LayerGeoMap layer(&maps);
+  LayerMAP layer(&maps);
   if (draw_borders) layer.show_brd();
 
   iRect tile;

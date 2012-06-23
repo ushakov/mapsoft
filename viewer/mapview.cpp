@@ -185,7 +185,7 @@ Mapview::update_layers() {
   for (i  = map_ll.store->children().begin();
        i != map_ll.store->children().end(); i++){
 
-    boost::shared_ptr<LayerGeoMap> layer = (*i)[map_ll.columns.layer];
+    boost::shared_ptr<LayerMAP> layer = (*i)[map_ll.columns.layer];
     if (!layer) continue;
     bool act = (*i)[map_ll.columns.checked];
     if (workplane.get_layer_active(layer.get()) != act){
@@ -241,11 +241,11 @@ Mapview::update_ll_comm(LayerTRK * layer) {
 }
 
 void
-Mapview::update_ll_comm(LayerGeoMap * layer) {
+Mapview::update_ll_comm(LayerMAP * layer) {
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = map_ll.store->children().begin();
        i != map_ll.store->children().end(); i++){
-    boost::shared_ptr<LayerGeoMap> l = (*i)[map_ll.columns.layer];
+    boost::shared_ptr<LayerMAP> l = (*i)[map_ll.columns.layer];
     if (layer != l.get())  continue;
     g_map_list * ml = layer->get_data();
     if (ml->size()==1){
@@ -355,7 +355,7 @@ Mapview::add_trks(const boost::shared_ptr<g_track> data) {
 }
 void
 Mapview::add_maps(const boost::shared_ptr<g_map_list> data) {
-  boost::shared_ptr<LayerGeoMap> layer(new LayerGeoMap(data.get(), layer_options));
+  boost::shared_ptr<LayerMAP> layer(new LayerMAP(data.get(), layer_options));
   workplane.add_layer(layer.get(), DEPTH_DATA0);
   set_changed();
   // for maps always reset reference
@@ -593,12 +593,12 @@ Mapview::find_tpt(const iPoint & p, LayerTRK ** layer,
 }
 
 int
-Mapview::find_map(const iPoint & p, LayerGeoMap ** layer) const{
+Mapview::find_map(const iPoint & p, LayerMAP ** layer) const{
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = map_ll.store->children().begin();
        i != map_ll.store->children().end(); i++){
     if (!(*i)[map_ll.columns.checked]) continue;
-    boost::shared_ptr<LayerGeoMap> current_layer=
+    boost::shared_ptr<LayerMAP> current_layer=
       (*i)[map_ll.columns.layer];
     *layer = current_layer.get();
     int d = current_layer->find_map(p);
@@ -655,13 +655,13 @@ Mapview::find_wpt_layer() const{
   return NULL;
 }
 
-LayerGeoMap *
+LayerMAP *
 Mapview::find_map_layer() const{
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = map_ll.store->children().begin();
        i != map_ll.store->children().end(); i++){
     if (!(*i)[map_ll.columns.checked]) continue;
-    boost::shared_ptr<LayerGeoMap> current_layer=
+    boost::shared_ptr<LayerMAP> current_layer=
       (*i)[map_ll.columns.layer];
     return current_layer.get();
   }

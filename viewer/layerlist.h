@@ -2,7 +2,7 @@
 #define LAYERLIST_H
 
 #include <gtkmm.h>
-#include "layers/layer_geomap.h"
+#include "layers/layer_map.h"
 #include "layers/layer_wpt.h"
 #include "layers/layer_trk.h"
 
@@ -48,7 +48,7 @@ public:
     Gtk::TreeModelColumn<bool> checked;
     Gtk::TreeModelColumn<std::string> comm;
     Gtk::TreeModelColumn<Pango::Weight> weight;
-    Gtk::TreeModelColumn<boost::shared_ptr<LayerGeoMap> > layer;
+    Gtk::TreeModelColumn<boost::shared_ptr<LayerMAP> > layer;
     Gtk::TreeModelColumn<boost::shared_ptr<g_map_list> > data;
 };
 
@@ -149,7 +149,7 @@ public:
         set_reorderable(false);
     }
 
-    void add_layer (const boost::shared_ptr<LayerGeoMap> layer,
+    void add_layer (const boost::shared_ptr<LayerMAP> layer,
                     const boost::shared_ptr<g_map_list> data) {
 	Gtk::TreeModel::iterator it = store->append();
 	Gtk::TreeModel::Row row = *it;
@@ -166,11 +166,11 @@ public:
 	row[columns.data]    = data;
     }
 
-    void del_layer (const LayerGeoMap * L){
+    void del_layer (const LayerMAP * L){
       Gtk::TreeNodeChildren::const_iterator i;
       for (i  = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<LayerGeoMap> layer = (*i)[columns.layer];
+        boost::shared_ptr<LayerMAP> layer = (*i)[columns.layer];
         if (layer.get() != L) continue;
         store->erase(i);
         break;

@@ -95,7 +95,7 @@ private:
 
     // find visible map in a given point and return mpp
     double get_mpp(const iPoint & p){
-      LayerGeoMap *L;
+      LayerMAP *L;
       int i = mapview->find_map(p, &L);
       if (L==NULL) return -1;
       g_map * m = L->get_map(i);

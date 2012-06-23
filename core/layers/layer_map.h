@@ -1,5 +1,5 @@
-#ifndef LAYER_GEOMAP_H
-#define LAYER_GEOMAP_H
+#ifndef LAYER_MAP_H
+#define LAYER_MAP_H
 
 #include <vector>
 #include <map>
@@ -13,7 +13,7 @@
 
 /// Растровый слой для показа привязанных карт.
 
-class LayerGeoMap
+class LayerMAP
 #ifndef SWIG
   : public GObj
 #endif  // SWIG
@@ -31,7 +31,7 @@ private:
 
 public:
 
-  LayerGeoMap (g_map_list *_data, const Options & opt = Options());
+  LayerMAP (g_map_list *_data, const Options & opt = Options());
 
   /// Get some reasonable reference.
   g_map get_myref() const;

@@ -21,7 +21,7 @@ public:
           i++;
           continue;
         }
-        boost::shared_ptr<LayerGeoMap> current_layer =
+        boost::shared_ptr<LayerMAP> current_layer =
           (*i)[mapview->map_ll.columns.layer];
         g_map_list * curr = current_layer->get_data();
         if (!curr){

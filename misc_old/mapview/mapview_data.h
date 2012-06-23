@@ -21,7 +21,7 @@
 
 // вообще-то хочется сюда другие layer'ы сделать...
 #include "layers/layer_geodata.h"
-#include "layers/layer_geomap.h"
+#include "layers/layer_map.h"
 
 // файл данных
 struct MapviewDataFile : public geo_data{
@@ -69,7 +69,7 @@ class MapviewData : public std::list<MapviewDataFile>{
 // надо завести layer's для точек, треков и карт...
 //      for (int i=0; i<file.wpts.size(); i++) wpts_l = new LayerWPT(file);
       boost::shared_ptr<Layer> ML, DL;
-      ML.reset(new LayerGeoMap(&file));
+      ML.reset(new LayerMAP(&file));
       TL.reset(new LayerTRK(&file));
       WL.reset(new LayerWPT(&file));
       file.wpts_l.push_back(WL);

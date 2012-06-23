@@ -67,7 +67,7 @@ public:
 
     void update_ll_comm(LayerWPT * layer);
     void update_ll_comm(LayerTRK * layer);
-    void update_ll_comm(LayerGeoMap * layer);
+    void update_ll_comm(LayerMAP * layer);
 
     void on_mode_change (int m);
     std::string get_filename() const;
@@ -112,7 +112,7 @@ public:
     //               first point 0..size()-2
     int find_tpt(const iPoint & p, LayerTRK ** layer,
                  const bool segment = false, int radius=3) const;
-    int find_map(const iPoint & p, LayerGeoMap ** layer) const;
+    int find_map(const iPoint & p, LayerMAP ** layer) const;
 
     // find all visible waypoints in the range
     std::map<LayerWPT*, std::vector<int> > find_wpts(const iRect & r);
@@ -121,7 +121,7 @@ public:
 
     // find first active layer
     LayerWPT * find_wpt_layer() const;
-    LayerGeoMap * find_map_layer() const;
+    LayerMAP * find_map_layer() const;
 };
 
 

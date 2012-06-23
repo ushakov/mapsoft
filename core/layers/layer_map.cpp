@@ -1,4 +1,4 @@
-#include "layer_geomap.h"
+#include "layer_map.h"
 #include <sstream>
 #include <fstream>
 #include <cmath>
@@ -13,36 +13,36 @@ using namespace std;
 #define SHOW_BRD 2
 #define SHOW_REF 4
 
-LayerGeoMap::LayerGeoMap(g_map_list *_data, const Options & opt) :
+LayerMAP::LayerMAP(g_map_list *_data, const Options & opt) :
       data(_data), image_cache(4){
   make_m2ms();
   status_set(SHOW_BRD, opt.exists("map_show_brd"));
 }
 
 g_map
-LayerGeoMap::get_myref() const {
+LayerMAP::get_myref() const {
   return convs::mymap(*data);
 }
 
 g_map_list *
-LayerGeoMap::get_data() const{
+LayerMAP::get_data() const{
   return data;
 }
 
 g_map *
-LayerGeoMap::get_map(const int n) const{
+LayerMAP::get_map(const int n) const{
   return &(*data)[n];
 }
 
 int
-LayerGeoMap::find_map(const iPoint & pt) const{
+LayerMAP::find_map(const iPoint & pt) const{
   for (int i=0; i< m2ms.size(); i++){
     if (point_in_line(pt, borders[i])) return i;
   }
   return -1;
 }
 int
-LayerGeoMap::find_map(const iRect & r) const{
+LayerMAP::find_map(const iRect & r) const{
   for (int i=0; i< m2ms.size(); i++){
     if (rect_in_line(r, borders[i])) return i;
   }
@@ -50,7 +50,7 @@ LayerGeoMap::find_map(const iRect & r) const{
 }
 
 void
-LayerGeoMap::status_set(int mask, bool val, const g_map * m){
+LayerMAP::status_set(int mask, bool val, const g_map * m){
   if (!m){
     map<const g_map*, int>::iterator i;
     for (i=status.begin(); i!=status.end(); i++){
@@ -66,32 +66,32 @@ LayerGeoMap::status_set(int mask, bool val, const g_map * m){
 }
 
 void
-LayerGeoMap::show_ref(const g_map * m){ status_set(SHOW_REF, true,  m); }
+LayerMAP::show_ref(const g_map * m){ status_set(SHOW_REF, true,  m); }
 void
-LayerGeoMap::hide_ref(const g_map * m){ status_set(SHOW_REF, false, m); }
+LayerMAP::hide_ref(const g_map * m){ status_set(SHOW_REF, false, m); }
 void
-LayerGeoMap::show_brd(const g_map * m){ status_set(SHOW_BRD, true,  m); }
+LayerMAP::show_brd(const g_map * m){ status_set(SHOW_BRD, true,  m); }
 void
-LayerGeoMap::hide_brd(const g_map * m){ status_set(SHOW_BRD, false, m); }
+LayerMAP::hide_brd(const g_map * m){ status_set(SHOW_BRD, false, m); }
 void
-LayerGeoMap::show_map(const g_map * m){ status_set(SHOW_MAP, true,  m); }
+LayerMAP::show_map(const g_map * m){ status_set(SHOW_MAP, true,  m); }
 void
-LayerGeoMap::hide_map(const g_map * m){ status_set(SHOW_MAP, false, m); }
+LayerMAP::hide_map(const g_map * m){ status_set(SHOW_MAP, false, m); }
 
 
 void
-LayerGeoMap::refresh(){
+LayerMAP::refresh(){
   make_m2ms();
   image_cache.clear();
 }
 
 int
-LayerGeoMap::draw(iImage & image, const iPoint & origin){
+LayerMAP::draw(iImage & image, const iPoint & origin){
   iRect src_rect = image.range() + origin;
   dPoint dorigin(origin);
 
 #ifdef DEBUG_LAYER_GEOMAP
-  cerr  << "LayerMap: draw " << src_rect << " my: " << myrange << endl;
+  cerr  << "LayerMAP: draw " << src_rect << " my: " << myrange << endl;
 #endif
   if (rect_intersect(myrange, src_rect).empty()) return GOBJ_FILL_NONE;
   if ((data == NULL)||(data->size()==0)) return GOBJ_FILL_NONE;
@@ -111,7 +111,7 @@ LayerGeoMap::draw(iImage & image, const iPoint & origin){
       if ((scale<=maxscale) && (status[m]&SHOW_MAP)){
         if (!image_cache.contains(i) || (iscales[i] > scale)) {
 #ifdef DEBUG_LAYER_GEOMAP
-          cerr  << "LayerMap: Loading Image " << file
+          cerr  << "LayerMAP: Loading Image " << file
  	        << " at scale " << scale << "\n";
 #endif
           iImage img = image_r::load(file.c_str(), scale);
@@ -120,7 +120,7 @@ LayerGeoMap::draw(iImage & image, const iPoint & origin){
           iscales[i] = scale;
         }
 #ifdef DEBUG_LAYER_GEOMAP
-        cerr  << "LayerMap: Using Image " << file
+        cerr  << "LayerMAP: Using Image " << file
 		 << " at scale " << scale << " (loaded at scale " << iscales[i] <<", scales[i]: " << scales[i] << ")\n";
 #endif
         m2ms[i]->image_frw(image_cache.get(i), image, origin, 1.0/iscales[i]);
@@ -179,12 +179,12 @@ LayerGeoMap::draw(iImage & image, const iPoint & origin){
 }
 
 iRect
-LayerGeoMap::range() const{
+LayerMAP::range() const{
   return myrange;
 }
 
 void
-LayerGeoMap::dump_maps(const char *file){
+LayerMAP::dump_maps(const char *file){
   ofstream f(file);
   f<< "#FIG 3.2\n"
    << "Portrait\n"
@@ -229,7 +229,7 @@ LayerGeoMap::dump_maps(const char *file){
 }
 
 void
-LayerGeoMap::make_m2ms(){
+LayerMAP::make_m2ms(){
   if (!data || !data->size() || !cnv) return;
 
   if (cnv_hint<0) cnv_hint=0;
@@ -301,6 +301,6 @@ LayerGeoMap::make_m2ms(){
   if (iscales.size() != data->size())
     iscales.resize(data->size(),1);
 #ifdef DEBUG_LAYER_GEOMAP
-  cerr << "LayerMap: Setting map conversions. Range: " << myrange << "\n";
+  cerr << "LayerMAP: Setting map conversions. Range: " << myrange << "\n";
 #endif
 }

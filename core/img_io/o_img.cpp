@@ -1,7 +1,7 @@
 #include <fstream>
 #include <string>
 
-#include "layers/layer_geomap.h"
+#include "layers/layer_map.h"
 #include "layers/layer_trk.h"
 #include "layers/layer_wpt.h"
 #include "layers/layer_google.h"
@@ -130,7 +130,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
 
   for (int i=0; i<world.maps.size(); i++){
     g_map_list d(world.maps[i]);
-    LayerGeoMap l(&d, opt);
+    LayerMAP l(&d, opt);
     l.set_cnv(&cnv, ref.map_proj.val);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
