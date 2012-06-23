@@ -65,6 +65,8 @@ Rubber::init_gc() {
   gc = Gdk::GC::create(viewer->get_window());
   gc->set_rgb_fg_color(Gdk::Color("white"));
   gc->set_function(Gdk::XOR);
+  gc->set_line_attributes(3, Gdk::LINE_SOLID,
+    Gdk::CAP_ROUND, Gdk::JOIN_ROUND);
 }
 
 /// Function for drawing single rubber segment.
