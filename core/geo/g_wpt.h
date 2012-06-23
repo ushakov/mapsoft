@@ -1,0 +1,64 @@
+#ifndef G_WPT_H
+#define G_WPT_H
+
+#include <vector>
+#include <string>
+
+#include "geo_types.h"
+#include "2d/rect.h"
+#include "options/options.h"
+
+#include "options/m_time.h"
+#include "options/m_color.h"
+
+/// single waypoint
+struct g_waypoint : dPoint {
+    std::string  name;
+    std::string  comm;
+    Time         t;
+    double       z;
+    double       prox_dist;
+    wptSymb      symb;
+    int          displ;
+    wptMapDispl  map_displ;
+    wptPtDir     pt_dir;
+    int          font_size;
+    int          font_style;
+    int          size;
+    Color        color;
+    Color        bgcolor;
+
+    g_waypoint();
+    Options to_options() const;
+    void parse_from_options(Options const & opt);
+
+    bool have_alt() const;
+    void clear_alt();
+};
+
+/// waypoint list
+struct g_waypoint_list : std::vector<g_waypoint>{
+
+    std::string symbset; /// garmin symbol set -- not used now
+    std::string comm;
+
+    g_waypoint_list();
+
+    /// convert waypoint_list values to Options object
+    Options to_options () const;
+
+    /// set waypoint_list values from Options object
+    void parse_from_options (Options const & opt);
+
+    /// get range in lon-lat coords
+    dRect range() const;
+
+};
+
+#ifdef SWIG
+%template(vector_g_waypoint) std::vector<g_waypoint>;
+%template(vector_g_waypoint_list)  std::vector<g_waypoint_list>;
+#endif  // SWIG
+
+#endif
+
