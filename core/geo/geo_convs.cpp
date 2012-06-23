@@ -31,6 +31,10 @@ mkproj(const Datum & D, const Proj & P, const Options & o){
        projpar << " +a=6378137 +b=6378137 +nadgrids=@null +no_defs";
     else if (D==Datum("pulkovo"))
        projpar << " +ellps=krass +towgs84=+28,-130,-95";
+    // Finnish coords, see http://www.kolumbus.fi/eino.uikkanen/geodocsgb/ficoords.htm
+    // http://lists.maptools.org/pipermail/proj/2005-December/001944.html
+    else if (D==Datum("KKJ"))
+       projpar << " +ellps=intl +towgs84=-90.7,-106.1,-119.2,4.09,0.218,-1.05,1.37";
     else if (D==Datum("sphere"))
        projpar << " +ellps=sphere";
     else projpar << " +datum=" << D;
