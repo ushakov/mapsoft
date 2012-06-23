@@ -66,10 +66,18 @@ void g_waypoint::parse_from_options (Options const & opt){
     size = opt.get("size", size);
     name = opt.get("name", name);
     comm = opt.get("comm", comm);
+
+    convs::pt2pt c(Datum(opt.get("datum", string("wgs84"))),
+                   Proj(opt.get("proj", string("lonlat"))), opt,
+                   Datum("wgs84"), Proj("lonlat"), opt);
+    c.frw(*this);
+
     const std::string used[] = {
       "name", "comm", "lon", "lat", "alt", "prox_dist", "symb",
       "displ", "color", "bgcolor", "map_displ", "pt_dir", "font_size",
-      "font_style", "size", "time", "x", "y", ""};
+      "font_style", "size", "time", "x", "y",
+      "datum", "proj", "lon0", "lat0", "E0", "N0", "k", ""
+    };
     opt.warn_unused(used);
 }
 

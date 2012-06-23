@@ -4,6 +4,8 @@
 #include "2d/line_utils.h"
 #include "2d/line_rectcrop.h"
 
+using namespace std;
+
 g_refpoint::g_refpoint(double _x, double _y, double _xr, double _yr){
     x=_x; y=_y;
     xr=_xr; yr=_yr;
@@ -36,8 +38,14 @@ void g_refpoint::parse_from_options (Options const & opt){
     y  = opt.get("lat", y);
     xr = opt.get("xr", xr);
     yr = opt.get("yr", yr);
-    const std::string used[] = {
-      "lon", "lat", "xr", "yr", "x", "y", ""
+    convs::pt2pt c(Datum(opt.get("datum", string("wgs84"))),
+                   Proj(opt.get("proj", string("lonlat"))), opt,
+                   Datum("wgs84"), Proj("lonlat"), opt);
+    c.frw(*this);
+
+    const string used[] = {
+      "lon", "lat", "xr", "yr", "x", "y",
+      "datum", "proj", "lon0", "lat0", "E0", "N0", "k", ""
     };
     opt.warn_unused(used);
 }
@@ -62,17 +70,17 @@ void g_map::parse_from_options (Options const & opt){
 
     // Add value of the "prefix" option to image path
     // (non-absolute paths only)
-    std::string prefix=opt.get("prefix", std::string());
+    string prefix=opt.get("prefix", string());
     if ((file.size()<1)||(file[0]!='/'))
         file=prefix+file;
 
-    const std::string used[] = {
+    const string used[] = {
       "comm", "file", "map_proj", "border", "points", "prefix", ""};
     opt.warn_unused(used);
 }
 
 g_map & g_map::operator/= (double k){
-    std::vector<g_refpoint>::iterator i;
+    vector<g_refpoint>::iterator i;
     for (i=begin();i!=end();i++){
       i->xr /= k;
       i->yr /= k;
@@ -82,7 +90,7 @@ g_map & g_map::operator/= (double k){
 }
 
 g_map & g_map::operator*= (double k){
-  std::vector<g_refpoint>::iterator i;
+  vector<g_refpoint>::iterator i;
   for (i=begin();i!=end();i++){
     i->xr *= k;
     i->yr *= k;
@@ -183,7 +191,7 @@ g_map_list::to_options() const{
 void
 g_map_list::parse_from_options (Options const & opt){
   comm = opt.get("comm", comm);
-  const std::string used[] = {"comm", ""};
+  const string used[] = {"comm", ""};
   opt.warn_unused(used);
 }
 
@@ -193,7 +201,7 @@ g_map_list::range() const{
   if (size()>0) ret=begin()->range();
   else return ret;
 
-  for (std::vector<g_map>::const_iterator i = begin(); i!=end();i++)
+  for (vector<g_map>::const_iterator i = begin(); i!=end();i++)
     ret = rect_bounding_box(ret, i->range());
   return ret;
 }
@@ -204,7 +212,7 @@ g_map_list::range_correct() const{
   if (size()>0) ret=begin()->range_correct();
   else return ret;
 
-  for (std::vector<g_map>::const_iterator i = begin(); i!=end();i++)
+  for (vector<g_map>::const_iterator i = begin(); i!=end();i++)
     ret = rect_bounding_box(ret, i->range_correct());
   return ret;
 }

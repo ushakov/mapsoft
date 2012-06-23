@@ -11,10 +11,12 @@
 #include "options/m_time.h"
 #include "options/m_color.h"
 
+using namespace std;
+
 /// single waypoint
 struct g_waypoint : dPoint {
-    std::string  name;
-    std::string  comm;
+    string  name;
+    string  comm;
     Time         t;
     double       z;
     double       prox_dist;
@@ -37,10 +39,10 @@ struct g_waypoint : dPoint {
 };
 
 /// waypoint list
-struct g_waypoint_list : std::vector<g_waypoint>{
+struct g_waypoint_list : vector<g_waypoint>{
 
-    std::string symbset; /// garmin symbol set -- not used now
-    std::string comm;
+    string symbset; /// garmin symbol set -- not used now
+    string comm;
 
     g_waypoint_list();
 
@@ -56,8 +58,8 @@ struct g_waypoint_list : std::vector<g_waypoint>{
 };
 
 #ifdef SWIG
-%template(vector_g_waypoint) std::vector<g_waypoint>;
-%template(vector_g_waypoint_list)  std::vector<g_waypoint_list>;
+%template(vector_g_waypoint) vector<g_waypoint>;
+%template(vector_g_waypoint_list)  vector<g_waypoint_list>;
 #endif  // SWIG
 
 #endif

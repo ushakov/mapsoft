@@ -5,6 +5,8 @@
 #define ALT_UNDEF 1e27
 #define ALT_CHECK 1e26
 
+using namespace std;
+
 g_trackpoint::g_trackpoint(){
     x   = 0; 
     y   = 0; 
@@ -19,9 +21,9 @@ Options g_trackpoint::to_options() const{
     opt.put("lon", x);
     opt.put("lat", y);
     if (have_alt()) opt.put("alt", z);
-    else opt.put<std::string>("alt", "");
+    else opt.put<string>("alt", "");
     if (have_depth()) opt.put("depth", depth);
-    else opt.put<std::string>("depth", "");
+    else opt.put<string>("depth", "");
     opt.put("start", start);
     opt.put("time", t);
     return opt;
@@ -34,17 +36,24 @@ void g_trackpoint::parse_from_options(Options const & opt){
     x = opt.get("lon", x);
     y = opt.get("y", y);
     y = opt.get("lat", y);
-    if ((opt.get<std::string>("alt") == "") ||
+    if ((opt.get<string>("alt") == "") ||
         (opt.get("alt", z)>ALT_CHECK)) clear_alt();
     else z = opt.get("alt", z);
-    if ((opt.get<std::string>("depth") == "") ||
+    if ((opt.get<string>("depth") == "") ||
         (opt.get("depth", z)>ALT_CHECK)) clear_depth();
     else depth = opt.get("depth", z);
     depth = opt.get("depth", depth);
     start = opt.get("start", start);
     t = opt.get("time", t);
-    const std::string used[] = {
-      "lon", "lat", "alt", "depth", "start", "time", "x", "y", ""
+
+    convs::pt2pt c(Datum(opt.get("datum", string("wgs84"))),
+                   Proj(opt.get("proj", string("lonlat"))), opt,
+                   Datum("wgs84"), Proj("lonlat"), opt);
+    c.frw(*this);
+
+    const string used[] = {
+      "lon", "lat", "alt", "depth", "start", "time", "x", "y",
+      "datum", "proj", "lon0", "lat0", "E0", "N0", "k", ""
     };
     opt.warn_unused(used);
 }
@@ -100,7 +109,7 @@ void g_track::parse_from_options (Options const & opt){
     fill  = opt.get("fill",  fill);
     cfill = opt.get("cfill", cfill);
     comm  = opt.get("comm",  comm);
-    const std::string used[] = {
+    const string used[] = {
         "comm", "width", "color", "skip", "displ",
         "type", "fill", "cfill", "points", ""};
     opt.warn_unused(used);
@@ -109,7 +118,7 @@ void g_track::parse_from_options (Options const & opt){
 /// get range in lon-lat coords
 dRect g_track::range() const{
     double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
-    std::vector<g_trackpoint>::const_iterator i;
+    vector<g_trackpoint>::const_iterator i;
     for (i=begin();i!=end();i++){
         if (i->x > maxx) maxx = i->x;
         if (i->y > maxy) maxy = i->y;

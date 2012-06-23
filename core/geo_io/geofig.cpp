@@ -55,22 +55,13 @@ get_ref(const fig_world & w){
         cerr << "Geofig: old-style option: " << key << ": " << O[key] << "\n";
       }
 
-      if (x>=1e6){
-        O.put("lon0", convs::lon_pref2lon0(x));
-        x=convs::lon_delprefix(x);
-      }
-
-	g_refpoint ref(x,y,(*i)[0].x,(*i)[0].y);
-      if (min.x>(*i)[0].x) min.x = (*i)[0].x;
-      if (min.y>(*i)[0].y) min.y = (*i)[0].y;
-      if (max.x<(*i)[0].x) max.x = (*i)[0].x;
-      if (max.y<(*i)[0].y) max.y = (*i)[0].y;
-
-      convs::pt2pt c(Datum(O.get("datum", string("wgs84"))), 
-                     Proj(O.get("proj", string("lonlat"))), O,
-                     Datum("wgs84"), Proj("lonlat"), O);
-      c.frw(ref);
-	ret.push_back(ref);
+      O.put<double>("x", x);
+      O.put<double>("y", y);
+      O.put<double>("xr", (*i)[0].x);
+      O.put<double>("yr", (*i)[0].y);
+      g_refpoint ref;
+      ref.parse_from_options(O);
+      ret.push_back(ref);
       continue;
     }
     if ((i->comment.size()>0)&&(i->comment[0].size()>3) &&
@@ -155,10 +146,10 @@ get_wpts(const fig_world & w, const g_map & m, geo_data & d){
     if ((i->type!=2)&&(i->type!=3)) continue;
     if (i->size()<1) continue;
 
-    Options p=i->opts;
+    Options O=i->opts;
 
     if ((i->comment.size()>0)&&(parse(i->comment[0].c_str(), str_p("WPT")
-        >> +space_p >> (*anychar_p)[insert_at_a(p,"name")]).full)){
+        >> +space_p >> (*anychar_p)[insert_at_a(O,"name")]).full)){
 
       string key;
 
@@ -168,13 +159,12 @@ get_wpts(const fig_world & w, const g_map & m, geo_data & d){
         // комментариях. Тим
         parse(i->comment[n].c_str(), (*(anychar_p-':'-space_p))[assign_a(key)] >>
           *space_p >> ch_p(':') >> *space_p >>
-          (*(anychar_p))[insert_at_a(p, key)]);
+          (*(anychar_p))[insert_at_a(O, key)]);
       }
 
       g_waypoint wp;
-      wp.parse_from_options(p);
-      wp.x = (*i)[0].x;
-      wp.y = (*i)[0].y;
+      wp.parse_from_options(O);
+      wp.x=(*i)[0].x; wp.y=(*i)[0].y;
       cnv.frw(wp);
       pl.push_back(wp);
     }
@@ -193,25 +183,24 @@ get_trks(const fig_world & w, const g_map & m, geo_data & d){
     if (i->size()<1) continue;
 
 
-    Options p=i->opts;
+    Options O=i->opts;
 
     if ((i->comment.size()>0)&&(parse(i->comment[0].c_str(), str_p("TRK")
-        >> !(+space_p >> (*anychar_p)[insert_at_a(p,"comm")])).full)){
+        >> !(+space_p >> (*anychar_p)[insert_at_a(O,"comm")])).full)){
       string key;
 
       // old-style options -- to be removed
       for (int n=1; n<i->comment.size(); n++){
         parse(i->comment[n].c_str(), (*(anychar_p-':'-space_p))[assign_a(key)] >>
           *space_p >> ch_p(':') >> *space_p >>
-          (*(anychar_p-':'-space_p))[insert_at_a(p, key)]);
+          (*(anychar_p-':'-space_p))[insert_at_a(O, key)]);
       }
 
       g_track tr;
-      tr.parse_from_options(p);
+      tr.parse_from_options(O);
       for (int n = 0; n<i->size();n++){
         g_trackpoint p;
-        p.x=(*i)[n].x;
-        p.y=(*i)[n].y;
+        p.x=(*i)[n].x; p.y=(*i)[n].y;
         cnv.frw(p);
         tr.push_back(p);
       }
