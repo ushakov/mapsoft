@@ -122,18 +122,33 @@ main(int argc, char** argv){
             x1 = i->second;
           } else{
             x2 = i->second;
-            dLine hor;
-            hor.push_back((dPoint(p) + dPoint(crn(int(x1))) + dPoint(dir(int(x1)))*double(x1-int(x1)))/1200.0);
-            hor.push_back((dPoint(p) + dPoint(crn(int(x2))) + dPoint(dir(int(x2)))*double(x2-int(x2)))/1200.0);
-            hors[h].push_back(hor);
+            dPoint p1=(dPoint(p) + dPoint(crn(int(x1))) + dPoint(dir(int(x1)))*double(x1-int(x1)))/1200.0;
+            dPoint p2=(dPoint(p) + dPoint(crn(int(x2))) + dPoint(dir(int(x2)))*double(x2-int(x2)))/1200.0;
+            // we found segment p1-p2 with height h
+            // first try to append it to existing line in hors[h]
+            bool done=false;
+            for (dMultiLine::iterator l=hors[h].begin(); l!=hors[h].end(); l++){
+              int e=l->size()-1;
+              if (e<=0) continue; // we have no 1pt lines!
+              if (pdist((*l)[0], p1) < 1e-4){ l->insert(l->begin(), p2); done=true; break;}
+              if (pdist((*l)[0], p2) < 1e-4){ l->insert(l->begin(), p1); done=true; break;}
+              if (pdist((*l)[e], p1) < 1e-4){ l->push_back(p2); done=true; break;}
+              if (pdist((*l)[e], p2) < 1e-4){ l->push_back(p1); done=true; break;}
+            }
+            if (!done){ // insert new line into hors[h]
+              dLine hor;
+              hor.push_back(p1);
+              hor.push_back(p2);
+              hors[h].push_back(hor);
+            }
             h=srtm_undef;
-            count+=hor.size();
+            count++;
           }
         }
       }
     }
     cerr << count << " шт\n";
-  
+
 
     count = 0; 
     cerr << "  сливаем кусочки горизонталей в линии: ";
