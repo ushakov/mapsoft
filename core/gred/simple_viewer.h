@@ -30,8 +30,6 @@ class SimpleViewer : public Viewer {
     virtual GObj * get_obj (void) const;
     virtual void   set_bgcolor(int c);
     virtual int    get_bgcolor(void) const;
-    virtual bool  get_xloop() const;
-    virtual bool  get_yloop() const;
     virtual iRect range() const;
 
     // draw image from the GObj on the screen

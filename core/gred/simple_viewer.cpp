@@ -23,11 +23,13 @@ SimpleViewer::SimpleViewer(GObj * o) :
 
 void
 SimpleViewer::set_origin (iPoint p) {
+  if (!obj) return;
+
   iRect r = range();
   int w=get_width();
   int h=get_height();
 
-  if (get_xloop()){
+  if (obj->get_xloop()){
     p.x = p.x % r.w;
   }
   else {
@@ -35,7 +37,7 @@ SimpleViewer::set_origin (iPoint p) {
     if (p.x < r.x) p.x=r.x;
   }
 
-  if (get_yloop()){
+  if (obj->get_yloop()){
     p.y = p.y % r.h;
   }
   else {
@@ -84,17 +86,6 @@ SimpleViewer::set_bgcolor (int c){
 int
 SimpleViewer::get_bgcolor (void) const{
   return bgcolor;
-}
-
-
-bool
-SimpleViewer::get_xloop() const{
-  return obj?obj->get_xloop():false;
-}
-
-bool
-SimpleViewer::get_yloop() const{
-  return obj?obj->get_yloop():false;
 }
 
 iRect
