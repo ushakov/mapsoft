@@ -3,6 +3,23 @@
 #include <time.h>
 #include <string.h>
 
+/* PVT data fields:
+float alt;     -- altitude above WGS 84 ellipsoid (meters)
+float epe;     -- estimated position error, 2 sigma (meters)
+float eph;     -- epe, but horizontal only (meters)
+float epv;     -- epe, but vertical only (meters)
+short int fix; -- type of position fix
+double tow;    -- time of week (seconds)
+double lat;    -- latitude (radians)
+double lon;   -- longitude (radians)
+float east;   -- velocity east (meters/second)
+float north;  -- velocity north (meters/second)
+float up;     -- velocity up (meters/second)
+float msl_hght; -- height of WGS84 ellipsoid above MSL(meters)
+short int leap_scnds; -- difference between GPS and UTC (seconds)
+ULONG wn_days;        -- week number days
+*/
+
 char *port = "/dev/ttyUSB0";
 
 main(){
