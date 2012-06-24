@@ -99,8 +99,12 @@ rect_in_line(const Rect<T> & r, const Line<T> & l){
   for (int i=0; i<cr.size(); i++)
     if (r.y < cr[i] && cr[i] <=r.y+r.h ) return true;
 
-  for (int i=0; i<cr.size(); i++)
-    if (r.y < cr[i] && i%2 ) return true;
+  for (int i=0; i<cr.size(); i++){
+    if (r.y < cr[i] ){
+      if (i%2 == 1) return true;
+      break;
+    }
+  }
 
   if (l.size() && point_in_rect(l[0], r)) return true;
   return false;
