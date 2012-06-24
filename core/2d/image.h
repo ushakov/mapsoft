@@ -247,7 +247,7 @@ struct Image{
           continue;
         }
         // get sorted border crossings for each row
-        std::vector<int> cr = lt.get(j);
+        std::vector<int> cr = lt.get_cr(j);
 
         // set/remove tranparency
         int i=0;

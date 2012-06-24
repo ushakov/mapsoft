@@ -36,16 +36,29 @@ public:
       ss.push_back(s);
     }
   }
-  std::vector<T> get(T xy){
+
+  /// get coords of crossings of border with y=const (or x=const if horiz=false) line
+  std::vector<T> get_cr(T y){
     std::vector<T> cr;
     for (int k = 0; k < sb.size(); k++){
-      if ((sb[k].y >  xy)&&(se[k].y >  xy)) continue; // side is above the row
-      if ((sb[k].y <= xy)&&(se[k].y <= xy)) continue; // side is below the row
-      cr.push_back((ss[k] * double(xy - sb[k].y)) + sb[k].x);
+      if ((sb[k].y >  y)&&(se[k].y >  y)) continue; // side is above the row
+      if ((sb[k].y <= y)&&(se[k].y <= y)) continue; // side is below the row
+      cr.push_back((ss[k] * double(y - sb[k].y)) + sb[k].x);
     }
     sort(cr.begin(), cr.end());
     return cr;
   }
+
+  /// is coord x inside border at cr line
+  bool test_cr(const std::vector<T> & cr, T x) const{
+    // number of crossings on the ray (x,y) - (inf,y)
+    typename std::vector<T>::const_iterator i =
+             lower_bound(cr.begin(), cr.end(), x);
+    int k=0;
+    while (i!=cr.end()) {i++; k++;}
+    return k%2==1;
+  }
+
 };
 /// \relates LineTester
 /// \brief LineTester with double coordinates
@@ -60,13 +73,8 @@ template <typename T>
 bool
 point_in_line(const Point<T> & p, const Line<T> & l){
   LineTester<T> lt(l);
-  std::vector<T> cr = lt.get(p.y);
-  // number of crossings on the ray (x,y) - (inf,y)
-  typename std::vector<T>::const_iterator i =
-          lower_bound(cr.begin(), cr.end(), p.x);
-  int k=0;
-  while (i!=cr.end()) {i++; k++;}
-  return k%2==1;
+  std::vector<T> cr = lt.get_cr(p.y);
+  return lt.test_cr(cr, p.x);
 }
 
 /// Check that rectangle r touches polygon with boundary l
@@ -78,16 +86,16 @@ rect_in_line(const Rect<T> & r, const Line<T> & l){
   // or one corner is inside polygon
   // or one of line points is inside rect
   std::vector<T> cr;
-  cr = lth.get(r.y);
+  cr = lth.get_cr(r.y);
   if (lower_bound(cr.begin(),cr.end(), r.x) !=
       lower_bound(cr.begin(),cr.end(), r.x+r.w)) return true;
-  cr = lth.get(r.y+r.h);
+  cr = lth.get_cr(r.y+r.h);
   if (lower_bound(cr.begin(),cr.end(), r.x) !=
       lower_bound(cr.begin(),cr.end(), r.x+r.w)) return true;
-  cr = ltv.get(r.x);
+  cr = ltv.get_cr(r.x);
   if (lower_bound(cr.begin(),cr.end(), r.y) !=
       lower_bound(cr.begin(),cr.end(), r.y+r.h)) return true;
-  cr = ltv.get(r.x+r.w);
+  cr = ltv.get_cr(r.x+r.w);
   if (lower_bound(cr.begin(),cr.end(), r.y) !=
       lower_bound(cr.begin(),cr.end(), r.y+r.h)) return true;
   typename std::vector<T>::const_iterator i =
