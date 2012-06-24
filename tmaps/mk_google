@@ -9,8 +9,6 @@ for z in $(seq 1 17); do
   wg=20037508.342789244
   wr=$(($ts*$tc))
 
-echo $wr
-
 cat > ${f%.txt}.xml << EOF
 <maps>
   <map file="$f" comm="google $z" map_proj="google"
@@ -40,7 +38,7 @@ url="http://khm\${nn}.google.com/kh/v=\${ver}&x=\${1}&y=\${2}&z=\${z}&s=\${gal}"
 
 f=\$(printf "$fmt" "\$1" "\$2")
 echo "Downloading \$f"
-wget "\$url" -O "\$f"
+wget "\$url" -O "\$f" || rm -f -- "$f"
 EOF
 chmod 755 "$f/download"
 
