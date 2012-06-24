@@ -3,6 +3,7 @@
 ## create map ref + download script for
 ## http://excursionmap.fi (http://www.retkikartta.fi/) maps
 
+mkdir -p -- "excmap.fi"
 mkmap(){
 
   pt_proj='proj="tmerc" datum="KKJ" lon0="27" E0="3500000"'
@@ -23,7 +24,7 @@ mkmap(){
 
 cat > ${f%.txt}.xml << EOF
 <maps>
-  <map file=${f%.txt} comm="$name" $map_proj
+  <map file="$(basename $f .txt)" comm="$name" $map_proj
        border="$xr1,$yr1,$xr2,$yr1,$xr2,$yr2,$xr1,$yr2"
        tile_size="$ts" tile_fmt="$fmt">
     <pt $pt_proj x=$xg1 y=$yg1 xr=$xr1 yr=$yr1/>
@@ -51,11 +52,11 @@ chmod 755 ${f%.txt}/download
 while read f pt2u x1 x2 y1 y2 fmt name; do
   mkmap
 done <<EOF
-excmap1.fi 794.034895   12   19   32   39 %02dx%02d.png excursionmap.fi 1:3000000
-excmap2.fi 264.639239   40   56   96  117 %03dx%03d.png excursionmap.fi 1:1000000
-excmap3.fi 132.291931   90  112  194  231 %03dx%03d.png excursionmap.fi 1:500000
-excmap4.fi 26.458386   400  550  960 1170 %04dx%04d.png excursionmap.fi 1:100000
-excmap5.fi 13.229193   800 1100 1920 2340 %04dx%04d.png excursionmap.fi 1:50000
-excmap6.fi 6.614597   1600 2200 3840 4680 %04dx%04d.png excursionmap.fi 1:25000
-excmap7.fi 4.234905   2500 3436 6012 7310 %04dx%04d.png excursionmap.fi 1:16000
+excmap.fi/1 794.034895   12   19   32   39 %02dx%02d.png excursionmap.fi 1:3000000
+excmap.fi/2 264.639239   40   56   96  117 %03dx%03d.png excursionmap.fi 1:1000000
+excmap.fi/3 132.291931   90  112  194  231 %03dx%03d.png excursionmap.fi 1:500000
+excmap.fi/4 26.458386   400  550  960 1170 %04dx%04d.png excursionmap.fi 1:100000
+excmap.fi/5 13.229193   800 1100 1920 2340 %04dx%04d.png excursionmap.fi 1:50000
+excmap.fi/6 6.614597   1600 2200 3840 4680 %04dx%04d.png excursionmap.fi 1:25000
+excmap.fi/7 4.234905   2500 3436 6012 7310 %04dx%04d.png excursionmap.fi 1:16000
 EOF

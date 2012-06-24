@@ -1,7 +1,8 @@
 #!/bin/sh -efu
 
+mkdir -p -- "google"
 for z in $(seq 1 17); do
-  f="google$z"
+  f="google/$z"
   ts=256
   tc="$((2**$z))" # max tile number + 1
   fmt="%0${#tc}dx%0${#tc}d.jpg"
@@ -11,7 +12,7 @@ for z in $(seq 1 17); do
 
 cat > ${f%.txt}.xml << EOF
 <maps>
-  <map file="$f" comm="google $z" map_proj="google"
+  <map file="$z" comm="google $z" map_proj="google"
        border="0,0,$wr,0,$wr,$wr,0,$wr"
        tile_size="$ts" tile_fmt="$fmt">
     <pt proj="google" x="-$wg" y="$wg"  xr=0 yr=0/>
