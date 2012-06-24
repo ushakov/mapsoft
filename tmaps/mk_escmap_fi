@@ -57,4 +57,5 @@ excmap3.fi 132.291931   90  112  194  231 %03dx%03d.png excursionmap.fi 1:500000
 excmap4.fi 26.458386   400  550  960 1170 %04dx%04d.png excursionmap.fi 1:100000
 excmap5.fi 13.229193   800 1100 1920 2340 %04dx%04d.png excursionmap.fi 1:50000
 excmap6.fi 6.614597   1600 2200 3840 4680 %04dx%04d.png excursionmap.fi 1:25000
+excmap7.fi 4.234905   2500 3436 6012 7310 %04dx%04d.png excursionmap.fi 1:16000
 EOF
