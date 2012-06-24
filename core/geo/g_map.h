@@ -31,6 +31,7 @@ struct g_map : std::vector<g_refpoint>
     std::string file;
     Proj   map_proj;
     dLine border;
+    Options proj_opts;
 
     // these fildes used in tiled maps:
     int tsize;

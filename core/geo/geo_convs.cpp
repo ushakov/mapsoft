@@ -326,6 +326,7 @@ double map_lon0(const g_map &M){
 
 Options
 map_popts(const g_map & M, Options O){
+  O.insert(M.proj_opts.begin(), M.proj_opts.end());
   switch (M.map_proj.val){
   case 0: break; //lonlat
   case 1:        //tmerc

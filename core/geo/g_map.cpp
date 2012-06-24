@@ -58,7 +58,7 @@ g_map::g_map(){
 }
 
 Options g_map::to_options () const {
-    Options opt;
+    Options opt(proj_opts);
     opt.put("comm",      comm);
     opt.put("file",      file);
     opt.put("map_proj",  map_proj);
@@ -83,9 +83,14 @@ void g_map::parse_from_options (Options const & opt){
     if ((file.size()<1)||(file[0]!='/'))
         file=prefix+file;
 
+    if (opt.exists("lon0")) proj_opts.put("lon0", opt.get<string>("lon0"));
+    if (opt.exists("lat0")) proj_opts.put("lat0", opt.get<string>("lat0"));
+    if (opt.exists("E0")) proj_opts.put("E0", opt.get<string>("E0"));
+    if (opt.exists("N0")) proj_opts.put("N0", opt.get<string>("N0"));
+
     const string used[] = {
       "comm", "file", "map_proj", "border", "points", "prefix",
-      "tile_size", "tile_fmt", ""};
+      "tile_size", "tile_fmt", "lon0", "lat0" , "E0", "N0", ""};
     opt.warn_unused(used);
 }
 
