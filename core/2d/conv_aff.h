@@ -32,6 +32,7 @@ public:
   /// reset to trivial
   void reset();
 
+  double det() const { return k_frw[0] * k_frw[4] - k_frw[1] * k_frw[3];}
   void shift(const dPoint & p);
   void scale(const double kx, const double ky);
 

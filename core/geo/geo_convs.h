@@ -63,6 +63,7 @@ struct map2pt : Conv{
     lin_cnv.bck(p);
   }
 
+  bool swapped() const {return lin_cnv.det() > 0;}
 
   void rescale_src(const double s);
 

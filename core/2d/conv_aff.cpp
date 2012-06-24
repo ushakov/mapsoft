@@ -28,8 +28,7 @@ int mdiag(int N, double *a){
 
 
 void ConvAff::bck_recalc(){
-  double D = k_frw[0] * k_frw[4] - k_frw[1] * k_frw[3];
-
+  double D = det();
   if (D==0) throw "ConvAff: can't calculate matrix for backward conversion.";
 
   k_bck[0] =   k_frw[4] / D;

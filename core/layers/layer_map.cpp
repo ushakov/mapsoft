@@ -21,7 +21,23 @@ LayerMAP::LayerMAP(g_map_list *_data, const Options & opt) :
 
 g_map
 LayerMAP::get_myref() const {
-  return convs::mymap(*data);
+  // return ref of first map, swapped if needed
+  if (data->size() && (*data)[0].size()){
+    g_map ret=(*data)[0];
+    convs::map2pt c(ret, Datum("wgs84"), Proj("lonlat"), Options());
+    if (!c.swapped()) return ret;
+    double ym=ret[0].yr;
+    for (int i=1; i<ret.size(); i++){ if (ret[i].yr>ym) ym=ret[i].yr; } // find max yr
+    for (int i=0; i<ret.size(); i++){ ret[i].yr = ym-ret[i].yr; } //swap y
+    return ret;
+  }
+  // else return some simple ref
+  g_map ret;
+  ret.map_proj = Proj("lonlat");
+  ret.push_back(g_refpoint(0,  45, 0, 45*3600));
+  ret.push_back(g_refpoint(180, 0, 180*3600,90*3600));
+  ret.push_back(g_refpoint(0,   0, 0, 90*3600));
+  return ret;
 }
 
 g_map_list *
