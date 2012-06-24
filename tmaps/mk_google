@@ -38,7 +38,7 @@ url="http://khm\${nn}.google.com/kh/v=\${ver}&x=\${1}&y=\${2}&z=\${z}&s=\${gal}"
 
 f=\$(printf "$fmt" "\$1" "\$2")
 echo "Downloading \$f"
-wget "\$url" -O "\$f" || rm -f -- "$f"
+wget "\$url" -O "\$f" || rm -f -- "\$f"
 EOF
 chmod 755 "$f/download"
 
