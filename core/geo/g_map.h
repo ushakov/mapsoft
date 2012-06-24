@@ -32,10 +32,10 @@ struct g_map : std::vector<g_refpoint>
     Proj   map_proj;
     dLine border;
     Options proj_opts;
-
     // these fildes used in tiled maps:
     int tsize;
     std::string tfmt;
+    bool tswap;
 
     g_map();
     Options to_options () const;

@@ -156,7 +156,7 @@ LayerMAP::draw(iImage & image, const iPoint & origin){
               int tsize = m->tsize/scale;
               iPoint tile = iPoint(p)/tsize;
               iPoint pt = p - dPoint(tile)*tsize;
-              pt.y=tsize-pt.y-1;
+              if (m->tswap) pt.y=tsize-pt.y-1;
               if (!C.contains(tile)){
                 char fn[PATH_MAX];
                 snprintf(fn, sizeof(fn), m->tfmt.c_str(), tile.x, tile.y);

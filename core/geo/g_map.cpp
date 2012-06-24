@@ -54,7 +54,8 @@ void g_refpoint::parse_from_options (Options const & opt){
 
 g_map::g_map(){
   tsize=256;
-  tfmt="%05dx%05d.jpg";
+  tfmt="%dx%d.jpg";
+  tswap=false;
 }
 
 Options g_map::to_options () const {
@@ -65,7 +66,9 @@ Options g_map::to_options () const {
     opt.put("border",    border);
     opt.put("tile_size", tsize);
     opt.put("tile_fmt",  tfmt);
+    if (tswap) opt.put("tile_swapy", "");
     opt.put("points",    size());
+
     return opt;
 }
 
@@ -87,10 +90,11 @@ void g_map::parse_from_options (Options const & opt){
     if (opt.exists("lat0")) proj_opts.put("lat0", opt.get<string>("lat0"));
     if (opt.exists("E0")) proj_opts.put("E0", opt.get<string>("E0"));
     if (opt.exists("N0")) proj_opts.put("N0", opt.get<string>("N0"));
+    if (opt.exists("tile_swapy")) tswap=true;
 
     const string used[] = {
       "comm", "file", "map_proj", "border", "points", "prefix",
-      "tile_size", "tile_fmt", "lon0", "lat0" , "E0", "N0", ""};
+      "tile_size", "tile_fmt", "tile_swapy", "lon0", "lat0" , "E0", "N0", ""};
     opt.warn_unused(used);
 }
 
