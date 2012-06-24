@@ -1,0 +1,40 @@
+#!/bin/sh -efu
+# см. http://wiki.openstreetmap.org/wiki/RU:ВикиПроект_Россия/Космоснимки
+
+for z in $(seq 1 14); do
+  f="scanex_base_$z"
+  ts=256
+  tc="$((2**$z))" # max tile number + 1
+  [ $z == 1 ] &&
+    fmt="%0${#tc}dx%0${#tc}d.png" ||
+    fmt="%0${#tc}dx%0${#tc}d.jpg"
+
+  wg=20037508.342789244
+  wr=$(($ts*$tc))
+
+cat > ${f%.txt}.xml << EOF
+<maps>
+  <map file="$f" comm="scanex base $z" map_proj="merc"
+       border="0,0,$wr,0,$wr,$wr,0,$wr"
+       tile_size="$ts" tile_fmt="$fmt">
+    <pt datum="wgs84" proj="merc" x="-$wg" y="$wg"  xr=0 yr=0/>
+    <pt datum="wgs84" proj="merc" x="$wg"  y="$wg"  xr=$wr yr=0/>
+    <pt datum="wgs84" proj="merc" x="$wg"  y="-$wg" xr=$wr yr=$wr/>
+    <pt datum="wgs84" proj="merc" x="-$wg" y="-$wg" xr=0 yr=$wr/>
+  </map>
+</maps>
+EOF
+
+mkdir -p -- "$f"
+
+cat > "$f/download" << EOF
+#!/bin/sh -efu
+z=$z
+url="http://maps.kosmosnimki.ru/TileService.ashx?Request=gettile&layerName=19195FD12B6F473684BF0EF115652C38&apikey=U96GP973UH&z=\$z&x=\$1&y=\$2"
+f=\$(printf "$fmt" "\$1" "\$2")
+echo "Downloading \$f"
+wget "\$url" -O "\$f" || rm -f -- "\$f"
+EOF
+chmod 755 "$f/download"
+
+done
