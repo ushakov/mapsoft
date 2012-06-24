@@ -82,7 +82,6 @@ LayerMAP::hide_map(const g_map * m){ status_set(SHOW_MAP, false, m); }
 void
 LayerMAP::refresh(){
   make_m2ms();
-  image_cache.clear();
 }
 
 int
