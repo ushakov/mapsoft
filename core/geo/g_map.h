@@ -47,6 +47,8 @@ struct g_map : std::vector<g_refpoint>
 
     /// get range of map (lon-lat) using refpoints and borders
     dRect range() const;
+    dRect range_ref() const;   // lon-lat range of ref point
+    dRect range_ref_r() const; // image coord range of ref point
     dRect range_correct() const;
     /// get central point of map (lon-lat) using reference points
     dPoint center() const;

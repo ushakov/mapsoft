@@ -141,11 +141,22 @@ void g_map::ensure_border() {
     rect_crop(file_range, border, true);
 }
 
-/// get range in lon-lat coords
-/// диапазон карт определяется по точкам привязки, и по границам, если
-/// они есть
+/// get range in lon-lat coords (border or refpoints)
 dRect g_map::range() const {
-  double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
+  // try border
+  if (border.size()>2){
+    convs::map2pt cnv(*this, Datum("WGS84"), Proj("lonlat"));
+    return cnv.line_frw(border).range();
+  }
+  // else use refpoints
+  return range_ref();
+}
+
+dRect g_map::range_ref() const {
+  if (size()<1) return dRect(0,0,0,0);
+  double minx,maxx,miny,maxy;
+  minx=maxx=(*this)[0].x;
+  miny=maxy=(*this)[0].y;
   g_map::const_iterator i;
   for (i = begin(); i != end(); ++i){
     if (i->x > maxx) maxx = i->x;
@@ -153,16 +164,21 @@ dRect g_map::range() const {
     if (i->x < minx) minx = i->x;
     if (i->y < miny) miny = i->y;
   }
-  dLine::const_iterator j;
-  convs::map2pt conv(*this, Datum("WGS84"), Proj("lonlat"));
-  for (j = border.begin(); j != border.end(); ++j){
-    dPoint p(*j); conv.frw(p);
-    if (p.x > maxx) maxx = p.x;
-    if (p.y > maxy) maxy = p.y;
-    if (p.x < minx) minx = p.x;
-    if (p.y < miny) miny = p.y;
+  return dRect(minx, miny, maxx-minx, maxy-miny);
+}
+
+dRect g_map::range_ref_r() const {
+  if (size()<1) return dRect(0,0,0,0);
+  double minx,maxx,miny,maxy;
+  minx=maxx=(*this)[0].xr;
+  miny=maxy=(*this)[0].yr;
+  g_map::const_iterator i;
+  for (i = begin(); i != end(); ++i){
+    if (i->xr > maxx) maxx = i->xr;
+    if (i->yr > maxy) maxy = i->yr;
+    if (i->xr < minx) minx = i->xr;
+    if (i->yr < miny) miny = i->yr;
   }
-  if ((minx > maxx) || (miny > maxy)) return dRect(0, 0, 0, 0);
   return dRect(minx, miny, maxx-minx, maxy-miny);
 }
 
@@ -175,18 +191,9 @@ dRect g_map::range_correct() const {
   return brd.range();
 }
 
-/// get central point of map (lon-lat) using reference points
+/// get central point of map (lon-lat) using border or reference points
 dPoint g_map::center() const {
-  double minx(1e99), miny(1e99), maxx(-1e99), maxy(-1e99);
-  g_map::const_iterator i;
-  for (i = begin(); i != end(); ++i){
-    if (i->x > maxx) maxx = i->x;
-    if (i->y > maxy) maxy = i->y;
-    if (i->x < minx) minx = i->x;
-    if (i->y < miny) miny = i->y;
-  }
-  if ((minx > maxx) || (miny > maxy)) return dPoint(0, 0);
-  return dPoint((maxx+minx)/2, (maxy+miny)/2);
+  return range().CNT();
 }
 
 /*********************************/

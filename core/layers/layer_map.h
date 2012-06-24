@@ -29,6 +29,8 @@ private:
   Cache<int, iImage> image_cache;    // кэш изображений
   std::map<const g_map*, int> status; // visibility of refpoints, border, map image
 
+  std::map<std::string, Cache<iPoint, iImage> > tmap_cache;
+
 public:
 
   LayerMAP (g_map_list *_data, const Options & opt = Options());

@@ -99,31 +99,84 @@ LayerMAP::draw(iImage & image, const iPoint & origin){
   cr->set_line_width(1);
 
   for (int i=0; i < data->size(); i++){
-      string file = (*data)[i].file;
       if (!rect_in_line(src_rect, borders[i])) continue;
+
+      const g_map * m = &(*data)[i];
 
       int scale = int(scales[i]+0.05);
       if (scale <=0) scale = 1;
 
-      const g_map * m = &(*data)[i];
-
+      // show map if needed
       if ((scale<=maxscale) && (status[m]&SHOW_MAP)){
-        if (!image_cache.contains(i) || (iscales[i] > scale)) {
-#ifdef DEBUG_LAYER_GEOMAP
-          cerr  << "LayerMAP: Loading Image " << file
- 	        << " at scale " << scale << "\n";
-#endif
-          iImage img = image_r::load(file.c_str(), scale);
-          img.set_border((*data)[i].border/scale);
-          image_cache.add(i, img);
-          iscales[i] = scale;
+
+        // check image file
+        struct stat st_buf;
+        if (stat(m->file.c_str(), &st_buf) != 0){
+          std::cerr << "Layer_map: can't find image file: " << m->file << endl;
+          continue;
         }
-#ifdef DEBUG_LAYER_GEOMAP
-        cerr  << "LayerMAP: Using Image " << file
-		 << " at scale " << scale << " (loaded at scale " << iscales[i] <<", scales[i]: " << scales[i] << ")\n";
-#endif
-        m2ms[i]->image_frw(image_cache.get(i), image, origin, 1.0/iscales[i]);
+
+        if (S_ISDIR(st_buf.st_mode)){ // tiled map
+          // find/create image cache for this map
+          if (tmap_cache.count(m->file)==0)
+            tmap_cache.insert(make_pair(m->file, Cache<iPoint, iImage>(100)));
+          Cache<iPoint, iImage> & C = tmap_cache.find(m->file)->second;
+          // clear cache if scale have changed
+          if (iscales[i] != scale){
+            C.clear();
+            iscales[i] = scale;
+          }
+          dLine brd=m2ms[i]->line_frw(m->border);
+          iLineTester brd_tester(brd);
+          // look for download script
+          bool download = stat((m->file+"/download").c_str(), &st_buf) == 0 &&
+                          S_ISREG(st_buf.st_mode);
+          // convert image points
+          for (int y=0; y<image.h; y++){
+            std::vector<int> cr = brd_tester.get_cr(y+origin.y);
+            for (int x=0; x<image.w; x++){
+              if (!brd_tester.test_cr(cr, x+origin.x)) continue;
+              dPoint p(x,y); p+=origin; m2ms[i]->bck(p); p/=scale;
+              int tsize = m->tsize/scale;
+              iPoint tile = iPoint(p)/tsize;
+              iPoint pt = p - dPoint(tile)*tsize;
+              pt.y=tsize-pt.y-1;
+              if (!C.contains(tile)){
+                char fn[PATH_MAX];
+                snprintf(fn, sizeof(fn), m->tfmt.c_str(), tile.x, tile.y);
+                string tfile = m->file+'/'+fn;
+                iImage img = image_r::load(tfile.c_str(), scale);
+                if (img.empty() && download){ // try to download file
+                  ostringstream ss;
+                  ss << "./download " << tile.x << " " << tile.y;
+                  char cwd[PATH_MAX];
+                  if (getcwd(cwd, PATH_MAX) && chdir(m->file.c_str())==0){
+                    if (system(ss.str().c_str())==0)
+                       img = image_r::load(fn, scale);
+                    if (chdir(cwd)!=0) cerr << "Layer_map: can't do chdir!\n";
+                  }
+                }
+                img.set_border((m->border - tile*m->tsize)/scale);
+                C.add(tile, img);
+              }
+              else{
+                image.set_a(x,y,C.get(tile).safe_get(pt));
+              }
+            }
+          }
+        }
+
+        else { // normal map
+          if (!image_cache.contains(i) || (iscales[i] > scale)) {
+            iImage img = image_r::load(m->file.c_str(), scale);
+            img.set_border(m->border/scale);
+            image_cache.add(i, img);
+            iscales[i] = scale;
+          }
+          m2ms[i]->image_frw(image_cache.get(i), image, origin, 1.0/iscales[i]);
+        }
       }
+
 
       //draw border
       if ((status[m]&SHOW_BRD) || (scale > maxscale)){

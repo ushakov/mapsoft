@@ -152,7 +152,6 @@ map2pt::map2pt(const g_map & sM,
 // При этом в какой СК нарисована карта и какие параметры проекции
 // используются - нам не важно - это станет частью лин.преобразования!
 
-
   // projection for reference points (coords in radians!)
   pr_ref = mkproj(Datum("WGS84"), Proj("lonlat"), Options()); // for ref points
 
@@ -315,16 +314,22 @@ map2map::rescale_dst(const double s){ cnv3.rescale_src(s); }
 
 /*******************************************************************/
 
+// we can't use range() here, because this function
+// can be used in map2pt constructor.
+double map_lon0(const g_map &M){
+  dRect rg = M.range_ref();
+  dRect rr = M.range_ref_r();
+  dRect br = M.border.range();
+  if (br.empty()) return lon2lon0(rg.CNT().x);
+  return lon2lon0( rg.x + rg.w/rr.w * (br.CNT().x-rr.x) );
+}
+
 Options
 map_popts(const g_map & M, Options O){
   switch (M.map_proj.val){
   case 0: break; //lonlat
   case 1:        //tmerc
-    if (O.count("lon0")==0){
-      O.put("lon0", lon2lon0(M.center().x));
-      O.put("E0",   500000.0);
-      O.put("N0",   0.0);
-    }
+    if (O.count("lon0")==0) O.put("lon0", map_lon0(M));
     break;
   case 2:        //UTM
     std::cerr << "utm map is not supported. fixme!\n";
@@ -350,18 +355,15 @@ mymap(const g_map_list & maplist){
   g_map ret;
   Options O;
 
+  // proj and proj_options - from the first map
   ret.map_proj=Proj("lonlat");
   if (maplist.size()>0){
     ret.map_proj=maplist[0].map_proj;
     O=map_popts(maplist[0]);
   }
 
-  dRect rm=maplist.range();
-  double lon0 = lon2lon0(rm.x+rm.w/2);
-  O.put("lon0", lon0); // todo - use map_popts here?
-
-  // масштаб -- соответствующий минимальному масштабу карт, если они есть,
-  // или 1/3600 градуса на точку, если карт нет
+  // set scale from map with minimal scale
+  // or 1/3600 degree if no map exists
   double mpp=1e99;
   g_map_list::const_iterator it;
   for (it = maplist.begin(); it != maplist.end(); it++){
@@ -370,9 +372,9 @@ mymap(const g_map_list & maplist){
   }
   if ((mpp>1e90)||(mpp<1e-90)) mpp=1/3600.0;
 
-  // точки привязки
+  // create refpoints
   pt2pt cnv(Datum("WGS84"), ret.map_proj, O, Datum("WGS84"), Proj("lonlat"), O);
-  dPoint p(lon0,0); cnv.bck(p);
+  dPoint p(maplist.range().CNT()); cnv.bck(p);
   dPoint p1=p+dPoint(mpp*1000,0); cnv.frw(p1);
   dPoint p2=p+dPoint(0,mpp*1000); cnv.frw(p2);
   cnv.frw(p);
