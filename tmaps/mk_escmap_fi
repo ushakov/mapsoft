@@ -1,0 +1,60 @@
+#!/bin/sh -efu
+
+## create map ref + download script for
+## http://excursionmap.fi (http://www.retkikartta.fi/) maps
+
+mkmap(){
+
+  pt_proj='proj="tmerc" datum="KKJ" lon0="27" E0="3500000"'
+  map_proj='map_proj="tmerc" lon0="27" tile_swapy'
+  ts=256
+
+  xr1=$(echo "$x1 * $ts" | bc -l)
+  xr2=$(echo "$x2 * $ts" | bc -l)
+  yr1=$(echo "$y1 * $ts" | bc -l)
+  yr2=$(echo "$y2 * $ts" | bc -l)
+
+  xg1=$(echo "$xr1 * $pt2u" | bc -l)
+  xg2=$(echo "$xr2 * $pt2u" | bc -l)
+  yg1=$(echo "$yr1 * $pt2u" | bc -l)
+  yg2=$(echo "$yr2 * $pt2u" | bc -l)
+
+  url_fmt="http://ntile1.navici.com/t/retkikartta/maps/2393x${pt2u}x%dx%d.png"
+
+cat > ${f%.txt}.xml << EOF
+<maps>
+  <map file=${f%.txt} comm="$name" $map_proj
+       border="$xr1,$yr1,$xr2,$yr1,$xr2,$yr2,$xr1,$yr2"
+       tile_size="$ts" tile_fmt="$fmt">
+    <pt $pt_proj x=$xg1 y=$yg1 xr=$xr1 yr=$yr1/>
+    <pt $pt_proj x=$xg1 y=$yg2 xr=$xr1 yr=$yr2/>
+    <pt $pt_proj x=$xg2 y=$yg2 xr=$xr2 yr=$yr2/>
+    <pt $pt_proj x=$xg2 y=$yg1 xr=$xr2 yr=$yr1/>
+  </map>
+</maps>
+EOF
+
+mkdir -p -- ${f%.txt}
+
+cat > ${f%.txt}/download << EOF
+#!/bin/sh -efu
+f=\$(printf "$fmt" "\$1" "\$2")
+u=\$(printf "$url_fmt"  "\$1" "\$2")
+echo "Downloading \$f"
+wget "\$u" -O "\$f"
+EOF
+chmod 755 ${f%.txt}/download
+
+}
+
+
+while read f pt2u x1 x2 y1 y2 fmt name; do
+  mkmap
+done <<EOF
+excmap1.fi 794.034895   12   19   32   39 %02dx%02d.png excursionmap.fi 1:3000000
+excmap2.fi 264.639239   40   56   96  117 %03dx%03d.png excursionmap.fi 1:1000000
+excmap3.fi 132.291931   90  112  194  231 %03dx%03d.png excursionmap.fi 1:500000
+excmap4.fi 26.458386   400  550  960 1170 %04dx%04d.png excursionmap.fi 1:100000
+excmap5.fi 13.229193   800 1100 1920 2340 %04dx%04d.png excursionmap.fi 1:50000
+excmap6.fi 6.614597   1600 2200 3840 4680 %04dx%04d.png excursionmap.fi 1:25000
+EOF
