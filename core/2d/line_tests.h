@@ -87,22 +87,21 @@ rect_in_line(const Rect<T> & r, const Line<T> & l){
   // or one of line points is inside rect
   std::vector<T> cr;
   cr = lth.get_cr(r.y);
-  if (lower_bound(cr.begin(),cr.end(), r.x) !=
-      lower_bound(cr.begin(),cr.end(), r.x+r.w)) return true;
+  for (int i=0; i<cr.size(); i++)
+    if (r.x < cr[i] && cr[i] <=r.x+r.w ) return true;
   cr = lth.get_cr(r.y+r.h);
-  if (lower_bound(cr.begin(),cr.end(), r.x) !=
-      lower_bound(cr.begin(),cr.end(), r.x+r.w)) return true;
+  for (int i=0; i<cr.size(); i++)
+    if (r.x < cr[i] && cr[i] <=r.x+r.w ) return true;
   cr = ltv.get_cr(r.x);
-  if (lower_bound(cr.begin(),cr.end(), r.y) !=
-      lower_bound(cr.begin(),cr.end(), r.y+r.h)) return true;
+  for (int i=0; i<cr.size(); i++)
+    if (r.y < cr[i] && cr[i] <=r.y+r.h ) return true;
   cr = ltv.get_cr(r.x+r.w);
-  if (lower_bound(cr.begin(),cr.end(), r.y) !=
-      lower_bound(cr.begin(),cr.end(), r.y+r.h)) return true;
-  typename std::vector<T>::const_iterator i =
-          lower_bound(cr.begin(), cr.end(), r.y);
-  int k=0;
-  while (i!=cr.end()) {i++; k++;}
-  if (k%2) return true;
+  for (int i=0; i<cr.size(); i++)
+    if (r.y < cr[i] && cr[i] <=r.y+r.h ) return true;
+
+  for (int i=0; i<cr.size(); i++)
+    if (r.y < cr[i] && i%2 ) return true;
+
   if (l.size() && point_in_rect(l[0], r)) return true;
   return false;
 }
