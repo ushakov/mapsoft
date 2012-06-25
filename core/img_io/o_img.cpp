@@ -4,8 +4,6 @@
 #include "layers/layer_map.h"
 #include "layers/layer_trk.h"
 #include "layers/layer_wpt.h"
-#include "layers/layer_google.h"
-#include "layers/layer_ks.h"
 #include "layers/layer_srtm.h"
 #include "loaders/image_r.h"
 
@@ -25,10 +23,6 @@ namespace img{
 
 bool write_file (const char* filename, const geo_data & world, Options opt){
 
-  int ks_zoom = opt.get("ks_zoom",     -1);
-  int gg_zoom = opt.get("google_zoom", -1);
-
-
   // set default dpi according to raster source resolutions
   double rscale=opt.get("rscale", 100000.0);
 
@@ -43,14 +37,6 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
           break;
         }
       }
-    }
-    else if (gg_zoom>0){
-      mpp = 6380000.0 * 2*M_PI /256.0/(2 << (gg_zoom-1));
-    }
-    else if (ks_zoom>0){
-      double width = 4 * 256*(1<<(ks_zoom-2));
-      double deg_per_pt = 180.0/width; // ~188
-      mpp = deg_per_pt * M_PI/180 * 6378137.0;
     }
     else if (opt.exists("srtm_mode")){
       mpp = 6380000.0 * M_PI /180/1200;
@@ -102,28 +88,6 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     LayerSRTM l(&s);
     l.set_opt(opt);
     l.set_cnv(&cnv, ref.map_proj.val);
-    iImage tmp_im = l.get_image(geom);
-    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
-  }
-
-  if (gg_zoom>=0){
-    string dir    = opt.get<string>("google_dir");
-    bool download = opt.get<bool>("download", false);
-    LayerGoogle l(dir, gg_zoom);
-    l.set_ref(ref);
-//    l.set_cnv(&cnv, ref.map_proj.val);
-    l.set_downloading(download);
-    iImage tmp_im = l.get_image(geom);
-    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
-  }
-
-  if (ks_zoom>=0){
-    string dir    = opt.get<string>("ks_dir");
-    bool download = opt.get("download", false);
-    LayerKS l(dir, ks_zoom);
-    l.set_ref(ref);
-//    l.set_cnv(&cnv, ref.map_proj.val);
-    l.set_downloading(download);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }

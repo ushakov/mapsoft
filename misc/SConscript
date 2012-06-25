@@ -9,7 +9,6 @@ subdirs = Split ("""
   srtm_pics
   srtm_riv
   tim
-  tests_loaders
   image_a
   """)
 

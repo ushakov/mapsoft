@@ -6,10 +6,6 @@
 #include <sys/stat.h>
 
 #include "layers/layer_map.h"
-//#include "layers/layer_wpt.h"
-//#include "layers/layer_trk.h"
-#include "layers/layer_google.h"
-#include "layers/layer_ks.h"
 #include "loaders/image_r.h"
 
 #include "geo/geo_convs.h"
@@ -36,7 +32,7 @@ void PrepareOutputDir(const char* filename, string* dirname) {
   string fname(filename);
 
   *dirname = fname.substr(0, fname.rfind("."));
-  
+
   string cmd = "mkdir -p ";
   cmd += *dirname;
   system(cmd.c_str());

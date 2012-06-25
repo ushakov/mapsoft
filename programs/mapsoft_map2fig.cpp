@@ -5,8 +5,6 @@
 #include <sys/stat.h>
 
 #include "layers/layer_map.h"
-#include "layers/layer_google.h"
-#include "layers/layer_ks.h"
 #include "geo_io/io.h"
 #include "geo/geo_convs.h"
 #include "loaders/image_r.h"
@@ -25,9 +23,7 @@ const int tsize = 1024;
 
 void usage(){
   cerr << "usage: \n"
-    " mapsoft_map2fig <fig> map <depth> <map file 1> [<map file 2> ...]\n"
-    " mapsoft_map2fig <fig> google <depth> <scale> <google_dir>\n"
-    " mapsoft_map2fig <fig> ks <depth> <scale> <ks_dir>\n";
+    " mapsoft_map2fig <fig> map <depth> <map file 1> [<map file 2> ...]\n";
    exit(0);
 }
 
@@ -39,42 +35,29 @@ main(int argc, char **argv){
     string source   = argv[2];
     string depth = argv[3];
 
-    GObj *ml;
+
+    if (source != "map") usage();
+
+    // read data
+    geo_data *world = new geo_data;
+    for(int i=4;i<argc;i++){
+      try {io::in(string(argv[i]), *world);}
+      catch (MapsoftErr e) {cerr << e.str() << endl;}
+    }
+
+    // put all maps into one map_list
     g_map_list maps;
-    g_map map_ref;
+    for (vector<g_map_list>::const_iterator mi = world->maps.begin();
+       mi!=world->maps.end(); mi++) maps.insert(maps.end(), mi->begin(), mi->end());
 
-    if (source == "map") {
-      // read data
-      geo_data *world = new geo_data;
-      for(int i=4;i<argc;i++){
-        try {io::in(string(argv[i]), *world);}
-        catch (MapsoftErr e) {cerr << e.str() << endl;}
-      }
-      // put all maps into one map_list
-      for (vector<g_map_list>::const_iterator mi = world->maps.begin();
-         mi!=world->maps.end(); mi++) maps.insert(maps.end(), mi->begin(), mi->end());
-      LayerMAP *l = new LayerMAP(&maps);
-      map_ref = l->get_myref();
-      ml=l;
-    }
-    else if (source == "ks") {
-      if (argc!=6) usage();
-      LayerKS *l = new LayerKS(argv[5], atoi(argv[4]));
-      l->set_downloading(true);
-      ml=l;
-    }
-    else if (source == "google") {
-      if (argc!=6) usage();
-      LayerGoogle *l = new LayerGoogle(argv[5], atoi(argv[4]));
-      l->set_downloading(true);
-      map_ref = l->get_myref();
-      ml=l;
-    } else usage();
+    // create layer, get ref
+    LayerMAP ml(&maps);
+    g_map map_ref = ml.get_myref();
 
-    // читаем fig
+    // read fig
     fig::fig_world F;
     if (!fig::read(fig_name.c_str(), F)) {
-      cerr << "File is not modified, exiting.\n";
+      cerr << "Read error. File is not modified, exiting.\n";
       exit(1);
     }
 
@@ -83,45 +66,13 @@ main(int argc, char **argv){
     g_map fig_ref = fig::get_ref(F);
 
     // rescale > 1, если точки fig меньше точки растра
-    double rescale;
-    if (source == "map"){
-      rescale = convs::map_mpp(map_ref, map_ref.map_proj)/
-                convs::map_mpp(fig_ref, map_ref.map_proj); // scales in one proj
-    }
-    else { // с google map_mpp не работает (т.к. во всех точках все разное)
-      // например, горизонтальный масштаб
-      dRect range = fig_ref.border.range();
-      dPoint p1(range.TLC()), p2(range.TRC());
-      convs::map2map c(map_ref, fig_ref);
-
-
-Options o; o["lon0"]="39";
-convs::map2pt c1(fig_ref, Datum("WGS84"), Proj("tmerc"), o);
-convs::map2pt c2(map_ref, Datum("WGS84"), Proj("tmerc"), o);
-
-      double l1=0,l2=0;
-      for (int i=1; i<fig_ref.size();i++){
-        dPoint p1(fig_ref[i-1].xr,fig_ref[i-1].yr);
-        dPoint p2(fig_ref[i].xr,  fig_ref[i].yr);
-        c.bck(p1); c.bck(p2);
-        l1+=pdist(p1,p2);
-        l2+=pdist(dPoint(fig_ref[i].xr, fig_ref[i].yr), dPoint(fig_ref[i-1].xr, fig_ref[i-1].yr));
-cerr << "fig->g: " << fig_ref[i].xr << " " << fig_ref[i].yr << " -> "
-                        << p2 << "\n";
-p2=dPoint(fig_ref[i].xr,  fig_ref[i].yr);
-c1.frw(p2);
-cerr << ": " << p2 << "\n";
-c2.bck(p2);
-cerr << ": " << p2 << "\n";
-      }
-      rescale = l2/l1;
-    }
-
+    double rescale = convs::map_mpp(map_ref, map_ref.map_proj)/
+                     convs::map_mpp(fig_ref, map_ref.map_proj); // scales in one proj
 
     fig_ref/=rescale; // теперь fig_ref - в координатах растра
     convs::map2pt fig_cnv(
       fig_ref, Datum("wgs84"), Proj("lonlat"), Options());
-    ml->set_cnv(&fig_cnv);
+    ml.set_cnv(&fig_cnv);
 
     // диапазон картинки в координатах растра
     dRect range = fig_ref.border.range();
@@ -155,7 +106,7 @@ cerr << dx << " x " << dy << " tile_size\n";
     for (int i = 0; i<nx; i++){
       dPoint tlc(range.x+i*dx, range.y+j*dy);
 
-      iImage im = ml->get_image(iRect(tlc, tlc+dPoint(dx,dy)));
+      iImage im = ml.get_image(iRect(tlc, tlc+dPoint(dx,dy)));
       if (im.empty()) continue;
       ostringstream fname; fname << dir_name << "/" << source[0] << depth << "-" << i << "-" << j << ".jpg"; 
       image_r::save(im, fname.str().c_str(), Options());
@@ -173,5 +124,4 @@ cerr << dx << " x " << dy << " tile_size\n";
     }
     }
     fig::write(fig_name, F);
-    delete(ml);
 }

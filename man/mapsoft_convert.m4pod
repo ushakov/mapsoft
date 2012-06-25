@@ -8,9 +8,9 @@ mapsoft_convert -- convert geodata to various formats
 	mapsoft_convert <options> <input files> -o <output file>
 
 
-include(`inc/formats_in.m4')
+include(`inc/fmt_in.m4')
 
-include(`inc/formats_out.m4')
+include(`inc/fmt_out.m4')
 
 
 =head1 OPTIONS
@@ -73,20 +73,6 @@ scale (or rscale) parameters
 Note: using rscale=100000, dpi=300 and rscale=50000, dpi=150 gave same
 images but different geofig files.
 
-=head1 OPTIONS FOR RENDERING IMAGES, GOOGLE/KOSMOSNIMKI INPUT:
-
-B<<  --ks_zoom >> -- 
-
-B<<  --google_zoom >> -- 
-
-B<<  --google_dir >> -- 
-
-B<<  --ks_dir >> -- 
-
-B<<  --download >> -- turn on auto downloading
-
-Now kosmosnimki downloading is broken.
-
 =head1 OPTIONS FOR RENDERING IMAGES, SRTM INPUT:
 
 B<< --srtm_mode <mode> >> -- srtm mode: normal, slopes
@@ -119,11 +105,5 @@ Convert waypoints and track to packed kml format:
 Create jpeg image with map from maps.xml and data from data.plt. Create also a map-file for this image
 
 	mapsoft_convert maps.xml data.plt -o mymap.jpg --map=mymap.map
-
-Create n37-001-1 map with google image map-file for it. /GOOGLE directory
-must exist.
-
-	mapsoft_convert --google_zoom=14 --google_dir=/GOOGLE \
-	  --download=1 --nom n37-001-1 -m mymap.map -o mymap.jpg
 
 include(`inc/foot.m4')

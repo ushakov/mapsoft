@@ -90,8 +90,4 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap);
 */
 g_map mk_ref(Options & o);
 
-g_map ref_google(int scale);
-g_map ref_ks_old(int scale);
-g_map ref_ks(int scale);
-
 #endif

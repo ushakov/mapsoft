@@ -10,7 +10,7 @@ MAPSOFT_LIBS = ../rect.o ../../geo_io/io.a ../../utils/mapsoft_utils.a  ../../lo
 
 
 all: map2pt
-#all: google_test rnd_speed image2pixbuf options_test convs_test
+#all: image2pixbuf options_test convs_test
 
 geo_convs_test: ../../jeeps/jeeps.a
 

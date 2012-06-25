@@ -1,5 +1,5 @@
 Name: mapsoft
-Version: 20120625
+Version: 20120620
 Release: alt1
 License: GPL
 Summary: mapsoft - programs for working with maps and geodata
@@ -70,15 +70,6 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_mandir/man1/mapsoft_vmap.1.gz
 
 %changelog
-* Mon Jun 25 2012 Vladislav Zavjalov <slazav@altlinux.org> 20120625-alt1
-- current snapshot
- - simple navigation mode
- - support for tiled maps, some examples
- - faster map rescaling
- - support for finnish KKJ maps
- - add map-helper and mapsoft_mkmap to mapsoft-tools package
- - increase thickness of viewer marks
-
 * Wed Jun 20 2012 Vladislav Zavjalov <slazav@altlinux.org> 20120620-alt1
 - current snapshot (more bugs fixed)
 

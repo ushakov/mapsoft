@@ -7,7 +7,5 @@ env.Library('loaders', \
         image_png.cpp
         image_i.cpp
         image_r.cpp
-        image_google.cpp
-        image_ks.cpp
     """))
  

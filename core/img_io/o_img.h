@@ -64,12 +64,6 @@ B<< --jpeg_quality <arg> >> -- set jpeg quality
   {"data_marg",      1,  0, OPT, "margins around data (works only if no geometry set), pixels"},
   {"jpeg_quality",   1,  0, OPT, "set jpeg quality"},
 
-  {"ks_zoom",        1,  0, OPT, ""},
-  {"google_zoom",    1,  0, OPT, ""},
-  {"google_dir",     1,  0, OPT, ""},
-  {"ks_dir",         1,  0, OPT, ""},
-  {"download",       1,  0, OPT, ""},
-
 ### END
 */
     bool write_file (const char* filename, const geo_data & world, Options opt);

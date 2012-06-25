@@ -15,27 +15,13 @@ mapsoft_convert --gen_n 500 --gen_e 10\
 ======================================================
 	Работа с растровыми картинками
 ======================================================
-Получить прямоугольник в tmerc pulkovo с космоснимком:
+Получить прямоугольник в tmerc pulkovo с картой:
 
-    Старая версия:
-
-mapsoft_getks 14 39 500000 510000 6100000 6110000
-mapsoft_getgoogle 14 39 500000 510000 6100000 6110000
-
-    Новая версия:
-
-mapsoft_convert --google_in=14 --google_dir=~/GOOGLE\
+mapsoft_convert maps.xml\
   --geom=10000x10000+7500000+6100000\
-  --datum=pulkovo --proj=tmerc -o out_g.jpg
-
-mapsoft_convert --ks_in=14 --ks_dir=~/KS\
-  --geom=10000x10000+7500000+6100000\
-  --datum=pulkovo --proj=tmerc -o out_g.jpg
+  --datum=pulkovo --proj=tmerc -o out.jpg
 
     Дополнительные параметры:
-
-Автоматическое скачивание (сейчас работает для google,
-но не для kosmosnimki): --download=1 
 
 map-file: --map=n37-001-1.map
 
@@ -44,15 +30,9 @@ fig-file: --fig=n37-001-1.fig
 явно задать осевой меридиан: --lon0=39
 
 ======================================================
-Получить номенклатурный лист с космоснимком.
+Получить номенклатурный лист с картой.
 
-    Старая версия:
-
-mapsoft_getks_nom 14 n37-001-1
-
-    Новая версия:
-
-mapsoft_convert --ks_in=14 --ks_dir=~/KS\
+mapsoft_convert maps.xml\
    --nom=n37-001-1 -o n37-001-1.jpg
 
 

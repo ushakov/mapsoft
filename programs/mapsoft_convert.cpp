@@ -20,9 +20,8 @@ using namespace std;
 #define OPT1  1  //
 #define OPT2  2  // geometry options 
 #define OPT3  4  // other raster options
-#define OPT4  8  // google/ks options
-#define OPT5  16 // google/ks options
-#define OPT_ALL  (OPT1 | OPT2 | OPT3 | OPT4 | OPT5)
+#define OPT4  8  //
+#define OPT_ALL  (OPT1 | OPT2 | OPT3 | OPT4)
 
 static struct ext_option options[] = {
   {"out",                   1,'o', OPT1, "output file name"},
@@ -67,19 +66,12 @@ static struct ext_option options[] = {
   {"data_marg",     1,  0, OPT3, "margins around data (works only if no geometry set), pixels"},
   {"jpeg_quality",  1,  0, OPT3, "set jpeg quality"},
 
-
-  {"ks_zoom",       1,  0, OPT4, ""},
-  {"google_zoom",   1,  0, OPT4, ""},
-  {"google_dir",    1,  0, OPT4, ""},
-  {"ks_dir",        1,  0, OPT4, ""},
-  {"download",      1,  0, OPT4, ""},
-
-  {"srtm_mode" ,    1,  0, OPT5, "srtm mode: normal, slopes"},
-  {"srtm_cnt_step", 1,  0, OPT5, "contour step, m"},
-  {"srtm_hmin",     1,  0, OPT5, "min height (blue color) for normal mode"},
-  {"srtm_hmax",     1,  0, OPT5, "max height (magenta color) for normal mode"},
-  {"srtm_smin",     1,  0, OPT5, "min slope for slopes mode (30)"},
-  {"srtm_smax",     1,  0, OPT5, "max slope for slopes mode (55)"},
+  {"srtm_mode" ,    1,  0, OPT4, "srtm mode: normal, slopes"},
+  {"srtm_cnt_step", 1,  0, OPT4, "contour step, m"},
+  {"srtm_hmin",     1,  0, OPT4, "min height (blue color) for normal mode"},
+  {"srtm_hmax",     1,  0, OPT4, "max height (magenta color) for normal mode"},
+  {"srtm_smin",     1,  0, OPT4, "min slope for slopes mode (30)"},
+  {"srtm_smax",     1,  0, OPT4, "max slope for slopes mode (55)"},
 
   {0,0,0,0}
 };
@@ -121,10 +113,8 @@ void usage(bool pod=false){
   print_options(options, OPT3, cerr, pod);
   cerr << head << "Options for rendering images, geometry settings:\n";
   print_options(options, OPT2, cerr, pod);
-  cerr << head << "Options for rendering images, google/kosmosnimki input:\n";
-  print_options(options, OPT4, cerr, pod);
   cerr << head << "Options for rendering images, SRTM input:\n";
-  print_options(options, OPT5, cerr, pod);
+  print_options(options, OPT4, cerr, pod);
 
   exit(1);
 }
