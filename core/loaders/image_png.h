@@ -12,10 +12,8 @@ iPoint size(const char *file);
 int load(const char *file, iRect src_rect, 
          iImage & image, iRect dst_rect);
 
-
 // save part of image
-int save(const iImage & im, const iRect & src_rect, 
-         const char *file);
+int save(const iImage & im, const iRect & src_rect, const char *file);
 
 
 // load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h

@@ -7,13 +7,14 @@
 
 namespace image_jpeg{
 
-void my_error_exit (j_common_ptr cinfo) {
+void
+my_error_exit (j_common_ptr cinfo) {
   (*cinfo->err->output_message) (cinfo);
   throw 2;
 }
 
-// getting file dimensions
-iPoint size(const char *file){
+iPoint
+size(const char *file){
     struct jpeg_decompress_struct cinfo;
     struct jpeg_error_mgr jerr;
     try {
@@ -109,10 +110,8 @@ struct ImageSourceJPEG : iImageSource {
 
 };
 
-
-// loading from Rect in jpeg-file to Rect in image
-int load(const char *file, iRect src_rect,
-         iImage & image, iRect dst_rect){
+int
+load(const char *file, iRect src_rect, iImage & image, iRect dst_rect){
 
     // посмотрим, можно ли загружать сразу уменьшенный jpeg
     // (поддерживается уменьшение в 1,2,4,8 раз)
@@ -138,10 +137,8 @@ int load(const char *file, iRect src_rect,
     } catch(int x) {return x;}
 }
 
-
-// save part of image
-int save(const iImage & im, const iRect & src_rect, 
-         const char *file, int quality){
+int
+save(const iImage & im, const iRect & src_rect, const char *file, int quality){
 
     if ((quality<0)||(quality>100)){
         std::cerr << "JPEG quality not in range 0..100 (" << quality << ")\n";
@@ -193,8 +190,8 @@ int save(const iImage & im, const iRect & src_rect,
     return 0;
 }
 
-// load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
-iImage load(const char *file, const int scale){
+iImage
+load(const char *file, const int scale){
   iPoint s = size(file);
   iImage ret(s.x/scale,s.y/scale);
   if (s.x*s.y==0) return ret;
@@ -202,8 +199,8 @@ iImage load(const char *file, const int scale){
   return ret;
 }
 
-// save the whole image
-int save(const iImage & im, const char * file, int quality){
+int
+save(const iImage & im, const char * file, int quality){
   return save(im, im.range(), file, quality);
 }
 

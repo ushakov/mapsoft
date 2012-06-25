@@ -1,5 +1,0 @@
-geo_convs.h
-    построение проекций:
-    tmerc: (double) lat0, lon0, E0, N0, k
-    merc:  (double) lat0, lon0, E0, N0
-    UTM:   (int) zone, (char)zc

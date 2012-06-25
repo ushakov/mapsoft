@@ -4,7 +4,6 @@
 #include <cmath>
 
 #include "loaders/image_r.h"
-#include "loaders/image_i.h"
 #include "utils/cairo_wrapper.h"
 
 using namespace std;

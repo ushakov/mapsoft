@@ -5,7 +5,6 @@ env.Library('loaders', \
 	image_jpeg.cpp
         image_tiff.cpp
         image_png.cpp
-        image_i.cpp
         image_r.cpp
     """))
  

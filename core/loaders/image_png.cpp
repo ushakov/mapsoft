@@ -3,8 +3,8 @@
 
 namespace image_png{
 
-// getting file dimensions
-iPoint size(const char *file){
+iPoint
+size(const char *file){
 
     FILE * infile;
     if ((infile = fopen(file, "rb")) == NULL) {
@@ -58,8 +58,8 @@ iPoint size(const char *file){
     return iPoint(width, height);
 }
 
-// loading from Rect in file to Rect in image
-int load(const char *file, iRect src_rect, 
+int
+load(const char *file, iRect src_rect, 
          iImage & image, iRect dst_rect){
 
 
@@ -197,9 +197,8 @@ int load(const char *file, iRect src_rect,
     return 2;
 }
 
-// save part of image
-int save(const iImage & im, const iRect & src_rect, 
-         const char *file){
+int
+save(const iImage & im, const iRect & src_rect, const char *file){
 
     FILE *outfile = fopen(file, "wb");
     if (!outfile) return 2;
@@ -255,8 +254,8 @@ int save(const iImage & im, const iRect & src_rect,
     return 0;
 }
 
-// load the whole image -- не зависит от формата, вероятно, надо перенести в image_io.h
-iImage load(const char *file, const int scale){
+iImage
+load(const char *file, const int scale){
   iPoint s = size(file);
   iImage ret(s.x/scale,s.y/scale);
   if (s.x*s.y==0) return ret;
@@ -264,7 +263,8 @@ iImage load(const char *file, const int scale){
   return ret;
 }
 
-int save(const iImage & im, const char * file){
+int
+save(const iImage & im, const char * file){
   return save(im, im.range(), file);
 }
 } // namespace
