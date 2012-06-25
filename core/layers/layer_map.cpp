@@ -146,7 +146,7 @@ LayerMAP::draw(iImage & image, const iPoint & origin){
           iLineTester brd_tester(brd);
           // look for download script
           bool download = stat((m->file+"/download").c_str(), &st_buf) == 0 &&
-                          S_ISREG(st_buf.st_mode);
+                          S_ISREG(st_buf.st_mode) && scale==1;
           // convert image points
           for (int y=0; y<image.h; y++){
             std::vector<int> cr = brd_tester.get_cr(y+origin.y);
