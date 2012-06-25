@@ -11,5 +11,4 @@ env.Library('fig', \
 e=env.Clone()
 e.UseLibs('fig')
 e.Program("catfig.cpp")
-e.Install(env.bindir, ['catfig'])
 

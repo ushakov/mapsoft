@@ -10,5 +10,3 @@ env.Library('mp', \
 e=env.Clone()
 e.UseLibs('mp')
 e.Program("catmp.cpp")
-e.Install(env.bindir, ['catmp'])
-

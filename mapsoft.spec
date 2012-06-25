@@ -51,8 +51,6 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_mandir/man1/mapsoft_mapview.1.gz
 
 %files tools
-%_bindir/catfig
-%_bindir/catmp
 %_bindir/convs_*
 %_bindir/mapsoft_toxyz
 %_bindir/mapsoft_geofig

@@ -4,8 +4,6 @@
 #include <iostream>
 #include <boost/operators.hpp>
 
-#include "color.h"
-
 struct Color:
     public boost::equality_comparable<Color>,
     public boost::less_than_comparable<Color>
