@@ -152,11 +152,11 @@ LayerMAP::draw(iImage & image, const iPoint & origin){
             std::vector<int> cr = brd_tester.get_cr(y+origin.y);
             for (int x=0; x<image.w; x++){
               if (!brd_tester.test_cr(cr, x+origin.x)) continue;
-              dPoint p(x,y); p+=origin; m2ms[i]->bck(p); p/=scale;
-              int tsize = m->tsize/scale;
-              iPoint tile = iPoint(p)/tsize;
-              iPoint pt = p - dPoint(tile)*tsize;
-              if (m->tswap) pt.y=tsize-pt.y-1;
+              dPoint p(x,y); p+=origin; m2ms[i]->bck(p);
+              iPoint tile = iPoint(p)/m->tsize;
+              dPoint p1 = (p - dPoint(tile)*(m->tsize) )/scale;
+              iPoint pt(int(p1.x), int(p1.y));
+              if (m->tswap) pt.y=m->tsize/scale-pt.y-1;
               if (!C.contains(tile)){
                 char fn[PATH_MAX];
                 snprintf(fn, sizeof(fn), m->tfmt.c_str(), tile.x, tile.y);
@@ -172,12 +172,9 @@ LayerMAP::draw(iImage & image, const iPoint & origin){
                     if (chdir(cwd)!=0) cerr << "Layer_map: can't do chdir!\n";
                   }
                 }
-                img.set_border((m->border - tile*m->tsize)/scale);
                 C.add(tile, img);
               }
-              else{
-                image.set_a(x,y,C.get(tile).safe_get(pt));
-              }
+              image.set_a(x,y,C.get(tile).safe_get(pt));
             }
           }
         }
