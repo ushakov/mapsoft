@@ -4,3 +4,4 @@ e=env.Clone()
 e.UseLibs('2d')
 
 e.Program("cache_test.cpp")
+e.Program("sizecache_test.cpp")
