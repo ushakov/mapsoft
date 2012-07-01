@@ -66,7 +66,7 @@ Options g_map::to_options () const {
     opt.put("border",    border);
     opt.put("tile_size", tsize);
     opt.put("tile_fmt",  tfmt);
-    if (tswap) opt.put("tile_swapy", "");
+    if (tswap) opt.put("tile_swapy", "1");
     opt.put("points",    size());
 
     return opt;
@@ -79,6 +79,7 @@ void g_map::parse_from_options (Options const & opt){
     border   = opt.get("border",   border);
     tsize    = opt.get("tile_size", tsize);
     tfmt     = opt.get("tile_fmt",  tfmt);
+    tswap    = opt.get("tile_swapy",  false);
 
     // Add value of the "prefix" option to image path
     // (non-absolute paths only)
@@ -90,7 +91,6 @@ void g_map::parse_from_options (Options const & opt){
     if (opt.exists("lat0")) proj_opts.put("lat0", opt.get<string>("lat0"));
     if (opt.exists("E0")) proj_opts.put("E0", opt.get<string>("E0"));
     if (opt.exists("N0")) proj_opts.put("N0", opt.get<string>("N0"));
-    if (opt.exists("tile_swapy")) tswap=true;
 
     const string used[] = {
       "comm", "file", "map_proj", "border", "points", "prefix",
