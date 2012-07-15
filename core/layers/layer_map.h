@@ -9,6 +9,7 @@
 #include "2d/point.h"
 #include "2d/rect.h"
 #include "2d/image.h"
+//#include "layers/img.h"
 #include <boost/shared_ptr.hpp>
 
 /// Растровый слой для показа привязанных карт.
@@ -26,10 +27,11 @@ private:
   std::vector<int>    iscales;       // во сколько раз мы сжимаем карты при загрузке
   std::vector<iLine>  borders;       // границы (в координатах слоя)
   iRect myrange;                     // габариты карты
-  Cache<int, iImage> image_cache;    // кэш изображений
   std::map<const g_map*, int> status; // visibility of refpoints, border, map image
 
   std::map<std::string, Cache<iPoint, iImage> > tmap_cache;
+  Cache<int, iImage> image_cache;
+//  Cache<std::string, LayerImg> img_cache;
 
 public:
 
@@ -69,6 +71,12 @@ public:
 
   /// Write to a file picture with map borders in fig format.
   void dump_maps(const char *file);
+
+  /// Scale of map at a given point (first map or map m).
+  /// > 1 if map pixel is smaller than layer one;
+  /// < 0 if no maps at this point.
+  double scale(const dPoint & p);
+  double scale(const dPoint & p, const int m);
 
 private:
   /// calculate conversions and range

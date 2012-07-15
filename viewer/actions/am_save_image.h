@@ -13,25 +13,32 @@
 
 class SaveImage : public ActionMode {
 public:
-    SaveImage (Mapview * mapview) : ActionMode(mapview) {
-      dlg.set_transient_for(*mapview);
 
+    SaveImage (Mapview * mapview) : ActionMode(mapview) {
+      /* save image dialog */
+      dlg.set_transient_for(*mapview);
+      dlg.set_title(get_name());
       dlg.signal_response().connect(
         sigc::mem_fun (this, &SaveImage::on_result));
-      dlg.set_title(get_name());
-
-      fdlg.signal_response().connect(
-        sigc::mem_fun (this, &SaveImage::on_fresult));
-      fdlg.set_title(get_name());
-      fdlg.set_filename("image.jpg");
-
       dlg.signal_changed().connect(
-        sigc::mem_fun(this, &SaveImage::on_ch_size));
+        sigc::mem_fun(this, &SaveImage::ch_rubber));
       dlg.set_hint(
          "Use <b>Image Size</b> settings to set/inspect pixel size of the image."
          " Use <b>1st mouse button</b> to set image top-left corner or"
          " <b>Ctrl + 1st mouse button</b> to set image area.");
+
+      /* file selection dialog */
+      fdlg.set_transient_for(*mapview);
+      fdlg.set_title(get_name());
+      fdlg.set_filename("image.jpg");
+      fdlg.signal_response().connect(
+        sigc::mem_fun (this, &SaveImage::on_fresult));
       have_points = -1;
+
+      /* change point on viewer rescaling. Mayby its better to keep
+         points in wgs coords instead... */
+      mapview->viewer.signal_on_rescale().connect(
+        sigc::mem_fun (this, &SaveImage::on_rescale));
     }
 
     std::string get_name() { return "Save Image"; }
@@ -41,7 +48,7 @@ public:
       dlg.show_all();
       if (have_points < 0) one = mapview->viewer.get_center();
       have_points = 0;
-      on_ch_size();
+      ch_rubber();
     }
 
     void abort() {
@@ -50,29 +57,39 @@ public:
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       dlg.show_all();
+
+      /* no reference*/
       if (!mapview->have_reference){
         mapview->statusbar.push("No geo-reference", 0);
         return;
       }
 
-      if (state&Gdk::CONTROL_MASK && (have_points == 0)){ // start 2pt area
+      /* start rubber for 2pt area selection */
+      if (state&Gdk::CONTROL_MASK && (have_points == 0)){ 
         one = p;
         mapview->rubber.clear();
         mapview->rubber.add_rect(one);
         have_points=1;
+        return;
       }
-      else{
-        if (have_points == 1){
-          iPoint wh = pabs(p-one);
-          one=(p+one-wh)/2.0;
-          dlg.set_px(dPoint(wh)/get_mpp_scale());
-          have_points=0;
-        }
-        else{
-          one = p;
-          on_ch_size();
-        }
+
+      /* finish 2pt area selection */
+      if (have_points == 1){ // finish 2pt area
+        iPoint wh = pabs(p-one); //< size
+        one=(p+one-wh)/2.0;      //< top-left corner
+        // convert to correct corner:
+        int c=dlg.get_corner();
+        if ((c==1) || (c==2)) one.x +=wh.x;
+        if ((c==2) || (c==3)) one.y +=wh.y;
+        // set new size to dialog (ch_rubber called by signal):
+        dlg.set_px(dPoint(wh)/get_mpp_scale());
+        have_points=0;
+        return;
       }
+
+      /* single click - move area with current size */
+      one = p;
+      ch_rubber();
     }
 
 private:
@@ -82,24 +99,29 @@ private:
 
     iPoint one;
 
-    void on_ch_size(void) {
+    /* This function is called when selected area is changed
+       by changing dialog settings, or mouse selection.
+     */
+    void ch_rubber(void) {
       mapview->rubber.clear();
       dPoint wh = dPoint(dlg.get_px())*get_mpp_scale();
       int c=dlg.get_corner();
-
       iPoint tlc = one;
       if ((c==1) || (c==2)) tlc.x -=wh.x;
       if ((c==2) || (c==3)) tlc.y -=wh.y;
       mapview->rubber.add_rect(tlc, tlc+iPoint(wh));
     }
 
-    // find visible map in a given point and return mpp
-    double get_mpp(const iPoint & p){
+    void on_rescale(double sc) {
+      one=dPoint(one)*sc;
+    }
+
+    // find visible map in a given point and return scale
+    double get_sc(const iPoint & p){
       LayerMAP *L;
       int i = mapview->find_map(p, &L);
       if (L==NULL) return -1;
-      g_map * m = L->get_map(i);
-      return  convs::map_mpp(*m, m->map_proj);
+      return L->scale(p, i);
     }
 
     double get_scr_mpp(const iPoint & p){
@@ -112,6 +134,7 @@ private:
       return std::max(pdist(pp[1],pp[0]), pdist(pp[2],pp[0]))/1000;
     }
 
+    /* get rescaling factor */
     double get_mpp_scale(){
       switch (dlg.get_mpp_style()){
         case MPP_SCREEN:
@@ -123,22 +146,22 @@ private:
           iPoint p2=mapview->viewer.get_center();
           int w = 2*(p2.x-p1.x), h = 2*(p2.y-p1.y);
 
-          double max_mpp = 0;
+          double max_sc = 0;
 
           iPoint p;
           for (p.y=p1.y; p.y<=p1.y+h; p.y+=h/4){
             for (p.x=p1.x; p.x<=p1.x+w; p.x+=w/4){
-              double mpp = get_mpp(p);
-              if (mpp>max_mpp) max_mpp = mpp;
+              double sc = get_sc(p);
+              if (sc>max_sc) max_sc = sc;
             }
           }
           {
-             double mpp = get_mpp(one);
-             if (mpp>max_mpp) max_mpp = mpp;
+             double sc = get_sc(one);
+             if (sc>max_sc) max_sc = sc;
           }
 
-          if (max_mpp==0) return 1.0;
-          return max_mpp/get_scr_mpp(one);
+          if (max_sc==0) return 1.0;
+          return max_sc;
         }
         case MPP_MANUAL:{
           return dlg.get_mpp()/get_scr_mpp(one);
@@ -147,13 +170,9 @@ private:
       return 1.0;
     }
 
+    /* On dialog response: close on cancel, show file
+       selection dialog on ok. */
     void on_result(int r) {
-
-      if (!mapview->have_reference){
-        mapview->statusbar.push("No geo-reference", 0);
-        return;
-      }
-
       if (r == Gtk::RESPONSE_CANCEL){
         mapview->rubber.clear();
         dlg.hide_all();
@@ -163,13 +182,15 @@ private:
         fdlg.show_all();
         return;
       }
+/* // this is reserved for print button
       if (r == Gtk::RESPONSE_APPLY){
         on_fresult(r);
         return;
       }
-
+*/
     }
 
+    /* On save button pressed in file selection dialog */
     void on_fresult(int r) {
       if (r == Gtk::RESPONSE_CANCEL){
         fdlg.hide_all();
@@ -179,24 +200,25 @@ private:
       std::string fname=fdlg.get_filename();
 
       iPoint wh = dlg.get_px();
-      double mpp_scale=get_mpp_scale();
-std::cerr << "MPP SCALE " << mpp_scale << "\n";
+      double sc=get_mpp_scale();
+
+std::cerr << "MPP SCALE " << sc << "\n";
       dPoint mytlc(one);
       int c = dlg.get_corner();
-      if ((c==1) || (c==2)) mytlc.x -=wh.x;
-      if ((c==2) || (c==3)) mytlc.y -=wh.y;
+      if ((c==1) || (c==2)) mytlc.x -= wh.x*sc;
+      if ((c==2) || (c==3)) mytlc.y -= wh.y*sc;
 
       iImage image(wh.x, wh.y, 0xFFFFFFFF);
 
-      if (mpp_scale == 1.0){
+      if (sc == 1.0){
         mapview->workplane.draw(image, mytlc);
       }
       else{
-        mytlc/=mpp_scale;
-        mapview->cnv.rescale_src(1/mpp_scale);
+        mytlc/=sc;
+        mapview->cnv.rescale_src(1/sc);
         mapview->workplane.refresh();
         mapview->workplane.draw(image, mytlc);
-        mapview->cnv.rescale_src(mpp_scale);
+        mapview->cnv.rescale_src(sc);
         mapview->workplane.refresh();
       }
 
@@ -205,11 +227,13 @@ std::cerr << "MPP SCALE " << mpp_scale << "\n";
 //        return;
 //      }
 
+      // write image file
       if (image_r::save(image, fname.c_str(), Options())>0){
         mapview->dlg_err.call(MapsoftErr() << "Can't save file: " << fname);
         return;
       }
 
+      // Write map file
       g_map ref;
       if (dlg.get_map()){
         ref.map_proj  = mapview->cnv_proj;
@@ -218,7 +242,7 @@ std::cerr << "MPP SCALE " << mpp_scale << "\n";
 
         dLine pts = rect2line(iRect(mytlc, iPoint(mytlc)+wh));
         dLine pts_c(pts);
-        pts_c*=mpp_scale;
+        pts_c*=sc;
         mapview->cnv.line_frw_p2p(pts_c);
         pts-=mytlc;
         for (int i=0; i<pts.size(); i++){

@@ -247,6 +247,18 @@ LayerMAP::range() const{
   return myrange;
 }
 
+double
+LayerMAP::scale(const dPoint & p, const int m){
+  return pdist(m2ms[m]->units_frw(p))/sqrt(2.0);
+}
+
+double
+LayerMAP::scale(const dPoint & p){
+  int m = find_map(p);
+  if (m<0) return -1;
+  return pdist(m2ms[m]->units_frw(p))/sqrt(2.0);
+}
+
 void
 LayerMAP::dump_maps(const char *file){
   ofstream f(file);

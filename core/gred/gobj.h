@@ -35,6 +35,9 @@ public:
    - GOBJ_FILL_NONE  -- ничего не было нариовано
    - GOBJ_FILL_PART  -- что-то было нарисовано
    - GOBJ_FILL_ALL   -- все изображение было зарисовано непрозрачным цветом
+   NOTE:
+    - cnv is conversion from viewer image TO original gobj coords
+    - range() returns range in viewer coords
   */
   virtual int draw(iImage &img, const iPoint &origin) = 0;
 

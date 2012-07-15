@@ -41,6 +41,10 @@ struct Conv{
   virtual double angd_frw(dPoint p, double a, double dx) const;
   virtual double angd_bck(dPoint p, double a, double dx) const;
 
+  /// Convert units
+  virtual dPoint units_frw(dPoint p) const;
+  virtual dPoint units_bck(dPoint p) const;
+
   /// Fill dst_image from src_image
   virtual int image_frw(const iImage & src_img, iImage & dst_img,
                         const iPoint & shift = iPoint(0,0),

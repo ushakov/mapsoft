@@ -122,6 +122,22 @@ Conv::angd_bck(dPoint p, double a, double dx) const{
   return 180.0/M_PI * ang_bck(p, M_PI/180.0*a, dx);
 }
 
+dPoint
+Conv::units_frw(dPoint p) const{
+  dPoint p1 = p + dPoint(1,0);
+  dPoint p2 = p + dPoint(0,1);
+  frw(p), frw(p1), frw(p2);
+  return dPoint(pdist(p1-p), pdist(p2-p));
+}
+
+dPoint
+Conv::units_bck(dPoint p) const{
+  dPoint p1 = p + dPoint(1,0);
+  dPoint p2 = p + dPoint(0,1);
+  bck(p), bck(p1), bck(p2);
+  return dPoint(pdist(p1-p), pdist(p2-p));
+}
+
 int
 Conv::image_frw(const iImage & src_img, iImage & dst_img,
                 const iPoint & shift, const double scale) const{
