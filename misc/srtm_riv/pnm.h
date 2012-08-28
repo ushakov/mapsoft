@@ -10,9 +10,9 @@ print_pnm_head(int w, int h){
 
 void
 print_pnm_col(int c){
-  std::cout << (char)((c >> 16)&0xFF)
+  std::cout << (char)(c&0xFF)
             << (char)((c >> 8)&0xFF)
-            << (char)(c&0xFF);
+            << (char)((c >> 16)&0xFF);
 }
 
 #endif
