@@ -1,7 +1,7 @@
 arrows
 rtext
-river2
-srtm_riv
 *.pnm
 *.png
-
+trace_one
+trace_map
+trace_area
