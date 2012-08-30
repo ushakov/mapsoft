@@ -3,30 +3,26 @@
 
 tracer::tracer(const std::string & dir, int cache_size):
     S(dir, cache_size){
+}
+
+void
+tracer::trace(const dPoint & p, bool down=true){
+  start_pt = p*3600/3; // 3-sec srtm units
+
   max_points=1000;
-  max_height_rv=200;
-  max_height_mt=500;
   min_area=0.5;
-  river=true;
-}
 
-void
-tracer::trace_river(const dPoint & p){
-  river=true;
-  start_pt = p*3600/3; // 3-sec srtm units
-  S.move_to_min(start_pt);
-  trace();
-}
-void
-tracer::trace_mount(const dPoint & p){
-  river=false;
-  start_pt = p*3600/3; // 3-sec srtm units
-  S.move_to_max(start_pt);
-  trace();
-}
+  if (down){
+    S.move_to_min(start_pt);
+    max_height=200;
+  }
+  else{
+    S.move_to_max(start_pt);
+    max_height=500;
+  }
 
-void
-tracer::trace(){
+  river=down;
+
   done.clear();
   res.clear();
   get_a(start_pt);
@@ -38,11 +34,11 @@ tracer::is_flow(const iPoint &p, int dir){
   iPoint p1 = adjacent(p, dir);
 
   std::set<iPoint> P;
-  P.insert(adjacent(p,dir));
+  P.insert(p1);
   std::set<iPoint> B = border(P);
 
   short h_thr = S.geth(p,true) +
-    (river? -max_height_rv: max_height_mt);
+    (river? -max_height: max_height);
 
   int extr; // min for rivers, max for mountains
   do {
@@ -78,7 +74,8 @@ tracer::get_a(iPoint p0){
     if (is_flow(p0, i))
       a+=get_a(adjacent(p0,i));
   }
-  if (a>min_area) res[p0]=a;
+//  if (a>min_area)
+  res[p0]=a;
   return a;
 }
 

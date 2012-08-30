@@ -18,17 +18,13 @@ public:
   srtm3 S;
 
   int max_points;
-  int max_height_rv;
-  int max_height_mt;
+  int max_height;
   double min_area;
   bool river;
   iPoint start_pt;
 
   tracer(const std::string & dir = std::string(), int cache_size=10);
-
-  void trace_river(const dPoint & p);
-  void trace_mount(const dPoint & p);
-  void trace();
+  void trace(const dPoint & p, bool down);
 
   // есть ли сток из направления dir в данную точку?
   bool is_flow(const iPoint &p, int dir);
