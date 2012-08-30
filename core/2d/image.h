@@ -152,16 +152,16 @@ struct Image{
     }
 
 
-    inline T safe_get(int x, int y) const{
-	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return 0;
+    inline T safe_get(int x, int y, T def = 0) const{
+	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return def;
         return get(x,y);
     }
     inline void safe_set(int x, int y, T c){
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
 	set(x,y,c);
     }
-    inline T safe_get(const iPoint & p) const{
-	return safe_get(p.x, p.y);
+    inline T safe_get(const iPoint & p, T def = 0) const{
+	return safe_get(p.x, p.y, def);
     }
     inline void safe_set(const iPoint & p, T c){
 	safe_set(p.x, p.y, c);
@@ -182,16 +182,16 @@ struct Image{
       set_na(p.x, p.y, c);
     }
 
-    inline T safe_get_na(int x, int y) const{
-	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return 0;
+    inline T safe_get_na(int x, int y, T def = 0) const{
+	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return def;
         return get_na(x,y);
     }
     inline void safe_set_na(int x, int y, T c){
 	if ((x<0)||(y<0)||(x>=w)||(y>=h)) return;
 	set_na(x,y,c);
     }
-    inline T safe_get_na(const iPoint & p) const{
-	return safe_get_na(p.x, p.y);
+    inline T safe_get_na(const iPoint & p, T def = 0) const{
+	return safe_get_na(p.x, p.y, def);
     }
     inline void safe_set_na(const iPoint & p, T c){
 	safe_set_na(p.x, p.y, c);
