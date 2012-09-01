@@ -3,17 +3,18 @@
 #include <2d/point_int.h>
 #include <srtm/srtm3.h>
 #include <loaders/image_png.h>
+#include "trace_gear.h"
 
 // построение прямоугольной хребтовки
 
 dPoint p00g(95.4, 53.9); // ЮЗ угол
-
-iPoint p00 = p00g*1200.0;
 int w=800, h=600;      // размер карты
 bool down = true;
+int nmax=1000; // максимальный размер бессточных областей
+
+iPoint p00 = p00g*1200.0;
 Image<char> dirs(w,h,-1); // направления стока
 Image<double> areas(w,h,0); // площади водосбора
-int nmax=1000; // максимальный размер бессточных областей
 srtm3 S;
 
 using namespace std;
@@ -21,48 +22,27 @@ using namespace std;
 void
 go_down(int x, int y){
   // проход вниз
-  iPoint p0= p00+iPoint(x,y);
-  int h0=S.geth(p0); // h0 - высота на последнем шаге
-                   // (шаг происхоит строго вверх либо строго вниз)
-
-  if (h0 < srtm_min) return; // мы вне карты
+  trace_gear G(S, p00+iPoint(x,y));
+  if (G.h0 < srtm_min) return; // мы вне карты
 
   vector<iPoint> L; // упорядоченный список просмотренных точек
-  set<iPoint> P; // то же самое, но в set, чтоб быстро строить границу
-  L.push_back(p0);
-  P.insert(p0);
-  set<iPoint> B = border(P); // граница
+  L.push_back(G.p0);
 
-  int n=0;      // счетчик бессточных территорий
-  iPoint p;     // текущая точка
-  iPoint pe=p0; // текущая точка точка последнего шага
-
+  iPoint p;
   do {
-    // найдем минимум на границе и добавим его в список
-    int hm = down?-srtm_min:srtm_min; // min for rivers, max for mountains
-    for (set<iPoint>::iterator b = B.begin(); b!=B.end(); b++){
-      int h = S.geth(*b);
-      if (h < srtm_min) continue;
-      if ((!down && hm < h) || ( down && hm > h)) { hm=h; p=*b; }
-    }
-    add_pb(p, P,B);
+    p=G.go(down);
     L.push_back(p);
-    n++;
-
-    // если мы нашли более низкую точку, чем прошлая - делаем шаг,
-    // обнуляем счетчик бессточных территорий
-    if (!down && (hm > h0) || (down && hm < h0)) { h0=hm; n=0; pe=p; }
-
     // если мы уже ушли далеко, а шаг не сделали, то точка
     // последнего шага - бессточная, вернемся в нее
-    if (n>nmax) { p=pe; dirs.set(p.x-p00.x, p.y-p00.y,8); break; }
+    if (G.ns>nmax) { p=G.pp; dirs.set(p.x-p00.x, p.y-p00.y,8); break; }
 
   // идем до края карты или уже обработанной точки
   } while (dirs.safe_get(p.x-p00.x, p.y-p00.y,-2)==-1);
 
   // обратный проход от p до p0
-  while (p!=p0){
-    for (vector<iPoint>::const_iterator b = L.begin(); b!=L.end(); b++){
+  while (p!=G.p0){
+    vector<iPoint>::const_iterator b;
+    for (b = L.begin(); b!=L.end(); b++){
       int dir = isadjacent(*b, p);
       if (dir==-1) continue;
       p=*b;

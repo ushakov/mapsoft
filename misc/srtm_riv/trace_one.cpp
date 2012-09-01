@@ -4,6 +4,7 @@
 #include <2d/rainbow.h>
 #include <srtm/srtm3.h>
 #include <loaders/image_png.h>
+#include "trace_gear.h"
 
 // алгоритм нахождения русла реки
 dPoint p0(95.786934, 54.057950);
@@ -12,50 +13,30 @@ int nmax=1000; // максимальный размер бессточных о�
 int hmin=600;  // минимальная высота - критерий остановки
 
 using namespace std;
-set<iPoint> trace(srtm3 & S, const iPoint & p0, bool down=true){
-  // проход вниз
-  int h0=S.geth(p0); // h0 - высота на последнем шаге
-                   // (шаг происхоит строго вверх либо строго вниз)
 
-  if (h0 < srtm_min) return set<iPoint>(); // мы вне карты
+
+set<iPoint> trace(srtm3 & S, const iPoint & p0){
+  trace_gear G(S, p0);
+  if (G.h0 < srtm_min) return set<iPoint>(); // мы вне карты
 
   vector<iPoint> L; // упорядоченный список просмотренных точек
-  set<iPoint> P; // то же самое, но в set, чтоб быстро строить границу
   L.push_back(p0);
-  P.insert(p0);
-  set<iPoint> B = border(P); // граница
-
-  int n=0;      // счетчик бессточных территорий
-  iPoint p;     // текущая точка
-  iPoint pe=p0; // точка последнего шага
 
   do {
-    // найдем минимум на границе и добавим его в список
-    int hm = down?-srtm_min:srtm_min; // min for rivers, max for mountains
-    for (set<iPoint>::iterator b = B.begin(); b!=B.end(); b++){
-      int h = S.geth(*b);
-      if (h < srtm_min) continue;
-      if ((!down && hm < h) || ( down && hm > h)) { hm=h; p=*b;}
-    }
-    add_pb(p, P,B);
-    L.push_back(p);
-    n++;
-
-    // если мы нашли более низкую точку, чем прошлая - делаем шаг,
-    // обнуляем счетчик бессточных территорий
-    if (!down && (hm > h0) || (down && hm < h0)) { h0=hm; n=0; pe=p; }
-
+    L.push_back(G.go(down));
     // если мы уже ушли далеко, а шаг не сделали, то точка
-    // последнего шага - бессточная
-    if (n>nmax) { p=pe; break; }
+    // последнего шага - бессточная. Возвращаемся к ней.
+    if (G.ns > nmax) { L.push_back(G.pp); break; }
 
-    // критерий выхода: до высоты hmin, или край данных
-  } while (h0>hmin);
+    // критерий выхода: до высоты hmin, или края данных
+  } while (G.hp > hmin);
 
+  iPoint p = L[L.size()-1];
   set<iPoint> ret;
   // обратный проход от p до p0
   while (p!=p0){
-    for (vector<iPoint>::const_iterator b = L.begin(); b!=L.end(); b++){
+    vector<iPoint>::const_iterator b;
+    for (b = L.begin(); b!=L.end(); b++){
       if (isadjacent(*b, p)<0) continue;
       p=*b;
       ret.insert(p);
@@ -67,7 +48,7 @@ set<iPoint> trace(srtm3 & S, const iPoint & p0, bool down=true){
 
 main(){
   srtm3 S;
-  set<iPoint> R = trace(S, p0*1200, down);
+  set<iPoint> R = trace(S, p0*1200);
   if (!R.size()) exit(1);
 
   // find data range

@@ -3,6 +3,7 @@
 #include <2d/point_int.h>
 #include <srtm/srtm3.h>
 #include <loaders/image_png.h>
+#include "trace_gear.h"
 
 // построение водосбора одной реки
 dPoint p0(95.438170, 54.097332);
@@ -21,35 +22,19 @@ using namespace std;
 
 // есть ли сток из направления dir в данную точку?
 bool
-is_flow(const iPoint &p, int dir){
-  iPoint p1 = adjacent(p, dir);
+is_flow(const iPoint &p0, int dir){
+  iPoint p1 = adjacent(p0, dir);
+  trace_gear G(S, p1);
+  short h_thr = S.geth(p0,true) + (down? -max_height: max_height);
 
-  set<iPoint> P;
-  P.insert(p1);
-  set<iPoint> B = border(P);
-
-  short h_thr = S.geth(p,true) +
-    (down? -max_height: max_height);
-
-  int extr; // min for rivers, max for mountains
   do {
-    // найдем минимум на границе и добавим его в список
-    int extr = down?-srtm_min:srtm_min;
-    iPoint pm(p1);
-    for (set<iPoint>::iterator b = B.begin(); b!=B.end(); b++){
-      int h = S.geth(*b, true);
-      if (h < srtm_min) continue;
-      if ((down && (extr > h)) ||
-         (!down && (extr < h))) { extr=h; pm=*b;}
-    }
-    if (pm==p) return true;
-    if (done.count(pm)) return false;
-    if ((down &&(extr < h_thr)) ||
-        (!down &&(extr > h_thr))) return false;
-    add_pb(pm, P,B);
-
+    iPoint p=G.go(down);
+    int h=S.geth(p,true);
+    if (p==p0) return true;
+    if (done.count(p)) return false;
+    if ((down && h < h_thr) || (!down && h > h_thr)) return false;
   // Повторяем пока не превысили максимальное число точек.
-  } while (P.size() < max_points);
+  } while (G.n < max_points);
   return false;
 }
 
