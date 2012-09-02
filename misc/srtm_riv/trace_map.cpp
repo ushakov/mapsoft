@@ -7,20 +7,12 @@
 
 // построение прямоугольной хребтовки
 
-dPoint p00g(95.4, 53.9); // ЮЗ угол
-int w=800, h=600;      // размер карты
-bool down = true;
-int nmax=1000; // максимальный размер бессточных областей
-
-iPoint p00 = p00g*1200.0;
-Image<char> dirs(w,h,-1); // направления стока
-Image<double> areas(w,h,0); // площади водосбора
-srtm3 S;
-
 using namespace std;
 
 void
-go_down(int x, int y){
+go_down(srtm3 & S, const iPoint & p00, int x, int y,
+        Image<char> & dirs, int nmax, bool down){
+
   // проход вниз
   trace_gear G(S, p00+iPoint(x,y));
   if (G.h0 < srtm_min) return; // мы вне карты
@@ -34,10 +26,10 @@ go_down(int x, int y){
     L.push_back(p);
     // если мы уже ушли далеко, а шаг не сделали, то точка
     // последнего шага - бессточная, вернемся в нее
-    if (G.ns>nmax) { p=G.pp; dirs.set(p.x-p00.x, p.y-p00.y,8); break; }
+    if (G.ns>nmax) { p=G.pp; dirs.set(p-p00,8); break; }
 
   // идем до края карты или уже обработанной точки
-  } while (dirs.safe_get(p.x-p00.x, p.y-p00.y,-2)==-1);
+  } while (dirs.safe_get(p-p00,-2)==-1);
 
   // обратный проход от p до p0
   while (p!=G.p0){
@@ -46,28 +38,33 @@ go_down(int x, int y){
       int dir = isadjacent(*b, p);
       if (dir==-1) continue;
       p=*b;
-      dirs.set(p.x-p00.x, p.y-p00.y, dir);
+      dirs.set(p-p00, dir);
       break;
     }
   }
 }
 
 
-main(){
+Image<double>
+trace_map(srtm3 & S, const iPoint & p00,
+          int w, int h, int nmax, bool down){
 
-  // для каждой точки карты трассируем путь вниз до уже
-  // обработанной точки, до края или до бессточной области
+  Image<char> dirs(w,h,-1); // направления стока
+
+  // для каждой необработанной точки карты трассируем
+  // путь вниз до уже обработанной точки, до края или
+  // до бессточной области
   for (int y=0; y<h; y++){
     for (int x=0; x<w; x++){
       if (dirs.get(x,y)!=-1) continue;
-      go_down(x,y);
+      go_down(S, p00, x,y, dirs, nmax, down);
     }
   }
 
   // определение площадей водосбора
+  Image<double> areas(w,h,0); // площади водосбора
   double area = S.area(p00)/1e6; // примерная площадь одной точки
   for (int y=0; y<h; y++){
-    cerr << "y = " << y << "/" << h << "\n";
     for (int x=0; x<w; x++){
       iPoint p  = iPoint(x, y);
       do {
@@ -78,14 +75,30 @@ main(){
       } while (p.x>=0 && p.y>=0 && p.x<w && p.y<h);
     }
   }
+  return areas;
+}
+
+main(){
+  dPoint p0(95.4, 53.9); // ЮЗ угол
+  int w=800, h=600;      // размер карты, точек
+  int nmax=1000;         // максимальный размер бессточных областей
+  bool down = true;
+  srtm3 S;
+
+  cerr << "Tracing rivers...\n";
+  Image<double> ra = trace_map(S, p0*1200, w, h, nmax, down);
+  cerr << "Tracing mountains...\n";
+  Image<double> ma = trace_map(S, p0*1200, w, h, nmax, !down);
+  cerr << "Done.\n";
 
   // fill image
   iImage img(w, h);
   simple_rainbow R(500,3000);
   for (int y=0; y<h; y++){
     for (int x=0; x<w; x++){
-      int c = R.get(S.geth(p00+iPoint(x,y), true));
-      if (areas.get(x,y)>0.5) c=0x0;
+      int c = R.get(S.geth(iPoint(p0*1200)+iPoint(x,y), true));
+      if (ra.get(x,y)>0.5) c=0xFF0000;
+      if (ma.get(x,y)>0.5) c=0x0;
       img.set(x,h-y-1,c);
     }
   }

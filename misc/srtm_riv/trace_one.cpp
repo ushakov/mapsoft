@@ -7,15 +7,11 @@
 #include "trace_gear.h"
 
 // алгоритм нахождения русла реки
-dPoint p0(95.786934, 54.057950);
-bool down=true;
-int nmax=1000; // максимальный размер бессточных областей
-int hmin=600;  // минимальная высота - критерий остановки
-
 using namespace std;
 
+set<iPoint>
+trace(srtm3 & S, const iPoint & p0, int nmax, int hmin, bool down){
 
-set<iPoint> trace(srtm3 & S, const iPoint & p0){
   trace_gear G(S, p0);
   if (G.h0 < srtm_min) return set<iPoint>(); // мы вне карты
 
@@ -47,15 +43,20 @@ set<iPoint> trace(srtm3 & S, const iPoint & p0){
 }
 
 main(){
+  dPoint p0(95.786934, 54.057950);
   srtm3 S;
-  set<iPoint> R = trace(S, p0*1200);
+
+  bool down=true;
+  int nmax=1000; // максимальный размер бессточных областей
+  int hmin=600;  // минимальная высота - критерий остановки
+
+  set<iPoint> R = trace(S, p0*1200, nmax, hmin, down);
   if (!R.size()) exit(1);
 
   // find data range
   iRect r(*R.begin(),*R.begin());
-  for (set<iPoint>::const_iterator b = R.begin(); b!=R.end(); b++){
-    r = rect_pump(r,*b);
-  }
+  set<iPoint>::const_iterator b;
+  for (b = R.begin(); b!=R.end(); b++) r = rect_pump(r,*b);
   r = rect_pump(r,5);
 
   //
