@@ -1,12 +1,10 @@
 #!/usr/bin/perl -w
 use strict;
 
-
 my $PI = 3.1415926;
 my $avr_n = 3;  ## усреднение высоты и рассчет уклона - по n*2+1 точкам
 
 my %dist;
-my %sliv;
 
 my @data;
 
@@ -15,36 +13,6 @@ sub print_data{
   return if $#data==-1;
 
   printf "# %8s %9s %7s %7s %4s %7s %6s\n", 'lon', 'lat', 'dist', 'area', 'h0', 'h', 'slope';
-
-  # Если начало реки было раньше выкинуто при борьбе с озерами - добавим его
-  my $key = $data[0]->{x}." ".$data[0]->{y};
-  if (exists $sliv{$key}){
-    @data = ($sliv{$key}, @data);
-  };
-
-  # Убираем озера. Срезаются петли между соседними точками.
-  # Все удаленные точки заносятся в %sliv, чтобы правильно
-  # обработать потом притоки (если они есть)
-  for (my $i = 0; $i <= $#data; $i++){
-    for (my $j = $#data; $j>$i+1; $j--){
-      if ( (abs($data[$j]->{x} - $data[$i]->{x}) <= 1) &&
-           (abs($data[$j]->{y} - $data[$i]->{y}) <= 1) ){
-
-        for (my $k = $i+1; $k<$j; $k++){
-          $sliv{$data[$k]->{x}." ".$data[$k]->{y}} = $data[$i];
-        }
-        $i = $j;
-
-      }
-    }
-  }
-  my $j = 0;
-  for (my $i = 0; $i <= $#data; $i++){
-    $data[$j] = $data[$i];
-    $j++ if !exists $sliv{$data[$j]->{x}." ".$data[$j]->{y}};
-  }
-  $#data=$j-1;
-  
 
   # считаем длину реки
   my $dist=0;
@@ -120,7 +88,7 @@ sub print_data{
     $data[$i]->{h} = $sy/$s;
     $data[$i]->{u} = $s;
   }
-  
+
   for (my $i = 0; $i<= $#data; $i++){
     my $x0 = $data[$i]->{d};
     my $y0 = $data[$i]->{h};

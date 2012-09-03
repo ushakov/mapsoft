@@ -85,26 +85,18 @@ sub print_data{
 #    print STDERR $d1[$i]->{d}." ".$d1[$i]->{u}."\n";
   }
 
-  # фильтруем слишком частые точки
-  # Ширина линий меряяется в 1/72 дюйма,
-  # а координаты - в 1/1200
-  my ($xo, $yo)=(0,0);
-  my @d2;
+  my $n=@d1;
+  return if $n<1;
+  print "2 1 0 $wid $col 7 $dep -1 -1 0.000 1 1 -1 0 0 $n\n";
+  my ($xo, $yo);
   foreach (@d1){
     my ($x, $y) = xy2fig($_->{x},$_->{y});
-    if (sqrt(($x-$xo)**2 + ($y-$yo)**2)*72 > $wid*1200 /4 ){ # четверть толщины
-      push @d2, $_;
-      ($xo, $yo) = ($x, $y);
-    }
-  }
 
-  my $n = $#d2+1;
-  return if $n<1;
+    # фильтруем слишком частые точки:
+    next if defined($xo) && defined($yo) && $x==$xo && $y==$yo;
 
-  print "2 1 0 $wid $col 7 $dep -1 -1 0.000 1 1 -1 0 0 $n\n";
-  foreach (@d2){
-    my ($x, $y) = xy2fig($_->{x},$_->{y});
     printf "\t%d %d\n", $x, $y;
+    ($xo, $yo) = ($x, $y);
   }
 }
 
@@ -195,22 +187,22 @@ printf "2 1 0 1 44 7 49 -1 -1 0.000 0 0 -1 0 0 2\n\t%d %d %d %d\n",
 my $n=0;
 foreach (<STDIN>){
   if (/^\s+$/ || /^#/){
-    $n=0;
     print_data();
     @data = ();
+    $n=0;
     next;
   }
   s/^\s+//;
   my ($y, $x, $d, $a, $h, $ha, $u) = split /\s+/;
   if ($col != u_col($u)){
-    print_data() if $n>1;
-    @data = ($data[$#data]) if $#data!=-1;
+    print_data() if @data>1;
+    @data = ($data[$#data]) if @data>1;
     $col = u_col($u);
     $dep = a_dep($a) + u_dep($u);
   }
   if ($wid != a_wid($a)){
-    print_data() if $n>1;
-    @data = ($data[$#data]) if $#data!=-1;
+    print_data() if @data>1;
+    @data = ($data[$#data]) if @data>1;
     $wid = a_wid($a);
     $dep = a_dep($a) + u_dep($u);
   }
@@ -218,7 +210,7 @@ foreach (<STDIN>){
   next if $a<5;
   push @data, {x=>$x, y=>$y, d=>$d, a=>$a, h=>$ha, u=>$u};
   $a0 = int($a) if $n==0;
-  print_txt() if ($n==1);
+  print_txt() if $n==2;
   $n++;
 }
 
