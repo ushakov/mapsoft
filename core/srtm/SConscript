@@ -5,7 +5,5 @@ e.UseLibs('2d glibmm-2.4')
 e.Library('srtm', \
   Split("""
     srtm3.cpp
-    tracer.cpp
-    map_tracer.cpp
   """))
 
