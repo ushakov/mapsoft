@@ -14,7 +14,7 @@ using namespace std;
 bool
 is_flow(srtm3 & S,
         const iPoint &p1, const iPoint &p2,
-        map<iPoint,double> & done,
+        set<iPoint> & done,
         int dh, int maxp, bool down){
 
   trace_gear G(S, p1);
@@ -35,21 +35,22 @@ is_flow(srtm3 & S,
 double
 get_a(srtm3 & S,
       const iPoint &p0,
+      set<iPoint> & done,
       map<iPoint,double> & areas, // общая карта площадей
       map<iPoint,char> & dirs,    // общая карта стоков
-      int dh, int maxp, bool down){
+      int dh, int maxp, double mina, bool down){
 
   double a=S.area(p0) * 1e-6; // площадь точки
 
-  areas[p0]=0.0; // set some value before call get_a!
+  done.insert(p0);
   for (int i=0; i<8; i++){
     iPoint p = adjacent(p0,i);
-    if (areas.count(p) ||
-        !is_flow(S, p, p0, areas, dh, maxp, down)) continue;
-    dirs[p]=i;
-    a+=get_a(S, p, areas, dirs, dh, maxp, down);
+    if (done.count(p) || !is_flow(S, p, p0, done, dh, maxp, down)) continue;
+    double a1 = get_a(S, p, done, areas, dirs, dh, maxp, mina, down);
+    if (a1>mina) dirs[p]=i;
+    a+=a1;
   }
-  areas[p0]=a;
+  if (a>mina) areas[p0]=a;
   return a;
 }
 
@@ -111,8 +112,10 @@ main(){
   //dPoint p0(95.786934, 54.057950);
   //bool down = false;
 
+  double mina = 0.5;
   int maxp = down?1000:1000;// макс. размер "неправильного" стока
   int dh   = down?200:500;  // макс. разница высот "неправильного" стока
+  set<iPoint> done;          // обработанные точки
   map<iPoint,double> areas;  // сюда будем складывать площади
   map<iPoint,char> dirs;     // сюда будем складывать направления стока
   srtm3 S;
@@ -122,10 +125,10 @@ main(){
   else      S.move_to_max(p);
 
   // посчитаем площади водосбора
-  cerr << "area: " << get_a(S, p, areas, dirs, dh, maxp, down) << "\n";
+  cerr << "area: " << get_a(S, p, done, areas, dirs, dh, maxp, mina, down) << "\n";
 
   // сортировка рек
-  list<list<iPoint> > rivs = sort_areas(areas, dirs, 0.5);
+  list<list<iPoint> > rivs = sort_areas(areas, dirs, mina);
 
   // print river to stdout
   list<list<iPoint> >::iterator ri;
@@ -148,12 +151,12 @@ main(){
   // find data range and border
   iRect r(p,p);
   set<iPoint> brd;
-  map<iPoint,double>::const_iterator b;
-  for (b = areas.begin(); b!=areas.end(); b++){
-    r = rect_pump(r,b->first);
+  set<iPoint>::const_iterator b;
+  for (b = done.begin(); b!=done.end(); b++){
+    r = rect_pump(r,*b);
     for (int i=0; i<8; i++){
-      iPoint p=adjacent(b->first, i);
-      if (areas.count(p)==0) brd.insert(p);
+      iPoint p=adjacent(*b, i);
+      if (done.count(p)==0) brd.insert(p);
     }
   }
   r = rect_pump(r,5);
@@ -167,8 +170,8 @@ main(){
       short h  = S.geth(p, true);
       int c = 0xffffff;
 
-      if (h > srtm_min && areas.count(p)){
-        if (areas[p] > 0.5) c = 0x0;
+      if (h > srtm_min && done.count(p)){
+        if (areas.count(p)) c = 0x0;
         else c = R.get(h);
       }
       if (brd.count(p)) c=0x7F7F7F;
