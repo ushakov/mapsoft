@@ -42,7 +42,9 @@ void write_file (const char* filename, const geo_data & world, const Options & o
       f << "      <name><![CDATA[" << wp->name << "]]></name>" << endl;
       f << "      <description><![CDATA[" << wp->comm << "]]></description>" << endl;
       f << "      <Point>" << endl;
-      f << "        <coordinates>" << wp->x << "," << wp->y << "," << wp->z << "</coordinates>" << endl;
+      f << fixed << setprecision(6)
+        << "        <coordinates>" << wp->x << "," << wp->y << ","
+        <<  setprecision(1) << wp->z << "</coordinates>" << endl;
       f << "      </Point>" << endl;
       f << "    </Placemark>" << endl;
     }
@@ -61,10 +63,12 @@ void write_file (const char* filename, const geo_data & world, const Options & o
           f << "      </LineString>" << endl;
         }
         f << "      <LineString>" << endl;
-        f << "        <tesselate>1</tesselate>" << endl;
+        f << "        <tessellate>1</tessellate>" << endl;
         f << "        <coordinates>" << endl;
       }
-      f << "          " << tp->x << "," << tp->y << "," << tp->z << endl;
+      f << fixed << setprecision(6)
+        << "          " << tp->x << "," << tp->y << ","
+        <<  setprecision(1) << tp->z << endl;
     }
     f << "        </coordinates>" << endl;
     f << "      </LineString>" << endl;
