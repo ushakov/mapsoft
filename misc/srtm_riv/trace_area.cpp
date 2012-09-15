@@ -10,125 +10,141 @@
 using namespace std;
 
 
-// есть ли сток из p1 в p2?
-bool
-is_flow(srtm3 & S,
-        const iPoint &p1, const iPoint &p2,
-        set<iPoint> & done,
-        int dh, int maxp, bool down){
+// нахождение площади водосбора одной реки/горы
+class trace_area{
+  public:
+  set<iPoint> done;          // обработанные точки
+  map<iPoint,double> areas;  // сюда будем складывать площади
+  map<iPoint,char> dirs;     // сюда будем складывать направления стока
 
-  trace_gear G(S, p1);
-  short h_thr = S.geth(p2,true) + (down? -dh: dh);
+  bool down;   // направление стока true=вниз
+  int dh;      // макс. разница высот "неправильного" стока
+  int maxp;    // макс. размер "неправильного" стока
+  double mina; // минимальный размер рек, который запоминается
+  srtm3 & S;   // интерфейс к srtm-данным
 
-  do {
-    iPoint p=G.go(down);
-    int h=S.geth(p,true);
-    if (p==p2) return true;
-    if (done.count(p)) return false;
-    if ((down && h < h_thr) || (!down && h > h_thr)) return false;
-    // Повторяем пока не превысили максимальное число точек.
-  } while (G.n < maxp);
-  return false;
-}
+  double maxa; // максимальная площадь водосбора (-1, если нет ограничения)
+  double suma;
 
-// recursively get area
-double
-get_a(srtm3 & S,
-      const iPoint &p0,
-      set<iPoint> & done,
-      map<iPoint,double> & areas, // общая карта площадей
-      map<iPoint,char> & dirs,    // общая карта стоков
-      int dh, int maxp, double mina, bool down){
+  trace_area(srtm3 & S_, int dh_, int maxp_, double mina_, bool down_):
+          S(S_), dh(dh_), maxp(maxp_), mina(mina_), maxa(-1), suma(0), down(down_){ }
 
-  double a=S.area(p0) * 1e-6; // площадь точки
+  // есть ли сток из p1 в p2?
+  bool is_flow(const iPoint &p1, const iPoint &p2){
 
-  done.insert(p0);
-  for (int i=0; i<8; i++){
-    iPoint p = adjacent(p0,i);
-    if (done.count(p) || !is_flow(S, p, p0, done, dh, maxp, down)) continue;
-    double a1 = get_a(S, p, done, areas, dirs, dh, maxp, mina, down);
-    if (a1>mina) dirs[p]=i;
-    a+=a1;
+    trace_gear G(S, p1);
+    short h_thr = S.geth(p2,true) + (down? -dh: dh);
+
+    do {
+      iPoint p=G.go(down);
+      if (p==p2) return true;
+      if (done.count(p)) return false;
+      int h=S.geth(p,true);
+      if ((down && h < h_thr) || (!down && h > h_thr)) return false;
+      // Повторяем пока не превысили максимальное число точек.
+    } while (G.n < maxp);
+    return false;
   }
-  if (a>mina) areas[p0]=a;
-  return a;
-}
 
-// сортировка рек
-list<list<iPoint> >
-sort_areas(const map<iPoint,double> & areas,
-           const map<iPoint,char> dirs, double mina){
+  // recursively get area
+  double get_a(const iPoint &p0){
+    double a=S.area(p0) * 1e-6; // площадь точки
 
-  list<list<iPoint> > ret;
-  set<iPoint> done;
+    if (maxa > 0 && (suma+=a) > maxa) return 0;
 
-  while(1){
-    list<iPoint> riv;
-
-    // find max area
-    double ma = -1;
-    iPoint mp;
-    map<iPoint,double>::const_iterator ai;
-    map<iPoint,char>::const_iterator di;
-    for (ai=areas.begin(); ai!=areas.end(); ai++){
-      if (done.count(ai->first) || ma >= ai->second ) continue;
-      ma=ai->second; mp=ai->first;
+    done.insert(p0);
+    for (int i=0; i<8; i++){
+      iPoint p = adjacent(p0,i);
+      if (done.count(p) || !is_flow(p, p0)) continue;
+      double a1 = get_a(p);
+      if (a1>mina) dirs[p]=i;
+      a+=a1;
     }
+    if (a>mina) areas[p0]=a;
+    return a;
+  }
 
-    // all points processed
-    if (ma<mina) break;
+  // сортировка рек
+  list<list<iPoint> > sort_areas(){
 
-    // go up from found point
+    list<list<iPoint> > ret;
+    set<iPoint> done;
+
     while(1){
-      done.insert(mp);
-      riv.push_back(mp);
-      ma = -1;
-      iPoint mp1;
-      // found adjacent point which flows to mp with maximal area
-      for (int i=0; i<8; i++){
-        iPoint p=adjacent(mp,i);
-        ai = areas.find(p);
-        di = dirs.find(p);
-        if (di == dirs.end() || ai == areas.end() ||
-            di->second != i || ma >= ai->second) continue;
+      list<iPoint> riv;
 
-        ma=ai->second; mp1=p;
+      // find max area
+      double ma = -1;
+      iPoint mp;
+      map<iPoint,double>::const_iterator ai;
+      map<iPoint,char>::const_iterator di;
+      for (ai=areas.begin(); ai!=areas.end(); ai++){
+        if (done.count(ai->first) || ma >= ai->second ) continue;
+        ma=ai->second; mp=ai->first;
       }
-      if (ma<mina) break;
-      mp=mp1;
+
+      // all points processed
+      if (ma<0) break;
+
+      // go up from found point
+      while(1){
+        done.insert(mp);
+        riv.push_back(mp);
+        ma = -1;
+        iPoint mp1;
+        // found adjacent point which flows to mp with maximal area
+        for (int i=0; i<8; i++){
+          iPoint p=adjacent(mp,i);
+          ai = areas.find(p);
+          di = dirs.find(p);
+          if (di == dirs.end() || ai == areas.end() ||
+              di->second != i || ma >= ai->second) continue;
+
+          ma=ai->second; mp1=p;
+        }
+        if (ma<0) break;
+        mp=mp1;
+      }
+      ret.push_back(riv);
     }
-    ret.push_back(riv);
+    return ret;
   }
-  return ret;
-}
+
+};
+
+
+
 
 
 main(){
 
 // построение водосбора одной реки
-  dPoint p0(95.438170, 54.097332);
+  dPoint p0(67.804847, 37.076098); // Амударья
   bool down = true;
+//  dPoint p0(95.438170, 54.097332); // Кизир
+//  bool down = true;
 // или горы:
   //dPoint p0(95.786934, 54.057950);
   //bool down = false;
 
   double mina = 0.5;
-  int maxp = down?1000:1000;// макс. размер "неправильного" стока
-  int dh   = down?200:500;  // макс. разница высот "неправильного" стока
-  set<iPoint> done;          // обработанные точки
-  map<iPoint,double> areas;  // сюда будем складывать площади
-  map<iPoint,char> dirs;     // сюда будем складывать направления стока
+  int maxp = down?10000:10000;// макс. размер "неправильного" стока
+  int dh   = down?200:200;  // макс. разница высот "неправильного" стока
   srtm3 S;
+
+  trace_area T(S, dh, maxp, mina, down);
+
+//  T.maxa=400;
 
   iPoint p(p0*1200.0);
   if (down) S.move_to_min(p); // сдвигаемся в локальный минимум
   else      S.move_to_max(p);
 
   // посчитаем площади водосбора
-  cerr << "area: " << get_a(S, p, done, areas, dirs, dh, maxp, mina, down) << "\n";
+  cerr << "area: " << T.get_a(p) << "\n";
 
   // сортировка рек
-  list<list<iPoint> > rivs = sort_areas(areas, dirs, mina);
+  list<list<iPoint> > rivs = T.sort_areas();
 
   // print river to stdout
   list<list<iPoint> >::iterator ri;
@@ -136,13 +152,13 @@ main(){
     list<iPoint>::iterator pi;
 
     iPoint p = *ri->begin();
-    if (dirs.count(p))
-      ri->push_front(adjacent(p, dirs[p]+4));
+    if (T.dirs.count(p))
+      ri->push_front(adjacent(p, T.dirs[p]+4));
 
     for (pi = ri->begin(); pi!=ri->end(); pi++){
       cout << pi->x << " " << pi->y << " "
-           << setw(9) << setprecision(4) << fixed << areas[*pi] << " "
-           << int(dirs[*pi]) << " " << setw(4) << S.geth(*pi) << "\n";
+           << setw(9) << setprecision(4) << fixed << T.areas[*pi] << " "
+           << int(T.dirs[*pi]) << " " << setw(4) << S.geth(*pi) << "\n";
     }
     cout << "\n";
   }
@@ -152,26 +168,26 @@ main(){
   iRect r(p,p);
   set<iPoint> brd;
   set<iPoint>::const_iterator b;
-  for (b = done.begin(); b!=done.end(); b++){
+  for (b = T.done.begin(); b!=T.done.end(); b++){
     r = rect_pump(r,*b);
     for (int i=0; i<8; i++){
       iPoint p=adjacent(*b, i);
-      if (done.count(p)==0) brd.insert(p);
+      if (T.done.count(p)==0) brd.insert(p);
     }
   }
   r = rect_pump(r,5);
 
   // fill image
   iImage img(r.w, r.h);
-  simple_rainbow R(500,3000);
+  simple_rainbow R(500,6000);
   for (int y=0; y<r.h; y++){
     for (int x=0; x<r.w; x++){
       iPoint p(x+r.x, y+r.y);
       short h  = S.geth(p, true);
       int c = 0xffffff;
 
-      if (h > srtm_min && done.count(p)){
-        if (areas.count(p)) c = 0x0;
+      if (h > srtm_min && T.done.count(p)){
+        if (T.areas.count(p)) c = 0x0;
         else c = R.get(h);
       }
       if (brd.count(p)) c=0x7F7F7F;
