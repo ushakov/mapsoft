@@ -86,6 +86,7 @@ void write_file (const char* filename, const geo_data & world, const Options & o
 #define TYPE_ELEM      1
 #define TYPE_ELEM_END 15
 #define TYPE_TEXT      3
+#define TYPE_CDATA     4
 #define TYPE_SWS      14
 
 #define NAMECMP(x) (xmlStrcasecmp(name,(const xmlChar *)x)==0)
@@ -95,6 +96,7 @@ void write_file (const char* filename, const geo_data & world, const Options & o
 int
 read_text_node(xmlTextReaderPtr reader, const char * nn, string & str){
   int ret=1;
+  str.clear();
   while(1){
     ret =xmlTextReaderRead(reader);
     if (ret != 1) break;
@@ -103,7 +105,7 @@ read_text_node(xmlTextReaderPtr reader, const char * nn, string & str){
     int type = xmlTextReaderNodeType(reader);
 
     if (type == TYPE_SWS) continue;
-    else if (type == TYPE_TEXT) str = GETVAL;
+    else if (type == TYPE_TEXT || type == TYPE_CDATA) str += GETVAL;
     else if (NAMECMP(nn) && (type == TYPE_ELEM_END)) break;
     else cerr << "Warning: Unknown node \"" << name << "\" in kml (type: " << type << ")\n";
   }
