@@ -2,8 +2,8 @@
 
 . mapsoft_wp.sh
 
-# mapsoft_wp_nom_update -- update passes in nom maps
-# example: mapsoft_wp_nom_update j43-061.vmap j43-062.vmap
+# map_wp_upd_nom -- update passes in nom maps
+# example: map_wp_upd_nom j43-061.vmap j43-062.vmap
 
 # passes data is put into ./wpasses/ dir
 

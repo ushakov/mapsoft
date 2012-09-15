@@ -1,16 +1,16 @@
-#!/bin/sh -efu
+#!/bin/sh -efux
 
-. mapsoft_wp.sh
+. mapsoft_gl.sh
 . mapsoft_map.sh
 
-# map_wp_upd_gk -- update passes in rectangular maps
-# example: map_wp_upd_gk elbr.fig pamir.vmap
+# map_gl_gk_update -- update glaciers in rectangular maps
+# example: map_gl_gk_update elbr.fig pamir.vmap
 
 # Geometry information is read from maps.txt file:
 # <base name> <geometry> <title>
-# passes data is put into ./wpasses/ dir
+# data is put into ./glims/ dir
 
-mkdir -p -- wpasses
+mkdir -p -- glims
 for i in "$@"; do
   base=$(basename ${i%.*})
   echo $i
@@ -18,12 +18,12 @@ for i in "$@"; do
 
   cp -f -- "$i" "$i.bak"
 
-  download_gk_wp "$geom" "wpasses/$base"
+  download_gk_gl "$geom" "glims/$base"
 
   mapsoft_vmap -v \
-    wpasses/${base}_wp.mp --set_source westra_passes\
+    glims/${base}_gl.mp --set_source glims\
        --range_datum pulkovo --range_proj tmerc\
        --range "$geom" --range_action="select"\
-    "$i" --split_labels --skip_source westra_passes\
+    "$i" --split_labels --skip_source glims\
     -o "$i"
 done
