@@ -1,8 +1,3 @@
-#include "utils/spirit_utils.h"
-#include <boost/spirit/include/classic_assign_actor.hpp>
-#include <boost/spirit/include/classic_push_back_actor.hpp>
-#include <boost/spirit/include/classic_clear_actor.hpp>
-
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -18,162 +13,67 @@
 #include "utils/err.h"
 
 namespace kml {
-    using namespace std;
-    using namespace boost::spirit::classic;
+using namespace std;
 
-    // Записывает в KML-файл треки и точки
-    // Не записывает карты! (хм, а может, надо?)
-    void write_file (const char* filename, const geo_data & world, const Options & opt){
+// Записывает в KML-файл треки и точки
+// Не записывает карты! (хм, а может, надо?)
+void write_file (const char* filename, const geo_data & world, const Options & opt){
 
-        if (opt.exists("verbose")) cerr <<
-          "Writing data to KML file " << filename << endl;
+  if (opt.exists("verbose")) cerr <<
+    "Writing data to KML file " << filename << endl;
 
-	ofstream f(filename);
-	if (!f.good()) throw MapsoftErr("GEO_IO_KML_OPENW")
-                    << "Can't open KML file " << filename << " for writing";
+  ofstream f(filename);
+  if (!f.good()) throw MapsoftErr("GEO_IO_KML_OPENW")
+                << "Can't open KML file " << filename << " for writing";
 
+  f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
+  f << "<kml xmlns=\"http://earth.google.com/kml/2.1\">" << endl;
+  f << "  <Document>" << endl;
 
-	f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
-	f << "<kml xmlns=\"http://earth.google.com/kml/2.1\">" << endl;
-	f << "  <Document>" << endl;
-
-	for (int i = 0; i < world.wpts.size(); i++) {
-	    f << "  <Folder>" << endl;
-	    f << "    <name>WPTS_" << i << "</name>" << endl;
-	    for (g_waypoint_list::const_iterator wp = world.wpts[i].begin();
-		 wp != world.wpts[i].end(); ++wp) {
-		f << "    <Placemark>" << endl;
-		f << "      <name><![CDATA[" << wp->name << "]]></name>" << endl;
-		f << "      <description><![CDATA[" << wp->comm << "]]></description>" << endl;
-		f << "      <Point>" << endl;
-		f << "        <coordinates>" << wp->x << "," << wp->y << "," << wp->z << "</coordinates>" << endl;
-		f << "      </Point>" << endl;
-		f << "    </Placemark>" << endl;
-	    }
-	    f << "  </Folder>" << endl;
-	}
-
-	for (int i = 0; i < world.trks.size(); ++i) {
-	    f << "  <Placemark>" << endl;
-	    f << "    <description><![CDATA[" << world.trks[i].comm << "]]></description>" << endl;
-	    f << "    <MultiGeometry>" << endl;
-	    for (g_track::const_iterator tp = world.trks[i].begin(); tp != world.trks[i].end(); ++tp) {
-		if (tp->start || tp == world.trks[i].begin()) {
-		    if (tp != world.trks[i].begin()) {
-			f << "        </coordinates>" << endl;
-			f << "      </LineString>" << endl;
-		    }
-		    f << "      <LineString>" << endl;
-		    f << "        <tesselate>1</tesselate>" << endl;
-		    f << "        <coordinates>" << endl;
-		}	
-		f << "          " << tp->x << "," << tp->y << "," << tp->z << endl;
-	    }
-	    f << "        </coordinates>" << endl;
-	    f << "      </LineString>" << endl;
-	    f << "    </MultiGeometry>" << endl;
-	    f << "  </Placemark>" << endl;
-	}
-	
-	f << "  </Document>" << endl;
-	f << "</kml>" << endl;
-
-	if (!f.good()) throw MapsoftErr("GEO_IO_KML_WRITE")
-                    << "Can't write data to KML file " << filename;
+  for (int i = 0; i < world.wpts.size(); i++) {
+    f << "  <Folder>" << endl;
+    f << "    <name>WPTS_" << i << "</name>" << endl;
+    g_waypoint_list::const_iterator wp;
+    for (wp = world.wpts[i].begin(); wp != world.wpts[i].end(); ++wp) {
+      f << "    <Placemark>" << endl;
+      f << "      <name><![CDATA[" << wp->name << "]]></name>" << endl;
+      f << "      <description><![CDATA[" << wp->comm << "]]></description>" << endl;
+      f << "      <Point>" << endl;
+      f << "        <coordinates>" << wp->x << "," << wp->y << "," << wp->z << "</coordinates>" << endl;
+      f << "      </Point>" << endl;
+      f << "    </Placemark>" << endl;
     }
-/*
-    struct kml_point : public Options {
-	operator g_waypoint() const {
-	    g_waypoint ret;
+    f << "  </Folder>" << endl;
+  }
 
-	    get("name", ret.name);
-	    get("comm", ret.comm);
-	    get("lon",  ret.x);
-	    get("lat",  ret.y);
-	    get("alt",  ret.z);
-	    const string used[] = {
-                "name", "comm", "lon", "lat", "alt", ""};
-	    warn_unused(used);
-	    return ret;
-	}
+  for (int i = 0; i < world.trks.size(); ++i) {
+    f << "  <Placemark>" << endl;
+    f << "    <description><![CDATA[" << world.trks[i].comm << "]]></description>" << endl;
+    f << "    <MultiGeometry>" << endl;
+    g_track::const_iterator tp;
+    for (tp = world.trks[i].begin(); tp != world.trks[i].end(); ++tp) {
+      if (tp->start || tp == world.trks[i].begin()) {
+        if (tp != world.trks[i].begin()) {
+          f << "        </coordinates>" << endl;
+          f << "      </LineString>" << endl;
+        }
+        f << "      <LineString>" << endl;
+        f << "        <tesselate>1</tesselate>" << endl;
+        f << "        <coordinates>" << endl;
+      }
+      f << "          " << tp->x << "," << tp->y << "," << tp->z << endl;
+    }
+    f << "        </coordinates>" << endl;
+    f << "      </LineString>" << endl;
+    f << "    </MultiGeometry>" << endl;
+    f << "  </Placemark>" << endl;
+  }
 
-	operator g_trackpoint() const {
-	    g_trackpoint ret;
+  f << "  </Document>" << endl;
+  f << "</kml>" << endl;
 
-	    get("lon",  ret.x);
-	    get("lat",  ret.y);
-	    get("alt",  ret.z);
-	    const string used[] = {
-                "lon", "lat", "alt", ""};
-	    warn_unused(used);
-	    return ret;
-	}
-    };
-
-    struct kml_point_list : public Options {
-	vector<kml_point> points;
-
-	operator g_waypoint_list () const {
-	    g_waypoint_list ret;
-	    const string used[] = {"points",""}; //points - только записывается, не читается.
-	    warn_unused(used);
-	    for (vector<kml_point>::const_iterator i=points.begin(); i!=points.end();i++)
-		ret.push_back(*i);
-	    return ret;
-	}
-	
-	operator g_track () const {
-	    g_track ret;
-	    ret.comm  = get_string("comm",  ret.comm);
-	    const string used[] = {"comm", "points", ""};
-	    warn_unused(used);
-	    for (vector<kml_point>::const_iterator i=points.begin(); i!=points.end();i++)
-		ret.push_back(*i);
-	    return ret;
-	}
-    };
-*/
-
-//     // incomplete!
-//     bool read_file(const char* filename, geo_data & world, const Options & opt) {
-// 	// iterators for parsing
-// 	iterator_t first(filename);
-// 	if (!first) { cerr << "can't find file " << filename << '\n'; return 0;}
-// 	iterator_t last = first.make_end();
-
-// 	kml_point pt;
-// 	kml_point_list pt_list;
-
-// 	string aname, aval;
-// 	rule_t name = (+(alnum_p | '-' | '_'));
-// 	rule_t attr_name = name[assign_a(aname)][assign_a(aval, "")];
-// 	rule_t escaped_symb  = (ch_p('\\') >> ch_p('"')) | (ch_p('\\') >> ch_p('\\')) ;
-// 	rule_t attr_value = ('"' >>
-// 			     (*((anychar_p | escaped_symb ) - '"'))[assign_a(aval)] >> '"') |
-// 	    (*(anychar_p - (space_p | ch_p('"') | '>' | '/' | '\\')))[assign_a(aval)];
-
-// 	rule_t attr = +space_p >> attr_name >>
-// 	    !(*space_p >> '=' >> *space_p >> attr_value);
-	
-// 	rule_t any_tag_open = *space_p >> ch_p('<') >> name >> *attr >> ch_p('>');
-// 	rule_t any_tag_close = *space_p >> str_p("</") >> name >> ch_p('>');
-// 	rule_t any_tag_standalone = *space_p >> ch_p('<') >> name >> *attr >> str_p("/>");
-
-// 	string text;
-// 	rule_t cdata = *space_p >> str_p("<![CDATA[") >> (*(anychar_p - ']'))[assign_a(text)] >> str_p("]]>");
-// 	rule_t text_content = cdata | (*(anychar_p - '<'))[assign_a(text)];
-
-// 	rule_t name_tag = *space_p >> str_p("<name>") >> text[insert_at_a(pt, "name", text)] >> str_p("</name>");
-// 	rule_t comm_tag = *space_p >> str_p("<description>") >> text[insert_at_a(pt, "comm", text)] >> str_p("</description>");
-
-// 	rule_t point = *space_p >> real_p[insert_at_a(pt, "lon")]
-// 				>> *space_p >> "," >> *space_p >> real_p[insert_at_a(pt, "lat")]
-// 				>> !(*space_p >> "," >> *space_p >> real_p);  // ignoring height
-
-	
-	
-// 	rule_t placemark = *space_p >> str_p("<placemark") >> *attr >> str_p(">");
-//     }
-	
-
+  if (!f.good()) throw MapsoftErr("GEO_IO_KML_WRITE")
+                  << "Can't write data to KML file " << filename;
 }
+
+} // namespace
