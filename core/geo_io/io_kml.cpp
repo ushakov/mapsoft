@@ -107,7 +107,7 @@ read_text_node(xmlTextReaderPtr reader, const char * nn, string & str){
     if (type == TYPE_SWS) continue;
     else if (type == TYPE_TEXT || type == TYPE_CDATA) str += GETVAL;
     else if (NAMECMP(nn) && (type == TYPE_ELEM_END)) break;
-    else cerr << "Warning: Unknown node \"" << name << "\" in kml (type: " << type << ")\n";
+    else cerr << "Warning: Unknown node \"" << name << "\" in text node (type: " << type << ")\n";
   }
   return ret;
 }
@@ -142,7 +142,7 @@ read_point_node(xmlTextReaderPtr reader, g_waypoint & ww){
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" in kml (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in Point (type: " << type << ")\n";
     }
   }
   return ret;
@@ -188,9 +188,48 @@ read_linestring_node(xmlTextReaderPtr reader, g_track & T){
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" in kml (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in LineString (type: " << type << ")\n";
     }
   }
+  return ret;
+}
+
+int
+read_gx_track_node(xmlTextReaderPtr reader, g_track & T){
+  int ret=1;
+  T = g_track();
+  while(1){
+    ret =xmlTextReaderRead(reader);
+    if (ret != 1) break;
+
+    const xmlChar *name = xmlTextReaderConstName(reader);
+    int type = xmlTextReaderNodeType(reader);
+
+    if (type == TYPE_SWS) continue;
+    else if (NAMECMP("when") && (type == TYPE_ELEM)){
+      string str;
+      ret=read_text_node(reader, "when", str);
+      if (ret != 1) break;
+    }
+    else if (NAMECMP("gx:coord") && (type == TYPE_ELEM)){
+      string str;
+      ret=read_text_node(reader, "gx:coord", str);
+      if (ret != 1) break;
+      istringstream s(str);
+      g_trackpoint tp;
+      s >> std::ws >> tp.x >> std::ws
+        >> std::ws >> tp.y >> std::ws
+        >> std::ws >> tp.z >> std::ws;
+      T.push_back(tp);
+    }
+    else if (NAMECMP("gx:Track") && (type == TYPE_ELEM_END)){
+      break;
+    }
+    else {
+      cerr << "Warning: Unknown node \"" << name << "\" in gx:Track (type: " << type << ")\n";
+    }
+  }
+  if (T.size()) T[0].start=true;
   return ret;
 }
 
@@ -213,7 +252,7 @@ read_multigeometry_node(xmlTextReaderPtr reader, g_track & T){
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" in kml (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in MultiGeometry (type: " << type << ")\n";
     }
   }
   return ret;
@@ -240,7 +279,8 @@ read_placemark_node(xmlTextReaderPtr reader,
 
     if (type == TYPE_SWS) continue;
     // Skip some blocks
-    else if (NAMECMP("Camera") || NAMECMP("LookAt") || NAMECMP("styleUrl")){
+    else if (NAMECMP("Camera") || NAMECMP("LookAt") ||
+             NAMECMP("styleUrl") || NAMECMP("visibility")){
       if (type == TYPE_ELEM) skip=true;
       if (type == TYPE_ELEM_END) skip=false;
     }
@@ -261,6 +301,8 @@ read_placemark_node(xmlTextReaderPtr reader,
       T.comm += str;
       mm.comm += str;
     }
+//    else if (NAMECMP("TimeStamp") && (type == TYPE_ELEM)){
+//    }
     else if (NAMECMP("Point") && (type == TYPE_ELEM)){
       ot=0;
       ret=read_point_node(reader, ww);
@@ -276,11 +318,16 @@ read_placemark_node(xmlTextReaderPtr reader,
       ret=read_multigeometry_node(reader, T);
       if (ret != 1) break;
     }
+    else if (NAMECMP("gx:Track") && (type == TYPE_ELEM)){
+      ot=1;
+      ret=read_gx_track_node(reader, T);
+      if (ret != 1) break;
+    }
     else if (NAMECMP("Placemark") && (type == TYPE_ELEM_END)){
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" in kml (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in Placemark (type: " << type << ")\n";
     }
   }
   if (ot==0) W.push_back(ww);
@@ -294,6 +341,7 @@ read_folder_node(xmlTextReaderPtr reader, geo_data & world){ // similar to docum
   g_waypoint_list W;
   g_track         T;
   g_map_list      M;
+  bool skip=false;
   int ret=1;
   while(1){
     ret =xmlTextReaderRead(reader);
@@ -303,6 +351,11 @@ read_folder_node(xmlTextReaderPtr reader, geo_data & world){ // similar to docum
     int type = xmlTextReaderNodeType(reader);
 
     if (type == TYPE_SWS) continue;
+    else if (NAMECMP("visibility") || NAMECMP("open")){
+      if (type == TYPE_ELEM) skip=true;
+      if (type == TYPE_ELEM_END) skip=false;
+    }
+    else if (skip) continue;
     else if (NAMECMP("name") && (type == TYPE_ELEM)){
       string str;
       ret=read_text_node(reader, "name", str);
@@ -322,7 +375,7 @@ read_folder_node(xmlTextReaderPtr reader, geo_data & world){ // similar to docum
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" in kml (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in Folder (type: " << type << ")\n";
     }
   }
   if (W.size()) world.wpts.push_back(W);
@@ -345,8 +398,11 @@ read_document_node(xmlTextReaderPtr reader, geo_data & world){
     int type = xmlTextReaderNodeType(reader);
 
     if (type == TYPE_SWS) continue;
-    // Skip Style blocks
-    else if (NAMECMP("Style") || NAMECMP("StyleMap")){
+    // Skip some blocks
+    else if (NAMECMP("Style") || NAMECMP("StyleMap") ||
+             NAMECMP("open") || NAMECMP("visibility") ||
+             NAMECMP("name") || NAMECMP("Snippet") ||
+             NAMECMP("LookAt")){
       if (type == TYPE_ELEM) skip=true;
       if (type == TYPE_ELEM_END) skip=false;
     }
@@ -369,7 +425,7 @@ read_document_node(xmlTextReaderPtr reader, geo_data & world){
       break;
     }
     else {
-      cerr << "Warning: Unknown node \"" << name << "\" in kml (type: " << type << ")\n";
+      cerr << "Warning: Unknown node \"" << name << "\" in Document (type: " << type << ")\n";
     }
   }
   if (W.size()) world.wpts.push_back(W);
