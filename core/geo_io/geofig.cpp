@@ -65,17 +65,8 @@ get_ref(const fig_world & w){
       continue;
     }
     if ((i->comment.size()>0)&&(i->comment[0].size()>3) &&
-        (i->comment[0].compare(0,3,"BRD")==0)) brd = *i; 
+        (i->comment[0].compare(0,3,"BRD")==0)) ret.border = *i; 
 
-  }
-  // границы - по точкам привязки или по объекту BRD
-  if (brd.size() < 3) {
-    ret.border.push_back(min);
-    ret.border.push_back(dPoint(min.x,max.y));
-    ret.border.push_back(max);
-    ret.border.push_back(dPoint(max.x,min.y));
-  } else {
-    ret.border.insert(ret.border.end(), brd.begin(), brd.end());
   }
   return ret;
 }
