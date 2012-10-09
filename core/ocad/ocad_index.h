@@ -43,7 +43,7 @@ struct ocad_index: std::vector<T>{
         bl.index[i].pos=0;
         T s;
         s.read(F, bl.index[i], v);
-        push_back(s);
+        std::vector<T>::push_back(s);
       }
     }
   }
