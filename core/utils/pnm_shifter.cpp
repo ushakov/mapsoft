@@ -1,7 +1,8 @@
 #include "pnm_shifter.h"
 #include <iostream>
 #include <vector>
-#include <stdlib.h>
+#include <cstdlib>
+#include <unistd.h>
 
 pnm_shifter::pnm_shifter(const int _fd, const int _data_width){
 

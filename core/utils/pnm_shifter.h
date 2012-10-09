@@ -1,8 +1,6 @@
 #ifndef PNM_SHIFTER_H
 #define PNM_SHIFTER_H
 
-#include <cstdio>
-#include <iostream>
 #include <vector>
 #include <string>
 
