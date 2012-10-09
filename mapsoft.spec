@@ -1,6 +1,6 @@
 Name: mapsoft
 Version: 20121009
-Release: alt1
+Release: alt2
 License: GPL
 Summary: mapsoft - programs for working with maps and geodata
 Group: Sciences/Geosciences
@@ -68,6 +68,9 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_mandir/man1/mapsoft_vmap.1.gz
 
 %changelog
+* Tue Oct 09 2012 Vladislav Zavjalov <slazav@altlinux.org> 20121009-alt2
+- one more fix for new gcc
+
 * Tue Oct 09 2012 Vladislav Zavjalov <slazav@altlinux.org> 20121009-alt1
 - current snapshot, fix for new gcc
 
