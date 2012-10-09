@@ -234,8 +234,8 @@ mk_ref(Options & o){
     incompat_warning (o, "google", "geom");
     incompat_warning (o, "google", "nom");
 
-    proj=Proj("merc");
-    datum=Datum("google_sphere");
+    datum=Datum("wgs84");
+    proj=Proj("google");
 
     vector<int> crd = read_int_vec(o.get<string>("google"));
     if (crd.size()!=3){
@@ -246,7 +246,7 @@ mk_ref(Options & o){
     int y=crd[1];
     int z=crd[2];
     //
-    convs::pt2pt cnv(Datum("google_sphere"), Proj("lonlat"), Options(),
+    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
                      datum, proj, Options());
     dPoint p(180,0);
     cnv.frw(p);

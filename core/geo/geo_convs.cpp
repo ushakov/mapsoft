@@ -26,7 +26,7 @@ mkproj(const Datum & D, const Proj & P, const Options & o){
     else  projpar << " +proj=" << P;
 
     // datum and ellps settings
-    // spetial google case, see http://trac.osgeo.org/proj/wiki/FAQ#ChangingEllipsoidWhycantIconvertfromWGS84toGoogleEarthVirtualGlobeMercator
+    // special google case, see http://trac.osgeo.org/proj/wiki/FAQ#ChangingEllipsoidWhycantIconvertfromWGS84toGoogleEarthVirtualGlobeMercator
     if (P==Proj("google")) // use google_sphere instead of wgs
        projpar << " +a=6378137 +b=6378137 +nadgrids=@null +no_defs";
     else if (D==Datum("pulkovo"))

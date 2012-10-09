@@ -64,9 +64,10 @@ BBOX=$BBOX"
 }
 
 
-download_gl(){
+download_ll_gl(){
   local geom="$1"
-  geom2ll "$geom" |
+  local name="$2"
+  echo "$geom" |
   sed 's/\(^[0-9\.]\+\)x\([0-9\.]\+\)\([\+-][0-9\.]\+\)\([\+-][0-9\.]\+\)/\1 \2 \3 \4/' |
   {
     local x1 x2 y1 y2 dx dy
@@ -76,3 +77,13 @@ download_gl(){
     get_gl GLIMS_Glacier_Polygons "$x1,$y1,$x2,$y2" | gml2mp > "${name}_gl.mp"
   }
 }
+
+download_gk_gl(){
+  local geom="$1"
+  local name="$2"
+
+  ll="$(geom2ll "$geom")"
+  download_ll_gl "$ll" "$name"
+}
+
+

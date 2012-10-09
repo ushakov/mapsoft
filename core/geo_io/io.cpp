@@ -82,6 +82,10 @@ in(const string & in_name, geo_data & world, const Options & opt){
     gpx::read_file (name.c_str(), world, opt);
     return;
   }
+  if (testext(name, ".kml")){
+    kml::read_file (name.c_str(), world, opt);
+    return;
+  }
   if (testext(name, ".gu")){
     gu::read_file (name.c_str(), world, opt);
     return;
@@ -100,7 +104,7 @@ in(const string & in_name, geo_data & world, const Options & opt){
     fig::get_maps(F, m, world);
     return;
   }
-  if (testext(name, ".zip")) {
+  if (testext(name, ".zip") || testext(name, ".kmz")) {
     io_zip::read_file (name.c_str(), world, opt);
     return;
   }
