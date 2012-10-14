@@ -5,6 +5,7 @@
 
 #include "loaders/image_r.h"
 #include "utils/cairo_wrapper.h"
+#include "2d/line_utils.h"
 
 using namespace std;
 
@@ -115,7 +116,6 @@ LayerMAP::draw(iImage & image, const iPoint & origin){
 
   for (int i=0; i < data->size(); i++){
       if (!rect_in_line(src_rect, borders[i])) continue;
-
       const g_map * m = &(*data)[i];
 
       int scale = int(scales[i]+0.05);
@@ -141,8 +141,7 @@ LayerMAP::draw(iImage & image, const iPoint & origin){
             C.clear();
             iscales[i] = scale;
           }
-          dLine brd=m2ms[i]->line_frw(m->border);
-          iLineTester brd_tester(brd);
+          iLineTester brd_tester(borders[i]);
           // look for download script
           bool download = stat((m->file+"/download").c_str(), &st_buf) == 0 &&
                           S_ISREG(st_buf.st_mode) && scale==1;
@@ -326,38 +325,46 @@ LayerMAP::make_m2ms(){
         for (g_map::const_iterator i=m->begin(); i!=m->end(); i++){
           dPoint pr(i->xr, i->yr), pl(*i);
           cnv->bck(pl);
-          points[pr] = pl;
+          points[pr] = pl; // map->scr
         }
         c.reset(new ConvAff(points));
       }
       else {
         std::map<dPoint, dPoint> ref1, ref2;
-        for (g_map::const_iterator i=m->begin(); i!=m->end(); i++){
-          dPoint p1(i->xr, i->yr); // p1 - map point
-          dPoint p2(i->x, i->y);   // p2 - wgs point
-          dPoint p3(p2);
-          cnv->bck(p3); // p3 - screen point
-          ref1[p1]=p2;
-          ref2[p3]=p2;
+        /* Building two maps<pt,pt>: map->wgs, screen->wgs
+           We don't want to use original refpoints, becouse
+           it can be out of out projection range. We use
+           corners of 1000x1000 rect on the screen. */
+        dLine pts = rect2line(dRect(0,0,1000,1000), false);
+        convs::map2pt cnv1(*m, Datum("wgs84"), Proj("lonlat"));
+
+        for (dLine::const_iterator i=pts.begin(); i!=pts.end(); i++){
+          dPoint p1(*i); cnv->frw(p1); // p1 - wgs point
+          dPoint p2(p1); cnv1.bck(p2); // p2 - map point
+          ref1[p2]=p1; //map->wgs
+          ref2[*i]=p1; //scr->wgs
         }
         c.reset(new convs::map2map(m->map_proj, Proj(cnv_hint), ref1, ref2));
       }
       m2ms.push_back(c);
 
-      // converted border
-      dLine brd = c->line_frw(m->border);
-      borders.push_back(brd);
-
       // map scaling factor
-      dPoint p1(0,0), p2(1000,0), p3(0,1000);
-      c->frw(p1); c->frw(p2); c->frw(p3);
-      double sc = min(1000/pdist(p1,p2), 1000/pdist(p1,p3));
+      dPoint p1(0,0), p2(1000,0), p3(0,1000); // on scr
+      c->bck(p1); c->bck(p2); c->bck(p3);
+      double sc = min(pdist(p1,p2)/1000, pdist(p1,p3)/1000);
       scales.push_back(sc);
 
-      if ( i == 0 )
-         myrange = brd.range();
-      else
-         myrange = rect_bounding_box(myrange, iRect(brd.range()));
+      // border and range
+      if (m->border.size()){
+        dLine brd = c->line_frw(m->border);
+        if ( i == 0 ) myrange = brd.range();
+        else myrange = rect_bounding_box(myrange, iRect(brd.range()));
+        borders.push_back(brd);
+      }
+      else{
+        myrange=GOBJ_MAX_RANGE;
+        borders.push_back(rect2line(GOBJ_MAX_RANGE));
+      }
 
       // pump range to include all ref points with some radius
       const iPoint rr(10,10);
