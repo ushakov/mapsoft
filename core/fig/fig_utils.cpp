@@ -7,7 +7,7 @@ using namespace std;
 /****************************************************************/
 
 // размер fig-объектов
-iRect range(std::list<fig_object> & objects){
+iRect fig_range(std::list<fig_object> & objects){
   if ((objects.size()<1) || (objects.begin()->size()<1)) return iRect(0,0,0,0);
   int minx=(*objects.begin())[0].x;
   int maxx=(*objects.begin())[0].x;
@@ -42,7 +42,7 @@ iRect range(std::list<fig_object> & objects){
 // заключить fig-объекты в составной объект.
 void fig_make_comp(std::list<fig_object> & objects){
   if ((objects.size()<1) || (objects.begin()->size()<1)) return;
-  iRect r = range(objects);
+  iRect r = fig_range(objects);
 
   fig_object o;
   o.type=6;
