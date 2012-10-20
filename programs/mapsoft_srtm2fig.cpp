@@ -76,23 +76,21 @@ main(int argc, char** argv){
     int step1 = atoi(argv[4]);
     int step2 = atoi(argv[5]);
     if (step2<step1) swap(step2,step1);
+    std::cerr << "looking for contours: ";
     double acc = 10; // "точность", в метрах - для генерализации горизонталей.
     if (argc>6) acc = atoi(argv[6]);
 
-    cerr << "Рисование горизонталей по данным srtm\n";
-
-    cerr << "находим кусочки горизонталей: ";
     map<short, dMultiLine> hors;
     int count = 0; 
     for (int lat=lat2; lat>lat1; lat--){
       for (int lon=lon1; lon<lon2; lon++){
-  
+
         iPoint p(lon,lat);
         // пересечения четырех сторон клетки с горизонталями:
         // при подсчетах мы опустим все данные на полметра,
         // чтоб не разбирать кучу случаев с попаданием горизонталей в узлы сетки
         multimap<short, double> pts;
-  
+
         for (int k=0; k<4; k++){
           iPoint p1 = p+crn(k);
           iPoint p2 = p+crn(k+1);
@@ -109,13 +107,13 @@ main(int argc, char** argv){
             if ((x<0)||(x>1)) continue;
             pts.insert(pair<short, double>(hh,x+k));
           }
-        } 
-  
+        }
+
         // найдем, какие горизонтали пересекают квадрат дважды,
         // поместим их в список горизонталей hors
         short h=srtm_undef;
         double x1,x2;
-  
+
         for (multimap<short,double>::const_iterator i=pts.begin(); i!=pts.end(); i++){
           if (h!=i->first){
             h  = i->first;
@@ -147,11 +145,11 @@ main(int argc, char** argv){
         }
       }
     }
-    cerr << count << " шт\n";
+    cerr << count << " pts\n";
 
 
     count = 0; 
-    cerr << "  сливаем кусочки горизонталей в линии: ";
+    cerr << "  merge and generalize: ";
     fig::fig_object o = fig::make_object("2 1 0 1 30453904 7 90 -1 -1 0.000 1 1 0 0 0 0");
     for(map<short, dMultiLine>::iterator im = hors.begin(); im!=hors.end(); im++){
       std::cerr << im->first << " ";
@@ -159,7 +157,7 @@ main(int argc, char** argv){
       generalize(im->second, acc/6380000/2/M_PI*180.0);
       split(im->second, 200);
       dMultiLine tmp;
-      crop_lines(im->second, tmp, border_ll, true);
+      if (border_ll.size()) crop_lines(im->second, tmp, border_ll, true);
 
       for(dMultiLine::iterator iv = im->second.begin(); iv!=im->second.end(); iv++){
         if (iv->size()<3) continue;
@@ -173,7 +171,7 @@ main(int argc, char** argv){
         count++;
       }
     }
-    cerr << " - " << count << " шт\n";
+    cerr << " - " << count << " pts\n";
 
   } 
   else if (cmd == "ver"){
@@ -186,28 +184,28 @@ main(int argc, char** argv){
     // 4. Если высота последней добавленной точки больше исходной - процедуру
     //    прекращаем
 
-    
+
     int DH = 20;
     int PS = 500;
     if (argc>4) DH = atoi(argv[4]);
     if (argc>5) PS = atoi(argv[5]);
 
     int count = 0;
-    std::cerr << "ищем вершины: ";
-    
+    std::cerr << "looking for mountains: ";
+
     set<iPoint> done;
     for (int lat=lat2; lat>lat1; lat--){
       for (int lon=lon1; lon<lon2-1; lon++){
-  
+
         iPoint p(lon,lat);
         if (done.find(p)!=done.end()) continue;
         short h = s.geth(p);
         if (h<srtm_min) continue;
-  
+
         set<iPoint> pts; pts.insert(p);
         set<iPoint> brd = border(pts);
         // ищем максимум границы
-  
+
         do{
           short max = srtm_undef;
           iPoint maxpt;
@@ -218,14 +216,14 @@ main(int argc, char** argv){
             if (h1>max) {max = h1; maxpt=*i;}
           }
           if (max < srtm_min) break;
-  
+
           // если максимум выше исходной точки - выходим.
           if (max > h) { break; }
-  
+
           // если мы спустились от исходной точки более чем на DH или размер области более PS
           if ((h - max > DH ) || (pts.size() > PS)) {
             dPoint p1 = dPoint(p)/1200.0;
-            if (!test_pt(p1, border_ll)) break;
+            if (border_ll.size() && !test_pt(p1, border_ll)) break;
             fig::fig_object o = fig::make_object("2 1 0 3 24 7  57 -1 -1 0.000 0 1 -1 0 0 1");
             fig_cnv.bck(p1);
             o.push_back(p1);
@@ -240,12 +238,12 @@ main(int argc, char** argv){
         } while (true);
       }
     }
-    cerr << count << " шт\n";
+    cerr << count << " pts\n";
 
   } 
   else if (cmd == "holes"){
     // поиск дырок
-    cerr << "ищем дырки srtm: ";
+    cerr << "looking for srtm holes: ";
     set<iPoint> aset;
     dMultiLine aline;
     for (int lat=lat2; lat>lat1; lat--){
@@ -253,11 +251,13 @@ main(int argc, char** argv){
         iPoint p(lon,lat);
         short h = s.geth(p);
         dPoint p1 = dPoint(p)/1200.0;
-        if ((h==srtm_undef)&&test_pt(p1, border_ll)) aset.insert(p);
+        if (h!=srtm_undef) continue;
+        if (border_ll.size() && !test_pt(p1, border_ll)) continue;
+        aset.insert(p);
       }
     }
-    cerr << aset.size() << " точек\n";
-    cerr << " преобразуем множество точек в многоугольники: ";
+    cerr << aset.size() << " pts\n";
+    cerr << " converting points to polygons: ";
     aline = pset2line(aset);
     for(dMultiLine::iterator iv = aline.begin(); iv!=aline.end(); iv++){
       if (iv->size()<3) continue;
@@ -266,7 +266,7 @@ main(int argc, char** argv){
       o.insert(o.end(), l.begin(), l.end());
       F.push_back(o);
     }
-    cerr << aline.size() << " шт\n";
+    cerr << aline.size() << " polygons\n";
   }
   else usage();
 
