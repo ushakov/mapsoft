@@ -157,3 +157,6 @@ void DThreadViewer::draw(const iRect & r){
   updater_mutex->unlock();
 }
 
+const int DThreadViewer::TILE_SIZE;
+const int DThreadViewer::TILE_MARG;
+
