@@ -227,6 +227,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
       dMultiLine::const_iterator l;
       for (l=o->begin(); l!=o->end(); l++){
         fig.clear();
+        fig.open(); // previous part can be closed!
         fig.set_points(cnv.line_bck(*l));
         // closed polyline
         if ((o->get_class() == POLYLINE) &&
