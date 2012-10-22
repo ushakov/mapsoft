@@ -72,7 +72,7 @@ main(int argc, char **argv){
     fig_ref/=rescale; // теперь fig_ref - в координатах растра
     convs::map2pt fig_cnv(
       fig_ref, Datum("wgs84"), Proj("lonlat"), Options());
-    ml.set_cnv(&fig_cnv);
+    ml.set_cnv(&fig_cnv, fig_ref.map_proj.val);
 
     // диапазон картинки в координатах растра
     dRect range = fig_ref.border.range();
