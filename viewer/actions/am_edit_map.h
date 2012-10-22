@@ -45,7 +45,7 @@ public:
       mark_layer->show_brd();
       mark_layer->show_ref();
       mark_layer->hide_map();
-      mark_layer->set_cnv(layer->get_cnv());
+      mark_layer->set_cnv(layer->get_cnv(), m->map_proj.val);
       mapview->workplane.add_layer(mark_layer.get(), 50);
       mapview->viewer.redraw();
 
