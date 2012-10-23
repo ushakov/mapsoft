@@ -29,15 +29,30 @@ skip_object(const Options & O, const object &o){
   return false;
 }
 
-// remove empty lines and objects
 void
 remove_empty(world & W){
   world::iterator o = W.begin();
   while (o!=W.end()){
     dMultiLine::iterator l = o->begin();
     while (l != o->end()){
-      if (l->size()==0) l=o->erase(l);
-      else l++;
+
+      // remove lines with small point number
+      if ((o->get_class()==POLYGON  && l->size()<3) ||
+          (o->get_class()==POLYLINE && l->size()<2) ||
+          (o->get_class()==POI      && l->size()<1)) { l=o->erase(l); continue; }
+
+      // remove lines with zero length
+      if (o->get_class()==POLYGON || o->get_class()==POLYLINE){
+        dLine::iterator p,pp;
+        bool empty=true;
+        for (p=l->begin(); p!=l->end(); p++){
+          if (p!=l->begin() && pdist(*p,*pp) > 0) {empty=false; break;}
+          pp=p;
+        }
+        if (empty) { l=o->erase(l); continue; }
+      }
+
+      l++;
     }
     if (o->size()==0) o=W.erase(o);
     else o++;

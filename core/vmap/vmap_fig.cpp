@@ -231,7 +231,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
         fig.set_points(cnv.line_bck(*l));
         // closed polyline
         if ((o->get_class() == POLYLINE) &&
-            (fig.size()>1) && (fig[0]==fig[fig.size()-1])){
+            (fig.size()>2) && (fig[0]==fig[fig.size()-1])){
           fig.resize(fig.size()-1);
           fig.close();
         }
