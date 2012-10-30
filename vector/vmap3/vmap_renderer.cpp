@@ -197,8 +197,8 @@ VMAPRenderer::render_line(int type, int col, double th, double curve_l){
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     cr->mkpath_smline(*o, 0, curve_l*lw1);
+    cr->stroke();
   }
-  cr->stroke();
   cr->restore();
 }
 
@@ -211,8 +211,8 @@ VMAPRenderer::render_points(int type, int col, double th){
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=type) continue;
     mkptpath(*o);
+    cr->stroke();
   }
-  cr->stroke();
   cr->restore();
 }
 
@@ -260,8 +260,8 @@ VMAPRenderer::render_bridge(int type, double th1, double th2, double side){
     for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
       if (o->type!=(type | zn::line_mask)) continue;
       mkbrpath1(*o);
+      cr->stroke();
     }
-    cr->stroke();
     th1+=th2;
   }
   cr->set_line_width(th2*lw1);
@@ -269,8 +269,8 @@ VMAPRenderer::render_bridge(int type, double th1, double th2, double side){
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     mkbrpath2(*o, th1, side);
+    cr->stroke();
   }
-  cr->stroke();
   cr->restore();
 }
 
@@ -308,8 +308,8 @@ VMAPRenderer::render_line_el(int type, int col, double th, double step){
         ld.move_frw(fstep);
       }
     }
+    cr->stroke();
   }
-  cr->stroke();
   cr->restore();
 }
 
@@ -340,8 +340,8 @@ VMAPRenderer::render_line_obr(int type, int col, double th){
         ld.move_frw(fstep);
       }
     }
+    cr->stroke();
   }
-  cr->stroke();
   cr->restore();
 }
 
@@ -374,8 +374,8 @@ VMAPRenderer::render_line_zab(int type, int col, double th){
         n++;
       }
     }
+    cr->stroke();
   }
-  cr->stroke();
   cr->restore();
 }
 
@@ -409,8 +409,8 @@ VMAPRenderer::render_line_val(int type, int col, double th,
         n++;
       }
     }
+    cr->stroke();
   }
-  cr->stroke();
   cr->restore();
 }
 
