@@ -9,7 +9,8 @@ SimpleViewer::SimpleViewer(GObj * o) :
     obj(o),
     origin(iPoint(0,0)),
     bgcolor(0xFF000000),
-    sc(1.0) {
+    sc(1.0),
+    on_drag(false) {
   set_name("MapsoftViewer");
   set_events (
     Gdk::BUTTON_PRESS_MASK |
