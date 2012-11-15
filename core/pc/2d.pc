@@ -2,4 +2,4 @@ Name: 2d
 Description: Mapsoft 2d library
 Requires:
 Version: 1
-Libs: -L\#core/2d -l2d
+Libs: -L'\#'core/2d -l2d

@@ -2,4 +2,4 @@ Name: img_io
 Description: Mapsoft img_io library
 Requires: geo_io geo layers loaders
 Version: 1
-Libs: -L\#core/img_io -limg_io
+Libs: -L'\#'core/img_io -limg_io

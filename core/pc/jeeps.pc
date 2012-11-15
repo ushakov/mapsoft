@@ -2,4 +2,4 @@ Name: jeeps
 Description: Mapsoft jeeps library
 Requires: libusb-1.0
 Version: 1
-Libs: -L\#core/jeeps -ljeeps
+Libs: -L'\#'core/jeeps -ljeeps

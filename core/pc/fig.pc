@@ -2,4 +2,4 @@ Name: fig
 Description: Mapsoft fig library
 Requires: utils options 2d
 Version: 1
-Libs: -L\#core/fig -lfig
+Libs: -L'\#'core/fig -lfig
