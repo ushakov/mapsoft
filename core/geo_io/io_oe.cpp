@@ -175,7 +175,7 @@ using namespace boost::spirit::classic;
 		string map_proj;
 		double proj_lat0, proj_lon0, proj_k;
 		double proj_E0, proj_N0;
-		double proj_lat1, proj_lat2, proj_hgt; // I don't know how to use these things
+		double proj_lat1, proj_lat2, proj_hgt;
                 vector<oe_mappoint> points;
                 dLine border;
 

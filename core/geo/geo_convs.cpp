@@ -67,6 +67,17 @@ mkproj(const Datum & D, const Proj & P, const Options & o){
           break;
 
         case 4: // google
+        case 5: // google
+          break;
+
+        case 6: // lcc
+          projpar << " +lat_0="  << o.get("lat1", 30.0);
+          projpar << " +lat_1="  << o.get("lat2", 60.0);
+          projpar << " +lon_0="  << o.get("lon0", 0.0);
+          projpar << " +lon_1="  << o.get("lon1", 0.0);
+          projpar << " +k_0="    << o.get("k",    1.0);
+          projpar << " +x_0="   << o.get("E0",   500000.0);
+          projpar << " +y_0="   << o.get("N0",   0.0);
           break;
 
         default:

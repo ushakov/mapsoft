@@ -117,6 +117,8 @@ void Proj::create_table(){
   names["Mercator"]            = 3 | Enum::oe_fmt;  // проверить, что в OE оно так называется!
   names["google"]              = 4 | Enum::xml_fmt; // в Ozi что-то такое должно быть...
   names["ks"]                  = 5 | Enum::xml_fmt;
+  names["lcc"]                     = 6 | Enum::xml_fmt | Enum::proj_fmt;
+  names["Lambert Conformal Conic"] = 6 | Enum::oe_fmt;
 }
 
 /***********************************************************/
