@@ -339,10 +339,10 @@ LayerMAP::make_m2ms(){
         convs::map2pt cnv1(*m, Datum("wgs84"), Proj("lonlat"));
 
         for (dLine::const_iterator i=pts.begin(); i!=pts.end(); i++){
-          dPoint p1(*i); cnv->frw(p1); // p1 - wgs point
-          dPoint p2(p1); cnv1.bck(p2); // p2 - map point
-          ref1[p2]=p1; //map->wgs
-          ref2[*i]=p1; //scr->wgs
+          dPoint p1(*i); cnv1.frw(p1); // p1 - wgs point
+          dPoint p2(p1); cnv->bck(p2); // p2 - screen point
+          ref1[*i]=p1; //map->wgs
+          ref2[p2]=p1; //scr->wgs
         }
         c.reset(new convs::map2map(m->map_proj, Proj(cnv_hint), ref1, ref2));
       }
