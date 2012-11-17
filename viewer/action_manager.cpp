@@ -34,6 +34,7 @@
 #include "actions/am_srtm_opt.h"
 #include "actions/am_pano.h"
 #include "actions/am_nav.h"
+#include "actions/am_llref.h"
 
 #include "actions/am_join_w.h"
 #include "actions/am_join_t.h"
@@ -87,6 +88,7 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(SrtmOpt,         "Misc")
     ADD_ACT(Pano,            "Misc")
     ADD_ACT(Nav,             "Misc")
+    ADD_ACT(LLRef,           "Misc")
     AddSep("Misc");
     ADD_ACT(JoinVisWpt,      "Misc")
     ADD_ACT(JoinVisTrk,      "Misc")
