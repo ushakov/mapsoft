@@ -4,6 +4,7 @@
 // Геодезические преобразования
 
 #include <vector>
+#include <string>
 #include "geo_data.h"
 #include "options/options.h"
 #include "2d/image.h"
@@ -11,6 +12,9 @@
 #include <proj_api.h>
 
 namespace convs{
+
+std::string
+mkprojstr(const Datum & D, const Proj & P, const Options & o);
 
 /// Преобразование геодезических координат.
 /// Точки преобразуются по ссылке, чтобы можно было не копируя

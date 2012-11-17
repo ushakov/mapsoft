@@ -13,8 +13,8 @@ using namespace std;
 /*******************************************************************/
 
 /// Create PROJ4 projection object from our D, P and options.
-projPJ
-mkproj(const Datum & D, const Proj & P, const Options & o){
+string
+mkprojstr(const Datum & D, const Proj & P, const Options & o){
 
     int old_enum_fmt=Enum::output_fmt;
     Enum::output_fmt = Enum::proj_fmt;
@@ -85,9 +85,15 @@ mkproj(const Datum & D, const Proj & P, const Options & o){
           exit(1);
     }
 
-    projPJ ret=pj_init_plus(projpar.str().c_str());
+    return projpar.str();
+}
+
+projPJ
+mkproj(const Datum & D, const Proj & P, const Options & o){
+    string str=mkprojstr(D,P,o);
+    projPJ ret=pj_init_plus(str.c_str());
     if (!ret){
-        std::cerr << "mkproj: Error: can't create proj: \"" << projpar.str() << "\"\n";
+        std::cerr << "mkproj: Error: can't create proj: \"" << str << "\"\n";
         exit(1);
     }
     return ret;
