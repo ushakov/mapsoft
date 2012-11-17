@@ -111,7 +111,7 @@ void Proj::create_table(){
   names["Latitude/Longitude"]  = 0 | Enum::oe_fmt;
   names["tmerc"]               = 1 | Enum::xml_fmt | Enum::proj_fmt;
   names["Transverse Mercator"] = 1 | Enum::oe_fmt;
-  names["utm"]                 = 1 | Enum::xml_fmt;
+  names["utm"]                 = 2 | Enum::xml_fmt;
   names["UTM"]                 = 2 | Enum::oe_fmt;  // проверить, что в OE оно так называется!
   names["merc"]                = 3 | Enum::xml_fmt | Enum::proj_fmt;
   names["Mercator"]            = 3 | Enum::oe_fmt;  // проверить, что в OE оно так называется!
