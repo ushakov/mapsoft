@@ -28,13 +28,14 @@
 #include "actions/am_draw_opt.h"
 
 #include "actions/am_edit_map.h"
+#include "actions/am_setref.h"
+#include "actions/am_llref.h"
 
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
 #include "actions/am_srtm_opt.h"
 #include "actions/am_pano.h"
 #include "actions/am_nav.h"
-#include "actions/am_llref.h"
 
 #include "actions/am_join_w.h"
 #include "actions/am_join_t.h"
@@ -82,13 +83,14 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(DrawOpt,         "Tracks")
 
     ADD_ACT(EditMap,         "Maps")
+    ADD_ACT(SetRef,          "Maps")
+    ADD_ACT(LLRef,           "Maps")
 
     ADD_ACT(SaveImage,       "Misc")
     ADD_ACT(ShowPt,          "Misc")
     ADD_ACT(SrtmOpt,         "Misc")
     ADD_ACT(Pano,            "Misc")
     ADD_ACT(Nav,             "Misc")
-    ADD_ACT(LLRef,           "Misc")
     AddSep("Misc");
     ADD_ACT(JoinVisWpt,      "Misc")
     ADD_ACT(JoinVisTrk,      "Misc")
