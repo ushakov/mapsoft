@@ -29,7 +29,10 @@ struct g_map : std::vector<g_refpoint>
 {
     std::string comm;
     std::string file;
+//    std::string proj_str;
     Proj   map_proj;
+    Datum  map_datum;
+
     dLine border;
     Options proj_opts;
     // these fildes used in tiled maps:

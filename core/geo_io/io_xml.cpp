@@ -204,17 +204,18 @@ namespace xml {
 		f << "  <map points=" << m.size();
                 if (m.comm != def_m.comm) f << " comm=\""   << cnv.from_utf8(m.comm) << "\"";
                 if (m.file != def_m.file) f << " file=\""   << m.file << "\"";
-                if (m.map_proj != def_m.map_proj) f << " map_proj=" << m.map_proj;
+                //if (m.proj_str  != def_m.proj_str)  f << "\n       proj_str=\"" << m.proj_str << "\"";
+                if (m.map_proj  != def_m.map_proj)  f << "\n       map_proj=\"" << m.map_proj << "\"";
+                if (m.map_datum != def_m.map_datum) f << " map_datum=\"" << m.map_datum << "\"";
+                for (Options::const_iterator i=m.proj_opts.begin(); i!=m.proj_opts.end(); i++)
+                  f << " " << i->first << "=\"" << i->second << "\"";
 
                 if (m.tfmt  != def_m.tfmt)  f << " tile_fmt=\""   << m.tfmt << "\"";
                 if (m.tsize != def_m.tsize) f << " tile_size=\""  << m.tsize << "\"";
                 if (m.tswap != def_m.tswap) f << " tile_swapy=\"" << m.tswap << "\"";
 
-                for (Options::const_iterator i=m.proj_opts.begin(); i!=m.proj_opts.end(); i++)
-                  f << " " << i->first << "=\"" << i->second << "\"";
-
 		if (m.border.size()!=0){
-			f << " border=\"";
+			f << "\n       border=\"";
 			for (int i = 0; i<m.border.size(); i++){
 				if (i!=0) f << ",";
 				f << m.border[i].x << "," << m.border[i].y;

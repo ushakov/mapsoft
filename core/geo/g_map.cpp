@@ -63,6 +63,7 @@ Options g_map::to_options () const {
     opt.put("comm",      comm);
     opt.put("file",      file);
     opt.put("map_proj",  map_proj);
+    opt.put("map_datum", map_datum);
     opt.put("border",    border);
     opt.put("tile_size", tsize);
     opt.put("tile_fmt",  tfmt);
@@ -76,6 +77,7 @@ void g_map::parse_from_options (Options const & opt){
     comm     = opt.get("comm",     comm);
     file     = opt.get("file",     file);
     map_proj = opt.get("map_proj", map_proj);
+    map_datum= opt.get("map_datum",map_datum);
     border   = opt.get("border",   border);
     tsize    = opt.get("tile_size", tsize);
     tfmt     = opt.get("tile_fmt",  tfmt);
@@ -90,12 +92,15 @@ void g_map::parse_from_options (Options const & opt){
     if (opt.exists("lon0")) proj_opts.put("lon0", opt.get<string>("lon0"));
     if (opt.exists("lat0")) proj_opts.put("lat0", opt.get<string>("lat0"));
     if (opt.exists("lat1")) proj_opts.put("lat1", opt.get<string>("lat1"));
-    if (opt.exists("E0")) proj_opts.put("E0", opt.get<string>("E0"));
-    if (opt.exists("N0")) proj_opts.put("N0", opt.get<string>("N0"));
+    if (opt.exists("lat2")) proj_opts.put("lat2", opt.get<string>("lat2"));
+    if (opt.exists("E0"))   proj_opts.put("E0", opt.get<string>("E0"));
+    if (opt.exists("N0"))   proj_opts.put("N0", opt.get<string>("N0"));
+    if (opt.exists("hgt"))  proj_opts.put("hgt", opt.get<string>("hgt"));
+    if (opt.exists("k"))    proj_opts.put("k", opt.get<string>("k"));
 
     const string used[] = {
-      "comm", "file", "map_proj", "border", "points", "prefix",
-      "tile_size", "tile_fmt", "tile_swapy", "lon0", "lat0" , "E0", "N0", ""};
+      "comm", "file", "map_datum", "map_proj", "border", "points", "prefix",
+      "tile_size", "tile_fmt", "tile_swapy", "lon0", "lat0" , "E0", "N0", "lat1", "lat2", "k", "hgt", ""};
     opt.warn_unused(used);
 }
 

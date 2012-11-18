@@ -195,25 +195,28 @@ using namespace boost::spirit::classic;
 			    ret.file=prefix+file;
 			else ret.file=file;
 			ret.map_proj=Proj(map_proj);
+                        ret.map_datum = Datum(datum);
 
                         Options opts;
-                        opts.put("lat0", proj_lat0);
-                        opts.put("lat1", proj_lat1);
-                        opts.put("lat2", proj_lat2);
-                        opts.put("hgt",  proj_hgt);
-                        opts.put("lon0", proj_lon0);
-                        opts.put("k",    proj_k);
-                        opts.put("E0",   proj_E0);
-                        opts.put("N0",   proj_N0);
+                        if(ret.map_proj!=Proj("lonlat")){
+                          if (proj_lat0!=0) opts.put("lat0", proj_lat0);
+                          if (proj_lat1!=0) opts.put("lat1", proj_lat1);
+                          if (proj_lat2!=0) opts.put("lat2", proj_lat2);
+                          if (proj_hgt!=0)  opts.put("hgt",  proj_hgt);
+                          if (proj_lon0!=0) opts.put("lon0", proj_lon0);
+                          if (proj_k!=1)    opts.put("k",    proj_k);
+                          if (proj_E0!=0)   opts.put("E0",   proj_E0);
+                          if (proj_N0!=0)   opts.put("N0",   proj_N0);
+                        }
 
-                        ret.proj_opts=opts;
+                        ret.proj_opts = opts;
+                        //ret.proj_str = convs::mkprojstr(ret.map_datum, ret.map_proj, ret.proj_opts);
 
 			convs::pt2pt cnv1(Datum(datum), Proj("lonlat"), Options(),
                                           Datum("wgs84"), Proj("lonlat"), Options());
 
 			convs::pt2pt cnv2(Datum(datum), Proj(map_proj), opts,
                                           Datum("wgs84"), Proj("lonlat"), Options());
-
 
                         // convert points
                         vector<oe_mappoint>::const_iterator i,
@@ -543,6 +546,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 		  << cnv.from_utf8(m.comm) << "\r\n"
 		  << m.file << "\r\n"
 		  << "1 ,Map Code,\r\n"
+		  /// TODO: set correct datum (point conversion needed!)
 		  << "WGS 84,,   0.0000,   0.0000,WGS 84\r\n"
 		  << "Reserved 1\r\n"
 		  << "Reserved 2\r\n" 
@@ -576,18 +580,29 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 			  << (lon<0? 'W':'E') << ','
 			  << " grid,   ,           ,           ,N\r\n";
 		}
-		if (m.map_proj == Proj("tmerc")){
-		  double lon0 = opt.get("lon0", 1e90);
+
+		if (m.map_proj == Proj("lonlat")){
+                  f << "Projection Setup,,,,,,,,,,\r\n";
+                }
+                else {
+		  double lon0 = m.proj_opts.get("lon0", 1e90);
                   if (lon0==1e90){
                     lon0=0;
                     for (int i=0; i<m.size(); i++) lon0+=m[i].x;
 		    if (m.size()>1) lon0/=m.size();
                     lon0 = floor( lon0/6.0 ) * 6 + 3;
                   }
-		  f << "Projection Setup,     0.000000000, "<< lon0
-                    << ", 1.000000000,       500000.00,            0.00,,,,,\r\n";
-		} 
-                else f << "Projection Setup,,,,,,,,,,\r\n";
+		  f << "Projection Setup, "
+		    << m.proj_opts.get("lat0", 0.0) << ","
+		    << lon0 << ","
+		    << m.proj_opts.get("k", 1.0) << ","
+		    << m.proj_opts.get("E0", 500000.0) << ","
+		    << m.proj_opts.get("N0", 0.0) << ","
+		    << m.proj_opts.get("lat1", 0.0) << ","
+		    << m.proj_opts.get("lat2", 0.0) << ","
+		    << m.proj_opts.get("hgt", 0.0) << ",,\r\n";
+		}
+
 		f << "Map Feature = MF ; Map Comment = MC     These follow if they exist\r\n"
 		  << "Track File = TF      These follow if they exist\r\n"
 		  << "Moving Map Parameters = MM?    These follow if they exist\r\n";
