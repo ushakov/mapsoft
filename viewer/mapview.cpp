@@ -438,7 +438,7 @@ Mapview::get_world(bool visible){
 void
 Mapview::set_ref(const g_map & ref){
   if (ref.size()==0) return;
-  cnv = convs::map2pt(ref, Datum("wgs84"), Proj("lonlat"), Options());
+  cnv = convs::map2pt(ref, Datum("wgs84"), Proj("lonlat"), convs::map_popts(ref));
   workplane.set_cnv(&cnv, ref.map_proj.val);
   have_reference=true;
   cnv_proj = ref.map_proj;

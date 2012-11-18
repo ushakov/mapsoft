@@ -71,10 +71,9 @@ mkprojstr(const Datum & D, const Proj & P, const Options & o){
           break;
 
         case 6: // lcc
-          projpar << " +lat_0="  << o.get("lat1", 30.0);
-          projpar << " +lat_1="  << o.get("lat2", 60.0);
+          projpar << " +lat_1="  << o.get("lat1", 30.0);
+          projpar << " +lat_2="  << o.get("lat2", 60.0);
           projpar << " +lon_0="  << o.get("lon0", 0.0);
-          projpar << " +lon_1="  << o.get("lon1", 0.0);
           projpar << " +k_0="    << o.get("k",    1.0);
           projpar << " +x_0="   << o.get("E0",   500000.0);
           projpar << " +y_0="   << o.get("N0",   0.0);
@@ -358,7 +357,7 @@ map_popts(const g_map & M, Options O){
     break;
   case 5:        // ks
     break;
-  case 6:        // cea
+  case 6:        // lcc
     break;
   default:
     std::cerr << "unknown map proj: " << M.map_proj << "\n";

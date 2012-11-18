@@ -89,6 +89,7 @@ void g_map::parse_from_options (Options const & opt){
 
     if (opt.exists("lon0")) proj_opts.put("lon0", opt.get<string>("lon0"));
     if (opt.exists("lat0")) proj_opts.put("lat0", opt.get<string>("lat0"));
+    if (opt.exists("lat1")) proj_opts.put("lat1", opt.get<string>("lat1"));
     if (opt.exists("E0")) proj_opts.put("E0", opt.get<string>("E0"));
     if (opt.exists("N0")) proj_opts.put("N0", opt.get<string>("N0"));
 
@@ -154,7 +155,7 @@ void g_map::ensure_border() {
 dRect g_map::range() const {
   // try border
   if (border.size()>2){
-    convs::map2pt cnv(*this, Datum("WGS84"), Proj("lonlat"));
+    convs::map2pt cnv(*this, Datum("WGS84"), Proj("lonlat"), proj_opts);
     return cnv.line_frw(border).range();
   }
   // else use refpoints

@@ -206,11 +206,14 @@ using namespace boost::spirit::classic;
                         opts.put("E0",   proj_E0);
                         opts.put("N0",   proj_N0);
 
+                        ret.proj_opts=opts;
+
 			convs::pt2pt cnv1(Datum(datum), Proj("lonlat"), Options(),
                                           Datum("wgs84"), Proj("lonlat"), Options());
 
 			convs::pt2pt cnv2(Datum(datum), Proj(map_proj), opts,
                                           Datum("wgs84"), Proj("lonlat"), Options());
+
 
                         // convert points
                         vector<oe_mappoint>::const_iterator i,
@@ -602,7 +605,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
                                   << int(it->x) << "," << int(it->y) << "\r\n"; 
 			}
 			n=0;
-			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"), Options());
+			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"), convs::map_popts(m));
 			f.precision(8);
 			for (dLine::const_iterator it =m.border.begin();
 				 it!=m.border.end(); it++){
