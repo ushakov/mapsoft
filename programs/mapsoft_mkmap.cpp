@@ -93,6 +93,7 @@ main(int argc, char **argv){
     map.file = key + '.' + ext;
     map.comm = key + ' ' + comm;
     map.map_proj=Proj("tmerc");
+    map.proj_opts.put("lon0", convs::lon2lon0(r.CNT().x));
 
     dPoint p1 = r.TLC();
     dPoint p2 = r.BRC();

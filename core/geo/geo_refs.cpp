@@ -48,6 +48,7 @@ mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap){
   }
 
   ref.map_proj=Proj("tmerc");
+  ref.proj_opts.put("lon0", convs::lon2lon0(refs.range().CNT().x));
 
   // Now we need to convert border to map units.
   // We can convert them by the same way as refs, but
@@ -280,6 +281,8 @@ mk_ref(Options & o){
     exit(1);
   }
   ret.map_proj=proj;
+  ret.map_datum=datum;
+  ret.proj_opts=proj_opts;
 
   // step 2: calculate conversion coeff between map proj units and
   // output map points
