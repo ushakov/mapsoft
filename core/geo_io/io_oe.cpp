@@ -620,7 +620,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
                                   << int(it->x) << "," << int(it->y) << "\r\n"; 
 			}
 			n=0;
-			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"), convs::map_popts(m));
+			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"), m.proj_opts);
 			f.precision(8);
 			for (dLine::const_iterator it =m.border.begin();
 				 it!=m.border.end(); it++){

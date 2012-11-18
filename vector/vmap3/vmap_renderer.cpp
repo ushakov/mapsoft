@@ -537,7 +537,7 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
     cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
   }
 
-  convs::map2pt cnv(ref, Datum("pulkovo"), Proj("tmerc"), convs::map_popts(ref));
+  convs::map2pt cnv(ref, Datum("pulkovo"), Proj("tmerc"), ref.proj_opts);
 
   dRect rng_m = cnv.bb_frw(ref.border.range(), 1);
 

@@ -15,6 +15,7 @@
 #include "options/options.h"
 #include "utils/iconv_utils.h"
 #include "utils/err.h"
+#include "geo/geo_convs.h"
 
 namespace xml {
 
@@ -108,13 +109,18 @@ namespace xml {
 		for (vector<g_track>::iterator l=ret.trks.begin(); l!=ret.trks.end(); l++){
 		  l->comm = cnv.to_utf8(l->comm);
 		}
-		// convert map comments to UTF-8
+		// convert map comments to UTF-8, add lon0 if needed
 		for (vector<g_map_list>::iterator ll=ret.maps.begin(); ll!=ret.maps.end(); ll++){
 		  ll->comm = cnv.to_utf8(ll->comm);
 		  for (vector<g_map>::iterator l=ll->begin(); l!=ll->end(); l++){
 		    l->comm = cnv.to_utf8(l->comm);
+                    // old tmerc xml files does not have lon0 option!
+                    if (l->map_proj==Proj("tmerc") && !l->proj_opts.exists("lon0"))
+                      l->proj_opts.put("lon0", convs::map_lon0(*l));
 		  }
 		}
+
+
 
                 world.wpts.insert(world.wpts.end(), ret.wpts.begin(), ret.wpts.end());
                 world.trks.insert(world.trks.end(), ret.trks.begin(), ret.trks.end());

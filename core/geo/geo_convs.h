@@ -111,9 +111,6 @@ private:
 };
 
 
-/// Autodetect map projection options (lon0) if needed.
-Options map_popts(const g_map & M, Options O = Options());
-
 /// Make some reasonable reference for geodata.
 /// тип проекции -- по первой карте, или lonlat, если карт нет
 /// осевой меридиан -- 6n+3, наиболее близкий к середине диапазона карт
@@ -121,6 +118,8 @@ Options map_popts(const g_map & M, Options O = Options());
 /// или 1/3600 градуса на точку, если карт нет
 g_map mymap(const g_map_list      & maplist);
 g_map mymap(const geo_data        & world); //tmp
+
+double map_lon0(const g_map &M);
 
 /// Get map scale in projection P units per point
 double map_mpp(const g_map &map, Proj P);

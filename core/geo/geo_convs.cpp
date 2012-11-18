@@ -168,7 +168,7 @@ map2pt::map2pt(const g_map & sM,
 // При этом в какой СК нарисована карта и какие параметры проекции
 // используются - нам не важно - это станет частью лин.преобразования!
 
-  // projection for reference points (coords in radians!)
+  // proj for reference points (coords in radians!)
   pr_ref = mkproj(Datum("WGS84"), Proj("lonlat"), Options()); // for ref points
 
   // destination projection
@@ -178,7 +178,7 @@ map2pt::map2pt(const g_map & sM,
   if (sM.map_proj == dP)
     pr_map = pr_dst;
   else
-    pr_map = mkproj(dD, sM.map_proj, map_popts(sM));
+    pr_map = mkproj(dD, sM.map_proj, sM.proj_opts);
 
   if (pj_is_latlong(pr_dst)) sc_dst=180.0/M_PI;
 
@@ -297,13 +297,13 @@ map2map::map2map(const Proj & sP, const Proj & dP,
 }
 
 map2map::map2map(const g_map & sM, const g_map & dM):
-     cnv2(Datum("wgs84"), sM.map_proj, map_popts(sM),
-          Datum("wgs84"), dM.map_proj, map_popts(dM)){
+     cnv2(Datum("wgs84"), sM.map_proj, sM.proj_opts,
+          Datum("wgs84"), dM.map_proj, dM.proj_opts){
 
   convs::pt2pt c1(Datum("wgs84"), Proj("lonlat"), Options(),
-                  Datum("wgs84"), sM.map_proj, map_popts(sM));
+                  Datum("wgs84"), sM.map_proj, sM.proj_opts);
   convs::pt2pt c2(Datum("wgs84"), Proj("lonlat"), Options(),
-                  Datum("wgs84"), dM.map_proj, map_popts(dM));
+                  Datum("wgs84"), dM.map_proj, dM.proj_opts);
   std::map<dPoint, dPoint> ref1, ref2;
   g_map::const_iterator i;
   for (i=sM.begin(); i!=sM.end(); i++){
@@ -340,33 +340,6 @@ double map_lon0(const g_map &M){
   return lon2lon0( rg.x + rg.w/rr.w * (br.CNT().x-rr.x) );
 }
 
-Options
-map_popts(const g_map & M, Options O){
-  O.insert(M.proj_opts.begin(), M.proj_opts.end());
-  switch (M.map_proj.val){
-  case 0: break; //lonlat
-  case 1:        //tmerc
-    if (O.count("lon0")==0) O.put("lon0", map_lon0(M));
-    break;
-  case 2:        //UTM
-    std::cerr << "utm map is not supported. fixme!\n";
-    break;
-  case 3:        // merc
-    break;
-  case 4:        // google
-    break;
-  case 5:        // ks
-    break;
-  case 6:        // lcc
-    break;
-  default:
-    std::cerr << "unknown map proj: " << M.map_proj << "\n";
-    break;
-  }
-  return O;
-}
-
-
 g_map
 mymap(const g_map_list & maplist){
   g_map ret;
@@ -376,7 +349,7 @@ mymap(const g_map_list & maplist){
   ret.map_proj=Proj("lonlat");
   if (maplist.size()>0){
     ret.map_proj=maplist[0].map_proj;
-    O=map_popts(maplist[0]);
+    ret.proj_opts=maplist[0].proj_opts;
   }
 
   // set scale from map with minimal scale
@@ -390,7 +363,7 @@ mymap(const g_map_list & maplist){
   if ((mpp>1e90)||(mpp<1e-90)) mpp=1/3600.0;
 
   // create refpoints
-  pt2pt cnv(Datum("WGS84"), ret.map_proj, O, Datum("WGS84"), Proj("lonlat"), O);
+  pt2pt cnv(Datum("WGS84"), ret.map_proj, ret.proj_opts, Datum("WGS84"), Proj("lonlat"), Options());
   dPoint p(maplist.range().CNT()); cnv.bck(p);
   dPoint p1=p+dPoint(mpp*1000,0); cnv.frw(p1);
   dPoint p2=p+dPoint(0,mpp*1000); cnv.frw(p2);
@@ -423,7 +396,7 @@ map_mpp(const g_map &map, Proj P){
   if (map.size()<3) return 0;
   double l1=0, l2=0;
   g_map map1=map; map1.map_proj=P;
-  convs::pt2pt c(Datum("wgs84"), P, map_popts(map1), Datum("wgs84"), Proj("lonlat"), Options());
+  convs::pt2pt c(Datum("wgs84"), P, map1.proj_opts, Datum("wgs84"), Proj("lonlat"), Options());
   for (int i=1; i<map.size();i++){
     dPoint p1(map[i-1].x,map[i-1].y);
     dPoint p2(map[i].x,  map[i].y);
