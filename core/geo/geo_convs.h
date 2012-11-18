@@ -29,13 +29,13 @@ struct pt2pt : Conv{
 
   void frw(dPoint & p) const{
     if (sc_src!=1.0) p/=sc_src;  // this if increases speed...
-    pj_transform(pr_src, pr_dst, 1, 1, &p.x, &p.y, NULL);
+    if (pr_src!=pr_dst) pj_transform(pr_src, pr_dst, 1, 1, &p.x, &p.y, NULL);
     if (sc_dst!=1.0) p*=sc_dst;
   }
 
   void bck(dPoint & p) const{
     if (sc_dst!=1.0) p/=sc_dst;
-    pj_transform(pr_dst, pr_src, 1, 1, &p.x, &p.y, NULL);
+    if (pr_src!=pr_dst) pj_transform(pr_dst, pr_src, 1, 1, &p.x, &p.y, NULL);
     if (sc_src!=1.0) p*=sc_src;
   }
 

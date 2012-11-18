@@ -103,7 +103,11 @@ mkproj(const Datum & D, const Proj & P, const Options & o){
 pt2pt::pt2pt(const Datum & sD, const Proj & sP, const Options & sPo,
              const Datum & dD, const Proj & dP, const Options & dPo){
   pr_src = mkproj(sD, sP, sPo);
-  pr_dst = mkproj(dD, dP, dPo);
+
+  if (sD==dD && sP==dP && sPo ==dPo)
+    pr_dst=pr_src;
+  else
+    pr_dst = mkproj(dD, dP, dPo);
 
   if (pj_is_latlong(pr_src)) sc_src=180.0/M_PI;
   if (pj_is_latlong(pr_dst)) sc_dst=180.0/M_PI;
@@ -143,8 +147,8 @@ pt2pt::destroy(void){
   (*refcounter)--;
   if (*refcounter<=0){
     delete refcounter;
+    if (pr_dst != pr_src) pj_free(pr_dst);
     pj_free(pr_src);
-    pj_free(pr_dst);
   }
 }
 
@@ -153,45 +157,28 @@ pt2pt::destroy(void){
 map2pt::map2pt(const g_map & sM,
                const Datum & dD, const Proj & dP, const Options & dPo){
 
-// Считается, что преобразование СК и замена осевого меридиана - линейны в пределах карты.
-// Проекция карты берется из sM. Системы координат и параметры проекции
-// (вроде lon0) берутся из dD и dPo.
-//
-// Практическое следствие: если мы хотим работать с к-л определенным осевым
-// меридианом - мы должны запихать его в dPo! (даже, если мы преобразуем из 
-// карты с lon0 в lonlat!)
-// преобразовать из карты с одним ос.м. в проекцию с другим - нельзя 
-// (у нас же все линейно :)), надо использовать два последовательных преобразования...
-
-// у нас точки привязки в lon-lat wgs84, карта нарисована в некоторой другой проекции
-// а получить мы хотим третью проекцию.
-// При этом в какой СК нарисована карта и какие параметры проекции
-// используются - нам не важно - это станет частью лин.преобразования!
-
   // proj for reference points (coords in radians!)
   pr_ref = mkproj(Datum("WGS84"), Proj("lonlat"), Options()); // for ref points
 
   // destination projection
   pr_dst = mkproj(dD, dP, dPo);
 
-  // "map" projection
-  if (sM.map_proj == dP)
+  // map projection
+  if (sM.map_datum==dD && sM.map_proj==dP && sM.proj_opts ==dPo)
     pr_map = pr_dst;
   else
-    pr_map = mkproj(dD, sM.map_proj, sM.proj_opts);
+    pr_map = mkproj(sM.map_datum, sM.map_proj, sM.proj_opts);
 
   if (pj_is_latlong(pr_dst)) sc_dst=180.0/M_PI;
 
   refcounter   = new int;
   *refcounter  = 1;
 
-  // А теперь следите за руками...
-  // Преобразуем (c подменой параметров) точки привязки в те координаты,
-  // в которых карта линейна и найдем соответствующее линейное преобразование.
+  // convert refpoints into map coords and find linear conversion
+  // to raster points.
   map<dPoint,dPoint> points;
   for (g_map::const_iterator i=sM.begin(); i!=sM.end(); i++){
-    dPoint pr(i->xr, i->yr), pl(*i);
-    if (pj_is_latlong(pr_ref)) pl*=M_PI/180.0;
+    dPoint pr(i->xr, i->yr), pl(*i * M_PI/180.0);
     pj_transform(pr_ref, pr_map, 1, 1, &pl.x, &pl.y, NULL);
     points[pr] = pl;
   }

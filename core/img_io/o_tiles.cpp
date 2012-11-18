@@ -166,7 +166,7 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
     dRect zoom_geom = geom;
     zoom_ref /= scale;
     zoom_geom /= scale;
-    convs::map2pt zoom_cnv(zoom_ref, Datum("wgs84"), Proj("lonlat"), Options());
+    convs::map2pt zoom_cnv(zoom_ref, Datum("wgs84"), Proj("lonlat"));
 
     // tiles is in tile coordinates in dest projection
     iRect tiles = tile_covering(zoom_geom, 256);

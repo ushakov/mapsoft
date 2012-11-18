@@ -14,8 +14,7 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
   lw1 = dpi/105.0; // standard line width (1/105in?)
   fs1 = dpi/89.0;  // standard font size
 
-  convs::map2pt cnv = convs::map2pt(
-    ref, Datum("WGS84"), Proj("lonlat"), Options());
+  convs::map2pt cnv = convs::map2pt(ref, Datum("WGS84"), Proj("lonlat"));
 
   // create Cairo surface and context
   cr.reset_surface(w, h);

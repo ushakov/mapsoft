@@ -160,7 +160,7 @@ void g_map::ensure_border() {
 dRect g_map::range() const {
   // try border
   if (border.size()>2){
-    convs::map2pt cnv(*this, Datum("WGS84"), Proj("lonlat"), proj_opts);
+    convs::map2pt cnv(*this, Datum("WGS84"), Proj("lonlat"));
     return cnv.line_frw(border).range();
   }
   // else use refpoints

@@ -130,7 +130,7 @@ main(int argc, char** argv){
   ref.border.push_back(p3);
   ref.border.push_back(p4);
 
-  convs::map2pt cnv_f(ref, Datum("wgs84"), Proj("lonlat"), O);
+  convs::map2pt cnv_f(ref, Datum("wgs84"), Proj("lonlat"));
   ref.border = cnv_f.line_bck(border_ll);
 
   if (dofig){
