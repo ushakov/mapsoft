@@ -69,8 +69,7 @@ int main (int argc, char **argv) {
 
   Options geo_opts;
   geo_opts.put("lon0", lon0);
-  convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), geo_opts,
-                    Datum("wgs84"), Proj("lonlat"), Options());
+  convs::pt2wgs pc(Datum("wgs84"), Proj("tmerc"), geo_opts);
 
   double speed=0, dist = 0, Dist = 0;
   queue<pair<double, double> > timedist;

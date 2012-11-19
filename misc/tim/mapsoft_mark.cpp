@@ -85,7 +85,7 @@ void usage(const char *fname, bool pod=false){
 
 
 void add(g_waypoint_list &list, dPoint &tp, double dst, Options &opts) {
-  static convs::pt2pt tolonlat = convs::pt2pt(Datum("wgs84"), Proj("lonlat"), opts, Datum("wgs84"), Proj("tmerc"), opts);
+  convs::pt2wgs tolonlat(Datum("wgs84"), Proj("tmerc"), opts);
 
   ostringstream dst_str;
   dst_str << dst;
@@ -93,7 +93,7 @@ void add(g_waypoint_list &list, dPoint &tp, double dst, Options &opts) {
   wp.x = tp.x;
   wp.y = tp.y;
   wp.name = dst_str.str();
-  tolonlat.bck(wp);
+  tolonlat.frw(wp);
 
   list.push_back(wp);
 }
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
   for(t=world.trks.begin(); t!=world.trks.end(); t++) {
     g_waypoint_list wp_list;
 
-    convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), opts, Datum("wgs84"), Proj("lonlat"), opts);
+    convs::pt2wgs pc(Datum("wgs84"), Proj("tmerc"), opts);
     double len = 0; 
     double active_len = 0;
     time_t active_time = 0;

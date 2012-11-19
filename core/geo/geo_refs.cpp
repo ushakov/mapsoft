@@ -24,14 +24,13 @@ mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap){
   refs = generalize(refs, -1, 5);
   refs.resize(4);
 
-  // Create lonlat -> tmerc conversion with wanted lon0,
+  // Create tmerc->lonlat tmerc conversion with wanted lon0,
   // convert refs to our map coordinates.
   Options PrO;
   PrO.put<double>("lon0", convs::lon2lon0(points.center().x));
-  convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), PrO,
-                   Datum("wgs84"), Proj("tmerc"), PrO);
+  convs::pt2wgs cnv(Datum("wgs84"), Proj("tmerc"), PrO);
   dLine refs_c(refs);
-  cnv.line_frw_p2p(refs_c);
+  cnv.line_bck_p2p(refs_c);
   refs_c *= u_per_m; // to out units
   refs_c -= refs_c.range().TLC();
   double h = refs_c.range().h;
@@ -56,7 +55,7 @@ mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap){
   // So we constract map2pt conversion from our map.
 
   // Set map border
-  convs::map2pt brd_cnv(ref, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs brd_cnv(ref);
   ref.border = brd_cnv.line_bck(points);
   ref.border.push_back(*ref.border.begin()); // to assure last=first
   ref.border = generalize(ref.border, 1000, -1); // 1 unit accuracy
@@ -192,9 +191,6 @@ mk_ref(Options & o){
     proj = o.get<Proj>("proj", Proj("tmerc"));
     proj_opts.put<double>("lon0", convs::lon2lon0(ret.border.range().CNT().x));
 
-    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
-                     Datum("wgs84"), proj, proj_opts);
-
     if (verbose) cerr << "mk_ref: brd = " << ret.border << "\n";
     refs = generalize(ret.border, -1, 5); // 5pt
     refs.resize(4);
@@ -304,10 +300,9 @@ mk_ref(Options & o){
 
   // step 3:  setting refpoints
 
-  convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
-                   datum, proj, proj_opts);
+  convs::pt2wgs cnv(datum, proj, proj_opts);
   dLine refs_r(refs);
-  cnv.line_frw_p2p(refs_r);
+  cnv.line_bck_p2p(refs_r);
 
   refs_r *= k; // to out units
   refs_r -= refs_r.range().TLC();
@@ -323,7 +318,7 @@ mk_ref(Options & o){
     ret.push_back(g_refpoint(refs[i], refs_r[i]));
 
   // step 3:  converting border
-  convs::map2pt brd_cnv(ret, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs brd_cnv(ret);
   ret.border = brd_cnv.line_bck(ret.border);
   ret.border = generalize(ret.border, 1, -1); // 1 unit accuracy
   ret.border.resize(ret.border.size()-1);

@@ -46,6 +46,11 @@ private:
   int * refcounter;
 };
 
+struct pt2wgs : pt2pt{
+    pt2wgs(const Datum & sD, const Proj & sP, const Options & sPo = Options()):
+      pt2pt(sD, sP, sPo, Datum("wgs84"), Proj("lonlat"), Options()) {}
+};
+
 /// Преобразование из точки карты в геодезическую точку.
 struct map2pt : Conv{
   map2pt(const g_map & sM,
@@ -77,6 +82,11 @@ private:
   void copy(const map2pt & other);
   void destroy(void);
   int * refcounter;
+};
+
+struct map2wgs : map2pt{
+  map2wgs(const g_map & sM) :
+    map2pt(sM, Datum("wgs84"), Proj("lonlat"), Options()){}
 };
 
 /// map->map transformation.

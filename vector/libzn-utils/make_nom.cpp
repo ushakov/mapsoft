@@ -76,7 +76,7 @@ main(int argc, char** argv){
 
   // Наш прямоугольник в СК Пулково!
 
-  convs::pt2pt c0(Datum("pulkovo"), Proj("lonlat"), Options(),Datum("wgs84"),Proj("lonlat"), Options());
+  convs::pt2wgs c0(Datum("pulkovo"), Proj("lonlat"));
   dPoint p01(r0.TLC()), p02(r0.BRC());
   c0.frw(p01); c0.frw(p02);
   dRect r = dRect(p01, p02);
@@ -84,7 +84,7 @@ main(int argc, char** argv){
   dLine border_ll = rect2line(r);
 
 
-  convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), O, Datum("wgs84"), Proj("lonlat"), Options());
+  convs::pt2wgs cnv(Datum("pulkovo"), Proj("tmerc"), O);
 
 //  dLine border_fig = cnv.line_frw(border_ll) * fig::cm2fig*scale*100;
 
@@ -130,7 +130,7 @@ main(int argc, char** argv){
   ref.border.push_back(p3);
   ref.border.push_back(p4);
 
-  convs::map2pt cnv_f(ref, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv_f(ref);
   ref.border = cnv_f.line_bck(border_ll);
 
   if (dofig){

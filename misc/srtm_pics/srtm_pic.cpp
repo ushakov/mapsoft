@@ -77,8 +77,7 @@ try{
 
     Options O;
     O.put<double>("lon0", lon0);
-    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
-                     Datum("pulkovo"), Proj("tmerc"), O);
+    convs::pt2wgs cnv(Datum("pulkovo"), Proj("tmerc"), O);
 
     g_map m;
     m.comm = "made by mapsoft_srtm_hor";
@@ -96,15 +95,15 @@ try{
 
         dPoint p_tmerc((double)i/k + X1, (double)j/k + Y1);
 	dPoint p  = p_tmerc;
-        cnv.bck(p);
+        cnv.frw(p);
 
         int h = s.GETH(p, interp);
         dPoint px = p_tmerc - dPoint(1/k, 0);
-        cnv.bck(px);
+        cnv.frw(px);
         int hx=s.GETH(px, interp);
 
         dPoint py = p_tmerc - dPoint(0, 1/k);
-        cnv.bck(py);
+        cnv.frw(py);
         int hy=s.GETH(py, interp);
 
         int c=0xFFFFFF;

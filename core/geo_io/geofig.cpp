@@ -100,8 +100,7 @@ set_ref(fig_world & w, const g_map & m, const Options & O){
   string pproj=O.get("proj", string("lonlat"));
   string pdatum=O.get<string>("datum", "wgs84");
 
-  convs::pt2pt cnv(Datum(pdatum), Proj(pproj), O,
-                   Datum("wgs84"), Proj("lonlat"), O);
+  convs::pt2wgs cnv(Datum(pdatum), Proj(pproj), O);
 
   for (int n=0; n<m.size(); n++){
     fig::fig_object o = fig::make_object("2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 *");
@@ -127,7 +126,7 @@ set_ref(fig_world & w, const g_map & m, const Options & O){
 void
 get_wpts(const fig_world & w, const g_map & m, geo_data & d){
   // сделаем привязку
-  convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv(m);
 
   fig_world::const_iterator i;
 
@@ -166,7 +165,7 @@ get_wpts(const fig_world & w, const g_map & m, geo_data & d){
 
 void
 get_trks(const fig_world & w, const g_map & m, geo_data & d){
-  convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv(m);
 
   fig_world::const_iterator i;
   for (i=w.begin();i!=w.end();i++){
@@ -203,7 +202,7 @@ get_trks(const fig_world & w, const g_map & m, geo_data & d){
 
 void
 get_maps(const fig_world & w, const g_map & m, geo_data & d){
-  convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv(m);
   fig_world::const_iterator i;
   g_map_list maplist;
 
@@ -328,7 +327,7 @@ void
 put_wpts(fig_world & F, const g_map & m, const geo_data & world){
   vector<g_waypoint_list>::const_iterator wl;
   vector<g_waypoint>::const_iterator w;
-  convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv(m);
   Enum::output_fmt=Enum::xml_fmt;
 
   for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
@@ -360,7 +359,7 @@ void
 put_trks(fig_world & F, const g_map & m, const geo_data & world){
   vector<g_track>::const_iterator tl;
   vector<g_trackpoint>::const_iterator t;
-  convs::map2pt cnv(m, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv(m);
   Enum::output_fmt=Enum::xml_fmt;
   g_track def;
 

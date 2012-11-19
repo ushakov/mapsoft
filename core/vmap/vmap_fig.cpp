@@ -27,7 +27,7 @@ read(const fig::fig_world & F){
   if (ref.size()<3){
     std::cerr << "ERR: not a GEO-fig\n"; return ret;
   }
-  convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv(ref);
 
   // get map data
   ret.rscale = 100 * convs::map_mpp(ref, Proj("tmerc")) * fig::cm2fig;
@@ -163,7 +163,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
     fig::rem_ref(F);
     fig::set_ref(F, ref, Options());
   }
-  convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv(ref);
 
   // cleanup fig if not in append mode
   if (!append){

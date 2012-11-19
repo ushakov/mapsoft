@@ -63,8 +63,8 @@ CoordBox::set_ll(const dPoint &p){
   dPoint pc(p);
   Options O;
   O.put("lon0", convs::lon2lon0(p.x));
-  convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(), datum, proj, O);
-  cnv.frw(pc);
+  convs::pt2wgs cnv(datum, proj, O);
+  cnv.bck(pc);
   int prec=6;
   if (proj == Proj("tmerc")){
     pc.x+= convs::lon2pref(p.x)*1e6;
@@ -97,9 +97,8 @@ CoordBox::get_ll(){
     O.put("lon0", convs::lon_pref2lon0(ret.x));
     ret.x = convs::lon_delprefix(ret.x);
   }
-  convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
-    datum, proj, O);
-  cnv.bck(ret);
+  convs::pt2wgs cnv(datum, proj, O);
+  cnv.frw(ret);
   return ret;
 }
 

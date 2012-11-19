@@ -38,9 +38,8 @@ void g_refpoint::parse_from_options (Options const & opt){
     y  = opt.get("lat", y);
     xr = opt.get("xr", xr);
     yr = opt.get("yr", yr);
-    convs::pt2pt c(Datum(opt.get("datum", string("wgs84"))),
-                   Proj(opt.get("proj", string("lonlat"))), opt,
-                   Datum("wgs84"), Proj("lonlat"), opt);
+    convs::pt2wgs c(Datum(opt.get("datum", string("wgs84"))),
+                   Proj(opt.get("proj", string("lonlat"))), opt);
     c.frw(*this);
 
     const string used[] = {

@@ -51,8 +51,7 @@ generalize(g_track * line, double e, int np, const Options & O){
 
   Options o;
   o.put("lon0", convs::lon2lon0((*line)[0].x));
-  convs::pt2pt cnv(Datum("wgs84"), Proj("tmerc"), o,
-                       Datum("wgs84"), Proj("lonlat"), Options());
+  convs::pt2wgs cnv(Datum("wgs84"), Proj("tmerc"), o);
 
   dLine gk_line=(dLine)(*line);
   cnv.line_bck_p2p(gk_line);

@@ -133,8 +133,7 @@ main(int argc, char** argv){
   int n = 0;
   double len = 0; 
 
-  convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), opts,
-                  Datum("wgs84"), Proj("latlon"), opts);
+  convs::pt2wgs pc(Datum("wgs84"), Proj("tmerc"), opts);
 
   vector<g_track>::const_iterator t;
   for(t=world.trks.begin(); t!=world.trks.end(); t++) {

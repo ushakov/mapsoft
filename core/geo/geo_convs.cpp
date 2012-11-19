@@ -247,11 +247,11 @@ map2map::map2map(const Datum & sD, const Proj & sP, const Options & sPo,
                 std::map<dPoint, dPoint> ref2 ) :
                    cnv2(sD, sP, sPo, dD, dP, dPo){
 
-  convs::pt2pt c1(Datum("wgs84"), Proj("lonlat"), Options(), sD, sP, sPo);
-  convs::pt2pt c2(Datum("wgs84"), Proj("lonlat"), Options(), dD, dP, dPo);
+  convs::pt2wgs c1(sD, sP, sPo);
+  convs::pt2wgs c2(dD, dP, dPo);
   std::map<dPoint, dPoint>::iterator i;
-  for (i=ref1.begin(); i!=ref1.end(); i++) c1.frw(i->second);
-  for (i=ref2.begin(); i!=ref2.end(); i++) c2.frw(i->second);
+  for (i=ref1.begin(); i!=ref1.end(); i++) c1.bck(i->second);
+  for (i=ref2.begin(); i!=ref2.end(); i++) c2.bck(i->second);
   cnv1.set_from_ref(ref1);
   cnv3.set_from_ref(ref2);
 }
@@ -272,13 +272,11 @@ map2map::map2map(const Proj & sP, const Proj & dP,
                    cnv2(Datum("wgs84"), sP, ref2opt(ref1),
                         Datum("wgs84"), dP, ref2opt(ref2) ){
 
-  convs::pt2pt c1(Datum("wgs84"), Proj("lonlat"), Options(),
-                  Datum("wgs84"), sP, ref2opt(ref1));
-  convs::pt2pt c2(Datum("wgs84"), Proj("lonlat"), Options(),
-                  Datum("wgs84"), dP, ref2opt(ref2));
+  convs::pt2wgs c1(Datum("wgs84"), sP, ref2opt(ref1));
+  convs::pt2wgs c2(Datum("wgs84"), dP, ref2opt(ref2));
   std::map<dPoint, dPoint>::iterator i;
-  for (i=ref1.begin(); i!=ref1.end(); i++) c1.frw(i->second);
-  for (i=ref2.begin(); i!=ref2.end(); i++) c2.frw(i->second);
+  for (i=ref1.begin(); i!=ref1.end(); i++) c1.bck(i->second);
+  for (i=ref2.begin(); i!=ref2.end(); i++) c2.bck(i->second);
   cnv1.set_from_ref(ref1);
   cnv3.set_from_ref(ref2);
 }
@@ -287,22 +285,20 @@ map2map::map2map(const g_map & sM, const g_map & dM):
      cnv2(Datum("wgs84"), sM.map_proj, sM.proj_opts,
           Datum("wgs84"), dM.map_proj, dM.proj_opts){
 
-  convs::pt2pt c1(Datum("wgs84"), Proj("lonlat"), Options(),
-                  Datum("wgs84"), sM.map_proj, sM.proj_opts);
-  convs::pt2pt c2(Datum("wgs84"), Proj("lonlat"), Options(),
-                  Datum("wgs84"), dM.map_proj, dM.proj_opts);
+  convs::pt2wgs c1(Datum("wgs84"), sM.map_proj, sM.proj_opts);
+  convs::pt2wgs c2(Datum("wgs84"), dM.map_proj, dM.proj_opts);
   std::map<dPoint, dPoint> ref1, ref2;
   g_map::const_iterator i;
   for (i=sM.begin(); i!=sM.end(); i++){
     dPoint p1(i->xr, i->yr);
     dPoint p2(i->x, i->y);
-    c1.frw(p2);
+    c1.bck(p2);
     ref1[p1]=p2;
   }
   for (i=dM.begin(); i!=dM.end(); i++){
     dPoint p1(i->xr, i->yr);
     dPoint p2(i->x, i->y);
-    c2.frw(p2);
+    c2.bck(p2);
     ref2[p1]=p2;
   }
   cnv1.set_from_ref(ref1);
@@ -383,7 +379,7 @@ map_mpp(const g_map &map, Proj P){
   if (map.size()<3) return 0;
   double l1=0, l2=0;
   g_map map1=map; map1.map_proj=P;
-  convs::pt2pt c(Datum("wgs84"), P, map1.proj_opts, Datum("wgs84"), Proj("lonlat"), Options());
+  convs::pt2wgs c(Datum("wgs84"), P, map1.proj_opts);
   for (int i=1; i<map.size();i++){
     dPoint p1(map[i-1].x,map[i-1].y);
     dPoint p2(map[i].x,  map[i].y);

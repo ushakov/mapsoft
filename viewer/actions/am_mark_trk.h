@@ -51,8 +51,7 @@ private:
 
       Options o;
       o.put("lon0", convs::lon2lon0((*track)[0].x));
-      convs::pt2pt cnv(Datum("wgs84"), Proj("tmerc"), o,
-                       Datum("wgs84"), Proj("lonlat"), Options());
+      convs::pt2wgs cnv(Datum("wgs84"), Proj("tmerc"), o);
 
       boost::shared_ptr<g_waypoint_list> wpt_list(new g_waypoint_list);
       wpt_list->comm="track marks";

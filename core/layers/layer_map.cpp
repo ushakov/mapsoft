@@ -24,7 +24,7 @@ LayerMAP::get_myref() const {
   // return ref of first map, swapped if needed
   if (data->size() && (*data)[0].size()){
     g_map ret=(*data)[0];
-    convs::map2pt c(ret, Datum("wgs84"), Proj("lonlat"));
+    convs::map2wgs c(ret);
     if (!c.swapped()) return ret;
     double ym=ret[0].yr;
     for (int i=1; i<ret.size(); i++){ if (ret[i].yr>ym) ym=ret[i].yr; } // find max yr
@@ -336,7 +336,7 @@ LayerMAP::make_m2ms(){
            it can be out of out projection range. We use
            corners of 1000x1000 rect on the screen. */
         dLine pts = rect2line(dRect(0,0,1000,1000), false);
-        convs::map2pt cnv1(*m, Datum("wgs84"), Proj("lonlat"));
+        convs::map2wgs cnv1(*m);
 
         for (dLine::const_iterator i=pts.begin(); i!=pts.end(); i++){
           dPoint p1(*i); cnv1.frw(p1); // p1 - wgs point

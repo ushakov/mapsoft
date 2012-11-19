@@ -81,7 +81,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   }
 
   iImage im(geom.w,geom.h,0x00FFFFFF);
-  convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv(ref);
 
   if (opt.exists("srtm_mode")){
     srtm3 s(opt.get<string>("srtm_dir"));

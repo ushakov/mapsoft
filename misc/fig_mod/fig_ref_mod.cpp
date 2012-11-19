@@ -43,33 +43,33 @@ main(int argc, char **argv){
   dRect  range  = map.range();
   dPoint center = (range.TLC() + range.BRC())/2.0;
 
-  convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(), Datum("wgs84"), Proj("tmerc"), Options());
-  cnv.frw(center);
+  convs::pt2wgs cnv(Datum("wgs84"), Proj("tmerc"), Options());
+  cnv.bck(center);
 
   if (action == 'r'){
     double c = cos(value*M_PI/180.0);
     double s = sin(value*M_PI/180.0);
 
     for (g_map::iterator p=map.begin(); p!=map.end(); p++){
-      cnv.frw(*p);
+      cnv.bck(*p);
       double x = p->x - center.x, y = p->y - center.y;
       p->x = x*c - y*s + center.x;
       p->y = x*s + y*c + center.y;
-      cnv.bck(*p);
+      cnv.frw(*p);
     }
   }
   if (action == 'x'){
     for (g_map::iterator p=map.begin(); p!=map.end(); p++){
-      cnv.frw(*p);
-      p->x += value;
       cnv.bck(*p);
+      p->x += value;
+      cnv.frw(*p);
     }
   }
   if (action == 'y'){
     for (g_map::iterator p=map.begin(); p!=map.end(); p++){
-      cnv.frw(*p);
-      p->y += value;
       cnv.bck(*p);
+      p->y += value;
+      cnv.frw(*p);
     }
   }
 

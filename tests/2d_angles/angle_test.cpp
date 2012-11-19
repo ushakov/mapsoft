@@ -28,7 +28,7 @@ main(){
     int  unit = (i/4)%2? 1:100;
 
     g_map m1 = mk_tmerc_ref (l, unit, swap);
-    convs::map2pt cnv(m1, Datum("wgs84"), Proj("lonlat"));
+    convs::map2wgs cnv(m1);
     std::cout << "lon0: " << convs::lon2lon0(l.center().x) << " "
               << "unit: " << unit << " m "
               << "spap y: " << swap << "\n";

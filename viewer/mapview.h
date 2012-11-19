@@ -40,7 +40,7 @@ public:
     Gtk::Image *busy_icon;
     DataView * dataview;
 
-    convs::map2pt cnv;
+    convs::map2wgs cnv;
     Proj cnv_proj;
     bool have_reference;
     bool divert_refresh;

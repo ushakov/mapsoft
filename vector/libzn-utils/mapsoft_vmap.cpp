@@ -56,7 +56,7 @@ int copy(int argc, char** argv){
     if (ref.size()<3){
       cerr << "ERR: not a GEO-fig\n"; return 1;
     }
-    convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+    convs::map2wgs cnv(ref);
     for (fig::fig_world::iterator i=IF.begin(); i!=IF.end(); i++){
       if (i->type==6) zn::fig_copy_comment(i, IF.end());
       if (zn::is_to_skip(*i) || !zconverter.is_map_depth(*i)) continue;
@@ -85,7 +85,7 @@ int copy(int argc, char** argv){
     if (ref.size()<3){
       cerr << "ERR: not a GEO-fig\n"; return 1;
     }
-    convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+    convs::map2wgs cnv(ref);
     for (mp::mp_world::const_iterator i=IM.begin(); i!=IM.end(); i++){
       if ((source == "") || (i->Opts.get("Source", string()) == source)){
         obj_cnt++;

@@ -132,8 +132,7 @@ main(int argc, char** argv){
   double len = 0; 
   vector<g_track>::const_iterator t;
 
-  convs::pt2pt pc(Datum("wgs84"), Proj("tmerc"), opts,
-                  Datum("wgs84"), Proj("lonlat"), opts);
+  convs::pt2wgs pc(Datum("wgs84"), Proj("tmerc"), opts);
 
   for(t=world.trks.begin(); t!=world.trks.end(); t++) {
     double active_len = 0;

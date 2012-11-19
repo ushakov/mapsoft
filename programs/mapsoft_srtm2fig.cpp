@@ -58,7 +58,7 @@ main(int argc, char** argv){
   }
 
   g_map fig_ref = fig::get_ref(F);
-  convs::map2pt fig_cnv(fig_ref, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs fig_cnv(fig_ref);
 
   // диапазон картинки в lonlat
   dRect range = fig_ref.range();

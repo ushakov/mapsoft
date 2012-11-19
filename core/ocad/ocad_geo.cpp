@@ -29,8 +29,7 @@ get_ref(const ocad_file & O){
 
         Options opts;
         opts.put<int>("lon0", (zone%1000-30)*6-3);
-        convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), opts,
-                         Datum("wgs84"), Proj("lonlat"), opts);
+        convs::pt2wgs cnv(Datum("pulkovo"), Proj("tmerc"), opts);
 
         dLine pts0(pts);
         lrotate(pts, -a * M_PI/180);
@@ -66,8 +65,7 @@ set_ref(ocad_file & O, double rscale, const dPoint & p0){
 
   Options opts;
   opts.put<int>("lon0", convs::lon2lon0(p0.x));
-  convs::pt2pt cnv(Datum("pulkovo"), Proj("tmerc"), opts,
-                   Datum("wgs84"), Proj("lonlat"), opts);
+  convs::pt2wgs cnv(Datum("pulkovo"), Proj("tmerc"), opts);
   dPoint pc(p0);
   cnv.bck(pc);
 

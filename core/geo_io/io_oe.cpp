@@ -102,8 +102,7 @@ using namespace boost::spirit::classic;
                 string datum;
                 vector<oe_waypoint> points;
                 operator g_waypoint_list () const{
-			convs::pt2pt cnv(Datum(datum), Proj("lonlat"), Options(),
-                                         Datum("wgs84"), Proj("lonlat"), Options());
+			convs::pt2wgs cnv(Datum(datum), Proj("lonlat"));
                         g_waypoint_list ret;
                         ret.symbset = symbset;
                         vector<oe_waypoint>::const_iterator i,
@@ -131,8 +130,7 @@ using namespace boost::spirit::classic;
                 }
                 operator g_track () const{
                         g_track ret;
-			convs::pt2pt cnv(Datum(datum), Proj("lonlat"), Options(),
-                                         Datum("wgs84"), Proj("lonlat"), Options());
+			convs::pt2wgs cnv(Datum(datum), Proj("lonlat"));
                         ret.width = width;
                         ret.color = Color(0xFF, color);
                         ret.skip  = skip;
@@ -212,11 +210,9 @@ using namespace boost::spirit::classic;
                         ret.proj_opts = opts;
                         //ret.proj_str = convs::mkprojstr(ret.map_datum, ret.map_proj, ret.proj_opts);
 
-			convs::pt2pt cnv1(Datum(datum), Proj("lonlat"), Options(),
-                                          Datum("wgs84"), Proj("lonlat"), Options());
+			convs::pt2wgs cnv1(Datum(datum), Proj("lonlat"));
 
-			convs::pt2pt cnv2(Datum(datum), Proj(map_proj), opts,
-                                          Datum("wgs84"), Proj("lonlat"), Options());
+			convs::pt2wgs cnv2(Datum(datum), Proj(map_proj), opts);
 
                         // convert points
                         vector<oe_mappoint>::const_iterator i,
@@ -620,7 +616,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
                                   << int(it->x) << "," << int(it->y) << "\r\n"; 
 			}
 			n=0;
-			convs::map2pt cnv(m, Datum("WGS84"), Proj("lonlat"));
+			convs::map2wgs cnv(m);
 			f.precision(8);
 			for (dLine::const_iterator it =m.border.begin();
 				 it!=m.border.end(); it++){

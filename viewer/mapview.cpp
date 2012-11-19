@@ -17,7 +17,7 @@ Mapview::Mapview () :
     rubber(&viewer),
     srtm("",20),
     layer_srtm(&srtm),
-    cnv(get_myref(), Datum("wgs84"), Proj("lonlat"))
+    cnv(get_myref())
 {
 
     /// layer drawing options (set before Action constructors)
@@ -438,7 +438,7 @@ Mapview::get_world(bool visible){
 void
 Mapview::set_ref(const g_map & ref){
   if (ref.size()==0) return;
-  cnv = convs::map2pt(ref, Datum("wgs84"), Proj("lonlat"));
+  cnv = convs::map2wgs(ref);
   workplane.set_cnv(&cnv, ref.map_proj.val);
   have_reference=true;
   cnv_proj = ref.map_proj;

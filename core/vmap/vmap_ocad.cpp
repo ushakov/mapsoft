@@ -27,7 +27,7 @@ read(const ocad::ocad_file & F){
   if (ref.size()<3){
     std::cerr << "ERR: not a geo-referenced OCAD\n"; return ret;
   }
-  convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv(ref);
 
   // get map data
   ret.rscale = 100000 * convs::map_mpp(ref, Proj("tmerc"));
@@ -94,7 +94,7 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
   zn::zn_conv zconverter(W.style);
 
   g_map ref = vmap::mk_tmerc_ref(W, 1000);
-  convs::map2pt cnv(ref, Datum("wgs84"), Proj("lonlat"));
+  convs::map2wgs cnv(ref);
 
   dPoint p0(0,0); cnv.frw(p0);
   ocad::set_ref(F, W.rscale, p0);
