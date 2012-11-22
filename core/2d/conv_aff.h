@@ -26,8 +26,17 @@ public:
   /// reset from g_ref
   void set_from_ref(const std::map<dPoint, dPoint> & ref);
 
-  void frw(dPoint & p) const;
-  void bck(dPoint & p) const;
+  void frw(dPoint & p) const{
+    double x = k_frw[0]*p.x + k_frw[1]*p.y + k_frw[2];
+    double y = k_frw[3]*p.x + k_frw[4]*p.y + k_frw[5];
+    p.x=x; p.y=y;
+  }
+
+  void bck(dPoint & p) const{
+    double x = k_bck[0]*p.x + k_bck[1]*p.y + k_bck[2];
+    double y = k_bck[3]*p.x + k_bck[4]*p.y + k_bck[5];
+    p.x=x; p.y=y;
+  }
 
   /// reset to trivial
   void reset();
