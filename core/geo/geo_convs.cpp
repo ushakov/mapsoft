@@ -135,6 +135,7 @@ pt2pt::~pt2pt(){
 
 void
 pt2pt::copy(const pt2pt & other){
+   this->Conv::operator=(other);
    refcounter = other.refcounter;
    pr_src = other.pr_src;
    pr_dst = other.pr_dst;
@@ -204,6 +205,7 @@ map2pt::~map2pt(){
 
 void
 map2pt::copy(const map2pt & other){
+   this->Conv::operator=(other);
    refcounter = other.refcounter;
    pr_ref = other.pr_ref;
    pr_map = other.pr_map;
