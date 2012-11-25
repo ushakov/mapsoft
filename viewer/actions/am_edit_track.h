@@ -36,7 +36,7 @@ private:
       dlg.dlg2trk(layer->get_data());
       mapview->set_changed();
       mapview->workplane.refresh_layer(layer);
-      mapview->update_ll_comm(layer);
+      mapview->trk_ll.upd_comm(layer, false); // move comm to layerlist
     }
 };
 

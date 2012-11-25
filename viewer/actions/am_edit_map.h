@@ -67,7 +67,7 @@ private:
       dlg.dlg2map(layer->get_map(map_num));
       mapview->set_changed();
       mapview->workplane.refresh_layer(layer);
-      mapview->update_ll_comm(layer);
+      mapview->map_ll.upd_comm(layer, false); // move comm to ll
     }
 
 };
