@@ -31,8 +31,7 @@ get_ref(const fig_world & w){
     parse(w.comment[n].c_str(), str_p("proj:")  >> space_p >> (*anychar_p)[assign_a(proj)]);
   }
 
-  proj=w.opts.get("map_proj", proj); // new-stile option
-  ret.map_proj=Proj(proj);
+  ret.parse_from_options(w.opts); // new-stile options
 
   dPoint min(1e99,1e99), max(-1e99,-1e99);
   fig_world::const_iterator i;
@@ -93,7 +92,7 @@ set_ref(fig_world & w, const g_map & m, const Options & O){
 
   double lon0 = m.range().x + m.range().w/2;
   lon0 = floor( lon0/6.0 ) * 6 + 3;
-  lon0 = O.get("lon0", lon0);
+  lon0 = m.proj_opts.get("lon0", lon0);
   Enum::output_fmt=Enum::xml_fmt;
 
   // Если хочется, можно записать точки привязки в нужной проекции
@@ -118,8 +117,7 @@ set_ref(fig_world & w, const g_map & m, const Options & O){
     w.push_back(o);
   }
   // добавим в заголовок fig-файла информацию о проекции.
-  // по умолчанию - tmerc
-  if (m.map_proj != Proj("tmerc")) w.opts.put("map_proj", m.map_proj);
+  w.opts = m.to_options();
 }
 
 
