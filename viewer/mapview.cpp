@@ -139,16 +139,16 @@ Mapview::update_layers() {
   // update layer depth and visibility in workplane
   bool ch = false;
   int d=DEPTH_DATA0;
-  ch = ch || wpt_ll.upd_wp(workplane, d);
-  ch = ch || trk_ll.upd_wp(workplane, d);
-  ch = ch || map_ll.upd_wp(workplane, d);
+  ch = wpt_ll.upd_wp(workplane, d) || ch;
+  ch = trk_ll.upd_wp(workplane, d) || ch;
+  ch = map_ll.upd_wp(workplane, d) || ch;
   if (ch) refresh();
 
   // update comments in data
   ch = false;
-  ch = ch || wpt_ll.upd_comm();
-  ch = ch || trk_ll.upd_comm();
-  ch = ch || map_ll.upd_comm();
+  ch = wpt_ll.upd_comm() || ch;
+  ch = trk_ll.upd_comm() || ch;
+  ch = map_ll.upd_comm() || ch;
   if (ch) set_changed();
 }
 
