@@ -43,6 +43,7 @@ public:
 
     convs::map2wgs cnv;
     Proj cnv_proj;
+    Options proj_opts;
     bool have_reference;
     bool divert_refresh;
 

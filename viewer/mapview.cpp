@@ -331,6 +331,7 @@ Mapview::set_ref(const g_map & ref){
   workplane.set_cnv(&cnv, ref.map_proj.val);
   have_reference=true;
   cnv_proj = ref.map_proj;
+  proj_opts = ref.proj_opts;
 }
 void
 Mapview::goto_wgs(dPoint p){

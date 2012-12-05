@@ -236,7 +236,8 @@ std::cerr << "MPP SCALE " << sc << "\n";
       // Write map file
       g_map ref;
       if (dlg.get_map()){
-        ref.map_proj  = mapview->cnv_proj;
+        ref.map_proj   = mapview->cnv_proj;
+        ref.proj_opts  = mapview->proj_opts;
         ref.file=fname;
         ref.comm="created by mapsoft_mapview";
 
