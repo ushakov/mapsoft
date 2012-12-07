@@ -31,7 +31,7 @@ get_ref(const fig_world & w){
     parse(w.comment[n].c_str(), str_p("proj:")  >> space_p >> (*anychar_p)[assign_a(proj)]);
   }
 
-  ret.parse_from_options(w.opts); // new-stile options
+  ret.parse_from_options(w.opts, false); // new-stile options
 
   dPoint min(1e99,1e99), max(-1e99,-1e99);
   fig_world::const_iterator i;
@@ -96,28 +96,24 @@ set_ref(fig_world & w, const g_map & m, const Options & O){
   Enum::output_fmt=Enum::xml_fmt;
 
   // Если хочется, можно записать точки привязки в нужной проекции
-  string pproj=O.get("proj", string("lonlat"));
+  string pproj=O.get<string>("proj", "lonlat");
   string pdatum=O.get<string>("datum", "wgs84");
-
   convs::pt2wgs cnv(Datum(pdatum), Proj(pproj), O);
 
   for (int n=0; n<m.size(); n++){
     fig::fig_object o = fig::make_object("2 1 0 4 4 7 1 -1 -1 0.000 0 1 -1 0 0 *");
     o.push_back(iPoint( int(m[n].xr), int(m[n].yr) ));
-    dPoint p(m[n]);
-    cnv.bck(p);
-    ostringstream comm;
+    dPoint p(m[n]); cnv.bck(p);
     Enum::output_fmt=Enum::xml_fmt;
+    ostringstream comm;
     comm << "REF " << fixed << p.x << " " << p.y;
     o.comment.push_back(comm.str()); comm.str("");
-
-    if (Datum(pdatum) != Datum("wgs84")) o.opts.put("datum", pdatum);
-    if (Proj(pproj) != Proj("lonlat"))   o.opts.put("proj", pproj);
-    if ((Proj(pproj) == Proj("tmerc")) && (lon0!=0)) o.opts.put("lon0", lon0);
+    o.opts=O;
     w.push_back(o);
   }
   // добавим в заголовок fig-файла информацию о проекции.
-  w.opts = m.to_options();
+  w.opts.insert(m.proj_opts.begin(), m.proj_opts.end());
+  w.opts.put("map_proj", m.map_proj);
 }
 
 

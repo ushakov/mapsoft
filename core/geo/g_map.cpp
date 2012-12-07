@@ -29,7 +29,7 @@ Options g_refpoint::to_options () const{
     return opt;
 }
 
-void g_refpoint::parse_from_options (Options const & opt){
+void g_refpoint::parse_from_options (Options const & opt, bool check){
     g_refpoint p;
     swap(p);
     x  = opt.get("x",   x);
@@ -46,7 +46,7 @@ void g_refpoint::parse_from_options (Options const & opt){
       "lon", "lat", "xr", "yr", "x", "y",
       "datum", "proj", "lon0", "lat0", "E0", "N0", "k", ""
     };
-    opt.warn_unused(used);
+    if (check) opt.warn_unused(used);
 }
 
 /*********************************/
@@ -72,7 +72,7 @@ Options g_map::to_options () const {
     return opt;
 }
 
-void g_map::parse_from_options (Options const & opt){
+void g_map::parse_from_options (Options const & opt, bool check){
     comm     = opt.get("comm",     comm);
     file     = opt.get("file",     file);
     map_proj = opt.get("map_proj", map_proj);
@@ -100,7 +100,7 @@ void g_map::parse_from_options (Options const & opt){
     const string used[] = {
       "comm", "file", "map_datum", "map_proj", "border", "points", "prefix",
       "tile_size", "tile_fmt", "tile_swapy", "lon0", "lat0" , "E0", "N0", "lat1", "lat2", "k", "hgt", ""};
-    opt.warn_unused(used);
+    if (check) opt.warn_unused(used);
 }
 
 g_map & g_map::operator/= (double k){
@@ -220,10 +220,10 @@ g_map_list::to_options() const{
 }
 
 void
-g_map_list::parse_from_options (Options const & opt){
+g_map_list::parse_from_options (Options const & opt, bool check){
   comm = opt.get("comm", comm);
   const string used[] = {"comm", ""};
-  opt.warn_unused(used);
+  if (check) opt.warn_unused(used);
 }
 
 dRect

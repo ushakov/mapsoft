@@ -32,7 +32,7 @@ struct g_waypoint : dPoint {
 
     g_waypoint();
     Options to_options() const;
-    void parse_from_options(Options const & opt);
+    void parse_from_options(Options const & opt, bool check=true);
 
     bool have_alt() const;
     void clear_alt();
@@ -50,7 +50,7 @@ struct g_waypoint_list : vector<g_waypoint>{
     Options to_options () const;
 
     /// set waypoint_list values from Options object
-    void parse_from_options (Options const & opt);
+    void parse_from_options (Options const & opt, bool check=true);
 
     /// get range in lon-lat coords
     dRect range() const;

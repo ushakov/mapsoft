@@ -29,7 +29,7 @@ Options g_trackpoint::to_options() const{
     return opt;
 }
 
-void g_trackpoint::parse_from_options(Options const & opt){
+void g_trackpoint::parse_from_options(Options const & opt, bool check){
     g_trackpoint p;
     swap(p);
     x = opt.get("x", x);
@@ -54,7 +54,7 @@ void g_trackpoint::parse_from_options(Options const & opt){
       "lon", "lat", "alt", "depth", "start", "time", "x", "y",
       "datum", "proj", "lon0", "lat0", "E0", "N0", "k", ""
     };
-    opt.warn_unused(used);
+    if (check) opt.warn_unused(used);
 }
 
 bool
@@ -99,7 +99,7 @@ Options g_track::to_options () const {
     return opt;
 }
 
-void g_track::parse_from_options (Options const & opt){
+void g_track::parse_from_options (Options const & opt, bool check){
     width = opt.get("width", width);
     displ = opt.get("displ", displ);
     color = opt.get("color", color);
@@ -111,7 +111,7 @@ void g_track::parse_from_options (Options const & opt){
     const string used[] = {
         "comm", "width", "color", "skip", "displ",
         "type", "fill", "cfill", "points", ""};
-    opt.warn_unused(used);
+    if (check) opt.warn_unused(used);
 }
 
 /// get range in lon-lat coords

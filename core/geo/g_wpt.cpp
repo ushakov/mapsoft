@@ -43,7 +43,7 @@ Options g_waypoint::to_options () const{
     return opt;
 }
 
-void g_waypoint::parse_from_options (Options const & opt){
+void g_waypoint::parse_from_options (Options const & opt, bool check){
     g_waypoint p;
     swap(p);
     x = opt.get("x", x);
@@ -77,7 +77,7 @@ void g_waypoint::parse_from_options (Options const & opt){
       "font_style", "size", "time", "x", "y",
       "datum", "proj", "lon0", "lat0", "E0", "N0", "k", ""
     };
-    opt.warn_unused(used);
+    if (check) opt.warn_unused(used);
 }
 
 bool
@@ -118,10 +118,10 @@ Options g_waypoint_list::to_options () const {
 }
 
 /// set waypoint_list values from Options object
-void g_waypoint_list::parse_from_options (Options const & opt){
+void g_waypoint_list::parse_from_options (Options const & opt, bool check){
     symbset = opt.get("symbset", symbset);
     comm    = opt.get("comm", comm);
     const std::string used[] = {
       "symbset","points","comm",""};
-    opt.warn_unused(used);
+    if (check) opt.warn_unused(used);
 }

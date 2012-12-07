@@ -21,7 +21,7 @@ struct g_trackpoint : dPoint {
 
     g_trackpoint();
     Options to_options () const;
-    void parse_from_options (Options const & opt);
+    void parse_from_options (Options const & opt, bool check=true);
 
     bool have_alt() const;
     void clear_alt();
@@ -42,7 +42,7 @@ struct g_track : std::vector<g_trackpoint>{
 
     g_track();
     Options to_options () const;
-    void parse_from_options (Options const & opt);
+    void parse_from_options (Options const & opt, bool check=true);
 
     /// get range in lon-lat coords
     dRect range() const;

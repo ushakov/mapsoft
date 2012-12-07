@@ -17,7 +17,7 @@ struct g_refpoint : dPoint {
     g_refpoint(dPoint p, dPoint r);
     g_refpoint();
     Options to_options () const;
-    void parse_from_options (Options const & opt);
+    void parse_from_options (Options const & opt, bool check=true);
 };
 
 /// map
@@ -42,7 +42,7 @@ struct g_map : std::vector<g_refpoint>
 
     g_map();
     Options to_options () const;
-    void parse_from_options (Options const & opt);
+    void parse_from_options (Options const & opt, bool check=true);
 
     g_map & operator/= (double k);
     g_map & operator*= (double k);
@@ -75,7 +75,7 @@ struct g_map : std::vector<g_refpoint>
 struct g_map_list : std::vector<g_map>{
     std::string comm;
     Options to_options () const;
-    void parse_from_options (Options const & opt);
+    void parse_from_options (Options const & opt, bool check=true);
     dRect range() const;
     dRect range_correct() const;
 };
