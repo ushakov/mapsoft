@@ -238,7 +238,13 @@ std::cerr << "MPP SCALE " << sc << "\n";
       if (dlg.get_map()){
         ref.map_proj   = mapview->cnv_proj;
         ref.proj_opts  = mapview->proj_opts;
-        ref.file=fname;
+
+        // remove path from fname
+        int pos = fname.rfind("/");
+        if (pos>0 && pos<fname.length()-1)
+          ref.file = fname.substr(pos+1, fname.length()-pos);
+        else ref.file=fname;
+
         ref.comm="created by mapsoft_mapview";
 
         dLine pts = rect2line(iRect(mytlc, iPoint(mytlc)+wh));
