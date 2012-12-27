@@ -45,6 +45,11 @@ LayerSRTM::draw(iImage & image, const iPoint & origin){
   string mode  = opt.get<string>("srtm_mode", "normal");
   int cnt_step = opt.get<int>("srtm_cnt_step",  50);
 
+  // avoid string comparing strings inside the loop:
+  int m=0;
+  if      (mode == "normal") m=1;
+  else if (mode == "slopes") m=2;
+
   double min=0, max=0;
   rainbow_type type = RAINBOW_NORMAL;
   if (mode == "normal"){
@@ -62,28 +67,36 @@ LayerSRTM::draw(iImage & image, const iPoint & origin){
   for (int j=0; j<image.h; j++){
     for (int i=0; i<image.w; i++){
       int c=0xffffff;
-      dPoint p0 = origin + iPoint(i,j);
-      dPoint px=p0 + dPoint(1,0);
-      dPoint py=p0 + dPoint(0,1);
+      dPoint p0,px,py;
+      int h0,hx,hy;
 
+      p0 = origin + iPoint(i,j);
       cnv->frw(p0);
-      cnv->frw(px);
-      cnv->frw(py);
-      int h0 = S->geth4(p0, false);
-      int hx = S->geth4(px, false);
-      int hy = S->geth4(py, false);
 
-      // holes
-      if ((h0 < srtm_min) || (hx < srtm_min) || (hy < srtm_min)){
+      h0 = S->geth4(p0, false);
+      if (h0 < srtm_min){
         c=0xC8C8C8; goto print_colors;
       }
 
-      // contours
-      if ((cnt_step>0) && ((hx/cnt_step - h0/cnt_step) ||(hy/cnt_step - h0/cnt_step))){
-        c=0; goto print_colors;
+      if (cnt_step>0){ // contours
+        px = origin + iPoint(i+1,j);
+        py = origin + iPoint(i,j+1);
+        cnv->frw(px);
+        cnv->frw(py);
+        hx = S->geth4(px, false);
+        hy = S->geth4(py, false);
+
+        // holes
+        if (hx < srtm_min || hy < srtm_min){
+          c=0xC8C8C8; goto print_colors;
+        }
+
+        if ((hx/cnt_step - h0/cnt_step) ||(hy/cnt_step - h0/cnt_step)){
+          c=0; goto print_colors;
+        }
       }
 
-      if (mode == "normal"){
+      if (m == 1){
         double a = S->slope4(p0, false);
         if (a>90.0) a=90.0;
         c = R.get(h0);
@@ -91,7 +104,7 @@ LayerSRTM::draw(iImage & image, const iPoint & origin){
         goto print_colors;
       }
 
-      if (mode == "slopes"){ // slopes
+      if (m == 2){ // slopes
         c=R.get(S->slope4(p0, false));
         goto print_colors;
       }
