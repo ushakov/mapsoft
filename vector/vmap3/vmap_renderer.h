@@ -37,7 +37,7 @@ struct VMAPRenderer{
   void pt_m2pt(dPoint & p);
 
   VMAPRenderer(vmap::world * _W, int w, int h,
-    const g_map & ref, double dpi_=300, bool use_aa=true, bool transp=false);
+    const g_map & ref, double dpi_=300, bool use_aa=true, bool transp=false, int bgcolor=0xFFFFFF);
 
   void unset_dash();
   void set_dash(double d1, double d2);

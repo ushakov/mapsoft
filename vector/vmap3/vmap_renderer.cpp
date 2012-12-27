@@ -8,7 +8,7 @@
 using namespace std;
 
 VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
-    const g_map & ref_, double dpi_, bool use_aa, bool transp):
+    const g_map & ref_, double dpi_, bool use_aa, bool transp, int bgcolor):
       dpi(dpi_), W(_W), ref(ref_){
 
   lw1 = dpi/105.0; // standard line width (1/105in?)
@@ -28,7 +28,7 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
 
   // draw border, set clipping region
   if (!transp) {
-    cr->set_color(0xFFFFFF);
+    cr->set_color(bgcolor);
     cr->paint();
   }
   for (dLine::const_iterator p=border.begin(); p!=border.end(); p++){
@@ -43,7 +43,7 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
   cr->restore();
   cr->clip_preserve();   // set clipping region
   cr->save();
-  cr->set_source_rgb(1,1,1); // erase border inside clip region
+  cr->set_color(bgcolor); // erase border inside clip region
   cr->set_line_width(10);
   cr->stroke();
   cr->restore();

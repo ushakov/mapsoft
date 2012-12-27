@@ -14,6 +14,7 @@ static struct ext_option options[] = {
   {"draw_name",     0,'N', 1, "draw map name"},
   {"draw_date",     0,'D', 1, "draw date stamp"},
   {"draw_text",     1,'T', 1, "draw text\n"},
+  {"bgcolor",       1, 0,  1, "backgound color\n"},
 
   {"antialiasing",  1,  0, 1, "do antialiasing (0|1, default 1)"},
   {"transp_margins",1,  0, 1, "transparent margins (0|1, default 0)"},
@@ -124,6 +125,7 @@ main(int argc, char* argv[]){
 
   bool use_aa = O.get<bool>("antialiasing", true);
   bool transp = O.get<bool>("transp_margins", false);
+  int bgcolor = O.get<int>("bgcolor", 0xffffff);
 
   label_style_t ls;
   switch(O.get<int>("label_style", 2)){
@@ -146,7 +148,7 @@ main(int argc, char* argv[]){
      << "  dpi    = " << dpi << "\n"
      << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
 
-  VMAPRenderer R(&W, rng.w, rng.h, ref, dpi, use_aa, transp);
+  VMAPRenderer R(&W, rng.w, rng.h, ref, dpi, use_aa, transp, bgcolor);
 
   R.render_objects(O.get<bool>("contours", true));
 
