@@ -56,6 +56,7 @@ static struct ext_option options[] = {
   {"remove_dups",           1,  0, OPT_OUT, "remove repeated points with given accuracy\n(before adding labels)"},
   {"remove_empty",          0,  0, OPT_OUT, "remove empty objects and lines (remove_tails and range_action do remove_empty) (before adding labels)"},
   {"join_objects",          1,  0, OPT_OUT, "join objects (before adding labels)"},
+  {"legend",                1,  0, OPT_OUT, "<style>, write list of all object types"},
 
   {0,0,0,0}
 };
@@ -133,6 +134,9 @@ main(int argc, char **argv){
   O = parse_options(&argc, &argv, options, MASK_OUT);
 
   /***************** write file ****************/
+
+  if (O.exists("legend"))
+    V = vmap::make_legend(O.get("legend", string()));
 
   if (O.exists("set_source_from_fname"))
     O.put<string>("set_source", ofile);

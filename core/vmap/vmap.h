@@ -118,6 +118,9 @@ void create_labels(world & W); ///< create new labels
 void remove_labels(world & W); ///< remove all lables
 void move_pics(world & W);     ///< move and rotate some signs
 
+// make legend (see vmap_legend.cpp):
+world make_legend(std::string style);
+
 
 // filtering and statistics (see vmap_filt.cpp):
 void filter(world & W, const Options & O);
