@@ -2,6 +2,8 @@
 #include "options/m_getopt.h"
 #include "options/m_time.h"
 #include "geo/geo_refs.h"
+#include "loaders/image_r.h"
+#include "utils/err.h"
 
 using namespace std;
 
@@ -149,8 +151,10 @@ main(int argc, char* argv[]){
   vmap::join_labels(W);
   vmap::move_pics(W);
 
+  iImage img(rng.w, rng.h);
 
-  VMAPRenderer R(&W, rng.w, rng.h, ref, O);
+
+  VMAPRenderer R(&W, img, ref, O);
 
   R.render_objects(O.get<bool>("contours", true));
 
@@ -176,8 +180,19 @@ main(int argc, char* argv[]){
   }
 
   //*******************************
+  image_r::save(img, ofile, Options());
+
   string map = O.get<string>("map");
-  R.save_image(ofile, (map=="") ? NULL:map.c_str());
+  if (map!=""){
+    g_map M = ref;
+    M.file = ofile;
+    if (W.brd.size()>2) M.border=W.brd;
+    M.border.push_back(*M.border.begin());
+    M.border=generalize(M.border,1,-1); // 1pt accuracy
+    M.border.resize(M.border.size()-1);
+    try {oe::write_map_file(map.c_str(), M);}
+    catch (MapsoftErr e) {cerr << e.str() << endl;}
+  }
 
 
   //*******************************

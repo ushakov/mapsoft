@@ -3,11 +3,10 @@
 #include <sstream>
 #include <iomanip>
 #include <boost/lexical_cast.hpp>
-#include "utils/err.h"
 
 using namespace std;
 
-VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
+VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
     const g_map & ref_, const Options & O):
       W(_W), ref(ref_){
 
@@ -22,7 +21,7 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
   convs::map2wgs cnv(ref);
 
   // create Cairo surface and context
-  cr.reset_surface(w, h);
+  cr.reset_surface(img);
 
   // antialiasing is not compatable with erasing
   // dark points under labels
@@ -444,21 +443,6 @@ VMAPRenderer::render_line_gaz(int type, int col, double th, double step){
   cr->set_color(col);
   cr->stroke();
   cr->restore();
-}
-
-void
-VMAPRenderer::save_image(const char * png, const char * map){
-  if (png) cr.get_im_surface()->write_to_png(png);
-  if (!map) return;
-  g_map M = ref;
-  M.file = png;
-  if (W->brd.size()>2) M.border=W->brd;
-  M.border.push_back(*M.border.begin());
-  M.border=generalize(M.border,1,-1); // 1pt accuracy
-  M.border.resize(M.border.size()-1);
-
-  try {oe::write_map_file(map, M);}
-  catch (MapsoftErr e) {cerr << e.str() << endl;}
 }
 
 void

@@ -36,7 +36,7 @@ struct VMAPRenderer{
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
 
-  VMAPRenderer(vmap::world * _W, int w, int h,
+  VMAPRenderer(vmap::world * _W, iImage & img,
     const g_map & ref, const Options & O = Options());
 
   void unset_dash();
@@ -110,8 +110,6 @@ struct VMAPRenderer{
 
   // газопроводы
   void render_line_gaz(int type, int col, double th, double step=40);
-
-  void save_image(const char * png, const char * map);
 
 
   // нарисовать сетку с шагом dx,dy см в координатах Г-К СК1942г
