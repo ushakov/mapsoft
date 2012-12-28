@@ -8,8 +8,13 @@
 using namespace std;
 
 VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
-    const g_map & ref_, double dpi_, bool use_aa, bool transp, int bgcolor):
-      dpi(dpi_), W(_W), ref(ref_){
+    const g_map & ref_, const Options & O):
+      W(_W), ref(ref_){
+
+  bool use_aa  = O.get<bool>("antialiasing", true);
+  bool transp  = O.get<bool>("transp_margins", true);
+  int  bgcolor = O.get<int>("bgcolor", 0xFFFFFF);
+  dpi = O.get<double>("dpi", 300.0);
 
   lw1 = dpi/105.0; // standard line width (1/105in?)
   fs1 = dpi/89.0;  // standard font size
@@ -48,9 +53,7 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, int w, int h,
   cr->stroke();
   cr->restore();
 
-  // modify vmap
-  vmap::join_labels(*W);
-  vmap::move_pics(*W);
+
 
   // convert coordinates to px
   for (vmap::world::iterator o=W->begin(); o!=W->end(); o++){

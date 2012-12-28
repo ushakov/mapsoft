@@ -123,10 +123,6 @@ main(int argc, char* argv[]){
     lm+=dpi/6;
   }
 
-  bool use_aa = O.get<bool>("antialiasing", true);
-  bool transp = O.get<bool>("transp_margins", false);
-  int bgcolor = O.get<int>("bgcolor", 0xffffff);
-
   label_style_t ls;
   switch(O.get<int>("label_style", 2)){
     case 0: ls=LABEL_STYLE0; break;
@@ -148,7 +144,13 @@ main(int argc, char* argv[]){
      << "  dpi    = " << dpi << "\n"
      << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
 
-  VMAPRenderer R(&W, rng.w, rng.h, ref, dpi, use_aa, transp, bgcolor);
+
+ // modify vmap
+  vmap::join_labels(W);
+  vmap::move_pics(W);
+
+
+  VMAPRenderer R(&W, rng.w, rng.h, ref, O);
 
   R.render_objects(O.get<bool>("contours", true));
 
@@ -158,7 +160,7 @@ main(int argc, char* argv[]){
   R.render_labels(ls);
 
   // draw grid labels after labels
-  if ((grid_step>0) && grid_labels) 
+  if ((grid_step>0) && grid_labels)
     R.render_pulk_grid(grid_step, grid_step, true);
 
   if (O.get<int>("draw_name", 0))
