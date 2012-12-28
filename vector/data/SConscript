@@ -32,19 +32,16 @@ e.AddMethod(Cnf2Png)
 def Cnf2CM(env, name):
    """Setup command for cnf2CM conversion by <name> argument"""
    cmd = env.Command(name+'.cmap.pnm', name+'.cnf', "\
-     tmpfig=\"$$(mktemp)\" || exit;\
-     tmpfig_c=\"$$(mktemp)\" || exit;\
-     trap \"rm -f -- '$$tmpfig' '$$tmpfig_c'\" EXIT; \
-     ./zn_legend -c %s > $$tmpfig;\
-     ../libzn-utils/get_print $$tmpfig $$tmpfig_c;\
-     LANG=ru_RU.KOI8-R ../libzn-utils/fig2pnm $$tmpfig_c |\
-        pnmscale 0.5 |\
+     tmpvmap=\"$$(mktemp).vmap\" || exit;\
+     tmppng=\"$$(mktemp).png\" || exit;\
+     trap \"rm -f -- '$$tmpvmap' '$$tmppng'\" EXIT; \
+     ../../programs/mapsoft_vmap -o $$tmpvmap --legend %s; \
+     ../vmap3/vmap_render $$tmpvmap $$tmppng;\
+     pngtopnm $$tmppng | pnmscale 0.5 |\
         pnmcolormap -sort 256 > %s.cmap.pnm; \
-     rm -f -- \"$$tmpfig\" \"$$tmpfig_c\"; \
      trap - EXIT" % (name, name), chdir = 1)
-   env.Depends(cmd, 'zn_legend')
-   env.Depends(cmd, '../libzn-utils/fig2pnm')
-   env.Depends(cmd, '../libzn-utils/get_print')
+   env.Depends(cmd, '../../programs/mapsoft_vmap')
+   env.Depends(cmd, '../vmap3/vmap_render')
 e.AddMethod(Cnf2CM)
 
 #### Method for figlib creation
