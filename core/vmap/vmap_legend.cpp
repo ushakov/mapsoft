@@ -51,6 +51,8 @@ make_legend(string style){
     vmap::object o = make_sample(i->first);
     o+=dPoint(0, count*2);
     o*=sc;
+    o.comm.push_back(i->second.name);
+    if (i->second.desc.length()) o.comm.push_back(i->second.desc);
     ret.push_back(o);
     count++;
   }
