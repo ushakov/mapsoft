@@ -146,8 +146,16 @@ load(const char *file, iRect src_rect,
         for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
           int src_x = src_rect.x + ((dst_x-dst_rect.x)*src_rect.w)/dst_rect.w;
           if (src_x == src_rect.BRC().x) src_x--;
-          image.set(dst_x, dst_y,
-              row_buf[4*src_x] + (row_buf[4*src_x+1]<<8) + (row_buf[4*src_x+2]<<16) + (row_buf[4*src_x+3]<<24));
+          int r = row_buf[4*src_x];
+          int g = row_buf[4*src_x+1];
+          int b = row_buf[4*src_x+2];
+          int a = row_buf[4*src_x+3];
+          if (a<255){
+            r = (r*a)/255;
+            g = (g*a)/255;
+            b = (b*a)/255;
+          }
+          image.set(dst_x, dst_y, r + (g<<8) + (b<<16) + (a<<24));
         }
       }
       png_free(png_ptr, row_buf);
