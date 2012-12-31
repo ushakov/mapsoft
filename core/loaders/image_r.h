@@ -30,10 +30,10 @@ iImage load(const char *file, const int scale=1);
 //   tiff_usealpha 0..1,   default 0
 
 int save(const iImage & im, const iRect & src_rect,
-         const char *file, const Options & opts);
+         const char *file, const Options & opts = Options());
 
 // save the whole image
-int save(const iImage & im, const char * file, const Options & opts);
+int save(const iImage & im, const char * file, const Options & opts = Options());
 
 } // namespace
 #endif

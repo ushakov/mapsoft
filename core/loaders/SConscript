@@ -7,4 +7,8 @@ env.Library('loaders', \
         image_png.cpp
         image_r.cpp
     """))
+
+e=env.Clone()
+e.UseLibs('loaders')
+e.Program("img_convert.cpp")
  
