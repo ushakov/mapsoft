@@ -12,7 +12,7 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
 
   bool use_aa  = O.get<bool>("antialiasing", true);
   bool transp  = O.get<bool>("transp_margins", true);
-  int  bgcolor = O.get<int>("bgcolor", 0xFFFFFF);
+  bgcolor = O.get<int>("bgcolor", 0xFFFFFF);
   dpi = O.get<double>("dpi", 300.0);
 
   lw1 = dpi/105.0; // standard line width (1/105in?)
@@ -45,11 +45,10 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
   cr->set_line_width(4); // draw border
   cr->stroke_preserve();
   cr->restore();
-  cr->clip_preserve();   // set clipping region
+  cr->clip();   // set clipping region
   cr->save();
   cr->set_color(bgcolor); // erase border inside clip region
-  cr->set_line_width(10);
-  cr->stroke();
+  cr->paint();
   cr->restore();
 
 
@@ -170,24 +169,6 @@ VMAPRenderer::render_cnt_polygons(int type, int fill_col, int cnt_col,
   }
   cr->restore();
 }
-
-// polygons filled with image pattern
-void
-VMAPRenderer::render_img_polygons(int type, const char * fname, double curve_l){
-  if (!cr) return;
-  cr->save();
-  Cairo::RefPtr<Cairo::SurfacePattern> patt =
-    get_patt_from_png(fname);
-  patt->set_extend(Cairo::EXTEND_REPEAT);
-  cr->set_source(patt);
-  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
-    if (o->type!=(type | zn::area_mask)) continue;
-    cr->mkpath_smline(*o, 1, curve_l*lw1);
-    cr->fill();
-  }
-  cr->restore();
-}
-
 
 void
 VMAPRenderer::render_line(int type, int col, double th, double curve_l){
@@ -845,7 +826,7 @@ VMAPRenderer::render_holes(){
   render_polygons(0x52, 0xFFFFFF); // поле
   render_polygons(0x16, 0xAAFFAA); // лес
 
-  cr->set_color(0xFFFFFF);
+  cr->set_color(bgcolor);
   cr->paint();
 
   cr->restore();

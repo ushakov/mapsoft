@@ -108,7 +108,7 @@ cerr << dx << " x " << dy << " tile_size\n";
       iImage im = ml.get_image(iRect(tlc, tlc+dPoint(dx,dy)));
       if (im.empty()) continue;
       ostringstream fname; fname << dir_name << "/" << source[0] << depth << "-" << i << "-" << j << ".jpg"; 
-      image_r::save(im, fname.str().c_str(), Options());
+      image_r::save(im, fname.str().c_str());
 
       fig::fig_object o = fig::make_object("2 5 0 1 0 -1 "+depth+" -1 -1 0.000 0 0 -1 0 0 *");
 

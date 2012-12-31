@@ -156,5 +156,5 @@ int main(int argc, char *argv[]) {
 */
 
   fig::write("out_pano.fig", F);
-  image_r::save(img,"out_pano.jpg",Options());
+  image_r::save(img,"out_pano.jpg");
 }

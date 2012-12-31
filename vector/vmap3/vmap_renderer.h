@@ -32,6 +32,7 @@ struct VMAPRenderer{
   vmap::world * W;
   double dpi, lw1, fs1;
   g_map ref;
+  int bgcolor;
 
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
@@ -58,7 +59,7 @@ struct VMAPRenderer{
   // according to dpi and pics_dpi values and
   // translated to the image center
   Cairo::RefPtr<Cairo::SurfacePattern>
-  get_patt_from_png(const char * fname);
+  get_patt_from_image(const iImage & I);
 
   void
   paintim(const vmap::object & o,

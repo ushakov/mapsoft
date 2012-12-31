@@ -180,7 +180,7 @@ main(int argc, char* argv[]){
   }
 
   //*******************************
-  image_r::save(img, ofile, Options());
+  image_r::save(img, ofile);
 
   string map = O.get<string>("map");
   if (map!=""){

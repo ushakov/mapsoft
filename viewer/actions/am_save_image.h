@@ -228,7 +228,7 @@ std::cerr << "MPP SCALE " << sc << "\n";
 //      }
 
       // write image file
-      if (image_r::save(image, fname.c_str(), Options())>0){
+      if (image_r::save(image, fname.c_str())>0){
         mapview->dlg_err.call(MapsoftErr() << "Can't save file: " << fname);
         return;
       }

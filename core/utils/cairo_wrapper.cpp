@@ -8,17 +8,17 @@ void CairoExtra::save_png(const char *fname){
 
 void CairoExtra::set_color_a(const int c){
   Cairo::Context::set_source_rgba(
-      ((c&0xFF0000)>>16)/256.0,
-      ((c&0xFF00)>>8)/256.0,
        (c&0xFF)/256.0,
+      ((c&0xFF00)>>8)/256.0,
+      ((c&0xFF0000)>>16)/256.0,
       ((c&0xFF000000)>>24)/256.0
   );
 }
 void CairoExtra::set_color(const int c){
   Cairo::Context::set_source_rgb(
-      ((c&0xFF0000)>>16)/256.0,
+       (c&0xFF)/256.0,
       ((c&0xFF00)>>8)/256.0,
-       (c&0xFF)/256.0
+      ((c&0xFF0000)>>16)/256.0
   );
 }
 void CairoExtra::move_to(const dPoint & p){
