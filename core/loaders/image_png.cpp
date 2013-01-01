@@ -116,8 +116,13 @@ load(const char *file, iRect src_rect,
     if (png_get_valid(png_ptr, info_ptr,
         PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png_ptr);
 
+    if (!(color_type & PNG_COLOR_MASK_ALPHA))
+      png_set_add_alpha(png_ptr, 0xFF, PNG_FILLER_AFTER);
+
     if (bit_depth == 16)
         png_set_strip_16(png_ptr);
+
+    //
 
     png_read_update_info(png_ptr, info_ptr);
 

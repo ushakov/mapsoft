@@ -200,7 +200,7 @@ LayerMAP::draw(iImage & image, const iPoint & origin){
         }
         cr->close_path();
         if (scale > maxscale){ // fill map area
-          cr->set_color_a(0x800000FF);
+          cr->set_color_a(0x80000080);
           cr->fill_preserve();
         }
         cr->set_line_width(3);
