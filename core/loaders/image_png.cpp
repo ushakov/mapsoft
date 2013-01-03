@@ -233,15 +233,84 @@ save(const iImage & im, const iRect & src_rect, const char *file){
         return 2;
     }
 
+    // scan image for colors and alpha
+    bool alpha = false;
+    bool fulla = false;
+    bool fullc = false;
+    bool color = false;
+    int colors[256], mc=0;
+    memset(colors, 0, 256*sizeof(int));
+    for (int y = src_rect.y; y < src_rect.y+src_rect.h; y++){
+      if ((y<0)||(y>=im.h)) continue;
+      for (int x = 0; x < src_rect.w; x++){
+        if ((x+src_rect.x < 0) || (x+src_rect.x>=im.w)) continue;
+        unsigned int c = im.get(x+src_rect.x, y);
+
+        if (!alpha){
+          int a = (c >> 24) & 0xFF;
+          if (a<255) alpha=true;
+        }
+
+        if (!fulla){
+          int a = (c >> 24) & 0xFF;
+          if (a>0 && a<255) fulla=true;
+        }
+
+        if (!color){
+          int r = (c >> 16) & 0xFF;
+          int g = (c >> 8) & 0xFF;
+          int b = c & 0xFF;
+          if (r!=g || r!=b) color=true;
+        }
+
+        if (!fullc){
+          bool found=false;
+          for (int i=0; i<mc; i++)
+            if (c==colors[i]){ found=true; break;}
+          if (!found){
+            if (mc==256) fullc=true;
+            else colors[mc++] = c;
+          }
+        }
+      }
+    }
+
     png_init_io(png_ptr, outfile);
 
+    // png header
+    int color_type = PNG_COLOR_TYPE_PALETTE;
+    if (!color) color_type = PNG_COLOR_TYPE_GRAY;
+    if ((fullc || fulla) && color)  color_type = PNG_COLOR_TYPE_RGB;
+    if (alpha && color_type!=PNG_COLOR_TYPE_PALETTE)
+      color_type |= PNG_COLOR_MASK_ALPHA;
+
     png_set_IHDR(png_ptr, info_ptr, src_rect.w, src_rect.h,
-       8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
+       8, color_type, PNG_INTERLACE_NONE,
        PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+    // png palette
+    if (color_type == PNG_COLOR_TYPE_PALETTE){
+      png_color pcolors[256];
+      for (int i=0; i<mc; i++){
+        pcolors[i].red   = colors[i] & 0xFF;
+        pcolors[i].green = (colors[i] >>8) & 0xFF;
+        pcolors[i].blue  = (colors[i] >>16) & 0xFF;
+      }
+      png_set_PLTE(png_ptr, info_ptr, pcolors, mc);
+
+      if (alpha){
+       // tRNS
+        png_byte trans[256];
+        for (int i=0; i<mc; i++){
+          trans[i] = (colors[i]>>24) & 0xFF;
+        }
+        png_set_tRNS(png_ptr, info_ptr, trans, mc, 0);
+      }
+    }
 
     png_write_info(png_ptr, info_ptr);
 
-    png_bytep buf = (png_bytep)png_malloc(png_ptr, src_rect.w*3);
+    png_bytep buf = (png_bytep)png_malloc(png_ptr, src_rect.w*4);
     if (!info_ptr) {
       png_destroy_write_struct(&png_ptr, &info_ptr);
       return 2;
@@ -249,15 +318,36 @@ save(const iImage & im, const iRect & src_rect, const char *file){
 
     for (int y = src_rect.y; y < src_rect.y+src_rect.h; y++){
       if ((y<0)||(y>=im.h)){
-        for (int x = 0; x < src_rect.w*3; x++) buf[x] = 0;
+        for (int x = 0; x < src_rect.w*4; x++) buf[x] = 0;
       } else {
         for (int x = 0; x < src_rect.w; x++){
           int c = 0;
           if ((x+src_rect.x >= 0) && (x+src_rect.x<im.w))
             c = im.get(x+src_rect.x, y);
-          buf[3*x] = c & 0xFF;
-          buf[3*x+1] = (c >> 8) & 0xFF;
-          buf[3*x+2]   = (c >> 16) & 0xFF;
+          switch (color_type){
+          case PNG_COLOR_TYPE_GRAY:
+            buf[x]   = c & 0xFF;
+            break;
+          case PNG_COLOR_TYPE_GRAY_ALPHA:
+            buf[2*x]   = c & 0xFF;
+            buf[2*x+1] = (c >> 24) & 0xFF;
+            break;
+          case PNG_COLOR_TYPE_RGB:
+            buf[3*x]   = c & 0xFF;
+            buf[3*x+1] = (c >> 8) & 0xFF;
+            buf[3*x+2] = (c >> 16) & 0xFF;
+            break;
+          case PNG_COLOR_TYPE_RGB_ALPHA:
+            buf[4*x]   = c & 0xFF;
+            buf[4*x+1] = (c >> 8) & 0xFF;
+            buf[4*x+2] = (c >> 16) & 0xFF;
+            buf[4*x+3] = (c >> 24) & 0xFF;
+            break;
+          case PNG_COLOR_TYPE_PALETTE:
+            for (int i=0; i<mc; i++)
+              if (colors[i] == c) {buf[x] = (unsigned char)i; break;}
+            break;
+          }
         }
       }
       png_write_row(png_ptr, buf);
