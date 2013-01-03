@@ -44,6 +44,7 @@ needed_inc='
   tiff.h
   yaml.h
   proj_api.h
+  gif_lib.h
 '
 
 for i in $needed_bin; do

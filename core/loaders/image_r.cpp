@@ -12,11 +12,13 @@ bool testext(const char *file, const char *ext){
 #define TYPE_JPG 1
 #define TYPE_PNG 2
 #define TYPE_TIF 3
+#define TYPE_GIF 4
 
 int get_type(const char *file){
   if (testext(file, ".jpg") || testext(file, ".jpeg")) return TYPE_JPG;
   if (testext(file, ".tif") || testext(file, ".tiff")) return TYPE_TIF;
   if (testext(file, ".png")) return TYPE_PNG;
+  if (testext(file, ".gif")) return TYPE_GIF;
   std::cerr << "Unknown file type: " << file << "\n";
   return 0;
 }
@@ -26,6 +28,7 @@ iPoint size(const char *file){
     case TYPE_JPG: return image_jpeg::size(file);
     case TYPE_TIF: return image_tiff::size(file);
     case TYPE_PNG: return image_png::size(file);
+    case TYPE_GIF: return image_gif::size(file);
   }
   return iPoint(0,0);
 }
@@ -37,6 +40,7 @@ int load(const char *file, iRect src_rect,
     case TYPE_JPG: return image_jpeg::load(file, src_rect, image, dst_rect);
     case TYPE_TIF: return image_tiff::load(file, src_rect, image, dst_rect);
     case TYPE_PNG: return image_png::load(file, src_rect, image, dst_rect);
+    case TYPE_GIF: return image_gif::load(file, src_rect, image, dst_rect);
   }
   return 2;
 }
@@ -61,6 +65,7 @@ int save(const iImage & im, const iRect & src_rect,
     case TYPE_JPG: return image_jpeg::save(im, src_rect, file, opts.get("jpeg_quality",75));
     case TYPE_TIF: return image_tiff::save(im, src_rect, file);
     case TYPE_PNG: return image_png::save(im, src_rect, file);
+    case TYPE_GIF: return image_gif::save(im, src_rect, file);
   }
   return 2;
 }

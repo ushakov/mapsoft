@@ -12,6 +12,7 @@
 #include "image_png.h"
 #include "image_jpeg.h"
 #include "image_tiff.h"
+#include "image_gif.h"
 
 namespace image_r{
 
