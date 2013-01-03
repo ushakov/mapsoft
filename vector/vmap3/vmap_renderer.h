@@ -55,16 +55,11 @@ struct VMAPRenderer{
 
   // picture-related functions (see vmap_rend_pic.cpp)
 
-  // create pattern from png-file, rescaled
+  // create pattern from iImage, rescaled
   // according to dpi and pics_dpi values and
   // translated to the image center
   Cairo::RefPtr<Cairo::SurfacePattern>
-  get_patt_from_image(const iImage & I);
-
-  void
-  paintim(const vmap::object & o,
-          const Cairo::RefPtr<Cairo::SurfacePattern> & patt, double ang=0);
-
+    get_patt_from_image(const iImage & I);
 
   // place image in the center of polygons
   void render_im_in_polygons(int type, const char * fname);
@@ -123,9 +118,6 @@ struct VMAPRenderer{
   // functions for drawing text (see vmap_rend_txt.cpp)
 
   void set_fig_font(int font, double fs, Cairo::RefPtr<Cairo::Context> C);
-
-  void erase_under_text(Cairo::RefPtr<Cairo::ImageSurface> bw_surface,
-                   int dark_th, int search_dist);
 
   void render_labels(label_style_t label_style, double bound=2.5);
 

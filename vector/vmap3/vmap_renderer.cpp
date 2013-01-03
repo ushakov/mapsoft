@@ -11,7 +11,7 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
       W(_W), ref(ref_){
 
   bool use_aa  = O.get<bool>("antialiasing", true);
-  bool transp  = O.get<bool>("transp_margins", true);
+  bool transp  = O.get<bool>("transp_margins", false);
   bgcolor = O.get<int>("bgcolor", 0xFFFFFF);
   dpi = O.get<double>("dpi", 300.0);
 

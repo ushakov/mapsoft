@@ -29,43 +29,34 @@ VMAPRenderer::get_patt_from_image(const iImage & I){
 }
 
 
-void
-VMAPRenderer::paintim(const vmap::object & o,
-        const Cairo::RefPtr<Cairo::SurfacePattern> & patt, double ang){
-  for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
-    if (l->size()<1) continue;
-    dPoint p=l->range().CNT();
-    cr->save();
-    cr->translate(p.x, p.y);
-    cr->rotate(ang);
-    cr->set_source(patt);
-    cr->paint();
-    cr->restore();
-  }
-}
-
 // place image in the center of polygons
 void
 VMAPRenderer::render_im_in_polygons(int type, const char * fname){
-  cr->save();
   string f = string(pics_dir) + "/" + fname;
   iImage I = image_r::load(f.c_str());
   Cairo::RefPtr<Cairo::SurfacePattern> patt = get_patt_from_image(I);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
-    paintim(*o, patt);
+    for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
+      if (l->size()<1) continue;
+      dPoint p=l->range().CNT();
+      cr->save();
+      cr->translate(p.x, p.y);
+      cr->set_source(patt);
+      cr->paint();
+      cr->restore();
+    }
   }
-  cr->restore();
 }
 
 // polygons filled with image pattern
 void
 VMAPRenderer::render_img_polygons(int type, const char * fname, double curve_l){
-  cr->save();
   string f = string(pics_dir) + "/" + fname;
   iImage I = image_r::load(f.c_str());
   Cairo::RefPtr<Cairo::SurfacePattern> patt = get_patt_from_image(I);
   patt->set_extend(Cairo::EXTEND_REPEAT);
+  cr->save();
   cr->set_source(patt);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
@@ -83,7 +74,6 @@ VMAPRenderer::render_im_in_points(int type, const char * fname){
   Cairo::RefPtr<Cairo::SurfacePattern> patt = get_patt_from_image(I);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=type) continue;
-
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       if (l->size()<1) continue;
       cr->save();

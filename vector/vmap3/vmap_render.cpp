@@ -83,14 +83,17 @@ main(int argc, char* argv[]){
   Options O = parse_options(&argc, &argv, options, 3);
   if (O.exists("help")) usage();
 
+
   if (argc<2) usage();
   const char * ifile = argv[0];
   const char * ofile = argv[1];
 
   // create map
-
   vmap::world W=vmap::read(ifile);
-  if (W.size()==0) exit(1);
+  if (W.size()==0){
+    std::cerr << "Error: empty map\n";
+    exit(1);
+  }
 
   // set geometry if no --wgs_geom, --wgs_brd, --geom,
   //  --nom, --google option exists
@@ -152,7 +155,6 @@ main(int argc, char* argv[]){
   vmap::move_pics(W);
 
   iImage img(rng.w, rng.h);
-
 
   VMAPRenderer R(&W, img, ref, O);
 

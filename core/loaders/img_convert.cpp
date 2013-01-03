@@ -8,5 +8,5 @@ main(int argc, char* argv[]){
   }
 
   iImage I = image_r::load(argv[1]);
-  image_r::save(I, argv[2]);
+  if (!I.empty()) image_r::save(I, argv[2]);
 }
