@@ -61,9 +61,9 @@ load(const char *file, iRect src_rect,
 
     int colors[256];
     for (int i=0; i<gif->SColorMap->ColorCount; i++){
-      colors[i] = (gif->SColorMap->Colors[i].Red << 16) +
+      colors[i] = gif->SColorMap->Colors[i].Red +
                   (gif->SColorMap->Colors[i].Green << 8) +
-                   gif->SColorMap->Colors[i].Blue + (0xFF<<24);
+                  (gif->SColorMap->Colors[i].Blue << 16) + (0xFF<<24);
     }
     int bgcolor = colors[gif->SBackGroundColor];
 
