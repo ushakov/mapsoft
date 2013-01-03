@@ -6,44 +6,39 @@ namespace image_r{
 bool testext(const char *file, const char *ext){
   int lf=strlen(file);
   int le=strlen(ext);
-  return (lf>=le) && (strncmp(file + (lf-le), ext, le)==0);
+  return (lf>=le) && (strncasecmp(file + (lf-le), ext, le)==0);
+}
+
+#define TYPE_JPG 1
+#define TYPE_PNG 2
+#define TYPE_TIF 3
+
+int get_type(const char *file){
+  if (testext(file, ".jpg") || testext(file, ".jpeg")) return TYPE_JPG;
+  if (testext(file, ".tif") || testext(file, ".tiff")) return TYPE_TIF;
+  if (testext(file, ".png")) return TYPE_PNG;
+  std::cerr << "Unknown file type: " << file << "\n";
+  return 0;
 }
 
 iPoint size(const char *file){
-    // Поглядим на расширение:
-    if (testext(file, ".jpg") || testext(file, ".jpeg") ||
-        testext(file, ".JPG") || testext(file, ".JPEG")){
-      return image_jpeg::size(file);
-    }
-    if (testext(file, ".tif") || testext(file, ".tiff") ||
-        testext(file, ".TIF") || testext(file, ".TIFF")){
-      return image_tiff::size(file);
-    }
-    if (testext(file, ".png") || testext(file, ".PNG")){
-      return image_png::size(file);
-    }
-    std::cerr << "Can't determine file format by extension in " << file << "\n"
-              << "supported formats: jpeg, tiff, png\n";
-    return iPoint(0,0);
+  switch (get_type(file)){
+    case TYPE_JPG: return image_jpeg::size(file);
+    case TYPE_TIF: return image_tiff::size(file);
+    case TYPE_PNG: return image_png::size(file);
+  }
+  return iPoint(0,0);
 }
 
 // loading from Rect in file to Rect in image
 int load(const char *file, iRect src_rect, 
          iImage & image, iRect dst_rect){
-
-    // Поглядим на расширение:
-    if (testext(file, ".jpg") || testext(file, ".jpeg") ||
-        testext(file, ".JPG") || testext(file, ".JPEG")){
-      return image_jpeg::load(file, src_rect, image, dst_rect);
-    }
-    if (testext(file, ".tif") || testext(file, ".tiff") ||
-        testext(file, ".TIF") || testext(file, ".TIFF")){
-      return image_tiff::load(file, src_rect, image, dst_rect);
-    }
-    if (testext(file, ".png") || testext(file, ".PNG")){
-      return image_png::load(file, src_rect, image, dst_rect);
-    }
-    return 2;
+  switch (get_type(file)){
+    case TYPE_JPG: return image_jpeg::load(file, src_rect, image, dst_rect);
+    case TYPE_TIF: return image_tiff::load(file, src_rect, image, dst_rect);
+    case TYPE_PNG: return image_png::load(file, src_rect, image, dst_rect);
+  }
+  return 2;
 }
 
 // load the whole image 
@@ -63,21 +58,12 @@ iImage load(const char *file, const int scale){
 int save(const iImage & im, const iRect & src_rect,
          const char *file, const Options & opts){
 
-    // Поглядим на расширение:
-    if (testext(file, ".jpg") || testext(file, ".jpeg") ||
-        testext(file, ".JPG") || testext(file, ".JPEG")){
-      return image_jpeg::save(
-        im, src_rect, file, opts.get("jpeg_quality",75));
-    }
-    if (testext(file, ".tif") || testext(file, ".tiff") ||
-        testext(file, ".TIF") || testext(file, ".TIFF")){
-      return image_tiff::save(im, src_rect, file,
-        opts.exists("tiff_usealpha"));
-    }
-    if (testext(file, ".png") || testext(file, ".PNG")){
-      return image_png::save(im, src_rect, file);
-    }
-    return 2;
+  switch (get_type(file)){
+    case TYPE_JPG: return image_jpeg::save(im, src_rect, file, opts.get("jpeg_quality",75));
+    case TYPE_TIF: return image_tiff::save(im, src_rect, file, opts.exists("tiff_usealpha"));
+    case TYPE_PNG: return image_png::save(im, src_rect, file);
+  }
+  return 2;
 }
 
 // save the whole image
