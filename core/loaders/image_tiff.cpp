@@ -97,7 +97,7 @@ int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect){
 
 // save part of image
 int save(const iImage & im, const iRect & src_rect,
-         const char *file, bool usealpha){
+         const char *file){
 
     TIFF* tif = TIFFOpen(file, "wb");
 
@@ -105,7 +105,24 @@ int save(const iImage & im, const iRect & src_rect,
       cerr << "image_tiff: can't write " << file << endl;
       return 1;
     }
-    int bpp = usealpha?4:3;
+
+    // scan image for alpha
+    bool alpha = false;
+    for (int y = src_rect.y; y < src_rect.y+src_rect.h; y++){
+      if ((y<0)||(y>=im.h)) continue;
+      for (int x = 0; x < src_rect.w; x++){
+        if ((x+src_rect.x < 0) || (x+src_rect.x>=im.w)) continue;
+        unsigned int c = im.get(x+src_rect.x, y);
+
+        if (!alpha){
+          int a = (c >> 24) & 0xFF;
+          if (a<255) alpha=true;
+        }
+      }
+      if (alpha) break;
+    }
+
+    int bpp = alpha?4:3;
     int scan = bpp*src_rect.w;
 
     TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, src_rect.w);
@@ -115,7 +132,6 @@ int save(const iImage & im, const iRect & src_rect,
     TIFFSetField(tif, TIFFTAG_PLANARCONFIG,    1);
     TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP,    1);
     TIFFSetField(tif, TIFFTAG_COMPRESSION,     COMPRESSION_LZW);
-
 
     if (bpp==4){
       int type=EXTRASAMPLE_UNASSALPHA;
@@ -162,8 +178,8 @@ iImage load(const char *file, const int scale){
 }
 
 // save the whole image
-int save(const iImage & im, const char * file, bool usealpha){
-  return save(im, im.range(), file, usealpha);
+int save(const iImage & im, const char * file){
+  return save(im, im.range(), file);
 }
 
 } // namespace

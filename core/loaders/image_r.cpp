@@ -53,14 +53,13 @@ iImage load(const char *file, const int scale){
 // save the whole image
 // options:
 //   jpeg_quality  0..100, default 75
-//   tiff_usealpha 0..1,   default 0
 
 int save(const iImage & im, const iRect & src_rect,
          const char *file, const Options & opts){
 
   switch (get_type(file)){
     case TYPE_JPG: return image_jpeg::save(im, src_rect, file, opts.get("jpeg_quality",75));
-    case TYPE_TIF: return image_tiff::save(im, src_rect, file, opts.exists("tiff_usealpha"));
+    case TYPE_TIF: return image_tiff::save(im, src_rect, file);
     case TYPE_PNG: return image_png::save(im, src_rect, file);
   }
   return 2;
