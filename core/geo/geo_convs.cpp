@@ -167,8 +167,12 @@ map2pt::map2pt(const g_map & sM,
   // map projection
   if (sM.map_datum==dD && sM.map_proj==dP && sM.proj_opts ==dPo)
     pr_map = pr_dst;
-  else
-    pr_map = mkproj(sM.map_datum, sM.map_proj, sM.proj_opts);
+  else{
+    Options o = sM.proj_opts;
+    if (sM.map_proj == Proj("tmerc") && !o.exists("lon0"))
+      o.put<double>("lon0", map_lon0(sM));
+    pr_map = mkproj(sM.map_datum, sM.map_proj, o);
+  }
 
   if (pj_is_latlong(pr_dst)) sc_dst=180.0/M_PI;
 

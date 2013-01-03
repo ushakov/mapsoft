@@ -31,6 +31,9 @@ get_ref(const fig_world & w){
     parse(w.comment[n].c_str(), str_p("proj:")  >> space_p >> (*anychar_p)[assign_a(proj)]);
   }
 
+  Options O=w.opts;
+  if (!O.exists("map_proj")) O.put<string>("map_proj", proj);
+
   ret.parse_from_options(w.opts, false); // new-stile options
 
   dPoint min(1e99,1e99), max(-1e99,-1e99);
