@@ -50,8 +50,8 @@ struct VMAPRenderer{
   void set_join_round();
 
 
-  void render_objects(const bool draw_contours=true);
-  void render_holes();
+  void render_objects(Conv & cnv, const bool draw_contours=true);
+  void render_holes(Conv & cnv);
 
   // picture-related functions (see vmap_rend_pic.cpp)
 
@@ -62,50 +62,50 @@ struct VMAPRenderer{
     get_patt_from_image(const iImage & I);
 
   // place image in the center of polygons
-  void render_im_in_polygons(int type, const char * fname);
+  void render_im_in_polygons(Conv & cnv, int type, const char * fname);
 
   // place image in points
-  void render_im_in_points(int type, const char * fname);
+  void render_im_in_points(Conv & cnv, int type, const char * fname);
 
   // path for drawing points
-  void mkptpath(const dMultiLine & o);
+  void mkptpath(Conv & cnv, const dMultiLine & o);
 
-  void  render_polygons(int type, int col, double curve_l=0);
+  void  render_polygons(Conv & cnv, int type, int col, double curve_l=0);
   // contoured polygons
-  void  render_cnt_polygons(int type, int fill_col, int cnt_col,
+  void  render_cnt_polygons(Conv & cnv, int type, int fill_col, int cnt_col,
                         double cnt_th, double curve_l=0);
   // polygons filled with image pattern
-  void render_img_polygons(int type, const char * fname, double curve_l=0);
+  void render_img_polygons(Conv & cnv, int type, const char * fname, double curve_l=0);
 
-  void  render_line(int type, int col, double th, double curve_l=0);
-  void  render_points(int type, int col, double th);
+  void  render_line(Conv & cnv, int type, int col, double th, double curve_l=0);
+  void  render_points(Conv & cnv, int type, int col, double th);
 
 
 
 
   // paths for bridge sign
-  void  mkbrpath1(const vmap::object & o);
+  void  mkbrpath1(Conv & cnv, const vmap::object & o);
 
-  void mkbrpath2(const vmap::object & o, double th, double side);
+  void mkbrpath2(Conv & cnv, const vmap::object & o, double th, double side);
 
   // мосты
-  void render_bridge(int type, double th1, double th2, double side);
+  void render_bridge(Conv & cnv, int type, double th1, double th2, double side);
 
   // лэп
-  void render_line_el(int type, int col, double th, double step=40);
+  void render_line_el(Conv & cnv, int type, int col, double th, double step=40);
 
   // обрывы
-  void render_line_obr(int type, int col, double th);
+  void render_line_obr(Conv & cnv, int type, int col, double th);
 
   // заборы
-  void render_line_zab(int type, int col, double th);
+  void render_line_zab(Conv & cnv, int type, int col, double th);
 
   // вал
-  void render_line_val(int type, int col, double th, 
+  void render_line_val(Conv & cnv, int type, int col, double th, 
                        double width, double step);
 
   // газопроводы
-  void render_line_gaz(int type, int col, double th, double step=40);
+  void render_line_gaz(Conv & cnv, int type, int col, double th, double step=40);
 
 
   // нарисовать сетку с шагом dx,dy см в координатах Г-К СК1942г
@@ -119,7 +119,7 @@ struct VMAPRenderer{
 
   void set_fig_font(int font, double fs, Cairo::RefPtr<Cairo::Context> C);
 
-  void render_labels(label_style_t label_style, double bound=2.5);
+  void render_labels(Conv & cnv, label_style_t label_style, double bound=2.5);
 
   void render_text(const char *text, dPoint pos, double ang=0,
          int color=0, int fig_font=18, int font_size=10, int hdir=0, int vdir=0);

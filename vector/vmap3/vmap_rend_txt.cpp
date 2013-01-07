@@ -60,7 +60,7 @@ VMAPRenderer::set_fig_font(int font, double fs, Cairo::RefPtr<Cairo::Context> C)
 
 
 void
-VMAPRenderer::render_labels(label_style_t label_style, double bound){
+VMAPRenderer::render_labels(Conv & cnv, label_style_t label_style, double bound){
   cr->save();
 
   zn::zn_conv zc(W->style);
@@ -97,9 +97,12 @@ VMAPRenderer::render_labels(label_style_t label_style, double bound){
       for (std::list<vmap::lpos>::const_iterator
             l=o->labels.begin(); l!=o->labels.end(); l++){
         dPoint p(l->pos);
+        cnv.bck(p);
         cr->save();
         cr->move_to(p);
-        if (!l->hor) cr->rotate(l->ang);
+        double a = l->ang;
+        a = cnv.ang_bck(o->center(), M_PI/180 * a, 0.01);
+        if (!l->hor) cr->rotate(a);
         if (l->dir == 1) cr->Cairo::Context::rel_move_to(-ext.w/2, 0);
         if (l->dir == 2) cr->Cairo::Context::rel_move_to(-ext.w, 0);
         if (pass == 1){
@@ -114,7 +117,7 @@ VMAPRenderer::render_labels(label_style_t label_style, double bound){
     }
   }
   cr->restore();
-  if (label_style==LABEL_STYLE2) render_holes();
+  if (label_style==LABEL_STYLE2) render_holes(cnv);
 }
 
 void

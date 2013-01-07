@@ -31,7 +31,7 @@ VMAPRenderer::get_patt_from_image(const iImage & I){
 
 // place image in the center of polygons
 void
-VMAPRenderer::render_im_in_polygons(int type, const char * fname){
+VMAPRenderer::render_im_in_polygons(Conv & cnv, int type, const char * fname){
   string f = string(pics_dir) + "/" + fname;
   iImage I = image_r::load(f.c_str());
   Cairo::RefPtr<Cairo::SurfacePattern> patt = get_patt_from_image(I);
@@ -40,6 +40,7 @@ VMAPRenderer::render_im_in_polygons(int type, const char * fname){
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       if (l->size()<1) continue;
       dPoint p=l->range().CNT();
+      cnv.bck(p);
       cr->save();
       cr->translate(p.x, p.y);
       cr->set_source(patt);
@@ -51,7 +52,7 @@ VMAPRenderer::render_im_in_polygons(int type, const char * fname){
 
 // polygons filled with image pattern
 void
-VMAPRenderer::render_img_polygons(int type, const char * fname, double curve_l){
+VMAPRenderer::render_img_polygons(Conv & cnv, int type, const char * fname, double curve_l){
   string f = string(pics_dir) + "/" + fname;
   iImage I = image_r::load(f.c_str());
   Cairo::RefPtr<Cairo::SurfacePattern> patt = get_patt_from_image(I);
@@ -60,7 +61,8 @@ VMAPRenderer::render_img_polygons(int type, const char * fname, double curve_l){
   cr->set_source(patt);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
-    cr->mkpath_smline(*o, 1, curve_l*lw1);
+    dMultiLine l = *o; cnv.line_bck_p2p(l);
+    cr->mkpath_smline(l, 1, curve_l*lw1);
     cr->fill();
   }
   cr->restore();
@@ -68,7 +70,7 @@ VMAPRenderer::render_img_polygons(int type, const char * fname, double curve_l){
 
 // place image in points
 void
-VMAPRenderer::render_im_in_points(int type, const char * fname){
+VMAPRenderer::render_im_in_points(Conv & cnv, int type, const char * fname){
   string f = string(pics_dir) + "/" + fname;
   iImage I = image_r::load(f.c_str());
   Cairo::RefPtr<Cairo::SurfacePattern> patt = get_patt_from_image(I);
@@ -77,9 +79,14 @@ VMAPRenderer::render_im_in_points(int type, const char * fname){
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       if (l->size()<1) continue;
       cr->save();
-      cr->translate((*l)[0].x, (*l)[0].y);
-      if (o->opts.exists("Angle"))
-        cr->rotate(o->opts.get<double>("Angle",0));
+      dPoint p=(*l)[0];
+      cnv.bck(p);
+      cr->translate(p.x, p.y);
+      if (o->opts.exists("Angle")){
+        double a = o->opts.get<double>("Angle",0);
+        a = cnv.ang_bck(o->center(), M_PI/180 * a, 0.01);
+        cr->rotate(a);
+      }
       cr->set_source(patt);
       cr->paint();
       cr->restore();

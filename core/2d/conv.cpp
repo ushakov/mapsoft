@@ -9,8 +9,20 @@ Conv::line_frw_p2p(dLine & l) const {
 }
 
 void
+Conv::line_frw_p2p(dMultiLine & l) const {
+  for (dMultiLine::iterator i=l.begin(); i!=l.end(); i++)
+    for (dLine::iterator j=i->begin(); j!=i->end(); j++) frw(*j);
+}
+
+void
 Conv::line_bck_p2p(dLine & l) const {
   for (dLine::iterator i=l.begin(); i!=l.end(); i++) bck(*i);
+}
+
+void
+Conv::line_bck_p2p(dMultiLine & l) const {
+  for (dMultiLine::iterator i=l.begin(); i!=l.end(); i++)
+    for (dLine::iterator j=i->begin(); j!=i->end(); j++) bck(*j);
 }
 
 dLine

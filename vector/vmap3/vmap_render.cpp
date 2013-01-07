@@ -156,14 +156,17 @@ main(int argc, char* argv[]){
 
   iImage img(rng.w, rng.h);
 
+  convs::map2wgs cnv(ref);
+  ref.border=cnv.line_bck(W.brd);
+
   VMAPRenderer R(&W, img, ref, O);
 
-  R.render_objects(O.get<bool>("contours", true));
+  R.render_objects(cnv, O.get<bool>("contours", true));
 
   double grid_step = O.get<double>("grid", 0);
   if (grid_step>0) R.render_pulk_grid(grid_step, grid_step, false);
 
-  R.render_labels(ls);
+  R.render_labels(cnv, ls);
 
   // draw grid labels after labels
   if ((grid_step>0) && grid_labels)

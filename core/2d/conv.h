@@ -22,6 +22,8 @@ struct Conv{
   /// Convert a line, point to point.
   virtual void line_frw_p2p(dLine & l) const;
   virtual void line_bck_p2p(dLine & l) const;
+  virtual void line_frw_p2p(dMultiLine & l) const;
+  virtual void line_bck_p2p(dMultiLine & l) const;
 
   /// Convert a line. Each segment can be divided to provide
   /// accuracy <acc> in source units. <max> is a maximum number
