@@ -61,12 +61,12 @@ dRect CairoExtra::get_text_extents(const std::string & utf8){
 }
 
 void
-CairoExtra::mkpath_smline(const dMultiLine & o, const int close, double curve_l){
+CairoExtra::mkpath_smline(const dMultiLine & o, bool close, double curve_l){
   for (dMultiLine::const_iterator l=o.begin(); l!=o.end(); l++)
     mkpath_smline(*l, close, curve_l);
 }
 void
-CairoExtra::mkpath_smline(const dLine & o, const int close, double curve_l){
+CairoExtra::mkpath_smline(const dLine & o, bool close, double curve_l){
   if (o.size()<1) return;
   dPoint old;
   bool first = true;
@@ -103,7 +103,19 @@ CairoExtra::mkpath_smline(const dLine & o, const int close, double curve_l){
 }
 
 
-
+void
+CairoExtra::mkpath(const dMultiLine & o, bool close){
+  for (dMultiLine::const_iterator l=o.begin(); l!=o.end(); l++)
+    mkpath(*l, close);
+}
+void
+CairoExtra::mkpath(const dLine & o, bool close){
+  for (dLine::const_iterator p=o.begin(); p!=o.end(); p++){
+    if (p==o.begin()) move_to(*p);
+    else line_to(*p);
+  }
+  if (close) close_path();
+}
 
 
 void

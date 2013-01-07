@@ -23,6 +23,9 @@ typedef enum {
 } label_style_t;
 
 
+void render_border(iImage & img, const dLine & brd, const Options & O);
+
+
 struct VMAPRenderer{
 
   const static double pics_dpi;

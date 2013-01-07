@@ -28,8 +28,11 @@ struct CairoExtra : public Cairo::Context {
   dPoint get_current_point();
   dRect  get_text_extents(const std::string & utf8);
   // make path for smoothed line
-  void mkpath_smline(const dMultiLine & o, const int close, double curve_l=0);
-  void mkpath_smline(const dLine & o, const int close, double curve_l=0);
+  void mkpath_smline(const dMultiLine & o, bool close=true, double curve_l=0);
+  void mkpath_smline(const dLine & o, bool close=true, double curve_l=0);
+
+  void mkpath(const dMultiLine & o, bool close=true);
+  void mkpath(const dLine & o, bool close=true);
 
 };
 

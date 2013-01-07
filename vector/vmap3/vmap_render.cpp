@@ -168,6 +168,8 @@ main(int argc, char* argv[]){
 
   R.render_labels(cnv, ls);
 
+  if (ref.border.size()>2) render_border(img, ref.border, O);
+
   // draw grid labels after labels
   if ((grid_step>0) && grid_labels)
     R.render_pulk_grid(grid_step, grid_step, true);

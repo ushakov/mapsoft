@@ -25,28 +25,31 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
   // dark points under labels
   if (!use_aa) cr->set_antialias(Cairo::ANTIALIAS_NONE); 
 
-  // draw border, set clipping region
-  if (!transp) {
-    cr->set_color(bgcolor);
-    cr->paint();
-  }
-  for (dLine::const_iterator p=ref.border.begin(); p!=ref.border.end(); p++){
-    if (p==ref.border.begin()) cr->move_to(*p);
-    else cr->line_to(*p);
-  }
-  cr->close_path();
-  cr->save();
-  cr->set_source_rgb(0,0,0);
-  cr->set_line_width(4); // draw border
-  cr->stroke_preserve();
-  cr->restore();
-  cr->clip();   // set clipping region
-  cr->save();
-  cr->set_color(bgcolor); // erase border inside clip region
-  cr->paint();
-  cr->restore();
-
   if (W->size() == 0) cerr << "warning: no objects\n";
+}
+
+void
+render_border(iImage & img, const dLine & brd, const Options & O){
+  CairoWrapper cr(img);
+
+  int bgcolor = O.get<int>("bgcolor", 0xFFFFFF);
+  bool transp = O.get<bool>("transp_margins", false);
+
+  // make border path
+  dLine::const_iterator p;
+  cr->set_fill_rule(Cairo::FILL_RULE_EVEN_ODD);
+  cr->mkpath(brd);
+  cr->mkpath(rect2line(img.range()));
+
+  // erase everything outside border
+  if (transp) cr->set_operator(Cairo::OPERATOR_CLEAR);
+  else  cr->set_color(bgcolor);
+  cr->fill_preserve();
+
+  // draw border
+  cr->set_source_rgb(0,0,0);
+  cr->set_line_width(2);
+  cr->stroke();
 }
 
 void
