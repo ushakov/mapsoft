@@ -7,11 +7,9 @@
 using namespace std;
 
 VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
-    const g_map & ref_, const Options & O):
-      W(_W), ref(ref_){
+    const Options & O): W(_W) {
 
   bool use_aa  = O.get<bool>("antialiasing", true);
-  bool transp  = O.get<bool>("transp_margins", false);
   bgcolor = O.get<int>("bgcolor", 0xFFFFFF);
   dpi = O.get<double>("dpi", 300.0);
 
@@ -24,8 +22,6 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
   // antialiasing is not compatable with erasing
   // dark points under labels
   if (!use_aa) cr->set_antialias(Cairo::ANTIALIAS_NONE); 
-
-  if (W->size() == 0) cerr << "warning: no objects\n";
 }
 
 void
@@ -405,19 +401,19 @@ VMAPRenderer::render_line_gaz(Conv & cnv, int type, int col, double th, double s
 }
 
 void
-VMAPRenderer::render_grid_label(double c, double val, bool horiz){
+VMAPRenderer::render_grid_label(double c, double val, bool horiz, const dLine & border){
 
   ostringstream ss;
   ss << setprecision(7) << val/1000.0;
 
-  if (ref.border.size()<1) return;
+  if (border.size()<1) return;
 
   dPoint pmin, pmax;
   double amin=0, amax=0;
   dLine::const_iterator i,j;
-  for (i=ref.border.begin(); i!=ref.border.end(); i++){
+  for (i=border.begin(); i!=border.end(); i++){
     j=i+1;
-    if (j==ref.border.end()) j=ref.border.begin();
+    if (j==border.end()) j=border.begin();
     dPoint p1(*i);
     dPoint p2(*j);
     if (horiz){
@@ -476,11 +472,7 @@ VMAPRenderer::render_grid_label(double c, double val, bool horiz){
 }
 
 void
-VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
-
-  if (ref.map_proj != Proj("tmerc")){
-    cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
-  }
+VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels, const g_map & ref){
 
   convs::map2pt cnv(ref, Datum("pulkovo"), Proj("tmerc"), ref.proj_opts);
 
@@ -511,7 +503,7 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
   cr->set_line_width(2);
   while (p.x<pe.x){
     dPoint pc(p); cnv.bck(pc);
-    if (labels) render_grid_label(pc.x, p.x, true);
+    if (labels) render_grid_label(pc.x, p.x, true, ref.border);
     else {
       cr->Cairo::Context::move_to(pc.x, pbc.y);
       cr->Cairo::Context::line_to(pc.x, pec.y);
@@ -521,7 +513,7 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels){
   while (p.y<pe.y){
     dPoint pc(p); cnv.bck(pc);
     if (labels && (p.y > pb.y+m) && (p.y<pe.y-m))
-      render_grid_label(pc.y, p.y, false);
+      render_grid_label(pc.y, p.y, false, ref.border);
     else {
       cr->Cairo::Context::move_to(pbc.x, pc.y);
       cr->Cairo::Context::line_to(pec.x, pc.y);

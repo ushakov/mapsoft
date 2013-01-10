@@ -34,14 +34,13 @@ struct VMAPRenderer{
   CairoWrapper cr;
   vmap::world * W;
   double dpi, lw1, fs1;
-  g_map ref;
   int bgcolor;
 
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
 
   VMAPRenderer(vmap::world * _W, iImage & img,
-    const g_map & ref, const Options & O = Options());
+    const Options & O = Options());
 
   void unset_dash();
   void set_dash(double d1, double d2);
@@ -112,11 +111,11 @@ struct VMAPRenderer{
 
 
   // нарисовать сетку с шагом dx,dy см в координатах Г-К СК1942г
-  void render_pulk_grid(double dx, double dy, bool draw_labels);
+  void render_pulk_grid(double dx, double dy, bool draw_labels, const g_map & ref);
   // нарисовать подпись сетки в месте пересейчаения
   // границы карты и линий с данным x=c или y=c (horiz=false)
   // todo: merge common code for x and y?
-  void render_grid_label(double c, double val, bool horiz);
+  void render_grid_label(double c, double val, bool horiz, const dLine & border);
 
   // functions for drawing text (see vmap_rend_txt.cpp)
 

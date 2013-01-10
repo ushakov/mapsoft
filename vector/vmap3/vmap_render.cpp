@@ -139,40 +139,48 @@ main(int argc, char* argv[]){
       exit(1);
   }
 
+ // modify vmap
+  vmap::join_labels(W);
+  vmap::move_pics(W);
+
+  // calculate picture range, create Image
+  convs::map2wgs cnv(ref);
+  if (W.brd.size()>2) ref.border=cnv.line_bck(W.brd);
+  if (W.size() == 0) cerr << "warning: no objects\n";
+
   dRect rng = ref.border.range();
   rng.x = rng.y = 0;
   rng.w+=lm+rm; if (rng.w<0) rng.w=0;
   rng.h+=tm+bm; if (rng.h<0) rng.h=0;
   ref+=dPoint(lm,tm);
+  cnv = convs::map2wgs(ref);
   cerr
      << "  scale  = 1:" << int(W.rscale) << "\n"
      << "  dpi    = " << dpi << "\n"
      << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
-
-
- // modify vmap
-  vmap::join_labels(W);
-  vmap::move_pics(W);
-
   iImage img(rng.w, rng.h);
 
-  convs::map2wgs cnv(ref);
-  ref.border=cnv.line_bck(W.brd);
-
-  VMAPRenderer R(&W, img, ref, O);
+  VMAPRenderer R(&W, img, O);
 
   R.render_objects(cnv, O.get<bool>("contours", true));
 
   double grid_step = O.get<double>("grid", 0);
-  if (grid_step>0) R.render_pulk_grid(grid_step, grid_step, false);
+  if (grid_step>0){
+    if (ref.map_proj != Proj("tmerc"))
+      cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
+    R.render_pulk_grid(grid_step, grid_step, false, ref);
+  }
 
   R.render_labels(cnv, ls);
 
   if (ref.border.size()>2) render_border(img, ref.border, O);
 
   // draw grid labels after labels
-  if ((grid_step>0) && grid_labels)
-    R.render_pulk_grid(grid_step, grid_step, true);
+  if ((grid_step>0) && grid_labels){
+    if (ref.map_proj != Proj("tmerc"))
+      cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
+    R.render_pulk_grid(grid_step, grid_step, true, ref);
+  }
 
   if (O.get<int>("draw_name", 0))
     R.render_text(W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, 0, 2);
