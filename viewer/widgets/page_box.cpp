@@ -17,13 +17,22 @@ double u2px(int u, double d){
   return 1;
 }
 
-double digs(int u){
+// set spinbutton range and digets for different units
+void set_spinpars(Gtk::SpinButton * x, int u){
   switch (u){
-    case 0: return 0;      // px
-    case 1: return 2;      // cm
-    case 2: return 2;      // in
+    case 0: // px
+      x->set_digits(0);
+      x->set_range(1, 99999);
+      break;
+    case 1: // cm
+      x->set_digits(2);
+      x->set_range(0.01, 99999);
+      break;
+    case 2: // in
+      x->set_digits(2);
+      x->set_range(0.01, 99999);
+      break;
   }
-  return 0;
 }
 
 PageBox::PageBox(): marg_adj(0, 0, 99999),
@@ -91,9 +100,9 @@ PageBox::PageBox(): marg_adj(0, 0, 99999),
   m_units->set_active_id(1);
   old_u = units->get_active_id();
   old_mu = m_units->get_active_id();
-  x->set_digits(digs(old_u));
-  y->set_digits(digs(old_u));
-  marg->set_digits(digs(old_mu));
+  set_spinpars(x, old_u);
+  set_spinpars(y, old_u);
+  set_spinpars(marg, old_mu);
   marg->set_value(0.65);
   dpi->set_value(300.0);
 
@@ -133,15 +142,18 @@ PageBox::ch_units(){
   no_ch=true;
   if (u!=old_u){
     double f = u2mm(old_u,d) / u2mm(u,d);
-    x->set_value( x->get_value() * f);
-    y->set_value( y->get_value() * f);
-    x->set_digits(digs(u));
-    y->set_digits(digs(u));
+    double xv = x->get_value();
+    double yv = y->get_value();
+    set_spinpars(x, u);
+    set_spinpars(y, u);
+    x->set_value( xv * f);
+    y->set_value( yv * f);
   }
   if (mu!=old_mu){
     double f = u2mm(old_mu,d) / u2mm(mu,d);
-    marg->set_value( marg->get_value() * f);
-    marg->set_digits(digs(mu));
+    double v = marg->get_value();
+    set_spinpars(marg, mu);
+    marg->set_value( v * f);
   }
   old_mu = mu;
   old_u = u;
