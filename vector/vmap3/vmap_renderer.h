@@ -16,6 +16,9 @@
 #include "vmap/zn.h"
 #include "vmap/vmap.h"
 
+#include "gred/gobj.h"
+
+
 typedef enum {
   LABEL_STYLE0,
   LABEL_STYLE1,
@@ -24,7 +27,6 @@ typedef enum {
 
 
 void render_border(iImage & img, const dLine & brd, const Options & O);
-
 
 struct VMAPRenderer{
 
@@ -68,9 +70,6 @@ struct VMAPRenderer{
 
   // place image in points
   void render_im_in_points(Conv & cnv, int type, const char * fname);
-
-  // path for drawing points
-  void mkptpath(Conv & cnv, const dMultiLine & o);
 
   void  render_polygons(Conv & cnv, int type, int col, double curve_l=0);
   // contoured polygons
@@ -143,5 +142,6 @@ struct VMAPRenderer{
   void draw_cnt(const std::list<iPoint> & cnt, int c, double th);
 
 };
+
 
 #endif

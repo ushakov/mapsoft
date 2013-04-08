@@ -68,39 +68,6 @@ VMAPRenderer::set_dash(double d1, double d2, double d3, double d4){
   d.push_back(d4*lw1);
   cr->set_dash(d, 0);
 }
-void
-VMAPRenderer::set_cap_round(){
-  cr->set_line_cap(Cairo::LINE_CAP_ROUND);
-}
-void
-VMAPRenderer::set_cap_butt(){
-  cr->set_line_cap(Cairo::LINE_CAP_BUTT);
-}
-void
-VMAPRenderer::set_cap_square(){
-  cr->set_line_cap(Cairo::LINE_CAP_SQUARE);
-}
-void
-VMAPRenderer::set_join_miter(){
-  cr->set_line_join(Cairo::LINE_JOIN_MITER);
-}
-void
-VMAPRenderer::set_join_round(){
-  cr->set_line_join(Cairo::LINE_JOIN_ROUND);
-}
-
-// path for drawing points
-void
-VMAPRenderer::mkptpath(Conv & cnv, const dMultiLine & o){
-  for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
-    if (l->size()<1) continue;
-    dPoint p = *l->begin();
-    cnv.bck(p);
-    cr->move_to(p);
-    cr->rel_line_to(dPoint());
-  }
-}
-
 
 void
 VMAPRenderer::render_polygons(Conv & cnv, int type, int col, double curve_l){
@@ -159,13 +126,12 @@ VMAPRenderer::render_points(Conv & cnv, int type, int col, double th){
   cr->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=type) continue;
-    mkptpath(cnv, *o);
+    dMultiLine l = *o; cnv.line_bck_p2p(l);
+    cr->mkpath_points(l);
     cr->stroke();
   }
   cr->restore();
 }
-
-
 
 // paths for bridge sign
 void
@@ -233,7 +199,7 @@ VMAPRenderer::render_line_el(Conv & cnv, int type, int col, double th, double st
   step*=lw1;
 
   cr->save();
-  set_cap_round();
+  cr->cap_round();
   cr->set_line_width(1.8*lw1);
   cr->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
@@ -272,7 +238,7 @@ VMAPRenderer::render_line_obr(Conv & cnv, int type, int col, double th){
   double step=th*4*lw1;
 
   cr->save();
-  set_cap_round();
+  cr->cap_round();
   cr->set_line_width(th*lw1);
   cr->set_color(col);
 
@@ -305,7 +271,7 @@ VMAPRenderer::render_line_zab(Conv & cnv, int type, int col, double th){
   double step=th*8*lw1;
 
   cr->save();
-  set_cap_round();
+  cr->cap_round();
   cr->set_line_width(th*lw1);
   cr->set_color(col);
 
@@ -340,7 +306,7 @@ VMAPRenderer::render_line_val(Conv & cnv, int type, int col, double th,
   step*=lw1;
 
   cr->save();
-  set_cap_round();
+  cr->cap_round();
   cr->set_line_width(th*lw1);
   cr->set_color(col);
 
@@ -550,7 +516,7 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
     draw_cnt(cnt, 0x009000, 1); // рисуем контуры
   }
 
-  set_cap_round(); set_join_round(); set_dash(0, 2);
+  cr->cap_round(); cr->join_round(); set_dash(0, 2);
   render_line(cnv, 0x23, 0x009000, 1, 0); // контуры, нарисованные вручную
   unset_dash();
 
@@ -562,7 +528,7 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   // сперва вырезаем место для них в подложке
   cr->save();
   cr->set_operator(Cairo::OPERATOR_CLEAR);
-  set_cap_butt();
+  cr->cap_butt();
   render_line(cnv, 0x32, 0x00B400, 3, 10); // плохой путь
   set_dash(1, 1);
   render_line(cnv, 0x33, 0x00B400, 3, 10); // удовлетворительный путь
@@ -598,8 +564,8 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
 
   //*******************************
 
-  set_join_round();
-  set_cap_round();
+  cr->join_round();
+  cr->cap_round();
 
   set_dash(0, 2.5);
   render_line(cnv, 0x2B, 0xC06000, 1.6, 0); // сухая канава
@@ -619,7 +585,7 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   int water_col = 0x00FFFF;
   if (hr) water_col = 0x87CEFF;
 
-  set_cap_round();
+  cr->cap_round();
   set_dash(4, 3);
   render_line(cnv, 0x26, 0x5066FF, 1, 10); // пересыхающая река
   unset_dash();
@@ -656,7 +622,7 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   // остальное - белым
   cr->save();
   cr->set_operator(Cairo::OPERATOR_DEST_OVER);
-  set_cap_butt();
+  cr->cap_butt();
   render_line(cnv, 0x32, 0x00B400, 3, 10); // плохой путь
   set_dash(1, 1);
   render_line(cnv, 0x33, 0x00B400, 3, 10); // удовлетворительный путь
@@ -669,13 +635,13 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
 
   //*******************************
 
-  set_cap_butt(); set_join_miter();
+  cr->cap_butt(); cr->join_miter();
   render_line_el(cnv, 0x1A, 0x888888, 2); // маленькая ЛЭП
   render_line_el(cnv, 0x29, 0x888888, 3); // большая ЛЭП
   render_line_gaz(cnv, 0x28, 0x888888, 3); // газопровод
 
   //*******************************
-  set_cap_butt();
+  cr->cap_butt();
   set_dash(5, 4); render_line(cnv, 0x16, 0x0, 0.6, 0); // просека
   set_dash(8, 5); render_line(cnv, 0x1C, 0x0, 1.4, 0); // просека широкая
   set_dash(6, 2); render_line(cnv, 0xA,  0x0, 1, 10); // непроезжая грунтовка
@@ -694,7 +660,7 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   render_line(cnv, 0x1,  0x0,      1, 10); // автомагистраль - черная середина
   render_line(cnv, 0xD,  0x0, 3, 10); // маленькая Ж/Д
   render_line(cnv, 0x27, 0x0, 4, 10); // Ж/Д
-  set_cap_round();
+  cr->cap_round();
   set_dash(4, 2, 0, 2);   render_line(cnv, 0x1D, 0x900000, 1, 0); // граница
 
   set_dash(2, 2); render_line(cnv, 0x1E, 0x900000, 1, 0); // нижний край обрыва
@@ -706,14 +672,14 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   render_bridge(cnv, 0x09, 3, 1, 2); // мост-2
   render_bridge(cnv, 0x0E, 6, 1, 2); // мост-5
 
-  set_cap_butt();
+  cr->cap_butt();
   render_line(cnv, 0x5, 0, 3, 0); // линейные дома
 
   int pt_col = 0;
   if (hr) pt_col = 0x803000;
 
 // точечные объекты
-  set_cap_round();
+  cr->cap_round();
   render_points(cnv, 0x1100, pt_col, 4); // отметка высоты
   render_points(cnv, 0xD00,  pt_col, 3); // маленькая отметка высоты
   render_points(cnv, 0x6414, 0x5066FF, 4); // родник
@@ -801,8 +767,3 @@ VMAPRenderer::render_holes(Conv & cnv){
 
   cr->restore();
 }
-
-
-
-
-
