@@ -119,6 +119,7 @@ void Proj::create_table(){
   names["ks"]                  = 5 | Enum::xml_fmt;
   names["lcc"]                     = 6 | Enum::xml_fmt | Enum::proj_fmt;
   names["Lambert Conformal Conic"] = 6 | Enum::oe_fmt;
+  names["ch1904"]                  = 7 | Enum::xml_fmt;
 }
 
 /***********************************************************/

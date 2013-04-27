@@ -22,14 +22,20 @@ mkprojstr(const Datum & D, const Proj & P, const Options & o){
     ostringstream projpar;
 
     // proj setings
-    if (P==Proj("google"))  projpar << " +proj=merc";
-    else  projpar << " +proj=" << P;
 
-    // datum and ellps settings
     // special google case, see http://trac.osgeo.org/proj/wiki/FAQ#ChangingEllipsoidWhycantIconvertfromWGS84toGoogleEarthVirtualGlobeMercator
     if (P==Proj("google")) // use google_sphere instead of wgs
        projpar << " +a=6378137 +b=6378137 +nadgrids=@null +no_defs";
-    else if (D==Datum("pulkovo"))
+    else if (P==Proj("ch1904"))
+       projpar << " +proj=somerc +lat_0=46.95240555555556"
+                  " +lon_0=7.439583333333333 +x_0=600000 +y_0=200000"
+                  " +ellps=bessel +towgs84=674.374,15.056,405.346,0,0,0,0"
+                  " +units=m +no_defs";
+    else
+      projpar << " +proj=" << P;
+
+    // datum and ellps settings
+    if (D==Datum("pulkovo"))
        projpar << " +ellps=krass +towgs84=+28,-130,-95";
     // Finnish coords, see http://www.kolumbus.fi/eino.uikkanen/geodocsgb/ficoords.htm
     // http://lists.maptools.org/pipermail/proj/2005-December/001944.html
@@ -77,6 +83,9 @@ mkprojstr(const Datum & D, const Proj & P, const Options & o){
           projpar << " +k_0="    << o.get("k",    1.0);
           projpar << " +x_0="   << o.get("E0",   500000.0);
           projpar << " +y_0="   << o.get("N0",   0.0);
+          break;
+
+        case 7: // swiss
           break;
 
         default:
