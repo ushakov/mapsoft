@@ -1,5 +1,6 @@
 #include "image_tiff.h"
 #include <tiffio.h>
+#include <cstring>
 
 namespace image_tiff{
 using namespace std;
@@ -42,7 +43,7 @@ int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect){
     int scan = TIFFScanlineSize(tif);
     int bpp = scan/tiff_w;
 
-    char *cbuf = (char *)_TIFFmalloc(scan);
+    uint8 *cbuf = (uint8 *)_TIFFmalloc(scan);
 
     // Мы можем устроить произвольный доступ к строчкам,
     // если tiff без сжатия или если каждая строчка запакована отдельно.
@@ -57,6 +58,27 @@ int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect){
       cerr << "tiff: can we skip lines: " << can_skip_lines << "\n";
 #endif
 
+    int photometric;
+    uint32 colors[256];
+
+    TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photometric);
+    if      (photometric == PHOTOMETRIC_RGB){}
+    else if (photometric == PHOTOMETRIC_PALETTE){
+      uint16 *cmap[3];
+      TIFFGetField(tif, TIFFTAG_COLORMAP, cmap, cmap+1, cmap+2);
+      for (int i=0; i<256; i++){
+        colors[i] =
+          (((uint32)cmap[0][i] & 0xFF00)>>8) +
+           ((uint32)cmap[1][i] & 0xFF00) +
+          (((uint32)cmap[2][i] & 0xFF00)<<8) +
+          (0xFF<<24);
+      }
+    }
+    else{
+      cerr << "image_tiff: unsupported photometric type: "
+           << photometric << endl;
+      return 2;
+    }
 
     int src_y = 0;
     for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
@@ -67,7 +89,7 @@ int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect){
       // пропустим нужное число строк:
       if (!can_skip_lines){
         while (src_y<src_y1){
-	  TIFFReadScanline(tif, cbuf, src_y);
+          TIFFReadScanline(tif, cbuf, src_y);
           src_y++;
         }
       } else {src_y=src_y1;}
@@ -78,14 +100,19 @@ int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect){
       for (int dst_x = dst_rect.x; dst_x<dst_rect.x+dst_rect.w; dst_x++){
         int src_x = src_rect.x + ((dst_x-dst_rect.x)*src_rect.w)/dst_rect.w;
         if (src_x == src_rect.BRC().x) src_x--;
-	if (bpp==3) // RGB
- 	      image.set(dst_x, dst_y, 
-		    cbuf[3*src_x] + (cbuf[3*src_x+1]<<8) + (cbuf[3*src_x+2]<<16) + (0xFF<<24));
-	else if (bpp==4) // RGBA
- 	      image.set(dst_x, dst_y, 
-		    cbuf[4*src_x] + (cbuf[4*src_x+1]<<8) + (cbuf[4*src_x+2]<<16) + (cbuf[4*src_x+3]<<24));
-	else if (bpp==1) // G
- 	      image.set(dst_x, dst_y, cbuf[src_x] + (cbuf[src_x]<<8) + (cbuf[src_x]<<16) + (0xFF<<24));
+        if (photometric == PHOTOMETRIC_PALETTE){
+          image.set(dst_x, dst_y, colors[cbuf[src_x]]);
+        }
+        else if (photometric == PHOTOMETRIC_RGB){
+          if (bpp==3) // RGB
+            image.set(dst_x, dst_y,
+              cbuf[3*src_x] + (cbuf[3*src_x+1]<<8) + (cbuf[3*src_x+2]<<16) + (0xFF<<24));
+          else if (bpp==4) // RGBA
+            image.set(dst_x, dst_y, 
+              cbuf[4*src_x] + (cbuf[4*src_x+1]<<8) + (cbuf[4*src_x+2]<<16) + (cbuf[4*src_x+3]<<24));
+          else if (bpp==1) // G
+            image.set(dst_x, dst_y, cbuf[src_x] + (cbuf[src_x]<<8) + (cbuf[src_x]<<16) + (0xFF<<24));
+        }
       }
     }
 
@@ -106,8 +133,13 @@ int save(const iImage & im, const iRect & src_rect,
       return 1;
     }
 
-    // scan image for alpha
+    // scan image for colors and alpha
     bool alpha = false;
+    bool fulla = false;
+    bool fullc = false;
+    bool color = false;
+    uint32 colors[256], mc=0;
+    memset(colors, 0, 256*sizeof(int));
     for (int y = src_rect.y; y < src_rect.y+src_rect.h; y++){
       if ((y<0)||(y>=im.h)) continue;
       for (int x = 0; x < src_rect.w; x++){
@@ -118,11 +150,34 @@ int save(const iImage & im, const iRect & src_rect,
           int a = (c >> 24) & 0xFF;
           if (a<255) alpha=true;
         }
+
+        if (!fulla){
+          int a = (c >> 24) & 0xFF;
+          if (a>0 && a<255) fulla=true;
+        }
+
+        if (!color){
+          int r = (c >> 16) & 0xFF;
+          int g = (c >> 8) & 0xFF;
+          int b = c & 0xFF;
+          if (r!=g || r!=b) color=true;
+        }
+
+        if (!fullc){
+          bool found=false;
+          for (int i=0; i<mc; i++)
+            if (c==colors[i]){ found=true; break;}
+          if (!found){
+            if (mc==256) fullc=true;
+            else colors[mc++] = c;
+          }
+        }
       }
-      if (alpha) break;
     }
 
-    int bpp = alpha?4:3;
+    int bpp = 3;
+    if (!color || !fullc) {bpp=1;}
+    if (alpha)  {bpp=4; fullc=true;}
     int scan = bpp*src_rect.w;
 
     TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, src_rect.w);
@@ -133,13 +188,35 @@ int save(const iImage & im, const iRect & src_rect,
     TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP,    1);
     TIFFSetField(tif, TIFFTAG_COMPRESSION,     COMPRESSION_LZW);
 
+    uint16 cmap[3][256];
+    if (fullc){
+      TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
+    }
+    else{
+      if (color){
+        for (int i=0; i<256; i++){
+          cmap[0][i] = (colors[i]<<8)&0xFF00;
+          cmap[1][i] =  colors[i]    &0xFF00;
+          cmap[2][i] = (colors[i]>>8)&0xFF00;
+        }
+      }
+      else{
+        for (uint16 i=0; i<256; i++){
+          cmap[0][i] = cmap[1][i] = cmap[2][i] = i<<8;
+          colors[i] = i;
+        }
+      }
+      TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_PALETTE);
+      TIFFSetField(tif, TIFFTAG_COLORMAP, cmap, cmap+1, cmap+2);
+    }
+
     if (bpp==4){
       int type=EXTRASAMPLE_UNASSALPHA;
       TIFFSetField(tif, TIFFTAG_EXTRASAMPLES,  1, &type);
     }
 
     tdata_t buf = _TIFFmalloc(scan);
-    char *cbuf = (char *)buf;
+    uint8 *cbuf = (uint8 *)buf;
 
     for (int row = 0; row < src_rect.h; row++){
       if ((row+src_rect.y <0)||(row+src_rect.y>=im.h)){
@@ -154,11 +231,20 @@ int save(const iImage & im, const iRect & src_rect,
     	      cbuf[3*col+1] = (c >> 8)  & 0xFF;
     	      cbuf[3*col+2] = (c >> 16) & 0xFF;
           }
-	  if (bpp==4){ // RGBA
+	  else if (bpp==4){ // RGBA
     	      cbuf[4*col]   = c & 0xFF;
     	      cbuf[4*col+1] = (c >> 8)  & 0xFF;
     	      cbuf[4*col+2] = (c >> 16) & 0xFF;
     	      cbuf[4*col+3] = (c >> 24) & 0xFF;
+          }
+          else if (bpp==1){
+            if (color){
+              for (int i=0; i<mc; i++)
+                if (colors[i] == c) {cbuf[col] = (unsigned char)i; break;}
+            }
+            else{
+              cbuf[col] = c;
+            }
           }
         }
       }
