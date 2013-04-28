@@ -1,0 +1,14 @@
+#!/bin/sh
+
+pd=/usr/local/portage/sci-geosciences/mapsoft
+
+mkdir -p $pd
+echo '=sci-geosciences/mapsoft-9999 **' >> /etc/portage/package.keywords
+echo 'PORTDIR_OVERLAY="/usr/local/portage"' >> /etc/portage/make.conf
+
+cd $pd
+wget https://raw.github.com/ushakov/mapsoft/master/mapsoft-9999.ebuild
+ebuild mapsoft-9999.ebuild manifest
+cd -
+
+#emerge mapsoft & relax :)
