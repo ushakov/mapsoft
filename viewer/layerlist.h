@@ -24,49 +24,23 @@ Columns:
 
 *********************************************************************/
 
-class WptLLCols : public Gtk::TreeModelColumnRecord {
+template <typename Tl, typename Td>
+class LayerTabCols : public Gtk::TreeModelColumnRecord {
 public:
-    WptLLCols() {
-	add(checked);
-	add(comm);
-	add(layer);
-	add(data);
-    }
-    Gtk::TreeModelColumn<bool> checked;
-    Gtk::TreeModelColumn<std::string> comm;
-    Gtk::TreeModelColumn<boost::shared_ptr<LayerWPT> > layer;
-    Gtk::TreeModelColumn<boost::shared_ptr<g_waypoint_list> > data;
-};
-
-class TrkLLCols : public Gtk::TreeModelColumnRecord {
-public:
-    TrkLLCols() {
-	add(checked);
-	add(comm);
-	add(layer);
-	add(data);
-    }
-    Gtk::TreeModelColumn<bool> checked;
-    Gtk::TreeModelColumn<std::string> comm;
-    Gtk::TreeModelColumn<boost::shared_ptr<LayerTRK> > layer;
-    Gtk::TreeModelColumn<boost::shared_ptr<g_track> > data;
-};
-
-class MapLLCols : public Gtk::TreeModelColumnRecord {
-public:
-    MapLLCols() {
-	add(checked);
-	add(comm);
-	add(weight);
-	add(layer);
-	add(data);
-    }
     Gtk::TreeModelColumn<bool> checked;
     Gtk::TreeModelColumn<std::string> comm;
     Gtk::TreeModelColumn<Pango::Weight> weight;
-    Gtk::TreeModelColumn<boost::shared_ptr<LayerMAP> > layer;
-    Gtk::TreeModelColumn<boost::shared_ptr<g_map_list> > data;
+    Gtk::TreeModelColumn<boost::shared_ptr<Tl> > layer;
+    Gtk::TreeModelColumn<boost::shared_ptr<Td> > data;
+
+    LayerTabCols() {
+      add(checked); add(comm); add(weight); add(layer); add(data);
+    }
 };
+
+typedef LayerTabCols<LayerWPT, g_waypoint_list> WptLLCols;
+typedef LayerTabCols<LayerTRK, g_track>         TrkLLCols;
+typedef LayerTabCols<LayerMAP, g_map_list>      MapLLCols;
 
 /*********************************************************************/
 
@@ -89,6 +63,7 @@ public:
         // note: signal_row_changed() is emitted three times from here:
 	row[columns.checked] = true;
 	row[columns.comm]    = layer->get_data()->comm;
+        row[columns.weight]  = Pango::WEIGHT_NORMAL;
 	row[columns.layer]   = layer;
         row[columns.data]    = data;
     }
@@ -178,6 +153,7 @@ public:
         // note: signal_row_changed() is emitted three times from here:
 	row[columns.checked] = true;
 	row[columns.comm]    = layer->get_data()->comm;
+        row[columns.weight]  = Pango::WEIGHT_NORMAL;
 	row[columns.layer]   = layer;
         row[columns.data]    = data;
     }
