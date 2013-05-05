@@ -191,7 +191,7 @@ main(){
         else c = R.get(h);
       }
       if (brd.count(p)) c=0x7F7F7F;
-      img.set(x,r.h-y-1,c);
+      img.set_na(x,r.h-y-1,c);
     }
   }
   image_png::save(img, "trace_area.png");

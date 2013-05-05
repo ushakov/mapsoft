@@ -99,7 +99,7 @@ main(){
       int c = R.get(S.geth(iPoint(p0*1200)+iPoint(x,y), true));
       if (ra.get(x,y)>0.5) c=0xFF0000;
       if (ma.get(x,y)>0.5) c=0x0;
-      img.set(x,h-y-1,c);
+      img.set_na(x,h-y-1,c);
     }
   }
   image_png::save(img, "trace_map.png");

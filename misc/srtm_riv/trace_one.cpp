@@ -69,7 +69,7 @@ main(){
       short h  = S.geth(p, true);
       int c = rb.get(h);
       if (R.count(p)) c = 0x0;
-      img.set(x,r.h-y-1,c);
+      img.set_na(x,r.h-y-1,c);
     }
   }
   image_png::save(img, "trace_one.png");
