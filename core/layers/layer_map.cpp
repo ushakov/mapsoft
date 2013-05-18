@@ -178,13 +178,9 @@ LayerMAP::draw(iImage & image, const iPoint & origin){
         }
 
         else { // normal map
-          if (!image_cache.contains(i) || (iscales[i] > scale)) {
-            iImage img = image_r::load(m->file.c_str(), scale);
-            img.set_border(m->border/scale);
-            image_cache.add(i, img);
-            iscales[i] = scale;
-          }
-          m2ms[i]->image_frw(image_cache.get(i), image, origin, 1.0/iscales[i]);
+          m2ms[i]->image_frw(
+            image_cache.get(m->file, scale, m->border),
+            image, origin, 1.0/scale);
         }
       }
 

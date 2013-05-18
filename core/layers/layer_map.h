@@ -9,6 +9,7 @@
 #include "2d/point.h"
 #include "2d/rect.h"
 #include "2d/image.h"
+#include "loaders/image_cache.h"
 //#include "layers/img.h"
 #include <boost/shared_ptr.hpp>
 
@@ -30,7 +31,7 @@ private:
   std::map<const g_map*, int> status; // visibility of refpoints, border, map image
 
   std::map<std::string, Cache<iPoint, iImage> > tmap_cache;
-  Cache<int, iImage> image_cache;
+  ImageCache image_cache;
 //  Cache<std::string, LayerImg> img_cache;
 
 public:
