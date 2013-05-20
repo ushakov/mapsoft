@@ -2,43 +2,8 @@
 #define AM_SRTM_RIV_H
 
 #include "action_mode.h"
-#include <srtm/trace_gear.h>
+#include <srtm/tracers.h>
 
-// see misc/trace_one.cpp
-std::vector<iPoint>
-trace(srtm3 & S, const iPoint & p0, int nmax, int hmin, bool down){
-
-  trace_gear G(S, p0);
-  if (G.h0 < srtm_min) return std::vector<iPoint>(); // мы вне карты
-
-  std::vector<iPoint> L; // упорядоченный список просмотренных точек
-  L.push_back(p0);
-
-  do {
-    L.push_back(G.go(down));
-    // если мы уже ушли далеко, а шаг не сделали, то точка
-    // последнего шага - бессточная. Возвращаемся к ней.
-    if (G.ns > nmax) { L.push_back(G.pp); break; }
-
-    // критерий выхода: до высоты hmin, или края данных
-  } while (G.hp > hmin);
-
-  iPoint p = L[L.size()-1];
-  std::vector<iPoint> ret;
-  // обратный проход от p до p0
-  while (p!=p0){
-    vector<iPoint>::const_iterator b;
-    for (b = L.begin(); b!=L.end(); b++){
-      if (isadjacent(*b, p)<0) continue;
-      p=*b;
-      ret.push_back(p);
-      break;
-    }
-  }
-  return ret;
-}
-
-//
 class SrtmRiv : public ActionMode {
 public:
     SrtmRiv (Mapview * mapview_) : ActionMode(mapview_) { }
@@ -66,7 +31,7 @@ public:
           int nmax = 10000;
           bool down = true;
           std::vector<iPoint> points =
-            trace(mapview->srtm, start_pt*1200, nmax, hmin, down);
+            trace_river(mapview->srtm, start_pt*1200, nmax, hmin, down);
           std::vector<iPoint>::const_iterator i;
 
           boost::shared_ptr<g_track> track(new g_track());
@@ -74,7 +39,7 @@ public:
             g_trackpoint pt;
             pt.dPoint::operator=(*i);
             pt/=1200;
-            pt.z = mapview->srtm.geth4(pt);
+            pt.z = mapview->srtm.geth(*i);
             track->push_back(pt);
           }
           mapview->add_trks(track);
