@@ -1,9 +1,8 @@
 #include <map>
 #include <2d/rainbow.h>
 #include <2d/point_int.h>
-#include <srtm/srtm3.h>
 #include <loaders/image_png.h>
-#include "trace_gear.h"
+#include <srtm/trace_gear.h>
 
 // построение прямоугольной хребтовки
 
