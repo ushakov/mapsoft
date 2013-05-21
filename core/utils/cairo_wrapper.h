@@ -140,6 +140,8 @@ struct CairoExtra : public Cairo::Context {
     Cairo::Context::set_dash(d, 0);
   }
 
+  void set_fig_font(int font, double fs, double dpi);
+
 };
 
 /*** CairoWrapper - we need this to create RefPtr<CairoExtra> ***/

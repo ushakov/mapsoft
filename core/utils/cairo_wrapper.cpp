@@ -45,6 +45,64 @@ CairoExtra::mkpath_smline(const dLine & o, bool close, double curve_l){
   if (close) close_path();
 }
 
+void
+CairoExtra::set_fig_font(int font, double fs, double dpi){
+  std::string       face;
+  Cairo::FontSlant  slant;
+  Cairo::FontWeight weight;
+  switch(font){
+    case 0:
+      face="times";
+      slant=Cairo::FONT_SLANT_NORMAL;
+      weight=Cairo::FONT_WEIGHT_NORMAL;
+      break;
+    case 1:
+      face="times";
+      slant=Cairo::FONT_SLANT_ITALIC;
+      weight=Cairo::FONT_WEIGHT_NORMAL;
+      break;
+    case 2:
+      face="times";
+      slant=Cairo::FONT_SLANT_NORMAL;
+      weight=Cairo::FONT_WEIGHT_BOLD;
+      break;
+    case 3:
+      face="times";
+      slant=Cairo::FONT_SLANT_ITALIC;
+      weight=Cairo::FONT_WEIGHT_BOLD;
+      break;
+    case 16:
+      face="sans";
+      slant=Cairo::FONT_SLANT_NORMAL;
+      weight=Cairo::FONT_WEIGHT_NORMAL;
+      break;
+    case 17:
+      face="sans";
+      slant=Cairo::FONT_SLANT_OBLIQUE;
+      weight=Cairo::FONT_WEIGHT_NORMAL;
+      break;
+    case 18:
+      face="sans";
+      slant=Cairo::FONT_SLANT_NORMAL;
+      weight=Cairo::FONT_WEIGHT_BOLD;
+      break;
+    case 19:
+      face="sans";
+      slant=Cairo::FONT_SLANT_OBLIQUE;
+      weight=Cairo::FONT_WEIGHT_BOLD;
+      break;
+    default:
+      std::cerr << "warning: unsupported fig font: " << font << "\n";
+      face="sans";
+      slant=Cairo::FONT_SLANT_NORMAL;
+      weight=Cairo::FONT_WEIGHT_NORMAL;
+  }
+  if (face=="times") fs/=0.85;
+  Cairo::Context::set_font_size(fs*dpi/89.0);
+  Cairo::Context::set_font_face(
+    Cairo::ToyFontFace::create(face, slant, weight));
+}
+
 
 /* Cairo Wrapper functions */
 

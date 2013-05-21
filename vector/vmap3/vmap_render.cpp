@@ -22,6 +22,8 @@ static struct ext_option options[] = {
   {"transp_margins",1,  0, 1, "transparent margins (0|1, default 0)"},
   {"contours",      1,  0, 1, "auto contours (0|1, default 1)"},
   {"label_style",   1,  0, 1, "set label style 0..2 (default 2)\n"},
+  {"pics_dir",      1,  0, 1, "pics folder (default: /usr/share/mapsoft/pics)\n"},
+  {"pics_dpi",      1,  0, 1, "pics resolution (default: 600.0)\n"},
 
   {"geom",          1,  0, 2, ""},
   {"datum",         1,  0, 2, ""},
@@ -128,17 +130,6 @@ main(int argc, char* argv[]){
     lm+=dpi/6;
   }
 
-  label_style_t ls;
-  switch(O.get<int>("label_style", 2)){
-    case 0: ls=LABEL_STYLE0; break;
-    case 1: ls=LABEL_STYLE1; break;
-    case 2: ls=LABEL_STYLE2; break;
-    default:
-      cerr << "Error: unknowl label style: "
-           << O.get<int>("label_style", 0) << " (must be 0..3)\n";
-      exit(1);
-  }
-
  // modify vmap
   vmap::join_labels(W);
   vmap::move_pics(W);
@@ -161,8 +152,9 @@ main(int argc, char* argv[]){
   iImage img(rng.w, rng.h);
 
   VMAPRenderer R(&W, img, O);
+  R.set_cnv(&cnv);
 
-  R.render_objects(cnv, O.get<bool>("contours", true));
+  R.render_objects(O.get<bool>("contours", true));
 
   double grid_step = O.get<double>("grid", 0);
   if (grid_step>0){
@@ -171,7 +163,7 @@ main(int argc, char* argv[]){
     R.render_pulk_grid(grid_step, grid_step, false, ref);
   }
 
-  R.render_labels(cnv, ls);
+  R.render_labels();
 
   if (ref.border.size()>2) render_border(img, ref.border, O);
 
