@@ -25,7 +25,11 @@ typedef enum {
   LABEL_STYLE2,
 } label_style_t;
 
-
+/* Render border and fill margins around map.
+   Options (default):
+     bgcolor (0xFFFFFF)
+     transp_margins (false)
+*/
 void render_border(iImage & img, const dLine & brd, const Options & O);
 
 struct VMAPRenderer{
@@ -43,16 +47,6 @@ struct VMAPRenderer{
 
   VMAPRenderer(vmap::world * _W, iImage & img,
     const Options & O = Options());
-
-  void unset_dash();
-  void set_dash(double d1, double d2);
-  void set_dash(double d1, double d2, double d3, double d4);
-  void set_cap_round();
-  void set_cap_butt();
-  void set_cap_square();
-  void set_join_miter();
-  void set_join_round();
-
 
   void render_objects(Conv & cnv, const bool draw_contours=true);
   void render_holes(Conv & cnv);

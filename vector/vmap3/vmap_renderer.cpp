@@ -49,27 +49,6 @@ render_border(iImage & img, const dLine & brd, const Options & O){
 }
 
 void
-VMAPRenderer::unset_dash(){
-  cr->unset_dash();
-}
-void
-VMAPRenderer::set_dash(double d1, double d2){
-  vector<double> d;
-  d.push_back(d1*lw1);
-  d.push_back(d2*lw1);
-  cr->set_dash(d, 0);
-}
-void
-VMAPRenderer::set_dash(double d1, double d2, double d3, double d4){
-  vector<double> d;
-  d.push_back(d1*lw1);
-  d.push_back(d2*lw1);
-  d.push_back(d3*lw1);
-  d.push_back(d4*lw1);
-  cr->set_dash(d, 0);
-}
-
-void
 VMAPRenderer::render_polygons(Conv & cnv, int type, int col, double curve_l){
   if (!cr) return;
   cr->save();
@@ -516,9 +495,9 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
     draw_cnt(cnt, 0x009000, 1); // рисуем контуры
   }
 
-  cr->cap_round(); cr->join_round(); set_dash(0, 2);
+  cr->cap_round(); cr->join_round(); cr->set_dash(0, 2*lw1);
   render_line(cnv, 0x23, 0x009000, 1, 0); // контуры, нарисованные вручную
-  unset_dash();
+  cr->unset_dash();
 
   render_polygons(cnv, 0x4d, 0xC3E6FF,20.0); // ледник
 
@@ -530,10 +509,10 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   cr->set_operator(Cairo::OPERATOR_CLEAR);
   cr->cap_butt();
   render_line(cnv, 0x32, 0x00B400, 3, 10); // плохой путь
-  set_dash(1, 1);
+  cr->set_dash(lw1, lw1);
   render_line(cnv, 0x33, 0x00B400, 3, 10); // удовлетворительный путь
   render_line(cnv, 0x34, 0xFFD800, 3, 10); // хороший путь
-  unset_dash();
+  cr->unset_dash();
   render_line(cnv, 0x35, 0xFFD800, 3, 10); // отличный путь
   cr->restore();
 
@@ -550,9 +529,9 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   int hor_col = 0xC06000;
   if (hr) hor_col = 0xD0B090;
 
-  set_dash(8, 3);
+  cr->set_dash(8*lw1, 3*lw1);
   render_line(cnv, 0x20, hor_col, 1, 20); // пунктирные горизонтали
-  unset_dash();
+  cr->unset_dash();
   render_line(cnv, 0x21, hor_col, 1, 20); // горизонтали
   render_line(cnv, 0x22, hor_col, 1.6, 20); // жирные горизонтали
 
@@ -567,18 +546,18 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   cr->join_round();
   cr->cap_round();
 
-  set_dash(0, 2.5);
+  cr->set_dash(0, 2.5*lw1);
   render_line(cnv, 0x2B, 0xC06000, 1.6, 0); // сухая канава
-  unset_dash();
+  cr->unset_dash();
   render_line(cnv, 0x25, 0xA04000, 2, 20); // овраг
 
   int hreb_col = 0x803000;
   if (hr) hreb_col = 0xC06000;
   render_line(cnv, 0xC,  hreb_col, 2, 20); // хребет
 
-  set_dash(0, 2.5);
+  cr->set_dash(0, 2.5*lw1);
   render_line(cnv, 0x2C, hor_col, 2.5, 0); // вал
-  unset_dash();
+  cr->unset_dash();
 
   //*******************************
 
@@ -586,9 +565,9 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   if (hr) water_col = 0x87CEFF;
 
   cr->cap_round();
-  set_dash(4, 3);
+  cr->set_dash(4*lw1, 3*lw1);
   render_line(cnv, 0x26, 0x5066FF, 1, 10); // пересыхающая река
-  unset_dash();
+  cr->unset_dash();
   render_line(cnv, 0x15, 0x5066FF, 1, 10); // река-1
   render_line(cnv, 0x18, 0x5066FF, 2, 10); // река-2
   render_line(cnv, 0x1F, 0x5066FF, 3, 10); // река-3
@@ -624,10 +603,10 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   cr->set_operator(Cairo::OPERATOR_DEST_OVER);
   cr->cap_butt();
   render_line(cnv, 0x32, 0x00B400, 3, 10); // плохой путь
-  set_dash(1, 1);
+  cr->set_dash(lw1, lw1);
   render_line(cnv, 0x33, 0x00B400, 3, 10); // удовлетворительный путь
   render_line(cnv, 0x34, 0xFFD800, 3, 10); // хороший путь
-  unset_dash();
+  cr->unset_dash();
   render_line(cnv, 0x35, 0xFFD800, 3, 10); // отличный путь
   cr->set_color(0xFFFFFF);
   cr->paint();
@@ -642,12 +621,12 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
 
   //*******************************
   cr->cap_butt();
-  set_dash(5, 4); render_line(cnv, 0x16, 0x0, 0.6, 0); // просека
-  set_dash(8, 5); render_line(cnv, 0x1C, 0x0, 1.4, 0); // просека широкая
-  set_dash(6, 2); render_line(cnv, 0xA,  0x0, 1, 10); // непроезжая грунтовка
-  set_dash(2, 1.5); render_line(cnv, 0x2A, 0x0, 1, 10); // тропа
-  set_dash(2,1,2,3); render_line(cnv, 0x2D, 0x0, 0.8, 10); // заросшая дорога
-  unset_dash();
+  cr->set_dash(5*lw1, 4*lw1); render_line(cnv, 0x16, 0x0, 0.6, 0); // просека
+  cr->set_dash(8*lw1, 5*lw1); render_line(cnv, 0x1C, 0x0, 1.4, 0); // просека широкая
+  cr->set_dash(6*lw1, 2*lw1); render_line(cnv, 0xA,  0x0, 1, 10); // непроезжая грунтовка
+  cr->set_dash(2*lw1, 1.5*lw1); render_line(cnv, 0x2A, 0x0, 1, 10); // тропа
+  cr->set_dash(2*lw1,lw1,2*lw1,3*lw1); render_line(cnv, 0x2D, 0x0, 0.8, 10); // заросшая дорога
+  cr->unset_dash();
   render_line(cnv, 0x6,  0x0, 1, 10); // прозжая грунтовка
   render_line(cnv, 0x4,  0x0, 3, 10); // проезжий грейдер
   render_line(cnv, 0x2,  0x0, 4, 10); // асфальт
@@ -661,10 +640,10 @@ VMAPRenderer::render_objects(Conv & cnv, const bool draw_contours){
   render_line(cnv, 0xD,  0x0, 3, 10); // маленькая Ж/Д
   render_line(cnv, 0x27, 0x0, 4, 10); // Ж/Д
   cr->cap_round();
-  set_dash(4, 2, 0, 2);   render_line(cnv, 0x1D, 0x900000, 1, 0); // граница
+  cr->set_dash(4*lw1, 2*lw1, 0, 2*lw1);   render_line(cnv, 0x1D, 0x900000, 1, 0); // граница
 
-  set_dash(2, 2); render_line(cnv, 0x1E, 0x900000, 1, 0); // нижний край обрыва
-  unset_dash();   render_line_obr(cnv, 0x03, 0x900000, 1); // верхний край обрыва
+  cr->set_dash(2*lw1, 2*lw1); render_line(cnv, 0x1E, 0x900000, 1, 0); // нижний край обрыва
+  cr->unset_dash();   render_line_obr(cnv, 0x03, 0x900000, 1); // верхний край обрыва
   render_line_zab(cnv, 0x19, 0x900000, 1); // забор
 
   render_bridge(cnv, 0x1B, 0, 1, 2); // туннель
@@ -741,7 +720,7 @@ VMAPRenderer::render_holes(Conv & cnv){
     vector<double> d;
     d.push_back(8*lw1);
     d.push_back(3*lw1);
-    cr->set_dash(d, 0);
+    cr->set_dash(d);
     render_line(cnv, 0x20, hor_col, 1, 20); // пунктирные горизонтали
     cr->unset_dash();
     render_line(cnv, 0x21, hor_col, 1, 20); // горизонтали

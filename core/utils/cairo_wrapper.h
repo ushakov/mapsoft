@@ -121,6 +121,25 @@ struct CairoExtra : public Cairo::Context {
   void join_miter() { set_line_join(Cairo::LINE_JOIN_MITER); }
   void join_round() { set_line_join(Cairo::LINE_JOIN_ROUND); }
 
+  // short functions for dash line settings
+  void set_dash(std::vector<double> d){
+    Cairo::Context::set_dash(d, 0);
+  }
+  void set_dash(double d1, double d2){
+    std::vector<double> d;
+    d.push_back(d1);
+    d.push_back(d2);
+    Cairo::Context::set_dash(d, 0);
+  }
+  void set_dash(double d1, double d2, double d3, double d4){
+    std::vector<double> d;
+    d.push_back(d1);
+    d.push_back(d2);
+    d.push_back(d3);
+    d.push_back(d4);
+    Cairo::Context::set_dash(d, 0);
+  }
+
 };
 
 /*** CairoWrapper - we need this to create RefPtr<CairoExtra> ***/
