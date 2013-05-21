@@ -37,7 +37,7 @@ public:
       boost::shared_ptr<g_track> track(new g_track());
       std::list<std::list<iPoint> >::iterator ri;
       for (ri = rivs.begin(); ri!=rivs.end(); ri++){
-        std::list<iPoint>::iterator pi;
+        std::list<iPoint>::const_iterator pi;
 
         // move to tracer??
         iPoint pt1 = *ri->begin();
@@ -54,9 +54,26 @@ public:
         }
       }
 
-      // todo - border
+      // border
+      dMultiLine B = pset2line(T.done);
+      boost::shared_ptr<g_track> btrack(new g_track());
+      dMultiLine::const_iterator li;
+      for (li=B.begin(); li!=B.end(); li++){
+        dLine::const_iterator pi;
+        for (pi = li->begin(); pi!=li->end(); pi++){
+          g_trackpoint tpt;
+          tpt.dPoint::operator=(*pi);
+          tpt/=1200;
+          tpt.z = mapview->srtm.geth(*pi);
+          if (pi == li->begin()) tpt.start=true;
+          btrack->push_back(tpt);
+        }
+      }
+      btrack->comm = boost::lexical_cast<std::string>(area);
+      btrack->color = 0xFFFFFF00;
 
       mapview->add_trks(track);
+      mapview->add_trks(btrack);
       mapview->rubber.clear();
       abort();
     }
