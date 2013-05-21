@@ -13,18 +13,18 @@ int main(){
   try{
 
   n++;
-  P=find_cross(iPoint(0,0), Point<int>(6,8), Point<int>(6,0), Point<int>(0,8));
+  P=find_cross(iPoint(0,0), iPoint(6,8), iPoint(6,0), iPoint(0,8));
   if (P == iPoint(3,4)) np++;
   else std::cerr << "find_cross error (" << n << "): " << P << "\n";
 
   n++;
-  P=find_cross(iPoint(1,1), Point<int>(5,3), Point<int>(2,4), Point<int>(4,0));
+  P=find_cross(iPoint(1,1), iPoint(5,3), iPoint(2,4), iPoint(4,0));
   if (P == iPoint(3,2)) np++;
   else std::cerr << "find_cross error (" << n << "): " << P << "\n";
 
   n++;
   try{
-    P=find_cross(iPoint(1,1), Point<int>(4,3), Point<int>(2,4), Point<int>(2,2));
+    P=find_cross(iPoint(1,1), iPoint(4,3), iPoint(2,4), iPoint(2,2));
     std::cerr << "find_cross error (" << n << ")\n";
   }
   catch(int i){
@@ -33,7 +33,7 @@ int main(){
 
   n++;
   try{
-    P=find_cross(iPoint(1,1), Point<int>(4,3), Point<int>(2,4), Point<int>(4,4));
+    P=find_cross(iPoint(1,1), iPoint(4,3), iPoint(2,4), iPoint(4,4));
     std::cerr << "find_cross error (" << n << ")\n";
   }
   catch(int i){
@@ -42,7 +42,7 @@ int main(){
 
   n++;
   try{
-    P=find_cross(iPoint(1,1), Point<int>(4,3), Point<int>(7,5), Point<int>(10,7));
+    P=find_cross(iPoint(1,1), iPoint(4,3), iPoint(7,5), iPoint(10,7));
     std::cerr << "find_cross error (" << n << ")\n";
   }
   catch(int i){
@@ -50,40 +50,40 @@ int main(){
   }
 
 /*  n++;
-  P=find_cross(iPoint(1,1), Point<int>(3,3), Point<int>(2,2), Point<int>(4,4));
+  P=find_cross(iPoint(1,1), iPoint(3,3), iPoint(2,2), iPoint(4,4));
   std::cerr << "find_cross : " << P << "\n";
   if (P == iPoint(3,2)) np++;
   else std::cerr << "find_cross (" << n << "): " << P << "\n";
 
   n++;
-  P=find_cross(iPoint(1,1), Point<int>(3,3), Point<int>(3,3), Point<int>(4,4));
+  P=find_cross(iPoint(1,1), iPoint(3,3), iPoint(3,3), iPoint(4,4));
   if (P == iPoint(3,2)) np++;
   else std::cerr << "find_cross (" << n << "): " << P << "\n";
 
   n++;
-  P=find_cross(iPoint(1,1), Point<int>(3,3), Point<int>(1,1), Point<int>(4,4));
+  P=find_cross(iPoint(1,1), iPoint(3,3), iPoint(1,1), iPoint(4,4));
   if (P == iPoint(3,2)) np++;
   else std::cerr << "find_cross (" << n << "): " << P << "\n";
 
   n++;
-  P=find_cross(iPoint(1,1), Point<int>(3,3), Point<int>(1,1), Point<int>(4,5));
+  P=find_cross(iPoint(1,1), iPoint(3,3), iPoint(1,1), iPoint(4,5));
   if (P == iPoint(3,2)) np++;
   else std::cerr << "find_cross (" << n << "): " << P << "\n";*/
 
   double d;
 
   n++;
-  d=find_dist(iPoint(-1,7), Point<int>(0,0), Point<int>(6,8));
+  d=find_dist(iPoint(-1,7), iPoint(0,0), iPoint(6,8));
   if (d == 5) np++;
   else std::cerr << "find_dist error (" << n << "): " << d << "\n";
 
   n++;
-  d=find_dist(iPoint(-3,0), Point<int>(6,8), Point<int>(0,0));
+  d=find_dist(iPoint(-3,0), iPoint(6,8), iPoint(0,0));
   if (d == 3) np++;
   else std::cerr << "find_dist error (" << n << "): " << d << "\n";
 
   n++;
-  d=find_dist(iPoint(12,16), Point<int>(6,8), Point<int>(0,0));
+  d=find_dist(iPoint(12,16), iPoint(6,8), iPoint(0,0));
   if (d == 10) np++;
   else std::cerr << "find_dist error (" << n << "): " << d << "\n";
 

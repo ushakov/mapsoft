@@ -2,7 +2,7 @@
 #include "line_utils.h"
 
 iPoint
-adjacent(const Point<int> &p, const int dir){
+adjacent(const iPoint &p, const int dir){
   switch(dir%8){
     case 0: return iPoint(p.x-1,p.y-1);
     case 1: return iPoint(p.x,  p.y-1);
@@ -16,7 +16,7 @@ adjacent(const Point<int> &p, const int dir){
 }
 
 int
-isadjacent(const iPoint & p1, const Point<int> & p2){
+isadjacent(const iPoint & p1, const iPoint & p2){
   for (int i = 0; i<8; i++){
     if (adjacent(p1, i) == p2) return i;
   }
@@ -25,7 +25,7 @@ isadjacent(const iPoint & p1, const Point<int> & p2){
 
 
 std::set<iPoint>
-border(const std::set<Point<int> >& pset){
+border(const std::set<iPoint >& pset){
   std::set<iPoint> ret;
   std::set<iPoint>::const_iterator it;
   for (it = pset.begin(); it != pset.end(); it++){
@@ -39,7 +39,7 @@ border(const std::set<Point<int> >& pset){
 
 
 int
-add_pb(const iPoint& p, std::set<Point<int> >& pset, std::set<Point<int> >& bord){
+add_pb(const iPoint& p, std::set<iPoint>& pset, std::set<iPoint>& bord){
   if (pset.count(p)) return 0; // точка уже есть
   pset.insert(p);
   bord.erase(p);
