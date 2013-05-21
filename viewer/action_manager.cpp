@@ -32,11 +32,12 @@
 #include "actions/am_llref.h"
 
 #include "actions/srtm_riv.h"
+#include "actions/srtm_area.h"
+#include "actions/am_srtm_opt.h"
+#include "actions/am_pano.h"
 
 #include "actions/am_save_image.h"
 #include "actions/am_show_pt.h"
-#include "actions/am_srtm_opt.h"
-#include "actions/am_pano.h"
 #include "actions/am_nav.h"
 
 #include "actions/am_join_w.h"
@@ -89,6 +90,7 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(LLRef,           "Maps")
 
     ADD_ACT(SrtmRiv,         "SRTM")
+    ADD_ACT(SrtmArea,         "SRTM")
     ADD_ACT(SrtmOpt,         "SRTM")
     ADD_ACT(Pano,            "SRTM")
 
