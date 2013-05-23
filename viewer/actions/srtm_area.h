@@ -37,7 +37,7 @@ public:
       boost::shared_ptr<g_track> track(new g_track());
       std::list<std::list<iPoint> >::iterator ri;
       for (ri = rivs.begin(); ri!=rivs.end(); ri++){
-        std::list<iPoint>::const_iterator pi;
+      std::list<iPoint>::iterator pi;
 
         // move to tracer??
         iPoint pt1 = *ri->begin();
