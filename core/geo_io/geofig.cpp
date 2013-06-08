@@ -16,25 +16,21 @@ namespace fig {
 using namespace std;
 using namespace boost::spirit::classic;
 
-// Извлечь привязку из fig-картинки
+// Get geo-reference from fig
 g_map
 get_ref(const fig_world & w){
   g_map ret;
-  fig::fig_object brd; // граница
+  fig::fig_object brd; // border
 
-  // В комментарии к файлу может быть указано, в какой он проекции
-  // default - tmerc
-  string proj  = "tmerc";
+  string proj="tmerc"; // tmerc is the default proj
 
   // old-style options -- to be removed
   for (int n=0; n<w.comment.size(); n++){
     parse(w.comment[n].c_str(), str_p("proj:")  >> space_p >> (*anychar_p)[assign_a(proj)]);
   }
 
-  Options O=w.opts;
+  Options O = w.opts;
   if (!O.exists("map_proj")) O.put<string>("map_proj", proj);
-
-  ret.parse_from_options(w.opts, false); // new-stile options
 
   dPoint min(1e99,1e99), max(-1e99,-1e99);
   fig_world::const_iterator i;
@@ -66,10 +62,20 @@ get_ref(const fig_world & w){
       ret.push_back(ref);
       continue;
     }
+
     if ((i->comment.size()>0)&&(i->comment[0].size()>3) &&
         (i->comment[0].compare(0,3,"BRD")==0)) ret.border = *i; 
 
   }
+
+  // set lon0 if it id not set
+  if (O.get<Proj>("map_proj") == Proj("tmerc") &&
+     !O.exists("lon0")){
+    O.put<double>("lon0", convs::lon2lon0(ret.center().x));
+  }
+
+  ret.parse_from_options(O, false); // new-style options
+
   return ret;
 }
 
