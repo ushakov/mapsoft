@@ -79,7 +79,7 @@ g_trackpoint::clear_depth(){
 g_track::g_track(){
     width = 2;
     displ = 1;
-    color = Color(0xFF0000FF);
+    color = Color(0xFFFF0000);
     skip  = 1;
     cfill = Color(0xFF000000);
     comm  = "";

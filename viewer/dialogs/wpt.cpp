@@ -69,14 +69,14 @@ DlgWpt::dlg2wpt(g_waypoint * wpt) const{
   wpt->size = (int)ps->get_value();
   Gdk::Color c = fg->get_color();
   wpt->color.value=
-    (((unsigned)c.get_red()   & 0xFF00) >> 8) +
+    (((unsigned)c.get_red()   & 0xFF00) << 8) +
      ((unsigned)c.get_green() & 0xFF00) +
-    (((unsigned)c.get_blue()  & 0xFF00) << 8);
+    (((unsigned)c.get_blue()  & 0xFF00) >> 8);
   c = bg->get_color();
   wpt->bgcolor.value=
-    (((unsigned)c.get_red()   & 0xFF00) >> 8) +
+    (((unsigned)c.get_red()   & 0xFF00) << 8) +
      ((unsigned)c.get_green() & 0xFF00) +
-    (((unsigned)c.get_blue()  & 0xFF00) << 8);
+    (((unsigned)c.get_blue()  & 0xFF00) >> 8);
 
   double d;
   std::istringstream s(alt->get_text());
@@ -94,13 +94,13 @@ DlgWpt::wpt2dlg(const g_waypoint * wpt){
   fs->set_value(wpt->font_size);
   ps->set_value(wpt->size);
   Gdk::Color c;
-  c.set_rgb((wpt->color.value & 0xFF)<<8,
+  c.set_rgb((wpt->color.value & 0xFF0000)>>8,
             (wpt->color.value & 0xFF00),
-            (wpt->color.value & 0xFF0000)>>8);
+            (wpt->color.value & 0xFF)<<8);
   fg->set_color(c);
-  c.set_rgb((wpt->bgcolor.value & 0xFF)<<8,
+  c.set_rgb((wpt->bgcolor.value & 0xFF0000)>>8,
             (wpt->bgcolor.value & 0xFF00),
-            (wpt->bgcolor.value & 0xFF0000)>>8);
+            (wpt->bgcolor.value & 0xFF)<<8);
   bg->set_color(c);
   if (wpt->have_alt()){
     std::ostringstream s;

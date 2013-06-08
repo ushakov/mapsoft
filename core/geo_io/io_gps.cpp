@@ -119,7 +119,7 @@ namespace gps {
 			wpts[n]->lon  = i->x;
 			wpts[n]->smbl = i->symb.val;
 			wpts[n]->dspl = i->displ;
-			wpts[n]->colour = i->color.RGB().value;
+			wpts[n]->colour = i->color.RGB();
 			wpts[n]->alt  = i->z;
 			wpts[n]->time = i->t.value;
 			n++;
@@ -142,7 +142,7 @@ namespace gps {
 		trks[0] = GPS_Track_New();
 		trks[0]->ishdr = 1;
 		trks[0]->dspl   = tr.displ;
-		trks[0]->colour = tr.color.RGB().value;
+		trks[0]->colour = tr.color.RGB();
 		memccpy(trks[0]->trk_ident, cnv.from_utf8_7bit(tr.comm).c_str(), '\0', 255);
 
 		int n = 1;

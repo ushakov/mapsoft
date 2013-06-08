@@ -48,9 +48,9 @@ DlgTrk::dlg2trk(g_track * trk) const{
   trk->width = (int)width->get_value();
   Gdk::Color c = fg->get_color();
   trk->color.value=
-    (((unsigned)c.get_red()   & 0xFF00) >> 8) +
+    (((unsigned)c.get_red()   & 0xFF00) << 8) +
      ((unsigned)c.get_green() & 0xFF00) +
-    (((unsigned)c.get_blue()  & 0xFF00) << 8);
+    (((unsigned)c.get_blue()  & 0xFF00) >> 8);
 }
 void
 DlgTrk::trk2dlg(const g_track * trk){
@@ -58,9 +58,9 @@ DlgTrk::trk2dlg(const g_track * trk){
   comm->set_text(trk->comm);
   width->set_value(trk->width);
   Gdk::Color c;
-  c.set_rgb((trk->color.value & 0xFF)<<8,
+  c.set_rgb((trk->color.value & 0xFF0000)>>8,
             (trk->color.value & 0xFF00),
-            (trk->color.value & 0xFF0000)>>8);
+            (trk->color.value & 0xFF)<<8);
   fg->set_color(c);
   set_info(trk);
 }
