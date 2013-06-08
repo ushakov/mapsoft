@@ -52,13 +52,13 @@ chmod 755 ${f%.txt}/download
 while read f pt2u x1 x2 y1 y2 fmt name; do
   mkmap
 done <<EOF
-excmap.fi/1 794.034895   12   19   32   39 %02dx%02d.png excursionmap.fi 1:3000000
-excmap.fi/2 264.639239   40   56   96  117 %03dx%03d.png excursionmap.fi 1:1000000
-excmap.fi/3 132.291931   90  112  194  231 %03dx%03d.png excursionmap.fi 1:500000
-excmap.fi/4 26.458386   448  552  975 1152 %04dx%04d.png excursionmap.fi 1:100000
-excmap.fi/5 13.229193   896 1105 1952 2304 %04dx%04d.png excursionmap.fi 1:50000
-excmap.fi/6 6.614597   1600 2200 3840 4680 %04dx%04d.png excursionmap.fi 1:25000
-excmap.fi/7 4.234905   2500 3436 6012 7310 %04dx%04d.png excursionmap.fi 1:16000
-excmap.fi/8 2.116577   5000 6872 12024 14620 %04dx%05d.png excursionmap.fi 1:8000
-excmap.fi/9 1.411246   7498 10306 18033 21926 %05dx%05d.png excursionmap.fi 1:6000
+excmap.fi/1 794.034895   12   19   32   39 %02dx%02d.png excursionmap.fi 1 1:3000000
+excmap.fi/2 264.639239   40   56   96  117 %03dx%03d.png excursionmap.fi 2 1:1000000
+excmap.fi/3 132.291931   90  112  194  231 %03dx%03d.png excursionmap.fi 3 1:500000
+excmap.fi/4 26.458386   448  552  975 1152 %04dx%04d.png excursionmap.fi 4 1:100000
+excmap.fi/5 13.229193   896 1105 1952 2304 %04dx%04d.png excursionmap.fi 5 1:50000
+excmap.fi/6 6.614597   1600 2200 3840 4680 %04dx%04d.png excursionmap.fi 6 1:25000
+excmap.fi/7 4.234905   2500 3436 6012 7310 %04dx%04d.png excursionmap.fi 7 1:16000
+excmap.fi/8 2.116577   5000 6872 12024 14620 %04dx%05d.png excursionmap.fi 8 1:8000
+excmap.fi/9 1.411246   7498 10306 18033 21926 %05dx%05d.png excursionmap.fi 9 1:6000
 EOF
