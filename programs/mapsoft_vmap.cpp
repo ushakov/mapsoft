@@ -56,6 +56,9 @@ static struct ext_option options[] = {
   {"remove_dups",           1,  0, OPT_OUT, "remove repeated points with given accuracy\n(before adding labels)"},
   {"remove_empty",          0,  0, OPT_OUT, "remove empty objects and lines (remove_tails and range_action do remove_empty) (before adding labels)"},
   {"join_objects",          1,  0, OPT_OUT, "join objects (before adding labels)"},
+  {"join_labels",           1,  0, OPT_OUT, "join labels with objects"},
+  {"add_labels",            1,  0, OPT_OUT, "create new labels"},
+  {"move_pics",             1,  0, OPT_OUT, "move pics"},
   {"legend",                1,  0, OPT_OUT, "<style>, write list of all object types"},
 
   {0,0,0,0}
@@ -150,15 +153,17 @@ main(int argc, char **argv){
   double join_objects_acc=O.get("join_objects", 0.0);
   if (join_objects_acc>0) join_objects(V, join_objects_acc);
 
-  int do_remove_empty=O.get("remove_empty", 0);
-  if (do_remove_empty) remove_empty(V);
+  // remove empty objects
+  if (O.get<int>("remove_empty", 0)) remove_empty(V);
 
   // find labels for each object
-  join_labels(V);
+  if (O.get<int>("join_labels", 1)) join_labels(V);
+
   // create new labels
-  create_labels(V);
+  if (O.get<int>("create_labels", 1)) create_labels(V);
+
   // move and rotate pics
-  move_pics(V);
+  if (O.get<int>("move_pics", 1)) move_pics(V);
 
   filter(V, O);
 
