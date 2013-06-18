@@ -193,7 +193,7 @@ main(int argc, char* argv[]){
   if (map!=""){
     g_map M = ref;
     M.file = ofile;
-    if (W.brd.size()>2) M.border=W.brd;
+    if (W.brd.size()>2) M.border=cnv.line_bck(W.brd);
     M.border.push_back(*M.border.begin());
     M.border=generalize(M.border,1,-1); // 1pt accuracy
     M.border.resize(M.border.size()-1);
