@@ -4,6 +4,8 @@ e.UseLibs('utils srtm')
 
 e.Library('layers', \
     Split ("""
+        draw_trk.cpp
+        draw_wpt.cpp
         layer_map.cpp
         layer_trk.cpp
         layer_wpt.cpp

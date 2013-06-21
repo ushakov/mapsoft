@@ -2,8 +2,8 @@
 #include <string>
 
 #include "layers/layer_map.h"
-#include "layers/layer_trk.h"
-#include "layers/layer_wpt.h"
+#include "layers/draw_trk.h"
+#include "layers/draw_wpt.h"
 #include "layers/layer_srtm.h"
 #include "loaders/image_r.h"
 
@@ -101,19 +101,11 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   }
 
   for (int i=0; i<world.trks.size(); i++){
-    g_track d(world.trks[i]);
-    LayerTRK l(&d, opt);
-    l.set_cnv(&cnv);
-    iImage tmp_im = l.get_image(geom);
-    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
+    draw_trk(im, geom.TLC(), cnv, world.trks[i], opt);
   }
 
   for (int i=0; i<world.wpts.size(); i++){
-    g_waypoint_list d(world.wpts[i]);
-    LayerWPT l(&d);
-    l.set_cnv(&cnv);
-    iImage tmp_im = l.get_image(geom);
-    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
+    draw_wpt(im, geom.TLC(), cnv, world.wpts[i], opt);
   }
 
   // clear image outside border
