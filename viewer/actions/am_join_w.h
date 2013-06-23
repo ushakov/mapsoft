@@ -15,14 +15,14 @@ public:
     void activate() {
       Gtk::TreeNodeChildren::const_iterator i; 
       boost::shared_ptr<g_waypoint_list> newd(new g_waypoint_list);
-      i = mapview->wpt_ll.store->children().begin();
-      while (i != mapview->wpt_ll.store->children().end()){
-        if (!(*i)[mapview->wpt_ll.columns.checked]) {
+      i = mapview->layer_wpts.panel.store->children().begin();
+      while (i != mapview->layer_wpts.panel.store->children().end()){
+        if (!(*i)[mapview->layer_wpts.panel.columns.checked]) {
           i++;
           continue;
         }
         boost::shared_ptr<LayerWPT> current_layer =
-          (*i)[mapview->wpt_ll.columns.layer];
+          (*i)[mapview->layer_wpts.panel.columns.layer];
         g_waypoint_list * curr = current_layer->get_data();
         if (!curr){
           i++;
@@ -31,9 +31,9 @@ public:
         newd->insert(newd->end(), curr->begin(), curr->end());
         if (newd->size()) newd->comm = "JOIN";
         else newd->comm = curr->comm;
-        mapview->workplane.remove_layer(
-          i->get_value(mapview->wpt_ll.columns.layer).get());
-        i = mapview->wpt_ll.store->erase(i);
+        mapview->layer_wpts.gobj.remove_layer(
+          i->get_value(mapview->layer_wpts.panel.columns.layer).get());
+        i = mapview->layer_wpts.panel.store->erase(i);
       }
       if (newd->size()) mapview->add_wpts(newd);
     }

@@ -27,7 +27,7 @@ public:
         mapview->statusbar.push("No geo-reference", 0);
         return;
       }
-      dlg.set_opt(mapview->layer_srtm.get_opt());
+      dlg.set_opt(mapview->gobj_srtm.get_opt());
       dlg.show_all();
       mapview->show_srtm();
     }
@@ -43,9 +43,9 @@ public:
         if (r==Gtk::RESPONSE_CANCEL) mapview->show_srtm(false);
         dlg.hide_all();
       }
-      else if (mapview->workplane.exists(&mapview->layer_srtm)){
-         mapview->layer_srtm.set_opt(dlg.get_opt());
-         mapview->workplane.refresh_layer(&mapview->layer_srtm);
+      else if (mapview->layer_srtm.gobj.exists(&mapview->gobj_srtm)){
+         mapview->gobj_srtm.set_opt(dlg.get_opt());
+         mapview->layer_srtm.gobj.refresh_layer(&mapview->gobj_srtm);
       }
 
     }

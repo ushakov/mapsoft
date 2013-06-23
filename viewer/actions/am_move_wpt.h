@@ -35,7 +35,7 @@ public:
           layer->get_cnv()->frw(pt);
           wpt->dPoint::operator=(pt);
           mapview->set_changed();
-          mapview->workplane.refresh_layer(layer);
+          mapview->layer_wpts.gobj.refresh_layer(layer);
           mapview->rubber.clear();
           abort();
         }

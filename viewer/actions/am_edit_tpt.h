@@ -37,7 +37,7 @@ private:
       if (r!=Gtk::RESPONSE_OK) return;
       dlg.dlg2tpt(tpt);
       mapview->set_changed();
-      mapview->workplane.refresh_layer(layer);
+      mapview->layer_trks.gobj.refresh_layer(layer);
     }
     void on_jump(dPoint p){
       mapview->cnv.bck(p);

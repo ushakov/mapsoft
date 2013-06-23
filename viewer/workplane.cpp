@@ -173,6 +173,7 @@ Workplane::set_cnv(Conv * c, int hint) {
   {
     Glib::Mutex::Lock lock(draw_mutex);
     stop_drawing=true;
+
     for (std::multimap<int, GObj *>::iterator itl = layers.begin();
       itl != layers.end(); ++itl) {
       itl->second->set_cnv(cnv, cnv_hint);

@@ -9,9 +9,7 @@
 
 #include "gred/dthread_viewer.h"
 #include "gred/rubber.h"
-#include "workplane.h"
-#include "layerlist.h"
-#include "layers/layer_srtm.h"
+#include "gred/gobj_comp.h"
 #include "dataview.h"
 #include "action_manager.h"
 #include "geo_io/io.h"
@@ -19,21 +17,27 @@
 #include "dialogs/ch_conf.h"
 #include "dialogs/err.h"
 
+#include "layers/wpts.h"
+#include "layers/trks.h"
+#include "layers/maps.h"
+#include "layers/srtm.h"
+#include "layers/layer_srtm.h"
+
 #define ACCEL_FILE ".mapsoft/accel"
 
 class Mapview : public Gtk::Window {
 public:
     DThreadViewer viewer;
     Rubber        rubber;
-    Workplane     workplane;
-
-    // Data storage (see layerlist.h)
-    WptLL wpt_ll;
-    TrkLL trk_ll;
-    MapLL map_ll;
+    GObjComp      workplane;
 
     srtm3 srtm;
-    LayerSRTM layer_srtm;
+    LayerTRKs layer_trks;
+    LayerWPTs layer_wpts;
+    LayerMAPs layer_maps;
+    LayerSRTMs layer_srtm;
+
+    LayerSRTM  gobj_srtm;
 
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;

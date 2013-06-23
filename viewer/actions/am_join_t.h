@@ -15,14 +15,14 @@ public:
     void activate() {
       Gtk::TreeNodeChildren::const_iterator i; 
       boost::shared_ptr<g_track> newd(new g_track);
-      i = mapview->trk_ll.store->children().begin();
-      while (i != mapview->trk_ll.store->children().end()){
-        if (!(*i)[mapview->trk_ll.columns.checked]) {
+      i = mapview->layer_trks.panel.store->children().begin();
+      while (i != mapview->layer_trks.panel.store->children().end()){
+        if (!(*i)[mapview->layer_trks.panel.columns.checked]) {
           i++;
           continue;
         }
         boost::shared_ptr<LayerTRK> current_layer =
-          (*i)[mapview->trk_ll.columns.layer];
+          (*i)[mapview->layer_trks.panel.columns.layer];
         g_track * curr = current_layer->get_data();
         if (!curr){
           i++;
@@ -31,9 +31,9 @@ public:
         newd->insert(newd->end(), curr->begin(), curr->end());
         if (newd->size()) newd->comm = "JOIN";
         else newd->comm = curr->comm;
-        mapview->workplane.remove_layer(
-          i->get_value(mapview->trk_ll.columns.layer).get());
-        i = mapview->trk_ll.store->erase(i);
+        mapview->layer_trks.gobj.remove_layer(
+          i->get_value(mapview->layer_trks.panel.columns.layer).get());
+        i = mapview->layer_trks.panel.store->erase(i);
       }
       if (newd->size()) mapview->add_trks(newd);
     }

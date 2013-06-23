@@ -15,14 +15,14 @@ public:
     void activate() {
       Gtk::TreeNodeChildren::const_iterator i;
       boost::shared_ptr<g_map_list> newd(new g_map_list);
-      i = mapview->map_ll.store->children().begin();
-      while (i != mapview->map_ll.store->children().end()){
-        if (!(*i)[mapview->map_ll.columns.checked]) {
+      i = mapview->layer_maps.panel.store->children().begin();
+      while (i != mapview->layer_maps.panel.store->children().end()){
+        if (!(*i)[mapview->layer_maps.panel.columns.checked]) {
           i++;
           continue;
         }
         boost::shared_ptr<LayerMAP> current_layer =
-          (*i)[mapview->map_ll.columns.layer];
+          (*i)[mapview->layer_maps.panel.columns.layer];
         g_map_list * curr = current_layer->get_data();
         if (!curr){
           i++;
@@ -31,9 +31,9 @@ public:
         newd->insert(newd->end(), curr->begin(), curr->end());
         if (newd->size()) newd->comm = "JOIN";
         else newd->comm = curr->comm;
-        mapview->workplane.remove_layer(
-          i->get_value(mapview->map_ll.columns.layer).get());
-        i = mapview->map_ll.store->erase(i);
+        mapview->layer_maps.gobj.remove_layer(
+          i->get_value(mapview->layer_maps.panel.columns.layer).get());
+        i = mapview->layer_maps.panel.store->erase(i);
       }
       if (newd->size()) mapview->add_maps(newd);
     }

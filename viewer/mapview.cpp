@@ -16,7 +16,7 @@ Mapview::Mapview () :
     viewer(&workplane),
     rubber(&viewer),
     srtm("",20),
-    layer_srtm(&srtm),
+    gobj_srtm(&srtm),
     cnv(get_myref())
 {
 
@@ -45,25 +45,37 @@ Mapview::Mapview () :
       sigc::mem_fun (this, &Mapview::on_scroll));
 
     /// events from workplane -> move to viewer?
-    workplane.signal_refresh.connect (
+    layer_wpts.gobj.signal_refresh.connect (
+      sigc::mem_fun (this, &Mapview::refresh));
+    layer_trks.gobj.signal_refresh.connect (
+      sigc::mem_fun (this, &Mapview::refresh));
+    layer_maps.gobj.signal_refresh.connect (
+      sigc::mem_fun (this, &Mapview::refresh));
+    layer_srtm.gobj.signal_refresh.connect (
       sigc::mem_fun (this, &Mapview::refresh));
 
+    workplane.push_back(layer_srtm.get_gobj());
+    workplane.push_back(layer_maps.get_gobj());
+    workplane.push_back(layer_trks.get_gobj());
+    workplane.push_back(layer_wpts.get_gobj());
 
     /// events from layer lists
-    wpt_ll.store->signal_row_changed().connect (
+    layer_wpts.panel.store->signal_row_changed().connect (
       sigc::mem_fun (this, &Mapview::layer_edited));
-    trk_ll.store->signal_row_changed().connect (
+    layer_trks.panel.store->signal_row_changed().connect (
       sigc::mem_fun (this, &Mapview::layer_edited));
-    map_ll.store->signal_row_changed().connect (
+    layer_maps.panel.store->signal_row_changed().connect (
       sigc::mem_fun (this, &Mapview::layer_edited));
 
-    /// events from workplane
+    /// events from viewer
     viewer.signal_busy().connect(
       sigc::mem_fun (this, &Mapview::show_busy_mark));
     viewer.signal_idle().connect(
       sigc::mem_fun (this, &Mapview::hide_busy_mark));
 
+
     viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
+
 
     /***************************************/
     // Add my icons 
@@ -122,7 +134,10 @@ Mapview::Mapview () :
     filename="";
     set_changed(false);
     statusbar.push("Welcome to mapsoft viewer!",0);
+
     show_all();
+
+
 }
 
 void
@@ -139,16 +154,16 @@ Mapview::update_layers() {
   // update layer depth and visibility in workplane
   bool ch = false;
   int d=DEPTH_DATA0;
-  ch = wpt_ll.upd_wp(workplane, d) || ch;
-  ch = trk_ll.upd_wp(workplane, d) || ch;
-  ch = map_ll.upd_wp(workplane, d) || ch;
+  ch = layer_wpts.panel.upd_wp(layer_wpts.gobj, d) || ch;
+  ch = layer_trks.panel.upd_wp(layer_trks.gobj, d) || ch;
+  ch = layer_maps.panel.upd_wp(layer_maps.gobj, d) || ch;
   if (ch) refresh();
 
   // update comments in data
   ch = false;
-  ch = wpt_ll.upd_comm() || ch;
-  ch = trk_ll.upd_comm() || ch;
-  ch = map_ll.upd_comm() || ch;
+  ch = layer_wpts.panel.upd_comm() || ch;
+  ch = layer_trks.panel.upd_comm() || ch;
+  ch = layer_maps.panel.upd_comm() || ch;
   if (ch) set_changed();
 }
 
@@ -231,31 +246,31 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> & data) {
   // - put layer to LayerList (layer_edited call, workplane refresh)
   // depth is set to DEPTH_DATA0 to evoke refresh!
   boost::shared_ptr<LayerWPT> layer(new LayerWPT(data.get()));
-  workplane.add_layer(layer.get(), DEPTH_DATA0);
+  layer_wpts.gobj.add_layer(layer.get(), DEPTH_DATA0);
   set_changed();
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
 //  else layer->set_cnv(&cnv);
-  wpt_ll.add_layer(layer, data);
+  layer_wpts.panel.add_layer(layer, data);
 }
 void
 Mapview::add_trks(const boost::shared_ptr<g_track> & data) {
   boost::shared_ptr<LayerTRK> layer(new LayerTRK(data.get(), layer_options));
-  workplane.add_layer(layer.get(), DEPTH_DATA0);
+  layer_trks.gobj.add_layer(layer.get(), DEPTH_DATA0);
   set_changed();
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
 //  else layer->set_cnv(&cnv);
-  trk_ll.add_layer(layer, data);
+  layer_trks.panel.add_layer(layer, data);
 }
 void
 Mapview::add_maps(const boost::shared_ptr<g_map_list> & data) {
   boost::shared_ptr<LayerMAP> layer(new LayerMAP(data.get(), layer_options));
-  workplane.add_layer(layer.get(), DEPTH_DATA0);
+  layer_maps.gobj.add_layer(layer.get(), DEPTH_DATA0);
   set_changed();
   // for maps always reset reference
   set_ref(layer->get_myref());
-  map_ll.add_layer(layer, data);
+  layer_maps.panel.add_layer(layer, data);
 }
 
 void
@@ -288,10 +303,12 @@ Mapview::add_world(const geo_data & world, bool scroll) {
 void
 Mapview::clear_world() {
   divert_refresh=true;
-  workplane.clear();
-  map_ll.clear();
-  wpt_ll.clear();
-  trk_ll.clear();
+  layer_trks.gobj.clear();
+  layer_wpts.gobj.clear();
+  layer_maps.gobj.clear();
+  layer_maps.panel.clear();
+  layer_wpts.panel.clear();
+  layer_trks.panel.clear();
   have_reference = false;
   divert_refresh=false;
   update_layers();
@@ -302,22 +319,22 @@ Mapview::get_world(bool visible){
   geo_data world;
 
   Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = wpt_ll.store->children().begin();
-       i != wpt_ll.store->children().end(); i++){
-     if (visible && !(*i)[wpt_ll.columns.checked]) continue;
-     boost::shared_ptr<LayerWPT> layer = (*i)[wpt_ll.columns.layer];
+  for (i  = layer_wpts.panel.store->children().begin();
+       i != layer_wpts.panel.store->children().end(); i++){
+     if (visible && !(*i)[layer_wpts.panel.columns.checked]) continue;
+     boost::shared_ptr<LayerWPT> layer = (*i)[layer_wpts.panel.columns.layer];
      world.wpts.push_back(*(layer->get_data()));
   }
-  for (i  = trk_ll.store->children().begin();
-       i != trk_ll.store->children().end(); i++){
-     if (visible && !(*i)[trk_ll.columns.checked]) continue;
-     boost::shared_ptr<LayerTRK> layer = (*i)[trk_ll.columns.layer];
+  for (i  = layer_trks.panel.store->children().begin();
+       i != layer_trks.panel.store->children().end(); i++){
+     if (visible && !(*i)[layer_trks.panel.columns.checked]) continue;
+     boost::shared_ptr<LayerTRK> layer = (*i)[layer_trks.panel.columns.layer];
      world.trks.push_back(*(layer->get_data()));
   }
-  for (i  = map_ll.store->children().begin();
-       i != map_ll.store->children().end(); i++){
-     if (visible && !(*i)[map_ll.columns.checked]) continue;
-     boost::shared_ptr<LayerMAP> layer = (*i)[map_ll.columns.layer];
+  for (i  = layer_maps.panel.store->children().begin();
+       i != layer_maps.panel.store->children().end(); i++){
+     if (visible && !(*i)[layer_maps.panel.columns.checked]) continue;
+     boost::shared_ptr<LayerMAP> layer = (*i)[layer_maps.panel.columns.layer];
      world.maps.push_back(*(layer->get_data()));
   }
   return world;
@@ -429,18 +446,18 @@ Mapview::hide_busy_mark(void){
 
 void
 Mapview::show_srtm(bool show){
-  bool state = workplane.exists(&layer_srtm);
+  bool state = layer_srtm.gobj.exists(&gobj_srtm);
 
   if (state && !show){
     statusbar.push("SRTM OFF", 0);
-    workplane.remove_layer(&layer_srtm);
+    layer_srtm.gobj.remove_layer(&gobj_srtm);
     refresh();
   }
   else if (!state && show){
     statusbar.push("SRTM ON", 0);
-    workplane.add_layer(&layer_srtm, DEPTH_SRTM);
-    layer_srtm.set_cnv(&cnv);
-    workplane.refresh_layer(&layer_srtm);
+    layer_srtm.gobj.add_layer(&gobj_srtm, DEPTH_SRTM);
+    layer_srtm.gobj.set_cnv(&cnv);
+    layer_srtm.gobj.refresh_layer(&gobj_srtm);
   }
 }
 
@@ -450,11 +467,11 @@ int
 Mapview::find_wpt(const iPoint & p, LayerWPT ** layer,
                      int radius) const{
   Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = wpt_ll.store->children().begin();
-       i != wpt_ll.store->children().end(); i++){
-    if (!(*i)[wpt_ll.columns.checked]) continue;
+  for (i  = layer_wpts.panel.store->children().begin();
+       i != layer_wpts.panel.store->children().end(); i++){
+    if (!(*i)[layer_wpts.panel.columns.checked]) continue;
     boost::shared_ptr<LayerWPT> current_layer=
-      (*i)[wpt_ll.columns.layer];
+      (*i)[layer_wpts.panel.columns.layer];
     *layer = current_layer.get();
     int d = current_layer->find_waypoint(p, radius);
     if (d >= 0) return d;
@@ -467,11 +484,11 @@ int
 Mapview::find_tpt(const iPoint & p, LayerTRK ** layer,
                      const bool segment, int radius) const{
   Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = trk_ll.store->children().begin();
-       i != trk_ll.store->children().end(); i++){
-    if (!(*i)[trk_ll.columns.checked]) continue;
+  for (i  = layer_trks.panel.store->children().begin();
+       i != layer_trks.panel.store->children().end(); i++){
+    if (!(*i)[layer_trks.panel.columns.checked]) continue;
     boost::shared_ptr<LayerTRK> current_layer=
-      (*i)[trk_ll.columns.layer];
+      (*i)[layer_trks.panel.columns.layer];
     *layer = current_layer.get();
     int d;
     if (segment) d = current_layer->find_track(p, radius);
@@ -485,11 +502,11 @@ Mapview::find_tpt(const iPoint & p, LayerTRK ** layer,
 int
 Mapview::find_map(const iPoint & p, LayerMAP ** layer) const{
   Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = map_ll.store->children().begin();
-       i != map_ll.store->children().end(); i++){
-    if (!(*i)[map_ll.columns.checked]) continue;
+  for (i  = layer_maps.panel.store->children().begin();
+       i != layer_maps.panel.store->children().end(); i++){
+    if (!(*i)[layer_maps.panel.columns.checked]) continue;
     boost::shared_ptr<LayerMAP> current_layer=
-      (*i)[map_ll.columns.layer];
+      (*i)[layer_maps.panel.columns.layer];
     *layer = current_layer.get();
     int d = current_layer->find_map(p);
     if (d >= 0) return d;
@@ -502,11 +519,11 @@ map<LayerWPT*, vector<int> >
 Mapview::find_wpts(const iRect & r){
   std::map<LayerWPT*, std::vector<int> > ret;
   Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = wpt_ll.store->children().begin();
-       i != wpt_ll.store->children().end(); i++){
-    if (!(*i)[wpt_ll.columns.checked]) continue;
+  for (i  = layer_wpts.panel.store->children().begin();
+       i != layer_wpts.panel.store->children().end(); i++){
+    if (!(*i)[layer_wpts.panel.columns.checked]) continue;
     boost::shared_ptr<LayerWPT> current_layer=
-      (*i)[wpt_ll.columns.layer];
+      (*i)[layer_wpts.panel.columns.layer];
 
     vector<int> pts = current_layer->find_waypoints(r);
     if (pts.size()>0)
@@ -519,11 +536,11 @@ map<LayerTRK*, vector<int> >
 Mapview::find_tpts(const iRect & r){
   std::map<LayerTRK*, std::vector<int> > ret;
   Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = trk_ll.store->children().begin();
-       i != trk_ll.store->children().end(); i++){
-    if (!(*i)[trk_ll.columns.checked]) continue;
+  for (i  = layer_trks.panel.store->children().begin();
+       i != layer_trks.panel.store->children().end(); i++){
+    if (!(*i)[layer_trks.panel.columns.checked]) continue;
     boost::shared_ptr<LayerTRK> current_layer=
-      (*i)[trk_ll.columns.layer];
+      (*i)[layer_trks.panel.columns.layer];
 
     vector<int> pts = current_layer->find_trackpoints(r);
     if (pts.size()>0)
@@ -535,11 +552,11 @@ Mapview::find_tpts(const iRect & r){
 LayerWPT *
 Mapview::find_wpt_layer() const{
   Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = wpt_ll.store->children().begin();
-       i != wpt_ll.store->children().end(); i++){
-    if (!(*i)[wpt_ll.columns.checked]) continue;
+  for (i  = layer_wpts.panel.store->children().begin();
+       i != layer_wpts.panel.store->children().end(); i++){
+    if (!(*i)[layer_wpts.panel.columns.checked]) continue;
     boost::shared_ptr<LayerWPT> current_layer=
-      (*i)[wpt_ll.columns.layer];
+      (*i)[layer_wpts.panel.columns.layer];
     return current_layer.get();
   }
   return NULL;
@@ -548,11 +565,11 @@ Mapview::find_wpt_layer() const{
 LayerMAP *
 Mapview::find_map_layer() const{
   Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = map_ll.store->children().begin();
-       i != map_ll.store->children().end(); i++){
-    if (!(*i)[map_ll.columns.checked]) continue;
+  for (i  = layer_maps.panel.store->children().begin();
+       i != layer_maps.panel.store->children().end(); i++){
+    if (!(*i)[layer_maps.panel.columns.checked]) continue;
     boost::shared_ptr<LayerMAP> current_layer=
-      (*i)[map_ll.columns.layer];
+      (*i)[layer_maps.panel.columns.layer];
     return current_layer.get();
   }
   return NULL;

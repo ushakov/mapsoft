@@ -27,7 +27,7 @@ public:
       dlg.wpt2dlg(&wpt);
     }
 
-    // Sends user click. Coordinates are in workplane's discrete system.
+    // Sends user click. Coordinates are in layer_wpts.gobj's discrete system.
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
          if (!mapview->have_reference){
            mapview->statusbar.push("No geo-reference", 0);
@@ -54,7 +54,7 @@ private:
           g_waypoint_list * wpts = layer->get_data();
           wpts->push_back(wpt);
           mapview->set_changed();
-          mapview->workplane.refresh_layer(layer);
+          mapview->layer_wpts.gobj.refresh_layer(layer);
           abort();
           return;
         }

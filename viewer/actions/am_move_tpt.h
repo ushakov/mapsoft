@@ -50,7 +50,7 @@ public:
           layer->get_cnv()->frw(pt);
           tpt->dPoint::operator=(pt);
           mapview->set_changed();
-          mapview->workplane.refresh_layer(layer);
+          mapview->layer_trks.gobj.refresh_layer(layer);
           abort();
         }
     }

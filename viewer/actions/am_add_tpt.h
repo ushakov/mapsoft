@@ -84,7 +84,7 @@ public:
           }
           layer->get_data()->insert(layer->get_data()->begin()+pt_num, tpt);
           mapview->set_changed();
-          mapview->workplane.refresh_layer(layer);
+          mapview->layer_trks.gobj.refresh_layer(layer);
           abort();
         }
     }

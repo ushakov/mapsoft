@@ -211,15 +211,15 @@ std::cerr << "MPP SCALE " << sc << "\n";
       iImage image(wh.x, wh.y, 0xFFFFFFFF);
 
       if (sc == 1.0){
-        mapview->workplane.draw(image, mytlc);
+        mapview->layer_maps.gobj.draw(image, mytlc);
       }
       else{
         mytlc/=sc;
         mapview->cnv.rescale_src(1/sc);
-        mapview->workplane.refresh();
-        mapview->workplane.draw(image, mytlc);
+        mapview->layer_maps.gobj.refresh();
+        mapview->layer_maps.gobj.draw(image, mytlc);
         mapview->cnv.rescale_src(sc);
-        mapview->workplane.refresh();
+        mapview->layer_maps.gobj.refresh();
       }
 
 //      if (r == Gtk::RESPONSE_APPLY){

@@ -35,8 +35,8 @@ private:
       if (r!=Gtk::RESPONSE_OK) return;
       dlg.dlg2trk(layer->get_data());
       mapview->set_changed();
-      mapview->workplane.refresh_layer(layer);
-      mapview->trk_ll.upd_comm(layer, false); // move comm to layerlist
+      mapview->layer_trks.gobj.refresh_layer(layer);
+      mapview->layer_trks.panel.upd_comm(layer, false); // move comm to layerlist
     }
 };
 

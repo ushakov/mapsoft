@@ -13,8 +13,8 @@ public:
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       LayerTRK *layer;
       if (mapview->find_tpt(p, &layer, true)<0) return;
-      mapview->workplane.remove_layer(layer);
-      mapview->trk_ll.del_layer(layer);
+      mapview->layer_trks.gobj.remove_layer(layer);
+      mapview->layer_trks.panel.del_layer(layer);
       mapview->refresh();
     }
 };

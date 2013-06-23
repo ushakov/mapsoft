@@ -32,14 +32,14 @@ public:
       if (r==Gtk::RESPONSE_CANCEL) o = mapview->layer_options;
 
       Gtk::TreeNodeChildren::const_iterator i;
-      for (i  = mapview->trk_ll.store->children().begin();
-           i != mapview->trk_ll.store->children().end(); i++){
+      for (i  = mapview->layer_trks.panel.store->children().begin();
+           i != mapview->layer_trks.panel.store->children().end(); i++){
         boost::shared_ptr<LayerTRK> layer=
-          (*i)[mapview->trk_ll.columns.layer];
+          (*i)[mapview->layer_trks.panel.columns.layer];
         layer->set_opt(o);
-        mapview->workplane.refresh_layer(layer.get(), false);
+        mapview->layer_trks.gobj.refresh_layer(layer.get(), false);
       }
-      mapview->workplane.signal_refresh.emit();
+      mapview->layer_trks.gobj.signal_refresh.emit();
       if (r<0) dlg.hide_all();
     }
 

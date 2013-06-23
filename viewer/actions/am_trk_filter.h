@@ -38,7 +38,7 @@ private:
         for (i++; i!= layer->get_data()->end(); i++) i->start=false;
       }
       mapview->set_changed();
-      mapview->workplane.refresh_layer(layer);
+      mapview->layer_trks.gobj.refresh_layer(layer);
     }
 };
 

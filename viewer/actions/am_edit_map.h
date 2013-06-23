@@ -22,7 +22,7 @@ public:
       if (redraw)
         dlg.hide_all();
       if (mark_layer){
-        mapview->workplane.remove_layer(mark_layer.get());
+        mapview->layer_maps.gobj.remove_layer(mark_layer.get());
         if (redraw) mapview->viewer.redraw();
       }
       mark_layer.reset();
@@ -46,7 +46,7 @@ public:
       mark_layer->show_ref();
       mark_layer->hide_map();
       mark_layer->set_cnv(layer->get_cnv(), m->map_proj.val);
-      mapview->workplane.add_layer(mark_layer.get(), 50);
+      mapview->layer_maps.gobj.add_layer(mark_layer.get(), 50);
       mapview->viewer.redraw();
 
       // show dialog
@@ -66,8 +66,8 @@ private:
       if ((map_num<0) || (r!=Gtk::RESPONSE_OK)) return;
       dlg.dlg2map(layer->get_map(map_num));
       mapview->set_changed();
-      mapview->workplane.refresh_layer(layer);
-      mapview->map_ll.upd_comm(layer, false); // move comm to ll
+      mapview->layer_maps.gobj.refresh_layer(layer);
+      mapview->layer_maps.panel.upd_comm(layer, false); // move comm to ll
     }
 
 };

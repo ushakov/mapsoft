@@ -27,12 +27,12 @@ public:
       if (n < 0) return;
       del_pt(layer->get_data(), n);
       if (layer->get_data()->size()==0){
-        mapview->workplane.remove_layer(layer);
-        mapview->trk_ll.del_layer(layer);
+        mapview->layer_trks.gobj.remove_layer(layer);
+        mapview->layer_trks.panel.del_layer(layer);
         mapview->refresh();
       }
       else
-        mapview->workplane.refresh_layer(layer);
+        mapview->layer_trks.gobj.refresh_layer(layer);
     }
 
     void del_pt(const iRect & r){
@@ -43,12 +43,12 @@ public:
         for (int j=nn.size()-1; j>=0; j--)
           del_pt(i->first->get_data(), nn[j]);
         if (i->first->get_data()->size()==0){
-          mapview->workplane.remove_layer(i->first);
-          mapview->trk_ll.del_layer(i->first);
+          mapview->layer_trks.gobj.remove_layer(i->first);
+          mapview->layer_trks.panel.del_layer(i->first);
           mapview->refresh();
         }
         else
-          mapview->workplane.refresh_layer(i->first);
+          mapview->layer_trks.gobj.refresh_layer(i->first);
       }
     }
 
