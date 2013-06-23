@@ -166,5 +166,9 @@ public:
   CairoWrapper(const iImage & img){ reset_surface(img); }
 
   Cairo::RefPtr<Cairo::ImageSurface> get_im_surface() { return surface; }
+
+  iRect range(){
+    return iRect(0,0, surface->get_width(), surface->get_height());
+  }
 };
 #endif
