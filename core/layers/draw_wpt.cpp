@@ -6,13 +6,12 @@
 using namespace std;
 
 tmpl_wpts
-make_wpts_tmpl(iImage & image, const iPoint & origin,
+make_wpts_tmpl(CairoWrapper & cr, const iPoint & origin,
                 const Conv & cnv, const g_waypoint_list & wpt,
-                const Options & opt, dRect & range){
+                const Options & opt, iRect & range){
   tmpl_wpts ret;
   g_waypoint_list::const_iterator pt;
-  CairoWrapper cr(image);
-  range=dRect();
+  range=iRect();
 
   for (pt=wpt.begin(); pt!=wpt.end(); pt++){
     tmpl_wpt p;
@@ -41,18 +40,18 @@ make_wpts_tmpl(iImage & image, const iPoint & origin,
     pt_rect = rect_pump(pt_rect, 1.0); // linewidth
 
     // update range
-    if (range.empty()) range=pt_rect;
-    else range = rect_bounding_box(range, pt_rect);
+    if (range.empty()) range=rect_pump_to_int(pt_rect);
+    else range = rect_bounding_box(range, rect_pump_to_int(pt_rect));
 
     // add point to the cache if needed
-    if (!rect_intersect(pt_rect, dRect(image.range())).empty())
+    if (!rect_intersect(pt_rect, dRect(cr.range())).empty())
       ret.push_back(p);
   }
   return ret;
 }
 
 void
-plot_wpts_tmpl(const tmpl_wpts & wpts, CairoWrapper & cr){
+plot_wpts_tmpl(CairoWrapper & cr, const tmpl_wpts & wpts){
   std::vector<tmpl_wpt>::const_iterator i;
   for (i=wpts.begin(); i!=wpts.end(); i++){
     cr->move_to(*i);
@@ -67,7 +66,7 @@ plot_wpts_tmpl(const tmpl_wpts & wpts, CairoWrapper & cr){
     cr->stroke();
 
     cr->move_to(*i + dPoint(0,-i->dot_rad));
-    cr->rel_line_to(i->txt_rect.BLC());
+    cr->line_to(i->txt_rect.BLC());
     cr->stroke();
 
     cr->move_to(i->txt_rect.BLC());
@@ -82,10 +81,47 @@ draw_wpt(iImage & image, const iPoint & origin,
          const Conv & cnv, const g_waypoint_list & wpt,
          const Options & opt){
 
-  dRect range;
-  tmpl_wpts cache =
-    make_wpts_tmpl(image, origin, cnv, wpt, opt, range);
-
   CairoWrapper cr(image);
-  plot_wpts_tmpl(cache, cr);
+  iRect range;
+  tmpl_wpts cache =
+    make_wpts_tmpl(cr, origin, cnv, wpt, opt, range);
+
+  plot_wpts_tmpl(cr, cache);
+}
+
+/***********************************************************/
+/* GObj with template caching */
+
+void
+GObjWPT::refresh(int n){
+  if (n>=data.size()) return;
+  int i1 = (n<0)? 0:n;
+  int i2 = (n<0)? data.size():n+1;
+  for (int i = i1; i < i2; i++){
+    tmpls[i]  = Cache<iRect, tmpl_wpts>(100);
+    ranges[i] = iRect();
+  }
+}
+
+int
+GObjWPT::draw(iImage & image, const iPoint & origin){
+  iRect img_range = image.range() + origin;
+  CairoWrapper cr(image);
+
+  for (int i = 0; i < data.size(); i++){
+
+    if (!ranges[i].empty() &&
+         rect_intersect(ranges[i], img_range).empty() )
+      continue;
+
+    if (!tmpls[i].contains(img_range)){
+      tmpl_wpts tmpl =
+        make_wpts_tmpl(cr, origin, *cnv, data[i], opt, ranges[i]);
+      tmpls[i].add(img_range, tmpl);
+    }
+
+    plot_wpts_tmpl(cr, tmpls[i].get(img_range));
+
+  }
+  return GOBJ_FILL_PART;
 }
