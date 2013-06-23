@@ -1,6 +1,0 @@
-Name: layers
-Description: Mapsoft layers library
-Requires: geo loaders utils options 2d
-Version: 1
-Libs: -L'\#'core/layers -llayers
-
