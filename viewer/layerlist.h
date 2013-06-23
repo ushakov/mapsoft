@@ -2,9 +2,9 @@
 #define LAYERLIST_H
 
 #include <gtkmm.h>
-#include "layers/layer_map.h"
-#include "layers/layer_wpt.h"
-#include "layers/layer_trk.h"
+#include "img_io/gobj_map.h"
+#include "img_io/gobj_wpt.h"
+#include "img_io/gobj_trk.h"
 
 #include "workplane.h"
 
@@ -12,11 +12,11 @@
 Three children of Gtk::TreeView are defined here: WptLL, TrkLL, MapLL
 
 Interface:
-    void add_layer (const boost::shared_ptr<LayerWPT> layer);
-    void del_layer (const LayerWPT * L);
+    void add_gobj (const boost::shared_ptr<GObjWPT> layer);
+    void remove_gobj (const GObjWPT * L);
     void clear();
     bool upd_wp (Workplane & wp, int & d);
-    bool upd_comm(LayerWPT * sel_layer=NULL, bool dir=true);
+    bool upd_comm(GObjWPT * sel_gobj=NULL, bool dir=true);
 
 Columns:
     checked, comm, layer
@@ -38,9 +38,9 @@ public:
     }
 };
 
-typedef LayerTabCols<LayerWPT, g_waypoint_list> WptLLCols;
-typedef LayerTabCols<LayerTRK, g_track>         TrkLLCols;
-typedef LayerTabCols<LayerMAP, g_map_list>      MapLLCols;
+typedef LayerTabCols<GObjWPT, g_waypoint_list> WptLLCols;
+typedef LayerTabCols<GObjTRK, g_track>         TrkLLCols;
+typedef LayerTabCols<GObjMAP, g_map_list>      MapLLCols;
 
 /*********************************************************************/
 
@@ -56,7 +56,7 @@ public:
         set_reorderable(false);
     }
 
-    void add_layer (const boost::shared_ptr<LayerWPT> layer,
+    void add_gobj (const boost::shared_ptr<GObjWPT> layer,
                     const boost::shared_ptr<g_waypoint_list> data) {
 	Gtk::TreeModel::iterator it = store->append();
 	Gtk::TreeModel::Row row = *it;
@@ -68,11 +68,11 @@ public:
         row[columns.data]    = data;
     }
 
-    void del_layer (const LayerWPT * L){
+    void remove_gobj (const GObjWPT * L){
       Gtk::TreeNodeChildren::const_iterator i;
       for (i  = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<LayerWPT> layer = (*i)[columns.layer];
+        boost::shared_ptr<GObjWPT> layer = (*i)[columns.layer];
         if (layer.get() != L) continue;
         store->erase(i);
         break;
@@ -91,17 +91,17 @@ public:
       Gtk::TreeNodeChildren::const_iterator i;
       for (i = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<LayerWPT> layer = (*i)[columns.layer];
+        boost::shared_ptr<GObjWPT> layer = (*i)[columns.layer];
         if (!layer) continue;
         // update visibility
         bool act = (*i)[columns.checked];
-        if (wp.get_layer_active(layer.get()) != act){
-          wp.set_layer_active(layer.get(), act);
+        if (wp.get_gobj_active(layer.get()) != act){
+          wp.set_gobj_active(layer.get(), act);
           ret = true;
         }
         // update depth
-        if (wp.get_layer_depth(layer.get()) != d){
-          wp.set_layer_depth(layer.get(), d);
+        if (wp.get_gobj_depth(layer.get()) != d){
+          wp.set_gobj_depth(layer.get(), d);
           ret = true;
         }
         d++;
@@ -109,16 +109,16 @@ public:
       return ret;
     }
 
-    bool upd_comm(LayerWPT * sel_layer=NULL, bool dir=true){
+    bool upd_comm(GObjWPT * sel_gobj=NULL, bool dir=true){
       bool ret=false;
       Gtk::TreeNodeChildren::const_iterator i;
       for (i = store->children().begin();
            i != store->children().end(); i++){
                 string comm = (*i)[columns.comm];
-        boost::shared_ptr<LayerWPT> layer = (*i)[columns.layer];
+        boost::shared_ptr<GObjWPT> layer = (*i)[columns.layer];
         if (!layer) continue;
-        // select layer if sel_layer!=NULL
-        if (sel_layer && sel_layer!=layer.get()) continue;
+        // select layer if sel_gobj!=NULL
+        if (sel_gobj && sel_gobj!=layer.get()) continue;
         if (comm!=layer->get_data()->comm){
           if (dir) layer->get_data()->comm = comm;
           else (*i)[columns.comm] = layer->get_data()->comm;
@@ -146,7 +146,7 @@ public:
         set_reorderable(false);
     }
 
-    void add_layer (const boost::shared_ptr<LayerTRK> layer,
+    void add_gobj (const boost::shared_ptr<GObjTRK> layer,
                     const boost::shared_ptr<g_track> data) {
 	Gtk::TreeModel::iterator it = store->append();
 	Gtk::TreeModel::Row row = *it;
@@ -158,11 +158,11 @@ public:
         row[columns.data]    = data;
     }
 
-    void del_layer (const LayerTRK * L){
+    void remove_gobj (const GObjTRK * L){
       Gtk::TreeNodeChildren::const_iterator i;
       for (i  = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<LayerTRK> layer = (*i)[columns.layer];
+        boost::shared_ptr<GObjTRK> layer = (*i)[columns.layer];
         if (layer.get() != L) continue;
         store->erase(i);
         break;
@@ -176,17 +176,17 @@ public:
       Gtk::TreeNodeChildren::const_iterator i;
       for (i = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<LayerTRK> layer = (*i)[columns.layer];
+        boost::shared_ptr<GObjTRK> layer = (*i)[columns.layer];
         if (!layer) continue;
         // update visibility
         bool act = (*i)[columns.checked];
-        if (wp.get_layer_active(layer.get()) != act){
-          wp.set_layer_active(layer.get(), act);
+        if (wp.get_gobj_active(layer.get()) != act){
+          wp.set_gobj_active(layer.get(), act);
           ret = true;
         }
         // update depth
-        if (wp.get_layer_depth(layer.get()) != d){
-          wp.set_layer_depth(layer.get(), d);
+        if (wp.get_gobj_depth(layer.get()) != d){
+          wp.set_gobj_depth(layer.get(), d);
           ret = true;
         }
         d++;
@@ -194,16 +194,16 @@ public:
       return ret;
     }
 
-    bool upd_comm(LayerTRK * sel_layer=NULL, bool dir=true){
+    bool upd_comm(GObjTRK * sel_gobj=NULL, bool dir=true){
       bool ret=false;
       Gtk::TreeNodeChildren::const_iterator i;
       for (i = store->children().begin();
            i != store->children().end(); i++){
         string comm = (*i)[columns.comm];
-        boost::shared_ptr<LayerTRK> layer = (*i)[columns.layer];
+        boost::shared_ptr<GObjTRK> layer = (*i)[columns.layer];
         if (!layer) continue;
-        // select layer if sel_layer!=NULL
-        if (sel_layer && sel_layer!=layer.get()) continue;
+        // select layer if sel_gobj!=NULL
+        if (sel_gobj && sel_gobj!=layer.get()) continue;
         if (comm!=layer->get_data()->comm){
           if (dir) layer->get_data()->comm = comm;
           else (*i)[columns.comm] = layer->get_data()->comm;
@@ -236,7 +236,7 @@ public:
         set_reorderable(false);
     }
 
-    void add_layer (const boost::shared_ptr<LayerMAP> layer,
+    void add_gobj (const boost::shared_ptr<GObjMAP> layer,
                     const boost::shared_ptr<g_map_list> data) {
 	Gtk::TreeModel::iterator it = store->append();
 	Gtk::TreeModel::Row row = *it;
@@ -253,11 +253,11 @@ public:
         }
     }
 
-    void del_layer (const LayerMAP * L){
+    void remove_gobj (const GObjMAP * L){
       Gtk::TreeNodeChildren::const_iterator i;
       for (i  = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<LayerMAP> layer = (*i)[columns.layer];
+        boost::shared_ptr<GObjMAP> layer = (*i)[columns.layer];
         if (layer.get() != L) continue;
         store->erase(i);
         break;
@@ -271,17 +271,17 @@ public:
       Gtk::TreeNodeChildren::const_iterator i;
       for (i = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<LayerMAP> layer = (*i)[columns.layer];
+        boost::shared_ptr<GObjMAP> layer = (*i)[columns.layer];
         if (!layer) continue;
         // update visibility
         bool act = (*i)[columns.checked];
-        if (wp.get_layer_active(layer.get()) != act){
-          wp.set_layer_active(layer.get(), act);
+        if (wp.get_gobj_active(layer.get()) != act){
+          wp.set_gobj_active(layer.get(), act);
           ret = true;
         }
         // update depth
-        if (wp.get_layer_depth(layer.get()) != d){
-          wp.set_layer_depth(layer.get(), d);
+        if (wp.get_gobj_depth(layer.get()) != d){
+          wp.set_gobj_depth(layer.get(), d);
           ret = true;
         }
         d++;
@@ -289,15 +289,15 @@ public:
       return ret;
     }
 
-    bool upd_comm(LayerMAP * sel_layer=NULL, bool dir=true){
+    bool upd_comm(GObjMAP * sel_gobj=NULL, bool dir=true){
       bool ret=false;
       Gtk::TreeNodeChildren::const_iterator i;
       for (i = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<LayerMAP> layer = (*i)[columns.layer];
+        boost::shared_ptr<GObjMAP> layer = (*i)[columns.layer];
         if (!layer) continue;
-        // select layer if sel_layer!=NULL
-        if (sel_layer && sel_layer!=layer.get()) continue;
+        // select layer if sel_gobj!=NULL
+        if (sel_gobj && sel_gobj!=layer.get()) continue;
         // update comment
         string comm = (*i)[columns.comm];
         g_map_list * ml = layer->get_data();

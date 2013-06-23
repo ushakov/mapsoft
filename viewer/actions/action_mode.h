@@ -12,9 +12,9 @@
   y=0; builder->get_widget_derived(Glib::ustring(x), y); assert (y);
 
 class Mapview;
-class LayerTRK;
-class LayerWPT;
-class LayerMAP;
+class GObjTRK;
+class GObjWPT;
+class GObjMAP;
 
 // Interface.
 class ActionMode {

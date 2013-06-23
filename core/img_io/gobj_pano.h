@@ -1,5 +1,5 @@
-#ifndef LAYER_PANO_H
-#define LAYER_PANO_H
+#ifndef GOBJ_PANO_H
+#define GOBJ_PANO_H
 
 #include "2d/rainbow.h"
 #include "gred/gobj.h"
@@ -7,7 +7,7 @@
 #include "options/options.h"
 #include <vector>
 
-class LayerPano : public GObj{
+class GObjPano : public GObj{
 private:
 
   srtm3 *srtm;
@@ -28,7 +28,7 @@ private:
   double getw() const {dPoint p(width0,0); cnv->bck(p); return p.x;}
 
 public:
-  LayerPano(srtm3 * s);
+  GObjPano(srtm3 * s);
 
   // Horizontal range is 720deg, -width..width
   // Vertical range is 90, 0..width/4

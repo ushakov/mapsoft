@@ -19,26 +19,26 @@ public:
     void abort() {dlg.hide_all();}
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      int d = mapview->find_tpt(p, &layer, true);
+      int d = mapview->find_tpt(p, &gobj, true);
       if (d < 0) return;
 
-      dlg.set_info(layer->get_data());
+      dlg.set_info(gobj->get_data());
       dlg.show_all();
     }
 
 private:
-    LayerTRK * layer;
+    GObjTRK * gobj;
     DlgTrkFilter dlg;
 
     void on_result(int r) {
       if (r!=Gtk::RESPONSE_OK) return;
-      io::generalize(layer->get_data(), dlg.get_acc(), dlg.get_num());
+      io::generalize(gobj->get_data(), dlg.get_acc(), dlg.get_num());
       if (dlg.get_rg()){
-        g_track::iterator i = layer->get_data()->begin();
-        for (i++; i!= layer->get_data()->end(); i++) i->start=false;
+        g_track::iterator i = gobj->get_data()->begin();
+        for (i++; i!= gobj->get_data()->end(); i++) i->start=false;
       }
       mapview->set_changed();
-      mapview->layer_trks.gobj.refresh_layer(layer);
+      mapview->layer_trks.gobj.refresh_gobj(gobj);
     }
 };
 

@@ -43,7 +43,7 @@ void plot_wpts_tmpl(CairoWrapper & cr, const tmpl_wpts & wpts);
 #include "2d/cache.h"
 #include "gred/gobj.h"
 
-class GObjWPT : public GObj {
+class GObjWPTn : public GObj {
 private:
   const std::vector<g_waypoint_list>    & data;
   std::vector<Cache<iRect, tmpl_wpts> > tmpls;
@@ -60,7 +60,7 @@ public:
   /// todo: refresh(n, range) or refresh(n, diff);
 
   /// constructor
-  GObjWPT (const vector<g_waypoint_list> & _data): data(_data) {
+  GObjWPTn (const vector<g_waypoint_list> & _data): data(_data) {
     refresh();
   }
 

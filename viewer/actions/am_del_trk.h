@@ -11,10 +11,10 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::DELETE; }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      LayerTRK *layer;
-      if (mapview->find_tpt(p, &layer, true)<0) return;
-      mapview->layer_trks.gobj.remove_layer(layer);
-      mapview->layer_trks.panel.del_layer(layer);
+      GObjTRK *gobj;
+      if (mapview->find_tpt(p, &gobj, true)<0) return;
+      mapview->layer_trks.gobj.remove_gobj(gobj);
+      mapview->layer_trks.panel.remove_gobj(gobj);
       mapview->refresh();
     }
 };

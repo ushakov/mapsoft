@@ -70,7 +70,7 @@ DataView::DataView (Mapview * M) : mapview(M) {
     sigc::mem_fun(this, &DataView::layer_jump));
 
   save_dlg.signal_response().connect(
-    sigc::mem_fun(this, &DataView::on_layer_save));
+    sigc::mem_fun(this, &DataView::on_gobj_save));
 
   /// scrollwindows with layerlists
   Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
@@ -111,21 +111,21 @@ DataView::layer_del(){
     case 0: // WPT
       it = mapview->layer_wpts.panel.get_selection()->get_selected();
       if (!it) break;
-      mapview->layer_wpts.gobj.remove_layer(
+      mapview->layer_wpts.gobj.remove_gobj(
         it->get_value(mapview->layer_wpts.panel.columns.layer).get());
       mapview->layer_wpts.panel.store->erase(it);
       break;
     case 1: // TRK
       it = mapview->layer_trks.panel.get_selection()->get_selected();
       if (!it) break;
-      mapview->layer_trks.gobj.remove_layer(
+      mapview->layer_trks.gobj.remove_gobj(
         it->get_value(mapview->layer_trks.panel.columns.layer).get());
       mapview->layer_trks.panel.store->erase(it);
     break;
     case 2: // MAP
       it = mapview->layer_maps.panel.get_selection()->get_selected();
       if (!it) break;
-      mapview->layer_maps.gobj.remove_layer(
+      mapview->layer_maps.gobj.remove_gobj(
         it->get_value(mapview->layer_maps.panel.columns.layer).get());
       mapview->layer_maps.panel.store->erase(it);
     break;
@@ -172,7 +172,7 @@ DataView::layer_move(bool up){
   if (up) it2--; else it2++;
   if (!it2) return;
   store->iter_swap(it1, it2);
-  mapview->update_layers();
+  mapview->update_gobjs();
 }
 
 void
@@ -181,7 +181,7 @@ DataView::layer_save(){
 }
 
 void
-DataView::on_layer_save(int r){
+DataView::on_gobj_save(int r){
   save_dlg.hide_all();
 
   if (r!=Gtk::RESPONSE_OK) return;

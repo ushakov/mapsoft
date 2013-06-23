@@ -1,9 +1,9 @@
 #include "pano.h"
 
 
-DlgPano::DlgPano(srtm3 * s): layer_pano(s),
+DlgPano::DlgPano(srtm3 * s): gobj_pano(s),
                    dh_adj(20,0,9999,10), az_adj(0,-360,360,10),
-                   viewer(&layer_pano),
+                   viewer(&gobj_pano),
                    rubber(&viewer){
   signal_response().connect(
       sigc::hide(sigc::mem_fun(this, &DlgPano::hide_all)));
@@ -50,35 +50,35 @@ DlgPano::DlgPano(srtm3 * s): layer_pano(s),
   viewer.signal_scroll_event().connect (
     sigc::mem_fun (this, &DlgPano::on_scroll));
 
-  layer_pano.set_colors(rb->get_v1(), rb->get_v2());
+  gobj_pano.set_colors(rb->get_v1(), rb->get_v2());
   // viewer is not realized yet, we don't know its size..
-  viewer.set_origin(layer_pano.range().CNT()-iPoint(320,240));
+  viewer.set_origin(gobj_pano.range().CNT()-iPoint(320,240));
 }
 
 void
 DlgPano::on_ch(){
-  layer_pano.set_alt(dh->get_value());
-  layer_pano.set_colors( rb->get_v1(), rb->get_v2());
+  gobj_pano.set_alt(dh->get_value());
+  gobj_pano.set_colors( rb->get_v1(), rb->get_v2());
   viewer.redraw();
 }
 
 void
 DlgPano::set_origin(const dPoint & pt){
   Gtk::Dialog::show_all();
-  layer_pano.set_origin(pt);
+  gobj_pano.set_origin(pt);
   viewer.redraw();
 }
 
 void
 DlgPano::set_dir(const dPoint & pt){
-  dPoint pt0 = layer_pano.get_origin();
-  double width = layer_pano.get_width();
+  dPoint pt0 = gobj_pano.get_origin();
+  double width = gobj_pano.get_width();
   double angle = atan2((pt.x-pt0.x)*cos(pt0.y*M_PI/180), pt.y-pt0.y);
 
   rubber.clear();
   viewer.set_center(iPoint( width*angle/2.0/M_PI, viewer.get_center().y));
 
-  iPoint p = layer_pano.geo2xy(pt);
+  iPoint p = gobj_pano.geo2xy(pt);
   if (p.y>0) rubber.add_src_mark(p);
 }
 
@@ -86,7 +86,7 @@ void
 DlgPano::set_az(){
   if (!viewer.is_on_drag())
     viewer.set_center(iPoint(
-      layer_pano.get_width()/360.0*az->get_value(),
+      gobj_pano.get_width()/360.0*az->get_value(),
       viewer.get_center().y));
 }
 
@@ -94,7 +94,7 @@ void
 DlgPano::get_az(iPoint p){
   if (viewer.is_on_drag())
     az->set_value(
-      (p.x + viewer.get_width()/2.0) * 360.0/layer_pano.get_width());
+      (p.x + viewer.get_width()/2.0) * 360.0/gobj_pano.get_width());
 }
 
 
@@ -121,7 +121,7 @@ DlgPano::on_button_press(GdkEventButton * event) {
   viewer.grab_focus();
   iPoint pi = iPoint(event->x, event->y) + viewer.get_origin();
   rubber.clear();
-  dPoint pg=layer_pano.xy2geo(pi);
+  dPoint pg=gobj_pano.xy2geo(pi);
 
   if (pg.y<90){
     rubber.add_src_mark(pi);

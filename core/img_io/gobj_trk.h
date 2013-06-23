@@ -1,12 +1,12 @@
-#ifndef LAYER_TRK_H
-#define LAYER_TRK_H
+#ifndef GOBJ_TRK_H
+#define GOBJ_TRK_H
 
 #include "gred/gobj.h"
 #include "geo/geo_data.h"
 
 /// Растровый слой для показа треков
 
-class LayerTRK
+class GObjTRK
 #ifndef SWIG
   : public GObj
 #endif  // SWIG
@@ -17,7 +17,7 @@ private:
   iRect myrange;
 
 public:
-  LayerTRK (g_track * _data, const Options & o = Options());
+  GObjTRK (g_track * _data, const Options & o = Options());
 
   void set_opt(const Options & o);
   Options get_opt(void) const;

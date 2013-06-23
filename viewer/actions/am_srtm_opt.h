@@ -45,7 +45,7 @@ public:
       }
       else if (mapview->layer_srtm.gobj.exists(&mapview->gobj_srtm)){
          mapview->gobj_srtm.set_opt(dlg.get_opt());
-         mapview->layer_srtm.gobj.refresh_layer(&mapview->gobj_srtm);
+         mapview->layer_srtm.gobj.refresh_gobj(&mapview->gobj_srtm);
       }
 
     }

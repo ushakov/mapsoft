@@ -10,7 +10,6 @@ subdirs = Split ("""
     img_io
     gred
     jeeps
-    layers
     loaders
     mp
     ocad

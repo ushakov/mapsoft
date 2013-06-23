@@ -1,4 +1,4 @@
-#include "layer_map.h"
+#include "gobj_map.h"
 #include <sstream>
 #include <fstream>
 #include <cmath>
@@ -13,14 +13,14 @@ using namespace std;
 #define SHOW_BRD 2
 #define SHOW_REF 4
 
-LayerMAP::LayerMAP(g_map_list *_data, const Options & opt) :
+GObjMAP::GObjMAP(g_map_list *_data, const Options & opt) :
       data(_data), image_cache(4){
   make_m2ms();
   status_set(SHOW_BRD, opt.exists("map_show_brd"));
 }
 
 g_map
-LayerMAP::get_myref() const {
+GObjMAP::get_myref() const {
   // return ref of first map, swapped if needed
   if (data->size() && (*data)[0].size()){
     g_map ret=(*data)[0];
@@ -41,24 +41,24 @@ LayerMAP::get_myref() const {
 }
 
 g_map_list *
-LayerMAP::get_data() const{
+GObjMAP::get_data() const{
   return data;
 }
 
 g_map *
-LayerMAP::get_map(const int n) const{
+GObjMAP::get_map(const int n) const{
   return &(*data)[n];
 }
 
 int
-LayerMAP::find_map(const iPoint & pt) const{
+GObjMAP::find_map(const iPoint & pt) const{
   for (int i=0; i< m2ms.size(); i++){
     if (point_in_line(pt, borders[i])) return i;
   }
   return -1;
 }
 int
-LayerMAP::find_map(const iRect & r) const{
+GObjMAP::find_map(const iRect & r) const{
   for (int i=0; i< m2ms.size(); i++){
     if (rect_in_line(r, borders[i])) return i;
   }
@@ -66,7 +66,7 @@ LayerMAP::find_map(const iRect & r) const{
 }
 
 void
-LayerMAP::status_set(int mask, bool val, const g_map * m){
+GObjMAP::status_set(int mask, bool val, const g_map * m){
   if (!m){
     map<const g_map*, int>::iterator i;
     for (i=status.begin(); i!=status.end(); i++){
@@ -82,31 +82,31 @@ LayerMAP::status_set(int mask, bool val, const g_map * m){
 }
 
 void
-LayerMAP::show_ref(const g_map * m){ status_set(SHOW_REF, true,  m); }
+GObjMAP::show_ref(const g_map * m){ status_set(SHOW_REF, true,  m); }
 void
-LayerMAP::hide_ref(const g_map * m){ status_set(SHOW_REF, false, m); }
+GObjMAP::hide_ref(const g_map * m){ status_set(SHOW_REF, false, m); }
 void
-LayerMAP::show_brd(const g_map * m){ status_set(SHOW_BRD, true,  m); }
+GObjMAP::show_brd(const g_map * m){ status_set(SHOW_BRD, true,  m); }
 void
-LayerMAP::hide_brd(const g_map * m){ status_set(SHOW_BRD, false, m); }
+GObjMAP::hide_brd(const g_map * m){ status_set(SHOW_BRD, false, m); }
 void
-LayerMAP::show_map(const g_map * m){ status_set(SHOW_MAP, true,  m); }
+GObjMAP::show_map(const g_map * m){ status_set(SHOW_MAP, true,  m); }
 void
-LayerMAP::hide_map(const g_map * m){ status_set(SHOW_MAP, false, m); }
+GObjMAP::hide_map(const g_map * m){ status_set(SHOW_MAP, false, m); }
 
 
 void
-LayerMAP::refresh(){
+GObjMAP::refresh(){
   make_m2ms();
 }
 
 int
-LayerMAP::draw(iImage & image, const iPoint & origin){
+GObjMAP::draw(iImage & image, const iPoint & origin){
   iRect src_rect = image.range() + origin;
   dPoint dorigin(origin);
 
 #ifdef DEBUG_LAYER_GEOMAP
-  cerr  << "LayerMAP: draw " << src_rect << " my: " << myrange << endl;
+  cerr  << "GObjMAP: draw " << src_rect << " my: " << myrange << endl;
 #endif
   if (rect_intersect(myrange, src_rect).empty()) return GOBJ_FILL_NONE;
   if ((data == NULL)||(data->size()==0)) return GOBJ_FILL_NONE;
@@ -238,24 +238,24 @@ LayerMAP::draw(iImage & image, const iPoint & origin){
 }
 
 iRect
-LayerMAP::range() const{
+GObjMAP::range() const{
   return myrange;
 }
 
 double
-LayerMAP::scale(const dPoint & p, const int m){
+GObjMAP::scale(const dPoint & p, const int m){
   return pdist(m2ms[m]->units_frw(p))/sqrt(2.0);
 }
 
 double
-LayerMAP::scale(const dPoint & p){
+GObjMAP::scale(const dPoint & p){
   int m = find_map(p);
   if (m<0) return -1;
   return pdist(m2ms[m]->units_frw(p))/sqrt(2.0);
 }
 
 void
-LayerMAP::dump_maps(const char *file){
+GObjMAP::dump_maps(const char *file){
   ofstream f(file);
   f<< "#FIG 3.2\n"
    << "Portrait\n"
@@ -300,7 +300,7 @@ LayerMAP::dump_maps(const char *file){
 }
 
 void
-LayerMAP::make_m2ms(){
+GObjMAP::make_m2ms(){
   if (!data || !data->size() || !cnv) return;
 
   if (cnv_hint<0) cnv_hint=0;
@@ -380,6 +380,6 @@ LayerMAP::make_m2ms(){
   if (iscales.size() != data->size())
     iscales.resize(data->size(),1);
 #ifdef DEBUG_LAYER_GEOMAP
-  cerr << "LayerMAP: Setting map conversions. Range: " << myrange << "\n";
+  cerr << "GObjMAP: Setting map conversions. Range: " << myrange << "\n";
 #endif
 }

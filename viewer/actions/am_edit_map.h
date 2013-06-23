@@ -21,11 +21,11 @@ public:
     void reset(bool redraw) {
       if (redraw)
         dlg.hide_all();
-      if (mark_layer){
-        mapview->layer_maps.gobj.remove_layer(mark_layer.get());
+      if (mark_gobj){
+        mapview->layer_maps.gobj.remove_gobj(mark_gobj.get());
         if (redraw) mapview->viewer.redraw();
       }
-      mark_layer.reset();
+      mark_gobj.reset();
       mark_data.reset();
     }
 
@@ -40,13 +40,13 @@ public:
       // create layer with marks
       mark_data = boost::shared_ptr<g_map_list>(new g_map_list);
       mark_data->push_back(*m);
-      mark_layer = boost::shared_ptr<LayerMAP>(
-          new LayerMAP(mark_data.get()));
-      mark_layer->show_brd();
-      mark_layer->show_ref();
-      mark_layer->hide_map();
-      mark_layer->set_cnv(layer->get_cnv(), m->map_proj.val);
-      mapview->layer_maps.gobj.add_layer(mark_layer.get(), 50);
+      mark_gobj = boost::shared_ptr<GObjMAP>(
+          new GObjMAP(mark_data.get()));
+      mark_gobj->show_brd();
+      mark_gobj->show_ref();
+      mark_gobj->hide_map();
+      mark_gobj->set_cnv(layer->get_cnv(), m->map_proj.val);
+      mapview->layer_maps.gobj.add_gobj(mark_gobj.get(), 50);
       mapview->viewer.redraw();
 
       // show dialog
@@ -57,16 +57,16 @@ public:
 private:
     DlgMap dlg;
     int map_num;
-    LayerMAP * layer;
+    GObjMAP * layer;
     boost::shared_ptr<g_map_list> mark_data;
-    boost::shared_ptr<LayerMAP> mark_layer;
+    boost::shared_ptr<GObjMAP> mark_gobj;
 
     void on_result(int r) {
       reset(true);
       if ((map_num<0) || (r!=Gtk::RESPONSE_OK)) return;
       dlg.dlg2map(layer->get_map(map_num));
       mapview->set_changed();
-      mapview->layer_maps.gobj.refresh_layer(layer);
+      mapview->layer_maps.gobj.refresh_gobj(layer);
       mapview->layer_maps.panel.upd_comm(layer, false); // move comm to ll
     }
 

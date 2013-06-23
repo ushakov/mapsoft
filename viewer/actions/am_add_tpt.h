@@ -17,7 +17,7 @@ public:
 
     void abort() {
       mapview->rubber.clear();
-      layer = 0;
+      gobj = 0;
       mystate = 0;
     }
 
@@ -26,53 +26,53 @@ public:
 
         if (mystate==0){ // select point
 
-          pt_num = mapview->find_tpt(p, &layer, true);
+          pt_num = mapview->find_tpt(p, &gobj, true);
           if (pt_num < 0) return;
 
           // we need point after insert place 0..size()
           pt_num++;
 
           // check for edge points
-          LayerTRK * layer1 = NULL;
-          int pt_num1 = mapview->find_tpt(p, &layer1, false);
+          GObjTRK * gobj1 = NULL;
+          int pt_num1 = mapview->find_tpt(p, &gobj1, false);
           edge = 0;
-          if (layer == layer1){
+          if (gobj == gobj1){
             if (pt_num1 == 0){
               pt_num = pt_num1;
               edge = 1;
             }
-            else if (pt_num1 == layer->get_data()->size()-1){
+            else if (pt_num1 == gobj->get_data()->size()-1){
               pt_num = pt_num1+1;
               edge = 2;
             }
-            else if (layer->get_pt(pt_num1)->start){
+            else if (gobj->get_pt(pt_num1)->start){
               pt_num = pt_num1;
               edge = 1;
             }
-            else if (layer->get_pt(pt_num1+1)->start){
+            else if (gobj->get_pt(pt_num1+1)->start){
               pt_num = pt_num1+1;
               edge = 2;
             }
           }
-          else if ((pt_num<layer->get_data()->size()) &&
-                   (layer->get_pt(pt_num)->start)) return; // don't add points it track gaps
+          else if ((pt_num<gobj->get_data()->size()) &&
+                   (gobj->get_pt(pt_num)->start)) return; // don't add points it track gaps
 
           if (edge != 1){
-            dPoint p1 = *layer->get_pt(pt_num-1);
-            layer->get_cnv()->bck(p1);
+            dPoint p1 = *gobj->get_pt(pt_num-1);
+            gobj->get_cnv()->bck(p1);
             mapview->rubber.add_line(p1);
           }
           if (edge != 2){
-            dPoint p1 = *layer->get_pt(pt_num);
-            layer->get_cnv()->bck(p1);
+            dPoint p1 = *gobj->get_pt(pt_num);
+            gobj->get_cnv()->bck(p1);
             mapview->rubber.add_line(p1);
           }
           mystate=1;
 
         } else { // add point
-          if (!layer) return;
+          if (!gobj) return;
           dPoint pt(p);
-          layer->get_cnv()->frw(pt);
+          gobj->get_cnv()->frw(pt);
 
           g_trackpoint tpt;
           tpt.start=false;
@@ -80,18 +80,18 @@ public:
 
           if (edge == 1){
             tpt.start = true;
-            layer->get_pt(pt_num)->start = false;
+            gobj->get_pt(pt_num)->start = false;
           }
-          layer->get_data()->insert(layer->get_data()->begin()+pt_num, tpt);
+          gobj->get_data()->insert(gobj->get_data()->begin()+pt_num, tpt);
           mapview->set_changed();
-          mapview->layer_trks.gobj.refresh_layer(layer);
+          mapview->layer_trks.gobj.refresh_gobj(gobj);
           abort();
         }
     }
 
 private:
     int pt_num, edge;
-    LayerTRK * layer;
+    GObjTRK * gobj;
     int mystate; // 0 - select point, 1 - move point
 };
 

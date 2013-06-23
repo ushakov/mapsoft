@@ -5,7 +5,7 @@
 
 #include <sys/stat.h>
 
-#include "layers/layer_map.h"
+#include "img_io/gobj_map.h"
 #include "loaders/image_r.h"
 
 #include "geo/geo_convs.h"
@@ -148,8 +148,8 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
 
 
   bool draw_borders = opt.get("draw_borders", false);
-  LayerMAP layer(&maps);
-  if (draw_borders) layer.show_brd();
+  GObjMAP gobj(&maps);
+  if (draw_borders) gobj.show_brd();
 
   iRect tile;
   tile.w = 256;
@@ -173,14 +173,14 @@ bool write_file (const char* filename, const geo_data & world_input, const Optio
     cout << "tiles@" << z << " = " << tiles << endl;
     cout << "geom=" << zoom_geom << endl;
 
-    layer.set_cnv(&zoom_cnv);
+    gobj.set_cnv(&zoom_cnv);
 
     vector<int> x_coords, y_coords, zooms, offsets;
     for(int x = tiles.x; x < tiles.x + tiles.w; ++x) {
       for(int y = tiles.y; y < tiles.y + tiles.h; ++y) {
 	tile.x = x * 256;
 	tile.y = y * 256;
-	iImage tile_image = layer.get_image(tile);
+	iImage tile_image = gobj.get_image(tile);
 	if (!tile_image.empty()) {
 	  // make filename
 	  std::stringstream ss;

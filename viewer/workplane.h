@@ -22,23 +22,23 @@ public:
     // functions for gred/gobj interface
     int draw(iImage &img, const iPoint &origin);
 
-    void add_layer (GObj * layer, int depth);
+    void add_gobj (GObj * gobj, int depth);
 
-    void remove_layer (GObj * layer);
+    void remove_gobj (GObj * gobj);
 
-    bool exists (GObj * layer);
+    bool exists (GObj * gobj);
 
     void clear();
 
-    void set_layer_depth (GObj * layer, int newdepth);
+    void set_gobj_depth (GObj * gobj, int newdepth);
 
-    int get_layer_depth (GObj * layer);
+    int get_gobj_depth (GObj * gobj);
 
-    void refresh_layer (GObj * layer, bool redraw = true);
+    void refresh_gobj (GObj * gobj, bool redraw = true);
 
-    void set_layer_active (GObj * layer, bool active);
+    void set_gobj_active (GObj * gobj, bool active);
 
-    bool get_layer_active (GObj * layer);
+    bool get_gobj_active (GObj * gobj);
 
     void refresh();
 
@@ -47,7 +47,7 @@ public:
     void set_cnv(Conv * c, int hint=-1);
 
 private:
-    std::multimap<int, GObj *>::iterator find_layer (GObj * layer);
+    std::multimap<int, GObj *>::iterator find_gobj (GObj * gobj);
 
     std::multimap <int, GObj *> layers;
     std::map <GObj *, bool> layers_active;

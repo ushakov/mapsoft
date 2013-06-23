@@ -21,9 +21,10 @@ public:
           i++;
           continue;
         }
-        boost::shared_ptr<LayerWPT> current_layer =
+
+        boost::shared_ptr<GObjWPT> current_gobj =
           (*i)[mapview->layer_wpts.panel.columns.layer];
-        g_waypoint_list * curr = current_layer->get_data();
+        g_waypoint_list * curr = current_gobj->get_data();
         if (!curr){
           i++;
           continue;
@@ -31,7 +32,7 @@ public:
         newd->insert(newd->end(), curr->begin(), curr->end());
         if (newd->size()) newd->comm = "JOIN";
         else newd->comm = curr->comm;
-        mapview->layer_wpts.gobj.remove_layer(
+        mapview->layer_wpts.gobj.remove_gobj(
           i->get_value(mapview->layer_wpts.panel.columns.layer).get());
         i = mapview->layer_wpts.panel.store->erase(i);
       }

@@ -17,7 +17,7 @@ class DataView : public Gtk::Notebook {
     void layer_jump();
     void layer_move(bool up);
     void layer_save();
-    void on_layer_save(int r);
+    void on_gobj_save(int r);
     Gtk::FileSelection save_dlg;
 
   public:

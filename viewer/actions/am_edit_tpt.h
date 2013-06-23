@@ -21,23 +21,23 @@ public:
     void abort() {dlg.hide_all();}
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      int pt_num = mapview->find_tpt(p, &layer);
+      int pt_num = mapview->find_tpt(p, &gobj);
       if (pt_num < 0) return;
-      tpt = layer->get_pt(pt_num);
+      tpt = gobj->get_pt(pt_num);
       dlg.tpt2dlg(tpt);
       dlg.show_all();
     }
 
 private:
     g_trackpoint * tpt;
-    LayerTRK * layer;
+    GObjTRK * gobj;
     DlgTrkPt dlg;
 
     void on_result(int r) {
       if (r!=Gtk::RESPONSE_OK) return;
       dlg.dlg2tpt(tpt);
       mapview->set_changed();
-      mapview->layer_trks.gobj.refresh_layer(layer);
+      mapview->layer_trks.gobj.refresh_gobj(gobj);
     }
     void on_jump(dPoint p){
       mapview->cnv.bck(p);

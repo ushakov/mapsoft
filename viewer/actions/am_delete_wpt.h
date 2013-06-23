@@ -16,35 +16,35 @@ public:
     void abort() { activate(); }
 
     void del_pt(const iPoint & p){
-      LayerWPT * layer;
+      GObjWPT * layer;
       int n = mapview->find_wpt(p, &layer);
       if (n < 0) return;
       g_waypoint_list * wpts = layer->get_data();
       wpts->erase(wpts->begin()+n);
       if (wpts->size()==0){
-        mapview->layer_wpts.gobj.remove_layer(layer);
-        mapview->layer_wpts.panel.del_layer(layer);
+        mapview->layer_wpts.gobj.remove_gobj(layer);
+        mapview->layer_wpts.panel.remove_gobj(layer);
         mapview->refresh();
       }
       else
-        mapview->layer_wpts.gobj.refresh_layer(layer);
+        mapview->layer_wpts.gobj.refresh_gobj(layer);
     }
 
     void del_pt(const iRect & r){
-      std::map<LayerWPT*, std::vector<int> > pts=mapview->find_wpts(r);
-      std::map<LayerWPT*, std::vector<int> >::iterator i;
+      std::map<GObjWPT*, std::vector<int> > pts=mapview->find_wpts(r);
+      std::map<GObjWPT*, std::vector<int> >::iterator i;
       for (i=pts.begin(); i!=pts.end(); i++){
         std::vector<int> & nn = i->second;
         g_waypoint_list * wpts = i->first->get_data();
         for (int j=nn.size()-1; j>=0; j--)
           wpts->erase(wpts->begin()+nn[j]);
         if (wpts->size()==0){
-          mapview->layer_wpts.gobj.remove_layer(i->first);
-          mapview->layer_wpts.panel.del_layer(i->first);
+          mapview->layer_wpts.gobj.remove_gobj(i->first);
+          mapview->layer_wpts.panel.remove_gobj(i->first);
           mapview->refresh();
         }
         else
-          mapview->layer_wpts.gobj.refresh_layer(i->first);
+          mapview->layer_wpts.gobj.refresh_gobj(i->first);
       }
     }
 

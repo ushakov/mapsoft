@@ -34,10 +34,10 @@ public:
       Gtk::TreeNodeChildren::const_iterator i;
       for (i  = mapview->layer_trks.panel.store->children().begin();
            i != mapview->layer_trks.panel.store->children().end(); i++){
-        boost::shared_ptr<LayerTRK> layer=
+        boost::shared_ptr<GObjTRK> gobj=
           (*i)[mapview->layer_trks.panel.columns.layer];
-        layer->set_opt(o);
-        mapview->layer_trks.gobj.refresh_layer(layer.get(), false);
+        gobj->set_opt(o);
+        mapview->layer_trks.gobj.refresh_gobj(gobj.get(), false);
       }
       mapview->layer_trks.gobj.signal_refresh.emit();
       if (r<0) dlg.hide_all();

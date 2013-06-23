@@ -1,21 +1,21 @@
 #include <vector>
 #include <cmath>
 
-#include "layer_wpt.h"
-#include "layers/draw_wpt.h"
+#include "gobj_wpt.h"
+#include "img_io/draw_wpt.h"
 
 using namespace std;
 
-LayerWPT::LayerWPT (g_waypoint_list * _data) : data(_data) {}
+GObjWPT::GObjWPT (g_waypoint_list * _data) : data(_data) {}
 
 void
-LayerWPT::refresh(){
+GObjWPT::refresh(){
   myrange = cnv? iRect(rect_pump(cnv->bb_bck(data->range()), 1.0)) :
                  iRect();
 }
 
 g_map
-LayerWPT::get_myref() const {
+GObjWPT::get_myref() const {
   g_map ret;
   ret.map_proj = Proj("lonlat");
   ret.push_back(g_refpoint(0,  45, 0, 45*3600));
@@ -25,10 +25,10 @@ LayerWPT::get_myref() const {
 }
 
 int
-LayerWPT::draw(iImage & image, const iPoint & origin){
+GObjWPT::draw(iImage & image, const iPoint & origin){
   iRect src_rect = image.range() + origin;
 #ifdef DEBUG_LAYER_WPT
-  cerr  << "LayerWPT: draw " << src_rect <<  " my: " << myrange << "\n";
+  cerr  << "GObjWPT: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
   if (rect_intersect(rect_pump(myrange,110), src_rect).empty())
     return GOBJ_FILL_NONE;
@@ -38,7 +38,7 @@ LayerWPT::draw(iImage & image, const iPoint & origin){
 }
 
 int
-LayerWPT::find_waypoint (iPoint pt, int radius) {
+GObjWPT::find_waypoint (iPoint pt, int radius) {
   iRect target_rect (pt,pt);
   target_rect = rect_pump(target_rect, radius);
   for (int wpt = 0; wpt < data->size(); ++wpt) {
@@ -50,7 +50,7 @@ LayerWPT::find_waypoint (iPoint pt, int radius) {
 }
 
 vector<int>
-LayerWPT::find_waypoints (const iRect & r){
+GObjWPT::find_waypoints (const iRect & r){
   vector<int> ret;
   for (int n = 0; n < data->size(); ++n) {
     dPoint p((*data)[n]);
@@ -61,16 +61,16 @@ LayerWPT::find_waypoints (const iRect & r){
 }
 
 g_waypoint_list *
-LayerWPT::get_data() const{
+GObjWPT::get_data() const{
   return data;
 }
 
 g_waypoint *
-LayerWPT::get_pt(const int n) const{
+GObjWPT::get_pt(const int n) const{
   return &(*data)[n];
 }
 
 iRect
-LayerWPT::range() const{
+GObjWPT::range() const{
   return myrange;
 }

@@ -3,8 +3,15 @@ e=env.Clone()
 e.UseLibs('utils srtm')
 
 e.Library('img_io', \
-    Split ("""
+  Split ("""
     io.cpp
     o_img.cpp
     o_tiles.cpp
-     """))
+    draw_trk.cpp
+    draw_wpt.cpp
+    gobj_map.cpp
+    gobj_trk.cpp
+    gobj_wpt.cpp
+    gobj_srtm.cpp
+    gobj_pano.cpp
+  """))

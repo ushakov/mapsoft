@@ -118,7 +118,7 @@ private:
 
     // find visible map in a given point and return scale
     double get_sc(const iPoint & p){
-      LayerMAP *L;
+      GObjMAP *L;
       int i = mapview->find_map(p, &L);
       if (L==NULL) return -1;
       return L->scale(p, i);

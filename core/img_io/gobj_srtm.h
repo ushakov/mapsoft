@@ -1,5 +1,5 @@
-#ifndef LAYER_SRTM_H
-#define LAYER_SRTM_H
+#ifndef GOBJ_SRTM_H
+#define GOBJ_SRTM_H
 
 #include "gred/gobj.h"
 #include "geo/geo_convs.h"
@@ -12,7 +12,7 @@
 
 /// SRTM3 data layer.
 
-class LayerSRTM
+class GObjSRTM
 #ifndef SWIG
   : public GObj
 #endif  // SWIG
@@ -22,7 +22,7 @@ private:
   Options opt;
 public:
 
-  LayerSRTM(srtm3* srtm);
+  GObjSRTM(srtm3* srtm);
 
   void set_opt(const Options & o);
   Options get_opt(void) const;

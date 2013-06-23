@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sys/stat.h>
 
-#include "layers/layer_map.h"
+#include "img_io/gobj_map.h"
 #include "geo_io/io.h"
 #include "geo/geo_convs.h"
 #include "loaders/image_r.h"
@@ -50,8 +50,8 @@ main(int argc, char **argv){
     for (vector<g_map_list>::const_iterator mi = world->maps.begin();
        mi!=world->maps.end(); mi++) maps.insert(maps.end(), mi->begin(), mi->end());
 
-    // create layer, get ref
-    LayerMAP ml(&maps);
+    // create gobj, get ref
+    GObjMAP ml(&maps);
     g_map map_ref = ml.get_myref();
 
     // read fig
@@ -61,7 +61,7 @@ main(int argc, char **argv){
       exit(1);
     }
 
-    // нам нужно установить в layer привязку fig-файла, но перемаштабированную
+    // нам нужно установить в gobj привязку fig-файла, но перемаштабированную
     // нужным образом 
     g_map fig_ref = fig::get_ref(F);
 

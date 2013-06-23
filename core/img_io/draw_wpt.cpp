@@ -93,7 +93,7 @@ draw_wpt(iImage & image, const iPoint & origin,
 /* GObj with template caching */
 
 void
-GObjWPT::refresh(int n){
+GObjWPTn::refresh(int n){
   if (n>=data.size()) return;
   int i1 = (n<0)? 0:n;
   int i2 = (n<0)? data.size():n+1;
@@ -104,7 +104,7 @@ GObjWPT::refresh(int n){
 }
 
 int
-GObjWPT::draw(iImage & image, const iPoint & origin){
+GObjWPTn::draw(iImage & image, const iPoint & origin){
   iRect img_range = image.range() + origin;
   CairoWrapper cr(image);
 

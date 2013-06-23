@@ -21,7 +21,7 @@
 #include "layers/trks.h"
 #include "layers/maps.h"
 #include "layers/srtm.h"
-#include "layers/layer_srtm.h"
+#include "img_io/gobj_srtm.h"
 
 #define ACCEL_FILE ".mapsoft/accel"
 
@@ -37,7 +37,7 @@ public:
     LayerMAPs layer_maps;
     LayerSRTMs layer_srtm;
 
-    LayerSRTM  gobj_srtm;
+    GObjSRTM  gobj_srtm;
 
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
@@ -69,7 +69,7 @@ public:
     void layer_edited (const Gtk::TreeModel::Path& path,
                        const Gtk::TreeModel::iterator& iter);
 
-    void update_layers();
+    void update_gobjs();
 
     void on_mode_change (int m);
     std::string get_filename() const;
@@ -107,23 +107,23 @@ public:
 /*** finding layers and data ***/
 
     // find waypoint, returns its number 0..size()-1
-    int find_wpt(const iPoint & p, LayerWPT ** layer,  int radius=3) const;
+    int find_wpt(const iPoint & p, GObjWPT ** layer,  int radius=3) const;
 
     // segment=true: find track point, returns its number 0..size()-1
     // segment=true: find track segment, return its
     //               first point 0..size()-2
-    int find_tpt(const iPoint & p, LayerTRK ** layer,
+    int find_tpt(const iPoint & p, GObjTRK ** layer,
                  const bool segment = false, int radius=3) const;
-    int find_map(const iPoint & p, LayerMAP ** layer) const;
+    int find_map(const iPoint & p, GObjMAP ** layer) const;
 
     // find all visible waypoints in the range
-    std::map<LayerWPT*, std::vector<int> > find_wpts(const iRect & r);
+    std::map<GObjWPT*, std::vector<int> > find_wpts(const iRect & r);
     // find all visible trackpoints in the range
-    std::map<LayerTRK*, std::vector<int> > find_tpts(const iRect & r);
+    std::map<GObjTRK*, std::vector<int> > find_tpts(const iRect & r);
 
     // find first active layer
-    LayerWPT * find_wpt_layer() const;
-    LayerMAP * find_map_layer() const;
+    GObjWPT * find_wpt_gobj() const;
+    GObjMAP * find_map_gobj() const;
 };
 
 

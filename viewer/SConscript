@@ -3,7 +3,7 @@ Import ('env')
 SConscript("images/SConscript")
 
 e=env.Clone()
-e.UseLibs('gred layers geo_io mp srtm')
+e.UseLibs('gred img_io geo_io mp srtm')
 
 e.Library("viewer", Split ("""
 	action_manager.cpp

@@ -17,27 +17,27 @@ public:
     void abort() {
       mapview->rubber.clear();
       tpt = 0;
-      layer = 0;
+      gobj = 0;
       mystate = 0;
     }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
 
         if (mystate==0){ // select point
-          int pt_num = mapview->find_tpt(p, &layer);
+          int pt_num = mapview->find_tpt(p, &gobj);
           if (pt_num < 0) return;
-          tpt = layer->get_pt(pt_num);
+          tpt = gobj->get_pt(pt_num);
 
 
           if ((pt_num > 0)&&(!tpt->start)){
-            dPoint p1 = *layer->get_pt(pt_num-1);
-            layer->get_cnv()->bck(p1);
+            dPoint p1 = *gobj->get_pt(pt_num-1);
+            gobj->get_cnv()->bck(p1);
             mapview->rubber.add_line(p1);
           }
-          if ((pt_num < layer->get_data()->size() - 1)&&
-              (!layer->get_pt(pt_num+1)->start)){
-            dPoint p1 = *layer->get_pt(pt_num+1);
-            layer->get_cnv()->bck(p1);
+          if ((pt_num < gobj->get_data()->size() - 1)&&
+              (!gobj->get_pt(pt_num+1)->start)){
+            dPoint p1 = *gobj->get_pt(pt_num+1);
+            gobj->get_cnv()->bck(p1);
             mapview->rubber.add_line(p1);
           }
           if (mapview->rubber.size()==0){
@@ -47,17 +47,17 @@ public:
         } else { // move point
           if (!tpt) return;
           dPoint pt(p);
-          layer->get_cnv()->frw(pt);
+          gobj->get_cnv()->frw(pt);
           tpt->dPoint::operator=(pt);
           mapview->set_changed();
-          mapview->layer_trks.gobj.refresh_layer(layer);
+          mapview->layer_trks.gobj.refresh_gobj(gobj);
           abort();
         }
     }
 
 private:
     g_trackpoint * tpt;
-    LayerTRK * layer;
+    GObjTRK * gobj;
     int mystate; // 0 - select point, 1 - move point
 };
 

@@ -67,17 +67,17 @@ class MapviewData : public std::list<MapviewDataFile>{
       file.trks_l.resize(file.trks.size());
       file.maps_l.resize(file.maps.size());
 // надо завести layer's для точек, треков и карт...
-//      for (int i=0; i<file.wpts.size(); i++) wpts_l = new LayerWPT(file);
+//      for (int i=0; i<file.wpts.size(); i++) wpts_l = new GObjWPT(file);
       boost::shared_ptr<Layer> ML, DL;
-      ML.reset(new LayerMAP(&file));
-      TL.reset(new LayerTRK(&file));
-      WL.reset(new LayerWPT(&file));
+      ML.reset(new GObjMAP(&file));
+      TL.reset(new GObjTRK(&file));
+      WL.reset(new GObjWPT(&file));
       file.wpts_l.push_back(WL);
       file.trks_l.push_back(TL);
       file.maps_l.push_back(ML);
-      workplane->add_layer(WL, 100);
-      workplane->add_layer(TL, 200);
-      workplane->add_layer(ML, 300);
+      workplane->add_gobj(WL, 100);
+      workplane->add_gobj(TL, 200);
+      workplane->add_gobj(ML, 300);
       push_back(file);
       signal_refresh_files.emit();
       signal_refresh_data.emit();

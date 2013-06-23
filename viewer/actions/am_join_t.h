@@ -21,9 +21,9 @@ public:
           i++;
           continue;
         }
-        boost::shared_ptr<LayerTRK> current_layer =
+        boost::shared_ptr<GObjTRK> current_gobj =
           (*i)[mapview->layer_trks.panel.columns.layer];
-        g_track * curr = current_layer->get_data();
+        g_track * curr = current_gobj->get_data();
         if (!curr){
           i++;
           continue;
@@ -31,7 +31,7 @@ public:
         newd->insert(newd->end(), curr->begin(), curr->end());
         if (newd->size()) newd->comm = "JOIN";
         else newd->comm = curr->comm;
-        mapview->layer_trks.gobj.remove_layer(
+        mapview->layer_trks.gobj.remove_gobj(
           i->get_value(mapview->layer_trks.panel.columns.layer).get());
         i = mapview->layer_trks.panel.store->erase(i);
       }

@@ -1,51 +1,51 @@
-#include "layer_pano.h"
+#include "gobj_pano.h"
 #include "2d/rainbow.h"
 
 using namespace std;
 
-LayerPano::LayerPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){
+GObjPano::GObjPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){
   set_opt(Options()); // default values
 }
 
 /***********************************************************/
 // GET/SET parameters
 void
-LayerPano::set_origin(const dPoint & p){
+GObjPano::set_origin(const dPoint & p){
   ray_cache.clear();
   p0=p;
 }
 dPoint
-LayerPano::get_origin(void) const {return p0;}
+GObjPano::get_origin(void) const {return p0;}
 
 void
-LayerPano::set_alt(double h) { dh=h;}
+GObjPano::set_alt(double h) { dh=h;}
 double
-LayerPano::get_alt(void) const{ return dh;}
+GObjPano::get_alt(void) const{ return dh;}
 
 void
-LayerPano::set_colors(double min, double max){
+GObjPano::set_colors(double min, double max){
   rb.set_range(min,max);
 }
 double
-LayerPano::get_minh(void) const {return rb.get_min();}
+GObjPano::get_minh(void) const {return rb.get_min();}
 double
-LayerPano::get_maxh(void) const {return rb.get_max();}
+GObjPano::get_maxh(void) const {return rb.get_max();}
 
 void
-LayerPano::set_maxr(double r){
+GObjPano::set_maxr(double r){
   max_r=r;
   ray_cache.clear();
 }
 double
-LayerPano::get_maxr(void) const {return max_r;}
+GObjPano::get_maxr(void) const {return max_r;}
 
 void
-LayerPano::set_width(int w){ width0=w; }
+GObjPano::set_width(int w){ width0=w; }
 int
-LayerPano::get_width(void) const {return width0;}
+GObjPano::get_width(void) const {return width0;}
 
 void
-LayerPano::set_opt(const Options & o){
+GObjPano::set_opt(const Options & o){
   p0 = o.get<dPoint>("pano_pt");
   dh = o.get<double>("pano_alt", 20.0);
   rb.set_range(
@@ -57,7 +57,7 @@ LayerPano::set_opt(const Options & o){
 }
 
 Options
-LayerPano::get_opt(void) const{
+GObjPano::get_opt(void) const{
   Options o;
   o.put<dPoint>("pano_pt", p0);
   o.put<double>("pano_alt", dh);
@@ -72,8 +72,8 @@ LayerPano::get_opt(void) const{
 
 // find segments of the ray brocken by srtm grid
 // these segments must have linear height and slope dependence
-vector<LayerPano::ray_data>
-LayerPano::get_ray(int x){
+vector<GObjPano::ray_data>
+GObjPano::get_ray(int x){
 
   double width=getw();
 
@@ -99,7 +99,7 @@ LayerPano::get_ray(int x){
   else if (ca<-1/rM){ dry=-1/ca; ry=(floor(pt.y)-pt.y)/ca; }
   else                 { dry=ry=rM; }
 
-  vector<LayerPano::ray_data> ret;
+  vector<GObjPano::ray_data> ret;
   while (rx<rM || ry<rM){ // Go from zero to rM
 
     while (rx <= ry && rx<rM){ // step in x
@@ -160,7 +160,7 @@ LayerPano::get_ray(int x){
 /***********************************************************/
 
 iPoint
-LayerPano::geo2xy(const dPoint & pt){
+GObjPano::geo2xy(const dPoint & pt){
 
   double width=getw();
 
@@ -200,7 +200,7 @@ LayerPano::geo2xy(const dPoint & pt){
 
 
 dPoint
-LayerPano::xy2geo(const iPoint & pt){
+GObjPano::xy2geo(const iPoint & pt){
 
   double width=getw();
 
@@ -235,7 +235,7 @@ LayerPano::xy2geo(const iPoint & pt){
 /***********************************************************/
 
 int
-LayerPano::draw(iImage & image, const iPoint & origin){
+GObjPano::draw(iImage & image, const iPoint & origin){
   if (!srtm) return GOBJ_FILL_NONE;
 
   double width=getw();

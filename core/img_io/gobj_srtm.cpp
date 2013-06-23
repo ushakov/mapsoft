@@ -1,4 +1,4 @@
-#include "layer_srtm.h"
+#include "gobj_srtm.h"
 #include <sstream>
 #include <fstream>
 
@@ -6,7 +6,7 @@
 
 using namespace std;
 
-LayerSRTM::LayerSRTM(srtm3 *srtm):S(srtm){
+GObjSRTM::GObjSRTM(srtm3 *srtm):S(srtm){
   opt.put<string>("srtm_mode", "normal");
   opt.put<bool>("srtm_on",  "false");
   opt.put<double>("srtm_cnt_step", 50);
@@ -17,17 +17,17 @@ LayerSRTM::LayerSRTM(srtm3 *srtm):S(srtm){
 }
 
 void
-LayerSRTM::set_opt(const Options & o){
+GObjSRTM::set_opt(const Options & o){
   opt = o;
 }
 
 Options
-LayerSRTM::get_opt(void) const{
+GObjSRTM::get_opt(void) const{
   return opt;
 }
 
 g_map
-LayerSRTM::get_myref() const {
+GObjSRTM::get_myref() const {
 //  return ref_ll(180*1200); // 1200pt/degree
   g_map ret;
   ret.map_proj = Proj("lonlat");
@@ -38,7 +38,7 @@ LayerSRTM::get_myref() const {
 }
 
 int
-LayerSRTM::draw(iImage & image, const iPoint & origin){
+GObjSRTM::draw(iImage & image, const iPoint & origin){
   if (S==NULL) return GOBJ_FILL_NONE;
   iRect src_rect = image.range() + origin;
 
@@ -117,7 +117,7 @@ LayerSRTM::draw(iImage & image, const iPoint & origin){
 }
 
 iRect
-LayerSRTM::range() const{
+GObjSRTM::range() const{
   return iRect(
     iPoint(INT_MIN, INT_MIN),
     iPoint(INT_MAX, INT_MAX));

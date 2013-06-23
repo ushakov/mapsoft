@@ -1,5 +1,5 @@
-#ifndef LAYER_MAP_H
-#define LAYER_MAP_H
+#ifndef GOBJ_MAP_H
+#define GOBJ_MAP_H
 
 #include <vector>
 #include <map>
@@ -10,12 +10,11 @@
 #include "2d/rect.h"
 #include "2d/image.h"
 #include "loaders/image_cache.h"
-//#include "layers/img.h"
 #include <boost/shared_ptr.hpp>
 
 /// Растровый слой для показа привязанных карт.
 
-class LayerMAP
+class GObjMAP
 #ifndef SWIG
   : public GObj
 #endif  // SWIG
@@ -32,11 +31,10 @@ private:
 
   std::map<std::string, Cache<iPoint, iImage> > tmap_cache;
   ImageCache image_cache;
-//  Cache<std::string, LayerImg> img_cache;
 
 public:
 
-  LayerMAP (g_map_list *_data, const Options & opt = Options());
+  GObjMAP (g_map_list *_data, const Options & opt = Options());
 
   /// Get some reasonable reference.
   g_map get_myref() const;

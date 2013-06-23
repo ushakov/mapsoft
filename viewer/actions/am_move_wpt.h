@@ -35,7 +35,7 @@ public:
           layer->get_cnv()->frw(pt);
           wpt->dPoint::operator=(pt);
           mapview->set_changed();
-          mapview->layer_wpts.gobj.refresh_layer(layer);
+          mapview->layer_wpts.gobj.refresh_gobj(layer);
           mapview->rubber.clear();
           abort();
         }
@@ -43,7 +43,7 @@ public:
 
 private:
     g_waypoint * wpt;
-    LayerWPT * layer;
+    GObjWPT * layer;
     int mystate; // 0 - select point, 1 - move point
 };
 

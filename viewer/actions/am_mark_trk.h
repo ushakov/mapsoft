@@ -23,10 +23,10 @@ public:
     void abort() {dlg.hide_all();}
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      LayerTRK * layer;
-      int d = mapview->find_tpt(p, &layer, true);
+      GObjTRK * gobj;
+      int d = mapview->find_tpt(p, &gobj, true);
       if (d < 0) return;
-      track = layer->get_data();
+      track = gobj->get_data();
 
       dlg.set_rev(2*d > track->size());
       dlg.show_all();

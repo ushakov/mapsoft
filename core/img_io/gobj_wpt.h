@@ -1,12 +1,12 @@
-#ifndef LAYER_WPT_H
-#define LAYER_WPT_H
+#ifndef GOBJ_WPT_H
+#define GOBJ_WPT_H
 
 #include "gred/gobj.h"
 #include "geo/geo_data.h"
 
 /// Растровый слой для показа точек
 
-class LayerWPT
+class GObjWPT
 #ifndef SWIG
   : public GObj
 #endif  // SWIG
@@ -17,7 +17,7 @@ private:
 
 public:
 
-  LayerWPT (g_waypoint_list * _data);
+  GObjWPT (g_waypoint_list * _data);
 
   /// Refresh layer.
   void refresh();

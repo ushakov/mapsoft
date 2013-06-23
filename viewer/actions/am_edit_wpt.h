@@ -32,14 +32,14 @@ public:
 private:
     DlgWpt dlg;
     int pt_num;
-    LayerWPT * layer;
+    GObjWPT * layer;
 
     void on_result(int r) {
       mapview->rubber.clear();
       if ((pt_num<0) || (r!=Gtk::RESPONSE_OK)) return;
       dlg.dlg2wpt(layer->get_pt(pt_num));
       mapview->set_changed();
-      mapview->layer_wpts.gobj.refresh_layer(layer);
+      mapview->layer_wpts.gobj.refresh_gobj(layer);
     }
 
     void on_jump(dPoint p){

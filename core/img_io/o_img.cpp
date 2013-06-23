@@ -1,10 +1,10 @@
 #include <fstream>
 #include <string>
 
-#include "layers/layer_map.h"
-#include "layers/draw_trk.h"
-#include "layers/draw_wpt.h"
-#include "layers/layer_srtm.h"
+#include "img_io/gobj_map.h"
+#include "img_io/draw_trk.h"
+#include "img_io/draw_wpt.h"
+#include "img_io/gobj_srtm.h"
 #include "loaders/image_r.h"
 
 #include "geo/geo_convs.h"
@@ -85,7 +85,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
 
   if (opt.exists("srtm_mode")){
     srtm3 s(opt.get<string>("srtm_dir"));
-    LayerSRTM l(&s);
+    GObjSRTM l(&s);
     l.set_opt(opt);
     l.set_cnv(&cnv, ref.map_proj.val);
     iImage tmp_im = l.get_image(geom);
@@ -94,7 +94,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
 
   for (int i=0; i<world.maps.size(); i++){
     g_map_list d(world.maps[i]);
-    LayerMAP l(&d, opt);
+    GObjMAP l(&d, opt);
     l.set_cnv(&cnv, ref.map_proj.val);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);

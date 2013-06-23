@@ -4,7 +4,7 @@
 #include <cmath>
 #include <list>
 
-#include "layers/layer_pano.h"
+#include "img_io/gobj_pano.h"
 //#include "jeeps/gpsmath.h"
 
 #include "geo_io/io.h"
@@ -49,11 +49,11 @@ int main(int argc, char *argv[]) {
   cerr << opt << "\n";
 
   srtm3 s;
-  LayerPano layer(&s);
-  layer.set_opt(opt);
+  GObjPano gobj(&s);
+  gobj.set_opt(opt);
   iImage img(width, height);
 
-  layer.draw(img, iPoint(-width/2,0));
+  gobj.draw(img, iPoint(-width/2,0));
 
   fig::fig_world F;
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
           continue;
       int c=(i->Type>0x6000)?0x009000:0x000090;
 
-      iPoint fig_pt(dPoint(layer.geo2xy((*l)[0]))*kk);
+      iPoint fig_pt(dPoint(gobj.geo2xy((*l)[0]))*kk);
 
       if (fig_pt.y<=0) continue;
       double z = (double)s.geth4((*l)[0]);

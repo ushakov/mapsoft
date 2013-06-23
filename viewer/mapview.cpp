@@ -143,11 +143,11 @@ Mapview::Mapview () :
 void
 Mapview::layer_edited (const Gtk::TreeModel::Path& path,
                    const Gtk::TreeModel::iterator& iter) {
-  update_layers();
+  update_gobjs();
 }
 
 void
-Mapview::update_layers() {
+Mapview::update_gobjs() {
   if (divert_refresh) return;
   Gtk::TreeNodeChildren::const_iterator i;
 
@@ -245,32 +245,32 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> & data) {
   // - set layer/or mapview ref (layer ref is set through workplane)
   // - put layer to LayerList (layer_edited call, workplane refresh)
   // depth is set to DEPTH_DATA0 to evoke refresh!
-  boost::shared_ptr<LayerWPT> layer(new LayerWPT(data.get()));
-  layer_wpts.gobj.add_layer(layer.get(), DEPTH_DATA0);
+  boost::shared_ptr<GObjWPT> layer(new GObjWPT(data.get()));
+  layer_wpts.gobj.add_gobj(layer.get(), DEPTH_DATA0);
   set_changed();
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
 //  else layer->set_cnv(&cnv);
-  layer_wpts.panel.add_layer(layer, data);
+  layer_wpts.panel.add_gobj(layer, data);
 }
 void
 Mapview::add_trks(const boost::shared_ptr<g_track> & data) {
-  boost::shared_ptr<LayerTRK> layer(new LayerTRK(data.get(), layer_options));
-  layer_trks.gobj.add_layer(layer.get(), DEPTH_DATA0);
+  boost::shared_ptr<GObjTRK> layer(new GObjTRK(data.get(), layer_options));
+  layer_trks.gobj.add_gobj(layer.get(), DEPTH_DATA0);
   set_changed();
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
 //  else layer->set_cnv(&cnv);
-  layer_trks.panel.add_layer(layer, data);
+  layer_trks.panel.add_gobj(layer, data);
 }
 void
 Mapview::add_maps(const boost::shared_ptr<g_map_list> & data) {
-  boost::shared_ptr<LayerMAP> layer(new LayerMAP(data.get(), layer_options));
-  layer_maps.gobj.add_layer(layer.get(), DEPTH_DATA0);
+  boost::shared_ptr<GObjMAP> layer(new GObjMAP(data.get(), layer_options));
+  layer_maps.gobj.add_gobj(layer.get(), DEPTH_DATA0);
   set_changed();
   // for maps always reset reference
   set_ref(layer->get_myref());
-  layer_maps.panel.add_layer(layer, data);
+  layer_maps.panel.add_gobj(layer, data);
 }
 
 void
@@ -297,7 +297,7 @@ Mapview::add_world(const geo_data & world, bool scroll) {
   }
   if (scroll && (p.x<1e3)) goto_wgs(p);
   divert_refresh=false;
-  update_layers();
+  update_gobjs();
 }
 
 void
@@ -311,7 +311,7 @@ Mapview::clear_world() {
   layer_trks.panel.clear();
   have_reference = false;
   divert_refresh=false;
-  update_layers();
+  update_gobjs();
 }
 
 geo_data
@@ -322,19 +322,19 @@ Mapview::get_world(bool visible){
   for (i  = layer_wpts.panel.store->children().begin();
        i != layer_wpts.panel.store->children().end(); i++){
      if (visible && !(*i)[layer_wpts.panel.columns.checked]) continue;
-     boost::shared_ptr<LayerWPT> layer = (*i)[layer_wpts.panel.columns.layer];
+     boost::shared_ptr<GObjWPT> layer = (*i)[layer_wpts.panel.columns.layer];
      world.wpts.push_back(*(layer->get_data()));
   }
   for (i  = layer_trks.panel.store->children().begin();
        i != layer_trks.panel.store->children().end(); i++){
      if (visible && !(*i)[layer_trks.panel.columns.checked]) continue;
-     boost::shared_ptr<LayerTRK> layer = (*i)[layer_trks.panel.columns.layer];
+     boost::shared_ptr<GObjTRK> layer = (*i)[layer_trks.panel.columns.layer];
      world.trks.push_back(*(layer->get_data()));
   }
   for (i  = layer_maps.panel.store->children().begin();
        i != layer_maps.panel.store->children().end(); i++){
      if (visible && !(*i)[layer_maps.panel.columns.checked]) continue;
-     boost::shared_ptr<LayerMAP> layer = (*i)[layer_maps.panel.columns.layer];
+     boost::shared_ptr<GObjMAP> layer = (*i)[layer_maps.panel.columns.layer];
      world.maps.push_back(*(layer->get_data()));
   }
   return world;
@@ -450,30 +450,30 @@ Mapview::show_srtm(bool show){
 
   if (state && !show){
     statusbar.push("SRTM OFF", 0);
-    layer_srtm.gobj.remove_layer(&gobj_srtm);
+    layer_srtm.gobj.remove_gobj(&gobj_srtm);
     refresh();
   }
   else if (!state && show){
     statusbar.push("SRTM ON", 0);
-    layer_srtm.gobj.add_layer(&gobj_srtm, DEPTH_SRTM);
+    layer_srtm.gobj.add_gobj(&gobj_srtm, DEPTH_SRTM);
     layer_srtm.gobj.set_cnv(&cnv);
-    layer_srtm.gobj.refresh_layer(&gobj_srtm);
+    layer_srtm.gobj.refresh_gobj(&gobj_srtm);
   }
 }
 
 /**********************************************************/
 
 int
-Mapview::find_wpt(const iPoint & p, LayerWPT ** layer,
+Mapview::find_wpt(const iPoint & p, GObjWPT ** layer,
                      int radius) const{
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = layer_wpts.panel.store->children().begin();
        i != layer_wpts.panel.store->children().end(); i++){
     if (!(*i)[layer_wpts.panel.columns.checked]) continue;
-    boost::shared_ptr<LayerWPT> current_layer=
+    boost::shared_ptr<GObjWPT> current_gobj=
       (*i)[layer_wpts.panel.columns.layer];
-    *layer = current_layer.get();
-    int d = current_layer->find_waypoint(p, radius);
+    *layer = current_gobj.get();
+    int d = current_gobj->find_waypoint(p, radius);
     if (d >= 0) return d;
   }
   *layer = NULL;
@@ -481,18 +481,18 @@ Mapview::find_wpt(const iPoint & p, LayerWPT ** layer,
 }
 
 int
-Mapview::find_tpt(const iPoint & p, LayerTRK ** layer,
+Mapview::find_tpt(const iPoint & p, GObjTRK ** layer,
                      const bool segment, int radius) const{
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = layer_trks.panel.store->children().begin();
        i != layer_trks.panel.store->children().end(); i++){
     if (!(*i)[layer_trks.panel.columns.checked]) continue;
-    boost::shared_ptr<LayerTRK> current_layer=
+    boost::shared_ptr<GObjTRK> current_gobj=
       (*i)[layer_trks.panel.columns.layer];
-    *layer = current_layer.get();
+    *layer = current_gobj.get();
     int d;
-    if (segment) d = current_layer->find_track(p, radius);
-    else d = current_layer->find_trackpoint(p, radius);
+    if (segment) d = current_gobj->find_track(p, radius);
+    else d = current_gobj->find_trackpoint(p, radius);
     if (d >= 0) return d;
   }
   *layer = NULL;
@@ -500,77 +500,77 @@ Mapview::find_tpt(const iPoint & p, LayerTRK ** layer,
 }
 
 int
-Mapview::find_map(const iPoint & p, LayerMAP ** layer) const{
+Mapview::find_map(const iPoint & p, GObjMAP ** layer) const{
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = layer_maps.panel.store->children().begin();
        i != layer_maps.panel.store->children().end(); i++){
     if (!(*i)[layer_maps.panel.columns.checked]) continue;
-    boost::shared_ptr<LayerMAP> current_layer=
+    boost::shared_ptr<GObjMAP> current_gobj=
       (*i)[layer_maps.panel.columns.layer];
-    *layer = current_layer.get();
-    int d = current_layer->find_map(p);
+    *layer = current_gobj.get();
+    int d = current_gobj->find_map(p);
     if (d >= 0) return d;
   }
   *layer = NULL;
   return -1;
 }
 
-map<LayerWPT*, vector<int> >
+map<GObjWPT*, vector<int> >
 Mapview::find_wpts(const iRect & r){
-  std::map<LayerWPT*, std::vector<int> > ret;
+  std::map<GObjWPT*, std::vector<int> > ret;
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = layer_wpts.panel.store->children().begin();
        i != layer_wpts.panel.store->children().end(); i++){
     if (!(*i)[layer_wpts.panel.columns.checked]) continue;
-    boost::shared_ptr<LayerWPT> current_layer=
+    boost::shared_ptr<GObjWPT> current_gobj=
       (*i)[layer_wpts.panel.columns.layer];
 
-    vector<int> pts = current_layer->find_waypoints(r);
+    vector<int> pts = current_gobj->find_waypoints(r);
     if (pts.size()>0)
-      ret.insert(pair<LayerWPT*, vector<int> >(current_layer.get(), pts));
+      ret.insert(pair<GObjWPT*, vector<int> >(current_gobj.get(), pts));
   }
   return ret;
 }
 
-map<LayerTRK*, vector<int> >
+map<GObjTRK*, vector<int> >
 Mapview::find_tpts(const iRect & r){
-  std::map<LayerTRK*, std::vector<int> > ret;
+  std::map<GObjTRK*, std::vector<int> > ret;
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = layer_trks.panel.store->children().begin();
        i != layer_trks.panel.store->children().end(); i++){
     if (!(*i)[layer_trks.panel.columns.checked]) continue;
-    boost::shared_ptr<LayerTRK> current_layer=
+    boost::shared_ptr<GObjTRK> current_gobj=
       (*i)[layer_trks.panel.columns.layer];
 
-    vector<int> pts = current_layer->find_trackpoints(r);
+    vector<int> pts = current_gobj->find_trackpoints(r);
     if (pts.size()>0)
-      ret.insert(pair<LayerTRK*, vector<int> >(current_layer.get(), pts));
+      ret.insert(pair<GObjTRK*, vector<int> >(current_gobj.get(), pts));
   }
   return ret;
 }
 
-LayerWPT *
-Mapview::find_wpt_layer() const{
+GObjWPT *
+Mapview::find_wpt_gobj() const{
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = layer_wpts.panel.store->children().begin();
        i != layer_wpts.panel.store->children().end(); i++){
     if (!(*i)[layer_wpts.panel.columns.checked]) continue;
-    boost::shared_ptr<LayerWPT> current_layer=
+    boost::shared_ptr<GObjWPT> current_gobj=
       (*i)[layer_wpts.panel.columns.layer];
-    return current_layer.get();
+    return current_gobj.get();
   }
   return NULL;
 }
 
-LayerMAP *
-Mapview::find_map_layer() const{
+GObjMAP *
+Mapview::find_map_gobj() const{
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = layer_maps.panel.store->children().begin();
        i != layer_maps.panel.store->children().end(); i++){
     if (!(*i)[layer_maps.panel.columns.checked]) continue;
-    boost::shared_ptr<LayerMAP> current_layer=
+    boost::shared_ptr<GObjMAP> current_gobj=
       (*i)[layer_maps.panel.columns.layer];
-    return current_layer.get();
+    return current_gobj.get();
   }
   return NULL;
 }
