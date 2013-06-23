@@ -10,7 +10,7 @@ Rainbow::Rainbow( int width, const rainbow_data * data, int size,
         v1a(l,l,h,s), v2a(h,l,h,s), img(width, 8, 0x00FFFFFF){
 
   dg=d;
-  set_size_request(width * size / (size-1));
+  set_size_request(width+10);
   double v1=data[0].v;
   double v2=data[size-1].v;
   if (v2<=v1) return;

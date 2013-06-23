@@ -71,7 +71,7 @@ DlgSrtmOpt::DlgSrtmOpt(): cnt_val_adj(50,0,9999){
   cnt     = manage(new Gtk::CheckButton("Draw contours"));
   cnt_val = manage(new Gtk::SpinButton(cnt_val_adj));
 
-  m_normal =  manage(new Gtk::RadioButton("Normal"));
+  m_normal =  manage(new Gtk::RadioButton("Height"));
   Gtk::RadioButtonGroup gr = m_normal->get_group();
   m_slopes =  manage(new Gtk::RadioButton(gr, "Slopes"));
   m_normal->set_active();
@@ -83,13 +83,13 @@ DlgSrtmOpt::DlgSrtmOpt(): cnt_val_adj(50,0,9999){
   rs =  manage(
     new Rainbow(256, rb2.get_data(), rb2.get_size(), 0, 90, 1, 1));
 
-  Gtk::Table *t = manage(new Gtk::Table(2,4));
+  Gtk::Table *t = manage(new Gtk::Table(2,5));
   t->attach(*cnt,      0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*cnt_val,  1, 2, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*m_normal, 0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*rh,       1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*m_slopes, 0, 1, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*rs,       1, 2, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*m_normal, 0, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*rh,       0, 2, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*m_slopes, 0, 2, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*rs,       0, 2, 4, 5, Gtk::FILL, Gtk::SHRINK, 3, 3);
   get_vbox()->add(*t);
 
   m_normal->signal_toggled().connect(
