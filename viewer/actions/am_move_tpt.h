@@ -24,7 +24,7 @@ public:
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
 
         if (mystate==0){ // select point
-          int pt_num = mapview->find_tpt(p, &gobj);
+          int pt_num = mapview->layer_trks.panel.find_tpt(p, &gobj);
           if (pt_num < 0) return;
           tpt = gobj->get_pt(pt_num);
 

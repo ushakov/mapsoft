@@ -19,7 +19,7 @@ public:
     void abort() {dlg.hide_all();}
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      int d = mapview->find_tpt(p, &gobj, true);
+      int d = mapview->layer_trks.panel.find_tpt(p, &gobj, true);
       if (d < 0) return;
 
       dlg.set_info(gobj->get_data());

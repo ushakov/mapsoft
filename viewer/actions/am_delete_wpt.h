@@ -17,7 +17,7 @@ public:
 
     void del_pt(const iPoint & p){
       GObjWPT * layer;
-      int n = mapview->find_wpt(p, &layer);
+      int n = mapview->layer_wpts.panel.find_wpt(p, &layer);
       if (n < 0) return;
       g_waypoint_list * wpts = layer->get_data();
       wpts->erase(wpts->begin()+n);
@@ -31,7 +31,7 @@ public:
     }
 
     void del_pt(const iRect & r){
-      std::map<GObjWPT*, std::vector<int> > pts=mapview->find_wpts(r);
+      std::map<GObjWPT*, std::vector<int> > pts=mapview->layer_wpts.panel.find_wpts(r);
       std::map<GObjWPT*, std::vector<int> >::iterator i;
       for (i=pts.begin(); i!=pts.end(); i++){
         std::vector<int> & nn = i->second;

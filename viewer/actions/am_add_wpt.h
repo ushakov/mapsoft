@@ -48,17 +48,17 @@ private:
     void on_result(int r){
       if (r == Gtk::RESPONSE_OK){
         dlg.dlg2wpt(&wpt);
-        // try to find active wpt layer
-        GObjWPT * layer = mapview->find_wpt_gobj();
-        if (layer){
-          g_waypoint_list * wpts = layer->get_data();
+        // try to find active wpt gobj
+        GObjWPT * gobj = mapview->layer_wpts.panel.find_gobj();
+        if (gobj){
+          g_waypoint_list * wpts = gobj->get_data();
           wpts->push_back(wpt);
           mapview->set_changed();
-          mapview->layer_wpts.gobj.refresh_gobj(layer);
+          mapview->layer_wpts.gobj.refresh_gobj(gobj);
           abort();
           return;
         }
-        // if there is no active wpt layer add one
+        // if there is no active wpt gobj add one
         boost::shared_ptr<g_waypoint_list> data(new g_waypoint_list);
         data->push_back(wpt);
         data->comm="NEW";

@@ -32,7 +32,7 @@ public:
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
 
       // find map
-      map_num=mapview->find_map(p, &layer);
+      map_num=mapview->layer_maps.panel.find_map(p, &layer);
       if (map_num < 0) return;
       g_map * m = layer->get_map(map_num); 
       reset(false);

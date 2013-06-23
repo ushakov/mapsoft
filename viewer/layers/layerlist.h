@@ -6,7 +6,7 @@
 #include "img_io/gobj_wpt.h"
 #include "img_io/gobj_trk.h"
 
-#include "workplane.h"
+#include "../workplane.h"
 
 /*********************************************************************
 Three children of Gtk::TreeView are defined here: WptLL, TrkLL, MapLL
@@ -72,12 +72,65 @@ public:
       Gtk::TreeNodeChildren::const_iterator i;
       for (i  = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<GObjWPT> layer = (*i)[columns.layer];
-        if (layer.get() != L) continue;
+        boost::shared_ptr<GObjWPT> gobj = (*i)[columns.layer];
+        if (gobj.get() != L) continue;
         store->erase(i);
         break;
       }
     }
+
+    void get_data(geo_data & world, bool visible){
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+         if (visible && !(*i)[columns.checked]) continue;
+         boost::shared_ptr<GObjWPT> layer = (*i)[columns.layer];
+         world.wpts.push_back(*(layer->get_data()));
+      }
+    }
+
+    /* find first active object */
+    GObjWPT * find_gobj() const{
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        if (!(*i)[columns.checked]) continue;
+        boost::shared_ptr<GObjWPT> gobj = (*i)[columns.layer];
+        return gobj.get();
+      }
+      return NULL;
+    }
+
+    /* find waypoint in all gobjs */
+    int find_wpt(const iPoint & p, GObjWPT ** gobj, int radius = 3) const{
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        if (!(*i)[columns.checked]) continue;
+        boost::shared_ptr<GObjWPT> current_gobj = (*i)[columns.layer];
+        *gobj = current_gobj.get();
+        int d = current_gobj->find_waypoint(p, radius);
+        if (d >= 0) return d;
+      }
+      *gobj = NULL;
+      return -1;
+    }
+
+    /* find waypoints in a rectangular area */
+    std::map<GObjWPT*, std::vector<int> > find_wpts(const iRect & r){
+      std::map<GObjWPT*, std::vector<int> > ret;
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        if (!(*i)[columns.checked]) continue;
+        boost::shared_ptr<GObjWPT> gobj = (*i)[columns.layer];
+        std::vector<int> pts = gobj->find_waypoints(r);
+        if (pts.size()>0)
+          ret.insert(pair<GObjWPT*, std::vector<int> >(gobj.get(), pts));
+      }
+      return ret;
+    }
+
 
     void clear() {store->clear();}
 
@@ -162,12 +215,71 @@ public:
       Gtk::TreeNodeChildren::const_iterator i;
       for (i  = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<GObjTRK> layer = (*i)[columns.layer];
-        if (layer.get() != L) continue;
+        boost::shared_ptr<GObjTRK> gobj = (*i)[columns.layer];
+        if (gobj.get() != L) continue;
         store->erase(i);
         break;
       }
     }
+
+    void get_data(geo_data & world, bool visible){
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+         if (visible && !(*i)[columns.checked]) continue;
+         boost::shared_ptr<GObjTRK> layer = (*i)[columns.layer];
+         world.trks.push_back(*(layer->get_data()));
+      }
+    }
+
+    /* find first active object */
+    GObjTRK * find_gobj() const{
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        if (!(*i)[columns.checked]) continue;
+        boost::shared_ptr<GObjTRK> gobj = (*i)[columns.layer];
+        return gobj.get();
+      }
+      return NULL;
+    }
+
+    /* find track points in a rectangular area */
+    std::map<GObjTRK*, std::vector<int> > find_tpts(const iRect & r){
+      std::map<GObjTRK*, std::vector<int> > ret;
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        if (!(*i)[columns.checked]) continue;
+        boost::shared_ptr<GObjTRK> gobj = (*i)[columns.layer];
+        std::vector<int> pts = gobj->find_trackpoints(r);
+        if (pts.size()>0)
+          ret.insert(pair<GObjTRK*, std::vector<int> >(gobj.get(), pts));
+      }
+      return ret;
+    }
+
+    /* find trackpoint in all gobjs */
+    // segment=true: find track point, returns its number 0..size()-1
+    // segment=true: find track segment, return its
+    //               first point 0..size()-2
+    int find_tpt(const iPoint & p, GObjTRK ** gobj,
+                 const bool segment = false, int radius = 3) const{
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        if (!(*i)[columns.checked]) continue;
+        boost::shared_ptr<GObjTRK> current_gobj = (*i)[columns.layer];
+        *gobj = current_gobj.get();
+        int d;
+        if (segment) d = current_gobj->find_track(p, radius);
+        else d = current_gobj->find_trackpoint(p, radius);
+        if (d >= 0) return d;
+      }
+      *gobj = NULL;
+      return -1;
+    }
+
 
     void clear() {store->clear();}
 
@@ -257,11 +369,48 @@ public:
       Gtk::TreeNodeChildren::const_iterator i;
       for (i  = store->children().begin();
            i != store->children().end(); i++){
-        boost::shared_ptr<GObjMAP> layer = (*i)[columns.layer];
-        if (layer.get() != L) continue;
+        boost::shared_ptr<GObjMAP> gobj = (*i)[columns.layer];
+        if (gobj.get() != L) continue;
         store->erase(i);
         break;
       }
+    }
+
+    void get_data(geo_data & world, bool visible){
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+         if (visible && !(*i)[columns.checked]) continue;
+         boost::shared_ptr<GObjMAP> layer = (*i)[columns.layer];
+         world.maps.push_back(*(layer->get_data()));
+      }
+    }
+
+    /* find first active object */
+    GObjMAP * find_gobj() const{
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        if (!(*i)[columns.checked]) continue;
+        boost::shared_ptr<GObjMAP> gobj = (*i)[columns.layer];
+        return gobj.get();
+      }
+      return NULL;
+    }
+
+    /* find map */
+    int find_map(const iPoint & p, GObjMAP ** gobj) const{
+      Gtk::TreeNodeChildren::const_iterator i;
+      for (i  = store->children().begin();
+           i != store->children().end(); i++){
+        if (!(*i)[columns.checked]) continue;
+        boost::shared_ptr<GObjMAP> current_gobj = (*i)[columns.layer];
+        *gobj = current_gobj.get();
+        int d = current_gobj->find_map(p);
+        if (d >= 0) return d;
+      }
+      *gobj = NULL;
+      return -1;
     }
 
     void clear() {store->clear();}

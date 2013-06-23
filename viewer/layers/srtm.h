@@ -2,7 +2,6 @@
 #define VIEWER_LAYER_SRTM_H
 
 #include "gred/gobj.h"
-#include "../layerlist.h"
 #include "../workplane.h"
 
 

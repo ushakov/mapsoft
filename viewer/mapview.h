@@ -103,27 +103,6 @@ public:
     void hide_busy_mark();
 
     void show_srtm(bool show=true);
-
-/*** finding layers and data ***/
-
-    // find waypoint, returns its number 0..size()-1
-    int find_wpt(const iPoint & p, GObjWPT ** layer,  int radius=3) const;
-
-    // segment=true: find track point, returns its number 0..size()-1
-    // segment=true: find track segment, return its
-    //               first point 0..size()-2
-    int find_tpt(const iPoint & p, GObjTRK ** layer,
-                 const bool segment = false, int radius=3) const;
-    int find_map(const iPoint & p, GObjMAP ** layer) const;
-
-    // find all visible waypoints in the range
-    std::map<GObjWPT*, std::vector<int> > find_wpts(const iRect & r);
-    // find all visible trackpoints in the range
-    std::map<GObjTRK*, std::vector<int> > find_tpts(const iRect & r);
-
-    // find first active layer
-    GObjWPT * find_wpt_gobj() const;
-    GObjMAP * find_map_gobj() const;
 };
 
 

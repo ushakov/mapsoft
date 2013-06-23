@@ -23,7 +23,7 @@ public:
 
     void del_pt(const iPoint & p){
       GObjTRK * gobj;
-      int n = mapview->find_tpt(p, &gobj);
+      int n = mapview->layer_trks.panel.find_tpt(p, &gobj);
       if (n < 0) return;
       del_pt(gobj->get_data(), n);
       if (gobj->get_data()->size()==0){
@@ -36,7 +36,7 @@ public:
     }
 
     void del_pt(const iRect & r){
-      std::map<GObjTRK*, std::vector<int> > pts=mapview->find_tpts(r);
+      std::map<GObjTRK*, std::vector<int> > pts = mapview->layer_trks.panel.find_tpts(r);
       std::map<GObjTRK*, std::vector<int> >::iterator i;
       for (i=pts.begin(); i!=pts.end(); i++){
         std::vector<int> & nn = i->second;

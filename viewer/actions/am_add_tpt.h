@@ -26,7 +26,7 @@ public:
 
         if (mystate==0){ // select point
 
-          pt_num = mapview->find_tpt(p, &gobj, true);
+          pt_num = mapview->layer_trks.panel.find_tpt(p, &gobj, true);
           if (pt_num < 0) return;
 
           // we need point after insert place 0..size()
@@ -34,7 +34,7 @@ public:
 
           // check for edge points
           GObjTRK * gobj1 = NULL;
-          int pt_num1 = mapview->find_tpt(p, &gobj1, false);
+          int pt_num1 = mapview->layer_trks.panel.find_tpt(p, &gobj1, false);
           edge = 0;
           if (gobj == gobj1){
             if (pt_num1 == 0){
