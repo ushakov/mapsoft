@@ -2,7 +2,7 @@
 #define VIEWER_LAYER_MAPS_H
 
 #include "gred/gobj.h"
-#include "layerlist.h"
+#include "maps_panel.h"
 #include "../workplane.h"
 
 class LayerMAPs{

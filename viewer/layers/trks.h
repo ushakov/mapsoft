@@ -2,7 +2,7 @@
 #define VIEWER_LAYER_TRKS_H
 
 #include "gred/gobj.h"
-#include "layerlist.h"
+#include "trks_panel.h"
 #include "../workplane.h"
 
 class LayerTRKs{

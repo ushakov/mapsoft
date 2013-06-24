@@ -32,6 +32,10 @@ e.Library("viewer", Split ("""
 	dialogs/srtm_opt.cpp
 	dialogs/pano.cpp
 	dialogs/nav.cpp
+
+	layers/wpts_panel.cpp
+	layers/trks_panel.cpp
+	layers/maps_panel.cpp
         """))
 e.Prepend(LIBS=["viewer"])
 e.Program("mapsoft_mapview.cpp")
