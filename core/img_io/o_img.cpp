@@ -23,47 +23,68 @@ namespace img{
 
 bool write_file (const char* filename, const geo_data & world, Options opt){
 
-  // set default dpi according to raster source resolutions
+  // Default scale is 1:100000.
   double rscale=opt.get("rscale", 100000.0);
 
+  // We want to use source map scale if there is no dpi option
+  bool do_rescale = false;
   if (!opt.exists("dpi")){
-    double mpp=-1; // size of raster point, m
-    if (world.maps.size()>0){
-      for (vector<g_map_list>::const_iterator i = world.maps.begin();
-           i!=world.maps.end(); i++){
-        if (i->size()>0){
-          g_map orig_ref=convs::mymap(*i);
-          mpp=convs::map_mpp(orig_ref, Proj("tmerc"));
-          break;
-        }
-      }
-    }
-    else if (opt.exists("srtm_mode")){
-      mpp = 6380000.0 * M_PI /180/1200;
-    }
-    if (mpp>0){
-      opt.put("dpi", rscale/mpp / 100.0 * 2.54);
-    }
+     opt.put("dpi", 100.0);
+     do_rescale = true;
   }
 
-  bool need_marg=false;
   // set geometry if no --wgs_geom, --wgs_brd, --geom, --nom, --google options
+  bool need_marg=false;
   if (!opt.exists("geom") && !opt.exists("wgs_geom") &&
       !opt.exists("nom") && !opt.exists("google") &&
       !opt.exists("wgs_brd")){
-    dRect geom = world.range_geodata();
+    dRect wgs_geom = world.range_geodata();
 
-    if (!geom.empty() && opt.exists("data_marg")) need_marg=true;
+    if (!wgs_geom.empty() && opt.exists("data_marg")) need_marg=true;
 
     // fallback: map range
-    if (geom.empty()) geom=world.range_map();
-    opt.put("wgs_geom", geom);
+    if (wgs_geom.empty()) wgs_geom=world.range_map();
+
+    if (wgs_geom.empty()) throw MapsoftErr("O_IMG_NO_RANGE")
+                    << "Can't get map geometry.";
+
+    opt.put("wgs_geom", wgs_geom);
   }
 
   // create g_map
   g_map ref = mk_ref(opt);
   dRect geom = ref.border.range();
   ref.file=filename;
+
+  // set map scale from source maps if needed
+  if (do_rescale){
+    if (world.maps.size()>0){
+      double maxscale=-1;
+      dRect box = ref.range();
+      vector<g_map_list>::const_iterator i;
+      vector<g_map>::const_iterator j;
+      for (i = world.maps.begin(); i!=world.maps.end(); i++){
+        for (j = i->begin(); j!=i->end(); j++){
+          if (j->size()<1) continue;
+          convs::map2map cnv(*j, ref);
+          dRect sbox = cnv.bb_bck(box);
+          double sx = sbox.w/box.w;
+          double sy = sbox.h/box.h;
+          if (maxscale<sx) maxscale = sx;
+          if (maxscale<sy) maxscale = sy;
+        }
+      }
+      ref*=maxscale;
+      geom*=maxscale;
+    }
+    else if (opt.exists("srtm_mode")){
+      double mpp = 6380000.0 * M_PI /180/1200;
+      double dpi = rscale/mpp / 100.0 * 2.54;
+      double sc=dpi/opt.get("dpi", 100.0);
+      ref*=sc;
+      geom*=sc;
+    }
+  }
 
   if (need_marg){
     geom = rect_pump(geom, opt.get("data_marg", 0.0));
@@ -99,6 +120,7 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
+
 
   for (int i=0; i<world.trks.size(); i++){
     draw_trk(im, geom.TLC(), cnv, world.trks[i], opt);
