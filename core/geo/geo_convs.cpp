@@ -25,7 +25,7 @@ mkprojstr(const Datum & D, const Proj & P, const Options & o){
 
     // special google case, see http://trac.osgeo.org/proj/wiki/FAQ#ChangingEllipsoidWhycantIconvertfromWGS84toGoogleEarthVirtualGlobeMercator
     if (P==Proj("google")) // use google_sphere instead of wgs
-       projpar << " +a=6378137 +b=6378137 +nadgrids=@null +no_defs";
+       projpar << " +proj=merc +a=6378137 +b=6378137 +nadgrids=@null +no_defs";
     else if (P==Proj("ch1904"))
        projpar << " +proj=somerc +lat_0=46.95240555555556"
                   " +lon_0=7.439583333333333 +x_0=600000 +y_0=200000"
