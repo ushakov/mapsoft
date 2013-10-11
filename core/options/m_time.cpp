@@ -51,24 +51,22 @@ Time::Time(const std::string & str){
   //               "yyyy-mm-ddThh:mm:ssZ -- gpx format
 
   using namespace boost::spirit::classic;
-  struct tm ts;
-  ts.tm_hour=0;
-  ts.tm_min=0;
-  ts.tm_sec=0;
+  time_t t = time(NULL);
+  struct tm * ts = localtime(&t);
 
   if (parse(str.c_str(),
-      uint_p[assign_a(ts.tm_year)] >> '-' >>
-      uint_p[assign_a(ts.tm_mon)]  >> '-' >>
-      uint_p[assign_a(ts.tm_mday)] >>
+      uint_p[assign_a(ts->tm_year)] >> '-' >>
+      uint_p[assign_a(ts->tm_mon)]  >> '-' >>
+      uint_p[assign_a(ts->tm_mday)] >>
       !((+blank_p | 'T') >>
-        uint_p[assign_a(ts.tm_hour)] >> ':' >>
-        uint_p[assign_a(ts.tm_min)]  >>
-        !(':' >> uint_p[assign_a(ts.tm_sec)])
+        uint_p[assign_a(ts->tm_hour)] >> ':' >>
+        uint_p[assign_a(ts->tm_min)]  >>
+        !(':' >> uint_p[assign_a(ts->tm_sec)])
        ) >> !ch_p('Z') >> *space_p
       ).full){
-    ts.tm_mon-=1;
-    if (ts.tm_year>1900) ts.tm_year-=1900;
-    value = mktime(&ts);
+    ts->tm_mon-=1;
+    if (ts->tm_year>1900) ts->tm_year-=1900;
+    value = mktime(ts);
   }
 
   // ругаемся, если строчка непуста.
