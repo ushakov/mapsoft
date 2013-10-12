@@ -102,13 +102,12 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   }
 
   iImage im(geom.w,geom.h,0x00FFFFFF);
-  convs::map2wgs cnv(ref);
 
   if (opt.exists("srtm_mode")){
     srtm3 s(opt.get<string>("srtm_dir"));
     GObjSRTM l(&s);
     l.set_opt(opt);
-    l.set_cnv(&cnv, ref.map_proj.val);
+    l.set_ref(ref);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
@@ -116,11 +115,12 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   for (int i=0; i<world.maps.size(); i++){
     g_map_list d(world.maps[i]);
     GObjMAP l(&d, opt);
-    l.set_cnv(&cnv, ref.map_proj.val);
+    l.set_ref(ref);
     iImage tmp_im = l.get_image(geom);
     if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
   }
 
+  convs::map2wgs cnv(ref);
 
   for (int i=0; i<world.trks.size(); i++){
     draw_trk(im, geom.TLC(), cnv, world.trks[i], opt);

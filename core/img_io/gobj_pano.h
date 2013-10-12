@@ -2,6 +2,7 @@
 #define GOBJ_PANO_H
 
 #include "2d/rainbow.h"
+#include "2d/conv_triv.h"
 #include "gred/gobj.h"
 #include "srtm/srtm3.h"
 #include "options/options.h"
@@ -11,6 +12,7 @@ class GObjPano : public GObj{
 private:
 
   srtm3 *srtm;
+  ConvTriv cnv;
 
   dPoint p0;
   double max_r;
@@ -25,7 +27,7 @@ private:
 
   Cache<int, std::vector<ray_data> > ray_cache;
 
-  double getw() const {dPoint p(width0,0); cnv->bck(p); return p.x;}
+  double getw() const {dPoint p(width0,0); cnv.bck(p); return p.x;}
 
 public:
   GObjPano(srtm3 * s);
@@ -62,6 +64,8 @@ public:
   dPoint xy2geo(const iPoint & pt);
 
   int draw(iImage &img, const iPoint &origin);
+
+  void rescale(double k){cnv.rescale_src(k);}
 };
 
 #endif

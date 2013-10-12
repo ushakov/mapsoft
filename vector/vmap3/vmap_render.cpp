@@ -152,7 +152,7 @@ main(int argc, char* argv[]){
   iImage img(rng.w, rng.h);
 
   VMAPRenderer R(&W, img, O);
-  R.set_cnv(&cnv);
+  R.set_ref(ref);
 
   R.render_objects(O.get<bool>("contours", true));
 

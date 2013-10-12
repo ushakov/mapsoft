@@ -16,8 +16,7 @@ Mapview::Mapview () :
     viewer(&workplane),
     rubber(&viewer),
     srtm("",20),
-    gobj_srtm(&srtm),
-    cnv(get_myref())
+    gobj_srtm(&srtm)
 {
 
     /// layer drawing options (set before Action constructors)
@@ -319,28 +318,16 @@ Mapview::get_world(bool visible){
 void
 Mapview::set_ref(const g_map & ref){
   if (ref.size()==0) return;
-  cnv = convs::map2wgs(ref);
-  workplane.set_cnv(&cnv, ref.map_proj.val);
+  workplane.set_ref(ref);
   have_reference=true;
   cnv_proj = ref.map_proj;
   proj_opts = ref.proj_opts;
 }
 
-g_map
-Mapview::get_myref() const {
-//  return ref_ll(180*1200); // 1200pt/degree
-  g_map ret;
-  ret.map_proj = Proj("lonlat");
-  ret.push_back(g_refpoint(0,  45, 0, 45*1200));
-  ret.push_back(g_refpoint(180, 0, 180*1200,90*1200));
-  ret.push_back(g_refpoint(0,   0, 0, 90*1200));
-  return ret;
-}
-
 void
 Mapview::goto_wgs(dPoint p){
   if (!have_reference) return;
-  cnv.bck(p);
+  get_cnv()->bck(p);
   viewer.set_center(p);
 }
 
@@ -443,8 +430,6 @@ Mapview::show_srtm(bool show){
   else if (!state && show){
     statusbar.push("SRTM ON", 0);
     layer_srtm.gobj.add_gobj(&gobj_srtm, DEPTH_SRTM);
-    layer_srtm.gobj.set_cnv(&cnv);
-    layer_srtm.gobj.refresh_gobj(&gobj_srtm);
   }
 }
 

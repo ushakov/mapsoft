@@ -9,7 +9,7 @@
 
 #include "gred/dthread_viewer.h"
 #include "gred/rubber.h"
-#include "gred/gobj_comp.h"
+#include "img_io/gobj_comp.h"
 #include "dataview.h"
 #include "action_manager.h"
 #include "geo_io/io.h"
@@ -45,7 +45,6 @@ public:
     Gtk::Image *busy_icon;
     DataView * dataview;
 
-    convs::map2wgs cnv;
     Proj cnv_proj;
     Options proj_opts;
     bool have_reference;
@@ -89,9 +88,9 @@ public:
     void clear_world();
     // build geo_data object with all/visible data
     geo_data get_world(bool visible=true);
+    Conv* get_cnv() {return workplane.get_cnv();}
 
     void set_ref(const g_map & ref);
-    g_map get_myref() const;
     void goto_wgs(dPoint p);
     void exit(bool force=false);
     void refresh();

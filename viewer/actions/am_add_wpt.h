@@ -34,7 +34,7 @@ public:
            return;
          }
         wpt.dPoint::operator=(p);
-        mapview->cnv.frw(wpt);
+        mapview->get_cnv()->frw(wpt);
         dlg.set_ll(wpt);
         dlg.show_all();
         mapview->rubber.clear();
@@ -68,7 +68,7 @@ private:
     }
 
     void on_jump(dPoint p){
-      mapview->cnv.bck(p);
+      mapview->get_cnv()->bck(p);
       mapview->rubber.clear();
       mapview->viewer.set_center(p);
       mapview->rubber.add_src_mark(p);

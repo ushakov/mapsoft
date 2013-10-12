@@ -3,8 +3,7 @@
 
 #include <vector>
 #include <map>
-#include "gred/gobj.h"
-#include "geo/geo_convs.h"
+#include "gobj_geo.h"
 #include "2d/cache.h"
 #include "2d/point.h"
 #include "2d/rect.h"
@@ -16,7 +15,7 @@
 
 class GObjMAP
 #ifndef SWIG
-  : public GObj
+  : public GObjGeo
 #endif  // SWIG
 {
 private:
@@ -36,8 +35,8 @@ public:
 
   GObjMAP (g_map_list *_data, const Options & opt = Options());
 
-  /// Get some reasonable reference.
   g_map get_myref() const;
+  void refresh(); /// Refresh layer.
 
   /// Get pointer to the data.
   g_map_list * get_data() const;
@@ -59,9 +58,6 @@ public:
   void show_map(const g_map * m = NULL);
   void hide_map(const g_map * m = NULL);
 
-  /// Refresh layer.
-  void refresh();
-
   /// Draw on image.
   int draw(iImage & image, const iPoint & origin);
 
@@ -76,10 +72,6 @@ public:
   /// < 0 if no maps at this point.
   double scale(const dPoint & p);
   double scale(const dPoint & p, const int m);
-
-private:
-  /// calculate conversions and range
-  void make_m2ms();
 };
 
 

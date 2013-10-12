@@ -29,12 +29,12 @@ public:
 
     void on_change(dPoint p){
       R.clear();
-      mapview->cnv.bck(p);
+      mapview->get_cnv()->bck(p);
       R.add_src_mark(p);
     }
 
     void on_goto(dPoint p){
-      mapview->cnv.bck(p);
+      mapview->get_cnv()->bck(p);
       mapview->viewer.set_center(p);
     }
 

@@ -127,7 +127,7 @@ private:
     double get_scr_mpp(const iPoint & p){
       dPoint pp[3] = {p, p + iPoint(1000,0), p + iPoint(0,1000)};
       for (int i=0; i<3; i++){
-        mapview->cnv.frw(pp[i]); // convert to wgs
+        mapview->get_cnv()->frw(pp[i]); // convert to wgs
         pp[i].x *= cos(pp[i].y /180*M_PI);
         pp[i] *= 6380000/180*M_PI;
       }
@@ -215,10 +215,10 @@ std::cerr << "MPP SCALE " << sc << "\n";
       }
       else{
         mytlc/=sc;
-        mapview->cnv.rescale_src(1/sc);
+        mapview->get_cnv()->rescale_src(1/sc);
         mapview->layer_maps.gobj.refresh();
         mapview->layer_maps.gobj.draw(image, mytlc);
-        mapview->cnv.rescale_src(sc);
+        mapview->get_cnv()->rescale_src(sc);
         mapview->layer_maps.gobj.refresh();
       }
 
@@ -250,7 +250,7 @@ std::cerr << "MPP SCALE " << sc << "\n";
         dLine pts = rect2line(iRect(mytlc, iPoint(mytlc)+wh));
         dLine pts_c(pts);
         pts_c*=sc;
-        mapview->cnv.line_frw_p2p(pts_c);
+        mapview->get_cnv()->line_frw_p2p(pts_c);
         pts-=mytlc;
         for (int i=0; i<pts.size(); i++){
           ref.push_back(g_refpoint(pts_c[i], pts[i]));

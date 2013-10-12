@@ -14,7 +14,7 @@ public:
       int map_num = mapview->layer_maps.panel.find_map(p, &gobj);
       if (map_num < 0) return;
 
-      dPoint pw(p); mapview->cnv.frw(pw);
+      dPoint pw(p); mapview->get_cnv()->frw(pw);
       mapview->set_ref(*(gobj->get_map(map_num)));
       mapview->goto_wgs(pw);
     }

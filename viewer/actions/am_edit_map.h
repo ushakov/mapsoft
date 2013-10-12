@@ -45,7 +45,7 @@ public:
       mark_gobj->show_brd();
       mark_gobj->show_ref();
       mark_gobj->hide_map();
-      mark_gobj->set_cnv(layer->get_cnv(), m->map_proj.val);
+      mark_gobj->set_ref(*layer->get_ref());
       mapview->layer_maps.gobj.add_gobj(mark_gobj.get(), 50);
       mapview->viewer.redraw();
 

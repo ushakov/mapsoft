@@ -89,39 +89,3 @@ draw_wpt(iImage & image, const iPoint & origin,
   plot_wpts_tmpl(cr, cache);
 }
 
-/***********************************************************/
-/* GObj with template caching */
-
-void
-GObjWPTn::refresh(int n){
-  if (n>=data.size()) return;
-  int i1 = (n<0)? 0:n;
-  int i2 = (n<0)? data.size():n+1;
-  for (int i = i1; i < i2; i++){
-    tmpls[i]  = Cache<iRect, tmpl_wpts>(100);
-    ranges[i] = iRect();
-  }
-}
-
-int
-GObjWPTn::draw(iImage & image, const iPoint & origin){
-  iRect img_range = image.range() + origin;
-  CairoWrapper cr(image);
-
-  for (int i = 0; i < data.size(); i++){
-
-    if (!ranges[i].empty() &&
-         rect_intersect(ranges[i], img_range).empty() )
-      continue;
-
-    if (!tmpls[i].contains(img_range)){
-      tmpl_wpts tmpl =
-        make_wpts_tmpl(cr, origin, *cnv, data[i], opt, ranges[i]);
-      tmpls[i].add(img_range, tmpl);
-    }
-
-    plot_wpts_tmpl(cr, tmpls[i].get(img_range));
-
-  }
-  return GOBJ_FILL_PART;
-}

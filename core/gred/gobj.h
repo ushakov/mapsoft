@@ -3,7 +3,6 @@
 
 #include "2d/rect.h"
 #include "2d/image.h"
-#include "2d/conv_triv.h"
 
 ///\addtogroup gred
 ///@{
@@ -25,10 +24,9 @@ extern const iRect GOBJ_MAX_RANGE;
 рисование не должно происходить при добавлении, удалении новых объектов)
 */
 class GObj{
-    static ConvTriv trivial_cnv;
 public:
 
-  GObj():cnv(&trivial_cnv),cnv_hint(-1) {}
+  GObj() {}
 
   /** Рисование на картинке img со смещением origin.
    \return одно из следующих значений:
@@ -36,7 +34,6 @@ public:
    - GOBJ_FILL_PART  -- что-то было нарисовано
    - GOBJ_FILL_ALL   -- все изображение было зарисовано непрозрачным цветом
    NOTE:
-    - cnv is conversion from viewer image TO original gobj coords
     - range() returns range in viewer coords
   */
   virtual int draw(iImage &img, const iPoint &origin) = 0;
@@ -49,17 +46,11 @@ public:
   }
 
   virtual iRect range(void) const {return GOBJ_MAX_RANGE;}
-  virtual void refresh() {} ///< must be called after data or cnv change
+  virtual void refresh() {} ///< must be called after data change
+  virtual void rescale(double k) {} ///< change scale (refresh must be inside)
 
   virtual bool get_xloop() const {return false;};
   virtual bool get_yloop() const {return false;}
-
-  virtual Conv * get_cnv() const{ return cnv; }
-  virtual void set_cnv(Conv * c, int hint=-1){
-    cnv = c; cnv_hint=hint; refresh();}
-
-  Conv * cnv;
-  int cnv_hint;
 };
 
 #endif

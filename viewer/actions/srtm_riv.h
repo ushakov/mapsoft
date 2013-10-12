@@ -19,14 +19,14 @@ public:
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
         if (mystate==0){ // first point
           start_pt = p;
-          mapview->cnv.frw(start_pt);
+          mapview->get_cnv()->frw(start_pt);
           mapview->rubber.add_src_sq(p, 2);
           mapview->rubber.add_dst_sq(2);
           mapview->rubber.add_line(p);
           mystate=1;
         } else { // second point, trace
           dPoint end_pt = p;
-          mapview->cnv.frw(end_pt);
+          mapview->get_cnv()->frw(end_pt);
           int hmin = mapview->srtm.geth4(end_pt)-1;
           int nmax = 10000;
           bool down = true;

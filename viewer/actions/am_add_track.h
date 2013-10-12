@@ -59,7 +59,7 @@ public:
 
           g_trackpoint pt;
           pt.dPoint::operator=(p);
-          mapview->cnv.frw(pt);
+          mapview->get_cnv()->frw(pt);
           pt.start = (state&Gdk::SHIFT_MASK) || (trk.size()==0);
           trk.push_back(pt);
 

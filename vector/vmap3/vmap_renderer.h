@@ -16,7 +16,7 @@
 #include "vmap/zn.h"
 #include "vmap/vmap.h"
 
-#include "gred/gobj.h"
+#include "img_io/gobj_geo.h"
 
 #define LABEL_STYLE0 0
 #define LABEL_STYLE1 1
@@ -29,7 +29,7 @@
 */
 void render_border(iImage & img, const dLine & brd, const Options & O);
 
-class VMAPRenderer : public GObj{
+class VMAPRenderer : public GObjGeo{
 private:
 
   CairoWrapper cr;

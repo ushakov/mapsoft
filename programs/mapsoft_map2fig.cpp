@@ -70,8 +70,7 @@ main(int argc, char **argv){
                      convs::map_mpp(fig_ref, map_ref.map_proj); // scales in one proj
 
     fig_ref/=rescale; // теперь fig_ref - в координатах растра
-    convs::map2wgs fig_cnv(fig_ref);
-    ml.set_cnv(&fig_cnv, fig_ref.map_proj.val);
+    ml.set_ref(fig_ref);
 
     // диапазон картинки в координатах растра
     dRect range = fig_ref.border.range();

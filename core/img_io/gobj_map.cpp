@@ -15,7 +15,7 @@ using namespace std;
 
 GObjMAP::GObjMAP(g_map_list *_data, const Options & opt) :
       data(_data), image_cache(4){
-  make_m2ms();
+  refresh();
   status_set(SHOW_BRD, opt.exists("map_show_brd"));
 }
 
@@ -32,12 +32,7 @@ GObjMAP::get_myref() const {
     return ret;
   }
   // else return some simple ref
-  g_map ret;
-  ret.map_proj = Proj("lonlat");
-  ret.push_back(g_refpoint(0,  45, 0, 45*3600));
-  ret.push_back(g_refpoint(180, 0, 180*3600,90*3600));
-  ret.push_back(g_refpoint(0,   0, 0, 90*3600));
-  return ret;
+  return GObjGeo::get_myref();
 }
 
 g_map_list *
@@ -93,12 +88,6 @@ void
 GObjMAP::show_map(const g_map * m){ status_set(SHOW_MAP, true,  m); }
 void
 GObjMAP::hide_map(const g_map * m){ status_set(SHOW_MAP, false, m); }
-
-
-void
-GObjMAP::refresh(){
-  make_m2ms();
-}
 
 int
 GObjMAP::draw(iImage & image, const iPoint & origin){
@@ -221,7 +210,7 @@ GObjMAP::draw(iImage & image, const iPoint & origin){
           cr->stroke();
 
           dPoint pg(p->x, p->y);   // geo coords
-          cnv->bck(pg);
+          cnv.bck(pg);
           pg-=dorigin;
           cr->move_to(pg + dPoint(-1,-1)*dg);
           cr->line_to(pg + dPoint(1,1)*dg);
@@ -300,10 +289,8 @@ GObjMAP::dump_maps(const char *file){
 }
 
 void
-GObjMAP::make_m2ms(){
-  if (!data || !data->size() || !cnv) return;
-
-  if (cnv_hint<0) cnv_hint=0;
+GObjMAP::refresh(){
+  if (!data || !data->size()) return;
 
   m2ms.clear();
   scales.clear();
@@ -314,33 +301,16 @@ GObjMAP::make_m2ms(){
       // map -> layer conversion
 
       g_map * m = &(*data)[i];
-      boost::shared_ptr<Conv> c;
+      boost::shared_ptr<Conv> c(new convs::map2map(*m, ref));
 
-      if (cnv_hint == m->map_proj.val){ // the same proj!
+      if (ref.map_proj == m->map_proj){ // the same proj!
         map<dPoint,dPoint> points;
         for (g_map::const_iterator i=m->begin(); i!=m->end(); i++){
-          dPoint pr(i->xr, i->yr), pl(*i);
-          cnv->bck(pl);
-          points[pr] = pl; // map->scr
+          dPoint p1(i->xr, i->yr), p2(p1);
+          c->frw(p2);
+          points[p1] = p2; // map->scr
         }
         c.reset(new ConvAff(points));
-      }
-      else {
-        std::map<dPoint, dPoint> ref1, ref2;
-        /* Building two maps<pt,pt>: map->wgs, screen->wgs
-           We don't want to use original refpoints, becouse
-           it can be out of out projection range. We use
-           corners of 1000x1000 rect on the screen. */
-        dLine pts = rect2line(dRect(0,0,1000,1000), false);
-        convs::map2wgs cnv1(*m);
-
-        for (dLine::const_iterator i=pts.begin(); i!=pts.end(); i++){
-          dPoint p1(*i); cnv1.frw(p1); // p1 - wgs point
-          dPoint p2(p1); cnv->bck(p2); // p2 - screen point
-          ref1[*i]=p1; //map->wgs
-          ref2[p2]=p1; //scr->wgs
-        }
-        c.reset(new convs::map2map(m->map_proj, Proj(cnv_hint), ref1, ref2));
       }
       m2ms.push_back(c);
 

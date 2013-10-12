@@ -37,36 +37,4 @@ tmpl_wpts make_wpts_tmpl(CairoWrapper & cr, const iPoint & origin,
 /* plot template */
 void plot_wpts_tmpl(CairoWrapper & cr, const tmpl_wpts & wpts);
 
-/***********************************************************/
-/* GObj with template caching */
-
-#include "2d/cache.h"
-#include "gred/gobj.h"
-
-class GObjWPTn : public GObj {
-private:
-  const std::vector<g_waypoint_list>    & data;
-  std::vector<Cache<iRect, tmpl_wpts> > tmpls;
-  std::vector<iRect>                    ranges;
-  Options opt;
-
-public:
-
-  /// Refresh n-th layer.
-  /// Refresh all layers in n < 0
-  /// Do nothing if n >= data.size().
-  void refresh(int n = -1);
-
-  /// todo: refresh(n, range) or refresh(n, diff);
-
-  /// constructor
-  GObjWPTn (const vector<g_waypoint_list> & _data): data(_data) {
-    refresh();
-  }
-
-  /// Draw on image.
-  int draw(iImage & image, const iPoint & origin);
-
-};
-
 #endif

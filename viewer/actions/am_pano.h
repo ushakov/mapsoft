@@ -36,7 +36,7 @@ public:
       }
 
       if (state==0 || mod&Gdk::CONTROL_MASK){ // first click
-        p0=p; mapview->cnv.frw(p0); state=1;
+        p0=p; mapview->get_cnv()->frw(p0); state=1;
         mapview->rubber.clear();
         mapview->rubber.add_src_mark(p);
         dlg.show_all();
@@ -44,7 +44,7 @@ public:
       }
       else{ // next click
         dPoint p0i(p0), p1(p);
-        mapview->cnv.bck(p0i); mapview->cnv.frw(p1);
+        mapview->get_cnv()->bck(p0i); mapview->get_cnv()->frw(p1);
         mapview->rubber.clear();
         mapview->rubber.add_src_mark(p0i);
         mapview->rubber.add_src_mark(p);
@@ -55,7 +55,7 @@ public:
 
     void on_point(dPoint p){
       dPoint p0i(p0);
-      mapview->cnv.bck(p); mapview->cnv.bck(p0i);
+      mapview->get_cnv()->bck(p); mapview->get_cnv()->bck(p0i);
       mapview->rubber.clear();
       mapview->rubber.add_src_mark(p0i);
       mapview->rubber.add_src_mark(p);
@@ -64,7 +64,7 @@ public:
 
     void on_go(dPoint p){
       dlg.set_origin(p);
-      p0=p; mapview->cnv.bck(p); state=1;
+      p0=p; mapview->get_cnv()->bck(p); state=1;
       mapview->rubber.clear();
       mapview->rubber.add_src_mark(p);
       mapview->viewer.set_center(p);

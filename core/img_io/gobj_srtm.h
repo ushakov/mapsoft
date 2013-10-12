@@ -1,7 +1,7 @@
 #ifndef GOBJ_SRTM_H
 #define GOBJ_SRTM_H
 
-#include "gred/gobj.h"
+#include "gobj_geo.h"
 #include "geo/geo_convs.h"
 #include "2d/point.h"
 #include "2d/rect.h"
@@ -14,27 +14,24 @@
 
 class GObjSRTM
 #ifndef SWIG
-  : public GObj
+  : public GObjGeo
 #endif  // SWIG
 {
 private:
   srtm3 *S;
-  Options opt;
 public:
 
   GObjSRTM(srtm3* srtm);
-
-  void set_opt(const Options & o);
-  Options get_opt(void) const;
-
-  /// Get some reasonable reference.
-  g_map get_myref() const;
 
   /// Draw on image.
   int draw(iImage & image, const iPoint & origin);
 
   /// Get layer range.
-  iRect range() const;
+  iRect range() const{
+    return iRect(
+      iPoint(INT_MIN, INT_MIN),
+      iPoint(INT_MAX, INT_MAX));
+  }
 };
 
 

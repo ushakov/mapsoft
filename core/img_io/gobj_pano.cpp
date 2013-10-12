@@ -3,16 +3,13 @@
 
 using namespace std;
 
-GObjPano::GObjPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){
-  set_opt(Options()); // default values
-}
+GObjPano::GObjPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){ }
 
 /***********************************************************/
 // GET/SET parameters
 void
 GObjPano::set_origin(const dPoint & p){
-  ray_cache.clear();
-  p0=p;
+  ray_cache.clear(); p0=p;
 }
 dPoint
 GObjPano::get_origin(void) const {return p0;}

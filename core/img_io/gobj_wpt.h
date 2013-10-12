@@ -1,14 +1,14 @@
 #ifndef GOBJ_WPT_H
 #define GOBJ_WPT_H
 
-#include "gred/gobj.h"
+#include "gobj_geo.h"
 #include "geo/geo_data.h"
 
 /// Растровый слой для показа точек
 
 class GObjWPT
 #ifndef SWIG
-  : public GObj
+  : public GObjGeo
 #endif  // SWIG
 {
 private:
@@ -17,16 +17,10 @@ private:
 
 public:
 
-  GObjWPT (g_waypoint_list * _data);
-
-  /// Refresh layer.
-  void refresh();
-
-  /// Set some reasonable reference.
-  g_map get_myref() const;
-
-  /// Draw on image.
-  int draw(iImage & image, const iPoint & origin);
+  GObjWPT (g_waypoint_list * _data): data(_data){}
+  void   refresh(){ /// Refresh layer.
+    myrange = iRect(rect_pump(cnv.bb_bck(data->range()), 1.0));}
+  int draw(iImage & image, const iPoint & origin); /// Draw on image.
 
   int find_waypoint (iPoint pt, int radius = 3);
 

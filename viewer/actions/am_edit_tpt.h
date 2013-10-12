@@ -40,7 +40,7 @@ private:
       mapview->layer_trks.gobj.refresh_gobj(gobj);
     }
     void on_jump(dPoint p){
-      mapview->cnv.bck(p);
+      mapview->get_cnv()->bck(p);
       mapview->rubber.clear();
       mapview->viewer.set_center(p);
       mapview->rubber.add_src_mark(p);

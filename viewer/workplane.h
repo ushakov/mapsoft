@@ -8,52 +8,52 @@
 #include "2d/image.h"
 #include "2d/cache.h"
 
-#include "gred/gobj.h"
+#include "img_io/gobj_geo.h"
 
 
-class Workplane : public GObj {
+class Workplane : public GObjGeo {
     static const int CacheCapacity = 200;
 public:
 
     sigc::signal<void> signal_refresh;
 
-    Workplane();
+    Workplane(void): stop_drawing(false){ }
 
     // functions for gred/gobj interface
     int draw(iImage &img, const iPoint &origin);
 
-    void add_gobj (GObj * gobj, int depth);
+    void add_gobj (GObjGeo * obj, int depth);
 
-    void remove_gobj (GObj * gobj);
+    void remove_gobj (GObjGeo * obj);
 
-    bool exists (GObj * gobj);
+    bool exists (GObjGeo * obj);
 
     void clear();
 
-    void set_gobj_depth (GObj * gobj, int newdepth);
+    void set_gobj_depth (GObjGeo * obj, int newdepth);
 
-    int get_gobj_depth (GObj * gobj);
+    int get_gobj_depth (GObjGeo * obj);
 
-    void refresh_gobj (GObj * gobj, bool redraw = true);
+    void refresh_gobj (GObjGeo * obj, bool redraw = true);
 
-    void set_gobj_active (GObj * gobj, bool active);
+    void set_gobj_active (GObjGeo * obj, bool active);
 
-    bool get_gobj_active (GObj * gobj);
+    bool get_gobj_active (GObjGeo * obj);
 
     void refresh();
 
     inline void clear_tile_cache();
 
-    void set_cnv(Conv * c, int hint=-1);
+    void set_ref(const g_map & ref);
 
 private:
-    std::multimap<int, GObj *>::iterator find_gobj (GObj * gobj);
+    std::multimap<int, GObjGeo *>::iterator find_gobj (GObjGeo * obj);
 
-    std::multimap <int, GObj *> layers;
-    std::map <GObj *, bool> layers_active;
+    std::multimap <int, GObjGeo *> layers;
+    std::map <GObjGeo *, bool> layers_active;
 
     typedef Cache<iRect,iImage> LayerCache;
-    std::map<GObj *, boost::shared_ptr<LayerCache> > tile_cache;
+    std::map<GObjGeo *, boost::shared_ptr<LayerCache> > tile_cache;
 
     Glib::Mutex draw_mutex;
     bool stop_drawing;

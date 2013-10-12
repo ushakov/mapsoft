@@ -18,7 +18,7 @@ public:
       int dh   = down?200:200;  // макс. разница высот "неправильного" стока
 
       dPoint gpt(p);
-      mapview->cnv.frw(gpt);
+      mapview->get_cnv()->frw(gpt);
       iPoint pt(gpt*1200.0);
 
       trace_area T(mapview->srtm, dh, maxp, mina, down);

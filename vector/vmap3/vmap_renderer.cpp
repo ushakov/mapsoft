@@ -59,7 +59,7 @@ VMAPRenderer::render_polygons(int type, int col, double curve_l){
   cr->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
-    dMultiLine l = *o; cnv->line_bck_p2p(l);
+    dMultiLine l = *o; cnv.line_bck_p2p(l);
     cr->mkpath_smline(l, 1, curve_l*lw1);
     cr->fill();
   }
@@ -74,7 +74,7 @@ VMAPRenderer::render_cnt_polygons(int type, int fill_col, int cnt_col,
   cr->set_color(fill_col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!= (type | zn::area_mask)) continue;
-    dMultiLine l = *o; cnv->line_bck_p2p(l);
+    dMultiLine l = *o; cnv.line_bck_p2p(l);
     cr->mkpath_smline(l, 1, curve_l*lw1);
     cr->fill_preserve();
     cr->save();
@@ -94,7 +94,7 @@ VMAPRenderer::render_line(int type, int col, double th, double curve_l){
   cr->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
-    dMultiLine l = *o; cnv->line_bck_p2p(l);
+    dMultiLine l = *o; cnv.line_bck_p2p(l);
     cr->mkpath_smline(l, 0, curve_l*lw1);
     cr->stroke();
   }
@@ -109,7 +109,7 @@ VMAPRenderer::render_points(int type, int col, double th){
   cr->set_color(col);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=type) continue;
-    dMultiLine l = *o; cnv->line_bck_p2p(l);
+    dMultiLine l = *o; cnv.line_bck_p2p(l);
     cr->mkpath_points(l);
     cr->stroke();
   }
@@ -152,7 +152,7 @@ VMAPRenderer::render_im_in_polygons(int type, const char * fname){
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       if (l->size()<1) continue;
       dPoint p=l->range().CNT();
-      cnv->bck(p);
+      cnv.bck(p);
       cr->save();
       cr->translate(p.x, p.y);
       cr->set_source(patt);
@@ -173,7 +173,7 @@ VMAPRenderer::render_img_polygons(int type, const char * fname, double curve_l){
   cr->set_source(patt);
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
-    dMultiLine l = *o; cnv->line_bck_p2p(l);
+    dMultiLine l = *o; cnv.line_bck_p2p(l);
     cr->mkpath_smline(l, 1, curve_l*lw1);
     cr->fill();
   }
@@ -192,11 +192,11 @@ VMAPRenderer::render_im_in_points(int type, const char * fname){
       if (l->size()<1) continue;
       cr->save();
       dPoint p=(*l)[0];
-      cnv->bck(p);
+      cnv.bck(p);
       cr->translate(p.x, p.y);
       if (o->opts.exists("Angle")){
         double a = o->opts.get<double>("Angle",0);
-        a = cnv->ang_bck(o->center(), M_PI/180 * a, 0.01);
+        a = cnv.ang_bck(o->center(), M_PI/180 * a, 0.01);
         cr->rotate(a);
       }
       cr->set_source(patt);
@@ -214,7 +214,7 @@ VMAPRenderer::mkbrpath1(const vmap::object & o){
   for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
     if (l->size()<2) continue;
     dPoint p1 = (*l)[0], p2 = (*l)[1];
-    cnv->bck(p1);  cnv->bck(p2);
+    cnv.bck(p1);  cnv.bck(p2);
     cr->move_to(p1);
     cr->line_to(p2);
   }
@@ -226,7 +226,7 @@ VMAPRenderer::mkbrpath2(const vmap::object & o, double th, double side){
   for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
     if (l->size()<2) continue;
     dPoint p1 = (*l)[0], p2 = (*l)[1];
-    cnv->bck(p1);  cnv->bck(p2);
+    cnv.bck(p1);  cnv.bck(p2);
     dPoint t = pnorm(p2-p1);
     dPoint n(-t.y, t.x);
     dPoint P;
@@ -684,7 +684,7 @@ VMAPRenderer::render_objects(const bool draw_contours){
   render_line(0x7, 0xFFFFFF, 3, 0); // белое
   cr->restore();
 
-  render_line_val(*cnv, 0x7, hor_col, 1.6, 4, 2.5);
+  render_line_val(cnv, 0x7, hor_col, 1.6, 4, 2.5);
 
   cr->save();
   cr->set_operator(Cairo::OPERATOR_CLEAR);
@@ -711,9 +711,9 @@ VMAPRenderer::render_objects(const bool draw_contours){
   //*******************************
 
   cr->cap_butt(); cr->join_miter();
-  render_line_el(*cnv, 0x1A, 0x888888, 2); // маленькая ЛЭП
-  render_line_el(*cnv, 0x29, 0x888888, 3); // большая ЛЭП
-  render_line_gaz(*cnv, 0x28, 0x888888, 3); // газопровод
+  render_line_el(cnv, 0x1A, 0x888888, 2); // маленькая ЛЭП
+  render_line_el(cnv, 0x29, 0x888888, 3); // большая ЛЭП
+  render_line_gaz(cnv, 0x28, 0x888888, 3); // газопровод
 
   //*******************************
   cr->cap_butt();
@@ -739,8 +739,8 @@ VMAPRenderer::render_objects(const bool draw_contours){
   cr->set_dash(4*lw1, 2*lw1, 0, 2*lw1);   render_line(0x1D, 0x900000, 1, 0); // граница
 
   cr->set_dash(2*lw1, 2*lw1); render_line(0x1E, 0x900000, 1, 0); // нижний край обрыва
-  cr->unset_dash();   render_line_obr(*cnv, 0x03, 0x900000, 1); // верхний край обрыва
-  render_line_zab(*cnv, 0x19, 0x900000, 1); // забор
+  cr->unset_dash();   render_line_obr(cnv, 0x03, 0x900000, 1); // верхний край обрыва
+  render_line_zab(cnv, 0x19, 0x900000, 1); // забор
 
   render_bridge(0x1B, 0, 1, 2); // туннель
   render_bridge(0x08, 1, 1, 2); // мост-1
@@ -879,11 +879,11 @@ VMAPRenderer::render_labels(){
       for (std::list<vmap::lpos>::const_iterator
             l=o->labels.begin(); l!=o->labels.end(); l++){
         dPoint p(l->pos);
-        cnv->bck(p);
+        cnv.bck(p);
         cr->save();
         cr->move_to(p);
         double a = l->ang;
-        a = cnv->ang_bck(o->center(), M_PI/180 * a, 0.01);
+        a = cnv.ang_bck(o->center(), M_PI/180 * a, 0.01);
         if (!l->hor) cr->rotate(a);
         if (l->dir == 1) cr->Cairo::Context::rel_move_to(-ext.w/2, 0);
         if (l->dir == 2) cr->Cairo::Context::rel_move_to(-ext.w, 0);
@@ -899,7 +899,7 @@ VMAPRenderer::render_labels(){
     }
   }
   cr->restore();
-  if (label_style==LABEL_STYLE2) render_holes(*cnv);
+  if (label_style==LABEL_STYLE2) render_holes(cnv);
 }
 
 void

@@ -75,9 +75,9 @@ class MapviewData : public std::list<MapviewDataFile>{
       file.wpts_l.push_back(WL);
       file.trks_l.push_back(TL);
       file.maps_l.push_back(ML);
-      workplane->add_gobj(WL, 100);
-      workplane->add_gobj(TL, 200);
-      workplane->add_gobj(ML, 300);
+      workplane->add_obj(WL, 100);
+      workplane->add_obj(TL, 200);
+      workplane->add_obj(ML, 300);
       push_back(file);
       signal_refresh_files.emit();
       signal_refresh_data.emit();

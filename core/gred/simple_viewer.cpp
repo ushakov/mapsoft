@@ -146,11 +146,9 @@ SimpleViewer::rescale(const double k){
 
 void
 SimpleViewer::rescale(const double k, const iPoint & cnt){
+  if (!obj) return;
   signal_on_rescale_.emit(k);
-  if (obj){
-    obj->get_cnv()->rescale_src(k);
-    obj->refresh();
-  }
+  obj->rescale(k);
   iPoint wsize(get_width(), get_height());
   iPoint wcenter = get_origin() + cnt;
   wcenter=iPoint(wcenter.x * k, wcenter.y * k);
