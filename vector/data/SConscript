@@ -7,6 +7,14 @@ e.UseLibs('vmap')
 
 #### TODO: сделать удаление цели перед установкой для pics hr_fig mmb_fig
 
+#### Creaty *.cnf files from common styles.m4 source
+def mkcnf(env, name):
+   """Setup command for cnf2png conversion by <name> argument"""
+   cmd = env.Command(name+'.cnf', 'styles.m4', "\
+     m4 -DSTYLE=%s styles.m4 > %s.cnf" % (name, name), chdir = 1)
+   env.Depends(cmd, 'styles.m4')
+e.AddMethod(mkcnf)
+
 #### Method for cnf 2 png conversion
 def Cnf2Png(env, name):
    """Setup command for cnf2png conversion by <name> argument"""
@@ -26,6 +34,7 @@ def Cnf2Png(env, name):
    env.Depends(cmd, '../libzn-utils/fig2pnm')
    env.Depends(cmd, '../libzn-utils/get_print')
    env.Depends(cmd, name+'.cmap.pnm')
+   env.Depends(cmd, 'pics')
 e.AddMethod(Cnf2Png)
 
 #### Method for cnf 2 colormap conversion
@@ -42,6 +51,8 @@ def Cnf2CM(env, name):
      trap - EXIT" % (name, name), chdir = 1)
    env.Depends(cmd, '../../programs/mapsoft_vmap')
    env.Depends(cmd, '../vmap3/vmap_render')
+   env.Depends(cmd, 'pics')
+   env.Depends(cmd, name+'.cnf')
 e.AddMethod(Cnf2CM)
 
 #### Method for figlib creation
@@ -58,6 +69,11 @@ e.AddMethod(Figlib)
 e.Program('zn_figlib.cpp')
 e.Program('zn_legend.cpp')
 e.Program('zn_text.cpp')
+
+
+# create styles
+e.mkcnf('mmb')
+e.mkcnf('hr')
 
 e.Cnf2Png('mmb')
 e.Cnf2CM('mmb')

@@ -1,3 +1,11 @@
+divert(-1)
+# Source for mmb and hr style files. Same types but different colors
+define(VYS_COL, ifelse(STYLE,hr, 24,0)) # цвет отметок высот
+define(HOR_COL, ifelse(STYLE,hr, 30453904,26)) # цвет горизонталей
+define(VOD_COL, ifelse(STYLE,hr, 11,3)) # цвет рек
+define(HRE_COL, ifelse(STYLE,hr, 26,24)) # цвет хребта
+define(TRE_PIC, ifelse(STYLE,hr, trig_hr,trig)) # цвет хребта
+divert
 -
   name: деревня
   mp:   POI 0x0700 0 0
@@ -19,24 +27,24 @@
 -
   name: триангуляционный знак
   mp:   POI 0x0F00 0 0
-  fig:  2 1 0 2 0 7 57 -1 20 0.000 1 1 -1 0 0 1
-  pic:  trig.fig
-  txt:  4 0 0 40 -1 18 7 0.0000 4
+  fig:  2 1 0 2 VYS_COL 7 57 -1 20 0.000 1 1 -1 0 0 1
+  pic:  TRE_PIC
+  txt:  4 0 VYS_COL 40 -1 18 7 0.0000 4
   ocad: 196000
   ocad_txt: 710000
 -
   name: отметка высоты
   mp:   POI 0x1100 0 0
-  fig:  2 1 0 4  0 7  57 -1 -1 0.000 0 1 -1 0 0 1
-  txt:  4 0 0 40 -1 18 7 0.0000 4
+  fig:  2 1 0 4 VYS_COL 7  57 -1 -1 0.000 0 1 -1 0 0 1
+  txt:  4 0 VYS_COL 40 -1 18 7 0.0000 4
   ocad: 110000
   ocad_txt: 710000
 -
   name: маленькая отметка высоты
   desc: взятая автоматически из srtm и т.п.
   mp:   POI 0x0D00 0 0
-  fig:  2 1 0 3  0 7  57 -1 -1 0.000 0 1 -1 0 0 1
-  txt:  4 0 0 40 -1 18 6 0.0000 4
+  fig:  2 1 0 3 VYS_COL 7  57 -1 -1 0.000 0 1 -1 0 0 1
+  txt:  4 0 VYS_COL 40 -1 18 6 0.0000 4
 -
   name: отметка уреза воды
   mp:   POI 0x1000 0 0
@@ -45,6 +53,7 @@
   ocad: 100000
   ocad_txt: 700000
   move_to: 0x100026 0x100015 0x100018 0x10001F 0x200029 0x20003B 0x200053
+  pic:  ur_vod
 -
   name: магазин
   mp:   POI 0x2E00 0 0
@@ -59,7 +68,7 @@
   name: памятник
   mp:   POI 0x2c04 0 0
   fig:  2 1 0 1  4 7 157 -1 -1 0.000 0 1 -1 0 0 1
-  pic:  pam.fig
+  pic:  pam
   txt:  4 0 0 40 -1 3 8 0.0000 4
   ocad: 293004
   ocad_txt: 780000
@@ -67,7 +76,7 @@
   name: церковь
   mp:   POI 0x2C0B 0 0
   fig:  2 1 0 1 11 7 157 -1 -1 0.000 0 1 -1 0 0 1
-  pic:  cerkov.fig
+  pic:  cerkov
   txt:  4 0 0 40 -1 3 8 0.0000 4
   ocad: 293009
   ocad_txt: 780000
@@ -75,14 +84,14 @@
   name: остановка автобуса
   mp:   POI 0x2F08 0 0
   fig:  2 1 0 4  4 7  57 -1 -1 0.000 0 1 -1 0 0 1
-  pic:  avt.fig
+  pic:  avt
   ocad: 296008
 -
   name: ж/д станция
   mp:   POI 0x5905 0 1
   fig:  2 1 0 4  4 7  57 -1 -1 0.000 0 0 -1 0 0 1
   txt:  4 0 0 40 -1 3 8 0.0000 4
-  pic:  zd.fig
+  pic:  zd
   ocad: 590005
   ocad_txt: 780000
   rotate_to: 0x10000D 0x100027
@@ -91,88 +100,88 @@
   mp:   POI 0x6406 0 0
   fig:  2 1 0 1 1 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  per.fig
+  pic:  per
   rotate_to: 0x10000C
 -
   name: перевал н/к
   mp:   POI 0x6620 0 0
   fig:  2 1 0 1 2 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  pernk.fig
+  pic:  pernk
   rotate_to: 0x10000C
 -
   name: перевал 1А
   mp:   POI 0x6621 0 0
   fig:  2 1 0 1 3 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  per1a.fig
+  pic:  per1a
   rotate_to: 0x10000C
 -
   name: перевал 1Б
   mp:   POI 0x6622 0 0
   fig:  2 1 0 1 4 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  per1b.fig
+  pic:  per1b
   rotate_to: 0x10000C
 -
   name: перевал 2А
   mp:   POI 0x6623 0 0
   fig:  2 1 0 1 5 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  per2a.fig
+  pic:  per2a
   rotate_to: 0x10000C
 -
   name: перевал 2Б
   mp:   POI 0x6624 0 0
   fig:  2 1 0 1 6 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  per2b.fig
+  pic:  per2b
   rotate_to: 0x10000C
 -
   name: перевал 3А
   mp:   POI 0x6625 0 0
   fig:  2 1 0 1 7 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  per3a.fig
+  pic:  per3a
   rotate_to: 0x10000C
 -
   name: перевал 3Б
   mp:   POI 0x6626 0 0
   fig:  2 1 0 1 8 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
-  pic:  per3b.fig
+  pic:  per3b
   rotate_to: 0x10000C
 -
   name: каньон
   mp:   POI 0x660B 0 0
   fig:  2 1 0 1 9 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 24 40 -1 18 7 0.0000 4
-  pic:  kan.fig
+  pic:  kan
 -
   name: ледопад
   mp:   POI 0x650A 0 0
   fig:  2 1 0 1 10 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 1 40 -1 3 7 0.0000 4
-  pic:  ldp.fig
+  pic:  ldp
 -
   name: дом
   mp:   POI 0x6402 0 1
   fig:  2 1 0 4  0 7  57 -1 -1 0.000 0 0 -1 0 0 1
   txt:  4 0 0 40 -1 3 8 0.0000 4
-  pic:  dom.fig
+  pic:  dom
   ocad: 640002
   ocad_txt: 780000
 -
   name: кладбище
   mp:   POI 0x6403 0 1
   fig:  2 1 0 1 12 7 157 -1 -1 0.000 0 1 -1 0 0 1
-  pic:  kladb.fig
+  pic:  kladb
   ocad: 640003
 -
   name: башня
   mp:   POI 0x6411 0 0
   fig:  2 1 0 1  5 7 157 -1 -1 0.000 0 1 -1 0 0 1
-  pic:  bash.fig
+  pic:  bash
   ocad: 641001
 -
   name: родник
@@ -186,7 +195,7 @@
   mp:   POI 0x6415 0 1
   fig:  2 1 0 1 0 7  156 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 0 40 -1 3 8 0.0000 4
-  pic:  razv.fig
+  pic:  razv
   ocad: 641005
   ocad_txt: 780000
 -
@@ -194,7 +203,7 @@
   mp:   POI 0x640C 0 1
   fig:  2 1 0 1 0 7  155 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 0 40 -1 3 8 0.0000 4
-  pic:  shaht.fig
+  pic:  shaht
   ocad_txt: 780000
 -
   name: водопад
@@ -203,6 +212,7 @@
   txt:  4 0 1 40 -1 3 8 0.0000 4
   ocad_txt: 729000
   rotate_to: 0x100026 0x100015 0x100018 0x10001F
+  pic:  vdp
 -
   name: порог /не использовать!/
   mp:   POI 0x650E 0 0
@@ -211,29 +221,30 @@
   ocad_txt: 729000
   rotate_to: 0x100026 0x100015 0x100018 0x10001F
   replace_by: 0x6508
+  pic:  por
 -
   name: яма
   mp:   POI 0x6603 0 0
   fig:  2 1 0 1 25 7 157 -1 -1 0.000 0 1 -1 0 0 1
-  pic:  yama.fig
+  pic:  yama
   ocad: 660003
 -
   name: охотничья вышка, кормушка и т.п.
   mp:   POI 0x6606 0 0
   fig:  2 1 0 1  6 7 157 -1 -1 0.000 0 1 -1 0 0 1
-  pic:  ohotn.fig
+  pic:  ohotn
   ocad: 660006
 -
   name: курган
   mp:   POI 0x6613 0 0
   fig:  2 1 0 1 26 7 157 -1 -1 0.000 0 1 -1 0 0 1
-  pic:  pupyr.fig
+  pic:  pupyr
   ocad: 661003
 -
   name: скала-останец
   mp:   POI 0x6616 0 0
   fig:  2 1 0 1 20 7 157 -1 -1 0.000 0 1 -1 0 0 1
-  pic:  skala.fig
+  pic:  skala
   txt:  4 0 0 40 -1 3 8 0.0000 4
   ocad: 661006
   ocad_txt: 780000
@@ -261,6 +272,8 @@
   txt:  4 1 0 40 -1 3 8 0.0000 4
   ocad: 949006
   ocad_txt: 780000
+  pic:      vyr_n
+  pic_type: fill
 -
   name: стар.вырубка
   mp:   POLYGON 0x50 0 1
@@ -268,6 +281,8 @@
   txt:  4 1 0 40 -1 3 8 0.0000 4
   ocad: 950000
   ocad_txt: 780000
+  pic:      vyr_o
+  pic_type: fill
 -
   name: редколесье
   mp:   POLYGON 0x14 0 1
@@ -275,6 +290,8 @@
   txt:  4 1 0 40 -1 3 8 0.0000 4
   ocad: 914000
   ocad_txt: 780000
+  pic:      redk
+  pic_type: fill
 -
   name: закрытые территории
   mp:   POLYGON 0x04 0 1
@@ -310,46 +327,53 @@
   txt:  4 0 0 40 -1 3 8 0.0000 4
   ocad: 919001
   ocad_txt: 780000
+  pic:  cross
 -
   name: водоемы
   mp:   POLYGON 0x29 0 1
-  fig:  2 3 0 1 5269247  3  85 -1 20 0.000 0 0 -1 0 0 0
+  fig:  2 3 0 1 5269247 VOD_COL 85 -1 20 0.000 0 0 -1 0 0 0
   txt:  4 1 1 40 -1 3 8 0.0000 4
   ocad: 929000
   ocad_txt: 729000
 -
   name: крупные водоемы
   mp:   POLYGON 0x3B 0 2
-  fig:  2 3 0 1 5269247  3  85 -1 15 0.000 0 0 -1 0 0 0
+  fig:  2 3 0 1 5269247 VOD_COL 85 -1 15 0.000 0 0 -1 0 0 0
   txt:  4 1 1 40 -1 3 8 0.0000 4
   ocad_txt: 729000
 -
   name: остров
   mp:   POLYGON 0x53 0 1
-  fig:  2 3 0 1 5269247  3  84 -1 40 0.000 0 0 -1 0 0 0
+  fig:  2 3 0 1 5269247 VOD_COL 84 -1 40 0.000 0 0 -1 0 0 0
   txt:  4 0 0 40 -1 3 8 0.0000 4
   ocad: 953000
   ocad_txt: 729000
 -
   name: заболоченность
   mp:   POLYGON 0x51 0 1
-  fig:  2 3 0 0 5269247 3 87 -1 49 0.000 0 0 -1 0 0 0
+  fig:  2 3 0 0 5269247 VOD_COL 87 -1 49 0.000 0 0 -1 0 0 0
   txt:  4 1 0 40 -1 3 8 0.0000 4
   ocad: 951000
   ocad_txt: 780000
+  pic:      bol_l
+  pic_type: fill
 -
   name: болото
   mp:   POLYGON 0x4C 0 1
-  fig:  2 3 0 0 3 5269247 87 -1 49 0.000 0 0 -1 0 0 0
+  fig:  2 3 0 0 VOD_COL 5269247 87 -1 49 0.000 0 0 -1 0 0 0
   txt:  4 1 0 40 -1 3 8 0.0000 4
   ocad: 310000
   ocad_txt: 780000
+  pic:      bol_h
+  pic_type: fill
 -
   name: ледник
   mp:   POLYGON 0x4D 0 1
   fig:  2 3 0 0 11 11 98 -1 35 0.000 0 0 7 0 0 1
   txt:  4 1 1 40 -1 3 8 0.0000 4
   ocad_txt: 780000
+  pic:      ledn
+  pic_type: fill
 -
   name: крутой склон
   mp:   POLYGON 0x19 0 1
@@ -470,7 +494,7 @@
 -
   name: хребет
   mp:   POLYLINE 0x0C 0 1
-  fig:  2 1 0 2 24 7 89 -1 -1 0.000 1 1 0 0 0 0
+  fig:  2 1 0 2 HRE_COL 7 89 -1 -1 0.000 1 1 0 0 0 0
   curve: 50
 -
   name: пересыхающий ручей
@@ -496,7 +520,7 @@
 -
   name: река-3
   mp:   POLYLINE 0x1F 0 2
-  fig:  2 1 0 3 5269247 3 86 -1 -1 0.000 1 1 0 0 0 0
+  fig:  2 1 0 3 5269247 VOD_COL 86 -1 -1 0.000 1 1 0 0 0 0
   txt:  4 1 1 40 -1 3 8 0.0000 4
   ocad: 819006
   ocad_txt: 718000
@@ -537,19 +561,19 @@
 -
   name: пунктирная горизонталь
   mp:   POLYLINE 0x20 0 0
-  fig:  2 1 1 1 26 7 90 -1 -1 4.000 1 1 0 0 0 0
+  fig:  2 1 1 1 HOR_COL 7 90 -1 -1 4.000 1 1 0 0 0 0
   ocad: 820000
   curve: 100
 -
   name: горизонтали, бергштрихи
   mp:   POLYLINE 0x21 0 0
-  fig:  2 1 0 1 26 7 90 -1 -1 0.000 1 1 0 0 0 0
+  fig:  2 1 0 1 HOR_COL 7 90 -1 -1 0.000 1 1 0 0 0 0
   ocad: 821000
   curve: 100
 -
   name: жирная горизонталь
   mp:   POLYLINE 0x22 0 0
-  fig:  2 1 0 2 26 7 90 -1 -1 0.000 1 1 0 0 0 0
+  fig:  2 1 0 2 HOR_COL 7 90 -1 -1 0.000 1 1 0 0 0 0
   ocad: 822000
   curve: 100
 -
@@ -617,7 +641,6 @@
   fig:  2 1 1 1 4210700 7 80 -1 -1 4.000 0 0 -1 0 0 0
   curve: 50
   replace_by: 0x10002D
-
 -
   # note: 0x7F is also hardcoded in core/vmap/vmap.c
   name: text object

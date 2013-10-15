@@ -34,6 +34,8 @@ private:
 
   CairoWrapper cr;
   vmap::world * W;
+  zn::zn_conv zc;
+
 
   double       pics_dpi;
   std::string  pics_dir;
@@ -71,24 +73,22 @@ public:
   void render_objects(const bool draw_contours=true);
   void render_holes(Conv & cnv);
 
-  // create pattern from iImage, rescaled
+  // create Image pattern for a given type, rescaled
   // according to dpi and pics_dpi values and
   // translated to the image center
-  Cairo::RefPtr<Cairo::SurfacePattern>
-    get_patt_from_image(const iImage & I);
+  Cairo::RefPtr<Cairo::SurfacePattern> load_pic(const iImage & I);
 
   // place image in the center of polygons
-  void render_im_in_polygons(int type, const char * fname);
+  // polygons filled with image pattern
+  void render_img_polygons(int type, double curve_l=0);
 
   // place image in points
-  void render_im_in_points(int type, const char * fname);
+  void render_im_in_points(int type);
 
   void  render_polygons(int type, int col, double curve_l=0);
   // contoured polygons
   void  render_cnt_polygons(int type, int fill_col, int cnt_col,
                         double cnt_th, double curve_l=0);
-  // polygons filled with image pattern
-  void render_img_polygons(int type, const char * fname, double curve_l=0);
 
   void  render_line(int type, int col, double th, double curve_l=0);
   void  render_points(int type, int col, double th);

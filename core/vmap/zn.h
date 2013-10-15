@@ -44,7 +44,9 @@ struct zn{
   mp::mp_object mp;        // заготовка mp-объекта
   fig::fig_object fig;     // заготовка fig-объекта
   fig::fig_object txt;     // заготовка fig-объекта подписи
-  std::string pic;         // картинка для точечного объекта (м.б. пустой)
+  std::string pic;         // картинка (м.б. пустой)
+  std::string pic_type;    // для многоугольников "fill": использовать заливку
+                           // картинкой
   int ocad, ocad_txt;      // номера символов OCAD
   bool istxt;              // делать ли подпись? // использовать label_type
   int label_type;          // положение подписи

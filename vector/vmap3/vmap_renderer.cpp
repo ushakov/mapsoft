@@ -8,10 +8,9 @@
 using namespace std;
 
 VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
-    const Options & O): W(_W) {
+    const Options & O): W(_W), zc(W->style){
 
   pics_dpi    = O.get("pics_dpi", 600.0);
-  pics_dir    = O.get("pics_dir", string("/usr/share/mapsoft/pics"));
   bgcolor     = O.get("bgcolor", 0xFFFFFF);
   dpi         = O.get("dpi", 300.0);
   lw1         = O.get("line_width", dpi/105.0);
@@ -120,7 +119,7 @@ VMAPRenderer::render_points(int type, int col, double th){
 // according to dpi and pics_dpi values and
 // translated to the image center
 Cairo::RefPtr<Cairo::SurfacePattern>
-VMAPRenderer::get_patt_from_image(const iImage & I){
+VMAPRenderer::load_pic(const iImage & I){
   try{
     const Cairo::Format format = Cairo::FORMAT_ARGB32;
     assert(Cairo::ImageSurface::format_stride_for_width(format, I.w) == I.w*4);
@@ -140,52 +139,65 @@ VMAPRenderer::get_patt_from_image(const iImage & I){
   }
 }
 
-
-// place image in the center of polygons
 void
-VMAPRenderer::render_im_in_polygons(int type, const char * fname){
-  string f = string(pics_dir) + "/" + fname;
+VMAPRenderer::render_img_polygons(int type, double curve_l){
+
+  type = type | zn::area_mask;
+  std::map<int, zn::zn>::const_iterator z = zc.find_type(type);
+  if (z==zc.znaki.end()) return;
+
+  string f = z->second.pic + ".png"; // picture filename
   iImage I = image_r::load(f.c_str());
-  Cairo::RefPtr<Cairo::SurfacePattern> patt = get_patt_from_image(I);
-  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
-    if (o->type!=(type | zn::area_mask)) continue;
-    for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
-      if (l->size()<1) continue;
-      dPoint p=l->range().CNT();
-      cnv.bck(p);
-      cr->save();
-      cr->translate(p.x, p.y);
-      cr->set_source(patt);
-      cr->paint();
-      cr->restore();
+  if (I.empty()) cerr << "Empty image for type " << type << "\n";
+
+  Cairo::RefPtr<Cairo::SurfacePattern> patt = load_pic(I);
+  if (!patt) return;
+
+  // polygons filled with image pattern
+  if (z->second.pic_type=="fill"){
+    patt->set_extend(Cairo::EXTEND_REPEAT);
+    cr->save();
+    cr->set_source(patt);
+    for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
+      if (o->type!=type) continue;
+      dMultiLine l = *o; cnv.line_bck_p2p(l);
+      cr->mkpath_smline(l, 1, curve_l*lw1);
+      cr->fill();
+    }
+    cr->restore();
+  }
+  // place image in the center of polygons
+  else { 
+    for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
+      if (o->type!=type) continue;
+      for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
+        if (l->size()<1) continue;
+        dPoint p=l->range().CNT();
+        cnv.bck(p);
+        cr->save();
+        cr->translate(p.x, p.y);
+        cr->set_source(patt);
+        cr->paint();
+        cr->restore();
+      }
     }
   }
 }
 
-// polygons filled with image pattern
-void
-VMAPRenderer::render_img_polygons(int type, const char * fname, double curve_l){
-  string f = string(pics_dir) + "/" + fname;
-  iImage I = image_r::load(f.c_str());
-  Cairo::RefPtr<Cairo::SurfacePattern> patt = get_patt_from_image(I);
-  patt->set_extend(Cairo::EXTEND_REPEAT);
-  cr->save();
-  cr->set_source(patt);
-  for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
-    if (o->type!=(type | zn::area_mask)) continue;
-    dMultiLine l = *o; cnv.line_bck_p2p(l);
-    cr->mkpath_smline(l, 1, curve_l*lw1);
-    cr->fill();
-  }
-  cr->restore();
-}
-
 // place image in points
 void
-VMAPRenderer::render_im_in_points(int type, const char * fname){
-  string f = string(pics_dir) + "/" + fname;
+VMAPRenderer::render_im_in_points(int type){
+
+  std::map<int, zn::zn>::const_iterator z = zc.find_type(type);
+  if (z==zc.znaki.end()) return;
+
+  string f = z->second.pic + ".png"; // picture filename
   iImage I = image_r::load(f.c_str());
-  Cairo::RefPtr<Cairo::SurfacePattern> patt = get_patt_from_image(I);
+  if (I.empty()) cerr << "Empty image for type " << type << "\n";
+
+  Cairo::RefPtr<Cairo::SurfacePattern> patt = load_pic(I);
+  if (!patt) return;
+
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=type) continue;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
@@ -205,7 +217,6 @@ VMAPRenderer::render_im_in_points(int type, const char * fname){
     }
   }
 }
-
 
 
 // paths for bridge sign
@@ -580,9 +591,9 @@ VMAPRenderer::render_objects(const bool draw_contours){
   if (draw_contours)
     cnt = make_cnt(0xAAFFAA, 2);     // контуры леса
 
-  render_img_polygons(0x4f, "vyr_n.png");
-  render_img_polygons(0x50, "vyr_o.png");
-  render_img_polygons(0x14, "redk.png");
+  render_img_polygons(0x4f); // свежая вырубка
+  render_img_polygons(0x50); // старая вырубка
+  render_img_polygons(0x14); // редколесье
 
   render_polygons(0x15, 0xAAFFAA); // остров леса поверх вырубок
 
@@ -633,8 +644,8 @@ VMAPRenderer::render_objects(const bool draw_contours){
 
   //*******************************
 
-  render_img_polygons(0x51, "bol_l.png"); // болота
-  render_img_polygons(0x4C, "bol_h.png"); // болота труднопроходимые
+  render_img_polygons(0x51); // болота
+  render_img_polygons(0x4C); // болота труднопроходимые
   render_line(0x24, 0x5066FF, 1, 0); // старые болота
 
   //*******************************
@@ -759,34 +770,34 @@ VMAPRenderer::render_objects(const bool draw_contours){
   render_points(0xD00,  pt_col, 3); // маленькая отметка высоты
   render_points(0x6414, 0x5066FF, 4); // родник
 
-  render_im_in_points(0x6402, "dom.png"); // дом
-  render_im_in_points(0x1000, "ur_vod.png"); // отметка уреза воды
-  render_im_in_points(0x6508, "por.png"); // порог
-  render_im_in_points(0x650E, "vdp.png"); // водопад
-  render_im_in_points(0x0F00, hr?"trig_hr.png":"trig.png");
-  render_im_in_points(0x2C04, "pam.png");
-  render_im_in_points(0x2C0B, "cerkov.png");
-  render_im_in_points(0x2F08, "avt.png");
-  render_im_in_points(0x5905, "zd.png");
-  render_im_in_points(0x6406, "per.png");
-  render_im_in_points(0x6620, "pernk.png");
-  render_im_in_points(0x6621, "per1a.png");
-  render_im_in_points(0x6622, "per1b.png");
-  render_im_in_points(0x6623, "per2a.png");
-  render_im_in_points(0x6624, "per2b.png");
-  render_im_in_points(0x6625, "per3a.png");
-  render_im_in_points(0x6626, "per3b.png");
-  render_im_in_points(0x660B, "kan.png");
-  render_im_in_points(0x650A, "ldp.png");
-  render_im_in_points(0x6403, "kladb.png");
-  render_im_in_points(0x6411, "bash.png");
-  render_im_in_points(0x6415, "razv.png");
-  render_im_in_points(0x640C, "shaht.png");
-  render_im_in_points(0x6603, "yama.png");
-  render_im_in_points(0x6606, "ohotn.png");
-  render_im_in_points(0x6613, "pupyr.png");
-  render_im_in_points(0x6616, "skala.png");
-  render_im_in_polygons(0x1A, "cross.png"); // крестики на кладбищах
+  render_im_in_points(0x6402); // дом
+  render_im_in_points(0x1000); // отметка уреза воды
+  render_im_in_points(0x6508); // порог
+  render_im_in_points(0x650E); // водопад
+  render_im_in_points(0x0F00);
+  render_im_in_points(0x2C04);
+  render_im_in_points(0x2C0B);
+  render_im_in_points(0x2F08);
+  render_im_in_points(0x5905);
+  render_im_in_points(0x6406);
+  render_im_in_points(0x6620);
+  render_im_in_points(0x6621);
+  render_im_in_points(0x6622);
+  render_im_in_points(0x6623);
+  render_im_in_points(0x6624);
+  render_im_in_points(0x6625);
+  render_im_in_points(0x6626);
+  render_im_in_points(0x660B);
+  render_im_in_points(0x650A);
+  render_im_in_points(0x6403);
+  render_im_in_points(0x6411);
+  render_im_in_points(0x6415);
+  render_im_in_points(0x640C);
+  render_im_in_points(0x6603);
+  render_im_in_points(0x6606);
+  render_im_in_points(0x6613);
+  render_im_in_points(0x6616);
+  render_img_polygons(0x1A); // крестики на кладбищах
 
 }
 
@@ -844,8 +855,6 @@ VMAPRenderer::render_holes(Conv & cnv){
 void
 VMAPRenderer::render_labels(){
   cr->save();
-
-  zn::zn_conv zc(W->style);
 
   for (int pass=1; pass<=2; pass++){
 

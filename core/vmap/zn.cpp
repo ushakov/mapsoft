@@ -282,17 +282,21 @@ zn_conv::zn_conv(const string & style){
           struct stat st_buf;
           string g_pd="/usr/share/mapsoft/pics/";
           string l_pd="./pics/";
-          if (stat((g_pd+z.pic).c_str(), &st_buf) == 0)
-            z.pic=g_pd+z.pic;
-          else if (stat((l_pd+z.pic).c_str(), &st_buf) == 0)
+          if (stat((l_pd+z.pic+".fig").c_str(), &st_buf) == 0)
             z.pic=l_pd+z.pic;
+          else if (stat((g_pd+z.pic+".fig").c_str(), &st_buf) == 0)
+            z.pic=g_pd+z.pic;
           else {
             cerr << "Error while reading " << conf_file << ": "
-                 << "can't find zn picture " << z.pic
-                 << " in " << g_pd << " or " << l_pd << "\n";
+                 << "can't find zn picture " << z.pic << ".fig"
+                 << " in " << l_pd << " or " << g_pd << "\n";
             exit(1);
           }
         }
+        continue;
+      }
+      if (key=="pic_type"){
+        z.pic_type = val;
         continue;
       }
 
@@ -614,9 +618,10 @@ zn_conv::make_pic(const fig::fig_object & fig, int type){
   map<int, zn>::const_iterator z = find_type(type);
   if (z == znaki.end()) return ret;
   if (z->second.pic=="") return ret; // нет картинки
+  if ((type & area_mask) || (type & line_mask)) return ret;
 
   fig::fig_world PIC;
-  if (!fig::read(z->second.pic.c_str(), PIC)) return ret; // нет картинки
+  if (!fig::read((z->second.pic+".fig").c_str(), PIC)) return ret; // нет картинки
 
   for (fig::fig_world::iterator i = PIC.begin(); i!=PIC.end(); i++){
     (*i) += fig[0];
