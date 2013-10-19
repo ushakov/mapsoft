@@ -188,12 +188,30 @@ filter(geo_data & world, const Options & opt){
     }
   }
 
-  //join maps by default:
-  if (world.maps.size()>1){
-    vector<g_map_list>::iterator ml0 = world.maps.begin(), ml=ml0+1;
-    while (ml!=world.maps.end()){
-      ml0->insert(ml0->begin(), ml->begin(), ml->end());
-      ml=world.maps.erase(ml);
+  //join maps:
+  if (opt.exists("join_maps") && world.maps.size()>1){
+    vector<g_map_list>::iterator l0 = world.maps.begin(), l=l0+1;
+    while (l!=world.maps.end()){
+      l0->insert(l0->begin(), l->begin(), l->end());
+      l=world.maps.erase(l);
+    }
+  }
+
+  //join wpts:
+  if (opt.exists("join_wpts") && world.wpts.size()>1){
+    vector<g_waypoint_list>::iterator l0 = world.wpts.begin(), l=l0+1;
+    while (l!=world.wpts.end()){
+      l0->insert(l0->begin(), l->begin(), l->end());
+      l=world.wpts.erase(l);
+    }
+  }
+
+  //join trks:
+  if (opt.exists("join_trks") && world.trks.size()>1){
+    vector<g_track>::iterator l0 = world.trks.begin(), l=l0+1;
+    while (l!=world.trks.end()){
+      l0->insert(l0->begin(), l->begin(), l->end());
+      l=world.trks.erase(l);
     }
   }
 

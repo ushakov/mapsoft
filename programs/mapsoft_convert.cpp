@@ -36,6 +36,9 @@ static struct ext_option options[] = {
   {"skip",                  1,'s', OPT1, "skip data, \"wmtao\" (w - waypoints, m - maps, t - tracks, a - active log, o - save tracks)"},
   {"gen_n",                 1,  0, OPT1, "reduce track points to n"},
   {"gen_e",                 1,  0, OPT1, "reduce track points up to accuracy e [meters] (when gen_n and gen_e both used it means: \"remove points while number of points > n OR accuracy < e\""},
+  {"join_maps",             0,  0, OPT1, "join all maps into one group"},
+  {"join_wpts",             0,  0, OPT1, "join all waypoints into one group"},
+  {"join_trks",             0,  0, OPT1, "join all tracks into one"},
 
   {"geom",          1,  0, OPT2, ""},
   {"datum",         1,  0, OPT2, ""},
