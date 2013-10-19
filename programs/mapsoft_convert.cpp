@@ -32,6 +32,7 @@ static struct ext_option options[] = {
   {"shift_maps",            1,  0, OPT1, "shift map references, \"x,y\""},
   {"rescale_maps",          1,  0, OPT1, "rescale map references"},
   {"map_nom_brd",           0,  0, OPT1, "set map borders according to map name"},
+  {"map_ref_brd",           0,  0, OPT1, "set map borders according to map refpoints"},
   {"skip",                  1,'s', OPT1, "skip data, \"wmtao\" (w - waypoints, m - maps, t - tracks, a - active log, o - save tracks)"},
   {"gen_n",                 1,  0, OPT1, "reduce track points to n"},
   {"gen_e",                 1,  0, OPT1, "reduce track points up to accuracy e [meters] (when gen_n and gen_e both used it means: \"remove points while number of points > n OR accuracy < e\""},

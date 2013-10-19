@@ -1,6 +1,7 @@
 #include "io.h"
 #include "geo/geo_convs.h"
 #include "geo/geo_nom.h"
+#include "2d/line_utils.h"
 
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/spirit/include/classic_assign_actor.hpp>
@@ -10,6 +11,7 @@ namespace io{
 
 using namespace std;
 
+// set map border from its nomenclature name
 void map_nom_brd(geo_data & world, const Options & O){
   if (O.exists("verbose")) cerr << "map_nom_brd filter" << endl;
   vector<g_map_list>::iterator ml_i;
@@ -39,6 +41,22 @@ void map_nom_brd(geo_data & world, const Options & O){
       brd.push_back(dPoint(lon1,lat1));
       brd.push_back(dPoint(lon1,lat2));
       i->border = conv.line_bck(brd);
+    }
+  }
+}
+
+// set map border from its reference points
+void map_ref_brd(geo_data & world, const Options & O){
+  if (O.exists("verbose")) cerr << "map_ref_brd filter" << endl;
+  vector<g_map_list>::iterator ml_i;
+  vector<g_map>::iterator i;
+  for (ml_i = world.maps.begin(); ml_i!=world.maps.end(); ml_i++){
+    for (i = ml_i->begin(); i!=ml_i->end(); i++){
+      g_map::const_iterator p;
+      dLine points;
+      for (p=i->begin(); p!=i->end(); p++)
+        points.push_back(dPoint(p->xr, p->yr));
+      i->border = convex_border(points);
     }
   }
 }
@@ -152,6 +170,10 @@ filter(geo_data & world, const Options & opt){
 
   if (opt.exists("map_nom_brd")){
     io::map_nom_brd(world, opt);
+  }
+
+  if (opt.exists("map_ref_brd")){
+    io::map_ref_brd(world, opt);
   }
 
   if (opt.exists("skip")){
