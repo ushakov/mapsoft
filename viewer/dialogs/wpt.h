@@ -9,7 +9,7 @@
 class DlgWpt : public Gtk::Dialog{
     CoordBox * coord;
     Gtk::ColorButton *fg, *bg;
-    Gtk::Entry *name, *comm, *alt;
+    Gtk::Entry *name, *comm, *alt, *time;
     Gtk::SpinButton *fs, *ps;
     Gtk::Adjustment fs_adj, ps_adj;
 
