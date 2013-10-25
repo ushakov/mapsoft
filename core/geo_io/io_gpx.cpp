@@ -55,6 +55,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
          << "   <ele>"  << wp->z << "</ele>" << endl
          << "   <name>" << wp->name << "</name>" << endl
          << "   <cmt>"  << wp->comm << "</cmt>" << endl
+         << "   <time>" << time_s2gpx(wp->t) << "</time>" << endl
          << "</wpt>" << endl;
     }
   }
@@ -97,7 +98,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
 int
 read_wpt_node(xmlTextReaderPtr reader, geo_data & world){
   g_waypoint wpt;
-  bool is_ele = false, is_name=false, is_comm=false;
+  bool is_ele = false, is_name=false, is_comm=false, is_time=false;
 
   wpt.y = atof(GETATTR("lat"));
   wpt.x = atof(GETATTR("lon"));
@@ -122,6 +123,10 @@ read_wpt_node(xmlTextReaderPtr reader, geo_data & world){
       if (type == TYPE_ELEM) is_comm = true;
       if (type == TYPE_ELEM_END) is_comm = false;
     }
+    else if (NAMECMP("time")){
+      if (type == TYPE_ELEM) is_time = true;
+      if (type == TYPE_ELEM_END) is_time = false;
+    }
 
     else if (type == TYPE_TEXT){
       if (is_ele)
@@ -130,6 +135,8 @@ read_wpt_node(xmlTextReaderPtr reader, geo_data & world){
         wpt.name = GETVAL;
       if (is_comm)
         wpt.comm = GETVAL;
+      if (is_time)
+        wpt.t = time_gpx2s(GETVAL);
     }
 
     else if (NAMECMP("wpt") && (type == TYPE_ELEM_END)){
