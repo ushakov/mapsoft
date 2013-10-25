@@ -43,6 +43,10 @@ mkprojstr(const Datum & D, const Proj & P, const Options & o){
        projpar << " +ellps=intl +towgs84=-90.7,-106.1,-119.2,4.09,0.218,-1.05,1.37";
     else if (D==Datum("sphere"))
        projpar << " +ellps=sphere";
+    // http://spatial-analyst.net/wiki/index.php?title=MGI_/_Balkans_coordinate_systems
+    else if (D==Datum("balkans"))
+       projpar << " +ellps=bessel +towgs84=550.499,164.116,475.142,5.80967,2.07902,-11.62386,0.99999445824";
+
     else projpar << " +datum=" << D;
 
     Enum::output_fmt = old_enum_fmt;
