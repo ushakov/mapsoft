@@ -88,9 +88,11 @@ public:
     void clear_world();
     // build geo_data object with all/visible data
     geo_data get_world(bool visible=true);
-    Conv* get_cnv() {return workplane.get_cnv();}
 
     void set_ref(const g_map & ref);
+    const convs::map2wgs* get_cnv() {return workplane.get_cnv();}
+    void rescale(double k){ workplane.rescale(k);}
+
     void goto_wgs(dPoint p);
     void exit(bool force=false);
     void refresh();

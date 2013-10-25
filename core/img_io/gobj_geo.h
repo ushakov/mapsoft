@@ -30,7 +30,7 @@ public:
   virtual void  set_ref(const g_map & ref_){
     ref=ref_; cnv=convs::map2wgs(ref); refresh(); }
   virtual const g_map* get_ref() const {return &ref;}
-  virtual convs::map2wgs * get_cnv() {return &cnv;}
+  virtual const convs::map2wgs * get_cnv() {return &cnv;}
   virtual void  rescale(double k){set_ref(ref*k);}
 
   virtual void refresh() {} /// Refresh layer.

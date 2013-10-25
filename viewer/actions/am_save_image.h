@@ -215,10 +215,10 @@ std::cerr << "MPP SCALE " << sc << "\n";
       }
       else{
         mytlc/=sc;
-        mapview->get_cnv()->rescale_src(1/sc);
+        mapview->rescale(1/sc);
         mapview->layer_maps.gobj.refresh();
         mapview->layer_maps.gobj.draw(image, mytlc);
-        mapview->get_cnv()->rescale_src(sc);
+        mapview->rescale(sc);
         mapview->layer_maps.gobj.refresh();
       }
 
