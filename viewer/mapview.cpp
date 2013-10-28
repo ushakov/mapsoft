@@ -392,8 +392,7 @@ Mapview::on_button_release (GdkEventButton * event) {
     Gdk::ModifierType state;
     viewer.get_window()->get_pointer(p.x,p.y,state);
     if (pdist(click_start, viewer.get_origin()) > 5) return true;
-    p += viewer.get_origin();
-    action_manager->click(p, state);
+    action_manager->click(p+click_start, state);
     return true;
   }
   return false;
