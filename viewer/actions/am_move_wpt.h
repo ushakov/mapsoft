@@ -22,7 +22,7 @@ public:
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
         if (mystate==0){ // select point
-          int pt_num=mapview->layer_wpts.panel.find_wpt(p, &layer);
+          int pt_num=mapview->panel_wpts.find_wpt(p, &layer);
           if (pt_num < 0) return;
 
           wpt = layer->get_pt(pt_num);
@@ -35,7 +35,7 @@ public:
           layer->get_cnv()->frw(pt);
           wpt->dPoint::operator=(pt);
           mapview->set_changed();
-          mapview->layer_wpts.gobj.refresh_gobj(layer);
+          mapview->panel_wpts.refresh_gobj(layer);
           mapview->rubber.clear();
           abort();
         }

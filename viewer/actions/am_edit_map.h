@@ -22,7 +22,7 @@ public:
       if (redraw)
         dlg.hide_all();
       if (mark_gobj){
-        mapview->layer_maps.gobj.remove_gobj(mark_gobj.get());
+        mapview->panel_maps.Workplane::remove_gobj(mark_gobj.get());
         if (redraw) mapview->viewer.redraw();
       }
       mark_gobj.reset();
@@ -32,7 +32,7 @@ public:
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
 
       // find map
-      map_num=mapview->layer_maps.panel.find_map(p, &layer);
+      map_num=mapview->panel_maps.find_map(p, &layer);
       if (map_num < 0) return;
       g_map * m = layer->get_map(map_num); 
       reset(false);
@@ -46,7 +46,7 @@ public:
       mark_gobj->show_ref();
       mark_gobj->hide_map();
       mark_gobj->set_ref(*layer->get_ref());
-      mapview->layer_maps.gobj.add_gobj(mark_gobj.get(), 50);
+      mapview->panel_maps.Workplane::add_gobj(mark_gobj.get(), 50);
       mapview->viewer.redraw();
 
       // show dialog
@@ -66,8 +66,8 @@ private:
       if ((map_num<0) || (r!=Gtk::RESPONSE_OK)) return;
       dlg.dlg2map(layer->get_map(map_num));
       mapview->set_changed();
-      mapview->layer_maps.gobj.refresh_gobj(layer);
-      mapview->layer_maps.panel.upd_comm(layer, false); // move comm to ll
+      mapview->panel_maps.refresh_gobj(layer);
+      mapview->panel_maps.upd_comm(layer, false); // move comm to ll
     }
 
 };

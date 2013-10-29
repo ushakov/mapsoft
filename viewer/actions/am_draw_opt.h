@@ -14,7 +14,7 @@ public:
         sigc::bind(sigc::mem_fun (this, &DrawOpt::on_response),1));
 
       dlg.set_title(get_name());
-      dlg.set_opt(mapview->layer_options);
+      dlg.set_opt(mapview->panel_options);
     }
 
     std::string get_name() { return "Track drawing options"; }
@@ -28,18 +28,18 @@ public:
 
     void on_response(int r){
       Options o = dlg.get_opt();
-      if (r==Gtk::RESPONSE_OK) mapview->layer_options = o;
-      if (r==Gtk::RESPONSE_CANCEL) o = mapview->layer_options;
+      if (r==Gtk::RESPONSE_OK) mapview->panel_options = o;
+      if (r==Gtk::RESPONSE_CANCEL) o = mapview->panel_options;
 
       Gtk::TreeNodeChildren::const_iterator i;
-      for (i  = mapview->layer_trks.panel.store->children().begin();
-           i != mapview->layer_trks.panel.store->children().end(); i++){
+      for (i  = mapview->panel_trks.store->children().begin();
+           i != mapview->panel_trks.store->children().end(); i++){
         boost::shared_ptr<GObjTRK> gobj=
-          (*i)[mapview->layer_trks.panel.columns.layer];
+          (*i)[mapview->panel_trks.columns.layer];
         gobj->set_opt(o);
-        mapview->layer_trks.gobj.refresh_gobj(gobj.get(), false);
+        mapview->panel_trks.refresh_gobj(gobj.get(), false);
       }
-      mapview->layer_trks.gobj.signal_refresh.emit();
+      mapview->panel_trks.signal_refresh.emit();
       if (r<0) dlg.hide_all();
     }
 

@@ -19,7 +19,7 @@ public:
     void abort() {dlg.hide_all();}
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      int d = mapview->layer_trks.panel.find_tpt(p, &gobj, true);
+      int d = mapview->panel_trks.find_tpt(p, &gobj, true);
       if (d < 0) return;
       g_track * track = gobj->get_data();
 
@@ -35,8 +35,8 @@ private:
       if (r!=Gtk::RESPONSE_OK) return;
       dlg.dlg2trk(gobj->get_data());
       mapview->set_changed();
-      mapview->layer_trks.gobj.refresh_gobj(gobj);
-      mapview->layer_trks.panel.upd_comm(gobj, false); // move comm to layerlist
+      mapview->panel_trks.refresh_gobj(gobj);
+      mapview->panel_trks.upd_comm(gobj, false); // move comm to layerlist
     }
 };
 

@@ -21,7 +21,7 @@ public:
     void abort() { dlg.hide_all(); }
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      pt_num=mapview->layer_wpts.panel.find_wpt(p, &layer);
+      pt_num=mapview->panel_wpts.find_wpt(p, &layer);
       if (pt_num < 0) return;
 
       g_waypoint * wpt = layer->get_pt(pt_num);
@@ -39,7 +39,7 @@ private:
       if ((pt_num<0) || (r!=Gtk::RESPONSE_OK)) return;
       dlg.dlg2wpt(layer->get_pt(pt_num));
       mapview->set_changed();
-      mapview->layer_wpts.gobj.refresh_gobj(layer);
+      mapview->panel_wpts.refresh_gobj(layer);
     }
 
     void on_jump(dPoint p){

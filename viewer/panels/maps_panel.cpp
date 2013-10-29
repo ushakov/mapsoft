@@ -1,6 +1,6 @@
 #include "maps_panel.h"
 
-MapLL::MapLL () {
+PanelMAP::PanelMAP () {
   store = Gtk::ListStore::create(columns);
   set_model(store);
   append_column_editable("V", columns.checked);
@@ -18,7 +18,7 @@ MapLL::MapLL () {
 }
 
 void
-MapLL::add_gobj (const boost::shared_ptr<GObjMAP> layer,
+PanelMAP::add_gobj (const boost::shared_ptr<GObjMAP> layer,
                  const boost::shared_ptr<g_map_list> data) {
   Gtk::TreeModel::iterator it = store->append();
   Gtk::TreeModel::Row row = *it;
@@ -36,7 +36,7 @@ MapLL::add_gobj (const boost::shared_ptr<GObjMAP> layer,
 }
 
 void
-MapLL::remove_gobj (const GObjMAP * L){
+PanelMAP::remove_gobj (GObjMAP * L){
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = store->children().begin();
        i != store->children().end(); i++){
@@ -45,10 +45,18 @@ MapLL::remove_gobj (const GObjMAP * L){
     store->erase(i);
     break;
   }
+  Workplane::remove_gobj(L);
+}
+void
+PanelMAP::remove_selected(){
+  Gtk::TreeModel::iterator it = get_selection()->get_selected();
+  if (!it) return;
+  Workplane::remove_gobj(it->get_value(columns.layer).get());
+  store->erase(it);
 }
 
 void
-MapLL::get_data(geo_data & world, bool visible) const{
+PanelMAP::get_data(geo_data & world, bool visible) const{
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = store->children().begin();
        i != store->children().end(); i++){
@@ -59,7 +67,7 @@ MapLL::get_data(geo_data & world, bool visible) const{
 }
 
 GObjMAP *
-MapLL::find_gobj() const{
+PanelMAP::find_gobj() const{
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = store->children().begin();
        i != store->children().end(); i++){
@@ -71,7 +79,7 @@ MapLL::find_gobj() const{
 }
 
 int
-MapLL::find_map(const iPoint & p, GObjMAP ** gobj) const{
+PanelMAP::find_map(const iPoint & p, GObjMAP ** gobj) const{
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = store->children().begin();
        i != store->children().end(); i++){
@@ -86,7 +94,7 @@ MapLL::find_map(const iPoint & p, GObjMAP ** gobj) const{
 }
 
 bool
-MapLL::upd_wp (Workplane & wp, int & d) const {
+PanelMAP::upd_wp (Workplane & wp, int & d) const {
   bool ret=false;
   Gtk::TreeNodeChildren::const_iterator i;
   for (i = store->children().begin();
@@ -110,7 +118,7 @@ MapLL::upd_wp (Workplane & wp, int & d) const {
 }
 
 bool
-MapLL::upd_comm(GObjMAP * sel_gobj, bool dir){
+PanelMAP::upd_comm(GObjMAP * sel_gobj, bool dir){
   bool ret=false;
   Gtk::TreeNodeChildren::const_iterator i;
   for (i = store->children().begin();

@@ -11,7 +11,7 @@ public:
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       // find map
       GObjMAP * gobj;
-      int map_num = mapview->layer_maps.panel.find_map(p, &gobj);
+      int map_num = mapview->panel_maps.find_map(p, &gobj);
       if (map_num < 0) return;
 
       dPoint pw(p); mapview->get_cnv()->frw(pw);

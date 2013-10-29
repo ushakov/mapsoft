@@ -21,7 +21,7 @@ public:
     void abort() {dlg.hide_all();}
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
-      int pt_num = mapview->layer_trks.panel.find_tpt(p, &gobj);
+      int pt_num = mapview->panel_trks.find_tpt(p, &gobj);
       if (pt_num < 0) return;
       tpt = gobj->get_pt(pt_num);
       dlg.tpt2dlg(tpt);
@@ -37,7 +37,7 @@ private:
       if (r!=Gtk::RESPONSE_OK) return;
       dlg.dlg2tpt(tpt);
       mapview->set_changed();
-      mapview->layer_trks.gobj.refresh_gobj(gobj);
+      mapview->panel_trks.refresh_gobj(gobj);
     }
     void on_jump(dPoint p){
       mapview->get_cnv()->bck(p);

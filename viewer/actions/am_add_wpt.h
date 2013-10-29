@@ -49,12 +49,12 @@ private:
       if (r == Gtk::RESPONSE_OK){
         dlg.dlg2wpt(&wpt);
         // try to find active wpt gobj
-        GObjWPT * gobj = mapview->layer_wpts.panel.find_gobj();
+        GObjWPT * gobj = mapview->panel_wpts.find_gobj();
         if (gobj){
           g_waypoint_list * wpts = gobj->get_data();
           wpts->push_back(wpt);
           mapview->set_changed();
-          mapview->layer_wpts.gobj.refresh_gobj(gobj);
+          mapview->panel_wpts.refresh_gobj(gobj);
           abort();
           return;
         }

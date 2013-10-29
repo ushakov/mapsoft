@@ -17,10 +17,10 @@
 #include "dialogs/ch_conf.h"
 #include "dialogs/err.h"
 
-#include "layers/wpts.h"
-#include "layers/trks.h"
-#include "layers/maps.h"
-#include "layers/srtm.h"
+#include "panels/wpts_panel.h"
+#include "panels/trks_panel.h"
+#include "panels/maps_panel.h"
+#include "panels/srtm.h"
 #include "img_io/gobj_srtm.h"
 
 #define ACCEL_FILE ".mapsoft/accel"
@@ -29,13 +29,13 @@ class Mapview : public Gtk::Window {
 public:
     DThreadViewer viewer;
     Rubber        rubber;
-    GObjComp      workplane;
+    GObjComp      panels;
 
     srtm3 srtm;
-    LayerTRKs layer_trks;
-    LayerWPTs layer_wpts;
-    LayerMAPs layer_maps;
-    LayerSRTMs layer_srtm;
+    PanelTRK  panel_trks;
+    PanelWPT  panel_wpts;
+    PanelMAP  panel_maps;
+    PanelSRTM panel_srtm;
 
     GObjSRTM  gobj_srtm;
 
@@ -51,7 +51,7 @@ public:
     DlgChConf dlg_ch_conf;
     DlgErr dlg_err;
 
-    Options layer_options;
+    Options panel_options;
 
 private:
     boost::shared_ptr<ActionManager> action_manager;
@@ -63,7 +63,7 @@ public:
 
     Mapview ();
 
-    void layer_edited (const Gtk::TreeModel::Path& path,
+    void panel_edited (const Gtk::TreeModel::Path& path,
                        const Gtk::TreeModel::iterator& iter);
 
     void update_gobjs();
@@ -88,8 +88,8 @@ public:
     geo_data get_world(bool visible=true);
 
     void set_ref(const g_map & ref);
-    const convs::map2wgs* get_cnv() {return workplane.get_cnv();}
-    void rescale(double k){ workplane.rescale(k);}
+    const convs::map2wgs* get_cnv() {return panels.get_cnv();}
+    void rescale(double k){ panels.rescale(k);}
 
     void goto_wgs(dPoint p);
     void exit(bool force=false);

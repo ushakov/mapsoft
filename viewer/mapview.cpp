@@ -13,19 +13,19 @@ using namespace std;
 Mapview::Mapview () :
     have_reference(false),
     divert_refresh(false),
-    viewer(&workplane),
+    viewer(&panels),
     rubber(&viewer),
     srtm("",20),
     gobj_srtm(&srtm)
 {
 
     /// layer drawing options (set before Action constructors)
-    layer_options.put("trk_draw_dots", "");
-    layer_options.put("trk_draw_arrows", "");
-    layer_options.put("trk_draw_v1", 0);
-    layer_options.put("trk_draw_v2", 10);
-    layer_options.put("trk_draw_h1", 0);
-    layer_options.put("trk_draw_h2", 1000);
+    panel_options.put("trk_draw_dots", "");
+    panel_options.put("trk_draw_arrows", "");
+    panel_options.put("trk_draw_v1", 0);
+    panel_options.put("trk_draw_v2", 10);
+    panel_options.put("trk_draw_h1", 0);
+    panel_options.put("trk_draw_h2", 1000);
 
     /// window initialization
     signal_delete_event().connect_notify (
@@ -43,28 +43,28 @@ Mapview::Mapview () :
     viewer.signal_scroll_event().connect(
       sigc::mem_fun (this, &Mapview::on_scroll));
 
-    /// events from workplane -> move to viewer?
-    layer_wpts.gobj.signal_refresh.connect (
+    /// events from panels -> move to viewer?
+    panel_wpts.signal_refresh.connect (
       sigc::mem_fun (this, &Mapview::refresh));
-    layer_trks.gobj.signal_refresh.connect (
+    panel_trks.signal_refresh.connect (
       sigc::mem_fun (this, &Mapview::refresh));
-    layer_maps.gobj.signal_refresh.connect (
+    panel_maps.signal_refresh.connect (
       sigc::mem_fun (this, &Mapview::refresh));
-    layer_srtm.gobj.signal_refresh.connect (
+    panel_srtm.signal_refresh.connect (
       sigc::mem_fun (this, &Mapview::refresh));
 
-    workplane.push_back(layer_srtm.get_gobj());
-    workplane.push_back(layer_maps.get_gobj());
-    workplane.push_back(layer_trks.get_gobj());
-    workplane.push_back(layer_wpts.get_gobj());
+    panels.push_back((panels *) &panel_srtm);
+    panels.push_back((panels *) &panel_maps);
+    panels.push_back((panels *) &panel_trks);
+    panels.push_back((panels *) &panel_wpts);
 
     /// events from layer lists
-    layer_wpts.panel.store->signal_row_changed().connect (
-      sigc::mem_fun (this, &Mapview::layer_edited));
-    layer_trks.panel.store->signal_row_changed().connect (
-      sigc::mem_fun (this, &Mapview::layer_edited));
-    layer_maps.panel.store->signal_row_changed().connect (
-      sigc::mem_fun (this, &Mapview::layer_edited));
+    panel_wpts.store->signal_row_changed().connect (
+      sigc::mem_fun (this, &Mapview::panel_edited));
+    panel_trks.store->signal_row_changed().connect (
+      sigc::mem_fun (this, &Mapview::panel_edited));
+    panel_maps.store->signal_row_changed().connect (
+      sigc::mem_fun (this, &Mapview::panel_edited));
 
     /// events from viewer
     viewer.signal_busy().connect(
@@ -140,7 +140,7 @@ Mapview::Mapview () :
 }
 
 void
-Mapview::layer_edited (const Gtk::TreeModel::Path& path,
+Mapview::panel_edited (const Gtk::TreeModel::Path& path,
                    const Gtk::TreeModel::iterator& iter) {
   update_gobjs();
 }
@@ -153,16 +153,16 @@ Mapview::update_gobjs() {
   // update layer depth and visibility in workplane
   bool ch = false;
   int d=DEPTH_DATA0;
-  ch = layer_wpts.panel.upd_wp(layer_wpts.gobj, d) || ch;
-  ch = layer_trks.panel.upd_wp(layer_trks.gobj, d) || ch;
-  ch = layer_maps.panel.upd_wp(layer_maps.gobj, d) || ch;
+  ch = panel_wpts.upd_wp(panel_wpts, d) || ch;
+  ch = panel_trks.upd_wp(panel_trks, d) || ch;
+  ch = panel_maps.upd_wp(panel_maps, d) || ch;
   if (ch) refresh();
 
   // update comments in data
   ch = false;
-  ch = layer_wpts.panel.upd_comm() || ch;
-  ch = layer_trks.panel.upd_comm() || ch;
-  ch = layer_maps.panel.upd_comm() || ch;
+  ch = panel_wpts.upd_comm() || ch;
+  ch = panel_trks.upd_comm() || ch;
+  ch = panel_maps.upd_comm() || ch;
   if (ch) set_changed();
 }
 
@@ -242,29 +242,29 @@ Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> & data) {
   // note correct order:
   // - put layer to the workplane
   // - set layer/or mapview ref (layer ref is set through workplane)
-  // - put layer to LayerList (layer_edited call, workplane refresh)
+  // - put layer to LayerList (panel_edited call, workplane refresh)
   // depth is set to DEPTH_DATA0 to evoke refresh!
   boost::shared_ptr<GObjWPT> layer(new GObjWPT(data.get()));
-  layer_wpts.gobj.add_gobj(layer.get(), DEPTH_DATA0);
+//  panel_wpts.Workplane::add_gobj(layer.get(), DEPTH_DATA0);
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
-  layer_wpts.panel.add_gobj(layer, data);
+  panel_wpts.add_gobj(layer, data);
 }
 void
 Mapview::add_trks(const boost::shared_ptr<g_track> & data) {
-  boost::shared_ptr<GObjTRK> layer(new GObjTRK(data.get(), layer_options));
-  layer_trks.gobj.add_gobj(layer.get(), DEPTH_DATA0);
+  boost::shared_ptr<GObjTRK> layer(new GObjTRK(data.get(), panel_options));
+//  panel_trks.Workplane::add_gobj(layer.get(), DEPTH_DATA0);
   // if we already have reference, use it
   if (!have_reference) set_ref(layer->get_myref());
-  layer_trks.panel.add_gobj(layer, data);
+  panel_trks.add_gobj(layer, data);
 }
 void
 Mapview::add_maps(const boost::shared_ptr<g_map_list> & data) {
-  boost::shared_ptr<GObjMAP> layer(new GObjMAP(data.get(), layer_options));
-  layer_maps.gobj.add_gobj(layer.get(), DEPTH_DATA0);
+  boost::shared_ptr<GObjMAP> layer(new GObjMAP(data.get(), panel_options));
+//  panel_maps.Workplane::add_gobj(layer.get(), DEPTH_DATA0);
   // for maps always reset reference
   set_ref(layer->get_myref());
-  layer_maps.panel.add_gobj(layer, data);
+  panel_maps.add_gobj(layer, data);
 }
 
 void
@@ -298,9 +298,9 @@ Mapview::add_world(const geo_data & world, bool scroll) {
 void
 Mapview::clear_world() {
   divert_refresh=true;
-  layer_wpts.clear();
-  layer_trks.clear();
-  layer_maps.clear();
+  panel_wpts.clear();
+  panel_trks.clear();
+  panel_maps.clear();
   have_reference = false;
   divert_refresh=false;
   update_gobjs();
@@ -309,16 +309,16 @@ Mapview::clear_world() {
 geo_data
 Mapview::get_world(bool visible){
   geo_data world;
-  layer_maps.panel.get_data(world, visible);
-  layer_trks.panel.get_data(world, visible);
-  layer_wpts.panel.get_data(world, visible);
+  panel_maps.get_data(world, visible);
+  panel_trks.get_data(world, visible);
+  panel_wpts.get_data(world, visible);
   return world;
 }
 
 void
 Mapview::set_ref(const g_map & ref){
   if (ref.size()==0) return;
-  workplane.set_ref(ref);
+  panels.set_ref(ref);
   have_reference=true;
 }
 
@@ -417,16 +417,16 @@ Mapview::hide_busy_mark(void){
 
 void
 Mapview::show_srtm(bool show){
-  bool state = layer_srtm.gobj.exists(&gobj_srtm);
+  bool state = panel_srtm.exists(&gobj_srtm);
 
   if (state && !show){
     statusbar.push("SRTM OFF", 0);
-    layer_srtm.gobj.remove_gobj(&gobj_srtm);
+    panel_srtm.remove_gobj(&gobj_srtm);
     refresh();
   }
   else if (!state && show){
     statusbar.push("SRTM ON", 0);
-    layer_srtm.gobj.add_gobj(&gobj_srtm, DEPTH_SRTM);
+    panel_srtm.add_gobj(&gobj_srtm, DEPTH_SRTM);
   }
 }
 

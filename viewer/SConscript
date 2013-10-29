@@ -7,7 +7,6 @@ e.UseLibs('gred img_io geo_io mp srtm')
 
 e.Library("viewer", Split ("""
 	action_manager.cpp
-	workplane.cpp
 	dataview.cpp
 	mapview.cpp
 
@@ -33,9 +32,10 @@ e.Library("viewer", Split ("""
 	dialogs/pano.cpp
 	dialogs/nav.cpp
 
-	layers/wpts_panel.cpp
-	layers/trks_panel.cpp
-	layers/maps_panel.cpp
+	panels/workplane.cpp
+	panels/wpts_panel.cpp
+	panels/trks_panel.cpp
+	panels/maps_panel.cpp
         """))
 e.Prepend(LIBS=["viewer"])
 e.Program("mapsoft_mapview.cpp")

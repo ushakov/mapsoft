@@ -119,7 +119,7 @@ private:
     // find visible map in a given point and return scale
     double get_sc(const iPoint & p){
       GObjMAP *L;
-      int i = mapview->layer_maps.panel.find_map(p, &L);
+      int i = mapview->panel_maps.find_map(p, &L);
       if (L==NULL) return -1;
       return L->scale(p, i);
     }

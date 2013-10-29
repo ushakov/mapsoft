@@ -4,24 +4,23 @@
 #include <gtkmm.h>
 #include "img_io/gobj_trk.h"
 
-#include "../workplane.h"
+#include "workplane.h"
 #include "panel_cols.h"
 
-typedef LayerTabCols<GObjTRK, g_track>         TrkLLCols;
+typedef LayerTabCols<GObjTRK, g_track>         PanelTRKCols;
 
 /* Control panel for trks layer. */
 
-class TrkLL : public Gtk::TreeView {
+class PanelTRK : public Gtk::TreeView, public Workplane {
 public:
-    Glib::RefPtr<Gtk::ListStore> store;
-    TrkLLCols columns;
 
-    TrkLL ();
+    PanelTRK ();
 
     void add_gobj (const boost::shared_ptr<GObjTRK> layer,
                     const boost::shared_ptr<g_track> data);
 
-    void remove_gobj (const GObjTRK * L);
+    void remove_gobj (GObjTRK * L);
+    void remove_selected();
 
     void get_data(geo_data & world, bool visible) const;
 
@@ -38,11 +37,14 @@ public:
     int find_tpt(const iPoint & p, GObjTRK ** gobj,
                  const bool segment = false, int radius = 3) const;
 
-    void clear() {store->clear();}
+    void clear() {store->clear(); Workplane::clear();}
 
     bool upd_wp (Workplane & wp, int & d) const;
 
     bool upd_comm(GObjTRK * sel_gobj=NULL, bool dir=true);
+
+    Glib::RefPtr<Gtk::ListStore> store;
+    PanelTRKCols columns;
 };
 
 #endif

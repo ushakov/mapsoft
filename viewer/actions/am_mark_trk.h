@@ -24,7 +24,7 @@ public:
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       GObjTRK * gobj;
-      int d = mapview->layer_trks.panel.find_tpt(p, &gobj, true);
+      int d = mapview->panel_trks.find_tpt(p, &gobj, true);
       if (d < 0) return;
       track = gobj->get_data();
 

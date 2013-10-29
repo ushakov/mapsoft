@@ -23,32 +23,30 @@ public:
 
     void del_pt(const iPoint & p){
       GObjTRK * gobj;
-      int n = mapview->layer_trks.panel.find_tpt(p, &gobj);
+      int n = mapview->panel_trks.find_tpt(p, &gobj);
       if (n < 0) return;
       del_pt(gobj->get_data(), n);
       if (gobj->get_data()->size()==0){
-        mapview->layer_trks.gobj.remove_gobj(gobj);
-        mapview->layer_trks.panel.remove_gobj(gobj);
+        mapview->panel_trks.remove_gobj(gobj);
         mapview->refresh();
       }
       else
-        mapview->layer_trks.gobj.refresh_gobj(gobj);
+        mapview->panel_trks.refresh_gobj(gobj);
     }
 
     void del_pt(const iRect & r){
-      std::map<GObjTRK*, std::vector<int> > pts = mapview->layer_trks.panel.find_tpts(r);
+      std::map<GObjTRK*, std::vector<int> > pts = mapview->panel_trks.find_tpts(r);
       std::map<GObjTRK*, std::vector<int> >::iterator i;
       for (i=pts.begin(); i!=pts.end(); i++){
         std::vector<int> & nn = i->second;
         for (int j=nn.size()-1; j>=0; j--)
           del_pt(i->first->get_data(), nn[j]);
         if (i->first->get_data()->size()==0){
-          mapview->layer_trks.gobj.remove_gobj(i->first);
-          mapview->layer_trks.panel.remove_gobj(i->first);
+          mapview->panel_trks.remove_gobj(i->first);
           mapview->refresh();
         }
         else
-          mapview->layer_trks.gobj.refresh_gobj(i->first);
+          mapview->panel_trks.refresh_gobj(i->first);
       }
     }
 

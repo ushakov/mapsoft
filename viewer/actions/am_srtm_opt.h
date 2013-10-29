@@ -14,7 +14,7 @@ public:
         sigc::bind(sigc::mem_fun (this, &SrtmOpt::on_response),1));
 
       dlg.set_title(get_name());
-      dlg.set_opt(mapview->layer_options);
+      dlg.set_opt(mapview->panel_options);
     }
 
     std::string get_name() { return "SRTM layer"; }
@@ -43,9 +43,9 @@ public:
         if (r==Gtk::RESPONSE_CANCEL) mapview->show_srtm(false);
         dlg.hide_all();
       }
-      else if (mapview->layer_srtm.gobj.exists(&mapview->gobj_srtm)){
-         mapview->gobj_srtm.set_opt(dlg.get_opt());
-         mapview->layer_srtm.gobj.refresh_gobj(&mapview->gobj_srtm);
+      else if (mapview->panel_srtm.exists(&mapview->gobj_srtm)){
+         mapview->panel_srtm.set_opt(dlg.get_opt());
+         mapview->panel_srtm.refresh_gobj(&mapview->gobj_srtm);
       }
 
     }

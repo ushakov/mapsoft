@@ -4,21 +4,22 @@
 #include <gtkmm.h>
 #include "img_io/gobj_wpt.h"
 
-#include "../workplane.h"
+#include "workplane.h"
 #include "panel_cols.h"
 
-typedef LayerTabCols<GObjWPT, g_waypoint_list> WptLLCols;
+typedef LayerTabCols<GObjWPT, g_waypoint_list> PanelWPTCols;
 
 /* Control panel for wpts layer. */
 
-class WptLL : public Gtk::TreeView {
+class PanelWPT : public Gtk::TreeView, public Workplane {
 public:
-    WptLL ();
+    PanelWPT ();
 
     void add_gobj (const boost::shared_ptr<GObjWPT> layer,
                     const boost::shared_ptr<g_waypoint_list> data);
 
-    void remove_gobj (const GObjWPT * L);
+    void remove_gobj (GObjWPT * L);
+    void remove_selected();
 
     void get_data(geo_data & world, bool visible) const;
 
@@ -31,7 +32,7 @@ public:
     /* find waypoints in a rectangular area */
     std::map<GObjWPT*, std::vector<int> > find_wpts(const iRect & r) const;
 
-    void clear() {store->clear();}
+    void clear() {store->clear(); Workplane::clear();}
 
     // Update workplane data (visibility and depth)
     //   d is a starting depth of layers
@@ -42,7 +43,7 @@ public:
     bool upd_comm(GObjWPT * sel_gobj=NULL, bool dir=true);
 
     Glib::RefPtr<Gtk::ListStore> store;
-    WptLLCols columns;
+    PanelWPTCols columns;
 };
 
 #endif

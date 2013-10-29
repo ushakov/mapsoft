@@ -76,9 +76,9 @@ DataView::DataView (Mapview * M) : mapview(M) {
   Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
   Gtk::ScrolledWindow * scr_trk = manage(new Gtk::ScrolledWindow);
   Gtk::ScrolledWindow * scr_map = manage(new Gtk::ScrolledWindow);
-  scr_wpt->add(M->layer_wpts.panel);
-  scr_trk->add(M->layer_trks.panel);
-  scr_map->add(M->layer_maps.panel);
+  scr_wpt->add(M->panel_wpts);
+  scr_trk->add(M->panel_trks);
+  scr_map->add(M->panel_maps);
   scr_wpt->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
   scr_trk->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
   scr_map->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
@@ -109,26 +109,14 @@ DataView::layer_del(){
   Gtk::TreeModel::iterator it;
   switch (get_current_page()){
     case 0: // WPT
-      it = mapview->layer_wpts.panel.get_selection()->get_selected();
-      if (!it) break;
-      mapview->layer_wpts.gobj.remove_gobj(
-        it->get_value(mapview->layer_wpts.panel.columns.layer).get());
-      mapview->layer_wpts.panel.store->erase(it);
+      mapview->panel_wpts.remove_selected();
       break;
     case 1: // TRK
-      it = mapview->layer_trks.panel.get_selection()->get_selected();
-      if (!it) break;
-      mapview->layer_trks.gobj.remove_gobj(
-        it->get_value(mapview->layer_trks.panel.columns.layer).get());
-      mapview->layer_trks.panel.store->erase(it);
-    break;
+      mapview->panel_trks.remove_selected();
+      break;
     case 2: // MAP
-      it = mapview->layer_maps.panel.get_selection()->get_selected();
-      if (!it) break;
-      mapview->layer_maps.gobj.remove_gobj(
-        it->get_value(mapview->layer_maps.panel.columns.layer).get());
-      mapview->layer_maps.panel.store->erase(it);
-    break;
+      mapview->panel_maps.remove_selected();
+      break;
   }
   mapview->refresh();
 }
@@ -138,19 +126,19 @@ DataView::layer_jump(){
   Gtk::TreeModel::iterator it;
   switch (get_current_page()){
     case 0: // WPT
-      it = mapview->layer_wpts.panel.get_selection()->get_selected();
+      it = mapview->panel_wpts.get_selection()->get_selected();
       if (it) mapview->goto_wgs(
-        (*it->get_value(mapview->layer_wpts.panel.columns.layer)->get_data())[0]);
+        (*it->get_value(mapview->panel_wpts.columns.layer)->get_data())[0]);
       break;
     case 1: // TRK
-      it = mapview->layer_trks.panel.get_selection()->get_selected();
+      it = mapview->panel_trks.get_selection()->get_selected();
       if (it) mapview->goto_wgs(
-        (*it->get_value(mapview->layer_trks.panel.columns.layer)->get_data())[0]);
+        (*it->get_value(mapview->panel_trks.columns.layer)->get_data())[0]);
     break;
     case 2: // MAP
-      it = mapview->layer_maps.panel.get_selection()->get_selected();
+      it = mapview->panel_maps.get_selection()->get_selected();
       if (it) mapview->goto_wgs(
-        (*it->get_value(mapview->layer_maps.panel.columns.layer)->get_data())[0].center());
+        (*it->get_value(mapview->panel_maps.columns.layer)->get_data())[0].center());
     break;
   }
   mapview->refresh();
@@ -162,9 +150,9 @@ DataView::layer_move(bool up){
   Gtk::TreeView * tree;
   Glib::RefPtr<Gtk::ListStore> store;
   switch (get_current_page()){
-    case 0: tree = &mapview->layer_wpts.panel; store = mapview->layer_wpts.panel.store; break;
-    case 1: tree = &mapview->layer_trks.panel; store = mapview->layer_trks.panel.store; break;
-    case 2: tree = &mapview->layer_maps.panel; store = mapview->layer_maps.panel.store; break;
+    case 0: tree = &mapview->panel_wpts; store = mapview->panel_wpts.store; break;
+    case 1: tree = &mapview->panel_trks; store = mapview->panel_trks.store; break;
+    case 2: tree = &mapview->panel_maps; store = mapview->panel_maps.store; break;
   }
   it1 = it2 = tree->get_selection()->get_selected();
   if (!it1) return;
@@ -191,19 +179,19 @@ DataView::on_gobj_save(int r){
   Gtk::TreeModel::iterator it;
   switch (get_current_page()){
     case 0: // WPT
-      it = mapview->layer_wpts.panel.get_selection()->get_selected();
+      it = mapview->panel_wpts.get_selection()->get_selected();
       if (it) world.wpts.push_back(
-        *it->get_value(mapview->layer_wpts.panel.columns.layer)->get_data());
+        *it->get_value(mapview->panel_wpts.columns.layer)->get_data());
       break;
     case 1: // TRK
-      it = mapview->layer_trks.panel.get_selection()->get_selected();
+      it = mapview->panel_trks.get_selection()->get_selected();
       if (it) world.trks.push_back(
-        *it->get_value(mapview->layer_trks.panel.columns.layer)->get_data());
+        *it->get_value(mapview->panel_trks.columns.layer)->get_data());
     break;
     case 2: // MAP
-      it = mapview->layer_maps.panel.get_selection()->get_selected();
+      it = mapview->panel_maps.get_selection()->get_selected();
       if (it) world.maps.push_back(
-        *it->get_value(mapview->layer_maps.panel.columns.layer)->get_data());
+        *it->get_value(mapview->panel_maps.columns.layer)->get_data());
     break;
   }
   try { io::out(fname, world);}

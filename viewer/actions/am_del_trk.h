@@ -12,9 +12,8 @@ public:
 
     void handle_click(iPoint p, const Gdk::ModifierType & state) {
       GObjTRK *gobj;
-      if (mapview->layer_trks.panel.find_tpt(p, &gobj, true)<0) return;
-      mapview->layer_trks.gobj.remove_gobj(gobj);
-      mapview->layer_trks.panel.remove_gobj(gobj);
+      if (mapview->panel_trks.find_tpt(p, &gobj, true)<0) return;
+      mapview->panel_trks.remove_gobj(gobj);
       mapview->refresh();
     }
 };
