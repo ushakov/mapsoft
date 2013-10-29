@@ -45,8 +45,6 @@ public:
     Gtk::Image *busy_icon;
     DataView * dataview;
 
-    Proj cnv_proj;
-    Options proj_opts;
     bool have_reference;
     bool divert_refresh;
 

@@ -320,8 +320,6 @@ Mapview::set_ref(const g_map & ref){
   if (ref.size()==0) return;
   workplane.set_ref(ref);
   have_reference=true;
-  cnv_proj = ref.map_proj;
-  proj_opts = ref.proj_opts;
 }
 
 void
