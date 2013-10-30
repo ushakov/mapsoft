@@ -11,10 +11,12 @@ typedef LayerTabCols<GObjTRK, g_track>         PanelTRKCols;
 
 /* Control panel for trks layer. */
 
+class Mapview;
+
 class PanelTRK : public Gtk::TreeView, public Workplane {
 public:
 
-    PanelTRK ();
+    PanelTRK (Mapview * M);
 
     void add_gobj (const boost::shared_ptr<GObjTRK> layer,
                     const boost::shared_ptr<g_track> data);
@@ -45,6 +47,7 @@ public:
 
     Glib::RefPtr<Gtk::ListStore> store;
     PanelTRKCols columns;
+    Mapview * mapview;
 };
 
 #endif

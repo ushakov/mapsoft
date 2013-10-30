@@ -16,7 +16,10 @@ Mapview::Mapview () :
     viewer(&panels),
     rubber(&viewer),
     srtm("",20),
-    gobj_srtm(&srtm)
+    gobj_srtm(&srtm),
+    panel_wpts(this),
+    panel_trks(this),
+    panel_maps(this)
 {
 
     /// layer drawing options (set before Action constructors)
@@ -53,10 +56,10 @@ Mapview::Mapview () :
     panel_srtm.signal_refresh.connect (
       sigc::mem_fun (this, &Mapview::refresh));
 
-    panels.push_back((panels *) &panel_srtm);
-    panels.push_back((panels *) &panel_maps);
-    panels.push_back((panels *) &panel_trks);
-    panels.push_back((panels *) &panel_wpts);
+    panels.push_back((Workplane *) &panel_srtm);
+    panels.push_back((Workplane *) &panel_maps);
+    panels.push_back((Workplane *) &panel_trks);
+    panels.push_back((Workplane *) &panel_wpts);
 
     /// events from layer lists
     panel_wpts.store->signal_row_changed().connect (

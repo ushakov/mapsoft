@@ -1,6 +1,6 @@
 #include "maps_panel.h"
 
-PanelMAP::PanelMAP () {
+PanelMAP::PanelMAP (Mapview * M): mapview(M) {
   store = Gtk::ListStore::create(columns);
   set_model(store);
   append_column_editable("V", columns.checked);

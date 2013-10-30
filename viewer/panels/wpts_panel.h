@@ -11,9 +11,11 @@ typedef LayerTabCols<GObjWPT, g_waypoint_list> PanelWPTCols;
 
 /* Control panel for wpts layer. */
 
+class Mapview;
+
 class PanelWPT : public Gtk::TreeView, public Workplane {
 public:
-    PanelWPT ();
+    PanelWPT (Mapview * M);
 
     void add_gobj (const boost::shared_ptr<GObjWPT> layer,
                     const boost::shared_ptr<g_waypoint_list> data);
@@ -44,6 +46,7 @@ public:
 
     Glib::RefPtr<Gtk::ListStore> store;
     PanelWPTCols columns;
+    Mapview * mapview;
 };
 
 #endif

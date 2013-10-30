@@ -11,10 +11,12 @@ typedef LayerTabCols<GObjMAP, g_map_list>      PanelMAPCols;
 
 /* Control panel for maps layer. */
 
+class Mapview;
+
 class PanelMAP : public Gtk::TreeView, public Workplane {
 public:
 
-  PanelMAP ();
+  PanelMAP (Mapview *M);
   void add_gobj (const boost::shared_ptr<GObjMAP> layer,
                  const boost::shared_ptr<g_map_list> data);
   void remove_gobj (GObjMAP * L);
@@ -36,6 +38,8 @@ public:
 
   Glib::RefPtr<Gtk::ListStore> store;
   PanelMAPCols columns;
+  Glib::RefPtr<Gtk::UIManager> ui_manager;
+  Mapview * mapview;
 };
 
 #endif

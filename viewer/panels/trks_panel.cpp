@@ -1,6 +1,6 @@
 #include "trks_panel.h"
 
-PanelTRK::PanelTRK () {
+PanelTRK::PanelTRK (Mapview * M): mapview(M) {
   store = Gtk::ListStore::create(columns);
   set_model(store);
   append_column_editable("V", columns.checked);

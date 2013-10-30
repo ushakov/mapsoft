@@ -1,6 +1,6 @@
 #include "wpts_panel.h"
 
-PanelWPT::PanelWPT () {
+PanelWPT::PanelWPT (Mapview * M): mapview(M) {
   store = Gtk::ListStore::create(columns);
   set_model(store);
   append_column_editable("V", columns.checked);
