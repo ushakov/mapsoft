@@ -10,7 +10,7 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::DELETE; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.remove_selected(); break;
         case 1: mapview->panel_trks.remove_selected(); break;
         case 2: mapview->panel_maps.remove_selected(); break;
@@ -25,7 +25,7 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::DELETE; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.remove_all(); break;
         case 1: mapview->panel_trks.remove_all(); break;
         case 2: mapview->panel_maps.remove_all(); break;
@@ -40,7 +40,7 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::GO_UP; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.move(true,false); break;
         case 1: mapview->panel_trks.move(true,false); break;
         case 2: mapview->panel_maps.move(true,false); break;
@@ -55,7 +55,7 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::GO_DOWN; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.move(false,false); break;
         case 1: mapview->panel_trks.move(false,false); break;
         case 2: mapview->panel_maps.move(false,false); break;
@@ -70,7 +70,7 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::GOTO_TOP; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.move(true,true); break;
         case 1: mapview->panel_trks.move(true,true); break;
         case 2: mapview->panel_maps.move(true,true); break;
@@ -85,7 +85,7 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::GOTO_BOTTOM; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.move(false,true); break;
         case 1: mapview->panel_trks.move(false,true); break;
         case 2: mapview->panel_maps.move(false,true); break;
@@ -100,7 +100,7 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::REMOVE; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.show_all(false); break;
         case 1: mapview->panel_trks.show_all(false); break;
         case 2: mapview->panel_maps.show_all(false); break;
@@ -115,7 +115,7 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::ADD; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.show_all(); break;
         case 1: mapview->panel_trks.show_all(); break;
         case 2: mapview->panel_maps.show_all(); break;
@@ -130,7 +130,7 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::REFRESH; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.invert_all(); break;
         case 1: mapview->panel_trks.invert_all(); break;
         case 2: mapview->panel_maps.invert_all(); break;
@@ -142,10 +142,9 @@ class PanelJoinVis : public ActionMode{
 public:
     PanelJoinVis (Mapview * mapview) : ActionMode(mapview){ }
     std::string get_name() { return "Join visible"; }
-//    Gtk::StockID get_stockid() { return Gtk::Stock::REFRESH; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.join(true); break;
         case 1: mapview->panel_trks.join(true); break;
         case 2: mapview->panel_maps.join(true); break;
@@ -157,14 +156,62 @@ class PanelJoinAll : public ActionMode{
 public:
     PanelJoinAll (Mapview * mapview) : ActionMode(mapview){ }
     std::string get_name() { return "Join all"; }
-//    Gtk::StockID get_stockid() { return Gtk::Stock::REFRESH; }
     bool is_radio() { return false; }
     void activate() {
-      switch (mapview->dataview->get_current_page()){
+      switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.join(false); break;
         case 1: mapview->panel_trks.join(false); break;
         case 2: mapview->panel_maps.join(false); break;
       }
+    }
+};
+
+class PanelGoto : public ActionMode{
+public:
+    PanelGoto (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Goto"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::JUMP_TO; }
+    bool is_radio() { return false; }
+    void activate() {
+      dPoint p;
+      switch (mapview->panels->get_current_page()){
+        case 0: p=mapview->panel_wpts.get_sel_point(); break;
+        case 1: p=mapview->panel_trks.get_sel_point(); break;
+        case 2: p=mapview->panel_maps.get_sel_point(); break;
+      }
+      if (!isnan(p.x)) mapview->goto_wgs(p);
+    }
+};
+
+class PanelSave : public ActionMode, public Gtk::FileSelection{
+public:
+    PanelSave (Mapview * mapview) :
+           ActionMode(mapview), Gtk::FileSelection(get_name()){
+      set_transient_for(*mapview);
+      get_ok_button()->signal_clicked().connect(
+          sigc::mem_fun (this, &PanelSave::on_ok));
+      get_cancel_button()->signal_clicked().connect(
+          sigc::mem_fun(this, &Gtk::Window::hide));
+    }
+
+    std::string get_name() { return "Save selected"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::SAVE_AS; }
+    bool is_radio() { return false; }
+    void activate() { show(); }
+
+    void on_ok(){
+      std::string f = get_filename();
+      geo_data w;
+      switch (mapview->panels->get_current_page()){
+        case 0: mapview->panel_wpts.get_sel_data(w); break;
+        case 1: mapview->panel_trks.get_sel_data(w); break;
+        case 2: mapview->panel_maps.get_sel_data(w); break;
+      }
+      if (!w.empty()){
+        try {io::out(f, w);}
+        catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+      }
+      hide();
     }
 };
 

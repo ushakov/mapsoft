@@ -10,7 +10,7 @@ using namespace std;
 Mapview::Mapview () :
     have_reference(false),
     divert_refresh(false),
-    viewer(&panels),
+    viewer(&main_gobj),
     rubber(&viewer),
     srtm("",20),
     gobj_srtm(&srtm),
@@ -18,15 +18,6 @@ Mapview::Mapview () :
     panel_trks(this),
     panel_maps(this)
 {
-
-    /// layer drawing options (set before Action constructors)
-    panel_options.put("trk_draw_dots", "");
-    panel_options.put("trk_draw_arrows", "");
-    panel_options.put("trk_draw_v1", 0);
-    panel_options.put("trk_draw_v2", 10);
-    panel_options.put("trk_draw_h1", 0);
-    panel_options.put("trk_draw_h2", 1000);
-
     /// window initialization
     signal_delete_event().connect_notify (
       sigc::bind(sigc::hide(sigc::mem_fun (this, &Mapview::exit)),false));
@@ -65,10 +56,10 @@ Mapview::Mapview () :
     panel_maps.signal_button_press_event().connect(
       sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
 
-    panels.push_back((Workplane *) &panel_srtm);
-    panels.push_back((Workplane *) &panel_maps);
-    panels.push_back((Workplane *) &panel_trks);
-    panels.push_back((Workplane *) &panel_wpts);
+    main_gobj.push_back((Workplane *) &panel_srtm);
+    main_gobj.push_back((Workplane *) &panel_maps);
+    main_gobj.push_back((Workplane *) &panel_trks);
+    main_gobj.push_back((Workplane *) &panel_wpts);
 
     /// events from layer lists
     panel_wpts.store->signal_row_changed().connect (
@@ -119,19 +110,33 @@ Mapview::Mapview () :
     popup_wpts = (Gtk::Menu *)ui_manager->get_widget("/PopupWPTs");
     popup_trks = (Gtk::Menu *)ui_manager->get_widget("/PopupTRKs");
     popup_maps = (Gtk::Menu *)ui_manager->get_widget("/PopupMAPs");
-    // Use gtk function becouse in some gtkmm versions
-    // attach_to_widget is protected.
-    //gtk_menu_attach_to_widget(
-    //  popup_wpts->gobj(), ((Gtk::Widget *)this)->gobj());
 
     /***************************************/
 
-    dataview = manage(new DataView(this));
+    /// Panels (Notebook)
+    panels = manage(new Gtk::Notebook());
+    /// scrollwindows with layerlists
+    Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
+    Gtk::ScrolledWindow * scr_trk = manage(new Gtk::ScrolledWindow);
+    Gtk::ScrolledWindow * scr_map = manage(new Gtk::ScrolledWindow);
+    scr_wpt->add(panel_wpts);
+    scr_trk->add(panel_trks);
+    scr_map->add(panel_maps);
+    scr_wpt->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    scr_trk->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    scr_map->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 
-    /// Main pand: Viewer + DataView
+    /// append pages to the Notebook
+    panels->append_page(*scr_wpt, "WPT");
+    panels->append_page(*scr_trk, "TRK");
+    panels->append_page(*scr_map, "MAP");
+    panels->set_scrollable(false);
+    panels->set_size_request(150,-1);
+
+    /// Main pand: Viewer + Panels
     Gtk::HPaned * paned = manage(new Gtk::HPaned);
     paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
-    paned->pack2(*dataview, Gtk::FILL);
+    paned->pack2(*panels, Gtk::FILL);
 
     /// Status hbox: busy_icon + statusbar
     busy_icon = manage(new Gtk::Image());
@@ -303,7 +308,7 @@ Mapview::get_world(bool visible){
 void
 Mapview::set_ref(const g_map & ref){
   if (ref.size()==0) return;
-  panels.set_ref(ref);
+  main_gobj.set_ref(ref);
   have_reference=true;
 }
 
@@ -385,7 +390,7 @@ bool
 Mapview::on_panel_button_press (GdkEventButton * event) {
   if (event->button == 3) {
     Gtk::Menu * M = 0;
-    switch (dataview->get_current_page()){
+    switch (panels->get_current_page()){
       case 0: M = popup_wpts; break;
       case 1: M = popup_trks; break;
       case 2: M = popup_maps; break;

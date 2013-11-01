@@ -122,8 +122,9 @@ public:
   }
 
   /* Find selected object */
-  Tl* find_selected() const {
-    Gtk::TreeModel::iterator it = get_selection()->get_selected();
+  Tl* find_selected() {
+    Gtk::TreeModel::iterator it =
+      get_selection()->get_selected();
     if (!it) return NULL;
     return it->get_value(columns.layer).get();
   }
@@ -138,6 +139,26 @@ public:
       return gobj.get();
     }
     return NULL;
+  }
+
+  /* Get all/visible data */
+  void get_data(geo_data & world, bool visible) const {
+    Gtk::TreeNodeChildren::const_iterator i;
+    for (i  = store->children().begin();
+         i != store->children().end(); i++){
+       if (visible && !(*i)[columns.checked]) continue;
+       boost::shared_ptr<Tl> layer = (*i)[columns.layer];
+       world.push_back(*(layer->get_data()));
+    }
+  }
+
+  /* Get selected data */
+  void get_sel_data(geo_data & world) {
+    Gtk::TreeNodeChildren::iterator i =
+      get_selection()->get_selected();
+    if (!i) return;
+    boost::shared_ptr<Tl> layer = (*i)[columns.layer];
+    world.push_back(*(layer->get_data()));
   }
 
   /* move object (up/down/top/bottom) */
@@ -186,9 +207,24 @@ public:
     return ret;
   }
 
+  // get/set options
+  Options & get_opt(){ return opts;}
+
+  void set_opt(const Options & o){
+    opts = o;
+    Gtk::TreeNodeChildren::const_iterator i;
+    for (i = store->children().begin();
+         i != store->children().end(); i++){
+      i->get_value(columns.layer)->set_opt(o);
+      refresh_gobj(i->get_value(columns.layer).get(), false);
+    }
+    Workplane::signal_refresh.emit();
+  }
+
   /* */
   Glib::RefPtr<Gtk::ListStore> store;
   LayerTabCols<Tl, Td> columns;
+  Options opts;
 };
 
 #endif

@@ -10,7 +10,6 @@
 #include "gred/dthread_viewer.h"
 #include "gred/rubber.h"
 #include "img_io/gobj_comp.h"
-#include "dataview.h"
 #include "action_manager.h"
 #include "geo_io/io.h"
 #include "2d/rect.h"
@@ -29,9 +28,10 @@ class Mapview : public Gtk::Window {
 public:
     DThreadViewer viewer;
     Rubber        rubber;
-    GObjComp      panels;
+    GObjComp      main_gobj;
 
     srtm3 srtm;
+    Gtk::Notebook * panels;
     PanelTRK  panel_trks;
     PanelWPT  panel_wpts;
     PanelMAP  panel_maps;
@@ -44,15 +44,12 @@ public:
     Gtk::Menu *popup_trks, *popup_wpts, *popup_maps;
     Gtk::Statusbar statusbar;
     Gtk::Image *busy_icon;
-    DataView * dataview;
 
     bool have_reference;
     bool divert_refresh;
 
     DlgChConf dlg_ch_conf;
     DlgErr dlg_err;
-
-    Options panel_options;
 
 private:
     boost::shared_ptr<ActionManager> action_manager;
@@ -85,8 +82,8 @@ public:
     geo_data get_world(bool visible=true);
 
     void set_ref(const g_map & ref);
-    const convs::map2wgs* get_cnv() {return panels.get_cnv();}
-    void rescale(double k){ panels.rescale(k);}
+    const convs::map2wgs* get_cnv() {return main_gobj.get_cnv();}
+    void rescale(double k){ main_gobj.rescale(k);}
 
     void goto_wgs(dPoint p);
     void exit(bool force=false);

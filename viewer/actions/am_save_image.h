@@ -211,15 +211,15 @@ std::cerr << "MPP SCALE " << sc << "\n";
       iImage image(wh.x, wh.y, 0xFFFFFFFF);
 
       if (sc == 1.0){
-        mapview->panels.draw(image, mytlc);
+        mapview->main_gobj.draw(image, mytlc);
       }
       else{
         mytlc/=sc;
-        mapview->panels.rescale(1/sc);
-        mapview->panels.refresh();
-        mapview->panels.draw(image, mytlc);
-        mapview->panels.rescale(sc);
-        mapview->panels.refresh();
+        mapview->main_gobj.rescale(1/sc);
+        mapview->main_gobj.refresh();
+        mapview->main_gobj.draw(image, mytlc);
+        mapview->main_gobj.rescale(sc);
+        mapview->main_gobj.refresh();
       }
 
 //      if (r == Gtk::RESPONSE_APPLY){
@@ -235,7 +235,7 @@ std::cerr << "MPP SCALE " << sc << "\n";
 
       // Write map file
       if (dlg.get_map()){
-        g_map ref = *mapview->panels.get_ref();
+        g_map ref = *mapview->main_gobj.get_ref();
         ref.clear(); ref.border.clear();
 
         // remove path from fname

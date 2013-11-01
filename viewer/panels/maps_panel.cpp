@@ -4,7 +4,7 @@
 void
 PanelMAP::add(const boost::shared_ptr<g_map_list> data) {
   boost::shared_ptr<GObjMAP>
-    layer(new GObjMAP(data.get(), mapview->panel_options));
+    layer(new GObjMAP(data.get(), opts));
   add_gobj(layer.get(), 0);
 
   mapview->set_ref(layer->get_myref());
@@ -20,17 +20,6 @@ PanelMAP::add(const boost::shared_ptr<g_map_list> data) {
   else{
     row[columns.comm] = layer->get_data()->comm;
     row[columns.weight] = Pango::WEIGHT_BOLD;
-  }
-}
-
-void
-PanelMAP::get_data(geo_data & world, bool visible) const{
-  Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = store->children().begin();
-       i != store->children().end(); i++){
-    if (visible && !(*i)[columns.checked]) continue;
-    boost::shared_ptr<GObjMAP> layer = (*i)[columns.layer];
-    world.maps.push_back(*(layer->get_data()));
   }
 }
 

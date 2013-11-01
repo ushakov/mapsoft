@@ -14,7 +14,6 @@ public:
         sigc::bind(sigc::mem_fun (this, &SrtmOpt::on_response),1));
 
       dlg.set_title(get_name());
-      dlg.set_opt(mapview->panel_options);
     }
 
     std::string get_name() { return "SRTM layer"; }
@@ -27,7 +26,7 @@ public:
         mapview->statusbar.push("No geo-reference", 0);
         return;
       }
-      dlg.set_opt(mapview->gobj_srtm.get_opt());
+      dlg.set_opt(mapview->panel_srtm.get_opt());
       dlg.show_all();
       mapview->show_srtm();
     }

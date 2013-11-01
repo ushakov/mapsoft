@@ -3,11 +3,6 @@
 #include "2d/line_utils.h"
 
 
-/// clear all data
-void geo_data::clear(){ 
-  wpts.clear(); trks.clear(); maps.clear();
-}
-
 /// get range of all maps in lon-lat coords
 /// диапазон карт определяется по точкам привязки, и по границам, если
 /// они есть

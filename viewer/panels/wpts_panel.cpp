@@ -8,7 +8,7 @@ PanelWPT::add(const boost::shared_ptr<g_waypoint_list> data) {
   // - set layer/or mapview ref (layer ref is set through workplane)
   // - put layer to LayerList (panel_edited call, workplane refresh)
   // depth is set to DEPTH_DATA0 to evoke refresh!
-  boost::shared_ptr<GObjWPT> layer(new GObjWPT(data.get()));
+  boost::shared_ptr<GObjWPT> layer(new GObjWPT(data.get(), opts));
   add_gobj(layer.get(), 0);
   if (!mapview->have_reference)
     mapview->set_ref(layer->get_myref());
@@ -20,17 +20,6 @@ PanelWPT::add(const boost::shared_ptr<g_waypoint_list> data) {
   row[columns.weight]  = Pango::WEIGHT_NORMAL;
   row[columns.layer]   = layer;
   row[columns.data]    = data;
-}
-
-void
-PanelWPT::get_data(geo_data & world, bool visible) const {
-  Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = store->children().begin();
-       i != store->children().end(); i++){
-     if (visible && !(*i)[columns.checked]) continue;
-     boost::shared_ptr<GObjWPT> layer = (*i)[columns.layer];
-     world.wpts.push_back(*(layer->get_data()));
-  }
 }
 
 int

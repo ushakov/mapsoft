@@ -17,12 +17,12 @@ public:
       state = (state+1)%2;
       if (state==0){
         mapview->statusbar.show();
-        mapview->dataview->show();
+        mapview->panels->show();
       }
       else if (state==1){
         mapview->statusbar.hide();
         mapview->busy_icon->hide();
-        mapview->dataview->hide();
+        mapview->panels->hide();
       }
     }
 };

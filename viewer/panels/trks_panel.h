@@ -13,11 +13,23 @@ class Mapview;
 class PanelTRK : public Panel<GObjTRK, g_track> {
 public:
 
-    PanelTRK (Mapview * M): Panel(), mapview(M){}
+    PanelTRK (Mapview * M): Panel(), mapview(M){
+      opts.put("trk_draw_dots", "");
+      opts.put("trk_draw_arrows", "");
+      opts.put("trk_draw_v1", 0);
+      opts.put("trk_draw_v2", 10);
+      opts.put("trk_draw_h1", 0);
+      opts.put("trk_draw_h2", 1000);
+    }
 
     void add(const boost::shared_ptr<g_track> data);
 
-    void get_data(geo_data & world, bool visible) const;
+    dPoint get_sel_point(){
+      GObjTRK * O = find_selected();
+      if (!O || !O->get_data()->size())
+        return dPoint(nan(""), nan(""));
+      return (*O->get_data())[0];
+    }
 
     /* find track points in a rectangular area */
     std::map<GObjTRK*, std::vector<int> > find_tpts(const iRect & r) const;

@@ -5,7 +5,7 @@
 void
 PanelTRK::add(const boost::shared_ptr<g_track> data) {
   boost::shared_ptr<GObjTRK>
-    layer(new GObjTRK(data.get(), mapview->panel_options));
+    layer(new GObjTRK(data.get(), opts));
   add_gobj(layer.get(), 0);
   if (!mapview->have_reference)
     mapview->set_ref(layer->get_myref());
@@ -17,17 +17,6 @@ PanelTRK::add(const boost::shared_ptr<g_track> data) {
   row[columns.weight]  = Pango::WEIGHT_NORMAL;
   row[columns.layer]   = layer;
   row[columns.data]    = data;
-}
-
-void
-PanelTRK::get_data(geo_data & world, bool visible) const {
-  Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = store->children().begin();
-       i != store->children().end(); i++){
-     if (visible && !(*i)[columns.checked]) continue;
-     boost::shared_ptr<GObjTRK> layer = (*i)[columns.layer];
-     world.trks.push_back(*(layer->get_data()));
-  }
 }
 
 std::map<GObjTRK*, std::vector<int> >

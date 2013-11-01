@@ -7,7 +7,6 @@ e.UseLibs('gred img_io geo_io mp srtm')
 
 e.Library("viewer", Split ("""
 	action_manager.cpp
-	dataview.cpp
 	mapview.cpp
 
 	widgets/comboboxes.cpp

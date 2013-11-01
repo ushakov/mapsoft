@@ -19,7 +19,15 @@ struct geo_data {
   std::vector<g_map_list> maps;
 
   /// clear all data
-  void clear();
+  void clear() {
+    wpts.clear(); trks.clear(); maps.clear();}
+
+  bool empty() const {
+    return wpts.empty() && trks.empty() && maps.empty(); }
+
+  void push_back(const g_waypoint_list & d){wpts.push_back(d);}
+  void push_back(const g_track & d)        {trks.push_back(d);}
+  void push_back(const g_map_list & d)     {maps.push_back(d);}
 
   /// get range of all maps in lon-lat coords, fast
   dRect range_map() const;

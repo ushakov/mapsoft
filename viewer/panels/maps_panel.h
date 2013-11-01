@@ -16,7 +16,12 @@ public:
 
   void add(const boost::shared_ptr<g_map_list> data);
 
-  void get_data(geo_data & world, bool visible) const;
+  dPoint get_sel_point(){
+    GObjMAP * O = find_selected();
+    if (!O || !O->get_data()->size())
+      return dPoint(nan(""), nan(""));
+    return (*O->get_data())[0].center();
+  }
 
   /* find top map in the point p */
   int find_map(const iPoint & p, GObjMAP ** gobj) const;
@@ -24,6 +29,7 @@ public:
   bool upd_comm(GObjMAP * sel_gobj=NULL, bool dir=true);
 
   Mapview * mapview;
+  Options opts;
 };
 
 #endif

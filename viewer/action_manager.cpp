@@ -25,7 +25,7 @@
 #include "actions/am_delete_tpt.h"
 #include "actions/am_mark_trk.h"
 #include "actions/am_trk_filter.h"
-#include "actions/am_draw_opt.h"
+#include "actions/am_trk_opt.h"
 
 #include "actions/am_edit_map.h"
 #include "actions/am_setref.h"
@@ -81,7 +81,6 @@ ActionManager::ActionManager (Mapview * mapview_)
     AddSep("Tracks");
     ADD_ACT(MarkTrack,       "Tracks")
     ADD_ACT(FilterTrack,     "Tracks")
-    ADD_ACT(DrawOpt,         "Tracks")
 
     ADD_ACT(EditMap,         "Maps")
     ADD_ACT(SetRef,          "Maps")
@@ -100,14 +99,17 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(HidePanels,      "Misc")
 
     /* Wpt panel menu*/
-    ADD_ACT(PanelMoveTop,     "PopupWPTs")
-    ADD_ACT(PanelMoveUp,      "PopupWPTs")
-    ADD_ACT(PanelMoveDown,    "PopupWPTs")
-    ADD_ACT(PanelMoveBottom,  "PopupWPTs")
+    ADD_ACT(PanelGoto,        "PopupWPTs")
+    ADD_ACT(PanelSave,        "PopupWPTs")
     AddSep("PopupWPTs");
     ADD_ACT(PanelShowAll,     "PopupWPTs")
     ADD_ACT(PanelHideAll,     "PopupWPTs")
     ADD_ACT(PanelInvert,      "PopupWPTs")
+    AddSep("PopupWPTs");
+    ADD_ACT(PanelMoveTop,     "PopupWPTs")
+    ADD_ACT(PanelMoveUp,      "PopupWPTs")
+    ADD_ACT(PanelMoveDown,    "PopupWPTs")
+    ADD_ACT(PanelMoveBottom,  "PopupWPTs")
     AddSep("PopupWPTs");
     ADD_ACT(PanelJoinVis,     "PopupWPTs")
     ADD_ACT(PanelJoinAll,     "PopupWPTs")
@@ -116,30 +118,38 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(PanelDelAll,      "PopupWPTs")
 
     /* Trk panel menu*/
-    ADD_ACT(PanelMoveTop,     "PopupTRKs")
-    ADD_ACT(PanelMoveUp,      "PopupTRKs")
-    ADD_ACT(PanelMoveDown,    "PopupTRKs")
-    ADD_ACT(PanelMoveBottom,  "PopupTRKs")
+    ADD_ACT(PanelGoto,        "PopupTRKs")
+    ADD_ACT(PanelSave,        "PopupTRKs")
     AddSep("PopupTRKs");
     ADD_ACT(PanelShowAll,     "PopupTRKs")
     ADD_ACT(PanelHideAll,     "PopupTRKs")
     ADD_ACT(PanelInvert,      "PopupTRKs")
+    AddSep("PopupTRKs");
+    ADD_ACT(PanelMoveTop,     "PopupTRKs")
+    ADD_ACT(PanelMoveUp,      "PopupTRKs")
+    ADD_ACT(PanelMoveDown,    "PopupTRKs")
+    ADD_ACT(PanelMoveBottom,  "PopupTRKs")
     AddSep("PopupTRKs");
     ADD_ACT(PanelJoinVis,     "PopupTRKs")
     ADD_ACT(PanelJoinAll,     "PopupTRKs")
     AddSep("PopupTRKs");
     ADD_ACT(PanelDelSel,      "PopupTRKs")
     ADD_ACT(PanelDelAll,      "PopupTRKs")
+    AddSep("PopupTRKs");
+    ADD_ACT(DrawOpt,          "PopupTRKs")
 
     /* Map panel menu*/
-    ADD_ACT(PanelMoveTop,     "PopupMAPs")
-    ADD_ACT(PanelMoveUp,      "PopupMAPs")
-    ADD_ACT(PanelMoveDown,    "PopupMAPs")
-    ADD_ACT(PanelMoveBottom,  "PopupMAPs")
+    ADD_ACT(PanelGoto,        "PopupMAPs")
+    ADD_ACT(PanelSave,        "PopupMAPs")
     AddSep("PopupMAPs");
     ADD_ACT(PanelShowAll,     "PopupMAPs")
     ADD_ACT(PanelHideAll,     "PopupMAPs")
     ADD_ACT(PanelInvert,      "PopupMAPs")
+    AddSep("PopupMAPs");
+    ADD_ACT(PanelMoveTop,     "PopupMAPs")
+    ADD_ACT(PanelMoveUp,      "PopupMAPs")
+    ADD_ACT(PanelMoveDown,    "PopupMAPs")
+    ADD_ACT(PanelMoveBottom,  "PopupMAPs")
     AddSep("PopupMAPs");
     ADD_ACT(PanelJoinVis,     "PopupMAPs")
     ADD_ACT(PanelJoinAll,     "PopupMAPs")

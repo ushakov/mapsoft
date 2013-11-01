@@ -17,7 +17,9 @@ private:
 
 public:
 
-  GObjWPT (g_waypoint_list * _data): data(_data){}
+  GObjWPT (g_waypoint_list * _data, const Options & o = Options()):
+    data(_data){set_opt(o);}
+
   void   refresh(){ /// Refresh layer.
     myrange = iRect(rect_pump(cnv.bb_bck(data->range()), 1.0));}
   int draw(iImage & image, const iPoint & origin); /// Draw on image.
