@@ -53,6 +53,7 @@ DlgSrtmOpt::on_ch(int mode){
   // affect the current mode.
   // We get mode for which signal must be emitted:
   // 0 - all modes, 1 - normal, 2 - slopes
+  if (!is_visible()) return;
   if ( ((mode == 1) && !cnt->get_active()) ||
        ((mode == 2) && !m_normal->get_active()) ||
        ((mode == 3) && !m_slopes->get_active()) ) return;

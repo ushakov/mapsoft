@@ -208,7 +208,7 @@ public:
   }
 
   // get/set options
-  Options & get_opt(){ return opts;}
+  Options get_opt() const { return opts;}
 
   void set_opt(const Options & o){
     opts = o;

@@ -27,11 +27,11 @@ public:
         } else { // second point, trace
           dPoint end_pt = p;
           mapview->get_cnv()->frw(end_pt);
-          int hmin = mapview->srtm.geth4(end_pt)-1;
+          int hmin = mapview->panel_srtm.srtm.geth4(end_pt)-1;
           int nmax = 10000;
           bool down = true;
           std::vector<iPoint> points =
-            trace_river(mapview->srtm, start_pt*1200, nmax, hmin, down);
+            trace_river(mapview->panel_srtm.srtm, start_pt*1200, nmax, hmin, down);
           std::vector<iPoint>::const_iterator i;
 
           boost::shared_ptr<g_track> track(new g_track());
@@ -39,7 +39,7 @@ public:
             g_trackpoint pt;
             pt.dPoint::operator=(*i);
             pt/=1200;
-            pt.z = mapview->srtm.geth(*i);
+            pt.z = mapview->panel_srtm.srtm.geth(*i);
             track->push_back(pt);
           }
           mapview->panel_trks.add(track);

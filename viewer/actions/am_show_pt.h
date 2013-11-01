@@ -34,7 +34,7 @@ public:
 
       dPoint pt(p);
       mapview->get_cnv()->frw(pt);
-      dlg.show_all(pt, mapview->srtm.geth4(pt));
+      dlg.show_all(pt, mapview->panel_srtm.srtm.geth4(pt));
     }
 
     void on_jump(dPoint p){

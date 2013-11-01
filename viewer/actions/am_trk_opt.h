@@ -27,11 +27,9 @@ public:
     }
 
     void on_response(int r){
-      if (r==Gtk::RESPONSE_OK)
-        mapview->panel_trks.set_opt(dlg.get_opt());
-      if (r==Gtk::RESPONSE_CANCEL)
-        mapview->panel_trks.set_opt(o);
-      if (r<0) dlg.hide_all();
+      if (r==Gtk::RESPONSE_CANCEL) mapview->panel_trks.set_opt(o);
+      if (r>0) mapview->panel_trks.set_opt(dlg.get_opt());
+      else dlg.hide_all();
     }
 
 private:

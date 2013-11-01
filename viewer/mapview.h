@@ -19,8 +19,7 @@
 #include "panels/wpts_panel.h"
 #include "panels/trks_panel.h"
 #include "panels/maps_panel.h"
-#include "panels/srtm.h"
-#include "img_io/gobj_srtm.h"
+#include "panels/srtm_panel.h"
 
 #define ACCEL_FILE ".mapsoft/accel"
 
@@ -30,18 +29,15 @@ public:
     Rubber        rubber;
     GObjComp      main_gobj;
 
-    srtm3 srtm;
     Gtk::Notebook * panels;
     PanelTRK  panel_trks;
     PanelWPT  panel_wpts;
     PanelMAP  panel_maps;
     PanelSRTM panel_srtm;
 
-    GObjSRTM  gobj_srtm;
-
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
-    Gtk::Menu *popup_trks, *popup_wpts, *popup_maps;
+    Gtk::Menu *popup_trks, *popup_wpts, *popup_maps, *popup_srtm;
     Gtk::Statusbar statusbar;
     Gtk::Image *busy_icon;
 
@@ -95,8 +91,6 @@ public:
     bool on_panel_button_press (GdkEventButton * event);
     void show_busy_mark();
     void hide_busy_mark();
-
-    void show_srtm(bool show=true);
 };
 
 

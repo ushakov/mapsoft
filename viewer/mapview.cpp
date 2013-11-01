@@ -12,8 +12,6 @@ Mapview::Mapview () :
     divert_refresh(false),
     viewer(&main_gobj),
     rubber(&viewer),
-    srtm("",20),
-    gobj_srtm(&srtm),
     panel_wpts(this),
     panel_trks(this),
     panel_maps(this)
@@ -48,12 +46,15 @@ Mapview::Mapview () :
     panel_wpts.set_events(Gdk::BUTTON_PRESS_MASK);
     panel_trks.set_events(Gdk::BUTTON_PRESS_MASK);
     panel_maps.set_events(Gdk::BUTTON_PRESS_MASK);
+    panel_srtm.set_events(Gdk::BUTTON_PRESS_MASK);
 
     panel_wpts.signal_button_press_event().connect(
       sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
     panel_trks.signal_button_press_event().connect(
       sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
     panel_maps.signal_button_press_event().connect(
+      sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
+    panel_srtm.signal_button_press_event().connect(
       sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
 
     main_gobj.push_back((Workplane *) &panel_srtm);
@@ -110,6 +111,7 @@ Mapview::Mapview () :
     popup_wpts = (Gtk::Menu *)ui_manager->get_widget("/PopupWPTs");
     popup_trks = (Gtk::Menu *)ui_manager->get_widget("/PopupTRKs");
     popup_maps = (Gtk::Menu *)ui_manager->get_widget("/PopupMAPs");
+    popup_srtm = (Gtk::Menu *)ui_manager->get_widget("/PopupSRTM");
 
     /***************************************/
 
@@ -130,8 +132,10 @@ Mapview::Mapview () :
     panels->append_page(*scr_wpt, "WPT");
     panels->append_page(*scr_trk, "TRK");
     panels->append_page(*scr_map, "MAP");
+    panels->append_page(panel_srtm, "SRTM");
     panels->set_scrollable(false);
     panels->set_size_request(150,-1);
+
 
     /// Main pand: Viewer + Panels
     Gtk::HPaned * paned = manage(new Gtk::HPaned);
@@ -291,6 +295,7 @@ Mapview::clear_world() {
   panel_wpts.remove_all();
   panel_trks.remove_all();
   panel_maps.remove_all();
+  panel_srtm.show(false);
   have_reference = false;
   divert_refresh=false;
   update_gobjs();
@@ -394,6 +399,7 @@ Mapview::on_panel_button_press (GdkEventButton * event) {
       case 0: M = popup_wpts; break;
       case 1: M = popup_trks; break;
       case 2: M = popup_maps; break;
+      case 3: M = popup_srtm; break;
     }
     if (M) M->popup(event->button, event->time);
     return true;
@@ -419,20 +425,5 @@ void
 Mapview::hide_busy_mark(void){
   if (is_realized())
     busy_icon->clear();
-}
-
-void
-Mapview::show_srtm(bool show){
-  bool state = panel_srtm.exists(&gobj_srtm);
-
-  if (state && !show){
-    statusbar.push("SRTM OFF", 0);
-    panel_srtm.remove_gobj(&gobj_srtm);
-    refresh();
-  }
-  else if (!state && show){
-    statusbar.push("SRTM ON", 0);
-    panel_srtm.add_gobj(&gobj_srtm, 0);
-  }
 }
 

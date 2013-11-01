@@ -81,15 +81,16 @@ ActionManager::ActionManager (Mapview * mapview_)
     AddSep("Tracks");
     ADD_ACT(MarkTrack,       "Tracks")
     ADD_ACT(FilterTrack,     "Tracks")
+    ADD_ACT(DrawOpt,         "Tracks")
 
     ADD_ACT(EditMap,         "Maps")
     ADD_ACT(SetRef,          "Maps")
     ADD_ACT(LLRef,           "Maps")
 
     ADD_ACT(SrtmRiv,         "SRTM")
-    ADD_ACT(SrtmArea,         "SRTM")
-    ADD_ACT(SrtmOpt,         "SRTM")
+    ADD_ACT(SrtmArea,        "SRTM")
     ADD_ACT(Pano,            "SRTM")
+    ADD_ACT(SrtmOpt,         "SRTM")
 
     ADD_ACT(SaveImage,       "Misc")
     ADD_ACT(ShowPt,          "Misc")
@@ -156,6 +157,9 @@ ActionManager::ActionManager (Mapview * mapview_)
     AddSep("PopupMAPs");
     ADD_ACT(PanelDelSel,      "PopupMAPs")
     ADD_ACT(PanelDelAll,      "PopupMAPs")
+
+    /* SRTM panel menu*/
+    ADD_ACT(SrtmOpt,          "PopupSRTM")
 
 
     /* */
