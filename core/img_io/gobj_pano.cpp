@@ -3,7 +3,8 @@
 
 using namespace std;
 
-GObjPano::GObjPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){ }
+GObjPano::GObjPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){
+  set_opt(Options());}
 
 /***********************************************************/
 // GET/SET parameters
@@ -234,7 +235,6 @@ GObjPano::xy2geo(const iPoint & pt){
 int
 GObjPano::draw(iImage & image, const iPoint & origin){
   if (!srtm) return GOBJ_FILL_NONE;
-
   double width=getw();
 
   double h0 = (double)srtm->geth4(p0) + dh; // altitude of observation point
