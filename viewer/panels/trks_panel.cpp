@@ -1,18 +1,14 @@
 #include "trks_panel.h"
-
-PanelTRK::PanelTRK (Mapview * M): mapview(M) {
-  store = Gtk::ListStore::create(columns);
-  set_model(store);
-  append_column_editable("V", columns.checked);
-  append_column_editable("Layer", columns.comm);
-  set_enable_search(false);
-  set_headers_visible(false);
-  set_reorderable(false);
-}
+#include "../mapview.h"
+#include "../mapview.h"
 
 void
-PanelTRK::add_gobj (const boost::shared_ptr<GObjTRK> layer,
-                 const boost::shared_ptr<g_track> data) {
+PanelTRK::add(const boost::shared_ptr<g_track> data) {
+  boost::shared_ptr<GObjTRK>
+    layer(new GObjTRK(data.get(), mapview->panel_options));
+  add_gobj(layer.get(), 0);
+  if (!mapview->have_reference)
+    mapview->set_ref(layer->get_myref());
   Gtk::TreeModel::iterator it = store->append();
   Gtk::TreeModel::Row row = *it;
   // note: signal_row_changed() is emitted three times from here:
@@ -24,27 +20,6 @@ PanelTRK::add_gobj (const boost::shared_ptr<GObjTRK> layer,
 }
 
 void
-PanelTRK::remove_gobj (GObjTRK * L){
-  Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = store->children().begin();
-       i != store->children().end(); i++){
-    boost::shared_ptr<GObjTRK> gobj = (*i)[columns.layer];
-    if (gobj.get() != L) continue;
-    store->erase(i);
-    break;
-  }
-  Workplane::remove_gobj(L);
-}
-
-void
-PanelTRK::remove_selected(){
-  Gtk::TreeModel::iterator it = get_selection()->get_selected();
-  if (!it) return;
-  Workplane::remove_gobj(it->get_value(columns.layer).get());
-  store->erase(it);
-}
-
-void
 PanelTRK::get_data(geo_data & world, bool visible) const {
   Gtk::TreeNodeChildren::const_iterator i;
   for (i  = store->children().begin();
@@ -53,18 +28,6 @@ PanelTRK::get_data(geo_data & world, bool visible) const {
      boost::shared_ptr<GObjTRK> layer = (*i)[columns.layer];
      world.trks.push_back(*(layer->get_data()));
   }
-}
-
-GObjTRK *
-PanelTRK::find_gobj() const {
-  Gtk::TreeNodeChildren::const_iterator i;
-  for (i  = store->children().begin();
-       i != store->children().end(); i++){
-    if (!(*i)[columns.checked]) continue;
-    boost::shared_ptr<GObjTRK> gobj = (*i)[columns.layer];
-    return gobj.get();
-  }
-  return NULL;
 }
 
 std::map<GObjTRK*, std::vector<int> >
@@ -98,30 +61,6 @@ PanelTRK::find_tpt(const iPoint & p, GObjTRK ** gobj,
   }
   *gobj = NULL;
   return -1;
-}
-
-bool
-PanelTRK::upd_wp (Workplane & wp, int & d) const {
-  bool ret=false;
-  Gtk::TreeNodeChildren::const_iterator i;
-  for (i = store->children().begin();
-       i != store->children().end(); i++){
-    boost::shared_ptr<GObjTRK> layer = (*i)[columns.layer];
-    if (!layer) continue;
-    // update visibility
-    bool act = (*i)[columns.checked];
-    if (wp.get_gobj_active(layer.get()) != act){
-      wp.set_gobj_active(layer.get(), act);
-      ret = true;
-    }
-    // update depth
-    if (wp.get_gobj_depth(layer.get()) != d){
-      wp.set_gobj_depth(layer.get(), d);
-      ret = true;
-    }
-    d++;
-  }
-  return ret;
 }
 
 bool

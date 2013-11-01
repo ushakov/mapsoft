@@ -40,12 +40,10 @@
 #include "actions/am_show_pt.h"
 #include "actions/am_nav.h"
 
-#include "actions/am_join_w.h"
-#include "actions/am_join_t.h"
-#include "actions/am_join_m.h"
-
 #include "actions/am_fullscreen.h"
 #include "actions/am_hide_panels.h"
+
+#include "actions/panel_actions.h"
 
 #define ADD_ACT(name, group) AddAction(new name(mapview),\
    std::string("Mode") + #name, group);
@@ -98,12 +96,59 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(ShowPt,          "Misc")
     ADD_ACT(Nav,             "Misc")
     AddSep("Misc");
-    ADD_ACT(JoinVisWpt,      "Misc")
-    ADD_ACT(JoinVisTrk,      "Misc")
-    ADD_ACT(JoinVisMap,      "Misc")
-    AddSep("Misc");
     ADD_ACT(FullScreen,      "Misc")
     ADD_ACT(HidePanels,      "Misc")
+
+    /* Wpt panel menu*/
+    ADD_ACT(PanelMoveTop,     "PopupWPTs")
+    ADD_ACT(PanelMoveUp,      "PopupWPTs")
+    ADD_ACT(PanelMoveDown,    "PopupWPTs")
+    ADD_ACT(PanelMoveBottom,  "PopupWPTs")
+    AddSep("PopupWPTs");
+    ADD_ACT(PanelShowAll,     "PopupWPTs")
+    ADD_ACT(PanelHideAll,     "PopupWPTs")
+    ADD_ACT(PanelInvert,      "PopupWPTs")
+    AddSep("PopupWPTs");
+    ADD_ACT(PanelJoinVis,     "PopupWPTs")
+    ADD_ACT(PanelJoinAll,     "PopupWPTs")
+    AddSep("PopupWPTs");
+    ADD_ACT(PanelDelSel,      "PopupWPTs")
+    ADD_ACT(PanelDelAll,      "PopupWPTs")
+
+    /* Trk panel menu*/
+    ADD_ACT(PanelMoveTop,     "PopupTRKs")
+    ADD_ACT(PanelMoveUp,      "PopupTRKs")
+    ADD_ACT(PanelMoveDown,    "PopupTRKs")
+    ADD_ACT(PanelMoveBottom,  "PopupTRKs")
+    AddSep("PopupTRKs");
+    ADD_ACT(PanelShowAll,     "PopupTRKs")
+    ADD_ACT(PanelHideAll,     "PopupTRKs")
+    ADD_ACT(PanelInvert,      "PopupTRKs")
+    AddSep("PopupTRKs");
+    ADD_ACT(PanelJoinVis,     "PopupTRKs")
+    ADD_ACT(PanelJoinAll,     "PopupTRKs")
+    AddSep("PopupTRKs");
+    ADD_ACT(PanelDelSel,      "PopupTRKs")
+    ADD_ACT(PanelDelAll,      "PopupTRKs")
+
+    /* Map panel menu*/
+    ADD_ACT(PanelMoveTop,     "PopupMAPs")
+    ADD_ACT(PanelMoveUp,      "PopupMAPs")
+    ADD_ACT(PanelMoveDown,    "PopupMAPs")
+    ADD_ACT(PanelMoveBottom,  "PopupMAPs")
+    AddSep("PopupMAPs");
+    ADD_ACT(PanelShowAll,     "PopupMAPs")
+    ADD_ACT(PanelHideAll,     "PopupMAPs")
+    ADD_ACT(PanelInvert,      "PopupMAPs")
+    AddSep("PopupMAPs");
+    ADD_ACT(PanelJoinVis,     "PopupMAPs")
+    ADD_ACT(PanelJoinAll,     "PopupMAPs")
+    AddSep("PopupMAPs");
+    ADD_ACT(PanelDelSel,      "PopupMAPs")
+    ADD_ACT(PanelDelAll,      "PopupMAPs")
+
+
+    /* */
 
     mapview->actions->add(Gtk::Action::create("MenuFile", "_File"));
     mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));
@@ -118,15 +163,26 @@ ActionManager::ActionManager (Mapview * mapview_)
 
 void
 ActionManager::AddSep(const std::string & menu){
-  mapview->ui_manager->add_ui_from_string(
-    "<ui>"
-    "  <menubar name='MenuBar'>"
-    "    <menu action='Menu" + menu + "'>"
-    "      <separator/>"
-    "    </menu>"
-    "  </menubar>"
-    "</ui>"
-  );
+  if (menu.substr(0,5) == "Popup"){
+    mapview->ui_manager->add_ui_from_string(
+      "<ui>"
+      "  <popup name='" + menu + "'>"
+      "    <separator/>"
+      "  </popup>"
+      "</ui>"
+    );
+  }
+  else{
+    mapview->ui_manager->add_ui_from_string(
+      "<ui>"
+      "  <menubar name='MenuBar'>"
+      "    <menu action='Menu" + menu + "'>"
+      "      <separator/>"
+      "    </menu>"
+      "  </menubar>"
+      "</ui>"
+    );
+  }
 }
 
 void
@@ -138,36 +194,49 @@ ActionManager::AddAction(ActionMode *action,
   Gtk::StockID stockid = action->get_stockid();
   Gtk::AccelKey acckey = action->get_acckey();
 
-  if (action->is_radio()) {
-    // I do not know how to create empty editable AccelKey. So i use
-    // these stupid ifs...
-    if (acckey.is_null())
-      mapview->actions->add(
-        Gtk::Action::create(id, stockid, mname),
-        sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
-    else
-      mapview->actions->add(
-        Gtk::Action::create(id, stockid, mname),
-        acckey, sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
-  }
-  else {
-    if (acckey.is_null())
-      mapview->actions->add(
-        Gtk::Action::create(id, stockid, mname),
-        sigc::mem_fun(action, &ActionMode::activate));
-    else
-      mapview->actions->add(
-        Gtk::Action::create(id, stockid, mname),
-        acckey, sigc::mem_fun(action, &ActionMode::activate));
+  if (!mapview->actions->get_action(id)){
+    if (action->is_radio()) {
+      // I do not know how to create empty editable AccelKey. So i use
+      // these stupid ifs...
+      if (acckey.is_null())
+        mapview->actions->add(
+          Gtk::Action::create(id, stockid, mname),
+          sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
+      else
+        mapview->actions->add(
+          Gtk::Action::create(id, stockid, mname),
+          acckey, sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
+    }
+    else {
+      if (acckey.is_null())
+        mapview->actions->add(
+          Gtk::Action::create(id, stockid, mname),
+          sigc::mem_fun(action, &ActionMode::activate));
+      else
+        mapview->actions->add(
+          Gtk::Action::create(id, stockid, mname),
+          acckey, sigc::mem_fun(action, &ActionMode::activate));
+    }
   }
 
-  mapview->ui_manager->add_ui_from_string(
-    "<ui>"
-    "  <menubar name='MenuBar'>"
-    "    <menu action='Menu" + menu + "'>"
-    "      <menuitem action='" + id + "'/>"
-    "    </menu>"
-    "  </menubar>"
-    "</ui>"
-  );
+  if (menu.substr(0,5) == "Popup"){
+    mapview->ui_manager->add_ui_from_string(
+      "<ui>"
+      "  <popup name='" + menu + "'>"
+      "    <menuitem action='" + id + "'/>"
+      "  </popup>"
+      "</ui>"
+    );
+  }
+  else{
+    mapview->ui_manager->add_ui_from_string(
+      "<ui>"
+      "  <menubar name='MenuBar'>"
+      "    <menu action='Menu" + menu + "'>"
+      "      <menuitem action='" + id + "'/>"
+      "    </menu>"
+      "  </menubar>"
+      "</ui>"
+    );
+  }
 }

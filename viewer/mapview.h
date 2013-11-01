@@ -41,6 +41,7 @@ public:
 
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
+    Gtk::Menu *popup_trks, *popup_wpts, *popup_maps;
     Gtk::Statusbar statusbar;
     Gtk::Image *busy_icon;
     DataView * dataview;
@@ -78,10 +79,6 @@ public:
     void load_file(const std::string & file, bool force=false); // load new data from file
     void new_file(bool force=false);                            // start new project
 
-    void add_wpts(const boost::shared_ptr<g_waypoint_list> & data);
-    void add_trks(const boost::shared_ptr<g_track> & data);
-    void add_maps(const boost::shared_ptr<g_map_list> & data);
-
     void add_world(const geo_data & world, bool scroll=false);
     void clear_world();
     // build geo_data object with all/visible data
@@ -98,6 +95,7 @@ public:
     bool on_button_press (GdkEventButton * event);
     bool on_button_release (GdkEventButton * event);
     bool on_scroll (GdkEventScroll * event);
+    bool on_panel_button_press (GdkEventButton * event);
     void show_busy_mark();
     void hide_busy_mark();
 

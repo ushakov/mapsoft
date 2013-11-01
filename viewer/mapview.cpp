@@ -5,9 +5,6 @@
 #include "images/gps_download.h"
 #include "images/gps_upload.h"
 
-#define DEPTH_SRTM 1000
-#define DEPTH_DATA0 100
-
 using namespace std;
 
 Mapview::Mapview () :
@@ -46,7 +43,7 @@ Mapview::Mapview () :
     viewer.signal_scroll_event().connect(
       sigc::mem_fun (this, &Mapview::on_scroll));
 
-    /// events from panels -> move to viewer?
+    /// refresh events from panels -> move to viewer?
     panel_wpts.signal_refresh.connect (
       sigc::mem_fun (this, &Mapview::refresh));
     panel_trks.signal_refresh.connect (
@@ -55,6 +52,18 @@ Mapview::Mapview () :
       sigc::mem_fun (this, &Mapview::refresh));
     panel_srtm.signal_refresh.connect (
       sigc::mem_fun (this, &Mapview::refresh));
+
+    // panels mouse button events
+    panel_wpts.set_events(Gdk::BUTTON_PRESS_MASK);
+    panel_trks.set_events(Gdk::BUTTON_PRESS_MASK);
+    panel_maps.set_events(Gdk::BUTTON_PRESS_MASK);
+
+    panel_wpts.signal_button_press_event().connect(
+      sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
+    panel_trks.signal_button_press_event().connect(
+      sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
+    panel_maps.signal_button_press_event().connect(
+      sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
 
     panels.push_back((Workplane *) &panel_srtm);
     panels.push_back((Workplane *) &panel_maps);
@@ -75,9 +84,7 @@ Mapview::Mapview () :
     viewer.signal_idle().connect(
       sigc::mem_fun (this, &Mapview::hide_busy_mark));
 
-
     viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
-
 
     /***************************************/
     // Add my icons 
@@ -109,6 +116,14 @@ Mapview::Mapview () :
     // create actions + build menu
     action_manager.reset (new ActionManager(this));
 
+    popup_wpts = (Gtk::Menu *)ui_manager->get_widget("/PopupWPTs");
+    popup_trks = (Gtk::Menu *)ui_manager->get_widget("/PopupTRKs");
+    popup_maps = (Gtk::Menu *)ui_manager->get_widget("/PopupMAPs");
+    // Use gtk function becouse in some gtkmm versions
+    // attach_to_widget is protected.
+    //gtk_menu_attach_to_widget(
+    //  popup_wpts->gobj(), ((Gtk::Widget *)this)->gobj());
+
     /***************************************/
 
     dataview = manage(new DataView(this));
@@ -138,8 +153,6 @@ Mapview::Mapview () :
     statusbar.push("Welcome to mapsoft viewer!",0);
 
     show_all();
-
-
 }
 
 void
@@ -155,10 +168,9 @@ Mapview::update_gobjs() {
 
   // update layer depth and visibility in workplane
   bool ch = false;
-  int d=DEPTH_DATA0;
-  ch = panel_wpts.upd_wp(panel_wpts, d) || ch;
-  ch = panel_trks.upd_wp(panel_trks, d) || ch;
-  ch = panel_maps.upd_wp(panel_maps, d) || ch;
+  ch = panel_wpts.upd_wp() || ch;
+  ch = panel_trks.upd_wp() || ch;
+  ch = panel_maps.upd_wp() || ch;
   if (ch) refresh();
 
   // update comments in data
@@ -241,55 +253,25 @@ Mapview::new_file(bool force) {
 }
 
 void
-Mapview::add_wpts(const boost::shared_ptr<g_waypoint_list> & data) {
-  // note correct order:
-  // - put layer to the workplane
-  // - set layer/or mapview ref (layer ref is set through workplane)
-  // - put layer to LayerList (panel_edited call, workplane refresh)
-  // depth is set to DEPTH_DATA0 to evoke refresh!
-  boost::shared_ptr<GObjWPT> layer(new GObjWPT(data.get()));
-//  panel_wpts.Workplane::add_gobj(layer.get(), DEPTH_DATA0);
-  // if we already have reference, use it
-  if (!have_reference) set_ref(layer->get_myref());
-  panel_wpts.add_gobj(layer, data);
-}
-void
-Mapview::add_trks(const boost::shared_ptr<g_track> & data) {
-  boost::shared_ptr<GObjTRK> layer(new GObjTRK(data.get(), panel_options));
-//  panel_trks.Workplane::add_gobj(layer.get(), DEPTH_DATA0);
-  // if we already have reference, use it
-  if (!have_reference) set_ref(layer->get_myref());
-  panel_trks.add_gobj(layer, data);
-}
-void
-Mapview::add_maps(const boost::shared_ptr<g_map_list> & data) {
-  boost::shared_ptr<GObjMAP> layer(new GObjMAP(data.get(), panel_options));
-//  panel_maps.Workplane::add_gobj(layer.get(), DEPTH_DATA0);
-  // for maps always reset reference
-  set_ref(layer->get_myref());
-  panel_maps.add_gobj(layer, data);
-}
-
-void
 Mapview::add_world(const geo_data & world, bool scroll) {
   divert_refresh=true;
   dPoint p(2e3,2e3);
   for (vector<g_map_list>::const_iterator i=world.maps.begin();
        i!=world.maps.end(); i++){
     boost::shared_ptr<g_map_list> data(new g_map_list(*i));
-    add_maps(data);
+    panel_maps.add(data);
     if (i->size() > 0) p=(*i)[0].center();
   }
   for (vector<g_waypoint_list>::const_iterator i=world.wpts.begin();
        i!=world.wpts.end(); i++){
     boost::shared_ptr<g_waypoint_list> data(new g_waypoint_list(*i));
-    add_wpts(data);
+    panel_wpts.add(data);
     if (i->size() > 0) p=(*i)[0];
   }
   for (vector<g_track>::const_iterator i=world.trks.begin();
        i!=world.trks.end(); i++){
     boost::shared_ptr<g_track> data(new g_track(*i));
-    add_trks(data);
+    panel_trks.add(data);
     if (i->size() > 0) p=(*i)[0];
   }
   set_changed();
@@ -301,9 +283,9 @@ Mapview::add_world(const geo_data & world, bool scroll) {
 void
 Mapview::clear_world() {
   divert_refresh=true;
-  panel_wpts.clear();
-  panel_trks.clear();
-  panel_maps.clear();
+  panel_wpts.remove_all();
+  panel_trks.remove_all();
+  panel_maps.remove_all();
   have_reference = false;
   divert_refresh=false;
   update_gobjs();
@@ -400,6 +382,22 @@ Mapview::on_button_release (GdkEventButton * event) {
 }
 
 bool
+Mapview::on_panel_button_press (GdkEventButton * event) {
+  if (event->button == 3) {
+    Gtk::Menu * M = 0;
+    switch (dataview->get_current_page()){
+      case 0: M = popup_wpts; break;
+      case 1: M = popup_trks; break;
+      case 2: M = popup_maps; break;
+    }
+    if (M) M->popup(event->button, event->time);
+    return true;
+  }
+  return false;
+}
+
+
+bool
 Mapview::on_scroll(GdkEventScroll * event) {
   double scale = event->direction ? 0.5:2.0;
   viewer.rescale(scale, iPoint(event->x, event->y));
@@ -429,7 +427,7 @@ Mapview::show_srtm(bool show){
   }
   else if (!state && show){
     statusbar.push("SRTM ON", 0);
-    panel_srtm.add_gobj(&gobj_srtm, DEPTH_SRTM);
+    panel_srtm.add_gobj(&gobj_srtm, 0);
   }
 }
 

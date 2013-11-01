@@ -72,8 +72,8 @@ public:
       btrack->comm = boost::lexical_cast<std::string>(area);
       btrack->color = 0xFFFFFF00;
 
-      mapview->add_trks(track);
-      mapview->add_trks(btrack);
+      mapview->panel_trks.add(track);
+      mapview->panel_trks.add(btrack);
       mapview->rubber.clear();
       abort();
     }

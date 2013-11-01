@@ -1,11 +1,8 @@
 #ifndef VIEWER_TRKS_PANEL_H
 #define VIEWER_TRKS_PANEL_H
 
-#include <gtkmm.h>
+#include "panel.h"
 #include "img_io/gobj_trk.h"
-
-#include "workplane.h"
-#include "panel_cols.h"
 
 typedef LayerTabCols<GObjTRK, g_track>         PanelTRKCols;
 
@@ -13,21 +10,14 @@ typedef LayerTabCols<GObjTRK, g_track>         PanelTRKCols;
 
 class Mapview;
 
-class PanelTRK : public Gtk::TreeView, public Workplane {
+class PanelTRK : public Panel<GObjTRK, g_track> {
 public:
 
-    PanelTRK (Mapview * M);
+    PanelTRK (Mapview * M): Panel(), mapview(M){}
 
-    void add_gobj (const boost::shared_ptr<GObjTRK> layer,
-                    const boost::shared_ptr<g_track> data);
-
-    void remove_gobj (GObjTRK * L);
-    void remove_selected();
+    void add(const boost::shared_ptr<g_track> data);
 
     void get_data(geo_data & world, bool visible) const;
-
-    /* find first active object */
-    GObjTRK * find_gobj() const;
 
     /* find track points in a rectangular area */
     std::map<GObjTRK*, std::vector<int> > find_tpts(const iRect & r) const;
@@ -39,14 +29,8 @@ public:
     int find_tpt(const iPoint & p, GObjTRK ** gobj,
                  const bool segment = false, int radius = 3) const;
 
-    void clear() {store->clear(); Workplane::clear();}
-
-    bool upd_wp (Workplane & wp, int & d) const;
-
     bool upd_comm(GObjTRK * sel_gobj=NULL, bool dir=true);
 
-    Glib::RefPtr<Gtk::ListStore> store;
-    PanelTRKCols columns;
     Mapview * mapview;
 };
 

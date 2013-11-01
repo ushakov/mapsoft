@@ -68,7 +68,7 @@ private:
         if (ld.is_end()) break;
         ld.move_frw(dist*1000);
       }
-      mapview->add_wpts(wpt_list);
+      mapview->panel_wpts.add(wpt_list);
     }
 
 };

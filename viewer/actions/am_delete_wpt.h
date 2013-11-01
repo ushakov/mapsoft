@@ -22,7 +22,7 @@ public:
       g_waypoint_list * wpts = layer->get_data();
       wpts->erase(wpts->begin()+n);
       if (wpts->size()==0){
-        mapview->panel_wpts.remove_gobj(layer);
+        mapview->panel_wpts.remove(layer);
         mapview->refresh();
       }
       else
@@ -38,7 +38,7 @@ public:
         for (int j=nn.size()-1; j>=0; j--)
           wpts->erase(wpts->begin()+nn[j]);
         if (wpts->size()==0){
-          mapview->panel_wpts.remove_gobj(i->first);
+          mapview->panel_wpts.remove(i->first);
           mapview->refresh();
         }
         else

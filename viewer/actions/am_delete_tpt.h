@@ -27,7 +27,7 @@ public:
       if (n < 0) return;
       del_pt(gobj->get_data(), n);
       if (gobj->get_data()->size()==0){
-        mapview->panel_trks.remove_gobj(gobj);
+        mapview->panel_trks.remove(gobj);
         mapview->refresh();
       }
       else
@@ -42,7 +42,7 @@ public:
         for (int j=nn.size()-1; j>=0; j--)
           del_pt(i->first->get_data(), nn[j]);
         if (i->first->get_data()->size()==0){
-          mapview->panel_trks.remove_gobj(i->first);
+          mapview->panel_trks.remove(i->first);
           mapview->refresh();
         }
         else

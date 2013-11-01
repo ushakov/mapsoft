@@ -49,7 +49,7 @@ private:
       if (r == Gtk::RESPONSE_OK){
         dlg.dlg2wpt(&wpt);
         // try to find active wpt gobj
-        GObjWPT * gobj = mapview->panel_wpts.find_gobj();
+        GObjWPT * gobj = mapview->panel_wpts.find_first();
         if (gobj){
           g_waypoint_list * wpts = gobj->get_data();
           wpts->push_back(wpt);
@@ -62,7 +62,7 @@ private:
         boost::shared_ptr<g_waypoint_list> data(new g_waypoint_list);
         data->push_back(wpt);
         data->comm="NEW";
-        mapview->add_wpts(data);
+        mapview->panel_wpts.add(data);
       }
       abort();
     }

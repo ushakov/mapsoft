@@ -1,0 +1,171 @@
+#ifndef PANEL_ACTIONS_H
+#define PANEL_ACTIONS_H
+
+#include "action_mode.h"
+
+class PanelDelSel : public ActionMode{
+public:
+    PanelDelSel (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Delete selected"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::DELETE; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.remove_selected(); break;
+        case 1: mapview->panel_trks.remove_selected(); break;
+        case 2: mapview->panel_maps.remove_selected(); break;
+      }
+    }
+};
+
+class PanelDelAll : public ActionMode{
+public:
+    PanelDelAll (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Delete all"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::DELETE; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.remove_all(); break;
+        case 1: mapview->panel_trks.remove_all(); break;
+        case 2: mapview->panel_maps.remove_all(); break;
+      }
+    }
+};
+
+class PanelMoveUp : public ActionMode{
+public:
+    PanelMoveUp (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Move up"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::GO_UP; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.move(true,false); break;
+        case 1: mapview->panel_trks.move(true,false); break;
+        case 2: mapview->panel_maps.move(true,false); break;
+      }
+    }
+};
+
+class PanelMoveDown : public ActionMode{
+public:
+    PanelMoveDown (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Move down"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::GO_DOWN; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.move(false,false); break;
+        case 1: mapview->panel_trks.move(false,false); break;
+        case 2: mapview->panel_maps.move(false,false); break;
+      }
+    }
+};
+
+class PanelMoveTop : public ActionMode{
+public:
+    PanelMoveTop (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Move to top"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::GOTO_TOP; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.move(true,true); break;
+        case 1: mapview->panel_trks.move(true,true); break;
+        case 2: mapview->panel_maps.move(true,true); break;
+      }
+    }
+};
+
+class PanelMoveBottom : public ActionMode{
+public:
+    PanelMoveBottom (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Move to bottom"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::GOTO_BOTTOM; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.move(false,true); break;
+        case 1: mapview->panel_trks.move(false,true); break;
+        case 2: mapview->panel_maps.move(false,true); break;
+      }
+    }
+};
+
+class PanelHideAll : public ActionMode{
+public:
+    PanelHideAll (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Hide All"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::REMOVE; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.show_all(false); break;
+        case 1: mapview->panel_trks.show_all(false); break;
+        case 2: mapview->panel_maps.show_all(false); break;
+      }
+    }
+};
+
+class PanelShowAll : public ActionMode{
+public:
+    PanelShowAll (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Show All"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::ADD; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.show_all(); break;
+        case 1: mapview->panel_trks.show_all(); break;
+        case 2: mapview->panel_maps.show_all(); break;
+      }
+    }
+};
+
+class PanelInvert : public ActionMode{
+public:
+    PanelInvert (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Invert visibility"; }
+    Gtk::StockID get_stockid() { return Gtk::Stock::REFRESH; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.invert_all(); break;
+        case 1: mapview->panel_trks.invert_all(); break;
+        case 2: mapview->panel_maps.invert_all(); break;
+      }
+    }
+};
+
+class PanelJoinVis : public ActionMode{
+public:
+    PanelJoinVis (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Join visible"; }
+//    Gtk::StockID get_stockid() { return Gtk::Stock::REFRESH; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.join(true); break;
+        case 1: mapview->panel_trks.join(true); break;
+        case 2: mapview->panel_maps.join(true); break;
+      }
+    }
+};
+
+class PanelJoinAll : public ActionMode{
+public:
+    PanelJoinAll (Mapview * mapview) : ActionMode(mapview){ }
+    std::string get_name() { return "Join all"; }
+//    Gtk::StockID get_stockid() { return Gtk::Stock::REFRESH; }
+    bool is_radio() { return false; }
+    void activate() {
+      switch (mapview->dataview->get_current_page()){
+        case 0: mapview->panel_wpts.join(false); break;
+        case 1: mapview->panel_trks.join(false); break;
+        case 2: mapview->panel_maps.join(false); break;
+      }
+    }
+};
+
+#endif

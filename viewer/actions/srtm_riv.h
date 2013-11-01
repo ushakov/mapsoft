@@ -42,7 +42,7 @@ public:
             pt.z = mapview->srtm.geth(*i);
             track->push_back(pt);
           }
-          mapview->add_trks(track);
+          mapview->panel_trks.add(track);
           mapview->rubber.clear();
           abort();
         }
