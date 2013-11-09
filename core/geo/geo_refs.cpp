@@ -163,7 +163,8 @@ mk_ref(Options & o){
     }
 
     proj = o.get<Proj>("proj", Proj("tmerc"));
-    proj_opts.put<double>("lon0", convs::lon2lon0(geom.x+geom.w/2));
+    proj_opts.put<double>("lon0",
+      o.get("lon0", convs::lon2lon0(geom.x+geom.w/2)));
 
     convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
                      Datum("wgs84"), proj, proj_opts);
@@ -189,7 +190,8 @@ mk_ref(Options & o){
     ret.border.push_back(ret.border[0]);
 
     proj = o.get<Proj>("proj", Proj("tmerc"));
-    proj_opts.put<double>("lon0", convs::lon2lon0(ret.border.range().CNT().x));
+    proj_opts.put<double>("lon0",
+      o.get("lon0", convs::lon2lon0(ret.border.range().CNT().x)));
 
     if (verbose) cerr << "mk_ref: brd = " << ret.border << "\n";
     refs = generalize(ret.border, -1, 5); // 5pt
