@@ -13,8 +13,8 @@
 class DlgSaveImg : public Gtk::Dialog{
     Gtk::CheckButton *map;
     Gtk::RadioButton  *rb_mpp_screen, *rb_mpp_auto, *rb_mpp_dpi;
-    Gtk::SpinButton *mpp_dpi;
-    Gtk::Adjustment dpi_adj;
+    Gtk::SpinButton *mpp_dpi, *scr_mag;
+    Gtk::Adjustment dpi_adj, mag_adj;
     CBScale  *mpp_scale;
     CBCorner *corner;
     Gtk::Label *hint;
@@ -31,8 +31,9 @@ class DlgSaveImg : public Gtk::Dialog{
     iPoint get_px();
     int get_dpi();
 
-    double get_mpp();
-    int get_mpp_style();
+    double get_mpp() const;
+    double get_scr_mag() const;
+    int get_mpp_style() const;
 
     int get_corner() const;
 

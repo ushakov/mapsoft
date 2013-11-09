@@ -138,7 +138,7 @@ private:
     double get_mpp_scale(){
       switch (dlg.get_mpp_style()){
         case MPP_SCREEN:
-          return 1.0;
+          return 1./dlg.get_scr_mag();
         case MPP_AUTO: {
           //search top-level maps on 5x5 points on the screen and in point one
           // for max mpp
@@ -160,8 +160,8 @@ private:
              if (sc>max_sc) max_sc = sc;
           }
 
-          if (max_sc==0) return 1.0;
-          return max_sc;
+          if (max_sc==0) return 1.0/dlg.get_scr_mag();
+          return max_sc / dlg.get_scr_mag();
         }
         case MPP_MANUAL:{
           return dlg.get_mpp()/get_scr_mpp(one);
