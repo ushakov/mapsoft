@@ -52,6 +52,9 @@ DlgSaveImg::DlgSaveImg(): dpi_adj(300, 1, 9999, 50),
   map = manage(new Gtk::CheckButton("write Ozi map file"));
   map->set_active();
 
+  fig = manage(new Gtk::CheckButton("write Fig file"));
+  fig->set_active(false);
+
   /**** Corner combobox ****/
   Gtk::Label *l_c = manage(
     new Gtk::Label("Select corner: ",  Gtk::ALIGN_RIGHT));
@@ -64,14 +67,15 @@ DlgSaveImg::DlgSaveImg(): dpi_adj(300, 1, 9999, 50),
 
   /**** Main table ****/
 
-  Gtk::Table *table = manage(new Gtk::Table(3,5));
+  Gtk::Table *table = manage(new Gtk::Table(3,6));
             //  widget    l  r  t  b  x       y
   table->attach(*pagebox,   0, 3, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*res_frame, 0, 3, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
   table->attach(*map,       0, 3, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*l_c,       0, 1, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*corner,    1, 3, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  table->attach(*hint,      0, 3, 4, 5, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*fig,       0, 3, 3, 4, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*l_c,       0, 1, 4, 5, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*corner,    1, 3, 4, 5, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  table->attach(*hint,      0, 3, 5, 6, Gtk::FILL, Gtk::SHRINK, 3, 3);
 
   get_vbox()->add(*table);
 
@@ -105,11 +109,6 @@ DlgSaveImg::get_px(){
 int
 DlgSaveImg::get_dpi(){
   return pagebox->get_dpi();
-}
-
-bool
-DlgSaveImg::get_map() const{
-  return map->get_active();
 }
 
 double

@@ -5,6 +5,7 @@
 #include "action_mode.h"
 #include "../dialogs/save_img.h"
 
+#include "geo_io/geofig.h"
 #include "2d/line_utils.h"
 #include "geo_io/io_oe.h"
 #include "loaders/image_r.h"
@@ -233,8 +234,8 @@ std::cerr << "MPP SCALE " << sc << "\n";
         return;
       }
 
-      // Write map file
-      if (dlg.get_map()){
+      // Write map and fig files
+      if (dlg.get_map() || dlg.get_fig()){
         g_map ref = *mapview->main_gobj.get_ref();
         ref.clear(); ref.border.clear();
 
@@ -256,12 +257,27 @@ std::cerr << "MPP SCALE " << sc << "\n";
           ref.border.push_back(pts[i]);
         }
 
-        try {oe::write_map_file((fname + ".map").c_str(), ref);}
-        catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+        if (dlg.get_map()){
+          try {oe::write_map_file((fname + ".map").c_str(), ref);}
+          catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+        }
+        if (dlg.get_fig()){
+          fig::fig_world W;
+          ref = ref * 2.54 / 300 * fig::cm2fig;
+          fig::set_ref(W, ref, Options());
+          fig::fig_object o = fig::make_object("2 5 0 1 0 -1 500 -1 -1 0.000 0 0 -1 0 0 *");
+          for (g_map::iterator i=ref.begin(); i!=ref.end(); i++){
+            o.push_back(iPoint(int(i->xr), int(i->yr)));
+          }
+          o.push_back(iPoint(int(ref[0].xr), int(ref[0].yr)));
+          o.image_file = fname;
+          o.comment.push_back(string("MAP ") + fname);
+          W.push_back(o);
+          try {fig::write((fname + ".fig").c_str(), W);}
+          catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+        }
       }
-
       fdlg.hide_all();
-
     }
 };
 

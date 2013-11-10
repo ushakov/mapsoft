@@ -11,7 +11,7 @@
 
 // dialog for SaveImage action
 class DlgSaveImg : public Gtk::Dialog{
-    Gtk::CheckButton *map;
+    Gtk::CheckButton *map, *fig;
     Gtk::RadioButton  *rb_mpp_screen, *rb_mpp_auto, *rb_mpp_dpi;
     Gtk::SpinButton *mpp_dpi, *scr_mag;
     Gtk::Adjustment dpi_adj, mag_adj;
@@ -25,7 +25,8 @@ class DlgSaveImg : public Gtk::Dialog{
 
   public:
     DlgSaveImg();
-    bool get_map() const;
+    bool get_map() const {return map->get_active();}
+    bool get_fig() const {return fig->get_active();}
 
     void set_px(const iPoint & p);
     iPoint get_px();
