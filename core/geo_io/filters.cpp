@@ -20,6 +20,7 @@ void map_nom_brd(geo_data & world, const Options & O){
     for (i = ml_i->begin(); i!=ml_i->end(); i++){
 
       dRect r = convs::nom_to_range(i->comm);
+      if (r.empty()) r=convs::nom_to_range(i->file);
 
       if (O.exists("verbose")){
         if (!r.empty()) cerr << " - setting border for the nom map " << i->comm << endl;
