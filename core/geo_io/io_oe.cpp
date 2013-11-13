@@ -18,7 +18,8 @@
 #include "2d/line_utils.h"
 #include "utils/iconv_utils.h"
 
-#include <math.h>
+#include <cmath>
+#include <limits>
 
 #include "jeeps/gpsmath.h"
 #include "jeeps/gpsdatum.h"
@@ -27,6 +28,8 @@
 namespace oe{
 
 const char *default_charset = "WINDOWS-1251";
+double const NaN = std::numeric_limits<double>::quiet_NaN();
+
 
 using namespace std;
 using namespace boost::spirit::classic;
@@ -162,9 +165,9 @@ using namespace boost::spirit::classic;
 		oe_mappoint(){
 			x=0;      y=0;
 			lat_h=1;  lon_h=1;
-			lat_d=0;  lon_d=0;
-			lat_m=0;  lon_m=0;
-			grid_x=0; grid_y=0;
+			lat_d=NaN;  lon_d=NaN;
+			lat_m=NaN;  lon_m=NaN;
+			grid_x=NaN; grid_y=NaN;
                 }
         };
 
@@ -215,8 +218,8 @@ using namespace boost::spirit::classic;
                         //ret.proj_str = convs::mkprojstr(ret.map_datum, ret.map_proj, ret.proj_opts);
 
 			convs::pt2wgs cnv1(Datum(datum), Proj("lonlat"));
-
-			convs::pt2wgs cnv2(Datum(datum), Proj(map_proj), opts);
+			convs::pt2wgs *cnv2=NULL; // we need it only if we have greed coordinates
+			                          // otherwise it can be impossible to build it
 
                         // convert points
                         vector<oe_mappoint>::const_iterator i,
@@ -224,21 +227,25 @@ using namespace boost::spirit::classic;
                         for (i=b; i!=e; i++){
 				g_refpoint p;
                                 p.xr = i->x; p.yr = i->y;
-                                p.x = i->lon_d + i->lon_m/60.0;  if (i->lon_h<0) p.x=-p.x;
-                                p.y = i->lat_d + i->lat_m/60.0;  if (i->lat_h<0) p.y=-p.y;
-                                if ((p.y!=0) || (p.x!=0)){
+				if (!std::isnan(i->lon_d) && !std::isnan(i->lat_d) &&
+				    !std::isnan(i->lon_m) && !std::isnan(i->lat_m)){
+                                  p.x = i->lon_d + i->lon_m/60.0;  if (i->lon_h<0) p.x=-p.x;
+                                  p.y = i->lat_d + i->lat_m/60.0;  if (i->lat_h<0) p.y=-p.y;
                                   cnv1.frw(p);
                                 }
-                                else if ((i->grid_x!=0) || (i->grid_y!=0)){
+                                else if (!std::isnan(i->grid_x) && !std::isnan(i->grid_y)){
                                   p.x=i->grid_x;
                                   p.y=i->grid_y;
-                                  cnv2.frw(p);
+                                  if (!cnv2)
+                                    cnv2=new convs::pt2wgs(Datum(datum), Proj(map_proj), opts);
+                                  cnv2->frw(p);
                                 }
                                 else {
                                   continue;
                                 }
                     		ret.push_back(p);
 			}
+			if (cnv2) free(cnv2);
                         ret.border=border;
 			return ret;
                 }
