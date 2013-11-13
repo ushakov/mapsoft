@@ -408,8 +408,8 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
     "Track File" >> *ch >> +eol_p >>
     *( str_p("TF") >> *ch >> +eol_p ) >>  // TF (1 line, unsupported)
     "Moving Map" >> *ch >> +eol_p >>
-    "MM0" >> scs >> *ch >> +eol_p >> // Yes or No, does not matter
-    MM >> 
+    *( "MM0" >> scs >> *ch >> +eol_p ) >> // Yes or No, does not matter
+    *MM >>
     *anychar_p;
 
   rule_t main_rule = (wpt_head >> *(wpt_point))[push_back_a(ret.wpts, w)] ||
@@ -640,6 +640,9 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 			}
 
 			f << "MM1B," << convs::map_mpp(m, m.map_proj) << "\r\n";
+		}
+		else{
+		  f << "MM0,No\r\n";
 		}
 		if (!f.good()) throw MapsoftErr("GEO_IO_OE_WRITE")
                   << "Can't write data to OziExplorer file " << filename << " for writing";
