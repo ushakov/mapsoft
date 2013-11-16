@@ -53,47 +53,6 @@ SimpleViewer::set_origin (iPoint p) {
   signal_ch_origin_.emit(p);
 }
 
-void
-SimpleViewer::set_center (iPoint p) {
-  set_origin(p - iPoint(get_width(), get_height())/2);
-}
-
-iPoint
-SimpleViewer::get_origin (void) const {
-  return origin;
-}
-
-iPoint
-SimpleViewer::get_center (void) const {
-  return origin + iPoint(get_width(), get_height())/2;
-}
-
-void
-SimpleViewer::set_obj (GObj * o){
-  obj=o;
-  redraw();
-}
-
-GObj *
-SimpleViewer::get_obj (void) const{
-  return obj;
-}
-
-void
-SimpleViewer::set_bgcolor (int c){
-  bgcolor=c | 0xFF000000;
-}
-
-int
-SimpleViewer::get_bgcolor (void) const{
-  return bgcolor;
-}
-
-iRect
-SimpleViewer::range() const{
-  return obj?obj->range():GOBJ_MAX_RANGE;
-}
-
 /***********************************************************/
 
 void
@@ -199,29 +158,4 @@ SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
   return false;
 }
 
-/***********************************************************/
 
-bool
-SimpleViewer::is_on_drag(){
-  return on_drag;
-}
-
-/***********************************************************/
-
-sigc::signal<void> &
-SimpleViewer::signal_before_draw(){ return signal_before_draw_;}
-
-sigc::signal<void> &
-SimpleViewer::signal_after_draw(){ return signal_after_draw_;}
-
-sigc::signal<void> &
-SimpleViewer::signal_busy(){ return signal_busy_;}
-
-sigc::signal<void> &
-SimpleViewer::signal_idle(){ return signal_idle_;}
-
-sigc::signal<void, double> &
-SimpleViewer::signal_on_rescale(){ return signal_on_rescale_;}
-
-sigc::signal<void, iPoint> &
-SimpleViewer::signal_ch_origin(){ return signal_ch_origin_;}

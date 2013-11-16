@@ -23,14 +23,21 @@ class SimpleViewer : public Viewer {
     SimpleViewer(GObj * o = NULL);
 
     virtual void   set_origin (iPoint new_origin);
-    virtual void   set_center (iPoint new_center);
-    virtual iPoint get_origin (void) const;
-    virtual iPoint get_center (void) const;
-    virtual void   set_obj (GObj * o);
-    virtual GObj * get_obj (void) const;
-    virtual void   set_bgcolor(int c);
-    virtual int    get_bgcolor(void) const;
-    virtual iRect range() const;
+    virtual iPoint get_origin (void) const { return origin;}
+
+    virtual void   set_center (iPoint new_center){
+      set_origin(new_center - iPoint(get_width(), get_height())/2);}
+    virtual iPoint get_center (void) const {
+      return origin + iPoint(get_width(), get_height())/2;}
+
+    virtual void   set_obj (GObj * o) {obj=o; redraw();}
+    virtual GObj * get_obj (void) const {return obj;}
+
+    virtual void   set_bgcolor(int c) {bgcolor=c | 0xFF000000;}
+    virtual int    get_bgcolor(void) const {return bgcolor;}
+
+    virtual iRect range() const {
+      return obj?obj->range():GOBJ_MAX_RANGE;}
 
     // draw image from the GObj on the screen
     virtual void draw(const iRect & r);
@@ -48,15 +55,14 @@ class SimpleViewer : public Viewer {
     virtual bool on_button_release_event (GdkEventButton * event);
     virtual bool on_motion_notify_event (GdkEventMotion * event);
 
-    virtual bool is_on_drag();
+    virtual bool is_on_drag() const {return on_drag;}
 
-    sigc::signal<void> & signal_before_draw();
-    sigc::signal<void> & signal_after_draw();
-    sigc::signal<void> & signal_draw_error();
-    sigc::signal<void> & signal_busy();
-    sigc::signal<void> & signal_idle();
-    sigc::signal<void, double> & signal_on_rescale();
-    sigc::signal<void, iPoint> & signal_ch_origin();
+    sigc::signal<void> & signal_before_draw() {return signal_before_draw_;}
+    sigc::signal<void> & signal_after_draw()  {return signal_after_draw_;}
+    sigc::signal<void> & signal_busy()        {return signal_busy_;}
+    sigc::signal<void> & signal_idle()        {return signal_idle_;}
+    sigc::signal<void, double> & signal_on_rescale()  {return signal_on_rescale_;}
+    sigc::signal<void, iPoint> & signal_ch_origin()   {return signal_ch_origin_;}
 
   private:
 
