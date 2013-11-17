@@ -43,6 +43,8 @@ vmap::world
 make_legend(string style){
   zn::zn_conv z(style);
   world ret;
+  ret.style=style;
+  ret.name="lenend";
   double sc=0.002;
 
   int count=0;

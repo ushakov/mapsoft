@@ -110,7 +110,7 @@ typedef enum {
 
 // zn_conv constructor. Read config file,
 // build structure with fig and mp objects
-zn_conv::zn_conv(const string & style){
+zn_conv::zn_conv(const string & style_): style(style_){
 
   default_fig = fig::make_object("2 1 2 2 4 7 10 -1 -1 6.000 0 0 -1 0 0 0");
   default_txt = fig::make_object("4 0 4 10 -1 18 8 0.0000 4");

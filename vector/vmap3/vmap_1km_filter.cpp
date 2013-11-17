@@ -80,22 +80,23 @@ main(int argc, char **argv){
     if ((sc>1) && (
       (i->type == 0x6414) || // родник
       (i->type == 0x6415) || // развалины
-      (i->type == (0x0A | zn::line_mask)) || // непроезжая грунтовка
+//      (i->type == (0x0A | zn::line_mask)) || // непроезжая грунтовка
       (i->type == (0x26 | zn::line_mask)) || // пересыхающий ручей
-      (i->type == (0x16 | zn::line_mask)) || // просека
-      (i->type == (0x19 | zn::line_mask)) || // забор
+//      (i->type == (0x16 | zn::line_mask)) || // просека
+//      (i->type == (0x19 | zn::line_mask)) || // забор
       (i->type == (0x21 | zn::line_mask)) || // горизонтали, бергштрихи
       (i->type == (0x22 | zn::line_mask)) || // жирная горизонталь
       (i->type == (0x25 | zn::line_mask)) || // овраг
-      (i->type == (0x28 | zn::line_mask)) || // газопровод
-      (i->type == (0x29 | zn::line_mask)) || // ЛЭП
+//      (i->type == (0x28 | zn::line_mask)) || // газопровод
+//      (i->type == (0x29 | zn::line_mask)) || // ЛЭП
       (i->type == (0x2A | zn::line_mask)) || // тропа
       (i->type == (0x2C | zn::line_mask)) || // вал
       (i->type == (0x2D | zn::line_mask)) || // заросшая дорога
       (i->type == (0x08 | zn::line_mask)) || // мост-1
       (i->type == (0x09 | zn::line_mask)) || // мост-2
       (i->type == (0x0E | zn::line_mask)) || // мост-5
-
+      (i->type == (0x4F | zn::area_mask)) || // свежая вырубка
+      (i->type == (0x50 | zn::area_mask)) || // стар.вырубка
         false)){
       i=V.erase(i);
       continue;

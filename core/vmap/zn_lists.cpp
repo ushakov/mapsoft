@@ -33,6 +33,7 @@ fig::fig_object make_sample(const std::map<int, zn>::const_iterator &i, int grid
 fig::fig_world make_legend(zn_conv & z, bool cmap, int grid, int dg){
   int count=0;
   fig::fig_world ret;
+  ret.opts.put("style", z.get_style());
 
   for (std::map<int, zn>::const_iterator i = z.znaki.begin(); i!=z.znaki.end(); i++){
     fig::fig_object o = make_sample(i, grid, dg);

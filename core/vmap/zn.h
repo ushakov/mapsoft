@@ -77,6 +77,7 @@ class zn_conv{
   fig::fig_object default_txt;  // как рисовать неизвестные подписи
   mp::mp_object default_mp;     // как рисовать неизвестные знаки
   int default_ocad, default_ocad_txt;
+  const std::string style;
 
   std::set<int> unknown_types; // база неизвестных типов, чтоб на каждый ругаться единожды
   int min_depth, max_depth;
@@ -87,6 +88,8 @@ class zn_conv{
 
     // Операции с mp- и fig-объектами, для которых 
     // требуется конф.файл
+
+  const std::string & get_style() const {return style;}
 
   // определить тип mp-объекта (почти тривиальная функция :))
   int get_type(const mp::mp_object & o) const;
