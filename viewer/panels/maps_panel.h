@@ -12,7 +12,7 @@ class Mapview;
 
 class PanelMAP : public Panel<GObjMAP, g_map_list> {
 public:
-  PanelMAP (Mapview *M): Panel(), mapview(M){}
+  PanelMAP (Mapview *M): mapview(M){}
 
   void add(const boost::shared_ptr<g_map_list> data);
 

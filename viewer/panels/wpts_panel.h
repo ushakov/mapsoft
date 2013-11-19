@@ -12,7 +12,7 @@ class Mapview;
 
 class PanelWPT : public Panel<GObjWPT, g_waypoint_list> {
 public:
-    PanelWPT (Mapview * M): Panel(), mapview(M){}
+    PanelWPT (Mapview * M): mapview(M){}
 
     void add(const boost::shared_ptr<g_waypoint_list> data);
 

@@ -13,7 +13,7 @@ class Mapview;
 class PanelTRK : public Panel<GObjTRK, g_track> {
 public:
 
-    PanelTRK (Mapview * M): Panel(), mapview(M){
+    PanelTRK (Mapview * M): mapview(M){
       opts.put("trk_draw_dots", "");
       opts.put("trk_draw_arrows", "");
       opts.put("trk_draw_v1", 0);
