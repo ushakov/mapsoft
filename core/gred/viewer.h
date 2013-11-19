@@ -17,7 +17,7 @@ class Viewer : public Gtk::DrawingArea {
     virtual void set_origin (iPoint new_origin) = 0;
     virtual iPoint get_origin (void) const = 0;
 
-    virtual bool is_on_drag() = 0;
+    virtual bool is_on_drag() const = 0;
 
     /// These signals are used in Rubber.
     /// They must be called just before and after
