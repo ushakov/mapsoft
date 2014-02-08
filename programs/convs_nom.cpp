@@ -12,6 +12,7 @@ void usage(){
        << "usage: convs_nom -p <point> <rscale>\n"
        << "       convs_nom -r <range> <rscale>\n"
        << "       convs_nom -n <name>\n"
+       << "       convs_nom -c <name>\n"
        << "       convs_nom -s <name> x_shift y_shift\n"
        << "\n"
   ;
@@ -37,7 +38,11 @@ int main(int argc, char** argv){
     exit (0);
   }
   else if ((argc == 3) && (strcmp(argv[1], "-n") == 0)){
-    cout << nom_to_range(argv[2]) << "\n";
+    cout << setprecision(9) << nom_to_range(argv[2]) << "\n";
+    exit (0);
+  }
+  else if ((argc == 3) && (strcmp(argv[1], "-c") == 0)){
+    cout << setprecision(9) << nom_to_range(argv[2]).CNT() << "\n";
     exit (0);
   }
   else if ((argc == 5) && (strcmp(argv[1], "-s") == 0)){
