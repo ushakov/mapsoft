@@ -9,11 +9,12 @@ using namespace convs;
 void usage(){
   cerr << "\n"
        << "Map nomenclature conversions.\n"
-       << "usage: convs_nom -p <point> <rscale>\n"
-       << "       convs_nom -r <range> <rscale>\n"
-       << "       convs_nom -n <name>\n"
-       << "       convs_nom -c <name>\n"
-       << "       convs_nom -s <name> x_shift y_shift\n"
+       << "usage: convs_nom -p <point> <rscale> -- maps at the point\n"
+       << "       convs_nom -r <range> <rscale> -- maps at the range\n"
+       << "       convs_nom -n <name> -- map range\n"
+       << "       convs_nom -c <name> -- map center\n"
+       << "       convs_nom -s <name> x_shift y_shift -- adjecent map\n"
+       << "       convs_nom -S <name> <rscale> -- maps of different scale\n"
        << "\n"
   ;
   exit(1);
@@ -51,5 +52,15 @@ int main(int argc, char** argv){
     cout << nom_shift(argv[2], sh) << "\n";
     exit (0);
   }
+  else if ((argc == 4) && (strcmp(argv[1], "-S") == 0)){
+    dRect r = rect_pump(nom_to_range(argv[2]), -0.001, -0.001);
+    vector<string> names = range_to_nomlist( r,
+        boost::lexical_cast<double>(argv[3]) );
+    for (vector<string>::iterator i=names.begin(); i!=names.end(); i++){
+      cout << *i << "\n";
+    }
+    exit (0);
+  }
   usage();
+  exit (1);
 }
