@@ -66,6 +66,7 @@ PanelMAP::upd_comm(GObjMAP * sel_gobj, bool dir){
       }
     }
   }
+  if (ret) signal_data_changed().emit();
   return ret;
 }
 

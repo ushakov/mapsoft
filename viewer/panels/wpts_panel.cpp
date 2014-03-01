@@ -69,5 +69,6 @@ PanelWPT::upd_comm(GObjWPT * sel_gobj, bool dir){
       ret = true;
     }
   }
+  if (ret) signal_data_changed().emit();
   return ret;
 }

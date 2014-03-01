@@ -69,5 +69,6 @@ PanelTRK::upd_comm(GObjTRK * sel_gobj, bool dir){
       ret = true;
     }
   }
+  if (ret) signal_data_changed().emit();
   return ret;
 }

@@ -57,6 +57,15 @@ Mapview::Mapview () :
     panel_srtm.signal_button_press_event().connect(
       sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
 
+    // mapview want to know about data change only to set a star in
+    // the window title.
+    panel_wpts.signal_data_changed().connect(
+      sigc::bind(sigc::mem_fun(this, &Mapview::set_changed), true));
+    panel_trks.signal_data_changed().connect(
+      sigc::bind(sigc::mem_fun(this, &Mapview::set_changed), true));
+    panel_maps.signal_data_changed().connect(
+      sigc::bind(sigc::mem_fun(this, &Mapview::set_changed), true));
+
     main_gobj.push_back((Workplane *) &panel_srtm);
     main_gobj.push_back((Workplane *) &panel_maps);
     main_gobj.push_back((Workplane *) &panel_trks);
@@ -115,7 +124,7 @@ Mapview::Mapview () :
 
     /***************************************/
 
-    /// Panels (Notebook)
+    /// Build panels (Notebook)
     panels = manage(new Gtk::Notebook());
     /// scrollwindows with layerlists
     Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
@@ -127,7 +136,6 @@ Mapview::Mapview () :
     scr_wpt->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     scr_trk->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     scr_map->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-
     /// append pages to the Notebook
     panels->append_page(*scr_wpt, "WPT");
     panels->append_page(*scr_trk, "TRK");
@@ -136,13 +144,12 @@ Mapview::Mapview () :
     panels->set_scrollable(false);
     panels->set_size_request(150,-1);
 
-
-    /// Main pand: Viewer + Panels
+    /// Build main pand: Viewer + Panels
     Gtk::HPaned * paned = manage(new Gtk::HPaned);
     paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
     paned->pack2(*panels, Gtk::FILL);
 
-    /// Status hbox: busy_icon + statusbar
+    /// Build status hbox: busy_icon + statusbar
     busy_icon = manage(new Gtk::Image());
     busy_icon->set_tooltip_text("Viewer acivity");
     busy_icon->set_size_request(20,16);
@@ -150,7 +157,7 @@ Mapview::Mapview () :
     st_box->pack_start(*busy_icon, false, true, 0);
     st_box->pack_start(statusbar, true, true, 0);
 
-    /// Main vbox: menu + main pand + statusbar
+    /// Build main vbox: menu + main pand + statusbar
     Gtk::VBox * vbox = manage(new Gtk::VBox);
     vbox->pack_start(*ui_manager->get_widget("/MenuBar"), false, true, 0);
     vbox->pack_start(*paned, true, true, 0);
@@ -183,11 +190,9 @@ Mapview::update_gobjs() {
   if (ch) refresh();
 
   // update comments in data
-  ch = false;
-  ch = panel_wpts.upd_comm() || ch;
-  ch = panel_trks.upd_comm() || ch;
-  ch = panel_maps.upd_comm() || ch;
-  if (ch) set_changed();
+  panel_wpts.upd_comm();
+  panel_trks.upd_comm();
+  panel_maps.upd_comm();
 }
 
 

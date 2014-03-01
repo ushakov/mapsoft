@@ -26,7 +26,13 @@ public:
 
 template <typename Tl, typename Td>
 class Panel : public Gtk::TreeView, public Workplane {
+  sigc::signal<void> signal_data_changed_;
 public:
+
+  // This signal is emitted when data is changed
+  // (comment or order, but not visibility)
+  sigc::signal<void> & signal_data_changed(){
+    return signal_data_changed_;}
 
   Panel() {
     store = Gtk::ListStore::create(columns);
