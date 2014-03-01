@@ -69,14 +69,6 @@ Mapview::Mapview () :
     main_gobj.push_back((Workplane *) &panel_trks);
     main_gobj.push_back((Workplane *) &panel_wpts);
 
-    /// events from layer lists
-    panel_wpts.store->signal_row_changed().connect (
-      sigc::mem_fun (this, &Mapview::panel_edited));
-    panel_trks.store->signal_row_changed().connect (
-      sigc::mem_fun (this, &Mapview::panel_edited));
-    panel_maps.store->signal_row_changed().connect (
-      sigc::mem_fun (this, &Mapview::panel_edited));
-
     /// events from viewer
     viewer.signal_busy().connect(
       sigc::mem_fun (&spanel, &StatusPanel::set_busy));
@@ -160,31 +152,6 @@ Mapview::Mapview () :
 
     show_all();
 }
-
-void
-Mapview::panel_edited (const Gtk::TreeModel::Path& path,
-                   const Gtk::TreeModel::iterator& iter) {
-  update_gobjs();
-}
-
-void
-Mapview::update_gobjs() {
-  if (divert_refresh) return;
-  Gtk::TreeNodeChildren::const_iterator i;
-
-  // update layer depth and visibility in workplane
-  bool ch = false;
-  ch = panel_wpts.upd_wp() || ch;
-  ch = panel_trks.upd_wp() || ch;
-  ch = panel_maps.upd_wp() || ch;
-  if (ch) refresh();
-
-  // update comments in data
-  panel_wpts.upd_comm();
-  panel_trks.upd_comm();
-  panel_maps.upd_comm();
-}
-
 
 void
 Mapview::on_mode_change (int m) {
@@ -281,7 +248,6 @@ Mapview::add_world(const geo_data & world, bool scroll) {
   set_changed();
   if (scroll && (p.x<1e3)) goto_wgs(p);
   divert_refresh=false;
-  update_gobjs();
 }
 
 void
@@ -293,7 +259,6 @@ Mapview::clear_world() {
   panel_srtm.show(false);
   have_reference = false;
   divert_refresh=false;
-  update_gobjs();
 }
 
 geo_data

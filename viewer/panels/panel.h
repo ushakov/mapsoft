@@ -47,6 +47,9 @@ public:
       comm_column->add_attribute(
         comm_cell->property_weight(), columns.weight);
 
+    store->signal_row_changed().connect (
+      sigc::mem_fun (this, &Panel::on_panel_edited));
+
     set_enable_search(false);
     set_headers_visible(false);
     set_reorderable(false);
@@ -185,6 +188,15 @@ public:
     store->iter_swap(it1, it2);
     upd_wp();
   }
+
+  void on_panel_edited (const Gtk::TreeModel::Path& path,
+                        const Gtk::TreeModel::iterator& iter) {
+    // update layer depth and visibility in workplane
+    upd_wp();
+    // update comments in data
+    upd_comm();
+  }
+  virtual bool upd_comm(Tl * sel_gobj = NULL, bool dir=true) =0;
 
   /* Update visibility and depths of Workplane objects
      according to TreeView */

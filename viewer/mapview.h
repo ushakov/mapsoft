@@ -57,11 +57,6 @@ public:
 
     Mapview ();
 
-    void panel_edited (const Gtk::TreeModel::Path& path,
-                       const Gtk::TreeModel::iterator& iter);
-
-    void update_gobjs();
-
     void on_mode_change (int m);
     std::string get_filename() const;
     void set_filename(const std::string & f);
@@ -71,9 +66,9 @@ public:
     void add_files(const std::list<std::string> & files);       // add data from files
     void load_file(const std::string & file, bool force=false); // load new data from file
     void new_file(bool force=false);                            // start new project
-
     void add_world(const geo_data & world, bool scroll=false);
     void clear_world();
+
     // build geo_data object with all/visible data
     geo_data get_world(bool visible=true);
 
