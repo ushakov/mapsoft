@@ -84,13 +84,9 @@ public:
     void goto_wgs(dPoint p);
     void exit(bool force=false);
     void refresh();
-    bool on_key_press(GdkEventKey * event);
     bool on_button_press (GdkEventButton * event);
     bool on_button_release (GdkEventButton * event);
-    bool on_scroll (GdkEventScroll * event);
     bool on_panel_button_press (GdkEventButton * event);
-    void show_busy_mark();
-    void hide_busy_mark();
 };
 
 

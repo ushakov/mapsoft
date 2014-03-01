@@ -54,6 +54,8 @@ class SimpleViewer : public Viewer {
     virtual bool on_button_press_event (GdkEventButton * event);
     virtual bool on_button_release_event (GdkEventButton * event);
     virtual bool on_motion_notify_event (GdkEventMotion * event);
+    virtual bool on_key_press (GdkEventKey * event);
+    virtual bool on_scroll_event (GdkEventScroll * event);
 
     virtual bool is_on_drag() const {return on_drag;}
 

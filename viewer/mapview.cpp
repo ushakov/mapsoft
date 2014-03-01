@@ -21,16 +21,14 @@ Mapview::Mapview () :
       sigc::bind(sigc::hide(sigc::mem_fun (this, &Mapview::exit)),false));
     set_default_size(640,480);
 
-    /// global keypress event
+    /// global keypress event -- send all keys to the viewer first:
     signal_key_press_event().connect (
-      sigc::mem_fun (this, &Mapview::on_key_press));
+      sigc::mem_fun (&viewer, &DThreadViewer::on_key_press));
     /// viewer mouse button events
     viewer.signal_button_press_event().connect (
       sigc::mem_fun (this, &Mapview::on_button_press));
     viewer.signal_button_release_event().connect (
       sigc::mem_fun (this, &Mapview::on_button_release));
-    viewer.signal_scroll_event().connect(
-      sigc::mem_fun (this, &Mapview::on_scroll));
 
     /// refresh events from panels -> move to viewer?
     panel_wpts.signal_refresh.connect (
@@ -340,28 +338,6 @@ Mapview::refresh() {
 }
 
 bool
-Mapview::on_key_press(GdkEventKey * event) {
-    VLOG(2) << "key_press: " << event->keyval << "";
-    switch (event->keyval) {
-      case 43:
-      case 61:
-      case 65451: // + =
-        viewer.rescale(2.0);
-        return true;
-      case 45:
-      case 95:
-      case 65453: // _ -
-        viewer.rescale(0.5);
-        return true;
-      case 'r':
-      case 'R': // refresh
-        refresh();
-        return true;
-    }
-    return false;
-}
-
-bool
 Mapview::on_button_press (GdkEventButton * event) {
   if (event->button == 1) {
     click_start = viewer.get_origin();
@@ -405,10 +381,4 @@ Mapview::on_panel_button_press (GdkEventButton * event) {
 }
 
 
-bool
-Mapview::on_scroll(GdkEventScroll * event) {
-  double scale = event->direction ? 0.5:2.0;
-  viewer.rescale(scale, iPoint(event->x, event->y));
-  return true;
-}
 

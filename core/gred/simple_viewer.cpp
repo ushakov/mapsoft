@@ -158,4 +158,35 @@ SimpleViewer::on_motion_notify_event (GdkEventMotion * event) {
   return false;
 }
 
+// Note: grabbing focus and processing keypress events
+// from the viewer itself is not so simple, and prevents
+// other key processing.
+// see http://www.mail-archive.com/gtk-list@gnome.org/msg03381.html
+// It's better ot connect this function to the main window's signal.
+bool
+SimpleViewer::on_key_press(GdkEventKey * event) {
+  switch (event->keyval) {
+    case 43:
+    case 61:
+    case 65451: // + =
+      rescale(2.0);
+      return true;
+    case 45:
+    case 95:
+    case 65453: // _ -
+      rescale(0.5);
+      return true;
+    case 'r':
+    case 'R': // refresh
+      redraw();
+      return true;
+  }
+  return false;
+}
 
+bool
+SimpleViewer::on_scroll_event(GdkEventScroll * event) {
+  double scale = event->direction ? 0.5:2.0;
+  rescale(scale, iPoint(event->x, event->y));
+  return true;
+}
