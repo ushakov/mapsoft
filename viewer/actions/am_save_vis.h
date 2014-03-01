@@ -23,7 +23,7 @@ public:
 
     void on_ok(){
       std::string f = get_filename();
-      mapview->statusbar.push("Save visible data to " + f);
+      mapview->spanel.message("Save visible data to " + f);
       try {io::out(f, mapview->get_world(true));}
       catch (MapsoftErr e) {mapview->dlg_err.call(e);}
       hide();

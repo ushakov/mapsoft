@@ -81,9 +81,9 @@ Mapview::Mapview () :
 
     /// events from viewer
     viewer.signal_busy().connect(
-      sigc::mem_fun (this, &Mapview::show_busy_mark));
+      sigc::mem_fun (&spanel, &StatusPanel::set_busy));
     viewer.signal_idle().connect(
-      sigc::mem_fun (this, &Mapview::hide_busy_mark));
+      sigc::mem_fun (&spanel, &StatusPanel::set_idle));
 
     viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
 
@@ -149,24 +149,16 @@ Mapview::Mapview () :
     paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
     paned->pack2(*panels, Gtk::FILL);
 
-    /// Build status hbox: busy_icon + statusbar
-    busy_icon = manage(new Gtk::Image());
-    busy_icon->set_tooltip_text("Viewer acivity");
-    busy_icon->set_size_request(20,16);
-    Gtk::HBox * st_box = manage(new Gtk::HBox);
-    st_box->pack_start(*busy_icon, false, true, 0);
-    st_box->pack_start(statusbar, true, true, 0);
-
     /// Build main vbox: menu + main pand + statusbar
     Gtk::VBox * vbox = manage(new Gtk::VBox);
     vbox->pack_start(*ui_manager->get_widget("/MenuBar"), false, true, 0);
     vbox->pack_start(*paned, true, true, 0);
-    vbox->pack_start(*st_box, false, true, 0);
+    vbox->pack_start(spanel, false, true, 0);
     add (*vbox);
 
     filename="";
     set_changed(false);
-    statusbar.push("Welcome to mapsoft viewer!",0);
+    spanel.message("Welcome to mapsoft viewer!");
 
     show_all();
 }
@@ -199,7 +191,7 @@ Mapview::update_gobjs() {
 void
 Mapview::on_mode_change (int m) {
   rubber.clear();
-  statusbar.push(action_manager->get_mode_name(m),0);
+  spanel.message(action_manager->get_mode_name(m));
   action_manager->set_mode(m);
 }
 
@@ -228,7 +220,7 @@ Mapview::add_files(const list<string> & files) {
   geo_data world;
   list<string>::const_iterator i;
   for (i=files.begin(); i!=files.end(); i++){
-    statusbar.push("Load " + *i);
+    spanel.message("Load " + *i);
     try {io::in(*i, world);}
     catch (MapsoftErr e) {dlg_err.call(e);}
   }
@@ -243,7 +235,7 @@ Mapview::load_file(const string & file, bool force) {
     return;
   }
   clear_world();
-  statusbar.push("Open " + file);
+  spanel.message("Open " + file);
   geo_data world;
   try {io::in(file, world);}
   catch (MapsoftErr e) {dlg_err.call(e);}
@@ -260,7 +252,7 @@ Mapview::new_file(bool force) {
     return;
   }
   filename = "";
-  statusbar.push("New file");
+  spanel.message("New file");
   clear_world();
   set_changed(false);
   refresh();
@@ -418,17 +410,5 @@ Mapview::on_scroll(GdkEventScroll * event) {
   double scale = event->direction ? 0.5:2.0;
   viewer.rescale(scale, iPoint(event->x, event->y));
   return true;
-}
-
-void
-Mapview::show_busy_mark(void){
-  if (is_realized())
-    busy_icon->set(Gtk::Stock::MEDIA_RECORD,Gtk::ICON_SIZE_MENU);
-}
-
-void
-Mapview::hide_busy_mark(void){
-  if (is_realized())
-    busy_icon->clear();
 }
 

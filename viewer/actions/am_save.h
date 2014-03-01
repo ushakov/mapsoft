@@ -21,7 +21,7 @@ public:
 
     void activate() {
       if (!mapview->get_changed()){
-         mapview->statusbar.push("No changes to save");
+        mapview->spanel.message("No changes to save");
          return;
       }
       std::string f = mapview->get_filename();
@@ -39,7 +39,7 @@ public:
                 " Use Save As/Export to save other geodata formats.");
          return;
       }
-      mapview->statusbar.push("Save to " + f);
+      mapview->spanel.message("Save to " + f);
       try{ io::out(f, mapview->get_world(false));}
       catch (MapsoftErr e) {mapview->dlg_err.call(e);}
       mapview->set_filename(f);

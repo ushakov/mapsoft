@@ -20,6 +20,7 @@
 #include "panels/trks_panel.h"
 #include "panels/maps_panel.h"
 #include "panels/srtm_panel.h"
+#include "panels/status_panel.h"
 
 #define ACCEL_FILE ".mapsoft/accel"
 
@@ -38,8 +39,7 @@ public:
     Glib::RefPtr<Gtk::ActionGroup> actions;
     Glib::RefPtr<Gtk::UIManager> ui_manager;
     Gtk::Menu *popup_trks, *popup_wpts, *popup_maps, *popup_srtm;
-    Gtk::Statusbar statusbar;
-    Gtk::Image *busy_icon;
+    StatusPanel spanel;
 
     bool have_reference;
     bool divert_refresh;

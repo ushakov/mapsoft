@@ -23,7 +23,7 @@ public:
 
     void on_ok(){
       std::string f = get_filename();
-      mapview->statusbar.push("Save to " + f);
+      mapview->spanel.message("Save to " + f);
       try {io::out(f, mapview->get_world(false));}
       catch (MapsoftErr e) {mapview->dlg_err.call(e);}
       if (io::testext(f, ".xml")){

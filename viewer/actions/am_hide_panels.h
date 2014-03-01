@@ -9,19 +9,18 @@ public:
 
     HidePanels (Mapview * mapview) : ActionMode(mapview), state(0){ }
 
-    std::string get_name() { return "Hide Panels"; }
+    std::string get_name() { return "Hide/Show Panels"; }
     Gtk::AccelKey get_acckey() { return Gtk::AccelKey("<control>h"); }
     bool is_radio() { return false; }
 
     void activate() {
       state = (state+1)%2;
       if (state==0){
-        mapview->statusbar.show();
+        mapview->spanel.show();
         mapview->panels->show();
       }
       else if (state==1){
-        mapview->statusbar.hide();
-        mapview->busy_icon->hide();
+        mapview->spanel.hide();
         mapview->panels->hide();
       }
     }

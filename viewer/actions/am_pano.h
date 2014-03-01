@@ -31,7 +31,7 @@ public:
 
     void handle_click(iPoint p, const Gdk::ModifierType & mod) {
       if (!mapview->have_reference){
-        mapview->statusbar.push("No geo-reference", 0);
+        mapview->spanel.message("No geo-reference");
         return;
       }
 
