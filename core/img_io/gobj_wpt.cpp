@@ -19,6 +19,11 @@ GObjWPT::draw(iImage & image, const iPoint & origin){
   return GOBJ_FILL_PART;
 }
 
+void
+GObjWPT::refresh(){ /// Refresh layer -- update myrange
+  myrange = wpts_range(cnv, *data, Options());
+}
+
 
 int
 GObjWPT::find_waypoint (iPoint pt, int radius) {

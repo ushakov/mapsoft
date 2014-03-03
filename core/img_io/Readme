@@ -1,0 +1,3 @@
+Drawing routines for various objects:
+tracks, waypoints, maps.
+vmap drawing is not here but in the /vector folder.

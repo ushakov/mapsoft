@@ -20,8 +20,8 @@ public:
   GObjWPT (g_waypoint_list * _data, const Options & o = Options()):
     data(_data){set_opt(o);}
 
-  void   refresh(){ /// Refresh layer.
-    myrange = iRect(rect_pump(cnv.bb_bck(data->range()), 1.0));}
+  void   refresh();
+
   int draw(iImage & image, const iPoint & origin); /// Draw on image.
 
   int find_waypoint (iPoint pt, int radius = 3);

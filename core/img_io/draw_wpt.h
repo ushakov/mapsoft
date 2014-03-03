@@ -12,6 +12,10 @@ void draw_wpt(iImage & image, const iPoint & origin,
               const Conv & cnv, const g_waypoint_list & wpt,
               const Options & opt);
 
+iRect wpts_range(const Conv & cnv,
+                 const g_waypoint_list & wpt,
+                 const Options & opt);
+
 /***********************************************************/
 
 /* Drawing can be splitted into two parts:
@@ -36,5 +40,6 @@ tmpl_wpts make_wpts_tmpl(CairoWrapper & cr, const iPoint & origin,
 
 /* plot template */
 void plot_wpts_tmpl(CairoWrapper & cr, const tmpl_wpts & wpts);
+
 
 #endif

@@ -36,7 +36,7 @@ make_wpts_tmpl(CairoWrapper & cr, const iPoint & origin,
 
     // find point bbox
     dRect pt_rect(p - dPoint(p.dot_rad, p.dot_rad+flag_shift+p.txt_rect.h),
-                  p + dPoint(min(p.dot_rad,p.txt_rect.w), p.dot_rad));
+                  p + dPoint(max(p.dot_rad,p.txt_rect.w), p.dot_rad));
     pt_rect = rect_pump(pt_rect, 1.0); // linewidth
 
     // update range
@@ -44,7 +44,7 @@ make_wpts_tmpl(CairoWrapper & cr, const iPoint & origin,
     else range = rect_bounding_box(range, rect_pump_to_int(pt_rect));
 
     // add point to the cache if needed
-    if (!rect_intersect(pt_rect, dRect(cr.range())).empty())
+    if (!rect_intersect(iRect(pt_rect), cr.range()).empty())
       ret.push_back(p);
   }
   return ret;
@@ -89,3 +89,10 @@ draw_wpt(iImage & image, const iPoint & origin,
   plot_wpts_tmpl(cr, cache);
 }
 
+iRect
+wpts_range(const Conv & cnv, const g_waypoint_list & wpt, const Options & opt){
+  CairoWrapper cr(iImage(2,2));
+  iRect ret;
+  make_wpts_tmpl(cr, iPoint(0,0), cnv, wpt, opt, ret);
+  return ret;
+}
