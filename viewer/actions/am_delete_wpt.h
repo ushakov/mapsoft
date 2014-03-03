@@ -23,7 +23,6 @@ public:
       wpts->erase(wpts->begin()+n);
       if (wpts->size()==0){
         mapview->panel_wpts.remove(layer);
-        mapview->refresh();
       }
       else
         mapview->panel_wpts.refresh_gobj(layer);
@@ -39,7 +38,6 @@ public:
           wpts->erase(wpts->begin()+nn[j]);
         if (wpts->size()==0){
           mapview->panel_wpts.remove(i->first);
-          mapview->refresh();
         }
         else
           mapview->panel_wpts.refresh_gobj(i->first);

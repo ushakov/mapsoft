@@ -15,8 +15,6 @@ class Workplane : public GObjGeo {
     static const int CacheCapacity = 200;
 public:
 
-    sigc::signal<void> signal_refresh;
-
     Workplane(void): stop_drawing(false){ }
 
     // functions for gred/gobj interface

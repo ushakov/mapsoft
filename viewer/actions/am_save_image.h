@@ -217,10 +217,10 @@ std::cerr << "MPP SCALE " << sc << "\n";
       else{
         mytlc/=sc;
         mapview->main_gobj.rescale(1/sc);
-        mapview->main_gobj.refresh();
+//        mapview->main_gobj.refresh();
         mapview->main_gobj.draw(image, mytlc);
         mapview->main_gobj.rescale(sc);
-        mapview->main_gobj.refresh();
+//        mapview->main_gobj.refresh();
       }
 
 //      if (r == Gtk::RESPONSE_APPLY){

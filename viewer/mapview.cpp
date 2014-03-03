@@ -9,7 +9,6 @@ using namespace std;
 
 Mapview::Mapview () :
     have_reference(false),
-    divert_refresh(false),
     viewer(&main_gobj),
     rubber(&viewer),
     panel_wpts(this),
@@ -30,15 +29,9 @@ Mapview::Mapview () :
     viewer.signal_button_release_event().connect (
       sigc::mem_fun (this, &Mapview::on_button_release));
 
-    /// refresh events from panels -> move to viewer?
-    panel_wpts.signal_refresh.connect (
-      sigc::mem_fun (this, &Mapview::refresh));
-    panel_trks.signal_refresh.connect (
-      sigc::mem_fun (this, &Mapview::refresh));
-    panel_maps.signal_refresh.connect (
-      sigc::mem_fun (this, &Mapview::refresh));
-    panel_srtm.signal_refresh.connect (
-      sigc::mem_fun (this, &Mapview::refresh));
+    // TODO: move to the viewer
+    main_gobj.signal_redraw_me().connect(
+    sigc::mem_fun(&viewer, &DThreadViewer::draw));
 
     // panels mouse button events
     panel_wpts.set_events(Gdk::BUTTON_PRESS_MASK);
@@ -68,6 +61,7 @@ Mapview::Mapview () :
     main_gobj.push_back((Workplane *) &panel_maps);
     main_gobj.push_back((Workplane *) &panel_trks);
     main_gobj.push_back((Workplane *) &panel_wpts);
+    main_gobj.connect_signals();
 
     /// events from viewer
     viewer.signal_busy().connect(
@@ -189,7 +183,9 @@ Mapview::add_files(const list<string> & files) {
     try {io::in(*i, world);}
     catch (MapsoftErr e) {dlg_err.call(e);}
   }
+  viewer.start_waiting();
   add_world(world, true);
+  viewer.stop_waiting();
 }
 
 void
@@ -199,12 +195,15 @@ Mapview::load_file(const string & file, bool force) {
       sigc::bind(sigc::mem_fun(this, &Mapview::load_file), file, true));
     return;
   }
-  clear_world();
-  spanel.message("Open " + file);
   geo_data world;
   try {io::in(file, world);}
   catch (MapsoftErr e) {dlg_err.call(e);}
+  spanel.message("Open " + file);
+
+  viewer.start_waiting();
+  clear_world();
   add_world(world, true);
+  viewer.stop_waiting();
   if (io::testext(file, ".xml")) filename = file;
   set_changed(false);
 }
@@ -218,14 +217,14 @@ Mapview::new_file(bool force) {
   }
   filename = "";
   spanel.message("New file");
+  viewer.start_waiting();
   clear_world();
+  viewer.stop_waiting();
   set_changed(false);
-  refresh();
 }
 
 void
 Mapview::add_world(const geo_data & world, bool scroll) {
-  divert_refresh=true;
   dPoint p(2e3,2e3);
   for (vector<g_map_list>::const_iterator i=world.maps.begin();
        i!=world.maps.end(); i++){
@@ -247,18 +246,15 @@ Mapview::add_world(const geo_data & world, bool scroll) {
   }
   set_changed();
   if (scroll && (p.x<1e3)) goto_wgs(p);
-  divert_refresh=false;
 }
 
 void
 Mapview::clear_world() {
-  divert_refresh=true;
   panel_wpts.remove_all();
   panel_trks.remove_all();
   panel_maps.remove_all();
   panel_srtm.show(false);
   have_reference = false;
-  divert_refresh=false;
 }
 
 geo_data
@@ -295,11 +291,6 @@ Mapview::exit(bool force) {
   if (home) Gtk::AccelMap::save(string(home) + "/" + ACCEL_FILE);
   g_print ("Exiting...\n");
   hide_all();
-}
-
-void
-Mapview::refresh() {
-  if (!divert_refresh) viewer.redraw();
 }
 
 bool

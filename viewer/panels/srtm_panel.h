@@ -30,7 +30,7 @@ public:
     bool state = exists(&gobj_srtm);
     if (state && !show){
       remove_gobj(&gobj_srtm);
-      Workplane::signal_refresh.emit();
+      Workplane::signal_redraw_me().emit(iRect());
     }
     else if (!state && show){
       add_gobj(&gobj_srtm, 0);

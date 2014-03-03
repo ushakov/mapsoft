@@ -100,11 +100,13 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::REMOVE; }
     bool is_radio() { return false; }
     void activate() {
+      mapview->viewer.start_waiting();
       switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.show_all(false); break;
         case 1: mapview->panel_trks.show_all(false); break;
         case 2: mapview->panel_maps.show_all(false); break;
       }
+      mapview->viewer.stop_waiting();
     }
 };
 
@@ -115,11 +117,13 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::ADD; }
     bool is_radio() { return false; }
     void activate() {
+      mapview->viewer.start_waiting();
       switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.show_all(); break;
         case 1: mapview->panel_trks.show_all(); break;
         case 2: mapview->panel_maps.show_all(); break;
       }
+      mapview->viewer.stop_waiting();
     }
 };
 
@@ -130,11 +134,13 @@ public:
     Gtk::StockID get_stockid() { return Gtk::Stock::REFRESH; }
     bool is_radio() { return false; }
     void activate() {
+      mapview->viewer.start_waiting();
       switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.invert_all(); break;
         case 1: mapview->panel_trks.invert_all(); break;
         case 2: mapview->panel_maps.invert_all(); break;
       }
+      mapview->viewer.stop_waiting();
     }
 };
 
@@ -144,11 +150,13 @@ public:
     std::string get_name() { return "Join visible"; }
     bool is_radio() { return false; }
     void activate() {
+      mapview->viewer.start_waiting();
       switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.join(true); break;
         case 1: mapview->panel_trks.join(true); break;
         case 2: mapview->panel_maps.join(true); break;
       }
+      mapview->viewer.stop_waiting();
     }
 };
 
@@ -158,11 +166,13 @@ public:
     std::string get_name() { return "Join all"; }
     bool is_radio() { return false; }
     void activate() {
+      mapview->viewer.start_waiting();
       switch (mapview->panels->get_current_page()){
         case 0: mapview->panel_wpts.join(false); break;
         case 1: mapview->panel_trks.join(false); break;
         case 2: mapview->panel_maps.join(false); break;
       }
+      mapview->viewer.stop_waiting();
     }
 };
 

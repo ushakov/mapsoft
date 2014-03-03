@@ -47,6 +47,10 @@ class SimpleViewer : public Viewer {
     virtual void draw_image (const iImage & img, const iRect & part, const iPoint & p);
 
     virtual void redraw();
+    void start_waiting(){ waiting++;}
+    void stop_waiting(){ waiting--; if (waiting==0) redraw();}
+    bool is_waiting() const { return waiting!=0; }
+
     virtual void rescale(const double k);
     virtual void rescale(const double k, const iPoint & cnt);
 
@@ -54,7 +58,7 @@ class SimpleViewer : public Viewer {
     virtual bool on_button_press_event (GdkEventButton * event);
     virtual bool on_button_release_event (GdkEventButton * event);
     virtual bool on_motion_notify_event (GdkEventMotion * event);
-    virtual bool on_key_press (GdkEventKey * event);
+    virtual bool on_key_press (GdkEventKey * event); // read note in simple_viewer.cpp
     virtual bool on_scroll_event (GdkEventScroll * event);
 
     virtual bool is_on_drag() const {return on_drag;}
@@ -65,6 +69,8 @@ class SimpleViewer : public Viewer {
     sigc::signal<void> & signal_idle()        {return signal_idle_;}
     sigc::signal<void, double> & signal_on_rescale()  {return signal_on_rescale_;}
     sigc::signal<void, iPoint> & signal_ch_origin()   {return signal_ch_origin_;}
+
+    GObj * get_gobj() {return obj;}
 
   private:
 
@@ -80,6 +86,7 @@ class SimpleViewer : public Viewer {
 
     bool on_drag;
     iPoint drag_pos;
+    unsigned int waiting;
 
     int bgcolor;
     double sc;

@@ -60,11 +60,13 @@ public:
           if (edge != 1){
             dPoint p1 = *gobj->get_pt(pt_num-1);
             gobj->get_cnv()->bck(p1);
+            redraw_range = iRect(p1,p1);
             mapview->rubber.add_line(p1);
           }
           if (edge != 2){
             dPoint p1 = *gobj->get_pt(pt_num);
             gobj->get_cnv()->bck(p1);
+            redraw_range = rect_pump(redraw_range,iPoint(p1));
             mapview->rubber.add_line(p1);
           }
           mystate=1;
@@ -72,6 +74,7 @@ public:
         } else { // add point
           if (!gobj) return;
           dPoint pt(p);
+          redraw_range = rect_pump(redraw_range,p);
           gobj->get_cnv()->frw(pt);
 
           g_trackpoint tpt;
@@ -84,6 +87,7 @@ public:
           }
           gobj->get_data()->insert(gobj->get_data()->begin()+pt_num, tpt);
           mapview->set_changed();
+          redraw_range = redraw_range - mapview->viewer.get_origin();
           mapview->panel_trks.refresh_gobj(gobj);
           abort();
         }
@@ -91,6 +95,7 @@ public:
 
 private:
     int pt_num, edge;
+    iRect redraw_range;
     GObjTRK * gobj;
     int mystate; // 0 - select point, 1 - move point
 };

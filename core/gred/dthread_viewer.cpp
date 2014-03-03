@@ -11,6 +11,7 @@ DThreadViewer::DThreadViewer(GObj * pl) :
   updater_cond = new(Glib::Cond);
   updater_thread =
     Glib::Thread::create(sigc::mem_fun(*this, &DThreadViewer::updater), true);
+
 }
 
 DThreadViewer::~DThreadViewer(){
@@ -123,7 +124,8 @@ void DThreadViewer::on_done_signal(){
 
 
 void DThreadViewer::draw(const iRect & r){
-  if (r.empty()) return;
+  if (is_waiting()) return;
+  if (r.empty()) {redraw(); return;}
   iRect tiles = tiles_on_rect(r + get_origin(), TILE_SIZE);
   iPoint key;
 

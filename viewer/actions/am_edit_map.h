@@ -66,8 +66,8 @@ private:
       if ((map_num<0) || (r!=Gtk::RESPONSE_OK)) return;
       dlg.dlg2map(layer->get_map(map_num));
       mapview->set_changed();
-      mapview->panel_maps.refresh_gobj(layer);
       mapview->panel_maps.upd_comm(layer, false); // move comm to ll
+      mapview->panel_maps.refresh_gobj(layer);
     }
 
 };

@@ -3,6 +3,7 @@
 
 #include "2d/rect.h"
 #include "2d/image.h"
+#include <sigc++/sigc++.h>
 
 ///\addtogroup gred
 ///@{
@@ -46,11 +47,15 @@ public:
   }
 
   virtual iRect range(void) const {return GOBJ_MAX_RANGE;}
-  virtual void refresh() {} ///< must be called after data change
   virtual void rescale(double k) {} ///< change scale (refresh must be inside)
 
   virtual bool get_xloop() const {return false;};
   virtual bool get_yloop() const {return false;}
+
+  sigc::signal<void, iRect> & signal_redraw_me()  {return signal_redraw_me_;}
+
+private:
+  sigc::signal<void, iRect> signal_redraw_me_;
 };
 
 #endif

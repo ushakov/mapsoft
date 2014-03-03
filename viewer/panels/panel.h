@@ -61,7 +61,7 @@ public:
   void remove_all() {
     store->clear();
     Workplane::clear();
-    Workplane::signal_refresh.emit();
+    Workplane::signal_redraw_me().emit(iRect());
   }
 
   /* Remove selected object */
@@ -70,7 +70,7 @@ public:
     if (!it) return;
     Workplane::remove_gobj(it->get_value(columns.layer).get());
     store->erase(it);
-    upd_wp();
+    Workplane::signal_redraw_me().emit(iRect());
   }
 
   /* Remove object */
@@ -85,6 +85,7 @@ public:
     }
     Workplane::remove_gobj(L);
     upd_wp();
+    Workplane::signal_redraw_me().emit(iRect());
   }
 
   /* Hide/Show all */
@@ -94,7 +95,6 @@ public:
          i != store->children().end(); i++){
       (*i)[columns.checked] = show;
     }
-    upd_wp();
   }
 
   /* Invert visibility */
@@ -104,7 +104,6 @@ public:
          i != store->children().end(); i++){
       (*i)[columns.checked] = !(*i)[columns.checked];
     }
-    upd_wp();
   }
 
   /* Join visible/all objects */
@@ -193,7 +192,7 @@ public:
                         const Gtk::TreeModel::iterator& iter) {
     // update layer depth and visibility in workplane
     upd_wp();
-    // update comments in data
+    // update comments in data (no need to redraw)
     upd_comm();
   }
   virtual bool upd_comm(Tl * sel_gobj = NULL, bool dir=true) =0;
@@ -204,6 +203,20 @@ public:
     bool ret=false;
     Gtk::TreeNodeChildren::const_iterator i;
     int d=1;
+
+    for (i = store->children().begin();
+         i != store->children().end(); i++){
+      boost::shared_ptr<Tl> layer = (*i)[columns.layer];
+      if (!layer) continue;
+      // update depth
+      if (get_gobj_depth(layer.get()) != d){
+        set_gobj_depth(layer.get(), d);
+        ret = true;
+      }
+      d++;
+    }
+    if (ret) signal_data_changed().emit();
+
     for (i = store->children().begin();
          i != store->children().end(); i++){
       boost::shared_ptr<Tl> layer = (*i)[columns.layer];
@@ -214,14 +227,8 @@ public:
         set_gobj_active(layer.get(), act);
         ret = true;
       }
-      // update depth
-      if (get_gobj_depth(layer.get()) != d){
-        set_gobj_depth(layer.get(), d);
-        ret = true;
-      }
-      d++;
     }
-    Workplane::signal_refresh.emit();
+    if (ret) signal_redraw_me().emit(iRect());
     return ret;
   }
 
@@ -236,7 +243,7 @@ public:
       i->get_value(columns.layer)->set_opt(o);
       refresh_gobj(i->get_value(columns.layer).get(), false);
     }
-    Workplane::signal_refresh.emit();
+    signal_redraw_me().emit(iRect());
   }
 
   /* */

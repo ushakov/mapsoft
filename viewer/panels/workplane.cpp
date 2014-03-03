@@ -119,7 +119,7 @@ Workplane::refresh_gobj (GObjGeo * obj, bool redraw){
           tile_cache[obj]->clear();
           obj->refresh();
         }
-        if (redraw) signal_refresh.emit();
+        if (redraw) signal_redraw_me().emit(iRect());
 }
 
 void
@@ -176,5 +176,5 @@ Workplane::set_ref(const g_map & ref) {
       tile_cache[itl->second]->clear();
     }
   }
-  signal_refresh.emit();
+  signal_redraw_me().emit(iRect());
 }

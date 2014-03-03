@@ -14,7 +14,6 @@ public:
       GObjTRK *gobj;
       if (mapview->panel_trks.find_tpt(p, &gobj, true)<0) return;
       mapview->panel_trks.remove(gobj);
-      mapview->refresh();
     }
 };
 

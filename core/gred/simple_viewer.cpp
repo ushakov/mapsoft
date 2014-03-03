@@ -10,8 +10,8 @@ SimpleViewer::SimpleViewer(GObj * o) :
     origin(iPoint(0,0)),
     bgcolor(0xFF000000),
     sc(1.0),
-    on_drag(false) {
-  set_name("MapsoftViewer");
+    on_drag(false),
+    waiting(0) {
   set_events (
     Gdk::BUTTON_PRESS_MASK |
     Gdk::BUTTON_RELEASE_MASK |
@@ -57,7 +57,8 @@ SimpleViewer::set_origin (iPoint p) {
 
 void
 SimpleViewer::draw(const iRect & r){
-  if (r.empty()) return;
+  if (is_waiting()) return;
+  if (r.empty()) {redraw(); return;}
   signal_busy_.emit();
   iImage img(r.w, r.h, 0xFF000000 | bgcolor);
   if (obj) obj->draw(img, r.TLC()+origin);
@@ -95,7 +96,8 @@ SimpleViewer::draw_image (const iImage & img, const iRect & part, const iPoint &
 
 void
 SimpleViewer::redraw (void){
-  draw(iRect(0, 0, get_width(), get_height()));
+  if (!waiting)
+    draw(iRect(0, 0, get_width(), get_height()));
 }
 
 void

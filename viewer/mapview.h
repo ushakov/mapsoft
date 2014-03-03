@@ -42,10 +42,9 @@ public:
     StatusPanel spanel;
 
     bool have_reference;
-    bool divert_refresh;
 
-    DlgChConf dlg_ch_conf;
-    DlgErr dlg_err;
+    DlgChConf dlg_ch_conf; // "data was changed" dialog
+    DlgErr dlg_err; // error dialog
 
 private:
     boost::shared_ptr<ActionManager> action_manager;
@@ -74,11 +73,9 @@ public:
 
     void set_ref(const g_map & ref);
     const convs::map2wgs* get_cnv() {return main_gobj.get_cnv();}
-    void rescale(double k){ main_gobj.rescale(k);}
 
     void goto_wgs(dPoint p);
     void exit(bool force=false);
-    void refresh();
     bool on_button_press (GdkEventButton * event);
     bool on_button_release (GdkEventButton * event);
     bool on_panel_button_press (GdkEventButton * event);
