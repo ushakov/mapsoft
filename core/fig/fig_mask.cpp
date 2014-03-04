@@ -73,7 +73,8 @@ fig_object make_object(const fig_object & obj, const std::string & mask){
   rule<> r_font_flags     = +blank_p >> (ch_p('*') | int_p[assign_a(o.font_flags)]);
 
     /*******************************************/
-    rule<> c5_arc   = ch_p('5')[assign_a(o.type,5)]  // Arc
+    const int type5=5;
+    rule<> c5_arc   = ch_p('5')[assign_a(o.type,type5)]  // Arc
   	>> r_sub_type >> r_line_style >> r_thickness
   	>> r_pen_color >> r_fill_color >> r_depth
   	>> r_pen_style >> r_area_fill >> r_style_val 
@@ -81,12 +82,15 @@ fig_object make_object(const fig_object & obj, const std::string & mask){
           >> r_push_xy >> r_push_xy >> r_push_xy
   	>> r_arrows_p;
     /*******************************************/
-    rule<> c6_compound_start = ch_p('6')[assign_a(o.type,6)] // Compound
+    const int type6=6;
+    rule<> c6_compound_start = ch_p('6')[assign_a(o.type,type6)] // Compound
           >> r_push_xy >> r_push_xy;
     /*******************************************/
-    rule<> c6_compound_end = str_p("-6")[assign_a(o.type,-6)];
+    const int typem6=-6;
+    rule<> c6_compound_end = str_p("-6")[assign_a(o.type,typem6)];
     /*******************************************/
-    rule<> c1_ellipse = ch_p('1')[assign_a(o.type,1)] // Ellipse
+    const int type1=1;
+    rule<> c1_ellipse = ch_p('1')[assign_a(o.type,type1)] // Ellipse
   	>> r_sub_type >> r_line_style >> r_thickness
   	>> r_pen_color >> r_fill_color >> r_depth 
           >> r_pen_style >> r_area_fill >> r_style_val 
@@ -94,21 +98,24 @@ fig_object make_object(const fig_object & obj, const std::string & mask){
   	>> r_center_xy >> r_radius_xy 
           >> r_start_xy >> r_end_xy;
     /*******************************************/
-    rule<> c2_polyline = ch_p('2')[assign_a(o.type,2)] // Polyline
+    const int type2=2;
+    rule<> c2_polyline = ch_p('2')[assign_a(o.type,type2)] // Polyline
   	>> r_sub_type >> r_line_style >> r_thickness
   	>> r_pen_color >> r_fill_color >> r_depth
   	>> r_pen_style >> r_area_fill >> r_style_val 
           >> r_join_style >> r_cap_style >> r_radius
   	>> r_arrows >> r_npoints >> r_arrows_p;
     /*******************************************/
-    rule<> c3_spline = ch_p('3')[assign_a(o.type,3)] // Spline
+    const int type3=3;
+    rule<> c3_spline = ch_p('3')[assign_a(o.type,type3)] // Spline
   	>> r_sub_type >> r_line_style >> r_thickness
   	>> r_pen_color >> r_fill_color
   	>> r_depth >> r_pen_style >> r_area_fill
   	>> r_style_val >> r_cap_style
   	>> r_arrows >> r_npoints >> r_arrows_p;
     /*******************************************/
-    rule<> c4_text = ch_p('4')[assign_a(o.type,4)] // Text
+    const int type4=4;
+    rule<> c4_text = ch_p('4')[assign_a(o.type,type4)] // Text
   	>> r_sub_type >> r_pen_color >> r_depth
   	>> r_pen_style // (not used)
   	>> r_font >> r_font_size 
