@@ -39,12 +39,14 @@ nom_to_range(const string & key, int & rscale){
          (digit_p)[assign_a(c5)] 
        ));
 
+    const int i0=0;
+    const int i2=2;
     rule<> map_p_s = 
-      (range_p('p','s') || range_p('P','S'))[assign_a(a)][assign_a(m,2)] >> !dash_p >>
+      (range_p('p','s') || range_p('P','S'))[assign_a(a)][assign_a(m,i2)] >> !dash_p >>
       uint_p[assign_a(b)] >> 
       !( dash_p >> (
          ((digit_p >> digit_p >> digit_p >> dash_p)[assign_a(c1)] >> (digit_p)[assign_a(d)] >> dash_p >> digit_p) ||
-         ((digit_p >> digit_p >> digit_p >> dash_p)[assign_a(c1)][assign_a(d,0)] >> digit_p >> digit_p >> digit_p) ||
+         ((digit_p >> digit_p >> digit_p >> dash_p)[assign_a(c1)][assign_a(d,i0)] >> digit_p >> digit_p >> digit_p) ||
          ((digit_p >> digit_p >> dash_p)[assign_a(c2)] >> digit_p >> digit_p) ||
          ((digit_p >> dash_p)[assign_a(c5)] >> digit_p) 
       ));

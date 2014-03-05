@@ -67,8 +67,9 @@ std::istream & operator>> (std::istream & s, Options & o){
 
   rule<> symb = (anychar_p - (ch_p('=') | '\\' | '#' | '\n')) | escaped_symb;
 
+  const std::string ee="";
   rule<> option = *space_p >>
-    (+symb)[assign_a(aname)][assign_a(aval, "")] >>
+    (+symb)[assign_a(aname)][assign_a(aval, ee)] >>
     !('=' >> (*symb)[assign_a(aval)]) >>
     !('#' >> (anychar_p - eol_p)) >>
     (eol_p | end_p)[erase_a(o, aname)][insert_at_a(o, aname, aval)];

@@ -126,12 +126,13 @@ namespace gu {
 			>> +blank_p >> uint_p[assign_a(wpt.symb)]
 			>> '/' >> uint_p[assign_a(wpt.displ)]
 			>> blank_p >> (*print_p)[assign_a(wpt.comm)];
-
+		
+		const bool tt=true, ff=false;
 		rule_t trk_line = +ch_p('\n')
 			>> *blank_p >> real_p[assign_a(tpt.lat)]
-			>> +blank_p >> real_p[assign_a(tpt.lon)][assign_a(tpt.start,false)]
+			>> +blank_p >> real_p[assign_a(tpt.lon)][assign_a(tpt.start,ff)]
 			>> +blank_p >> gu_time
-			>> !(+blank_p >> str_p("start")[assign_a(tpt.start,true)]
+			>> !(+blank_p >> str_p("start")[assign_a(tpt.start,tt)]
 				)>> *blank_p;
 
 		rule_t wpt_block = (+ch_p('\n') >> str_p("[waypoints,") >> +blank_p

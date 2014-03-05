@@ -340,7 +340,8 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
     !(scs >> *ch)))) >> +eol_p)
 	    [push_back_a(t.points, tpt)][assign_a(tpt, tpt0)];
 
-
+  const int mm=-1;
+  const int pp=+1;
   rule_t map_point =
     (*blank_p >> "Point" >> uint_p >> 
     scs >> "xy" >>
@@ -349,12 +350,12 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
     scs >> (str_p("in")|"ex") >> scs >> "deg" >>
     scs >> !(uint_p[assign_a(mpt.lat_d)]) >>
     scs >> !(ureal_p[assign_a(mpt.lat_m)]) >>
-    scs >> !(ch_p('S')[assign_a(mpt.lat_h,-1)] ||
-             ch_p('N')[assign_a(mpt.lat_h,+1)]) >>
+    scs >> !(ch_p('S')[assign_a(mpt.lat_h,mm)] ||
+             ch_p('N')[assign_a(mpt.lat_h,pp)]) >>
     scs >> !(uint_p[assign_a(mpt.lon_d)]) >>
     scs >> !(ureal_p[assign_a(mpt.lon_m)]) >>
-    scs >> !(ch_p('W')[assign_a(mpt.lon_h,-1)] ||
-             ch_p('E')[assign_a(mpt.lon_h,+1)]) >>
+    scs >> !(ch_p('W')[assign_a(mpt.lon_h,mm)] ||
+             ch_p('E')[assign_a(mpt.lon_h,pp)]) >>
     scs >> "grid" >> scs >> *pr >>
     scs >> !(ureal_p[assign_a(mpt.grid_x)]) >>
     scs >> !(ureal_p[assign_a(mpt.grid_y)]) >>
@@ -385,8 +386,8 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
     "Magnetic Variation" >> 
       scs >> !(uint_p[assign_a(m.mag_var_d)]) >>
       scs >> !(ureal_p[assign_a(m.mag_var_m)]) >>
-      scs >> !(ch_p('W')[assign_a(m.mag_var_h,-1)] ||
-               ch_p('E')[assign_a(m.mag_var_h,+1)]) >> eol_p >>
+      scs >> !(ch_p('W')[assign_a(m.mag_var_h,mm)] ||
+               ch_p('E')[assign_a(m.mag_var_h,pp)]) >> eol_p >>
     "Map Projection" >> 
     scs >> (*pr)[assign_a(m.map_proj)] >> !(scs >> *ch) >> +eol_p >>
     +(map_point) >>

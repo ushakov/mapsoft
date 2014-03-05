@@ -49,8 +49,8 @@ namespace xml {
                   "Reading data from Mapsoft XML file " << filename << endl;
 
 		string aname, aval;
-
-		rule_t attr_name = (+(alnum_p | '-' | '_'))[assign_a(aname)][assign_a(aval, "1")];
+		const string oo="1";
+		rule_t attr_name = (+(alnum_p | '-' | '_'))[assign_a(aname)][assign_a(aval, oo)];
 
 		rule_t escaped_symb  = (ch_p('\\') >> ch_p('"')) | (ch_p('\\') >> ch_p('\\')) ;
 

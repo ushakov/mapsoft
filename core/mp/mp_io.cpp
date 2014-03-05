@@ -29,7 +29,6 @@ bool read(const char* filename, mp_world & world, const Options & opts){
 
   rule_t key_ch = anychar_p - eol_p - '=';
   rule_t ch = anychar_p - eol_p;
-
   rule_t comment = ch_p(';') >> (*ch)[assign_a(comm)] >> eol_p;
   rule_t option  = (*key_ch)[assign_a(key)] >> '=' >> (*ch)[assign_a(val)] >> eol_p;
 
@@ -46,12 +45,13 @@ bool read(const char* filename, mp_world & world, const Options & opts){
 		  >> real_p[assign_a(pt.x)]
                   >> ch_p(')');
 
+    const string sp="POI", sl="POLYLINE", sa="POLYGON";
     rule_t object =
       eps_p[assign_a(o,o0)] >> *(comment[push_back_a(o.Comment, comm)] | space_p) >>
       ch_p('[') >>
-       ((str_p("POI") | "RGN10" | "RGN20")[assign_a(o.Class, "POI")] |
-        (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, "POLYLINE")] |
-        (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, "POLYGON")]
+       ((str_p("POI") | "RGN10" | "RGN20")[assign_a(o.Class, sp)] |
+        (str_p("POLYLINE") | "RGN40")[assign_a(o.Class, sl)] |
+        (str_p("POLYGON")  | "RGN80")[assign_a(o.Class, sa)]
        ) >>
       ch_p(']') >> +eol_p >>
 

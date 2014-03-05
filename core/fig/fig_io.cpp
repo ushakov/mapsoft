@@ -158,7 +158,8 @@ bool read(const char* filename, fig_world & world, const Options & opts){
 	>> +blank_p >> '#' >> hex_p[insert_at_a(custom_colors,color_num)]
 	>> eol_p;
   /*******************************************/
-  rule_t c5_arc   = ch_p('5')[assign_a(o.type,5)]  // Arc
+  const int type5=5;
+  rule_t c5_arc   = ch_p('5')[assign_a(o.type,type5)]  // Arc
 	>> r_sub_type >> r_line_style >> r_thickness
 	>> r_pen_color >> r_fill_color >> r_depth
 	>> r_pen_style >> r_area_fill >> r_style_val
@@ -166,12 +167,15 @@ bool read(const char* filename, fig_world & world, const Options & opts){
         >> r_push_xy >> r_push_xy >> r_push_xy
 	>> r_arrows_p >> eol_p;
   /*******************************************/
-  rule_t c6_compound_start = ch_p('6')[assign_a(o.type,6)] // Compound
+  const int type6=6;
+  rule_t c6_compound_start = ch_p('6')[assign_a(o.type,type6)] // Compound
         >> r_push_xy >> r_push_xy >> eol_p;
   /*******************************************/
-  rule_t c6_compound_end = str_p("-6")[assign_a(o.type,-6)] >> eol_p;
+  const int typem6=-6;
+  rule_t c6_compound_end = str_p("-6")[assign_a(o.type,typem6)] >> eol_p;
   /*******************************************/
-  rule_t c1_ellipse = ch_p('1')[assign_a(o.type,1)] // Ellipse
+  const int type1=1;
+  rule_t c1_ellipse = ch_p('1')[assign_a(o.type,type1)] // Ellipse
 	>> r_sub_type >> r_line_style >> r_thickness
 	>> r_pen_color >> r_fill_color >> r_depth
         >> r_pen_style >> r_area_fill >> r_style_val
@@ -179,7 +183,8 @@ bool read(const char* filename, fig_world & world, const Options & opts){
 	>> r_center_xy >> r_radius_xy 
         >> r_start_xy >> r_end_xy >> eol_p;
   /*******************************************/
-  rule_t c2_polyline = ch_p('2')[assign_a(o.type,2)] // Polyline
+  const int type2=2;
+  rule_t c2_polyline = ch_p('2')[assign_a(o.type,type2)] // Polyline
 	>> r_sub_type >> r_line_style >> r_thickness
 	>> r_pen_color >> r_fill_color >> r_depth
 	>> r_pen_style >> r_area_fill >> r_style_val 
@@ -187,7 +192,8 @@ bool read(const char* filename, fig_world & world, const Options & opts){
 	>> r_arrows >> r_npoints >> r_arrows_p
 	>> r_image >> r_points >> eol_p;
   /*******************************************/
-  rule_t c3_spline = ch_p('3')[assign_a(o.type,3)] // Spline
+  const int type3=3;
+  rule_t c3_spline = ch_p('3')[assign_a(o.type,type3)] // Spline
 	>> r_sub_type >> r_line_style >> r_thickness
 	>> r_pen_color >> r_fill_color
 	>> r_depth >> r_pen_style >> r_area_fill
@@ -195,7 +201,8 @@ bool read(const char* filename, fig_world & world, const Options & opts){
 	>> r_arrows >> r_npoints >> r_arrows_p
         >> r_points >> r_fpoints >> eol_p;
   /*******************************************/
-  rule_t c4_text = ch_p('4')[assign_a(o.type,4)] // Text
+  const int type4=4;
+  rule_t c4_text = ch_p('4')[assign_a(o.type,type4)] // Text
 	>> r_sub_type >> r_pen_color >> r_depth
 	>> r_pen_style // (not used)
 	>> +blank_p >> int_p[assign_a(o.font)]
