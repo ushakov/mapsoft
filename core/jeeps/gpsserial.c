@@ -63,6 +63,19 @@ typedef struct {
         HANDLE comport;
 } win_serial_data;
 
+char gb_com_buffer[100]; //[static]
+
+const char* fix_win_serial_name_r( const char *	comname, char *	obuf, size_t len )
+{
+	strncpy(obuf, comname, len);
+	return obuf;
+} 	
+
+const char* fix_win_serial_name	( const char * comname ) 	
+{
+	return fix_win_serial_name_r(comname, gb_com_buffer, sizeof(gb_com_buffer));
+}
+
 /*
  * Display an error from the serial subsystem.
  */

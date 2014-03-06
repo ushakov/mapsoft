@@ -56,7 +56,7 @@ typedef struct {
 
 static HANDLE *usb_handle = INVALID_HANDLE_VALUE;
 static int usb_tx_packet_size ;
-static const gdx_info *gdx;
+//static const gdx_info *gdx;
 
 static int 
 gusb_win_close(gpsdevh *handle)
@@ -255,7 +255,7 @@ gusb_init(const char *pname, gpsdevh **dh)
       
    
           char **dlist = get_garmin_mountpoints();
-          gdx = gdx_find_file(dlist);
+          void* gdx = gdx_find_file(dlist);
           if (gdx) return 1;
        
 
