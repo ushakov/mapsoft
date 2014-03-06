@@ -1,9 +1,18 @@
 # coding: utf-8
 Import ('env')
-import os
+import os,sys
 
 e = env.Clone()
 e.UseLibs('vmap')
+
+# patch for cygwin
+exeSuffix = ''
+if sys.platform == 'cygwin':
+    exeSuffix = '.exe'
+
+# print 'platform = ', sys.platform
+# print 'exeSuffix = ', exeSuffix
+
 
 #### TODO: сделать удаление цели перед установкой для pics hr_fig mmb_fig
 
@@ -30,9 +39,9 @@ def Cnf2Png(env, name):
         pnmtopng > %s.png; \
      rm -f -- \"$$tmpfig\" \"$$tmpfig_c\"; \
      trap - EXIT" % (name, name, name), chdir = 1)
-   env.Depends(cmd, 'zn_legend')
-   env.Depends(cmd, '../libzn-utils/fig2pnm')
-   env.Depends(cmd, '../libzn-utils/get_print')
+   env.Depends(cmd, 'zn_legend'+exeSuffix)
+   env.Depends(cmd, '../libzn-utils/fig2pnm' + exeSuffix)
+   env.Depends(cmd, '../libzn-utils/get_print' + exeSuffix)
    env.Depends(cmd, name+'.cmap.pnm')
    env.Depends(cmd, 'pics')
 e.AddMethod(Cnf2Png)
@@ -49,8 +58,8 @@ def Cnf2CM(env, name):
      pngtopnm $$tmppng | pnmscale 0.5 |\
         pnmcolormap -sort 256 > %s.cmap.pnm; \
      trap - EXIT" % (name, name), chdir = 1)
-   env.Depends(cmd, '../../programs/mapsoft_vmap')
-   env.Depends(cmd, '../vmap3/vmap_render')
+   env.Depends(cmd, '../../programs/mapsoft_vmap'+exeSuffix )
+   env.Depends(cmd, '../vmap3/vmap_render'+exeSuffix )
    env.Depends(cmd, 'pics')
    env.Depends(cmd, name+'.cnf')
 e.AddMethod(Cnf2CM)
@@ -62,7 +71,7 @@ def Figlib(env, name):
      rm -fr -- %s_fig;\
      ./zn_figlib %s %s_fig" % (name, name, name), chdir = 1)
    env.Clean(cmd, name+'_fig')
-   env.Depends(cmd, 'zn_figlib')
+   env.Depends(cmd, 'zn_figlib' + exeSuffix)
 e.AddMethod(Figlib)
 ####
 
