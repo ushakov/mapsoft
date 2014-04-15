@@ -21,6 +21,7 @@ nom_to_range(const string & key, int & rscale){
     string c2 = "";
     string c1 = "";
     string d = "";
+    double nx=1.0, ny=1.0;
     int m=1;
     string key1 = key+" ";
 
@@ -51,8 +52,11 @@ nom_to_range(const string & key, int & rscale){
          ((digit_p >> dash_p)[assign_a(c5)] >> digit_p) 
       ));
 
+    rule<> map_range =
+      ch_p('+') >> real_p[assign_a(nx)] >> ch_p('x') >> real_p[assign_a(ny)];
 
-    if (!parse(key1.c_str(), (map_p_s || map_a_o) >> *anychar_p).full)
+
+    if (!parse(key1.c_str(), (map_p_s || map_a_o) >> !map_range >> *anychar_p).full)
       return dRect(0,0,0,0);
 
     char ac='a';
@@ -112,6 +116,9 @@ nom_to_range(const string & key, int & rscale){
 //      cerr << "1:500 000, col: " << col << ", row: "<< row << '\n';
     }
     if (m==2) lon2+=lon2-lon1;
+
+    if (nx>1) lon2+=(lon2-lon1)*nx;
+    if (ny>1) lat2+=(lat2-lat1)*ny;
 
     return dRect(dPoint(lon1,lat1), Point<double>(lon2,lat2));
 }
