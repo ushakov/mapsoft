@@ -53,7 +53,7 @@ nom_to_range(const string & key, int & rscale){
       ));
 
     rule<> map_range =
-      ch_p('+') >> real_p[assign_a(nx)] >> ch_p('x') >> real_p[assign_a(ny)];
+      ch_p(':') >> real_p[assign_a(nx)] >> ch_p('x') >> real_p[assign_a(ny)];
 
 
     if (!parse(key1.c_str(), (map_p_s || map_a_o) >> !map_range >> *anychar_p).full)
@@ -117,8 +117,10 @@ nom_to_range(const string & key, int & rscale){
     }
     if (m==2) lon2+=lon2-lon1;
 
-    if (nx>1) lon2+=(lon2-lon1)*nx;
-    if (ny>1) lat2+=(lat2-lat1)*ny;
+    if (nx>0) lon2+=(lon2-lon1)*(nx-1);
+    if (ny>0) lat2+=(lat2-lat1)*(ny-1);
+    if (nx<0) lon1+=(lon2-lon1)*(nx+1);
+    if (ny<0) lat1+=(lat2-lat1)*(ny+1);
 
     return dRect(dPoint(lon1,lat1), Point<double>(lon2,lat2));
 }
