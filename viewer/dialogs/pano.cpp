@@ -45,14 +45,15 @@ DlgPano::DlgPano(srtm3 * s): gobj_pano(s),
 
   signal_key_press_event().connect (
     sigc::mem_fun (this, &DlgPano::on_key_press));
-  viewer.signal_button_press_event().connect (
-    sigc::mem_fun (this, &DlgPano::on_button_press));
-  viewer.signal_scroll_event().connect (
-    sigc::mem_fun (this, &DlgPano::on_scroll));
+
+  // connect viewer click
+  viewer.signal_click().connect(
+    sigc::mem_fun (this, &DlgPano::click));
 
   gobj_pano.set_colors(rb->get_v1(), rb->get_v2());
   // viewer is not realized yet, we don't know its size..
   viewer.set_origin(gobj_pano.range().CNT()-iPoint(320,240));
+
 }
 
 void
@@ -114,30 +115,15 @@ DlgPano::on_key_press(GdkEventKey * event) {
   return false;
 }
 
-bool
-DlgPano::on_button_press(GdkEventButton * event) {
-  if (event->button != 1) return false;
-  viewer.grab_focus();
-  iPoint pi = iPoint(event->x, event->y) + viewer.get_origin();
+void
+DlgPano::click (iPoint p, int button, const Gdk::ModifierType & state) {
+  dPoint pg=gobj_pano.xy2geo(p);
   rubber.clear();
-  dPoint pg=gobj_pano.xy2geo(pi);
-
   if (pg.y<90){
-    rubber.add_src_mark(pi);
-    Gdk::ModifierType state;
-    viewer.get_window()->get_pointer(pi.x,pi.y,state);
+    rubber.add_src_mark(p);
     if (state&Gdk::CONTROL_MASK) signal_go_.emit(pg);
-    else {
-      signal_point_.emit(pg);
-    }
+    else signal_point_.emit(pg);
   }
-  return true;
-}
-
-bool
-DlgPano::on_scroll(GdkEventScroll * event) {
-  viewer.rescale(event->direction ? 0.5:2.0, iPoint(event->x, event->y));
-  return true;
 }
 
 sigc::signal<void, dPoint>

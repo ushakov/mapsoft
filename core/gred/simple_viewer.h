@@ -87,7 +87,7 @@ class SimpleViewer : public Viewer {
     iPoint origin;
 
     bool on_drag;
-    iPoint drag_pos;
+    iPoint drag_pos, drag_start;
     unsigned int waiting;
 
     int bgcolor;
