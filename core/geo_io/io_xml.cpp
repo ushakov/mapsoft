@@ -140,11 +140,11 @@ namespace xml {
 		f << "<track points=" << tr.size();
 		if (tr.width != def_t.width) f << " width="    << tr.width;
 		if (tr.displ != def_t.displ) f << " displ="    << tr.displ;
-                if (tr.color != def_t.color) f << " color=\""  << tr.color << "\"";
+                if (tr.color != def_t.color) f << " color=\"#" << hex << tr.color << "\"";
 		if (tr.skip  != def_t.skip)  f << " skip="     << tr.skip;
 		if (tr.type  != def_t.type)  f << " type="     << tr.type;
 		if (tr.fill  != def_t.fill)  f << " fill="     << tr.fill;
-		if (tr.cfill != def_t.cfill) f << " cfill=\""  << tr.cfill << "\"";
+		if (tr.cfill != def_t.cfill) f << " cfill=\"#"  << hex << tr.cfill << "\"";
 		if (tr.comm  != def_t.comm)  f << " comm=\""   << cnv.from_utf8(tr.comm) << "\"";
 		f << ">\n";
                 vector<g_trackpoint>::const_iterator p, b=tr.begin(), e=tr.end();

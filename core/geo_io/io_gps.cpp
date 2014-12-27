@@ -48,7 +48,7 @@ namespace gps {
 			new_w_pt.z         = wpt[i]->alt;
 			new_w_pt.symb.val  = wpt[i]->smbl;
 			new_w_pt.displ     = wpt[i]->dspl;
-			new_w_pt.color     = Color(0xFF, wpt[i]->colour);
+			new_w_pt.color     = 0xFF000000 | wpt[i]->colour;
 			if (wpt[i]->time_populated) new_w_pt.t
                                            = Time(wpt[i]->time);
 			new_w.push_back(new_w_pt);
@@ -80,7 +80,7 @@ namespace gps {
 					new_t = g_track();
 				}
 				new_t.displ = trk[i]->dspl;
-				new_t.color = Color(0xFF, trk[i]->colour);
+				new_t.color = 0xFF000000 | trk[i]->colour;
 				new_t.comm  = trk[i]->trk_ident;
 			} else {
 				g_trackpoint new_t_pt;
@@ -119,7 +119,7 @@ namespace gps {
 			wpts[n]->lon  = i->x;
 			wpts[n]->smbl = i->symb.val;
 			wpts[n]->dspl = i->displ;
-			wpts[n]->colour = i->color.RGB();
+			wpts[n]->colour = i->color;
 			wpts[n]->alt  = i->z;
 			wpts[n]->time = i->t.value;
 			n++;
@@ -142,7 +142,7 @@ namespace gps {
 		trks[0] = GPS_Track_New();
 		trks[0]->ishdr = 1;
 		trks[0]->dspl   = tr.displ;
-		trks[0]->colour = tr.color.RGB();
+		trks[0]->colour = tr.color;
 		memccpy(trks[0]->trk_ident, cnv.from_utf8_7bit(tr.comm).c_str(), '\0', 255);
 
 		int n = 1;

@@ -10,7 +10,6 @@
 #include "options/options.h"
 
 #include "options/m_time.h"
-#include "options/m_color.h"
 
 /// single trackpoint
 struct g_trackpoint : dPoint {
@@ -33,11 +32,11 @@ struct g_trackpoint : dPoint {
 struct g_track : std::vector<g_trackpoint>{
     int     width; /// width of track plot line on screen (from OE)
     int     displ; //
-    Color   color; /// track color (RGB)
+    int     color; /// track color (BGR)
     int     skip;  //
     trkType type;
     trkFill fill;  /// track fill style
-    Color   cfill; /// track fill color (RGB)
+    int     cfill; /// track fill color (BGR)
     std::string comm; /// track description
 
     g_track();

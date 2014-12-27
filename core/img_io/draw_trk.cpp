@@ -26,7 +26,7 @@ draw_trk(iImage & image, const iPoint & origin,
   if (trk_draw_mode == "normal"){
     bool draw_dots   = opt.exists("trk_draw_dots");
     bool draw_arrows = opt.exists("trk_draw_arrows");
-    cr->set_color(trk.color.value);
+    cr->set_color(trk.color);
     cr->set_line_width(w);
 
     if (trk.size()==1){ // draw 1pt tracks even in non-draw_dots mode

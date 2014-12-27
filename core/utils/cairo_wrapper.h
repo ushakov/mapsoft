@@ -18,28 +18,23 @@ struct CairoExtra : public Cairo::Context {
   void save_png(const char *fname){
     Cairo::Context::get_target()->write_to_png(fname); }
 
-
-  // Note: color order is inversed! It is good for
-  // Gtk::pixbuf and mapsoft:iImage, but you can't
-  // load/save png using Cairo functions
-
   // Another problem is prescaled colors in semi-transparent
   // images: cairo uses prescaled colors, mapsoft uses them not in
   // all places
 
   void set_color_a(const int c){
-    Cairo::Context::set_source_rgba(
-       (c&0xFF)/256.0,
-      ((c&0xFF00)>>8)/256.0,
+    Cairo::Context::set_source_rgba( /* 1,0,0 is blue?! */
       ((c&0xFF0000)>>16)/256.0,
+      ((c&0xFF00)>>8)/256.0,
+       (c&0xFF)/256.0,
       ((c&0xFF000000)>>24)/256.0
     );
   }
   void set_color(const int c){
     Cairo::Context::set_source_rgb(
-       (c&0xFF)/256.0,
+      ((c&0xFF0000)>>16)/256.0,
       ((c&0xFF00)>>8)/256.0,
-      ((c&0xFF0000)>>16)/256.0
+       (c&0xFF)/256.0
     );
   }
 

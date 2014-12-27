@@ -23,8 +23,8 @@ class WPT_ListColumns : public Gtk::TreeModelColumnRecord {
     Gtk::TreeModelColumn<int>           font_size;
     Gtk::TreeModelColumn<int>           font_style;
     Gtk::TreeModelColumn<int>           size;
-    Gtk::TreeModelColumn<Color>         color;
-    Gtk::TreeModelColumn<Color>         bgcolor;
+    Gtk::TreeModelColumn<int>           color;
+    Gtk::TreeModelColumn<int>           bgcolor;
 
     WPT_ListColumns() {
       add(name);

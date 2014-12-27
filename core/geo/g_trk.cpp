@@ -79,9 +79,9 @@ g_trackpoint::clear_depth(){
 g_track::g_track(){
     width = 2;
     displ = 1;
-    color = Color(0xFFFF0000);
+    color = 0xFF0000FF;
     skip  = 1;
-    cfill = Color(0xFF000000);
+    cfill = 0xFF000000;
     comm  = "";
 }
 

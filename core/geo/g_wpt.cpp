@@ -12,8 +12,8 @@ g_waypoint::g_waypoint (){
     prox_dist  = 0.0;
     t          = Time(0);
     displ      = 0;
-    color      = Color(0xFF000000); 
-    bgcolor    = Color(0xFFFFFFFF); 
+    color      = 0xFF000000;
+    bgcolor    = 0xFFFFFFFF;
     font_size  = 6;
     font_style = 0;
     size       = 17;

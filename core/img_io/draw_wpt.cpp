@@ -16,8 +16,8 @@ make_wpts_tmpl(CairoWrapper & cr, const iPoint & origin,
   for (pt=wpt.begin(); pt!=wpt.end(); pt++){
     tmpl_wpt p;
     p.x=pt->x; p.y=pt->y; cnv.bck(p); p-=origin;
-    p.color = pt->color.value;
-    p.bgcolor = pt->bgcolor.value;
+    p.color = pt->color;
+    p.bgcolor = pt->bgcolor;
     p.name=pt->name;
 
     // dimensions

@@ -50,7 +50,7 @@ using namespace boost::spirit::classic;
 			g_waypoint dflt;
                         lat=dflt.y; lon=dflt.x; time=dflt.t.value;
                         symb=dflt.symb.val; displ=dflt.displ; map_displ=dflt.map_displ.val;
-			color=dflt.color.BGR(); bgcolor=dflt.bgcolor.BGR(); pt_dir=dflt.pt_dir.val;
+			color=dflt.color; bgcolor=dflt.bgcolor; pt_dir=dflt.pt_dir.val;
 			prox_dist=dflt.prox_dist; alt=-777;
 			font_size=dflt.font_size; font_style=dflt.font_style; size=dflt.size;
                 }
@@ -65,10 +65,8 @@ using namespace boost::spirit::classic;
                         ret.symb.val   = symb;
                         ret.displ      = displ;
                         ret.map_displ.val  = map_displ;
-                        ret.color      = Color(0xFF, color);
-                        ret.color.rb_invert();
-                        ret.bgcolor    = Color(0xFF, bgcolor);
-                        ret.bgcolor.rb_invert();
+                        ret.color      = color;
+                        ret.bgcolor    = bgcolor;
                         ret.pt_dir.val = pt_dir;
                         ret.size       = size;
                         ret.font_size  = font_size;
@@ -128,22 +126,20 @@ using namespace boost::spirit::classic;
                 vector<oe_trackpoint> points;
                 oe_track (){
 		  g_track dflt;
-                  width=dflt.width; color=dflt.color.BGR(); skip=dflt.skip;
+                  width=dflt.width; color=dflt.color; skip=dflt.skip;
                   type=dflt.type.val;
                   fill=dflt.fill.val;
-                  cfill=dflt.cfill.BGR();
+                  cfill=dflt.cfill;
                 }
                 operator g_track () const{
                         g_track ret;
 			convs::pt2wgs cnv(Datum(datum), Proj("lonlat"));
                         ret.width = width;
-                        ret.color = Color(0xFF, color);
-                        ret.color.rb_invert();
+                        ret.color = color;
                         ret.skip  = skip;
                         ret.type.val  = type;
                         ret.fill.val  = fill;
                         ret.cfill = cfill;
-                        ret.cfill.rb_invert();
 			ret.comm  = comm;
                         vector<oe_trackpoint>::const_iterator i,
                                 b=points.begin(), e=points.end();
@@ -470,12 +466,12 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 		  << "Reserved 3\r\n" 
 		  << "0,"
 		  << trk.width << ',' 
-		  << trk.color.BGR() << ',' 
+		  << trk.color << ',' 
 		  << cnv.from_utf8(trk.comm)  << ',' 
 		  << trk.skip  << ',' 
 		  << trk.type.val  << ',' 
 		  << trk.fill.val  << ',' 
-		  << trk.cfill.BGR() << "\r\n" 
+		  << trk.cfill << "\r\n" 
 		  << num << "\r\n";
 		for (vector<g_trackpoint>::const_iterator p = trk.begin(); 
 			 p!= trk.end(); p++){
@@ -523,8 +519,8 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 			  << (p->t.value+2209161600.0)/3600.0/24.0 << ','
 			  << p->symb.val      << ",1,"
 			  << p->map_displ.val << ','
-			  << p->color.BGR()   << ','
-			  << p->bgcolor.BGR() << ','
+			  << p->color         << ','
+			  << p->bgcolor       << ','
 			  << cnv.from_utf8(p->comm)  << ','
 			  << p->pt_dir.val << ','
 			  << p->displ      << ','

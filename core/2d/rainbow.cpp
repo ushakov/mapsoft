@@ -40,21 +40,21 @@ color_shade(int c, double k){
 simple_rainbow::simple_rainbow(double min, double max, rainbow_type type){
   switch (type){
     case RAINBOW_NORMAL:
-    RD[0].c = 0xff0000;
-    RD[1].c = 0xffff00;
-    RD[2].c = 0x00ff00;
-    RD[3].c = 0x00ffff;
-    RD[4].c = 0x0000ff;
-    RD[5].c = 0xff00ff;
+    RD[0].c = 0xffff0000;
+    RD[1].c = 0xffffff00;
+    RD[2].c = 0xff00ff00;
+    RD[3].c = 0xff00ffff;
+    RD[4].c = 0xff0000ff;
+    RD[5].c = 0xffff00ff;
     rd_size=6;
     break;
     case RAINBOW_BURNING:
-    RD[0].c = 0xffffff;
-    RD[1].c = 0x00ffff;
-    RD[2].c = 0x0000ff;
-    RD[3].c = 0xff00ff;
-    RD[4].c = 0xff0000;
-    RD[5].c = 0x400000;
+    RD[0].c = 0xffffffff;
+    RD[1].c = 0xff00ffff;
+    RD[2].c = 0xff0000ff;
+    RD[3].c = 0xffff00ff;
+    RD[4].c = 0xffff0000;
+    RD[5].c = 0xff400000;
     rd_size=6;
     break;
   }

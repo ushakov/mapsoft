@@ -9,7 +9,6 @@
 #include "options/options.h"
 
 #include "options/m_time.h"
-#include "options/m_color.h"
 
 using namespace std;
 
@@ -27,8 +26,8 @@ struct g_waypoint : dPoint {
     int          font_size;
     int          font_style;
     int          size;
-    Color        color;
-    Color        bgcolor;
+    int          color;
+    int          bgcolor;
 
     g_waypoint();
     Options to_options() const;
