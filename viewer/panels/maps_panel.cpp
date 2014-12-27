@@ -6,21 +6,23 @@ PanelMAP::add(const boost::shared_ptr<g_map_list> data) {
   boost::shared_ptr<GObjMAP>
     layer(new GObjMAP(data.get(), opts));
   add_gobj(layer.get(), 0);
-
   mapview->set_ref(layer->get_myref());
+
+  std::string comm = data->comm;
+  Pango::Weight weight=Pango::WEIGHT_BOLD;
+
+  if (data->size() == 1){
+    comm=(*data)[0].comm;
+    weight=Pango::WEIGHT_NORMAL;
+  }
+
   Gtk::TreeModel::iterator it = store->append();
   Gtk::TreeModel::Row row = *it;
   row[columns.checked] = true;
   row[columns.layer]   = layer;
   row[columns.data]    = data;
-  if (layer->get_data()->size() == 1){
-    row[columns.comm] = (*layer->get_data())[0].comm;
-    row[columns.weight] = Pango::WEIGHT_NORMAL;
-  }
-  else{
-    row[columns.comm] = layer->get_data()->comm;
-    row[columns.weight] = Pango::WEIGHT_BOLD;
-  }
+  row[columns.comm]    = comm;
+  row[columns.weight]  = weight;
 }
 
 int
