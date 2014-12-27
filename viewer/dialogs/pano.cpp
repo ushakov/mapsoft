@@ -74,7 +74,6 @@ DlgPano::set_dir(const dPoint & pt){
   dPoint pt0 = gobj_pano.get_origin();
   double width = gobj_pano.get_width();
   double angle = atan2((pt.x-pt0.x)*cos(pt0.y*M_PI/180), pt.y-pt0.y);
-
   rubber.clear();
   viewer.set_center(iPoint( width*angle/2.0/M_PI, viewer.get_center().y));
 

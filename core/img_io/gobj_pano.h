@@ -27,31 +27,34 @@ private:
 
   Cache<int, std::vector<ray_data> > ray_cache;
 
-  double getw() const {dPoint p(width0,0); cnv.bck(p); return p.x;}
-
 public:
   GObjPano(srtm3 * s);
 
   // Horizontal range is 720deg, -width..width
   // Vertical range is 90, 0..width/4
-  iRect range() const {double w=getw(); return iRect(0,0,w,w/2);}
+  iRect range() const {int w=get_width(); return iRect(0,0,w,w/2);}
   bool get_xloop() const {return true;}
 
-  void set_origin(const dPoint & p); // central point, wgs84 lonlat
-  dPoint get_origin(void) const;
+   // central point, wgs84 lonlat
+  void set_origin(const dPoint & p) {ray_cache.clear(); p0=p;}
+  dPoint get_origin(void) const {return p0;}
 
-  void set_alt(double h); // altitude above terrain
-  double get_alt(void) const;
+  // altitude above terrain
+  void set_alt(double h) { dh=h;}
+  double get_alt(void) const { return dh;}
 
-  void set_colors(double min, double max); // rainbow limits
-  double get_minh(void) const;
-  double get_maxh(void) const;
+  // rainbow limits
+  void set_colors(double min, double max) {rb.set_range(min,max);}
+  double get_minh(void) const {return rb.get_min();}
+  double get_maxh(void) const {return rb.get_max();}
 
-  void set_maxr(double r); // max distance
-  double get_maxr(void) const;
+  // max distance
+  void set_maxr(double r) {max_r=r; ray_cache.clear();}
+  double get_maxr(void) const {return max_r;}
 
-  void set_width(int w); // 360deg width
-  int get_width(void) const;
+  // 360deg width
+  void set_width(int w) { width0=w; }
+  int get_width(void) const {dPoint p(width0,0); cnv.bck(p); return p.x;}
 
   void set_opt(const Options & o);
   Options get_opt(void) const;

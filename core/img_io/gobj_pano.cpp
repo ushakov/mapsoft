@@ -7,41 +7,6 @@ GObjPano::GObjPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){
   set_opt(Options());}
 
 /***********************************************************/
-// GET/SET parameters
-void
-GObjPano::set_origin(const dPoint & p){
-  ray_cache.clear(); p0=p;
-}
-dPoint
-GObjPano::get_origin(void) const {return p0;}
-
-void
-GObjPano::set_alt(double h) { dh=h;}
-double
-GObjPano::get_alt(void) const{ return dh;}
-
-void
-GObjPano::set_colors(double min, double max){
-  rb.set_range(min,max);
-}
-double
-GObjPano::get_minh(void) const {return rb.get_min();}
-double
-GObjPano::get_maxh(void) const {return rb.get_max();}
-
-void
-GObjPano::set_maxr(double r){
-  max_r=r;
-  ray_cache.clear();
-}
-double
-GObjPano::get_maxr(void) const {return max_r;}
-
-void
-GObjPano::set_width(int w){ width0=w; }
-int
-GObjPano::get_width(void) const {return width0;}
-
 void
 GObjPano::set_opt(const Options & o){
   p0 = o.get<dPoint>("pano_pt");
@@ -73,7 +38,7 @@ GObjPano::get_opt(void) const{
 vector<GObjPano::ray_data>
 GObjPano::get_ray(int x){
 
-  double width=getw();
+  double width=get_width();
 
   while (x<0) x+=width;
   while (x>=width) x-=width;
@@ -160,7 +125,7 @@ GObjPano::get_ray(int x){
 iPoint
 GObjPano::geo2xy(const dPoint & pt){
 
-  double width=getw();
+  double width=get_width();
 
   iPoint ret;
   double cx=cos(p0.y*M_PI/180);
@@ -200,7 +165,7 @@ GObjPano::geo2xy(const dPoint & pt){
 dPoint
 GObjPano::xy2geo(const iPoint & pt){
 
-  double width=getw();
+  double width=get_width();
 
   vector<ray_data> ray = get_ray(pt.x);
   if (!ray.size()) return iPoint(0,180);
@@ -235,7 +200,7 @@ GObjPano::xy2geo(const iPoint & pt){
 int
 GObjPano::draw(iImage & image, const iPoint & origin){
   if (!srtm) return GOBJ_FILL_NONE;
-  double width=getw();
+  double width=get_width();
 
   double h0 = (double)srtm->geth4(p0) + dh; // altitude of observation point
   for (int x=0; x < image.w; x++){
