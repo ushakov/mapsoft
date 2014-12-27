@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <gtkmm/accelmap.h>
+
+#define ACCEL_FILE ".mapsoft/accel"
 
 class Mapview;
 
@@ -13,42 +16,36 @@ class ActionManager {
 public:
     ActionManager(Mapview * mapview_);
 
-    std::vector<std::string> get_mode_list () {
-	std::vector<std::string> r;
-	for (int i = 0; i < modes.size(); ++i) {
-	    r.push_back(modes[i]->get_name());
-	}
-	return r;
+    // clear rubber, abort current mode
+    void clear_state();
+
+    // do clear_state, activate a new mode, put mode name to the statusbar
+    void set_mode (int new_mode);
+
+    void click (iPoint p, int button, const Gdk::ModifierType & state) {
+      if (button == 3) clear_state();
+      else modes[current_mode]->handle_click(p, state);
     }
 
-    void set_mode (int new_mode) {
-	clear_state();
-	current_mode = new_mode;
-	modes[current_mode]->activate();
-    }
-
-    std::string get_mode_name (int mode) {
-      return modes[mode]->get_name();
-    }
-
-
-    void clear_state () {
-	modes[current_mode]->abort();
-    }
-
-    void click (iPoint p, const Gdk::ModifierType & state) {
-	modes[current_mode]->handle_click(p, state);
-    }
+    Gtk::Widget * get_main_menu() { return ui_manager->get_widget("/MenuBar"); }
 
 private:
 
-    // used in constructor
+    // Menus
+    Glib::RefPtr<Gtk::ActionGroup> actions;
+    Glib::RefPtr<Gtk::UIManager> ui_manager;
+    Gtk::Menu *popup_trks, *popup_wpts, *popup_maps, *popup_srtm;
+
+    // used in the constructor
     void AddAction(ActionMode *action, const std::string & id, const std::string & menu);
     void AddSep(const std::string & menu);
 
-    Mapview      * mapview;
+    Mapview * mapview;
     std::vector<boost::shared_ptr<ActionMode> > modes;
     int current_mode;
+
+    // Control menu popups for the right panel
+    bool on_panel_button_press (GdkEventButton * event);
 };
 
 

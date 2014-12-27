@@ -2,8 +2,8 @@
 #include "mapview.h"
 #include "utils/log.h"
 
-#include "images/gps_download.h"
-#include "images/gps_upload.h"
+//#include "images/gps_download.h"
+//#include "images/gps_upload.h"
 
 using namespace std;
 
@@ -13,7 +13,8 @@ Mapview::Mapview () :
     rubber(&viewer),
     panel_wpts(this),
     panel_trks(this),
-    panel_maps(this)
+    panel_maps(this),
+    action_manager(this)
 {
     /// window initialization
     signal_delete_event().connect_notify (
@@ -23,32 +24,12 @@ Mapview::Mapview () :
     /// global keypress event -- send all keys to the viewer first:
     signal_key_press_event().connect (
       sigc::mem_fun (&viewer, &DThreadViewer::on_key_press));
-    /// viewer mouse button events
-    viewer.signal_button_press_event().connect (
-      sigc::mem_fun (this, &Mapview::on_button_press));
-    viewer.signal_button_release_event().connect (
-      sigc::mem_fun (this, &Mapview::on_button_release));
 
     // TODO: move to the viewer
     main_gobj.signal_redraw_me().connect(
     sigc::mem_fun(&viewer, &DThreadViewer::draw));
 
-    // panels mouse button events
-    panel_wpts.set_events(Gdk::BUTTON_PRESS_MASK);
-    panel_trks.set_events(Gdk::BUTTON_PRESS_MASK);
-    panel_maps.set_events(Gdk::BUTTON_PRESS_MASK);
-    panel_srtm.set_events(Gdk::BUTTON_PRESS_MASK);
-
-    panel_wpts.signal_button_press_event().connect(
-      sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
-    panel_trks.signal_button_press_event().connect(
-      sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
-    panel_maps.signal_button_press_event().connect(
-      sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
-    panel_srtm.signal_button_press_event().connect(
-      sigc::mem_fun (this, &Mapview::on_panel_button_press), false);
-
-    // mapview want to know about data change only to set a star in
+    // mapview wants to know about data change only to set a star in
     // the window title.
     panel_wpts.signal_data_changed().connect(
       sigc::bind(sigc::mem_fun(this, &Mapview::set_changed), true));
@@ -72,41 +53,6 @@ Mapview::Mapview () :
     viewer.set_bgcolor(0xB3DEF5 /*wheat*/);
 
     /***************************************/
-    // Add my icons 
-    Glib::RefPtr<Gtk::IconFactory> icon_factory = Gtk::IconFactory::create();
-    icon_factory->add_default();
-
-#define ADD_ICON(size, name) \
-    icon_factory->add(\
-      Gtk::StockID(#name),\
-      Gtk::IconSet(\
-        Gdk::Pixbuf::create_from_data (idata_##name, Gdk::COLORSPACE_RGB,\
-        true /*alpha*/, 8 /*bps*/, size /*w*/, size /*h*/, (size)*4 /*rowstride*/))\
-    );
-
-    ADD_ICON(16, gps_download);
-    ADD_ICON(16, gps_upload);
-
-    /***************************************/
-    /// Menues
-    actions = Gtk::ActionGroup::create();
-
-    ui_manager = Gtk::UIManager::create();
-    ui_manager->insert_action_group(actions);
-
-    add_accel_group(ui_manager->get_accel_group());
-    char *home=getenv("HOME");
-    if (home) Gtk::AccelMap::load(string(home) + "/" + ACCEL_FILE);
-
-    // create actions + build menu
-    action_manager.reset (new ActionManager(this));
-
-    popup_wpts = (Gtk::Menu *)ui_manager->get_widget("/PopupWPTs");
-    popup_trks = (Gtk::Menu *)ui_manager->get_widget("/PopupTRKs");
-    popup_maps = (Gtk::Menu *)ui_manager->get_widget("/PopupMAPs");
-    popup_srtm = (Gtk::Menu *)ui_manager->get_widget("/PopupSRTM");
-
-    /***************************************/
 
     /// Build panels (Notebook)
     panels = manage(new Gtk::Notebook());
@@ -128,14 +74,14 @@ Mapview::Mapview () :
     panels->set_scrollable(false);
     panels->set_size_request(150,-1);
 
-    /// Build main pand: Viewer + Panels
+    /// Build main paned: Viewer + Panels
     Gtk::HPaned * paned = manage(new Gtk::HPaned);
     paned->pack1(viewer, Gtk::EXPAND | Gtk::FILL);
     paned->pack2(*panels, Gtk::FILL);
 
     /// Build main vbox: menu + main pand + statusbar
     Gtk::VBox * vbox = manage(new Gtk::VBox);
-    vbox->pack_start(*ui_manager->get_widget("/MenuBar"), false, true, 0);
+    vbox->pack_start(*action_manager.get_main_menu(), false, true, 0);
     vbox->pack_start(*paned, true, true, 0);
     vbox->pack_start(spanel, false, true, 0);
     add (*vbox);
@@ -145,13 +91,6 @@ Mapview::Mapview () :
     spanel.message("Welcome to mapsoft viewer!");
 
     show_all();
-}
-
-void
-Mapview::on_mode_change (int m) {
-  rubber.clear();
-  spanel.message(action_manager->get_mode_name(m));
-  action_manager->set_mode(m);
 }
 
 bool
@@ -292,49 +231,3 @@ Mapview::exit(bool force) {
   g_print ("Exiting...\n");
   hide_all();
 }
-
-bool
-Mapview::on_button_press (GdkEventButton * event) {
-  if (event->button == 1) {
-    click_start = viewer.get_origin();
-    return true;
-  }
-  return false;
-}
-
-bool
-Mapview::on_button_release (GdkEventButton * event) {
-  if (event->button == 3) {
-    rubber.clear();
-    action_manager->clear_state();
-    return true;
-  }
-  if (event->button == 1) {
-    iPoint p;
-    Gdk::ModifierType state;
-    viewer.get_window()->get_pointer(p.x,p.y,state);
-    if (pdist(click_start, viewer.get_origin()) > 5) return true;
-    action_manager->click(p+click_start, state);
-    return true;
-  }
-  return false;
-}
-
-bool
-Mapview::on_panel_button_press (GdkEventButton * event) {
-  if (event->button == 3) {
-    Gtk::Menu * M = 0;
-    switch (panels->get_current_page()){
-      case 0: M = popup_wpts; break;
-      case 1: M = popup_trks; break;
-      case 2: M = popup_maps; break;
-      case 3: M = popup_srtm; break;
-    }
-    if (M) M->popup(event->button, event->time);
-    return true;
-  }
-  return false;
-}
-
-
-

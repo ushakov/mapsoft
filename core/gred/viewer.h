@@ -32,6 +32,8 @@ class Viewer : public Gtk::DrawingArea {
 
     virtual sigc::signal<void, double> & signal_on_rescale() = 0;
     virtual sigc::signal<void, iPoint> & signal_ch_origin() = 0;
+
+    virtual sigc::signal<void, iPoint, int, const Gdk::ModifierType&> & signal_click() = 0;
 };
 
 #endif

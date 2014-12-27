@@ -3,7 +3,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <gtkmm.h>
-#include <gtkmm/accelmap.h>
 #include <map>
 #include <string>
 
@@ -22,24 +21,24 @@
 #include "panels/srtm_panel.h"
 #include "panels/status_panel.h"
 
-#define ACCEL_FILE ".mapsoft/accel"
+//#define ACCEL_FILE ".mapsoft/accel"
 
 class Mapview : public Gtk::Window {
 public:
-    DThreadViewer viewer;
-    Rubber        rubber;
-    GObjComp      main_gobj;
+    /// Mapview components:
+    DThreadViewer viewer;    // Viewer, gtk widget which shows main_gobj
+    Rubber        rubber;    // Rubber lines
+    GObjComp      main_gobj; // Main workplane
 
+    // Right panel, a Gtk::Notebook with separate
+    // panels for waypoints, tracks, maps ...
     Gtk::Notebook * panels;
     PanelTRK  panel_trks;
     PanelWPT  panel_wpts;
     PanelMAP  panel_maps;
     PanelSRTM panel_srtm;
-
-    Glib::RefPtr<Gtk::ActionGroup> actions;
-    Glib::RefPtr<Gtk::UIManager> ui_manager;
-    Gtk::Menu *popup_trks, *popup_wpts, *popup_maps, *popup_srtm;
-    StatusPanel spanel;
+    StatusPanel spanel; // status bar
+    ActionManager action_manager; // menus and action handling
 
     bool have_reference;
 
@@ -47,8 +46,6 @@ public:
     DlgErr dlg_err; // error dialog
 
 private:
-    boost::shared_ptr<ActionManager> action_manager;
-    iPoint click_start;
     std::string filename; // project filename
     bool changed;         // true if project was changed since
                           // last saving/loading
@@ -56,7 +53,6 @@ public:
 
     Mapview ();
 
-    void on_mode_change (int m);
     std::string get_filename() const;
     void set_filename(const std::string & f);
 
@@ -76,9 +72,6 @@ public:
 
     void goto_wgs(dPoint p);
     void exit(bool force=false);
-    bool on_button_press (GdkEventButton * event);
-    bool on_button_release (GdkEventButton * event);
-    bool on_panel_button_press (GdkEventButton * event);
 };
 
 

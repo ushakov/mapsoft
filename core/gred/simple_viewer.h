@@ -69,6 +69,7 @@ class SimpleViewer : public Viewer {
     sigc::signal<void> & signal_idle()        {return signal_idle_;}
     sigc::signal<void, double> & signal_on_rescale()  {return signal_on_rescale_;}
     sigc::signal<void, iPoint> & signal_ch_origin()   {return signal_ch_origin_;}
+    sigc::signal<void, iPoint, int, const Gdk::ModifierType&> & signal_click() {return signal_click_;}
 
     GObj * get_gobj() {return obj;}
 
@@ -80,6 +81,7 @@ class SimpleViewer : public Viewer {
     sigc::signal<void> signal_idle_;
     sigc::signal<void, double> signal_on_rescale_;
     sigc::signal<void, iPoint> signal_ch_origin_;
+    sigc::signal<void, iPoint, int, const Gdk::ModifierType&> signal_click_;
 
     GObj * obj;
     iPoint origin;

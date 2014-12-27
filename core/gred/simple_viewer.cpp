@@ -143,9 +143,15 @@ SimpleViewer::on_button_press_event (GdkEventButton * event) {
 
 bool
 SimpleViewer::on_button_release_event (GdkEventButton * event) {
+  iPoint p;
+  Gdk::ModifierType state;
+  get_window()->get_pointer(p.x,p.y, state);
+
   if ((event->button == 1) || (event->button == 2)){
     on_drag=false;
+    if (pdist(drag_pos, p) > 5) return true;
   }
+  signal_click_.emit(p+get_origin(), event->button, state);
   return false;
 }
 

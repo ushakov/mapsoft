@@ -19,8 +19,11 @@ main(int argc, char **argv){
 
     Gtk::Main kit (argc, argv);
 
+    // Create a Mapview object
     Mapview mapview;
 
+    // Load files from the commandline
+    // if there is one xml file -- set the project name
     if ((argc==2) && (io::testext(argv[1], ".xml"))){
       mapview.load_file(argv[1]);
     }
@@ -29,6 +32,7 @@ main(int argc, char **argv){
       mapview.add_files(files);
     }
 
+    // Run mapview
     kit.run(mapview);
 }
 

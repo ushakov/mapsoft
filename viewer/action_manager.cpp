@@ -1,6 +1,13 @@
 #include "action_manager.h"
 #include "mapview.h"
 
+/**** Images *****/
+
+#include "images/gps_download.h"
+#include "images/gps_upload.h"
+
+/**** ActionModes *****/
+
 #include "actions/action_mode.h"
 #include "actions/am_new.h"
 #include "actions/am_open.h"
@@ -45,15 +52,48 @@
 
 #include "actions/panel_actions.h"
 
+/*********/
+
 #define ADD_ACT(name, group) AddAction(new name(mapview),\
    std::string("Mode") + #name, group);
 
+#define ADD_ICON(size, name) \
+    icon_factory->add(\
+      Gtk::StockID(#name),\
+      Gtk::IconSet(\
+        Gdk::Pixbuf::create_from_data (idata_##name, Gdk::COLORSPACE_RGB,\
+        true /*alpha*/, 8 /*bps*/, size /*w*/, size /*h*/, (size)*4 /*rowstride*/))\
+    );
 
-ActionManager::ActionManager (Mapview * mapview_)
-    : mapview(mapview_)
-{
-    current_mode = 0;
+ActionManager::ActionManager (Mapview * mapview_):
+  mapview(mapview_), current_mode(0) {
 
+    /***************************************/
+    // Add my icons.
+    Glib::RefPtr<Gtk::IconFactory> icon_factory = Gtk::IconFactory::create();
+    icon_factory->add_default();
+
+    ADD_ICON(16, gps_download);
+    ADD_ICON(16, gps_upload);
+
+    /***************************************/
+    /// Menues
+    actions = Gtk::ActionGroup::create();
+
+    ui_manager = Gtk::UIManager::create();
+    ui_manager->insert_action_group(actions);
+
+    mapview->add_accel_group(ui_manager->get_accel_group());
+    char *home=getenv("HOME");
+    if (home) Gtk::AccelMap::load(string(home) + "/" + ACCEL_FILE);
+
+    // empty mode in the begining
+    modes.push_back(boost::shared_ptr<ActionMode>(new ActionModeNone(mapview)));
+
+    /***************************************/
+    // Add actions to menus
+
+    /* Main menu */
     ADD_ACT(New,             "File")
     ADD_ACT(Open,            "File")
     ADD_ACT(AddFile,         "File")
@@ -99,7 +139,7 @@ ActionManager::ActionManager (Mapview * mapview_)
     ADD_ACT(FullScreen,      "Misc")
     ADD_ACT(HidePanels,      "Misc")
 
-    /* Wpt panel menu*/
+    /* Wpt panel menu */
     ADD_ACT(PanelGoto,        "PopupWPTs")
     ADD_ACT(PanelSave,        "PopupWPTs")
     AddSep("PopupWPTs");
@@ -161,24 +201,44 @@ ActionManager::ActionManager (Mapview * mapview_)
     /* SRTM panel menu*/
     ADD_ACT(SrtmOpt,          "PopupSRTM")
 
+    /***************************************/
 
-    /* */
+    /* Cleate menus */
+    actions->add(Gtk::Action::create("MenuFile", "_File"));
+    actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));
+    actions->add(Gtk::Action::create("MenuTracks", "_Tracks"));
+    actions->add(Gtk::Action::create("MenuMaps", "_Maps"));
+    actions->add(Gtk::Action::create("MenuSRTM", "_SRTM"));
+    actions->add(Gtk::Action::create("MenuMisc", "Mi_sc"));
+    popup_wpts = (Gtk::Menu *)ui_manager->get_widget("/PopupWPTs");
+    popup_trks = (Gtk::Menu *)ui_manager->get_widget("/PopupTRKs");
+    popup_maps = (Gtk::Menu *)ui_manager->get_widget("/PopupMAPs");
+    popup_srtm = (Gtk::Menu *)ui_manager->get_widget("/PopupSRTM");
 
-    mapview->actions->add(Gtk::Action::create("MenuFile", "_File"));
-    mapview->actions->add(Gtk::Action::create("MenuWaypoints", "_Waypoints"));
-    mapview->actions->add(Gtk::Action::create("MenuTracks", "_Tracks"));
-    mapview->actions->add(Gtk::Action::create("MenuMaps", "_Maps"));
-    mapview->actions->add(Gtk::Action::create("MenuSRTM", "_SRTM"));
-    mapview->actions->add(Gtk::Action::create("MenuMisc", "Mi_sc"));
+    // panels mouse button events -> popup menus
+    mapview->panel_wpts.set_events(Gdk::BUTTON_PRESS_MASK);
+    mapview->panel_trks.set_events(Gdk::BUTTON_PRESS_MASK);
+    mapview->panel_maps.set_events(Gdk::BUTTON_PRESS_MASK);
+    mapview->panel_srtm.set_events(Gdk::BUTTON_PRESS_MASK);
+    mapview->panel_wpts.signal_button_press_event().connect(
+      sigc::mem_fun (this, &ActionManager::on_panel_button_press), false);
+    mapview->panel_trks.signal_button_press_event().connect(
+      sigc::mem_fun (this, &ActionManager::on_panel_button_press), false);
+    mapview->panel_maps.signal_button_press_event().connect(
+      sigc::mem_fun (this, &ActionManager::on_panel_button_press), false);
+    mapview->panel_srtm.signal_button_press_event().connect(
+      sigc::mem_fun (this, &ActionManager::on_panel_button_press), false);
 
-    modes.push_back(boost::shared_ptr<ActionMode>(new ActionModeNone(mapview)));
+    /// viewer mouse click -> action manager click
+    mapview->viewer.signal_click().connect (
+      sigc::mem_fun (this, &ActionManager::click));
 }
 
 
 void
 ActionManager::AddSep(const std::string & menu){
   if (menu.substr(0,5) == "Popup"){
-    mapview->ui_manager->add_ui_from_string(
+    ui_manager->add_ui_from_string(
       "<ui>"
       "  <popup name='" + menu + "'>"
       "    <separator/>"
@@ -187,7 +247,7 @@ ActionManager::AddSep(const std::string & menu){
     );
   }
   else{
-    mapview->ui_manager->add_ui_from_string(
+    ui_manager->add_ui_from_string(
       "<ui>"
       "  <menubar name='MenuBar'>"
       "    <menu action='Menu" + menu + "'>"
@@ -208,33 +268,21 @@ ActionManager::AddAction(ActionMode *action,
   Gtk::StockID stockid = action->get_stockid();
   Gtk::AccelKey acckey = action->get_acckey();
 
-  if (!mapview->actions->get_action(id)){
-    if (action->is_radio()) {
-      // I do not know how to create empty editable AccelKey. So i use
-      // these stupid ifs...
-      if (acckey.is_null())
-        mapview->actions->add(
-          Gtk::Action::create(id, stockid, mname),
-          sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
-      else
-        mapview->actions->add(
-          Gtk::Action::create(id, stockid, mname),
-          acckey, sigc::bind (sigc::mem_fun(mapview, &Mapview::on_mode_change), m));
-    }
-    else {
-      if (acckey.is_null())
-        mapview->actions->add(
-          Gtk::Action::create(id, stockid, mname),
-          sigc::mem_fun(action, &ActionMode::activate));
-      else
-        mapview->actions->add(
-          Gtk::Action::create(id, stockid, mname),
-          acckey, sigc::mem_fun(action, &ActionMode::activate));
-    }
+  if (!actions->get_action(id)){
+    // I do not know how to create empty editable AccelKey. So i use
+    // these stupid ifs...
+    if (acckey.is_null())
+      actions->add(
+        Gtk::Action::create(id, stockid, mname),
+        sigc::bind (sigc::mem_fun(this, &ActionManager::set_mode), m));
+    else
+      actions->add(
+        Gtk::Action::create(id, stockid, mname), acckey,
+        sigc::bind (sigc::mem_fun(this, &ActionManager::set_mode), m));
   }
 
   if (menu.substr(0,5) == "Popup"){
-    mapview->ui_manager->add_ui_from_string(
+    ui_manager->add_ui_from_string(
       "<ui>"
       "  <popup name='" + menu + "'>"
       "    <menuitem action='" + id + "'/>"
@@ -243,7 +291,7 @@ ActionManager::AddAction(ActionMode *action,
     );
   }
   else{
-    mapview->ui_manager->add_ui_from_string(
+    ui_manager->add_ui_from_string(
       "<ui>"
       "  <menubar name='MenuBar'>"
       "    <menu action='Menu" + menu + "'>"
@@ -253,4 +301,36 @@ ActionManager::AddAction(ActionMode *action,
       "</ui>"
     );
   }
+}
+
+bool
+ActionManager::on_panel_button_press (GdkEventButton * event) {
+  if (event->button == 3) {
+    Gtk::Menu * M = 0;
+    switch (mapview->panels->get_current_page()){
+      case 0: M = popup_wpts; break;
+      case 1: M = popup_trks; break;
+      case 2: M = popup_maps; break;
+      case 3: M = popup_srtm; break;
+    }
+    if (M) M->popup(event->button, event->time);
+    return true;
+  }
+  return false;
+}
+
+void
+ActionManager::clear_state (){
+  mapview->rubber.clear();
+  modes[current_mode]->abort();
+}
+
+void
+ActionManager::set_mode (int mode){
+  if (modes[mode]->is_radio()){
+    clear_state();
+    mapview->spanel.message(modes[mode]->get_name());
+    current_mode = mode;
+  }
+  modes[mode]->activate();
 }
