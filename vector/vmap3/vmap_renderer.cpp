@@ -30,7 +30,6 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
 void
 render_border(iImage & img, const dLine & brd, const Options & O){
   CairoWrapper cr(img);
-std::cerr << iLine(brd) << "\n";
   int bgcolor = O.get<int>("bgcolor", 0xFFFFFF);
   bool transp = O.get<bool>("transp_margins", false);
 
