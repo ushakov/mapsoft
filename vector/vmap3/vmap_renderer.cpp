@@ -584,26 +584,26 @@ VMAPRenderer::render_objects(const bool draw_contours){
   const int c_forest = 0xAAFFAA;
   const int c_field  = 0xFFFFFF;
   const int c_fcont  = 0x009000;
-  const int c_glac   = 0xC3E6FF;
+  const int c_glac   = 0xFFE6C3;
   const int c_way2   = 0x00B400;
-  const int c_way5   = 0xFFD800;
-  const int c_hor = hr? 0xD0B090:0xC06000;
+  const int c_way5   = 0x00D8FF;
+  const int c_hor = hr? 0x90B0D0:0x0060C0;
 
   const int c_build_gray  = 0xB0B0B0;
-  const int c_build_red   = 0xFF8080;
-  const int c_build_dred  = 0xB05959;
+  const int c_build_red   = 0x8080FF;
+  const int c_build_dred  = 0x5959B0;
   const int c_build_green = 0x557F55;
   const int c_build_cnt   = 0x000000;
 
-  const int c_riv_cnt     = 0x5066FF;
-  const int c_riv_fill    = hr? 0x87CEFF:0x00FFFF;
-  const int c_kanav       = 0xC06000;
-  const int c_ovrag       = 0xA04000;
-  const int c_hreb        = hr? 0xC06000:0x803000;
+  const int c_riv_cnt     = 0xFF6650;
+  const int c_riv_fill    = hr? 0xFFCE87:0xFFFF00;
+  const int c_kanav       = 0x0060C0;
+  const int c_ovrag       = 0x0040A0;
+  const int c_hreb        = hr? 0x0060C0:0x003080;
   const int c_lines       = 0x888888;
-  const int c_road_fill   = 0xFF8080;
-  const int c_obr         = 0x900000;
-  const int c_pt          = hr? 0x803000:0x000000;
+  const int c_road_fill   = 0x8080FF;
+  const int c_obr         = 0x000090;
+  const int c_pt          = hr? 0x003080:0x000000;
 
   //*******************************
 
@@ -820,10 +820,10 @@ VMAPRenderer::render_holes(Conv & cnv){
 
   const int c_forest = 0xAAFFAA;
   const int c_field  = 0xFFFFFF;
-  const int c_glac   = 0xC3E6FF;
-  const int c_hor = hr? 0xD0B090:0xC06000;
-  const int c_riv_fill    = hr? 0x87CEFF:0x00FFFF;
-  const int c_road_fill   = 0xFF8080;
+  const int c_glac   = 0xFFE6C3;
+  const int c_hor = hr? 0x90B0D0:0x0060C0;
+  const int c_riv_fill    = hr? 0xFFCE87:0xFFFF00;
+  const int c_road_fill   = 0x8080FF;
 
   // reversed order becouse of OPERATOR_DEST_OVER
 
