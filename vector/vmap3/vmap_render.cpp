@@ -134,22 +134,21 @@ main(int argc, char* argv[]){
   vmap::join_labels(W);
   vmap::move_pics(W);
 
-  // calculate picture range, create Image
-  convs::map2wgs cnv(ref);
-  if (W.brd.size()>2) ref.border=cnv.line_bck(W.brd);
-  if (W.size() == 0) cerr << "warning: no objects\n";
 
+  // calculate picture range, create Image
   dRect rng = ref.border.range();
   rng.x = rng.y = 0;
   rng.w+=lm+rm; if (rng.w<0) rng.w=0;
   rng.h+=tm+bm; if (rng.h<0) rng.h=0;
   ref+=dPoint(lm,tm);
-  cnv = convs::map2wgs(ref);
   cerr
      << "  scale  = 1:" << int(W.rscale) << "\n"
      << "  dpi    = " << dpi << "\n"
      << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
   iImage img(rng.w, rng.h);
+
+  convs::map2wgs cnv(ref);
+  if (W.size() == 0) cerr << "warning: no objects\n";
 
   VMAPRenderer R(&W, img, O);
   R.set_ref(ref);
@@ -165,6 +164,7 @@ main(int argc, char* argv[]){
 
   R.render_labels();
 
+  if (W.brd.size()>2) ref.border=cnv.line_bck(W.brd);
   if (ref.border.size()>2) render_border(img, ref.border, O);
 
   // draw grid labels after labels

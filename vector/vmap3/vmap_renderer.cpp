@@ -30,7 +30,7 @@ VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
 void
 render_border(iImage & img, const dLine & brd, const Options & O){
   CairoWrapper cr(img);
-
+std::cerr << iLine(brd) << "\n";
   int bgcolor = O.get<int>("bgcolor", 0xFFFFFF);
   bool transp = O.get<bool>("transp_margins", false);
 
@@ -38,17 +38,19 @@ render_border(iImage & img, const dLine & brd, const Options & O){
   dLine::const_iterator p;
   cr->set_fill_rule(Cairo::FILL_RULE_EVEN_ODD);
   cr->mkpath(brd);
-  cr->mkpath(rect2line(img.range()));
+  cr->mkpath(rect2line(rect_pump(img.range(),1)));
 
   // erase everything outside border
   if (transp) cr->set_operator(Cairo::OPERATOR_CLEAR);
   else  cr->set_color(bgcolor);
   cr->fill_preserve();
-
-  // draw border
-  cr->set_source_rgb(0,0,0);
-  cr->set_line_width(2);
-  cr->stroke();
+  
+  if (!transp){
+    // draw border
+    cr->set_source_rgb(0,0,0);
+    cr->set_line_width(2);
+    cr->stroke();
+  }
 }
 
 void
