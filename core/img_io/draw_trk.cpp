@@ -72,7 +72,6 @@ draw_trk(iImage & image, const iPoint & origin,
     double trk_speed2 = opt.get<double>("trk_draw_v2", 10);
     cr->set_line_width(2*w);
     simple_rainbow sr(trk_speed1, trk_speed2);
-    int k = 1;
 
     if (trk.size()==1){ // draw 1pt tracks even in non-draw_dots mode
       g_trackpoint p1(trk[0]);
@@ -83,7 +82,7 @@ draw_trk(iImage & image, const iPoint & origin,
     }
 
     for (int i=1; i<trk.size(); i++){
-      g_trackpoint p1(trk[i-k]);
+      g_trackpoint p1(trk[i-1]);
       g_trackpoint p2(trk[i]);
       if (p2.start) continue;
 
@@ -94,7 +93,6 @@ draw_trk(iImage & image, const iPoint & origin,
 
       cnv.bck(p1);  p1-=origin;
       cnv.bck(p2);  p2-=origin;
-      if (pdist(p2-p1) < 2*w) { k++; continue;} // skip points
 
       double t = p2.t.value - p1.t.value;
       if (t>0 && t<3600*24) cr->set_color(sr.get(d/t * 3.6));
@@ -103,7 +101,6 @@ draw_trk(iImage & image, const iPoint & origin,
       cr->move_to(p1);
       cr->line_to(p2);
       cr->stroke();
-      k=1;
     }
   }
 
@@ -129,7 +126,6 @@ draw_trk(iImage & image, const iPoint & origin,
       cnv.bck(p1);  p1-=origin;
       cnv.bck(p2);  p2-=origin;
 
-
       if (!p1.have_alt() || !p2.have_alt()){
         cr->set_color(0);
         cr->move_to(p1);
@@ -137,8 +133,8 @@ draw_trk(iImage & image, const iPoint & origin,
         cr->stroke();
       }
       else {
-        dPoint dp = pnorm(p2-p1)*2*w;
         int n = ceil(pdist(p2-p1)/2/w);
+        dPoint dp = (p2-p1)/n;
 
         for(int j=0; j< n; j++){
           cr->move_to(p1 + j*dp);
