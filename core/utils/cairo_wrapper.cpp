@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "cairo_wrapper.h"
+#include "err.h"
 
 void
 CairoExtra::mkpath_smline(const dMultiLine & o, bool close, double curve_l){
@@ -103,6 +104,25 @@ CairoExtra::set_fig_font(int font, double fs, double dpi){
     Cairo::ToyFontFace::create(face, slant, weight));
 }
 
+Cairo::RefPtr<Cairo::SurfacePattern>
+CairoExtra::img2patt(const iImage & I, double sc){
+  try{
+    const Cairo::Format format = Cairo::FORMAT_ARGB32;
+    assert(Cairo::ImageSurface::format_stride_for_width(format, I.w) == I.w*4);
+    Cairo::RefPtr<Cairo::ImageSurface> patt_surf =
+      Cairo::ImageSurface::create((unsigned char*)I.data, format, I.w, I.h, I.w*4);
+    Cairo::RefPtr<Cairo::SurfacePattern> patt =
+      Cairo::SurfacePattern::create(patt_surf);
+    Cairo::Matrix M=Cairo::identity_matrix();
+    M.translate(patt_surf->get_width()/2.0, patt_surf->get_height()/2.0);
+    M.scale(sc,sc);
+    patt->set_matrix(M);
+    return patt;
+  }
+  catch (Cairo::logic_error err){
+    throw MapsoftErr("cairo_wrapper") << err.what();
+  }
+}
 
 /* Cairo Wrapper functions */
 

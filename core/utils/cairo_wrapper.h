@@ -137,6 +137,9 @@ struct CairoExtra : public Cairo::Context {
 
   void set_fig_font(int font, double fs, double dpi);
 
+  /* convert iImage to a cairo pattern */
+  Cairo::RefPtr<Cairo::SurfacePattern> img2patt(const iImage & I, double sc=1);
+
 };
 
 /*** CairoWrapper - we need this to create RefPtr<CairoExtra> ***/

@@ -73,11 +73,6 @@ public:
   void render_objects(const bool draw_contours=true);
   void render_holes(Conv & cnv);
 
-  // create Image pattern for a given type, rescaled
-  // according to dpi and pics_dpi values and
-  // translated to the image center
-  Cairo::RefPtr<Cairo::SurfacePattern> load_pic(const iImage & I);
-
   // place image in the center of polygons
   // polygons filled with image pattern
   void render_img_polygons(int type, double curve_l=0);

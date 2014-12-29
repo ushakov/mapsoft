@@ -116,30 +116,6 @@ VMAPRenderer::render_points(int type, int col, double th){
   cr->restore();
 }
 
-// create pattern from png-file, rescaled
-// according to dpi and pics_dpi values and
-// translated to the image center
-Cairo::RefPtr<Cairo::SurfacePattern>
-VMAPRenderer::load_pic(const iImage & I){
-  try{
-    const Cairo::Format format = Cairo::FORMAT_ARGB32;
-    assert(Cairo::ImageSurface::format_stride_for_width(format, I.w) == I.w*4);
-    Cairo::RefPtr<Cairo::ImageSurface> patt_surf =
-      Cairo::ImageSurface::create((unsigned char*)I.data, format, I.w, I.h, I.w*4);
-    Cairo::RefPtr<Cairo::SurfacePattern> patt =
-      Cairo::SurfacePattern::create(patt_surf);
-    Cairo::Matrix M=Cairo::identity_matrix();
-    M.translate(patt_surf->get_width()/2.0, patt_surf->get_height()/2.0);
-    M.scale(pics_dpi/dpi, pics_dpi/dpi);
-    patt->set_matrix(M);
-    return patt;
-  }
-  catch (Cairo::logic_error err){
-    std::cerr << "error: " << err.what() << "\n";
-    exit(1);
-  }
-}
-
 void
 VMAPRenderer::render_img_polygons(int type, double curve_l){
 
@@ -151,7 +127,7 @@ VMAPRenderer::render_img_polygons(int type, double curve_l){
   iImage I = image_r::load(f.c_str());
   if (I.empty()) cerr << "Empty image for type " << type << "\n";
 
-  Cairo::RefPtr<Cairo::SurfacePattern> patt = load_pic(I);
+  Cairo::RefPtr<Cairo::SurfacePattern> patt = cr->img2patt(I, pics_dpi/dpi);
   if (!patt) return;
 
   // polygons filled with image pattern
@@ -196,7 +172,7 @@ VMAPRenderer::render_im_in_points(int type){
   iImage I = image_r::load(f.c_str());
   if (I.empty()) cerr << "Empty image for type " << type << "\n";
 
-  Cairo::RefPtr<Cairo::SurfacePattern> patt = load_pic(I);
+  Cairo::RefPtr<Cairo::SurfacePattern> patt = cr->img2patt(I, pics_dpi/dpi);
   if (!patt) return;
 
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
