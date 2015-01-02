@@ -219,14 +219,14 @@ ActionManager::ActionManager (Mapview * mapview_):
     mapview->panel_wpts.set_events(Gdk::BUTTON_PRESS_MASK);
     mapview->panel_trks.set_events(Gdk::BUTTON_PRESS_MASK);
     mapview->panel_maps.set_events(Gdk::BUTTON_PRESS_MASK);
-    mapview->panel_srtm.set_events(Gdk::BUTTON_PRESS_MASK);
+    mapview->panel_misc.set_events(Gdk::BUTTON_PRESS_MASK);
     mapview->panel_wpts.signal_button_press_event().connect(
       sigc::mem_fun (this, &ActionManager::on_panel_button_press), false);
     mapview->panel_trks.signal_button_press_event().connect(
       sigc::mem_fun (this, &ActionManager::on_panel_button_press), false);
     mapview->panel_maps.signal_button_press_event().connect(
       sigc::mem_fun (this, &ActionManager::on_panel_button_press), false);
-    mapview->panel_srtm.signal_button_press_event().connect(
+    mapview->panel_misc.signal_button_press_event().connect(
       sigc::mem_fun (this, &ActionManager::on_panel_button_press), false);
 
     /// viewer mouse click -> action manager click

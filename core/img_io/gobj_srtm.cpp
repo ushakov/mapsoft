@@ -26,6 +26,7 @@ GObjSRTM::draw(iImage & image, const iPoint & origin){
 
   // avoid string comparing strings inside the loop:
   int m=0;
+  if      (mode == "none")   m=0;
   if      (mode == "normal") m=1;
   else if (mode == "slopes") m=2;
 

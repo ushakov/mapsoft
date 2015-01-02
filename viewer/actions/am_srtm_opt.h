@@ -22,14 +22,14 @@ public:
     bool is_radio() { return false; }
 
     void activate() {
-      o = mapview->panel_srtm.get_opt();
+      o = mapview->panel_misc.get_opt();
       dlg.set_opt(o);
       dlg.show_all();
     }
 
     void on_response(int r){
-      if (r==Gtk::RESPONSE_CANCEL) mapview->panel_srtm.set_opt(o);
-      if (r>0) mapview->panel_srtm.set_opt(dlg.get_opt());
+      if (r==Gtk::RESPONSE_CANCEL) mapview->panel_misc.set_opt(o);
+      if (r>0) mapview->panel_misc.set_opt(dlg.get_opt());
       else dlg.hide_all();
     }
 

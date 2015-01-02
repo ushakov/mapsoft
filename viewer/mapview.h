@@ -18,7 +18,7 @@
 #include "panels/wpts_panel.h"
 #include "panels/trks_panel.h"
 #include "panels/maps_panel.h"
-#include "panels/srtm_panel.h"
+#include "panels/misc_panel.h"
 #include "panels/status_panel.h"
 
 //#define ACCEL_FILE ".mapsoft/accel"
@@ -36,7 +36,7 @@ public:
     PanelTRK  panel_trks;
     PanelWPT  panel_wpts;
     PanelMAP  panel_maps;
-    PanelSRTM panel_srtm;
+    PanelMISC panel_misc;
     StatusPanel spanel; // status bar
     ActionManager action_manager; // menus and action handling
 

@@ -8,7 +8,7 @@ class Pano : public ActionMode {
 public:
     Pano (Mapview * mapview) :
       ActionMode(mapview),
-      dlg(&mapview->panel_srtm.srtm),
+      dlg(&mapview->panel_misc.srtm),
       state(0)
     {
       dlg.signal_response().connect(

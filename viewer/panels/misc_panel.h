@@ -1,0 +1,80 @@
+#ifndef VIEWER_MISC_PANEL_H
+#define VIEWER_MISC_PANEL_H
+
+#include "workplane.h"
+#include "img_io/gobj_srtm.h"
+#include "img_io/gobj_grid_pulk.h"
+
+
+/* panel for srtm, grids etc. */
+class PanelMISC: public Gtk::VBox{
+  Workplane wpd,wph; // deep/high workplanes
+public:
+  PanelMISC():
+    srtm("",20),
+    gobj_srtm(&srtm)
+  {
+    srtm_status = manage(new Gtk::CheckButton("SRTM data"));
+    grid_pulk_status = manage(new Gtk::CheckButton("Pulkovo-1942 grid"));
+
+    pack_start(*srtm_status, false, true, 0);
+    pack_start(*grid_pulk_status, false, true, 0);
+
+    srtm_status->signal_toggled().connect(
+      sigc::mem_fun(this, &PanelMISC::ch_srtm));
+    grid_pulk_status->signal_toggled().connect(
+      sigc::mem_fun(this, &PanelMISC::ch_grid_pulk));
+  }
+
+  Options get_opt() const {
+    return gobj_srtm.get_opt();}
+
+  void set_opt(const Options & o){
+    gobj_srtm.set_opt(o);
+    if (wpd.exists(&gobj_srtm)) wpd.refresh_gobj(&gobj_srtm);
+  }
+
+  Workplane * get_wpd(){return &wpd;}
+  Workplane * get_wph(){return &wph;}
+
+  void ch_srtm(){
+//    if (!mapview->have_reference) return;
+    bool show = srtm_status->get_active();
+    bool state = wpd.exists(&gobj_srtm);
+    if (state && !show){
+      wpd.remove_gobj(&gobj_srtm);
+      wpd.signal_redraw_me().emit(iRect());
+    }
+    else if (!state && show){
+      wpd.add_gobj(&gobj_srtm, 0);
+      wpd.refresh_gobj(&gobj_srtm);
+    }
+  }
+
+  void ch_grid_pulk(){
+//    if (!mapview->have_reference) return;
+    bool show = grid_pulk_status->get_active();
+    bool state = wph.exists(&gobj_grid_pulk);
+    if (state && !show){
+      wph.remove_gobj(&gobj_grid_pulk);
+      wph.signal_redraw_me().emit(iRect());
+    }
+    else if (!state && show){
+      wph.add_gobj(&gobj_grid_pulk, 0);
+      wph.refresh_gobj(&gobj_grid_pulk);
+    }
+  }
+
+  void hide_all(){
+    srtm_status->set_active(false);
+    grid_pulk_status->set_active(false);
+  }
+
+  srtm3 srtm;
+  GObjSRTM     gobj_srtm;
+  GObjGridPulk gobj_grid_pulk;
+  Gtk::CheckButton * srtm_status,
+                   * grid_pulk_status;
+};
+
+#endif

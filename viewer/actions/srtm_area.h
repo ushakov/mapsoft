@@ -21,11 +21,11 @@ public:
       mapview->get_cnv()->frw(gpt);
       iPoint pt(gpt*1200.0);
 
-      trace_area T(mapview->panel_srtm.srtm, dh, maxp, mina, down);
+      trace_area T(mapview->panel_misc.srtm, dh, maxp, mina, down);
 
       // go to local min/max
-      if (down) mapview->panel_srtm.srtm.move_to_min(pt);
-      else      mapview->panel_srtm.srtm.move_to_max(pt);
+      if (down) mapview->panel_misc.srtm.move_to_min(pt);
+      else      mapview->panel_misc.srtm.move_to_max(pt);
 
       // calculate area
       double area = T.get_a(pt);
@@ -48,7 +48,7 @@ public:
           g_trackpoint tpt;
           tpt.dPoint::operator=(*pi);
           tpt/=1200;
-          tpt.z = mapview->panel_srtm.srtm.geth(*pi);
+          tpt.z = mapview->panel_misc.srtm.geth(*pi);
           if (pi==ri->begin()) tpt.start=true;
           track->push_back(tpt);
         }
@@ -64,7 +64,7 @@ public:
           g_trackpoint tpt;
           tpt.dPoint::operator=(*pi);
           tpt/=1200;
-          tpt.z = mapview->panel_srtm.srtm.geth(*pi);
+          tpt.z = mapview->panel_misc.srtm.geth(*pi);
           if (pi == li->begin()) tpt.start=true;
           btrack->push_back(tpt);
         }

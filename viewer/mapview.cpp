@@ -38,10 +38,12 @@ Mapview::Mapview () :
     panel_maps.signal_data_changed().connect(
       sigc::bind(sigc::mem_fun(this, &Mapview::set_changed), true));
 
-    main_gobj.push_back((Workplane *) &panel_srtm);
+    // Add gobjs from panels. Misc panel have two, below and above others.
+    main_gobj.push_back(panel_misc.get_wpd());
     main_gobj.push_back((Workplane *) &panel_maps);
     main_gobj.push_back((Workplane *) &panel_trks);
     main_gobj.push_back((Workplane *) &panel_wpts);
+    main_gobj.push_back(panel_misc.get_wph());
     main_gobj.connect_signals();
 
     /// events from viewer
@@ -70,7 +72,7 @@ Mapview::Mapview () :
     panels->append_page(*scr_wpt, "WPT");
     panels->append_page(*scr_trk, "TRK");
     panels->append_page(*scr_map, "MAP");
-    panels->append_page(panel_srtm, "SRTM");
+    panels->append_page(panel_misc, "Misc");
     panels->set_scrollable(false);
     panels->set_size_request(150,-1);
 
@@ -192,7 +194,7 @@ Mapview::clear_world() {
   panel_wpts.remove_all();
   panel_trks.remove_all();
   panel_maps.remove_all();
-  panel_srtm.show(false);
+  panel_misc.hide_all();
   have_reference = false;
 }
 
