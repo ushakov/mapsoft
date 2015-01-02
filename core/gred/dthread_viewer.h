@@ -23,6 +23,10 @@ class DThreadViewer : public SimpleViewer {
     void draw(const iRect & r);
 
     void redraw (void);
+    void rescale(const double k, const iPoint & cnt);
+    void rescale(const double k){
+      rescale(k,iPoint(get_width(), get_height())/2);
+    }
 
   private:
     const static int TILE_SIZE=256;
@@ -34,6 +38,7 @@ class DThreadViewer : public SimpleViewer {
 
     Glib::Thread           *updater_thread;
     Glib::Mutex            *updater_mutex;
+    Glib::Mutex            *draw_mutex;
     Glib::Cond             *updater_cond;
     Glib::Dispatcher        done_signal;
 

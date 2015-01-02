@@ -96,25 +96,21 @@ SimpleViewer::draw_image (const iImage & img, const iRect & part, const iPoint &
 
 void
 SimpleViewer::redraw (void){
-  if (!waiting)
-    draw(iRect(0, 0, get_width(), get_height()));
-}
-
-void
-SimpleViewer::rescale(const double k){
-  rescale(k,iPoint(get_width(), get_height())/2);
+  if (is_waiting()) return;
+  draw(iRect(0, 0, get_width(), get_height()));
 }
 
 void
 SimpleViewer::rescale(const double k, const iPoint & cnt){
   if (!obj) return;
   signal_on_rescale_.emit(k);
+  start_waiting();
   obj->rescale(k);
   iPoint wsize(get_width(), get_height());
   iPoint wcenter = get_origin() + cnt;
   wcenter=iPoint(wcenter.x * k, wcenter.y * k);
   set_origin(wcenter - cnt);
-  redraw();
+  stop_waiting();
 }
 
 /***********************************************************/

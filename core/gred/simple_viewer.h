@@ -49,10 +49,12 @@ class SimpleViewer : public Viewer {
     virtual void redraw();
     void start_waiting(){ waiting++;}
     void stop_waiting(){ waiting--; if (waiting==0) redraw();}
-    bool is_waiting() const { return waiting!=0; }
+    bool is_waiting() const { return waiting; }
 
-    virtual void rescale(const double k);
     virtual void rescale(const double k, const iPoint & cnt);
+    virtual void rescale(const double k){
+      rescale(k,iPoint(get_width(), get_height())/2);
+    }
 
     virtual bool on_expose_event (GdkEventExpose * event);
     virtual bool on_button_press_event (GdkEventButton * event);
