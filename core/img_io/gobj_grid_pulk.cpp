@@ -1,5 +1,6 @@
 #include "gobj_grid_pulk.h"
 #include <2d/line_utils.h>
+#include <sstream>
 
 int
 GObjGridPulk::draw(iImage & image, const iPoint & origin){
@@ -59,6 +60,31 @@ GObjGridPulk::draw(iImage & image, const iPoint & origin){
       cr->line_to(p2-dorg);
     }
     cr->stroke();
+
+    /* step for labels */
+    step*=2;
+    xmin = floor(tlc.x/step)*step;
+    xmax = ceil(brc.x/step)*step;
+    ymin = floor(tlc.y/step)*step;
+    ymax = ceil(brc.y/step)*step;
+
+    /* labels */
+    cr->set_fig_font(18, 15, 100);
+    for (double x=xmin; x<=xmax; x+=step){
+      for (double y=ymin; y<=ymax; y+=step){
+        stringstream sx, sy;
+        sx << int(x/1000), sy << int(y/1000);
+        dPoint p1(x,y); cnv1.bck(p1);
+        cr->move_to(p1-dorg + dPoint(5, -5));
+        cr->show_text(sy.str());
+        cr->move_to(p1-dorg + dPoint(20, -25));
+        cr->save();
+        cr->rotate(-M_PI/2.0);
+        cr->show_text(sx.str());
+        cr->restore();
+      }
+    }
+
   }
 
   return GOBJ_FILL_PART;
