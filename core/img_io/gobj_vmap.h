@@ -38,39 +38,28 @@ private:
 
 
   double       pics_dpi;
-  std::string  pics_dir;
   double       dpi, lw1;
   int          bgcolor;
   bool         cntrs, use_aa;
   int          label_style;
   double       label_marg;
+  double       grid_step;
+  bool         transp;
+  int          grid_labels;
+  dPoint       origin;
 
 public:
 
   /***/
+  GObjVMAP(vmap::world * _W, const Options & O = Options());
 
-  int draw(iImage &img, const iPoint &origin){
-    cr.reset_surface(img);
-    render_objects(cntrs);
-//    double grid_step = O.get<double>("grid", 0);
-//    double grid_step = 0;
-//    if (grid_step>0){
-//      if (ref.map_proj != Proj("tmerc"))
-//        cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
-//      R.render_pulk_grid(grid_step, grid_step, false, ref);
-//    }
-    render_labels();
-
-  }
-
+  int draw(iImage &img, const iPoint &origin);
+  vmap::world * get_data() const {return W;}
 
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
 
-  GObjVMAP(vmap::world * _W, iImage & img,
-    const Options & O = Options());
-
-  void render_objects(const bool draw_contours=true);
+  void render_objects();
   void render_holes(Conv & cnv);
 
   // place image in the center of polygons
@@ -88,6 +77,7 @@ public:
   void  render_line(int type, int col, double th, double curve_l=0);
   void  render_points(int type, int col, double th);
 
+  void  render_border(const iRect & range, const dLine & brd);
 
 
   // paths for bridge sign

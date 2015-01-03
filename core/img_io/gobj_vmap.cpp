@@ -7,7 +7,7 @@
 
 using namespace std;
 
-GObjVMAP::GObjVMAP(vmap::world * _W, iImage & img,
+GObjVMAP::GObjVMAP(vmap::world * _W,
     const Options & O): W(_W), zc(W->style){
 
   pics_dpi    = O.get("pics_dpi", 600.0);
@@ -18,32 +18,57 @@ GObjVMAP::GObjVMAP(vmap::world * _W, iImage & img,
   use_aa      = O.get("antialiasing", true);
   label_marg  = O.get("label_marg", 2.5);
   label_style = O.get("label_style", 2);
+  grid_step   = O.get("grid", 0.0);
+  transp      = O.get("transp_margins", false);
+  grid_labels = O.get("grid_labels", 0);
+}
+
+int
+GObjVMAP::draw(iImage &img, const iPoint &org){
 
   // create Cairo surface and context
   cr.reset_surface(img);
+  origin = org;
 
-  // antialiasing is not compatable with erasing
-  // dark points under labels
-  if (!use_aa) cr->set_antialias(Cairo::ANTIALIAS_NONE); 
+  if (!use_aa) cr->set_antialias(Cairo::ANTIALIAS_NONE);
+
+  render_objects();
+
+  if (grid_step>0){
+    if (ref.map_proj != Proj("tmerc"))
+      cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
+    render_pulk_grid(grid_step, grid_step, false, ref);
+  }
+
+  render_labels();
+
+  if (W->brd.size()>2) ref.border=cnv.line_bck(W->brd)-origin;
+  if (ref.border.size()>2) render_border(img.range(), ref.border);
+
+  // draw grid labels after labels
+  if ((grid_step>0) && grid_labels){
+    if (ref.map_proj != Proj("tmerc"))
+      cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
+    render_pulk_grid(grid_step, grid_step, true, ref);
+  }
+  return GOBJ_FILL_PART;
 }
 
+
 void
-render_border(iImage & img, const dLine & brd, const Options & O){
-  CairoWrapper cr(img);
-  int bgcolor = O.get<int>("bgcolor", 0xFFFFFF);
-  bool transp = O.get<bool>("transp_margins", false);
+GObjVMAP::render_border(const iRect & range, const dLine & brd){
 
   // make border path
   dLine::const_iterator p;
   cr->set_fill_rule(Cairo::FILL_RULE_EVEN_ODD);
   cr->mkpath(brd);
-  cr->mkpath(rect2line(rect_pump(img.range(),1)));
+  cr->mkpath(rect2line(rect_pump(range,1)));
 
   // erase everything outside border
   if (transp) cr->set_operator(Cairo::OPERATOR_CLEAR);
   else  cr->set_color(bgcolor);
   cr->fill_preserve();
-  
+
   if (!transp){
     // draw border
     cr->set_source_rgb(0,0,0);
@@ -60,7 +85,7 @@ GObjVMAP::render_polygons(int type, int col, double curve_l){
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::area_mask)) continue;
     dMultiLine l = *o; cnv.line_bck_p2p(l);
-    cr->mkpath_smline(l, 1, curve_l*lw1);
+    cr->mkpath_smline(l-origin, 1, curve_l*lw1);
     cr->fill();
   }
   cr->restore();
@@ -75,7 +100,7 @@ GObjVMAP::render_cnt_polygons(int type, int fill_col, int cnt_col,
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!= (type | zn::area_mask)) continue;
     dMultiLine l = *o; cnv.line_bck_p2p(l);
-    cr->mkpath_smline(l, 1, curve_l*lw1);
+    cr->mkpath_smline(l-origin, 1, curve_l*lw1);
     cr->fill_preserve();
     cr->save();
     cr->set_color(cnt_col);
@@ -95,7 +120,7 @@ GObjVMAP::render_line(int type, int col, double th, double curve_l){
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=(type | zn::line_mask)) continue;
     dMultiLine l = *o; cnv.line_bck_p2p(l);
-    cr->mkpath_smline(l, 0, curve_l*lw1);
+    cr->mkpath_smline(l-origin, 0, curve_l*lw1);
     cr->stroke();
   }
   cr->restore();
@@ -110,7 +135,7 @@ GObjVMAP::render_points(int type, int col, double th){
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=type) continue;
     dMultiLine l = *o; cnv.line_bck_p2p(l);
-    cr->mkpath_points(l);
+    cr->mkpath_points(l-origin);
     cr->stroke();
   }
   cr->restore();
@@ -138,7 +163,7 @@ GObjVMAP::render_img_polygons(int type, double curve_l){
     for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
       if (o->type!=type) continue;
       dMultiLine l = *o; cnv.line_bck_p2p(l);
-      cr->mkpath_smline(l, 1, curve_l*lw1);
+      cr->mkpath_smline(l-origin, 1, curve_l*lw1);
       cr->fill();
     }
     cr->restore();
@@ -150,7 +175,7 @@ GObjVMAP::render_img_polygons(int type, double curve_l){
       for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
         if (l->size()<1) continue;
         dPoint p=l->range().CNT();
-        cnv.bck(p);
+        cnv.bck(p); p = p-origin;
         cr->save();
         cr->translate(p.x, p.y);
         cr->set_source(patt);
@@ -181,7 +206,7 @@ GObjVMAP::render_im_in_points(int type){
       if (l->size()<1) continue;
       cr->save();
       dPoint p=(*l)[0];
-      cnv.bck(p);
+      cnv.bck(p); p-=origin;
       cr->translate(p.x, p.y);
       if (o->opts.exists("Angle")){
         double a = o->opts.get<double>("Angle",0);
@@ -203,8 +228,8 @@ GObjVMAP::mkbrpath1(const vmap::object & o){
     if (l->size()<2) continue;
     dPoint p1 = (*l)[0], p2 = (*l)[1];
     cnv.bck(p1);  cnv.bck(p2);
-    cr->move_to(p1);
-    cr->line_to(p2);
+    cr->move_to(p1-origin);
+    cr->line_to(p2-origin);
   }
 }
 void
@@ -215,6 +240,8 @@ GObjVMAP::mkbrpath2(const vmap::object & o, double th, double side){
     if (l->size()<2) continue;
     dPoint p1 = (*l)[0], p2 = (*l)[1];
     cnv.bck(p1);  cnv.bck(p2);
+    p1-=origin;
+    p2-=origin;
     dPoint t = pnorm(p2-p1);
     dPoint n(-t.y, t.x);
     dPoint P;
@@ -269,7 +296,7 @@ GObjVMAP::render_line_el(Conv & cnv, int type, int col, double th, double step){
     if (o->type!=(type | zn::line_mask)) continue;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       dLine l1 = *l; cnv.line_bck_p2p(l1);
-      LineDist ld(l1);
+      LineDist ld(l1-origin);
       if (ld.length()<=step) continue;
       double fstep = ld.length()/ceil(ld.length()/step);
       ld.move_frw(fstep/2);
@@ -311,7 +338,7 @@ GObjVMAP::render_line_obr(Conv & cnv, int type, int col, double th){
     if (o->dir==2) k=-1;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       dLine l1 = *l; cnv.line_bck_p2p(l1);
-      LineDist ld(l1);
+      LineDist ld(l1-origin);
       if (ld.length()<=step) continue;
       double fstep = ld.length()/ceil(ld.length()/step);
       ld.move_frw(fstep/2);
@@ -344,7 +371,7 @@ GObjVMAP::render_line_zab(Conv & cnv, int type, int col, double th){
     if (o->dir==2) k=-1;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       dLine l1 = *l; cnv.line_bck_p2p(l1);
-      LineDist ld(l1);
+      LineDist ld(l1-origin);
       if (ld.length()<=step) continue;
       double fstep = ld.length()/ceil(ld.length()/step);
       ld.move_frw((fstep-width)/2);
@@ -377,7 +404,7 @@ GObjVMAP::render_line_val(Conv & cnv, int type, int col, double th,
     if (o->type!=(type | zn::line_mask)) continue;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       dLine l1 = *l; cnv.line_bck_p2p(l1);
-      LineDist ld(l1);
+      LineDist ld(l1-origin);
       if (ld.length()<=step) continue;
       double fstep = ld.length()/ceil(ld.length()/step);
       int n=0;
@@ -410,7 +437,7 @@ GObjVMAP::render_line_gaz(Conv & cnv, int type, int col, double th, double step)
     if (o->type!=(type | zn::line_mask)) continue;
     for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
       dLine l1 = *l; cnv.line_bck_p2p(l1);
-      LineDist ld(l1);
+      LineDist ld(l1-origin);
       if (ld.length()<=step) continue;
       double fstep = ld.length()/ceil(ld.length()/step);
       ld.move_frw(fstep/2);
@@ -505,7 +532,7 @@ GObjVMAP::render_pulk_grid(double dx, double dy, bool labels, const g_map & ref)
 
   convs::map2pt cnv(ref, Datum("pulkovo"), Proj("tmerc"), ref.proj_opts);
 
-  dRect rng_m = cnv.bb_frw(ref.border.range(), 1);
+  dRect rng_m = cnv.bb_frw(ref.border.range(), 1)-origin;
 
   dPoint pb(
     rng_m.x,
@@ -523,15 +550,15 @@ GObjVMAP::render_pulk_grid(double dx, double dy, bool labels, const g_map & ref)
     dx * floor(rng_m.x/dx),
     dy * floor(rng_m.y/dy)
   );
-  dPoint pbc(pb); cnv.bck(pbc);
-  dPoint pec(pe); cnv.bck(pec);
+  dPoint pbc(pb); cnv.bck(pbc); pbc-=origin;
+  dPoint pec(pe); cnv.bck(pec); pec-=origin;
   // note: pb.y < pe.y, but pbc.y > pec.y!
 
   cr->save();
   cr->set_source_rgba(0,0,0,0.5);
   cr->set_line_width(2);
   while (p.x<pe.x){
-    dPoint pc(p); cnv.bck(pc);
+    dPoint pc(p); cnv.bck(pc); pc-=origin;
     if (labels) render_grid_label(pc.x, p.x, true, ref.border);
     else {
       cr->Cairo::Context::move_to(pc.x, pbc.y);
@@ -540,7 +567,7 @@ GObjVMAP::render_pulk_grid(double dx, double dy, bool labels, const g_map & ref)
     p.x+=dx;
   }
   while (p.y<pe.y){
-    dPoint pc(p); cnv.bck(pc);
+    dPoint pc(p); cnv.bck(pc); pc-=origin;
     if (labels && (p.y > pb.y+m) && (p.y<pe.y-m))
       render_grid_label(pc.y, p.y, false, ref.border);
     else {
@@ -554,7 +581,7 @@ GObjVMAP::render_pulk_grid(double dx, double dy, bool labels, const g_map & ref)
 }
 
 void
-GObjVMAP::render_objects(const bool draw_contours){
+GObjVMAP::render_objects(){
 
   bool hr = (W->style == "hr");
 
@@ -589,14 +616,14 @@ GObjVMAP::render_objects(const bool draw_contours){
   render_polygons(0x15, c_forest); // остров леса
 
   list<iPoint> cnt;
-  if (draw_contours) cnt = make_cnt(c_forest, 2); // контуры леса
+  if (cntrs) cnt = make_cnt(c_forest, 2); // контуры леса
 
   render_img_polygons(0x4f); // свежая вырубка
   render_img_polygons(0x50); // старая вырубка
   render_img_polygons(0x14); // редколесье
   render_polygons(0x15, c_forest); // остров леса поверх вырубок
 
-  if (draw_contours){
+  if (cntrs){
     filter_cnt(cnt, c_forest); // убираем контуры, оказавшеся поверх вырубок
     draw_cnt(cnt, c_fcont, 1); // рисуем контуры
   }
@@ -876,7 +903,7 @@ GObjVMAP::render_labels(){
       for (std::list<vmap::lpos>::const_iterator
             l=o->labels.begin(); l!=o->labels.end(); l++){
         dPoint p(l->pos);
-        cnv.bck(p);
+        cnv.bck(p); p-=origin;
         cr->save();
         cr->move_to(p);
         double a = l->ang;

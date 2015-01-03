@@ -150,9 +150,12 @@ main(int argc, char* argv[]){
   convs::map2wgs cnv(ref);
   if (W.size() == 0) cerr << "warning: no objects\n";
 
-  GObjVMAP R(&W, img, O);
-  R.set_ref(ref);
+  GObjVMAP R(&W, O);
 
+  R.set_ref(ref);
+  R.draw(img, dPoint(0,0));
+
+/*
   R.render_objects(O.get<bool>("contours", true));
 
   double grid_step = O.get<double>("grid", 0);
@@ -173,7 +176,7 @@ main(int argc, char* argv[]){
       cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
     R.render_pulk_grid(grid_step, grid_step, true, ref);
   }
-
+*/
   if (O.get<int>("draw_name", 0))
     R.render_text(W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, 0, 2);
 

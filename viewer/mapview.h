@@ -18,6 +18,7 @@
 #include "panels/wpts_panel.h"
 #include "panels/trks_panel.h"
 #include "panels/maps_panel.h"
+#include "panels/vmap_panel.h"
 #include "panels/misc_panel.h"
 #include "panels/status_panel.h"
 
@@ -36,6 +37,7 @@ public:
     PanelTRK  panel_trks;
     PanelWPT  panel_wpts;
     PanelMAP  panel_maps;
+    PanelVMAP panel_vmap;
     PanelMISC panel_misc;
     StatusPanel spanel; // status bar
     ActionManager action_manager; // menus and action handling
@@ -62,6 +64,7 @@ public:
     void load_file(const std::string & file, bool force=false); // load new data from file
     void new_file(bool force=false);                            // start new project
     void add_world(const geo_data & world, bool scroll=false);
+    void add_vmap(const vmap::world & W, bool scroll=false);
     void clear_world();
 
     // build geo_data object with all/visible data
