@@ -10,7 +10,7 @@
 
 class Mapview;
 
-#include "actions/action_mode.h"
+#include "action_mode.h"
 
 class ActionManager {
 public:

@@ -9,9 +9,9 @@
 #include "gred/dthread_viewer.h"
 #include "gred/rubber.h"
 #include "img_io/gobj_comp.h"
-#include "action_manager.h"
 #include "geo_io/io.h"
 #include "2d/rect.h"
+#include "actions/action_manager.h"
 #include "dialogs/ch_conf.h"
 #include "dialogs/err.h"
 

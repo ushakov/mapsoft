@@ -6,8 +6,8 @@ e=env.Clone()
 e.UseLibs('gred img_io geo_io mp srtm')
 
 e.Library("viewer", Split ("""
-	action_manager.cpp
 	mapview.cpp
+	actions/action_manager.cpp
 
 	widgets/comboboxes.cpp
 	widgets/coord_box.cpp
