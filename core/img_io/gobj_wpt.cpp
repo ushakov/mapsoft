@@ -48,17 +48,3 @@ GObjWPT::find_waypoints (const iRect & r){
   return ret;
 }
 
-g_waypoint_list *
-GObjWPT::get_data() const{
-  return data;
-}
-
-g_waypoint *
-GObjWPT::get_pt(const int n) const{
-  return &(*data)[n];
-}
-
-iRect
-GObjWPT::range() const{
-  return myrange;
-}

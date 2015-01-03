@@ -30,13 +30,13 @@ public:
   int find_track (iPoint pt, int radius = 3);
 
   /// Get pointer to the data object.
-  g_track * get_data() const;
+  g_track * get_data() const {return data;}
 
   /// Get pointer to the n-th point.
-  g_trackpoint * get_pt(const int n) const;
+  g_trackpoint * get_pt(const int n) const {return &(*data)[n];}
 
   /// Get layer range.
-  iRect range() const;
+  iRect range() const {return myrange;}
 };
 
 #endif

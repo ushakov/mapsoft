@@ -66,18 +66,4 @@ GObjTRK::find_track (iPoint pt, int radius){
   return -1;
 }
 
-g_track *
-GObjTRK::get_data() const{
-  return data;
-}
-
-g_trackpoint *
-GObjTRK::get_pt(const int n) const{
-  return &(*data)[n];
-}
-
-iRect
-GObjTRK::range() const{
-  return myrange;
-}
 

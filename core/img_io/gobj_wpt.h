@@ -29,13 +29,13 @@ public:
   std::vector<int> find_waypoints (const iRect & r);
 
   /// Get pointer to the data object.
-  g_waypoint_list * get_data() const;
+  g_waypoint_list * get_data() const {return data;}
 
   /// Get pointer to the n-th point.
-  g_waypoint * get_pt(const int n) const;
+  g_waypoint * get_pt(const int n) const {return &(*data)[n];}
 
   /// Get layer range.
-  iRect range () const;
+  iRect range () const {return myrange;}
 };
 
 

@@ -9,10 +9,6 @@
 
 using namespace std;
 
-#define SHOW_MAP 1
-#define SHOW_BRD 2
-#define SHOW_REF 4
-
 GObjMAP::GObjMAP(g_map_list *_data, const Options & opt) :
       data(_data), image_cache(4){
   refresh();
@@ -33,16 +29,6 @@ GObjMAP::get_myref() const {
   }
   // else return some simple ref
   return GObjGeo::get_myref();
-}
-
-g_map_list *
-GObjMAP::get_data() const{
-  return data;
-}
-
-g_map *
-GObjMAP::get_map(const int n) const{
-  return &(*data)[n];
 }
 
 int
@@ -75,19 +61,6 @@ GObjMAP::status_set(int mask, bool val, const g_map * m){
     else     status[m] &= ~mask;
   }
 }
-
-void
-GObjMAP::show_ref(const g_map * m){ status_set(SHOW_REF, true,  m); }
-void
-GObjMAP::hide_ref(const g_map * m){ status_set(SHOW_REF, false, m); }
-void
-GObjMAP::show_brd(const g_map * m){ status_set(SHOW_BRD, true,  m); }
-void
-GObjMAP::hide_brd(const g_map * m){ status_set(SHOW_BRD, false, m); }
-void
-GObjMAP::show_map(const g_map * m){ status_set(SHOW_MAP, true,  m); }
-void
-GObjMAP::hide_map(const g_map * m){ status_set(SHOW_MAP, false, m); }
 
 int
 GObjMAP::draw(iImage & image, const iPoint & origin){
@@ -224,11 +197,6 @@ GObjMAP::draw(iImage & image, const iPoint & origin){
       }
   }
   return GOBJ_FILL_PART;
-}
-
-iRect
-GObjMAP::range() const{
-  return myrange;
 }
 
 double
