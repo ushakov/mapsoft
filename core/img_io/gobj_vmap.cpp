@@ -1,13 +1,13 @@
-#include "vmap_renderer.h"
 #include <string>
 #include <sstream>
 #include <iomanip>
 #include <boost/lexical_cast.hpp>
 #include "loaders/image_r.h"
+#include "gobj_vmap.h"
 
 using namespace std;
 
-VMAPRenderer::VMAPRenderer(vmap::world * _W, iImage & img,
+GObjVMAP::GObjVMAP(vmap::world * _W, iImage & img,
     const Options & O): W(_W), zc(W->style){
 
   pics_dpi    = O.get("pics_dpi", 600.0);
@@ -53,7 +53,7 @@ render_border(iImage & img, const dLine & brd, const Options & O){
 }
 
 void
-VMAPRenderer::render_polygons(int type, int col, double curve_l){
+GObjVMAP::render_polygons(int type, int col, double curve_l){
   if (!cr) return;
   cr->save();
   cr->set_color(col);
@@ -68,7 +68,7 @@ VMAPRenderer::render_polygons(int type, int col, double curve_l){
 
 // contoured polygons
 void
-VMAPRenderer::render_cnt_polygons(int type, int fill_col, int cnt_col,
+GObjVMAP::render_cnt_polygons(int type, int fill_col, int cnt_col,
                               double cnt_th, double curve_l){
   cr->save();
   cr->set_color(fill_col);
@@ -87,7 +87,7 @@ VMAPRenderer::render_cnt_polygons(int type, int fill_col, int cnt_col,
 }
 
 void
-VMAPRenderer::render_line(int type, int col, double th, double curve_l){
+GObjVMAP::render_line(int type, int col, double th, double curve_l){
   if (!cr) return;
   cr->save();
   cr->set_line_width(th*lw1);
@@ -102,7 +102,7 @@ VMAPRenderer::render_line(int type, int col, double th, double curve_l){
 }
 
 void
-VMAPRenderer::render_points(int type, int col, double th){
+GObjVMAP::render_points(int type, int col, double th){
   if (!cr) return;
   cr->save();
   cr->set_line_width(th*lw1);
@@ -117,7 +117,7 @@ VMAPRenderer::render_points(int type, int col, double th){
 }
 
 void
-VMAPRenderer::render_img_polygons(int type, double curve_l){
+GObjVMAP::render_img_polygons(int type, double curve_l){
 
   type = type | zn::area_mask;
   std::map<int, zn::zn>::const_iterator z = zc.find_type(type);
@@ -163,7 +163,7 @@ VMAPRenderer::render_img_polygons(int type, double curve_l){
 
 // place image in points
 void
-VMAPRenderer::render_im_in_points(int type){
+GObjVMAP::render_im_in_points(int type){
 
   std::map<int, zn::zn>::const_iterator z = zc.find_type(type);
   if (z==zc.znaki.end()) return;
@@ -198,7 +198,7 @@ VMAPRenderer::render_im_in_points(int type){
 
 // paths for bridge sign
 void
-VMAPRenderer::mkbrpath1(const vmap::object & o){
+GObjVMAP::mkbrpath1(const vmap::object & o){
   for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
     if (l->size()<2) continue;
     dPoint p1 = (*l)[0], p2 = (*l)[1];
@@ -208,7 +208,7 @@ VMAPRenderer::mkbrpath1(const vmap::object & o){
   }
 }
 void
-VMAPRenderer::mkbrpath2(const vmap::object & o, double th, double side){
+GObjVMAP::mkbrpath2(const vmap::object & o, double th, double side){
   th*=lw1/2.0;
   side*=lw1/sqrt(2.0);
   for (vmap::object::const_iterator l=o.begin(); l!=o.end(); l++){
@@ -230,7 +230,7 @@ VMAPRenderer::mkbrpath2(const vmap::object & o, double th, double side){
   }
 }
 void
-VMAPRenderer::render_bridge(int type, double th1, double th2, double side){
+GObjVMAP::render_bridge(int type, double th1, double th2, double side){
   cr->save();
   cr->set_line_cap(Cairo::LINE_CAP_BUTT);
   cr->set_line_join(Cairo::LINE_JOIN_ROUND);
@@ -256,7 +256,7 @@ VMAPRenderer::render_bridge(int type, double th1, double th2, double side){
 
 
 void
-VMAPRenderer::render_line_el(Conv & cnv, int type, int col, double th, double step){
+GObjVMAP::render_line_el(Conv & cnv, int type, int col, double th, double step){
   render_line(type, col, th, 0);
   double width=th*1.2*lw1;
   step*=lw1;
@@ -295,7 +295,7 @@ VMAPRenderer::render_line_el(Conv & cnv, int type, int col, double th, double st
 }
 
 void
-VMAPRenderer::render_line_obr(Conv & cnv, int type, int col, double th){
+GObjVMAP::render_line_obr(Conv & cnv, int type, int col, double th){
   render_line(type, col, th, 0);
   double width=th*2*lw1;
   double step=th*4*lw1;
@@ -328,7 +328,7 @@ VMAPRenderer::render_line_obr(Conv & cnv, int type, int col, double th){
 }
 
 void
-VMAPRenderer::render_line_zab(Conv & cnv, int type, int col, double th){
+GObjVMAP::render_line_zab(Conv & cnv, int type, int col, double th){
   render_line(type, col, th, 0);
   double width=th*2*lw1;
   double step=th*8*lw1;
@@ -363,7 +363,7 @@ VMAPRenderer::render_line_zab(Conv & cnv, int type, int col, double th){
 }
 
 void
-VMAPRenderer::render_line_val(Conv & cnv, int type, int col, double th,
+GObjVMAP::render_line_val(Conv & cnv, int type, int col, double th,
                               double width, double step){
   width*=lw1/2;
   step*=lw1;
@@ -399,7 +399,7 @@ VMAPRenderer::render_line_val(Conv & cnv, int type, int col, double th,
 }
 
 void
-VMAPRenderer::render_line_gaz(Conv & cnv, int type, int col, double th, double step){
+GObjVMAP::render_line_gaz(Conv & cnv, int type, int col, double th, double step){
   render_line(type, col, th, 0);
   double width=th*0.8*lw1;
   step*=lw1;
@@ -430,7 +430,7 @@ VMAPRenderer::render_line_gaz(Conv & cnv, int type, int col, double th, double s
 }
 
 void
-VMAPRenderer::render_grid_label(double c, double val, bool horiz, const dLine & border){
+GObjVMAP::render_grid_label(double c, double val, bool horiz, const dLine & border){
 
   ostringstream ss;
   ss << setprecision(7) << val/1000.0;
@@ -501,7 +501,7 @@ VMAPRenderer::render_grid_label(double c, double val, bool horiz, const dLine & 
 }
 
 void
-VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels, const g_map & ref){
+GObjVMAP::render_pulk_grid(double dx, double dy, bool labels, const g_map & ref){
 
   convs::map2pt cnv(ref, Datum("pulkovo"), Proj("tmerc"), ref.proj_opts);
 
@@ -554,7 +554,7 @@ VMAPRenderer::render_pulk_grid(double dx, double dy, bool labels, const g_map & 
 }
 
 void
-VMAPRenderer::render_objects(const bool draw_contours){
+GObjVMAP::render_objects(const bool draw_contours){
 
   bool hr = (W->style == "hr");
 
@@ -789,7 +789,7 @@ VMAPRenderer::render_objects(const bool draw_contours){
 }
 
 void
-VMAPRenderer::render_holes(Conv & cnv){
+GObjVMAP::render_holes(Conv & cnv){
   cr->save();
   cr->set_operator(Cairo::OPERATOR_DEST_OVER);
 
@@ -841,7 +841,7 @@ VMAPRenderer::render_holes(Conv & cnv){
 }
 
 void
-VMAPRenderer::render_labels(){
+GObjVMAP::render_labels(){
   cr->save();
 
   for (int pass=1; pass<=2; pass++){
@@ -900,7 +900,7 @@ VMAPRenderer::render_labels(){
 }
 
 void
-VMAPRenderer::render_text(const char *text, dPoint pos, double ang,
+GObjVMAP::render_text(const char *text, dPoint pos, double ang,
        int color, int fig_font, int font_size, int hdir, int vdir){
   cr->save();
   cr->set_color(color);
@@ -928,7 +928,7 @@ VMAPRenderer::render_text(const char *text, dPoint pos, double ang,
 // создание контура -- набор точек на расстоянии dist друг от друга
 // вокруг областей с цветом col. Цвет в точках = col
 std::list<iPoint>
-VMAPRenderer::make_cnt(int col, double dist){
+GObjVMAP::make_cnt(int col, double dist){
   dist*=lw1;
 
 #define COL(x,y)  ((data[s*(y) + 4*(x) + 2] << 16)\
@@ -986,7 +986,7 @@ VMAPRenderer::make_cnt(int col, double dist){
 }
 
 void
-VMAPRenderer::filter_cnt(std::list<iPoint> & cnt, int col){
+GObjVMAP::filter_cnt(std::list<iPoint> & cnt, int col){
   // data and s indentifires used in COL macro!
   unsigned char *data=cr.get_im_surface()->get_data();
   int w=cr.get_im_surface()->get_width();
@@ -1006,7 +1006,7 @@ VMAPRenderer::filter_cnt(std::list<iPoint> & cnt, int col){
 
 // рисование уже готового контура
 void
-VMAPRenderer::draw_cnt(const std::list<iPoint> & cnt, int c, double th){
+GObjVMAP::draw_cnt(const std::list<iPoint> & cnt, int c, double th){
   cr->save();
   cr->begin_new_path();
   cr->set_line_width(th*lw1);

@@ -1,5 +1,5 @@
-#ifndef VMAP_RENDERER
-#define VMAP_RENDERER
+#ifndef GOBJ_VMAP
+#define GOBJ_VMAP
 
 #include <string>
 #include <iostream>
@@ -29,7 +29,7 @@
 */
 void render_border(iImage & img, const dLine & brd, const Options & O);
 
-class VMAPRenderer : public GObjGeo{
+class GObjVMAP : public GObjGeo{
 private:
 
   CairoWrapper cr;
@@ -67,7 +67,7 @@ public:
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
 
-  VMAPRenderer(vmap::world * _W, iImage & img,
+  GObjVMAP(vmap::world * _W, iImage & img,
     const Options & O = Options());
 
   void render_objects(const bool draw_contours=true);

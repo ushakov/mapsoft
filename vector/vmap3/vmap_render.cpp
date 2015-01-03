@@ -1,4 +1,4 @@
-#include "vmap_renderer.h"
+#include "img_io/gobj_vmap.h"
 #include "options/m_getopt.h"
 #include "options/m_time.h"
 #include "geo/geo_refs.h"
@@ -150,7 +150,7 @@ main(int argc, char* argv[]){
   convs::map2wgs cnv(ref);
   if (W.size() == 0) cerr << "warning: no objects\n";
 
-  VMAPRenderer R(&W, img, O);
+  GObjVMAP R(&W, img, O);
   R.set_ref(ref);
 
   R.render_objects(O.get<bool>("contours", true));

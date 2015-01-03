@@ -14,5 +14,6 @@ e.Library('img_io', \
     gobj_wpt.cpp
     gobj_srtm.cpp
     gobj_pano.cpp
+    gobj_vmap.cpp
     gobj_grid_pulk.cpp
   """))
