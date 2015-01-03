@@ -12,7 +12,7 @@ GObjVMAP::GObjVMAP(vmap::world * _W,
 
   pics_dpi    = O.get("pics_dpi", 600.0);
   bgcolor     = O.get("bgcolor", 0xFFFFFF);
-  dpi         = O.get("dpi", 300.0);
+  dpi         = O.get("dpi", 200.0);
   lw1         = O.get("line_width", dpi/105.0);
   cntrs       = O.get("contours", true);
   use_aa      = O.get("antialiasing", true);

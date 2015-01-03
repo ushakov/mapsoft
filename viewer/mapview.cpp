@@ -80,7 +80,7 @@ Mapview::Mapview () :
     panels->append_page(*scr_vmp, "VMAP");
     panels->append_page(panel_misc, "Misc");
     panels->set_scrollable(false);
-    panels->set_size_request(150,-1);
+    panels->set_size_request(200,-1);
 
     /// Build main paned: Viewer + Panels
     Gtk::HPaned * paned = manage(new Gtk::HPaned);
