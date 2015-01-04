@@ -26,6 +26,11 @@ GObjVMAP::GObjVMAP(vmap::world * _W,
 int
 GObjVMAP::draw(iImage &img, const iPoint &org){
 
+  if (W->brd.size()>2) ref.border=cnv.line_bck(W->brd)-org;
+  if (ref.border.size()>2 &&
+      rect_intersect(iRect(ref.border.range()), img.range()).empty())
+        return GOBJ_FILL_NONE;
+
   // create Cairo surface and context
   cr.reset_surface(img);
   origin = org;
@@ -42,7 +47,6 @@ GObjVMAP::draw(iImage &img, const iPoint &org){
 
   render_labels();
 
-  if (W->brd.size()>2) ref.border=cnv.line_bck(W->brd)-origin;
   if (ref.border.size()>2) render_border(img.range(), ref.border);
 
   // draw grid labels after labels
