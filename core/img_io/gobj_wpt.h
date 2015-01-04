@@ -24,9 +24,8 @@ public:
 
   int draw(iImage & image, const iPoint & origin); /// Draw on image.
 
-  int find_waypoint (iPoint pt, int radius = 3);
-
-  std::vector<int> find_waypoints (const iRect & r);
+  int find_waypoint (dPoint pt, double radius = 3.0);
+  std::vector<int> find_waypoints (const dRect & r);
 
   /// Get pointer to the data object.
   g_waypoint_list * get_data() const {return data;}
