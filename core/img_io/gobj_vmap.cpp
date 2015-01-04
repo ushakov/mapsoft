@@ -767,7 +767,7 @@ GObjVMAP::render_objects(){
   render_line(0xD,  0x0, 3, 10); // маленькая Ж/Д
   render_line(0x27, 0x0, 4, 10); // Ж/Д
   cr->cap_round();
-  cr->set_dash(4*lw1, 2*lw1, 0, 2*lw1);   render_line(0x1D, c_obr, 1, 0); // граница
+  cr->set_dash(6*lw1, 2*lw1, 0.5*lw1, 2*lw1);   render_line(0x1D, c_obr, 0.7, 0); // граница
 
   cr->set_dash(2*lw1, 2*lw1); render_line(0x1E, c_obr, 1, 0); // нижний край обрыва
   cr->unset_dash();   render_line_obr(cnv, 0x03, c_obr, 1); // верхний край обрыва
