@@ -8,7 +8,6 @@ using namespace std;
 
 GObjSRTM::GObjSRTM(srtm3 *srtm):S(srtm){
   opt.put<string>("srtm_mode", "normal");
-  opt.put<bool>("srtm_on",  "false");
   opt.put<double>("srtm_cnt_step", 50);
   opt.put<double>("srtm_hmin", 0.0);
   opt.put<double>("srtm_hmax", 5000.0);
