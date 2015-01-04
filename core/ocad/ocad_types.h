@@ -8,9 +8,6 @@
 #include "2d/point.h"
 namespace ocad{
 
-#define MIN(x,y) ((x)<(y)?(x):(y))
-#define MAX(x,y) ((x)>(y)?(x):(y))
-
 /// convert pascal-string to c-string
 /// maxlen includes first byte;
 /// NOT USED?
@@ -22,7 +19,7 @@ std::string str_pas2str(const char * str, int maxlen);
 
 /// convert std::string to pascal-string
 ///  maxlen includes first byte
-void str_str2pas(char * pas, const std::string & str, int maxlen);
+void str_str2pas(char * pas, const std::string & str, size_t maxlen);
 
 extern const IConv iconv_uni;
 extern const IConv iconv_win;

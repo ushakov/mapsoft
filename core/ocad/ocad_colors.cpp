@@ -34,7 +34,7 @@ ocad_cmyk::set_rgb_int(int c){
   int R=(c>>16)&0xFF;
   int G=(c>>8)&0xFF;
   int B=c&0xFF;
-  K = MIN(MIN(0xFF-R, 0xFF-G), 0xFF-B);
+  K = std::min(std::min(0xFF-R, 0xFF-G), 0xFF-B);
   if (K==0xFF) {
     C=M=Y=0;
   }
@@ -114,7 +114,7 @@ ocad_colorinfo::dump(ostream & s, int num_sep) const{
 void
 ocad_colorinfo::dump_sep(ostream & s, int num_sep) const{
   s << setfill('0') << setbase(16);
-  for (int i=0; i<MIN(num_sep, MAX_COLSEP); i++)
+  for (int i=0; i<std::min(num_sep, MAX_COLSEP); i++)
     s << " " << setw(2) << (int)sep_per[i];
   s << setfill(' ') << setbase(10);
 }
