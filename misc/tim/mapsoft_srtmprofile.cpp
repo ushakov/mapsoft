@@ -82,17 +82,6 @@ void usage(const char *fname, bool pod=false){
   exit(1);
 }
 
-//координаты угла единичного квадрата по его номеру
-iPoint crn (int k){
-  k%=4;
-  return iPoint(k/2, (k%3>0)?1:0);
-}
-//направление следующей за углом стороны (единичный вектор)
-iPoint dir (int k){
-  return crn(k+1)-crn(k);
-}
-
-
 main(int argc, char** argv){
   const char *program_name = argv[0];
 
