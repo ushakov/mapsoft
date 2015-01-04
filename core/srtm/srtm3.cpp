@@ -7,6 +7,7 @@
 #include <cstdio>
 
 #include <2d/point_int.h>
+#include <2d/line_utils.h>
 #include "srtm3.h"
 #include <zlib.h>
 
@@ -348,3 +349,207 @@ srtm3::int_holes(double h[4]) const{
     h[2]=(h[0] + 2*h[3])/3;
   }
 }
+
+/**********************************************************/
+
+//координаты угла единичного квадрата по его номеру
+iPoint crn (int k){ k%=4; return iPoint(k/2, (k%3>0)?1:0); }
+
+//направление следующей за углом стороны (единичный вектор)
+iPoint dir (int k){ return crn(k+1)-crn(k); }
+
+map<short, dMultiLine>
+srtm3::find_contours(const dRect & range, int step){
+  int lon1  = int(floor(1200*range.TLC().x));
+  int lon2  = int( ceil(1200*range.BRC().x));
+  int lat1  = int(floor(1200*range.TLC().y));
+  int lat2  = int( ceil(1200*range.BRC().y));
+
+  map<short, dMultiLine> ret;
+  int count = 0;
+  for (int lat=lat2; lat>lat1; lat--){
+    for (int lon=lon1; lon<lon2; lon++){
+
+      iPoint p(lon,lat);
+      // пересечения четырех сторон клетки с горизонталями:
+      // при подсчетах мы опустим все данные на полметра,
+      // чтоб не разбирать кучу случаев с попаданием горизонталей в узлы сетки
+      multimap<short, double> pts;
+
+      for (int k=0; k<4; k++){
+        iPoint p1 = p+crn(k);
+        iPoint p2 = p+crn(k+1);
+        short h1 = geth(p1);
+        short h2 = geth(p2);
+        if ((h1<srtm_min) || (h2<srtm_min)) continue;
+        int min = (h1<h2)? h1:h2;
+        int max = (h1<h2)? h2:h1;
+        min = int( floor(double(min)/step)) * step;
+        max = int( ceil(double(max)/step))  * step;
+        if (h2==h1) continue;
+        for (int hh = min; hh<=max; hh+=step){
+          double x = double(hh-h1+0.1)/double(h2-h1);
+          if ((x<0)||(x>1)) continue;
+          pts.insert(pair<short, double>(hh,x+k));
+        }
+      }
+
+      // найдем, какие горизонтали пересекают квадрат дважды,
+      // поместим их в список горизонталей ret
+      short h=srtm_undef;
+      double x1,x2;
+
+      for (multimap<short,double>::const_iterator i=pts.begin(); i!=pts.end(); i++){
+        if (h!=i->first){
+          h  = i->first;
+          x1 = i->second;
+        } else{
+          x2 = i->second;
+          dPoint p1=(dPoint(p + crn(int(x1))) + dPoint(dir(int(x1)))*double(x1-int(x1)))/1200.0;
+          dPoint p2=(dPoint(p + crn(int(x2))) + dPoint(dir(int(x2)))*double(x2-int(x2)))/1200.0;
+          // we found segment p1-p2 with height h
+          // first try to append it to existing line in ret[h]
+          bool done=false;
+          for (dMultiLine::iterator l=ret[h].begin(); l!=ret[h].end(); l++){
+            int e=l->size()-1;
+            if (e<=0) continue; // we have no 1pt lines!
+            if (pdist((*l)[0], p1) < 1e-4){ l->insert(l->begin(), p2); done=true; break;}
+            if (pdist((*l)[0], p2) < 1e-4){ l->insert(l->begin(), p1); done=true; break;}
+            if (pdist((*l)[e], p1) < 1e-4){ l->push_back(p2); done=true; break;}
+            if (pdist((*l)[e], p2) < 1e-4){ l->push_back(p1); done=true; break;}
+          }
+          if (!done){ // insert new line into ret[h]
+            dLine hor;
+            hor.push_back(p1);
+            hor.push_back(p2);
+            ret[h].push_back(hor);
+          }
+          h=srtm_undef;
+          count++;
+        }
+      }
+    }
+  }
+
+  // merge contours
+  for(map<short, dMultiLine>::iterator im = ret.begin(); im!=ret.end(); im++)
+    merge(im->second, 1e-4);
+
+  return ret;
+}
+
+map<dPoint, short>
+srtm3::find_peaks(const dRect & range, int DH, int PS){
+
+  int lon1  = int(floor(1200*range.TLC().x));
+  int lon2  = int( ceil(1200*range.BRC().x));
+  int lat1  = int(floor(1200*range.TLC().y));
+  int lat2  = int( ceil(1200*range.BRC().y));
+
+  // поиск вершин:
+  // 1. найдем все локальные максимумы (не забудем про максимумы из многих точек!)
+  // 2. от каждого будем строить множество точек, добавляя наивысшую точку границы
+  // 3. если высота последней добаленной точки ниже исходной более чем на DH м,
+  //    или если размер множества больше PS точек - процедуру прекращаем, 
+  //    объявляем исходную точку вершиной.
+  // 4. Если высота последней добавленной точки больше исходной - процедуру
+  //    прекращаем
+
+  set<iPoint> done;
+  map<dPoint, short> ret;
+  for (int lat=lat2; lat>lat1; lat--){
+    for (int lon=lon1; lon<lon2-1; lon++){
+
+      iPoint p(lon,lat);
+      if (done.find(p)!=done.end()) continue;
+      short h = geth(p);
+      if (h<srtm_min) continue;
+
+      set<iPoint> pts; pts.insert(p);
+      set<iPoint> brd = border(pts);
+      // ищем максимум границы
+
+      do{
+        short max = srtm_undef;
+        iPoint maxpt;
+        for (set<iPoint>::const_iterator i = brd.begin(); i!=brd.end(); i++){
+          short h1 = geth(*i);
+          // исходная точка слишком близка к краю данных
+          if ((h1<srtm_min) && (pdist(*i,p)<1.5)) {max = h1; break;}
+          if (h1>max) {max = h1; maxpt=*i;}
+        }
+        if (max < srtm_min) break;
+
+        // если максимум выше исходной точки - выходим.
+        if (max > h) { break; }
+
+        // если мы спустились от исходной точки более чем на DH или размер области более PS
+        if ((h - max > DH ) || (pts.size() > PS)) {
+          ret[dPoint(p)/1200.0] = h;
+          break;
+        }
+        add_pb(maxpt, pts, brd);
+        done.insert(maxpt);
+      } while (true);
+    }
+  }
+  return ret;
+}
+
+dMultiLine
+srtm3::find_holes(const dRect & range){
+
+  int lon1  = int(floor(1200*range.TLC().x));
+  int lon2  = int( ceil(1200*range.BRC().x));
+  int lat1  = int(floor(1200*range.TLC().y));
+  int lat2  = int( ceil(1200*range.BRC().y));
+
+  set<iPoint> aset;
+  for (int lat=lat2; lat>lat1; lat--){
+    for (int lon=lon1; lon<lon2-1; lon++){
+      iPoint p(lon,lat);
+      short h = geth(p);
+      dPoint p1 = dPoint(p)/1200.0;
+      if (h!=srtm_undef) continue;
+      aset.insert(p);
+    }
+  }
+  // converting points to polygons
+  return pset2line(aset)/1200.0;
+}
+
+/*
+  // поиск крутых склонов
+  cerr << "ищем крутые склоны: ";
+  double latdeg = 6380000/1200.0/180.0*M_PI; 
+  double londeg = latdeg * cos(double(lat2+lat1)/2400.0/180.0*M_PI);
+
+  for (int lat=lat2; lat>lat1; lat--){
+    for (int lon=lon1; lon<lon2-1; lon++){
+      iPoint p(lon,lat);
+      short h = geth(p);
+      short hx = geth(p+iPoint(1,0));
+      short hy = geth(p+iPoint(0,1));
+      if ((h<srtm_min) || (hx<srtm_min) || (hy<srtm_min)) continue;
+      dPoint gr(double(hx-h)/londeg, double(hy-h)/latdeg);
+      double a = atan(pdist(gr))*180/M_PI;
+      if (a > 45) aset.insert(p);
+    }
+  }
+  cerr << aset.size() << " точек\n";
+
+  cerr << " преобразуем множество точек в многоугольники: ";
+  aline = pset2line(aset);
+  for(dMultiLine::iterator iv = aline.begin(); iv!=aline.end(); iv++){
+    if (iv->size()<3) continue;
+    dLine l = (*iv)/1200.0;
+    mp::mp_object mpo;
+    mpo.Class = "POLYGON";
+    mpo.Label = "high slope";
+    mpo.Type = 0x19;
+    mpo.insert(mpo.end(), l.begin(), l.end());
+    MP.push_back(mpo);
+  }
+  cerr << aline.size() << " шт\n";
+*/
+
