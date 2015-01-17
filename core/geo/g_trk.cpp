@@ -1,6 +1,7 @@
 #include "g_trk.h"
 #include "geo_convs.h"
 #include "2d/line_utils.h"
+#include "options/m_color.h"
 
 #define ALT_UNDEF 1e27
 #define ALT_CHECK 1e26
@@ -102,11 +103,11 @@ Options g_track::to_options () const {
 void g_track::parse_from_options (Options const & opt, bool check){
     width = opt.get("width", width);
     displ = opt.get("displ", displ);
-    color = opt.get("color", color);
+    color = opt.get<Color>("color", color);
     skip  = opt.get("skip",  skip);
     type  = opt.get("type",  type);
     fill  = opt.get("fill",  fill);
-    cfill = opt.get("cfill", cfill);
+    cfill = opt.get<Color>("cfill", cfill);
     comm  = opt.get("comm",  comm);
     const string used[] = {
         "comm", "width", "color", "skip", "displ",

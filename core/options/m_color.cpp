@@ -9,9 +9,7 @@
 std::ostream & operator<< (std::ostream & s, const Color & t){
   s << "#" << std::setbase(16)
     << std::setw(2) << std::setfill('0') << (255 - ((t.value & 0xff000000) >> 24))
-    << std::setw(2) << std::setfill('0') << (t.value & 0xff)              // R
-    << std::setw(2) << std::setfill('0') << ((t.value & 0xff00) >> 8)     // G
-    << std::setw(2) << std::setfill('0') << ((t.value & 0xff0000) >> 16)  // B
+    << std::setw(6) << std::setfill('0') << (t.value & 0xffffff)
     << std::setbase(10);
   return s;
 }
@@ -21,10 +19,7 @@ Color::Color(const std::string & str){
   if (!parse(str.c_str(), ch_p('#') >> hex_p[assign_a(value)]).full)
     std::cerr << "Color: can't find hexadecimal value in " << str << "\n";
   int alpha = (value & 0xff000000) >> 24;
-  int r = (value & 0xff0000) >> 16;
-  int g = (value & 0xff00) >> 8;
-  int b = value & 0xff;
-  int rgb = (b << 16) | (g << 8) | r;
+  int rgb = value & 0xffffff;
   value = ((255 - alpha) << 24) | rgb;
 }
 
