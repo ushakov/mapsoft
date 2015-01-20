@@ -157,6 +157,7 @@ get_wpts(const fig_world & w, const g_map & m, geo_data & d){
 
       g_waypoint wp;
       wp.parse_from_options(O);
+      wp.color = i->pen_color;
       wp.x=(*i)[0].x; wp.y=(*i)[0].y;
       cnv.frw(wp);
       pl.push_back(wp);
@@ -191,6 +192,7 @@ get_trks(const fig_world & w, const g_map & m, geo_data & d){
 
       g_track tr;
       tr.parse_from_options(O);
+      tr.color = i->pen_color;
       for (int n = 0; n<i->size();n++){
         g_trackpoint p;
         p.x=(*i)[n].x; p.y=(*i)[n].y;
@@ -345,13 +347,16 @@ put_wpts(fig_world & F, const g_map & m, const geo_data & world){
       f.opts.erase("name");
       f.opts.erase("lon");
       f.opts.erase("lat");
-	f.push_back(iPoint(int(p.x), int(p.y)));
-	F.push_back(f);
+      f.opts.erase("color");
 
-	fig::fig_object ft = fig::make_object("4 0 8 5 -1 18 6 0.0000 4");
-	ft.push_back(iPoint(int(p.x)+30, int(p.y)+30));
-	ft.text = w->name;
-	F.push_back(ft);
+      f.push_back(iPoint(int(p.x), int(p.y)));
+      f.pen_color = w->color;
+      F.push_back(f);
+
+      fig::fig_object ft = fig::make_object("4 0 8 5 -1 18 6 0.0000 4");
+      ft.push_back(iPoint(int(p.x)+30, int(p.y)+30));
+      ft.text = w->name;
+      F.push_back(ft);
     }
   }
 
@@ -378,9 +383,11 @@ put_trks(fig_world & F, const g_map & m, const geo_data & world){
       } while ((t!=tl->end())&&(!t->start));
 
       fig::fig_object f = fig::make_object("2 1 0 1 1 7 7 0 -1 1 1 1 -1 0 0 *"); 
-      ADDCOMM("TRK " << tl->comm);
       f.opts=to_options_skipdef(*tl);
+      ADDCOMM("TRK " << tl->comm);
       f.opts.erase("comm");
+      f.pen_color = tl->color;
+      f.opts.erase("color");
 
       for (vector<iPoint>::const_iterator p1=pts.begin(); p1!=pts.end(); p1++) f.push_back(*p1);
 	F.push_back(f);
