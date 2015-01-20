@@ -50,7 +50,7 @@ namespace gu {
 		gu_trackpoint(){
 			lat=0; lon=0; start=false;
 			time_t t = time(NULL);
-			struct tm * ts1 = localtime(&t);
+			struct tm * ts1 = gmtime(&t);
 			ts = *ts1;
 			ts.tm_year+=1900;
 			ts.tm_mon+=1;

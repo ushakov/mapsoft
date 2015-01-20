@@ -459,6 +459,8 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 
 		IConv cnv(default_charset);
 
+                // date format: days since 12/30/1899 12:00AM GMT
+                // date +%s -d '12/30/1899 12:00AM GMT' = -2209161600
 		int num = trk.size();
 		f << "OziExplorer Track Point File Version 2.0\r\n"
 		  << "WGS 84\r\n"

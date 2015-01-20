@@ -20,8 +20,8 @@ time_gpx2s(const char * str){
 string
 time_s2gpx(const Time & t){
   ostringstream s;
-  struct tm * ts = localtime(&t.value);
-  if (ts == NULL) { time_t t = 0;  ts = localtime(&t);}
+  struct tm * ts = gmtime(&t.value);
+  if (ts == NULL) { time_t t = 0;  ts = gmtime(&t);}
   s << std::setfill('0')
     << std::setw(4) << ts->tm_year+1900 << '-'
     << std::setw(2) << ts->tm_mon+1 << '-'
