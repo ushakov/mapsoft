@@ -36,9 +36,15 @@ draw_trk(iImage & image, const iPoint & origin,
       cr->circle(p1, dot_w);
     }
 
-    for (int i=1; i<trk.size(); i++){
-      g_trackpoint p1(trk[i-1]);
-      g_trackpoint p2(trk[i]);
+    for (int i=0; i<trk.size(); i++){
+      g_trackpoint p1,p2;
+      p2 = trk[i];
+      if (i==0){
+        if (trk.type==trkType("closed")) p1=trk[trk.size()-1];
+        else continue;
+      }
+      else p1=trk[i-1];
+
       if (p2.start) continue;
 
       cnv.bck(p1);  p1-=origin;
@@ -81,9 +87,15 @@ draw_trk(iImage & image, const iPoint & origin,
       cr->circle(p1, dot_w);
     }
 
-    for (int i=1; i<trk.size(); i++){
-      g_trackpoint p1(trk[i-1]);
-      g_trackpoint p2(trk[i]);
+    for (int i=0; i<trk.size(); i++){
+      g_trackpoint p1,p2;
+      p2 = trk[i];
+      if (i==0){
+        if (trk.type==trkType("closed")) p1=trk[trk.size()-1];
+        else continue;
+      }
+      else p1=trk[i-1];
+
       if (p2.start) continue;
 
       double cc = cos((p1.y + p2.y)/2.0/180.0*M_PI);
@@ -118,9 +130,15 @@ draw_trk(iImage & image, const iPoint & origin,
       cr->circle(p1, dot_w);
     }
 
-    for (int i=1; i<trk.size(); i++){
-      g_trackpoint p1(trk[i-1]);
-      g_trackpoint p2(trk[i]);
+    for (int i=0; i<trk.size(); i++){
+      g_trackpoint p1,p2;
+      p2 = trk[i];
+      if (i==0){
+        if (trk.type==trkType("closed")) p1=trk[trk.size()-1];
+        else continue;
+      }
+      else p1=trk[i-1];
+
       if (p2.start) continue;
 
       cnv.bck(p1);  p1-=origin;
