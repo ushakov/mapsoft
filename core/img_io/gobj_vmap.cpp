@@ -751,6 +751,7 @@ GObjVMAP::render_objects(){
   cr->set_dash(5*lw1, 4*lw1); render_line(0x16, 0x0, 0.6, 0); // просека
   cr->set_dash(8*lw1, 5*lw1); render_line(0x1C, 0x0, 1.4, 0); // просека широкая
   cr->set_dash(6*lw1, 2*lw1); render_line(0xA,  0x0, 1, 10); // непроезжая грунтовка
+  cr->set_dash(6*lw1, 2*lw1); render_line(0x2E,  0x0, 0.8, 10); // ММБ-грунтовка
   cr->set_dash(2*lw1, 1.5*lw1); render_line(0x2A, 0x0, 1, 10); // тропа
   cr->set_dash(2*lw1,lw1,2*lw1,3*lw1); render_line(0x2D, 0x0, 0.8, 10); // заросшая дорога
   cr->unset_dash();
