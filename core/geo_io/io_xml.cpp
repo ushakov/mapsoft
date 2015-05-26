@@ -140,11 +140,11 @@ namespace xml {
 		f << "<track points=" << tr.size();
 		if (tr.width != def_t.width) f << " width="    << tr.width;
 		if (tr.displ != def_t.displ) f << " displ="    << tr.displ;
-                if (tr.color != def_t.color) f << " color=\"#" << hex << tr.color << "\"";
+                if (tr.color != def_t.color) f << " color=\"#" << hex << tr.color << "\"" << dec;
 		if (tr.skip  != def_t.skip)  f << " skip="     << tr.skip;
 		if (tr.type  != def_t.type)  f << " type="     << tr.type;
 		if (tr.fill  != def_t.fill)  f << " fill="     << tr.fill;
-		if (tr.cfill != def_t.cfill) f << " cfill=\"#"  << hex << tr.cfill << "\"";
+		if (tr.cfill != def_t.cfill) f << " cfill=\"#"  << hex << tr.cfill << "\"" << dec;
 		if (tr.comm  != def_t.comm)  f << " comm=\""   << cnv.from_utf8(tr.comm) << "\"";
 		f << ">\n";
                 vector<g_trackpoint>::const_iterator p, b=tr.begin(), e=tr.end();
@@ -186,8 +186,8 @@ namespace xml {
                         if (p->prox_dist != def_pt.prox_dist)   f << " prox_dist="  << fixed << setprecision(1) << p->prox_dist;
                         if (p->symb != def_pt.symb)             f << " symb="       << p->symb;
                         if (p->displ != def_pt.displ)           f << " displ="      << p->displ;
-                        if (p->color != def_pt.color)           f << " color=\""    << p->color << "\"";
-                        if (p->bgcolor != def_pt.bgcolor)       f << " bgcolor=\""  << p->bgcolor << "\"";
+                        if (p->color != def_pt.color)           f << " color=\""    << hex << p->color << "\"" << dec;
+                        if (p->bgcolor != def_pt.bgcolor)       f << " bgcolor=\""  << hex << p->bgcolor << "\"" << dec;
                         if (p->map_displ != def_pt.map_displ)   f << " map_displ="  << p->map_displ;
                         if (p->pt_dir != def_pt.pt_dir)         f << " pt_dir="     << p->pt_dir;
                         if (p->font_size != def_pt.font_size)   f << " font_size="  << p->font_size;
