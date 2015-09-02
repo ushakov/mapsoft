@@ -6,9 +6,10 @@
 
 #include "m_time.h"
 
-std::ostream & operator<< (std::ostream & s, const Time & t){
-  struct tm * ts = gmtime(&t.value);
-  if (ts == NULL) { time_t t = 0;  ts = gmtime(&t);}
+std::ostream &
+operator<< (std::ostream & s, const Time & t) {
+  struct tm * ts = localtime(&t.value);
+  if (ts == NULL) { time_t t = 0;  ts = localtime(&t);}
   s << std::setfill('0')
     << std::setw(4) << ts->tm_year+1900 << "-"
     << std::setw(2) << ts->tm_mon+1 << "-"
@@ -19,9 +20,11 @@ std::ostream & operator<< (std::ostream & s, const Time & t){
   return s;
 }
 
-std::string Time::time_str(){
-  struct tm * ts = gmtime(&value);
-  if (ts == NULL) { time_t t = 0;  ts = gmtime(&t);}
+/* time string: HH:MM:SS */
+std::string
+Time::time_str() const {
+  struct tm * ts = localtime(&value);
+  if (ts == NULL) { time_t t = 0;  ts = localtime(&t);}
   std::ostringstream s;
   s << std::setfill('0')
     << std::setw(2) << ts->tm_hour  << ":"
@@ -30,9 +33,11 @@ std::string Time::time_str(){
   return s.str();
 }
 
-std::string Time::date_str(){
-  struct tm * ts = gmtime(&value);
-  if (ts == NULL) { time_t t = 0;  ts = gmtime(&t);}
+/* date string: yyyy-mm-dd */
+std::string
+Time::date_str() const {
+  struct tm * ts = localtime(&value);
+  if (ts == NULL) { time_t t = 0;  ts = localtime(&t);}
   std::ostringstream s;
   s << std::setfill('0')
     << std::setw(4) << ts->tm_year+1900 << "-"
@@ -40,6 +45,23 @@ std::string Time::date_str(){
     << std::setw(2) << ts->tm_mday;
   return s.str();
 }
+
+/* Time in GPX format: 2011-09-27T18:50:03Z */
+std::string
+Time::gpx_str() const {
+  struct tm * ts = localtime(&value);
+  if (ts == NULL) { time_t t = 0;  ts = localtime(&t);}
+  std::ostringstream s;
+  s << std::setfill('0')
+    << std::setw(4) << ts->tm_year+1900 << '-'
+    << std::setw(2) << ts->tm_mon+1 << '-'
+    << std::setw(2) << ts->tm_mday  << 'T'
+    << std::setw(2) << ts->tm_hour  << ':'
+    << std::setw(2) << ts->tm_min   << ':'
+    << std::setw(2) << ts->tm_sec << 'Z';
+  return s.str();
+}
+
 
 void Time::set_current(){ value = time(NULL); }
 
@@ -52,7 +74,7 @@ Time::Time(const std::string & str){
 
   using namespace boost::spirit::classic;
   time_t t = time(NULL);
-  struct tm * ts = gmtime(&t);
+  struct tm * ts = localtime(&t);
 
   if (parse(str.c_str(),
       uint_p[assign_a(ts->tm_year)] >> '-' >>

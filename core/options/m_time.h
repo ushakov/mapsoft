@@ -21,8 +21,9 @@ struct Time
     Time(const std::string & s);
 
     void set_current();
-    std::string time_str();
-    std::string date_str();
+    std::string time_str() const;
+    std::string date_str() const;
+    std::string gpx_str() const;
 
 #ifndef SWIG
   bool operator<  (const Time & t) const { return value < t.value; }
