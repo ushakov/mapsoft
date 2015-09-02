@@ -468,12 +468,12 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 		  << "Reserved 3\r\n" 
 		  << "0,"
 		  << trk.width << ',' 
-		  << trk.color << ',' 
+		  << (trk.color & 0xFFFFFF) << ',' 
 		  << cnv.from_utf8(trk.comm)  << ',' 
 		  << trk.skip  << ',' 
 		  << trk.type.val  << ',' 
 		  << trk.fill.val  << ',' 
-		  << trk.cfill << "\r\n" 
+		  << (trk.cfill & 0xFFFFFF) << "\r\n" 
 		  << num << "\r\n";
 		for (vector<g_trackpoint>::const_iterator p = trk.begin(); 
 			 p!= trk.end(); p++){
@@ -521,8 +521,8 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 			  << (p->t.value+2209161600.0)/3600.0/24.0 << ','
 			  << p->symb.val      << ",1,"
 			  << p->map_displ.val << ','
-			  << p->color         << ','
-			  << p->bgcolor       << ','
+			  << (p->color & 0xFFFFFF)   << ','
+			  << (p->bgcolor & 0xFFFFFF) << ','
 			  << cnv.from_utf8(p->comm)  << ','
 			  << p->pt_dir.val << ','
 			  << p->displ      << ','
