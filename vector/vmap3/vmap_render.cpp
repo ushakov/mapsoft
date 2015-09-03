@@ -155,16 +155,15 @@ main(int argc, char* argv[]){
   R.set_ref(ref);
   R.draw(img, dPoint(0,0));
 
+  CairoWrapper cr(img);
   if (O.get<int>("draw_name", 0))
-    R.render_text(W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, 0, 2);
-
+    cr->render_text(W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, dpi, 0, 2);
   if (O.get<int>("draw_date", 0)){
     Time t; t.set_current();
-    R.render_text(t.date_str().c_str(), dPoint(dpi/30,dpi), -M_PI/2, 0, 18, 10, 2, 2);
+    cr->render_text(t.date_str().c_str(), dPoint(dpi/30,dpi), -M_PI/2, 0, 18, 10, dpi, 2, 2);
   }
-
   if (O.get<string>("draw_text") != ""){
-    R.render_text(O.get<string>("draw_text").c_str(), dPoint(dpi/5,-dpi/30), 0, 0, 18, 10, 0, 0);
+    cr->render_text(O.get<string>("draw_text").c_str(), dPoint(dpi/5,rng.h-dpi/30), 0, 0, 18, 10, dpi, 0, 0);
   }
 
   //*******************************

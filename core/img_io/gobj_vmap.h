@@ -22,13 +22,6 @@
 #define LABEL_STYLE1 1
 #define LABEL_STYLE2 2
 
-/* Render border and fill margins around map.
-   Options (default):
-     bgcolor (0xFFFFFF)
-     transp_margins (false)
-*/
-void render_border(iImage & img, const dLine & brd, const Options & O);
-
 class GObjVMAP : public GObjGeo{
 private:
 
@@ -77,9 +70,6 @@ public:
   void  render_line(int type, int col, double th, double curve_l=0);
   void  render_points(int type, int col, double th);
 
-  void  render_border(const iRect & range, const dLine & brd);
-
-
   // paths for bridge sign
   void mkbrpath1(const vmap::object & o);
   void mkbrpath2(const vmap::object & o, double th, double side);
@@ -107,10 +97,6 @@ public:
   void render_grid_label(double c, double val, bool horiz, const dLine & border);
 
   void render_labels();
-
-  void render_text(const char *text, dPoint pos, double ang=0,
-         int color=0, int fig_font=18, int font_size=10, int hdir=0, int vdir=0);
-
 
   // functions for drawing contours
 

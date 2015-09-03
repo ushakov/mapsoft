@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "cairo_wrapper.h"
+#include "2d/line_utils.h"
 #include "err.h"
 
 void
@@ -104,6 +105,48 @@ CairoExtra::set_fig_font(int font, double fs, double dpi){
     Cairo::ToyFontFace::create(face, slant, weight));
 }
 
+void
+CairoExtra::render_text(const char *text, dPoint pos, double ang,
+       int color, int fig_font, double font_size, double dpi, int hdir, int vdir){
+  Cairo::Context::save();
+  set_color(color);
+  set_fig_font(fig_font, font_size, dpi);
+
+  dRect ext = get_text_extents(text);
+  move_to(pos);
+  Cairo::Context::rotate(ang);
+  if (hdir == 1) Cairo::Context::rel_move_to(-ext.w/2, 0.0);
+  if (hdir == 2) Cairo::Context::rel_move_to(-ext.w, 0.0);
+  if (vdir == 1) Cairo::Context::rel_move_to(0.0, ext.h/2);
+  if (vdir == 2) Cairo::Context::rel_move_to(0.0, ext.h);
+
+  Cairo::Context::reset_clip();
+
+  Cairo::Context::show_text(text);
+  Cairo::Context::restore();
+}
+
+void
+CairoExtra::render_border(const iRect & range, const dLine & brd, const int bgcolor){
+  // make border path
+  dLine::const_iterator p;
+  set_fill_rule(Cairo::FILL_RULE_EVEN_ODD);
+  mkpath(brd);
+  mkpath(rect2line(rect_pump(range,1)));
+
+  // erase everything outside border
+  if (bgcolor==0)  set_operator(Cairo::OPERATOR_CLEAR);
+  else  set_color(bgcolor);
+  fill_preserve();
+
+  if (bgcolor!=0){
+    // draw border
+    set_source_rgb(0,0,0);
+    set_line_width(2);
+    stroke();
+  }
+}
+
 Cairo::RefPtr<Cairo::SurfacePattern>
 CairoExtra::img2patt(const iImage & I, double sc){
   try{
@@ -161,3 +204,4 @@ CairoWrapper::reset_surface(const iImage & img){
 }
 
 const Cairo::Format CairoWrapper::format = Cairo::FORMAT_ARGB32;
+

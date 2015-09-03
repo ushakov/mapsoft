@@ -47,7 +47,8 @@ GObjVMAP::draw(iImage &img, const iPoint &org){
 
   render_labels();
 
-  if (ref.border.size()>2) render_border(img.range(), ref.border);
+  if (ref.border.size()>2)
+    cr->render_border(img.range(), ref.border, transp? 0:bgcolor);
 
   // draw grid labels after labels
   if ((grid_step>0) && grid_labels){
@@ -56,29 +57,6 @@ GObjVMAP::draw(iImage &img, const iPoint &org){
     render_pulk_grid(grid_step, grid_step, true, ref);
   }
   return GOBJ_FILL_PART;
-}
-
-
-void
-GObjVMAP::render_border(const iRect & range, const dLine & brd){
-
-  // make border path
-  dLine::const_iterator p;
-  cr->set_fill_rule(Cairo::FILL_RULE_EVEN_ODD);
-  cr->mkpath(brd);
-  cr->mkpath(rect2line(rect_pump(range,1)));
-
-  // erase everything outside border
-  if (transp) cr->set_operator(Cairo::OPERATOR_CLEAR);
-  else  cr->set_color(bgcolor);
-  cr->fill_preserve();
-
-  if (!transp){
-    // draw border
-    cr->set_source_rgb(0,0,0);
-    cr->set_line_width(2);
-    cr->stroke();
-  }
 }
 
 void
@@ -526,9 +504,9 @@ GObjVMAP::render_grid_label(double c, double val, bool horiz, const dLine & bord
     pmax+=dPoint(dpi/30,0);
   }
   if (drawmin)
-    render_text(ss.str().c_str(), pmin, amin, 0, 18, 8, 1,ydir_min);
+    cr->render_text(ss.str().c_str(), pmin, amin, 0, 18, 8, dpi, 1,ydir_min);
   if (drawmax)
-    render_text(ss.str().c_str(), pmax, amax, 0, 18, 8, 1,ydir_max);
+    cr->render_text(ss.str().c_str(), pmax, amax, 0, 18, 8, dpi, 1,ydir_max);
 }
 
 void
@@ -929,30 +907,6 @@ GObjVMAP::render_labels(){
   }
   cr->restore();
   if (label_style==LABEL_STYLE2) render_holes(cnv);
-}
-
-void
-GObjVMAP::render_text(const char *text, dPoint pos, double ang,
-       int color, int fig_font, int font_size, int hdir, int vdir){
-  cr->save();
-  cr->set_color(color);
-  cr->set_fig_font(fig_font, font_size, dpi);
-
-  dRect ext = cr->get_text_extents(text);
-
-  if (pos.x<0) pos.x=cr.get_im_surface()->get_width()+pos.x;
-  if (pos.y<0) pos.y=cr.get_im_surface()->get_height()+pos.y;
-  cr->move_to(pos);
-  cr->rotate(ang);
-  if (hdir == 1) cr->Cairo::Context::rel_move_to(-ext.w/2, 0.0);
-  if (hdir == 2) cr->Cairo::Context::rel_move_to(-ext.w, 0.0);
-  if (vdir == 1) cr->Cairo::Context::rel_move_to(0.0, ext.h/2);
-  if (vdir == 2) cr->Cairo::Context::rel_move_to(0.0, ext.h);
-
-  cr->reset_clip();
-
-  cr->show_text(text);
-  cr->restore();
 }
 
 // functions for drawing contours
