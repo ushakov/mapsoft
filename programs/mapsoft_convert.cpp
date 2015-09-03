@@ -140,9 +140,16 @@ try{
   }
 
   geo_data world;
+  vmap::world vm;
   for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
-    try { io::in(*i, world, O);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    if (io::testext(*i, ".vmap")) {
+      try { vm = vmap::read(i->c_str()); }
+      catch (MapsoftErr e) {cerr << e.str() << endl;}
+    }
+    else {
+      try { io::in(*i, world, O);}
+      catch (MapsoftErr e) {cerr << e.str() << endl;}
+    }
   }
 
   if (O.exists("verbose")){
@@ -164,7 +171,6 @@ try{
       (io::testext(name, ".jpg")) ||
       (io::testext(name, ".tiles")) 
      ){
-    vmap::world vm;
     try {io::out_img(name, world, vm, O);}
     catch (MapsoftErr e) {cerr << e.str() << endl;}
   }
