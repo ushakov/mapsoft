@@ -5,6 +5,7 @@
 #include "img_io/draw_trk.h"
 #include "img_io/draw_wpt.h"
 #include "img_io/gobj_srtm.h"
+#include "img_io/gobj_vmap.h"
 #include "loaders/image_r.h"
 
 #include "geo/geo_convs.h"
@@ -21,9 +22,13 @@ using namespace std;
 
 namespace img{
 
-bool write_file (const char* filename, const geo_data & world, Options opt){
+bool write_file (const char* filename, const geo_data & world, vmap::world & vm, Options opt){
 
-  // Default scale is 1:100000.
+  // Default scale from vmap or 1:100000.
+  if (!opt.exists("rscale")){
+    if (!vm.empty()) opt.put("rscale", vm.rscale);
+    else opt.put("rscale", 100000.0);
+  }
   double rscale=opt.get("rscale", 100000.0);
 
   // We want to use source map scale if there is no dpi option
@@ -32,6 +37,8 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
      opt.put("dpi", 100.0);
      do_rescale = true;
   }
+  double dpi=opt.get("dpi", 100.0);
+
 
   // set geometry if no --wgs_geom, --wgs_brd, --geom, --nom, --google options
   bool need_marg=false;
@@ -41,6 +48,9 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     dRect wgs_geom = world.range_geodata();
 
     if (!wgs_geom.empty() && opt.exists("data_marg")) need_marg=true;
+
+    // fallback: vmap range
+    if (wgs_geom.empty()) wgs_geom=vm.range();
 
     // fallback: map range
     if (wgs_geom.empty()) wgs_geom=world.range_map();
@@ -53,7 +63,6 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
 
   // create g_map
   g_map ref = mk_ref(opt);
-  dRect geom = ref.border.range();
   ref.file=filename;
 
   // set map scale from source maps if needed
@@ -75,21 +84,43 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
         }
       }
       ref*=maxscale;
-      geom*=maxscale;
     }
     else if (opt.exists("srtm_mode")){
       double mpp = 6380000.0 * M_PI /180/1200;
       double dpi = rscale/mpp / 100.0 * 2.54;
       double sc=dpi/opt.get("dpi", 100.0);
       ref*=sc;
-      geom*=sc;
     }
   }
 
+  // data margin -- only if the range was se from the data bbox
   if (need_marg){
-    geom = rect_pump(geom, opt.get("data_marg", 0.0));
+    dRect geom = rect_pump(ref.border.range(), opt.get("data_marg", 0.0));
     ref.border=rect2line(geom);
   }
+
+  // set margins for text
+  int tm=0, bm=0, lm=0, rm=0;
+  if (opt.get<int>("draw_name", 0) ||
+      opt.get<int>("draw_date", 0) ||
+      (opt.get<string>("draw_text") != "")) {
+    tm=dpi/3;
+    bm=lm=rm=dpi/6;
+  }
+  int grid_labels = opt.get<int>("grid_labels", 0);
+  if (grid_labels){
+    bm+=dpi/6;
+    tm+=dpi/6;
+    rm+=dpi/6;
+    lm+=dpi/6;
+  }
+
+  // image size
+  dRect geom = ref.border.range();
+  geom.x = geom.y = 0;
+  geom.w+=lm+rm; if (geom.w<0) geom.w=0;
+  geom.h+=tm+bm; if (geom.h<0) geom.h=0;
+  ref+=dPoint(lm,tm);
 
   // is output image not too large
   iPoint max_image = opt.get("max_image", Point<int>(10000,10000));
@@ -101,23 +132,30 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
     exit(1);
   }
 
-  iImage im(geom.w,geom.h,0x00FFFFFF);
+  // create image
+  int bgcolor = opt.get("bgcolor", 0xFFFFFFFF);
+  iImage im(geom.w,geom.h, bgcolor);
 
+  // draw
   if (opt.exists("srtm_mode")){
     srtm3 s(opt.get<string>("srtm_dir"));
     GObjSRTM l(&s);
     l.set_opt(opt);
     l.set_ref(ref);
-    iImage tmp_im = l.get_image(geom);
-    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
+    l.draw(im, iPoint(0,0));
   }
 
   for (int i=0; i<world.maps.size(); i++){
     g_map_list d(world.maps[i]);
     GObjMAP l(&d, opt);
     l.set_ref(ref);
-    iImage tmp_im = l.get_image(geom);
-    if (!tmp_im.empty()) im.render(iPoint(0,0), tmp_im);
+    l.draw(im, iPoint(0,0));
+  }
+
+  if (!vm.empty()){
+    GObjVMAP l(&vm, opt);
+    l.set_ref(ref);
+    l.draw(im, iPoint(0,0));
   }
 
   convs::map2wgs cnv(ref);
@@ -132,13 +170,9 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
 
   // clear image outside border
   CairoWrapper cr(im);
-  cr->set_operator(Cairo::OPERATOR_DEST_ATOP);
-  cr->set_color_a(0xFFFFFFFF);
-  if (ref.border.size()>0) cr->move_to(ref.border[0]);
-  for (dLine::iterator i = ref.border.begin(); i!=ref.border.end(); i++)
-    cr->line_to(*i);
-  cr->close_path();
-  cr->fill();
+
+  if (ref.border.size()>2)
+    cr->render_border(geom, ref.border, bgcolor);
 
   image_r::save(im, filename, opt);
 
@@ -195,6 +229,10 @@ bool write_file (const char* filename, const geo_data & world, Options opt){
   // writing map if needed
   string mapfile = opt.get<string>("map");
   if (mapfile != ""){
+    /* simplify border */
+    ref.border.push_back(*ref.border.begin());
+    ref.border=generalize(ref.border,1,-1); // 1pt accuracy
+    ref.border.resize(ref.border.size()-1);
     try {oe::write_map_file(mapfile.c_str(), ref);}
     catch (MapsoftErr e) {cerr << e.str() << endl;}
   }

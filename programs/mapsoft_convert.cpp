@@ -69,6 +69,7 @@ static struct ext_option options[] = {
   {"max_image",     1,  0, OPT3, "don't write images larger then this, \"x,y\", default 1000,1000"},
   {"data_marg",     1,  0, OPT3, "margins around data (works only if no geometry set), pixels"},
   {"jpeg_quality",  1,  0, OPT3, "set jpeg quality"},
+  {"bgcolor",       1,  0, OPT3, "backgound color"},
 
   {"srtm_mode" ,    1,  0, OPT4, "srtm mode: normal, slopes"},
   {"srtm_cnt_step", 1,  0, OPT4, "contour step, m"},
@@ -163,7 +164,8 @@ try{
       (io::testext(name, ".jpg")) ||
       (io::testext(name, ".tiles")) 
      ){
-    try {io::out_img(name, world, O);}
+    vmap::world vm;
+    try {io::out_img(name, world, vm, O);}
     catch (MapsoftErr e) {cerr << e.str() << endl;}
   }
   else {
