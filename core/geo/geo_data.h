@@ -42,18 +42,5 @@ struct geo_data {
   void add(const geo_data & w);
 };
 
-template <typename T>
-Options to_options_skipdef (const T & x){
-    Options opt=x.to_options();
-    T defx;
-    Options def=defx.to_options();
-    Options::iterator i,j;
-    for (i=def.begin(); i!=def.end(); i++){
-      j=opt.find(i->first);
-      if ((j!=opt.end()) && (j->second==i->second)) opt.erase(j->first);
-    }
-    return opt;
-}
-
 #endif
 
