@@ -22,7 +22,7 @@ using namespace std;
 
 namespace img{
 
-bool write_file (const char* filename, const geo_data & world, vmap::world & vm, Options opt){
+bool write_file (const char* filename, geo_data & world, vmap::world & vm, Options opt){
 
   // Default scale from vmap or 1:100000.
   if (!opt.exists("rscale")){
@@ -146,8 +146,7 @@ bool write_file (const char* filename, const geo_data & world, vmap::world & vm,
   }
 
   for (int i=0; i<world.maps.size(); i++){
-    g_map_list d(world.maps[i]);
-    GObjMAP l(&d, opt);
+    GObjMAP l(&(world.maps[i]), opt);
     l.set_ref(ref);
     l.draw(im, iPoint(0,0));
   }

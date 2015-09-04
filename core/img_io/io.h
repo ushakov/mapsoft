@@ -9,7 +9,7 @@
 namespace io {
 
 // write data to image file
-void out_img(const std::string & out_name, const geo_data & world, vmap::world & vm, const Options & opt);
+void out_img(const std::string & out_name, geo_data & world, vmap::world & vm, const Options & opt);
 
 } // namespace
 #endif

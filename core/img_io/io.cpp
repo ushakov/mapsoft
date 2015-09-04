@@ -9,7 +9,7 @@ namespace io {
 using namespace std;
 
 void
-out_img(const string & out_name, geo_data const & world, vmap::world & vm, const Options & opt){
+out_img(const string & out_name, geo_data & world, vmap::world & vm, const Options & opt){
 
   string name(out_name);
 
