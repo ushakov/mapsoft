@@ -2,8 +2,8 @@
 #include <string>
 
 #include "img_io/gobj_map.h"
-#include "img_io/draw_trk.h"
-#include "img_io/draw_wpt.h"
+#include "img_io/gobj_trk.h"
+#include "img_io/gobj_wpt.h"
 #include "img_io/gobj_srtm.h"
 #include "img_io/gobj_vmap.h"
 #include "loaders/image_r.h"
@@ -17,6 +17,8 @@
 #include "geo_io/geofig.h"
 #include "geo_io/io_oe.h"
 #include "utils/err.h"
+
+#include "gobj_comp.h"
 
 using namespace std;
 
@@ -137,35 +139,28 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
   iImage im(geom.w,geom.h, bgcolor);
 
   // draw
-  if (opt.exists("srtm_mode")){
-    srtm3 s(opt.get<string>("srtm_dir"));
-    GObjSRTM l(&s);
-    l.set_opt(opt);
-    l.set_ref(ref);
-    l.draw(im, iPoint(0,0));
-  }
+  GObjComp gobj;
 
-  for (int i=0; i<world.maps.size(); i++){
-    GObjMAP l(&(world.maps[i]), opt);
-    l.set_ref(ref);
-    l.draw(im, iPoint(0,0));
-  }
+  srtm3 s(opt.get<string>("srtm_dir"));
+  if (opt.exists("srtm_mode"))
+    gobj.push_back(new GObjSRTM(&s));
 
-  if (!vm.empty()){
-    GObjVMAP l(&vm, opt);
-    l.set_ref(ref);
-    l.draw(im, iPoint(0,0));
-  }
+  for (int i=0; i<world.maps.size(); i++)
+    gobj.push_back(new GObjMAP(&(world.maps[i]), opt));
 
-  convs::map2wgs cnv(ref);
+  if (!vm.empty()) gobj.push_back(new GObjVMAP(&vm, opt));
 
-  for (int i=0; i<world.trks.size(); i++){
-    draw_trk(im, geom.TLC(), cnv, world.trks[i], opt);
-  }
+  for (int i=0; i<world.trks.size(); i++)
+    gobj.push_back(new GObjTRK(&(world.trks[i]), opt));
 
-  for (int i=0; i<world.wpts.size(); i++){
-    draw_wpt(im, geom.TLC(), cnv, world.wpts[i], opt);
-  }
+  for (int i=0; i<world.wpts.size(); i++)
+    gobj.push_back(new GObjWPT(&(world.wpts[i]), opt));
+
+  gobj.set_ref(ref);
+  gobj.set_opt(opt);
+  gobj.draw(im, iPoint(0,0));
+
+  for (GObjComp::iterator i = gobj.begin(); i!=gobj.end(); i++) free(*i);
 
   // clear image outside border
   CairoWrapper cr(im);
