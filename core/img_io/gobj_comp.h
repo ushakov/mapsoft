@@ -27,6 +27,12 @@ public:
     for (i=begin(); i!=end(); i++) (*i)->set_ref(ref);
   }
 
+  void set_opt(const Options & o) {
+    GObjGeo::set_opt(o);
+    std::vector<GObjGeo *>::const_iterator i;
+    for (i=begin(); i!=end(); i++) (*i)->set_opt(o);
+  }
+
   void refresh() {
     std::vector<GObjGeo *>::const_iterator i;
     for (i=begin(); i!=end(); i++) (*i)->refresh();
