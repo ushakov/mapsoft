@@ -66,7 +66,6 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
   // create g_map
   g_map ref = mk_ref(opt);
   ref.file=filename;
-
   // set map scale from source maps if needed
   if (do_rescale){
     if (world.maps.size()>0){
@@ -95,7 +94,7 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
     }
   }
 
-  // data margin -- only if the range was se from the data bbox
+  // data margin -- only if the range was set from the data bbox
   if (need_marg){
     dRect geom = rect_pump(ref.border.range(), opt.get("data_marg", 0.0));
     ref.border=rect2line(geom);
@@ -127,18 +126,13 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
   // is output image not too large
   iPoint max_image = opt.get("max_image", Point<int>(10000,10000));
   cerr << "Image size: " << geom.w << "x" << geom.h << "\n";
-  if ((geom.w>max_image.x) || (geom.h>max_image.y)){
-     cerr << "Error: image is too large ("
-          << geom.w << "x" << geom.h << ") pixels. "
-          << "You may change max_image option to pass this test.\n";
-    exit(1);
-  }
+  if ((geom.w>max_image.x) || (geom.h>max_image.y))
+    throw MapsoftErr("O_IMG_TOO_LARGE")
+                    << "Error: image is too large ("
+                    << geom.w << "x" << geom.h << ") pixels. "
+                    << "You may change max_image option to pass this test.\n";
 
-  // create image
-  int bgcolor = opt.get("bgcolor", 0xFFFFFFFF);
-  iImage im(geom.w,geom.h, bgcolor);
-
-  // draw
+  // create gobj
   GObjComp gobj;
 
   srtm3 s(opt.get<string>("srtm_dir"));
@@ -158,21 +152,68 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
 
   gobj.set_ref(ref);
   gobj.set_opt(opt);
-  gobj.draw(im, iPoint(0,0));
 
+
+  // draw
+  int bgcolor = opt.get("bgcolor", 0xFFFFFFFF);
+  int tmap    = opt.exists("tiles");
+  int tsize   = 256;
+
+  if (!tmap){
+    iImage im(geom.w,geom.h, bgcolor);
+    gobj.draw(im, iPoint(0,0));
+    if (ref.border.size()>2){
+      // clear image outside border
+      CairoWrapper cr(im);
+      cr->render_border(geom, ref.border, bgcolor);
+    }
+    image_r::save(im, filename, opt);
+  }
+  else{
+    string fname(filename);
+    string dir = fname;
+    string ext = ".jpg";
+    int pos    = fname.rfind('.');
+    if ((pos>0) && (pos < fname.length()-1)){
+       ext = fname.substr(pos);
+       dir = fname.substr(0, pos);
+    }
+    int res = mkdir(dir.c_str(), 0755);
+
+    int my=(geom.h-1)/tsize, mx=(geom.w-1)/tsize;
+    for (int y=0; y<=my; y++){
+      for (int x=0; x<=mx; x++){
+
+        iImage im(tsize, tsize, bgcolor);
+        iPoint org(x*tsize, y*tsize);
+        gobj.draw(im, org);
+        //if (ref.border.size()>2){
+        //  // clear image outside border
+        //  CairoWrapper cr(im);
+        //  cr->render_border(geom, ref.border-org, bgcolor);
+        //}
+
+        int wx=0,wy=0;
+        //if (mx > 1) wx = (int) floor (log (1.0 * mx) / log (10.0)) + 1;
+        //if (my > 1) wy = (int) floor (log (1.0 * my) / log (10.0)) + 1;
+
+        ostringstream fn;
+        fn << dir << "/"
+           << setw(wx) << setfill('0') << x << "_"
+           << setw(wy) << setfill('0') << y << ext;
+        cout << "Writing " << fn.str() << "\n";
+        image_r::save(im, fn.str().c_str(), opt);
+      }
+    }
+  }
+
+  // clear gobj
   for (GObjComp::iterator i = gobj.begin(); i!=gobj.end(); i++) free(*i);
 
-  // clear image outside border
-  CairoWrapper cr(im);
-
-  if (ref.border.size()>2)
-    cr->render_border(geom, ref.border, bgcolor);
-
-  image_r::save(im, filename, opt);
 
   // writing html map if needed
   string htmfile = opt.get<string>("htm");
-  if (htmfile != ""){
+  if (!tmap && htmfile != ""){
     ofstream f(htmfile.c_str());
     f << "<html><body>\n"
       << "<img border=\"0\" "
@@ -200,7 +241,7 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
 
   // writing fig if needed
   string figfile = opt.get<string>("fig");
-  if (figfile != ""){
+  if (!tmap && figfile != ""){
     fig::fig_world W;
     double dpi=opt.get<double>("dpi");
     g_map fig_ref= ref * 2.54 / dpi * fig::cm2fig;
@@ -222,7 +263,7 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
 
   // writing map if needed
   string mapfile = opt.get<string>("map");
-  if (mapfile != ""){
+  if (!tmap && mapfile != ""){
     /* simplify border */
     ref.border.push_back(*ref.border.begin());
     ref.border=generalize(ref.border,1,-1); // 1pt accuracy

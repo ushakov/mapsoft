@@ -129,22 +129,20 @@ CairoExtra::render_text(const char *text, dPoint pos, double ang,
 void
 CairoExtra::render_border(const iRect & range, const dLine & brd, const int bgcolor){
   // make border path
-  dLine::const_iterator p;
-  set_fill_rule(Cairo::FILL_RULE_EVEN_ODD);
   mkpath(brd);
-  mkpath(rect2line(rect_pump(range,1)));
-
-  // erase everything outside border
-  if (bgcolor==0)  set_operator(Cairo::OPERATOR_CLEAR);
-  else  set_color(bgcolor);
-  fill_preserve();
-
   if (bgcolor!=0){
     // draw border
     set_source_rgb(0,0,0);
     set_line_width(2);
-    stroke();
+    stroke_preserve();
   }
+
+  // erase everything outside border
+  mkpath(rect2line(rect_pump(range,1)));
+  set_fill_rule(Cairo::FILL_RULE_EVEN_ODD);
+  if (bgcolor==0)  set_operator(Cairo::OPERATOR_CLEAR);
+  else  set_color(bgcolor);
+  fill();
 }
 
 Cairo::RefPtr<Cairo::SurfacePattern>

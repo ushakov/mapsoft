@@ -70,6 +70,7 @@ static struct ext_option options[] = {
   {"data_marg",     1,  0, OPT3, "margins around data (works only if no geometry set), pixels"},
   {"jpeg_quality",  1,  0, OPT3, "set jpeg quality"},
   {"bgcolor",       1,  0, OPT3, "backgound color"},
+  {"tiles",         0,  0, OPT3, "write tiles"},
 
   {"srtm_mode" ,    1,  0, OPT4, "srtm mode: normal, slopes"},
   {"srtm_cnt_step", 1,  0, OPT4, "contour step, m"},
