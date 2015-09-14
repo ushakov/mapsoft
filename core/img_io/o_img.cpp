@@ -66,6 +66,7 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
   // create g_map
   g_map ref = mk_ref(opt);
   ref.file=filename;
+
   // set map scale from source maps if needed
   if (do_rescale){
     if (world.maps.size()>0){
@@ -84,12 +85,12 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
           if (maxscale<sy) maxscale = sy;
         }
       }
-      ref*=maxscale;
+      ref*=maxscale * opt.get("mag", 1.0);
     }
     else if (opt.exists("srtm_mode")){
       double mpp = 6380000.0 * M_PI /180/1200;
       double dpi = rscale/mpp / 100.0 * 2.54;
-      double sc=dpi/opt.get("dpi", 100.0);
+      double sc=dpi/opt.get("dpi", 100.0) * opt.get("mag", 1.0);
       ref*=sc;
     }
   }
