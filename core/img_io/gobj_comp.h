@@ -17,8 +17,13 @@ public:
   }
 
   int draw(iImage &img, const iPoint &origin){
+    int res = GOBJ_FILL_NONE;
     std::vector<GObjGeo *>::const_iterator i;
-    for (i=begin(); i!=end(); i++) (*i)->draw(img, origin);
+    for (i=begin(); i!=end(); i++){
+      int res1 = (*i)->draw(img, origin);
+      if (res1 != GOBJ_FILL_NONE && res!=GOBJ_FILL_ALL) res=res1;
+    }
+    return res;
   }
 
   void set_ref(const g_map & ref) {
