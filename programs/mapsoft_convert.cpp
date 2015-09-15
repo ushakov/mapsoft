@@ -71,6 +71,8 @@ static struct ext_option options[] = {
   {"jpeg_quality",  1,  0, OPT3, "set jpeg quality"},
   {"bgcolor",       1,  0, OPT3, "backgound color"},
   {"tiles",         0,  0, OPT3, "write tiles"},
+  {"tiles_origin",  1,  0, OPT3, "origin of tiles \"image\" (default) or \"proj\""},
+  {"tiles_skipempty",0, 0, OPT3, "skip empty tiles"},
 
   {"srtm_mode" ,    1,  0, OPT4, "srtm mode: normal, slopes"},
   {"srtm_cnt_step", 1,  0, OPT4, "contour step, m"},

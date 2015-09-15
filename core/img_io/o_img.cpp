@@ -156,9 +156,10 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
 
 
   // draw
-  int bgcolor = opt.get("bgcolor", 0xFFFFFFFF);
-  int tmap    = opt.exists("tiles");
-  int tsize   = 256;
+  int bgcolor   = opt.get("bgcolor", 0xFFFFFFFF);
+  int tmap      = opt.exists("tiles");
+  int skipempty = opt.exists("tiles_skipempty");
+  int tsize     = 256;
 
   if (!tmap){
     iImage im(geom.w,geom.h, bgcolor);
@@ -170,7 +171,7 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
     }
     image_r::save(im, filename, opt);
   }
-  else{
+  else{ // tiles
     string fname(filename);
     string dir = fname;
     string ext = ".jpg";
@@ -181,13 +182,22 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
     }
     int res = mkdir(dir.c_str(), 0755);
 
-    int my=(geom.h-1)/tsize, mx=(geom.w-1)/tsize;
-    for (int y=0; y<=my; y++){
-      for (int x=0; x<=mx; x++){
+    iRect trect = tiles_on_rect(geom,tsize);
+    iPoint p0(0,0);
+    if (opt.get<string>("tiles_origin", "image") == string("proj")){
+      dPoint dp0(opt.get("lon0", 0), 0);
+      gobj.cnv.bck(dp0);
+      p0 = iPoint(dp0);
+      trect = tiles_on_rect(geom-p0,tsize);
+    }
+
+    for (int y=trect.TLC().y; y<=trect.BRC().y; y++){
+      for (int x=trect.TLC().x; x<=trect.BRC().x; x++){
 
         iImage im(tsize, tsize, bgcolor);
-        iPoint org(x*tsize, y*tsize);
-        gobj.draw(im, org);
+        iPoint org = iPoint(x,y)*tsize + p0;
+        int res = gobj.draw(im, org);
+        if (res == GOBJ_FILL_NONE && skipempty) continue;
         //if (ref.border.size()>2){
         //  // clear image outside border
         //  CairoWrapper cr(im);
