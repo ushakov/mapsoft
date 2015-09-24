@@ -1,0 +1,45 @@
+#!/bin/sh -efu
+
+mkdir -p -- "osm"
+for z in $(seq 1 17); do
+  f="osm/$z"
+  ts=256
+  tc="$((2**$z))" # max tile number + 1
+  fmt="%dx%d.png"
+
+  wg=20037508.342789244
+  wr=$(($ts*$tc))
+
+cat > ${f%.txt}.xml << EOF
+<maps>
+  <map file="$z" comm="osm $z" map_proj="google"
+       tile_size="$ts" tile_fmt="$fmt" border="0,0,$wr,0,$wr,$wr,0,$wr">
+    <pt proj="google" x="-$wg" y="$wg"  xr=0 yr=0/>
+    <pt proj="google" x="$wg"  y="$wg"  xr=$wr yr=0/>
+    <pt proj="google" x="$wg"  y="-$wg" xr=$wr yr=$wr/>
+    <pt proj="google" x="-$wg" y="-$wg" xr=0 yr=$wr/>
+  </map>
+</maps>
+EOF
+
+mkdir -p -- "$f"
+
+#https://khms1.google.com/kh/v=113&src=app&x=3&y=3&z=3&s=Gali
+
+cat > "$f/download" << EOF
+#!/bin/sh -efu
+
+z=$z
+nn="\$(head -c1 /dev/urandom | od -tu1 -An)" # 0..255
+abc=a
+if [ "\$nn" -gt 85 ]; then abc=b; fi
+if [ "\$nn" -gt 170 ]; then abc=c; fi
+url="http://\${abc}.tile.openstreetmap.org/\$z/\$1/\$2.png";
+
+f=\$(printf "%dx%d.png" "\$1" "\$2")
+echo "Downloading \$f"
+wget "\$url" -O "\$f" || rm -f -- "\$f"
+EOF
+chmod 755 "$f/download"
+
+done
