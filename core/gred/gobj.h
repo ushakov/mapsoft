@@ -26,6 +26,7 @@ extern const iRect GOBJ_MAX_RANGE;
 */
 class GObj{
 public:
+  const static int TILE_SIZE = 256; //< size of tiles
 
   GObj() {}
 
