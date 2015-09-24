@@ -197,7 +197,7 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
         iImage im(tsize, tsize, bgcolor);
         iPoint org = iPoint(x,y)*tsize + p0;
         int res = gobj.draw(im, org);
-        if (res == GOBJ_FILL_NONE && skipempty) continue;
+        if (res == GObj::FILL_NONE && skipempty) continue;
         //if (ref.border.size()>2){
         //  // clear image outside border
         //  CairoWrapper cr(im);

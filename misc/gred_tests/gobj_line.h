@@ -201,7 +201,7 @@ public:
 
     iMultiLine & l = cache2.get(r);
     draw_mline(img, origin, l);
-    return (l.size() >0) ? GOBJ_FILL_PART : GOBJ_FILL_NONE;
+    return (l.size() >0) ? GObj::FILL_PART : GObj::FILL_NONE;
   }
 
   iRect range() const{

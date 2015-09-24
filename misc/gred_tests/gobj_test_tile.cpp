@@ -10,6 +10,6 @@ GObjTestTile::draw(iImage &img, const iPoint &origin){
     }
   }
   if (slow) usleep(img.w*img.h*10);
-  return GOBJ_FILL_ALL;
+  return GObj::FILL_ALL;
 }
 

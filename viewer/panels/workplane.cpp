@@ -25,14 +25,14 @@ Workplane::draw(iImage &img, const iPoint &origin){
                 if (stop_drawing){
                   stop_drawing=false;
                   draw_mutex.unlock();
-                  return GOBJ_FILL_NONE;
+                  return GObj::FILL_NONE;
                 }
 	    }
 	}
         draw_mutex.unlock();
         // кажется, что когда будет нечто, использующее код возврата,
         // workplane можно будет им заменить! Так что не смотрим, нарисовали ли мы что-нибудь.
-	return GOBJ_FILL_PART;
+	return GObj::FILL_PART;
 }
 
 std::multimap<int, GObjGeo *>::iterator

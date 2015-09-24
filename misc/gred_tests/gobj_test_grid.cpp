@@ -19,6 +19,6 @@ GObjTestGrid::draw(iImage &img, const iPoint &origin){
     }
   }
   if (delay) usleep(delay);
-  return GOBJ_FILL_ALL;
+  return GObj::FILL_ALL;
 }
 

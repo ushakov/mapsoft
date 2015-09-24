@@ -29,7 +29,7 @@ GObjVMAP::draw(iImage &img, const iPoint &org){
   if (W->brd.size()>2) ref.border=cnv.line_bck(W->brd)-org;
   if (ref.border.size()>2 &&
       rect_intersect(iRect(ref.border.range()), img.range()).empty())
-        return GOBJ_FILL_NONE;
+        return GObj::FILL_NONE;
 
   // create Cairo surface and context
   cr.reset_surface(img);
@@ -56,7 +56,7 @@ GObjVMAP::draw(iImage &img, const iPoint &org){
       cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
     render_pulk_grid(grid_step, grid_step, true, ref);
   }
-  return GOBJ_FILL_PART;
+  return GObj::FILL_PART;
 }
 
 void

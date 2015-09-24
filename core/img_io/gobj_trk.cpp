@@ -14,10 +14,10 @@ GObjTRK::draw(iImage & image, const iPoint & origin){
 #endif
   // FIXME - use correct range instead of +110
   if (rect_intersect(myrange, rect_pump(src_rect,110)).empty())
-    return GOBJ_FILL_NONE;
+    return GObj::FILL_NONE;
 
   draw_trk(image, origin, cnv, *data, opt);
-  return GOBJ_FILL_PART;
+  return GObj::FILL_PART;
 }
 
 int

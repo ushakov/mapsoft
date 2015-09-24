@@ -70,8 +70,8 @@ GObjMAP::draw(iImage & image, const iPoint & origin){
 #ifdef DEBUG_LAYER_GEOMAP
   cerr  << "GObjMAP: draw " << src_rect << " my: " << myrange << endl;
 #endif
-  if (rect_intersect(myrange, src_rect).empty()) return GOBJ_FILL_NONE;
-  if ((data == NULL)||(data->size()==0)) return GOBJ_FILL_NONE;
+  if (rect_intersect(myrange, src_rect).empty()) return GObj::FILL_NONE;
+  if ((data == NULL)||(data->size()==0)) return GObj::FILL_NONE;
   int maxscale=32;
   CairoWrapper cr(image);
   cr->set_line_width(1);
@@ -196,7 +196,7 @@ GObjMAP::draw(iImage & image, const iPoint & origin){
 
       }
   }
-  return GOBJ_FILL_PART;
+  return GObj::FILL_PART;
 }
 
 double
@@ -296,8 +296,8 @@ GObjMAP::refresh(){
         borders.push_back(brd);
       }
       else{
-        myrange=GOBJ_MAX_RANGE;
-        borders.push_back(rect2line(GOBJ_MAX_RANGE));
+        myrange=GObj::MAX_RANGE;
+        borders.push_back(rect2line(myrange));
       }
 
       // pump range to include all ref points with some radius

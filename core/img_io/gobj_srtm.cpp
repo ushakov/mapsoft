@@ -17,7 +17,7 @@ GObjSRTM::GObjSRTM(srtm3 *srtm):S(srtm){
 
 int
 GObjSRTM::draw(iImage & image, const iPoint & origin){
-  if (S==NULL) return GOBJ_FILL_NONE;
+  if (S==NULL) return GObj::FILL_NONE;
   iRect src_rect = image.range() + origin;
 
   string mode  = opt.get<string>("srtm_mode", "normal");
@@ -92,6 +92,6 @@ GObjSRTM::draw(iImage & image, const iPoint & origin){
       image.set_na(i,j, c);
     }
   }
-  return GOBJ_FILL_ALL;
+  return GObj::FILL_ALL;
 }
 

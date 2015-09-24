@@ -8,7 +8,7 @@ using namespace std;
 
 int
 GObjSRTMv::draw(iImage & image, const iPoint & origin){
-  if (S==NULL) return GOBJ_FILL_NONE;
+  if (S==NULL) return GObj::FILL_NONE;
   iRect range = image.range() + origin;
 
   int step1 = opt.get<int>("srtm_cnt_step",  10);
@@ -33,6 +33,6 @@ GObjSRTMv::draw(iImage & image, const iPoint & origin){
     cr->stroke();
   }
 
-  return GOBJ_FILL_PART;
+  return GObj::FILL_PART;
 }
 

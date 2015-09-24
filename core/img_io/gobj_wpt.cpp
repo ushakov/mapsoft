@@ -13,10 +13,10 @@ GObjWPT::draw(iImage & image, const iPoint & origin){
   cerr  << "GObjWPT: draw " << src_rect <<  " my: " << myrange << "\n";
 #endif
   if (rect_intersect(rect_pump(myrange,110), src_rect).empty())
-    return GOBJ_FILL_NONE;
+    return GObj::FILL_NONE;
 
   draw_wpt(image, origin, cnv, *data, Options());
-  return GOBJ_FILL_PART;
+  return GObj::FILL_PART;
 }
 
 void

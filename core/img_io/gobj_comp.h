@@ -17,11 +17,11 @@ public:
   }
 
   int draw(iImage &img, const iPoint &origin){
-    int res = GOBJ_FILL_NONE;
+    int res = GObj::FILL_NONE;
     std::vector<GObjGeo *>::const_iterator i;
     for (i=begin(); i!=end(); i++){
       int res1 = (*i)->draw(img, origin);
-      if (res1 != GOBJ_FILL_NONE && res!=GOBJ_FILL_ALL) res=res1;
+      if (res1 != GObj::FILL_NONE && res!=GObj::FILL_ALL) res=res1;
     }
     return res;
   }
