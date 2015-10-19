@@ -25,7 +25,7 @@ GObjGridPulk::draw(iImage & image, const iPoint & origin){
     convs::map2pt cnv1(convs.get(lon0));
 
     dRect rng_pulk = cnv1.bb_frw(rng); // screen -> pulkovo
-    if (isinf(rng_pulk.w) || isinf(rng_pulk.w)) continue;
+    if (std::isinf(rng_pulk.w) || std::isinf(rng_pulk.w)) continue;
     double step = 1000;
     while (rng_pulk.w> step*10 || rng_pulk.h> step*10) step*=10.0;
     while (rng_pulk.w< step/10 || rng_pulk.h< step/10) step/=10.0;

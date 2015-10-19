@@ -47,6 +47,7 @@ if os.environ.has_key('GCCVER'):
    env.Replace (CXX = ("g++-%s" % ver))
 
 env.Append (CCFLAGS=['-O2'])
+env.Append (CCFLAGS='-std=gnu++11')
 
 if ARGUMENTS.get('debug', 0):
 	env.Append (CCFLAGS='-ggdb')
