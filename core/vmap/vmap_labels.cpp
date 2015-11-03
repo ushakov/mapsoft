@@ -44,6 +44,7 @@ join_labels(world & W){
       if ( d < d0){ d0=d; p0=p; l0=l;}
     }
     if (d0 * 100 / W.rscale < label_search_dist1){
+      l0->fsize -= zc.get_label_template(o->type).font_size;
       o->labels.push_back(*l0);
       W.lbuf.erase(l0);
     }
@@ -59,6 +60,7 @@ join_labels(world & W){
             (dist_pt_l(l->ref, *o, p)* 100 / W.rscale < label_search_dist2)) ||
            ((l->text == o->text) &&
             (dist_pt_l(l->pos, *o, p)* 100 / W.rscale < label_search_dist2)) ){
+        l->fsize -= zc.get_label_template(o->type).font_size;
         o->labels.push_back(*l);
         l = W.lbuf.erase(l);
         continue;
@@ -73,6 +75,7 @@ join_labels(world & W){
     l=W.lbuf.begin();
     while (l!=W.lbuf.end()){
       if (dist_pt_l(l->ref, *o, p)* 100 / W.rscale < label_search_dist3){
+        l->fsize -= zc.get_label_template(o->type).font_size;
         o->labels.push_back(*l);
         l = W.lbuf.erase(l);
         continue;
@@ -89,10 +92,12 @@ join_labels(world & W){
 
 void
 split_labels(world & W){
+  zn::zn_conv zc(W.style);
   for (world::iterator o = W.begin(); o!=W.end(); o++){
     for (std::list<lpos>::iterator l=o->labels.begin(); l!=o->labels.end(); l++){
       lpos_full ll;
       ll.lpos::operator=(*l);
+      ll.fsize += zc.get_label_template(o->type).font_size;
       ll.text = o->text;
       dist_pt_l(l->pos, *o, ll.ref);
       W.lbuf.push_back(ll);

@@ -34,15 +34,23 @@ extern const double label_new_dist;
 extern const double default_rscale;
 extern const std::string default_style;
 
+// Label position
 struct lpos {
-  int    dir; // 0: left, 1: center, 2: right
-  double ang; // angle, degrees
+  int    dir;   // 0: left, 1: center, 2: right
+  double ang;   // angle, degrees
+  int  fsize;   // Font size. Before connection to an object it is
+                // an absolute fig size.
+                // After connection it is a correction, 0, -1, +2 etc.
   dPoint pos;
-  bool   hor; // horisontal text
+  bool   hor; // horizontal text (angle is not modified when the map rotates)
   bool operator< (const lpos & o) const;
   lpos();
 };
 
+// Separate label.
+// Used when label is detached from an object
+// Additional fields: Reference point (nearest object point)
+// and label text.
 struct lpos_full : public lpos { // for internal use
   dPoint ref;
   std::string text;

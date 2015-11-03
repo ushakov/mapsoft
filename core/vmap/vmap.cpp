@@ -34,7 +34,7 @@ lpos::operator< (const lpos & o) const{
 }
 
 lpos::lpos(){
-  dir=0; ang=0; hor=true;
+  dir=0; ang=0.0; fsize=0; hor=true;
 }
 
 bool

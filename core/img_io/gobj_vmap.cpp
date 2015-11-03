@@ -879,12 +879,14 @@ GObjVMAP::render_labels(){
         cr->set_color(z->second.txt.pen_color);
       }
 
-      cr->set_fig_font(z->second.txt.font, z->second.txt.font_size, dpi);
-
-      dRect ext=cr->get_text_extents(o->text);
 
       for (std::list<vmap::lpos>::const_iterator
             l=o->labels.begin(); l!=o->labels.end(); l++){
+
+        cr->set_fig_font(z->second.txt.font,
+           z->second.txt.font_size + l->fsize, dpi);
+        dRect ext=cr->get_text_extents(o->text);
+
         dPoint p(l->pos);
         cnv.bck(p); p-=origin;
         cr->save();
