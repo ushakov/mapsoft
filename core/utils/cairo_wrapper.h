@@ -31,11 +31,13 @@ struct CairoExtra : public Cairo::Context {
     );
   }
   void set_color(const int c){
-    Cairo::Context::set_source_rgb(
-      ((c&0xFF0000)>>16)/256.0,
-      ((c&0xFF00)>>8)/256.0,
-       (c&0xFF)/256.0
-    );
+    if (c>>24) set_color_a(c);
+    else
+      Cairo::Context::set_source_rgb(
+        ((c&0xFF0000)>>16)/256.0,
+        ((c&0xFF00)>>8)/256.0,
+         (c&0xFF)/256.0
+      );
   }
 
   // move_to/line_to functions for dPoint arguments

@@ -581,6 +581,9 @@ GObjVMAP::render_objects(){
   const int c_build_green = 0x557F55;
   const int c_build_cnt   = 0x000000;
 
+  const int c_brd         = 0x0000FF;
+  const int c_brdg        = 0x00FF00;
+
   const int c_riv_cnt     = 0xFF6650;
   const int c_riv_fill    = hr? 0xFFCE87:0xFFFF00;
   const int c_kanav       = 0x0060C0;
@@ -655,6 +658,7 @@ GObjVMAP::render_objects(){
 
   //*******************************
 
+
   cr->join_round();
   cr->cap_round();
 
@@ -725,6 +729,14 @@ GObjVMAP::render_objects(){
   render_line_gaz(cnv, 0x28, c_lines, 3); // газопровод
 
   //*******************************
+
+  cr->cap_butt();
+  cr->set_dash(0.5*lw1, 1*lw1);
+  render_line(0x1D, c_brd,  7, 0); // граница большая
+  render_line(0x36, c_brd,  5, 0); // граница малая
+  render_line(0x37, c_brdg, 5, 0); // граница зеленая
+
+  //*******************************
   cr->cap_butt();
   cr->set_dash(5*lw1, 4*lw1); render_line(0x16, 0x0, 0.6, 0); // просека
   cr->set_dash(8*lw1, 5*lw1); render_line(0x1C, 0x0, 1.4, 0); // просека широкая
@@ -745,9 +757,11 @@ GObjVMAP::render_objects(){
   render_line(0x1,  0x0,      1, 10); // автомагистраль - черная середина
   render_line(0xD,  0x0, 3, 10); // маленькая Ж/Д
   render_line(0x27, 0x0, 4, 10); // Ж/Д
-  cr->cap_round();
-  cr->set_dash(6*lw1, 2*lw1, 0.5*lw1, 2*lw1);   render_line(0x1D, c_obr, 0.7, 0); // граница
 
+
+  //*******************************
+
+  cr->cap_round();
   cr->set_dash(2*lw1, 2*lw1); render_line(0x1E, c_obr, 1, 0); // нижний край обрыва
   cr->unset_dash();   render_line_obr(cnv, 0x03, c_obr, 1); // верхний край обрыва
   render_line_zab(cnv, 0x19, c_obr, 1); // забор
@@ -790,10 +804,11 @@ GObjVMAP::render_objects(){
   render_im_in_points(0x6411);
   render_im_in_points(0x6415);
   render_im_in_points(0x640C);
-  render_im_in_points(0x6603);
-  render_im_in_points(0x6606);
-  render_im_in_points(0x6613);
-  render_im_in_points(0x6616);
+  render_im_in_points(0x6601); // пещера
+  render_im_in_points(0x6603); // яма
+  render_im_in_points(0x6606); // охотн
+  render_im_in_points(0x6613); // курган
+  render_im_in_points(0x6616); // скала
   render_img_polygons(0x1A); // крестики на кладбищах
 
 }
