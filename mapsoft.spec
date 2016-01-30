@@ -42,6 +42,11 @@ mapsoft-vmap - programs for working with vector maps
 scons -Q minimal=1
 
 %install
+mkdir -p %buildroot/%_bindir
+mkdir -p %buildroot/%_libdir
+mkdir -p %buildroot/%_mandir/man1
+mkdir -p %buildroot/%_datadir/mapsoft
+mkdir -p %buildroot/%_datadir/xfig/Libraries/
 scons -Q minimal=1 -Q prefix=%buildroot install
 
 %files
