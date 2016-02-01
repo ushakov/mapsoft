@@ -189,7 +189,7 @@ public:
         case 1: p=mapview->panel_trks.get_sel_point(); break;
         case 2: p=mapview->panel_maps.get_sel_point(); break;
       }
-      if (!isnan(p.x)) mapview->goto_wgs(p);
+      if (!std::isnan(p.x)) mapview->goto_wgs(p);
     }
 };
 
