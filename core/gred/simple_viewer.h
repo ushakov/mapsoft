@@ -37,7 +37,7 @@ class SimpleViewer : public Viewer {
     virtual int    get_bgcolor(void) const {return bgcolor;}
 
     virtual iRect range() const {
-      return obj?obj->range():GOBJ_MAX_RANGE;}
+      return obj?obj->range():GObj::MAX_RANGE;}
 
     // draw image from the GObj on the screen
     virtual void draw(const iRect & r);

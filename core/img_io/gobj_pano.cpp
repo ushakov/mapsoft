@@ -199,7 +199,7 @@ GObjPano::xy2geo(const iPoint & pt){
 
 int
 GObjPano::draw(iImage & image, const iPoint & origin){
-  if (!srtm) return GOBJ_FILL_NONE;
+  if (!srtm) return GObj::FILL_NONE;
   double width=get_width();
 
   double h0 = (double)srtm->geth4(p0) + dh; // altitude of observation point
@@ -243,7 +243,7 @@ GObjPano::draw(iImage & image, const iPoint & origin){
       image.set_na(x,y,0xFFBBBB);
   }
 
-  return GOBJ_FILL_ALL;
+  return GObj::FILL_ALL;
 }
 
 

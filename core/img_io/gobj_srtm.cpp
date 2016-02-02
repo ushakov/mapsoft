@@ -8,7 +8,6 @@ using namespace std;
 
 GObjSRTM::GObjSRTM(srtm3 *srtm):S(srtm){
   opt.put<string>("srtm_mode", "normal");
-  opt.put<bool>("srtm_on",  "false");
   opt.put<double>("srtm_cnt_step", 50);
   opt.put<double>("srtm_hmin", 0.0);
   opt.put<double>("srtm_hmax", 5000.0);
@@ -18,7 +17,7 @@ GObjSRTM::GObjSRTM(srtm3 *srtm):S(srtm){
 
 int
 GObjSRTM::draw(iImage & image, const iPoint & origin){
-  if (S==NULL) return GOBJ_FILL_NONE;
+  if (S==NULL) return GObj::FILL_NONE;
   iRect src_rect = image.range() + origin;
 
   string mode  = opt.get<string>("srtm_mode", "normal");
@@ -93,6 +92,6 @@ GObjSRTM::draw(iImage & image, const iPoint & origin){
       image.set_na(i,j, c);
     }
   }
-  return GOBJ_FILL_ALL;
+  return GObj::FILL_ALL;
 }
 

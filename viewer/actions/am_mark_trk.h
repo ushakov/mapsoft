@@ -61,10 +61,13 @@ private:
       cnv.line_bck_p2p(gk_track);
 
       LineDist ld(gk_track);
-      double dist=dlg.get_dist();
+
+      double dist  = dlg.get_dist();
+      double dist0 = dlg.get_dist0()*1000;
+
       while (1){
         dPoint p=ld.pt(); cnv.frw(p);
-        add_wpt (wpt_list.get(), p, ld.dist());
+        add_wpt (wpt_list.get(), p, ld.dist()+dist0);
         if (ld.is_end()) break;
         ld.move_frw(dist*1000);
       }

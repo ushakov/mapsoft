@@ -23,9 +23,9 @@ ocad8_shead::write(FILE * F) const{
 vector<ocad_string>
 ocad8_shead::to_strings() const{
   vector<ocad_string> ret;
-  for (int i=0; i<MIN(ncolors, 256); i++)
+  for (int i=0; i<std::min(ncolors, (ocad_small)256); i++)
     ret.push_back(cols[i].to_string());
-  for (int i=0; i<MIN(ncolsep, MAX_COLSEP); i++)
+  for (int i=0; i<std::min(ncolsep, (ocad_small)MAX_COLSEP); i++)
     ret.push_back(seps[i].to_string(i));
   return ret;
 }
@@ -63,13 +63,13 @@ ocad8_shead::dump(int verb) const{
     << " Y: " << C.f << "/" << C.a << "\n"
     << " K: " << C.f << "/" << C.a << "\n"
     << "colors:\n";
-  for (int i=0; i<MIN(ncolors, 256); i++){
+  for (int i=0; i<std::min(ncolors, (ocad_small)256); i++){
     cout << " ";
     cols[i].dump(cout, ncolsep);
     cout << "\n";
   }
   cout << "color separations:\n";
-  for (int i=0; i<MIN(ncolsep, MAX_COLSEP); i++){
+  for (int i=0; i<std::min(ncolsep, (ocad_small)MAX_COLSEP); i++){
     cout << " ";
     seps[i].dump(cout);
     cout << "\n";

@@ -29,7 +29,8 @@ class DThreadViewer : public SimpleViewer {
     }
 
   private:
-    const static int TILE_SIZE=256;
+    // Rectangle of cached tiles if larger then that of visible tiles by
+    // this value:
     const static int TILE_MARG=2;
 
     std::map<iPoint,iImage> tiles_cache;

@@ -1,6 +1,7 @@
 #include "g_wpt.h"
 #include "geo_convs.h"
 #include "2d/line_utils.h"
+#include "options/m_color.h"
 
 #define ALT_UNDEF 1e27
 #define ALT_CHECK 1e26
@@ -57,8 +58,8 @@ void g_waypoint::parse_from_options (Options const & opt, bool check){
     t = opt.get("time", t);
     symb = opt.get("symb", symb);
     displ = opt.get("displ", displ);
-    color = opt.get("color", color);
-    bgcolor = opt.get("bgcolor", bgcolor);
+    color = opt.get<Color>("color", color);
+    bgcolor = opt.get<Color>("bgcolor", bgcolor);
     map_displ = opt.get("map_displ", map_displ);
     pt_dir = opt.get("pt_dir", pt_dir);
     font_size = opt.get("font_size", font_size);

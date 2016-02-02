@@ -3,6 +3,7 @@
 
 #include "workplane.h"
 #include "img_io/gobj_srtm.h"
+#include "img_io/gobj_srtmv.h"
 #include "img_io/gobj_grid_pulk.h"
 
 
@@ -12,16 +13,21 @@ class PanelMISC: public Gtk::VBox{
 public:
   PanelMISC():
     srtm("",20),
-    gobj_srtm(&srtm)
+    gobj_srtm(&srtm),
+    gobj_srtmv(&srtm)
   {
-    srtm_status = manage(new Gtk::CheckButton("SRTM data"));
+    srtm_status      = manage(new Gtk::CheckButton("SRTM data"));
+    srtmv_status     = manage(new Gtk::CheckButton("SRTM contours"));
     grid_pulk_status = manage(new Gtk::CheckButton("Pulkovo-1942 grid"));
 
     pack_start(*srtm_status, false, true, 0);
+    pack_start(*srtmv_status, false, true, 0);
     pack_start(*grid_pulk_status, false, true, 0);
 
     srtm_status->signal_toggled().connect(
       sigc::mem_fun(this, &PanelMISC::ch_srtm));
+    srtmv_status->signal_toggled().connect(
+      sigc::mem_fun(this, &PanelMISC::ch_srtmv));
     grid_pulk_status->signal_toggled().connect(
       sigc::mem_fun(this, &PanelMISC::ch_grid_pulk));
   }
@@ -51,6 +57,20 @@ public:
     }
   }
 
+  void ch_srtmv(){
+//    if (!mapview->have_reference) return;
+    bool show = srtmv_status->get_active();
+    bool state = wph.exists(&gobj_srtmv);
+    if (state && !show){
+      wph.remove_gobj(&gobj_srtmv);
+      wph.signal_redraw_me().emit(iRect());
+    }
+    else if (!state && show){
+      wph.add_gobj(&gobj_srtmv, 0);
+      wph.refresh_gobj(&gobj_srtmv);
+    }
+  }
+
   void ch_grid_pulk(){
 //    if (!mapview->have_reference) return;
     bool show = grid_pulk_status->get_active();
@@ -67,13 +87,16 @@ public:
 
   void hide_all(){
     srtm_status->set_active(false);
+    srtmv_status->set_active(false);
     grid_pulk_status->set_active(false);
   }
 
   srtm3 srtm;
   GObjSRTM     gobj_srtm;
+  GObjSRTMv    gobj_srtmv;
   GObjGridPulk gobj_grid_pulk;
   Gtk::CheckButton * srtm_status,
+                   * srtmv_status,
                    * grid_pulk_status;
 };
 

@@ -10,7 +10,7 @@
 #include "vmap/zn.h"
 #include "vmap.h"
 
-#define CUR_VER 3.1
+#define CUR_VER 3.2
 
 namespace vmap {
 
@@ -31,7 +31,7 @@ point_write_cnv(dPoint &p){
   p.y = round(p.y*point_scale);
 }
 
-
+// read key-value pair separated by tab char
 int get_kv(const string &s, string &key, string &val){
   if (s=="") return 1;
   int tab=s.find('\t', 0);
@@ -46,15 +46,16 @@ int get_kv(const string &s, string &key, string &val){
   return 0;
 }
 
-// Read label parameters: align, horizontality or angle
+// Read label parameters: align, horizontality or angle, font size
 // v<3.1:  <align:0|1|2> <hor:0|1> <ang>
 // v>=3.1: L|C|R H|<ang>
+// v>=3.2: L|C|R H|<ang> S<fsize>
 
 void get_l_pars(istream & IN, lpos & l, double ver){
   if (ver<3.1){
     IN >> l.dir >> l.hor >> l.ang;
   }
-  else {
+  else { // version 3.1...
     char c;
     IN >> c;
     switch (c){
@@ -72,6 +73,9 @@ void get_l_pars(istream & IN, lpos & l, double ver){
       l.hor=0;
       l.ang=atof(s.c_str());
     }
+    IN >> s; // version 3.2
+    if (s.size() && s[0]=='S')  l.fsize = atoi(s.c_str()+1);
+    else l.fsize = 0;
   }
 }
 
@@ -249,15 +253,22 @@ void print_line(ostream & OUT, const dLine & L){
     n++;
   }
 }
+// write label position
 void print_lpos(ostream & OUT, const lpos & L){
+  // coordinates
   OUT << iPoint(L.pos) << " ";
+  // alignment (left,right,center)
   switch (L.dir){
     case 0: OUT << 'L'; break;
     case 1: OUT << 'C'; break;
     case 2: OUT << 'R'; break;
   }
+  // angle (or H for horizontal labels)
   if (L.hor) OUT << " H";
   else  OUT << " " << setprecision(2) << round(L.ang*100)/100;
+
+  // font size correction
+  if (L.fsize) OUT << " S" << L.fsize;
 }
 
 

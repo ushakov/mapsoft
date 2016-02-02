@@ -17,14 +17,25 @@ public:
   }
 
   int draw(iImage &img, const iPoint &origin){
+    int res = GObj::FILL_NONE;
     std::vector<GObjGeo *>::const_iterator i;
-    for (i=begin(); i!=end(); i++) (*i)->draw(img, origin);
+    for (i=begin(); i!=end(); i++){
+      int res1 = (*i)->draw(img, origin);
+      if (res1 != GObj::FILL_NONE && res!=GObj::FILL_ALL) res=res1;
+    }
+    return res;
   }
 
   void set_ref(const g_map & ref) {
     GObjGeo::set_ref(ref);
     std::vector<GObjGeo *>::const_iterator i;
     for (i=begin(); i!=end(); i++) (*i)->set_ref(ref);
+  }
+
+  void set_opt(const Options & o) {
+    GObjGeo::set_opt(o);
+    std::vector<GObjGeo *>::const_iterator i;
+    for (i=begin(); i!=end(); i++) (*i)->set_opt(o);
   }
 
   void refresh() {

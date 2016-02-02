@@ -14,6 +14,7 @@ Mapview::Mapview () :
     panel_wpts(this),
     panel_trks(this),
     panel_maps(this),
+    panel_vmap(this),
     action_manager(this)
 {
     /// window initialization
@@ -41,6 +42,7 @@ Mapview::Mapview () :
     // Add gobjs from panels. Misc panel have two, below and above others.
     main_gobj.push_back(panel_misc.get_wpd());
     main_gobj.push_back((Workplane *) &panel_maps);
+    main_gobj.push_back((Workplane *) &panel_vmap);
     main_gobj.push_back((Workplane *) &panel_trks);
     main_gobj.push_back((Workplane *) &panel_wpts);
     main_gobj.push_back(panel_misc.get_wph());
@@ -62,19 +64,23 @@ Mapview::Mapview () :
     Gtk::ScrolledWindow * scr_wpt = manage(new Gtk::ScrolledWindow);
     Gtk::ScrolledWindow * scr_trk = manage(new Gtk::ScrolledWindow);
     Gtk::ScrolledWindow * scr_map = manage(new Gtk::ScrolledWindow);
+    Gtk::ScrolledWindow * scr_vmp = manage(new Gtk::ScrolledWindow);
     scr_wpt->add(panel_wpts);
     scr_trk->add(panel_trks);
     scr_map->add(panel_maps);
+    scr_vmp->add(panel_vmap);
     scr_wpt->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     scr_trk->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     scr_map->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    scr_vmp->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     /// append pages to the Notebook
     panels->append_page(*scr_wpt, "WPT");
     panels->append_page(*scr_trk, "TRK");
     panels->append_page(*scr_map, "MAP");
+    panels->append_page(*scr_vmp, "VMAP");
     panels->append_page(panel_misc, "Misc");
     panels->set_scrollable(false);
-    panels->set_size_request(150,-1);
+    panels->set_size_request(200,-1);
 
     /// Build main paned: Viewer + Panels
     Gtk::HPaned * paned = manage(new Gtk::HPaned);
@@ -119,12 +125,20 @@ void
 Mapview::add_files(const list<string> & files) {
   geo_data world;
   list<string>::const_iterator i;
+
+  viewer.start_waiting();
   for (i=files.begin(); i!=files.end(); i++){
     spanel.message("Load " + *i);
-    try {io::in(*i, world);}
+    try {
+      if (io::testext(*i, ".vmap")){
+        add_vmap(vmap::read(i->c_str()), true);
+      }
+      else {
+        io::in(*i, world);
+      }
+    }
     catch (MapsoftErr e) {dlg_err.call(e);}
   }
-  viewer.start_waiting();
   add_world(world, true);
   viewer.stop_waiting();
 }
@@ -188,6 +202,13 @@ Mapview::add_world(const geo_data & world, bool scroll) {
   set_changed();
   if (scroll && (p.x<1e3)) goto_wgs(p);
 }
+
+void
+Mapview::add_vmap(const vmap::world & W, bool scroll) {
+  boost::shared_ptr<vmap::world> data(new vmap::world(W));
+  panel_vmap.add(data);
+}
+
 
 void
 Mapview::clear_world() {

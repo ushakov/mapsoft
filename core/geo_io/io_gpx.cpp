@@ -11,27 +11,6 @@ namespace gpx {
 
 using namespace std;
 
-// GPX time: 2011-09-27T18:50:03Z
-
-Time
-time_gpx2s(const char * str){
-  return boost::lexical_cast<Time>(str);
-}
-string
-time_s2gpx(const Time & t){
-  ostringstream s;
-  struct tm * ts = localtime(&t.value);
-  if (ts == NULL) { time_t t = 0;  ts = localtime(&t);}
-  s << std::setfill('0')
-    << std::setw(4) << ts->tm_year+1900 << '-'
-    << std::setw(2) << ts->tm_mon+1 << '-'
-    << std::setw(2) << ts->tm_mday  << 'T'
-    << std::setw(2) << ts->tm_hour  << ':'
-    << std::setw(2) << ts->tm_min   << ':'
-    << std::setw(2) << ts->tm_sec << 'Z';
-  return s.str();
-}
-
 void
 write_file (const char* filename, const geo_data & world, const Options & opt){
   ofstream f(filename);
@@ -55,7 +34,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
          << "   <ele>"  << wp->z << "</ele>" << endl
          << "   <name>" << wp->name << "</name>" << endl
          << "   <cmt>"  << wp->comm << "</cmt>" << endl
-         << "   <time>" << time_s2gpx(wp->t) << "</time>" << endl
+         << "   <time>" << wp->t.gpx_str() << "</time>" << endl
          << "</wpt>" << endl;
     }
   }
@@ -74,7 +53,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
         << "      <trkpt lat=\"" << tp->y << "\" lon=\"" << tp->x << "\">" << endl
         << setprecision(1)
         << "        <ele>" << tp->z << "</ele>" << endl
-        << "        <time>" << time_s2gpx(tp->t) << "</time>" << endl
+        << "        <time>" << tp->t.gpx_str() << "</time>" << endl
         << "      </trkpt>" << endl;
     }
     f << "    </trkseg>" << endl;
@@ -136,7 +115,7 @@ read_wpt_node(xmlTextReaderPtr reader, geo_data & world){
       if (is_comm)
         wpt.comm = GETVAL;
       if (is_time)
-        wpt.t = time_gpx2s(GETVAL);
+        wpt.t = boost::lexical_cast<Time>(GETVAL);
     }
 
     else if (NAMECMP("wpt") && (type == TYPE_ELEM_END)){
@@ -179,7 +158,7 @@ read_trkpt_node(xmlTextReaderPtr reader, g_track & trk, bool start){
       if (is_ele)
         pt.z = atof(GETVAL);
       if (is_time)
-        pt.t = time_gpx2s(GETVAL);
+        pt.t = boost::lexical_cast<Time>(GETVAL);
     }
 
     else if (NAMECMP("trkpt") && (type == TYPE_ELEM_END)){

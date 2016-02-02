@@ -10,6 +10,8 @@ if ($#ARGV<1){
   exit 1;
 }
 
+my $TZONE=+7;
+
 my $out = $ARGV[$#ARGV];
 open O, "> $out" or die "can't open $out";
 
@@ -83,6 +85,8 @@ foreach  (<I>){
 
   s/^\s+//;
   my ($x, $y, $hs, $ht, $t) = split;
+
+  $t += 3600*$TZONE;
 
   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($t);
   $mon++;

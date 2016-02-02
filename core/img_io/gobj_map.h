@@ -13,6 +13,10 @@
 
 /// Растровый слой для показа привязанных карт.
 
+#define SHOW_MAP 1
+#define SHOW_BRD 2
+#define SHOW_REF 4
+
 class GObjMAP
 #ifndef SWIG
   : public GObjGeo
@@ -39,10 +43,10 @@ public:
   void refresh(); /// Refresh layer.
 
   /// Get pointer to the data.
-  g_map_list * get_data() const;
+  g_map_list * get_data() const {return data;}
 
   /// Get pointer to the n-th map.
-  g_map * get_map(const int n) const;
+  g_map * get_map(const int n) const {return &(*data)[n];}
 
   /// Find map
   int find_map(const iPoint & pt) const;
@@ -51,18 +55,18 @@ public:
   /// Show/hide reference points and border for a n-th map
   /// (n=-1 for all maps)
   void status_set(int mask, bool val=true, const g_map * m = NULL);
-  void show_ref(const g_map * m = NULL);
-  void hide_ref(const g_map * m = NULL);
-  void show_brd(const g_map * m = NULL);
-  void hide_brd(const g_map * m = NULL);
-  void show_map(const g_map * m = NULL);
-  void hide_map(const g_map * m = NULL);
+  void show_ref(const g_map * m = NULL) {status_set(SHOW_REF, true,  m);}
+  void hide_ref(const g_map * m = NULL) {status_set(SHOW_REF, false, m);}
+  void show_brd(const g_map * m = NULL) {status_set(SHOW_BRD, true,  m);}
+  void hide_brd(const g_map * m = NULL) {status_set(SHOW_BRD, false, m);}
+  void show_map(const g_map * m = NULL) {status_set(SHOW_MAP, true,  m);}
+  void hide_map(const g_map * m = NULL) {status_set(SHOW_MAP, false, m);}
 
   /// Draw on image.
   int draw(iImage & image, const iPoint & origin);
 
   /// Get layer range.
-  iRect range() const;
+  iRect range() const {return myrange;}
 
   /// Write to a file picture with map borders in fig format.
   void dump_maps(const char *file);

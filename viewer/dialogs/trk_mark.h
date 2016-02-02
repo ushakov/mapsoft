@@ -7,7 +7,8 @@
 class DlgMarkTrk : public Gtk::Dialog{
     Gtk::CheckButton *rev;
     Gtk::SpinButton *dist;
-    Gtk::Adjustment dist_adj;
+    Gtk::SpinButton *dist0;
+    Gtk::Adjustment dist_adj, dist0_adj;
 
   public:
     DlgMarkTrk();
@@ -15,6 +16,7 @@ class DlgMarkTrk : public Gtk::Dialog{
     bool    get_rev() const;
     void    set_rev(const bool r);
     double  get_dist() const;
+    double  get_dist0() const;
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef VMAP_RENDERER
-#define VMAP_RENDERER
+#ifndef GOBJ_VMAP
+#define GOBJ_VMAP
 
 #include <string>
 #include <iostream>
@@ -22,14 +22,7 @@
 #define LABEL_STYLE1 1
 #define LABEL_STYLE2 2
 
-/* Render border and fill margins around map.
-   Options (default):
-     bgcolor (0xFFFFFF)
-     transp_margins (false)
-*/
-void render_border(iImage & img, const dLine & brd, const Options & O);
-
-class VMAPRenderer : public GObjGeo{
+class GObjVMAP : public GObjGeo{
 private:
 
   CairoWrapper cr;
@@ -38,39 +31,28 @@ private:
 
 
   double       pics_dpi;
-  std::string  pics_dir;
   double       dpi, lw1;
   int          bgcolor;
   bool         cntrs, use_aa;
   int          label_style;
   double       label_marg;
+  double       grid_step;
+  bool         transp;
+  int          grid_labels;
+  dPoint       origin;
 
 public:
 
   /***/
+  GObjVMAP(vmap::world * _W, const Options & O = Options());
 
-  int draw(iImage &img, const iPoint &origin){
-    cr.reset_surface(img);
-    render_objects(cntrs);
-//    double grid_step = O.get<double>("grid", 0);
-//    double grid_step = 0;
-//    if (grid_step>0){
-//      if (ref.map_proj != Proj("tmerc"))
-//        cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
-//      R.render_pulk_grid(grid_step, grid_step, false, ref);
-//    }
-    render_labels();
-
-  }
-
+  int draw(iImage &img, const iPoint &origin);
+  vmap::world * get_data() const {return W;}
 
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);
 
-  VMAPRenderer(vmap::world * _W, iImage & img,
-    const Options & O = Options());
-
-  void render_objects(const bool draw_contours=true);
+  void render_objects();
   void render_holes(Conv & cnv);
 
   // place image in the center of polygons
@@ -87,8 +69,6 @@ public:
 
   void  render_line(int type, int col, double th, double curve_l=0);
   void  render_points(int type, int col, double th);
-
-
 
   // paths for bridge sign
   void mkbrpath1(const vmap::object & o);
@@ -117,10 +97,6 @@ public:
   void render_grid_label(double c, double val, bool horiz, const dLine & border);
 
   void render_labels();
-
-  void render_text(const char *text, dPoint pos, double ang=0,
-         int color=0, int fig_font=18, int font_size=10, int hdir=0, int vdir=0);
-
 
   // functions for drawing contours
 

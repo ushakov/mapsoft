@@ -29,6 +29,7 @@ struct Color:
   bool operator<  (const Color & t) const { return value < t.value; }
   bool operator== (const Color & t) const { return value == t.value; }
   operator std::string () const;
+  operator int () const {return value;}
 };
 
 std::ostream & operator<< (std::ostream & s, const Color & t);

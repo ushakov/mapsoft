@@ -53,8 +53,9 @@ read(const fig::fig_world & F){
       lpos_full l;
       l.pos = (*i)[0]; cnv.frw(l.pos);
       l.ref = i->opts.get("RefPt", l.pos); cnv.frw(l.ref);
-      l.dir  = i->sub_type;
-      l.text = i->text;
+      l.dir   = i->sub_type;
+      l.fsize = i->font_size; // now it is absolute value
+      l.text  = i->text;
       if (i->angle!=0){
         // angle is inverted becouse of y inversion
         l.ang = -cnv.angd_frw((*i)[0], 180/M_PI*i->angle, 1000);
@@ -241,7 +242,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
         F.insert(F.end(), tmp.begin(), tmp.end());
       }
     }
-    // labels
+    // labels connected to the object
     if (keep_labels || (o->text == "")) continue;
     std::list<lpos>::const_iterator l;
     for (l=o->labels.begin(); l!=o->labels.end(); l++){
@@ -258,6 +259,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
         txt.text=o->text;
         txt.sub_type=l->dir;
         txt.angle=M_PI/180*angle;
+        txt.font_size += l->fsize;
         txt.push_back(pos);
         txt.opts.put<iPoint>("RefPt", ref);
         txt.opts.put<string>("MapType", "label");
@@ -274,7 +276,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
       F.push_back(txt);
     }
   }
-  // TODO: write lbuf!
+  // TODO: write detached labels (lbuf)!
   return 1;
 }
 

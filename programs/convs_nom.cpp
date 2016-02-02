@@ -15,6 +15,7 @@ void usage(){
        << "       convs_nom -c <name> -- map center\n"
        << "       convs_nom -s <name> x_shift y_shift -- adjecent map\n"
        << "       convs_nom -S <name> <rscale> -- maps of different scale\n"
+       << "       convs_nom -t <name> <range>  -- check if the map touches the range\n"
        << "\n"
   ;
   exit(1);
@@ -60,6 +61,11 @@ int main(int argc, char** argv){
       cout << *i << "\n";
     }
     exit (0);
+  }
+  else if ((argc == 4) && (strcmp(argv[1], "-t") == 0)){
+    dRect r1 = nom_to_range(argv[2]);
+    dRect r2 = boost::lexical_cast<dRect>(argv[3]);
+    exit(rect_intersect(r1,r2).empty());
   }
   usage();
   exit (1);

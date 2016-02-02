@@ -88,7 +88,7 @@ GObjGridPulk::draw(iImage & image, const iPoint & origin){
 
   }
 
-  return GOBJ_FILL_PART;
+  return GObj::FILL_PART;
 }
 
 

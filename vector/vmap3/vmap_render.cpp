@@ -1,4 +1,4 @@
-#include "vmap_renderer.h"
+#include "img_io/gobj_vmap.h"
 #include "options/m_getopt.h"
 #include "options/m_time.h"
 #include "geo/geo_refs.h"
@@ -150,40 +150,20 @@ main(int argc, char* argv[]){
   convs::map2wgs cnv(ref);
   if (W.size() == 0) cerr << "warning: no objects\n";
 
-  VMAPRenderer R(&W, img, O);
+  GObjVMAP R(&W, O);
+
   R.set_ref(ref);
+  R.draw(img, dPoint(0,0));
 
-  R.render_objects(O.get<bool>("contours", true));
-
-  double grid_step = O.get<double>("grid", 0);
-  if (grid_step>0){
-    if (ref.map_proj != Proj("tmerc"))
-      cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
-    R.render_pulk_grid(grid_step, grid_step, false, ref);
-  }
-
-  R.render_labels();
-
-  if (W.brd.size()>2) ref.border=cnv.line_bck(W.brd);
-  if (ref.border.size()>2) render_border(img, ref.border, O);
-
-  // draw grid labels after labels
-  if ((grid_step>0) && grid_labels){
-    if (ref.map_proj != Proj("tmerc"))
-      cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
-    R.render_pulk_grid(grid_step, grid_step, true, ref);
-  }
-
+  CairoWrapper cr(img);
   if (O.get<int>("draw_name", 0))
-    R.render_text(W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, 0, 2);
-
+    cr->render_text(W.name.c_str(), dPoint(dpi/5,dpi/15), 0, 0, 18, 14, dpi, 0, 2);
   if (O.get<int>("draw_date", 0)){
     Time t; t.set_current();
-    R.render_text(t.date_str().c_str(), dPoint(dpi/30,dpi), -M_PI/2, 0, 18, 10, 2, 2);
+    cr->render_text(t.date_str().c_str(), dPoint(dpi/30,dpi), -M_PI/2, 0, 18, 10, dpi, 2, 2);
   }
-
   if (O.get<string>("draw_text") != ""){
-    R.render_text(O.get<string>("draw_text").c_str(), dPoint(dpi/5,-dpi/30), 0, 0, 18, 10, 0, 0);
+    cr->render_text(O.get<string>("draw_text").c_str(), dPoint(dpi/5,rng.h-dpi/30), 0, 0, 18, 10, dpi, 0, 0);
   }
 
   //*******************************

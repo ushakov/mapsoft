@@ -22,21 +22,20 @@ public:
       myrange = iRect(rect_pump(cnv.bb_bck(data->range()), 1.0));} 
   int draw(iImage & image, const iPoint & origin); /// Draw on image.
 
-  int find_trackpoint (iPoint pt, int radius = 3);
-  std::vector<int> find_trackpoints (const iRect & r);
-
+  int find_trackpoint (dPoint pt, double radius = 3.0);
+  std::vector<int> find_trackpoints (const dRect & r);
   // Поиск трека. Находится сегмент, в который тыкают, возвращается
   // первая точка сегмента (0..size-2).
-  int find_track (iPoint pt, int radius = 3);
+  int find_track (dPoint pt, double radius = 3.0);
 
   /// Get pointer to the data object.
-  g_track * get_data() const;
+  g_track * get_data() const {return data;}
 
   /// Get pointer to the n-th point.
-  g_trackpoint * get_pt(const int n) const;
+  g_trackpoint * get_pt(const int n) const {return &(*data)[n];}
 
   /// Get layer range.
-  iRect range() const;
+  iRect range() const {return myrange;}
 };
 
 #endif

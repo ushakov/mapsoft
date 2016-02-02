@@ -9,10 +9,6 @@
 
 using namespace std;
 
-#define SHOW_MAP 1
-#define SHOW_BRD 2
-#define SHOW_REF 4
-
 GObjMAP::GObjMAP(g_map_list *_data, const Options & opt) :
       data(_data), image_cache(4){
   refresh();
@@ -33,16 +29,6 @@ GObjMAP::get_myref() const {
   }
   // else return some simple ref
   return GObjGeo::get_myref();
-}
-
-g_map_list *
-GObjMAP::get_data() const{
-  return data;
-}
-
-g_map *
-GObjMAP::get_map(const int n) const{
-  return &(*data)[n];
 }
 
 int
@@ -76,19 +62,6 @@ GObjMAP::status_set(int mask, bool val, const g_map * m){
   }
 }
 
-void
-GObjMAP::show_ref(const g_map * m){ status_set(SHOW_REF, true,  m); }
-void
-GObjMAP::hide_ref(const g_map * m){ status_set(SHOW_REF, false, m); }
-void
-GObjMAP::show_brd(const g_map * m){ status_set(SHOW_BRD, true,  m); }
-void
-GObjMAP::hide_brd(const g_map * m){ status_set(SHOW_BRD, false, m); }
-void
-GObjMAP::show_map(const g_map * m){ status_set(SHOW_MAP, true,  m); }
-void
-GObjMAP::hide_map(const g_map * m){ status_set(SHOW_MAP, false, m); }
-
 int
 GObjMAP::draw(iImage & image, const iPoint & origin){
   iRect src_rect = image.range() + origin;
@@ -97,8 +70,8 @@ GObjMAP::draw(iImage & image, const iPoint & origin){
 #ifdef DEBUG_LAYER_GEOMAP
   cerr  << "GObjMAP: draw " << src_rect << " my: " << myrange << endl;
 #endif
-  if (rect_intersect(myrange, src_rect).empty()) return GOBJ_FILL_NONE;
-  if ((data == NULL)||(data->size()==0)) return GOBJ_FILL_NONE;
+  if (rect_intersect(myrange, src_rect).empty()) return GObj::FILL_NONE;
+  if ((data == NULL)||(data->size()==0)) return GObj::FILL_NONE;
   int maxscale=32;
   CairoWrapper cr(image);
   cr->set_line_width(1);
@@ -223,12 +196,7 @@ GObjMAP::draw(iImage & image, const iPoint & origin){
 
       }
   }
-  return GOBJ_FILL_PART;
-}
-
-iRect
-GObjMAP::range() const{
-  return myrange;
+  return GObj::FILL_PART;
 }
 
 double
@@ -328,8 +296,8 @@ GObjMAP::refresh(){
         borders.push_back(brd);
       }
       else{
-        myrange=GOBJ_MAX_RANGE;
-        borders.push_back(rect2line(GOBJ_MAX_RANGE));
+        myrange=GObj::MAX_RANGE;
+        borders.push_back(rect2line(myrange));
       }
 
       // pump range to include all ref points with some radius

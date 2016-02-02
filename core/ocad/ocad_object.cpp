@@ -99,7 +99,7 @@ ocad_object::txt_blocks(const string & txt) const{
 void
 ocad_object::write_text(const string & txt, FILE *F, int limit) const {
   int n=txt_blocks(txt);
-  if (limit>=0) n=MIN(limit, n); // TODO: this can break unicode letters!
+  if (limit>=0) n=std::min(limit, n); // TODO: this can break unicode letters!
   if (n){
     char *buf = new char [n*8];
     memset(buf, 0, n*8);
@@ -113,7 +113,7 @@ ocad_object::write_text(const string & txt, FILE *F, int limit) const {
 void
 ocad_object::write_coords(FILE *F, int limit) const{
   int n = coords.size();
-  if (limit>=0) n=MIN(limit, n);
+  if (limit>=0) n=std::min(limit, n);
   if (n){
     ocad_coord * buf = new ocad_coord[n];
     memset(buf, 0, n*8);

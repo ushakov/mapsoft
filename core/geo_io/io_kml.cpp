@@ -56,13 +56,16 @@ void write_file (const char* filename, const geo_data & world, const Options & o
     f << "    <description><![CDATA[" << world.trks[i].comm << "]]></description>" << endl;
     f << "    <MultiGeometry>" << endl;
     g_track::const_iterator tp;
+    string linename;
+
     for (tp = world.trks[i].begin(); tp != world.trks[i].end(); ++tp) {
+      linename = world.trks[i].type==trkType("closed")? "Polygon":"LineString";
       if (tp->start || tp == world.trks[i].begin()) {
         if (tp != world.trks[i].begin()) {
           f << "        </coordinates>" << endl;
-          f << "      </LineString>" << endl;
+          f << "      </" << linename << ">" << endl;
         }
-        f << "      <LineString>" << endl;
+        f << "      <" << linename << ">" << endl;
         f << "        <tessellate>1</tessellate>" << endl;
         f << "        <coordinates>" << endl;
       }
@@ -71,7 +74,7 @@ void write_file (const char* filename, const geo_data & world, const Options & o
         <<  setprecision(1) << tp->z << endl;
     }
     f << "        </coordinates>" << endl;
-    f << "      </LineString>" << endl;
+    f << "      </" << linename << ">" << endl;
     f << "    </MultiGeometry>" << endl;
     f << "  </Placemark>" << endl;
   }
@@ -194,6 +197,56 @@ read_linestring_node(xmlTextReaderPtr reader, g_track & T){
   return ret;
 }
 
+/* same as Linestring, but for closed lines */
+int
+read_polygon_node(xmlTextReaderPtr reader, g_track & T){
+  int ret=1;
+  T.type=trkType("closed");
+
+  while(1){
+    ret =xmlTextReaderRead(reader);
+    if (ret != 1) break;
+
+    const xmlChar *name = xmlTextReaderConstName(reader);
+    int type = xmlTextReaderNodeType(reader);
+
+    if (type == TYPE_SWS) continue;
+    else if (NAMECMP("tessellate") && (type == TYPE_ELEM)){
+      string str;
+      ret=read_text_node(reader, "tessellate", str);
+      if (ret != 1) break;
+    }
+    else if (NAMECMP("coordinates") && (type == TYPE_ELEM)){
+      string str;
+      ret=read_text_node(reader, "coordinates", str);
+      if (ret != 1) break;
+      char s1,s2;
+      istringstream s(str);
+      g_trackpoint tp;
+      tp.start=true;
+      while (!s.eof()){
+        s >> std::ws >> tp.x >> std::ws >> s1 >>
+             std::ws >> tp.y >> std::ws >> s2 >>
+             std::ws >> tp.z >> std::ws;
+        if (s1!=',' || s2!=','){
+          cerr << "Warning: Coord error\n";
+          break;
+        }
+        T.push_back(tp);
+        tp.start=false;
+      }
+    }
+    else if (NAMECMP("Polygon") && (type == TYPE_ELEM_END)){
+      break;
+    }
+    else {
+      cerr << "Warning: Unknown node \"" << name << "\" in Polygon (type: " << type << ")\n";
+    }
+  }
+  return ret;
+}
+
+
 int
 read_gx_track_node(xmlTextReaderPtr reader, g_track & T){
   int ret=1;
@@ -246,6 +299,10 @@ read_multigeometry_node(xmlTextReaderPtr reader, g_track & T){
     if (type == TYPE_SWS) continue;
     else if (NAMECMP("LineString") && (type == TYPE_ELEM)){
       ret=read_linestring_node(reader, T);
+      if (ret != 1) break;
+    }
+    else if (NAMECMP("Polygon") && (type == TYPE_ELEM)){
+      ret=read_polygon_node(reader, T);
       if (ret != 1) break;
     }
     else if (NAMECMP("MultiGeometry") && (type == TYPE_ELEM_END)){
@@ -311,6 +368,11 @@ read_placemark_node(xmlTextReaderPtr reader,
     else if (NAMECMP("LineString") && (type == TYPE_ELEM)){
       ot=1;
       ret=read_linestring_node(reader, T);
+      if (ret != 1) break;
+    }
+    else if (NAMECMP("Polygon") && (type == TYPE_ELEM)){
+      ot=1;
+      ret=read_polygon_node(reader, T);
       if (ret != 1) break;
     }
     else if (NAMECMP("MultiGeometry") && (type == TYPE_ELEM)){

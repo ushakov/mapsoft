@@ -81,7 +81,10 @@ public:
   // area (km2) of 3x3 sec cell at the given point
   double area(const iPoint &p) const;
 
-
+  // making some vector data: contours, peaks, srtm holes
+  std::map<short, dMultiLine> find_contours(const dRect & range, int step);
+  std::map<dPoint, short>  find_peaks(const dRect & range, int DH, int PS);
+  dMultiLine find_holes(const dRect & range);
 
 private:
   // data directories

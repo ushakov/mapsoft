@@ -69,6 +69,10 @@ static struct ext_option options[] = {
   {"max_image",     1,  0, OPT3, "don't write images larger then this, \"x,y\", default 1000,1000"},
   {"data_marg",     1,  0, OPT3, "margins around data (works only if no geometry set), pixels"},
   {"jpeg_quality",  1,  0, OPT3, "set jpeg quality"},
+  {"bgcolor",       1,  0, OPT3, "backgound color"},
+  {"tiles",         0,  0, OPT3, "write tiles"},
+  {"tiles_origin",  1,  0, OPT3, "origin of tiles \"image\" (default) or \"proj\""},
+  {"tiles_skipempty",0, 0, OPT3, "skip empty tiles"},
 
   {"srtm_mode" ,    1,  0, OPT4, "srtm mode: normal, slopes"},
   {"srtm_cnt_step", 1,  0, OPT4, "contour step, m"},
@@ -139,9 +143,16 @@ try{
   }
 
   geo_data world;
+  vmap::world vm;
   for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
-    try { io::in(*i, world, O);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    if (io::testext(*i, ".vmap")) {
+      try { vm = vmap::read(i->c_str()); }
+      catch (MapsoftErr e) {cerr << e.str() << endl;}
+    }
+    else {
+      try { io::in(*i, world, O);}
+      catch (MapsoftErr e) {cerr << e.str() << endl;}
+    }
   }
 
   if (O.exists("verbose")){
@@ -163,7 +174,7 @@ try{
       (io::testext(name, ".jpg")) ||
       (io::testext(name, ".tiles")) 
      ){
-    try {io::out_img(name, world, O);}
+    try {io::out_img(name, world, vm, O);}
     catch (MapsoftErr e) {cerr << e.str() << endl;}
   }
   else {

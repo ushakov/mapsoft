@@ -10,13 +10,6 @@
 ///\defgroup gobj
 ///@{
 
-// return codes for draw function
-extern const int GOBJ_FILL_NONE; // object draws nothing
-extern const int GOBJ_FILL_PART; // object draws some points
-extern const int GOBJ_FILL_ALL; // object fills in the whole image with opaque colors
-
-extern const iRect GOBJ_MAX_RANGE;
-
 /**
 Объект, умеющий нарисоваться на растровой картинке.
 
@@ -26,14 +19,19 @@ extern const iRect GOBJ_MAX_RANGE;
 */
 class GObj{
 public:
+  const static int TILE_SIZE = 256; //< size of tiles
+  const static int FILL_NONE = 0; // object draws nothing
+  const static int FILL_PART = 1; // object draws some points
+  const static int FILL_ALL  = 2; // object fills in the whole image with opaque colors
+  const static iRect MAX_RANGE;
 
   GObj() {}
 
   /** Рисование на картинке img со смещением origin.
    \return одно из следующих значений:
-   - GOBJ_FILL_NONE  -- ничего не было нариовано
-   - GOBJ_FILL_PART  -- что-то было нарисовано
-   - GOBJ_FILL_ALL   -- все изображение было зарисовано непрозрачным цветом
+   - GObj::FILL_NONE  -- ничего не было нариовано
+   - GObj::FILL_PART  -- что-то было нарисовано
+   - GObj::FILL_ALL   -- все изображение было зарисовано непрозрачным цветом
    NOTE:
     - range() returns range in viewer coords
   */
@@ -42,11 +40,11 @@ public:
   virtual iImage get_image (iRect src){
     if (rect_intersect(range(), src).empty()) return iImage(0,0);
     iImage ret(src.w, src.h, 0);
-    if (draw(ret, src.TLC()) == GOBJ_FILL_NONE) return iImage(0,0);
+    if (draw(ret, src.TLC()) == GObj::FILL_NONE) return iImage(0,0);
     return ret;
   }
 
-  virtual iRect range(void) const {return GOBJ_MAX_RANGE;}
+  virtual iRect range(void) const {return GObj::MAX_RANGE;}
   virtual void rescale(double k) {} ///< change scale (refresh must be inside)
 
   virtual bool get_xloop() const {return false;};

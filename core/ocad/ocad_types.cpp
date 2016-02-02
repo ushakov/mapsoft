@@ -9,9 +9,6 @@ using namespace std;
 
 namespace ocad{
 
-#define MIN(x,y) ((x)<(y)?(x):(y))
-#define MAX(x,y) ((x)>(y)?(x):(y))
-
 void
 str_pas2c(char * str, int maxlen){
   int l = str[0];
@@ -40,11 +37,11 @@ str_pas2str(const char * str, int maxlen){
 }
 
 void
-str_str2pas(char * pas, const string & str, int maxlen){
+str_str2pas(char * pas, const string & str, size_t maxlen){
   if (str.size() > maxlen-1)
     cerr << "warning: cropping string.";
 
-  int size = MIN(str.size(), maxlen-1);
+  int size = std::min(str.size(), maxlen-1);
   pas[0] = size;
   for (int i=0; i<size; i++) pas[i+1]=str[i];
 }
