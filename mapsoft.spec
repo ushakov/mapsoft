@@ -1,6 +1,6 @@
 Name: mapsoft
 Version: 20160202
-Release: alt1
+Release: alt1.1
 License: GPL
 Summary: mapsoft - programs for working with maps and geodata
 Group: Sciences/Geosciences
@@ -68,6 +68,9 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_mandir/man1/mapsoft_vmap.*
 
 %changelog
+* Wed Feb 03 2016 Vladislav Zavjalov <slazav@altlinux.org> 20160202-alt1.1
+- rebuild with new libproj
+
 * Tue Feb 02 2016 Vladislav Zavjalov <slazav@altlinux.org> 20160202-alt1
 - build fix (man page extensions, .gz -> .*)
 
