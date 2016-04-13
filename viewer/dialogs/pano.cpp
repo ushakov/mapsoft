@@ -2,7 +2,7 @@
 
 
 DlgPano::DlgPano(srtm3 * s): gobj_pano(s),
-                   dh_adj(20,0,9999,10), az_adj(0,-360,360,10),
+                   dh_adj(20,0,9999,10), az_adj(0,-360,360,10), mr_adj(60,0,999,10),
                    viewer(&gobj_pano),
                    rubber(&viewer){
   signal_response().connect(
@@ -14,17 +14,21 @@ DlgPano::DlgPano(srtm3 * s): gobj_pano(s),
 
   az = manage(new Gtk::SpinButton(az_adj));
   dh = manage(new Gtk::SpinButton(dh_adj));
-  Gtk::Label * azl = manage(new Gtk::Label("Azimuth:", Gtk::ALIGN_RIGHT));
-  Gtk::Label * dhl = manage(new Gtk::Label("Altitude:", Gtk::ALIGN_RIGHT));
+  mr = manage(new Gtk::SpinButton(mr_adj));
+  Gtk::Label * azl = manage(new Gtk::Label("Azimuth, deg:", Gtk::ALIGN_RIGHT));
+  Gtk::Label * dhl = manage(new Gtk::Label("Altitude, m:", Gtk::ALIGN_RIGHT));
+  Gtk::Label * mrl = manage(new Gtk::Label("Max.Dist., km:", Gtk::ALIGN_RIGHT));
 
-  Gtk::Table * t =   manage(new Gtk::Table(3,2));
+  Gtk::Table * t =   manage(new Gtk::Table(3,3));
 
-          //  widget    l  r  t  b  x       y
+      //  widget    l  r  t  b  x       y
   t->attach(*azl,   0, 1, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*az,    1, 2, 0, 1, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*dhl,   0, 1, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
   t->attach(*dh,    1, 2, 1, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
-  t->attach(*rb,    2, 3, 0, 2, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*mrl,   0, 1, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*mr,    1, 2, 2, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
+  t->attach(*rb,    2, 3, 0, 3, Gtk::FILL, Gtk::SHRINK, 3, 3);
 
   get_vbox()->pack_start (viewer, true, true);
   get_vbox()->pack_start (*t, false, true);
@@ -39,6 +43,8 @@ DlgPano::DlgPano(srtm3 * s): gobj_pano(s),
       sigc::mem_fun(this, &DlgPano::on_ch));
   az->signal_value_changed().connect(
       sigc::mem_fun(this, &DlgPano::set_az));
+  mr->signal_value_changed().connect(
+      sigc::mem_fun(this, &DlgPano::on_ch));
 
   viewer.signal_ch_origin().connect(
       sigc::mem_fun(this, &DlgPano::get_az));
@@ -59,6 +65,7 @@ DlgPano::DlgPano(srtm3 * s): gobj_pano(s),
 void
 DlgPano::on_ch(){
   gobj_pano.set_alt(dh->get_value());
+  gobj_pano.set_maxr(mr->get_value()*1000);
   gobj_pano.set_colors( rb->get_v1(), rb->get_v2());
   viewer.redraw();
 }

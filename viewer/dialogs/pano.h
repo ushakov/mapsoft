@@ -16,7 +16,8 @@ class DlgPano : public Gtk::Dialog{
     Rainbow *rb;
     Gtk::SpinButton *az;
     Gtk::SpinButton *dh;
-    Gtk::Adjustment dh_adj, az_adj;
+    Gtk::SpinButton *mr;
+    Gtk::Adjustment dh_adj, az_adj, mr_adj;
 
     void on_ch();
     bool on_key_press(GdkEventKey * event);
