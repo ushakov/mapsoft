@@ -3,6 +3,12 @@
 
 namespace image_gif{
 
+#if defined(GIFLIB_MAJOR) && defined(GIFLIB_MINOR) && ((GIFLIB_MAJOR == 4 && GIFLIB_MINOR >= 2) || GIFLIB_MAJOR > 4)
+void PrintGifError(){
+  std::cerr <<  GifErrorString();
+}
+#endif
+
 iPoint
 size(const char *file){
 
