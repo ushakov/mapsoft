@@ -62,7 +62,9 @@ int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect){
     uint32 colors[256];
 
     TIFFGetField(tif, TIFFTAG_PHOTOMETRIC, &photometric);
-    if      (photometric == PHOTOMETRIC_RGB){}
+    if      (photometric == PHOTOMETRIC_RGB ||
+             photometric == PHOTOMETRIC_MINISWHITE ||
+             photometric == PHOTOMETRIC_MINISBLACK){}
     else if (photometric == PHOTOMETRIC_PALETTE){
       uint16 *cmap[3];
       TIFFGetField(tif, TIFFTAG_COLORMAP, cmap, cmap+1, cmap+2);
@@ -113,6 +115,24 @@ int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect){
           else if (bpp==1) // G
             image.set(dst_x, dst_y, cbuf[src_x] + (cbuf[src_x]<<8) + (cbuf[src_x]<<16) + (0xFF<<24));
         }
+        else if (photometric == PHOTOMETRIC_MINISWHITE){
+          if (bpp==2) // 16bit
+            image.set(dst_x, dst_y,
+              0xFFFFFFFFFF - (cbuf[2*src_x+1] + (cbuf[2*src_x+1]<<8) + (cbuf[2*src_x+1]<<16)));
+          else if (bpp==1) // 8bit
+            image.set(dst_x, dst_y,
+              0xFFFFFFFFFF - (cbuf[src_x] + (cbuf[src_x]<<8) + (cbuf[src_x]<<16)));
+        }
+        else if (photometric == PHOTOMETRIC_MINISBLACK){
+          if (bpp==2) // 16bit
+            image.set(dst_x, dst_y,
+              cbuf[2*src_x+1] + (cbuf[2*src_x+1]<<8) + (cbuf[2*src_x+1]<<16) + (0xFF<<24));
+          else if (bpp==1) // 8bit
+            image.set(dst_x, dst_y,
+              cbuf[src_x] + (cbuf[src_x]<<8) + (cbuf[src_x]<<16) + (0xFF<<24));
+        }
+
+
       }
     }
 
