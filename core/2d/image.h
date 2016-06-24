@@ -168,7 +168,7 @@ struct Image{
     }
 
 
-    // (Only useful for Image<int>)
+    // (Only useful for iImage)
     inline T get_na(int x, int y, T c) const {
       return data[y*w+x] | 0xFF000000;
     }
@@ -235,7 +235,7 @@ struct Image{
 
     // Set full transparency outside border line, remove transparency inside it.
     // If border line is empty, remove transparancy on the whole image.
-    // (Only useful for Image<int>)
+    // (Only useful for iImage)
     void set_border(const iLine & brd = iLine()){
       iLineTester  lt(brd);
 
@@ -288,6 +288,13 @@ typedef Image<double> dImage;
 
 /// \relates Image
 typedef Image<int> iImage;
+
+/// \relates Image
+typedef Image<char> cImage;
+
+/// \relates Image
+typedef Image<short int> sImage;
+
 
 /// \relates Image
 template <typename T>

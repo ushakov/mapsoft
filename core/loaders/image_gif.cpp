@@ -120,12 +120,6 @@ load(const char *file, iRect src_rect,
     return 0;
 }
 
-int
-save(const iImage & im, const iRect & src_rect, const char *file){
-  std::cerr << "GIF writing is not supported\n";
-  return 0;
-}
-
 iImage
 load(const char *file, const int scale){
   iPoint s = size(file);
@@ -137,6 +131,7 @@ load(const char *file, const int scale){
 
 int
 save(const iImage & im, const char * file){
-  return save(im, im.range(), file);
+  std::cerr << "GIF writing is not supported\n";
+  return 0;
 }
 } // namespace

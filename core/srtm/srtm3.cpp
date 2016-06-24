@@ -244,17 +244,17 @@ srtm3::area(const iPoint &p) const{
 
 /**********************************************************/
 
-Image<short>
+sImage
 read_zfile(const string & file){
   gzFile F = gzopen(file.c_str(), "rb");
-  if (!F) return Image<short>(0,0);
+  if (!F) return sImage(0,0);
 
-  Image<short> im(srtm_width,srtm_width);
+  sImage im(srtm_width,srtm_width);
   int length = srtm_width*srtm_width*sizeof(short);
 
   if (length != gzread(F, im.data, length)){
     cerr << "bad file: " << file << '\n';
-    return Image<short>(0,0);
+    return sImage(0,0);
   }
   for (int i=0; i<length/2; i++){ // swap bytes
     int tmp=(unsigned short)im.data[i];
@@ -264,17 +264,17 @@ read_zfile(const string & file){
   return im;
 }
 
-Image<short>
+sImage
 read_file(const string & file){
   FILE *F = fopen(file.c_str(), "rb");
-  if (!F) return Image<short>(0,0);
+  if (!F) return sImage(0,0);
 
-  Image<short> im(srtm_width,srtm_width);
+  sImage im(srtm_width,srtm_width);
   int length = srtm_width*srtm_width*sizeof(short);
 
   if (length != fread(im.data, 1, length, F)){
     cerr << "bad file: " << file << '\n';
-    return Image<short>(0,0);
+    return sImage(0,0);
   }
   for (int i=0; i<length/2; i++){ // swap bytes
     int tmp=(unsigned short)im.data[i];
@@ -302,7 +302,7 @@ srtm3::load(const iPoint & key){
        << EW << setw(3) << abs(key.x) << ".hgt";
 
   // try f2.gz, f2, f1.gz, f1
-  Image<short> im;
+  sImage im;
 
   im = read_zfile(srtm_dir + "/fixed/" + file.str() + ".gz");
   if (!im.empty()) goto read_ok;

@@ -203,7 +203,7 @@ class trace_area{
 // построение прямоугольной хребтовки
 void
 go_down(srtm3 & S, const iPoint & p00, int x, int y,
-        Image<char> & dirs, int nmax, bool down){
+        cImage & dirs, int nmax, bool down){
 
   // проход вниз
   trace_gear G(S, p00+iPoint(x,y));
@@ -236,11 +236,11 @@ go_down(srtm3 & S, const iPoint & p00, int x, int y,
   }
 }
 
-Image<double>
+dImage
 trace_map(srtm3 & S, const iPoint & p00,
           int w, int h, int nmax, bool down){
 
-  Image<char> dirs(w,h,-1); // направления стока
+  cImage dirs(w,h,-1); // направления стока
 
   // для каждой необработанной точки карты трассируем
   // путь вниз до уже обработанной точки, до края или
@@ -253,7 +253,7 @@ trace_map(srtm3 & S, const iPoint & p00,
   }
 
   // определение площадей водосбора
-  Image<double> areas(w,h,0); // площади водосбора
+  dImage areas(w,h,0); // площади водосбора
   double area = S.area(p00)/1e6; // примерная площадь одной точки
   for (int y=0; y<h; y++){
     for (int x=0; x<w; x++){

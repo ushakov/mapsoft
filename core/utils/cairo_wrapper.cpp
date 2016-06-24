@@ -169,14 +169,14 @@ CairoExtra::img2patt(const iImage & I, double sc){
 
 void
 CairoWrapper::reset_surface(){
-  image=Image<int>();
+  image=iImage();
   surface=Cairo::RefPtr<Cairo::ImageSurface>();
   Cairo::RefPtr<CairoExtra>::operator=(Cairo::RefPtr<CairoExtra>());
 }
 
 void
 CairoWrapper::reset_surface(int w, int h){
-  image=Image<int>();
+  image=iImage();
   // check if surface raw data compatable with iImage
   assert(Cairo::ImageSurface::format_stride_for_width(format, w) == w*4);
 

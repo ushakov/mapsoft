@@ -16,9 +16,9 @@ main(){
   srtm3 S;
 
   cerr << "Tracing rivers...\n";
-  Image<double> ra = trace_map(S, p0*1200, w, h, nmax, down);
+  dImage ra = trace_map(S, p0*1200, w, h, nmax, down);
   cerr << "Tracing mountains...\n";
-  Image<double> ma = trace_map(S, p0*1200, w, h, nmax, !down);
+  dImage ma = trace_map(S, p0*1200, w, h, nmax, !down);
   cerr << "Done.\n";
 
   // fill image

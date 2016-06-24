@@ -91,7 +91,7 @@ private:
   std::string srtm_dir;
 
   // data cache. key is lon,lat in degrees
-  Cache<iPoint, Image<short> > srtm_cache;
+  Cache<iPoint, sImage > srtm_cache;
 
   // load data into cache
   bool load(const iPoint & key);
