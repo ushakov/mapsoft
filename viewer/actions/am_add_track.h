@@ -61,6 +61,7 @@ public:
           pt.dPoint::operator=(p);
           mapview->get_cnv()->frw(pt);
           pt.start = (state&Gdk::SHIFT_MASK) || (trk.size()==0);
+          pt.z = mapview->panel_misc.srtm.geth4(pt);
           trk.push_back(pt);
 
           if (mapview->rubber.size()>0){

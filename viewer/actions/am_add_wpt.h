@@ -35,7 +35,8 @@ public:
          }
         wpt.dPoint::operator=(p);
         mapview->get_cnv()->frw(wpt);
-        dlg.set_ll(wpt);
+        wpt.z = mapview->panel_misc.srtm.geth4(wpt);
+        dlg.wpt2dlg(&wpt);
         dlg.show_all();
         mapview->rubber.clear();
         mapview->rubber.add_src_mark(p);
