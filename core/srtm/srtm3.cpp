@@ -45,14 +45,22 @@ SRTM3::get_width(void) const{
   return srtm_width;
 }
 
+// find tile number and coordinate on the tile
+void
+get_crd(int x, int w, int &k, int &c){
+  if (x>=0) k=x/(w-1);
+  else      k=(x+1)/(w-1)-1;
+  c = x - k*(w-1);
+}
+
 short
 SRTM3::geth(const iPoint & p, const bool interp){
-  iPoint key = p/(srtm_width-1);
-  iPoint crd = p - key*(srtm_width-1);
 
-  if (key.x<0) {key.x--; crd.x+=srtm_width;}
-  if (key.y<0) {key.y--; crd.y+=srtm_width;}
-  crd.y=srtm_width-crd.y-1;
+  // find tile number and coordinate on the tile
+  iPoint key, crd;
+  get_crd(p.x, srtm_width, key.x, crd.x);
+  get_crd(p.y, srtm_width, key.y, crd.y);
+  crd.y = srtm_width-crd.y-1;
 
 
   int h;
@@ -130,12 +138,12 @@ SRTM3::slope(const int x, const int y, const bool interp){
 
 short
 SRTM3::seth(const iPoint & p, const short h){
-  iPoint key = p/(srtm_width-1);
-  iPoint crd = p - key*(srtm_width-1);
 
-  if (key.x<0) {key.x--; crd.x+=srtm_width;}
-  if (key.y<0) {key.y--; crd.y+=srtm_width;}
-  crd.y=srtm_width-crd.y-1;
+  // find tile number and coordinate on the tile
+  iPoint key, crd;
+  get_crd(p.x, srtm_width, key.x, crd.x);
+  get_crd(p.y, srtm_width, key.y, crd.y);
+  crd.y = srtm_width-crd.y-1;
 
   {
     Glib::Mutex::Lock lock(mutex);
