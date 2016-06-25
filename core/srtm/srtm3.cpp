@@ -324,11 +324,6 @@ SRTM3::load(const iPoint & key){
   // try f2.gz, f2, f1.gz, f1
   sImage im;
 
-  im = read_zfile(srtm_dir + "/fixed/" + file.str() + ".gz", srtm_width);
-  if (!im.empty()) goto read_ok;
-  im = read_file(srtm_dir + "/fixed/" + file.str(), srtm_width);
-  if (!im.empty()) goto read_ok;
-
   im = read_zfile(srtm_dir + "/" + file.str() + ".gz", srtm_width);
   if (!im.empty()) goto read_ok;
   im = read_file(srtm_dir + "/" + file.str(), srtm_width);
