@@ -70,7 +70,8 @@ Time::Time(const std::string & str){
   //               "yy-mm-dd HH:MM:SS"
   //               "yyyy-mm-dd HH:MM"
   //               "yyyy-mm-dd"
-  //               "yyyy-mm-ddThh:mm:ssZ -- gpx format
+  //               "yyyy-mm-ddThh:mm:ssZ -- gpx,kml format
+  //               "yyyy-mm-ddThh:mm:ss.sssZ -- gpx,kml format
 
   using namespace boost::spirit::classic;
   time_t t = time(NULL);
@@ -83,7 +84,8 @@ Time::Time(const std::string & str){
       !((+blank_p | 'T') >>
         uint_p[assign_a(ts->tm_hour)] >> ':' >>
         uint_p[assign_a(ts->tm_min)]  >>
-        !(':' >> uint_p[assign_a(ts->tm_sec)])
+        !(':' >> uint_p[assign_a(ts->tm_sec)]) >>
+        !('.' >> uint_p)
        ) >> !ch_p('Z') >> *space_p
       ).full){
     ts->tm_mon-=1;
