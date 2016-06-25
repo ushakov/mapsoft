@@ -38,9 +38,11 @@ public:
     return o;}
 
   void set_opt(const Options & o){
-    gobj_srtm.set_opt(o);
     srtm.set_dir(o.get<string>("srtm_dir", ""));
-    if (wpd.exists(&gobj_srtm)) wpd.refresh_gobj(&gobj_srtm);
+    gobj_srtm.set_opt(o);
+    gobj_srtmv.set_opt(o);
+    if (wpd.exists(&gobj_srtm))  wpd.refresh_gobj(&gobj_srtm);
+    if (wph.exists(&gobj_srtmv)) wph.refresh_gobj(&gobj_srtmv);
   }
 
   Workplane * get_wpd(){return &wpd;}

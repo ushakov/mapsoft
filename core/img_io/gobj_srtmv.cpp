@@ -12,7 +12,7 @@ GObjSRTMv::draw(iImage & image, const iPoint & origin){
   iRect range = image.range() + origin;
 
   int step1 = opt.get<int>("srtm_cnt_step",  10);
-  int step2 = opt.get<int>("srtm_cnt_step2", 50);
+  int step2 = opt.get<int>("srtm_cnt_step2", step1*5);
   int col   = opt.get<int>("srtm_cnt_col",   0x0060C0);
   double w   = opt.get<double>("srtm_cnt_w",     1.5);
   double crv = opt.get<double>("srtm_cnt_crv",  20.0);
