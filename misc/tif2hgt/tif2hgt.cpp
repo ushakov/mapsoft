@@ -46,7 +46,10 @@ main(int argc, char **argv){
 
   for (int y = 0; y<tiff_h; y++){
     TIFFReadScanline(tif, cbuf, y);
-    fwrite(cbuf, tiff_w, 2, hgt);
+    for (int x = 0; x<tiff_w; x++){
+      fwrite(cbuf+2*x+1, 1, 1, hgt);
+      fwrite(cbuf+2*x,   1, 1, hgt);
+    }
   }
   fclose(hgt);
   _TIFFfree(cbuf);
