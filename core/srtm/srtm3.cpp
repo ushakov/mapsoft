@@ -13,28 +13,40 @@
 
 using namespace std;
 
-srtm3::srtm3(const string & _srtm_dir, const unsigned cache_size) :
-     srtm_cache(cache_size),
-     srtm_dir(_srtm_dir),
-     size0(6380e3 * M_PI/srtm_width/180),
-     area0(size0*size0){
-  if (srtm_dir == "") srtm_dir =
-    string(getenv("HOME")? getenv("HOME"):"") + "/.srtm_data";
+SRTM3::SRTM3(const string & _srtm_dir, const unsigned cache_size):
+      srtm_cache(cache_size) {
+  set_dir(srtm_dir);
 }
 
 void
-srtm3::set_dir(const string & str){
+SRTM3::set_dir(const string & str){
   srtm_dir = str;
+  if (srtm_dir == "") srtm_dir =
+    string(getenv("HOME")? getenv("HOME"):"") + "/.srtm_data";
+
+  ifstream ws(srtm_dir + "/srtm_width.txt");
+  if (!ws) srtm_width = 1201;
+  else ws >> srtm_width;
+  if (srtm_width<1) srtm_width = 1201;
+
+  size0 = 6380e3 * M_PI/srtm_width/180;
+  area0 = pow(6380e3 * M_PI/srtm_width/180, 2);
+  Glib::Mutex::Lock lock(mutex);
+  srtm_cache.clear();
 }
 
 const string &
-srtm3::get_dir(void) const{
+SRTM3::get_dir(void) const{
   return srtm_dir;
 }
 
+const unsigned
+SRTM3::get_width(void) const{
+  return srtm_width;
+}
 
 short
-srtm3::geth(const iPoint & p, const bool interp){
+SRTM3::geth(const iPoint & p, const bool interp){
   iPoint key = p/(srtm_width-1);
   iPoint crd = p - key*(srtm_width-1);
 
@@ -48,7 +60,7 @@ srtm3::geth(const iPoint & p, const bool interp){
     Glib::Mutex::Lock lock(mutex);
     if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
     if (srtm_cache.get(key).empty()) return srtm_nofile;
-    h = srtm_cache.get(key).get(crd);
+    h = srtm_cache.get(key).safe_get(crd);
   }
 
   if (interp){
@@ -86,7 +98,7 @@ srtm3::geth(const iPoint & p, const bool interp){
 }
 
 double
-srtm3::slope(const iPoint &p, const bool interp){
+SRTM3::slope(const iPoint &p, const bool interp){
   short h  = geth(p, interp);
   short h1 = geth(p.x-1, p.y, interp);
   short h2 = geth(p.x+1, p.y, interp);
@@ -107,17 +119,17 @@ srtm3::slope(const iPoint &p, const bool interp){
 }
 
 short
-srtm3::geth(const int x, const int y, const bool interp){
+SRTM3::geth(const int x, const int y, const bool interp){
   return geth(iPoint(x,y), interp);
 }
 
 double
-srtm3::slope(const int x, const int y, const bool interp){
+SRTM3::slope(const int x, const int y, const bool interp){
   return slope(iPoint(x,y), interp);
 }
 
 short
-srtm3::seth(const iPoint & p, const short h){
+SRTM3::seth(const iPoint & p, const short h){
   iPoint key = p/(srtm_width-1);
   iPoint crd = p - key*(srtm_width-1);
 
@@ -129,15 +141,15 @@ srtm3::seth(const iPoint & p, const short h){
     Glib::Mutex::Lock lock(mutex);
     if ((!srtm_cache.contains(key)) && (!load(key))) return srtm_nofile;
     if (srtm_cache.get(key).empty()) return srtm_nofile;
-    srtm_cache.get(key).set(crd, h);
+    srtm_cache.get(key).safe_set(crd, h);
   }
   return h;
 }
 
 short
-srtm3::geth4(const dPoint & p, const bool interp){
-  double x = p.x*1200;
-  double y = p.y*1200;
+SRTM3::geth4(const dPoint & p, const bool interp){
+  double x = p.x*(srtm_width-1);
+  double y = p.y*(srtm_width-1);
   int x1 = floor(x), x2 = x1+1;
   int y1 = floor(y), y2 = y1+1;
 
@@ -156,9 +168,9 @@ srtm3::geth4(const dPoint & p, const bool interp){
 }
 
 double
-srtm3::slope4(const dPoint & p, const bool interp){
-  double x = p.x*1200;
-  double y = p.y*1200;
+SRTM3::slope4(const dPoint & p, const bool interp){
+  double x = p.x*(srtm_width-1);
+  double y = p.y*(srtm_width-1);
   int x1 = floor(x), x2 = x1+1;
   int y1 = floor(y), y2 = y1+1;
 
@@ -173,10 +185,10 @@ srtm3::slope4(const dPoint & p, const bool interp){
 }
 
 short
-srtm3::geth16(const dPoint & p, const bool interp){
+SRTM3::geth16(const dPoint & p, const bool interp){
 
-  double x = p.x*1200;
-  double y = p.y*1200;
+  double x = p.x*(srtm_width-1);
+  double y = p.y*(srtm_width-1);
   int x0 = floor(x);
   int y0 = floor(y);
 
@@ -193,7 +205,7 @@ srtm3::geth16(const dPoint & p, const bool interp){
 
 // найти множество соседних точек одной высоты (не более max точек)
 set<iPoint>
-srtm3::plane(const iPoint& p, int max){
+SRTM3::plane(const iPoint& p, int max){
   set<iPoint> ret;
   queue<iPoint> q;
   short h = geth(p);
@@ -214,7 +226,7 @@ srtm3::plane(const iPoint& p, int max){
 }
 
 void
-srtm3::move_to_extr(iPoint & p0, bool max){
+SRTM3::move_to_extr(iPoint & p0, bool max){
   iPoint p1 = p0;
   do {
     short h = geth(p0, true);
@@ -229,15 +241,15 @@ srtm3::move_to_extr(iPoint & p0, bool max){
 }
 
 void
-srtm3::move_to_min(iPoint & p0){
+SRTM3::move_to_min(iPoint & p0){
   move_to_extr(p0, false);
 }
 void
-srtm3::move_to_max(iPoint & p0){
+SRTM3::move_to_max(iPoint & p0){
   move_to_extr(p0, true);
 }
 double
-srtm3::area(const iPoint &p) const{
+SRTM3::area(const iPoint &p) const{
   return area0 * cos((double)p.y *M_PI/180.0/srtm_width);
 }
 
@@ -245,7 +257,7 @@ srtm3::area(const iPoint &p) const{
 /**********************************************************/
 
 sImage
-read_zfile(const string & file){
+read_zfile(const string & file, const size_t srtm_width){
   gzFile F = gzopen(file.c_str(), "rb");
   if (!F) return sImage(0,0);
 
@@ -265,7 +277,7 @@ read_zfile(const string & file){
 }
 
 sImage
-read_file(const string & file){
+read_file(const string & file, const size_t srtm_width){
   FILE *F = fopen(file.c_str(), "rb");
   if (!F) return sImage(0,0);
 
@@ -285,7 +297,7 @@ read_file(const string & file){
 }
 
 bool
-srtm3::load(const iPoint & key){
+SRTM3::load(const iPoint & key){
 
   if ((key.x < -max_lon) ||
       (key.x >= max_lon) ||
@@ -304,14 +316,14 @@ srtm3::load(const iPoint & key){
   // try f2.gz, f2, f1.gz, f1
   sImage im;
 
-  im = read_zfile(srtm_dir + "/fixed/" + file.str() + ".gz");
+  im = read_zfile(srtm_dir + "/fixed/" + file.str() + ".gz", srtm_width);
   if (!im.empty()) goto read_ok;
-  im = read_file(srtm_dir + "/fixed/" + file.str());
+  im = read_file(srtm_dir + "/fixed/" + file.str(), srtm_width);
   if (!im.empty()) goto read_ok;
 
-  im = read_zfile(srtm_dir + "/" + file.str() + ".gz");
+  im = read_zfile(srtm_dir + "/" + file.str() + ".gz", srtm_width);
   if (!im.empty()) goto read_ok;
-  im = read_file(srtm_dir + "/" + file.str());
+  im = read_file(srtm_dir + "/" + file.str(), srtm_width);
   if (!im.empty()) goto read_ok;
 
   cerr << "can't find file " << file.str() << '\n';
@@ -325,13 +337,13 @@ srtm3::load(const iPoint & key){
 
 // see http://www.paulinternet.nl/?page=bicubic
 short
-srtm3::cubic_interp(const double h[4], const double x) const{
+SRTM3::cubic_interp(const double h[4], const double x) const{
   return h[1] + 0.5 * x*(h[2] - h[0] + x*(2.0*h[0] - 5.0*h[1] + 4.0*h[2] -
               h[3] + x*(3.0*(h[1] - h[2]) + h[3] - h[0])));
 }
 
 void
-srtm3::int_holes(double h[4]) const{
+SRTM3::int_holes(double h[4]) const{
   // interpolate 1-point or 2-points holes
   // maybe this can be written smarter...
   if ((h[0]>srtm_min) && (h[1]>srtm_min) && (h[2]>srtm_min) && (h[3]>srtm_min)) return;
@@ -359,11 +371,11 @@ iPoint crn (int k){ k%=4; return iPoint(k/2, (k%3>0)?1:0); }
 iPoint dir (int k){ return crn(k+1)-crn(k); }
 
 map<short, dMultiLine>
-srtm3::find_contours(const dRect & range, int step){
-  int lon1  = int(floor(1200*range.TLC().x));
-  int lon2  = int( ceil(1200*range.BRC().x));
-  int lat1  = int(floor(1200*range.TLC().y));
-  int lat2  = int( ceil(1200*range.BRC().y));
+SRTM3::find_contours(const dRect & range, int step){
+  int lon1  = int(floor((srtm_width-1)*range.TLC().x));
+  int lon2  = int( ceil((srtm_width-1)*range.BRC().x));
+  int lat1  = int(floor((srtm_width-1)*range.TLC().y));
+  int lat2  = int( ceil((srtm_width-1)*range.BRC().y));
 
   map<short, dMultiLine> ret;
   int count = 0;
@@ -405,8 +417,8 @@ srtm3::find_contours(const dRect & range, int step){
           x1 = i->second;
         } else{
           x2 = i->second;
-          dPoint p1=(dPoint(p + crn(int(x1))) + dPoint(dir(int(x1)))*double(x1-int(x1)))/1200.0;
-          dPoint p2=(dPoint(p + crn(int(x2))) + dPoint(dir(int(x2)))*double(x2-int(x2)))/1200.0;
+          dPoint p1=(dPoint(p + crn(int(x1))) + dPoint(dir(int(x1)))*double(x1-int(x1)))/(double)(srtm_width-1);
+          dPoint p2=(dPoint(p + crn(int(x2))) + dPoint(dir(int(x2)))*double(x2-int(x2)))/(double)(srtm_width-1);
           // we found segment p1-p2 with height h
           // first try to append it to existing line in ret[h]
           bool done=false;
@@ -439,12 +451,12 @@ srtm3::find_contours(const dRect & range, int step){
 }
 
 map<dPoint, short>
-srtm3::find_peaks(const dRect & range, int DH, int PS){
+SRTM3::find_peaks(const dRect & range, int DH, int PS){
 
-  int lon1  = int(floor(1200*range.TLC().x));
-  int lon2  = int( ceil(1200*range.BRC().x));
-  int lat1  = int(floor(1200*range.TLC().y));
-  int lat2  = int( ceil(1200*range.BRC().y));
+  int lon1  = int(floor((srtm_width-1)*range.TLC().x));
+  int lon2  = int( ceil((srtm_width-1)*range.BRC().x));
+  int lat1  = int(floor((srtm_width-1)*range.TLC().y));
+  int lat2  = int( ceil((srtm_width-1)*range.BRC().y));
 
   // поиск вершин:
   // 1. найдем все локальные максимумы (не забудем про максимумы из многих точек!)
@@ -485,7 +497,7 @@ srtm3::find_peaks(const dRect & range, int DH, int PS){
 
         // если мы спустились от исходной точки более чем на DH или размер области более PS
         if ((h - max > DH ) || (pts.size() > PS)) {
-          ret[dPoint(p)/1200.0] = h;
+          ret[dPoint(p)/(double)(srtm_width-1)] = h;
           break;
         }
         add_pb(maxpt, pts, brd);
@@ -497,31 +509,31 @@ srtm3::find_peaks(const dRect & range, int DH, int PS){
 }
 
 dMultiLine
-srtm3::find_holes(const dRect & range){
+SRTM3::find_holes(const dRect & range){
 
-  int lon1  = int(floor(1200*range.TLC().x));
-  int lon2  = int( ceil(1200*range.BRC().x));
-  int lat1  = int(floor(1200*range.TLC().y));
-  int lat2  = int( ceil(1200*range.BRC().y));
+  int lon1  = int(floor((srtm_width-1)*range.TLC().x));
+  int lon2  = int( ceil((srtm_width-1)*range.BRC().x));
+  int lat1  = int(floor((srtm_width-1)*range.TLC().y));
+  int lat2  = int( ceil((srtm_width-1)*range.BRC().y));
 
   set<iPoint> aset;
   for (int lat=lat2; lat>lat1; lat--){
     for (int lon=lon1; lon<lon2-1; lon++){
       iPoint p(lon,lat);
       short h = geth(p);
-      dPoint p1 = dPoint(p)/1200.0;
+      dPoint p1 = dPoint(p)/(double)(srtm_width-1);
       if (h!=srtm_undef) continue;
       aset.insert(p);
     }
   }
   // converting points to polygons
-  return pset2line(aset)/1200.0;
+  return pset2line(aset)/(double)(srtm_width-1);
 }
 
 /*
   // поиск крутых склонов
   cerr << "ищем крутые склоны: ";
-  double latdeg = 6380000/1200.0/180.0*M_PI; 
+  double latdeg = 6380000/(double)(srtm_width-1)/180.0*M_PI; 
   double londeg = latdeg * cos(double(lat2+lat1)/2400.0/180.0*M_PI);
 
   for (int lat=lat2; lat>lat1; lat--){
@@ -542,7 +554,7 @@ srtm3::find_holes(const dRect & range){
   aline = pset2line(aset);
   for(dMultiLine::iterator iv = aline.begin(); iv!=aline.end(); iv++){
     if (iv->size()<3) continue;
-    dLine l = (*iv)/1200.0;
+    dLine l = (*iv)/(double)(srtm_width-1);
     mp::mp_object mpo;
     mpo.Class = "POLYGON";
     mpo.Label = "high slope";

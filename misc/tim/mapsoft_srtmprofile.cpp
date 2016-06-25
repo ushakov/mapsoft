@@ -110,7 +110,7 @@ main(int argc, char** argv){
   infiles.erase(infiles.begin(), infiles.begin()+1);
 
   ofstream out(outfile.c_str()); 
-  srtm3 s(srtm_dir, 10);
+  SRTM3 s(srtm_dir, 10);
 
   geo_data world;
   vector<string>::const_iterator i;

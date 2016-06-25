@@ -11,7 +11,7 @@
 class GObjPano : public GObj{
 private:
 
-  srtm3 *srtm;
+  SRTM3 *srtm;
   ConvTriv cnv;
 
   dPoint p0;
@@ -28,7 +28,7 @@ private:
   Cache<int, std::vector<ray_data> > ray_cache;
 
 public:
-  GObjPano(srtm3 * s);
+  GObjPano(SRTM3 * s);
 
   // Horizontal range is 720deg, -width..width
   // Vertical range is 90, 0..width/4

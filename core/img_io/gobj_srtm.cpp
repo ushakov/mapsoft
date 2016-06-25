@@ -6,19 +6,22 @@
 
 using namespace std;
 
-GObjSRTM::GObjSRTM(srtm3 *srtm):S(srtm){
+GObjSRTM::GObjSRTM(SRTM3 *srtm):S(srtm){
   opt.put<string>("srtm_mode", "normal");
   opt.put<double>("srtm_cnt_step", 50);
   opt.put<double>("srtm_hmin", 0.0);
   opt.put<double>("srtm_hmax", 5000.0);
   opt.put<double>("srtm_smin", 30.0);
   opt.put<double>("srtm_smax", 55.0);
+  opt.put<string>("srtm_dir",  "");
 }
 
 int
 GObjSRTM::draw(iImage & image, const iPoint & origin){
   if (S==NULL) return GObj::FILL_NONE;
   iRect src_rect = image.range() + origin;
+
+  S->set_dir(opt.get<string>("srtm_dir", ""));
 
   string mode  = opt.get<string>("srtm_mode", "normal");
   int cnt_step = opt.get<int>("srtm_cnt_step",  50);
@@ -56,7 +59,6 @@ GObjSRTM::draw(iImage & image, const iPoint & origin){
       if (h0 < srtm_min){
         c=0xC8C8C8; goto print_colors;
       }
-
       if (cnt_step>0){ // contours
         px = origin + iPoint(i+1,j);
         py = origin + iPoint(i,j+1);

@@ -13,7 +13,7 @@ main(){
   int w=800, h=600;      // размер карты, точек
   int nmax=1000;         // максимальный размер бессточных областей
   bool down = true;
-  srtm3 S;
+  SRTM3 S;
 
   cerr << "Tracing rivers...\n";
   dImage ra = trace_map(S, p0*1200, w, h, nmax, down);

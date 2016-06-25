@@ -33,10 +33,13 @@ public:
   }
 
   Options get_opt() const {
-    return gobj_srtm.get_opt();}
+    Options o = gobj_srtm.get_opt();
+    o.put<string>("srtm_dir", srtm.get_dir());
+    return o;}
 
   void set_opt(const Options & o){
     gobj_srtm.set_opt(o);
+    srtm.set_dir(o.get<string>("srtm_dir", ""));
     if (wpd.exists(&gobj_srtm)) wpd.refresh_gobj(&gobj_srtm);
   }
 
@@ -91,7 +94,7 @@ public:
     grid_pulk_status->set_active(false);
   }
 
-  srtm3 srtm;
+  SRTM3 srtm;
   GObjSRTM     gobj_srtm;
   GObjSRTMv    gobj_srtmv;
   GObjGridPulk gobj_grid_pulk;

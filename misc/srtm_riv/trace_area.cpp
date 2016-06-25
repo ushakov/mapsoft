@@ -22,7 +22,7 @@ main(){
   double mina = 0.5;
   int maxp = down?10000:10000;// макс. размер "неправильного" стока
   int dh   = down?200:200;  // макс. разница высот "неправильного" стока
-  srtm3 S;
+  SRTM3 S;
 
   trace_area T(S, dh, maxp, mina, down);
 

@@ -25,22 +25,21 @@ const short srtm_undef    = -32768; // hole in srtm data
 const short srtm_zer_interp   = 15000; // добавлено к интерполированным значениям
 const short srtm_min_interp   = 10000; // для проверки
 
-const int srtm_width = 1201; // файлы 1201х1201
 
 const int max_lat = 90;
 const int max_lon = 180;
 
-class srtm3 {
+class SRTM3 {
 public:
 
-  srtm3(
+  SRTM3(
     const std::string & _srtm_dir=std::string(), // data directory ($HOME/.srtm_data)
     const unsigned cache_size=4
   );
 
   void set_dir(const std::string & str);
   const std::string & get_dir(void) const;
-
+  const unsigned get_width(void) const;
 
   // вернуть высоту точки
   short geth(const iPoint & p, const bool interp=false);
@@ -74,9 +73,9 @@ public:
   void move_to_min(iPoint & p0);
   void move_to_max(iPoint & p0);
 
-  const double size0; // size (m) of 3 sec lat bow
-
-  const double area0; // area (m^2) of 3x3 sec cell on equator
+  double size0; // size (m) of 3 sec lat bow
+  double area0; // area (m^2) of 3x3 sec cell on equator
+  size_t srtm_width; // файлы 1201х1201
 
   // area (km2) of 3x3 sec cell at the given point
   double area(const iPoint &p) const;

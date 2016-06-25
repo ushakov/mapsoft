@@ -18,10 +18,10 @@ class GObjSRTMv
 #endif  // SWIG
 {
 private:
-  srtm3 *S;
+  SRTM3 *S;
 public:
 
-  GObjSRTMv(srtm3* srtm):S(srtm){}
+  GObjSRTMv(SRTM3* srtm):S(srtm){}
 
   /// Draw on image.
   int draw(iImage & image, const iPoint & origin);

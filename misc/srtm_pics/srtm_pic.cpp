@@ -71,7 +71,7 @@ try{
     int H = (int)((Y2-Y1)*k);
     std::cerr << W << "x" << H << "\n";
 
-    srtm3 s("", 10); 
+    SRTM3 s("", 10);
 
     std::cout << "P6\n" << W << " " << H << "\n255\n";
 

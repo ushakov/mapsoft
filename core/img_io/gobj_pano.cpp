@@ -3,7 +3,7 @@
 
 using namespace std;
 
-GObjPano::GObjPano(srtm3 * s): srtm(s), ray_cache(512), rb(0,0){
+GObjPano::GObjPano(SRTM3 * s): srtm(s), ray_cache(512), rb(0,0){
   set_opt(Options());}
 
 /***********************************************************/

@@ -10,5 +10,6 @@ struct CBScale  : public SimpleCombo<int>    { CBScale(); };
 struct CBUnit   : public SimpleCombo<int>    { CBUnit(); };
 struct CBPage   : public SimpleCombo<iPoint> { CBPage(); };
 struct CBCorner : public SimpleCombo<int>    { CBCorner(); };
+struct CBSrtmW  : public SimpleCombo<int>    { CBSrtmW(); };
 
 #endif

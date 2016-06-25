@@ -15,13 +15,13 @@
 
 class trace_gear{
 public:
-  srtm3 & S;
+  SRTM3 & S;
   std::set<iPoint> P, B; // множество пройденных точек, его граница
   int n,ns;              // счетчик всех точек, счетчик бессточных территорий
   iPoint p0,pp;          // исходная точка, точка последнего шага
   int h0,hp;             // исходная высота, высота последнего шага
 
-  trace_gear(srtm3 & S_, const iPoint & p0_):
+  trace_gear(SRTM3 & S_, const iPoint & p0_):
       S(S_), p0(p0_), pp(p0_), n(0), ns(0){
     h0 = hp = S.geth(p0);
     P.insert(p0);
@@ -60,7 +60,7 @@ public:
 // trace one river
 
 std::vector<iPoint>
-trace_river(srtm3 & S, const iPoint & p0, int nmax, int hmin, bool down){
+trace_river(SRTM3 & S, const iPoint & p0, int nmax, int hmin, bool down){
 
   trace_gear G(S, p0);
   if (G.h0 < srtm_min) return std::vector<iPoint>(); // мы вне карты
@@ -106,12 +106,12 @@ class trace_area{
   int dh;      // макс. разница высот "неправильного" стока
   int maxp;    // макс. размер "неправильного" стока
   double mina; // минимальный размер рек, который запоминается
-  srtm3 & S;   // интерфейс к srtm-данным
+  SRTM3 & S;   // интерфейс к srtm-данным
 
   double maxa; // максимальная площадь водосбора (-1, если нет ограничения)
   double suma;
 
-  trace_area(srtm3 & S_, int dh_, int maxp_, double mina_, bool down_):
+  trace_area(SRTM3 & S_, int dh_, int maxp_, double mina_, bool down_):
           S(S_), dh(dh_), maxp(maxp_), mina(mina_), maxa(-1), suma(0), down(down_){ }
 
   // есть ли сток из p1 в p2?
@@ -202,7 +202,7 @@ class trace_area{
 
 // построение прямоугольной хребтовки
 void
-go_down(srtm3 & S, const iPoint & p00, int x, int y,
+go_down(SRTM3 & S, const iPoint & p00, int x, int y,
         cImage & dirs, int nmax, bool down){
 
   // проход вниз
@@ -237,7 +237,7 @@ go_down(srtm3 & S, const iPoint & p00, int x, int y,
 }
 
 dImage
-trace_map(srtm3 & S, const iPoint & p00,
+trace_map(SRTM3 & S, const iPoint & p00,
           int w, int h, int nmax, bool down){
 
   cImage dirs(w,h,-1); // направления стока

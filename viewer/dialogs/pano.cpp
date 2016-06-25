@@ -1,7 +1,7 @@
 #include "pano.h"
 
 
-DlgPano::DlgPano(srtm3 * s): gobj_pano(s),
+DlgPano::DlgPano(SRTM3 * s): gobj_pano(s),
                    dh_adj(20,0,9999,10), az_adj(0,-360,360,10), mr_adj(60,0,999,10),
                    viewer(&gobj_pano),
                    rubber(&viewer){

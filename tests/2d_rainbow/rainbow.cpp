@@ -1,10 +1,7 @@
-#include <srtm/srtm3.h>
 #include <loaders/image_png.h>
 #include <2d/rainbow.h>
 
 /* 2d/rainbow example */
-
-
 
 int
 main(){

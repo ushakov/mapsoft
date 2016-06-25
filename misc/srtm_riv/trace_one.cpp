@@ -9,7 +9,7 @@ using namespace std;
 
 main(){
   dPoint p0(95.786934, 54.057950);
-  srtm3 S;
+  SRTM3 S;
 
   bool down=true;
   int nmax=1000; // максимальный размер бессточных областей

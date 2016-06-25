@@ -44,11 +44,34 @@ main(int argc, char **argv){
     return 1;
   }
 
+  bool packed=false;
+  if (tiff_h==tiff_w) {
+    packed=false;
+  }
+  else if ((tiff_h-1) == (tiff_w-1)*2){
+    packed=true;
+  }
+  else {
+    cerr << "tif2hgt: bad aspect ratio\n";
+    return 1;
+  }
+
   for (int y = 0; y<tiff_h; y++){
     TIFFReadScanline(tif, cbuf, y);
     for (int x = 0; x<tiff_w; x++){
-      fwrite(cbuf+2*x+1, 1, 1, hgt);
-      fwrite(cbuf+2*x,   1, 1, hgt);
+      if (packed){
+        char c=0;
+        fwrite(cbuf+2*x+1, 1, 1, hgt);
+        fwrite(cbuf+2*x,   1, 1, hgt);
+        if (x<tiff_w-1){
+          fwrite(cbuf+2*x+1, 1, 1, hgt);
+          fwrite(cbuf+2*x,   1, 1, hgt);
+        }
+      }
+      else {
+        fwrite(cbuf+2*x+1, 1, 1, hgt);
+        fwrite(cbuf+2*x,   1, 1, hgt);
+      }
     }
   }
   fclose(hgt);

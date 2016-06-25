@@ -136,7 +136,7 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
   // create gobj
   GObjComp gobj;
 
-  srtm3 s(opt.get<string>("srtm_dir"));
+  SRTM3 s(opt.get<string>("srtm_dir"));
   if (opt.exists("srtm_mode"))
     gobj.push_back(new GObjSRTM(&s));
 

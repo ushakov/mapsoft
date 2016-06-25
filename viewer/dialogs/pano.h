@@ -27,7 +27,7 @@ class DlgPano : public Gtk::Dialog{
     sigc::signal<void, dPoint> signal_point_;
 
   public:
-    DlgPano(srtm3 * s);
+    DlgPano(SRTM3 * s);
     void set_origin(const dPoint & pt);
     void set_dir(const dPoint & pt);
     void set_az();

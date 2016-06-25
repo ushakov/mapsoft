@@ -14,7 +14,7 @@ main(){
   int lat1 = DMS(53,32,00)*10;
   int lat2 = DMS(53,34,00)*10;
 
-  srtm3 S;
+  SRTM3 S;
   simple_rainbow SR(1600,2800);
 
   iImage i1(lon2-lon1, lat2-lat1);

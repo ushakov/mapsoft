@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 
   cerr << opt << "\n";
 
-  srtm3 s;
+  SRTM3 s;
   GObjPano gobj(&s);
   gobj.set_opt(opt);
   iImage img(width, height);

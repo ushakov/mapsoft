@@ -33,7 +33,7 @@ int RDS=sizeof(RD)/sizeof(rainbow_data);
 
 main(){
 
-  srtm3 s;
+  SRTM3 s;
   simple_rainbow R(500,3000);
   iImage img(lon2-lon1, lat2-lat1);
   iPoint p;

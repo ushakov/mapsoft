@@ -37,7 +37,7 @@ main(int argc, char** argv){
   std::string cmd      = argv[2];
   std::string srtm_dir = argv[3];
 
-  srtm3 s(srtm_dir, 10);
+  SRTM3 s(srtm_dir, 10);
 
   // read fig, build conversion fig -> wgs
   fig::fig_world F;

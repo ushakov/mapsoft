@@ -35,7 +35,7 @@ int r2col(double r, double h){
 
 int main(int argc, char *argv[]) {
 
-  srtm3 s;
+  SRTM3 s;
 
   int width   = 1200; // width of picture
   double rad2pt = double(width)/(max_a-min_a);
