@@ -16,10 +16,11 @@ public:
       double mina = 0.5;
       int maxp = down?10000:10000;// макс. размер "неправильного" стока
       int dh   = down?200:200;  // макс. разница высот "неправильного" стока
+      size_t srtmw = mapview->panel_misc.srtm.get_width()-1;
 
       dPoint gpt(p);
       mapview->get_cnv()->frw(gpt);
-      iPoint pt(gpt*1200.0);
+      iPoint pt(gpt*srtmw);
 
       trace_area T(mapview->panel_misc.srtm, dh, maxp, mina, down);
 
@@ -47,7 +48,7 @@ public:
         for (pi = ri->begin(); pi!=ri->end(); pi++){
           g_trackpoint tpt;
           tpt.dPoint::operator=(*pi);
-          tpt/=1200;
+          tpt/=srtmw;
           tpt.z = mapview->panel_misc.srtm.geth(*pi);
           if (pi==ri->begin()) tpt.start=true;
           track->push_back(tpt);
@@ -63,7 +64,7 @@ public:
         for (pi = li->begin(); pi!=li->end(); pi++){
           g_trackpoint tpt;
           tpt.dPoint::operator=(*pi);
-          tpt/=1200;
+          tpt/=srtmw;
           tpt.z = mapview->panel_misc.srtm.geth(*pi);
           if (pi == li->begin()) tpt.start=true;
           btrack->push_back(tpt);

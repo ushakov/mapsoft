@@ -30,15 +30,16 @@ public:
           int hmin = mapview->panel_misc.srtm.geth4(end_pt)-1;
           int nmax = 10000;
           bool down = true;
+          size_t srtmw = mapview->panel_misc.srtm.get_width()-1;
           std::vector<iPoint> points =
-            trace_river(mapview->panel_misc.srtm, start_pt*1200, nmax, hmin, down);
+            trace_river(mapview->panel_misc.srtm, start_pt*srtmw, nmax, hmin, down);
           std::vector<iPoint>::const_iterator i;
 
           boost::shared_ptr<g_track> track(new g_track());
           for (i = points.begin(); i!=points.end(); i++){
             g_trackpoint pt;
             pt.dPoint::operator=(*i);
-            pt/=1200;
+            pt/=srtmw;
             pt.z = mapview->panel_misc.srtm.geth(*i);
             track->push_back(pt);
           }
