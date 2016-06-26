@@ -69,11 +69,3 @@ CBCorner::CBCorner(){
     data_list+sizeof(data_list)/sizeof(pair_t));
 }
 
-CBSrtmW::CBSrtmW(){
-  const pair_t data_list[] = {
-    pair_t(1201, "3 sec"),
-    pair_t(3601, "1 sec"),
-  };
-  set_values(data_list,
-    data_list+sizeof(data_list)/sizeof(pair_t));
-}

@@ -47,9 +47,11 @@ GObjPano::get_ray(int x){
   int key=round(a*1000000);
   if (ray_cache.contains(key)) return ray_cache.get(key);
 
+  size_t srtmw = srtm->get_width()-1;
+
   double sa=sin(a), ca=cos(a), cx=cos(p0.y * M_PI/180.0);
-  dPoint pt= p0*1200; // srtm units
-  double m2srtm=1200 * 180/M_PI/ 6380000;
+  dPoint pt= p0*srtmw; // srtm units
+  double m2srtm=srtmw * 180/M_PI/ 6380000;
   double rM=max_r*m2srtm;
 
   // Intersections or ray with x and y lines of srtm grid goes

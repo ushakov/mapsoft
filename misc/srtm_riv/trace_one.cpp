@@ -15,7 +15,8 @@ main(){
   int nmax=1000; // максимальный размер бессточных областей
   int hmin=600;  // минимальная высота - критерий остановки
 
-  vector<iPoint> R = trace_river(S, p0*1200, nmax, hmin, down);
+  size_t srtmw = S.get_width()-1;
+  vector<iPoint> R = trace_river(S, p0*srtmw, nmax, hmin, down);
   if (!R.size()) exit(1);
 
   // find data range

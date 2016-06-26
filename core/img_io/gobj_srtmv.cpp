@@ -16,13 +16,14 @@ GObjSRTMv::draw(iImage & image, const iPoint & origin){
   int col   = opt.get<int>("srtm_cnt_col",   0x0060C0);
   double w   = opt.get<double>("srtm_cnt_w",     1.5);
   double crv = opt.get<double>("srtm_cnt_crv",  20.0);
+  size_t srtmw = S->get_width()-1;
 
   CairoWrapper cr;
   cr.reset_surface(image);
   cr->set_line_width(w);
   cr->set_color(col);
 
-  dRect wgs_range = rect_pump(cnv.bb_frw(range), 1/1200.0);
+  dRect wgs_range = rect_pump(cnv.bb_frw(range), 1.0/srtmw);
   map<short, dMultiLine> hors = S->find_contours(wgs_range, step1);
 
   for(map<short, dMultiLine>::iterator i = hors.begin(); i!=hors.end(); i++){

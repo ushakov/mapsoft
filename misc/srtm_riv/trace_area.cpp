@@ -23,12 +23,13 @@ main(){
   int maxp = down?10000:10000;// макс. размер "неправильного" стока
   int dh   = down?200:200;  // макс. разница высот "неправильного" стока
   SRTM3 S;
+  size_t srtmw = S.get_width()-1;
 
   trace_area T(S, dh, maxp, mina, down);
 
 //  T.maxa=400;
 
-  iPoint p(p0*1200.0);
+  iPoint p(p0*srtmw);
   if (down) S.move_to_min(p); // сдвигаемся в локальный минимум
   else      S.move_to_max(p);
 

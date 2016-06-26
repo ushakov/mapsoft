@@ -14,11 +14,12 @@ main(){
   int nmax=1000;         // максимальный размер бессточных областей
   bool down = true;
   SRTM3 S;
+  size_t srtmw = S.get_width()-1;
 
   cerr << "Tracing rivers...\n";
-  dImage ra = trace_map(S, p0*1200, w, h, nmax, down);
+  dImage ra = trace_map(S, p0*srtmw, w, h, nmax, down);
   cerr << "Tracing mountains...\n";
-  dImage ma = trace_map(S, p0*1200, w, h, nmax, !down);
+  dImage ma = trace_map(S, p0*srtmw, w, h, nmax, !down);
   cerr << "Done.\n";
 
   // fill image
@@ -26,7 +27,7 @@ main(){
   simple_rainbow R(500,3000);
   for (int y=0; y<h; y++){
     for (int x=0; x<w; x++){
-      int c = R.get(S.geth(iPoint(p0*1200)+iPoint(x,y), true));
+      int c = R.get(S.geth(iPoint(p0*srtmw)+iPoint(x,y), true));
       if (ra.get(x,y)>0.5) c=0xFF0000;
       if (ma.get(x,y)>0.5) c=0x0;
       img.set_na(x,h-y-1,c);

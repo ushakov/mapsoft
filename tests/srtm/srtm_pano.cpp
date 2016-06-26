@@ -36,6 +36,7 @@ int r2col(double r, double h){
 int main(int argc, char *argv[]) {
 
   SRTM3 s;
+  size_t srtmw = s.get_width()-1;
 
   int width   = 1200; // width of picture
   double rad2pt = double(width)/(max_a-min_a);
@@ -53,7 +54,7 @@ int main(int argc, char *argv[]) {
   iImage data(width, height);
 
   // примерный шаг srtm
-  int dr = int(1/1200.0 * Re *M_PI/90.0 *cos(lat0));
+  int dr = int(1.0/srtmw * Re *M_PI/90.0 *cos(lat0));
 
   dPoint p0 = fast_cnv(lon0, dPoint(lon0, lat0));
   double x0 = p0.x;
