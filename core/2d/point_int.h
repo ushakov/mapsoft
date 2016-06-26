@@ -28,5 +28,11 @@ int add_pb(const iPoint& p, std::set<iPoint>& pset, std::set<iPoint>& bord);
 /// преобразовать множество точек в линию границы
 dMultiLine pset2line (const std::set<iPoint>& pset);
 
+/// Алгоритм Брезенхема: нарисовать отрезок от p1 до p2,
+/// Вернуть множество точек, составляющих этот отрезок.
+/// w  - толщина линии (2w+1 точек)
+/// sh - сдвиг линии вправо от ориентированного отрезка, точек
+std::set<iPoint> brez(iPoint p1, iPoint p2,
+                      const int w=0, const int sh=0);
 
 #endif /* POINT_INT_H */

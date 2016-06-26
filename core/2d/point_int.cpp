@@ -85,3 +85,52 @@ pset2line (const std::set<iPoint>& pset){
   merge(ret,0.1);
   return ret;
 }
+
+// see details in https://github.com/slazav/bresenham/blob/master/br.c
+std::set<iPoint>
+brez(iPoint p1, iPoint p2, const int w, const int sh){
+
+  std::set<iPoint> ret;
+
+  int dx=p2.x-p1.x, dy=p2.y-p1.y;
+  int e,j;
+  int sx=dx>0;  // line goes right
+  int sy=dy>0;  // line goes up
+
+  if (!sx) dx=-dx;
+  if (!sy) dy=-dy;
+
+  int s=dx>dy; // line closer to horizontal
+  int sd = (sx&&s) || (!sy&&!s); // positive shift
+
+  // start/stop width
+  int w1=0-w+sh*sd;
+  int w2=1+w+sh*sd;
+
+  if (s){
+    for (j=w1;j<w2;j++) ret.insert(p1 + iPoint(0,j));
+    e = (dy<<1)-dx;
+    while (p1.x!=p2.x){
+      if (e<0){
+        sx?p1.x++:p1.x--; e+=dy<<1;
+        for (j=w1;j<w2;j++) ret.insert(p1 + iPoint(0,j));
+      }
+      else {
+        sy?p1.y++:p1.y--; e-=dx<<1;
+      }
+    }
+  }
+  else {
+    for (j=w1;j<w2;j++) ret.insert(p1 + iPoint(j,0));
+    e = (dx<<1)-dy;
+    while (p1.y!=p2.y){
+      if (e<0){
+        sy?p1.y++:p1.y--; e+=dx<<1;
+        for (j=w1;j<w2;j++) ret.insert(p1 + iPoint(j,0));
+      }
+      else {
+        sx?p1.x++:p1.x--; e-=dy<<1;
+      }
+    }
+  }
+}

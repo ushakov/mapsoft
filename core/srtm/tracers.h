@@ -120,11 +120,30 @@ class trace_area{
   double mina; // collect data for rivers larger then mina area, km^2
   SRTM3 & S;   // SRTM data
 
+  std::set<iPoint> stop; // "stop segment", calculation never cross it.
+
   double maxa; // max area (-1 for no limit)
   double suma;
 
+  // constructor: initialize some parameters
   trace_area(SRTM3 & S_, int dh_, int maxp_, double mina_, bool down_):
           S(S_), dh(dh_), maxp(maxp_), mina(mina_), maxa(-1), suma(0), down(down_){ }
+
+  // set stop segment, return starting point for it (minimum on the right side)
+  iPoint set_stop_segment(const iPoint & p1, const iPoint & p2){
+    // stop segment - line between points:
+    stop = brez(p1,p2);
+    // shifted right:
+    std::set<iPoint> init = brez(p1,p2,0,1);
+    iPoint pm = p1;
+    short  hm = S.geth(pm,true);
+    std::set<iPoint>::const_iterator i;
+    for (i=init.begin(); i!=init.end(); i++){
+      short h = S.geth(*i,true);
+      if ((down && h < hm) || (!down && h > hm)) {hm=h, pm=*i;}
+    }
+    return pm;
+  }
 
   // is there a sink from p1 to p2?
   bool is_flow(const iPoint &p1, const iPoint &p2){
@@ -132,16 +151,19 @@ class trace_area{
     trace_gear G(S, p1);
     short h_thr = S.geth(p2,true) + (down? -dh: dh);
 
-    do {
+    while(1) {
       iPoint p=G.go(down);
       if (p==p2) return true;
-      // we found already processed point
+      // already processed point
       if (done.count(p)) return false;
-      int h=S.geth(p,true);
-      // dh limit
-      if ((down && h < h_thr) || (!down && h > h_thr)) return false;
+      // stop segment
+      if (stop.count(p)) return false;
       // maxp limit
-    } while (G.n < maxp);
+      if (G.n > maxp) return false;
+      // dh limit
+      int h=S.geth(p,true);
+      if ((down && h < h_thr) || (!down && h > h_thr)) return false;
+    }
     return false;
   }
 
