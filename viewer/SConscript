@@ -30,6 +30,7 @@ e.Library("viewer", Split ("""
 	dialogs/srtm_opt.cpp
 	dialogs/pano.cpp
 	dialogs/nav.cpp
+	dialogs/trace.cpp
 
 	panels/workplane.cpp
 	panels/wpts_panel.cpp

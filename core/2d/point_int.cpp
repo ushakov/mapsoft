@@ -91,7 +91,6 @@ std::set<iPoint>
 brez(iPoint p1, iPoint p2, const int w, const int sh){
 
   std::set<iPoint> ret;
-
   int dx=p2.x-p1.x, dy=p2.y-p1.y;
   int e,j;
   int sx=dx>0;  // line goes right
@@ -101,11 +100,11 @@ brez(iPoint p1, iPoint p2, const int w, const int sh){
   if (!sy) dy=-dy;
 
   int s=dx>dy; // line closer to horizontal
-  int sd = (sx&&s) || (!sy&&!s); // positive shift
+  bool sd = (sx&&s) || (!sy&&!s); // negative shift
 
   // start/stop width
-  int w1=0-w+sh*sd;
-  int w2=1+w+sh*sd;
+  int w1=0-w + (sd?-sh:sh);
+  int w2=1+w + (sd?-sh:sh);
 
   if (s){
     for (j=w1;j<w2;j++) ret.insert(p1 + iPoint(0,j));
@@ -133,4 +132,5 @@ brez(iPoint p1, iPoint p2, const int w, const int sh){
       }
     }
   }
+  return ret;
 }

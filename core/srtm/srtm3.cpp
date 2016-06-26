@@ -234,28 +234,26 @@ SRTM3::plane(const iPoint& p, int max){
 }
 
 void
-SRTM3::move_to_extr(iPoint & p0, bool max){
+SRTM3::move_to_extr(iPoint & p0, bool down, int maxst){
   iPoint p1 = p0;
+  int i=0;
   do {
     short h = geth(p0, true);
     for (int i=0; i<8; i++){
       iPoint p=adjacent(p0,i);
-      if ((max && (geth(p,true) > geth(p1,true))) ||
-         (!max && (geth(p,true) < geth(p1,true)))) p1=p;
+      if ((down && (geth(p,true) < geth(p1,true))) ||
+         (!down && (geth(p,true) > geth(p1,true)))) p1=p;
     }
     if (p1==p0) break;
     p0=p1;
-  } while (1);
+    i++;
+  } while (maxst<0 || i<maxst);
 }
 
 void
-SRTM3::move_to_min(iPoint & p0){
-  move_to_extr(p0, false);
-}
+SRTM3::move_to_min(iPoint & p0, int maxst){ move_to_extr(p0, true, maxst); }
 void
-SRTM3::move_to_max(iPoint & p0){
-  move_to_extr(p0, true);
-}
+SRTM3::move_to_max(iPoint & p0, int maxst){ move_to_extr(p0, false, maxst); }
 double
 SRTM3::area(const iPoint &p) const{
   return area0 * cos((double)p.y *M_PI/180.0/srtm_width);

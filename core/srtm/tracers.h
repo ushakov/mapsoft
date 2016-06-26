@@ -18,11 +18,12 @@ public:
   SRTM3 & S;
   std::set<iPoint> P, B; // processed points, border of processed area
   int n,ns;              // counters: all points, areas without sink
+  double a,as;           // same counters, but with area, m^2
   iPoint p0,pp;          // starting point, last-step point
   int h0,hp;             // starting heigth, last-step height
 
   trace_gear(SRTM3 & S_, const iPoint & p0_):
-      S(S_), p0(p0_), pp(p0_), n(0), ns(0){
+      S(S_), p0(p0_), pp(p0_), n(0), ns(0), a(0), as(0){
     h0 = hp = S.geth(p0);
     P.insert(p0);
     for (int i=0; i<8; i++) B.insert(adjacent(p0,i));
@@ -52,9 +53,11 @@ public:
     }
 
     n++; ns++;
+    a  += S.area(p);
+    as += S.area(p);
     // If found point is lower than that on a previous step,
-    // do the next step, reset ns counter
-    if ((!down && h > hp) || (down && h < hp)) { hp=h; ns=0; pp=p; }
+    // do the next step, reset ns and as counters
+    if ((!down && h > hp) || (down && h < hp)) { hp=h; ns=0; as=0; pp=p; }
     return p;
   }
 };
@@ -131,8 +134,8 @@ class trace_area{
 
   // set stop segment, return starting point for it (minimum on the right side)
   iPoint set_stop_segment(const iPoint & p1, const iPoint & p2){
-    // stop segment - line between points:
-    stop = brez(p1,p2);
+    // stop segment - thick line between points:
+    stop = brez(p1,p2,1,0);
     // shifted right:
     std::set<iPoint> init = brez(p1,p2,0,1);
     iPoint pm = p1;
@@ -176,7 +179,7 @@ class trace_area{
     done.insert(p0);
     for (int i=0; i<8; i++){
       iPoint p = adjacent(p0,i);
-      if (done.count(p) || !is_flow(p, p0)) continue;
+      if (done.count(p) || stop.count(p) || !is_flow(p, p0)) continue;
       double a1 = get_a(p);
       if (a1>mina) dirs[p]=i;
       a+=a1;

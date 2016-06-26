@@ -69,15 +69,15 @@ public:
   std::set<iPoint> plane(const iPoint& p, int max=1000);
 
   // move p0 to the local extremum (interpolation is always on)
-  void move_to_extr(iPoint & p0, bool max);
-  void move_to_min(iPoint & p0);
-  void move_to_max(iPoint & p0);
+  void move_to_extr(iPoint & p0, bool down, int maxst=-1);
+  void move_to_min(iPoint & p0, int maxst=-1);
+  void move_to_max(iPoint & p0, int maxst=-1);
 
-  double size0; // size (m) of 3 sec lat bow
-  double area0; // area (m^2) of 3x3 sec cell on equator
+  double size0; // size (m) of 1 srtm point lat bow
+  double area0; // area (m^2) of 1x1 srtm point on equator
   size_t srtm_width; // файлы 1201х1201
 
-  // area (km2) of 3x3 sec cell at the given point
+  // area (km2) of 1x1 srtm point at the given place
   double area(const iPoint &p) const;
 
   // making some vector data: contours, peaks, srtm holes
