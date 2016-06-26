@@ -12,14 +12,14 @@
 
 /********************************************************************/
 // common object for all tracers
-
+//
 class trace_gear{
 public:
   SRTM3 & S;
-  std::set<iPoint> P, B; // множество пройденных точек, его граница
-  int n,ns;              // счетчик всех точек, счетчик бессточных территорий
-  iPoint p0,pp;          // исходная точка, точка последнего шага
-  int h0,hp;             // исходная высота, высота последнего шага
+  std::set<iPoint> P, B; // processed points, border of processed area
+  int n,ns;              // counters: all points, areas without sink
+  iPoint p0,pp;          // starting point, last-step point
+  int h0,hp;             // starting heigth, last-step height
 
   trace_gear(SRTM3 & S_, const iPoint & p0_):
       S(S_), p0(p0_), pp(p0_), n(0), ns(0){
@@ -28,8 +28,12 @@ public:
     for (int i=0; i<8; i++) B.insert(adjacent(p0,i));
   }
 
+  // Do a single step to the next point.
+  // If it is possible, the point is lower then previous,
+  // then ns is set to 0.
+  // down parameter -- is the flow goes down (river) of up (mountain)
   iPoint go(bool down){
-    // найдем минимум на границе и добавим его в список
+    // find adjacent point (member of B) with minimum height
     iPoint p=*B.begin();
     int h = S.geth(p, true);
     std::set<iPoint>::iterator b;
@@ -39,7 +43,7 @@ public:
       if ((!down && h < h1) || ( down && h > h1)) { h=h1; p=*b;}
     }
 
-    // добавим точку, пересчитаем границу
+    // add found point into P, recalculate B
     P.insert(p);
     B.erase(p);
     for (int i=0; i<8; i++){
@@ -48,8 +52,8 @@ public:
     }
 
     n++; ns++;
-    // если мы нашли более низкую точку, чем прошлая - делаем шаг,
-    // обнуляем счетчик бессточных территорий
+    // If found point is lower than that on a previous step,
+    // do the next step, reset ns counter
     if ((!down && h > hp) || (down && h < hp)) { hp=h; ns=0; pp=p; }
     return p;
   }
@@ -57,29 +61,38 @@ public:
 
 
 /********************************************************************/
-// trace one river
-
+// Trace one river.
+// Parameters:
+//    p0 -- starting point
+//    nmax -- no-sink area when we stop calculation
+//    hmin -- threshold height where we want to stop calculation
+//    down -- is the flow goes down (river) of up (mountain)
 std::vector<iPoint>
 trace_river(SRTM3 & S, const iPoint & p0, int nmax, int hmin, bool down){
 
   trace_gear G(S, p0);
-  if (G.h0 < srtm_min) return std::vector<iPoint>(); // мы вне карты
+  if (G.h0 < srtm_min) return std::vector<iPoint>(); // outside the map!
 
-  std::vector<iPoint> L; // упорядоченный список просмотренных точек
+  std::vector<iPoint> L; // sorted vector of our steps
   L.push_back(p0);
 
   do {
+    // do one step down
     L.push_back(G.go(down));
-    // если мы уже ушли далеко, а шаг не сделали, то точка
-    // последнего шага - бессточная. Возвращаемся к ней.
+
+    // if we went far but didn't find lower point, then
+    // it id the end of river!
+    // Return back to previous lowest point and break.
     if (G.ns > nmax) { L.push_back(G.pp); break; }
 
-    // критерий выхода: до высоты hmin, или края данных
+    // stop the loop if point is lower then hmin (or we outside the data)
   } while (G.hp > hmin);
 
   iPoint p = L[L.size()-1];
   std::vector<iPoint> ret;
-  // обратный проход от p до p0
+
+  // Now go back from p to p0 and build the river line.
+  // On each step look for adjecent and the aerliest point in L.
   while (p!=p0){
     std::vector<iPoint>::const_iterator b;
     for (b = L.begin(); b!=L.end(); b++){
@@ -93,28 +106,27 @@ trace_river(SRTM3 & S, const iPoint & p0, int nmax, int hmin, bool down){
 }
 
 /********************************************************************/
-// trace area
-
-// нахождение площади водосбора одной реки/горы
+// Trace area of one river/mountain
+//
 class trace_area{
   public:
-  std::set<iPoint> done;          // обработанные точки
-  std::map<iPoint,double> areas;  // сюда будем складывать площади
-  std::map<iPoint,char> dirs;     // сюда будем складывать направления стока
+  std::set<iPoint> done;          // processed points
+  std::map<iPoint,double> areas;  // processed areas
+  std::map<iPoint,char> dirs;     // directions of flow
 
-  bool down;   // направление стока true=вниз
-  int dh;      // макс. разница высот "неправильного" стока
-  int maxp;    // макс. размер "неправильного" стока
-  double mina; // минимальный размер рек, который запоминается
-  SRTM3 & S;   // интерфейс к srtm-данным
+  bool down;   // is the flow goes down (river) of up (mountain)
+  int dh;      // max height difference of a "wrong sink"
+  int maxp;    // max size of a "wrong sink"
+  double mina; // collect data for rivers larger then mina area, km^2
+  SRTM3 & S;   // SRTM data
 
-  double maxa; // максимальная площадь водосбора (-1, если нет ограничения)
+  double maxa; // max area (-1 for no limit)
   double suma;
 
   trace_area(SRTM3 & S_, int dh_, int maxp_, double mina_, bool down_):
           S(S_), dh(dh_), maxp(maxp_), mina(mina_), maxa(-1), suma(0), down(down_){ }
 
-  // есть ли сток из p1 в p2?
+  // is there a sink from p1 to p2?
   bool is_flow(const iPoint &p1, const iPoint &p2){
 
     trace_gear G(S, p1);
@@ -123,17 +135,19 @@ class trace_area{
     do {
       iPoint p=G.go(down);
       if (p==p2) return true;
+      // we found already processed point
       if (done.count(p)) return false;
       int h=S.geth(p,true);
+      // dh limit
       if ((down && h < h_thr) || (!down && h > h_thr)) return false;
-      // Повторяем пока не превысили максимальное число точек.
+      // maxp limit
     } while (G.n < maxp);
     return false;
   }
 
   // recursively get area
   double get_a(const iPoint &p0){
-    double a=S.area(p0) * 1e-6; // площадь точки
+    double a=S.area(p0) * 1e-6; // dot area in km^2
 
     if (maxa > 0 && (suma+=a) > maxa) return 0;
 
@@ -149,7 +163,7 @@ class trace_area{
     return a;
   }
 
-  // сортировка рек
+  // sort rivers
   std::list<std::list<iPoint> > sort_areas(){
 
     std::list<std::list<iPoint> > ret;
