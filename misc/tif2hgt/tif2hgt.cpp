@@ -56,6 +56,15 @@ main(int argc, char **argv){
     return 1;
   }
 
+  bool addpixel=false;
+  if ((tiff_h%1200) == 0 && (tiff_w%1200==0)) {  addpixel=true; }
+  else if ((tiff_h%1200) == 1 && (tiff_w%1200==1)) {  addpixel=false; }
+  else {
+    cerr << "tif2hgt: bad size\n";
+    return 1;
+  }
+
+
   for (int y = 0; y<tiff_h; y++){
     TIFFReadScanline(tif, cbuf, y);
     for (int x = 0; x<tiff_w; x++){
@@ -73,7 +82,16 @@ main(int argc, char **argv){
         fwrite(cbuf+2*x,   1, 1, hgt);
       }
     }
+    if (addpixel){
+      short c=0;
+      fwrite(&c, 1, 2, hgt);
+    }
   }
+  if (addpixel){
+    short c=0;
+    for (int x = 0; x<tiff_w+1; x++) fwrite(&c, 1, 2, hgt);
+  }
+
   fclose(hgt);
   _TIFFfree(cbuf);
   TIFFClose(tif);
