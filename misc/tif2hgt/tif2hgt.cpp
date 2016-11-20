@@ -57,8 +57,8 @@ main(int argc, char **argv){
   }
 
   bool addpixel=false;
-  if ((tiff_h%1200) == 0 && (tiff_w%1200==0)) {  addpixel=true; }
-  else if ((tiff_h%1200) == 1 && (tiff_w%1200==1)) {  addpixel=false; }
+  if ((tiff_h%600) == 0 && (tiff_w%600==0)) {  addpixel=true; }
+  else if ((tiff_h%600) == 1 && (tiff_w%600==1)) {  addpixel=false; }
   else {
     cerr << "tif2hgt: bad size\n";
     return 1;
