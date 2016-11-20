@@ -20,7 +20,7 @@ dRect nom_to_range(const std::string & name);
 /// Coordinates must be in Pulkovo-1942 datum
 /// (p.x is longitude, p.y is latitude).
 /// Returns empty string for bad coordinates or bad rscale.
-std::string pt_to_nom(const dPoint & p, int rscale);
+std::string pt_to_nom(dPoint p, int rscale);
 
 /// Return nomenclature name of neighbor (defined as shift).
 std::string nom_shift(const std::string & name, const iPoint & shift);

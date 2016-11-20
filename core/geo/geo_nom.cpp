@@ -20,6 +20,7 @@ nom_to_range(const string & key, int & rscale){
     string c5 = "";
     string c2 = "";
     string c1 = "";
+    string cs = "";
     string d = "";
     double nx=1.0, ny=1.0;
     int m=1;
@@ -56,8 +57,9 @@ nom_to_range(const string & key, int & rscale){
       (ch_p(':')||ch_p('.')) >>
          real_p[assign_a(nx)] >> ch_p('x') >> real_p[assign_a(ny)];
 
+    rule<> south = (ch_p('x')||ch_p('X'))[assign_a(cs)];
 
-    if (!parse(key1.c_str(), (map_p_s || map_a_o) >> !map_range >> *anychar_p).full)
+    if (!parse(key1.c_str(), !south >> (map_p_s || map_a_o) >> !map_range >> *anychar_p).full)
       return dRect(0,0,0,0);
 
     char ac='a';
@@ -70,6 +72,7 @@ nom_to_range(const string & key, int & rscale){
     double lat1,lat2,lon1,lon2;
 
     lat1 = ac*4; lat2=lat1+4;
+    if (cs!="") {lat1 = -lat1; lat2=-lat2; }
 
     if ((b<1)||(b>=60)) return dRect(0,0,0,0);
 
@@ -134,12 +137,16 @@ nom_to_range(const string & key){
 
 // по координатам в СК pulkovo-42 возвращает название листа
 string
-pt_to_nom(const dPoint & p, int sc){
-    if ((p.x <-180) || (p.x>180) || (p.y<0) || (p.y>90))
+pt_to_nom(dPoint p, int sc){
+    if ((p.x <-180) || (p.x>180) || (p.y<-90) || (p.y>90))
       return string(); // bad coordinates
 
-    char A = 'a' + (int)floor(p.y/4);
+    bool south = p.y<0;
+
+    char A = 'a' + (int)floor(abs(p.y)/4);
     int  B = 31 +  (int)floor(p.x/6);
+
+    if (south) p.y=p.y+90;
 
     bool dbl = A>'o';
 
@@ -168,26 +175,27 @@ pt_to_nom(const dPoint & p, int sc){
 
     ostringstream out;
 
+    out << (south?"x":"") << A;
     if (dbl){
       if (sc==1000000){
         B=((B-1)/2)*2+1;
-        out << A << B << '-' << B+1;
+        out << B << '-' << B+1;
       }
       else if (sc>50000){
         C=((C-1)/2)*2+1;
-        out << A << B << '-'
+        out << B << '-'
             << setw(w) << setfill('0') << C << '-'
             << setw(w) << setfill('0') << C+1;
       }
       else {
         D=((D-1)/2)*2+1;
-        out << A << B << '-' 
+        out << B << '-' 
             << setw(w) << setfill('0')<< C 
             << '-' << D << '-' << D+1;
       }
     }
     else {
-      out << A << B;
+      out << B;
       if (w!=0) out << '-' << setw(w) << setfill('0') << C;
       if (sc<=50000) out << '-' << D;
     }
