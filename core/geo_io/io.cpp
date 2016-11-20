@@ -20,6 +20,7 @@
 #include "io_kml.h"
 #include "io_gpx.h"
 #include "io_oe.h"
+#include "io_js.h"
 #include "io_zip.h"
 #include "geofig.h"
 
@@ -136,6 +137,11 @@ out(const string & out_name, geo_data const & world, const Options & opt){
   // GPX format
   if (testext(name, ".gpx")){
     gpx::write_file (name.c_str(), world, opt);
+    return;
+  }
+  // JS format
+  if (testext(name, ".js")){
+    js::write_file (name.c_str(), world, opt);
     return;
   }
 

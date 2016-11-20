@@ -11,6 +11,7 @@ e.Library('geo_io', \
     io_kml.cpp
     io_gpx.cpp
     io_oe.cpp
+    io_js.cpp
     io_xml.cpp
     io_zip.cpp
     geofig.cpp
