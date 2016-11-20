@@ -72,7 +72,7 @@ nom_to_range(const string & key, int & rscale){
     double lat1,lat2,lon1,lon2;
 
     lat1 = ac*4; lat2=lat1+4;
-    if (cs!="") {lat1 = -lat1; lat2=-lat2; }
+    if (cs!="") {lat1 = -lat2; lat2=lat1+4; }
 
     if ((b<1)||(b>=60)) return dRect(0,0,0,0);
 
@@ -141,12 +141,12 @@ pt_to_nom(dPoint p, int sc){
     if ((p.x <-180) || (p.x>180) || (p.y<-90) || (p.y>90))
       return string(); // bad coordinates
 
-    bool south = p.y<0;
 
     char A = 'a' + (int)floor(abs(p.y)/4);
     int  B = 31 +  (int)floor(p.x/6);
 
-    if (south) p.y=p.y+90;
+    bool south = p.y<0;
+    if (p.y<0) p.y=p.y+88;
 
     bool dbl = A>'o';
 
