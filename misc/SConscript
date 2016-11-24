@@ -10,6 +10,7 @@ subdirs = Split ("""
   srtm_riv
   tim
   image_a
+  forest
   """)
 
 SConscript (map (lambda(s): s+"/SConscript", subdirs))

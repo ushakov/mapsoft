@@ -9,6 +9,7 @@ namespace image_tiff{
 iPoint size(const char *file);
 
 iImage load(const char *file, const int scale=1);
+int load(const char *file, iRect src_rect, iImage & image, iRect dst_rect);
 
 // save the whole image
 int save(const iImage & im, const char * file);

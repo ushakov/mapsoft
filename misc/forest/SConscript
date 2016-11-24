@@ -1,0 +1,11 @@
+Import('env')
+e=env.Clone()
+e.UseLibs('geo_io srtm')
+
+map (lambda(f): e.Program(f+'.cpp'),\
+  Split("""
+    forest_preview
+    forest_nom
+    """))
+
+

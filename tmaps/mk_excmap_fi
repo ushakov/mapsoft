@@ -6,12 +6,12 @@
 mkdir -p -- "excmap.fi"
 mkmap(){
 
-  pt_proj='proj="tmerc" datum="KKJ" lon0="27" E0="3500000"'
+  pt_proj='proj="tmerc" datum="KKJ" lon0="27" E0="499820" N0="200" k=0.99955'
   map_proj='map_proj="tmerc" lon0="27" tile_swapy'
   ts=256
 
-  xr1=$(echo "$x1 * $ts" | bc -l)
-  xr2=$(echo "$x2 * $ts" | bc -l)
+  xr1=$(echo "$x1 * $ts - 3000000/$pt2u" | bc -l)
+  xr2=$(echo "$x2 * $ts - 3000000/$pt2u" | bc -l)
   yr1=$(echo "$y1 * $ts" | bc -l)
   yr2=$(echo "$y2 * $ts" | bc -l)
 
@@ -20,7 +20,8 @@ mkmap(){
   yg1=$(echo "$yr1 * $pt2u" | bc -l)
   yg2=$(echo "$yr2 * $pt2u" | bc -l)
 
-  url_fmt="http://ntile1.navici.com/t/retkikartta/maps/2393x${pt2u}x%dx%d.png"
+#  url_fmt="http://ntile1.navici.com/t/retkikartta/maps/2393x${pt2u}x%dx%d.png"
+  url_fmt="http://ntile1.navici.com/t/retkikartta_euref/3067x${pt2u}x%dx%d.png"
 
 cat > ${f%.txt}.xml << EOF
 <maps>
