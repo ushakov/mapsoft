@@ -6,6 +6,7 @@ map (lambda(f): e.Program(f+'.cpp'),\
   Split("""
     forest_preview
     forest_nom
+    forest_vec
     """))
 
 
