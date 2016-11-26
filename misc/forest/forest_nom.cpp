@@ -41,16 +41,8 @@ main(int argc, char** argv){
   std::string forest_dir = argv[2];
 
   dRect range = convs::nom_to_range(name);
-
-// file names:
-// Hansen_GFC2015_datamask_40S_080W.tif
-// Hansen_GFC2015_gain_40S_080W.tif
-// Hansen_GFC2015_last_40S_080W.tif
-// Hansen_GFC2015_loss_40S_080W.tif
-// Hansen_GFC2015_lossyear_40S_080W.tif
-// Hansen_GFC2015_treecover2000_40S_080W.tif
-
-  // load data (10x10deg, 1"x1" points)
+  convs::pt2wgs cnv(Datum("pulk"), Proj("lonlat"));
+  range = cnv.bb_frw(range);
 
   int deg2pt = 4000;
   int tsize  = 40000;
@@ -84,20 +76,13 @@ main(int argc, char** argv){
     }
   }
 
-  g_map ref;
-  ref.file = name + ".tif";
-  ref.map_proj = Proj("lonlat");
-  ref.clear();
-  ref.border.clear();
-  ref.push_back(g_refpoint(range.TLC(), irange.BLC()-irange.TLC()));
-  ref.push_back(g_refpoint(range.BLC(), irange.TLC()-irange.TLC()));
-  ref.push_back(g_refpoint(range.TRC(), irange.BRC()-irange.TLC()));
 
-  g_map_list mm;
-  mm.push_back(ref);
-  geo_data W;
-  W.maps.push_back(mm);
-  io::out(name + ".map", W);
+  int col_w = 0xFFFF00;  // water
+  int col_c1 = 0xAAEEDD;  // forest change
+  int col_c2 = 0x88BB88;  // forest change
+  int col_f1 = 0xDDFFDD; // light forest
+  int col_f2 = 0xAAFFAA; // heavy forest
+  int col_e = 0xFFFFFF;  // emplty
 
   for (int y = 0; y<tc2000.h; y++){
     for (int x = 0; x<tc2000.w; x++){
@@ -107,21 +92,30 @@ main(int argc, char** argv){
       int Y = year.get(x,y) & 0xFF;
       int m = mask.get(x,y) & 0xFF;
 
-//      int v = 0xAA + (0xFF-0xAA)*(100-c)/100;
-//      if (m==2){ tc2000.set_na(x,y, 0xFFFF00); continue; }
-//      if (g==1){ tc2000.set_na(x,y, 0xAAEEDD); continue; }
-//      if (l==1){ tc2000.set_na(x,y, 0x88BB88); continue; }
-//      if (c>0) { tc2000.set_na(x,y, (v<<16)+0xff00+v); continue; }
-//      tc2000.set_na(x,y,0xFFFFFF);
-
-      if (m==2){ tc2000.set_na(x,y, 0xFFFF00); continue; }
-      if (g==1 || l==1){ tc2000.set_na(x,y, 0xAAEEDD); continue; }
-//      if (l==1){ tc2000.set_na(x,y, 0x88BB88); continue; }
-      if (c>0 && c<50)  { tc2000.set_na(x,y, 0xddffdd); continue; }
-      if (c>50) { tc2000.set_na(x,y, 0xaaffaa); continue; }
-      tc2000.set_na(x,y,0xFFFFFF);
+      int v = 0xAA + (0xFF-0xAA)*(100-c)/100;
+      if (m==2){ tc2000.set_na(x,y, col_w); continue; }
+      if (g==1){ tc2000.set_na(x,y, col_c1); continue; }
+      if (l==1){ tc2000.set_na(x,y, col_c2); continue; }
+      if (c>0) { tc2000.set_na(x,y, (v<<16)+0xff00+v); continue; }
+      tc2000.set_na(x,y,col_e);
 
     }
   }
   image_tiff::save(tc2000, (name + ".tif").c_str());
+
+  // save ref
+  g_map ref;
+  ref.file = name + ".tif";
+  ref.map_proj = Proj("lonlat");
+  ref.clear();
+  ref.border.clear();
+  ref.push_back(g_refpoint(range.TLC(), irange.BLC()-irange.TLC()));
+  ref.push_back(g_refpoint(range.BLC(), irange.TLC()-irange.TLC()));
+  ref.push_back(g_refpoint(range.TRC(), irange.BRC()-irange.TLC()));
+  g_map_list mm;
+  mm.push_back(ref);
+  geo_data W;
+  W.maps.push_back(mm);
+  io::out(name + ".map", W);
+
 }

@@ -2,6 +2,7 @@
 #define LINE_UTILS_H
 
 #include "line.h"
+#include "line_tests.h"
 #include <cassert>
 
 ///\addtogroup lib2d
@@ -207,6 +208,47 @@ Line<T> join_polygons(const MultiLine<T> & L){
   }
   return ret;
 }
+
+
+// same, but join only inner polygons
+template<typename T>
+void join_polygons1(MultiLine<T> & L){
+  typename MultiLine<T>::iterator i1,i2;
+  for (i1=L.begin(); i1!=L.end(); i1++){
+    i2=i1+1;
+    while (i2!=L.end()){
+      if ( !i2->size() || !point_in_line((*i2)[0], *i1)){
+        i2++; continue; }
+      // join i2 -> i1
+
+      // Найдем место кратчайшего разреза между вершиной ret и
+      // вершиной очередного куска.
+      double dist = 1e99;
+      typename Line<T>::iterator  p1,q1 ;
+      typename Line<T>::iterator  p2,q2;
+        // p1,p2 -- пара вершин
+        // q1,q2 -- искомое
+      for (p1=i1->begin(); p1!=i1->end(); p1++){
+        for (p2=i2->begin(); p2!=i2->end(); p2++){
+          double d = pdist(*p1, *p2);
+          if (d < dist){
+            dist = d;
+            q1=p1; q2=p2;
+          }
+        }
+      }
+      // вставим кусок в разрез
+      Line<T> tmp;
+      tmp.push_back(*q1);
+      tmp.insert(tmp.end(), q2, i2->end());
+      tmp.insert(tmp.end(), i2->begin(), q2);
+      tmp.push_back(*q2);
+      (*i1).insert(q1, tmp.begin(), tmp.end());
+      i2=L.erase(i2);
+    }
+  }
+}
+
 
 // Найти ближайшую к pt точку из линии line.
 // Если найдена точка ближе, чем maxdist, то в vec записывается

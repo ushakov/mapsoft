@@ -438,11 +438,17 @@ main(int argc, char** argv){
   ref.push_back(g_refpoint(range.TRC(), img_range.BRC()));
   convs::map2map cnv(ref,fig_ref);
 
+  fig::fig_object o = fig::make_object("6");
+  F.push_back(o);
+
   img2fig(mask, cnv, F, "2 3 0 1 5269247 11 85 -1 20 0.000 0 0 -1 0 0 0");
   img2fig(v_fld,  cnv, F, "2 3 0 0 11206570 7 98 -1 43 0.000 0 0 -1 0 0 0", 5);
   img2fig(v_new,  cnv, F, "2 3 0 0 12  7  98 -1 43 0.000 0 0 -1 0 0 0", 5);
   img2fig(v_old,  cnv, F, "2 3 0 0 12 11206570  98 -1 43 0.000 0 0 -1 0 0 0", 5);
   img2fig(tc2000, cnv, F, "2 3 0 0 12 11206570 100 -1 20 0.000 0 1 -1 0 0 0", 10);
+
+  o = fig::make_object("-6");
+  F.push_back(o);
 
 
   fig::write(fig_name.c_str(), F);
