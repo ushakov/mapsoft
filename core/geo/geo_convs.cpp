@@ -413,17 +413,26 @@ map_mpp(const g_map &map, Proj P){
 
 double
 lon2lon0(const double lon){
-  return floor( lon/6.0 ) * 6 + 3;
+  double lon0 =floor( lon/6.0 ) * 6 + 3;
+  while (lon0>180)  lon0-=360;
+  while (lon0<-180) lon0+=360;
+  return lon0;
 }
 
 int
 lon2pref(const double lon){
-  return (lon2lon0(lon)-3)/6+1;
+  double lon0 = lon2lon0(lon);
+  return (lon0<0 ? 60:0) + (lon0-3)/6 + 1;
 }
 
 double
 lon_pref2lon0(const double lon){
-  return floor( lon/1e6 ) * 6 - 3;
+  int pref= floor(lon/1e6);
+  if (pref==0){
+    std::cerr << "zero coordinate prefix\n";
+    exit(1);
+  }
+  return (pref-(pref>30 ? 60:0))*6-3;
 }
 
 double
