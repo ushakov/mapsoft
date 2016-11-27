@@ -1,0 +1,13 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=/usr/lib
+sharedlibdir=${libdir}
+includedir=${prefix}/include
+
+Name: shp
+Description: shapelib
+Version: 1.3.0
+
+Requires:
+Libs: -lshp
+Cflags:

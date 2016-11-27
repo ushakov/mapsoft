@@ -30,7 +30,7 @@ using namespace std;
 
 void usage(){
     cerr << "usage: \n"
-     " mapsoft_forest2fig <name> <forest_dir>\n";
+     " forest_nom <name> <forest_dir>\n";
     exit(0);
 }
 

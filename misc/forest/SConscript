@@ -1,12 +1,13 @@
 Import('env')
 e=env.Clone()
-e.UseLibs('geo_io srtm')
+e.UseLibs('geo_io srtm shp')
 
 map (lambda(f): e.Program(f+'.cpp'),\
   Split("""
     forest_preview
     forest_nom
     forest_vec
+    glims_vec
     """))
 
 

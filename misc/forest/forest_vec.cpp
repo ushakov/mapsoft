@@ -31,7 +31,7 @@ using namespace std;
 
 void usage(){
     cerr << "usage: \n"
-     " mapsoft_forest2fig <fig_name> <forest_dir>\n";
+     " forest_vec <fig_name> <forest_dir>\n";
     exit(0);
 }
 
@@ -102,7 +102,7 @@ dMultiLine get_contours(const iImage & img, int th, iRect range = iRect()){
       for (int k=0; k<4; k++){
         iPoint p1 = p+crn(k);
         iPoint p2 = p+crn(k+1);
-        int v1=0, v2=0;
+        int v1=th, v2=th;
         if (point_in_rect(p1, range)) v1=img.get(p1)&0xff;
         if (point_in_rect(p2, range)) v2=img.get(p2)&0xff;
         if (v1==v2) continue;
@@ -293,7 +293,7 @@ void img2fig(const iImage & img, convs::map2map & cnv, fig::fig_world & F, const
       cerr << cnt.size();
 
       cerr << "gen: ";
-      generalize(cnt,0.1);
+      generalize(cnt,0.5);
       cerr << cnt.size();
 
       cerr << "join: ";
@@ -438,10 +438,10 @@ main(int argc, char** argv){
   ref.push_back(g_refpoint(range.TRC(), img_range.BRC()));
   convs::map2map cnv(ref,fig_ref);
 
-  fig::fig_object o = fig::make_object("6");
+  fig::fig_object o = fig::make_object("6 0 0 0 0");
   F.push_back(o);
 
-  img2fig(mask, cnv, F, "2 3 0 1 5269247 11 85 -1 20 0.000 0 0 -1 0 0 0");
+//  img2fig(mask, cnv, F, "2 3 0 1 5269247 11 85 -1 20 0.000 0 0 -1 0 0 0");
   img2fig(v_fld,  cnv, F, "2 3 0 0 11206570 7 98 -1 43 0.000 0 0 -1 0 0 0", 5);
   img2fig(v_new,  cnv, F, "2 3 0 0 12  7  98 -1 43 0.000 0 0 -1 0 0 0", 5);
   img2fig(v_old,  cnv, F, "2 3 0 0 12 11206570  98 -1 43 0.000 0 0 -1 0 0 0", 5);
