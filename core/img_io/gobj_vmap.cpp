@@ -36,6 +36,7 @@ GObjVMAP::draw(iImage &img, const iPoint &org){
   origin = org;
 
   if (!use_aa) cr->set_antialias(Cairo::ANTIALIAS_NONE);
+  cr->set_fill_rule(Cairo::FILL_RULE_EVEN_ODD);
 
   render_objects();
 
