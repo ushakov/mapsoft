@@ -1,0 +1,43 @@
+#!/bin/sh -efu
+
+dir=topomapper
+ext=jpg
+mkdir -p -- "$dir"
+for z in $(seq 1 17); do
+  f="$dir/$z"
+  ts=256
+  tc="$((2**$z))" # max tile number + 1
+  fmt="%dx%d.$ext"
+
+  wg=20037508.342789244
+  wr=$(($ts*$tc))
+
+cat > ${f%.txt}.xml << EOF
+<maps>
+  <map file="$z" comm="$dir $z" map_proj="google"
+       tile_size="$ts" tile_fmt="$fmt" border="0,0,$wr,0,$wr,$wr,0,$wr">
+    <pt proj="google" x="-$wg" y="$wg"  xr=0 yr=0/>
+    <pt proj="google" x="$wg"  y="$wg"  xr=$wr yr=0/>
+    <pt proj="google" x="$wg"  y="-$wg" xr=$wr yr=$wr/>
+    <pt proj="google" x="-$wg" y="-$wg" xr=0 yr=$wr/>
+  </map>
+</maps>
+EOF
+
+mkdir -p -- "$f"
+
+#https://khms1.google.com/kh/v=113&src=app&x=3&y=3&z=3&s=Gali
+
+cat > "$f/download" << EOF
+#!/bin/sh -efu
+
+z=$z
+url="http://144.76.234.107//cgi-bin/ta/tilecache.py/1.0.0/topomapper_v2/\$z/\$1/\$2"
+
+f=\$(printf "%dx%d.$ext" "\$1" "\$2")
+echo "Downloading \$f"
+wget "\$url" -O "\$f" || rm -f -- "\$f"
+EOF
+chmod 755 "$f/download"
+
+done
