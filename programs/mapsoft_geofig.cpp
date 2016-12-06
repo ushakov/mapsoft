@@ -105,12 +105,11 @@ main(int argc, char **argv){
         cerr << ",  Waypoint lists: " << world.wpts.size()
              << ",  Tracks: " << world.trks.size() << "\n";
       }
-
-      const char * ofile = O.get<string>("out").c_str();
+      string ofile = O.get<string>("out");
       if (O.exists("verbose")) cerr << "Writing data to " << ofile << "\n";
 
       fig::fig_world F;
-      if (!fig::read(ofile, F)) {
+      if (!fig::read(ofile.c_str(), F)) {
         cerr << "error: can't read file: " << ofile << endl;
         exit(1);
       }
@@ -118,7 +117,7 @@ main(int argc, char **argv){
       put_wpts(F, ref, world);
       put_trks(F, ref, world);
 
-      exit (!fig::write(ofile, F));
+      exit (!fig::write(ofile.c_str(), F));
     }
     /*****************************************/
     else if (action == "del"){
@@ -133,10 +132,10 @@ main(int argc, char **argv){
         cerr << "error: no output files" << endl;
         exit(1);
       }
-      const char * ofile = O.get<string>("out").c_str();
+      string ofile = O.get<string>("out");
 
       fig::fig_world F;
-      if (!fig::read(ofile, F)) {
+      if (!fig::read(ofile.c_str(), F)) {
         cerr << "error: can't read file: " << ofile << endl;
         exit(1);
       }
@@ -145,7 +144,7 @@ main(int argc, char **argv){
       if (O.exists("maps")) rem_maps(F);
       if (O.exists("brds")) rem_brds(F);
       if (O.exists("ref"))  rem_ref(F);
-      exit (!fig::write(ofile, F));
+      exit (!fig::write(ofile.c_str(), F));
     }
     /*****************************************/
     else usage();
