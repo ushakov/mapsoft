@@ -15,7 +15,7 @@ for z in $(seq 1 17); do
 cat > ${f%.txt}.xml << EOF
 <maps>
   <map file="$z" comm="$dir $z" map_proj="google"
-       tile_size="$ts" tile_fmt="$fmt" border="0,0,$wr,0,$wr,$wr,0,$wr">
+       tile_size="$ts" tile_fmt="$fmt" border="">
     <pt proj="google" x="-$wg" y="$wg"  xr=0 yr=0/>
     <pt proj="google" x="$wg"  y="$wg"  xr=$wr yr=0/>
     <pt proj="google" x="$wg"  y="-$wg" xr=$wr yr=$wr/>

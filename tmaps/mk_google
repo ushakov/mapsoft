@@ -29,13 +29,12 @@ mkdir -p -- "$f"
 cat > "$f/download" << EOF
 #!/bin/sh -efu
 
-ver=137
+ver=708
 z=$z
 nn="\$(head -c1 /dev/urandom | od -to1 -An | tail -c2)" # 0..7
 nn="\$((\$nn/2))" # 0..3 random
 gal="\$(echo "Galileo" | head -c "\$(( (\$1*3+\$2)%8))")" #"
-url="http://khms\${nn}.google.com/kh/v=\${ver}&x=\${1}&y=\${2}&z=\${z}&s=\${gal}";
-
+url="http://khms\${nn}.google.com/kh?v=\${ver}&hl=ru&x=\${1}&y=\${2}&z=\${z}";
 f=\$(printf "$fmt" "\$1" "\$2")
 echo "Downloading \$f"
 wget "\$url" -O "\$f" || rm -f -- "\$f"
