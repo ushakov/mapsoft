@@ -572,6 +572,7 @@ GObjVMAP::render_objects(){
   const int c_field  = 0xFFFFFF;
   const int c_fcont  = 0x009000;
   const int c_glac   = 0xFFE6C3;
+  const int c_slope  = 0xCCCCCC;
   const int c_way2   = 0x00B400;
   const int c_way5   = 0x00D8FF;
   const int c_hor = hr? 0x90B0D0:0x0060C0;
@@ -619,6 +620,8 @@ GObjVMAP::render_objects(){
   cr->unset_dash();
 
   render_polygons(0x4d, c_glac, 20.0); // ледник
+  render_polygons(0x19, c_slope, 20.0); // камни, песок
+  render_img_polygons(0x8); // камни, песок
 
   //*******************************
 
@@ -823,6 +826,7 @@ GObjVMAP::render_holes(Conv & cnv){
 
   const int c_forest = 0xAAFFAA;
   const int c_field  = 0xFFFFFF;
+  const int c_slope  = 0xCCCCCC;
   const int c_glac   = 0xFFE6C3;
   const int c_hor = hr? 0x90B0D0:0x0060C0;
   const int c_riv_fill    = hr? 0xFFCE87:0xFFFF00;
@@ -852,6 +856,7 @@ GObjVMAP::render_holes(Conv & cnv){
   render_polygons(0xE,  c_field);  // деревни
   render_polygons(0x4,  c_field);  // закрытые территории
 
+  render_polygons(0x19, c_slope);  // камни, песок
   render_polygons(0x4d, c_glac);   // ледник
   render_polygons(0x15, c_forest); // остров леса
   render_polygons(0x14, c_field);
