@@ -399,6 +399,7 @@ divert
   fig:  2 2 0 0 26 26 95 -1 35 0.000 0 0 7 0 0 0
   txt:  4 1 0 40 -1 3 8 0.0000 4
   pic:      sand
+  pic_type: fill
   ocad_txt: 780000
 
 
