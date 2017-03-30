@@ -28,8 +28,8 @@ e.AddMethod(mkcnf)
 def Cnf2Png(env, name):
    """Setup command for cnf2png conversion by <name> argument"""
    cmd = env.Command(name+'.png', name+'.cnf', "\
-     tmpfig=\"$$(mktemp)\" || exit;\
-     tmpfig_c=\"$$(mktemp)\" || exit;\
+     tmpfig=\"$$(mktemp mapsoft.XXXXX)\" || exit;\
+     tmpfig_c=\"$$(mktemp mapsoft.XXXXX)\" || exit;\
      trap \"rm -f -- '$$tmpfig' '$$tmpfig_c'\" EXIT; \
      ./zn_legend %s > $$tmpfig;\
      ../libzn-utils/get_print $$tmpfig $$tmpfig_c;\
@@ -50,8 +50,8 @@ e.AddMethod(Cnf2Png)
 def Cnf2CM(env, name):
    """Setup command for cnf2CM conversion by <name> argument"""
    cmd = env.Command(name+'.cmap.pnm', name+'.cnf', "\
-     tmpvmap=\"$$(mktemp).vmap\" || exit;\
-     tmppng=\"$$(mktemp).png\" || exit;\
+     tmpvmap=\"$$(mktemp mapsoft.XXXXX).vmap\" || exit;\
+     tmppng=\"$$(mktemp mapsoft.XXXXX).png\" || exit;\
      trap \"rm -f -- '$$tmpvmap' '$$tmppng'\" EXIT; \
      ../../programs/mapsoft_vmap -o $$tmpvmap --legend %s; \
      ../vmap3/vmap_render $$tmpvmap $$tmppng;\
