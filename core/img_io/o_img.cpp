@@ -46,7 +46,7 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
   bool need_marg=false;
   if (!opt.exists("geom") && !opt.exists("wgs_geom") &&
       !opt.exists("nom") && !opt.exists("google") &&
-      !opt.exists("wgs_brd")){
+      !opt.exists("wgs_brd") && !opt.exists("trk_brd")){
     dRect wgs_geom = world.range_geodata();
 
     if (!wgs_geom.empty() && opt.exists("data_marg")) need_marg=true;
