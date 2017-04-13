@@ -276,7 +276,7 @@ void cut_poly(dMultiLine & ml, const int max=20000){
   }
 }
 
-
+const int forest_th = 10; // foreset threshold, %
 
 void img2fig(const iImage & img, convs::map2map & cnv, fig::fig_world & F, const char * fig_mask, int split=1){
   for (int y=0;y<split;y++){
@@ -289,7 +289,7 @@ void img2fig(const iImage & img, convs::map2map & cnv, fig::fig_world & F, const
       cerr << "\nrange: " << range << "\n";
 
       cerr << "cnt: ";
-      dMultiLine cnt = get_contours(img, 50, range);
+      dMultiLine cnt = get_contours(img, forest_th, range);
       cerr << cnt.size();
 
       cerr << "gen: ";
@@ -367,7 +367,7 @@ main(int argc, char** argv){
   }
 
 
-  // changes
+  // change mask
   iImage change(w,h,0);
   for (int y = 0; y<h; y++){
     for (int x = 0; x<tc2000.w; x++){
@@ -376,8 +376,8 @@ main(int argc, char** argv){
       if (g || l) change.set(x,y,1);
     }
   }
-  gain=iImage();
-  loss=iImage();
+  //gain=iImage();
+  //loss=iImage();
 
   iImage v_fld(w, h,0);
   iImage v_new(w, h,0);
@@ -392,7 +392,7 @@ main(int argc, char** argv){
       else mask.set(x,y,0);
       tc2000.set_na(x,y,tc2000.get(x,y) & 0xFF);
 
-      if ((tc2000.get(x,y)&0xFF)>0 && (tc2000.get(x,y)&0xFF)<50)
+      if ((tc2000.get(x,y)&0xFF)>0 && (tc2000.get(x,y)&0xFF)<forest_th)
         v_fld.set_na(x,y,100);
 
       // fined changed area

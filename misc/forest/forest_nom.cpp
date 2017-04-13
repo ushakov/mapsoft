@@ -77,12 +77,12 @@ main(int argc, char** argv){
   }
 
 
-  int col_w = 0xFFFF00;  // water
-  int col_c1 = 0xAAEEDD;  // forest change
-  int col_c2 = 0x88BB88;  // forest change
+  int col_w = 0xFF0000;  // water
+  int col_c1 = 0x55EEAA;  // forest change
+  int col_c2 = 0x55AA55;  // forest change
   int col_f1 = 0xDDFFDD; // light forest
   int col_f2 = 0xAAFFAA; // heavy forest
-  int col_e = 0xFFFFFF;  // emplty
+  int col_e = 0xFFFFFF;  // empty
 
   for (int y = 0; y<tc2000.h; y++){
     for (int x = 0; x<tc2000.w; x++){
@@ -92,11 +92,11 @@ main(int argc, char** argv){
       int Y = year.get(x,y) & 0xFF;
       int m = mask.get(x,y) & 0xFF;
 
-      int v = 0xAA + (0xFF-0xAA)*(100-c)/100;
+      int v = 0xFF*(100-c)/100;
       if (m==2){ tc2000.set_na(x,y, col_w); continue; }
       if (g==1){ tc2000.set_na(x,y, col_c1); continue; }
       if (l==1){ tc2000.set_na(x,y, col_c2); continue; }
-      if (c>0) { tc2000.set_na(x,y, (v<<16)+0xff00+v); continue; }
+      if (c>0) { tc2000.set_na(x,y, 0xFF00+(v<<16)+v); continue; }
       tc2000.set_na(x,y,col_e);
 
     }
