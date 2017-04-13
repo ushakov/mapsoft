@@ -15,6 +15,7 @@ e.Library('geo_io', \
     io_xml.cpp
     io_zip.cpp
     geofig.cpp
+    geo_refs.cpp
      """))
 e=env.Clone()
 e.UseLibs('geo_io')

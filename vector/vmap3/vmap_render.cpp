@@ -1,7 +1,7 @@
 #include "img_io/gobj_vmap.h"
 #include "options/m_getopt.h"
 #include "options/m_time.h"
-#include "geo/geo_refs.h"
+#include "geo_io/geo_refs.h"
 #include "loaders/image_r.h"
 #include "utils/err.h"
 
@@ -31,6 +31,7 @@ static struct ext_option options[] = {
   {"lon0",          1,  0, 2, ""},
   {"wgs_geom",      1,  0, 2, ""},
   {"wgs_brd",       1,  0, 2, ""},
+  {"trk_brd",       1,  0, 2, ""},
   {"nom",           1,  0, 2, ""},
   {"google",        1,  0, 2, "google tile, \"x,y,z\""},
   {"rscale",        1,  0, 2, "reversed scale (10000 for 1:10000 map)"},

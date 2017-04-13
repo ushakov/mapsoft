@@ -1,8 +1,8 @@
 // Привязки специальных карт и снимков
 
 #include "geo_refs.h"
-#include "geo_convs.h"
-#include "geo_nom.h"
+#include "geo/geo_convs.h"
+#include "geo/geo_nom.h"
 #include "2d/line_utils.h"
 #include <sstream>
 #include <iomanip>
@@ -120,8 +120,9 @@ mk_ref(Options & o){
 
   // rectangular map
   if (o.exists("geom")){
-    incompat_warning (o, "geom", "wgs_brd");
     incompat_warning (o, "geom", "wgs_geom");
+    incompat_warning (o, "geom", "wgs_brd");
+    incompat_warning (o, "geom", "trk_brd");
     incompat_warning (o, "geom", "nom");
     incompat_warning (o, "geom", "google");\
 
@@ -151,8 +152,9 @@ mk_ref(Options & o){
     cnv.line_bck_p2p(refs);
   }
   else if (o.exists("wgs_geom")){
-    incompat_warning (o, "wgs_geom", "wgs_brd");
     incompat_warning (o, "wgs_geom", "geom");
+    incompat_warning (o, "wgs_geom", "wgs_brd");
+    incompat_warning (o, "wgs_geom", "trk_brd");
     incompat_warning (o, "wgs_geom", "nom");
     incompat_warning (o, "wgs_geom", "google");\
 
@@ -177,8 +179,9 @@ mk_ref(Options & o){
       cnv.line_bck(rect2line(cnv.bb_frw(geom, 1e-6), true, sw), 1e-6);
   }
   else if (o.exists("wgs_brd")){
-    incompat_warning (o, "wgs_brd", "wgs_geom");
     incompat_warning (o, "wgs_brd", "geom");
+    incompat_warning (o, "wgs_brd", "wgs_geom");
+    incompat_warning (o, "wgs_brd", "trk_brd");
     incompat_warning (o, "wgs_brd", "nom");
     incompat_warning (o, "wgs_brd", "google");\
 
@@ -197,11 +200,40 @@ mk_ref(Options & o){
     refs = generalize(ret.border, -1, 5); // 5pt
     refs.resize(4);
   }
+  else if (o.exists("trk_brd")){
+    incompat_warning (o, "wgs_brd", "geom");
+    incompat_warning (o, "wgs_brd", "wgs_geom");
+    incompat_warning (o, "wgs_brd", "wgs_brd");
+    incompat_warning (o, "wgs_brd", "nom");
+    incompat_warning (o, "wgs_brd", "google");\
+
+    geo_data W;
+    io::in(o.get<string>("trk_brd"), W);
+    if (W.trks.size()<1) {
+      cerr << "error: file with a track is expected in trk_brd option\n";
+      exit(1);
+    }
+    ret.border = W.trks[0];
+    if (ret.border.size()<3){
+     cerr << "error: bad border line\n";
+      exit(1);
+    }
+    ret.border.push_back(ret.border[0]);
+
+    proj = o.get<Proj>("proj", Proj("tmerc"));
+    proj_opts.put<double>("lon0",
+      o.get("lon0", convs::lon2lon0(ret.border.range().CNT().x)));
+
+    if (verbose) cerr << "mk_ref: brd = " << ret.border << "\n";
+    refs = generalize(ret.border, -1, 5); // 5pt
+    refs.resize(4);
+  }
   // nom map
   else if (o.exists("nom")){
-    incompat_warning (o, "nom", "wgs_brd");
-    incompat_warning (o, "nom", "wgs_geom");
     incompat_warning (o, "nom", "geom");
+    incompat_warning (o, "nom", "wgs_geom");
+    incompat_warning (o, "nom", "wgs_brd");
+    incompat_warning (o, "nom", "trk_brd");
     incompat_warning (o, "nom", "google");
 
     proj=Proj("tmerc");
@@ -228,9 +260,10 @@ mk_ref(Options & o){
   }
   // google tile
   else if (o.exists("google")){
-    incompat_warning (o, "google", "wgs_brd");
-    incompat_warning (o, "google", "wgs_geom");
     incompat_warning (o, "google", "geom");
+    incompat_warning (o, "google", "wgs_geom");
+    incompat_warning (o, "google", "wgs_brd");
+    incompat_warning (o, "google", "trk_brd");
     incompat_warning (o, "google", "nom");
 
     datum=Datum("wgs84");

@@ -9,7 +9,7 @@
 #include "loaders/image_r.h"
 
 #include "geo/geo_convs.h"
-#include "geo/geo_refs.h"
+#include "geo_io/geo_refs.h"
 #include "geo_io/geofig.h"
 #include "2d/line_utils.h"
 

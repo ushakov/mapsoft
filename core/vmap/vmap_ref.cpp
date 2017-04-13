@@ -1,6 +1,6 @@
 #include "vmap.h"
 #include "geo/geo_data.h"
-#include "geo/geo_refs.h"
+#include "geo_io/geo_refs.h"
 #include "2d/line_utils.h"
 
 using namespace std;

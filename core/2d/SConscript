@@ -10,3 +10,4 @@ env.Library('2d',
     rainbow.cpp
   """))
 
+#SConscript("tests/SConscript")

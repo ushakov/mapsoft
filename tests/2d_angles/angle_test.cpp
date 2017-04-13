@@ -8,7 +8,7 @@
 #include "2d/rect.h"
 #include "2d/line_utils.h"
 
-#include "geo/geo_refs.h"
+#include "geo_io/geo_refs.h"
 #include "geo/geo_convs.h"
 
 dRect l1r(36.0,55.0, 0.1, 0.1);

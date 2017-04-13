@@ -46,6 +46,7 @@ static struct ext_option options[] = {
   {"lon0",          1,  0, OPT2, ""},
   {"wgs_geom",      1,  0, OPT2, ""},
   {"wgs_brd",       1,  0, OPT2, ""},
+  {"trk_brd",       1,  0, OPT2, ""},
   {"nom",           1,  0, OPT2, ""},
   {"google",        1,  0, OPT2, "google tile, \"x,y,z\""},
   {"rscale",        1,  0, OPT2, "reversed scale (10000 for 1:10000 map)"},

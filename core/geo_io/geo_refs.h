@@ -3,7 +3,8 @@
 
 // Привязки специальных карт и снимков
 
-#include "geo_data.h"
+#include "geo/geo_data.h"
+#include "io.h"
 #include "options/options.h"
 
 /** Create some reasonable tmerc map reference from points.
@@ -23,7 +24,7 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap);
 --geom <geom> --datum <datum> --proj <proj> --lon0 <lon0>
     Карта-прямоугольник в заданной проекции.
     Здесь datum -- система координат, pulkovo (по умолчанию) или wgs84,
-    proj -- проекция, tmerc (по умолчанию), или merc, илиlonlat,
+    proj -- проекция, tmerc (по умолчанию), или merc, или lonlat,
     geom -- геометрия в виде <W>х<H>+<X0>+<Y0> в координатах соответствующей
     проекции.
     Проекция карты устанавливается в proj, границы - прямоугольник в
@@ -36,7 +37,9 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap);
     Граница карты - прямоугольник в проекции proj, накрывающий заданный диапазон.
 --wgs_brd <line> --proj <proj>
     Задаются границы карты широты и долготы wgs84, при этом проекция
-    полученной карты может не быть lonlat (по умолчанию tmerc).
+    полученной карты может не быть lonlat.
+--trk_brd <file> --proj <proj>
+    граница карты задается треком, прочитанным из файла
 --nom <name>
     Этот параметр устанавливает datum=pulk, proj=tmerc, а границу карты - в
     соответствии с границей соответствующего номенклатурного листа.
@@ -47,7 +50,8 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap);
     dpi устанавливается так, чтобы размер плитки был равен 256 точкам
     при заданном параметре rscale.
 
-Параметры --google, --nom, --geom, --wgs_geom друг с другом несовместимы.
+Параметры --google, --nom, --geom, --wgs_geom, --wgs_brd друг с другом несовместимы.
+
 
 --rscale <rscale>
     Обратный масштаб, например 10000 для карты 1:10000
@@ -78,6 +82,7 @@ g_map mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap);
   {"lon0",          1,  0, OPT2, ""},
   {"wgs_geom",      1,  0, OPT2, ""},
   {"wgs_brd",       1,  0, OPT2, ""},
+  {"trk_brd",       1,  0, OPT2, ""},
   {"nom",           1,  0, OPT2, ""},
   {"google",        1,  0, OPT2, "google tile, \"x,y,z\""},
   {"rscale",        1,  0, OPT2, "reversed scale (10000 for 1:10000 map)"},

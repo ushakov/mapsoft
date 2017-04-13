@@ -7,6 +7,5 @@ env.Library('geo', \
 	g_map.cpp
 	geo_data.cpp
 	geo_types.cpp
-        geo_refs.cpp
 	geo_nom.cpp
      """))

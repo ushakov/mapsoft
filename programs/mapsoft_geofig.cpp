@@ -1,6 +1,6 @@
 #include "options/m_getopt.h"
 #include "geo_io/geofig.h"
-#include "geo/geo_refs.h"
+#include "geo_io/geo_refs.h"
 #include "geo_io/io.h"
 #include "utils/err.h"
 
@@ -17,6 +17,7 @@ static struct ext_option options[] = {
   {"lon0",           1, 'l', OPT_CRE, ""},
   {"wgs_geom",       1, 'w', OPT_CRE, ""},
   {"wgs_brd",        1, 'b', OPT_CRE, ""},
+  {"trk_brd",        1, 'b', OPT_CRE, ""},
   {"nom",            1, 'N', OPT_CRE, ""},
   {"google",         1, 'G', OPT_CRE, ""},
   {"rscale",         1, 'r', OPT_CRE, ""},
