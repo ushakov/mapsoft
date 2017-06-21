@@ -14,7 +14,7 @@
 using namespace std;
 
 SRTM3::SRTM3(const string & _srtm_dir, const unsigned cache_size):
-      srtm_cache(cache_size) {
+     srtm_dir(_srtm_dir), srtm_cache(cache_size) {
   set_dir(srtm_dir);
 }
 
