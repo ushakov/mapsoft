@@ -76,6 +76,7 @@ static struct ext_option options[] = {
   {"tiles_skipempty",0, 0, OPT3, "skip empty tiles"},
 
   {"srtm_mode" ,    1,  0, OPT4, "srtm mode: normal, slopes"},
+  {"srtm_dir" ,     1,  0, OPT4, "srtm data folder"},
   {"srtm_cnt_step", 1,  0, OPT4, "contour step, m"},
   {"srtm_hmin",     1,  0, OPT4, "min height (blue color) for normal mode"},
   {"srtm_hmax",     1,  0, OPT4, "max height (magenta color) for normal mode"},
