@@ -70,7 +70,7 @@ main(int argc, char** argv){
   SHPGetInfo(sh, &num, &type, mmin, mmax);
   if (type!=SHPT_POLYGON){ cerr << "type!=SHPT_POLYGON\n"; exit(0); }
 
-  string fig_mask="2 3 0 0 11 11 98 -1 35 0.000 0 0 7 0 0 1";
+  string fig_mask="2 3 0 0 11 11 96 -1 35 0.000 0 0 7 0 0 1";
 
   fig::fig_object o = fig::make_object("6 0 0 0 0");
   F.push_back(o);
