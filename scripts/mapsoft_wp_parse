@@ -1,0 +1,95 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Text::Iconv;
+
+# parse kml file downloaded from Westra Passes
+# (http://westra.ru/passes/kml/passes.php?BBOX=x1,y1,x2,y2)
+# print txt and mp files
+
+my $cnv_koi = Text::Iconv->new("utf8", "koi8-r");
+my $cnv_win = Text::Iconv->new("utf8", "cp1251");
+#$cnv_koi->set_attr("discard_ilseq", 1);
+#$cnv_win->set_attr("discard_ilseq", 1);
+
+my $file = $ARGV[0];
+
+open IN, $file or die "can't open $file: $!\n";
+my $text = <IN>;
+close IN;
+
+$file=~s/.kml$//;
+open OUT_TXT, "> $file.txt" or die "can't open $file.txt: $!\n";
+open OUT_MP,  "> $file.mp"  or die "can't open $file.mp: $!\n";
+
+printf OUT_TXT "#%4s %12s %12s %5s %s\n",
+  'id', 'lat', 'lon', 'alt', 'title /other title/, cat';
+
+printf OUT_MP qq*
+[IMG ID]
+ID=0
+Name=$file
+Elevation=M
+Preprocess=F
+CodePage=1251
+[END-IMG ID]\n
+*;
+
+my @data;
+
+while ($text=~s|<Placemark>(.*?)</Placemark>||){
+  my $line = $1;
+
+  my $d;
+
+  # pass name and type (name can be "вер. Х", "пер. Х", "пик X")
+  $d->{name} = ($line =~ m|<name>(.*?)</name>|)? $1:"";
+
+  $d->{type} = "V";
+  $d->{type} = "P" if $d->{name} =~ s|пер. ||;
+  $d->{name} =~ s|вер. ||;
+
+  my $point = ($line =~ m|<Point>(.*?)</Point>|)? $1:"";
+  my $coord = ($point =~ m|<coordinates>(.*?)</coordinates>|)? $1:"";
+  ($d->{x},$d->{y},$d->{z}) = split(',', $coord);
+
+  my $descr = ($line =~ m|<description>(.*?)</description>|)? $1:"";
+  $d->{id} = ($descr =~ m|http://westra.ru/passes/Passes/([0-9]+)|)? $1:0;
+  $d->{ks} = ($descr =~ m|<tr><th>Категория сложности</th><td>([^<]*</td></tr>)|)? $1:'';
+  $d->{alt} = ($descr =~ m|<tr><th>Высота</th><td>([^<]*)</td></tr>|)? $1:0;
+  $d->{var} = ($descr =~ m|<tr><th>Другие названия</th><td>([^<]*)</td></tr>|)? $1:'';
+
+  $d->{name_txt} = ($d->{type} eq 'P'? 'пер. ': 'вер. ') . $d->{name}
+                 . ($d->{var}? " /$d->{var}/":"") . ($d->{ks}? ", $d->{ks}":"");
+  $d->{name_mp} = (($d->{type} eq 'V' && $d->{alt})? "$d->{alt} ":'') . $d->{name};
+
+  push @data, $d;
+}
+
+foreach my $d (sort {$a->{id} <=> $b->{id}} @data) {
+
+  $d->{name_txt} = $cnv_koi->convert($d->{name_txt});
+  $d->{name_mp} = $cnv_win->convert($d->{name_mp});
+
+  printf OUT_TXT "%4d %12.7f %12.7f %5d  %s\n",
+     $d->{id}, $d->{y}, $d->{x}, $d->{alt}, $d->{name_txt};
+
+  # make mp type
+  my $mptype = $d->{type} eq 'P' ? '0x6406':'0x1100';
+  $mptype='0x6620' if ($d->{type} eq 'P' && ($d->{ks}=~m|н.?к|i));
+  $mptype='0x6621' if ($d->{type} eq 'P' && ($d->{ks}=~m|1А|i || $d->{ks}=~m|1A|i));
+  $mptype='0x6622' if ($d->{type} eq 'P' && ($d->{ks}=~m|1Б|i || $d->{ks}=~m|1B|i));
+  $mptype='0x6623' if ($d->{type} eq 'P' && ($d->{ks}=~m|2А|i || $d->{ks}=~m|2A|i));
+  $mptype='0x6624' if ($d->{type} eq 'P' && ($d->{ks}=~m|2Б|i || $d->{ks}=~m|2B|i));
+  $mptype='0x6625' if ($d->{type} eq 'P' && ($d->{ks}=~m|3А|i || $d->{ks}=~m|3A|i));
+  $mptype='0x6626' if ($d->{type} eq 'P' && ($d->{ks}=~m|4Б|i || $d->{ks}=~m|3B|i));
+
+
+  print OUT_MP "[POI]\n";
+  print OUT_MP "Type=$mptype\n";
+  print OUT_MP "Label=$d->{name_mp}\n";
+  print OUT_MP "Source=westra_passes\n";
+  print OUT_MP "Data0=($d->{y},$d->{x})\n";
+  print OUT_MP "[END]\n\n";
+}
+
