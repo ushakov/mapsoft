@@ -1,5 +1,0 @@
-Name: srtm
-Description: Mapsoft srtm library
-Requires: 2d zlib glibmm-2.4
-Version: 1
-Libs: -L'\#'core/srtm -lsrtm

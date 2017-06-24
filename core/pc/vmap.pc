@@ -1,5 +1,0 @@
-Name: vmap
-Description: Mapsoft vmap library
-Requires:  libyaml  ocad fig mp geo geo_io options 2d
-Version: 1
-Libs: -L'\#'core/vmap -lvmap

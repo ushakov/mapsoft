@@ -1,9 +1,7 @@
 Import('env')
-e=env.Clone()
-e.UseLibs('geo_io fig')
 
-e.Program("fig_crop.cpp")
-e.Program("fig_ref_mod.cpp")
-e.Program("fig_sort.cpp")
+env.Program("fig_crop.cpp")
+env.Program("fig_ref_mod.cpp")
+env.Program("fig_sort.cpp")
 
 

@@ -3,7 +3,6 @@ Import ('env')
 SConscript("images/SConscript")
 
 e=env.Clone()
-e.UseLibs('gred vmap img_io geo_io mp srtm')
 
 e.Library("viewer", Split ("""
 	mapview.cpp
@@ -38,6 +37,7 @@ e.Library("viewer", Split ("""
 	panels/maps_panel.cpp
 	panels/vmap_panel.cpp
         """))
+e.Prepend(LIBPATH=["."])
 e.Prepend(LIBS=["viewer"])
 e.Program("mapsoft_mapview.cpp")
 

@@ -5,9 +5,11 @@ all_viewers
 dthread1
 dthread2
 dthread_line
+dthread_fig
 dthread_rubb1
 simple1
 simple2
 simple_rubb1
 simple_rubb2
 two_rubbers
+*.dat

@@ -1,7 +1,5 @@
 Import('env')
-e=env.Clone()
-e.UseLibs('geo_io srtm')
 
-e.Program("srtm_pic.cpp")
+env.Program("srtm_pic.cpp")
 
 

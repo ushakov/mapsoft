@@ -1,6 +1,4 @@
 Import('env')
-e=env.Clone()
-e.UseLibs('loaders')
 
-e.Program(["map4.cpp", "libbm.cpp"])
-e.Program(["map6.cpp", "libbm.cpp"])
+env.Program(["map4.cpp", "libbm.cpp"])
+env.Program(["map6.cpp", "libbm.cpp"])

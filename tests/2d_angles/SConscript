@@ -1,6 +1,2 @@
 Import('env')
-e=env.Clone()
-
-e.UseLibs('geo geo_io')
-
-e.Program("angle_test.cpp")
+env.Program("angle_test.cpp")

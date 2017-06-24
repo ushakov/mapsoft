@@ -1,12 +1,9 @@
 Import ('env')
-e = env.Clone()
 
-e.UseLibs('vmap gred img_io')
-
-e.Program("vmap_render.cpp")
-e.Program("vmap_mmb_filter.cpp")
-e.Program("vmap_1km_filter.cpp")
-e.Program("vmap_fix_diff.cpp")
+env.Program("vmap_render.cpp")
+env.Program("vmap_mmb_filter.cpp")
+env.Program("vmap_1km_filter.cpp")
+env.Program("vmap_fix_diff.cpp")
 
 env.Install(env.bindir, Split("""
   vmap_render

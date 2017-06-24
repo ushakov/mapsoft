@@ -1,6 +1,2 @@
 Import('env')
-e=env.Clone()
-
-e.UseLibs('utils')
-
-e.Program("generic_accessor_unittest.cpp")
+env.Program("generic_accessor_unittest.cpp")

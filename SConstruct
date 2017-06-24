@@ -60,8 +60,6 @@ if ARGUMENTS.get('gprofile', 0):
 if ARGUMENTS.get('gheapcheck', 0):
 	env.Append (LINKFLAGS='-ltcmalloc')
 
-env.Prepend(LIBPATH=".")
-
 Export('env')
 
 if ARGUMENTS.get('minimal', 0):

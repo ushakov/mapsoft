@@ -1,0 +1,28 @@
+#!/bin/sh -efu
+
+# фильтр для Ozi-файлов
+
+max=12
+vars="$(seq -s " " 1 "$max" | sed 's/\(^\| \)/\1f/g')" # f1 f2 f3 ...
+
+print_line(){
+  IFS="
+  "
+  local last="$max"
+  for i in $(seq 1 "$max"); do
+    eval "[ -z \"\$f$i\" ] || last=\"$i\""
+  done
+
+  for i in $(seq 1 "$last"); do
+    eval "printf \"\$f$i\""
+    [ "$i" = "$last" ] || printf ','
+  done
+  printf "\n"
+}
+
+while IFS=',' eval "read $vars"; do
+  # читаем поля, фильтруем, как нам надо:
+  if [ -z "$f3" ] || [ "$(printf "$f3 > 52\n" | bc -l)" = "1" ]; then
+    print_line
+  fi
+done

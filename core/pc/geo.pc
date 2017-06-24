@@ -1,5 +1,0 @@
-Name: geo
-Description: Mapsoft geo library
-Requires: libproj  2d options loaders
-Version: 1
-Libs: -L'\#'core/geo -lgeo

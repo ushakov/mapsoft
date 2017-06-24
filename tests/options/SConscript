@@ -1,6 +1,4 @@
 Import('env')
-e=env.Clone()
-e.UseLibs('options')
 
-e.Program("options_read.cpp")
-e.Program("options_test.cpp")
+env.Program("options_read.cpp")
+env.Program("options_test.cpp")

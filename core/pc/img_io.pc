@@ -1,6 +1,0 @@
-Name: img_io
-Description: Mapsoft img_io library
-Requires: vmap geo_io geo utils loaders options 2d
-Version: 1
-Libs: -L'\#'core/img_io -limg_io
-

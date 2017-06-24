@@ -1,12 +1,9 @@
 Import ('env')
-e = env.Clone()
 
-e.UseLibs('vmap')
-
-e.Program('mapsoft_vmap.cpp')
-e.Program('fig2pnm.cpp')
-e.Program('get_print.cpp')
-e.Program('get_print_mmb.cpp')
-e.Program('make_map_gk.cpp')
-e.Program('make_nom.cpp')
+env.Program('mapsoft_vmap.cpp')
+env.Program('fig2pnm.cpp')
+env.Program('get_print.cpp')
+env.Program('get_print_mmb.cpp')
+env.Program('make_map_gk.cpp')
+env.Program('make_nom.cpp')
 

@@ -1,11 +1,8 @@
 Import('env')
-e = env.Clone()
-
-e.UseLibs('gred')
 
 files=Split('gobj_test_tile.cpp gobj_test_grid.cpp gobj_solid_fill.cpp')
 
-map (lambda(f): e.Program([f+'.cpp'] + files),\
+map (lambda(f): env.Program([f+'.cpp'] + files),\
   Split("""
     simple1
     simple2

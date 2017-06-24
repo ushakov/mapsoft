@@ -2,25 +2,10 @@ import distutils.sysconfig
 Import ('env')
 import os.path
 
-subdirs = Split ("""
-    2d
-    fig
-    geo
-    geo_io
-    img_io
-    gred
-    jeeps
-    loaders
-    mp
-    ocad
-    options
-    utils
-    vmap
-    srtm
-""")
-
 # add CPPPATH and PKG_CONFIG_PATH to global env
 env.Append (CPPPATH = "#core")
+env.Append (LIBPATH = "#core")
+env.Append (LIBS    = "mapsoft")
 
 env.Append (ENV = {'PKG_CONFIG_PATH': os.getcwd()+'/pc'})
 if os.getenv('PKG_CONFIG_PATH'):
@@ -34,4 +19,158 @@ if os.getenv('PKG_CONFIG_PATH'):
 #swig.Append(LIBS = Split("geo_io geo 2d fig utils jeeps loaders tiff jpeg png curl"))
 #swig.SharedLibrary("_core.so", ["swig.i"])
 
-SConscript (map (lambda(s): s+"/SConscript", subdirs))
+
+
+##################################
+### mapsoft library
+
+env.UseLibs('libxml-2.0 libzip libproj libgif libjpeg libpng libtiff-4 libcurl zlib yaml-0.1 shp')
+env.UseLibs('glibmm-2.4 gtkmm-2.4 gthread-2.0')
+env.UseLibs('cairomm-1.0 pixman-1 freetype2 libusb-1.0')
+
+
+# all source files
+objects = Split ("""
+  2d/point_int.cpp
+  2d/rect.cpp
+  2d/conv.cpp
+  2d/conv_aff.cpp
+  2d/line_dist.cpp
+  2d/rainbow.cpp
+
+  fig/fig_io.cpp
+  fig/fig_mask.cpp
+  fig/fig_utils.cpp
+  fig/fig_data.cpp
+
+  geo_io/filters.cpp
+  geo_io/io.cpp
+  geo_io/io_gps.cpp
+  geo_io/io_gu.cpp
+  geo_io/io_kml.cpp
+  geo_io/io_gpx.cpp
+  geo_io/io_oe.cpp
+  geo_io/io_js.cpp
+  geo_io/io_xml.cpp
+  geo_io/io_zip.cpp
+  geo_io/geofig.cpp
+  geo_io/geo_refs.cpp
+
+  geo/geo_convs.cpp
+  geo/g_wpt.cpp
+  geo/g_trk.cpp
+  geo/g_map.cpp
+  geo/geo_data.cpp
+  geo/geo_types.cpp
+  geo/geo_nom.cpp
+
+  gred/gobj.cpp
+  gred/action_manager.cpp
+  gred/rubber.cpp
+  gred/simple_viewer.cpp
+  gred/dthread_viewer.cpp
+
+  img_io/io.cpp
+  img_io/o_img.cpp
+  img_io/o_tiles.cpp
+  img_io/draw_trk.cpp
+  img_io/draw_wpt.cpp
+  img_io/gobj_map.cpp
+  img_io/gobj_trk.cpp
+  img_io/gobj_wpt.cpp
+  img_io/gobj_srtm.cpp
+  img_io/gobj_srtmv.cpp
+  img_io/gobj_pano.cpp
+  img_io/gobj_vmap.cpp
+  img_io/gobj_grid_pulk.cpp
+
+  jeeps/gpsapp.c
+  jeeps/gpscom.c
+  jeeps/gpsdatum.c
+  jeeps/gpsdevice.c
+  jeeps/gpsdevice_ser.c
+  jeeps/gpsdevice_usb.c
+  jeeps/gpsfmt.c
+  jeeps/gpsinput.c
+  jeeps/gpslibusb.c
+  jeeps/gpsmath.c
+  jeeps/gpsmem.c
+  jeeps/gpsproj.c
+  jeeps/gpsprot.c
+  jeeps/gpsread.c
+  jeeps/gpsrqst.c
+  jeeps/gpssend.c
+  jeeps/gpsserial.c
+  jeeps/gpsusbcommon.c
+  jeeps/gpsusbread.c
+  jeeps/gpsusbsend.c
+  jeeps/gpsusbstub.c
+  jeeps/gpsusbwin.c
+  jeeps/gpsutil.c
+  jeeps/utils.c
+
+  loaders/image_jpeg.cpp
+  loaders/image_tiff.cpp
+  loaders/image_png.cpp
+  loaders/image_gif.cpp
+  loaders/image_r.cpp
+
+  mp/mp_io.cpp
+  mp/mp_mask.cpp
+  mp/mp_data.cpp
+
+  ocad/ocad_types.cpp
+  ocad/ocad_colors.cpp
+  ocad/ocad_file.cpp
+  ocad/ocad_header.cpp
+  ocad/ocad_fname.cpp
+  ocad/ocad_object.cpp
+  ocad/ocad_object8.cpp
+  ocad/ocad_object9.cpp
+  ocad/ocad_shead.cpp
+  ocad/ocad_string.cpp
+  ocad/ocad_symbol.cpp
+  ocad/ocad_symbol8.cpp
+  ocad/ocad_symbol9.cpp
+  ocad/ocad_geo.cpp
+
+  options/options.cpp
+  options/m_time.cpp
+  options/m_color.cpp
+  options/m_getopt.cpp
+
+  srtm/srtm3.cpp
+
+  utils/log.cpp
+  utils/err.cpp
+  utils/iconv_utils.cpp
+  utils/spirit_utils.cpp
+  utils/pnm_shifter.cpp
+  utils/cairo_wrapper.cpp
+
+  vmap/zn.cpp
+  vmap/zn_lists.cpp
+  vmap/vmap.cpp
+  vmap/vmap_file.cpp
+  vmap/vmap_fig.cpp
+  vmap/vmap_mp.cpp
+  vmap/vmap_ocad.cpp
+  vmap/vmap_vmap.cpp
+  vmap/vmap_cnv.cpp
+  vmap/vmap_filt.cpp
+  vmap/vmap_labels.cpp
+  vmap/vmap_ref.cpp
+  vmap/vmap_legend.cpp
+""")
+
+programs=Split("""
+  fig/catfig.cpp
+  geo_io/catgeo.cpp
+  loaders/img_convert.cpp
+  mp/catmp.cpp
+  ocad/ocad_test.cpp
+""")
+
+# build the library
+env.StaticLibrary('mapsoft', objects)
+map(env.Program, programs)

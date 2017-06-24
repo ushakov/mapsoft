@@ -1,5 +1,0 @@
-Name: loaders
-Description: Mapsoft loaders library
-Requires: libcurl libpng libjpeg libtiff libgif 2d options
-Version: 1
-Libs: -L'\#'core/loaders -lloaders

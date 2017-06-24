@@ -1,0 +1,27 @@
+#!/bin/sh -efu
+
+. mapsoft_gl.sh
+
+# map_gl_upd_nom -- update glaciers in nom maps
+# example: map_gl_upd_nom j43-061.vmap j43-062.vmap
+
+# passes data is put into ./glims/ dir
+
+mkdir -p -- glims
+for i in "$@"; do
+  base=$(basename ${i%.*})
+  echo $i
+
+  download_ll_gl "$(nom2ll "$base")" "glims/$base"
+
+  cp -f -- "$i" "$i.bak"
+
+  mapsoft_vmap -v \
+    glims/${base}_gl.mp --set_source glims\
+       --range_nom "$base" --range_action="select"\
+    "$i" --split_labels --skip_source glims\
+    -o "$i"
+
+#  rm -f -- "glims/${base}_gl.mp"
+
+done

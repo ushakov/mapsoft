@@ -1,5 +1,0 @@
-Name: options
-Description: Mapsoft options library
-Requires:
-Version: 1
-Libs: -L'\#'core/options -loptions

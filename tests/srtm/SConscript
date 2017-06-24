@@ -1,9 +1,7 @@
 Import ('env')
-e=env.Clone()
-e.UseLibs('srtm loaders')
 
-e.Program('srtm_pic.cpp')
-e.Program('srtm_pic1.cpp')
-e.Program('srtm_interp.cpp')
-e.Program('srtm_pano.cpp')
+env.Program('srtm_pic.cpp')
+env.Program('srtm_pic1.cpp')
+env.Program('srtm_interp.cpp')
+env.Program('srtm_pano.cpp')
 

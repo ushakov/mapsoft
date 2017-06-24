@@ -1,5 +1,2 @@
 Import('env')
-e=env.Clone()
-e.UseLibs('geo')
-
-e.Program("geo_nom_test.cpp")
+env.Program("geo_nom_test.cpp")

@@ -1,6 +1,3 @@
 Import('env')
-e=env.Clone()
 
-e.UseLibs('fig')
-
-e.Program("nearest_pt.cpp")
+env.Program("nearest_pt.cpp")

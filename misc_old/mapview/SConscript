@@ -1,8 +1,6 @@
 Import ('env')
 le = env.Clone()
 
-le.UseLibs('gtkmm-2.4 gthread-2.0 geo_io')
-
 le.Program('mapview.cpp')
 le.Program('test1.cpp')
 

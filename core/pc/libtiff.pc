@@ -1,5 +1,0 @@
-Name: libtiff
-Description: libtiff
-Requires:
-Version: 1
-Libs: -ltiff

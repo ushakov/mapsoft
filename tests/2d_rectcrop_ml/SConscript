@@ -1,6 +1,2 @@
 Import('env')
-e=env.Clone()
-
-e.UseLibs('fig')
-
-e.Program("rectcrop_ml.cpp")
+env.Program("rectcrop_ml.cpp")

@@ -1,7 +1,5 @@
 Import('env')
-e=env.Clone()
-e.UseLibs('srtm options loaders')
 
-e.Program("trace_one.cpp")
-e.Program("trace_area.cpp")
-e.Program("trace_map.cpp")
+env.Program("trace_one.cpp")
+env.Program("trace_area.cpp")
+env.Program("trace_map.cpp")

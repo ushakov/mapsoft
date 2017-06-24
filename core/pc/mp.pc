@@ -1,5 +1,0 @@
-Name: mp
-Description: Mapsoft mp library
-Requires: utils options 2d
-Version: 1
-Libs: -L'\#'core/mp -lmp

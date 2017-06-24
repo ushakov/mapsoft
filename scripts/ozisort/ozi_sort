@@ -1,0 +1,45 @@
+#!/bin/sh -efu
+
+# sort Ozi wpt-file by date in comments or time fields
+
+max=12
+vars="$(seq -s " " 1 "$max" | sed 's/\(^\| \)/\1f/g')" # f1 f2 f3 ...
+vars1="$(printf "$vars" | sed 's/f/$f/g; s/ /,/g')"       # $f1,$f2,$f3 ...
+
+print_line(){
+  IFS="
+  "
+  local last="$max"
+  for i in $(seq 1 "$max"); do
+    eval "[ -z \"\$f$i\" ] || last=\"$i\""
+  done
+
+  for i in $(seq 1 "$last"); do
+    eval "printf \"\$f$i\""
+    [ "$i" = "$last" ] || printf ','
+  done
+  printf "\n"
+}
+
+while IFS=',' eval "read $vars"; do
+
+  d1=0
+  d2=0
+  d=0
+
+  [ -z "$f5" ] || d1="$(echo "$f5 * 3600.0 * 24.0 - 2209161600.0" | bc -l)" ||:
+  d1="${d1%%.*}"
+
+  [ -z "$f11" ] || d2="$(date -d "$f11" +"%s" 2>/dev/null)" ||:
+
+
+  [ -n "$d1" ] || d1=0
+  [ -n "$d2" ] || d2=0
+
+  d="$d2"; # find date in comment first!
+  [ "$d" != 0 ] || d="$d1"
+
+  printf "$d	"
+  print_line
+done |
+  sort -n -k1,1 | while read a b; do printf "$b\n"; done

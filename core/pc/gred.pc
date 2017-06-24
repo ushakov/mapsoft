@@ -1,5 +1,0 @@
-Name: gred
-Description: Mapsoft gred library
-Requires: gtkmm-2.4 gthread-2.0 utils 2d
-Version: 1
-Libs: -L'\#'core/gred -lgred

@@ -1,9 +1,6 @@
 Import ('env')
 
-e=env.Clone()
-e.UseLibs('geo_io img_io mp srtm gred')
-
-map (lambda(f): e.Program(f+'.cpp'),\
+map (lambda(f): env.Program(f+'.cpp'),\
   Split("""
     mapsoft_convert
     mapsoft_mkmap
@@ -18,11 +15,8 @@ map (lambda(f): e.Program(f+'.cpp'),\
     convs_pt2pt
     convs_map2pt
     convs_nom
+    mapsoft_vmap
     """))
-
-env_vmap=env.Clone()
-env_vmap.UseLibs('vmap')
-env_vmap.Program('mapsoft_vmap.cpp')
 
 env.Install(env.bindir, Split("""
   mapsoft_convert
