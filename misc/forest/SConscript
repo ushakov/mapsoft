@@ -8,6 +8,7 @@ map (lambda(f): e.Program(f+'.cpp'),\
     forest_nom
     forest_vec
     glims_vec
+    shape_info
     """))
 
 
