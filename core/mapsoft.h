@@ -71,7 +71,6 @@
 #include <img_io/io.h>
 #include <img_io/o_img.h>
 #include <img_io/o_tiles.h>
-#include <img_io/tiles.h>
 
 #include <loaders/image_cache.h>
 #include <loaders/image_gif.h>
