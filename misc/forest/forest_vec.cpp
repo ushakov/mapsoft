@@ -143,7 +143,8 @@ dMultiLine get_contours(const iImage & img, int th, iRect range = iRect()){
   }
 
   // merge contours
-  merge(ret, 1e-8);
+  merge(ret, 1e-4);
+  generalize(ret, 1e-4);
   return ret;
 }
 /*

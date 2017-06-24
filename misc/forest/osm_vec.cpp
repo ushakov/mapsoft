@@ -235,21 +235,29 @@ main(int argc, char** argv){
 
         // create a vmap object
         vmap::object vobj;
-        for (int p = 0; p<o->nParts; p++){
+        if (o->nParts == 0){
           dLine l;
-          int j1 = o->panPartStart[p];
-          int j2 = (p==o->nParts-1 ? o->nVertices : o->panPartStart[p+1]);
-          for (int j=j1; j<j2; j++) l.push_back(dPoint(o->padfX[j],o->padfY[j]));
-          //dMultiLine ml = rect_crop_ml(range,l,true);
-          vobj.push_back(l);
+            for (int j=0; j<o->nVertices; j++)
+              l.push_back(dPoint(o->padfX[j],o->padfY[j]));
+            vobj.push_back(l);
         }
-        //join_polygons1(ml1);
+        else {
+          for (int p = 0; p<o->nParts; p++){
+            dLine l;
+            int j1 = o->panPartStart[p];
+            int j2 = (p==o->nParts-1 ? o->nVertices : o->panPartStart[p+1]);
+            for (int j=j1; j<j2; j++) l.push_back(dPoint(o->padfX[j],o->padfY[j]));
+            vobj.push_back(l);
+          }
+        }
+        join_polygons1(vobj);
+        generalize(vobj, 1e-4);
 
         // get type and name
         string type = DBFReadStringAttribute(dbf, i, n_type);
         string name = DBFReadStringAttribute(dbf, i, n_name);
 
-        if (ff->types.count(type)){
+        if (vobj.size() && ff->types.count(type)){
           vobj.type = ff->types.find(type)->second;
           vobj.text = name;
           MAP.push_back(vobj);

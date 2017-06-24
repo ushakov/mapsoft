@@ -86,14 +86,14 @@ points:
 #  water_well
   wayside_shrine:   0x2c04
 places:
-  hamlet:           0x20000E
-  isolated_dwellin: 0x20000E
-#  locality:         0x20000E
-#  neighbourhood:    0x20000E
-#  state:            0x20000E
-#  suburb:           0x20000E
-  town:              0x200001
-  village:           0x20000E
+  hamlet:            0x0700
+  isolated_dwellin:  0x0700
+  locality:          0x0800
+  neighbourhood:     0x0800
+  state:             0x0900
+  suburb:            0x0900
+  town:              0x0900
+  village:           0x0800
 natural:
 #  forest
 #  park
@@ -101,7 +101,7 @@ natural:
   water:             0x200029
 landuse:
   basin:             0x200029
-#  commercial
+  commercial:        0x200004
   farmland:          0x20004E
   farmyard:          0x20004E
 #  grass
@@ -110,7 +110,7 @@ landuse:
   military:          0x200004
 #  orchard
   pond:              0x200029
-#  quarry
+  quarry:            0x100003
 #  recreation_groun
   reservoir:         0x200029
   residential:       0x20000E
