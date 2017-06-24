@@ -73,10 +73,12 @@ main(int argc, char** argv){
 
   cout << "  Fields:";
   cout << "    # n name width decimals\n";
+  vector<string> fields(DBFGetFieldCount(dbf));
   for (int i=0; i<DBFGetFieldCount(dbf); i++){
     char fn[12];
     int w,d;
     DBFFieldType t = DBFGetFieldInfo(dbf, i, fn, &w, &d);
+    fields[i] = fn;
     cout << "    " << i << " " << fn << " " << w << " " << d << "\n";
   }
 
@@ -96,12 +98,11 @@ main(int argc, char** argv){
     }
     join_polygons1(ml1);
 */
-    for (int j=0; j<DBFGetFieldCount(dbf); j++){
+    for (int j=0; j<fields.size(); j++){
       char fn[12];
       int w,d;
       string attr = DBFReadStringAttribute(dbf, i, j);
-      DBFFieldType t = DBFGetFieldInfo(dbf, j, fn, &w, &d);
-      cout << "  Field " << j << ": " << fn << " = " <<  attr << "\n";
+      cout << "  Field " << j << ": " << fields[j] << " = " <<  attr << "\n";
     }
     SHPDestroyObject(o);
   }
