@@ -1,0 +1,118 @@
+---
+roads:
+  bridleway:     0x10002A
+  construction:  0x100004
+  footway:       0x10002A
+  living_street: 0x100004
+  path:          0x10002A
+  pedestrian:    0x10002A
+  primary:       0x100002
+  residential:   0x100004
+  road:          0x100004
+  secondary:     0x100004
+  service:       0x100006
+  steps:         0x100006
+  tertiary:      0x100006
+  track:         0x100004
+  trunk:         0x100004
+  trunk_link:    0x100004
+  unclassified:  0x10000A
+waterways:
+  canal:         0x100015
+  dam:           0x100015
+  ditch:         0x100015
+  drain:         0x100015
+  lake:          0x100015
+  river:         0x100015
+  stream:        0x100015
+  weir:          0x100015
+points:
+  alpine_hut:    0x6402
+#  artwork:
+#  atm:
+#  attraction:
+#  bank:
+#  bar:
+#  bicycle_rental:
+#  bureau_de_change:
+  bus_station:   0x2F08
+  bus_stop:      0x2F08
+#  cafe:
+#  camp_site:
+#  car_wash:
+  castle:        0x6402
+#  checkpoint:
+#  clinic:
+#  college:
+#  community_centre:
+#  dentist:
+#  doctors:
+  drinking_water: 0x6414
+#  fast_food
+#  fuel
+#  guest_house
+#  halt
+#  hospital
+#  hostel
+#  hotel
+#  information
+#  kindergarten
+  marketplace:     0x2E00
+  memorial:        0x2c04
+#  mini_roundabout
+  monastery:       0x2C0B
+  monument:        0x2c04
+#  museum
+#  parking
+#  pharmacy
+#  picnic_site
+  place_of_worship: 0x2c04
+#  police
+#  post_box
+#  post_office
+#  pub
+#  public_building
+#  rest_area
+#  restaurant
+#  school
+#  shelter
+#  taxi
+#  theatre
+#  toilets
+  tower:            0x6411
+#  veterinary
+#  viewpoint
+#  water_tower
+#  water_well
+  wayside_shrine:   0x2c04
+places:
+  hamlet:           0x20000E
+  isolated_dwellin: 0x20000E
+#  locality:         0x20000E
+#  neighbourhood:    0x20000E
+#  state:            0x20000E
+#  suburb:           0x20000E
+  town:              0x200001
+  village:           0x20000E
+natural:
+#  forest
+#  park
+#  riverbank
+  water:             0x200029
+landuse:
+  basin:             0x200029
+#  commercial
+  farmland:          0x20004E
+  farmyard:          0x20004E
+#  grass
+  industrial:        0x200004
+#  meadow
+  military:          0x200004
+#  orchard
+  pond:              0x200029
+#  quarry
+#  recreation_groun
+  reservoir:         0x200029
+  residential:       0x20000E
+  retail:            0x200004
+  village_green:     0x20004E
