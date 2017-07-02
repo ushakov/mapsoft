@@ -5,7 +5,7 @@
 #include "io_gpx.h"
 #include <libxml/xmlreader.h>
 #include <cstring>
-#include "utils/err.h"
+#include "err/err.h"
 
 namespace gpx {
 
@@ -18,8 +18,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
   if (opt.exists("verbose")) cerr <<
     "Writing data to GPX file " << filename << endl;
 
-  if (!f.good()) throw MapsoftErr("GEO_IO_GPX_OPENW") <<
-    "Can't open file " << filename << " for writing";
+  if (!f.good()) throw Err() << "Can't open file " << filename << " for writing";
 
   f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
   f << "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\">" << endl;
@@ -61,8 +60,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
   }
   f << "</gpx>" << endl;
 
-  if (!f.good()) throw MapsoftErr("GEO_IO_GPX_WRITE") <<
-    "Can't write to file " << filename;
+  if (!f.good()) throw Err() << "Can't write to file " << filename;
 }
 
 
@@ -281,8 +279,7 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
   int ret;
 
   reader = xmlReaderForFile(filename, NULL, 0);
-  if (reader == NULL) throw MapsoftErr("GEO_IO_GPX_OPENR") <<
-    "Can't open file " << filename << " for reading";
+  if (reader == NULL) throw Err() << "Can't open file " << filename << " for reading";
 
   // parse file
   while (1){
@@ -299,8 +296,7 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
   // free resources
   xmlFreeTextReader(reader);
 
-  if (ret != 0) throw MapsoftErr("GEO_IO_GPX_READ") <<
-    "Can't parse GPX file " << filename;
+  if (ret != 0) throw Err() << "Can't parse GPX file " << filename;
 
   xmlCleanupParser();
   xmlMemoryDump();

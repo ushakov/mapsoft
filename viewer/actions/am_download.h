@@ -38,16 +38,16 @@ public:
       std::string dev = dlg.e_dev->get_text();
 
       try {gps::init_gps(dev.c_str());}
-      catch (MapsoftErr e) {mapview->dlg_err.call(e); return;}
+      catch (Err e) {mapview->dlg_err.call(e); return;}
 
       if (dlg.cb_w->get_active()){
         try{gps::get_waypoints (dev.c_str(), world);}
-        catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+        catch (Err e) {mapview->dlg_err.call(e);}
       }
 
       if (dlg.cb_a->get_active() || dlg.cb_o->get_active()){
         try{gps::get_tracks (dev.c_str(), world);}
-        catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+        catch (Err e) {mapview->dlg_err.call(e);}
 
         std::vector<g_track>::iterator i = world.trks.begin();
         while (i!=world.trks.end()){
@@ -63,7 +63,7 @@ public:
 
       if (dlg.cb_off->get_active())
         try{ gps::turn_off(dev.c_str());}
-        catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+        catch (Err e) {mapview->dlg_err.call(e);}
     }
 
 private:

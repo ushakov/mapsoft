@@ -3,7 +3,7 @@
 #include "options/m_time.h"
 #include "geo_io/geo_refs.h"
 #include "loaders/image_r.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -179,7 +179,7 @@ main(int argc, char* argv[]){
     M.border=generalize(M.border,1,-1); // 1pt accuracy
     M.border.resize(M.border.size()-1);
     try {oe::write_map_file(map.c_str(), M);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    catch (Err e) {cerr << e.get_error() << endl;}
   }
 
 

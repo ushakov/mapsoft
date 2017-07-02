@@ -7,7 +7,7 @@
 #include "io_gps.h"
 #include "jeeps/gps.h"
 #include "utils/iconv_utils.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 namespace gps {
 	using namespace std;
@@ -21,8 +21,7 @@ namespace gps {
                 GPS_Init(port);
 		sleep(1);
 		if (GPS_Init(port) < 0)
-                  throw MapsoftErr("GEO_IO_GPS_INIT")
-                    << "Can't open GPS device";
+                  throw Err() << "Can't open GPS device";
         }
 
 	void get_waypoints (const char* port, geo_data & world, const Options &opt){
@@ -33,7 +32,7 @@ namespace gps {
 
 		int n = GPS_Command_Get_Waypoint (port, &wpt, NULL);
                 if (n<0)
-                  throw MapsoftErr("GEO_IO_GPS_WPT_GET")
+                  throw Err()
                      << "Can't get waypoints from GPS device"; 
 
 		g_waypoint_list new_w;
@@ -65,8 +64,7 @@ namespace gps {
 
                 int n = GPS_Command_Get_Track (port, &trk, 0);
                 if (n<0)
-                  throw MapsoftErr("GEO_IO_GPS_TRK_GET")
-                    << "Can't get tracks from GPS device"; 
+                  throw Err() << "Can't get tracks from GPS device"; 
 
 		g_track new_t;
 		bool begin=true;
@@ -125,8 +123,7 @@ namespace gps {
 			n++;
 		}
 		if (!GPS_Command_Send_Waypoint(port, wpts, n, NULL))
-                  throw MapsoftErr("GEO_IO_GPS_WPT_SEND")
-                    << "Can't send waypoints to GPS device";
+                  throw Err() << "Can't send waypoints to GPS device";
 	}
 
 	void put_track (const char * port, const g_track & tr, const Options & opt){
@@ -159,16 +156,14 @@ namespace gps {
 			n++;
 		}
 		if (!GPS_Command_Send_Track(port, trks, num))
-                  throw MapsoftErr("GEO_IO_GPS_TRK_SEND")
-                    << "Can't send tracks to GPS device";
+                  throw Err() << "Can't send tracks to GPS device";
 	}
 
         void turn_off (const char* port, const Options &opt){
           if (opt.exists("verbose"))
             cerr << "turn off GPS device " << port << endl;
           if (!GPS_Command_Off(port))
-            throw MapsoftErr("GEO_IO_GPS_OFF")
-              << "Can't turn off GPS device";
+            throw Err() << "Can't turn off GPS device";
         }
 
 	void put_all (const char * port, const geo_data & world, const Options & opt)

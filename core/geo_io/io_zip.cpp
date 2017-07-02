@@ -6,7 +6,7 @@
 
 #include "io.h"
 #include "io_zip.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 
 namespace io_zip{
@@ -39,22 +39,20 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
     "Reading ZIP file " << filename << endl;
 
   zip_file = zip_open(filename, 0, &err);
-  if (!zip_file) throw MapsoftErr("GEO_IO_ZIP_OPEN")
-    << "Can't open ZIP file " << filename << ": " << zip_strerror(zip_file);
+  if (!zip_file)
+    throw Err() << "Can't open ZIP file " << filename << ": " << zip_strerror(zip_file);
 
   files_total = zip_get_num_files(zip_file);
   if (!files_total) {
     zip_close(zip_file);
-    throw MapsoftErr("GEO_IO_ZIP_READ")
-      << "Can't read ZIP file " << filename << ": " << zip_strerror(zip_file);
+    throw Err() << "Can't read ZIP file " << filename << ": " << zip_strerror(zip_file);
   }
 
   for (i = 0; i < files_total; i++) {
     file_in_zip = zip_fopen_index(zip_file, i, 0);
     if (!file_in_zip){
       zip_close(zip_file);
-      throw MapsoftErr("GEO_IO_ZIP_READ1")
-        << "Can't read file " << fzip_name << " from ZIP file "
+      throw Err() << "Can't read file " << fzip_name << " from ZIP file "
         << filename << ": " << zip_strerror(zip_file);
     }
 
@@ -70,13 +68,11 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
 
     if (remove(tmp.c_str())) {
       zip_close(zip_file);
-      throw MapsoftErr("GEO_IO_ZIP_RM")
-        << "Can't delete temp file "<< tmp;
+      throw Err() << "Can't delete temp file "<< tmp;
     }
   }
   if (zip_close(zip_file)!=0)
-    throw MapsoftErr("GEO_IO_ZIP_CLOSE")
-      << "Can't write data to ZIP file: " << zip_strerror(zip_file);
+    throw Err() << "Can't write data to ZIP file: " << zip_strerror(zip_file);
 }
 
 void write_file (const char* filename, const std::vector<std::string> & files, const Options & opt){
@@ -88,8 +84,7 @@ void write_file (const char* filename, const std::vector<std::string> & files, c
 
   remove(filename);
   Z = zip_open(filename, ZIP_CREATE, &err);
-  if (!Z) throw MapsoftErr("GEO_IO_ZIP_OPENW")
-    << "Can't open ZIP file " << filename << " for writing";
+  if (!Z) throw Err() << "Can't open ZIP file " << filename << " for writing";
 
   std::vector<std::string>::const_iterator f;
   for (f = files.begin(); f!=files.end();  f++){
@@ -97,18 +92,15 @@ void write_file (const char* filename, const std::vector<std::string> & files, c
     if ((s == NULL) || (zip_add(Z, f->c_str(), s) < 0)) {
       zip_source_free(s);
       zip_close(Z);
-      throw MapsoftErr("GEO_IO_ZIP_ADD")
-        << "Can't write data to ZIP file: " << zip_strerror(Z);
+      throw Err() << "Can't write data to ZIP file: " << zip_strerror(Z);
     }
   }
   if (zip_close(Z)!=0)
-    throw MapsoftErr("GEO_IO_ZIP_CLOSE")
-      << "Can't write data to ZIP file: " << zip_strerror(Z);
+    throw Err() << "Can't write data to ZIP file: " << zip_strerror(Z);
 
   for (f = files.begin(); f!=files.end();  f++){
     if (remove(f->c_str())){
-      throw MapsoftErr("GEO_IO_ZIP_CLOSE")
-        << "Can't delete temp file " << *f;
+      throw Err() << "Can't delete temp file " << *f;
     }
   }
 }

@@ -4,7 +4,7 @@
 #include <iomanip>
 #include "io_js.h"
 #include <cstring>
-#include "utils/err.h"
+#include "err/err.h"
 
 namespace js {
 
@@ -17,8 +17,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
   if (opt.exists("verbose")) cerr <<
     "Writing data to JS file " << filename << endl;
 
-  if (!f.good()) throw MapsoftErr("GEO_IO_JS_OPENW") <<
-    "Can't open file " << filename << " for writing";
+  if (!f.good()) throw Err() << "Can't open file " << filename << " for writing";
 
 /*  for (int i = 0; i < world.wpts.size(); i++) {
     for (g_waypoint_list::const_iterator wp = world.wpts[i].begin();
@@ -50,8 +49,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
     }
     f << "]\n}};\n";
   }
-  if (!f.good()) throw MapsoftErr("GEO_IO_JS_WRITE") <<
-    "Can't write to file " << filename;
+  if (!f.good()) throw Err() << "Can't write to file " << filename;
 }
 
 
@@ -59,7 +57,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
 void
 read_file(const char* filename, geo_data & world, const Options & opt) {
 
-  throw MapsoftErr("GEO_IO_JS_READ") << "Reading is not supported";
+  throw Err() << "Reading is not supported";
 }
 
 } // namespace

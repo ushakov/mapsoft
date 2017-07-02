@@ -230,7 +230,7 @@ std::cerr << "MPP SCALE " << sc << "\n";
 
       // write image file
       if (image_r::save(image, fname.c_str())>0){
-        mapview->dlg_err.call(MapsoftErr() << "Can't save file: " << fname);
+        mapview->dlg_err.call(Err() << "Can't save file: " << fname);
         return;
       }
 
@@ -259,7 +259,7 @@ std::cerr << "MPP SCALE " << sc << "\n";
 
         if (dlg.get_map()){
           try {oe::write_map_file((fname + ".map").c_str(), ref);}
-          catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+          catch (Err e) {mapview->dlg_err.call(e);}
         }
         if (dlg.get_fig()){
           fig::fig_world W;
@@ -274,7 +274,7 @@ std::cerr << "MPP SCALE " << sc << "\n";
           o.comment.push_back(string("MAP ") + fname);
           W.push_back(o);
           try {fig::write((fname + ".fig").c_str(), W);}
-          catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+          catch (Err e) {mapview->dlg_err.call(e);}
         }
       }
       fdlg.hide_all();

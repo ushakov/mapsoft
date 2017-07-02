@@ -9,7 +9,7 @@
 #include "2d/line_utils.h"
 #include "options/m_getopt.h"
 #include "2d/line_polycrop.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 #include "loaders/image_r.h" // определение размеров картинки (image_r::size)
 
@@ -271,7 +271,7 @@ main(int argc, char** argv){
     ref -= (f_max-f_min-wh)/2.0;
 
     try {oe::write_map_file("out.map", ref);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    catch (Err e) {cerr << e.get_error() << endl;}
 
   }
 }

@@ -14,7 +14,7 @@
 #include "io_xml.h"
 #include "options/options.h"
 #include "utils/iconv_utils.h"
-#include "utils/err.h"
+#include "err/err.h"
 #include "geo/geo_convs.h"
 
 namespace xml {
@@ -91,7 +91,7 @@ namespace xml {
 		rule_t main_rule = *(*space_p >> (wpt_object | trk_object | topmap_object | maps_object)) >> *space_p;
 
 		if (!parse_file("xml::read", filename, main_rule))
-                  throw MapsoftErr("GEO_IO_XML_READ")
+                  throw Err()
                     << "Can't parse mapsoft XML file " << filename;
 
                 if (top_map_list.maps.size()>0) ret.maps.push_back(top_map_list);
@@ -268,18 +268,15 @@ namespace xml {
 
 	  for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++){
 	    if (!write_waypoint_list(f, *i, opt))
-	      throw MapsoftErr("GEO_IO_XML_WRITE")
-	        << "Can't write data to Mapsoft XML file " << filename;
+	      throw Err() << "Can't write data to Mapsoft XML file " << filename;
 	  }
 	  for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++){
 	    if (!write_track(f, *i, opt))
-	      throw MapsoftErr("GEO_IO_XML_WRITE")
-	        << "Can't write data to Mapsoft XML file " << filename;
+	      throw Err() << "Can't write data to Mapsoft XML file " << filename;
 	  }
 	  for (vector<g_map_list>::const_iterator i = world.maps.begin(); i!=world.maps.end(); i++){
 	    if (!write_map_list(f, *i, opt))
-	      throw MapsoftErr("GEO_IO_XML_WRITE")
-	        << "Can't write data to Mapsoft XML file " << filename;
+	      throw Err() << "Can't write data to Mapsoft XML file " << filename;
 	  }
 	}
 

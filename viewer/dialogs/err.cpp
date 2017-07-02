@@ -8,8 +8,8 @@ DlgErr::DlgErr():
 }
 
 void
-DlgErr::call(const MapsoftErr & e){
-  std::string msg = e.str() + "\n";
+DlgErr::call(const Err & e){
+  std::string msg = e.get_error() + "\n";
   if (get_visible()) msg = property_text().get_value() + msg;
   set_message(msg);
   show_all();

@@ -16,7 +16,7 @@
 #include "geo/geo_convs.h"
 
 #include "options/m_getopt.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -116,7 +116,7 @@ main(int argc, char** argv){
   vector<string>::const_iterator i;
   for(i=infiles.begin(); i!=infiles.end(); i++){
     try {io::in(*i, world, opts);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    catch (Err e) {cerr << e.get_error() << endl;}
   }
 
   int n = 0;

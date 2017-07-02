@@ -13,7 +13,7 @@
 #include "geo_io/io.h"
 #include "img_io/io.h"
 #include "options/m_getopt.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -149,11 +149,11 @@ try{
   for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
     if (io::testext(*i, ".vmap")) {
       try { vm = vmap::read(i->c_str()); }
-      catch (MapsoftErr e) {cerr << e.str() << endl;}
+      catch (Err e) {cerr << e.get_error() << endl;}
     }
     else {
       try { io::in(*i, world, O);}
-      catch (MapsoftErr e) {cerr << e.str() << endl;}
+      catch (Err e) {cerr << e.get_error() << endl;}
     }
   }
 
@@ -166,7 +166,7 @@ try{
   if (O.exists("verbose")) cerr << "Applying filters...\n";
 
   try{ io::filter(world, O);}
-  catch (MapsoftErr e) {cerr << e.str() << endl;}
+  catch (Err e) {cerr << e.get_error() << endl;}
 
   string name=O.get("out", string());
   if ((io::testext(name, ".tiff")) ||
@@ -177,11 +177,11 @@ try{
       (io::testext(name, ".tiles")) 
      ){
     try {io::out_img(name, world, vm, O);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    catch (Err e) {cerr << e.get_error() << endl;}
   }
   else {
     try {io::out(name, world, O);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    catch (Err e) {cerr << e.get_error() << endl;}
   }
 
 } catch (const char *err){

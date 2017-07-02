@@ -67,12 +67,12 @@ read_osm_conf(const string & conf_file){
   FILE *file = fopen(conf_file.c_str(), "r");
 
   if (!file)
-    throw MapsoftErr("") << "Error while reading " << conf_file << ": "
+    throw Err() << "Error while reading " << conf_file << ": "
                          << "can't open the file";
 
   if (!yaml_parser_initialize(&parser)){
     fclose(file);
-    throw MapsoftErr("") << "Error while reading " << conf_file << ": "
+    throw Err() << "Error while reading " << conf_file << ": "
                          << "can't initialize YAML parser";
   }
 
@@ -82,7 +82,7 @@ read_osm_conf(const string & conf_file){
     if (!yaml_parser_parse(&parser, &event)){
       yaml_parser_delete(&parser);
       fclose(file);
-      throw MapsoftErr("") << "Error while reading " << conf_file << ": "
+      throw Err() << "Error while reading " << conf_file << ": "
                            << parser.problem << " at line "
                            << parser.problem_mark.line+1;
     }
@@ -90,7 +90,7 @@ read_osm_conf(const string & conf_file){
     try {  // on all errors in this block we want to delete event and parser, close file
 
       if (event.type == YAML_NO_EVENT)
-        throw MapsoftErr("") << "Error while reading " << conf_file << ": "
+        throw Err() << "Error while reading " << conf_file << ": "
                              "no_event at line " << parser.problem_mark.line+1;
 
       if ((event.type == YAML_STREAM_START_EVENT) ||
@@ -105,7 +105,7 @@ read_osm_conf(const string & conf_file){
           (event.type == YAML_SEQUENCE_END_EVENT) ||
           (event.type == YAML_MAPPING_END_EVENT) ){
         if ((history.size()<=0) || (history[history.size()-1] != event.type-1))
-          throw MapsoftErr("") << "Error while reading " << conf_file << ": "
+          throw Err() << "Error while reading " << conf_file << ": "
                                << "unmatched stop event at line " << event.start_mark.line+1;
         history.pop_back();
       }
@@ -134,7 +134,7 @@ read_osm_conf(const string & conf_file){
 
       else if (state == FILE_VAL){
         if (event.type != YAML_MAPPING_START_EVENT)
-          throw MapsoftErr("") << "Error while reading " << conf_file << ": "
+          throw Err() << "Error while reading " << conf_file << ": "
                                << "mapping expected at line " << event.start_mark.line+1;
         state = TYPE_KEY;
       }
@@ -150,13 +150,13 @@ read_osm_conf(const string & conf_file){
           state = TYPE_VAL;
         }
         else
-          throw MapsoftErr("") << "Error while reading " << conf_file << ": "
+          throw Err() << "Error while reading " << conf_file << ": "
                                << "scalar expected at line " << event.start_mark.line+1;
       }
 
       else if (state == TYPE_VAL){
         if (event.type != YAML_SCALAR_EVENT)
-          throw MapsoftErr("") << "Error while reading " << conf_file << ": "
+          throw Err() << "Error while reading " << conf_file << ": "
                                << "scalar expected at line " << event.start_mark.line+1;
         val.clear();
         val.insert(0, (const char *)event.data.scalar.value, event.data.scalar.length);
@@ -169,7 +169,7 @@ read_osm_conf(const string & conf_file){
       }
 
     }
-    catch (MapsoftErr e){
+    catch (Err e){
        yaml_event_delete(&event);
        yaml_parser_delete(&parser);
        fclose(file);
@@ -209,9 +209,9 @@ main(int argc, char** argv){
       // open shape-file
       string dbname = fdir+"/"+ff->name;
       SHPHandle sh  = SHPOpen( dbname.c_str(), "rb");
-      if (sh==NULL) throw MapsoftErr() << "can't open shape file: " << (dbname+".shp");
+      if (sh==NULL) throw Err() << "can't open shape file: " << (dbname+".shp");
       DBFHandle dbf = DBFOpen( (dbname+".dbf").c_str(), "rb");
-      if (dbf==NULL) throw MapsoftErr() << "can't open dbf file: " << (dbname+".dbf");
+      if (dbf==NULL) throw Err() << "can't open dbf file: " << (dbname+".dbf");
 
       // find numbers for type and name fields
       int n_type = 0;
@@ -272,7 +272,7 @@ main(int argc, char** argv){
     // save vmap into a file
     vmap::write(fout.c_str(), MAP);
   }
-  catch (MapsoftErr e){
-    std::cerr << "Error: " << e.str() << "\n";
+  catch (Err e){
+    std::cerr << "Error: " << e.get_error() << "\n";
   }
 }

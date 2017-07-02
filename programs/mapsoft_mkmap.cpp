@@ -14,7 +14,7 @@
 #include "geo_io/io.h"
 #include "geo/geo_convs.h"
 #include "geo/geo_nom.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 using namespace std;
 using namespace boost::spirit::classic;
@@ -116,10 +116,10 @@ main(int argc, char **argv){
   world.maps.push_back(maplist);
 
   try {io::map_nom_brd(world);}
-  catch (MapsoftErr e) {std::cerr << e.str() << endl;}
+  catch (Err e) {std::cerr << e.get_error() << endl;}
 
   try {io::out(outfile, world, opts);}
-  catch (MapsoftErr e) {std::cerr << e.str() << endl;}
+  catch (Err e) {std::cerr << e.get_error() << endl;}
 }
 
 

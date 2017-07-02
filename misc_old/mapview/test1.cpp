@@ -43,7 +43,7 @@ int main(int argc, char **argv){
     }
     geo_data file;
     try {io::in(argv[1], file, Options());}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    catch (Err e) {cerr << e.get_error() << endl;}
 
     if (file.wpts.size()<1){
       std::cerr << "no waypoints in file\n";

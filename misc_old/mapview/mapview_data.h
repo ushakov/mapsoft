@@ -58,7 +58,7 @@ class MapviewData : public std::list<MapviewDataFile>{
       MapviewDataFile file;
       file.name = name;
       try {io::in(name, file);}
-      catch (MapsoftErr e) {cerr << e.str() << endl; return;}
+      catch (Err e) {cerr << e.get_error() << endl; return;}
 
       file.wpts_v.resize(file.wpts.size(), true);
       file.trks_v.resize(file.trks.size(), true);

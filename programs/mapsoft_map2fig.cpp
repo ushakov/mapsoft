@@ -10,7 +10,7 @@
 #include "loaders/image_r.h"
 
 #include "geo_io/geofig.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -42,7 +42,7 @@ main(int argc, char **argv){
     geo_data *world = new geo_data;
     for(int i=4;i<argc;i++){
       try {io::in(string(argv[i]), *world);}
-      catch (MapsoftErr e) {cerr << e.str() << endl;}
+      catch (Err e) {cerr << e.get_error() << endl;}
     }
 
     // put all maps into one map_list

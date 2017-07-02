@@ -137,7 +137,7 @@ Mapview::add_files(const list<string> & files) {
         io::in(*i, world);
       }
     }
-    catch (MapsoftErr e) {dlg_err.call(e);}
+    catch (Err e) {dlg_err.call(e);}
   }
   add_world(world, true);
   viewer.stop_waiting();
@@ -152,7 +152,7 @@ Mapview::load_file(const string & file, bool force) {
   }
   geo_data world;
   try {io::in(file, world);}
-  catch (MapsoftErr e) {dlg_err.call(e);}
+  catch (Err e) {dlg_err.call(e);}
   spanel.message("Open " + file);
 
   viewer.start_waiting();

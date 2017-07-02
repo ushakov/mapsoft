@@ -23,7 +23,7 @@
 
 #include "jeeps/gpsmath.h"
 #include "jeeps/gpsdatum.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 namespace oe{
 
@@ -415,8 +415,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 
 
   if (!parse_file("oe::read", filename, main_rule))
-    throw MapsoftErr("GEO_IO_OE_READ")
-      << "Can't parse OziExplorer file " << filename;
+    throw Err() << "Can't parse OziExplorer file " << filename;
 
   // convert waypoint names and comments to UTF8
   IConv cnv(default_charset);
@@ -454,7 +453,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
                   "Writing data to OziExplorer file " << filename << endl;
 
                 ofstream f(filename);
-		if (!f.good()) throw MapsoftErr("GEO_IO_OE_OPENW")
+		if (!f.good()) throw Err()
                   << "Can't open OziExplorer file " << filename << " for writing";
 
 		IConv cnv(default_charset);
@@ -487,7 +486,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 			  << (p->t.value+2209161600.0)/3600.0/24.0 << ','
 			  << setfill('0') << p->t << "\r\n";
 		}
-		if (!f.good()) throw MapsoftErr("GEO_IO_OE_WRITE")
+		if (!f.good()) throw Err()
                   << "Can't write data to OziExplorer file " << filename << " for writing";
 	}
 
@@ -497,7 +496,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
                   "Writing data to OziExplorer file " << filename << endl;
 
                 ofstream f(filename);
-		if (!f.good()) throw MapsoftErr("GEO_IO_OE_OPENW")
+		if (!f.good()) throw Err()
                   << "Can't open OziExplorer file " << filename << " for writing";
 
 		IConv cnv(default_charset);
@@ -532,7 +531,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 			  << p->font_style << ','
 			  << p->size       << "\r\n";
 		}
-		if (!f.good()) throw MapsoftErr("GEO_IO_OE_WRITE")
+		if (!f.good()) throw Err()
                   << "Can't write data to OziExplorer file " << filename << " for writing";
 	}
 
@@ -542,7 +541,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
                   "Writing data to OziExplorer file " << filename << endl;
 
                 ofstream f(filename);
-		if (!f.good()) throw MapsoftErr("GEO_IO_OE_OPENW")
+		if (!f.good()) throw Err()
                   << "Can't open OziExplorer file " << filename << " for writing";
 
 		IConv cnv(default_charset);
@@ -643,7 +642,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 		else{
 		  f << "MM0,No\r\n";
 		}
-		if (!f.good()) throw MapsoftErr("GEO_IO_OE_WRITE")
+		if (!f.good()) throw Err()
                   << "Can't write data to OziExplorer file " << filename << " for writing";
 	}
 } // namespace

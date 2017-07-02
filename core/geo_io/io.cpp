@@ -23,8 +23,7 @@
 #include "io_js.h"
 #include "io_zip.h"
 #include "geofig.h"
-
-#include "utils/err.h"
+#include "err/err.h"
 
 namespace io {
 using namespace std;
@@ -64,12 +63,12 @@ in(const string & in_name, geo_data & world, const Options & opt){
   if (name == "gps:"){
     name = gps_detect();
     if (name == "")
-      throw MapsoftErr("GEO_IO_GPS_AUTO") << "Can't detect gps device";
+      throw Err() << "Can't detect gps device";
   }
 
   int c = check_file(name);
   if (c < 0)
-    throw MapsoftErr("GEO_IO_FILE") << "Can't access file " << name;
+    throw Err() << "Can't access file " << name;
 
   if (c == 1){
     gps::get_all(name.c_str(), world, opt);
@@ -109,7 +108,7 @@ in(const string & in_name, geo_data & world, const Options & opt){
     io_zip::read_file (name.c_str(), world, opt);
     return;
   }
-  throw MapsoftErr("GEO_IO_IFMT") << "Can't determine input format for file " << name;
+  throw Err() << "Can't determine input format for file " << name;
   return;
 }
 
@@ -120,7 +119,7 @@ out(const string & out_name, geo_data const & world, const Options & opt){
 
   if (name == "gps:"){
     name = gps_detect();
-    if (name == "") throw MapsoftErr("GEO_IO_AUTOGPS") <<
+    if (name == "") throw Err() <<
         "Can't detect gps device";
   }
 
@@ -233,7 +232,7 @@ out(const string & out_name, geo_data const & world, const Options & opt){
 
     return;
   }
-  throw MapsoftErr("GEO_IO_OFMT") << "Can't determine output format for file " << name;
+  throw Err() << "Can't determine output format for file " << name;
 }
 }  // namespace io
 

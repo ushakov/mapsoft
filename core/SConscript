@@ -144,7 +144,6 @@ objects = Split ("""
   srtm/srtm3.cpp
 
   utils/log.cpp
-  utils/err.cpp
   utils/iconv_utils.cpp
   utils/spirit_utils.cpp
   utils/pnm_shifter.cpp

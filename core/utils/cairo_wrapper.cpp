@@ -2,7 +2,7 @@
 
 #include "cairo_wrapper.h"
 #include "2d/line_utils.h"
-#include "err.h"
+#include "err/err.h"
 
 void
 CairoExtra::mkpath_smline(const dMultiLine & o, bool close, double curve_l){
@@ -161,7 +161,7 @@ CairoExtra::img2patt(const iImage & I, double sc){
     return patt;
   }
   catch (Cairo::logic_error err){
-    throw MapsoftErr("cairo_wrapper") << err.what();
+    throw Err() << err.what();
   }
 }
 

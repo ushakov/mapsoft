@@ -16,7 +16,7 @@
 
 #include "geo_io/geofig.h"
 #include "geo_io/io_oe.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 #include "gobj_comp.h"
 
@@ -57,8 +57,7 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
     // fallback: map range
     if (wgs_geom.empty()) wgs_geom=world.range_map();
 
-    if (wgs_geom.empty()) throw MapsoftErr("O_IMG_NO_RANGE")
-                    << "Can't get map geometry.";
+    if (wgs_geom.empty()) throw Err() << "Can't get map geometry.";
 
     opt.put("wgs_geom", wgs_geom);
   }
@@ -128,10 +127,9 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
   iPoint max_image = opt.get("max_image", Point<int>(10000,10000));
   cerr << "Image size: " << geom.w << "x" << geom.h << "\n";
   if ((geom.w>max_image.x) || (geom.h>max_image.y))
-    throw MapsoftErr("O_IMG_TOO_LARGE")
-                    << "Error: image is too large ("
-                    << geom.w << "x" << geom.h << ") pixels. "
-                    << "You may change max_image option to pass this test.\n";
+    throw Err() << "Error: image is too large ("
+                << geom.w << "x" << geom.h << ") pixels. "
+                << "You may change max_image option to pass this test.\n";
 
   // create gobj
   GObjComp gobj;
@@ -280,7 +278,7 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
     ref.border=generalize(ref.border,1,-1); // 1pt accuracy
     ref.border.resize(ref.border.size()-1);
     try {oe::write_map_file(mapfile.c_str(), ref);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    catch (Err e) {cerr << e.get_error() << endl;}
   }
 }
 } //namespace

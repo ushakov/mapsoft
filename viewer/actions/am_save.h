@@ -35,13 +35,13 @@ public:
       std::string f = get_filename();
       if (!io::testext(f, ".xml")){
          mapview->dlg_err.call(
-            MapsoftErr() << "Only mapsoft xml files can be saved."
-                " Use Save As/Export to save other geodata formats.");
+            Err() << "Only mapsoft xml files can be saved."
+                     " Use Save As/Export to save other geodata formats.");
          return;
       }
       mapview->spanel.message("Save to " + f);
       try{ io::out(f, mapview->get_world(false));}
-      catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+      catch (Err e) {mapview->dlg_err.call(e);}
       mapview->set_filename(f);
       hide();
     }

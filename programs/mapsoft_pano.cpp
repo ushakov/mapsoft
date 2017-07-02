@@ -12,7 +12,7 @@
 #include "loaders/image_r.h"
 #include "mp/mp.h"
 #include "fig/fig.h"
-//#include "utils/err.h"
+//#include "err/err.h"
 
 // панорама по srtm с геоданными. 
 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
   list<string>::const_iterator fb=infiles.begin(), fe=infiles.end(), f;
   for(f=fb; f!=fe; f++){
     try{io::in(*f, world);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    catch (Err e) {cerr << e.get_error() << endl;}
   }
 
   for (int i = 0; i<world.wpts.size(); i++){

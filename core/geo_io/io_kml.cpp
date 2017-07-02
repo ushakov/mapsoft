@@ -11,8 +11,7 @@
 #include "io_kml.h"
 
 #include <math.h>
-
-#include "utils/err.h"
+#include "err/err.h"
 
 
 namespace kml {
@@ -26,7 +25,7 @@ void write_file (const char* filename, const geo_data & world, const Options & o
     "Writing data to KML file " << filename << endl;
 
   ofstream f(filename);
-  if (!f.good()) throw MapsoftErr("GEO_IO_KML_OPENW")
+  if (!f.good()) throw Err()
                 << "Can't open KML file " << filename << " for writing";
 
   f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
@@ -82,8 +81,7 @@ void write_file (const char* filename, const geo_data & world, const Options & o
   f << "  </Document>" << endl;
   f << "</kml>" << endl;
 
-  if (!f.good()) throw MapsoftErr("GEO_IO_KML_WRITE")
-                  << "Can't write data to KML file " << filename;
+  if (!f.good()) throw Err() << "Can't write data to KML file " << filename;
 }
 
 #define TYPE_ELEM      1
@@ -533,7 +531,7 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
   int ret;
 
   reader = xmlReaderForFile(filename, NULL, 0);
-  if (reader == NULL) throw MapsoftErr("GEO_IO_KML_OPENR") <<
+  if (reader == NULL) throw Err() <<
     "Can't open file " << filename << " for reading";
 
   // parse file
@@ -550,8 +548,7 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
 
   // free resources
   xmlFreeTextReader(reader);
-  if (ret != 0) throw MapsoftErr("GEO_IO_KML_READ") <<
-    "Can't parse KML file " << filename;
+  if (ret != 0) throw Err() << "Can't parse KML file " << filename;
 
   xmlCleanupParser();
   xmlMemoryDump();

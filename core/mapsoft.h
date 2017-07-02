@@ -113,7 +113,6 @@
 #include <srtm/tracers.h>
 
 #include <utils/cairo_wrapper.h>
-#include <utils/err.h>
 #include <utils/generic_accessor.h>
 #include <utils/iconv_utils.h>
 #include <utils/image_gdk.h>

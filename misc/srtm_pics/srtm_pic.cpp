@@ -9,7 +9,7 @@
 #include "geo_io/io_oe.h"
 #include "2d/line_utils.h"
 #include "2d/rainbow.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 #define GETH geth4
 
@@ -151,7 +151,7 @@ try{
       }
     }
     try {oe::write_map_file("srtm_pic_out.map", m);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    catch (Err e) {cerr << e.get_error() << endl;}
 
 } catch(std::domain_error e){ std::cerr << e.what(); }
 }

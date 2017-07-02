@@ -1,5 +1,5 @@
 #include "io.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 main(int argc, char* argv[]){
 
@@ -16,8 +16,8 @@ main(int argc, char* argv[]){
       io::in(argv[i], W);
     }
     io::out(argv[argc-1], W);
-  } catch (MapsoftErr e){
-    std::cerr << e.str() << std::endl;
+  } catch (Err e){
+    std::cerr << e.get_error() << std::endl;
     exit(1);
   }
   exit(0);

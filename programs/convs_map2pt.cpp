@@ -1,8 +1,7 @@
 #include <sstream>
 #include "geo/geo_convs.h"
 #include "geo_io/io.h"
-#include "utils/err.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 // command line interface to convs::map2pt conversions
 
@@ -33,7 +32,7 @@ int main(int argc, char** argv){
   if (argc != 5) usage();
   geo_data W;
   try {io::in(argv[1],W,Options());}
-  catch (MapsoftErr e) {cerr << e.str() << endl;}
+  catch (Err e) {cerr << e.get_error() << endl;}
 
   g_map *map = NULL;
   int count = 0;

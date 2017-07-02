@@ -32,8 +32,8 @@ public:
       std::string f = get_filename();
       if (!io::testext(f, ".xml")){
         mapview->dlg_err.call(
-          MapsoftErr() << "Only mapsoft xml files can be opened."
-            " Use Add/Import to load other geodata formats.");
+          Err() << "Only mapsoft xml files can be opened."
+                   " Use Add/Import to load other geodata formats.");
         return;
       }
       mapview->load_file(f);

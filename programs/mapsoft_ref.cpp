@@ -13,7 +13,7 @@
 
 #include "geo_io/io.h"
 #include "fig/fig.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
   list<string>::const_iterator i;
   for(i=infiles.begin(); i!=infiles.end(); i++){
     try {io::in(*i, d);}
-    catch (MapsoftErr e) {cerr << e.str() << endl;}
+    catch (Err e) {cerr << e.get_error() << endl;}
   }
 
   // читаем fig

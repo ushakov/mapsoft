@@ -219,7 +219,7 @@ public:
       }
       if (!w.empty()){
         try {io::out(f, w);}
-        catch (MapsoftErr e) {mapview->dlg_err.call(e);}
+        catch (Err e) {mapview->dlg_err.call(e);}
       }
       hide();
     }

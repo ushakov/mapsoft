@@ -2,7 +2,7 @@
 #include "geo_io/geofig.h"
 #include "geo_io/geo_refs.h"
 #include "geo_io/io.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -99,7 +99,7 @@ main(int argc, char **argv){
       geo_data world;
       for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
         try {io::in(*i, world, O);}
-        catch (MapsoftErr e) {cerr << e.str() << endl;}
+        catch (Err e) {cerr << e.get_error() << endl;}
       }
 
       if (O.exists("verbose")){

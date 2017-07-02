@@ -10,7 +10,7 @@
 #include "io_gu.h"
 #include "utils/iconv_utils.h"
 #include "utils/spirit_utils.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 namespace gu {
 
@@ -150,8 +150,7 @@ namespace gu {
 		rule_t main_rule = header >> +( wpt_block | trk_block ) >> *space_p;
 
                 if (!parse_file("gu::read", filename, main_rule))
-                  throw MapsoftErr("GEO_IO_GU_READ")
-                    << "Can't parse Garmin-utils file " << filename;
+                  throw Err() << "Can't parse Garmin-utils file " << filename;
 
                 //преобразование комментариев и названий точек в UTF-8
                 IConv cnv(default_charset);
@@ -215,13 +214,11 @@ namespace gu {
 		f << "[product 00, version 000: MAPSOFT]\n";
 		for (vector<g_waypoint_list>::const_iterator i = world.wpts.begin(); i!=world.wpts.end(); i++){
 		  if (!write_waypoint_list(f, *i, opt))
-                    throw MapsoftErr("GEO_IO_GU_WRITE")
-                      << "Can't write data to garmin-utils file " << filename;
+                    throw Err() << "Can't write data to garmin-utils file " << filename;
                 }
 		for (vector<g_track>::const_iterator i = world.trks.begin(); i!=world.trks.end(); i++){
 		  if (!write_track(f, *i, opt))
-                    throw MapsoftErr("GEO_IO_GU_WRITE")
-                      << "Can't write data to garmin-utils file " << filename;
+                    throw Err() << "Can't write data to garmin-utils file " << filename;
 		}
 	}
 }

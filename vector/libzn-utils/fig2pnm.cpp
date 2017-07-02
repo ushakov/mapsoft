@@ -7,7 +7,7 @@
 #include "2d/point.h"
 #include "geo_io/geofig.h"
 #include "geo_io/io.h"
-#include "utils/err.h"
+#include "err/err.h"
 
 #include <iostream>
 #include <vector>
@@ -197,7 +197,7 @@ int create_map(string figfile, string mapfile){
   maplist.push_back(ref);
   w.maps.push_back(maplist);
   try {io::out(mapfile, w);}
-  catch (MapsoftErr e) {cerr << e.str() << endl;}
+  catch (Err e) {cerr << e.get_error() << endl;}
 }
 
 
