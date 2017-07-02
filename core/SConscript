@@ -31,6 +31,8 @@ env.UseLibs('cairomm-1.0 pixman-1 freetype2 libusb-1.0')
 
 # all source files
 objects = Split ("""
+  err/err.cpp
+
   2d/point_int.cpp
   2d/rect.cpp
   2d/conv.cpp
@@ -171,6 +173,11 @@ programs=Split("""
   ocad/ocad_test.cpp
 """)
 
+tests=Split("""
+  err/test_err.cpp
+""")
+
 # build the library
 env.StaticLibrary('mapsoft', objects)
 map(env.Program, programs)
+map(env.Program, tests)

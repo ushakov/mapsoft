@@ -1,6 +1,10 @@
 #ifndef MAPSOFT_H
 #define MAPSOFT_H
 
+// error handling
+#include <err/err.h>
+
+// 2D library
 #include <2d/cache.h>
 #include <2d/conv_aff.h>
 #include <2d/conv.h>
