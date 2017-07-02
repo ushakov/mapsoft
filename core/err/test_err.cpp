@@ -1,5 +1,5 @@
 #include <cassert>
-#include "mapsoft.h"
+#include "err.h"
 
 main(){
   try {
@@ -22,5 +22,4 @@ main(){
     assert (E.get_code()    == 3);
     assert (E.get_domain()  == "test");
   }
-
 }

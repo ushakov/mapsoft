@@ -164,6 +164,8 @@ objects = Split ("""
   vmap/vmap_legend.cpp
 """)
 
+##################################################
+## strange programs inside the core folder
 programs=Split("""
   fig/catfig.cpp
   geo_io/catgeo.cpp
@@ -172,12 +174,38 @@ programs=Split("""
   ocad/ocad_test.cpp
 """)
 
-tests=Split("""
+##################################################
+## simple tests: fail if error code is not zero
+simple_tests=Split("""
   err/test_err.cpp
   opts/test_opts.cpp
 """)
 
-# build the library
+##################################################
+## build the library
 env.StaticLibrary('mapsoft', objects)
+
+##################################################
+## build programs
 map(env.Program, programs)
-map(env.Program, tests)
+
+##################################################
+## build and run simple tests
+import os
+def builder_unit_test(target, source, env):
+    app = str(source[0].abspath)
+    if os.spawnl(os.P_WAIT, app, app)==0:
+        open(str(target[0]),'w').write("PASSED\n")
+    else:
+        return 1
+
+# Create a builder for tests
+env.Append(BUILDERS = {'Test' : Builder(action = builder_unit_test)})
+
+def build_and_run(p):
+  a = env.Program(p)
+  env.Test(str(a[0]) + ".passed", a)
+#  env.Alias(, str(a[0])+".passed")
+
+map(build_and_run, simple_tests)
+##################################################
