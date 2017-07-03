@@ -16,6 +16,9 @@ template<typename T> void put (const std::string & key, T val);
 // - If option does not exists then default value is returned.
 // - If cast fails an error is thrown.
 template<typename T> T get (const std::string & key, const T & def = T()) const;
+
+// Check if key exists
+bool exists (const std::string & key) const;
 ```
 
 ##Example:

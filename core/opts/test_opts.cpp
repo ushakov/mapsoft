@@ -23,6 +23,7 @@ main(){
     assert (E.get_message() == "can't parse value of d: 123.1 ");
   }
 
+  assert(O1.exists("d") == true);
+  assert(O1.exists("e") == false);
   assert(O1.find("d")->second == "123.1 ");
-
 }

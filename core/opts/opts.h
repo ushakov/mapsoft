@@ -29,6 +29,8 @@ struct Opts : public std::map<std::string,std::string>{
       throw Err() << "can't parse value of " << key << ": " << it->second;
     return val;
   }
+
+  bool exists (const std::string & key) const {return find(key) != end();}
 };
 
 #endif
