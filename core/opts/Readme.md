@@ -19,6 +19,10 @@ template<typename T> T get (const std::string & key, const T & def = T()) const;
 
 // Check if key exists
 bool exists (const std::string & key) const;
+
+// Check if all keys are in the <known> list,
+// if not throw errror "unknown options: <comma-separated list>"
+void check_unknown (std::list<std::string> known) const{
 ```
 
 ##Example:

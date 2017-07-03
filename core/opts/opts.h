@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <list>
+#include <algorithm>
 #include "err/err.h"
 
 struct Opts : public std::map<std::string,std::string>{
@@ -30,7 +32,25 @@ struct Opts : public std::map<std::string,std::string>{
     return val;
   }
 
+  // check if option exists
   bool exists (const std::string & key) const {return find(key) != end();}
+
+  // find unknown options
+  void check_unknown (std::list<std::string> known) const{
+    std::string unknown;
+    int n=0;
+    for (auto i : *this){
+      if (std::find(known.begin(), known.end(), i.first) == known.end())
+        unknown += (n++ ? ", ": " ") + i.first;
+    }
+    if (n){
+      throw Err() << "unknown "
+                  << (n==1? "option:":"options:")
+                  << unknown;
+    }
+  }
+
+
 };
 
 #endif
