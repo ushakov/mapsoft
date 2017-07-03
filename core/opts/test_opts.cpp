@@ -1,7 +1,9 @@
 #include <cassert>
+#include <sstream>
 #include "opts.h"
 
 main(){
+try{
   Opts O1;
   O1.put("int", 123);
   assert ( O1.get<int>("int") == 123 );
@@ -58,5 +60,79 @@ main(){
     assert(e.get_message() == "unknown option: int");
   }
   /////////////////////////////////////////////
+  // dump and parse simple options:
 
+  // put Opts inside Opts!
+  O1.put("opts", O1);
+
+  std::ostringstream os;
+  os << O1;
+  //std::cerr << os.str() << "\n";
+  assert(os.str() == "{\"d\": \"123.1 \", \"int\": \"123a\","
+                     " \"opts\": \"{\\\"d\\\": \\\"123.1 \\\", \\\"int\\\": \\\"123a\\\"}\"}");
+
+  std::istringstream is(os.str());
+  Opts O2;
+  O2.put("a", 1); // these fields should disappear
+  O2.put("d", 2);
+  is >> O2; // read O2 from is
+  os.str(std::string()); // clear the stream
+  os << O2;
+  //std::cerr << os.str() << "\n";
+  assert(os.str() == "{\"d\": \"123.1 \", \"int\": \"123a\","
+                     " \"opts\": \"{\\\"d\\\": \\\"123.1 \\\", \\\"int\\\": \\\"123a\\\"}\"}");
+
+  os.str(std::string()); // clear the stream
+  os << O2.get<Opts>("opts");
+  //std::cerr << os.str() << "\n";
+  assert(os.str() == "{\"d\": \"123.1 \", \"int\": \"123a\"}");
+
+  {
+    std::istringstream is("{} ");
+    is >> O1;
+    assert(O1.size() == 0);
+  }
+
+  // some error cases
+  try {
+    std::istringstream is("[1,2,3]");
+    is >> O1;
+  }
+  catch (Err e) {
+    //std::cerr << e.get_error() << "\n";
+    assert(e.get_message() == "a JSON object with string fields expected");
+  }
+
+  try {
+    std::istringstream is("{");
+    is >> O1;
+  }
+  catch (Err e) {
+    //std::cerr << e.get_error() << "\n";
+    assert(e.get_message() == "string or '}' expected near end of file");
+  }
+
+  try {
+    std::istringstream is("{a: 1}");
+    is >> O1;
+  }
+  catch (Err e) {
+    //std::cerr << e.get_error() << "\n";
+    assert(e.get_message() == "string or '}' expected near 'a'");
+  }
+
+  try {
+    std::istringstream is("{b: \"2\"}");
+    is >> O1;
+  }
+  catch (Err e) {
+    //std::cerr << e.get_error() << "\n";
+    assert(e.get_message() == "string or '}' expected near 'b'");
+  }
+
+}
+catch (Err e) {
+  std::cerr << e.get_error() << "\n";
+  return 1;
+}
 }

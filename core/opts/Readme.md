@@ -1,9 +1,9 @@
 ### Opts class -- Mapsoft options
 
-Opts -- a map<string,string> container with functions
+Opts -- a `map<string,string>` container with functions
 for getting/putting values of arbitrary types.
 
-Data types should have <<, >> operators and a constructor without arguments.
+Data types should have `<<`, `>>` operators and a constructor without arguments.
 
 ##Functions:
 ```cpp
@@ -40,4 +40,13 @@ double k2 = o.get<double>("key2", 1.0);
 
 // get key2, type is determined by default value
 double k2 = o.get("key2", 1.0);
+```
+
+## String representation
+
+For the Opts class operators `<<` and `>>` are defined. String representations
+is a JSON object with string fields only. It is possible to pack Opts inside Opts,
+it will be represented like this:
+```
+{"key1": "val1", "key2": "val2", "key3": "{\"k1\": \"v1\", \"k2\":\"v2\"}"}
 ```
