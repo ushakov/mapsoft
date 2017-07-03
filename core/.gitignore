@@ -1,2 +1,2 @@
-test_err
+*.test
 *.passed

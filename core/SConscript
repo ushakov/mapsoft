@@ -177,8 +177,8 @@ programs=Split("""
 ##################################################
 ## simple tests: fail if error code is not zero
 simple_tests=Split("""
-  err/test_err.cpp
-  opts/test_opts.cpp
+  err/err.test.cpp
+  opts/opts.test.cpp
 """)
 
 ##################################################
