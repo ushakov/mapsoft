@@ -1,0 +1,4 @@
+#!/bin/sh -efu
+
+echo "run!"
+exit 0

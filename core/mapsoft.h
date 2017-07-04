@@ -4,6 +4,14 @@
 // error handling
 #include <err/err.h>
 
+// options
+#include <opts/opts.h>
+
+// getopt
+#include <getopt/getopt.h>
+
+
+
 // 2D library
 #include <2d/cache.h>
 #include <2d/conv_aff.h>
