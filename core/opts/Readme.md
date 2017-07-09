@@ -5,7 +5,16 @@ for getting/putting values of arbitrary types.
 
 Data types should have `<<`, `>>` operators and a constructor without arguments.
 
-##Functions:
+##Global functions:
+```cpp
+// convert any type to std::string and back
+template<typename T>
+T str_to_type(const std::string & s);
+template<typename T>
+std::string type_to_str(const T & t){
+```
+
+##Functions of the Opts class:
 ```cpp
 // all functions from std::map<std::string,std::string>
 
