@@ -32,6 +32,7 @@ env.UseLibs('cairomm-1.0 pixman-1 freetype2 libusb-1.0')
 objects = Split ("""
   err/err.cpp
   opts/opts.cpp
+
   getopt/getopt.cpp
 
   2d/point_int.cpp
@@ -170,6 +171,8 @@ env.StaticLibrary('mapsoft', objects)
 ##################################################
 ## strange programs inside the core folder
 programs=Split("""
+  tiles/convs_gtiles.cpp
+
   fig/catfig.cpp
   geo_io/catgeo.cpp
   loaders/img_convert.cpp
@@ -185,6 +188,7 @@ map(env.Program, programs)
 simple_tests=Split("""
   err/err.test.cpp
   opts/opts.test.cpp
+  tiles/tiles.test.cpp
 """)
 
 import os
