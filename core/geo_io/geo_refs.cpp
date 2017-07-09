@@ -1,5 +1,7 @@
 // Привязки специальных карт и снимков
 
+#include "tiles/tiles.h"
+
 #include "geo_refs.h"
 #include "geo/geo_convs.h"
 #include "geo/geo_nom.h"
@@ -278,33 +280,23 @@ mk_ref(Options & o){
     int y=crd[1];
     int z=crd[2];
     //
-    convs::pt2pt cnv(Datum("wgs84"), Proj("lonlat"), Options(),
-                     datum, proj, Options());
-    dPoint p(180,0);
-    cnv.frw(p);
-    double sc1 = 1.0/(2<<(z-2));
-    double sc2 = p.x; // merc units (equator meters) per z=1 tile
-    int x1 = (x * sc1 - 1)*sc2;
-    int x2 = ((x+1) * sc1 - 1)*sc2;
-    int y1 = (1 - (y+1) * sc1)*sc2;
-    int y2 = (1 - y * sc1)*sc2;
-    dRect geom(dPoint(x1,y1), dPoint(x2,y2));
-    if (geom.empty()){
-      cerr << "error: empty geometry\n";
-      exit(1);
-    }
+
+    Tiles tcalc;
+    dRect geom = tcalc.gtile_to_range(x,y,z);
 
     if (verbose) cerr << "mk_ref: geom = " << geom << "\n";
     refs = rect2line(geom, true,sw);
-    ret.border = cnv.line_bck(refs, 1e-6);
+    ret.border = refs;
     refs.resize(4);
-    cnv.line_bck_p2p(refs);
 
     rscale=o.get<double>("rscale", rscale);
 
     double lat=refs.range().CNT().y;
     rs_factor = 1/cos(M_PI*lat/180.0);
-    dpi = 256 * 2.54/100.0 * rscale * rs_factor / geom.w;
+
+    // m -> tile pixel
+    double k = 1/tcalc.px2m(z);
+    dpi = k * 2.54/100.0*rscale*rs_factor;
   }
   else {
     cerr << "error: can't make map reference without\n"
@@ -334,7 +326,6 @@ mk_ref(Options & o){
     << ", dpi = " << dpi << ", k = " << k << "\n";
 
   // step 3:  setting refpoints
-
   convs::pt2wgs cnv(datum, proj, proj_opts);
   dLine refs_r(refs);
   cnv.line_bck_p2p(refs_r);
