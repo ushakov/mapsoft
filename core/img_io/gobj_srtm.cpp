@@ -57,7 +57,7 @@ GObjSRTM::draw(iImage & image, const iPoint & origin){
 
       h0 = S->geth4(p0, false);
       if (h0 < srtm_min){
-        c=0xC8C8C8; goto print_colors;
+        continue;
       }
       if (cnt_step>0){ // contours
         px = origin + iPoint(i+1,j);
@@ -69,7 +69,7 @@ GObjSRTM::draw(iImage & image, const iPoint & origin){
 
         // holes
         if (hx < srtm_min || hy < srtm_min){
-          c=0xC8C8C8; goto print_colors;
+          continue;
         }
 
         if ((hx/cnt_step - h0/cnt_step) ||(hy/cnt_step - h0/cnt_step)){
