@@ -147,14 +147,8 @@ try{
   geo_data world;
   vmap::world vm;
   for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
-    if (io::testext(*i, ".vmap")) {
-      try { vm = vmap::read(i->c_str()); }
-      catch (Err e) {cerr << e.get_error() << endl;}
-    }
-    else {
-      try { io::in(*i, world, O);}
-      catch (Err e) {cerr << e.get_error() << endl;}
-    }
+    if (io::testext(*i, ".vmap")) vm = vmap::read(i->c_str());
+    else io::in(*i, world, O);
   }
 
   if (O.exists("verbose")){
@@ -165,8 +159,7 @@ try{
 
   if (O.exists("verbose")) cerr << "Applying filters...\n";
 
-  try{ io::filter(world, O);}
-  catch (Err e) {cerr << e.get_error() << endl;}
+  io::filter(world, O);
 
   string name=O.get("out", string());
   if ((io::testext(name, ".tiff")) ||
@@ -176,17 +169,15 @@ try{
       (io::testext(name, ".jpg")) ||
       (io::testext(name, ".tiles")) 
      ){
-    try {io::out_img(name, world, vm, O);}
-    catch (Err e) {cerr << e.get_error() << endl;}
+    io::out_img(name, world, vm, O);
   }
   else {
-    try {io::out(name, world, O);}
-    catch (Err e) {cerr << e.get_error() << endl;}
+    io::out(name, world, O);
   }
-
-} catch (const char *err){
-  cerr << "ERROR: " << err << "\n";
-  exit(1);
+}
+catch (Err e) {
+  cerr << e.get_error() << endl;
+  return 1;
 }
 
 }
