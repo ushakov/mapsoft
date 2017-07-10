@@ -125,8 +125,8 @@ class Tiles{
   /// Return google tiles with scale z which cover a region.
   iRect range_to_gtiles(const dRect & range, const int z) const {
     return iRect(
-      tile_gtile(pt_to_tile(range.TLC(), z),z),
-      tile_gtile(pt_to_tile(range.BRC(), z),z)+iPoint(1,-1));
+      tile_gtile(pt_to_tile(range.BLC(), z),z),
+      tile_gtile(pt_to_tile(range.TRC(), z),z)+iPoint(1,1));
   }
 
 
