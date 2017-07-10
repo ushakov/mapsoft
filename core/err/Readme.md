@@ -49,6 +49,6 @@ try {
 
 // catch an error:
 catch (Err E){
-  cerr << "error: " << E.str() << "\n";
+  cerr << E.get_error();
 }
 ```
