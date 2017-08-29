@@ -162,11 +162,11 @@ bool write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
   if (!tmap){
     iImage im(geom.w,geom.h, bgcolor);
     gobj.draw(im, iPoint(0,0));
-    if (ref.border.size()>2){
+//    if (ref.border.size()>2){
       // clear image outside border
-      CairoWrapper cr(im);
-      cr->render_border(geom, ref.border, bgcolor);
-    }
+//      CairoWrapper cr(im);
+//      cr->render_border(geom, ref.border, bgcolor);
+//    }
     image_r::save(im, filename, opt);
   }
   else{ // tiles
