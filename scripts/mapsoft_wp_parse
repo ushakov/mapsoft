@@ -15,7 +15,7 @@ my $cnv_win = Text::Iconv->new("utf8", "cp1251");
 my $file = $ARGV[0];
 
 open IN, $file or die "can't open $file: $!\n";
-my $text = <IN>;
+my $text = join ' ', <IN>;
 close IN;
 
 $file=~s/.kml$//;
@@ -39,7 +39,6 @@ my @data;
 
 while ($text=~s|<Placemark>(.*?)</Placemark>||){
   my $line = $1;
-
   my $d;
 
   # pass name and type (name can be "вер. Х", "пер. Х", "пик X")
@@ -62,6 +61,7 @@ while ($text=~s|<Placemark>(.*?)</Placemark>||){
   $d->{name_txt} = ($d->{type} eq 'P'? 'пер. ': 'вер. ') . $d->{name}
                  . ($d->{var}? " /$d->{var}/":"") . ($d->{ks}? ", $d->{ks}":"");
   $d->{name_mp} = (($d->{type} eq 'V' && $d->{alt} && $d->{name}!~m|^\d+$|)? "$d->{alt} ":'') . $d->{name};
+
 
   push @data, $d;
 }
