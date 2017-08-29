@@ -6,7 +6,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "2d/image.h"
-#include "2d/cache.h"
+#include "cache/cache.h"
 
 #include "img_io/gobj_geo.h"
 

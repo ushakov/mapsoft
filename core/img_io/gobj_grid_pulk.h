@@ -3,7 +3,7 @@
 
 #include "gobj_geo.h"
 #include "geo/geo_data.h"
-#include "2d/cache.h"
+#include "cache/cache.h"
 #include "utils/cairo_wrapper.h"
 
 

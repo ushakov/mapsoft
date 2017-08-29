@@ -6,7 +6,7 @@
 #include "gred/gobj.h"
 #include "lib2d/line.h"
 #include "lib2d/line_rectcrop.h"
-#include "2d/cache.h"
+#include "cache/cache.h"
 
 #include "gobj_line.h"
 

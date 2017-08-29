@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include "gobj_geo.h"
-#include "2d/cache.h"
+#include "cache/cache.h"
 #include "2d/point.h"
 #include "2d/rect.h"
 #include "2d/image.h"

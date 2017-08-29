@@ -10,10 +10,12 @@
 // getopt
 #include <getopt/getopt.h>
 
+// cache
+#include <cache/cache.h>
+#include <cache/sizecache.h>
 
 
 // 2D library
-#include <2d/cache.h>
 #include <2d/conv_aff.h>
 #include <2d/conv.h>
 #include <2d/conv_multi.h>

@@ -32,62 +32,60 @@ class SizeCache {
 public:
     typedef typename std::map<K, V>::iterator iterator;
 
-    /** Коструктор: создание кэша из n элементов*/
+    /** Constructor: create the cache with size n */
     SizeCache (int size) : upper_limit(size), current_size(0) {
     }
 
+    /** Copy constructor */
     SizeCache (SizeCache const & other)
- 	: upper_limit(other.upper_limit),
-          current_size(other.current_size),
-          storage(other.storage),
-          usage(other.usage)
+      : upper_limit(other.upper_limit),
+        current_size(other.current_size),
+        storage(other.storage),
+        usage(other.usage)
     { }
 
-    void swap (SizeCache<K,V> & other)
-    {
- 	std::swap(upper_limit, other.upper_limit);
-        std::swap(current_size, other.current_size);
-        storage.swap(other.storage);
-        usage.swap(other.usage);
+    /* Swap the cache with another one */
+    void swap (SizeCache<K,V> & other) {
+      std::swap(upper_limit, other.upper_limit);
+      std::swap(current_size, other.current_size);
+      storage.swap(other.storage);
+      usage.swap(other.usage);
     }
 
-    SizeCache<K,V> & operator= (SizeCache<K,V> const& other)
-    {
-	SizeCache<K,V> dummy (other);
-	swap(dummy);
-	return *this;
+    /* Assignment */
+    SizeCache<K,V> & operator= (SizeCache<K,V> const& other) {
+      SizeCache<K,V> dummy (other);
+      swap(dummy);
+      return *this;
     }
 
-    /** Remove element from cache */
+    /** Remove element from the cache */
     void erase(K const & key){
-        el_index ind = storage.find(key);
-        if (ind == storage.end()) {
-            return;
-        }
-        
-	for (int k = 0; k < usage.size(); ++k) {
-	    if (usage[k] == ind) {
-		usage.erase(usage.begin() + k);
-		break;
-	    }
-	}
+      el_index ind = storage.find(key);
+      if (ind == storage.end())  return;
 
-        current_size -= ind->second.size();
-        storage.erase(ind);
+      for (int k = 0; k < usage.size(); ++k) {
+        if (usage[k] == ind) {
+          usage.erase(usage.begin() + k);
+          break;
+        }
+      }
+      current_size -= ind->second.size();
+      storage.erase(ind);
     }
 
+    /** Return number of elements in the cache */
     int size(){
       return storage.size();
     }
 
+    /** Return total size of all elements */
     int stored_size() {
         return current_size;
     }
 
-    /** Add element to cache */
-    int
-    add (K const & key, V const & value)
-    {
+    /** Add element to the cache */
+    int add (K const & key, V const & value) {
         if (contains(key)) {
             erase(key);
 #ifdef DEBUG_CACHE
@@ -98,7 +96,7 @@ public:
             std::cout << "cache: add " << key << " ";
 #endif
         }
-        
+
         int size = value.size();
         while (storage.size() > 0 && current_size + size > upper_limit) {
             el_index lru = usage[usage.size() - 1];
@@ -120,43 +118,35 @@ public:
         use(n.first);
 
 #ifdef DEBUG_CACHE
-	std::cout << "cache usage:";
-	for (int i = 0; i < usage.size(); ++i)
-	{
-		std::cout << " " << usage[i].first;
-	}
-	std::cout << std::endl;
+        std::cout << "cache usage:";
+        for (int i = 0; i < usage.size(); ++i) {
+          std::cout << " " << usage[i].first;
+        }
+        std::cout << std::endl;
 #endif
-		
-	return 0;
+        return 0;
     }
 
     /** Check whether the cache contains key. */
-    bool
-    contains (K const & key)
-    {
-	return storage.count(key) > 0;
+    bool contains (K const & key) {
+      return storage.count(key) > 0;
     }
 
     /** Get element from cache. */
-    V &
-    get (K const & key)
-    {
-	el_index ind = storage.find(key);
-        assert(ind != storage.end());
+    V & get (K const & key) {
+      el_index ind = storage.find(key);
+      assert(ind != storage.end());
 #ifdef DEBUG_CACHE_GET
-	std::cout << "cache get: " << key << std::endl;
+      std::cout << "cache get: " << key << std::endl;
 #endif
-	use(ind);
-	return ind->second;
+      use(ind);
+      return ind->second;
     }
 
     /** Clear the cache. */
-    void
-    clear ()
-    {
-	storage.clear();
-	usage.clear();
+    void clear() {
+      storage.clear();
+      usage.clear();
     }
 
     // Iterator support:
@@ -166,26 +156,25 @@ public:
     //   not invalidate iterators).
 
     iterator begin() {
-	return storage.begin();
+      return storage.begin();
     }
 
     iterator end() {
-	return storage.end();
+      return storage.end();
     }
 
     iterator erase(iterator it) {
-	for (int k = 0; k < usage.size(); ++k) {
-	    if (usage[k] == it) {
-		usage.erase(usage.begin() + k);
-		break;
-	    }
-	}
-
-        current_size -= it->second.size();
-        iterator it2(it);
-        ++it2;
-        storage.erase(it);
-        return it2;
+      for (int k = 0; k < usage.size(); ++k) {
+        if (usage[k] == it) {
+          usage.erase(usage.begin() + k);
+          break;
+        }
+      }
+      current_size -= it->second.size();
+      iterator it2(it);
+      ++it2;
+      storage.erase(it);
+      return it2;
     }
 
 private:
@@ -198,35 +187,29 @@ private:
 
     // index end is removed
     template <typename T>
-    void
-    push_vector (std::vector<T> & vec, int start, int end)
-    {
+    void push_vector (std::vector<T> & vec, int start, int end) {
 #ifdef DEBUG_CACHE_GET
-	std::cout << "cache push_vector: start=" << start << " end=" << end << " size=" << vec.size() << std::endl;
+      std::cout << "cache push_vector: start=" << start << " end=" << end << " size=" << vec.size() << std::endl;
 #endif
-	for (int i = end; i > start; --i)
-	{
-	    vec[i] = vec[i-1];
-	}
+      for (int i = end; i > start; --i)
+        vec[i] = vec[i-1];
     }
 
-    void
-    use (el_index ind)
-    {
-	int i;
-	for (i = 0; i < usage.size() && usage[i] != ind; ++i);
-	if (i == usage.size()) {
-	    usage.resize (usage.size()+1);
-	    push_vector (usage, 0, usage.size()-1);
-	    usage[0] = ind;
-	} else {
-	    push_vector (usage, 0, i);
-	    usage[0] = ind;
-	}
+    void use (el_index ind) {
+      int i;
+      for (i = 0; i < usage.size() && usage[i] != ind; ++i);
+      if (i == usage.size()) {
+        usage.resize (usage.size()+1);
+        push_vector (usage, 0, usage.size()-1);
+        usage[0] = ind;
+      } else {
+        push_vector (usage, 0, i);
+        usage[0] = ind;
+      }
     }
 };
 
-/** Вывод в iostream всех элементов кэша*/
+/** Print cache elements */
 template <typename K, typename V>
 std::ostream & operator<< (std::ostream & s, SizeCache<K,V> & cache)
 {

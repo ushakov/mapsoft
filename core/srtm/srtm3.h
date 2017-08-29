@@ -5,7 +5,7 @@
 #include <glibmm.h>
 
 #include <2d/image.h>
-#include <2d/cache.h>
+#include <cache/cache.h>
 
 /*
  SRTM3 data

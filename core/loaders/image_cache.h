@@ -3,7 +3,7 @@
 
 #include <2d/image.h>
 #include <2d/line.h>
-#include <2d/cache.h>
+#include <cache/cache.h>
 #include <string>
 #include <loaders/image_r.h>
 
