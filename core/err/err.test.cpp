@@ -7,7 +7,7 @@ main(){
   }
   catch (Err E){
     assert (E.get_message() == "text 123");
-    assert (E.get_error()   == "error: text 123");
+    assert (E.get_error()   == "error: text 123\n");
     assert (E.get_code() == -1);
     assert (E.get_domain() == "");
   }
@@ -18,7 +18,7 @@ main(){
   }
   catch (Err E){
     assert (E.get_message() == "text 123");
-    assert (E.get_error()   == "test error: text 123");
+    assert (E.get_error()   == "test error: text 123\n");
     assert (E.get_code()    == 3);
     assert (E.get_domain()  == "test");
   }

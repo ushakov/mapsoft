@@ -35,7 +35,7 @@ class Err {
     // <domain> error: <message>
     std::string get_error() const {
       return (domain.size()? domain + " " : std::string())
-         + "error: " + s.str();
+         + "error: " + s.str() + "\n";
     }
 
 };
