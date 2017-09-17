@@ -13,7 +13,7 @@ using namespace std;
 
 bool testext(const char * str, const char * ext){
     const char * pos = rindex(str, '.');
-    return pos && (strcmp(pos+1, ext)==0);
+    return pos && (strcasecmp(pos+1, ext)==0);
 }
 
 world

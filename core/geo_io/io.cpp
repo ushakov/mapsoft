@@ -30,8 +30,8 @@ using namespace std;
 
 bool
 testext(const string & nstr, const char *ext){
-  int pos = nstr.rfind(ext);
-  return ((pos>0)&&(pos == nstr.length()-strlen(ext)));
+  const char * pos = rindex(nstr.c_str(), '.');
+  return pos && (strcasecmp(pos+1, ext)==0);
 }
 
 int
@@ -74,27 +74,27 @@ in(const string & in_name, geo_data & world, const Options & opt){
     gps::get_all(name.c_str(), world, opt);
     return;
   }
-  if (testext(name, ".xml")){
+  if (testext(name, "xml")){
     xml::read_file (name.c_str(), world, opt);
     return;
   }
-  if (testext(name, ".gpx")){
+  if (testext(name, "gpx")){
     gpx::read_file (name.c_str(), world, opt);
     return;
   }
-  if (testext(name, ".kml")){
+  if (testext(name, "kml")){
     kml::read_file (name.c_str(), world, opt);
     return;
   }
-  if (testext(name, ".gu")){
+  if (testext(name, "gu")){
     gu::read_file (name.c_str(), world, opt);
     return;
   }
-  if ((testext(name, ".plt")) || (testext(name, ".wpt")) || (testext(name, ".map"))){
+  if ((testext(name, "plt")) || (testext(name, "wpt")) || (testext(name, "map"))){
     oe::read_file (name.c_str(), world, opt);
     return;
   }
-  if (testext(name, ".fig")){
+  if (testext(name, "fig")){
     if (v) cerr << "Reading data from Fig file " << name << endl;
     fig::fig_world F;
     fig::read(name.c_str(), F);
@@ -104,7 +104,7 @@ in(const string & in_name, geo_data & world, const Options & opt){
     fig::get_maps(F, m, world);
     return;
   }
-  if (testext(name, ".zip") || testext(name, ".kmz")) {
+  if (testext(name, "zip") || testext(name, "kmz")) {
     io_zip::read_file (name.c_str(), world, opt);
     return;
   }
@@ -129,28 +129,28 @@ out(const string & out_name, geo_data const & world, const Options & opt){
     return;
   }
   // mapsoft XML format
-  if (testext(name, ".xml")){
+  if (testext(name, "xml")){
     xml::write_file (name.c_str(), world, opt);
     return;
   }
   // GPX format
-  if (testext(name, ".gpx")){
+  if (testext(name, "gpx")){
     gpx::write_file (name.c_str(), world, opt);
     return;
   }
   // JS format
-  if (testext(name, ".js")){
+  if (testext(name, "js")){
     js::write_file (name.c_str(), world, opt);
     return;
   }
 
   // KML and KMZ formats
-  if (testext(name, ".kml") || testext(name, ".kmz")){
+  if (testext(name, "kml") || testext(name, "kmz")){
     string base(name.begin(), name.begin()+name.rfind('.'));
-    string kml=base+".kml";
+    string kml=base+"kml";
     kml::write_file (kml.c_str(), world, opt);
 
-    if (testext (name, ".kmz")){
+    if (testext (name, "kmz")){
       vector<string> files;
       files.push_back(kml);
       io_zip::write_file(name.c_str(), files);
@@ -158,16 +158,16 @@ out(const string & out_name, geo_data const & world, const Options & opt){
     return;
   }
   // Garmin-Utils format
-  if (testext(name, ".gu")){
+  if (testext(name, "gu")){
     gu::write_file (name.c_str(), world, opt);
     return;
   }
   // OziExplorer format
-  if ((testext(name, ".wpt"))||
-      (testext(name, ".plt"))||
-      (testext(name, ".map"))||
-      (testext(name, ".zip"))||
-      (testext(name, ".oe"))){
+  if ((testext(name, "wpt"))||
+      (testext(name, "plt"))||
+      (testext(name, "map"))||
+      (testext(name, "zip"))||
+      (testext(name, "oe"))){
     string base(name.begin(), name.begin()+name.rfind('.'));
     vector<string> files;
 
@@ -227,7 +227,7 @@ out(const string & out_name, geo_data const & world, const Options & opt){
       }
     }
 
-    if (testext (name, ".zip"))
+    if (testext (name, "zip"))
       io_zip::write_file(name.c_str(), files);
 
     return;
