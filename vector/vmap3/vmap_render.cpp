@@ -17,6 +17,7 @@ static struct ext_option options[] = {
   {"draw_date",     0,'D', 1, "draw date stamp"},
   {"draw_text",     1,'T', 1, "draw text\n"},
   {"bgcolor",       1, 0,  1, "backgound color\n"},
+  {"nobrd",         1, 0,  1, "ignore border in the file\n"},
 
   {"antialiasing",  1,  0, 1, "do antialiasing (0|1, default 1)"},
   {"transp_margins",1,  0, 1, "transparent margins (0|1, default 0)"},
@@ -100,10 +101,13 @@ main(int argc, char* argv[]){
 
   // set geometry if no --wgs_geom, --wgs_brd, --geom,
   //  --nom, --google option exists
+  if (O.exists("nobrd")) W.brd.clear();
   if (!O.exists("geom") && !O.exists("wgs_geom") &&
       !O.exists("nom") && !O.exists("google") &&
       !O.exists("wgs_brd")){
-    O.put("wgs_brd", W.brd);
+
+    if (W.brd.size()>2) O.put("wgs_brd", W.brd);
+    else O.put("wgs_geom", W.range());
   }
 
   if (!O.exists("rscale")) O.put("rscale", W.rscale);
