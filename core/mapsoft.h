@@ -8,7 +8,7 @@
 #include <opts/opts.h>
 
 // getopt
-#include <getopt/getopt.h>
+//#include <getopt/getopt.h>
 
 // cache
 #include <cache/cache.h>
@@ -33,7 +33,6 @@
 #include <2d/point_int.h>
 #include <2d/rainbow.h>
 #include <2d/rect.h>
-#include <2d/sizecache.h>
 
 #include <fig/fig_data.h>
 #include <fig/fig.h>

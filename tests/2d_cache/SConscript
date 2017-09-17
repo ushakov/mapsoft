@@ -1,4 +1,0 @@
-Import('env')
-
-env.Program("cache_test.cpp")
-env.Program("sizecache_test.cpp")

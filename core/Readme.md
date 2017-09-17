@@ -9,6 +9,7 @@ Library contains many small parts with their own documentation, tests, examples:
 ## Not finished
 * [tiles](tiles)  -- TMS/Google tile calculator
 * [getopt](getopt) -- Getopt for mapsoft (not tested and not used yet)
+* [cache](cache)   -- Cache and SizeCache classes
 
 ## Old
 
