@@ -1,25 +1,72 @@
 #include "image_gif.h"
 #include <gif_lib.h>
+#include "err/err.h"
 
 namespace image_gif{
 
-#if defined(GIFLIB_MAJOR) && defined(GIFLIB_MINOR) && ((GIFLIB_MAJOR == 4 && GIFLIB_MINOR >= 2) || GIFLIB_MAJOR > 4)
-void PrintGifError(){
-  std::cerr <<  GifErrorString();
-}
+#if defined(GIFLIB_MAJOR) && defined(GIFLIB_MINOR)
+#if GIFLIB_MAJOR == 4 && GIFLIB_MINOR >= 2
+#define GIFV 420
 #endif
+#if GIFLIB_MAJOR >= 5
+#define GIFV 500
+#endif
+#endif
+
+#ifndef GIFV
+#define GIFV 0
+#endif
+
+
+// GIFLIB_MAJOR and GIFLIB_MINOR defined in 4.1.6 and later
+// GifErrorString(code)
+#if GIFV == 500
+  GifFileType* GifOpen(const char *file){
+    int code;
+    GifFileType *gif = DGifOpenFileName(file, &code);
+    if (!gif) throw Err() <<  GifErrorString(code);
+    return gif;
+  }
+  void GifClose(GifFileType *gif){
+    int code;
+    DGifCloseFile(gif, &code);
+    if (code) throw Err() <<  GifErrorString(code);
+  }
+#endif
+// 4.2 <= v < 5
+// GifErrorString()
+#if GIFV == 420
+  GifFileType* GifOpen(const char *file){
+    GifFileType *gif = DGifOpenFileName(file);
+    if (!gif) throw Err() <<  GifErrorString();
+    return gif;
+  }
+  void GifClose(GifFileType *gif){
+    DGifCloseFile(gif);
+  }
+#endif
+
+// old versions
+// GifLastError()
+#if GIFV == 0
+  GifFileType* GifOpen(const char *file){
+    GifFileType *gif = DGifOpenFileName(file);
+    if (!gif) throw Err() <<  GifLastError();
+    return gif;
+  }
+  void GifClose(GifFileType *gif){
+    DGifCloseFile(gif);
+  }
+#endif
+
+
 
 iPoint
 size(const char *file){
 
-    GifFileType *gif = DGifOpenFileName(file);
-    if (!gif) {
-        std::cerr << "Can't open " << file << ": ";
-        PrintGifError();
-        return iPoint(0,0);
-    }
+    GifFileType *gif = GifOpen(file);
     iPoint ret(gif->SWidth, gif->SHeight);
-    DGifCloseFile(gif);
+    GifClose(gif);
     return ret;
 }
 
@@ -28,9 +75,7 @@ load(const char *file, iRect src_rect,
          iImage & image, iRect dst_rect){
 
     // open file and read screen descriptor
-    GifFileType *gif = DGifOpenFileName(file);
-    if (!gif){ PrintGifError(); return 2; }
-
+    GifFileType *gif = GifOpen(file);
 
     /* Go to the first image, skip all extensions */
     GifRecordType RecordType;
@@ -38,14 +83,14 @@ load(const char *file, iRect src_rect,
     GifByteType *Extension, *GifLine;
     do {
       if (DGifGetRecordType(gif, &RecordType) == GIF_ERROR)
-            {PrintGifError(); DGifCloseFile(gif); return 2;}
+            {GifClose(gif); return 2;}
       if  (RecordType == TERMINATE_RECORD_TYPE)  return 2;
       if  (RecordType ==  EXTENSION_RECORD_TYPE){
         if (DGifGetExtension(gif, &ExtCode, &Extension) == GIF_ERROR)
-          {PrintGifError(); DGifCloseFile(gif); return 2;}
+          {GifClose(gif); return 2;}
         while (Extension != NULL){
           if (DGifGetExtensionNext(gif, &Extension) == GIF_ERROR)
-            {PrintGifError(); DGifCloseFile(gif); return 2;}
+            {GifClose(gif); return 2;}
         }
       }
     }
@@ -53,7 +98,7 @@ load(const char *file, iRect src_rect,
 
     /* read image description */
     if (DGifGetImageDesc(gif) == GIF_ERROR)
-      {PrintGifError(); DGifCloseFile(gif); return 2;}
+      {GifClose(gif); return 2;}
 
 
     int width = gif->SWidth;
@@ -76,7 +121,7 @@ load(const char *file, iRect src_rect,
     GifLine = (GifByteType *)malloc(width);
     if (!GifLine){
       std::cerr << "can't allocate memory\n";
-      DGifCloseFile(gif); return 2;
+      GifClose(gif); return 2;
     }
 
     // подрежем прямоугольники
@@ -84,7 +129,7 @@ load(const char *file, iRect src_rect,
       iRect(0,0,width,height), src_rect,
       iRect(0,0,image.w,image.h), dst_rect);
     if (src_rect.empty() || dst_rect.empty()){
-      DGifCloseFile(gif); free(GifLine); return 1;}
+      GifClose(gif); free(GifLine); return 1;}
 
     int src_y = 0;
     for (int dst_y = dst_rect.y; dst_y<dst_rect.y+dst_rect.h; dst_y++){
@@ -104,7 +149,7 @@ load(const char *file, iRect src_rect,
       // пропустим нужное число строк:
       while (src_y<=src_y1){
         if (DGifGetLine(gif, GifLine, w) == GIF_ERROR)
-          {PrintGifError(); DGifCloseFile(gif); free(GifLine); return 2;}
+          {GifClose(gif); free(GifLine); return 2;}
         src_y++;
       }
       // теперь мы находимся на нужной строке
@@ -116,7 +161,7 @@ load(const char *file, iRect src_rect,
       }
     }
     free(GifLine);
-    DGifCloseFile(gif);
+    GifClose(gif);
     return 0;
 }
 
