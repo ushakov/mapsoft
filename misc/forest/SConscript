@@ -1,6 +1,10 @@
 Import('env')
+e=env.Clone()
 
-map (lambda(f): env.Program(f+'.cpp'),\
+# Altlinux has shapefil.h in /usr/include/libshp, Debian in /usr/include
+e.Append (CCFLAGS='-I/usr/include/libshp')
+
+map (lambda(f): e.Program(f+'.cpp'),\
   Split("""
     forest_preview
     forest_nom

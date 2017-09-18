@@ -16,7 +16,7 @@
 #include <sys/stat.h>
 
 #include "mapsoft.h"
-#include <libshp/shapefil.h>
+#include <shapefil.h>
 
 // OSM data
 // downloaded from https://download.bbbike.org/

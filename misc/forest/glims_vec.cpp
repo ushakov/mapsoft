@@ -24,7 +24,7 @@
 #include "loaders/image_jpeg.h"
 #include "geo_io/io.h"
 
-#include <libshp/shapefil.h>
+#include <shapefil.h>
 
 
 using namespace std;
