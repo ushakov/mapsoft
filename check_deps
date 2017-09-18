@@ -33,6 +33,7 @@ needed_pc='
   gthread-2.0
   cairomm-1.0
   freetype2
+  jansson
 '
 
 needed_inc='
@@ -45,6 +46,7 @@ needed_inc='
   yaml.h
   proj_api.h
   gif_lib.h
+  libshp/shapefil.h
 '
 
 for i in $needed_bin; do

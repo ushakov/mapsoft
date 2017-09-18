@@ -13,6 +13,7 @@ BuildRequires: boost-devel gcc-c++ libcurl-devel libzip-devel zlib-devel
 BuildRequires: libcairomm-devel libpixman-devel libgtkmm2-devel
 BuildRequires: libpng-devel libjpeg-devel libtiff-devel libgif-devel
 BuildRequires: libusb-devel libyaml-devel libxml2-devel proj-devel
+BuildRequires: libjansson-devel libshape-devel
 BuildRequires: python-devel scons swig m4
 BuildRequires: /usr/bin/gs netpbm transfig ImageMagick-tools /usr/bin/pod2man
 
