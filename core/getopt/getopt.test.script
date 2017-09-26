@@ -1,6 +1,7 @@
 #!/bin/sh -efu
 
 prog=core/getopt/getopt.test
+#prog=./getopt.test
 
 function do_test(){
   args=$1
@@ -15,8 +16,6 @@ function do_test(){
   fi
   return 0
 }
-
- 
 
 do_test '-v' ''
 do_test '-v -I' 'error: missing argument: -I'
@@ -44,5 +43,12 @@ do_test '-v -I 1 file1 -C 10 -J file2 -C 20 -o file3 -C 1 -D' \
 'reading: file1 options: {"cmn1": "10", "inp1": "1", "inp2": "1", "verbose": "1"}
 reading: file2 options: {"cmn1": "20", "inp1": "1", "verbose": "1"}
 writing: file3 options: {"cmn1": "1", "cmn2": "1"}'
+
+do_test '-I 1 file1 -C 10 -J file2 -C 20 -o file3 -C 1 -D' ''
+do_test '-I 1 file1 -v -C 10 -J file2 -C 20 -o file3 -C 1 -D' ''
+do_test '-I 1 file1 -v -C 10 -J file2 -C 20 -o file3 -C 1 -D' ''
+
+do_test '-I 1 file1 -C 10 -J file2 -C 20 -o file3 -C 1 -D -o' \
+        'error: unknown option: -o'
 
 exit 0

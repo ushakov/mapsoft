@@ -10,7 +10,7 @@
 #define OPT_STP  8  // special option -o/--out
 
 #define MASK_INP  (OPT_INP | OPT_CMN | OPT_STP) // mask to select input options
-#define MASK_OUT  (OPT_OUT | OPT_CMN | OPT_STP) // mask to select output options
+#define MASK_OUT  (OPT_OUT | OPT_CMN) // mask to select output options
 
 using namespace std;
 
