@@ -45,8 +45,8 @@ reading: file2 options: {"cmn1": "20", "inp1": "1", "verbose": "1"}
 writing: file3 options: {"cmn1": "1", "cmn2": "1"}'
 
 do_test '-I 1 file1 -C 10 -J file2 -C 20 -o file3 -C 1 -D' ''
-do_test '-I 1 file1 -v -C 10 -J file2 -C 20 -o file3 -C 1 -D' ''
-do_test '-I 1 file1 -v -C 10 -J file2 -C 20 -o file3 -C 1 -D' ''
+do_test '-I 1 file1 -v -C 10 -J file2 -C 20 -o file3 -C 1 -D'\
+        'error: unknown option: -v'
 
 do_test '-I 1 file1 -C 10 -J file2 -C 20 -o file3 -C 1 -D -o' \
         'error: unknown option: -o'
