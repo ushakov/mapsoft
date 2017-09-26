@@ -12,8 +12,10 @@ parse_options(int * argc, char ***argv,
               struct option long_options[], const char * last_opt){
   Opts O;
   int c;
+  opterr=0; // no error printing by getopt_long
 
-  string optstring="+"; // note "+" in optstring
+  // build optstring
+  string optstring="+:"; // note "+" and ":" in optstring
   int i = 0;
   while (long_options[i].name){
     if (long_options[i].val != 0){ optstring+=long_options[i].val;
@@ -30,11 +32,12 @@ parse_options(int * argc, char ***argv,
 
     c = getopt_long(*argc, *argv, optstring.c_str(), long_options, &option_index);
     if (c == -1) break;
-    if ((c == '?') || (c == ':'))
-      throw Err() << "bad option";
 
     if (last_opt && O.exists(last_opt))
-      throw Err() << "wrong position of --" << last_opt << " special option";
+      throw Err() << "wrong position of --" << last_opt << " option\n";
+
+    if (c == '?') throw Err() << "unknown option: " << (*argv)[optind-1];
+    if (c == ':') throw Err() << "missing argument: " << (*argv)[optind-1];
 
     if (c!=0){ // short option -- we must manually set option_index
       int i = 0;
@@ -44,11 +47,11 @@ parse_options(int * argc, char ***argv,
       }
     }
     if (!long_options[option_index].name)
-      throw Err() << "unknown option";
+      throw Err() << "unknown option: " << (*argv)[optind-1];
 
-    O.put<string>(long_options[option_index].name,
-      long_options[option_index].has_arg? optarg:"1");
-
+    std::string key = long_options[option_index].name;
+    std::string val = long_options[option_index].has_arg? optarg:"1";
+    O.put<string>(key, val);
   }
   *argc-=optind;
   *argv+=optind;
