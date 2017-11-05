@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include "mapview.h"
 #include "utils/log.h"
+#include "filetype/filetype.h"
 
 //#include "images/gps_download.h"
 //#include "images/gps_upload.h"
@@ -130,7 +131,7 @@ Mapview::add_files(const list<string> & files) {
   for (i=files.begin(); i!=files.end(); i++){
     spanel.message("Load " + *i);
     try {
-      if (io::testext(*i, ".vmap")){
+      if (testext(*i, ".vmap")){
         add_vmap(vmap::read(i->c_str()), true);
       }
       else {
@@ -159,7 +160,7 @@ Mapview::load_file(const string & file, bool force) {
   clear_world();
   add_world(world, true);
   viewer.stop_waiting();
-  if (io::testext(file, ".xml")) filename = file;
+  if (testext(file, ".xml")) filename = file;
   set_changed(false);
 }
 

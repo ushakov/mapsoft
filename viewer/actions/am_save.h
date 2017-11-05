@@ -2,6 +2,7 @@
 #define AM_SAVE
 
 #include "action_mode.h"
+#include "filetype/filetype.h"
 
 class Save : public ActionMode, public Gtk::FileSelection{
 public:
@@ -33,7 +34,7 @@ public:
 
     void on_ok(){
       std::string f = get_filename();
-      if (!io::testext(f, ".xml")){
+      if (!testext(f, ".xml")){
          mapview->dlg_err.call(
             Err() << "Only mapsoft xml files can be saved."
                      " Use Save As/Export to save other geodata formats.");

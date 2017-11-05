@@ -35,6 +35,8 @@ objects = Split ("""
 
   getopt/getopt.cpp
 
+  filetype/filetype.cpp
+
   2d/point_int.cpp
   2d/rect.cpp
   2d/conv.cpp

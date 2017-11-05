@@ -6,15 +6,11 @@
 #include "fig/fig.h"
 #include "vmap.h"
 #include "ocad/ocad_file.h"
+#include "filetype/filetype.h"
 
 namespace vmap {
 
 using namespace std;
-
-bool testext(const char * str, const char * ext){
-    const char * pos = rindex(str, '.');
-    return pos && (strcasecmp(pos+1, ext)==0);
-}
 
 world
 read(const char * fname){

@@ -14,6 +14,7 @@
 #include "img_io/io.h"
 #include "options/m_getopt.h"
 #include "err/err.h"
+#include "filetype/filetype.h"
 
 using namespace std;
 
@@ -147,7 +148,7 @@ try{
   geo_data world;
   vmap::world vm;
   for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
-    if (io::testext(*i, ".vmap")) vm = vmap::read(i->c_str());
+    if (testext(*i, ".vmap")) vm = vmap::read(i->c_str());
     else io::in(*i, world, O);
   }
 
@@ -162,12 +163,12 @@ try{
   io::filter(world, O);
 
   string name=O.get("out", string());
-  if ((io::testext(name, ".tiff")) ||
-      (io::testext(name, ".tif")) ||
-      (io::testext(name, ".png")) ||
-      (io::testext(name, ".jpeg")) ||
-      (io::testext(name, ".jpg")) ||
-      (io::testext(name, ".tiles")) 
+  if ((testext(name, "tiff")) ||
+      (testext(name, "tif")) ||
+      (testext(name, "png")) ||
+      (testext(name, "jpeg")) ||
+      (testext(name, "jpg")) ||
+      (testext(name, "tiles"))
      ){
     io::out_img(name, world, vm, O);
   }

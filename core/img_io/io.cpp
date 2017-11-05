@@ -4,6 +4,7 @@
 #include "geo_io/io.h"
 #include "o_img.h"
 #include "o_tiles.h"
+#include "filetype/filetype.h"
 
 namespace io {
 using namespace std;

@@ -2,6 +2,7 @@
 #define AM_SAVE_ALL
 
 #include "action_mode.h"
+#include "filetype/filetype.h"
 
 class SaveAll : public ActionMode, public Gtk::FileSelection{
 public:
@@ -26,7 +27,7 @@ public:
       mapview->spanel.message("Save to " + f);
       try {io::out(f, mapview->get_world(false));}
       catch (Err e) {mapview->dlg_err.call(e);}
-      if (io::testext(f, ".xml")){
+      if (testext(f, ".xml")){
         mapview->set_filename(f);
         mapview->set_changed(false);
       }

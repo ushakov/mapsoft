@@ -13,6 +13,7 @@
 #include "mapview.h"
 
 #include "geo_io/io.h"
+#include "filetype/filetype.h"
 
 int
 main(int argc, char **argv){
@@ -24,7 +25,7 @@ main(int argc, char **argv){
 
     // Load files from the commandline
     // if there is one xml file -- set the project name
-    if ((argc==2) && (io::testext(argv[1], ".xml"))){
+    if ((argc==2) && (testext(argv[1], ".xml"))){
       mapview.load_file(argv[1]);
     }
     else {

@@ -8,9 +8,6 @@
 #include "options/options.h"
 
 namespace io {
-  // check file extension
-  bool testext(const std::string & nstr, const char *ext);
-
   // audodetect garmin_gps device
   std::string gps_detect();
 

@@ -24,15 +24,10 @@
 #include "io_zip.h"
 #include "geofig.h"
 #include "err/err.h"
+#include "filetype/filetype.h"
 
 namespace io {
 using namespace std;
-
-bool
-testext(const string & nstr, const char *ext){
-  const char * pos = rindex(nstr.c_str(), '.');
-  return pos && (strcasecmp(pos+1, ext)==0);
-}
 
 int
 check_file(const string & name){
@@ -70,31 +65,17 @@ in(const string & in_name, geo_data & world, const Options & opt){
   if (c < 0)
     throw Err() << "Can't access file " << name;
 
-  if (c == 1){
-    gps::get_all(name.c_str(), world, opt);
-    return;
-  }
-  if (testext(name, "xml")){
-    xml::read_file (name.c_str(), world, opt);
-    return;
-  }
-  if (testext(name, "gpx")){
-    gpx::read_file (name.c_str(), world, opt);
-    return;
-  }
-  if (testext(name, "kml")){
-    kml::read_file (name.c_str(), world, opt);
-    return;
-  }
-  if (testext(name, "gu")){
-    gu::read_file (name.c_str(), world, opt);
-    return;
-  }
-  if ((testext(name, "plt")) || (testext(name, "wpt")) || (testext(name, "map"))){
-    oe::read_file (name.c_str(), world, opt);
-    return;
-  }
-  if (testext(name, "fig")){
+  if (c == 1) return gps::get_all(name.c_str(), world, opt);
+  if (testext(name, ".xml")) return xml::read_file (name.c_str(), world, opt);
+  if (testext(name, ".gpx")) return gpx::read_file (name.c_str(), world, opt);
+  if (testext(name, ".kml")) return kml::read_file (name.c_str(), world, opt);
+  if (testext(name, ".gu"))  return gu::read_file (name.c_str(), world, opt);
+  if (testext(name, ".wpt") ||
+      testext(name, ".plt") ||
+      testext(name, ".map")) return oe::read_file (name.c_str(), world, opt);
+  if (testext(name, ".zip") ||
+      testext(name, ".kmz")) return io_zip::read_file (name.c_str(), world, opt);
+  if (testext(name, ".fig")){
     if (v) cerr << "Reading data from Fig file " << name << endl;
     fig::fig_world F;
     fig::read(name.c_str(), F);
@@ -102,10 +83,6 @@ in(const string & in_name, geo_data & world, const Options & opt){
     fig::get_wpts(F, m, world);
     fig::get_trks(F, m, world);
     fig::get_maps(F, m, world);
-    return;
-  }
-  if (testext(name, "zip") || testext(name, "kmz")) {
-    io_zip::read_file (name.c_str(), world, opt);
     return;
   }
   throw Err() << "Can't determine input format for file " << name;
@@ -124,33 +101,19 @@ out(const string & out_name, geo_data const & world, const Options & opt){
   }
 
   // GPS device
-  if (check_file(name) == 1){
-    gps::put_all (name.c_str(), world, opt);
-    return;
-  }
-  // mapsoft XML format
-  if (testext(name, "xml")){
-    xml::write_file (name.c_str(), world, opt);
-    return;
-  }
-  // GPX format
-  if (testext(name, "gpx")){
-    gpx::write_file (name.c_str(), world, opt);
-    return;
-  }
-  // JS format
-  if (testext(name, "js")){
-    js::write_file (name.c_str(), world, opt);
-    return;
-  }
+  if (check_file(name) == 1) return gps::put_all (name.c_str(), world, opt);
+  if (testext(name, ".xml")) return xml::write_file (name.c_str(), world, opt);
+  if (testext(name, ".gpx")) return gpx::write_file (name.c_str(), world, opt);
+  if (testext(name, ".js"))  return js::write_file (name.c_str(), world, opt);
 
   // KML and KMZ formats
-  if (testext(name, "kml") || testext(name, "kmz")){
+  if (testext(name, ".kml") ||
+      testext(name, ".kmz")){
     string base(name.begin(), name.begin()+name.rfind('.'));
     string kml=base+"kml";
     kml::write_file (kml.c_str(), world, opt);
 
-    if (testext (name, "kmz")){
+    if (testext(name, ".kmz")){
       vector<string> files;
       files.push_back(kml);
       io_zip::write_file(name.c_str(), files);
@@ -158,10 +121,8 @@ out(const string & out_name, geo_data const & world, const Options & opt){
     return;
   }
   // Garmin-Utils format
-  if (testext(name, "gu")){
-    gu::write_file (name.c_str(), world, opt);
-    return;
-  }
+  if (testext(name, ".gu")) return gu::write_file (name.c_str(), world, opt);
+
   // OziExplorer format
   if ((testext(name, "wpt"))||
       (testext(name, "plt"))||
