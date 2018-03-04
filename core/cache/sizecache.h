@@ -7,9 +7,9 @@
 #include <cassert>
 #include <iostream>
 
-///\addtogroup lib2d
+///\addtogroup libmapsoft
 ///@{
-///\defgroup cache
+///\defgroup SizeCache
 ///SizeCache class.
 ///@{
 
@@ -32,11 +32,11 @@ class SizeCache {
 public:
     typedef typename std::map<K, V>::iterator iterator;
 
-    /** Constructor: create the cache with size n */
+    /// Constructor: create the cache with size n
     SizeCache (int size) : upper_limit(size), current_size(0) {
     }
 
-    /** Copy constructor */
+    /// Copy constructor
     SizeCache (SizeCache const & other)
       : upper_limit(other.upper_limit),
         current_size(other.current_size),
@@ -44,7 +44,7 @@ public:
         usage(other.usage)
     { }
 
-    /* Swap the cache with another one */
+    /// Swap the cache with another one
     void swap (SizeCache<K,V> & other) {
       std::swap(upper_limit, other.upper_limit);
       std::swap(current_size, other.current_size);
@@ -52,39 +52,25 @@ public:
       usage.swap(other.usage);
     }
 
-    /* Assignment */
+    /// Assignment
     SizeCache<K,V> & operator= (SizeCache<K,V> const& other) {
       SizeCache<K,V> dummy (other);
       swap(dummy);
       return *this;
     }
 
-    /** Remove element from the cache */
-    void erase(K const & key){
-      el_index ind = storage.find(key);
-      if (ind == storage.end())  return;
 
-      for (int k = 0; k < usage.size(); ++k) {
-        if (usage[k] == ind) {
-          usage.erase(usage.begin() + k);
-          break;
-        }
-      }
-      current_size -= ind->second.size();
-      storage.erase(ind);
-    }
-
-    /** Return number of elements in the cache */
+    /// Return number of elements in the cache
     int size(){
       return storage.size();
     }
 
-    /** Return total size of all elements */
+    /// Return total size of all elements
     int stored_size() {
         return current_size;
     }
 
-    /** Add element to the cache */
+    /// Add element to the cache
     int add (K const & key, V const & value) {
         if (contains(key)) {
             erase(key);
@@ -127,12 +113,12 @@ public:
         return 0;
     }
 
-    /** Check whether the cache contains key. */
+    /// Check whether the cache contains a key
     bool contains (K const & key) {
       return storage.count(key) > 0;
     }
 
-    /** Get element from cache. */
+    /// Get element from cache
     V & get (K const & key) {
       el_index ind = storage.find(key);
       assert(ind != storage.end());
@@ -143,26 +129,46 @@ public:
       return ind->second;
     }
 
+    /// Remove an element from the cache
+    void erase(K const & key){
+      el_index ind = storage.find(key);
+      if (ind == storage.end())  return;
+
+      for (int k = 0; k < usage.size(); ++k) {
+        if (usage[k] == ind) {
+          usage.erase(usage.begin() + k);
+          break;
+        }
+      }
+      current_size -= ind->second.size();
+      storage.erase(ind);
+    }
+
     /** Clear the cache. */
     void clear() {
       storage.clear();
       usage.clear();
     }
 
-    // Iterator support:
-    //   Iterator traverses all the cache elements in order of
-    //   increasing keys. All iterators are valid until the first
-    //   cache insert or delete (changing value for existing key does
-    //   not invalidate iterators).
-
+    /// Returns an iterator pointing to the first element in the cache.
+    /// Iterator traverses all the cache elements
+    /// in order of increasing keys. All iterators are valid until the
+    /// first cache insert or delete (changing value for existing key
+    /// does not invalidate iterators).
     iterator begin() {
       return storage.begin();
     }
 
+    /// Returns an iterator pointing to the last element in the cache.
+    /// Iterator traverses all the cache elements
+    /// in order of increasing keys. All iterators are valid until the
+    /// first cache insert or delete (changing value for existing key
+    /// does not invalidate iterators).
     iterator end() {
       return storage.end();
     }
 
+    /// Erase an element pointed to by the iterator
     iterator erase(iterator it) {
       for (int k = 0; k < usage.size(); ++k) {
         if (usage[k] == it) {
@@ -209,10 +215,9 @@ private:
     }
 };
 
-/** Print cache elements */
+/// Print cache elements.
 template <typename K, typename V>
-std::ostream & operator<< (std::ostream & s, SizeCache<K,V> & cache)
-{
+std::ostream & operator<< (std::ostream & s, SizeCache<K,V> & cache){
   s << "Cache(\n";
   for (typename SizeCache<K, V>::iterator it = cache.begin(); it != cache.end(); ++it) {
     s << "  " << it->first << " => " << it->second << "\n";

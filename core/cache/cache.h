@@ -7,32 +7,36 @@
 #include <cassert>
 #include <iostream>
 
-///\addtogroup lib2d
+///\addtogroup libmapsoft
 ///@{
 ///\defgroup cache
 ///Cache class.
 ///@{
 
-/** Кэш объектов типа V, упорядоченных по ключу типа K.
-  директивы компилятору:
-  DEBUG_CACHE      -- выдавать на stderr добавления/удаления элементов
-  DEBUG_CACHE_GET  -- выдавать обращения к кэшу
-*/
 template <typename K, typename V> class CacheIterator;
 
+/** Cache of objects of type V, keyed by type K.
+
+Eviction starts whenever number of elements exceeds some limit (cache
+size) set at construction and removed least recently used elements.
+
+Compiler directives:
+DEBUG_SCACHE      -- log additions/deletions
+DEBUG_SCACHE_GET  -- log gets
+*/
 template <typename K, typename V>
 class Cache {
   public:
     typedef CacheIterator<K, V> iterator;
 
-    /** Constructor: create a cache with size n */
+    /// Constructor: create a cache with size n.
     Cache (int n) : capacity (n) {
       for (int i = 0; i < capacity; ++i){
         free_list.insert (i);
       }
     }
 
-    /** Copy constructor */
+    /// Copy constructor.
     Cache (Cache const & other)
        : capacity (other.capacity),
          storage (other.storage),
@@ -41,7 +45,7 @@ class Cache {
          usage (other.usage)
     { }
 
-    /* Swap the cache with another one */
+    /// Swap the cache with another one.
     void swap (Cache<K,V> & other) {
       std::swap (capacity, other.capacity);
       storage.swap (other.storage);
@@ -50,32 +54,21 @@ class Cache {
       usage.swap (other.usage);
     }
 
-    /* Assignment */
+    /// Assignment.
     Cache<K,V> & operator= (Cache<K,V> const& other) {
       Cache<K,V> dummy (other);
       swap (dummy);
       return *this;
     }
 
-    /** Remove an element from the cache */
-    void erase(K const & key) {
-      int i = index[key];
-      index.erase(key);
-      free_list.insert(i);
-      for (int k = 0; k < usage.size(); ++k) {
-        if (usage[k] == i) {
-          usage.erase(usage.begin() + k);
-          break;
-        }
-      }
-    }
 
-    /** Return number of elements in the cache */
+    /// Return number of elements in the cache (Does not work!?).
     int size() {
       return storage.size();
     }
 
-    /** Add an element to the cache */
+
+    /// Add an element to the cache.
     int add (K const & key, V const & value) {
       if (contains(key)) {
         int idx = index[key];
@@ -121,12 +114,13 @@ class Cache {
       return 0;
     }
 
-    /** Check whether the cache contains key */
+
+    /// Check whether the cache contains a key.
     bool contains (K const & key) {
       return index.count (key) > 0;
     }
 
-    /** Get element from cache */
+    /// Get element from the cache.
     V & get (K const & key) {
       assert(contains(key));
       int ind = index[key];
@@ -137,37 +131,57 @@ class Cache {
       return storage[ind].second;
     }
 
-    /* Return size of empty space */
+    /// Remove an element from the cache.
+    void erase(K const & key) {
+      int i = index[key];
+      index.erase(key);
+      free_list.insert(i);
+      for (int k = 0; k < usage.size(); ++k) {
+        if (usage[k] == i) {
+          usage.erase(usage.begin() + k);
+          break;
+        }
+      }
+    }
+
+    /// Return size of empty space.
     int space_remains () {
       return free_list.size();
     }
 
-    /** Clear the cache */
+    /// Clear the cache.
     void clear () {
       for (int i = 0; i < capacity; ++i) free_list.insert (i);
       index.clear();
       usage.clear();
     }
 
-    // Iterator support:
-    //   Iterator traverses all the cache elements in order of
-    //   increasing keys. All iterators are valid until the first
-    //   cache insert or delete (changing value for existing key does
-    //   not invalidate iterators).
-
+    /// Returns an iterator pointing to the first element in the cache.
+    /// Iterator traverses all the cache elements
+    /// in order of increasing keys. All iterators are valid until the
+    /// first cache insert or delete (changing value for existing key
+    /// does not invalidate iterators).
     iterator begin() {
       return CacheIterator<K, V>(this, index.begin());
     }
 
+    /// Returns an iterator pointing to the last element in the cache.
+    /// Iterator traverses all the cache elements
+    /// in order of increasing keys. All iterators are valid until the
+    /// first cache insert or delete (changing value for existing key
+    /// does not invalidate iterators).
     iterator end() {
       return CacheIterator<K, V>(this, index.end());
     }
 
+    /// Erase an element pointed to by the iterator
     iterator erase(iterator it) {
       typename std::map<K, int>::const_iterator it2 = it++;
       erase(it2->first);
       return it;
     }
+
+private:
 
     int capacity;
     std::vector<std::pair<K,V> > storage;
@@ -175,7 +189,6 @@ class Cache {
     std::set<int> free_list;
     std::vector<int> usage;
 
-private:
     friend class CacheIterator<K, V>;
 
     // index end is removed
@@ -203,7 +216,7 @@ private:
     }
 };
 
-/** Print cache elements */
+/// Print cache elements.
 template <typename K, typename V>
 std::ostream & operator<< (std::ostream & s, const Cache<K,V> & cache)
 {
@@ -215,7 +228,7 @@ std::ostream & operator<< (std::ostream & s, const Cache<K,V> & cache)
   return s;
 }
 
-// CacheIterator class
+/// Iterator class for cache
 template <typename K, typename V>
 class CacheIterator : public std::map<K, int>::const_iterator {
  public:
@@ -231,7 +244,7 @@ class CacheIterator : public std::map<K, int>::const_iterator {
     friend class Cache<K, V>;
     CacheIterator (Cache<K, V>* cache_,
            typename std::map<K, int>::const_iterator iter_)
-      : std::map<K, int>::const_iterator(iter_), 
+      : std::map<K, int>::const_iterator(iter_),
         cache(cache_)
     { }
 

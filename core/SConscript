@@ -192,6 +192,7 @@ simple_tests=Split("""
   opts/opts.test.cpp
   tiles/tiles.test.cpp
   cache/cache.test.cpp
+  cache/sizecache.test.cpp
 """)
 
 import os

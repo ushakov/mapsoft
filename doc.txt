@@ -3,6 +3,10 @@ There is some global information for doxyden documentation.
 /**
 \mainpage Mapsoft tools and libraries
 
+\section cache
+- \ref cache      "Cache of objects with limited capacity"
+- \ref sizecache  "Cache of objects with limited size"
+
 \section lib2d
 - \ref point      "Класс Point<T>: точка с двумя координатами типа T."
 - \ref line       "Класс Line<T>: массив точек."
