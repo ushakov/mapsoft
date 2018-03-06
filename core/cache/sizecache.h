@@ -10,7 +10,7 @@
 ///\addtogroup libmapsoft
 ///@{
 ///\defgroup SizeCache
-///SizeCache class.
+///cache of objects with limited size
 ///@{
 
 /** Cache of objects of type V, keyed by type K.

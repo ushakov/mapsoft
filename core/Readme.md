@@ -6,10 +6,10 @@ Library contains many small parts with their own documentation, tests, examples:
 * [err](err)  -- error handling
 * [opts](opts) -- a map<string,string> container for options, conversion of any type to string
 * [getopt](getopt) -- getopt for mapsoft project
+* [cache](cache)   -- Cache and SizeCache classes
 
 ## Not finished
 * [tiles](tiles)  -- TMS/Google tile calculator
-* [cache](cache)   -- Cache and SizeCache classes
 
 ## Old
 

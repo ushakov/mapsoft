@@ -3,9 +3,11 @@ There is some global information for doxyden documentation.
 /**
 \mainpage Mapsoft tools and libraries
 
-\section cache
-- \ref cache      "Cache of objects with limited capacity"
-- \ref sizecache  "Cache of objects with limited size"
+\section libmapsoft
+- \ref Cache      "Cache: Cache of objects with limited capacity"
+- \ref SizeCache  "SizeCache: Cache of objects with limited size"
+- \ref Err        "Err: A simple class for exceptions"
+- \ref Tiles      "Tiles: TMS/Google tile calculator"
 
 \section lib2d
 - \ref point      "Класс Point<T>: точка с двумя координатами типа T."

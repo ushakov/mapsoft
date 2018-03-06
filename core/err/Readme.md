@@ -26,7 +26,7 @@ int get_code() const {return code;}
 std::string get_message() const;
 
 // return formatted error message with domain included:
-// <domain> error: <message>
+// <domain> error: <message>\n
 std::string get_error() const;
 ```
 
@@ -34,17 +34,16 @@ std::string get_error() const;
 ## Example:
 
 ```cpp
-// set global error domain
+// set global error domain (if needed)
 Err:set_domain("Myprog");
 
-// throw an error:
 try {
-  int n = 2;
-  if (is_blocked(n))
-    throw Err() << "pipe " << n << "is blocked!";
 
-  if (other_errors())
-    throw Err(-2) << "some other error";
+  // throw an error with any text:
+  throw Err() << "pipe " << n << "is blocked!";
+
+  // some error code can be added:
+  throw Err(-2) << "some other error";
 }
 
 // catch an error:

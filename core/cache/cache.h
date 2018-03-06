@@ -9,8 +9,8 @@
 
 ///\addtogroup libmapsoft
 ///@{
-///\defgroup cache
-///Cache class.
+///\defgroup Cache
+///cache of objects with limited capacity
 ///@{
 
 template <typename K, typename V> class CacheIterator;

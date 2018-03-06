@@ -16,7 +16,7 @@
 
 - Универсальный, функция \ref get_rainbow. Для нее придется в явном виде
 задать таблицу цветов. Пример использования:
-
+```
       struct rainbow_data RD[]={ // user-defined rainbow data
         {0.1, 0x000000}, // 0.1 - 0.5 black -> blue
         {0.5, 0xFF0000}, // - color step
@@ -26,17 +26,17 @@
       int RDS = sizeof(RD)/sizeof(rainbow_data);
 
       int c1=get_rainbow(v, RD, RDS); // get color for v!
-
+```
 - Стандартный, класс \ref simple_rainbow.
-
+```
     simple_rainbow sr(0.1, 0.9);
     c=sr.get(v); // get data
-
+```
 Кроме того, здесь находится функция \ref color_shade, позволяющая
 затемнять цвет в соответствии с некоторым параметром.
-
+```
     int c=color_shade(c, 0.2);
-
+```
 */
 ///@{
 

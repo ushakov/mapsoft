@@ -7,10 +7,14 @@
 #include <string>
 #include <vector>
 
-// TMS/Google tile calculator
+///\addtogroup libmapsoft
+///@{
+///\defgroup Tiles
+///TMS/Google tile calculator
+///@{
 
-// See: http://www.maptiler.org/google-maps-coordinates-tile-bounds-projection/
-
+/// TMS/Google tile calculator.
+/// See: http://www.maptiler.org/google-maps-coordinates-tile-bounds-projection/
 class Tiles{
 
   double width;  // meters in 360 degrees on equator (z=0 tile size)
@@ -20,7 +24,7 @@ class Tiles{
 
   public:
 
-  // constructor: initialise width
+  /// constructor: initialise width
   Tiles(const int tile_size=256){
     // intialize the TMS Global Mercator pyramid"
     tsize = tile_size;
@@ -30,43 +34,45 @@ class Tiles{
 
   /********************************************************/
 
-  // Converts XY point from Spherical Mercator EPSG:900913 to lon/lat in WGS84 Datum
+  /// Converts XY point from Spherical Mercator EPSG:900913 to lon/lat in WGS84 Datum.
   dPoint m_to_ll(const dPoint & p) const {
     dPoint ret(p/shift * 180.0);
     ret.y = 180/M_PI * (2.0*atan(exp(ret.y * M_PI/180.0)) - M_PI/2.0);
     return ret;
   }
-  // Converts given lon/lat in WGS84 Datum to XY in Spherical Mercator EPSG:900913"
+  /// Converts given lon/lat in WGS84 Datum to XY in Spherical Mercator EPSG:900913.
   dPoint ll_to_m(const dPoint & p) const {
     dPoint ret(p);
     ret.y = log(tan((90.0 + ret.y) * M_PI/360.0 )) / (M_PI/180.0);
     return ret * shift/180.0;
   }
 
-  // Converts pixel coordinates in given zoom level of pyramid to EPSG:900913"
+  /// Converts pixel coordinates in given zoom level of pyramid to EPSG:900913.
   dPoint px_to_m(const dPoint & p, const int z) const {
     return p*ires/(1<<z) - dPoint(shift,shift);
   }
-  // Converts EPSG:900913 to pyramid pixel coordinates in given zoom level
+  /// Converts EPSG:900913 to pyramid pixel coordinates in given zoom level.
   dPoint m_to_px(const dPoint & p, const int z) const {
     return (p + dPoint(shift,shift))/ires*(1<<z);
   }
+
   double px2m(const int z) const { return ires/(1<<z); }
-  // Returns a tile covering region in given pixel coordinates
+
+  /// Returns a tile covering region in given pixel coordinates.
   iPoint px_to_tile(const dPoint & p) const {
     return iPoint(
       int(ceil(p.x/tsize) - 1),
       int(ceil(p.y/tsize) - 1));
   }
 
-  // Converts TMS tile coordinates to Google Tile coordinates (and back)
+  /// Converts TMS tile coordinates to Google Tile coordinates (and back).
   iPoint tile_gtile(const iPoint &p, const int z) const {
     iPoint ret(p);
     ret.y = ((1<<z) - 1) - ret.y;
     return ret;
   }
 
-  // Converts TMS tile coordinates to Microsoft QuadTree
+  /// Converts TMS tile coordinates to Microsoft QuadTree.
   std::string tile_to_qtree(const iPoint &p, const int z) const {
     std::string ret;
     iPoint pp(p);
@@ -89,7 +95,7 @@ class Tiles{
       m_to_ll(px_to_m((tile+iPoint(1,1))*tsize, z)) );
   }
 
-  /// same but with integer arguments
+  /// same but with integer arguments.
   dRect tile_to_range(const int x, const int y, const int z) const {
     return tile_to_range(iPoint(x,y), z); }
 
@@ -113,7 +119,7 @@ class Tiles{
       m_to_ll(px_to_m((tile_gtile(tile,z)+iPoint(1,1))*tsize, z)) );
   }
 
-  /// same but with integer arguments
+  /// same but with integer arguments.
   dRect gtile_to_range(const int x, const int y, const int z) const {
     return tile_to_range(tile_gtile(iPoint(x,y),z),z); }
 
