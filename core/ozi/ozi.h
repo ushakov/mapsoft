@@ -30,7 +30,7 @@
 */
 std::vector<std::string> unpack_ozi_csv(const std::string & str, unsigned int count=0){
   int p1=0, p2=0;
-  std::vector<std::string> ret(count);
+  std::vector<std::string> ret;
   do {
     p2=str.find(',', p1);
     std::string field = str.substr(p1,p2-p1);
@@ -40,6 +40,7 @@ std::vector<std::string> unpack_ozi_csv(const std::string & str, unsigned int co
     p1=p2+1;
   }
   while (p2!=std::string::npos);
+  if (count) ret.resize(count);
   return ret;
 }
 
@@ -163,7 +164,6 @@ Note that OziExplorer reads the Date/Time from field 5, the date and time in fie
 Example
 -27.350436, 153.055540,1,-777,36169.6307194, 09-Jan-99, 3:08:14
 -27.348610, 153.055867,0,-777,36169.6307194, 09-Jan-99, 3:08:14 
-*/
 
 Point File (.pnt)
 
@@ -195,5 +195,7 @@ Field 4 : point name
 Field 5 : description 1 (no commas)
 Field 6 : description 2 (no commas)
 Field 7 : description 3 (no commas)
+
+*/
 
 #endif

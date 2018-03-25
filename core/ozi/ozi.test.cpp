@@ -1,9 +1,10 @@
 #include <numeric>
 #include <cassert>
+#include <string>
+#include <vector>
 #include "ozi/ozi.h"
 
 using namespace std;
-
 
 string merge_strings(const vector<string> & v){
   string ret;
@@ -19,6 +20,12 @@ int main() {
           "[v] [] [] [eee] [] [] ");
   assert( merge_strings(unpack_ozi_csv("a,b", 5)) ==
           "[a] [b] [] [] [] ");
+  assert( merge_strings(unpack_ozi_csv("a", 5)) ==
+          "[a] [] [] [] [] ");
+  assert( merge_strings(unpack_ozi_csv(",", 5)) ==
+          "[] [] [] [] [] ");
+  assert( merge_strings(unpack_ozi_csv("", 5)) ==
+          "[] [] [] [] [] ");
   assert( merge_strings(unpack_ozi_csv("a,b,c,,d", 1)) ==
           "[a] ");
 
