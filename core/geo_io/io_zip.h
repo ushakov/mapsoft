@@ -1,7 +1,6 @@
 #ifndef IO_ZIP_H
 #define IO_ZIP_H
 
-#include <zip.h>
 #include <vector>
 #include <string>
 #include "geo/geo_data.h" 
