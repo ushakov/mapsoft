@@ -23,7 +23,7 @@ try {
   // throw an error with any text:
   throw Err() << "pipe " << n << "is blocked!";
 
-  // some error code can be added:
+  // some error code can be added (instead of default -1):
   throw Err(-2) << "some other error";
 }
 
@@ -40,7 +40,7 @@ class Err {
   int code;
 
   public:
-    Err(int c = 0): code(c) {}
+    Err(int c = -1): code(c) {}
     Err(const Err & o) { code=o.code; s << o.s.str(); }
 
     /// Operator << for error messages.
