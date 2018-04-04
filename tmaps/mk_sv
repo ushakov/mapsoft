@@ -1,0 +1,76 @@
+#!/bin/sh -efu
+
+#http://geodata.npolar.no/arcgis/rest/services/Basisdata_Intern/NP_TopoSvalbard_Basiskart/MapServer/tile/0/7/18
+#http://geodata.npolar.no/arcgis/rest/services/Basisdata_Intern/NP_TopoSvalbard_Basiskart/MapServer/tile/2/26/72
+#http://geodata.npolar.no/arcgis/rest/services/Basisdata_Intern/NP_TopoSvalbard_Basiskart/MapServer/tile/7/802/2298
+
+x1=370000
+x2=878000
+y1=8220000
+y2=9000000
+
+kx=1354.67985675313
+ky=1354.86390390426
+x0=5682884.89153091
+y0=10998078.2270656
+
+brd="$x1,$y1,$x1,$y2,$x2,$y2,$x2,$y1,$x1,$y1"
+bbox="508x760+370+8220k"
+
+
+brdll=$(echo "line_bck $brd" | convs_pt2pt wgs84 lonlat "" wgs84 tmerc "k=0.9996
+lon0=15")
+
+#x1l=$(echo "bck $x1" | $cnv)
+#x2l=$(echo "bck $x2" | $cnv)
+#y1l=$(echo "bck $y1" | $cnv)
+#y2l=$(echo "bck $y2" | $cnv)
+
+ts=256 # tile size
+pix=0.0005 # pix/m
+#pix=0.0005 # pix/m
+
+mkdir -p -- "sv"
+for z in $(seq 0 7); do
+  f="sv/$z"
+
+  tc="$((2**$z))" # max tile number + 1
+
+  if [ $z -lt 3 ]; then ext=png
+  else ext=jpg;
+  fi
+
+  fmt="%0${#tc}dx%0${#tc}d.$ext"
+
+  # x*pin
+  x1r=$(echo "($x0+$x1)/$kx*2^$z" | bc -l)
+  x2r=$(echo "($x0+$x2)/$kx*2^$z" | bc -l)
+  y1r=$(echo "($y0-$y1)/$ky*2^$z" | bc -l)
+  y2r=$(echo "($y0-$y2)/$ky*2^$z" | bc -l)
+  brd="$x1r,$y1r,$x1r,$y2r,$x2r,$y2r,$x2r,$y1r"
+
+cat > ${f%.txt}.xml << EOF
+<maps>
+  <map file="$z" comm="sv $z" map_proj="tmerc" lon0=15
+       tile_size="$ts" tile_fmt="$fmt" border="$brd">
+    <pt proj="tmerc" lon0=15 E0=500000 k=0.9996 x="$x1" y="$y1" xr="$x1r" yr="$y1r"/>
+    <pt proj="tmerc" lon0=15 E0=500000 k=0.9996 x="$x1" y="$y2" xr="$x1r" yr="$y2r"/>
+    <pt proj="tmerc" lon0=15 E0=500000 k=0.9996 x="$x2" y="$y1" xr="$x2r" yr="$y1r"/>
+    <pt proj="tmerc" lon0=15 E0=500000 k=0.9996 x="$x2" y="$y2" xr="$x2r" yr="$y2r"/>
+  </map>
+</maps>
+EOF
+
+mkdir -p -- "$f"
+
+cat > "$f/download" << EOF
+#!/bin/sh -efu
+z=$z
+url="http://geodata.npolar.no/arcgis/rest/services/Basisdata_Intern/NP_TopoSvalbard_Basiskart/MapServer/tile/\${z}/\${2}/\${1}"
+f=\$(printf "$fmt" "\$1" "\$2")
+echo "Downloading \$f"
+wget "\$url" -O "\$f" || rm -f -- "\$f"
+EOF
+chmod 755 "$f/download"
+
+done
