@@ -6,28 +6,51 @@ if platform.python_version()<"2.7":
 else:
     import sysconfig
 
+
+######################################
+# What do we want to build
+subdirs_min = Split("core programs viewer vector man scripts")
+subdirs_max = subdirs_min + Split("tests misc")
+
+
+######################################
+# Create environment, add some methods
+
+env = Environment ()
+Export('env')
+
+# UseLibs -- use pkg-config libraries
 def UseLibs(env, libs):
    if isinstance(libs, list):
       libs = " ".join(libs)
    env.ParseConfig('pkg-config --cflags --libs %s' % libs)
+env.AddMethod(UseLibs)
 
+# SymLink -- create a symlink
 # Arguments target and linkname follow standard order (look at ln(1))
 # wd is optional base directory for both
 def SymLink(env, target, linkname, wd=None):
-   if wd: 
-      env.Command(wd+'/'+linkname, wd+'/'+target, "ln -s %s %s/%s" % (target, wd, linkname))
+   if wd:
+      env.Command(wd+'/'+linkname, wd+'/'+target, "ln -s -- %s %s/%s" % (target, wd, linkname))
    else:
-      env.Command(linkname, target, "ln -s %s %s" % (target, linkname))
-
-subdirs_min = Split("core programs viewer vector man scripts")
-subdirs_max = subdirs_min + Split("tests misc")
-
-#SetOption('implicit_cache', 1)
-env = Environment ()
-env.AddMethod(UseLibs)
+      env.Command(linkname, target, "ln -s -- %s %s" % (target, linkname))
 env.AddMethod(SymLink)
 
+
 ######################################
+## Add default build options
+
+if os.environ.has_key('GCCVER'):
+   ver = os.environ['GCCVER']
+   env.Replace (CC = ("gcc-%s" % ver))
+   env.Replace (CXX = ("g++-%s" % ver))
+
+env.Append (CCFLAGS=['-O2'])
+env.Append (CCFLAGS='-std=gnu++11')
+
+
+######################################
+## Parse command-line arguments:
 
 env.PREFIX = ARGUMENTS.get('prefix', '')
 env.bindir=env.PREFIX+'/usr/bin'
@@ -39,16 +62,6 @@ env.libdir=env.PREFIX+ sysconfig.get_config_var('LIBDIR')
 env.Alias('install', [env.bindir, env.man1dir,
   env.datadir, env.figlibdir, env.libdir])
 
-######################################
-
-if os.environ.has_key('GCCVER'):
-   ver = os.environ['GCCVER']
-   env.Replace (CC = ("gcc-%s" % ver))
-   env.Replace (CXX = ("g++-%s" % ver))
-
-env.Append (CCFLAGS=['-O2'])
-env.Append (CCFLAGS='-std=gnu++11')
-
 if ARGUMENTS.get('debug', 0):
 	env.Append (CCFLAGS='-ggdb')
 	env.Append (LINKFLAGS='-ggdb')
@@ -59,8 +72,6 @@ if ARGUMENTS.get('gprofile', 0):
 	env.Append (LINKFLAGS='-lprofiler')
 if ARGUMENTS.get('gheapcheck', 0):
 	env.Append (LINKFLAGS='-ltcmalloc')
-
-Export('env')
 
 if ARGUMENTS.get('minimal', 0):
 	SConscript (map (lambda(s): s+"/SConscript", subdirs_min))
