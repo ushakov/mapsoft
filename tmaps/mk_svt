@@ -9,10 +9,11 @@ x2=878000
 y1=8220000
 y2=9000000
 
-kx=1354.67985675313
-ky=1354.86390390426
-x0=5682884.89153091
-y0=10998078.2270656
+kx=21705.9294305209
+ky=-21675.0678645865
+x0=5129289.03717144
+y0=9998258.04435562
+
 
 brd="$x1,$y1,$x1,$y2,$x2,$y2,$x2,$y1,$x1,$y1"
 bbox="508x760+370+8220k"
@@ -30,11 +31,12 @@ ts=256 # tile size
 pix=0.0005 # pix/m
 #pix=0.0005 # pix/m
 
-dname=sv
-url="http://geodata.npolar.no/arcgis/rest/services/Basisdata_Intern/NP_TopoSvalbard_Basiskart/MapServer/tile/"
+dname=svt
+url="http://geodata.npolar.no/arcgis/rest/services/Basisdata_Intern/NP_TerrengHelning_Svalbard_WMTS_25833/MapServer/tile/"
+
 
 mkdir -p -- "$dname"
-for z in $(seq 0 7); do
+for z in $(seq 4 12); do
   f="$dname/$z"
 
   tc="$((2**$z))" # max tile number + 1
@@ -46,12 +48,12 @@ for z in $(seq 0 7); do
   fmt="%0${#tc}dx%0${#tc}d.$ext"
 
   # x*pin
-  x1r=$(echo "($x0+$x1)/$kx*2^$z" | bc -l)
-  x2r=$(echo "($x0+$x2)/$kx*2^$z" | bc -l)
-  y1r=$(echo "($y0-$y1)/$ky*2^$z" | bc -l)
-  y2r=$(echo "($y0-$y2)/$ky*2^$z" | bc -l)
+  x1r=$(echo "($x1+$x0)/$kx*2^$z" | bc -l)
+  x2r=$(echo "($x2+$x0)/$kx*2^$z" | bc -l)
+  y1r=$(echo "($y1-$y0)/$ky*2^$z" | bc -l)
+  y2r=$(echo "($y2-$y0)/$ky*2^$z" | bc -l)
   brd="$x1r,$y1r,$x1r,$y2r,$x2r,$y2r,$x2r,$y1r"
-
+echo $brd
 cat > ${f%.txt}.xml << EOF
 <maps>
   <map file="$z" comm="$dname $z" map_proj="tmerc" lon0=15
