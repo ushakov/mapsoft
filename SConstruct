@@ -1,6 +1,6 @@
 ######################################
 # What do we want to build
-subdirs_min = Split("core programs viewer vector man scripts")
+subdirs_min = Split("lib core programs viewer vector man scripts")
 subdirs_max = subdirs_min + Split("tests misc")
 
 

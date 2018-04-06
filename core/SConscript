@@ -181,8 +181,6 @@ simple_tests=Split("""
   tiles/tiles.test.cpp
   cache/cache.test.cpp
   cache/sizecache.test.cpp
-  ozi/ozi.test.cpp
-  new_2d/point.test.cpp
 """)
 
 def builder_test_simple(target, source, env):

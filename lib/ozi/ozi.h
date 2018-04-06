@@ -48,7 +48,7 @@ std::vector<std::string> unpack_ozi_csv(const std::string & str, unsigned int co
 /// Pack Ozi-style CSV lines.
 /// Commas will be substituted by character 209.
 /// Newline characters will be substituted by space.
-/// Empty field in the end will be skipped.
+/// Empty fields in the end will be skipped.
 std::string pack_ozi_csv(const std::vector<std::string> & vec){
   std::string ret;
 
