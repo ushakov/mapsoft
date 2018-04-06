@@ -1,16 +1,17 @@
-import os
+######################################
+# What do we want to build
+subdirs_min = Split("core programs viewer vector man scripts")
+subdirs_max = subdirs_min + Split("tests misc")
 
+
+######################################
+## import python libraries
+import os
 import platform
 if platform.python_version()<"2.7":
     import distutils.sysconfig as sysconfig
 else:
     import sysconfig
-
-
-######################################
-# What do we want to build
-subdirs_min = Split("core programs viewer vector man scripts")
-subdirs_max = subdirs_min + Split("tests misc")
 
 
 ######################################
@@ -38,7 +39,7 @@ env.AddMethod(SymLink)
 
 
 ######################################
-## Add default build options
+## Add default flags
 
 if os.environ.has_key('GCCVER'):
    ver = os.environ['GCCVER']
@@ -48,6 +49,14 @@ if os.environ.has_key('GCCVER'):
 env.Append (CCFLAGS=['-O2'])
 env.Append (CCFLAGS='-std=gnu++11')
 
+env.Append (ENV = {'PKG_CONFIG_PATH': os.getcwd()+'/core/pc'})
+if os.getenv('PKG_CONFIG_PATH'):
+  env_loc.Append (ENV = {'PKG_CONFIG_PATH':
+    [ os.getcwd()+'/core/pc', os.getenv('PKG_CONFIG_PATH')]})
+
+env.Append (CPPPATH = "#core")
+env.Append (LIBPATH = "#core")
+env.Append (LIBS    = "mapsoft")
 
 ######################################
 ## Parse command-line arguments:

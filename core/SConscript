@@ -1,16 +1,4 @@
-import distutils.sysconfig
 Import ('env')
-import os.path
-
-# add CPPPATH and PKG_CONFIG_PATH to global env
-env.Append (CPPPATH = "#core")
-env.Append (LIBPATH = "#core")
-env.Append (LIBS    = "mapsoft")
-
-env.Append (ENV = {'PKG_CONFIG_PATH': os.getcwd()+'/pc'})
-if os.getenv('PKG_CONFIG_PATH'):
-  env.Append (ENV = {'PKG_CONFIG_PATH':
-    [ os.getcwd()+'/pc', os.getenv('PKG_CONFIG_PATH')]})
 
 #swig = env.Clone()
 #swig.Append(CPPPATH = [distutils.sysconfig.get_python_inc()])
@@ -194,9 +182,9 @@ simple_tests=Split("""
   cache/cache.test.cpp
   cache/sizecache.test.cpp
   ozi/ozi.test.cpp
+  new_2d/point.test.cpp
 """)
 
-import os
 def builder_test_simple(target, source, env):
     prg = str(source[0].abspath)
     if os.spawnl(os.P_WAIT, prg, prg)==0:
