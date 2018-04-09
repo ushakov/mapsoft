@@ -148,6 +148,7 @@ public:
     void clear() {
       storage.clear();
       usage.clear();
+      current_size = 0;
     }
 
     /// Returns an iterator pointing to the first element in the cache.
