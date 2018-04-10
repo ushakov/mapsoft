@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iomanip>
 #include "m_getopt.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -18,10 +19,8 @@ parse_options(int * argc, char ***argv,
       if (long_options[i].has_arg==1)  optstring+=":";
       if (long_options[i].has_arg==2)  optstring+="::";
     }
-    if (long_options[i].flag){
-      cerr << "error: non-zero flag in option structure\n";
-      exit(1);
-    }
+    if (long_options[i].flag)
+      throw Err() << "error: non-zero flag in option structure";
     i++;
   }
 
@@ -30,12 +29,10 @@ parse_options(int * argc, char ***argv,
 
     c = getopt_long(*argc, *argv, optstring.c_str(), long_options, &option_index);
     if (c == -1) break;
-    if ((c == '?') || (c == ':'))  exit(1);
+    if ((c == '?') || (c == ':')) throw Err();
 
-    if (last_opt && O.exists(last_opt)){
-      cerr << "error: wrong position of --" << last_opt << " special option\n";
-      exit(1);
-    }
+    if (last_opt && O.exists(last_opt))
+      throw Err() << "error: wrong position of --" << last_opt << " special option";
 
     if (c!=0){ // short option -- we must manually set option_index
       int i = 0;
@@ -44,10 +41,9 @@ parse_options(int * argc, char ***argv,
         i++;
       }
     }
-    if (!long_options[option_index].name){
-      cerr << "error: bad option\n";
-      exit(1);
-    }
+    if (!long_options[option_index].name)
+      throw Err() << "error: bad option";
+
     O.put<string>(long_options[option_index].name,
       long_options[option_index].has_arg? optarg:"1");
 

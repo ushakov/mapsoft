@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include "ocad_header.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -99,7 +100,7 @@ ocad_header::ocad_header(FILE *F){
 void
 ocad_header::write(FILE *F) const{
   if ((version<6)||(version>9))
-    throw "unsupported OCAD version";
+    throw Err() << "unsupported OCAD version";
   rewind(F);
   _ocad_header h;
   h.version = version;
@@ -151,13 +152,13 @@ ocad_header::write(FILE *F) const{
   }
 
   if (fwrite(&h, 1, sizeof(h), F)!=sizeof(h))
-    throw "error while writing header";
+    throw Err() << "error while writing header";
 }
 
 void
 ocad_header::seek(FILE *F) const{
   if (fseek(F, sizeof(_ocad_header), SEEK_SET)!=0)
-    throw "can't seek file to skip header";
+    throw Err() << "can't seek file to skip header";
 }
 
 void

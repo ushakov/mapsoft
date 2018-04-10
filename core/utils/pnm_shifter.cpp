@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdlib>
 #include <unistd.h>
+#include "err/err.h"
 
 pnm_shifter::pnm_shifter(const int _fd, const int _data_width){
 
@@ -41,9 +42,7 @@ void pnm_shifter::data_shift(){
       m=read(fd, data[0]+(3*w-n), n);
       n-=m;
     }
-    if (m==0){
-      std::cerr << "Error: read error!\n";
-      exit(0);
-    }
+    if (m==0)
+      throw Err() << "Error: read error!";
   }
 }

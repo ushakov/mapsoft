@@ -1,4 +1,5 @@
 #include "ocad_shead.h"
+#include "err/err.h"
 #include <iostream>
 
 using namespace std;
@@ -9,7 +10,7 @@ void
 ocad8_shead::read(FILE * F){
   _ocad8_shead h;
   if (fread(&h, 1, sizeof(h), F) != sizeof(h))
-    throw "error while reading sheader";
+    throw Err() << "error while reading sheader";
   this->_ocad8_shead::operator=(h);
 }
 
@@ -17,7 +18,7 @@ void
 ocad8_shead::write(FILE * F) const{
   _ocad8_shead h(*this);
   if (fwrite(&h, 1, sizeof(h), F) != sizeof(h))
-    throw "error while writing symbol header";
+    throw Err() << "error while writing symbol header";
 }
 
 vector<ocad_string>
@@ -39,11 +40,11 @@ ocad8_shead::from_strings(const vector<ocad_string> & strings){
   for (s=strings.begin(); s!=strings.end(); s++){
     if (s->type == 9){
       if (ncolors<256) cols[ncolors++].from_string(*s);
-      else "warning: too many colors";
+      else std::cerr << "warning: too many colors\n";
     }
     if (s->type == 10){
       if (ncolsep<MAX_COLSEP) seps[ncolsep++].from_string(*s);
-      else "warning: too many colsep";
+      else std::cerr << "warning: too many colsep\n";
     }
   }
 }

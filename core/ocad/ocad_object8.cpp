@@ -1,4 +1,5 @@
 #include "ocad_object8.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -56,7 +57,7 @@ ocad8_object::read(FILE * F, ocad8_object::index idx, int v){
   *this = ocad8_object(); // reset data
   _ocad8_object o;
   if (fread(&o, 1, sizeof(o), F)!=sizeof(o))
-    throw "can't read object\n";
+    throw Err() << "can't read object";
 
   if (idx.sym==0){ // deleted object
     status=0;
@@ -133,7 +134,7 @@ ocad8_object::write(FILE * F, int v) const{
   else      check_limits(o.n, o.nt, 1024, 2000);
 
   if (fwrite(&o, 1, sizeof(o), F)!=sizeof(o))
-    throw "can't write object";
+    throw Err() << "can't write object";
 
   write_coords(F, o.n);
   write_text(txt, F, o.nt);

@@ -6,6 +6,7 @@
 #include "geo/geo_convs.h"
 #include "geo/geo_nom.h"
 #include "2d/line_utils.h"
+#include "err/err.h"
 #include <sstream>
 #include <iomanip>
 
@@ -129,10 +130,8 @@ mk_ref(Options & o){
     incompat_warning (o, "geom", "google");\
 
     dRect geom = o.get<dRect>("geom");
-    if (geom.empty()){
-     cerr << "error: bad geometry\n";
-      exit(1);
-    }
+    if (geom.empty())
+      throw Err() << "error: bad geometry";
 
     datum = o.get<Datum>("datum", Datum("pulkovo"));
     proj = o.get<Proj>("proj", Proj("tmerc"));
@@ -161,10 +160,8 @@ mk_ref(Options & o){
     incompat_warning (o, "wgs_geom", "google");\
 
     dRect geom = o.get<dRect>("wgs_geom");
-    if (geom.empty()){
-     cerr << "error: bad geometry\n";
-      exit(1);
-    }
+    if (geom.empty())
+     throw Err() << "error: bad geometry";
 
     proj = o.get<Proj>("proj", Proj("tmerc"));
     proj_opts.put<double>("lon0",
@@ -188,10 +185,9 @@ mk_ref(Options & o){
     incompat_warning (o, "wgs_brd", "google");\
 
     ret.border = o.get<dLine>("wgs_brd");
-    if (ret.border.size()<3){
-     cerr << "error: bad border line\n";
-      exit(1);
-    }
+    if (ret.border.size()<3)
+     throw Err() << "error: bad border line";
+
     ret.border.push_back(ret.border[0]);
 
     proj = o.get<Proj>("proj", Proj("tmerc"));
@@ -211,15 +207,13 @@ mk_ref(Options & o){
 
     geo_data W;
     io::in(o.get<string>("trk_brd"), W);
-    if (W.trks.size()<1) {
-      cerr << "error: file with a track is expected in trk_brd option\n";
-      exit(1);
-    }
+    if (W.trks.size()<1)
+      throw Err() << "error: file with a track is expected in trk_brd option";
+
     ret.border = W.trks[0];
-    if (ret.border.size()<3){
-     cerr << "error: bad border line\n";
-      exit(1);
-    }
+    if (ret.border.size()<3)
+     throw Err() << "error: bad border line";
+
     ret.border.push_back(ret.border[0]);
 
     proj = o.get<Proj>("proj", Proj("tmerc"));
@@ -244,10 +238,9 @@ mk_ref(Options & o){
     int rs;
     string name=o.get<string>("nom", string());
     dRect geom = convs::nom_to_range(name, rs);
-    if (geom.empty()){
-      cerr << "error: can't get geometry for map name \"" << name << "\"\n";
-      exit(1);
-    }
+    if (geom.empty())
+      throw Err() << "error: can't get geometry for map name \"" << name << "\"";
+
     rscale = rs;
     double lon0 = convs::lon2lon0(geom.x+geom.w/2.0);
     proj_opts.put("lon0", lon0);
@@ -272,10 +265,9 @@ mk_ref(Options & o){
     proj=Proj("google");
 
     vector<int> crd = read_int_vec(o.get<string>("google"));
-    if (crd.size()!=3){
-      cerr << "error: wrong --google coordinates\n";
-      exit(1);
-    }
+    if (crd.size()!=3)
+      throw Err() << "error: wrong --google coordinates";
+
     int x=crd[0];
     int y=crd[1];
     int z=crd[2];
@@ -298,11 +290,10 @@ mk_ref(Options & o){
     double k = 1/tcalc.px2m(z);
     dpi = k * 2.54/100.0*rscale*rs_factor;
   }
-  else {
-    cerr << "error: can't make map reference without\n"
-         << "--geom or --nom or --google setting\n";
-    exit(1);
-  }
+  else
+    throw Err() << "error: can't make map reference without"
+                << " --geom or --nom or --google setting";
+
   ret.map_proj=proj;
   ret.map_datum=datum;
   ret.proj_opts=proj_opts;

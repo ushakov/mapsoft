@@ -6,6 +6,7 @@
 #include <map>
 
 #include "2d/line_utils.h"
+#include "err/err.h"
 
 namespace convs{
 using namespace std;
@@ -57,9 +58,8 @@ mkprojstr(const Datum & D, const Proj & P, const Options & o){
 
         case 1: // tmerc
           if (o.count("lon0")==0){
-            std::cerr << "mkproj: can't create proj: \""
-                      << projpar.str() << "\" without lon0\n";
-            exit(1);
+            throw Err()  << "mkproj: can't create proj: \""
+                         << projpar.str() << "\" without lon0";
           }
           projpar << " +lon_0=" << o.get("lon0", 0.0);
           projpar << " +lat_0=" << o.get("lat0", 0.0);
@@ -92,8 +92,7 @@ mkprojstr(const Datum & D, const Proj & P, const Options & o){
           break;
 
         default:
-          std::cerr << "unknown proj: " << P.val << "\n";
-          exit(1);
+          throw Err() << "unknown proj: " << P.val;
     }
 
     return projpar.str();
@@ -103,10 +102,7 @@ projPJ
 mkproj(const Datum & D, const Proj & P, const Options & o){
     string str=mkprojstr(D,P,o);
     projPJ ret=pj_init_plus(str.c_str());
-    if (!ret){
-        std::cerr << "mkproj: Error: can't create proj: \"" << str << "\"\n";
-        exit(1);
-    }
+    if (!ret) throw Err() << "mkproj: Error: can't create proj: \"" << str << "\"";
     return ret;
 }
 
@@ -428,10 +424,9 @@ lon2pref(const double lon){
 double
 lon_pref2lon0(const double lon){
   int pref= floor(lon/1e6);
-  if (pref==0){
-    std::cerr << "zero coordinate prefix\n";
-    exit(1);
-  }
+  if (pref==0)
+    throw Err() << "zero coordinate prefix";
+
   return (pref-(pref>30 ? 60:0))*6-3;
 }
 

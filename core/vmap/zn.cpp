@@ -13,6 +13,7 @@
 
 #include "2d/point.h"
 #include "2d/line_utils.h"
+#include "err/err.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/classic_core.hpp>
@@ -143,24 +144,21 @@ zn_conv::zn_conv(const string & style_): style(style_){
   else if (stat(gf.c_str(), &st_buf) == 0)
     conf_file=gf;
   else {
-     cerr << "Can't find style " << style << " in "
-          << lf << " or " << gf << "\n";
-     exit(1);
+     throw Err() << "Can't find style " << style << " in "
+                 << lf << " or " << gf;
   }
 
   // читаем конф.файл.
   FILE *file = fopen(conf_file.c_str(), "r");
 
   if (!file) {
-    cerr << "Error while reading " << conf_file << ": "
-         << "can't read YAML file " << conf_file << endl;
-    exit(1);
+    throw Err() << "Error while reading " << conf_file << ": "
+                << "can't read YAML file " << conf_file;
   }
 
   if (!yaml_parser_initialize(&parser)){
-    cerr << "Error while reading " << conf_file << ": "
-         << "can't initialize YAML parser\n";
-    exit(1);
+    throw Err() << "Error while reading " << conf_file << ": "
+                << "can't initialize YAML parser";
   }
 
   yaml_parser_set_input_file(&parser, file);
@@ -168,10 +166,9 @@ zn_conv::zn_conv(const string & style_): style(style_){
   do {
 
     if (!yaml_parser_parse(&parser, &event)) {
-      cerr << "Error while reading " << conf_file << ": "
-           << parser.problem << " at line "
-           << parser.problem_mark.line+1 << " \n";
-      exit(1);
+      throw Err() << "Error while reading " << conf_file << ": "
+                  << parser.problem << " at line "
+                  << parser.problem_mark.line+1;
     }
 
     if ((event.type == YAML_STREAM_START_EVENT) ||
@@ -187,9 +184,8 @@ zn_conv::zn_conv(const string & style_): style(style_){
         (event.type == YAML_SEQUENCE_END_EVENT) ||
         (event.type == YAML_MAPPING_END_EVENT) ){
       if ((history.size()<=0) || (history[history.size()-1] != event.type-1)) {
-        cerr << "Error while reading " << conf_file << ": "
-             << "unmatched stop event at line " << event.start_mark.line+1 << " \n";
-        exit(1);
+        throw Err() << "Error while reading " << conf_file << ": "
+                    << "unmatched stop event at line " << event.start_mark.line+1;
       }
       history.pop_back();
     }
@@ -269,9 +265,8 @@ zn_conv::zn_conv(const string & style_): style(style_){
       if (key=="txt"){
         z.txt = fig::make_object(val);
         if (z.txt.type!=4){
-          cerr << "Error while reading " << conf_file << ": "
-               << "bad txt object in "<< z.name <<"\n";
-          exit(1);
+          throw Err() << "Error while reading " << conf_file << ": "
+                      << "bad txt object in "<< z.name;
         }
         continue;
       }
@@ -287,10 +282,9 @@ zn_conv::zn_conv(const string & style_): style(style_){
           else if (stat((g_pd+z.pic+".fig").c_str(), &st_buf) == 0)
             z.pic=g_pd+z.pic;
           else {
-            cerr << "Error while reading " << conf_file << ": "
-                 << "can't find zn picture " << z.pic << ".fig"
-                 << " in " << l_pd << " or " << g_pd << "\n";
-            exit(1);
+            throw Err() << "Error while reading " << conf_file << ": "
+                        << "can't find zn picture " << z.pic << ".fig"
+                        << " in " << l_pd << " or " << g_pd;
           }
         }
         continue;

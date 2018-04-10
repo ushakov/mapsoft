@@ -1,4 +1,5 @@
 #include "ocad_file.h"
+#include "err/err.h"
 
 #include <iostream>
 
@@ -20,7 +21,7 @@ ocad_file::read(const char * fn, int verb){
 
   // open file
   FILE * F = fopen(fn, "r");
-  if (!F) throw "can't open file";
+  if (!F) throw Err() << "can't open file";
 
   ocad_header h(F);
   h.dump(verb);
@@ -28,8 +29,8 @@ ocad_file::read(const char * fn, int verb){
   v  = h.version;
   sv = h.subversion;
   t  = h.type;
-  if (v==0) throw "not an OCAD file";
-  if ((v<6)||(v>9)) throw "unsupported OCAD version";
+  if (v==0) throw Err() << "not an OCAD file";
+  if ((v<6)||(v>9)) throw Err() << "unsupported OCAD version";
 
   if (v<9){
     shead.read(F);
@@ -72,7 +73,7 @@ void
 ocad_file::write (const char * fn) const{
   // open file
   FILE * F = fopen(fn, "w");
-  if (!F) throw "can't open file";
+  if (!F) throw Err() << "can't open file";
 
   ocad_header h;
   h.version = v;

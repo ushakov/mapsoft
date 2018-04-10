@@ -1,5 +1,6 @@
 #include "conv_aff.h"
 #include "line_utils.h"
+#include "err/err.h"
 
 /* Приведение матрицы (N+1)xN к диагональному виду */
 #define AN(x,y) a[(x)+(y)*(N+1)]
@@ -29,7 +30,7 @@ int mdiag(int N, double *a){
 
 void ConvAff::bck_recalc(){
   double D = det();
-  if (D==0) throw "ConvAff: can't calculate matrix for backward conversion.";
+  if (D==0) throw Err() << "ConvAff: can't calculate matrix for backward conversion.";
 
   k_bck[0] =   k_frw[4] / D;
   k_bck[1] = - k_frw[1] / D;
@@ -99,7 +100,7 @@ ConvAff::set_from_ref(const std::map<dPoint, dPoint> & ref){
     A7(6,0)+=xc*x; A7(6,1)+=xc*y; A7(6,2)+=xc;
     A7(6,3)+=yc*x; A7(6,4)+=yc*y; A7(6,5)+=yc;
   }
-  if (mdiag (6, a) != 0) throw "ConvAff: can't calculate conversion matrix.";
+  if (mdiag (6, a) != 0) throw Err() << "ConvAff: can't calculate conversion matrix.";
 
   for (int i=0; i<6; i++) k_frw[i] = A7(6,i);
   bck_recalc();

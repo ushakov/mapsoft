@@ -5,6 +5,7 @@
 #include <vector>
 #include <cassert>
 #include "ocad_types.h"
+#include "err/err.h"
 
 
 namespace ocad{
@@ -30,16 +31,16 @@ struct ocad_index: std::vector<T>{
     check_v(&v);
     while (addr!=0){
       if (fseek(F, addr, SEEK_SET)!=0)
-        throw "can't seek file to index block";
+        throw Err() << "can't seek file to index block";
       _ocad_index<typename T::index> bl;
       if (fread(&bl, 1, sizeof(bl), F)!=sizeof(bl))
-        throw "can't read index block\n";
+        throw Err() << "can't read index block";
       addr=bl.next;
       for(int i=0; i<256; i++){
         int pos = bl.index[i].pos;
         if (pos==0) continue;
         if (fseek(F, pos, SEEK_SET)!=0)
-          throw "can't seek file to read index entry";
+          throw Err() << "can't seek file to read index entry";
         bl.index[i].pos=0;
         T s;
         s.read(F, bl.index[i], v);
@@ -58,7 +59,7 @@ struct ocad_index: std::vector<T>{
 
       int bl_pos=ftell(F);
       if (fseek(F, sizeof(bl), SEEK_CUR)!=0)
-         throw "can't seek file to write index block";
+         throw Err() << "can't seek file to write index block";
 
       int i;
       for (i=0; i<256; i++){
@@ -72,11 +73,11 @@ struct ocad_index: std::vector<T>{
 
       int last_pos = ftell(F);
       if (fseek(F, bl_pos, SEEK_SET)!=0)
-         throw "can't seek file to write index block";
+         throw Err() << "can't seek file to write index block";
       if (fwrite(&bl, 1, sizeof(bl), F)!=sizeof(bl))
-         throw "can't write index block";
+         throw Err() << "can't write index block";
       if (fseek(F, last_pos, SEEK_SET)!=0)
-         throw "can't seek file to write index block";
+         throw Err() << "can't seek file to write index block";
 
       if (i+n>=this->size()) break;
       n+=256;

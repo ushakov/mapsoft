@@ -1,4 +1,5 @@
 #include "ocad_object9.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -39,7 +40,7 @@ ocad9_object::read(FILE * F, ocad9_object::index idx, int v){
   *this = ocad9_object(); // reset data
   _ocad9_object o;
   if (fread(&o, 1, sizeof(o), F)!=sizeof(o))
-    throw "can't read object\n";
+    throw Err() << "can't read object\n";
 
   if (idx.sym!=o.sym) cerr
     << "warning: symbols in object and in index differ: "
@@ -91,7 +92,7 @@ ocad9_object::write(FILE * F, int v) const{
   o.nt = txt_blocks(txt);
 
   if (fwrite(&o, 1, sizeof(o), F)!=sizeof(o))
-    throw "can't write object";
+    throw Err() << "can't write object";
 
   write_coords(F);
   write_text(txt, F);

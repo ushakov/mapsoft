@@ -1,6 +1,7 @@
 // типы данных, используемые в геоданных
 
 #include "geo_types.h"
+#include "err/err.h"
 #include <sstream>
 #include <cstdlib>
 #include <cerrno>
@@ -28,10 +29,9 @@ void Enum::set_from_string(const std::string & str){
     }
 
     i = data.find(""); // default value
-    if (i == data.end()){
-      std::cerr << "Fatal error: no default value\n";
-      exit(0);
-    }
+    if (i == data.end())
+      throw Err() << "Fatal error: no default value";
+
     std::cerr << "Unknown value: " << str << ". Using default: " << i->second << "\n";
   }
   val=i->second & Enum::fmt_mask;

@@ -9,6 +9,7 @@
 #include "geo_io/geofig.h"
 #include "geo/geo_convs.h"
 #include "geo/geo_nom.h"
+#include "err/err.h"
 #include "vmap/zn.h"
 #include "vmap.h"
 
@@ -430,10 +431,9 @@ struct RangeCutter{
 
     if (O.exists("range_nom")){
       range=convs::nom_to_range(O.get<string>("range_nom"));
-      if (range.empty()){
-        std::cerr << "bad name: " << O.get<string>("range_nom") << "\n";
-        exit(1);
-      }
+      if (range.empty())
+        throw Err() << "bad name: " << O.get<string>("range_nom");
+
       cnv = new convs::pt2pt(
           Datum("wgs84"), Proj("lonlat"), Options(),
           Datum("pulkovo"), Proj("lonlat"), Options());
@@ -496,30 +496,27 @@ filter(world & W, const Options & O){
   // OPTION mp_id
   if (O.exists("mp_id")){
     int mp_id = O.get<int>("mp_id", 0);
-    if (mp_id<= 0){
-      cerr << "error: bad mp_id value: " << O.get<string>("mp_id") << "\n";
-      exit(1);
-    }
+    if (mp_id<= 0)
+      throw Err() << "error: bad mp_id value: " << O.get<string>("mp_id");
+
     W.mp_id  = mp_id;
   }
 
   // OPTION rscale
   if (O.exists("rscale")){
     double rscale = O.get<double>("rscale", 0.0);
-    if (rscale <= 0){
-      cerr << "error: bad rscale value: " << O.get<string>("rscale") << "\n";
-      exit(1);
-    }
+    if (rscale <= 0)
+      throw Err() << "error: bad rscale value: " << O.get<string>("rscale");
+
     W.rscale = rscale;
   }
 
   // OPTION style
   if (O.exists("style")){
     string style = O.get<string>("style");
-    if (style == ""){
-      cerr << "error: empty style value\n";
-      exit(1);
-    }
+    if (style == "")
+      throw Err() << "error: empty style value";
+
     W.style  = style;
   }
 

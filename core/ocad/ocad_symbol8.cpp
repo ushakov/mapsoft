@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include "ocad_symbol8.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -50,7 +51,7 @@ ocad8_symbol::read(FILE * F, ocad8_symbol::index idx, int v){
   int pos = ftell(F);
   _ocad8_base_symb s;
   if (fread(&s, 1, sizeof(s), F)!=sizeof(s))
-    throw "can't read object\n";
+    throw Err() << "can't read object";
   int size = s.size;
 
   // convert to OCAD9  XXXY -> XXX00Y
@@ -68,10 +69,10 @@ ocad8_symbol::read(FILE * F, ocad8_symbol::index idx, int v){
 
   blob_version = v;
   if (fseek(F, pos, SEEK_SET)!=0)
-    throw "can't seek file to read symbol blob";
+    throw Err() << "can't seek file to read symbol blob";
   char *buf = new char [size];
   if (fread(buf, 1, size, F)!=size)
-      throw "can't read symbol blob";
+      throw Err() << "can't read symbol blob";
   blob = string(buf, buf+size);
   delete [] buf;
 }
@@ -80,7 +81,7 @@ ocad8_symbol::index
 ocad8_symbol::write(FILE * F, int v) const{
   if (blob_version <9){
     if (fwrite(blob.data(), 1, blob.size(), F)!=blob.size())
-      throw "can't write symbol blob";
+      throw Err() << "can't write symbol blob";
   }
   else {
      cerr << "warning: skipping symbol with incompatible version\n";

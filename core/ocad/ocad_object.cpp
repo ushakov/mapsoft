@@ -1,4 +1,5 @@
 #include "ocad_object.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -105,7 +106,7 @@ ocad_object::write_text(const string & txt, FILE *F, int limit) const {
     memset(buf, 0, n*8);
     for (int i=0; i<txt.length(); i++) buf[i] = txt[i];
     if (fwrite(buf, 1, n*8, F)!=n*8)
-      throw "can't write object text";
+      throw Err() << "can't write object text";
     delete [] buf;
   }
 }
@@ -119,7 +120,7 @@ ocad_object::write_coords(FILE *F, int limit) const{
     memset(buf, 0, n*8);
     for (int i=0; i<n; i++)  buf[i] = coords[i];
     if (fwrite(buf, sizeof(ocad_coord), n, F)!=n)
-      throw "can't write object coordinates";
+      throw Err() << "can't write object coordinates";
     delete [] buf;
   }
 }
@@ -129,7 +130,7 @@ ocad_object::read_coords(FILE *F, int n){
   if (n){
     ocad_coord * buf = new ocad_coord[n];
     if (fread(buf, sizeof(ocad_coord), n, F)!=n)
-      throw "can't read object coordinates\n";
+      throw Err() << "can't read object coordinates";
     coords = vector<ocad_coord>(buf, buf+n);
     delete [] buf;
   }
@@ -140,7 +141,7 @@ ocad_object::read_text(FILE *F, int n){
   if (n){
     char *buf = new char [n*8];
     if (fread(buf, 1, n*8, F)!=n*8)
-      throw "can't read object text\n";
+      throw Err() << "can't read object text";
     for (int i=0; i<n*8-1; i++){
       if ((buf[i]==0) && (buf[i+1]==0)) break; // 0x0000-terminated string
       text.push_back(buf[i]);

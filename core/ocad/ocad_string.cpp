@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include "ocad_string.h"
+#include "err/err.h"
 
 using namespace std;
 
@@ -39,7 +40,7 @@ void
 ocad_string::read(FILE * F, ocad_string::index idx, int v){
   char * buf = new char [idx.len];
   if (fread(buf, 1, idx.len, F)!=idx.len)
-    throw "can't read string\n";
+    throw Err() << "can't read string";
   data=string(buf, (char *)memchr(buf, 0, idx.len));
   delete[] buf;
 
@@ -60,7 +61,7 @@ ocad_string::write(FILE * F, int v) const{
   memset(buf, 0, idx.len);
   for (int i=0; i<idx.len; i++) buf[i]=str[i];
   if (fwrite(buf, 1, idx.len, F)!=idx.len)
-    throw "can't write string";
+    throw Err() << "can't write string";
   delete[] buf;
 
   return idx;
