@@ -7,9 +7,6 @@
 // options
 #include <opts/opts.h>
 
-// getopt
-//#include <getopt/getopt.h>
-
 // cache
 #include <cache/cache.h>
 #include <cache/sizecache.h>

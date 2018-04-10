@@ -22,8 +22,6 @@ objects = Split ("""
   err/err.cpp
   opts/opts.cpp
 
-  getopt/getopt.cpp
-
   filetype/filetype.cpp
 
   2d/point_int.cpp
@@ -181,7 +179,6 @@ simple_tests=Split("""
   opts/opts.test.cpp
   tiles/tiles.test.cpp
   cache/cache.test.cpp
-  cache/sizecache.test.cpp
 """)
 
 def builder_test_simple(target, source, env):
