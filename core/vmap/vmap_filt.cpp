@@ -165,13 +165,20 @@ void range_action(world & W, string action, const dRect & cutter, Conv * cnv){
   remove_empty(W);
 }
 
-bool join_two_lines(const dLine & l1, const dLine & l2, dLine & res, const double dist){
-  if (pdist(*(l1.rbegin()), *(l2.begin()))<dist){
-    res.insert(res.end(), l1.begin(), l1.end());
-    res.insert(res.end(), l2.begin()+1, l2.end());
-    return true;
-  }
-  return false;
+bool join_two_lines(const dLine & l1, const dLine & l2, dLine & res,
+                    const double dist, const double adist){
+  if ((l1.size()<2) || (l2.size()<2)) return false;
+  if (pdist(*(l1.rbegin()), *(l2.begin())) >= dist) return false;
+
+  // line directions in the joining point
+  dPoint v1 = *(l1.rbegin()) - *(l1.rbegin()-1);
+  dPoint v2 = *(l2.begin()+1) - *(l2.begin());
+  if (acos(pscal(v1,v2)) >= adist*M_PI/180) return false;
+
+  res.insert(res.end(), l1.begin(), l1.end()-1);   // first line except last pt
+  res.push_back((*(l1.rbegin()) + *(l2.begin()))/2); // average of line ends
+  res.insert(res.end(), l2.begin()+1, l2.end());   // second line except first pt
+  return true;
 }
 
 bool join_two_polygons(const dLine & l1, const dLine & l2, dLine & res, const double dist){
@@ -220,6 +227,7 @@ join_objects(world & W, double dist){
   // Отделить ли циклы для линий и для многоугольников?)
   // Явная проблема: многоугольники, разрезанные на более двух (соединенных) частей
 
+  double adist = 5.0; // do not join lines with angle more then this (deg)
   world::iterator o1,o2;
   dMultiLine::iterator l1, l2;
   int lc=0,pc=0,pass=0;
@@ -242,8 +250,8 @@ join_objects(world & W, double dist){
             // join lines
             if (o1->get_class()==POLYLINE){
               dLine tmp;
-              if (join_two_lines(*l1, *l2, tmp, dist) ||
-                  join_two_lines(*l2, *l1, tmp, dist)){
+              if (join_two_lines(*l1, *l2, tmp, dist, adist) ||
+                  join_two_lines(*l2, *l1, tmp, dist, adist)){
                 l1->swap(tmp);
                 o2->erase(l2);
                 o2=o1;

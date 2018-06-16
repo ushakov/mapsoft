@@ -150,7 +150,7 @@ create_labels(world & W){
 
     for (dMultiLine::iterator i=o->begin(); i!=o->end(); i++){
 
-      if (i->size()<1) continue;
+      if (i->size()<2) continue; // do not create labels for >2pt objects
       lpos l;
       l.ang = 0;
       l.dir = ld;
