@@ -2,6 +2,7 @@
 #include <cstring>
 #include "geo_io/geofig.h"
 #include "mp/mp.h"
+#include "err/err.h"
 
 #include "vmap/zn.h"
 #include "2d/line_utils.h"
@@ -243,8 +244,7 @@ int crop(const string & mode, int argc, char** argv){
     cutter=convs::nom_to_range(argv[0]);
     file     = argv[1];
     if (cutter.empty()){
-      std::cerr << "Bad name: " << argv[0] << "\n";
-      exit(1);
+      std::cerr << "Bad name: " << argv[0] << "\n"; return 1;
     }
   }
 
@@ -670,6 +670,7 @@ int set_source(int argc, char** argv){
 
 /*****************************************************/
 int main(int argc, char** argv){
+try{
   if (argc < 2){
     cerr << "usage: mapsoft_vmap <command> <args>\n"
          << "commands: \n"
@@ -689,25 +690,29 @@ int main(int argc, char** argv){
          << "  - show_sources  -- show sources in (fig|mp)\n"
          << "  - set_source    -- set source parameter for each object\n"
 ;
-    exit(0);
+    return 0;
   }
-  if (strcmp(argv[1], "range_crop")==0)     exit(crop("range_crop", argc-2, argv+2));
-  if (strcmp(argv[1], "range_select")==0)   exit(crop("range_select",  argc-2, argv+2));
-  if (strcmp(argv[1], "range_remove")==0)   exit(crop("range_remove",  argc-2, argv+2));
+  if (strcmp(argv[1], "range_crop")==0)     return crop("range_crop", argc-2, argv+2);
+  if (strcmp(argv[1], "range_select")==0)   return crop("range_select",  argc-2, argv+2);
+  if (strcmp(argv[1], "range_remove")==0)   return crop("range_remove",  argc-2, argv+2);
 
-  if (strcmp(argv[1], "range")==0)          exit(range(argc-2, argv+2));
+  if (strcmp(argv[1], "range")==0)          return range(argc-2, argv+2);
 
-  if (strcmp(argv[1], "copy")==0)           exit(copy(argc-2, argv+2));
-  if (strcmp(argv[1], "remove")==0)         exit(remove(argc-2, argv+2));
+  if (strcmp(argv[1], "copy")==0)           return copy(argc-2, argv+2);
+  if (strcmp(argv[1], "remove")==0)         return remove(argc-2, argv+2);
 
-  if (strcmp(argv[1], "remove_grids")==0)   exit(remove_grids(argc-2, argv+2));
-  if (strcmp(argv[1], "remove_labels")==0)  exit(remove_labels(argc-2, argv+2));
-  if (strcmp(argv[1], "copy_labels")==0)    exit(copy_labels(argc-2, argv+2));
+  if (strcmp(argv[1], "remove_grids")==0)   return remove_grids(argc-2, argv+2);
+  if (strcmp(argv[1], "remove_labels")==0)  return remove_labels(argc-2, argv+2);
+  if (strcmp(argv[1], "copy_labels")==0)    return copy_labels(argc-2, argv+2);
 
-  if (strcmp(argv[1], "update")==0)         exit(update(argc-2, argv+2));
-  if (strcmp(argv[1], "show_sources")==0)   exit(show_sources(argc-2, argv+2));
-  if (strcmp(argv[1], "set_source")==0)     exit(set_source(argc-2, argv+2));
+  if (strcmp(argv[1], "update")==0)         return update(argc-2, argv+2);
+  if (strcmp(argv[1], "show_sources")==0)   return show_sources(argc-2, argv+2);
+  if (strcmp(argv[1], "set_source")==0)     return set_source(argc-2, argv+2);
 
-  cerr << "unknown command: " << argv[1] << "\n";
-  exit(1);
+  throw Err() << "unknown command: " << argv[1] << "\n";
+}
+catch (Err e) {
+  cerr << e.get_error() << endl;
+  return 1;
+}
 }

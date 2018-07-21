@@ -7,17 +7,18 @@
 using namespace std;
 using namespace fig;
 
+int
 main(int argc, char **argv){
 
   if (argc!=2){
     std::cerr << "usage: " << argv[0] << " <fig> \n";
-    exit(1);
+    return 1;
   }
 
   fig_world W1;
   if (!read(argv[1], W1)){
     cerr << "Can't read " << argv[1] <<"\n";
-    exit(1);
+    return 1;
   }
 
   gs_bbx G;
@@ -48,4 +49,5 @@ main(int argc, char **argv){
   }
   cerr << "\n" << n << " text objects processed\n";
   fig::write(argv[1], W1);
+  return 0;
 }

@@ -21,9 +21,9 @@ using namespace boost::spirit::classic;
 
 void usage(const char *fname){
   cerr << "Usage: "<< fname << " <infile> -o <outfile>\n";
-  exit(0);
 }
 
+int
 main(int argc, char **argv){
 
   string infile, outfile;
@@ -32,10 +32,16 @@ main(int argc, char **argv){
 
     if ((strcmp(argv[i], "-h")==0)||
         (strcmp(argv[i], "-help")==0)||
-        (strcmp(argv[i], "--help")==0)) usage(argv[0]);
+        (strcmp(argv[i], "--help")==0)){
+       usage(argv[0]);
+       return 0;
+    }
 
     if (strcmp(argv[i], "-o")==0){
-      if (i==argc-1) usage(argv[0]);
+      if (i==argc-1){
+        usage(argv[0]);
+        return 0;
+      }
       i+=1;
       outfile = argv[i];
       continue;
@@ -43,7 +49,10 @@ main(int argc, char **argv){
     infile = argv[i];
   }
 
-  if ((infile=="")||(outfile=="")) usage(argv[0]);
+  if ((infile=="")||(outfile=="")){
+    usage(argv[0]);
+    return 0;
+  }
 
 // Читаем файл, содержащий информации о привязке карт
 // N37-001.jpg  51 216 3726 216 3741 4789  31 4591  Руза, 1982-1983
@@ -120,6 +129,7 @@ main(int argc, char **argv){
 
   try {io::out(outfile, world, opts);}
   catch (Err e) {std::cerr << e.get_error() << endl;}
+  return 0;
 }
 
 

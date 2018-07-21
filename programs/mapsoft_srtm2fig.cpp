@@ -27,11 +27,14 @@ void usage(){
      " mapsoft_srtm2fig <fig> hor   <srtm_dir> <step1> <step2> [<acc, def=10>]\n"
      " mapsoft_srtm2fig <fig> ver   <srtm_dir> [<DH, def=20> [<PS, def=500>]] \n"
      " mapsoft_srtm2fig <fig> holes <srtm_dir>\n";
-    exit(0);
 }
 
+int
 main(int argc, char** argv){
-  if (argc < 4) usage();
+  if (argc < 4) {
+    usage();
+    return 0;
+  }
 
   std::string fig_name = argv[1];
   std::string cmd      = argv[2];
@@ -43,7 +46,7 @@ main(int argc, char** argv){
   fig::fig_world F;
   if (!fig::read(fig_name.c_str(), F)) {
     std::cerr << "File is not modified, exiting.\n";
-    exit(1);
+    return 1;
   }
   g_map fig_ref = fig::get_ref(F);
   convs::map2wgs fig_cnv(fig_ref);
@@ -52,7 +55,10 @@ main(int argc, char** argv){
 
   int count;
   if (cmd == "hor"){
-    if (argc < 6) usage();
+    if (argc < 6){
+      usage();
+      return 0;
+    }
     int step1 = atoi(argv[4]);
     int step2 = atoi(argv[5]);
     if (step2<step1) swap(step2,step1);
@@ -127,8 +133,11 @@ main(int argc, char** argv){
     }
     cerr << aline.size() << " polygons\n";
   }
-  else usage();
+  else {
+    usage();
+    return 0;
+  }
 
   fig::write(fig_name, F);
-
+  return 0;
 }

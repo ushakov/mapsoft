@@ -24,19 +24,24 @@ const int tsize = 1024;
 void usage(){
   cerr << "usage: \n"
     " mapsoft_map2fig <fig> map <depth> <map file 1> [<map file 2> ...]\n";
-   exit(0);
 }
 
 int
 main(int argc, char **argv){
-    if (argc<5) usage();
+    if (argc<5){
+      usage();
+      return 0;
+    }
 
     string fig_name = argv[1];
     string source   = argv[2];
     string depth = argv[3];
 
 
-    if (source != "map") usage();
+    if (source != "map"){
+      usage();
+      return 0;
+    }
 
     // read data
     geo_data *world = new geo_data;
@@ -58,7 +63,7 @@ main(int argc, char **argv){
     fig::fig_world F;
     if (!fig::read(fig_name.c_str(), F)) {
       cerr << "Read error. File is not modified, exiting.\n";
-      exit(1);
+      return 1;
     }
 
     // нам нужно установить в gobj привязку fig-файла, но перемаштабированную
@@ -82,12 +87,12 @@ main(int argc, char **argv){
     if (stat(dir_name.c_str(), &st)!=0){
       if (mkdir(dir_name.c_str(), 0755)!=0){
         cerr << "can't mkdir " << dir_name << "\n";
-        exit(0);
+        return 1;
       }
     }
     else if (!S_ISDIR(st.st_mode)){
       cerr << dir_name << " is not a directory\n";
-      exit(0);
+      return 1;
     }
 
     int nx = int(range.w)/(tsize-1)+1; // число плиток
@@ -101,25 +106,26 @@ cerr << nx << " x " << ny << " tiles\n";
 cerr << dx << " x " << dy << " tile_size\n";
 
     for (int j = 0; j<ny; j++){
-    for (int i = 0; i<nx; i++){
-      dPoint tlc(range.x+i*dx, range.y+j*dy);
+      for (int i = 0; i<nx; i++){
+        dPoint tlc(range.x+i*dx, range.y+j*dy);
 
-      iImage im = ml.get_image(iRect(tlc, tlc+dPoint(dx,dy)));
-      if (im.empty()) continue;
-      ostringstream fname; fname << dir_name << "/" << source[0] << depth << "-" << i << "-" << j << ".jpg"; 
-      image_r::save(im, fname.str().c_str());
+        iImage im = ml.get_image(iRect(tlc, tlc+dPoint(dx,dy)));
+        if (im.empty()) continue;
+        ostringstream fname; fname << dir_name << "/" << source[0] << depth << "-" << i << "-" << j << ".jpg"; 
+        image_r::save(im, fname.str().c_str());
 
-      fig::fig_object o = fig::make_object("2 5 0 1 0 -1 "+depth+" -1 -1 0.000 0 0 -1 0 0 *");
+        fig::fig_object o = fig::make_object("2 5 0 1 0 -1 "+depth+" -1 -1 0.000 0 0 -1 0 0 *");
 
-      o.push_back(tlc*rescale);
-      o.push_back((tlc+dPoint(dx,0))*rescale);
-      o.push_back((tlc+dPoint(dx,dy))*rescale);
-      o.push_back((tlc+dPoint(0,dy))*rescale);
-      o.push_back(tlc*rescale);
-      o.image_file = fname.str();
-      o.comment.push_back("MAP "+fname.str());
-      F.push_back(o);
-    }
+        o.push_back(tlc*rescale);
+        o.push_back((tlc+dPoint(dx,0))*rescale);
+        o.push_back((tlc+dPoint(dx,dy))*rescale);
+        o.push_back((tlc+dPoint(0,dy))*rescale);
+        o.push_back(tlc*rescale);
+        o.image_file = fname.str();
+        o.comment.push_back("MAP "+fname.str());
+        F.push_back(o);
+      }
     }
     fig::write(fig_name, F);
+    return 0;
 }

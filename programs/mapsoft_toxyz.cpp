@@ -45,15 +45,15 @@ void usage(bool pod=false){
        << "  %N -- %  point number staarting from the beginning\n"
        << "  %p -- %  part number\n"
   ;
-  exit(1);
 }
 
-int main (int argc, char **argv) {
+int
+main (int argc, char **argv) {
 
-  if (argc==1) usage();
+  if (argc==1) {usage(); return 0;}
   vector<string> infiles;
   Options O = parse_options_all(&argc, &argv, options, 1, infiles);
-  if (O.exists("help")) usage();
+  if (O.exists("help")) {usage(); return 0;}
 
   geo_data world;
   for (vector<string>::const_iterator i = infiles.begin(); i!=infiles.end(); i++){
@@ -155,4 +155,5 @@ int main (int argc, char **argv) {
 
     }
   }
+  return 0;
 }

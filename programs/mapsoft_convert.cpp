@@ -126,23 +126,22 @@ void usage(bool pod=false){
   print_options(options, OPT2, cerr, pod);
   cerr << head << "Options for rendering images, SRTM input:\n";
   print_options(options, OPT4, cerr, pod);
-
-  exit(1);
 }
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[]) {
 try{
 
-  if (argc==1) usage();
+  if (argc==1) {usage(); return 0;}
 
   vector<string> infiles;
   Options O = parse_options_all(&argc, &argv, options, OPT_ALL, infiles);
-  if (O.exists("help")) usage();
-  if (O.exists("pod")) usage(true);
+  if (O.exists("help")) {usage(); return 0;}
+  if (O.exists("pod")) {usage(true); return 0;}
 
   if (!O.exists("out")){
     cerr << "no output files.\n";
-    exit(1);
+    return 1;
   }
 
   geo_data world;
@@ -180,6 +179,6 @@ catch (Err e) {
   cerr << e.get_error() << endl;
   return 1;
 }
-
+return 0;
 }
 

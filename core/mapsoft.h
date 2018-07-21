@@ -9,7 +9,6 @@
 
 // cache
 #include <cache/cache.h>
-#include <cache/sizecache.h>
 
 
 // 2D library

@@ -36,10 +36,11 @@ read(const char * fname){
       O.read(fname);
       return read(O);
     }
-    catch (const char * msg){
-      cerr << "error: bad ocad file " << fname << ": " << msg << "\n";
+    catch (Err e) {
+      cerr << "Error: bad ocad file:" << fname << ": " << e.get_error() << endl;
       return vmap::world();
     }
+
   }
   else if (testext(fname, "vmap")){
     ifstream IN(fname);
@@ -73,8 +74,8 @@ write(const char * fname, const world & W, const Options & O){
       write(F, W, O);
       F.write(fname);
     }
-    catch (const char * msg){
-      cerr << "error: bad ocad file " << fname << "\n";
+    catch (Err e) {
+      cerr << "Error: bad ocad file:" << fname << ": " << e.get_error() << endl;
       return 0;
     }
   }

@@ -20,15 +20,18 @@ using namespace std;
 
 void usage(const char *fname){
   cerr << "Usage: "<< fname << " <width, px> <lat, deg> <lon, deg> <alt, m> [<geodata1>...<geodatan>]\n";
-  exit(0);
 }
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[]) {
 
   list<string> infiles;
 
 // разбор командной строки
-  if (argc < 5) usage(argv[0]);
+  if (argc < 5) {
+    usage(argv[0]);
+    return 1;
+  }
   int width   = atoi(argv[1]);
   double lat0 = atof(argv[2]);
   double lon0 = atof(argv[3]);

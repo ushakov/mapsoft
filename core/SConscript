@@ -202,7 +202,6 @@ map(build_and_run_simple, simple_tests)
 ## script tests: build a program, then run a script
 
 script_tests=Split("""
-  getopt/getopt.test.cpp
 """)
 
 def builder_test_script(target, source, env):

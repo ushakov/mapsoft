@@ -86,8 +86,8 @@ write(ocad::ocad_file & F, const world & W, const Options & O){
   try {
     F.read(tmpl.c_str());
   }
-  catch (const char * msg){
-    cerr << "error: bad ocad file " << tmpl.c_str() << "\n";
+  catch (Err e) {
+    cerr << "Error:  bad ocad file: " << e.get_error() << endl;
     return 0;
   }
 

@@ -10,11 +10,11 @@ using namespace std;
 void usage(){
     cerr << "usage: \n"
      " mapsoft_fig2fig <dest fig> <source fig>\n";
-    exit(0);
 }
 
+int
 main(int argc, char** argv){
-  if (argc < 3) usage();
+  if (argc < 3) {usage(); return 0;}
 
   std::string out_fig = argv[1];
   std::string in_fig  = argv[2];
@@ -23,14 +23,14 @@ main(int argc, char** argv){
   fig::fig_world F1;
   if (!fig::read(out_fig.c_str(), F1)) {
     std::cerr << "File is not modified.\n";
-    exit(1);
+    return 1;
   }
   g_map out_ref = fig::get_ref(F1);
 
   fig::fig_world F2;
   if (!fig::read(in_fig.c_str(), F2)) {
     std::cerr << "File is not modified.\n";
-    exit(1);
+    return 1;
   }
   g_map in_ref = fig::get_ref(F2);
 
@@ -66,5 +66,5 @@ main(int argc, char** argv){
 //  fig::fig_world FT;
 //  crop_lines(F1, FT, brd, true);
 
-  exit(!fig::write(out_fig, F1));
+  return !fig::write(out_fig, F1);
 }

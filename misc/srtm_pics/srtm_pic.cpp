@@ -42,7 +42,8 @@ int RDS_hr=sizeof(RD_hr)/sizeof(rainbow_data);
 
 
 using namespace std;
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[]) {
 try{
     if (argc!=11) {
 	std::cerr << "usage: " << argv[0] << " scale dpi lon0 X1 X2 Y1 Y2 step sstep style\n";
@@ -63,7 +64,7 @@ try{
     const int grid_step = 1000;
 
 // определим размер картинки
-    if ((X1>X2)||(Y1>Y2)) throw std::domain_error("Range error!\n"); 
+    if ((X1>X2)||(Y1>Y2)) throw Err() << "Range error!\n";
 
     double k = scale/2.54e-2*dpi;
 
@@ -152,7 +153,10 @@ try{
     }
     try {oe::write_map_file("srtm_pic_out.map", m);}
     catch (Err e) {cerr << e.get_error() << endl;}
-
-} catch(std::domain_error e){ std::cerr << e.what(); }
+}
+catch (Err e) {
+  cerr << e.get_error() << endl;
+  return 1;
+}
 }
 

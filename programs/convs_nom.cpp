@@ -18,17 +18,17 @@ void usage(){
        << "       convs_nom -t <name> <range>  -- check if the map touches the range\n"
        << "\n"
   ;
-  exit(1);
 }
 
-int main(int argc, char** argv){
+int
+main(int argc, char** argv){
 
   if ((argc == 4) && (strcmp(argv[1], "-p") == 0)){
     string name = pt_to_nom(
         boost::lexical_cast<dPoint>(argv[2]),
         boost::lexical_cast<double>(argv[3]) );
     cout << name << "\n";
-    exit (0);
+    return 0;
   }
   if ((argc == 4) && (strcmp(argv[1], "-r") == 0)){
     vector<string> names = range_to_nomlist(
@@ -37,21 +37,21 @@ int main(int argc, char** argv){
     for (vector<string>::iterator i=names.begin(); i!=names.end(); i++){
       cout << *i << "\n";
     }
-    exit (0);
+    return 0;
   }
   else if ((argc == 3) && (strcmp(argv[1], "-n") == 0)){
     cout << setprecision(9) << nom_to_range(argv[2]) << "\n";
-    exit (0);
+    return 0;
   }
   else if ((argc == 3) && (strcmp(argv[1], "-c") == 0)){
     cout << setprecision(9) << nom_to_range(argv[2]).CNT() << "\n";
-    exit (0);
+    return 0;
   }
   else if ((argc == 5) && (strcmp(argv[1], "-s") == 0)){
     iPoint sh(boost::lexical_cast<int>(argv[3]),
               boost::lexical_cast<int>(argv[4]));
     cout << nom_shift(argv[2], sh) << "\n";
-    exit (0);
+    return 0;
   }
   else if ((argc == 4) && (strcmp(argv[1], "-S") == 0)){
     dRect r = rect_pump(nom_to_range(argv[2]), -0.001, -0.001);
@@ -60,13 +60,13 @@ int main(int argc, char** argv){
     for (vector<string>::iterator i=names.begin(); i!=names.end(); i++){
       cout << *i << "\n";
     }
-    exit (0);
+    return 0;
   }
   else if ((argc == 4) && (strcmp(argv[1], "-t") == 0)){
     dRect r1 = nom_to_range(argv[2]);
     dRect r2 = boost::lexical_cast<dRect>(argv[3]);
-    exit(rect_intersect(r1,r2).empty());
+    return rect_intersect(r1,r2).empty();
   }
   usage();
-  exit (1);
+  return 1;
 }

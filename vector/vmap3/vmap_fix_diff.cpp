@@ -13,12 +13,11 @@ void usage(){
      << "  usage: " << prog << " <old map> <new map> <out map>\n"
      << "\n"
   ;
-  exit(1);
 }
 
 main(int argc, char **argv){
-
-  if (argc!=4) usage();
+try{
+  if (argc!=4) { usage(); return 1;}
   const char *in1 = argv[1];
   const char *in2 = argv[2];
   const char *out = argv[3];
@@ -29,7 +28,12 @@ main(int argc, char **argv){
   vmap::remove_dups(V2, 1e-5);
 
   vmap::write(out, V2);
-  exit(0);
+}
+catch (Err e) {
+  cerr << e.get_error() << endl;
+  return 1;
+}
+return 0;
 }
 
 

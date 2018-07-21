@@ -25,11 +25,14 @@ void usage(){
        << "<acc> is an accuracy of line conversions in source projection coordinates\n"
        << "\n"
   ;
-  exit(1);
 }
 
-int main(int argc, char** argv){
-  if (argc != 5) usage();
+int
+main(int argc, char** argv){
+  if (argc != 5){
+    usage();
+    return 1;
+  }
   geo_data W;
   try {io::in(argv[1],W,Options());}
   catch (Err e) {cerr << e.get_error() << endl;}
@@ -44,7 +47,7 @@ int main(int argc, char** argv){
 
   if (map == NULL){
     cerr << "Can't find any map in " << argv[1] << "\n";
-    exit(1);
+    return 1;
   }
   if (count>1)
     cerr << W.maps.size() << " maps found. Using first one\n";
@@ -107,4 +110,5 @@ int main(int argc, char** argv){
     }
     if (s != "") cerr << "Error: unknown command\n";
   }
+  return 0;
 }

@@ -86,17 +86,22 @@ void usage(){
   print_options(options, OPT_INP, cerr);
   cerr << "\nOutput Options:\n";
   print_options(options, OPT_OUT, cerr);
-  exit(1);
 }
 
 
-
+int
 main(int argc, char **argv){
   try {
 
-  if (argc==1) usage();
+  if (argc==1){
+    usage();
+    return 0;
+  }
   Options O = parse_options(&argc, &argv, options, MASK_INP, "out");
-  if (O.exists("help")) usage();
+  if (O.exists("help")){
+    usage();
+    return 0;
+  }
 
   Options GO(O); // global options
   vmap::world V;
@@ -105,7 +110,7 @@ main(int argc, char **argv){
     if (argc<1){
       if (O.get<int>("verbose",0))
         cout << "no output files\n";
-      exit(0);
+      return 1;
     }
     const char * ifile = argv[0];
 
@@ -170,13 +175,14 @@ main(int argc, char **argv){
   if (ofile){
     if (GO.get<int>("verbose",0))
       cout << "writing to: " << ofile << "\n";
-    if (!vmap::write(ofile, V, O)) exit(1);
+    if (!vmap::write(ofile, V, O)) return 1;
   }
 
-  exit(0);
-  } catch (const char *err){
-    cerr << "ERROR: " << err << "\n";
-    exit(1);
+  return 0;
+  }
+  catch (Err e) {
+    cerr << e.get_error() << endl;
+    return 1;
   }
 }
 

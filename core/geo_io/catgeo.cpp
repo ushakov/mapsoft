@@ -1,11 +1,12 @@
 #include "io.h"
 #include "err/err.h"
 
+int
 main(int argc, char* argv[]){
 
   if (argc<3) {
     std::cerr << "Usage: catgeo <in_file1> ... <out_file>\n";
-    exit(1);
+    return 1;
   }
 
   geo_data W;
@@ -18,7 +19,7 @@ main(int argc, char* argv[]){
     io::out(argv[argc-1], W);
   } catch (Err e){
     std::cerr << e.get_error() << std::endl;
-    exit(1);
+    return 1;
   }
-  exit(0);
+  return 0;
 }

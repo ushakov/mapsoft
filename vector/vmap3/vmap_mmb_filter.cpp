@@ -10,12 +10,12 @@ using namespace std;
 
 void usage(){
   std::cerr << "usage: vmap_mmb_filter in out\n";
-  exit(1);
 }
 
 main(int argc, char **argv){
+try{
 
-  if (argc!=3) usage();
+  if (argc!=3) { usage(); return 1;}
   const char * ifile = argv[1];
   const char * ofile = argv[2];
 
@@ -95,6 +95,12 @@ main(int argc, char **argv){
 /************************/
 
   vmap::write(ofile, V, Options());
+}
+catch (Err e) {
+  cerr << e.get_error() << endl;
+  return 1;
+}
+return 0;
 }
 
 

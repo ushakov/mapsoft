@@ -19,7 +19,6 @@ using namespace std;
 
 void usage(const char *fname){
   cerr << "Usage: "<< fname << " <in1> ... <inN> -o <fig>\n";
-  exit(0);
 }
 
 int main(int argc, char *argv[]) {
@@ -33,17 +32,17 @@ int main(int argc, char *argv[]) {
 
     if ((strcmp(argv[i], "-h")==0)||
         (strcmp(argv[i], "-help")==0)||
-        (strcmp(argv[i], "--help")==0)) usage(argv[0]);
+        (strcmp(argv[i], "--help")==0)) {usage(argv[0]); return 0;}
 
     if (strcmp(argv[i], "-o")==0){
-      if (i==argc-1) usage(argv[0]);
+      if (i==argc-1) {usage(argv[0]); return 0;}
       i+=1;
       outfile = argv[i];
       continue;
     }
     infiles.push_back(argv[i]);
   }
-  if (outfile == "") usage(argv[0]);
+  if (outfile == "") {usage(argv[0]); return 0;}
 
   // чтение геоданных
 
@@ -57,7 +56,7 @@ int main(int argc, char *argv[]) {
   // читаем fig
   fig::fig_world F;
   if (!fig::read(outfile.c_str(), F)) {
-    exit(1);
+    return 1;
   }
 
   // теперь все точки и треки заменяем на точки привязки!
@@ -96,6 +95,6 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  exit(!fig::write(outfile, F));
+  return !fig::write(outfile, F);
 }
 

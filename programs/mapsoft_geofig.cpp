@@ -54,30 +54,31 @@ void usage(bool pod=false){
   print_options(options, OPT_ADD, cerr, pod);
   cerr << head << "Options for del action:\n";
   print_options(options, OPT_DEL, cerr, pod);
-
-  exit(1);
 }
 
-
+int
 main(int argc, char **argv){
   try {
 
-    if (argc<3) usage();
+    if (argc<3){
+      usage();
+      return 0;
+    }
     string action = argv[1];
     argv++; argc--;
 
     /*****************************************/
     if (action == "create"){
       Options O = parse_options(&argc, &argv, options, OPT_CRE);
-      if (O.exists("help")) usage();
-      if (O.exists("pod")) usage(true);
+      if (O.exists("help")){ usage(); return 0;}
+      if (O.exists("pod")) { usage(true); return 0;}
       if (argc>0){
         cerr << "error: wrong argument: " << argv[0] << endl;
-        exit(1);
+        return 1;
       }
       if (!O.exists("out")){
         cerr << "error: no output files" << endl;
-        exit(1);
+        return 1;
       }
       O.put<string>("dpi", "fig");
       fig::fig_world F;
@@ -88,11 +89,11 @@ main(int argc, char **argv){
     else if (action == "add"){
       vector<string> infiles;
       Options O = parse_options_all(&argc, &argv, options, OPT_ADD, infiles);
-      if (O.exists("help")) usage();
-      if (O.exists("pod")) usage(true);
+      if (O.exists("help")) {usage(); return 0;}
+      if (O.exists("pod")) {usage(true); return 0;}
       if (!O.exists("out")){
         cerr << "no output files.\n";
-        exit(1);
+        return 1;
       }
 
       if (O.exists("verbose")) cerr << "Reading data...\n";
@@ -112,48 +113,50 @@ main(int argc, char **argv){
       fig::fig_world F;
       if (!fig::read(ofile.c_str(), F)) {
         cerr << "error: can't read file: " << ofile << endl;
-        exit(1);
+        return 1;
       }
       g_map ref = fig::get_ref(F);
       put_wpts(F, ref, world);
       put_trks(F, ref, world);
 
-      exit (!fig::write(ofile.c_str(), F));
+      return !fig::write(ofile.c_str(), F);
     }
     /*****************************************/
     else if (action == "del"){
       Options O = parse_options(&argc, &argv, options, OPT_DEL);
-      if (O.exists("help")) usage();
-      if (O.exists("pod")) usage(true);
+      if (O.exists("help")) {usage(); return 0;}
+      if (O.exists("pod")) {usage(true); return 0;}
       if (argc>0){
         cerr << "error: wrong argument: " << argv[0] << endl;
-        exit(1);
+        return 1;
       }
       if (!O.exists("out")){
         cerr << "error: no output files" << endl;
-        exit(1);
+        return 1;
       }
       string ofile = O.get<string>("out");
 
       fig::fig_world F;
       if (!fig::read(ofile.c_str(), F)) {
         cerr << "error: can't read file: " << ofile << endl;
-        exit(1);
+        return 1;
       }
       if (O.exists("wpts")) rem_wpts(F);
       if (O.exists("trks")) rem_trks(F);
       if (O.exists("maps")) rem_maps(F);
       if (O.exists("brds")) rem_brds(F);
       if (O.exists("ref"))  rem_ref(F);
-      exit (!fig::write(ofile.c_str(), F));
+      return !fig::write(ofile.c_str(), F);
     }
     /*****************************************/
-    else usage();
+    else { usage(); return 0;}
 
-  } catch (const char *err){
-    cerr << "Error: " << err << endl;
-    exit(1);
   }
+  catch (Err e) {
+    cerr << e.get_error() << endl;
+    return 1;
+  }
+  return 0;
 }
 
 

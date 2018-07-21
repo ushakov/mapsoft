@@ -78,26 +78,24 @@ void usage(){
      << "\n"
 
   ;
-  exit(1);
 }
 
+int
 main(int argc, char* argv[]){
+try{
 
   if (argc==1) usage();
   Options O = parse_options(&argc, &argv, options, 3);
-  if (O.exists("help")) usage();
+  if (O.exists("help")) { usage(); return 1;}
 
 
-  if (argc<2) usage();
+  if (argc<2) {usage();  return 1;}
   const char * ifile = argv[0];
   const char * ofile = argv[1];
 
   // create map
   vmap::world W=vmap::read(ifile);
-  if (W.size()==0){
-    std::cerr << "Error: empty map\n";
-    exit(1);
-  }
+  if (W.size()==0) throw Err() << "Error: empty map\n";
 
   // set geometry if no --wgs_geom, --wgs_brd, --geom,
   //  --nom, --google option exists
@@ -188,4 +186,10 @@ main(int argc, char* argv[]){
 
 
   //*******************************
+}
+catch (Err e) {
+  cerr << e.get_error() << endl;
+  return 1;
+}
+return 0;
 }

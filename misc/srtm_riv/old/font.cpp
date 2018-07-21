@@ -105,7 +105,7 @@ font::font(int fontid){
     images = fnt;
     break;
   default:
-    throw std::domain_error("Unknown font!\n");
+    throw Err() << "Unknown font!\n";
   }
 }
 

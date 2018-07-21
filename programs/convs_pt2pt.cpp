@@ -23,11 +23,13 @@ void usage(){
        << "<acc> is an accuracy of line conversions in source projection coordinates\n"
        << "\n"
   ;
-  exit(1);
 }
 
 int main(int argc, char** argv){
-  if (argc != 7) usage();
+  if (argc != 7){
+    usage();
+    return 1;
+  }
   pt2pt cnv(
     boost::lexical_cast<Datum>(argv[1]),
     boost::lexical_cast<Proj>(argv[2]),
@@ -87,5 +89,6 @@ int main(int argc, char** argv){
     }
     if (s != "") cerr << "Error: unknown command\n";
   }
+  return 0;
 }
 

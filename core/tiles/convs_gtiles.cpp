@@ -16,7 +16,6 @@ void usage(){
        << "       convs_tile -t x y z <range>  -- check if a tile touches a range\n"
        << "\n"
   ;
-  exit(1);
 }
 
 int main(int argc, char** argv){
