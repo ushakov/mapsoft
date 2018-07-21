@@ -11,7 +11,7 @@ needed_bin='
   /usr/bin/pkg-config
   /usr/bin/scons
   /usr/bin/convert
-  /usr/bin/transfig
+  /usr/bin/fig2dev
   /usr/bin/gs
   /usr/bin/pod2man
   /usr/bin/g++
@@ -46,7 +46,7 @@ needed_inc='
   yaml.h
   proj_api.h
   gif_lib.h
-  libshp/shapefil.h
+  shapefil.h
 '
 
 for i in $needed_bin; do
