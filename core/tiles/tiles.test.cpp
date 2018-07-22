@@ -6,12 +6,23 @@
 main(){
   try{
 
+
+    // avoid zero lat or lon because it is some small number,
+    // different on i586 and x86_64
     Tiles calc;
-    assert(type_to_str(calc.tile_to_range(0,0,0)) == "360x170.102-180-85.0511");
-    assert(type_to_str(calc.tile_to_range(0,0,1)) == "180x85.0511-180-85.0511");
-    assert(type_to_str(calc.tile_to_range(1,1,1)) == "180x85.0511+0+0");
-    assert(type_to_str(calc.gtile_to_range(0,0,1)) == "180x85.0511-180+0");
-    assert(type_to_str(calc.gtile_to_range(1,1,1)) == "180x85.0511+0-85.0511");
+std::cerr << "t-(0,0,0): " << calc.tile_to_range(0,0,0) << "\n";
+std::cerr << "t-(0,0,1): " << calc.tile_to_range(0,0,1) << "\n";
+std::cerr << "t-(1,0,2): " << calc.tile_to_range(1,0,2) << "\n";
+std::cerr << "g-(0,0,0): " << calc.gtile_to_range(0,0,0) << "\n";
+std::cerr << "g-(0,1,1): " << calc.gtile_to_range(0,1,1) << "\n";
+std::cerr << "g-(1,0,2): " << calc.gtile_to_range(1,0,2) << "\n";
+
+    assert(type_to_str(calc.tile_to_range(0,0,0)) == "360x170.102258-180-85.0511288");
+    assert(type_to_str(calc.tile_to_range(0,0,1)) == "180x85.0511288-180-85.0511288");
+    assert(type_to_str(calc.tile_to_range(1,0,2)) == "90x18.5378683-90-85.0511288");
+
+    assert(type_to_str(calc.gtile_to_range(0,1,1)) == "180x85.0511288-180-85.0511288");
+    assert(type_to_str(calc.gtile_to_range(1,0,2)) == "90x18.5378683-90+66.5132604");
 
     assert(calc.pt_to_tile(dPoint(1,1),0) == iPoint(0,0));
     assert(calc.pt_to_tile(dPoint(1,1),1) == iPoint(1,1));

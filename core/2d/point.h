@@ -3,6 +3,7 @@
 
 #include <boost/operators.hpp>
 #include <ios>   // for << and >> operators
+#include <iomanip>  // for setprecision
 #include <cmath> // for rint
 
 ///\addtogroup lib2d
@@ -125,7 +126,7 @@ struct Point
 /// \brief Output operator: print point as a comma-separated pair of coordinartes.
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Point<T> & p){
-  s << p.x << "," << p.y;
+  s << std::noshowpos << std::setprecision(9) << p.x << "," << p.y;
   return s;
 }
 
