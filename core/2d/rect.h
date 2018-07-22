@@ -161,8 +161,7 @@ typedef Rect<int>    iRect;
 template <typename T>
 std::ostream & operator<< (std::ostream & s, const Rect<T> & r){
   // std::showpos don't add + to zeros :(
-  const char *sx = (r.x>=0)? "+":"", *sy = (r.y>=0)? "+":"";
-  s << r.w << "x" << r.h << sx << r.x << sy << r.y;
+  s << std::setprecision(9) << r.w << "x" << r.h << std::showpos << r.x << r.y;
   return s;
 }
 
