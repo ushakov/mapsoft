@@ -11,7 +11,6 @@ TODO:
  * srtm:
    - найти и восстановить код для построения каталога рек
  * плиточные карты
- * вытащить err.h из utils/
  * mapsoft_mapview:
    - layers для сетки и карты мира?
    - редактирование и создание привязок
@@ -28,8 +27,38 @@ TODO:
  * vmap:
    - переписать создание fig-библиотеки и легенды,
      утащить куда-то fig2pnm и pnm_shifter
-   - склеивание линий только под малыми углами
 
+====================================
+2016
+  - write geojson files (.js)
+  - better support for negative coordinates in srtm, geo_nom
+  - code for adding forest and glaciers data to maps (misc/forest)
+    vmap and geo_io: case insensitive file extensions
+  - vmaps: do not join lines with large angles
+  - vmap_render: add --nobrd option to ignore map border
+  - core/tiles: TMS/Google tile calculator
+  tmaps:
+  - tmaps: add mk_sv, mk_svt, mk_topomapper
+  SRTM
+  - srtm1 support, custom data folder support.
+    Read width from file /srtm_width.txt; change folder from viewer interface
+    or from --trk_brd option
+  - river tracing
+  - set altitude of new tracks and waypoints from srtm-data
+  - distance selector in panorama interface
+  - add misc/tif2hgt program
+  code:
+  - fix error handling in many places
+  - cleanup SConstruct
+  - io_zip.h: hide zip.h from library clients
+  - loaders/gif: libgif5.0 support; use exceptions
+  - img_io/gobj_vmap: set FILL_RULE_EVEN_ODD for drawing polygons
+  - loaders:image_tiff.cpp: add support for PHOTOMETRIC_MINISWHITE/MINISBLACK images
+  знаки:
+    Изменение в системе знаков:
+     - новый знак MP0x8 - песок/галька/осыпь
+     - добавил рисование знака "крутой склон"
+     - изменил слой xfig для знака "ледник" 98->96
 ====================================
 09.10.2012-29.11.2012
 Вьюер и растровые карты
