@@ -4,8 +4,12 @@
 #include <boost/lexical_cast.hpp>
 #include "loaders/image_r.h"
 #include "gobj_vmap.h"
+#include <jansson.h>
+
 
 using namespace std;
+
+
 
 GObjVMAP::GObjVMAP(vmap::world * _W,
     const Options & O): W(_W), zc(W->style){
@@ -21,6 +25,42 @@ GObjVMAP::GObjVMAP(vmap::world * _W,
   grid_step   = O.get("grid", 0.0);
   transp      = O.get("transp_margins", false);
   grid_labels = O.get("grid_labels", 0);
+
+  // Read render data from json file. (2018-09)
+  // File structure: json array of objects.
+  // Each array element represents an action (draw object type, draw grid etc.)
+  std::string render_data_fname = O.get("render_data", std::string());
+  if (render_data_fname != ""){
+    json_error_t e;
+    json_t *J = json_load_file(render_data_fname.c_str(), 0, &e);
+    if (!J) throw Err() << e.text << " in "
+      << e.source << ":" << e.line << ":" << e.column;
+    try {
+      if (!json_is_array(J))
+        throw Err() << "RenderData should be an array of objects";
+      size_t i;
+      json_t *c;
+      json_array_foreach(J, i, c){
+        Opts o;
+        if (!json_is_object(c))
+          throw Err() << "RenderData should be an array of objects";
+        const char *k;
+        json_t *v;
+        json_object_foreach(c, k, v){
+          if      (json_is_string(v))  o.put(k, json_string_value(v));
+          else if (json_is_integer(v)) o.put(k, json_integer_value(v));
+          else if (json_is_real(v))    o.put(k, json_real_value(v));
+          else throw Err() << "wrong value type for " << k;
+        }
+        render_data.push_back(o);
+      }
+    }
+    catch (Err e){
+      json_decref(J);
+      throw e;
+    }
+    json_decref(J);
+  }
 }
 
 int
@@ -38,25 +78,89 @@ GObjVMAP::draw(iImage &img, const iPoint &org){
   if (!use_aa) cr->set_antialias(Cairo::ANTIALIAS_NONE);
   cr->set_fill_rule(Cairo::FILL_RULE_EVEN_ODD);
 
-  render_objects();
 
-  if (grid_step>0){
-    if (ref.map_proj != Proj("tmerc"))
-      cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
-    render_pulk_grid(grid_step, grid_step, false, ref);
+  // old code -- no render_data:
+  if (render_data.size()==0) {
+    // objects
+    render_objects();
+
+    // grid
+    if (grid_step>0){
+      if (ref.map_proj != Proj("tmerc"))
+        cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
+      render_pulk_grid(grid_step, grid_step, false, ref);
+    }
+
+    // labels
+    render_labels();
+
+    // border
+    if (ref.border.size()>2)
+      cr->render_border(img.range(), ref.border, transp? 0:bgcolor);
+
+    // draw grid labels after labels
+    if ((grid_step>0) && grid_labels){
+      if (ref.map_proj != Proj("tmerc"))
+        cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
+      render_pulk_grid(grid_step, grid_step, true, ref);
+    }
+    return GObj::FILL_PART;
   }
 
-  render_labels();
 
-  if (ref.border.size()>2)
-    cr->render_border(img.range(), ref.border, transp? 0:bgcolor);
+  // new code
+  std::vector<Opts>::const_iterator data;
+  for (data=render_data.begin(); data!=render_data.end(); data++){
 
-  // draw grid labels after labels
-  if ((grid_step>0) && grid_labels){
-    if (ref.map_proj != Proj("tmerc"))
-      cerr << "WARINIG: grid for non-tmerc maps is not supported!\n";
-    render_pulk_grid(grid_step, grid_step, true, ref);
-  }
+    // Draw points. There are two types of points: a simple point and an image.
+    // { point: 0x122, image: "images/file.png"}
+    // { point: 0x122, color: 0x00FF00, size: 4}
+    if (data->exists("point")){
+      int type = data->get<int>("point");
+      int size = 4, color = 0;
+      Cairo::RefPtr<Cairo::SurfacePattern> patt;
+      if (data->exists("image")) {
+        std::string fname = data->get("image",std::string());
+        iImage I = image_r::load(fname.c_str());
+        if (I.empty()) throw Err() << "Can't read image: " << fname;
+        patt = cr->img2patt(I, pics_dpi/dpi);
+        if (!patt) throw Err() << "Can't create cairo pattern from image: " << fname;
+        // each object, each line inside the object, each point
+        for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
+          if (o->type!=type) continue;
+          for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
+            for (dLine::const_iterator p=l->begin(); p!=l->end(); p++){
+              cr->save();
+              dPoint pp=(*p);
+              cnv.bck(pp); pp-=origin;
+              cr->translate(pp.x, pp.y);
+              if (o->opts.exists("Angle")){
+                double a = o->opts.get<double>("Angle",0);
+                a = cnv.ang_bck(o->center(), M_PI/180 * a, 0.01);
+                cr->rotate(a);
+              }
+              cr->set_source(patt);
+              cr->paint();
+              cr->restore();
+            }
+          }
+        }
+      }
+      else {
+        cr->save();
+        cr->set_line_width(lw1*data->get<int>("size", size));
+        cr->set_color(data->get<int>("color", color));
+        for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
+          if (o->type!=type) continue;
+          dMultiLine l = *o; cnv.line_bck_p2p(l);
+          cr->mkpath_points(l-origin);
+          cr->stroke();
+        }
+        cr->restore();
+      }
+    }// point
+
+  } // for data
   return GObj::FILL_PART;
 }
 

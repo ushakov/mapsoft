@@ -2,6 +2,7 @@
 #define GOBJ_VMAP
 
 #include <string>
+#include <vector>
 #include <iostream>
 #include <fstream>
 #include <list>
@@ -15,6 +16,7 @@
 #include <geo_io/io_oe.h>
 #include "vmap/zn.h"
 #include "vmap/vmap.h"
+#include "opts/opts.h"
 
 #include "img_io/gobj_geo.h"
 
@@ -41,6 +43,9 @@ private:
   int          grid_labels;
   dPoint       origin;
 
+  std::vector<Opts> render_data;
+
+
 public:
 
   /***/
@@ -48,6 +53,8 @@ public:
 
   int draw(iImage &img, const iPoint &origin);
   vmap::world * get_data() const {return W;}
+
+
 
   // convert coordinates from meters to pixels
   void pt_m2pt(dPoint & p);

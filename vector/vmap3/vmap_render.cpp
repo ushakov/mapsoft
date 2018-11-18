@@ -26,6 +26,8 @@ static struct ext_option options[] = {
   {"pics_dir",      1,  0, 1, "pics folder (default: /usr/share/mapsoft/pics)\n"},
   {"pics_dpi",      1,  0, 1, "pics resolution (default: 600.0)\n"},
 
+  {"render_data",   1,  0, 1, "Json file with rendering information\n"},
+
   {"geom",          1,  0, 2, ""},
   {"datum",         1,  0, 2, ""},
   {"proj",          1,  0, 2, ""},
@@ -39,6 +41,7 @@ static struct ext_option options[] = {
   {"dpi",           1,'d', 2, "resolution, dots per inch"},
   {"mag",           1,  0, 2, "additional magnification"},
   {"swap_y",        0,  0, 2, "\n"},
+
 
   {0,0,0,0}
 };
