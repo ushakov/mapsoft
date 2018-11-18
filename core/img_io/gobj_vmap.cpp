@@ -726,6 +726,7 @@ GObjVMAP::render_objects(){
   render_polygons(0x4d, c_glac, 20.0); // ледник
   render_polygons(0x19, c_slope, 20.0); // камни, песок
   render_img_polygons(0x8); // камни, песок
+  render_img_polygons(0xD); // камни, песок
 
   //*******************************
 
@@ -775,7 +776,8 @@ GObjVMAP::render_objects(){
   cr->unset_dash();
   render_line(0x25, c_ovrag, 2, 20); // овраг
 
-  render_line(0xC,  c_hreb, 2, 20); // хребет
+  render_line(0xC,  c_hreb, 2,   20); // хребет
+  render_line(0xF,  c_hreb, 1.5, 20); // малый хребет
 
   cr->set_dash(0, 2.5*lw1);
   render_line(0x2C, c_hor, 2.5, 0); // вал
@@ -888,6 +890,7 @@ GObjVMAP::render_objects(){
   render_points(0x1100, c_pt, 4); // отметка высоты
   render_points(0xD00,  c_pt, 3); // маленькая отметка высоты
   render_points(0x6414, c_riv_cnt, 4); // родник
+  render_points(0x660A, c_fcont,   4); // дерево
 
   render_im_in_points(0x6402); // дом
   render_im_in_points(0x1000); // отметка уреза воды
@@ -899,13 +902,15 @@ GObjVMAP::render_objects(){
   render_im_in_points(0x2F08);
   render_im_in_points(0x5905);
   render_im_in_points(0x6406);
-  render_im_in_points(0x6620);
-  render_im_in_points(0x6621);
-  render_im_in_points(0x6622);
-  render_im_in_points(0x6623);
-  render_im_in_points(0x6624);
-  render_im_in_points(0x6625);
-  render_im_in_points(0x6626);
+
+  render_im_in_points(0x6700); // перевалы
+  render_im_in_points(0x6701);
+  render_im_in_points(0x6702);
+  render_im_in_points(0x6703);
+  render_im_in_points(0x6704);
+  render_im_in_points(0x6705);
+  render_im_in_points(0x6706);
+
   render_im_in_points(0x660B);
   render_im_in_points(0x650A);
   render_im_in_points(0x6403);
@@ -917,6 +922,7 @@ GObjVMAP::render_objects(){
   render_im_in_points(0x6606); // охотн
   render_im_in_points(0x6613); // курган
   render_im_in_points(0x6616); // скала
+  render_im_in_points(0x2B03); // стоянка
   render_img_polygons(0x1A); // крестики на кладбищах
 
 }
