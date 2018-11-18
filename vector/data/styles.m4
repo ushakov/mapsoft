@@ -533,6 +533,11 @@ divert
   fig:  2 1 0 2 HRE_COL 7 89 -1 -1 0.000 1 1 0 0 0 0
   curve: 50
 -
+  name: малый хребет
+  mp:   POLYLINE 0x0F 0 1
+  fig:  2 1 0 1 HRE_COL 7 89 -1 -1 0.000 1 1 0 0 0 0
+  curve: 50
+-
   name: пересыхающий ручей
   mp:   POLYLINE 0x26 0 0
   fig:  2 1 1 1 5269247 7 86 -1 -1 4.000 1 1 0 0 0 0
