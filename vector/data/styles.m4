@@ -104,49 +104,49 @@ divert
   rotate_to: 0x10000C
 -
   name: перевал н/к
-  mp:   POI 0x6620 0 0
+  mp:   POI 0x6700 0 0
   fig:  2 1 0 1 2 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
   pic:  pernk
   rotate_to: 0x10000C
 -
   name: перевал 1А
-  mp:   POI 0x6621 0 0
+  mp:   POI 0x6701 0 0
   fig:  2 1 0 1 3 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
   pic:  per1a
   rotate_to: 0x10000C
 -
   name: перевал 1Б
-  mp:   POI 0x6622 0 0
+  mp:   POI 0x6702 0 0
   fig:  2 1 0 1 4 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
   pic:  per1b
   rotate_to: 0x10000C
 -
   name: перевал 2А
-  mp:   POI 0x6623 0 0
+  mp:   POI 0x6703 0 0
   fig:  2 1 0 1 5 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
   pic:  per2a
   rotate_to: 0x10000C
 -
   name: перевал 2Б
-  mp:   POI 0x6624 0 0
+  mp:   POI 0x6704 0 0
   fig:  2 1 0 1 6 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
   pic:  per2b
   rotate_to: 0x10000C
 -
   name: перевал 3А
-  mp:   POI 0x6625 0 0
+  mp:   POI 0x6705 0 0
   fig:  2 1 0 1 7 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
   pic:  per3a
   rotate_to: 0x10000C
 -
   name: перевал 3Б
-  mp:   POI 0x6626 0 0
+  mp:   POI 0x6706 0 0
   fig:  2 1 0 1 8 7 158 -1 -1 0.000 0 1 -1 0 0 1
   txt:  4 0 15 40 -1 18 7 0.0000 4
   pic:  per3b
