@@ -24,7 +24,7 @@ using namespace std;
 
 namespace img{
 
-bool write_file (const char* filename, geo_data & world, vmap::world & vm, Options opt){
+void write_file (const char* filename, geo_data & world, vmap::world & vm, Options opt){
 
   // Default scale from vmap or 1:100000.
   if (!opt.exists("rscale")){

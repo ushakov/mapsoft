@@ -2,7 +2,7 @@
 #include <iostream>
 #include "tiles.h"
 #include "opts/opts.h"
-
+int
 main(){
   try{
 
@@ -46,4 +46,5 @@ std::cerr << "g-(1,0,2): " << calc.gtile_to_range(1,0,2) << "\n";
   catch (Err e){
     std::cerr << e.get_error() << "\n";
   }
+  return 0;
 }

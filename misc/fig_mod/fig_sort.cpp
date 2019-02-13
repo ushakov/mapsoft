@@ -4,6 +4,7 @@
 // Сортировка fig-файла (для удобства хранения в git, просмотра diff'a и т.п.)
 // Реально так и не использовалась, кажется.
 
+int
 main(int argc, char **argv){
   if (argc<2) {
       std::cerr << "usage: " << argv[0] << " <fig>\n";
@@ -25,4 +26,5 @@ main(int argc, char **argv){
   W.sort();
 
   fig::write(argv[1], W);
+  return 0;
 }

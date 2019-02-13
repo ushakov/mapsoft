@@ -17,7 +17,7 @@ void usage(){
   exit(1);
 }
 
-
+int
 main(int argc, char **argv){
 
   if (argc!=3) usage();
@@ -43,7 +43,7 @@ main(int argc, char **argv){
   double md=margin_classifier(dLine(l1),dLine(l2),p0d,td);
   if ((md!=m) || (td!=t) || (iPoint(p0d)!=p0)){
     std::cerr << "different results for int and double lines!\n";
-    exit(1);
+    return 1;
   }
 
   dPoint n(t.y, -t.x);
@@ -65,7 +65,7 @@ main(int argc, char **argv){
   F.push_back(o); o.clear();
 
   fig::write(out,F);
-  exit (0);
+  return 0;
 }
 
 

@@ -8,6 +8,7 @@
 // построение водосбора одной реки
 using namespace std;
 
+int
 main(){
 
 // построение водосбора одной реки
@@ -88,5 +89,6 @@ main(){
     }
   }
   image_png::save(img, "trace_area.png");
+  return 0;
 }
 

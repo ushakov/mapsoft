@@ -30,7 +30,7 @@ struct rainbow_data RD[]={
 };
 int RDS=sizeof(RD)/sizeof(rainbow_data);
 
-
+int
 main(){
 
   SRTM3 s;
@@ -49,4 +49,5 @@ main(){
     }
   }
   image_png::save(img, "srtm_pic1.png");
+  return 0;
 }

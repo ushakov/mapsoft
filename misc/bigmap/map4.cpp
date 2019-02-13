@@ -8,6 +8,7 @@
 #include <cstdio>
 #include "libbm.h"
 
+int
 main(int argc, char **argv){
 
   int X1[4], X2[4], X3[4], X4[4];
@@ -17,7 +18,7 @@ main(int argc, char **argv){
 
 
   for (i=0; i<4; i++){
-    scanf("%s %d %d %d %d %d %d %d %d\n", &N[i],
+    scanf("%s %d %d %d %d %d %d %d %d\n", N[i],
     &X1[i], &Y1[i], &X2[i], &Y2[i], &X4[i], &Y4[i], &X3[i], &Y3[i]);
     printf("%s -- %d %d %d %d %d %d %d %d\n", N[i], 
     X1[i], Y1[i], X2[i], Y2[i], X3[i], Y3[i], X4[i], Y4[i]);
@@ -31,5 +32,5 @@ main(int argc, char **argv){
     if (i%2==0) M.vert(1, i/2+1, X2[i],Y2[i], X4[i],Y4[i]);
   }
   image_jpeg::save(M.make(), "out.jpg", 95);
-
+  return 0;
 }

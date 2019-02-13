@@ -36,6 +36,7 @@ static struct option opts[] = {
 
 const string maps_dir = "./maps";
 
+int
 main(int argc, char** argv){
 
   Options cmdline_opts = parse_options(&argc, &argv, opts);
@@ -54,7 +55,7 @@ main(int argc, char** argv){
   dRect r0 = convs::nom_to_range(map_name);
   if (r0.empty()){
     std::cerr << "Bad name: " << map_name << "\n";
-    exit(1);
+    return 1;
   }
 
 // определим осевой меридиан
@@ -274,4 +275,5 @@ main(int argc, char** argv){
     catch (Err e) {cerr << e.get_error() << endl;}
 
   }
+  return 0;
 }

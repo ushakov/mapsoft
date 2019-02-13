@@ -317,6 +317,7 @@ void img2fig(const iImage & img, convs::map2map & cnv, fig::fig_world & F, const
   }
 }
 
+int
 main(int argc, char** argv){
   if (argc < 3) usage();
 
@@ -326,7 +327,7 @@ main(int argc, char** argv){
   fig::fig_world F;
   if (!fig::read(fig_name.c_str(), F)) {
     std::cerr << "Can't open file, exiting.\n";
-    exit(1);
+    return 1;
   }
   g_map fig_ref = fig::get_ref(F);
   dRect range = fig_ref.range(); // fig range (lonlat)
@@ -453,5 +454,5 @@ main(int argc, char** argv){
 
 
   fig::write(fig_name.c_str(), F);
-  exit(0);
+  return 0;
 }

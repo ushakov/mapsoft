@@ -63,6 +63,7 @@ int save(const iImage & im, const char * file, const Options & opts){
       testext(file, ".tif")) return image_tiff::save(im, file);
   if (testext(file, ".png")) return image_png::save(im, file);
   if (testext(file, ".gif")) return image_gif::save(im, file);
+  return 1;
 }
 
 } // namespace

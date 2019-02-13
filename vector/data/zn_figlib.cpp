@@ -12,7 +12,7 @@ void usage(){
     cerr << "usage: zn_mkfiglib <style> <out_dir>\n";
     exit(1);
 }
-
+int
 main(int argc, char** argv){
 
   if (argc != 3) usage();
@@ -21,7 +21,7 @@ main(int argc, char** argv){
 
   if (mkdir(out_dir, 0755) != 0){
     cerr << "can't create directory: " << out_dir << "\n";
-    exit(1);
+    return 1;
   }
 
   zn::zn_conv z(style);
@@ -34,4 +34,5 @@ main(int argc, char** argv){
          << setbase(16) << i->first << ".fig";
     fig::write(name.str(), F);
   }
+  return 0;
 }

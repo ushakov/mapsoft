@@ -155,7 +155,7 @@ using namespace boost::spirit::classic;
 	struct oe_mappoint{
 		int x,y;
 		char   lat_h, lon_h;  // +/-1 for N/S, E/W
-		int    lat_d, lon_d;
+		double lat_d, lon_d;
 		double lat_m, lon_m;
 		double grid_x, grid_y;
 		oe_mappoint(){

@@ -82,6 +82,7 @@ void usage(const char *fname, bool pod=false){
   exit(1);
 }
 
+int
 main(int argc, char** argv){
   const char *program_name = argv[0];
 
@@ -96,12 +97,12 @@ main(int argc, char** argv){
 
   if (infiles.size() < 2) {
     cerr << "You need to specify both srtm-directory and at least one track\n";
-    exit(1);
+    return 1;
   }
 
   if (!opts.exists("out")){
     cerr << "No output files specified\n";
-    exit(1);
+    return 1;
   }
 
   string outfile = opts.get("out", string());
@@ -154,4 +155,5 @@ main(int argc, char** argv){
     }
     out << endl;
   }
+  return 0;
 }

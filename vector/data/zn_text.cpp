@@ -7,18 +7,16 @@
 using namespace std;
 
 // изготовление текстовой таблички с названиями знаков
-
-void usage(){
-    cerr << "usage: get_text <style> > out.txt\n";
-    exit(0);
-}
-
-
+int
 main(int argc, char** argv){
 
-  if (argc != 2) usage();
+  if (argc != 2){
+    cerr << "usage: get_text <style> > out.txt\n";
+    return 1;
+  }
   string style = argv[1];
 
   zn::zn_conv zconverter(style);
   cout << zn::make_text(zconverter);
+  return 0;
 }

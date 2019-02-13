@@ -2,6 +2,7 @@
 #include <sstream>
 #include "opts.h"
 
+int
 main(){
 try{
   Opts O1;
@@ -135,4 +136,5 @@ catch (Err e) {
   std::cerr << e.get_error() << "\n";
   return 1;
 }
+return 0;
 }

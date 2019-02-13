@@ -34,6 +34,7 @@ void usage(){
     exit(0);
 }
 
+int
 main(int argc, char** argv){
   if (argc != 4) usage();
 
@@ -91,4 +92,5 @@ main(int argc, char** argv){
   geo_data W;
   W.maps.push_back(mm);
   io::out(n_map, W);
+  return 0;
 }

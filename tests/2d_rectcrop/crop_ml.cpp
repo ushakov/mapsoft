@@ -11,6 +11,8 @@
 // crop with stlitting lines
 
 using namespace fig;
+
+int
 main(){
 
   fig_world W;
@@ -78,4 +80,5 @@ main(){
 //  assert(ML[0] == boost::lexical_cast<iLine>("0,80,103,0"));
 //  assert(ML[1] == boost::lexical_cast<iLine>("1000,426,855,405,634,0"));
 //  assert(ML[2] == boost::lexical_cast<iLine>("502,0,0,540,45,855,253,1000"));
+  return 0;
 }

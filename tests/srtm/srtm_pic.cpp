@@ -18,6 +18,7 @@ int shade(int c, double k){
   return (r << 16) + (g << 8) + b;
 }
 
+int
 main(){
 
   SRTM3 s;
@@ -39,4 +40,5 @@ main(){
     }
   }
   image_png::save(img, "srtm_pic.png");
+  return 0;
 }

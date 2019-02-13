@@ -66,7 +66,7 @@ B<< --jpeg_quality <arg> >> -- set jpeg quality
 
 ### END
 */
-    bool write_file (const char* filename, geo_data & world, vmap::world & vm, Options opt);
+    void write_file (const char* filename, geo_data & world, vmap::world & vm, Options opt);
 
 } //namespace
 #endif

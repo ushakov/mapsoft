@@ -4,6 +4,7 @@
 #include <cerrno>
 
 #include <sys/stat.h>
+#include "err/err.h"
 
 #include "img_io/gobj_map.h"
 #include "loaders/image_r.h"
@@ -35,7 +36,8 @@ void PrepareOutputDir(const char* filename, string* dirname) {
 
   string cmd = "mkdir -p ";
   cmd += *dirname;
-  system(cmd.c_str());
+  int ret = system(cmd.c_str());
+  if (ret) throw Err() << "Can't create directory: " << *dirname;
 }
 
 void WriteInt(FILE* f, int n) {

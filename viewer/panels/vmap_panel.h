@@ -15,7 +15,7 @@ public:
   PanelVMAP (Mapview *M): mapview(M){}
 
   void add(const boost::shared_ptr<vmap::world> data);
-  bool upd_comm(GObjVMAP * sel_gobj=NULL, bool dir=true){}
+  bool upd_comm(GObjVMAP * sel_gobj=NULL, bool dir=true){return true;}
 
   Mapview * mapview;
   Options opts;

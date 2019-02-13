@@ -48,10 +48,10 @@ struct Conv{
   virtual dPoint units_bck(dPoint p) const;
 
   /// Fill dst_image from src_image
-  virtual int image_frw(const iImage & src_img, iImage & dst_img,
+  virtual void image_frw(const iImage & src_img, iImage & dst_img,
                         const iPoint & shift = iPoint(0,0),
                         const double scale = 1.0) const;
-  virtual int image_bck(const iImage & src_img, iImage & dst_img,
+  virtual void image_bck(const iImage & src_img, iImage & dst_img,
                         const iPoint & shift = iPoint(0,0),
                         const double scale = 1.0) const;
 

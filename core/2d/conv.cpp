@@ -150,7 +150,7 @@ Conv::units_bck(dPoint p) const{
   return dPoint(pdist(p1-p), pdist(p2-p));
 }
 
-int
+void
 Conv::image_frw(const iImage & src_img, iImage & dst_img,
                 const iPoint & shift, const double scale) const{
   for (int y=0; y<dst_img.h; y++){
@@ -162,7 +162,7 @@ Conv::image_frw(const iImage & src_img, iImage & dst_img,
   }
 }
 
-int
+void
 Conv::image_bck(const iImage & src_img, iImage & dst_img,
                 const iPoint & shift, const double scale) const{
   for (int y=0; y<dst_img.h; y++){

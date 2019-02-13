@@ -16,6 +16,7 @@ void usage(){
 
 const string maps_dir = "./maps";
 
+int
 main(int argc, char** argv){
 
   if (argc != 8) usage();
@@ -57,8 +58,9 @@ main(int argc, char** argv){
   struct stat buf;
   if (stat(file.c_str(), &buf)==0) {
     cerr << "file " << file << " exists!\n";
-    exit(0);
+    return 1;
   }
 
   fig::write(file, F);
+  return 0;
 }

@@ -12,17 +12,18 @@
 using namespace std;
 using namespace fig;
 
+int
 main(int argc, char **argv){
 
   if (argc!=3){
     std::cerr << "usage: " << argv[0] << " <in.fig> <out.fig>\n";
-    exit(0);
+    return 1;
   }
   string infile    = argv[1];
   string outfile   = argv[2];
 
   fig_world W;
-  if (!read(infile.c_str(), W)){cerr << "Bad fig file " << infile << "\n"; exit(0);}
+  if (!read(infile.c_str(), W)){cerr << "Bad fig file " << infile << "\n"; return 1;}
   fig_world NW;
 
   string style=W.opts.get<string>("style", "default");
@@ -550,4 +551,5 @@ main(int argc, char **argv){
 //  text_bbxs(W);
   ofstream out(outfile.c_str());
   write(out, NW);
+  return 0;
 }

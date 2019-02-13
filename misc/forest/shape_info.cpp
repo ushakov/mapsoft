@@ -35,6 +35,7 @@ void usage(){
     exit(0);
 }
 
+int
 main(int argc, char** argv){
   if (argc < 2) usage();
 
@@ -108,5 +109,5 @@ main(int argc, char** argv){
   }
   DBFClose(dbf);
   SHPClose(sh);
-
+  return 0;
 }

@@ -12,6 +12,7 @@ adjacent(const iPoint &p, const int dir){
     case 5: return iPoint(p.x,  p.y+1);
     case 6: return iPoint(p.x-1,p.y+1);
     case 7: return iPoint(p.x-1,p.y  );
+    default: return p;
   }
 }
 

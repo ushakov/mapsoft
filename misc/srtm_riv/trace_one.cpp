@@ -7,6 +7,7 @@
 // алгоритм нахождения русла реки
 using namespace std;
 
+int
 main(){
   dPoint p0(95.786934, 54.057950);
   SRTM3 S;
@@ -41,4 +42,5 @@ main(){
     img.set_na(b->x-r.x, r.y+r.h - b->y - 1, 0);
   }
   image_png::save(img, "trace_one.png");
+  return 0;
 }

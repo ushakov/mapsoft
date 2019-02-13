@@ -7,12 +7,7 @@
 
 using namespace std;
 
-void usage(){
-    cerr << "usage: [-c] get_legend <style> > out.fig\n";
-    exit(0);
-}
-
-
+int
 main(int argc, char** argv){
 
   bool cmap=false;
@@ -22,11 +17,15 @@ main(int argc, char** argv){
     argv++;
   }
 
-  if (argc !=2 ) usage();
+  if (argc !=2 ){
+    cerr << "usage: [-c] get_legend <style> > out.fig\n";
+    return 1;
+  }
 
   string style = argv[1];
 
   zn::zn_conv zconverter(style);
   fig::fig_world F = make_legend(zconverter, cmap);
   fig::write(cout, F);
+  return 0;
 }

@@ -45,6 +45,7 @@ if os.environ.has_key('GCCVER'):
    env.Replace (CC = ("gcc-%s" % ver))
    env.Replace (CXX = ("g++-%s" % ver))
 
+env.Append (CCFLAGS=['-Werror=return-type'])
 env.Append (CCFLAGS=['-O2'])
 env.Append (CCFLAGS='-std=gnu++11')
 

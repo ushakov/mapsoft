@@ -22,6 +22,7 @@ std::ostream & operator<< (std::ostream & s, const myclass & t){
   return s;
 }
 
+int
 main(){
   std::cout << "Test for Options class: \n";
 
@@ -102,8 +103,7 @@ main(){
   if (m0.value != m1.value) {
     std::cout << "myclass1 test failed\n"; err++;}
 
-  if (err == 0){ cout << "\n\n -- OK\n"; exit(0);}
-  else {cout << "\n\n -- " << err << " ERRORS\n"; exit(1);}
-
-
+  if (err == 0){ cout << "\n\n -- OK\n"; return 0;}
+  cout << "\n\n -- " << err << " ERRORS\n";
+  return 1;
 }

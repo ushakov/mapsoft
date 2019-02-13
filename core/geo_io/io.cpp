@@ -35,6 +35,7 @@ check_file(const string & name){
   if (stat(name.c_str(), &st_buf) != 0) return -1;
   if (S_ISREG(st_buf.st_mode)) return 0;
   if (S_ISCHR(st_buf.st_mode)) return 1;
+  return -1;
 }
 
 std::string

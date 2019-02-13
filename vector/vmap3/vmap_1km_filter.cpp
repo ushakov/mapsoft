@@ -9,14 +9,13 @@ using namespace std;
 
 // filter some things for 1km maps
 
-void usage(){
-  std::cerr << "usage: vmap_1km_filter (1|2) <in> <out>\n";
-  exit(1);
-}
-
+int
 main(int argc, char **argv){
 
-  if (argc!=4) usage();
+  if (argc!=4){
+    std::cerr << "usage: vmap_1km_filter (1|2) <in> <out>\n";
+    return 1;
+  }
   int sc = atoi(argv[1]);
   const char * ifile = argv[2];
   const char * ofile = argv[3];
@@ -143,6 +142,7 @@ main(int argc, char **argv){
 /************************/
 
   vmap::write(ofile, V, Options());
+  return 0;
 }
 
 

@@ -6,6 +6,7 @@
 
 // Есть хак для того, чтоб не обрезались рамки: режутся только объекты с o->depth>=40
 
+int
 main(int argc, char **argv){
   if (argc<2) {
       std::cerr << "usage: " << argv[0] << " <fig>\n";
@@ -44,4 +45,5 @@ main(int argc, char **argv){
   fig::rect_crop(cutter, W);
   W.insert(W.end(), W1.begin(), W1.end());
   exit(!fig::write(argv[1], W));
+  return 0;
 }

@@ -17,12 +17,12 @@ double const fig2ps = 0.063; // 1.05/1200 in/fig : 1/72 in/ps
 typedef multimap<int, fig_world::iterator> omap_t;
 typedef pair<int, fig_world::iterator> op_t;
 
-
+int
 main(int argc, char **argv){
 
   if (argc!=3){
     std::cerr << "usage: " << argv[0] << " <style> <in.fig>\n";
-    exit(0);
+    return 1;
   }
 
   string conf_file = argv[1];
@@ -32,7 +32,7 @@ main(int argc, char **argv){
 
   fig_world W;
   if (!read(infile.c_str(), W)){
-    cerr << "Bad fig file " << infile << "\n"; exit(0);
+    cerr << "Bad fig file " << infile << "\n"; return 1;
   }
 
   omap_t objects;
@@ -189,7 +189,7 @@ main(int argc, char **argv){
   }
 
   cout << dec << "(./common.ps) run\n\n";
-
+  return 0;
 }
 
 

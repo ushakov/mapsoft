@@ -35,6 +35,7 @@ void usage(){
     exit(0);
 }
 
+int
 main(int argc, char** argv){
   if (argc < 3) usage();
 
@@ -45,7 +46,7 @@ main(int argc, char** argv){
   fig::fig_world F;
   if (!fig::read(fig_name.c_str(), F)) {
     std::cerr << "Can't open file, exiting.\n";
-    exit(1);
+    return 0;
   }
   g_map fig_ref = fig::get_ref(F);
   dRect range = fig_ref.range(); // fig range (lonlat)
@@ -68,7 +69,7 @@ main(int argc, char** argv){
   int num, type;
   double mmin[4],mmax[4];
   SHPGetInfo(sh, &num, &type, mmin, mmax);
-  if (type!=SHPT_POLYGON){ cerr << "type!=SHPT_POLYGON\n"; exit(0); }
+  if (type!=SHPT_POLYGON){ cerr << "type!=SHPT_POLYGON\n"; return 0; }
 
   string fig_mask="2 3 0 0 11 11 96 -1 35 0.000 0 0 7 0 0 1";
 
@@ -112,5 +113,5 @@ main(int argc, char** argv){
   F.push_back(o);
 
   fig::write(fig_name.c_str(), F);
-  exit(0);
+  return 0;
 }

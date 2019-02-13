@@ -275,4 +275,5 @@ main(int argc, char** argv){
   catch (Err e){
     std::cerr << "Error: " << e.get_error() << "\n";
   }
+  return 0;
 }

@@ -21,6 +21,7 @@ void usage(char *name){
       exit(0);
 }
 
+int
 main(int argc, char **argv){
   if (argc<4) usage(argv[0]);
   double value = atof(argv[2]);
@@ -74,5 +75,5 @@ main(int argc, char **argv){
   }
 
   fig::set_ref(W, map, Options());
-  exit(!fig::write(argv[3], W));
+  return !fig::write(argv[3], W);
 }

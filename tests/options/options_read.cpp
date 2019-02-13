@@ -7,7 +7,7 @@
 using namespace std;
 
 
-
+int
 main(int argc, char **argv){
 
   Time T("2013-10-04T06:50:26Z");
@@ -23,5 +23,5 @@ main(int argc, char **argv){
   }
   cout << O;
 
-
+  return 0;
 }

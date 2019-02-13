@@ -6,6 +6,7 @@
 using namespace std;
 using namespace convs;
 
+int
 main(){
   dPoint p1(37.405372, 55.798710);
 
@@ -32,5 +33,5 @@ main(){
   vector<string> names = range_to_nomlist(dRect(35,59,2,2), 200000);
   for (vector<string>::const_iterator i=names.begin(); i!=names.end(); i++)
     cout << *i << "\t" << nom_to_range(*i) << "\n";
-
+  return 0;
 }

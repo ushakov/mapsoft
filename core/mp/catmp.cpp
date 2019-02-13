@@ -1,6 +1,7 @@
 #include "mp.h"
 #include "err/err.h"
 
+int
 main(int argc, char* argv[]){
   try {
 
@@ -21,5 +22,5 @@ main(int argc, char* argv[]){
   catch (Err e) {
     std::cerr << e.get_error();
   }
-
+  return 0;
 }

@@ -8,6 +8,7 @@
 
 using namespace std;
 
+int
 main(){
   dPoint p0(95.4, 53.9); // ЮЗ угол
   int w=800, h=600;      // размер карты, точек
@@ -34,5 +35,6 @@ main(){
     }
   }
   image_png::save(img, "trace_map.png");
+  return 0;
 }
 

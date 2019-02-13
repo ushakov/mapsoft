@@ -127,19 +127,19 @@ bool is_dark(const unsigned int c){
 #define DIST2(x,y) ((x)*(x) + (y)*(y))
 
 
-int create_map(string figfile, string mapfile){
+void create_map(string figfile, string mapfile){
   cerr << "* Creating map for fig: " << figfile <<"\n";
   fig::fig_world F;
 
   if (!fig::read(figfile.c_str(), F)) {
     cerr << "Error: Bad fig file " << figfile << "\n";
-    return 1;
+    return;
   }
 
   g_map ref = fig::get_ref(F);
   if (ref.size()<3){
     cerr << "Error: Bad reference in fig file " << figfile << "\n";
-    return 1;
+    return;
   }
 
   // we need strange FIG-file with only one reference point in
@@ -156,7 +156,7 @@ int create_map(string figfile, string mapfile){
   char * tmp = mktemp(templ);
   if (tmp == NULL){
     cerr << "Error: Can't create tmp file\n";
-    return 1;
+    return;
   }
 
   fig::write(tmp, F);
@@ -182,7 +182,7 @@ int create_map(string figfile, string mapfile){
   }
   if ((xmin>xmax) || (ymin>ymax)){
     cerr << "Error: Can't find ref point\n";
-    return 1;
+    return;
   }
 
   double sc=fig::fig2cm / 2.54 * 80 * SCALE;
@@ -200,7 +200,7 @@ int create_map(string figfile, string mapfile){
   catch (Err e) {cerr << e.get_error() << endl;}
 }
 
-
+int
 main(int argc, char **argv){
 
   bool thinrem=true, cntrs=true;
@@ -268,7 +268,7 @@ main(int argc, char **argv){
   if ((lgnd.w!=grid.w)||(lgnd.w!=text.w)||(lgnd.w!=map.w)||
       (lgnd.h!=grid.h)||(lgnd.h!=text.h)||(lgnd.h!=map.h)){
     cerr << "different image sizes\n";
-    exit(0);
+    return 1;
   }
 
 
@@ -401,5 +401,5 @@ main(int argc, char **argv){
     lgnd.data_shift();
   }
 
-
+  return 0;
 }

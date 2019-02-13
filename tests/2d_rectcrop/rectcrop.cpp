@@ -10,6 +10,8 @@
 // see also fig_mod/fig_crop program
 
 using namespace fig;
+
+int
 main(){
 
   fig_world W;
@@ -136,5 +138,5 @@ main(){
 
   assert(L1 == CL1);
   assert(L2 == CL2);
-
+  return 0;
 }

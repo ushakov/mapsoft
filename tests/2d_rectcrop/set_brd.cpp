@@ -45,6 +45,8 @@ Line<T> border_of_points(const Line<T> & points){
 }
 
 using namespace fig;
+
+int
 main(){
 
   fig_world W;
@@ -55,4 +57,5 @@ main(){
     o->close();
   }
   write("border_of_points_out.fig", W);
+  return 0;
 }

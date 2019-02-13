@@ -1,6 +1,7 @@
 #include <cassert>
 #include "err.h"
 
+int
 main(){
   try {
     throw Err() << "text " << 123;
@@ -22,4 +23,5 @@ main(){
     assert (E.get_code()    == 3);
     assert (E.get_domain()  == "test");
   }
+  return 0;
 }

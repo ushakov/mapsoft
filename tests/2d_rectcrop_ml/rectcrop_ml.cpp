@@ -17,7 +17,7 @@ void usage(){
   exit(1);
 }
 
-
+int
 main(int argc, char **argv){
 
   if (argc!=3) usage();
@@ -54,7 +54,7 @@ main(int argc, char **argv){
 //    assert (ml[i] == iLine(ml_d[i]));
 //  }
 
-  exit (0);
+  return 0;
 }
 
 

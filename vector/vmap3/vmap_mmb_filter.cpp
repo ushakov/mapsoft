@@ -8,14 +8,14 @@ using namespace std;
 
 // filter some things for mmb maps
 
-void usage(){
-  std::cerr << "usage: vmap_mmb_filter in out\n";
-}
-
+int
 main(int argc, char **argv){
 try{
 
-  if (argc!=3) { usage(); return 1;}
+  if (argc!=3) {
+    std::cerr << "usage: vmap_mmb_filter in out\n";
+    return 1;
+  }
   const char * ifile = argv[1];
   const char * ofile = argv[2];
 
