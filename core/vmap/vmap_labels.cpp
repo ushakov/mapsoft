@@ -150,7 +150,9 @@ create_labels(world & W){
 
     for (dMultiLine::iterator i=o->begin(); i!=o->end(); i++){
 
-      if (i->size()<2) continue; // do not create labels for >2pt objects
+      if (i->size()<1) continue;
+      if (o->type >= zn::line_mask && i->size()<2) continue;
+         // do not create labels for >2pt line and area objects
       lpos l;
       l.ang = 0;
       l.dir = ld;
