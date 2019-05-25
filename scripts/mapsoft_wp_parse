@@ -76,14 +76,13 @@ foreach my $d (sort {$a->{id} <=> $b->{id}} @data) {
 
   # make mp type
   my $mptype = $d->{type} eq 'P' ? '0x6406':'0x1100';
-  $mptype='0x6620' if ($d->{type} eq 'P' && ($d->{ks}=~m|н.?к|i));
-  $mptype='0x6621' if ($d->{type} eq 'P' && ($d->{ks}=~m|1А|i || $d->{ks}=~m|1A|i));
-  $mptype='0x6622' if ($d->{type} eq 'P' && ($d->{ks}=~m|1Б|i || $d->{ks}=~m|1B|i));
-  $mptype='0x6623' if ($d->{type} eq 'P' && ($d->{ks}=~m|2А|i || $d->{ks}=~m|2A|i));
-  $mptype='0x6624' if ($d->{type} eq 'P' && ($d->{ks}=~m|2Б|i || $d->{ks}=~m|2B|i));
-  $mptype='0x6625' if ($d->{type} eq 'P' && ($d->{ks}=~m|3А|i || $d->{ks}=~m|3A|i));
-  $mptype='0x6626' if ($d->{type} eq 'P' && ($d->{ks}=~m|4Б|i || $d->{ks}=~m|3B|i));
-
+  $mptype='0x6700' if ($d->{type} eq 'P' && ($d->{ks}=~m|н.?к|i));
+  $mptype='0x6701' if ($d->{type} eq 'P' && ($d->{ks}=~m|1А|i || $d->{ks}=~m|1A|i));
+  $mptype='0x6702' if ($d->{type} eq 'P' && ($d->{ks}=~m|1Б|i || $d->{ks}=~m|1B|i));
+  $mptype='0x6703' if ($d->{type} eq 'P' && ($d->{ks}=~m|2А|i || $d->{ks}=~m|2A|i));
+  $mptype='0x6704' if ($d->{type} eq 'P' && ($d->{ks}=~m|2Б|i || $d->{ks}=~m|2B|i));
+  $mptype='0x6705' if ($d->{type} eq 'P' && ($d->{ks}=~m|3А|i || $d->{ks}=~m|3A|i));
+  $mptype='0x6706' if ($d->{type} eq 'P' && ($d->{ks}=~m|4Б|i || $d->{ks}=~m|3B|i));
 
   print OUT_MP "[POI]\n";
   print OUT_MP "Type=$mptype\n";
