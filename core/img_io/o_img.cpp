@@ -35,7 +35,7 @@ void write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
 
   // We want to use source map scale if there is no dpi option
   bool do_rescale = false;
-  if (!opt.exists("dpi")){
+  if (!opt.exists("dpi") && !opt.exists("google")){
      opt.put("dpi", 100.0);
      do_rescale = true;
   }
