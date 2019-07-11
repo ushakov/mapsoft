@@ -7,8 +7,9 @@ use Text::Iconv;
 # (http://westra.ru/passes/kml/passes.php?BBOX=x1,y1,x2,y2)
 # print txt and mp files
 
-my $cnv_koi = Text::Iconv->new("utf8", "koi8-r");
-my $cnv_win = Text::Iconv->new("utf8", "cp1251");
+### set_attr is not supported, so use iconv program.
+#my $cnv_koi = Text::Iconv->new("utf8", "koi8-r");
+#my $cnv_win = Text::Iconv->new("utf8", "cp1251");
 #$cnv_koi->set_attr("discard_ilseq", 1);
 #$cnv_win->set_attr("discard_ilseq", 1);
 
@@ -19,11 +20,10 @@ my $text = join ' ', <IN>;
 close IN;
 
 $file=~s/.kml$//;
-open OUT_TXT, "> $file.txt" or die "can't open $file.txt: $!\n";
-open OUT_MP,  "> $file.mp"  or die "can't open $file.mp: $!\n";
+open OUT_TXT, "| iconv -f utf8 -t koi8-r -c > $file.txt" or die "can't open $file.txt: $!\n";
+open OUT_MP,  "| iconv -f utf8 -t cp1251 -c > $file.mp"  or die "can't open $file.mp: $!\n";
 
-printf OUT_TXT "#%4s %12s %12s %5s %s\n",
-  'id', 'lat', 'lon', 'alt', 'title /other title/, cat';
+printf OUT_TXT "# id   lat         lon           alt   title /other title/, cat\n";
 
 printf OUT_MP qq*
 [IMG ID]
@@ -43,7 +43,6 @@ while ($text=~s|<Placemark>(.*?)</Placemark>||s){
 
   # pass name and type (name can be "вер. Х", "пер. Х", "пик X")
   $d->{name} = ($line =~ m|<name>(.*?)</name>|s)? $1:"";
-
   $d->{type} = "V";
   $d->{type} = "P" if $d->{name} =~ s|пер. ||;
   $d->{name} =~ s|вер. ||;
@@ -53,8 +52,8 @@ while ($text=~s|<Placemark>(.*?)</Placemark>||s){
   ($d->{x},$d->{y},$d->{z}) = split(',', $coord);
 
   my $descr = ($line =~ m|<description>(.*?)</description>|s)? $1:"";
-  $d->{id} = ($descr =~ m|http://westra.ru/passes/Passes/([0-9]+)|s)? $1:0;
-  $d->{ks} = ($descr =~ m|<tr><th>Категория сложности</th><td>([^<]*</td></tr>)|s)? $1:'';
+  $d->{id} = ($descr =~ m|https://westra.ru/passes/Passes/([0-9]+)|s)? $1:0;
+  $d->{ks} = ($descr =~ m|<tr><th>Категория сложности</th><td>([^<]*)</td></tr>|s)? $1:'';
   $d->{alt} = ($descr =~ m|<tr><th>Высота</th><td>([^<]*)</td></tr>|s)? $1:0;
   $d->{var} = ($descr =~ m|<tr><th>Другие названия</th><td>([^<]*)</td></tr>|s)? $1:'';
 
@@ -62,14 +61,18 @@ while ($text=~s|<Placemark>(.*?)</Placemark>||s){
                  . ($d->{var}? " /$d->{var}/":"") . ($d->{ks}? ", $d->{ks}":"");
   $d->{name_mp} = (($d->{type} eq 'V' && $d->{alt} && $d->{name}!~m|^\d+$|)? "$d->{alt} ":'') . $d->{name};
 
+  foreach ('name_mp', 'name_txt', 'name'){
+    $d->{$_} =~ s/№/N/g;
+    $d->{$_} =~ s/&quot;/\"/g;
+  }
 
   push @data, $d;
 }
 
 foreach my $d (sort {$a->{id} <=> $b->{id}} @data) {
 
-  $d->{name_txt} = $cnv_koi->convert($d->{name_txt});
-  $d->{name_mp} = $cnv_win->convert($d->{name_mp});
+#  $d->{name_txt} = $cnv_koi->convert($d->{name_txt}) or print " ERROR: $d->{name_txt}\n";
+#  $d->{name_mp} = $cnv_win->convert($d->{name_mp});
 
   printf OUT_TXT "%4d %12.7f %12.7f %5d  %s\n",
      $d->{id}, $d->{y}, $d->{x}, $d->{alt}, $d->{name_txt};
