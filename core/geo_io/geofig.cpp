@@ -329,7 +329,7 @@ rem_brds(fig_world & w){
 #define ADDCOMM(x) {ostringstream s; s << x; f.comment.push_back(s.str());}
 
 void
-put_wpts(fig_world & F, const g_map & m, const geo_data & world){
+put_wpts(fig_world & F, const g_map & m, const geo_data & world, bool raw){
   vector<g_waypoint_list>::const_iterator wl;
   vector<g_waypoint>::const_iterator w;
   convs::map2wgs cnv(m);
@@ -343,11 +343,13 @@ put_wpts(fig_world & F, const g_map & m, const geo_data & world){
 
 	fig::fig_object f = fig::make_object("2 1 0 2 0 7 6 0 -1 1 1 1 -1 0 0 *");
       ADDCOMM("WPT " << w->name);
-      f.opts=to_options_skipdef(*w);
-      f.opts.erase("name");
-      f.opts.erase("lon");
-      f.opts.erase("lat");
-      f.opts.erase("color");
+      if (!raw){
+        f.opts=to_options_skipdef(*w);
+        f.opts.erase("name");
+        f.opts.erase("lon");
+        f.opts.erase("lat");
+        f.opts.erase("color");
+      }
 
       f.push_back(iPoint(int(p.x), int(p.y)));
       f.pen_color = w->color;
@@ -364,7 +366,7 @@ put_wpts(fig_world & F, const g_map & m, const geo_data & world){
 
 
 void
-put_trks(fig_world & F, const g_map & m, const geo_data & world){
+put_trks(fig_world & F, const g_map & m, const geo_data & world, bool raw){
   vector<g_track>::const_iterator tl;
   vector<g_trackpoint>::const_iterator t;
   convs::map2wgs cnv(m);
@@ -383,11 +385,13 @@ put_trks(fig_world & F, const g_map & m, const geo_data & world){
       } while ((t!=tl->end())&&(!t->start));
 
       fig::fig_object f = fig::make_object("2 1 0 1 1 7 7 0 -1 1 1 1 -1 0 0 *"); 
-      f.opts=to_options_skipdef(*tl);
-      ADDCOMM("TRK " << tl->comm);
-      f.opts.erase("comm");
-      f.pen_color = tl->color;
-      f.opts.erase("color");
+      if (!raw){
+        f.opts=to_options_skipdef(*tl);
+        ADDCOMM("TRK " << tl->comm);
+        f.opts.erase("comm");
+        f.pen_color = tl->color;
+        f.opts.erase("color");
+      }
 
       for (vector<iPoint>::const_iterator p1=pts.begin(); p1!=pts.end(); p1++) f.push_back(*p1);
 	F.push_back(f);

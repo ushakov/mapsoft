@@ -27,8 +27,9 @@ namespace fig {
   void rem_maps(fig_world & w);
   void rem_brds(fig_world & w);
 
-  /// add waypoints or tracks from to fig
-  void put_wpts(fig_world & w, const g_map & m, const geo_data & d);
-  void put_trks(fig_world & w, const g_map & m, const geo_data & d);
+  /// Add waypoints or tracks from to fig
+  /// if raw = 1, no geofig comments are added
+  void put_wpts(fig_world & w, const g_map & m, const geo_data & d, bool raw=true);
+  void put_trks(fig_world & w, const g_map & m, const geo_data & d, bool raw=true);
 }
 #endif
