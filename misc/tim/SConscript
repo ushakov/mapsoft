@@ -1,9 +1,11 @@
 Import('env')
 
-map (lambda(f): env.Program(f+'.cpp'),\
-  Split("""
+progs = Split("""
     mapsoft_measure
     mapsoft_mark
     mapsoft_trackprofile
     mapsoft_srtmprofile
-    """))
+    """)
+
+for p in progs:
+  env.Program(p + '.cpp')

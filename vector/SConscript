@@ -4,4 +4,4 @@ subdirs = Split ("""
     vmap4
     data
 """)
-SConscript (map (lambda(s): s+"/SConscript", subdirs))
+SConscript (list(map(lambda s: s+"/SConscript", subdirs)))

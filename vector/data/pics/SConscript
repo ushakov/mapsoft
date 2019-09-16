@@ -28,7 +28,8 @@ def install_pic(env, task):
 env1.AddMethod(install_pic, 'InstallPic')
 ####
 
-map (lambda(s): env1.Pic2Png(s), pics)
-map (lambda(s): env1.InstallPic(s), pics)
+for s in pics:
+  env1.Pic2Png(s)
+  env1.InstallPic(s)
 
 # vim: ft=python tw=0

@@ -1,7 +1,6 @@
 Import ('env')
 
-map (lambda(f): env.Program(f+'.cpp'),\
-  Split("""
+progs =  Split("""
     mapsoft_convert
     mapsoft_mkmap
     mapsoft_ref
@@ -16,7 +15,10 @@ map (lambda(f): env.Program(f+'.cpp'),\
     convs_map2pt
     convs_nom
     mapsoft_vmap
-    """))
+    """)
+
+for p in progs:
+  env.Program(p + '.cpp')
 
 env.Install(env.bindir, Split("""
   mapsoft_convert

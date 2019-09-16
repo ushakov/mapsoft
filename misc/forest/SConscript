@@ -4,14 +4,15 @@ e=env.Clone()
 # Altlinux has shapefil.h in /usr/include/libshp, Debian in /usr/include
 e.Append (CCFLAGS='-I/usr/include/libshp')
 
-map (lambda(f): e.Program(f+'.cpp'),\
-  Split("""
+progs = Split("""
     forest_preview
     forest_nom
     forest_vec
     glims_vec
     shape_info
     osm_vec
-    """))
+    """)
 
+for p in progs:
+  e.Program(p + '.cpp')
 

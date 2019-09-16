@@ -13,5 +13,5 @@ subdirs = Split ("""
   forest
   """)
 
-SConscript (map (lambda(s): s+"/SConscript", subdirs))
+SConscript(list(map(lambda s: s+"/SConscript", subdirs)))
 

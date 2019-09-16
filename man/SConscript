@@ -7,7 +7,7 @@ def m4pod2man(env, name, ext, deps):
    cmd = env.Command(name+'.'+ext, name+'.m4pod',
      "m4 %s.m4pod | pod2man -n %s -c mapsoft -r mapsoft > %s.%s"
       % (name, name, name, ext), chdir = 1)
-   env.Depends(cmd, map (lambda(s): "inc/"+s+".m4", Split(deps)))
+   env.Depends(cmd, list(map(lambda s: "inc/"+s+".m4", Split(deps))))
 e.AddMethod(m4pod2man)
 
 

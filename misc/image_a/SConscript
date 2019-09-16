@@ -1,6 +1,8 @@
 Import('env')
 
-map (lambda(f): env.Program(f+'.cpp'),\
-  Split("""
+progs = Split("""
     image_a
-    """))
+    """)
+
+for p in progs:
+  env.Program(p + '.cpp')

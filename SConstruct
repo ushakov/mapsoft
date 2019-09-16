@@ -40,7 +40,7 @@ env.AddMethod(SymLink)
 ######################################
 ## Add default flags
 
-if os.environ.has_key('GCCVER'):
+if 'GCCVER' in os.environ:
    ver = os.environ['GCCVER']
    env.Replace (CC = ("gcc-%s" % ver))
    env.Replace (CXX = ("g++-%s" % ver))
@@ -83,9 +83,9 @@ if ARGUMENTS.get('gheapcheck', 0):
 	env.Append (LINKFLAGS='-ltcmalloc')
 
 if ARGUMENTS.get('minimal', 0):
-	SConscript (map (lambda(s): s+"/SConscript", subdirs_min))
+	SConscript(list(map(lambda s: s + "/SConscript", subdirs_min)))
 else:
-	SConscript (map (lambda(s): s+"/SConscript", subdirs_max))
+	SConscript(list(map(lambda s: s + "/SConscript", subdirs_max)))
 
 Help("""
 You can build mapsoft with the following options:

@@ -2,8 +2,7 @@ Import('env')
 
 files=Split('gobj_test_tile.cpp gobj_test_grid.cpp gobj_solid_fill.cpp')
 
-map (lambda(f): env.Program([f+'.cpp'] + files),\
-  Split("""
+progs = Split("""
     simple1
     simple2
     dthread1
@@ -17,7 +16,11 @@ map (lambda(f): env.Program([f+'.cpp'] + files),\
     action3
     all_viewers
     two_rubbers
-    """))
+    """)
+
+for p in progs:
+  env.Program([p+'.cpp'] + files)
+
 
 
 

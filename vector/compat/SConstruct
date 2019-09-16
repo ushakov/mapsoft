@@ -4,7 +4,7 @@ libs = Split("vmap fig options utils 2d")
 
 env.Append (CCFLAGS=['-O2'])
 env.Append (CPPPATH = ["../../core"])
-env.Append (LIBPATH = map(lambda(s): "../../core/"+s, libs) )
+env.Append (LIBPATH = list(map(lambda s: "../../core/"+s, libs)) )
 env.Append (LIBPATH = ["."] )
 env.Prepend(LIBS=libs)
 
