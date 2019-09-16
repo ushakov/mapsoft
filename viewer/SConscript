@@ -43,9 +43,9 @@ e.Program("mapsoft_mapview.cpp")
 
 # e.Program("test_widgets.cpp")
 
-env.Install(env.bindir, Split("""
-  mapsoft_mapview
-"""))
+env.Install(env.bindir, "mapsoft_mapview")
+
+env.Install(env.desktopdir, "mapsoft_mapview.desktop")
 
 
 # e.Program("test_gp.cpp")

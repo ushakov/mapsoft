@@ -67,9 +67,10 @@ env.datadir=env.PREFIX+'/usr/share/mapsoft'
 env.man1dir=env.PREFIX+'/usr/share/man/man1'
 env.figlibdir=env.PREFIX+'/usr/share/xfig/Libraries'
 env.libdir=env.PREFIX+ sysconfig.get_config_var('LIBDIR')
+env.desktopdir=env.PREFIX+'/usr/share/applications'
 
 env.Alias('install', [env.bindir, env.man1dir,
-  env.datadir, env.figlibdir, env.libdir])
+  env.datadir, env.figlibdir, env.libdir, env.desktopdir])
 
 if ARGUMENTS.get('debug', 0):
 	env.Append (CCFLAGS='-ggdb')

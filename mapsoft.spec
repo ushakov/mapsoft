@@ -50,6 +50,7 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_bindir/mapsoft_mapview
 %_mandir/man1/mapsoft_convert.*
 %_mandir/man1/mapsoft_mapview.*
+%_desktopdir/mapsoft_mapview.*
 
 %files tools
 %_bindir/convs_*
