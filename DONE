@@ -29,6 +29,61 @@ TODO:
      я┐я┌п╟я┴п╦я┌я▄ п╨я┐п╢п╟-я┌п╬ fig2pnm п╦ pnm_shifter
 
 ====================================
+16.09.2019
+  - Fix SCons* files for new scons/python
+  - mapsoft_geofig: --raw option
+  - mapsoft_mapview: add desktop file
+  - improve mapsoft_wp_parse script
+  - o_img: do not set dpi when making google tiles
+  - core/vmap: fix error in label creation introduced in 2018-06-16
+
+13.02.2019
+
+  - add -Werror=return-type (important for g++-8), fix warnings
+  - gobj_vmap.cpp: update drawing rules
+  - vmap: introduce render_data (not working yet)
+  - update typ file (by O.Vlasenko)
+  - vector/data/styles.m4: change mp numbers for passes (suggested by O.Vlasenko)
+  - vector/data/styles.m4 add 0x0F
+  - vector/data/styles.m4: more numbers
+  - vector/data/pics: add some pictures from O.V.
+
+22.07.2018
+  - core/2d: Point, Rect: use setrecision(9) for printing
+  - core/geo_io: io_js.cpp: tracks and waypoints support in geojson
+  - vmap_filt: do not join lines with large angles
+  - core: fix error handling in many places
+  - core/cache/sizecache.h: fix error in clear()
+  - io_zip.h: hide zip.h from library clients
+  - Test on Ubuntu, add libgif5.0 support
+  - vmap/vmap_render.cpp: add --nobrd option to ignore map border
+  - vmap and geo_io: case insensitive file extensions
+  - core/err: new Err class
+  - core/opts: new Opts class
+  - core/getopt: new getopt wrapper
+  - core/tiles: new TMS/Google tile calculator
+  - core/filetype: new functions for working with filenames
+  - core/geo_io/geo_refs.h: move from geo to geo_io, add --trk_brd option
+  - core/img_io/gobj_srtm: do not draw anything in srtm holes
+  - core/img_io/o_img.cpp: do not modify image scale (to be fixed later)
+  - core/img_io/o_img.cpp: add --trk_brd option
+  - core/img_io/gobj_vmap: set FILL_RULE_EVEN_ODD for drawing polygons
+  - core/geo/geo_convs: better support for negative coordinates
+  - core/geo_nom: fix errors
+  - core/srtm3: support for data directory setting, --srtm_dir option in mapsoft_convert
+  - programs/mapsoft_geofig: use std::string instead of const char*
+  - misc/forest: add programs forest_vec, glims_vec
+  - tmaps: add mk_sv, mk_svt, mk_topomapper scripts
+  - scripts: fix mapsoft_wp_parse
+  - Изменение в системе знаков:
+     - новый знак MP0x8 - песок/галька/осыпь
+     - добавил рисование знака "крутой склон"
+     - изменил слой xfig для знака "ледник" 98->96
+  - building: move some global definitions from core/SConscript to SConstruct,
+    cleanup SConstruct, fix check_deps script, fix mktemp calls, use libmapsoft.a
+    and libmapsoft.h, run tests in core/* during build.
+
+====================================
 2016
   - write geojson files (.js)
   - better support for negative coordinates in srtm, geo_nom
