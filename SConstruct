@@ -45,6 +45,7 @@ if 'GCCVER' in os.environ:
    env.Replace (CC = ("gcc-%s" % ver))
    env.Replace (CXX = ("g++-%s" % ver))
 
+env.Append (CCFLAGS=['-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H=1'])
 env.Append (CCFLAGS=['-Werror=return-type'])
 env.Append (CCFLAGS=['-O2'])
 env.Append (CCFLAGS='-std=gnu++11')
