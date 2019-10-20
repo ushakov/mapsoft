@@ -52,7 +52,7 @@ env.Append (CCFLAGS='-std=gnu++11')
 
 env.Append (ENV = {'PKG_CONFIG_PATH': os.getcwd()+'/core/pc'})
 if os.getenv('PKG_CONFIG_PATH'):
-  env_loc.Append (ENV = {'PKG_CONFIG_PATH':
+  env.Append (ENV = {'PKG_CONFIG_PATH':
     [ os.getcwd()+'/core/pc', os.getenv('PKG_CONFIG_PATH')]})
 
 env.Append (CPPPATH = "#core")
