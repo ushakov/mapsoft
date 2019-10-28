@@ -2,12 +2,13 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=1
+EAPI=5
 
 EGIT_REPO_URI="git://github.com/ushakov/${PN}.git"
 EGIT_BRANCH="master"
 
-inherit git-2 python scons-utils
+#inherit git-2 python-r1 python-utils-r1 scons-utils
+inherit git-2  scons-utils
 
 DESCRIPTION="Programs for working with maps and geodata"
 HOMEPAGE="http://slazav.mccme.ru/prog/mapsoft.htm"
@@ -15,9 +16,10 @@ SRC_URI=""
 
 LICENSE="GPL"
 SLOT="0"
-KEYWORDS=""
+KEYWORDS="~amd64"
 IUSE=""
 
+#PYTHON_COMPAT="python{2_7,3_4}"
 DEPEND="app-arch/zip
 	app-text/ghostscript-gpl
 	dev-cpp/cairomm
@@ -43,19 +45,19 @@ DEPEND="app-arch/zip
 	sys-libs/zlib
 	virtual/pkgconfig
 	x11-libs/pixman"
+
 RDEPEND="${DEPEND}"
 
 src_compile() {
-    escons -j1 -Q prefix="${D}" -Q minimal=1
+    escons -j1 -Q prefix="${D}" #-Q minimal=1
 }
 
 src_install() {
-	escons -Q prefix="${D}" -j1 install
-#    dodoc txt || die
+    escons -Q prefix="${D}" install
 }
 pkg_postinst() {
-	elog ""
-	elog "See the home page (${HOMEPAGE}) for more info."
-	elog ""
+    elog ""
+    elog "See the home page (${HOMEPAGE}) for more info."
+    elog ""
 }
 
