@@ -1,6 +1,6 @@
 #!/bin/sh -efu
 
-. mapsoft_wp1.sh
+. mapsoft_wp.sh
 
 # map_wp_upd_nom -- update passes in nom maps
 # example: map_wp_upd_nom j43-061.vmap j43-062.vmap
