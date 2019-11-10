@@ -2,10 +2,9 @@
 
 . mapsoft_gl.sh
 
-# map_gl_upd_nom -- update glaciers in nom maps
+# map_gl_upd_nom -- update glaciers in nom maps.
 # example: map_gl_upd_nom j43-061.vmap j43-062.vmap
-
-# passes data is put into ./glims/ dir
+# Data are put into ./glims/ dir.
 
 mkdir -p -- glims
 for i in "$@"; do

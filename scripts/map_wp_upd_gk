@@ -3,12 +3,12 @@
 . mapsoft_wp.sh
 . mapsoft_map.sh
 
-# map_wp_upd_gk -- update passes in rectangular maps
+# map_wp_upd_gk -- update passes in rectangular maps.
 # example: map_wp_upd_gk elbr.fig pamir.vmap
+# Passes data are put into ./wpasses/ dir.
 
-# Geometry information is read from maps.txt file:
-# <base name> <geometry> <title>
-# passes data is put into ./wpasses/ dir
+# Requires map.txt file with map description (see mapsoft_map.sh).
+# At the moment I do not use this script.
 
 mkdir -p -- wpasses
 for i in "$@"; do

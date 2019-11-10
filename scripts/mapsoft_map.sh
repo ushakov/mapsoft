@@ -1,4 +1,8 @@
-## shell functions for reading map data
+# Some data about maps are stored in maps.txt file:
+#  <name> <geometry> <title>
+# Geometry describes a rectangular area in Soviet map coordinates.
+# Using map_data() func one can get map geometry and title by its name.
+# I do not use this library at the moment
 
 MAPSOFT_MAP=1
 

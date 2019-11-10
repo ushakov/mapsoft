@@ -3,12 +3,12 @@
 . mapsoft_gl.sh
 . mapsoft_map.sh
 
-# map_gl_gk_update -- update glaciers in rectangular maps
+# map_gl_gk_update -- update glaciers in rectangular maps.
 # example: map_gl_gk_update elbr.fig pamir.vmap
+# Data are put into ./glims/ dir.
 
-# Geometry information is read from maps.txt file:
-# <base name> <geometry> <title>
-# data is put into ./glims/ dir
+# Requires map.txt file with map description (see mapsoft_map.sh).
+# At the moment I do not use this script.
 
 mkdir -p -- glims
 for i in "$@"; do

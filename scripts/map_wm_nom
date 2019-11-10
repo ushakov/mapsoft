@@ -1,7 +1,6 @@
 #!/bin/sh -efu
 
 . mapsoft_wm.sh
-. mapsoft_map.sh
 
 # map_wp_upd_gk -- get wikimapia data for nom map
 # example: map_wm_nom h45-110 ...

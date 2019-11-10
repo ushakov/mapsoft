@@ -20,8 +20,8 @@ ll2wp(){
   }
 }
 
-# download kml file for a given wgs latlon range
-# remove old-style comments
+# Download kml file for a given wgs latlon range.
+# Convert kml to mp and txt form.
 download_ll_wp(){
   local geom="$1"
   local name="$2"
@@ -31,7 +31,8 @@ download_ll_wp(){
 }
 
 
-# download kml file for a given pulkovo tmerc range
+# Download kml file for a given pulkovo tmerc range.
+# Convert kml to mp and txt form.
 download_gk_wp(){
   local geom="$1"
   local name="$2"

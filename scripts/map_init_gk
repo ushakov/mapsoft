@@ -1,5 +1,9 @@
 #!/bin/sh -efu
 
+# Make empty rectangular map in Soviet projection.
+# Requires map.txt file with map description (see mapsoft_map.sh).
+# At the moment I do not use this script.
+
 [ "$#" = 3 ] || {
   echo "usage: $0 <map name> <style> <rscale>"
   echo "  map_name: name.vmap, name.fig ... (maps.txt file is needed)"
