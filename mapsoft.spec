@@ -68,6 +68,10 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_datadir/mapsoft/*
 %_datadir/xfig/Libraries/*
 %_mandir/man1/mapsoft_vmap.*
+%_bindir/map_rescale
+%_bindir/*.sh
+%_bindir/map_*_gk
+%_bindir/map_*_nom
 
 %changelog
 * Fri Oct 04 2019 Vladislav Zavjalov <slazav@altlinux.org> 20190916-alt2

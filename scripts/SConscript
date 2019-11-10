@@ -1,4 +1,24 @@
 Import ('env')
 
+# Making map reference in GIMP
 env.Install(env.libdir + '/gimp/2.0/plug-ins', 'map-helper.py')
 
+
+env.Install(env.bindir, 'map_rescale')
+
+env.Install(env.bindir, 'mapsoft_crd.sh')
+
+# Updating glaciers from GLIMS catalog
+env.Install(env.bindir, 'mapsoft_gl.sh')
+env.Install(env.bindir, 'map_gl_upd_gk')
+env.Install(env.bindir, 'map_gl_upd_nom')
+
+# Updating mountain passes from Westra catalog
+env.Install(env.bindir, 'mapsoft_wp.sh')
+env.Install(env.bindir, 'map_wp_upd_gk')
+env.Install(env.bindir, 'map_wp_upd_nom')
+env.Install(env.bindir, 'mapsoft_wp_parse')
+
+# Downloading Wikimapia data
+env.Install(env.bindir, 'mapsoft_wm.sh')
+env.Install(env.bindir, 'map_wm_nom')
