@@ -151,8 +151,9 @@ try{
      << "  scale  = 1:" << int(W.rscale) << "\n"
      << "  dpi    = " << dpi << "\n"
      << "  image = " << int(round(rng.w)) << "x" << int(round(rng.h))<< "\n";
-  iImage img(round(rng.w), round(rng.h));
+  iImage img(round(rng.w), round(rng.h), 0);
 
+  ref.border.clear();
   convs::map2wgs cnv(ref);
   if (W.size() == 0) cerr << "warning: no objects\n";
 
