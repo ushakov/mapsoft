@@ -160,8 +160,6 @@ env.StaticLibrary('mapsoft', objects)
 ##################################################
 ## strange programs inside the core folder
 programs=Split("""
-  tiles/convs_gtiles.cpp
-
   fig/catfig.cpp
   geo_io/catgeo.cpp
   loaders/img_convert.cpp
