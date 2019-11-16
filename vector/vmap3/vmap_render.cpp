@@ -150,8 +150,8 @@ try{
   cerr
      << "  scale  = 1:" << int(W.rscale) << "\n"
      << "  dpi    = " << dpi << "\n"
-     << "  image = " << int(rng.w) << "x" << int(rng.h)<< "\n";
-  iImage img(rng.w, rng.h);
+     << "  image = " << int(round(rng.w)) << "x" << int(round(rng.h))<< "\n";
+  iImage img(round(rng.w), round(rng.h));
 
   convs::map2wgs cnv(ref);
   if (W.size() == 0) cerr << "warning: no objects\n";
