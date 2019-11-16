@@ -199,11 +199,11 @@ mk_ref(Options & o){
     refs.resize(4);
   }
   else if (o.exists("trk_brd")){
-    incompat_warning (o, "wgs_brd", "geom");
-    incompat_warning (o, "wgs_brd", "wgs_geom");
-    incompat_warning (o, "wgs_brd", "wgs_brd");
-    incompat_warning (o, "wgs_brd", "nom");
-    incompat_warning (o, "wgs_brd", "google");\
+    incompat_warning (o, "trk_brd", "geom");
+    incompat_warning (o, "trk_brd", "wgs_geom");
+    incompat_warning (o, "trk_brd", "wgs_brd");
+    incompat_warning (o, "trk_brd", "nom");
+    incompat_warning (o, "trk_brd", "google");\
 
     geo_data W;
     io::in(o.get<string>("trk_brd"), W);
