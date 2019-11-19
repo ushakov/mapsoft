@@ -42,6 +42,7 @@ private:
   bool         transp;
   int          grid_labels;
   dPoint       origin;
+  Cairo::Filter patt_filter;
 
   std::vector<Opts> render_data;
 

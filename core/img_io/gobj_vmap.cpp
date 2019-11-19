@@ -26,6 +26,16 @@ GObjVMAP::GObjVMAP(vmap::world * _W,
   transp      = O.get("transp_margins", false);
   grid_labels = O.get("grid_labels", 0);
 
+  { // set pattern filter
+    std::string flt = O.get<std::string>("patt_filter", "good");
+    if      (flt == "fast") patt_filter = Cairo::FILTER_FAST;
+    else if (flt == "good") patt_filter = Cairo::FILTER_GOOD;
+    else if (flt == "best") patt_filter = Cairo::FILTER_BEST;
+    else if (flt == "nearest")  patt_filter = Cairo::FILTER_NEAREST;
+    else if (flt == "bilinear") patt_filter = Cairo::FILTER_BILINEAR;
+    else throw Err() << "unknown patt_filter setting: " << flt;
+  }
+
   // Read render data from json file. (2018-09)
   // File structure: json array of objects.
   // Each array element represents an action (draw object type, draw grid etc.)
@@ -75,7 +85,7 @@ GObjVMAP::draw(iImage &img, const iPoint &org){
   cr.reset_surface(img);
   origin = org;
 
-  if (!use_aa) cr->set_antialias(Cairo::ANTIALIAS_NONE);
+  if (use_aa>0) cr->set_antialias(Cairo::ANTIALIAS_NONE);
   cr->set_fill_rule(Cairo::FILL_RULE_EVEN_ODD);
 
 
@@ -118,13 +128,13 @@ GObjVMAP::draw(iImage &img, const iPoint &org){
     if (data->exists("point")){
       int type = data->get<int>("point");
       int size = 4, color = 0;
-      Cairo::RefPtr<Cairo::SurfacePattern> patt;
       if (data->exists("image")) {
         std::string fname = data->get("image",std::string());
         iImage I = image_r::load(fname.c_str());
         if (I.empty()) throw Err() << "Can't read image: " << fname;
-        patt = cr->img2patt(I, pics_dpi/dpi);
+        auto patt = cr->img2patt(I, pics_dpi/dpi);
         if (!patt) throw Err() << "Can't create cairo pattern from image: " << fname;
+        patt->set_filter(patt_filter);
         // each object, each line inside the object, each point
         for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
           if (o->type!=type) continue;
@@ -239,8 +249,9 @@ GObjVMAP::render_img_polygons(int type, double curve_l){
   iImage I = image_r::load(f.c_str());
   if (I.empty()) cerr << "Empty image for type " << type << "\n";
 
-  Cairo::RefPtr<Cairo::SurfacePattern> patt = cr->img2patt(I, pics_dpi/dpi);
+  auto patt = cr->img2patt(I, pics_dpi/dpi);
   if (!patt) return;
+  patt->set_filter(patt_filter);
 
   // polygons filled with image pattern
   if (z->second.pic_type=="fill"){
@@ -284,8 +295,9 @@ GObjVMAP::render_im_in_points(int type){
   iImage I = image_r::load(f.c_str());
   if (I.empty()) cerr << "Empty image for type " << type << "\n";
 
-  Cairo::RefPtr<Cairo::SurfacePattern> patt = cr->img2patt(I, pics_dpi/dpi);
+  auto patt = cr->img2patt(I, pics_dpi/dpi);
   if (!patt) return;
+  patt->set_filter(patt_filter);
 
   for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
     if (o->type!=type) continue;

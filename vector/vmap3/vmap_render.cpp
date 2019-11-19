@@ -20,6 +20,7 @@ static struct ext_option options[] = {
   {"nobrd",         1, 0,  1, "ignore border in the file\n"},
 
   {"antialiasing",  1,  0, 1, "do antialiasing (0|1, default 1)"},
+  {"patt_filter",   1,  0, 1, "set pattern filter (fast|good|best|nearest|bilinear, default: good)"},
   {"transp_margins",1,  0, 1, "transparent margins (0|1, default 0)"},
   {"contours",      1,  0, 1, "auto contours (0|1, default 1)"},
   {"label_style",   1,  0, 1, "set label style 0..2 (default 2)\n"},
