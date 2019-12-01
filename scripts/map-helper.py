@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 # GIMP plug-in to create map references for soviet nomenclature maps
 
