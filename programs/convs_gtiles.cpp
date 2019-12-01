@@ -11,14 +11,14 @@ using namespace std;
 void usage(){
   cerr << "\n"
        << "Google tile calculator.\n"
-       << "usage: convs_tile -p <point> <z> -- tile which covers a WGS84 point\n"
-       << "       convs_tile -r <range> <z> -- tiles which cover a range (return a rectangle)\n"
-       << "       convs_tile -R <range> <z> -- tiles which cover a range (return a list)\n"
-       << "       convs_tile -bi <track> <z> -- tiles which touches the area (return a list)\n"
-       << "       convs_tile -bc <track> <z> -- tiles which fully covered by area (return a list)\n"
-       << "       convs_tile -n x y z -- tile range\n"
-       << "       convs_tile -c x y z -- tile center\n"
-       << "       convs_tile -t x y z <range>  -- check if a tile touches a range\n"
+       << "usage: convs_gtiles -p <point> <z> -- tile which covers a WGS84 point\n"
+       << "       convs_gtiles -r <range> <z> -- tiles which cover a range (return a rectangle)\n"
+       << "       convs_gtiles -R <range> <z> -- tiles which cover a range (return a list)\n"
+       << "       convs_gtiles -bi <track> <z> -- tiles which touches the area (return a list)\n"
+       << "       convs_gtiles -bc <track> <z> -- tiles which fully covered by area (return a list)\n"
+       << "       convs_gtiles -n x y z -- tile range\n"
+       << "       convs_gtiles -c x y z -- tile center\n"
+       << "       convs_gtiles -t x y z <range>  -- check if a tile touches a range\n"
        << "\n"
   ;
 }
