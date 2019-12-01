@@ -105,9 +105,7 @@ mk_ref(Options & o){
 
   // default values
   double dpi=300;
-  double google_dpi=-1;
   double rscale=100000;
-  double rs_factor=1.0; // proj units/m
   Datum datum("wgs84");
   Proj  proj("tmerc");
   bool verbose=o.exists("verbose");
@@ -281,14 +279,17 @@ mk_ref(Options & o){
     ret.border = refs;
     refs.resize(4);
 
-    rscale=o.get<double>("rscale", rscale);
+    dpi=o.get<double>("dpi", dpi);
 
-    double lat=refs.range().CNT().y;
-    rs_factor = 1/cos(M_PI*lat/180.0);
+    // Change DPI relative to the base level
+    if (z < 14)
+        dpi /= 1 << (14 - z);
+    if (z > 14)
+        dpi *= 1 << (z - 14);
 
-    // m -> tile pixel
-    double k = 1/tcalc.px2m(z);
-    dpi = k * 2.54/100.0*rscale*rs_factor;
+    rscale = dpi * tcalc.px2m(z) * 100 / 2.54;
+    o.put("dpi", dpi);
+    o.put("rscale", rscale);
   }
   else
     throw Err() << "error: can't make map reference without"
@@ -311,7 +312,7 @@ mk_ref(Options & o){
   o.put("dpi", dpi);
   o.put("rscale", rscale);
 
-  double k = 100.0/2.54 * dpi / rscale / rs_factor;
+  double k = 100.0/2.54 * dpi / rscale;
 
   if (verbose) cerr << "mk_ref: rscale = " << rscale
     << ", dpi = " << dpi << ", k = " << k << "\n";
