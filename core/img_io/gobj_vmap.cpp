@@ -249,15 +249,37 @@ GObjVMAP::render_img_polygons(int type, double curve_l){
   iImage I = image_r::load(f.c_str());
   if (I.empty()) cerr << "Empty image for type " << type << "\n";
 
-  auto patt = cr->img2patt(I, pics_dpi/dpi);
-  if (!patt) return;
-  patt->set_filter(patt_filter);
+  if (pics_dpi / dpi < 12) {
+    auto patt = cr->img2patt(I, pics_dpi/dpi);
+    if (!patt) return;
+    patt->set_filter(patt_filter);
+    patt->set_extend(Cairo::EXTEND_REPEAT);
+    cr->set_source(patt);
+  } else {
+    // Use average fill color for too little patterns on this DPI
+    unsigned int r=0, g=0, b=0, a=0, alpha, c;
+    for(int i = 0; i < I.h * I.w; i++) {
+        c = I.data[i];
+        alpha = (c >> 24) & 0xff;
+        a += alpha;
+        b += alpha * ((c >> 16) & 0xff);
+        g += alpha * ((c >>  8) & 0xff);
+        r += alpha * ((c >>  0) & 0xff);
+    }
+    if (a != 0) {
+      b /= a;
+      g /= a;
+      r /= a;
+    }
+    a /= I.w * I.h;
+    c = (a << 24) | (b << 16) | (g << 8) | r;
+
+    cr->set_color(c);
+  }
 
   // polygons filled with image pattern
   if (z->second.pic_type=="fill"){
-    patt->set_extend(Cairo::EXTEND_REPEAT);
     cr->save();
-    cr->set_source(patt);
     for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
       if (o->type!=type) continue;
       dMultiLine l = *o; cnv.line_bck_p2p(l);
@@ -265,22 +287,6 @@ GObjVMAP::render_img_polygons(int type, double curve_l){
       cr->fill();
     }
     cr->restore();
-  }
-  // place image in the center of polygons
-  else { 
-    for (vmap::world::const_iterator o=W->begin(); o!=W->end(); o++){
-      if (o->type!=type) continue;
-      for (vmap::object::const_iterator l=o->begin(); l!=o->end(); l++){
-        if (l->size()<1) continue;
-        dPoint p=l->range().CNT();
-        cnv.bck(p); p = p-origin;
-        cr->save();
-        cr->translate(p.x, p.y);
-        cr->set_source(patt);
-        cr->paint();
-        cr->restore();
-      }
-    }
   }
 }
 
