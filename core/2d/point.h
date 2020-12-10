@@ -4,6 +4,7 @@
 #include <boost/operators.hpp>
 #include <ios>   // for << and >> operators
 #include <iomanip>  // for setprecision
+#include <istream>  // for std::ws
 #include <cmath> // for rint
 
 ///\addtogroup lib2d
