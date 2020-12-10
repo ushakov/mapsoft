@@ -18,6 +18,10 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111 USA
 
  */
+
+#ifndef garminusb_h
+#define garminusb_h
+
 #include <stdio.h>
 #include <string.h>
 
@@ -66,3 +70,5 @@ int gusb_close(gpsdevh *);
 #define GUSB_SESSION_START 5	/* We request units attention */
 #define GUSB_SESSION_ACK   6	/* Unit responds that we have its attention */ 
 #define GUSB_REQUEST_BULK  2	/* Unit requests we read from bulk pipe */
+
+#endif
