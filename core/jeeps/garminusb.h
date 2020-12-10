@@ -18,6 +18,10 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111 USA
 
  */
+
+#ifndef garminusb_h
+#define garminusb_h
+
 #include <stdio.h>
 #include <string.h>
 
@@ -47,13 +51,13 @@ union {
  * OS implementation. 
  */
 #define GUSB_MAX_UNITS 20
-struct garmin_unit_info {
+struct garmin_unit_info_t {
 	unsigned long serial_number;
 	unsigned long unit_id;
 	unsigned long unit_version;
 	char *os_identifier; /* In case the OS has another name for it. */
 	char *product_identifier; /* From the hardware itself. */
-} garmin_unit_info[GUSB_MAX_UNITS];
+};
 
 int gusb_cmd_send(const garmin_usb_packet *obuf, size_t sz);
 int gusb_cmd_get(garmin_usb_packet *ibuf, size_t sz);
@@ -66,3 +70,5 @@ int gusb_close(gpsdevh *);
 #define GUSB_SESSION_START 5	/* We request units attention */
 #define GUSB_SESSION_ACK   6	/* Unit responds that we have its attention */ 
 #define GUSB_REQUEST_BULK  2	/* Unit requests we read from bulk pipe */
+
+#endif

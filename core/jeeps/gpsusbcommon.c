@@ -36,6 +36,8 @@ enum {
 
 static gusb_llops_t *gusb_llops;
 
+struct garmin_unit_info_t garmin_unit_info[GUSB_MAX_UNITS];
+
 /* Decide when to truncate packets for debug output */
 #define DEBUG_THRESH  (i > 10)
 
@@ -202,7 +204,7 @@ gusb_list_units()
 }
 
 void
-gusb_id_unit(struct garmin_unit_info *gu) 
+gusb_id_unit(struct garmin_unit_info_t *gu) 
 {
 	static const char  oid[12] = 
 		{20, 0, 0, 0, 0xfe, 0, 0, 0, 0, 0, 0, 0};
