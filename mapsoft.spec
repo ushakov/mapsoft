@@ -1,5 +1,5 @@
 Name: mapsoft
-Version: 20191201
+Version: 20201210
 Release: alt1
 License: GPL3.0
 
@@ -77,6 +77,11 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_bindir/mapsoft_wp_parse
 
 %changelog
+* Thu Dec 10 2020 Vladislav Zavjalov <slazav@altlinux.org> 20201210-alt1
+- core/jeeps/garminusb.h: fix multiple definition error (for gcc-10)
+- core/2d/point.h: add missing header (for gcc-10)
+- img_io/gobj_vmap: draw pattens with solid color at small scales (A.Kazantsev)
+
 * Sun Dec 01 2019 Vladislav Zavjalov <slazav@altlinux.org> 20191201-alt1
 - fix a few problems in vmap_render and convs_gtiles (thanks to A.Kazantsev)
 - add GPL3.0 license (Altlinux requires ambiguous license for all packages)
