@@ -43,7 +43,7 @@ gps_detect(){
   DIR *D = opendir("/sys/bus/usb-serial/drivers/garmin_gps");
   if (!D) return "";
   dirent * de;
-  while (de = readdir(D)){
+  while ((de = readdir(D))){
     if ((strlen(de->d_name) < 1) || (de->d_name[0] == '.')) continue;
     string fname = string("/dev/") + string(de->d_name);
     if (check_file(fname) == 1) return fname;
