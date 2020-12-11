@@ -42,7 +42,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
   // tracks
   // Each track is a feature with MultiLineString objects.
   // First we write tracks to have them below points on leaflet maps.
-  for (int i = 0; i < world.trks.size(); ++i) {
+  for (size_t i = 0; i < world.trks.size(); ++i) {
     if (!first_feature) f << ",\n";
     f << "  { \"type\": \"Feature\",\n"
       << "    \"properties\": {\n"
@@ -65,7 +65,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
   }
 
   // waypoints
-  for (int i = 0; i < world.wpts.size(); i++) {
+  for (size_t i = 0; i < world.wpts.size(); i++) {
     for (g_waypoint_list::const_iterator wp = world.wpts[i].begin();
                                          wp != world.wpts[i].end(); ++wp) {
        if (!first_feature) f << ",\n";

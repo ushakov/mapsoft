@@ -501,8 +501,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 
 		IConv cnv(default_charset);
 
-		int num = wpt.size();
-		int n=0;
+		size_t n=0;
 		f << "OziExplorer Waypoint File Version 1.1\r\n"
 		  << "WGS 84\r\n"
 		  << "Reserved 2\r\n"
@@ -560,10 +559,10 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 		  << m.map_proj
 		  << ",PolyCal,No,AutoCalOnly,No,BSBUseWPX,No\r\n";
 
-		for (int n=1; n<=30; n++){
+		for (size_t n=1; n<=30; n++){
 			f << "Point" << setw(2) << setfill('0') << n << ",xy,";
 
-			if (n>m.size()){ 
+			if (n>m.size()){
 				f <<"     ,     ,in, deg,    ,        ,N,    ,        ,W"
 				  <<", grid,   ,           ,           ,N\r\n";
 				continue;
@@ -593,7 +592,7 @@ void read_file(const char* filename, geo_data & world, const Options & opt){
 		  double lon0 = m.proj_opts.get("lon0", 1e90);
                   if (lon0==1e90){
                     lon0=0;
-                    for (int i=0; i<m.size(); i++) lon0+=m[i].x;
+                    for (size_t i=0; i<m.size(); i++) lon0+=m[i].x;
 		    if (m.size()>1) lon0/=m.size();
                     lon0 = floor( lon0/6.0 ) * 6 + 3;
                   }

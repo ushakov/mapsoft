@@ -23,7 +23,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
   f << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
   f << "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\">" << endl;
 
-  for (int i = 0; i < world.wpts.size(); i++) {
+  for (size_t i = 0; i < world.wpts.size(); i++) {
     for (g_waypoint_list::const_iterator wp = world.wpts[i].begin();
                                          wp != world.wpts[i].end(); ++wp) {
        f << fixed << setprecision(6)
@@ -38,7 +38,7 @@ write_file (const char* filename, const geo_data & world, const Options & opt){
     }
   }
 
-  for (int i = 0; i < world.trks.size(); ++i) {
+  for (size_t i = 0; i < world.trks.size(); ++i) {
     f << "  <trk>" << endl;
     f << "    <name>" << world.trks[i].comm << "</name>" << endl;
     for (g_track::const_iterator tp = world.trks[i].begin(); tp != world.trks[i].end(); ++tp) {

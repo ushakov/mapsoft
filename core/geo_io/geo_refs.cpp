@@ -40,12 +40,12 @@ mk_tmerc_ref(const dLine & points, double u_per_m, bool yswap){
 
   // swap y if needed
   if (yswap){
-    for (int i=0;i<refs_c.size();i++)
+    for (size_t i=0;i<refs_c.size();i++)
       refs_c[i].y = h - refs_c[i].y;
   }
 
   // add refpoints to our map
-  for (int i=0;i<refs.size();i++){
+  for (size_t i=0;i<refs.size();i++){
     ref.push_back(g_refpoint(refs[i], refs_c[i]));
   }
 
@@ -328,11 +328,11 @@ mk_ref(Options & o){
 
   // swap y if needed
   if (sw)
-    for (int i=0;i<refs_r.size();i++)
+    for (size_t i=0;i<refs_r.size();i++)
       refs_r[i].y = h - refs_r[i].y;
 
   // add refpoints to our map
-  for (int i=0;i<refs.size();i++)
+  for (size_t i=0;i<refs.size();i++)
     ret.push_back(g_refpoint(refs[i], refs_r[i]));
 
   // step 3:  converting border

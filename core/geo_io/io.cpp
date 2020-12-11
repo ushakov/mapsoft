@@ -134,9 +134,9 @@ out(const string & out_name, geo_data const & world, const Options & opt){
     vector<string> files;
 
     // number of files with tracks, waypoints and maps
-    int wn = world.wpts.size();
-    int tn = world.trks.size();
-    int mn = world.maps.size();
+    size_t wn = world.wpts.size();
+    size_t tn = world.trks.size();
+    size_t mn = world.maps.size();
 
     int ww=0, tw=0, mw=0; 
     if (wn > 1) ww = (int) floor (log (1.0 * wn) / log (10.0)) + 1;
@@ -170,9 +170,9 @@ out(const string & out_name, geo_data const & world, const Options & opt){
     }
 
     for (size_t n = 0; n < mn; ++n){
-      int mmn = world.maps[n].size(); // map count in this maplist
-      int mmw=0;
-      if (mmn > 1) mmw = (int) floor (log (1.0 * mmn) / log (10.0)) + 1;
+      size_t mmn = world.maps[n].size(); // map count in this maplist
+      size_t mmw=0;
+      if (mmn > 1) mmw = (size_t) floor (log (1.0 * mmn) / log (10.0)) + 1;
 
       for (size_t nn = 0; nn != mmn; ++nn) {
         ostringstream oef;

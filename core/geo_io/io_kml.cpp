@@ -32,7 +32,7 @@ void write_file (const char* filename, const geo_data & world, const Options & o
   f << "<kml xmlns=\"http://earth.google.com/kml/2.1\">" << endl;
   f << "  <Document>" << endl;
 
-  for (int i = 0; i < world.wpts.size(); i++) {
+  for (size_t i = 0; i < world.wpts.size(); i++) {
     f << "  <Folder>" << endl;
     f << "    <name>WPTS_" << i << "</name>" << endl;
     g_waypoint_list::const_iterator wp;
@@ -50,7 +50,7 @@ void write_file (const char* filename, const geo_data & world, const Options & o
     f << "  </Folder>" << endl;
   }
 
-  for (int i = 0; i < world.trks.size(); ++i) {
+  for (size_t i = 0; i < world.trks.size(); ++i) {
     f << "  <Placemark>" << endl;
     f << "    <description><![CDATA[" << world.trks[i].comm << "]]></description>" << endl;
     f << "    <MultiGeometry>" << endl;

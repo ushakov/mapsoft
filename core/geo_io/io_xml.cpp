@@ -222,7 +222,7 @@ namespace xml {
 
 		if (m.border.size()!=0){
 			f << "\n       border=\"";
-			for (int i = 0; i<m.border.size(); i++){
+			for (size_t i = 0; i<m.border.size(); i++){
 				if (i!=0) f << ",";
 				f << m.border[i].x << "," << m.border[i].y;
 			}
