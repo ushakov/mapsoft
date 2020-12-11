@@ -33,7 +33,7 @@ Conv::line_frw(const dLine & l, double acc, int max) const {
   frw(P1a); ret.push_back(P1a); // add first point
   dPoint P2, P2a;
 
-  for (int i=1; i<l.size(); i++){
+  for (size_t i=1; i<l.size(); i++){
     P1 = l[i-1];
     P2 = l[i];
     double d = pdist(P1-P2)/(max+1)*1.5;
@@ -69,7 +69,7 @@ Conv::line_bck(const dLine & l, double acc, int max) const {
   dPoint P1 = l[0], P1a =P1; bck(P1a); ret.push_back(P1a);
   dPoint P2, P2a;
 
-  for (int i=1; i<l.size(); i++){
+  for (size_t i=1; i<l.size(); i++){
     P1 = l[i-1];
     P2 = l[i];
     double d = pdist(P1-P2)/(max+1)*1.5;

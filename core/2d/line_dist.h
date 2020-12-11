@@ -20,7 +20,7 @@ class LineDist{
   dLine   line; // копия линии
 
   std::vector<double> ls; // lengths from the beginning to every node
-  int     current_n;      // current node
+  size_t  current_n;      // current node
   double  current_l;      // current distance from the current_n
 
 public:
