@@ -396,7 +396,7 @@ map_mpp(const g_map &map, Proj P){
   if (P==Proj("tmerc") && !map1.proj_opts.exists("lon0"))
     map1.proj_opts.put("lon0", map_lon0(map1));
   convs::pt2wgs c(Datum("wgs84"), P, map1.proj_opts);
-  for (int i=1; i<map.size();i++){
+  for (size_t i=1; i<map.size();i++){
     dPoint p1(map[i-1].x,map[i-1].y);
     dPoint p2(map[i].x,  map[i].y);
     c.bck(p1); c.bck(p2);
