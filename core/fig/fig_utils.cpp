@@ -25,7 +25,7 @@ iRect fig_range(std::list<fig_object> & objects){
        if (miny > cy-ry) miny = cy-ry;
        if (maxy < cy+ry) maxy = cy+ry;
      } else {
-       for (int j = 0; j < i->size(); j++){
+       for (size_t j = 0; j < i->size(); j++){
          int x = (*i)[j].x;
          int y = (*i)[j].y;
          if (minx > x) minx = x;
@@ -110,7 +110,7 @@ void any2xspl(fig_object & o, const double x, const double y){
 
   o.type = 3;
   o.f.clear();
-  for (int j=0; j<o.size(); j++) o.f.push_back(x);
+  for (size_t j=0; j<o.size(); j++) o.f.push_back(x);
   if (o.sub_type==4){
     o.f[0]=0;
     o.f[o.size()-1]=0;

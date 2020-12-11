@@ -227,7 +227,7 @@ bool read(const char* filename, fig_world & world, const Options & opts){
   // convert \??? chars
   for (fig::fig_world::iterator i=ret.begin(); i!=ret.end(); i++){
     string t;
-    for (int n=0;n<i->text.size();n++){
+    for (size_t n=0;n<i->text.size();n++){
       if ((i->text[n] == '\\')&&(n+3<i->text.size())){
         t+=char((i->text[n+1]-'0')*64 + (i->text[n+2]-'0')*8 + (i->text[n+3]-'0'));
         n+=3;
@@ -283,7 +283,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
   string enc = opts.get("fig_out_enc", default_enc);
   IConv cnv(enc);
 
-  int n;
+  size_t n;
   // writing header
   out << "#FIG 3.2\n" 
       << world.orientation << "\n"
@@ -297,7 +297,7 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
       << world.transparent_color << "\n";
 
   // writing comments
-  for (0;n<world.comment.size();n++){
+  for (n=0;n<world.comment.size();n++){
     if (n>99) {cerr << "fig comment contains > 100 lines! Cutting...\n"; break;}
     string s = cnv.from_utf8(world.comment[n]);
     if (s.size()>1022){cerr << "fig comment line is > 1022 chars! Cutting...\n"; s.resize(1022);}
@@ -351,8 +351,8 @@ bool write(ostream & out, const fig_world & world, const Options & opts){
       out << "# \\" << s << "\n";
     }
 
-    int nn = i->size();
-    int nn1=nn;
+    size_t nn = i->size();
+    size_t nn1=nn;
     vector<float> f = i->f;
 
     int pen_color  = color_rgb2fig(i->pen_color,  custom_colors);

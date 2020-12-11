@@ -114,7 +114,7 @@ const map<int,string> texfonts(&texfonts_a[0],
 
 void fig_object::set_points(const dLine & v){
   clear();
-  for (int i=0;i<v.size();i++)
+  for (size_t i=0;i<v.size();i++)
     push_back(iPoint(lround(v[i].x), lround(v[i].y)));
 }
 
