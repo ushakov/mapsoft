@@ -49,6 +49,14 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
   }
 
   for (i = 0; i < files_total; i++) {
+
+    fzip_name=zip_get_name(zip_file,i,0);
+    if (!fzip_name){
+      zip_close(zip_file);
+      throw Err() << "Can't read ZIP file "
+        << filename << ": " << zip_strerror(zip_file);
+    }
+
     file_in_zip = zip_fopen_index(zip_file, i, 0);
     if (!file_in_zip){
       zip_close(zip_file);
@@ -56,7 +64,6 @@ read_file(const char* filename, geo_data & world, const Options & opt) {
         << filename << ": " << zip_strerror(zip_file);
     }
 
-    fzip_name=zip_get_name(zip_file,i,0);
     tmp = modfname(fzip_name);
     ofstream out(tmp.c_str());
     while ( (r = zip_fread(file_in_zip, buffer, sizeof(buffer))) > 0) {
