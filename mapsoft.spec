@@ -1,5 +1,5 @@
 Name: mapsoft
-Version: 20191201
+Version: 20201212
 Release: alt1
 License: GPL3.0
 
@@ -82,6 +82,12 @@ scons -Q minimal=1 -Q prefix=%buildroot install
 %_bindir/mapsoft_wp_parse
 
 %changelog
+* Sat Dec 12 2020 Vladislav Zavjalov <slazav@altlinux.org> 20201212-alt1
+- img_io/gobj_vmap: draw pattens with solid color at small scales (A.Kazantsev)
+- fix for gcc-10
+- fix a few compilation warnings (with -Wall) and a couple of possible related errors
+- remove -O2 flag on i586 and armh (problem with new boost::spirit)
+
 * Sun Dec 01 2019 Vladislav Zavjalov <slazav@altlinux.org> 20191201-alt1
 - fix a few problems in vmap_render and convs_gtiles (thanks to A.Kazantsev)
 - add GPL3.0 license (Altlinux requires ambiguous license for all packages)
