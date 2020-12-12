@@ -42,6 +42,11 @@ mapsoft-vmap - programs for working with vector maps
 %setup -q
 
 %build
+# boost::spirit crashes with -O2 on 32-bit systems
+%if "%_lib" == "lib64"
+export CCFLAGS=-O2
+%endif
+
 scons -Q minimal=1
 
 %install
