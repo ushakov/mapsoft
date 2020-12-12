@@ -40,7 +40,7 @@ public:
   /// get coords of crossings of border with y=const (or x=const if horiz=false) line
   std::vector<T> get_cr(T y){
     std::vector<T> cr;
-    for (int k = 0; k < sb.size(); k++){
+    for (size_t k = 0; k < sb.size(); k++){
       if ((sb[k].y >  y)&&(se[k].y >  y)) continue; // side is above the row
       if ((sb[k].y <= y)&&(se[k].y <= y)) continue; // side is below the row
       cr.push_back((ss[k] * double(y - sb[k].y)) + sb[k].x);
@@ -87,19 +87,19 @@ rect_in_line(const Rect<T> & r, const Line<T> & l){
   // or one of line points is inside rect
   std::vector<T> cr;
   cr = lth.get_cr(r.y);
-  for (int i=0; i<cr.size(); i++)
+  for (size_t i=0; i<cr.size(); i++)
     if (r.x < cr[i] && cr[i] <=r.x+r.w ) return true;
   cr = lth.get_cr(r.y+r.h);
-  for (int i=0; i<cr.size(); i++)
+  for (size_t i=0; i<cr.size(); i++)
     if (r.x < cr[i] && cr[i] <=r.x+r.w ) return true;
   cr = ltv.get_cr(r.x);
-  for (int i=0; i<cr.size(); i++)
+  for (size_t i=0; i<cr.size(); i++)
     if (r.y < cr[i] && cr[i] <=r.y+r.h ) return true;
   cr = ltv.get_cr(r.x+r.w);
-  for (int i=0; i<cr.size(); i++)
+  for (size_t i=0; i<cr.size(); i++)
     if (r.y < cr[i] && cr[i] <=r.y+r.h ) return true;
 
-  for (int i=0; i<cr.size(); i++){
+  for (size_t i=0; i<cr.size(); i++){
     if (r.y < cr[i] ){
       if (i%2 == 1) return true;
       break;

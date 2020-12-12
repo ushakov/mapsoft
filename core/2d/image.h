@@ -250,17 +250,17 @@ struct Image{
         std::vector<int> cr = lt.get_cr(j);
 
         // set/remove tranparency
-        int i=0;
-        for (int k = 0; k < cr.size()+1; k++){
+        size_t i=0;
+        for (size_t k = 0; k < cr.size()+1; k++){
           int ic = (k<cr.size())?std::min(cr[k], w) : w;
           if (ic < 0) continue;
-          for (int ii=i; ii<ic; ii++){
+          for (size_t ii=i; ii<(size_t)ic; ii++){
             data[j*w+ii] = (k%2)?
                data[j*w+ii] | 0xFF000000 :
                data[j*w+ii] & 0x00FFFFFF ;
           }
           i=ic;
-          if (i>=w) break;
+          if (i>=(size_t)w) break;
         }
       }
     }
