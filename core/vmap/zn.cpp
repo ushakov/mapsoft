@@ -704,7 +704,7 @@ zn_conv::make_labels(const fig::fig_object & fig, int type){
         }
       }
       p+=iPoint(-1,-1)*txt_dist;
-    } else if (lpos=3 ) { // center
+    } else if (lpos==3 ) { // center
       // ищем середину объекта
       iPoint pmin = fig[0];
       iPoint pmax = fig[0];
