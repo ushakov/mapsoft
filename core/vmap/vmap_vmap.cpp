@@ -65,7 +65,7 @@ void get_l_pars(istream & IN, lpos & l, double ver){
     }
     string s;
     IN >> s;
-    if (s.size() && s[0]=='H' || s[0]=='h'){
+    if (s.size() && (s[0]=='H' || s[0]=='h')){
       l.hor=1;
       l.ang=0.0;
     }

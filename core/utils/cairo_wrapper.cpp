@@ -160,7 +160,7 @@ CairoExtra::img2patt(const iImage & I, double sc){
     patt->set_matrix(M);
     return patt;
   }
-  catch (Cairo::logic_error err){
+  catch (Cairo::logic_error & err){
     throw Err() << err.what();
   }
 }

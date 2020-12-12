@@ -213,7 +213,7 @@ SRTM3::geth16(const dPoint & p, const bool interp){
 
 // найти множество соседних точек одной высоты (не более max точек)
 set<iPoint>
-SRTM3::plane(const iPoint& p, int max){
+SRTM3::plane(const iPoint& p, size_t max){
   set<iPoint> ret;
   queue<iPoint> q;
   short h = geth(p);
@@ -238,7 +238,6 @@ SRTM3::move_to_extr(iPoint & p0, bool down, int maxst){
   iPoint p1 = p0;
   int i=0;
   do {
-    short h = geth(p0, true);
     for (int i=0; i<8; i++){
       iPoint p=adjacent(p0,i);
       if ((down && (geth(p,true) < geth(p1,true))) ||
@@ -288,13 +287,13 @@ read_file(const string & file, const size_t srtm_width){
   if (!F) return sImage(0,0);
 
   sImage im(srtm_width,srtm_width);
-  int length = srtm_width*srtm_width*sizeof(short);
+  size_t length = srtm_width*srtm_width*sizeof(short);
 
   if (length != fread(im.data, 1, length, F)){
     cerr << "bad file: " << file << '\n';
     return sImage(0,0);
   }
-  for (int i=0; i<length/2; i++){ // swap bytes
+  for (size_t i=0; i<length/2; i++){ // swap bytes
     int tmp=(unsigned short)im.data[i];
     im.data[i] = (tmp >> 8) + (tmp << 8);
   }
@@ -410,7 +409,7 @@ SRTM3::find_contours(const dRect & range, int step){
       // найдем, какие горизонтали пересекают квадрат дважды,
       // поместим их в список горизонталей ret
       short h=srtm_undef;
-      double x1,x2;
+      double x1=0,x2=0;
 
       for (multimap<short,double>::const_iterator i=pts.begin(); i!=pts.end(); i++){
         if (h!=i->first){
@@ -452,7 +451,7 @@ SRTM3::find_contours(const dRect & range, int step){
 }
 
 map<dPoint, short>
-SRTM3::find_peaks(const dRect & range, int DH, int PS){
+SRTM3::find_peaks(const dRect & range, int DH, size_t PS){
 
   int lon1  = int(floor((srtm_width-1)*range.TLC().x));
   int lon2  = int( ceil((srtm_width-1)*range.BRC().x));
@@ -522,7 +521,6 @@ SRTM3::find_holes(const dRect & range){
     for (int lon=lon1; lon<lon2-1; lon++){
       iPoint p(lon,lat);
       short h = geth(p);
-      dPoint p1 = dPoint(p)/(double)(srtm_width-1);
       if (h!=srtm_undef) continue;
       aset.insert(p);
     }

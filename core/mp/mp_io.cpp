@@ -21,7 +21,6 @@ bool read(const char* filename, mp_world & world, const Options & opts){
 
   mp_world ret;
   mp_object o, o0;
-  int l=0;
   dPoint pt;
 
   dLine   line;
@@ -166,7 +165,7 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
     "Level0","Level1","Level2","Level3","Level4","Level5","Level6",
     "Zoom0","Zoom1","Zoom2","Zoom3","Zoom4","Zoom5","Zoom6"};
 
-  for (int i=0; i<sizeof(names)/sizeof(char*); i++){
+  for (size_t i=0; i<sizeof(names)/sizeof(char*); i++){
     if (lopts.count(names[i])>0){
       if (strcmp(names[i],"CodePage")==0)
         out << "\r\nCodePage=" << codepage; // use our new codepage
@@ -196,7 +195,7 @@ bool write(std::ostream & out, const mp_world & world, const Options & opts){
 
     for (dMultiLine::const_iterator l=i->begin(); l!=i->end(); l++){
       out << "\r\nData" << i->BL << "="; 
-      for (int j=0; j<l->size(); j++){
+      for (size_t j=0; j<l->size(); j++){
         out << ((j!=0)?",":"") << "(" 
             << (*l)[j].y << "," << (*l)[j].x << ")";
       }

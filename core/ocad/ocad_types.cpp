@@ -69,15 +69,15 @@ ocad_coord::gety() const{
 }
 int
 ocad_coord::getf() const{
-  return (x & 0xFF) << 8 + (y & 0xFF);
+  return ((x & 0xFF) << 8) + (y & 0xFF);
 }
 void
 ocad_coord::setx(int v){
-  x = (x & 0xFF) + v << 8;
+  x = (x & 0xFF) + (v << 8);
 }
 void
 ocad_coord::sety(int v){
-  y = (y & 0xFF) + v << 8;
+  y = (y & 0xFF) + (v << 8);
 }
 
 bool

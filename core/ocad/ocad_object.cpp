@@ -54,7 +54,7 @@ ocad_object::dump(int verb) const{
   if (verb<2) return;
   if (coords.size()){
     cout << "  coords: ";
-    for (int i=0; i<coords.size(); i++) coords[i].dump(cout);
+    for (size_t i=0; i<coords.size(); i++) coords[i].dump(cout);
     cout << "\n";
   }
 }
@@ -67,7 +67,7 @@ ocad_object::LLC() const{
   ocad_coord ret;
   ret.setx(coords[0].getx());
   ret.sety(coords[0].gety());
-  for (int i=0; i<coords.size(); i++){
+  for (size_t i=0; i<coords.size(); i++){
     if (coords[i].getx() < ret.getx()) ret.setx(coords[i].getx());
     if (coords[i].gety() < ret.gety()) ret.sety(coords[i].gety());
   }
@@ -82,7 +82,7 @@ ocad_object::URC() const{
   ocad_coord ret;
   ret.setx(coords[0].getx());
   ret.sety(coords[0].gety());
-  for (int i=0; i<coords.size(); i++){
+  for (size_t i=0; i<coords.size(); i++){
     if (coords[i].getx() > ret.getx()) ret.setx(coords[i].getx());
     if (coords[i].gety() > ret.gety()) ret.sety(coords[i].gety());
   }
@@ -99,12 +99,12 @@ ocad_object::txt_blocks(const string & txt) const{
 
 void
 ocad_object::write_text(const string & txt, FILE *F, int limit) const {
-  int n=txt_blocks(txt);
-  if (limit>=0) n=std::min(limit, n); // TODO: this can break unicode letters!
+  size_t n=txt_blocks(txt);
+  if (limit>=0) n=std::min((size_t)limit, n); // TODO: this can break unicode letters!
   if (n){
     char *buf = new char [n*8];
     memset(buf, 0, n*8);
-    for (int i=0; i<txt.length(); i++) buf[i] = txt[i];
+    for (size_t i=0; i<txt.length(); i++) buf[i] = txt[i];
     if (fwrite(buf, 1, n*8, F)!=n*8)
       throw Err() << "can't write object text";
     delete [] buf;
@@ -113,12 +113,12 @@ ocad_object::write_text(const string & txt, FILE *F, int limit) const {
 
 void
 ocad_object::write_coords(FILE *F, int limit) const{
-  int n = coords.size();
-  if (limit>=0) n=std::min(limit, n);
+  size_t n = coords.size();
+  if (limit>=0) n=std::min((size_t)limit, n);
   if (n){
     ocad_coord * buf = new ocad_coord[n];
     memset(buf, 0, n*8);
-    for (int i=0; i<n; i++)  buf[i] = coords[i];
+    for (size_t i=0; i<n; i++)  buf[i] = coords[i];
     if (fwrite(buf, sizeof(ocad_coord), n, F)!=n)
       throw Err() << "can't write object coordinates";
     delete [] buf;
@@ -126,7 +126,7 @@ ocad_object::write_coords(FILE *F, int limit) const{
 }
 
 void
-ocad_object::read_coords(FILE *F, int n){
+ocad_object::read_coords(FILE *F, size_t n){
   if (n){
     ocad_coord * buf = new ocad_coord[n];
     if (fread(buf, sizeof(ocad_coord), n, F)!=n)
@@ -137,12 +137,12 @@ ocad_object::read_coords(FILE *F, int n){
 }
 
 void
-ocad_object::read_text(FILE *F, int n){
+ocad_object::read_text(FILE *F, size_t n){
   if (n){
     char *buf = new char [n*8];
     if (fread(buf, 1, n*8, F)!=n*8)
       throw Err() << "can't read object text";
-    for (int i=0; i<n*8-1; i++){
+    for (size_t i=0; i<n*8-1; i++){
       if ((buf[i]==0) && (buf[i+1]==0)) break; // 0x0000-terminated string
       text.push_back(buf[i]);
     }

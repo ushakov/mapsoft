@@ -67,10 +67,10 @@ struct ocad_object{
   void write_coords(FILE *F, int limit=-1) const;
 
   /// Read coordinates.
-  void read_coords(FILE *F, int n);
+  void read_coords(FILE *F, size_t n);
 
   /// Read text.
-  void read_text(FILE *F, int n);
+  void read_text(FILE *F, size_t n);
 };
 
 } // namespace

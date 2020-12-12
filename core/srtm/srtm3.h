@@ -66,7 +66,7 @@ public:
 
 
   // найти множество соседних точек одной высоты (не более max точек)
-  std::set<iPoint> plane(const iPoint& p, int max=1000);
+  std::set<iPoint> plane(const iPoint& p, size_t max=1000);
 
   // move p0 to the local extremum (interpolation is always on)
   void move_to_extr(iPoint & p0, bool down, int maxst=-1);
@@ -82,7 +82,7 @@ public:
 
   // making some vector data: contours, peaks, srtm holes
   std::map<short, dMultiLine> find_contours(const dRect & range, int step);
-  std::map<dPoint, short>  find_peaks(const dRect & range, int DH, int PS);
+  std::map<dPoint, short>  find_peaks(const dRect & range, int DH, size_t PS);
   dMultiLine find_holes(const dRect & range);
 
 private:

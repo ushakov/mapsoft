@@ -26,7 +26,6 @@ bool parse_file(const char * name, const char *file, const rule_t & rule){
       std::cerr << name << ": can't parse: " << fpos.file <<
         " at line: " << fpos.line <<
         " column: " << fpos.column << "\n";
-      int i,j;
       for (int i=0; i<40; i++) {
         std::cerr << (*it == '\n' ? ' ': *it);
         it++;

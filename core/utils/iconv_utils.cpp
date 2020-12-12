@@ -50,7 +50,7 @@ std::string IConv::convert_string(iconv_t cd, const std::string & str) const{
   char ibuf[ISIZE];
 
   // note: in UTF-16 string can contain zeros!
-  for (int i=0; i<ISIZE; i++) ibuf[i] = str[i];
+  for (size_t i=0; i<ISIZE; i++) ibuf[i] = str[i];
 
   char *ibuf_ptr = ibuf;
   size_t icnt = ISIZE;
@@ -64,7 +64,7 @@ std::string IConv::convert_string(iconv_t cd, const std::string & str) const{
 
       size_t res = iconv(cd, &ibuf_ptr, &icnt, &obuf_ptr, &ocnt);
 
-      if (( res == -1) && (errno != E2BIG ) && (icnt>0) && (ocnt>0)){
+      if (( res == (size_t)-1) && (errno != E2BIG ) && (icnt>0) && (ocnt>0)){
         // skip unknown char
         icnt--; ocnt--;  *obuf_ptr=*ibuf_ptr; ibuf_ptr++; obuf_ptr++;
       }

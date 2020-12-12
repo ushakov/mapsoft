@@ -78,7 +78,7 @@ ocad9_symbol::read(FILE * F, ocad9_symbol::index idx, int v){
   _ocad9_base_symb s;
   if (fread(&s, 1, sizeof(s), F)!=sizeof(s))
     throw Err() << "can't read object";
-  int size = s.size;
+  size_t size = s.size;
   sym = s.sym;
   type = s.type;
   extent = s.extent;

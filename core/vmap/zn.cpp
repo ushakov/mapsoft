@@ -39,7 +39,7 @@ fig_copy_comment(const fig::fig_world::iterator & i,
 
     if ((j!=end) && (i->comment.size()>0)){
       if (j->comment.size()< i->comment.size()) j->comment.resize(i->comment.size());
-      for (int n=0; n<i->comment.size(); n++) j->comment[n] = i->comment[n];
+      for (size_t n=0; n<i->comment.size(); n++) j->comment[n] = i->comment[n];
 
     }
   }
@@ -123,7 +123,6 @@ zn_conv::zn_conv(const string & style_): style(style_){
   yaml_event_t event;
 
   vector<int> history;
-  bool first;
 
   string key, val;
   zn z;
@@ -176,7 +175,6 @@ zn_conv::zn_conv(const string & style_): style(style_){
         (event.type == YAML_SEQUENCE_START_EVENT) ||
         (event.type == YAML_MAPPING_START_EVENT) ){
       history.push_back(event.type);
-      first=true;
     }
 
     if ((event.type == YAML_STREAM_END_EVENT) ||
@@ -414,7 +412,8 @@ zn_conv::get_type (const fig::fig_object & o) const {
 int
 zn_conv::get_type(const int ocad_type) const{
   for (map<int, zn>::const_iterator i = znaki.begin(); i!=znaki.end(); i++){
-    if (i->second.ocad == ocad_type) return (i->first);
+    if (i->second.ocad == ocad_type) return (i->
+first);
   }
   return 0;
 }
@@ -687,7 +686,7 @@ zn_conv::make_labels(const fig::fig_object & fig, int type){
       // ищем точку с максимальным x-y
       p = fig[0];
       int max = p.x-p.y;
-      for (int i = 0; i<fig.size(); i++){
+      for (size_t i = 0; i<fig.size(); i++){
         if (fig[i].x-fig[i].y > max) {
           max = fig[i].x-fig[i].y;
           p = fig[i];
@@ -698,7 +697,7 @@ zn_conv::make_labels(const fig::fig_object & fig, int type){
       // ищем точку с минимальным x+y
       p = fig[0];
       int min = p.x+p.y;
-      for (int i = 0; i<fig.size(); i++){
+      for (size_t i = 0; i<fig.size(); i++){
         if (fig[i].x+fig[i].y < min) {
           min = fig[i].x+fig[i].y;
           p = fig[i];
@@ -709,7 +708,7 @@ zn_conv::make_labels(const fig::fig_object & fig, int type){
       // ищем середину объекта
       iPoint pmin = fig[0];
       iPoint pmax = fig[0];
-      for (int i = 0; i<fig.size(); i++){
+      for (size_t i = 0; i<fig.size(); i++){
         if (pmin.x > fig[i].x) pmin.x = fig[i].x;
         if (pmin.y > fig[i].y) pmin.y = fig[i].y;
         if (pmax.x < fig[i].x) pmax.x = fig[i].x;
@@ -767,7 +766,6 @@ zn_conv::fig_update_labels(fig::fig_world & F){
   double maxd3=0.2*fig::cm2fig; // for other labels
 
   fig::fig_world::iterator i;
-  int count=0;
 
   // find all labels
   std::list<fig::fig_world::iterator> labels;
@@ -853,7 +851,7 @@ zn_conv::fig_update_labels(fig::fig_world & F){
     for (std::list<fig::fig_object>::iterator j=L.begin(); j!=L.end(); j++){
       if (j->size() < 1) continue;
       iPoint nearest;
-      double d=dist((*j)[0], *(o->first), nearest);
+      dist((*j)[0], *(o->first), nearest);
       j->opts["MapType"]="label";
       j->opts.put("RefPt", nearest);
       F.push_back(*j);
