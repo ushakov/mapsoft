@@ -239,13 +239,13 @@ save(const iImage & im, const iRect & src_rect, const char *file){
     bool fulla = false;
     bool fullc = false;
     bool color = false;
-    int colors[256], mc=0;
+    uint32_t colors[256], mc=0;
     memset(colors, 0, 256*sizeof(int));
     for (int y = src_rect.y; y < src_rect.y+src_rect.h; y++){
       if ((y<0)||(y>=im.h)) continue;
       for (int x = 0; x < src_rect.w; x++){
         if ((x+src_rect.x < 0) || (x+src_rect.x>=im.w)) continue;
-        unsigned int c = im.get(x+src_rect.x, y);
+        uint32_t c = im.get(x+src_rect.x, y);
 
         if (!alpha){
           int a = (c >> 24) & 0xFF;
@@ -266,7 +266,7 @@ save(const iImage & im, const iRect & src_rect, const char *file){
 
         if (!fullc){
           bool found=false;
-          for (int i=0; i<mc; i++)
+          for (uint32_t i=0; i<mc; i++)
             if (c==colors[i]){ found=true; break;}
           if (!found){
             if (mc==256) fullc=true;
@@ -292,7 +292,7 @@ save(const iImage & im, const iRect & src_rect, const char *file){
     // png palette
     if (color_type == PNG_COLOR_TYPE_PALETTE){
       png_color pcolors[256];
-      for (int i=0; i<mc; i++){
+      for (uint32_t i=0; i<mc; i++){
         pcolors[i].red   = colors[i] & 0xFF;
         pcolors[i].green = (colors[i] >>8) & 0xFF;
         pcolors[i].blue  = (colors[i] >>16) & 0xFF;
@@ -302,7 +302,7 @@ save(const iImage & im, const iRect & src_rect, const char *file){
       if (alpha){
        // tRNS
         png_byte trans[256];
-        for (int i=0; i<mc; i++){
+        for (size_t i=0; i<mc; i++){
           trans[i] = (colors[i]>>24) & 0xFF;
         }
         png_set_tRNS(png_ptr, info_ptr, trans, mc, 0);
@@ -322,7 +322,7 @@ save(const iImage & im, const iRect & src_rect, const char *file){
         for (int x = 0; x < src_rect.w*4; x++) buf[x] = 0;
       } else {
         for (int x = 0; x < src_rect.w; x++){
-          int c = 0;
+          uint32_t c = 0;
           if ((x+src_rect.x >= 0) && (x+src_rect.x<im.w))
             c = im.get(x+src_rect.x, y);
           switch (color_type){
@@ -345,7 +345,7 @@ save(const iImage & im, const iRect & src_rect, const char *file){
             buf[4*x+3] = (c >> 24) & 0xFF;
             break;
           case PNG_COLOR_TYPE_PALETTE:
-            for (int i=0; i<mc; i++)
+            for (uint32_t i=0; i<mc; i++)
               if (colors[i] == c) {buf[x] = (unsigned char)i; break;}
             break;
           }

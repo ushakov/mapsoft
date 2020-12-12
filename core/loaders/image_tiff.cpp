@@ -158,13 +158,13 @@ int save(const iImage & im, const iRect & src_rect,
     bool fulla = false;
     bool fullc = false;
     bool color = false;
-    uint32 colors[256], mc=0;
+    uint32_t colors[256], mc=0;
     memset(colors, 0, 256*sizeof(int));
     for (int y = src_rect.y; y < src_rect.y+src_rect.h; y++){
       if ((y<0)||(y>=im.h)) continue;
       for (int x = 0; x < src_rect.w; x++){
         if ((x+src_rect.x < 0) || (x+src_rect.x>=im.w)) continue;
-        unsigned int c = im.get(x+src_rect.x, y);
+        uint32_t c = im.get(x+src_rect.x, y);
 
         if (!alpha){
           int a = (c >> 24) & 0xFF;
@@ -185,7 +185,7 @@ int save(const iImage & im, const iRect & src_rect,
 
         if (!fullc){
           bool found=false;
-          for (int i=0; i<mc; i++)
+          for (uint32_t i=0; i<mc; i++)
             if (c==colors[i]){ found=true; break;}
           if (!found){
             if (mc==256) fullc=true;
@@ -243,7 +243,7 @@ int save(const iImage & im, const iRect & src_rect,
 	for (int col = 0; col < src_rect.w*bpp; col++) cbuf[col] = 0;
       } else {
         for (int col = 0; col < src_rect.w; col++){
-	  int c = 0;
+	  uint32_t c = 0;
           if ((col+src_rect.x >=0)&&(col+src_rect.x<im.w))
              c = im.get(src_rect.x+col,src_rect.y+row);
 	  if (bpp==3){ // RGB
@@ -259,7 +259,7 @@ int save(const iImage & im, const iRect & src_rect,
           }
           else if (bpp==1){
             if (color){
-              for (int i=0; i<mc; i++)
+              for (size_t i=0; i<mc; i++)
                 if (colors[i] == c) {cbuf[col] = (unsigned char)i; break;}
             }
             else{

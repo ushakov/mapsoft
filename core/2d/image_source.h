@@ -19,16 +19,16 @@ struct ImageSource{
     virtual iRect range() const = 0;
 
     /// Get row number
-    virtual int get_row() const = 0;
+    virtual size_t get_row() const = 0;
 
     /// Skip n rows of input
-    virtual bool skip(const int n) = 0;
+    virtual bool skip(const size_t n) = 0;
 
     /// Prepare data line in [x..x+len) range of current row
-    virtual bool read_data(int x, int len) = 0;
+    virtual bool read_data(size_t x, int len) = 0;
 
     /// Get data from the prepared line
-    virtual T get_value(int x) const = 0;
+    virtual T get_value(size_t x) const = 0;
 
 
     /// Render src_rect to dst_rect on Image
@@ -66,30 +66,30 @@ typedef ImageSource<int>    iImageSource;
 template <typename T>
 struct ImageSourceImage: ImageSource<T>{
   const Image<T> & I;
-  int row, col;
+  size_t row, col;
 
   ImageSourceImage(const Image<T> & _I): I(_I), row(0){
   }
 
-  iRect range() const{
+  iRect range() const override{
     return I.range();
   }
 
-  int get_row() const{
+  size_t get_row() const override{
     return row;
   }
 
-  bool skip(const int n){
+  bool skip(const size_t n) override{
     row+=n;
     return row < I.h;
   }
 
-  bool read_data(int x, int len){
+  bool read_data(size_t x, int len) override{
     col=x;
     return skip(1); // go to the next line
   };
 
-  T get_value(int x) const{
+  T get_value(size_t x) const override{
     return I.data[row * I.w + col + x];
   }
 

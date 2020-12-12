@@ -79,7 +79,7 @@ load(const char *file, iRect src_rect,
 
     /* Go to the first image, skip all extensions */
     GifRecordType RecordType;
-    int ExtCode, GifLineLen;
+    int ExtCode;
     GifByteType *Extension, *GifLine;
     do {
       if (DGifGetRecordType(gif, &RecordType) == GIF_ERROR)

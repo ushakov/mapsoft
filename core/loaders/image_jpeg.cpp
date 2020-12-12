@@ -42,7 +42,7 @@ size(const char *file){
 
 struct ImageSourceJPEG : iImageSource {
 
-  int row,col;
+  size_t row,col;
   unsigned char *buf;
   struct jpeg_decompress_struct cinfo;
   struct jpeg_error_mgr jerr;
@@ -80,16 +80,16 @@ struct ImageSourceJPEG : iImageSource {
   }
 
 
-  iRect range() const{
+  iRect range() const override{
     return iRect(0,0,cinfo.image_width,cinfo.image_height);
   }
 
-  int get_row() const{
+  size_t get_row() const override{
     return row;
   }
 
-  bool skip(const int n){
-    for (int i=row; i<row+n; i++){
+  bool skip(const size_t n) override{
+    for (size_t i=row; i<row+n; i++){
       if (row>cinfo.image_height) break;
       jpeg_read_scanlines(&cinfo, (JSAMPLE**)&buf, 1);
     }
@@ -97,13 +97,13 @@ struct ImageSourceJPEG : iImageSource {
     return (row <= cinfo.image_height) && (buf);
   }
 
-  bool read_data(int x, int len){
+  bool read_data(size_t x, int len) override{
     col=x;
     if (len+x > cinfo.image_width) return false;
     return skip(1); // go to the next line
   };
 
-  int get_value(int x) const{
+  int get_value(size_t x) const override{
     return 0xFF000000 + buf[3*(x+col)] + (buf[3*(x+col)+1]<<8) +
            (buf[3*(x+col)+2]<<16);
   }
