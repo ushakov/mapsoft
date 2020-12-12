@@ -3,7 +3,7 @@
 
 using namespace std;
 
-GObjPano::GObjPano(SRTM3 * s): srtm(s), ray_cache(512), rb(0,0){
+GObjPano::GObjPano(SRTM3 * s): srtm(s), rb(0,0), ray_cache(512){
   set_opt(Options());}
 
 /***********************************************************/
@@ -142,7 +142,7 @@ GObjPano::geo2xy(const dPoint & pt){
   double h0 = ray[0].h+dh;
   double rp = 0;
 
-  for (int i=0; i<ray.size(); i++){
+  for (size_t i=0; i<ray.size(); i++){
     double hn=ray[i].h;
     double rn=ray[i].r;
 
@@ -176,7 +176,7 @@ GObjPano::xy2geo(const iPoint & pt){
   int yp, yo;
   yo=yp=width/2.0;
   double rp = 0;
-  for (int i=0; i<ray.size(); i++){
+  for (size_t i=0; i<ray.size(); i++){
     double hn=ray[i].h;
     double rn=ray[i].r;
 
@@ -216,7 +216,7 @@ GObjPano::draw(iImage & image, const iPoint & origin){
                              // and partially hydden segments.
                              // It is used to interpolate height and slope.
                              // Y axis goes from top to buttom!
-    for (int i=1; i<ray.size(); i++){
+    for (size_t i=1; i<ray.size(); i++){
       double hp=ray[i-1].h;  // altitudes and slopes at the end of segment
       double sp=ray[i-1].s;
       double hn=ray[i].h;

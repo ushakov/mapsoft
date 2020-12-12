@@ -19,7 +19,6 @@ GObjSRTM::GObjSRTM(SRTM3 *srtm):S(srtm){
 int
 GObjSRTM::draw(iImage & image, const iPoint & origin){
   if (S==NULL) return GObj::FILL_NONE;
-  iRect src_rect = image.range() + origin;
 
   S->set_dir(opt.get<string>("srtm_dir", ""));
 

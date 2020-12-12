@@ -49,8 +49,8 @@ public:
   g_map * get_map(const int n) const {return &(*data)[n];}
 
   /// Find map
-  int find_map(const iPoint & pt) const;
-  int find_map(const iRect & r) const;
+  ssize_t find_map(const iPoint & pt) const;
+  ssize_t find_map(const iRect & r) const;
 
   /// Show/hide reference points and border for a n-th map
   /// (n=-1 for all maps)

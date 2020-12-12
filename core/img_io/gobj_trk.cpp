@@ -22,7 +22,7 @@ GObjTRK::draw(iImage & image, const iPoint & origin){
 
 int
 GObjTRK::find_trackpoint (dPoint pt, double radius){
-  for (int n = 0; n < data->size(); ++n) {
+  for (size_t n = 0; n < data->size(); ++n) {
     dPoint p((*data)[n]);
     cnv.bck(p);
     if (pdist(p,pt)<radius) return n;
@@ -33,7 +33,7 @@ GObjTRK::find_trackpoint (dPoint pt, double radius){
 vector<int>
 GObjTRK::find_trackpoints (const dRect & r){
   vector<int> ret;
-  for (int n = 0; n < data->size(); ++n) {
+  for (size_t n = 0; n < data->size(); ++n) {
     dPoint p((*data)[n]);
     cnv.bck(p);
     if (point_in_rect(p, r)) ret.push_back(n);

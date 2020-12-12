@@ -138,15 +138,15 @@ void write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
   if (opt.exists("srtm_mode"))
     gobj.push_back(new GObjSRTM(&s));
 
-  for (int i=0; i<world.maps.size(); i++)
+  for (size_t i=0; i<world.maps.size(); i++)
     gobj.push_back(new GObjMAP(&(world.maps[i]), opt));
 
   if (!vm.empty()) gobj.push_back(new GObjVMAP(&vm, opt));
 
-  for (int i=0; i<world.trks.size(); i++)
+  for (size_t i=0; i<world.trks.size(); i++)
     gobj.push_back(new GObjTRK(&(world.trks[i]), opt));
 
-  for (int i=0; i<world.wpts.size(); i++)
+  for (size_t i=0; i<world.wpts.size(); i++)
     gobj.push_back(new GObjWPT(&(world.wpts[i]), opt));
 
   gobj.set_ref(ref);
@@ -173,7 +173,7 @@ void write_file (const char* filename, geo_data & world, vmap::world & vm, Optio
     string fname(filename);
     string dir = fname;
     string ext = ".jpg";
-    int pos    = fname.rfind('.');
+    ssize_t pos = fname.rfind('.');
     if ((pos>0) && (pos < fname.length()-1)){
        ext = fname.substr(pos);
        dir = fname.substr(0, pos);

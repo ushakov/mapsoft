@@ -36,7 +36,7 @@ draw_trk(iImage & image, const iPoint & origin,
       cr->circle(p1, dot_w);
     }
 
-    for (int i=0; i<trk.size(); i++){
+    for (size_t i=0; i<trk.size(); i++){
       g_trackpoint p1,p2;
       p2 = trk[i];
       if (i==0){
@@ -87,7 +87,7 @@ draw_trk(iImage & image, const iPoint & origin,
       cr->circle(p1, dot_w);
     }
 
-    for (int i=0; i<trk.size(); i++){
+    for (size_t i=0; i<trk.size(); i++){
       g_trackpoint p1,p2;
       p2 = trk[i];
       if (i==0){
@@ -130,7 +130,7 @@ draw_trk(iImage & image, const iPoint & origin,
       cr->circle(p1, dot_w);
     }
 
-    for (int i=0; i<trk.size(); i++){
+    for (size_t i=0; i<trk.size(); i++){
       g_trackpoint p1,p2;
       p2 = trk[i];
       if (i==0){

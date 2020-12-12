@@ -23,24 +23,24 @@ GObjMAP::get_myref() const {
     convs::map2wgs c(ret);
     if (!c.swapped()) return ret;
     double ym=ret[0].yr;
-    for (int i=1; i<ret.size(); i++){ if (ret[i].yr>ym) ym=ret[i].yr; } // find max yr
-    for (int i=0; i<ret.size(); i++){ ret[i].yr = ym-ret[i].yr; } //swap y
+    for (size_t i=1; i<ret.size(); i++){ if (ret[i].yr>ym) ym=ret[i].yr; } // find max yr
+    for (size_t i=0; i<ret.size(); i++){ ret[i].yr = ym-ret[i].yr; } //swap y
     return ret;
   }
   // else return some simple ref
   return GObjGeo::get_myref();
 }
 
-int
+ssize_t
 GObjMAP::find_map(const iPoint & pt) const{
-  for (int i=0; i< m2ms.size(); i++){
+  for (size_t i=0; i< m2ms.size(); i++){
     if (point_in_line(pt, borders[i])) return i;
   }
   return -1;
 }
-int
+ssize_t
 GObjMAP::find_map(const iRect & r) const{
-  for (int i=0; i< m2ms.size(); i++){
+  for (size_t i=0; i< m2ms.size(); i++){
     if (rect_in_line(r, borders[i])) return i;
   }
   return -1;
@@ -76,7 +76,7 @@ GObjMAP::draw(iImage & image, const iPoint & origin){
   CairoWrapper cr(image);
   cr->set_line_width(1);
 
-  for (int i=0; i < data->size(); i++){
+  for (size_t i=0; i < data->size(); i++){
       if (!rect_in_line(src_rect, borders[i])) continue;
       const g_map * m = &(*data)[i];
 
@@ -223,7 +223,7 @@ GObjMAP::dump_maps(const char *file){
    << "Single\n"
    << "-2\n"
    << "1200 2\n";
-  for (int i=0;i<m2ms.size();i++){
+  for (size_t i=0;i<m2ms.size();i++){
     int bs = borders[i].size();
     f << "2 3 0 1 4 29 8 -1 20 0.000 0 0 -1 0 0 "
       << bs << "\n\t";
@@ -240,8 +240,8 @@ GObjMAP::dump_maps(const char *file){
     double lettw=190;
     double letth=400;
     string s1;
-    int n=0, l=0;
-    while (n<(*data)[i].comm.size()>0){
+    size_t n=0, l=0;
+    while (n<(*data)[i].comm.size()){
       s1+=(*data)[i].comm[n];
       n++;
       if ((n==(*data)[i].comm.size()) || (s1.size()*lettw > maxx-minx)){
@@ -265,7 +265,7 @@ GObjMAP::refresh(){
   borders.clear();
   map<const g_map *, int> nstatus;
 
-  for (int i=0; i< data->size(); i++){
+  for (size_t i=0; i< data->size(); i++){
       // map -> layer conversion
 
       g_map * m = &(*data)[i];
@@ -302,7 +302,7 @@ GObjMAP::refresh(){
 
       // pump range to include all ref points with some radius
       const iPoint rr(10,10);
-      for (int j=0; j<m->size(); j++){
+      for (size_t j=0; j<m->size(); j++){
         dPoint pr((*m)[j].xr, (*m)[j].yr);
         c->frw(pr);
         myrange = rect_bounding_box(myrange,

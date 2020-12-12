@@ -8,8 +8,8 @@
 class GObjGeo : public GObj {
 public:
   Options opt;
-  convs::map2wgs cnv;
   g_map ref;
+  convs::map2wgs cnv;
 
   GObjGeo(): ref(get_myref()), cnv(convs::map2wgs(get_myref())) {}
 
