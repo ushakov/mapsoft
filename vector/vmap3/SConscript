@@ -5,6 +5,9 @@ env.Program("vmap_mmb_filter.cpp")
 env.Program("vmap_1km_filter.cpp")
 env.Program("vmap_fix_diff.cpp")
 
+env.Program("vmap_get_track.cpp")
+env.Program("vmap_put_track.cpp")
+
 env.Install(env.bindir, Split("""
   vmap_render
 """))
