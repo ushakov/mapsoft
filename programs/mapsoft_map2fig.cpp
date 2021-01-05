@@ -79,6 +79,7 @@ main(int argc, char **argv){
 
     // диапазон картинки в координатах растра
     dRect range = fig_ref.border.range();
+    range = rect_pump(range, 50.0,50.0);
 
     // создадим директорию для картинок
     string dir_name = fig_name + ".img";
@@ -105,6 +106,15 @@ cerr << " range: " << range << "\n";
 cerr << nx << " x " << ny << " tiles\n";
 cerr << dx << " x " << dy << " tile_size\n";
 
+    // start compound object
+    {
+      fig::fig_object o;
+      o.type = 6;
+      o.push_back(range.TLC()*rescale);
+      o.push_back(range.BRC()*rescale);
+      F.push_back(o);
+    }
+
     for (int j = 0; j<ny; j++){
       for (int i = 0; i<nx; i++){
         dPoint tlc(range.x+i*dx, range.y+j*dy);
@@ -126,6 +136,14 @@ cerr << dx << " x " << dy << " tile_size\n";
         F.push_back(o);
       }
     }
+
+    // finish compound object
+    {
+      fig::fig_object o;
+      o.type = -6;
+      F.push_back(o);
+    }
+
     fig::write(fig_name, F);
     return 0;
 }
