@@ -10,4 +10,7 @@ env.Program("vmap_put_track.cpp")
 
 env.Install(env.bindir, Split("""
   vmap_render
+  vmap_mmb_filter
+  vmap_1km_filter
+  vmap_fix_diff
 """))
