@@ -59,7 +59,7 @@ while ($text=~s|<Placemark>(.*?)</Placemark>||s){
 
   $d->{name_txt} = ($d->{type} eq 'P'? 'пер. ': 'вер. ') . $d->{name}
                  . ($d->{var}? " /$d->{var}/":"") . ($d->{ks}? ", $d->{ks}":"");
-  $d->{name_mp} = (($d->{type} eq 'V' && $d->{alt} && $d->{name}!~m|^\d+$|)? "$d->{alt} ":'') . $d->{name};
+  $d->{name_mp} = (($d->{type} eq 'V' && $d->{alt} && $d->{name}!~m|^[\d\.]+$|)? "$d->{alt} ":'') . $d->{name};
 
   foreach ('name_mp', 'name_txt', 'name'){
     $d->{$_} =~ s/№/N/g;
