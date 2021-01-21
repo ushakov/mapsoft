@@ -1,0 +1,32 @@
+From ec23abf1536ff4e6b65fb66aef990a7a129629bb Mon Sep 17 00:00:00 2001
+From: Vladislav Zavjalov <slazav@altlinux.org>
+Date: Thu, 21 Jan 2021 21:41:44 +0000
+Subject: [PATCH] skip convs_gtiles program
+
+---
+ programs/SConscript | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/programs/SConscript b/programs/SConscript
+index ca350a71..c91a2229 100644
+--- a/programs/SConscript
++++ b/programs/SConscript
+@@ -14,7 +14,6 @@ progs =  Split("""
+     convs_pt2pt
+     convs_map2pt
+     convs_nom
+-    convs_gtiles
+     mapsoft_vmap
+     """)
+ 
+@@ -30,7 +29,6 @@ env.Install(env.bindir, Split("""
+   convs_pt2pt
+   convs_map2pt
+   convs_nom
+-  convs_gtiles
+ """))
+ 
+ env.SymLink("mapsoft_vmap", "vmap_copy", env.bindir)
+-- 
+2.24.1
+
