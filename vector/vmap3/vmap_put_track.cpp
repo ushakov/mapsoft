@@ -52,7 +52,7 @@ try{
         dLine l;
         l.push_back(pt);
         o.push_back(l);
-        o.text=pt.name;
+//        o.text=pt.name;
         o.type=type;
         V.push_back(o);
       }
