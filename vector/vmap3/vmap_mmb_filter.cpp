@@ -78,6 +78,24 @@ try{
       std::cout << "  point for village\n";
     }
 
+    // точки для ледников
+    if (i->type == (0x4D | zn::area_mask)){
+      if (i->text == "") {i++; continue;}
+
+      bool num = true;
+      for (auto const c: i->text) if (c < '0' || c> '9') num= false;
+
+      vmap::object o;
+      o.type = num? 0x650B : 0x650C;
+      o.text.swap(i->text);
+      dLine l; l.push_back(i->center());
+      o.push_back(l);
+      o.labels.swap(i->labels);
+      for (auto & l: o.labels) l.fsize=0;
+      i=V.insert(i, o);
+      std::cout << "  point for glacier\n";
+    }
+
     // удаляем пустые точки
     if ((i->type == 0x700) ||
         (i->type == 0x800) ||
