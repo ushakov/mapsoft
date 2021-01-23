@@ -25,6 +25,7 @@ using namespace std;
 void usage(){
     cerr << "usage: \n"
      " mapsoft_srtm2fig <fig> hor   <srtm_dir> <step1> <step2> [<acc, def=10>]\n"
+     " mapsoft_srtm2fig <fig> scnt  <srtm_dir> <val> [<acc, def=10>]\n"
      " mapsoft_srtm2fig <fig> ver   <srtm_dir> [<DH, def=20> [<PS, def=500>]] \n"
      " mapsoft_srtm2fig <fig> holes <srtm_dir>\n";
 }
@@ -91,8 +92,35 @@ main(int argc, char** argv){
       }
     }
     cerr << " - " << count << " pts\n";
+  }
 
-  } 
+  else if (cmd == "scnt"){
+    if (argc < 5){
+      usage();
+      return 0;
+    }
+    double val = atof(argv[4]);
+    double acc = 10; // "точность", в метрах - для генерализации горизонталей.
+    if (argc>5) acc = atoi(argv[5]);
+
+    std::cerr << "looking for slope contours\n";
+    dMultiLine cnt = s.find_slope_contour(range, val);
+
+    count = 0;
+    cerr << "  merge and generalize: ";
+    generalize(cnt, acc/6380000/2/M_PI*180.0);
+    join_polygons1(cnt);
+    for (const auto & l:cnt){
+      fig::fig_object o = fig::make_object("2 3 0 0 0 24 91 -1 20 0.000 0 0 -1 0 0 0");
+      o.set_points(fig_cnv.line_bck(l));
+      F.push_back(o);
+      count++;
+    }
+    cerr << " - " << count << " pts\n";
+  }
+
+
+
   else if (cmd == "ver"){
     int DH = 20;
     int PS = 500;
