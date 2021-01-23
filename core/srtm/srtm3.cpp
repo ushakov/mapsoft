@@ -450,6 +450,68 @@ SRTM3::find_contours(const dRect & range, int step){
   return ret;
 }
 
+dMultiLine
+SRTM3::find_slope_contour(const dRect & range, double val){
+  int lon1  = int(floor((srtm_width-1)*range.TLC().x));
+  int lon2  = int( ceil((srtm_width-1)*range.BRC().x));
+  int lat1  = int(floor((srtm_width-1)*range.TLC().y));
+  int lat2  = int( ceil((srtm_width-1)*range.BRC().y));
+
+  dMultiLine ret;
+  for (int lat=lat2+1; lat>=lat1-1; lat--){
+    for (int lon=lon1-1; lon<=lon2+1; lon++){
+
+      iPoint p(lon,lat);
+      // пересечения четырех сторон клетки с контуром:
+      std::vector<double> pts;
+
+      for (int k=0; k<4; k++){
+        iPoint p1 = p+crn(k);
+        iPoint p2 = p+crn(k+1);
+        double h1 = 0, h2 = 0;
+        if (p1.y>=lat1 && p1.y<=lat2 && p1.x>=lon1 && p1.x<=lon2) h1 = slope(p1);
+        if (p2.y>=lat1 && p2.y<=lat2 && p2.x>=lon1 && p2.x<=lon2) h2 = slope(p2);
+        double min = (h1<h2)? h1:h2;
+        double max = (h1<h2)? h2:h1;
+        if (min < val && max >= val){
+          double x = double(val-h1)/double(h2-h1);
+          pts.push_back(x+k);
+        }
+      }
+
+      // нам интересны случаи 2 или 4 пересечений
+      for (size_t i=1; i<pts.size(); i+=2){
+        double x1 = pts[i-1], x2 = pts[i];
+        dPoint p1=(dPoint(p + crn(int(x1))) + dPoint(dir(int(x1)))*double(x1-int(x1)))/(double)(srtm_width-1);
+        dPoint p2=(dPoint(p + crn(int(x2))) + dPoint(dir(int(x2)))*double(x2-int(x2)))/(double)(srtm_width-1);
+        // first try to append it to existing line in ret[h]
+        bool done=false;
+        for (auto & l:ret){
+          int e=l.size()-1;
+          if (e<=0) continue; // we have no 1pt lines!
+          if (pdist(l[0], p1) < 1e-4){ l.insert(l.begin(), p2); done=true; break;}
+          if (pdist(l[0], p2) < 1e-4){ l.insert(l.begin(), p1); done=true; break;}
+          if (pdist(l[e], p1) < 1e-4){ l.push_back(p2); done=true; break;}
+          if (pdist(l[e], p2) < 1e-4){ l.push_back(p1); done=true; break;}
+        }
+        // insert new line into ret
+        if (!done){
+          dLine hor;
+          hor.push_back(p1);
+          hor.push_back(p2);
+          ret.push_back(hor);
+        }
+      }
+
+    }
+  }
+
+  // merge contours
+  merge(ret, 1e-4);
+  return ret;
+}
+
+
 map<dPoint, short>
 SRTM3::find_peaks(const dRect & range, int DH, size_t PS){
 

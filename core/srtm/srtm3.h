@@ -82,6 +82,7 @@ public:
 
   // making some vector data: contours, peaks, srtm holes
   std::map<short, dMultiLine> find_contours(const dRect & range, int step);
+  dMultiLine find_slope_contour(const dRect & range, double val);
   std::map<dPoint, short>  find_peaks(const dRect & range, int DH, size_t PS);
   dMultiLine find_holes(const dRect & range);
 
