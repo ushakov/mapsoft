@@ -29,7 +29,7 @@ namespace fig {
 
   /// Add waypoints or tracks from to fig
   /// if raw = 1, no geofig comments are added
-  void put_wpts(fig_world & w, const g_map & m, const geo_data & d, bool raw=true);
-  void put_trks(fig_world & w, const g_map & m, const geo_data & d, bool raw=true);
+  void put_wpts(fig_world & w, const g_map & m, const geo_data & d, const Options & o);
+  void put_trks(fig_world & w, const g_map & m, const geo_data & d, const Options & o);
 }
 #endif

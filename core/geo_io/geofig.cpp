@@ -329,11 +329,16 @@ rem_brds(fig_world & w){
 #define ADDCOMM(x) {ostringstream s; s << x; f.comment.push_back(s.str());}
 
 void
-put_wpts(fig_world & F, const g_map & m, const geo_data & world, bool raw){
+put_wpts(fig_world & F, const g_map & m, const geo_data & world, const Options & o){
   vector<g_waypoint_list>::const_iterator wl;
   vector<g_waypoint>::const_iterator w;
   convs::map2wgs cnv(m);
   Enum::output_fmt=Enum::xml_fmt;
+  bool raw = o.get("raw", false);
+  std::string wpt_mask = o.get<std::string>("wpt_mask",
+    "2 1 0 2 0 7 6 0 -1 1 1 1 -1 0 0 *");
+  std::string txt_mask = o.get<std::string>("txt_mask",
+    "4 0 8 5 -1 18 6 0.0000 4");
 
   for (wl=world.wpts.begin();wl!=world.wpts.end();wl++){
     for (w=wl->begin();w!=wl->end();w++){
@@ -341,7 +346,7 @@ put_wpts(fig_world & F, const g_map & m, const geo_data & world, bool raw){
       dPoint p(w->x, w->y);
       cnv.bck(p);
 
-	fig::fig_object f = fig::make_object("2 1 0 2 0 7 6 0 -1 1 1 1 -1 0 0 *");
+      fig::fig_object f = fig::make_object(wpt_mask);
       ADDCOMM("WPT " << w->name);
       if (!raw){
         f.opts=to_options_skipdef(*w);
@@ -355,7 +360,7 @@ put_wpts(fig_world & F, const g_map & m, const geo_data & world, bool raw){
       f.pen_color = w->color;
       F.push_back(f);
 
-      fig::fig_object ft = fig::make_object("4 0 8 5 -1 18 6 0.0000 4");
+      fig::fig_object ft = fig::make_object(txt_mask);
       ft.push_back(iPoint(int(p.x)+30, int(p.y)+30));
       ft.text = w->name;
       F.push_back(ft);
@@ -366,12 +371,16 @@ put_wpts(fig_world & F, const g_map & m, const geo_data & world, bool raw){
 
 
 void
-put_trks(fig_world & F, const g_map & m, const geo_data & world, bool raw){
+put_trks(fig_world & F, const g_map & m, const geo_data & world, const Options & o){
   vector<g_track>::const_iterator tl;
   vector<g_trackpoint>::const_iterator t;
   convs::map2wgs cnv(m);
   Enum::output_fmt=Enum::xml_fmt;
   g_track def;
+
+  bool raw = o.get("raw", false);
+  std::string trk_mask = o.get<std::string>("trk_mask",
+    "2 1 0 1 1 7 7 0 -1 1 1 1 -1 0 0 *");
 
   for (tl=world.trks.begin();tl!=world.trks.end();tl++){
     t=tl->begin();
@@ -384,7 +393,7 @@ put_trks(fig_world & F, const g_map & m, const geo_data & world, bool raw){
         t++;
       } while ((t!=tl->end())&&(!t->start));
 
-      fig::fig_object f = fig::make_object("2 1 0 1 1 7 7 0 -1 1 1 1 -1 0 0 *"); 
+      fig::fig_object f = fig::make_object(trk_mask);
       if (!raw){
         f.opts=to_options_skipdef(*tl);
         ADDCOMM("TRK " << tl->comm);
