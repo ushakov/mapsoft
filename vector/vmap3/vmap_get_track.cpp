@@ -24,6 +24,9 @@ try{
   const char * ifile = argv[3];
   const char * ofile = argv[4];
 
+  bool skip_names = true;
+  const char wpts_pref = '=';
+
   if (cl == "POI"){ }
   else if (cl == "POLYLINE") type |= zn::line_mask;
   else if (cl == "POLYGON")  type |= zn::area_mask;
@@ -36,20 +39,24 @@ try{
   for (auto const & o:V) {
     if (o.type != type) continue;
     if (o.size()<1) continue;
-    if (cl == "POI" && o[0].size()>0){
+    if (cl == "POI"){
       for (auto const & l:o) {
         for (auto const & p:l) {
           g_waypoint pt;
           pt.x = p.x;
           pt.y = p.y;
-          pt.name = o.text;
+          if (wpts_pref!=0 && o.text != "") pt.name = wpts_pref + o.text;
+          else pt.name = o.text
           wpts.push_back(pt);
         }
       }
     }
     else {
       for (auto const & l:o) {
+        // skip tracks with names:
+        if (skip_names && o.text!="") continue;
         g_track tr;
+        tr.name = o.text;
         for (auto const & p:l) {
           g_trackpoint pt;
           pt.x = p.x;

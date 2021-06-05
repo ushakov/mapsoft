@@ -24,6 +24,9 @@ try{
   const char * ifile = argv[3];
   const char * ofile = argv[4];
 
+  bool skip_names = true;
+  const char wpts_pref = '=';
+
   if (cl == "POI"){ }
   else if (cl == "POLYLINE") type |= zn::line_mask;
   else if (cl == "POLYGON")  type |= zn::area_mask;
@@ -33,35 +36,49 @@ try{
   geo_data data;
   io::in(ifile, data);
 
-  // remove old objects:
-  vmap::world::iterator i=V.begin();
-  while (i!=V.end()){
-    if (i->type == type) {
-      i=V.erase(i);
-      continue;
-    }
-    i++;
-  }
 
   // put objects
-
   if (cl == "POI"){
+    split_labels(V);
+
+    // remove old objects:
+    vmap::world::iterator i=V.begin();
+    while (i!=V.end()){
+      if (i->type != type) {i++; continue;}
+      i=V.erase(i);
+    }
+
     for (auto const & pts:data.wpts) {
       for (auto const & pt:pts) {
         vmap::object o;
         dLine l;
         l.push_back(pt);
         o.push_back(l);
-//        o.text=pt.name;
+        if (wpts_pref != 0) {
+          if (pt.name.size()>0 pt.name[0]==wpts_pref)
+          o.text=pt.name.substr(1);
+        else
+          o.text=pt.name;
+
         o.type=type;
         V.push_back(o);
       }
     }
+    join_labels(V);
   }
   else {
+
+    // remove old objects:
+    vmap::world::iterator i=V.begin();
+    while (i!=V.end()){
+      if (i->type != type) {i++; continue;}
+      if (skip_names && i->text != "") {i++; continue;}
+      i=V.erase(i);
+    }
+
     for (auto const & t:data.trks) {
       vmap::object o;
-//      o.text=t.comm;
+      if (!skip_names) o.text=t.comm;
       o.type=type;
       dLine l;
       for (auto const & pt:t) {
