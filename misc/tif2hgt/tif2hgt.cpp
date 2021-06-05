@@ -6,6 +6,7 @@
 // convert TIFF to hgt
 using namespace std;
 
+int
 main(int argc, char **argv){
 
   if (argc!=3) {
@@ -48,11 +49,11 @@ main(int argc, char **argv){
   if (tiff_h==tiff_w) {
     packed=false;
   }
-  else if ((tiff_h-1) == (tiff_w-1)*2){
+  else if ((tiff_h-1) == (tiff_w-1)*2 || tiff_h==tiff_w*2){
     packed=true;
   }
   else {
-    cerr << "tif2hgt: bad aspect ratio\n";
+    cerr << "tif2hgt: bad aspect ratio: " << tiff_w << "x" << tiff_h << "\n";
     return 1;
   }
 
@@ -60,7 +61,7 @@ main(int argc, char **argv){
   if ((tiff_h%600) == 0 && (tiff_w%600==0)) {  addpixel=true; }
   else if ((tiff_h%600) == 1 && (tiff_w%600==1)) {  addpixel=false; }
   else {
-    cerr << "tif2hgt: bad size\n";
+    cerr << "tif2hgt: bad size: " << tiff_w << "x" << tiff_h << "\n";
     return 1;
   }
 
