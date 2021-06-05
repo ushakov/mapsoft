@@ -14,9 +14,10 @@ progs =  Split("""
     convs_pt2pt
     convs_map2pt
     convs_nom
-    convs_gtiles
     mapsoft_vmap
     """)
+
+#    convs_gtiles
 
 for p in progs:
   env.Program(p + '.cpp')
