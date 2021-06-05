@@ -30,6 +30,9 @@ static struct ext_option options[] = {
   {"pod",            0,  0, OPT_CRE | OPT_ADD | OPT_DEL, "show help message as pod template"},
 
   {"raw",            0, 'R', OPT_ADD, "add raw fig objects, without comments"},
+  {"trk_mask",       1,  0,  OPT_ADD, "trk mask"},
+  {"wpt_mask",       1,  0,  OPT_ADD, "wpt mask"},
+  {"txt_mask",       1,  0,  OPT_ADD, "txt mask"},
 
   {"wpts",           0, 'w', OPT_DEL, "delete waypoints"},
   {"trks",           0, 't', OPT_DEL, "delete tracks"},
@@ -118,8 +121,8 @@ main(int argc, char **argv){
         return 1;
       }
       g_map ref = fig::get_ref(F);
-      put_wpts(F, ref, world, O.get<bool>("raw"));
-      put_trks(F, ref, world, O.get<bool>("raw"));
+      put_wpts(F, ref, world, O);
+      put_trks(F, ref, world, O);
 
       return !fig::write(ofile.c_str(), F);
     }
