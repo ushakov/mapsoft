@@ -55,8 +55,9 @@ try{
         l.push_back(pt);
         o.push_back(l);
         if (wpts_pref != 0) {
-          if (pt.name.size()>0 pt.name[0]==wpts_pref)
-          o.text=pt.name.substr(1);
+          if (pt.name.size()>0 && pt.name[0]==wpts_pref)
+            o.text=pt.name.substr(1);
+        }
         else
           o.text=pt.name;
 

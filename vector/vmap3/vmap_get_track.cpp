@@ -46,7 +46,7 @@ try{
           pt.x = p.x;
           pt.y = p.y;
           if (wpts_pref!=0 && o.text != "") pt.name = wpts_pref + o.text;
-          else pt.name = o.text
+          else pt.name = o.text;
           wpts.push_back(pt);
         }
       }
@@ -56,7 +56,7 @@ try{
         // skip tracks with names:
         if (skip_names && o.text!="") continue;
         g_track tr;
-        tr.name = o.text;
+        tr.comm = o.text;
         for (auto const & p:l) {
           g_trackpoint pt;
           pt.x = p.x;
