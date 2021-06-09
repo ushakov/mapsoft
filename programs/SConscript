@@ -31,8 +31,9 @@ env.Install(env.bindir, Split("""
   convs_pt2pt
   convs_map2pt
   convs_nom
-  convs_gtiles
 """))
+
+#  convs_gtiles
 
 env.SymLink("mapsoft_vmap", "vmap_copy", env.bindir)
 
