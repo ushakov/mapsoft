@@ -1,7 +1,6 @@
 subdirs = Split ("""
     libzn-utils
     vmap3
-    vmap4
     data
 """)
 SConscript (list(map(lambda s: s+"/SConscript", subdirs)))
