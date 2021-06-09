@@ -9,7 +9,6 @@ Url: http://github.org/ushakov/mapsoft
 Packager: Vladislav Zavjalov <slazav@altlinux.org>
 
 Source: %name-%version.tar
-Patch1: 0001-skip-convs_gtiles.patch
 
 BuildRequires: boost-devel gcc-c++ libcurl-devel libzip-devel zlib-devel
 BuildRequires: libcairomm-devel libpixman-devel libgtkmm2-devel
@@ -41,7 +40,6 @@ mapsoft-vmap - programs for working with vector maps
 
 %prep
 %setup -q
-%patch1 -p1
 
 %build
 # boost::spirit crashes with -O2 on 32-bit systems
