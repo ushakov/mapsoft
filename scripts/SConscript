@@ -7,6 +7,7 @@ env.Install(env.libdir + '/gimp/2.0/plug-ins', 'map-helper.py')
 env.Install(env.bindir, 'map_rescale')
 
 env.Install(env.bindir, 'mapsoft_crd.sh')
+env.Install(env.bindir, 'mapsoft_map.sh')
 
 # Updating glaciers from GLIMS catalog
 env.Install(env.bindir, 'mapsoft_gl.sh')
