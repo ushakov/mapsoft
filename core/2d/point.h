@@ -141,7 +141,8 @@ std::istream & operator>> (std::istream & s, Point<T> & p){
     s.setstate(std::ios::failbit);
     return s;
   }
-  s >> std::ws >> p.y >> std::ws;
+  s >> std::ws >> p.y;
+  if (!s.eof()) s >> std::ws;
   s.setstate(std::ios::goodbit);
   return s;
 }
