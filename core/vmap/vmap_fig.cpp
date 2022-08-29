@@ -256,7 +256,7 @@ write(fig::fig_world & F, const world & W, const Options & O){
       fig::fig_object txt;
       if (fig_text_labels){
         txt=zconverter.get_label_template(o->type);
-        txt.text=o->text;
+        txt.text=conv_label(o->text);
         txt.sub_type=l->dir;
         txt.angle=M_PI/180*angle;
         txt.font_size += l->fsize;
