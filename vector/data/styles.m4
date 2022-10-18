@@ -417,7 +417,7 @@ divert
 -
   name: осыпь, галька, песок
   mp:   POLYGON 0x8 0 1
-  fig:  2 2 0 0 26 26 95 -1 35 0.000 0 0 7 0 0 0
+  fig:  2 3 0 0 26 26 95 -1 35 0.000 0 0 7 0 0 0
   txt:  4 1 0 40 -1 3 8 0.0000 4
   pic:      sand
   pic_type: fill
@@ -426,7 +426,7 @@ divert
 -
   name: песок
   mp:   POLYGON 0xD 0 1
-  fig:  2 2 0 0 26 26 95 -1 35 0.000 0 0 7 0 0 0
+  fig:  2 3 0 0 26 26 95 -1 35 0.000 0 0 7 0 0 0
   txt:  4 1 0 40 -1 3 8 0.0000 4
   pic:      sand_ov
   pic_type: fill
