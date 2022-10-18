@@ -93,7 +93,6 @@ conv_label(const std::string & str){
     } // unknown
     ret += ii->second;
   }
-  std::cerr << ">>> " << ret << "\n";
   return ret;
 }
 
