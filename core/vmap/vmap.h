@@ -120,6 +120,7 @@ int  write(const char * fname, const world & W, const Options & O = Options());
 
 
 // Functions for labels and pics handling (see vmap_labels.cpp):
+std::string conv_label(const std::string & s); ///< convert object label to a printable form
 void join_labels(world & W);   ///< join labels from lbuf to objects
 void split_labels(world & W);  ///< split labels from objects to lbuf
 void create_labels(world & W); ///< create new labels
